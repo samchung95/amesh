@@ -176,6 +176,7 @@ See the [clean-room policy](docs/governance/clean-room-policy.md), [parity chart
 The roadmap is dependency-based, not calendar-based. AI engineering capacity can scale horizontally, but milestone exits remain evidence gates.
 
 - [Roadmap](docs/product/roadmap.md)
+- [Two-month MVP scope](docs/product/mvp-scope.md)
 - [Decision register](docs/product/decision-register.md)
 - [Decision status](DECISIONS_NEEDED.md)
 - [Implementation kickoff](docs/product/implementation-kickoff.md)

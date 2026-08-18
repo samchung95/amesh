@@ -36,6 +36,18 @@ class TaskDefinition(BaseModel):
     run_if: str | None = Field(default=None, alias="runIf")
     tasks: list[TaskDefinition] = Field(default_factory=list)
 
+    @model_validator(mode="before")
+    @classmethod
+    def reject_conflicting_spellings(cls, data: Any) -> Any:
+        # With populate_by_name, either spelling is accepted alone; supplying
+        # both would let the alias win while the other rides along as an inert
+        # extra field, so it is rejected outright.
+        if isinstance(data, dict):
+            for name, alias in (("depends_on", "dependsOn"), ("run_if", "runIf")):
+                if name in data and alias in data:
+                    raise ValueError(f"task cannot set both {alias!r} and {name!r}")
+        return data
+
     @model_validator(mode="after")
     def validate_self_dependency(self) -> TaskDefinition:
         if self.id in self.depends_on:

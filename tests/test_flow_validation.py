@@ -76,6 +76,15 @@ def test_snake_case_and_camel_case_dependencies_hash_identically() -> None:
     assert snake.semantic_hash == camel.semantic_hash
 
 
+def test_conflicting_dependency_spellings_are_rejected() -> None:
+    result = validate_flow_document(
+        '{"id":"x","namespace":"tests","tasks":[{"id":"a","type":"core.return"},'
+        '{"id":"b","type":"core.return","dependsOn":["a"],"depends_on":["a"]}]}'
+    )
+    assert not result.valid
+    assert any(issue.code == "schema_validation" for issue in result.issues)
+
+
 def test_semantic_hash_ignores_mapping_order() -> None:
     left = validate_flow_document(
         '{"id":"x","namespace":"tests","tasks":[{"id":"a","type":"core.return","value":1}]}'
