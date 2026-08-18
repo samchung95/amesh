@@ -1,10 +1,9 @@
 from __future__ import annotations
 
 import argparse
-import json
 import sys
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Sequence
 
 from amesh import __version__
 from amesh.dsl import FlowDocumentError, validate_flow_document

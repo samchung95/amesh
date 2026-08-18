@@ -113,9 +113,14 @@ def main() -> int:
     missing_functional = {item["id"] for item in functional} - mapped_functional
     missing_nfr = {item["id"] for item in nonfunctional} - mapped_nfr
     if missing_functional:
-        fail(errors, f"functional requirements not mapped to issue bodies: {sorted(missing_functional)}")
+        fail(
+            errors,
+            f"functional requirements not mapped to issue bodies: {sorted(missing_functional)}",
+        )
     if missing_nfr:
-        fail(errors, f"non-functional requirements not mapped to issue bodies: {sorted(missing_nfr)}")
+        fail(
+            errors, f"non-functional requirements not mapped to issue bodies: {sorted(missing_nfr)}"
+        )
 
     trace_path = ROOT / "requirements" / "traceability.csv"
     with trace_path.open(newline="", encoding="utf-8") as handle:
@@ -128,12 +133,8 @@ def main() -> int:
     if extra_trace:
         fail(errors, f"unknown requirements in traceability.csv: {sorted(extra_trace)}")
 
-    expected_trace_pairs = {
-        (item["id"], item["epic_id"]) for item in functional
-    } | {
-        (item["id"], epic_id)
-        for item in nonfunctional
-        for epic_id in item["epic_ids"]
+    expected_trace_pairs = {(item["id"], item["epic_id"]) for item in functional} | {
+        (item["id"], epic_id) for item in nonfunctional for epic_id in item["epic_ids"]
     }
     actual_trace_pairs = {(row["requirement_id"], row["epic_id"]) for row in trace_rows}
     if actual_trace_pairs != expected_trace_pairs or len(trace_rows) != len(expected_trace_pairs):
@@ -148,7 +149,9 @@ def main() -> int:
 
     issue_path = ROOT / "backlog" / "github-issues.ndjson"
     try:
-        issue_records = [json.loads(line) for line in issue_path.read_text(encoding="utf-8").splitlines()]
+        issue_records = [
+            json.loads(line) for line in issue_path.read_text(encoding="utf-8").splitlines()
+        ]
     except json.JSONDecodeError as exc:
         fail(errors, f"github-issues.ndjson is invalid: {exc}")
         issue_records = []

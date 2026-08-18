@@ -2,20 +2,29 @@ from __future__ import annotations
 
 import hashlib
 import json
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from typing import Any
 
 import yaml
 from pydantic import ValidationError
 
-from .models import FlowDefinition, FlowValidationResult, TaskDefinition, ValidationIssue
+from .models import (
+    FlowDefinition,
+    FlowValidationResult,
+    InputDefinition,
+    TaskDefinition,
+    TriggerDefinition,
+    ValidationIssue,
+)
 
 
 class FlowDocumentError(ValueError):
     """Raised when a source document cannot be decoded into a mapping."""
 
 
-def _walk_tasks(tasks: Iterable[TaskDefinition], prefix: str = "tasks") -> Iterable[tuple[str, TaskDefinition]]:
+def _walk_tasks(
+    tasks: Iterable[TaskDefinition], prefix: str = "tasks"
+) -> Iterable[tuple[str, TaskDefinition]]:
     for index, task in enumerate(tasks):
         path = f"{prefix}[{index}]"
         yield path, task
@@ -25,10 +34,11 @@ def _walk_tasks(tasks: Iterable[TaskDefinition], prefix: str = "tasks") -> Itera
 def _duplicate_issues(flow: FlowDefinition) -> list[ValidationIssue]:
     issues: list[ValidationIssue] = []
 
-    for collection_name, values in (
+    collections: tuple[tuple[str, Sequence[InputDefinition | TriggerDefinition]], ...] = (
         ("inputs", flow.inputs),
         ("triggers", flow.triggers),
-    ):
+    )
+    for collection_name, values in collections:
         seen: dict[str, int] = {}
         for index, value in enumerate(values):
             previous = seen.get(value.id)
@@ -82,7 +92,7 @@ def _dependency_issues(tasks: list[TaskDefinition], prefix: str = "tasks") -> li
     def visit(node: str, chain: list[str]) -> None:
         if node in visiting:
             start = chain.index(node)
-            cycle = chain[start:] + [node]
+            cycle = [*chain[start:], node]
             issues.append(
                 ValidationIssue(
                     code="dependency_cycle",

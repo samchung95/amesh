@@ -13,7 +13,7 @@ def test_example_flow_is_valid() -> None:
 
 def test_duplicate_task_id_is_rejected() -> None:
     result = validate_flow_document(
-        '''
+        """
 id: duplicate
 namespace: tests
 tasks:
@@ -21,7 +21,7 @@ tasks:
     type: core.log
   - id: same
     type: core.return
-'''
+"""
     )
     assert not result.valid
     assert any(issue.code == "duplicate_task_id" for issue in result.issues)
@@ -29,7 +29,7 @@ tasks:
 
 def test_dependency_cycle_is_rejected() -> None:
     result = validate_flow_document(
-        '''
+        """
 id: cycle
 namespace: tests
 tasks:
@@ -39,10 +39,41 @@ tasks:
   - id: b
     type: core.return
     dependsOn: [a]
-'''
+"""
     )
     assert not result.valid
     assert any(issue.code == "dependency_cycle" for issue in result.issues)
+
+
+def test_snake_case_depends_on_is_honoured() -> None:
+    result = validate_flow_document(
+        """
+id: cycle
+namespace: tests
+tasks:
+  - id: a
+    type: core.return
+    depends_on: [b]
+  - id: b
+    type: core.return
+    depends_on: [a]
+"""
+    )
+    assert not result.valid
+    assert any(issue.code == "dependency_cycle" for issue in result.issues)
+
+
+def test_snake_case_and_camel_case_dependencies_hash_identically() -> None:
+    snake = validate_flow_document(
+        '{"id":"x","namespace":"tests","tasks":[{"id":"a","type":"core.return"},'
+        '{"id":"b","type":"core.return","depends_on":["a"]}]}'
+    )
+    camel = validate_flow_document(
+        '{"id":"x","namespace":"tests","tasks":[{"id":"a","type":"core.return"},'
+        '{"id":"b","type":"core.return","dependsOn":["a"]}]}'
+    )
+    assert snake.valid and camel.valid
+    assert snake.semantic_hash == camel.semantic_hash
 
 
 def test_semantic_hash_ignores_mapping_order() -> None:

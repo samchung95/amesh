@@ -18,9 +18,14 @@ classifiers = [
   "Topic :: System :: Distributed Computing",
 ]
 dependencies = [
-  "fastapi>=0.115,<1",
-  "pydantic>=2.10,<3",
-  "pydantic-settings>=2.7,<3",
+  # fastapi, pydantic and pydantic-settings are pinned exactly because
+  # tests/test_generated_contracts.py asserts byte-stable generated schemas
+  # and OpenAPI output; a schema-emission change in either library would
+  # otherwise break CI with no code change. Bump deliberately and
+  # regenerate contracts (make contracts) in the same commit.
+  "fastapi==0.141.1",
+  "pydantic==2.13.4",
+  "pydantic-settings==2.15.0",
   "PyYAML>=6.0.2,<7",
   "uvicorn[standard]>=0.34,<1",
 ]

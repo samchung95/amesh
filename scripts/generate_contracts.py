@@ -9,10 +9,10 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from amesh.app import app
-from amesh.domain.execution import ExecutionEvent, ExecutionSnapshot
-from amesh.dsl.models import FlowDefinition
-
+# These imports must run after the sys.path bootstrap above.
+from amesh.app import app  # noqa: E402
+from amesh.domain.execution import ExecutionEvent, ExecutionSnapshot  # noqa: E402
+from amesh.dsl.models import FlowDefinition  # noqa: E402
 
 
 def dump(path: Path, value: Any) -> None:
@@ -20,6 +20,7 @@ def dump(path: Path, value: Any) -> None:
     path.write_text(
         json.dumps(value, indent=2, ensure_ascii=False, sort_keys=True) + "\n",
         encoding="utf-8",
+        newline="\n",
     )
 
 

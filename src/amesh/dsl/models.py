@@ -25,17 +25,19 @@ class TriggerDefinition(BaseModel):
 
 
 class TaskDefinition(BaseModel):
-    model_config = ConfigDict(extra="allow")
+    # populate_by_name keeps snake_case spellings of aliased fields (depends_on,
+    # run_if) from being silently swallowed into `extra` as inert plugin fields.
+    model_config = ConfigDict(extra="allow", populate_by_name=True)
 
     id: str = Field(min_length=1, max_length=128)
     type: str = Field(min_length=1, max_length=512)
     description: str | None = None
     depends_on: list[str] = Field(default_factory=list, alias="dependsOn")
     run_if: str | None = Field(default=None, alias="runIf")
-    tasks: list["TaskDefinition"] = Field(default_factory=list)
+    tasks: list[TaskDefinition] = Field(default_factory=list)
 
     @model_validator(mode="after")
-    def validate_self_dependency(self) -> "TaskDefinition":
+    def validate_self_dependency(self) -> TaskDefinition:
         if self.id in self.depends_on:
             raise ValueError(f"task {self.id!r} cannot depend on itself")
         return self
@@ -59,7 +61,7 @@ class FlowDefinition(BaseModel):
     finally_tasks: list[TaskDefinition] = Field(default_factory=list, alias="finally")
 
     @model_validator(mode="after")
-    def validate_identifiers(self) -> "FlowDefinition":
+    def validate_identifiers(self) -> FlowDefinition:
         if not self.namespace or self.namespace.startswith(".") or self.namespace.endswith("."):
             raise ValueError("namespace must be a non-empty dotted identifier")
         if ".." in self.namespace:

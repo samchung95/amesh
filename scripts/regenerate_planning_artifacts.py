@@ -10,14 +10,16 @@ Canonical inputs:
 The script is intentionally deterministic. Run it after any requirement or epic change and
 check the generated files into the same pull request.
 """
+
 from __future__ import annotations
 
 import csv
 import io
 import json
 from collections import defaultdict
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -31,7 +33,7 @@ def write_text(relative_path: str, value: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     if not value.endswith("\n"):
         value += "\n"
-    path.write_text(value, encoding="utf-8")
+    path.write_text(value, encoding="utf-8", newline="\n")
 
 
 def csv_text(fieldnames: list[str], rows: Iterable[dict[str, Any]]) -> str:
@@ -84,7 +86,6 @@ def render_urs(
     funcs_by_epic: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for item in functional:
         funcs_by_epic[item["epic_id"]].append(item)
-    milestone_by_id = milestone_lookup(milestones)
     epics_by_milestone: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for epic in sorted_epics(epics):
         epics_by_milestone[epic["milestone"]].append(epic)
@@ -206,7 +207,6 @@ def render_urs(
         ]
     )
     return "\n".join(lines)
-
 
 
 def render_epic_body(
@@ -333,6 +333,7 @@ def render_epic_body(
         ]
     )
     return "\n".join(line.rstrip() for line in lines) + "\n"
+
 
 def main() -> int:
     baseline = load_json("project-baseline.json")

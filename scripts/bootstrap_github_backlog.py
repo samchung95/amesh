@@ -52,37 +52,59 @@ def main() -> int:
 
     print(f"Target repository: {repo}")
     if args.dry_run:
-        print(f"Would upsert {len(labels)} labels, {len(milestones)} milestones and {len(backlog['epics'])} epic issues.")
+        print(
+            f"Would upsert {len(labels)} labels, {len(milestones)} milestones and {len(backlog['epics'])} epic issues."
+        )
         return 0
 
     run("gh", "auth", "status")
 
     for label in labels:
         run(
-            "gh", "label", "create", label["name"],
-            "--repo", repo,
-            "--color", label["color"],
-            "--description", label["description"],
+            "gh",
+            "label",
+            "create",
+            label["name"],
+            "--repo",
+            repo,
+            "--color",
+            label["color"],
+            "--description",
+            label["description"],
             "--force",
         )
 
     existing_milestones = gh_json(
-        "api", f"repos/{repo}/milestones?state=all&per_page=100",
+        "api",
+        f"repos/{repo}/milestones?state=all&per_page=100",
     )
     milestone_by_title = {item["title"]: item for item in existing_milestones}
     for milestone in milestones:
         title = f"{milestone['id']} — {milestone['title']}"
         if title not in milestone_by_title:
             created = gh_json(
-                "api", "--method", "POST", f"repos/{repo}/milestones",
-                "-f", f"title={title}",
-                "-f", f"description={milestone['exit']}",
+                "api",
+                "--method",
+                "POST",
+                f"repos/{repo}/milestones",
+                "-f",
+                f"title={title}",
+                "-f",
+                f"description={milestone['exit']}",
             )
             milestone_by_title[title] = created
 
     existing_issues = gh_json(
-        "issue", "list", "--repo", repo, "--state", "all",
-        "--limit", "1000", "--json", "number,title",
+        "issue",
+        "list",
+        "--repo",
+        repo,
+        "--state",
+        "all",
+        "--limit",
+        "1000",
+        "--json",
+        "number,title",
     )
     existing_titles = {item["title"] for item in existing_issues}
 
@@ -99,11 +121,17 @@ def main() -> int:
             body_file = handle.name
         try:
             command = [
-                "gh", "issue", "create",
-                "--repo", repo,
-                "--title", title,
-                "--body-file", body_file,
-                "--milestone", f"{epic['milestone']} — {next(m['title'] for m in milestones if m['id'] == epic['milestone'])}",
+                "gh",
+                "issue",
+                "create",
+                "--repo",
+                repo,
+                "--title",
+                title,
+                "--body-file",
+                body_file,
+                "--milestone",
+                f"{epic['milestone']} — {next(m['title'] for m in milestones if m['id'] == epic['milestone'])}",
             ]
             for label in epic["labels"]:
                 command.extend(["--label", label])

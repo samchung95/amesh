@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package openorchestrator.worker.v1;
+package amesh.worker.v1;
 
 service WorkerControl {
   rpc Register(RegisterRequest) returns (RegisterResponse);
