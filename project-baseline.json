@@ -17,7 +17,7 @@
   "internal_transport": "PostgreSQL-only",
   "metadata_database": "PostgreSQL-only",
   "frontend": "React/TypeScript",
-  "production_backend_language": "Java 25 modular durable core; Python foundation retained as an independent executable specification",
+  "production_backend_language": "Python 3.12 asyncio durable core (ADR-016); the checked-in foundation is the production engine seed",
   "priority_personas": [
     "AI workflow developer",
     "Software engineer",

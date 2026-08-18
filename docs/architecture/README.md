@@ -2,9 +2,9 @@
 
 ## Status
 
-This architecture incorporates the product-owner decisions recorded through 2026-08-16. AMESH is a strict clean-room, AGPL-3.0-only orchestration platform targeting version-pinned Kestra compatibility plus agent-native capabilities.
+This architecture incorporates the product-owner decisions recorded through 2026-08-19. AMESH is a strict clean-room, AGPL-3.0-only orchestration platform targeting version-pinned Kestra compatibility plus agent-native capabilities.
 
-The production durable control plane uses [modular Java 25](backend-language-evaluation.md). PostgreSQL, React/TypeScript, runner scope, compatibility scope, on-premises Kubernetes, profile M, minimal v1 recovery, full migration, compliance readiness, AI merge authority and the isolated plugin model are also accepted decisions. No foundational product decision blocks M0 implementation.
+The production durable control plane uses Python 3.12 asyncio ([ADR-016](../adr/016-python-production-core.md); the earlier [Java 25 evaluation](backend-language-evaluation.md) is retained as history). PostgreSQL, React/TypeScript, runner scope, compatibility scope, on-premises Kubernetes, profile M, minimal v1 recovery, full migration, compliance readiness, AI merge authority and the isolated plugin model are also accepted decisions. No foundational product decision blocks implementation.
 
 ## Context
 
@@ -154,7 +154,7 @@ flowchart TB
 
 | Area | Choice | Status |
 |---|---|---|
-| Production core | Modular Java 25; Python foundation retained as an independent executable specification until differential parity | Accepted |
+| Production core | Python 3.12 asyncio (ADR-016); the checked-in foundation is the production engine seed | Accepted |
 | Metadata and execution state | PostgreSQL only | Accepted |
 | Internal durable transport | PostgreSQL queue/outbox/inbox/leases; `LISTEN/NOTIFY` wake-up only | Accepted |
 | Search and analytics | PostgreSQL FTS, partitioned projections, materialized views and rollups | Accepted |

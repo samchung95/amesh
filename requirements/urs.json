@@ -32,7 +32,7 @@
       "A requirement is not Verified until linked evidence exists.",
       "A full compatibility claim requires green differential evidence for every declared interface surface.",
       "PostgreSQL is the only reference metadata database and internal durable transport.",
-      "Java 25 is the accepted production backend for the modular durable control plane; the Python foundation remains an independent executable specification until Java differential parity is established.",
+      "Python 3.12 asyncio is the accepted production backend for the durable control plane (ADR-016); the checked-in foundation is the production engine seed.",
       "The first production reference environment is on-premises Kubernetes.",
       "The accepted v1 scale qualification target is profile M: 100,000 executions/day, 1,000 active task runs, 50 task starts/s and 10 million retained execution records.",
       "The first stable release uses the minimal recovery gate: RPO <= 48 hours and RTO <= 8 hours.",

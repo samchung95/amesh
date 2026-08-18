@@ -2,8 +2,9 @@
 
 ## Status
 
-**Decision:** Accepted on 2026-08-16 — Q-006  
-**Selected architecture:** Java 25 for the modular durable control plane
+**Decision:** Superseded on 2026-08-19 by [ADR-016](../adr/016-python-production-core.md) — Python 3.12 asyncio is the confirmed production core. This document is retained as the historical evaluation behind the original Java 25 selection (accepted 2026-08-16, Q-006); its recommendation no longer binds.
+
+**Originally selected architecture:** Java 25 for the modular durable control plane
 
 The recommendation is not based on Java being fashionable or universally superior. It follows from AMESH’s unusual combination of requirements:
 

@@ -1,5 +1,7 @@
 # Generation validation
 
+> **Historical snapshot.** This record predates [ADR-016](adr/016-python-production-core.md) (2026-08-19), which confirmed Python as the production core and cancelled the Java 25 plan referenced below.
+
 Validated on **2026-08-16** in the artifact-generation environment after accepting Java 25 as the production-core decision.
 
 ## Results

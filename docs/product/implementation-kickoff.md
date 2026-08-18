@@ -1,8 +1,10 @@
 # AMESH implementation kickoff
 
-**Status:** Ready to begin M0  
-**Architecture lock:** 2026-08-16  
-**Production core:** Java 25  
+> **Superseded 2026-08-19:** the Java-first sequencing below is historical. [ADR-016](../adr/016-python-production-core.md) confirmed Python as the production core, and implementation now follows the [two-month MVP scope](mvp-scope.md). The fixture, PostgreSQL-transport and expression tracks remain valid ideas — executed in Python, in MVP order.
+
+**Status:** Superseded by the MVP scope
+**Architecture lock:** 2026-08-16 (amended 2026-08-19)  
+**Production core:** Python 3.12 asyncio (ADR-016)  
 **First production topology:** On-premises Kubernetes through Helm
 
 ## Objective

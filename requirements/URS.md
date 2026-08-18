@@ -27,7 +27,7 @@ This URS defines the observable outcomes, quality attributes and verification ex
 - Scope: Kestra OSS parity, independently implemented advanced capabilities, and AMESH-specific agent-mesh differentiation in one open distribution.
 - Compatibility surfaces: Kestra YAML, Pebble expressions, REST API, CLI, execution semantics and documented import/export formats.
 - Reference persistence and durable internal transport: PostgreSQL only; LISTEN/NOTIFY is an optimization, never delivery truth.
-- Production durable control plane: modular Java 25; the Python foundation remains an independent executable specification until differential parity is proven.
+- Production durable control plane: Python 3.12 asyncio (ADR-016); the checked-in foundation is the production engine seed.
 - Web client: React and TypeScript.
 - First runners: local process, Docker/OCI and Kubernetes.
 - Production reference: on-premises Kubernetes/Helm with external PostgreSQL and S3-compatible object storage; Docker Compose is the development profile.

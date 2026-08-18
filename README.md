@@ -16,7 +16,7 @@ The product target is broader than OSS feature parity. AMESH also independently 
 | Compatibility | YAML, Pebble expressions, REST API, CLI, execution semantics and documented import/export formats |
 | Durable state and internal transport | PostgreSQL only; `LISTEN/NOTIFY` is a wake-up optimization, not delivery truth |
 | Object storage | S3-compatible interface; MinIO in the development stack |
-| Production core | Modular Java 25; Python retained as an independent executable specification until differential parity |
+| Production core | Python 3.12 asyncio, confirmed by [ADR-016](docs/adr/016-python-production-core.md); robustness comes from the PostgreSQL/fencing/pure-reducer design, and performance claims are earned by measurement |
 | Frontend | React and TypeScript |
 | First runners | Local process, Docker/OCI and Kubernetes |
 | Plugins | Isolated language-neutral protocol; Java, Python and TypeScript SDKs first |
@@ -29,7 +29,7 @@ The product target is broader than OSS feature parity. AMESH also independently 
 | Engineering model | Independent agent quorum for normal merges; human approval for high-risk changes and stable releases |
 | Licence | AGPL-3.0-only, confirmed as the strongest selected copyleft while retaining open-source status |
 
-**Java 25 is accepted for the modular production core.** The checked-in Python foundation remains an independent executable specification until the Java implementation passes equivalent golden, property and differential tests. The choice is driven primarily by exact Pebble/JVM-adjacent compatibility and durable PostgreSQL service maturity, not by Java being universally better. See the [accepted language rationale](docs/architecture/backend-language-evaluation.md) and [ADR-010](docs/adr/010-production-core-language.md).
+**Python is confirmed as the production core.** The checked-in foundation is the seed of the production engine, not a throwaway specification; the previously accepted Java 25 plan ([ADR-010](docs/adr/010-production-core-language.md), [historical evaluation](docs/architecture/backend-language-evaluation.md)) was superseded before implementation began. The durability guarantees come from PostgreSQL authority, fenced leases, idempotent commands and a pure reducer — properties independent of language — while throughput targets must be demonstrated by measurement, not assumed. See [ADR-016](docs/adr/016-python-production-core.md).
 
 ## Repository contents
 
@@ -52,7 +52,7 @@ CLI and generated client SDKs
                |
 REST / WebSocket / compatibility facade
                |
-Java 25 durable control plane
+Python durable control plane
 - resource and revision services
 - source-preserving YAML + Pebble compatibility
 - command validation and deterministic reducer

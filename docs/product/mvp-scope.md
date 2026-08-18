@@ -11,7 +11,7 @@ Prove the one claim the whole product depends on, with the smallest surface that
 
 > **A YAML-defined workflow of process, container and agent tasks runs durably on Kubernetes: the control plane and workers survive crashes without losing or duplicating work.**
 
-The MVP is Python on the existing foundation. It extends the checked-in validator, reducer, PostgreSQL schema and port contracts into a running engine. It deliberately does **not** attempt Kestra parity, the Java core, or enterprise controls — those are sequenced after the engine exists (section 6).
+The MVP is Python on the existing foundation — now the confirmed production core per [ADR-016](../adr/016-python-production-core.md). It extends the checked-in validator, reducer, PostgreSQL schema and port contracts into a running engine. It deliberately does **not** attempt Kestra parity or enterprise controls — those are sequenced after the engine exists (section 6).
 
 ## 2. In scope
 
@@ -43,7 +43,7 @@ Deferred means **parked, not abandoned**. Every row names the epic(s) where the 
 
 | Deferral | Epic(s) | Resumes when |
 |---|---|---|
-| Java 25 production core | ADR-010, EPIC-001 | Post-MVP checkpoint (section 6) re-affirms or amends ADR-010 with MVP evidence in hand |
+| ~~Java 25 production core~~ | ADR-010, EPIC-001 | **Resolved 2026-08-19:** ADR-016 confirmed Python as the production core; the Java port is cancelled rather than deferred |
 | Kestra YAML/Pebble/REST/CLI parity + importer | EPIC-005 (compat half), EPIC-704, parity charter | Engine semantics stable; parity work restarts against the pinned 1.3.30 baseline |
 | Docker/OCI standalone runner | EPIC-221 | First post-MVP runner iteration; contract already proven by the K8s runner |
 | Isolated language-neutral plugin runtime + SDKs | EPIC-300–305 | Task-type surface stabilises; in-process pack becomes the "trusted" tier (EPIC-302) |
@@ -58,7 +58,7 @@ Deferred means **parked, not abandoned**. Every row names the epic(s) where the 
 
 ## 4. Cons of this re-scope — accepted knowingly
 
-1. **The two-implementation debt grows.** Every line of Python engine code widens the eventual Java port, and the MVP may produce evidence that overturns ADR-010 entirely (a working Python engine is a strong argument for staying). That is a feature of the experiment, but it must be resolved explicitly at the checkpoint, not by drift.
+1. **The two-implementation question — resolved.** This con originally read "every line of Python engine code widens the eventual Java port." On 2026-08-19 the product owner resolved it the other way: ADR-016 confirms Python as the production core and cancels the Java port. The residual cost is the one ADR-016 accepts — a lower single-process throughput ceiling, managed by measurement and horizontal scale-out rather than a language change.
 2. **Compatibility debt.** MVP flows use AMESH-native expressions and DSL fields. If/when Pebble/Kestra parity lands, MVP-era flows may need mechanical migration, and the pinned Kestra 1.3.30 baseline ages in the meantime. Mitigation: expressions are namespaced as native from day one, so parity can be added beside them rather than under them.
 3. **Weaker isolation than the target architecture.** In-process task types run inside the worker (mitigated for container tasks by pod isolation). Untrusted third-party plugin code is out of bounds until EPIC-303.
 4. **Single tenant, static token.** The MVP must not be exposed to untrusted users. The API auth surface is a stopgap and will be replaced, not extended.
@@ -88,7 +88,7 @@ Each week ends with an objectively checkable exit. Weeks 6–8 carry the schedul
 The MVP is a slice of M0–M2, not a fork. On completion:
 
 1. **Reconciliation pass:** update `requirements/urs.json` statuses for requirements the MVP evidences, regenerate planning artifacts, and record intentional deviations.
-2. **ADR-010 checkpoint:** with a working engine and measured load, re-affirm the Java core (MVP becomes the executable specification it was always meant to be, now with far richer fixtures) or amend it (Python stays production; Java effort is re-allocated). Either outcome is legitimate; deciding it with evidence is the point.
+2. **Language checkpoint — already decided:** ADR-016 (2026-08-19) confirmed Python as the production core ahead of the MVP, so the post-MVP checkpoint becomes a *performance* review instead: measure the engine against the demo-scale target and publish the envelope, per ADR-016's measurement guardrail.
 3. **Resume the deferral register** in roadmap order: runners (EPIC-221), plugin isolation (EPIC-300s), governance (EPIC-500s), UI (EPIC-400s), HA and qualification (EPIC-600s), parity and migration (EPIC-700s), differentiators (EPIC-800s).
 
 The milestone exit gates in `docs/product/roadmap.md` remain the evidence bar for any compatibility, availability or compliance **claim**. The MVP makes no such claims — it makes the engine real.

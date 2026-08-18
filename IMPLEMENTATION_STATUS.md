@@ -25,7 +25,7 @@ AMESH currently contains an architecture-locked, implementation-ready planning b
 - Confirmed `AGPL-3.0-only` licence direction.
 - Full pinned compatibility target across YAML, Pebble, REST, CLI, execution behavior and import/export.
 - PostgreSQL-only authoritative database and internal durable transport.
-- Java 25 modular durable control plane selected; Python retained as an independent executable specification until differential parity.
+- Python 3.12 asyncio confirmed as the production durable control plane (ADR-016; the earlier Java 25 selection was superseded before implementation began).
 - React/TypeScript frontend.
 - Local, Docker/OCI and Kubernetes runners first.
 - On-premises Kubernetes/Helm as the first production and release-qualification topology.
@@ -42,7 +42,6 @@ AMESH currently contains an architecture-locked, implementation-ready planning b
 
 ## Specified, not implemented
 
-- Java 25 production backend modules and build have not yet been implemented.
 - Source-preserving Kestra YAML and Pebble compatibility.
 - Durable PostgreSQL repositories, queue claimers, schedulers, executors, trigger services and reconcilers.
 - Local, Docker/OCI and Kubernetes runner implementations.
@@ -69,6 +68,6 @@ The planning baseline contains:
 - 900 total requirements;
 - 992 requirement-to-epic traceability links.
 
-Passing current tests proves only the limited executable-specification behavior those tests cover. All 900 requirements remain `Proposed`; none is marked `Verified`.
+Passing current tests proves only the limited foundation behavior those tests cover. All 900 requirements remain `Proposed`; none is marked `Verified`.
 
-The checked-in Python code is behavioral-fixture scaffolding, not the production engine. It remains an independent oracle until equivalent Java contracts and conformance fixtures pass.
+The checked-in Python code is the seed of the production engine (ADR-016): the two-month MVP scope in `docs/product/mvp-scope.md` extends it into a running orchestrator, and its tests are tests of production behavior.

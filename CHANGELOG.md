@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased — 2026-08-19
+
+- Confirmed Python 3.12 asyncio as the production durable control plane (ADR-016), superseding the Java 25 selection before any Java implementation began; updated README, decision register, baseline and status documents accordingly.
+- Added the two-month MVP scope (`docs/product/mvp-scope.md`): a durable engine slice with local-process and Kubernetes Job runners, cron scheduling, native expressions, agent task types and a minimal Helm chart, plus an explicit deferral register and accepted cons.
+- Initialized the git repository with a full baseline commit.
+- Fixed the flow DSL silently dropping snake_case `depends_on`/`run_if` spellings; conflicting dual spellings are now rejected; regression tests added.
+- Cleaned all ruff lint and formatting findings and fixed pre-existing `mypy --strict` errors in the flow validator.
+- Renamed the protobuf packages from `openorchestrator.*` to `amesh.*`.
+- Pinned `fastapi`, `pydantic` and `pydantic-settings` exactly to keep the byte-stable generated-contract test deterministic.
+- Made generated planning and contract artifacts byte-identical on Windows (`newline="\n"`), so CI drift gates cannot be tripped by the platform.
+
 ## 0.1.0-dev.1 — 2026-08-16
 
 - Accepted Java 25 as the production language for the modular durable control plane.
