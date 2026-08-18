@@ -1,0 +1,42 @@
+name: Bug report
+description: Report reproducible incorrect behavior
+title: "[Bug]: "
+labels: ["type:bug"]
+body:
+  - type: markdown
+    attributes:
+      value: Do not include secrets, tokens, private workflow data or proprietary logs.
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit
+      placeholder: v0.1.0 or commit SHA
+    validations:
+      required: true
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Observed behavior
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior and requirement ID
+      description: Link the relevant URS or parity item when known.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Minimal reproduction
+      description: Include a sanitized flow, commands and topology.
+    validations:
+      required: true
+  - type: dropdown
+    id: data_loss
+    attributes:
+      label: Data loss, security or cross-tenant impact?
+      options: ["No", "Possible", "Confirmed"]
+    validations:
+      required: true

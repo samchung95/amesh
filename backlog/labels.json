@@ -1,0 +1,202 @@
+[
+  {
+    "name": "area:agents",
+    "color": "8B5CF6",
+    "description": "Agent mesh runtime and governance"
+  },
+  {
+    "name": "area:api",
+    "color": "C2E0C6",
+    "description": "Api capability area"
+  },
+  {
+    "name": "area:community",
+    "color": "C2E0C6",
+    "description": "Community capability area"
+  },
+  {
+    "name": "area:compatibility",
+    "color": "1D76DB",
+    "description": "Compatibility capability area"
+  },
+  {
+    "name": "area:devops",
+    "color": "A2EEEF",
+    "description": "Devops capability area"
+  },
+  {
+    "name": "area:differentiation",
+    "color": "D876E3",
+    "description": "Differentiation capability area"
+  },
+  {
+    "name": "area:domain",
+    "color": "BFD4F2",
+    "description": "Domain capability area"
+  },
+  {
+    "name": "area:dsl",
+    "color": "BFDADC",
+    "description": "Dsl capability area"
+  },
+  {
+    "name": "area:engine",
+    "color": "BFD4F2",
+    "description": "Engine capability area"
+  },
+  {
+    "name": "area:engineering",
+    "color": "EDEDED",
+    "description": "Engineering capability area"
+  },
+  {
+    "name": "area:governance",
+    "color": "E99695",
+    "description": "Governance capability area"
+  },
+  {
+    "name": "area:messaging",
+    "color": "BFE5BF",
+    "description": "Messaging capability area"
+  },
+  {
+    "name": "area:observability",
+    "color": "D4C5F9",
+    "description": "Observability capability area"
+  },
+  {
+    "name": "area:operations",
+    "color": "FEF2C0",
+    "description": "Operations capability area"
+  },
+  {
+    "name": "area:platform",
+    "color": "F9D0C4",
+    "description": "Platform capability area"
+  },
+  {
+    "name": "area:plugins",
+    "color": "C5DEF5",
+    "description": "Plugins capability area"
+  },
+  {
+    "name": "area:quality",
+    "color": "EDEDED",
+    "description": "Quality capability area"
+  },
+  {
+    "name": "area:reliability",
+    "color": "F9C513",
+    "description": "Reliability capability area"
+  },
+  {
+    "name": "area:runner",
+    "color": "F9D0C4",
+    "description": "Runner capability area"
+  },
+  {
+    "name": "area:search",
+    "color": "C5DEF5",
+    "description": "Search capability area"
+  },
+  {
+    "name": "area:security",
+    "color": "B60205",
+    "description": "Security capability area"
+  },
+  {
+    "name": "area:storage",
+    "color": "D1F7C4",
+    "description": "Storage capability area"
+  },
+  {
+    "name": "area:ui",
+    "color": "FAD8C7",
+    "description": "Ui capability area"
+  },
+  {
+    "name": "area:workflow",
+    "color": "D4C5F9",
+    "description": "Workflow capability area"
+  },
+  {
+    "name": "difference:intentional",
+    "color": "D4C5F9",
+    "description": "Deliberate differentiator"
+  },
+  {
+    "name": "parity:compatibility",
+    "color": "0366D6",
+    "description": "Configuration or interface compatibility"
+  },
+  {
+    "name": "parity:core",
+    "color": "0052CC",
+    "description": "Core public behavior parity"
+  },
+  {
+    "name": "parity:open-enterprise",
+    "color": "6F42C1",
+    "description": "Advanced capability released fully OSS"
+  },
+  {
+    "name": "priority:could",
+    "color": "C2E0C6",
+    "description": "Optional enhancement"
+  },
+  {
+    "name": "priority:must",
+    "color": "D93F0B",
+    "description": "Required in selected milestone"
+  },
+  {
+    "name": "priority:should",
+    "color": "FBCA04",
+    "description": "Important but may be deferred"
+  },
+  {
+    "name": "status:blocked-decision",
+    "color": "BFDADC",
+    "description": "Blocked by an item in DECISIONS_NEEDED.md"
+  },
+  {
+    "name": "status:needs-triage",
+    "color": "EDEDED",
+    "description": "Awaiting maintainer triage"
+  },
+  {
+    "name": "type:architecture",
+    "color": "0E8A16",
+    "description": "Architecture or ADR work"
+  },
+  {
+    "name": "type:bug",
+    "color": "D73A4A",
+    "description": "Reproducible incorrect behavior"
+  },
+  {
+    "name": "type:compatibility",
+    "color": "1D76DB",
+    "description": "Kestra import or interface compatibility"
+  },
+  {
+    "name": "type:documentation",
+    "color": "0075CA",
+    "description": "Documentation and examples"
+  },
+  {
+    "name": "type:epic",
+    "color": "5319E7",
+    "description": "Large outcome spanning multiple stories"
+  },
+  {
+    "name": "type:research",
+    "color": "7057FF",
+    "description": "Black-box research or parity evidence"
+  },
+  {
+    "name": "type:security",
+    "color": "B60205",
+    "description": "Security, identity or supply-chain work"
+  }
+]

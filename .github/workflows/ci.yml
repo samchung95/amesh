@@ -1,0 +1,51 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  merge_group:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Lint
+        run: |
+          ruff format --check .
+          ruff check .
+      - name: Type check
+        run: mypy
+      - name: Test
+        run: pytest --cov=amesh --cov-report=term-missing
+      - name: Regenerate and validate planning artifacts
+        run: |
+          python scripts/regenerate_planning_artifacts.py
+          python scripts/validate_backlog.py
+          python scripts/check_clean_room.py
+          git diff --exit-code -- backlog requirements docs/product/roadmap.md
+      - name: Regenerate contracts
+        run: |
+          python scripts/generate_contracts.py
+          git diff --exit-code -- schemas docs/api/openapi.json
+      - name: Compile
+        run: python -m compileall -q src tests scripts
+
+  compose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Compose
+        run: docker compose config --quiet

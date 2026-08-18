@@ -1,0 +1,64 @@
+# EPIC-202 — Conditional branching and switch semantics
+
+- **Milestone:** M2 — Workflow semantics and core runners
+- **Priority:** Must
+- **Domain:** `workflow`
+- **Primary persona:** Workflow author
+- **Parity scope:** Kestra v1.3.30 public behavior and architecture parity baseline
+
+## Outcome
+
+Choose workflow branches from safe expressions with explainable decisions.
+
+## In scope
+
+- [ ] **URS-F-0196** — The system shall execute if, else-if and else branches from boolean conditions.
+- [ ] **URS-F-0197** — The system shall select switch cases by exact value, ordered predicate or default branch.
+- [ ] **URS-F-0198** — The system shall record rendered condition inputs, redacted evaluation result and selected branch.
+- [ ] **URS-F-0199** — The system shall treat expression errors according to explicit fail, false or fallback policy.
+- [ ] **URS-F-0200** — The system shall skip non-selected branches without creating misleading runnable attempts.
+- [ ] **URS-F-0201** — The system shall support conditions on tasks, triggers, retries, errors and outputs.
+- [ ] **URS-F-0202** — The system shall validate unreachable or duplicate cases where static analysis permits.
+
+## Non-functional requirements
+
+- [ ] No epic-specific NFR is mapped yet; general security, maintainability and test gates still apply.
+
+## Dependencies
+
+- EPIC-005
+- EPIC-201
+
+## Architecture impact
+
+- Primary bounded area: `workflow`.
+- Public contracts introduced or changed must be versioned and documented.
+- Durable state changes must use the command/event/outbox model.
+- Tenant, authorization, audit, telemetry and failure behavior must be reviewed.
+
+## Verification plan
+
+- DSL validation plus end-to-end workflow conformance tests.
+- Add requirement-to-test evidence links before changing any requirement to Verified.
+- Add failure, duplicate, restart and authorization scenarios where applicable.
+
+## Definition of done
+
+- [ ] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
+- [ ] Public API, DSL, event and plugin contract changes pass compatibility checks.
+- [ ] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
+- [ ] Security, tenant isolation, redaction and audit behavior are reviewed.
+- [ ] Documentation, examples, migration notes and operational runbooks are updated.
+- [ ] Performance and recovery budgets are measured when this epic is on a critical path.
+- [ ] `python scripts/validate_backlog.py` passes.
+
+## Risks and unknowns
+
+- Compatibility is version-pinned; gaps must remain explicit and release-scoped.
+- Qualification claims are valid only for the published profile, topology, configuration and evidence set.
+
+## Traceability
+
+- Functional requirements: URS-F-0196, URS-F-0197, URS-F-0198, URS-F-0199, URS-F-0200, URS-F-0201, URS-F-0202
+- Non-functional requirements: none specifically mapped
+- Source scope: Kestra v1.3.30 public behavior and architecture parity baseline

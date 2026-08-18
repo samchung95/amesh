@@ -1,0 +1,993 @@
+requirement_id,requirement_type,priority,epic_id,epic_title,milestone,wave,verification,status
+URS-F-0001,Functional,Must,EPIC-000,Clean-room governance and parity baseline,M0,0,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0002,Functional,Must,EPIC-000,Clean-room governance and parity baseline,M0,0,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0003,Functional,Must,EPIC-000,Clean-room governance and parity baseline,M0,0,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0004,Functional,Must,EPIC-000,Clean-room governance and parity baseline,M0,0,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0005,Functional,Must,EPIC-000,Clean-room governance and parity baseline,M0,0,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0006,Functional,Must,EPIC-000,Clean-room governance and parity baseline,M0,0,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0007,Functional,Must,EPIC-000,Clean-room governance and parity baseline,M0,0,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0008,Functional,Must,EPIC-001,"Repository engineering, CI and release foundation",M0,0,Repository validation and CI tests,Proposed
+URS-F-0009,Functional,Must,EPIC-001,"Repository engineering, CI and release foundation",M0,0,Repository validation and CI tests,Proposed
+URS-F-0010,Functional,Must,EPIC-001,"Repository engineering, CI and release foundation",M0,0,Repository validation and CI tests,Proposed
+URS-F-0011,Functional,Must,EPIC-001,"Repository engineering, CI and release foundation",M0,0,Repository validation and CI tests,Proposed
+URS-F-0012,Functional,Must,EPIC-001,"Repository engineering, CI and release foundation",M0,0,Repository validation and CI tests,Proposed
+URS-F-0013,Functional,Must,EPIC-001,"Repository engineering, CI and release foundation",M0,0,Repository validation and CI tests,Proposed
+URS-F-0014,Functional,Must,EPIC-001,"Repository engineering, CI and release foundation",M0,0,Repository validation and CI tests,Proposed
+URS-F-0015,Functional,Must,EPIC-002,Canonical resource model and identifiers,M0,0,Domain model unit and serialization compatibility tests,Proposed
+URS-F-0016,Functional,Must,EPIC-002,Canonical resource model and identifiers,M0,0,Domain model unit and serialization compatibility tests,Proposed
+URS-F-0017,Functional,Must,EPIC-002,Canonical resource model and identifiers,M0,0,Domain model unit and serialization compatibility tests,Proposed
+URS-F-0018,Functional,Must,EPIC-002,Canonical resource model and identifiers,M0,0,Domain model unit and serialization compatibility tests,Proposed
+URS-F-0019,Functional,Must,EPIC-002,Canonical resource model and identifiers,M0,0,Domain model unit and serialization compatibility tests,Proposed
+URS-F-0020,Functional,Must,EPIC-002,Canonical resource model and identifiers,M0,0,Domain model unit and serialization compatibility tests,Proposed
+URS-F-0021,Functional,Must,EPIC-002,Canonical resource model and identifiers,M0,0,Domain model unit and serialization compatibility tests,Proposed
+URS-F-0022,Functional,Must,EPIC-003,Configuration and feature flag system,M0,0,Configuration and service integration tests,Proposed
+URS-F-0023,Functional,Must,EPIC-003,Configuration and feature flag system,M0,0,Configuration and service integration tests,Proposed
+URS-F-0024,Functional,Must,EPIC-003,Configuration and feature flag system,M0,0,Configuration and service integration tests,Proposed
+URS-F-0025,Functional,Must,EPIC-003,Configuration and feature flag system,M0,0,Configuration and service integration tests,Proposed
+URS-F-0026,Functional,Must,EPIC-003,Configuration and feature flag system,M0,0,Configuration and service integration tests,Proposed
+URS-F-0027,Functional,Must,EPIC-003,Configuration and feature flag system,M0,0,Configuration and service integration tests,Proposed
+URS-F-0028,Functional,Must,EPIC-003,Configuration and feature flag system,M0,0,Configuration and service integration tests,Proposed
+URS-F-0029,Functional,Must,EPIC-004,"Flow DSL, YAML model and schema",M0,0,"Parser, schema, rendering and compatibility tests",Proposed
+URS-F-0030,Functional,Must,EPIC-004,"Flow DSL, YAML model and schema",M0,0,"Parser, schema, rendering and compatibility tests",Proposed
+URS-F-0031,Functional,Must,EPIC-004,"Flow DSL, YAML model and schema",M0,0,"Parser, schema, rendering and compatibility tests",Proposed
+URS-F-0032,Functional,Must,EPIC-004,"Flow DSL, YAML model and schema",M0,0,"Parser, schema, rendering and compatibility tests",Proposed
+URS-F-0033,Functional,Must,EPIC-004,"Flow DSL, YAML model and schema",M0,0,"Parser, schema, rendering and compatibility tests",Proposed
+URS-F-0034,Functional,Must,EPIC-004,"Flow DSL, YAML model and schema",M0,0,"Parser, schema, rendering and compatibility tests",Proposed
+URS-F-0035,Functional,Must,EPIC-004,"Flow DSL, YAML model and schema",M0,0,"Parser, schema, rendering and compatibility tests",Proposed
+URS-F-0036,Functional,Must,EPIC-004,"Flow DSL, YAML model and schema",M0,0,"Parser, schema, rendering and compatibility tests",Proposed
+URS-F-0037,Functional,Must,EPIC-005,Expression and templating engine,M0,0,"Parser, schema, rendering and compatibility tests",Proposed
+URS-F-0038,Functional,Must,EPIC-005,Expression and templating engine,M0,0,"Parser, schema, rendering and compatibility tests",Proposed
+URS-F-0039,Functional,Must,EPIC-005,Expression and templating engine,M0,0,"Parser, schema, rendering and compatibility tests",Proposed
+URS-F-0040,Functional,Must,EPIC-005,Expression and templating engine,M0,0,"Parser, schema, rendering and compatibility tests",Proposed
+URS-F-0041,Functional,Must,EPIC-005,Expression and templating engine,M0,0,"Parser, schema, rendering and compatibility tests",Proposed
+URS-F-0042,Functional,Must,EPIC-005,Expression and templating engine,M0,0,"Parser, schema, rendering and compatibility tests",Proposed
+URS-F-0043,Functional,Must,EPIC-005,Expression and templating engine,M0,0,"Parser, schema, rendering and compatibility tests",Proposed
+URS-F-0044,Functional,Must,EPIC-005,Expression and templating engine,M0,0,"Parser, schema, rendering and compatibility tests",Proposed
+URS-F-0045,Functional,Must,EPIC-006,"Flow revisions, change history and promotion",M0,0,Domain model unit and serialization compatibility tests,Proposed
+URS-F-0046,Functional,Must,EPIC-006,"Flow revisions, change history and promotion",M0,0,Domain model unit and serialization compatibility tests,Proposed
+URS-F-0047,Functional,Must,EPIC-006,"Flow revisions, change history and promotion",M0,0,Domain model unit and serialization compatibility tests,Proposed
+URS-F-0048,Functional,Must,EPIC-006,"Flow revisions, change history and promotion",M0,0,Domain model unit and serialization compatibility tests,Proposed
+URS-F-0049,Functional,Must,EPIC-006,"Flow revisions, change history and promotion",M0,0,Domain model unit and serialization compatibility tests,Proposed
+URS-F-0050,Functional,Must,EPIC-006,"Flow revisions, change history and promotion",M0,0,Domain model unit and serialization compatibility tests,Proposed
+URS-F-0051,Functional,Must,EPIC-006,"Flow revisions, change history and promotion",M0,0,Domain model unit and serialization compatibility tests,Proposed
+URS-F-0052,Functional,Must,EPIC-007,Execution event model and state machine,M0,0,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0053,Functional,Must,EPIC-007,Execution event model and state machine,M0,0,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0054,Functional,Must,EPIC-007,Execution event model and state machine,M0,0,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0055,Functional,Must,EPIC-007,Execution event model and state machine,M0,0,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0056,Functional,Must,EPIC-007,Execution event model and state machine,M0,0,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0057,Functional,Must,EPIC-007,Execution event model and state machine,M0,0,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0058,Functional,Must,EPIC-007,Execution event model and state machine,M0,0,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0059,Functional,Must,EPIC-007,Execution event model and state machine,M0,0,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0060,Functional,Must,EPIC-008,Metadata persistence and migrations,M0,0,Repository or storage adapter contract and fault-injection tests,Proposed
+URS-F-0061,Functional,Must,EPIC-008,Metadata persistence and migrations,M0,0,Repository or storage adapter contract and fault-injection tests,Proposed
+URS-F-0062,Functional,Must,EPIC-008,Metadata persistence and migrations,M0,0,Repository or storage adapter contract and fault-injection tests,Proposed
+URS-F-0063,Functional,Must,EPIC-008,Metadata persistence and migrations,M0,0,Repository or storage adapter contract and fault-injection tests,Proposed
+URS-F-0064,Functional,Must,EPIC-008,Metadata persistence and migrations,M0,0,Repository or storage adapter contract and fault-injection tests,Proposed
+URS-F-0065,Functional,Must,EPIC-008,Metadata persistence and migrations,M0,0,Repository or storage adapter contract and fault-injection tests,Proposed
+URS-F-0066,Functional,Must,EPIC-008,Metadata persistence and migrations,M0,0,Repository or storage adapter contract and fault-injection tests,Proposed
+URS-F-0067,Functional,Must,EPIC-008,Metadata persistence and migrations,M0,0,Repository or storage adapter contract and fault-injection tests,Proposed
+URS-F-0068,Functional,Must,EPIC-009,"PostgreSQL transport, inbox and transactional outbox",M0,0,"Delivery, ordering, duplicate and outage conformance tests",Proposed
+URS-F-0069,Functional,Must,EPIC-009,"PostgreSQL transport, inbox and transactional outbox",M0,0,"Delivery, ordering, duplicate and outage conformance tests",Proposed
+URS-F-0070,Functional,Must,EPIC-009,"PostgreSQL transport, inbox and transactional outbox",M0,0,"Delivery, ordering, duplicate and outage conformance tests",Proposed
+URS-F-0071,Functional,Must,EPIC-009,"PostgreSQL transport, inbox and transactional outbox",M0,0,"Delivery, ordering, duplicate and outage conformance tests",Proposed
+URS-F-0072,Functional,Must,EPIC-009,"PostgreSQL transport, inbox and transactional outbox",M0,0,"Delivery, ordering, duplicate and outage conformance tests",Proposed
+URS-F-0073,Functional,Must,EPIC-009,"PostgreSQL transport, inbox and transactional outbox",M0,0,"Delivery, ordering, duplicate and outage conformance tests",Proposed
+URS-F-0074,Functional,Must,EPIC-009,"PostgreSQL transport, inbox and transactional outbox",M0,0,"Delivery, ordering, duplicate and outage conformance tests",Proposed
+URS-F-0075,Functional,Must,EPIC-009,"PostgreSQL transport, inbox and transactional outbox",M0,0,"Delivery, ordering, duplicate and outage conformance tests",Proposed
+URS-F-0076,Functional,Must,EPIC-010,Internal object storage and artifact addressing,M0,0,Repository or storage adapter contract and fault-injection tests,Proposed
+URS-F-0077,Functional,Must,EPIC-010,Internal object storage and artifact addressing,M0,0,Repository or storage adapter contract and fault-injection tests,Proposed
+URS-F-0078,Functional,Must,EPIC-010,Internal object storage and artifact addressing,M0,0,Repository or storage adapter contract and fault-injection tests,Proposed
+URS-F-0079,Functional,Must,EPIC-010,Internal object storage and artifact addressing,M0,0,Repository or storage adapter contract and fault-injection tests,Proposed
+URS-F-0080,Functional,Must,EPIC-010,Internal object storage and artifact addressing,M0,0,Repository or storage adapter contract and fault-injection tests,Proposed
+URS-F-0081,Functional,Must,EPIC-010,Internal object storage and artifact addressing,M0,0,Repository or storage adapter contract and fault-injection tests,Proposed
+URS-F-0082,Functional,Must,EPIC-010,Internal object storage and artifact addressing,M0,0,Repository or storage adapter contract and fault-injection tests,Proposed
+URS-F-0083,Functional,Must,EPIC-010,Internal object storage and artifact addressing,M0,0,Repository or storage adapter contract and fault-injection tests,Proposed
+URS-F-0084,Functional,Must,EPIC-100,Executor and orchestration reducer,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0085,Functional,Must,EPIC-100,Executor and orchestration reducer,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0086,Functional,Must,EPIC-100,Executor and orchestration reducer,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0087,Functional,Must,EPIC-100,Executor and orchestration reducer,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0088,Functional,Must,EPIC-100,Executor and orchestration reducer,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0089,Functional,Must,EPIC-100,Executor and orchestration reducer,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0090,Functional,Must,EPIC-100,Executor and orchestration reducer,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0091,Functional,Must,EPIC-100,Executor and orchestration reducer,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0092,Functional,Must,EPIC-101,"Worker protocol, leases and heartbeats",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0093,Functional,Must,EPIC-101,"Worker protocol, leases and heartbeats",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0094,Functional,Must,EPIC-101,"Worker protocol, leases and heartbeats",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0095,Functional,Must,EPIC-101,"Worker protocol, leases and heartbeats",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0096,Functional,Must,EPIC-101,"Worker protocol, leases and heartbeats",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0097,Functional,Must,EPIC-101,"Worker protocol, leases and heartbeats",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0098,Functional,Must,EPIC-101,"Worker protocol, leases and heartbeats",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0099,Functional,Must,EPIC-101,"Worker protocol, leases and heartbeats",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0100,Functional,Must,EPIC-102,Scheduler and temporal correctness,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0101,Functional,Must,EPIC-102,Scheduler and temporal correctness,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0102,Functional,Must,EPIC-102,Scheduler and temporal correctness,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0103,Functional,Must,EPIC-102,Scheduler and temporal correctness,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0104,Functional,Must,EPIC-102,Scheduler and temporal correctness,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0105,Functional,Must,EPIC-102,Scheduler and temporal correctness,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0106,Functional,Must,EPIC-102,Scheduler and temporal correctness,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0107,Functional,Must,EPIC-102,Scheduler and temporal correctness,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0108,Functional,Must,EPIC-103,Trigger runtime and occurrence lifecycle,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0109,Functional,Must,EPIC-103,Trigger runtime and occurrence lifecycle,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0110,Functional,Must,EPIC-103,Trigger runtime and occurrence lifecycle,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0111,Functional,Must,EPIC-103,Trigger runtime and occurrence lifecycle,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0112,Functional,Must,EPIC-103,Trigger runtime and occurrence lifecycle,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0113,Functional,Must,EPIC-103,Trigger runtime and occurrence lifecycle,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0114,Functional,Must,EPIC-103,Trigger runtime and occurrence lifecycle,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0115,Functional,Must,EPIC-103,Trigger runtime and occurrence lifecycle,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0116,Functional,Must,EPIC-104,"Retries, timeout, pause, cancellation, kill and restart",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0117,Functional,Must,EPIC-104,"Retries, timeout, pause, cancellation, kill and restart",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0118,Functional,Must,EPIC-104,"Retries, timeout, pause, cancellation, kill and restart",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0119,Functional,Must,EPIC-104,"Retries, timeout, pause, cancellation, kill and restart",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0120,Functional,Must,EPIC-104,"Retries, timeout, pause, cancellation, kill and restart",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0121,Functional,Must,EPIC-104,"Retries, timeout, pause, cancellation, kill and restart",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0122,Functional,Must,EPIC-104,"Retries, timeout, pause, cancellation, kill and restart",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0123,Functional,Must,EPIC-104,"Retries, timeout, pause, cancellation, kill and restart",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0124,Functional,Must,EPIC-105,"Concurrency, admission control and fairness",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0125,Functional,Must,EPIC-105,"Concurrency, admission control and fairness",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0126,Functional,Must,EPIC-105,"Concurrency, admission control and fairness",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0127,Functional,Must,EPIC-105,"Concurrency, admission control and fairness",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0128,Functional,Must,EPIC-105,"Concurrency, admission control and fairness",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0129,Functional,Must,EPIC-105,"Concurrency, admission control and fairness",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0130,Functional,Must,EPIC-105,"Concurrency, admission control and fairness",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0131,Functional,Must,EPIC-105,"Concurrency, admission control and fairness",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0132,Functional,Must,EPIC-106,"Backfill, replay and historical reprocessing",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0133,Functional,Must,EPIC-106,"Backfill, replay and historical reprocessing",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0134,Functional,Must,EPIC-106,"Backfill, replay and historical reprocessing",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0135,Functional,Must,EPIC-106,"Backfill, replay and historical reprocessing",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0136,Functional,Must,EPIC-106,"Backfill, replay and historical reprocessing",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0137,Functional,Must,EPIC-106,"Backfill, replay and historical reprocessing",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0138,Functional,Must,EPIC-106,"Backfill, replay and historical reprocessing",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0139,Functional,Must,EPIC-106,"Backfill, replay and historical reprocessing",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0140,Functional,Must,EPIC-107,"Subflows, dependencies and system flows",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0141,Functional,Must,EPIC-107,"Subflows, dependencies and system flows",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0142,Functional,Must,EPIC-107,"Subflows, dependencies and system flows",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0143,Functional,Must,EPIC-107,"Subflows, dependencies and system flows",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0144,Functional,Must,EPIC-107,"Subflows, dependencies and system flows",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0145,Functional,Must,EPIC-107,"Subflows, dependencies and system flows",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0146,Functional,Must,EPIC-107,"Subflows, dependencies and system flows",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0147,Functional,Must,EPIC-107,"Subflows, dependencies and system flows",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0148,Functional,Must,EPIC-108,"Recovery, reconciliation and invariant repair",M1,1,"Fault-injection, replay and invariant tests",Proposed
+URS-F-0149,Functional,Must,EPIC-108,"Recovery, reconciliation and invariant repair",M1,1,"Fault-injection, replay and invariant tests",Proposed
+URS-F-0150,Functional,Must,EPIC-108,"Recovery, reconciliation and invariant repair",M1,1,"Fault-injection, replay and invariant tests",Proposed
+URS-F-0151,Functional,Must,EPIC-108,"Recovery, reconciliation and invariant repair",M1,1,"Fault-injection, replay and invariant tests",Proposed
+URS-F-0152,Functional,Must,EPIC-108,"Recovery, reconciliation and invariant repair",M1,1,"Fault-injection, replay and invariant tests",Proposed
+URS-F-0153,Functional,Must,EPIC-108,"Recovery, reconciliation and invariant repair",M1,1,"Fault-injection, replay and invariant tests",Proposed
+URS-F-0154,Functional,Must,EPIC-108,"Recovery, reconciliation and invariant repair",M1,1,"Fault-injection, replay and invariant tests",Proposed
+URS-F-0155,Functional,Must,EPIC-108,"Recovery, reconciliation and invariant repair",M1,1,"Fault-injection, replay and invariant tests",Proposed
+URS-F-0156,Functional,Must,EPIC-109,Task and execution cache,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0157,Functional,Must,EPIC-109,Task and execution cache,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0158,Functional,Must,EPIC-109,Task and execution cache,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0159,Functional,Must,EPIC-109,Task and execution cache,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0160,Functional,Must,EPIC-109,Task and execution cache,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0161,Functional,Must,EPIC-109,Task and execution cache,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0162,Functional,Must,EPIC-109,Task and execution cache,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0163,Functional,Must,EPIC-109,Task and execution cache,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0164,Functional,Must,EPIC-110,"SLA, checks and execution policy evaluation",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0165,Functional,Must,EPIC-110,"SLA, checks and execution policy evaluation",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0166,Functional,Must,EPIC-110,"SLA, checks and execution policy evaluation",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0167,Functional,Must,EPIC-110,"SLA, checks and execution policy evaluation",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0168,Functional,Must,EPIC-110,"SLA, checks and execution policy evaluation",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0169,Functional,Must,EPIC-110,"SLA, checks and execution policy evaluation",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0170,Functional,Must,EPIC-110,"SLA, checks and execution policy evaluation",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0171,Functional,Must,EPIC-110,"SLA, checks and execution policy evaluation",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0172,Functional,Must,EPIC-111,"Logs, metrics, outputs and artifact events",M1,1,Telemetry contract and outage tests,Proposed
+URS-F-0173,Functional,Must,EPIC-111,"Logs, metrics, outputs and artifact events",M1,1,Telemetry contract and outage tests,Proposed
+URS-F-0174,Functional,Must,EPIC-111,"Logs, metrics, outputs and artifact events",M1,1,Telemetry contract and outage tests,Proposed
+URS-F-0175,Functional,Must,EPIC-111,"Logs, metrics, outputs and artifact events",M1,1,Telemetry contract and outage tests,Proposed
+URS-F-0176,Functional,Must,EPIC-111,"Logs, metrics, outputs and artifact events",M1,1,Telemetry contract and outage tests,Proposed
+URS-F-0177,Functional,Must,EPIC-111,"Logs, metrics, outputs and artifact events",M1,1,Telemetry contract and outage tests,Proposed
+URS-F-0178,Functional,Must,EPIC-111,"Logs, metrics, outputs and artifact events",M1,1,Telemetry contract and outage tests,Proposed
+URS-F-0179,Functional,Must,EPIC-111,"Logs, metrics, outputs and artifact events",M1,1,Telemetry contract and outage tests,Proposed
+URS-F-0180,Functional,Must,EPIC-200,Runnable task contract,M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0181,Functional,Must,EPIC-200,Runnable task contract,M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0182,Functional,Must,EPIC-200,Runnable task contract,M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0183,Functional,Must,EPIC-200,Runnable task contract,M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0184,Functional,Must,EPIC-200,Runnable task contract,M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0185,Functional,Must,EPIC-200,Runnable task contract,M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0186,Functional,Must,EPIC-200,Runnable task contract,M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0187,Functional,Must,EPIC-200,Runnable task contract,M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0188,Functional,Must,EPIC-201,"Sequential, parallel and DAG flowables",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0189,Functional,Must,EPIC-201,"Sequential, parallel and DAG flowables",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0190,Functional,Must,EPIC-201,"Sequential, parallel and DAG flowables",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0191,Functional,Must,EPIC-201,"Sequential, parallel and DAG flowables",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0192,Functional,Must,EPIC-201,"Sequential, parallel and DAG flowables",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0193,Functional,Must,EPIC-201,"Sequential, parallel and DAG flowables",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0194,Functional,Must,EPIC-201,"Sequential, parallel and DAG flowables",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0195,Functional,Must,EPIC-201,"Sequential, parallel and DAG flowables",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0196,Functional,Must,EPIC-202,Conditional branching and switch semantics,M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0197,Functional,Must,EPIC-202,Conditional branching and switch semantics,M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0198,Functional,Must,EPIC-202,Conditional branching and switch semantics,M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0199,Functional,Must,EPIC-202,Conditional branching and switch semantics,M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0200,Functional,Must,EPIC-202,Conditional branching and switch semantics,M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0201,Functional,Must,EPIC-202,Conditional branching and switch semantics,M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0202,Functional,Must,EPIC-202,Conditional branching and switch semantics,M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0203,Functional,Must,EPIC-203,"Loops, foreach, while and until",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0204,Functional,Must,EPIC-203,"Loops, foreach, while and until",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0205,Functional,Must,EPIC-203,"Loops, foreach, while and until",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0206,Functional,Must,EPIC-203,"Loops, foreach, while and until",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0207,Functional,Must,EPIC-203,"Loops, foreach, while and until",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0208,Functional,Must,EPIC-203,"Loops, foreach, while and until",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0209,Functional,Must,EPIC-203,"Loops, foreach, while and until",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0210,Functional,Must,EPIC-203,"Loops, foreach, while and until",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0211,Functional,Must,EPIC-204,"Errors, finally and after-execution hooks",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0212,Functional,Must,EPIC-204,"Errors, finally and after-execution hooks",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0213,Functional,Must,EPIC-204,"Errors, finally and after-execution hooks",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0214,Functional,Must,EPIC-204,"Errors, finally and after-execution hooks",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0215,Functional,Must,EPIC-204,"Errors, finally and after-execution hooks",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0216,Functional,Must,EPIC-204,"Errors, finally and after-execution hooks",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0217,Functional,Must,EPIC-204,"Errors, finally and after-execution hooks",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0218,Functional,Must,EPIC-204,"Errors, finally and after-execution hooks",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0219,Functional,Must,EPIC-205,"Inputs, outputs and variables",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0220,Functional,Must,EPIC-205,"Inputs, outputs and variables",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0221,Functional,Must,EPIC-205,"Inputs, outputs and variables",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0222,Functional,Must,EPIC-205,"Inputs, outputs and variables",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0223,Functional,Must,EPIC-205,"Inputs, outputs and variables",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0224,Functional,Must,EPIC-205,"Inputs, outputs and variables",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0225,Functional,Must,EPIC-205,"Inputs, outputs and variables",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0226,Functional,Must,EPIC-205,"Inputs, outputs and variables",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0227,Functional,Must,EPIC-206,"Labels, metadata and plugin defaults",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0228,Functional,Must,EPIC-206,"Labels, metadata and plugin defaults",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0229,Functional,Must,EPIC-206,"Labels, metadata and plugin defaults",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0230,Functional,Must,EPIC-206,"Labels, metadata and plugin defaults",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0231,Functional,Must,EPIC-206,"Labels, metadata and plugin defaults",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0232,Functional,Must,EPIC-206,"Labels, metadata and plugin defaults",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0233,Functional,Must,EPIC-206,"Labels, metadata and plugin defaults",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0234,Functional,Must,EPIC-207,"Namespace files, key-value store and secrets",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0235,Functional,Must,EPIC-207,"Namespace files, key-value store and secrets",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0236,Functional,Must,EPIC-207,"Namespace files, key-value store and secrets",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0237,Functional,Must,EPIC-207,"Namespace files, key-value store and secrets",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0238,Functional,Must,EPIC-207,"Namespace files, key-value store and secrets",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0239,Functional,Must,EPIC-207,"Namespace files, key-value store and secrets",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0240,Functional,Must,EPIC-207,"Namespace files, key-value store and secrets",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0241,Functional,Must,EPIC-207,"Namespace files, key-value store and secrets",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0242,Functional,Must,EPIC-208,Working directories and execution files,M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0243,Functional,Must,EPIC-208,Working directories and execution files,M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0244,Functional,Must,EPIC-208,Working directories and execution files,M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0245,Functional,Must,EPIC-208,Working directories and execution files,M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0246,Functional,Must,EPIC-208,Working directories and execution files,M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0247,Functional,Must,EPIC-208,Working directories and execution files,M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0248,Functional,Must,EPIC-208,Working directories and execution files,M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0249,Functional,Must,EPIC-208,Working directories and execution files,M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0250,Functional,Must,EPIC-209,Task runner interface and capability model,M2,2,Runner contract tests against disposable execution environments,Proposed
+URS-F-0251,Functional,Must,EPIC-209,Task runner interface and capability model,M2,2,Runner contract tests against disposable execution environments,Proposed
+URS-F-0252,Functional,Must,EPIC-209,Task runner interface and capability model,M2,2,Runner contract tests against disposable execution environments,Proposed
+URS-F-0253,Functional,Must,EPIC-209,Task runner interface and capability model,M2,2,Runner contract tests against disposable execution environments,Proposed
+URS-F-0254,Functional,Must,EPIC-209,Task runner interface and capability model,M2,2,Runner contract tests against disposable execution environments,Proposed
+URS-F-0255,Functional,Must,EPIC-209,Task runner interface and capability model,M2,2,Runner contract tests against disposable execution environments,Proposed
+URS-F-0256,Functional,Must,EPIC-209,Task runner interface and capability model,M2,2,Runner contract tests against disposable execution environments,Proposed
+URS-F-0257,Functional,Must,EPIC-209,Task runner interface and capability model,M2,2,Runner contract tests against disposable execution environments,Proposed
+URS-F-0258,Functional,Must,EPIC-220,Local process task runner,M2,2,Runner contract tests against disposable execution environments,Proposed
+URS-F-0259,Functional,Must,EPIC-220,Local process task runner,M2,2,Runner contract tests against disposable execution environments,Proposed
+URS-F-0260,Functional,Must,EPIC-220,Local process task runner,M2,2,Runner contract tests against disposable execution environments,Proposed
+URS-F-0261,Functional,Must,EPIC-220,Local process task runner,M2,2,Runner contract tests against disposable execution environments,Proposed
+URS-F-0262,Functional,Must,EPIC-220,Local process task runner,M2,2,Runner contract tests against disposable execution environments,Proposed
+URS-F-0263,Functional,Must,EPIC-220,Local process task runner,M2,2,Runner contract tests against disposable execution environments,Proposed
+URS-F-0264,Functional,Must,EPIC-220,Local process task runner,M2,2,Runner contract tests against disposable execution environments,Proposed
+URS-F-0265,Functional,Must,EPIC-221,Docker and OCI task runner,M2,2,Runner contract tests against disposable execution environments,Proposed
+URS-F-0266,Functional,Must,EPIC-221,Docker and OCI task runner,M2,2,Runner contract tests against disposable execution environments,Proposed
+URS-F-0267,Functional,Must,EPIC-221,Docker and OCI task runner,M2,2,Runner contract tests against disposable execution environments,Proposed
+URS-F-0268,Functional,Must,EPIC-221,Docker and OCI task runner,M2,2,Runner contract tests against disposable execution environments,Proposed
+URS-F-0269,Functional,Must,EPIC-221,Docker and OCI task runner,M2,2,Runner contract tests against disposable execution environments,Proposed
+URS-F-0270,Functional,Must,EPIC-221,Docker and OCI task runner,M2,2,Runner contract tests against disposable execution environments,Proposed
+URS-F-0271,Functional,Must,EPIC-221,Docker and OCI task runner,M2,2,Runner contract tests against disposable execution environments,Proposed
+URS-F-0272,Functional,Must,EPIC-221,Docker and OCI task runner,M2,2,Runner contract tests against disposable execution environments,Proposed
+URS-F-0273,Functional,Must,EPIC-222,Kubernetes task runner,M2,2,Runner contract tests against disposable execution environments,Proposed
+URS-F-0274,Functional,Must,EPIC-222,Kubernetes task runner,M2,2,Runner contract tests against disposable execution environments,Proposed
+URS-F-0275,Functional,Must,EPIC-222,Kubernetes task runner,M2,2,Runner contract tests against disposable execution environments,Proposed
+URS-F-0276,Functional,Must,EPIC-222,Kubernetes task runner,M2,2,Runner contract tests against disposable execution environments,Proposed
+URS-F-0277,Functional,Must,EPIC-222,Kubernetes task runner,M2,2,Runner contract tests against disposable execution environments,Proposed
+URS-F-0278,Functional,Must,EPIC-222,Kubernetes task runner,M2,2,Runner contract tests against disposable execution environments,Proposed
+URS-F-0279,Functional,Must,EPIC-222,Kubernetes task runner,M2,2,Runner contract tests against disposable execution environments,Proposed
+URS-F-0280,Functional,Must,EPIC-222,Kubernetes task runner,M2,2,Runner contract tests against disposable execution environments,Proposed
+URS-F-0281,Functional,Should,EPIC-223,"Cloud batch, VM and serverless runners",M2,2,Runner contract tests against disposable execution environments,Proposed
+URS-F-0282,Functional,Should,EPIC-223,"Cloud batch, VM and serverless runners",M2,2,Runner contract tests against disposable execution environments,Proposed
+URS-F-0283,Functional,Should,EPIC-223,"Cloud batch, VM and serverless runners",M2,2,Runner contract tests against disposable execution environments,Proposed
+URS-F-0284,Functional,Should,EPIC-223,"Cloud batch, VM and serverless runners",M2,2,Runner contract tests against disposable execution environments,Proposed
+URS-F-0285,Functional,Should,EPIC-223,"Cloud batch, VM and serverless runners",M2,2,Runner contract tests against disposable execution environments,Proposed
+URS-F-0286,Functional,Should,EPIC-223,"Cloud batch, VM and serverless runners",M2,2,Runner contract tests against disposable execution environments,Proposed
+URS-F-0287,Functional,Should,EPIC-223,"Cloud batch, VM and serverless runners",M2,2,Runner contract tests against disposable execution environments,Proposed
+URS-F-0288,Functional,Should,EPIC-223,"Cloud batch, VM and serverless runners",M2,2,Runner contract tests against disposable execution environments,Proposed
+URS-F-0289,Functional,Must,EPIC-300,Plugin SDK and manifest contract,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0290,Functional,Must,EPIC-300,Plugin SDK and manifest contract,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0291,Functional,Must,EPIC-300,Plugin SDK and manifest contract,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0292,Functional,Must,EPIC-300,Plugin SDK and manifest contract,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0293,Functional,Must,EPIC-300,Plugin SDK and manifest contract,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0294,Functional,Must,EPIC-300,Plugin SDK and manifest contract,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0295,Functional,Must,EPIC-300,Plugin SDK and manifest contract,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0296,Functional,Must,EPIC-300,Plugin SDK and manifest contract,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0297,Functional,Must,EPIC-301,"Plugin discovery, resolution and dependency isolation",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0298,Functional,Must,EPIC-301,"Plugin discovery, resolution and dependency isolation",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0299,Functional,Must,EPIC-301,"Plugin discovery, resolution and dependency isolation",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0300,Functional,Must,EPIC-301,"Plugin discovery, resolution and dependency isolation",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0301,Functional,Must,EPIC-301,"Plugin discovery, resolution and dependency isolation",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0302,Functional,Must,EPIC-301,"Plugin discovery, resolution and dependency isolation",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0303,Functional,Must,EPIC-301,"Plugin discovery, resolution and dependency isolation",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0304,Functional,Must,EPIC-301,"Plugin discovery, resolution and dependency isolation",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0305,Functional,Must,EPIC-302,Trusted in-process plugin runtime,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0306,Functional,Must,EPIC-302,Trusted in-process plugin runtime,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0307,Functional,Must,EPIC-302,Trusted in-process plugin runtime,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0308,Functional,Must,EPIC-302,Trusted in-process plugin runtime,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0309,Functional,Must,EPIC-302,Trusted in-process plugin runtime,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0310,Functional,Must,EPIC-302,Trusted in-process plugin runtime,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0311,Functional,Must,EPIC-302,Trusted in-process plugin runtime,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0312,Functional,Must,EPIC-302,Trusted in-process plugin runtime,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0313,Functional,Must,EPIC-303,Isolated language-neutral plugin runtime,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0314,Functional,Must,EPIC-303,Isolated language-neutral plugin runtime,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0315,Functional,Must,EPIC-303,Isolated language-neutral plugin runtime,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0316,Functional,Must,EPIC-303,Isolated language-neutral plugin runtime,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0317,Functional,Must,EPIC-303,Isolated language-neutral plugin runtime,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0318,Functional,Must,EPIC-303,Isolated language-neutral plugin runtime,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0319,Functional,Must,EPIC-303,Isolated language-neutral plugin runtime,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0320,Functional,Must,EPIC-303,Isolated language-neutral plugin runtime,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0321,Functional,Must,EPIC-304,"Trigger, condition and notification extension contracts",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0322,Functional,Must,EPIC-304,"Trigger, condition and notification extension contracts",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0323,Functional,Must,EPIC-304,"Trigger, condition and notification extension contracts",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0324,Functional,Must,EPIC-304,"Trigger, condition and notification extension contracts",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0325,Functional,Must,EPIC-304,"Trigger, condition and notification extension contracts",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0326,Functional,Must,EPIC-304,"Trigger, condition and notification extension contracts",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0327,Functional,Must,EPIC-304,"Trigger, condition and notification extension contracts",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0328,Functional,Must,EPIC-305,"Plugin registry, signing, SBOM and marketplace metadata",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0329,Functional,Must,EPIC-305,"Plugin registry, signing, SBOM and marketplace metadata",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0330,Functional,Must,EPIC-305,"Plugin registry, signing, SBOM and marketplace metadata",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0331,Functional,Must,EPIC-305,"Plugin registry, signing, SBOM and marketplace metadata",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0332,Functional,Must,EPIC-305,"Plugin registry, signing, SBOM and marketplace metadata",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0333,Functional,Must,EPIC-305,"Plugin registry, signing, SBOM and marketplace metadata",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0334,Functional,Must,EPIC-305,"Plugin registry, signing, SBOM and marketplace metadata",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0335,Functional,Must,EPIC-305,"Plugin registry, signing, SBOM and marketplace metadata",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0336,Functional,Must,EPIC-306,Core utility plugin pack,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0337,Functional,Must,EPIC-306,Core utility plugin pack,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0338,Functional,Must,EPIC-306,Core utility plugin pack,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0339,Functional,Must,EPIC-306,Core utility plugin pack,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0340,Functional,Must,EPIC-306,Core utility plugin pack,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0341,Functional,Must,EPIC-306,Core utility plugin pack,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0342,Functional,Must,EPIC-306,Core utility plugin pack,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0343,Functional,Must,EPIC-306,Core utility plugin pack,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0344,Functional,Must,EPIC-307,Multi-language script plugin pack,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0345,Functional,Must,EPIC-307,Multi-language script plugin pack,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0346,Functional,Must,EPIC-307,Multi-language script plugin pack,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0347,Functional,Must,EPIC-307,Multi-language script plugin pack,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0348,Functional,Must,EPIC-307,Multi-language script plugin pack,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0349,Functional,Must,EPIC-307,Multi-language script plugin pack,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0350,Functional,Must,EPIC-307,Multi-language script plugin pack,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0351,Functional,Must,EPIC-307,Multi-language script plugin pack,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0352,Functional,Must,EPIC-308,"Database, analytics and storage plugin pack",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0353,Functional,Must,EPIC-308,"Database, analytics and storage plugin pack",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0354,Functional,Must,EPIC-308,"Database, analytics and storage plugin pack",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0355,Functional,Must,EPIC-308,"Database, analytics and storage plugin pack",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0356,Functional,Must,EPIC-308,"Database, analytics and storage plugin pack",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0357,Functional,Must,EPIC-308,"Database, analytics and storage plugin pack",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0358,Functional,Must,EPIC-308,"Database, analytics and storage plugin pack",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0359,Functional,Must,EPIC-308,"Database, analytics and storage plugin pack",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0360,Functional,Must,EPIC-309,Cloud and infrastructure plugin pack,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0361,Functional,Must,EPIC-309,Cloud and infrastructure plugin pack,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0362,Functional,Must,EPIC-309,Cloud and infrastructure plugin pack,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0363,Functional,Must,EPIC-309,Cloud and infrastructure plugin pack,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0364,Functional,Must,EPIC-309,Cloud and infrastructure plugin pack,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0365,Functional,Must,EPIC-309,Cloud and infrastructure plugin pack,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0366,Functional,Must,EPIC-309,Cloud and infrastructure plugin pack,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0367,Functional,Must,EPIC-309,Cloud and infrastructure plugin pack,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0368,Functional,Must,EPIC-310,Messaging and event-stream plugin pack,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0369,Functional,Must,EPIC-310,Messaging and event-stream plugin pack,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0370,Functional,Must,EPIC-310,Messaging and event-stream plugin pack,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0371,Functional,Must,EPIC-310,Messaging and event-stream plugin pack,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0372,Functional,Must,EPIC-310,Messaging and event-stream plugin pack,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0373,Functional,Must,EPIC-310,Messaging and event-stream plugin pack,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0374,Functional,Must,EPIC-310,Messaging and event-stream plugin pack,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0375,Functional,Must,EPIC-310,Messaging and event-stream plugin pack,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0376,Functional,Must,EPIC-311,Notification and collaboration plugin pack,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0377,Functional,Must,EPIC-311,Notification and collaboration plugin pack,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0378,Functional,Must,EPIC-311,Notification and collaboration plugin pack,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0379,Functional,Must,EPIC-311,Notification and collaboration plugin pack,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0380,Functional,Must,EPIC-311,Notification and collaboration plugin pack,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0381,Functional,Must,EPIC-311,Notification and collaboration plugin pack,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0382,Functional,Must,EPIC-311,Notification and collaboration plugin pack,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0383,Functional,Must,EPIC-312,"AI, agent and MCP plugin pack",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0384,Functional,Must,EPIC-312,"AI, agent and MCP plugin pack",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0385,Functional,Must,EPIC-312,"AI, agent and MCP plugin pack",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0386,Functional,Must,EPIC-312,"AI, agent and MCP plugin pack",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0387,Functional,Must,EPIC-312,"AI, agent and MCP plugin pack",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0388,Functional,Must,EPIC-312,"AI, agent and MCP plugin pack",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0389,Functional,Must,EPIC-312,"AI, agent and MCP plugin pack",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0390,Functional,Must,EPIC-312,"AI, agent and MCP plugin pack",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0391,Functional,Must,EPIC-313,Plugin developer portal and certification suite,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0392,Functional,Must,EPIC-313,Plugin developer portal and certification suite,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0393,Functional,Must,EPIC-313,Plugin developer portal and certification suite,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0394,Functional,Must,EPIC-313,Plugin developer portal and certification suite,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0395,Functional,Must,EPIC-313,Plugin developer portal and certification suite,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0396,Functional,Must,EPIC-313,Plugin developer portal and certification suite,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0397,Functional,Must,EPIC-313,Plugin developer portal and certification suite,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0398,Functional,Must,EPIC-400,Versioned REST API and OpenAPI contract,M4,4,OpenAPI contract and authenticated end-to-end API tests,Proposed
+URS-F-0399,Functional,Must,EPIC-400,Versioned REST API and OpenAPI contract,M4,4,OpenAPI contract and authenticated end-to-end API tests,Proposed
+URS-F-0400,Functional,Must,EPIC-400,Versioned REST API and OpenAPI contract,M4,4,OpenAPI contract and authenticated end-to-end API tests,Proposed
+URS-F-0401,Functional,Must,EPIC-400,Versioned REST API and OpenAPI contract,M4,4,OpenAPI contract and authenticated end-to-end API tests,Proposed
+URS-F-0402,Functional,Must,EPIC-400,Versioned REST API and OpenAPI contract,M4,4,OpenAPI contract and authenticated end-to-end API tests,Proposed
+URS-F-0403,Functional,Must,EPIC-400,Versioned REST API and OpenAPI contract,M4,4,OpenAPI contract and authenticated end-to-end API tests,Proposed
+URS-F-0404,Functional,Must,EPIC-400,Versioned REST API and OpenAPI contract,M4,4,OpenAPI contract and authenticated end-to-end API tests,Proposed
+URS-F-0405,Functional,Must,EPIC-400,Versioned REST API and OpenAPI contract,M4,4,OpenAPI contract and authenticated end-to-end API tests,Proposed
+URS-F-0406,Functional,Must,EPIC-401,"Realtime API, webhooks and event subscriptions",M4,4,OpenAPI contract and authenticated end-to-end API tests,Proposed
+URS-F-0407,Functional,Must,EPIC-401,"Realtime API, webhooks and event subscriptions",M4,4,OpenAPI contract and authenticated end-to-end API tests,Proposed
+URS-F-0408,Functional,Must,EPIC-401,"Realtime API, webhooks and event subscriptions",M4,4,OpenAPI contract and authenticated end-to-end API tests,Proposed
+URS-F-0409,Functional,Must,EPIC-401,"Realtime API, webhooks and event subscriptions",M4,4,OpenAPI contract and authenticated end-to-end API tests,Proposed
+URS-F-0410,Functional,Must,EPIC-401,"Realtime API, webhooks and event subscriptions",M4,4,OpenAPI contract and authenticated end-to-end API tests,Proposed
+URS-F-0411,Functional,Must,EPIC-401,"Realtime API, webhooks and event subscriptions",M4,4,OpenAPI contract and authenticated end-to-end API tests,Proposed
+URS-F-0412,Functional,Must,EPIC-401,"Realtime API, webhooks and event subscriptions",M4,4,OpenAPI contract and authenticated end-to-end API tests,Proposed
+URS-F-0413,Functional,Must,EPIC-401,"Realtime API, webhooks and event subscriptions",M4,4,OpenAPI contract and authenticated end-to-end API tests,Proposed
+URS-F-0414,Functional,Must,EPIC-402,CLI and generated client SDKs,M4,4,OpenAPI contract and authenticated end-to-end API tests,Proposed
+URS-F-0415,Functional,Must,EPIC-402,CLI and generated client SDKs,M4,4,OpenAPI contract and authenticated end-to-end API tests,Proposed
+URS-F-0416,Functional,Must,EPIC-402,CLI and generated client SDKs,M4,4,OpenAPI contract and authenticated end-to-end API tests,Proposed
+URS-F-0417,Functional,Must,EPIC-402,CLI and generated client SDKs,M4,4,OpenAPI contract and authenticated end-to-end API tests,Proposed
+URS-F-0418,Functional,Must,EPIC-402,CLI and generated client SDKs,M4,4,OpenAPI contract and authenticated end-to-end API tests,Proposed
+URS-F-0419,Functional,Must,EPIC-402,CLI and generated client SDKs,M4,4,OpenAPI contract and authenticated end-to-end API tests,Proposed
+URS-F-0420,Functional,Must,EPIC-402,CLI and generated client SDKs,M4,4,OpenAPI contract and authenticated end-to-end API tests,Proposed
+URS-F-0421,Functional,Must,EPIC-402,CLI and generated client SDKs,M4,4,OpenAPI contract and authenticated end-to-end API tests,Proposed
+URS-F-0422,Functional,Must,EPIC-403,Authentication session and credential entry points,M4,4,Security integration tests and threat-model review,Proposed
+URS-F-0423,Functional,Must,EPIC-403,Authentication session and credential entry points,M4,4,Security integration tests and threat-model review,Proposed
+URS-F-0424,Functional,Must,EPIC-403,Authentication session and credential entry points,M4,4,Security integration tests and threat-model review,Proposed
+URS-F-0425,Functional,Must,EPIC-403,Authentication session and credential entry points,M4,4,Security integration tests and threat-model review,Proposed
+URS-F-0426,Functional,Must,EPIC-403,Authentication session and credential entry points,M4,4,Security integration tests and threat-model review,Proposed
+URS-F-0427,Functional,Must,EPIC-403,Authentication session and credential entry points,M4,4,Security integration tests and threat-model review,Proposed
+URS-F-0428,Functional,Must,EPIC-403,Authentication session and credential entry points,M4,4,Security integration tests and threat-model review,Proposed
+URS-F-0429,Functional,Must,EPIC-403,Authentication session and credential entry points,M4,4,Security integration tests and threat-model review,Proposed
+URS-F-0430,Functional,Must,EPIC-404,"Web UI shell, navigation and accessibility",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
+URS-F-0431,Functional,Must,EPIC-404,"Web UI shell, navigation and accessibility",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
+URS-F-0432,Functional,Must,EPIC-404,"Web UI shell, navigation and accessibility",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
+URS-F-0433,Functional,Must,EPIC-404,"Web UI shell, navigation and accessibility",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
+URS-F-0434,Functional,Must,EPIC-404,"Web UI shell, navigation and accessibility",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
+URS-F-0435,Functional,Must,EPIC-404,"Web UI shell, navigation and accessibility",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
+URS-F-0436,Functional,Must,EPIC-404,"Web UI shell, navigation and accessibility",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
+URS-F-0437,Functional,Must,EPIC-404,"Web UI shell, navigation and accessibility",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
+URS-F-0438,Functional,Must,EPIC-405,Flow code editor and validation experience,M4,4,"Automated browser, accessibility and manual usability tests",Proposed
+URS-F-0439,Functional,Must,EPIC-405,Flow code editor and validation experience,M4,4,"Automated browser, accessibility and manual usability tests",Proposed
+URS-F-0440,Functional,Must,EPIC-405,Flow code editor and validation experience,M4,4,"Automated browser, accessibility and manual usability tests",Proposed
+URS-F-0441,Functional,Must,EPIC-405,Flow code editor and validation experience,M4,4,"Automated browser, accessibility and manual usability tests",Proposed
+URS-F-0442,Functional,Must,EPIC-405,Flow code editor and validation experience,M4,4,"Automated browser, accessibility and manual usability tests",Proposed
+URS-F-0443,Functional,Must,EPIC-405,Flow code editor and validation experience,M4,4,"Automated browser, accessibility and manual usability tests",Proposed
+URS-F-0444,Functional,Must,EPIC-405,Flow code editor and validation experience,M4,4,"Automated browser, accessibility and manual usability tests",Proposed
+URS-F-0445,Functional,Must,EPIC-405,Flow code editor and validation experience,M4,4,"Automated browser, accessibility and manual usability tests",Proposed
+URS-F-0446,Functional,Must,EPIC-406,Visual no-code editor and topology model,M4,4,"Automated browser, accessibility and manual usability tests",Proposed
+URS-F-0447,Functional,Must,EPIC-406,Visual no-code editor and topology model,M4,4,"Automated browser, accessibility and manual usability tests",Proposed
+URS-F-0448,Functional,Must,EPIC-406,Visual no-code editor and topology model,M4,4,"Automated browser, accessibility and manual usability tests",Proposed
+URS-F-0449,Functional,Must,EPIC-406,Visual no-code editor and topology model,M4,4,"Automated browser, accessibility and manual usability tests",Proposed
+URS-F-0450,Functional,Must,EPIC-406,Visual no-code editor and topology model,M4,4,"Automated browser, accessibility and manual usability tests",Proposed
+URS-F-0451,Functional,Must,EPIC-406,Visual no-code editor and topology model,M4,4,"Automated browser, accessibility and manual usability tests",Proposed
+URS-F-0452,Functional,Must,EPIC-406,Visual no-code editor and topology model,M4,4,"Automated browser, accessibility and manual usability tests",Proposed
+URS-F-0453,Functional,Must,EPIC-406,Visual no-code editor and topology model,M4,4,"Automated browser, accessibility and manual usability tests",Proposed
+URS-F-0454,Functional,Must,EPIC-407,"Execution details, Gantt, logs and debugging UI",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
+URS-F-0455,Functional,Must,EPIC-407,"Execution details, Gantt, logs and debugging UI",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
+URS-F-0456,Functional,Must,EPIC-407,"Execution details, Gantt, logs and debugging UI",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
+URS-F-0457,Functional,Must,EPIC-407,"Execution details, Gantt, logs and debugging UI",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
+URS-F-0458,Functional,Must,EPIC-407,"Execution details, Gantt, logs and debugging UI",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
+URS-F-0459,Functional,Must,EPIC-407,"Execution details, Gantt, logs and debugging UI",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
+URS-F-0460,Functional,Must,EPIC-407,"Execution details, Gantt, logs and debugging UI",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
+URS-F-0461,Functional,Must,EPIC-407,"Execution details, Gantt, logs and debugging UI",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
+URS-F-0462,Functional,Must,EPIC-408,"Dashboards, query language and saved views",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
+URS-F-0463,Functional,Must,EPIC-408,"Dashboards, query language and saved views",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
+URS-F-0464,Functional,Must,EPIC-408,"Dashboards, query language and saved views",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
+URS-F-0465,Functional,Must,EPIC-408,"Dashboards, query language and saved views",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
+URS-F-0466,Functional,Must,EPIC-408,"Dashboards, query language and saved views",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
+URS-F-0467,Functional,Must,EPIC-408,"Dashboards, query language and saved views",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
+URS-F-0468,Functional,Must,EPIC-408,"Dashboards, query language and saved views",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
+URS-F-0469,Functional,Must,EPIC-408,"Dashboards, query language and saved views",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
+URS-F-0470,Functional,Must,EPIC-409,"Search, indexing and retrieval projections",M4,4,"Projection rebuild, isolation and query contract tests",Proposed
+URS-F-0471,Functional,Must,EPIC-409,"Search, indexing and retrieval projections",M4,4,"Projection rebuild, isolation and query contract tests",Proposed
+URS-F-0472,Functional,Must,EPIC-409,"Search, indexing and retrieval projections",M4,4,"Projection rebuild, isolation and query contract tests",Proposed
+URS-F-0473,Functional,Must,EPIC-409,"Search, indexing and retrieval projections",M4,4,"Projection rebuild, isolation and query contract tests",Proposed
+URS-F-0474,Functional,Must,EPIC-409,"Search, indexing and retrieval projections",M4,4,"Projection rebuild, isolation and query contract tests",Proposed
+URS-F-0475,Functional,Must,EPIC-409,"Search, indexing and retrieval projections",M4,4,"Projection rebuild, isolation and query contract tests",Proposed
+URS-F-0476,Functional,Must,EPIC-409,"Search, indexing and retrieval projections",M4,4,"Projection rebuild, isolation and query contract tests",Proposed
+URS-F-0477,Functional,Must,EPIC-409,"Search, indexing and retrieval projections",M4,4,"Projection rebuild, isolation and query contract tests",Proposed
+URS-F-0478,Functional,Must,EPIC-410,"Namespace, settings and administration UI",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
+URS-F-0479,Functional,Must,EPIC-410,"Namespace, settings and administration UI",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
+URS-F-0480,Functional,Must,EPIC-410,"Namespace, settings and administration UI",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
+URS-F-0481,Functional,Must,EPIC-410,"Namespace, settings and administration UI",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
+URS-F-0482,Functional,Must,EPIC-410,"Namespace, settings and administration UI",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
+URS-F-0483,Functional,Must,EPIC-410,"Namespace, settings and administration UI",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
+URS-F-0484,Functional,Must,EPIC-410,"Namespace, settings and administration UI",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
+URS-F-0485,Functional,Must,EPIC-410,"Namespace, settings and administration UI",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
+URS-F-0486,Functional,Must,EPIC-411,"Blueprints, playground and onboarding",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
+URS-F-0487,Functional,Must,EPIC-411,"Blueprints, playground and onboarding",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
+URS-F-0488,Functional,Must,EPIC-411,"Blueprints, playground and onboarding",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
+URS-F-0489,Functional,Must,EPIC-411,"Blueprints, playground and onboarding",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
+URS-F-0490,Functional,Must,EPIC-411,"Blueprints, playground and onboarding",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
+URS-F-0491,Functional,Must,EPIC-411,"Blueprints, playground and onboarding",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
+URS-F-0492,Functional,Must,EPIC-411,"Blueprints, playground and onboarding",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
+URS-F-0493,Functional,Must,EPIC-411,"Blueprints, playground and onboarding",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
+URS-F-0494,Functional,Must,EPIC-500,"Users, groups, roles, bindings and authorization",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0495,Functional,Must,EPIC-500,"Users, groups, roles, bindings and authorization",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0496,Functional,Must,EPIC-500,"Users, groups, roles, bindings and authorization",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0497,Functional,Must,EPIC-500,"Users, groups, roles, bindings and authorization",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0498,Functional,Must,EPIC-500,"Users, groups, roles, bindings and authorization",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0499,Functional,Must,EPIC-500,"Users, groups, roles, bindings and authorization",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0500,Functional,Must,EPIC-500,"Users, groups, roles, bindings and authorization",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0501,Functional,Must,EPIC-500,"Users, groups, roles, bindings and authorization",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0502,Functional,Must,EPIC-501,"Service accounts, API tokens and credentials",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0503,Functional,Must,EPIC-501,"Service accounts, API tokens and credentials",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0504,Functional,Must,EPIC-501,"Service accounts, API tokens and credentials",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0505,Functional,Must,EPIC-501,"Service accounts, API tokens and credentials",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0506,Functional,Must,EPIC-501,"Service accounts, API tokens and credentials",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0507,Functional,Must,EPIC-501,"Service accounts, API tokens and credentials",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0508,Functional,Must,EPIC-501,"Service accounts, API tokens and credentials",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0509,Functional,Must,EPIC-501,"Service accounts, API tokens and credentials",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0510,Functional,Must,EPIC-502,"SSO, OIDC, SAML, LDAP and SCIM",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0511,Functional,Must,EPIC-502,"SSO, OIDC, SAML, LDAP and SCIM",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0512,Functional,Must,EPIC-502,"SSO, OIDC, SAML, LDAP and SCIM",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0513,Functional,Must,EPIC-502,"SSO, OIDC, SAML, LDAP and SCIM",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0514,Functional,Must,EPIC-502,"SSO, OIDC, SAML, LDAP and SCIM",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0515,Functional,Must,EPIC-502,"SSO, OIDC, SAML, LDAP and SCIM",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0516,Functional,Must,EPIC-502,"SSO, OIDC, SAML, LDAP and SCIM",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0517,Functional,Must,EPIC-502,"SSO, OIDC, SAML, LDAP and SCIM",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0518,Functional,Must,EPIC-503,Multi-tenancy and resource isolation,M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0519,Functional,Must,EPIC-503,Multi-tenancy and resource isolation,M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0520,Functional,Must,EPIC-503,Multi-tenancy and resource isolation,M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0521,Functional,Must,EPIC-503,Multi-tenancy and resource isolation,M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0522,Functional,Must,EPIC-503,Multi-tenancy and resource isolation,M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0523,Functional,Must,EPIC-503,Multi-tenancy and resource isolation,M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0524,Functional,Must,EPIC-503,Multi-tenancy and resource isolation,M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0525,Functional,Must,EPIC-503,Multi-tenancy and resource isolation,M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0526,Functional,Must,EPIC-504,Immutable audit log and evidence export,M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0527,Functional,Must,EPIC-504,Immutable audit log and evidence export,M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0528,Functional,Must,EPIC-504,Immutable audit log and evidence export,M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0529,Functional,Must,EPIC-504,Immutable audit log and evidence export,M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0530,Functional,Must,EPIC-504,Immutable audit log and evidence export,M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0531,Functional,Must,EPIC-504,Immutable audit log and evidence export,M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0532,Functional,Must,EPIC-504,Immutable audit log and evidence export,M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0533,Functional,Must,EPIC-504,Immutable audit log and evidence export,M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0534,Functional,Must,EPIC-505,"Plugin allow, restrict and version policy",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0535,Functional,Must,EPIC-505,"Plugin allow, restrict and version policy",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0536,Functional,Must,EPIC-505,"Plugin allow, restrict and version policy",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0537,Functional,Must,EPIC-505,"Plugin allow, restrict and version policy",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0538,Functional,Must,EPIC-505,"Plugin allow, restrict and version policy",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0539,Functional,Must,EPIC-505,"Plugin allow, restrict and version policy",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0540,Functional,Must,EPIC-505,"Plugin allow, restrict and version policy",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0541,Functional,Must,EPIC-505,"Plugin allow, restrict and version policy",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0542,Functional,Must,EPIC-506,External secrets managers and secret lifecycle,M5,5,Security integration tests and threat-model review,Proposed
+URS-F-0543,Functional,Must,EPIC-506,External secrets managers and secret lifecycle,M5,5,Security integration tests and threat-model review,Proposed
+URS-F-0544,Functional,Must,EPIC-506,External secrets managers and secret lifecycle,M5,5,Security integration tests and threat-model review,Proposed
+URS-F-0545,Functional,Must,EPIC-506,External secrets managers and secret lifecycle,M5,5,Security integration tests and threat-model review,Proposed
+URS-F-0546,Functional,Must,EPIC-506,External secrets managers and secret lifecycle,M5,5,Security integration tests and threat-model review,Proposed
+URS-F-0547,Functional,Must,EPIC-506,External secrets managers and secret lifecycle,M5,5,Security integration tests and threat-model review,Proposed
+URS-F-0548,Functional,Must,EPIC-506,External secrets managers and secret lifecycle,M5,5,Security integration tests and threat-model review,Proposed
+URS-F-0549,Functional,Must,EPIC-506,External secrets managers and secret lifecycle,M5,5,Security integration tests and threat-model review,Proposed
+URS-F-0550,Functional,Must,EPIC-507,"Assets, lineage and catalog",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0551,Functional,Must,EPIC-507,"Assets, lineage and catalog",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0552,Functional,Must,EPIC-507,"Assets, lineage and catalog",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0553,Functional,Must,EPIC-507,"Assets, lineage and catalog",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0554,Functional,Must,EPIC-507,"Assets, lineage and catalog",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0555,Functional,Must,EPIC-507,"Assets, lineage and catalog",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0556,Functional,Must,EPIC-507,"Assets, lineage and catalog",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0557,Functional,Must,EPIC-507,"Assets, lineage and catalog",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0558,Functional,Must,EPIC-508,"Apps, forms and human approval tasks",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0559,Functional,Must,EPIC-508,"Apps, forms and human approval tasks",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0560,Functional,Must,EPIC-508,"Apps, forms and human approval tasks",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0561,Functional,Must,EPIC-508,"Apps, forms and human approval tasks",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0562,Functional,Must,EPIC-508,"Apps, forms and human approval tasks",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0563,Functional,Must,EPIC-508,"Apps, forms and human approval tasks",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0564,Functional,Must,EPIC-508,"Apps, forms and human approval tasks",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0565,Functional,Must,EPIC-508,"Apps, forms and human approval tasks",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0566,Functional,Must,EPIC-509,"Announcements, maintenance mode and kill switch",M5,5,"Reference deployment, upgrade and failure-recovery tests",Proposed
+URS-F-0567,Functional,Must,EPIC-509,"Announcements, maintenance mode and kill switch",M5,5,"Reference deployment, upgrade and failure-recovery tests",Proposed
+URS-F-0568,Functional,Must,EPIC-509,"Announcements, maintenance mode and kill switch",M5,5,"Reference deployment, upgrade and failure-recovery tests",Proposed
+URS-F-0569,Functional,Must,EPIC-509,"Announcements, maintenance mode and kill switch",M5,5,"Reference deployment, upgrade and failure-recovery tests",Proposed
+URS-F-0570,Functional,Must,EPIC-509,"Announcements, maintenance mode and kill switch",M5,5,"Reference deployment, upgrade and failure-recovery tests",Proposed
+URS-F-0571,Functional,Must,EPIC-509,"Announcements, maintenance mode and kill switch",M5,5,"Reference deployment, upgrade and failure-recovery tests",Proposed
+URS-F-0572,Functional,Must,EPIC-509,"Announcements, maintenance mode and kill switch",M5,5,"Reference deployment, upgrade and failure-recovery tests",Proposed
+URS-F-0573,Functional,Must,EPIC-509,"Announcements, maintenance mode and kill switch",M5,5,"Reference deployment, upgrade and failure-recovery tests",Proposed
+URS-F-0574,Functional,Must,EPIC-510,Flow unit tests and quality gates,M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0575,Functional,Must,EPIC-510,Flow unit tests and quality gates,M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0576,Functional,Must,EPIC-510,Flow unit tests and quality gates,M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0577,Functional,Must,EPIC-510,Flow unit tests and quality gates,M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0578,Functional,Must,EPIC-510,Flow unit tests and quality gates,M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0579,Functional,Must,EPIC-510,Flow unit tests and quality gates,M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0580,Functional,Must,EPIC-510,Flow unit tests and quality gates,M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0581,Functional,Must,EPIC-510,Flow unit tests and quality gates,M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0582,Functional,Must,EPIC-600,Standalone server and compact deployment,M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
+URS-F-0583,Functional,Must,EPIC-600,Standalone server and compact deployment,M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
+URS-F-0584,Functional,Must,EPIC-600,Standalone server and compact deployment,M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
+URS-F-0585,Functional,Must,EPIC-600,Standalone server and compact deployment,M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
+URS-F-0586,Functional,Must,EPIC-600,Standalone server and compact deployment,M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
+URS-F-0587,Functional,Must,EPIC-600,Standalone server and compact deployment,M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
+URS-F-0588,Functional,Must,EPIC-600,Standalone server and compact deployment,M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
+URS-F-0589,Functional,Must,EPIC-600,Standalone server and compact deployment,M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
+URS-F-0590,Functional,Must,EPIC-601,Distributed services and high availability,M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
+URS-F-0591,Functional,Must,EPIC-601,Distributed services and high availability,M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
+URS-F-0592,Functional,Must,EPIC-601,Distributed services and high availability,M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
+URS-F-0593,Functional,Must,EPIC-601,Distributed services and high availability,M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
+URS-F-0594,Functional,Must,EPIC-601,Distributed services and high availability,M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
+URS-F-0595,Functional,Must,EPIC-601,Distributed services and high availability,M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
+URS-F-0596,Functional,Must,EPIC-601,Distributed services and high availability,M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
+URS-F-0597,Functional,Must,EPIC-601,Distributed services and high availability,M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
+URS-F-0598,Functional,Must,EPIC-602,PostgreSQL transactional backend,M6,6,Repository or storage adapter contract and fault-injection tests,Proposed
+URS-F-0599,Functional,Must,EPIC-602,PostgreSQL transactional backend,M6,6,Repository or storage adapter contract and fault-injection tests,Proposed
+URS-F-0600,Functional,Must,EPIC-602,PostgreSQL transactional backend,M6,6,Repository or storage adapter contract and fault-injection tests,Proposed
+URS-F-0601,Functional,Must,EPIC-602,PostgreSQL transactional backend,M6,6,Repository or storage adapter contract and fault-injection tests,Proposed
+URS-F-0602,Functional,Must,EPIC-602,PostgreSQL transactional backend,M6,6,Repository or storage adapter contract and fault-injection tests,Proposed
+URS-F-0603,Functional,Must,EPIC-602,PostgreSQL transactional backend,M6,6,Repository or storage adapter contract and fault-injection tests,Proposed
+URS-F-0604,Functional,Must,EPIC-602,PostgreSQL transactional backend,M6,6,Repository or storage adapter contract and fault-injection tests,Proposed
+URS-F-0605,Functional,Must,EPIC-602,PostgreSQL transactional backend,M6,6,Repository or storage adapter contract and fault-injection tests,Proposed
+URS-F-0606,Functional,Must,EPIC-603,PostgreSQL distributed work queue and notifications,M6,6,"PostgreSQL delivery, ordering, duplicate, failover and saturation conformance tests",Proposed
+URS-F-0607,Functional,Must,EPIC-603,PostgreSQL distributed work queue and notifications,M6,6,"PostgreSQL delivery, ordering, duplicate, failover and saturation conformance tests",Proposed
+URS-F-0608,Functional,Must,EPIC-603,PostgreSQL distributed work queue and notifications,M6,6,"PostgreSQL delivery, ordering, duplicate, failover and saturation conformance tests",Proposed
+URS-F-0609,Functional,Must,EPIC-603,PostgreSQL distributed work queue and notifications,M6,6,"PostgreSQL delivery, ordering, duplicate, failover and saturation conformance tests",Proposed
+URS-F-0610,Functional,Must,EPIC-603,PostgreSQL distributed work queue and notifications,M6,6,"PostgreSQL delivery, ordering, duplicate, failover and saturation conformance tests",Proposed
+URS-F-0611,Functional,Must,EPIC-603,PostgreSQL distributed work queue and notifications,M6,6,"PostgreSQL delivery, ordering, duplicate, failover and saturation conformance tests",Proposed
+URS-F-0612,Functional,Must,EPIC-603,PostgreSQL distributed work queue and notifications,M6,6,"PostgreSQL delivery, ordering, duplicate, failover and saturation conformance tests",Proposed
+URS-F-0613,Functional,Must,EPIC-603,PostgreSQL distributed work queue and notifications,M6,6,"PostgreSQL delivery, ordering, duplicate, failover and saturation conformance tests",Proposed
+URS-F-0614,Functional,Must,EPIC-604,Search and analytics projection backend,M6,6,"PostgreSQL projection rebuild, isolation, retention and query-load tests",Proposed
+URS-F-0615,Functional,Must,EPIC-604,Search and analytics projection backend,M6,6,"PostgreSQL projection rebuild, isolation, retention and query-load tests",Proposed
+URS-F-0616,Functional,Must,EPIC-604,Search and analytics projection backend,M6,6,"PostgreSQL projection rebuild, isolation, retention and query-load tests",Proposed
+URS-F-0617,Functional,Must,EPIC-604,Search and analytics projection backend,M6,6,"PostgreSQL projection rebuild, isolation, retention and query-load tests",Proposed
+URS-F-0618,Functional,Must,EPIC-604,Search and analytics projection backend,M6,6,"PostgreSQL projection rebuild, isolation, retention and query-load tests",Proposed
+URS-F-0619,Functional,Must,EPIC-604,Search and analytics projection backend,M6,6,"PostgreSQL projection rebuild, isolation, retention and query-load tests",Proposed
+URS-F-0620,Functional,Must,EPIC-604,Search and analytics projection backend,M6,6,"PostgreSQL projection rebuild, isolation, retention and query-load tests",Proposed
+URS-F-0621,Functional,Must,EPIC-604,Search and analytics projection backend,M6,6,"PostgreSQL projection rebuild, isolation, retention and query-load tests",Proposed
+URS-F-0622,Functional,Must,EPIC-605,Object storage backends and lifecycle,M6,6,Repository or storage adapter contract and fault-injection tests,Proposed
+URS-F-0623,Functional,Must,EPIC-605,Object storage backends and lifecycle,M6,6,Repository or storage adapter contract and fault-injection tests,Proposed
+URS-F-0624,Functional,Must,EPIC-605,Object storage backends and lifecycle,M6,6,Repository or storage adapter contract and fault-injection tests,Proposed
+URS-F-0625,Functional,Must,EPIC-605,Object storage backends and lifecycle,M6,6,Repository or storage adapter contract and fault-injection tests,Proposed
+URS-F-0626,Functional,Must,EPIC-605,Object storage backends and lifecycle,M6,6,Repository or storage adapter contract and fault-injection tests,Proposed
+URS-F-0627,Functional,Must,EPIC-605,Object storage backends and lifecycle,M6,6,Repository or storage adapter contract and fault-injection tests,Proposed
+URS-F-0628,Functional,Must,EPIC-605,Object storage backends and lifecycle,M6,6,Repository or storage adapter contract and fault-injection tests,Proposed
+URS-F-0629,Functional,Must,EPIC-605,Object storage backends and lifecycle,M6,6,Repository or storage adapter contract and fault-injection tests,Proposed
+URS-F-0630,Functional,Must,EPIC-606,"Containers, Kubernetes and Helm deployment",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
+URS-F-0631,Functional,Must,EPIC-606,"Containers, Kubernetes and Helm deployment",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
+URS-F-0632,Functional,Must,EPIC-606,"Containers, Kubernetes and Helm deployment",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
+URS-F-0633,Functional,Must,EPIC-606,"Containers, Kubernetes and Helm deployment",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
+URS-F-0634,Functional,Must,EPIC-606,"Containers, Kubernetes and Helm deployment",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
+URS-F-0635,Functional,Must,EPIC-606,"Containers, Kubernetes and Helm deployment",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
+URS-F-0636,Functional,Must,EPIC-606,"Containers, Kubernetes and Helm deployment",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
+URS-F-0637,Functional,Must,EPIC-606,"Containers, Kubernetes and Helm deployment",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
+URS-F-0638,Functional,Must,EPIC-607,"OpenTelemetry, Prometheus and log shipping",M6,6,Telemetry contract and outage tests,Proposed
+URS-F-0639,Functional,Must,EPIC-607,"OpenTelemetry, Prometheus and log shipping",M6,6,Telemetry contract and outage tests,Proposed
+URS-F-0640,Functional,Must,EPIC-607,"OpenTelemetry, Prometheus and log shipping",M6,6,Telemetry contract and outage tests,Proposed
+URS-F-0641,Functional,Must,EPIC-607,"OpenTelemetry, Prometheus and log shipping",M6,6,Telemetry contract and outage tests,Proposed
+URS-F-0642,Functional,Must,EPIC-607,"OpenTelemetry, Prometheus and log shipping",M6,6,Telemetry contract and outage tests,Proposed
+URS-F-0643,Functional,Must,EPIC-607,"OpenTelemetry, Prometheus and log shipping",M6,6,Telemetry contract and outage tests,Proposed
+URS-F-0644,Functional,Must,EPIC-607,"OpenTelemetry, Prometheus and log shipping",M6,6,Telemetry contract and outage tests,Proposed
+URS-F-0645,Functional,Must,EPIC-607,"OpenTelemetry, Prometheus and log shipping",M6,6,Telemetry contract and outage tests,Proposed
+URS-F-0646,Functional,Must,EPIC-608,"Retention, purge and data lifecycle",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
+URS-F-0647,Functional,Must,EPIC-608,"Retention, purge and data lifecycle",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
+URS-F-0648,Functional,Must,EPIC-608,"Retention, purge and data lifecycle",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
+URS-F-0649,Functional,Must,EPIC-608,"Retention, purge and data lifecycle",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
+URS-F-0650,Functional,Must,EPIC-608,"Retention, purge and data lifecycle",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
+URS-F-0651,Functional,Must,EPIC-608,"Retention, purge and data lifecycle",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
+URS-F-0652,Functional,Must,EPIC-608,"Retention, purge and data lifecycle",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
+URS-F-0653,Functional,Must,EPIC-608,"Retention, purge and data lifecycle",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
+URS-F-0654,Functional,Must,EPIC-609,"Backup, restore and disaster recovery",M6,6,"Fault-injection, replay and invariant tests",Proposed
+URS-F-0655,Functional,Must,EPIC-609,"Backup, restore and disaster recovery",M6,6,"Fault-injection, replay and invariant tests",Proposed
+URS-F-0656,Functional,Must,EPIC-609,"Backup, restore and disaster recovery",M6,6,"Fault-injection, replay and invariant tests",Proposed
+URS-F-0657,Functional,Must,EPIC-609,"Backup, restore and disaster recovery",M6,6,"Fault-injection, replay and invariant tests",Proposed
+URS-F-0658,Functional,Must,EPIC-609,"Backup, restore and disaster recovery",M6,6,"Fault-injection, replay and invariant tests",Proposed
+URS-F-0659,Functional,Must,EPIC-609,"Backup, restore and disaster recovery",M6,6,"Fault-injection, replay and invariant tests",Proposed
+URS-F-0660,Functional,Must,EPIC-609,"Backup, restore and disaster recovery",M6,6,"Fault-injection, replay and invariant tests",Proposed
+URS-F-0661,Functional,Must,EPIC-609,"Backup, restore and disaster recovery",M6,6,"Fault-injection, replay and invariant tests",Proposed
+URS-F-0662,Functional,Must,EPIC-610,"Upgrades, migrations and LTS policy",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
+URS-F-0663,Functional,Must,EPIC-610,"Upgrades, migrations and LTS policy",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
+URS-F-0664,Functional,Must,EPIC-610,"Upgrades, migrations and LTS policy",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
+URS-F-0665,Functional,Must,EPIC-610,"Upgrades, migrations and LTS policy",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
+URS-F-0666,Functional,Must,EPIC-610,"Upgrades, migrations and LTS policy",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
+URS-F-0667,Functional,Must,EPIC-610,"Upgrades, migrations and LTS policy",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
+URS-F-0668,Functional,Must,EPIC-610,"Upgrades, migrations and LTS policy",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
+URS-F-0669,Functional,Must,EPIC-610,"Upgrades, migrations and LTS policy",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
+URS-F-0670,Functional,Must,EPIC-611,"Performance, scale and chaos qualification",M6,6,"Fault-injection, replay and invariant tests",Proposed
+URS-F-0671,Functional,Must,EPIC-611,"Performance, scale and chaos qualification",M6,6,"Fault-injection, replay and invariant tests",Proposed
+URS-F-0672,Functional,Must,EPIC-611,"Performance, scale and chaos qualification",M6,6,"Fault-injection, replay and invariant tests",Proposed
+URS-F-0673,Functional,Must,EPIC-611,"Performance, scale and chaos qualification",M6,6,"Fault-injection, replay and invariant tests",Proposed
+URS-F-0674,Functional,Must,EPIC-611,"Performance, scale and chaos qualification",M6,6,"Fault-injection, replay and invariant tests",Proposed
+URS-F-0675,Functional,Must,EPIC-611,"Performance, scale and chaos qualification",M6,6,"Fault-injection, replay and invariant tests",Proposed
+URS-F-0676,Functional,Must,EPIC-611,"Performance, scale and chaos qualification",M6,6,"Fault-injection, replay and invariant tests",Proposed
+URS-F-0677,Functional,Must,EPIC-611,"Performance, scale and chaos qualification",M6,6,"Fault-injection, replay and invariant tests",Proposed
+URS-F-0678,Functional,Must,EPIC-612,Security hardening and software supply chain,M6,6,Security integration tests and threat-model review,Proposed
+URS-F-0679,Functional,Must,EPIC-612,Security hardening and software supply chain,M6,6,Security integration tests and threat-model review,Proposed
+URS-F-0680,Functional,Must,EPIC-612,Security hardening and software supply chain,M6,6,Security integration tests and threat-model review,Proposed
+URS-F-0681,Functional,Must,EPIC-612,Security hardening and software supply chain,M6,6,Security integration tests and threat-model review,Proposed
+URS-F-0682,Functional,Must,EPIC-612,Security hardening and software supply chain,M6,6,Security integration tests and threat-model review,Proposed
+URS-F-0683,Functional,Must,EPIC-612,Security hardening and software supply chain,M6,6,Security integration tests and threat-model review,Proposed
+URS-F-0684,Functional,Must,EPIC-612,Security hardening and software supply chain,M6,6,Security integration tests and threat-model review,Proposed
+URS-F-0685,Functional,Must,EPIC-612,Security hardening and software supply chain,M6,6,Security integration tests and threat-model review,Proposed
+URS-F-0686,Functional,Must,EPIC-613,"TLS, networking, proxy and private connectivity",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
+URS-F-0687,Functional,Must,EPIC-613,"TLS, networking, proxy and private connectivity",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
+URS-F-0688,Functional,Must,EPIC-613,"TLS, networking, proxy and private connectivity",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
+URS-F-0689,Functional,Must,EPIC-613,"TLS, networking, proxy and private connectivity",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
+URS-F-0690,Functional,Must,EPIC-613,"TLS, networking, proxy and private connectivity",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
+URS-F-0691,Functional,Must,EPIC-613,"TLS, networking, proxy and private connectivity",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
+URS-F-0692,Functional,Must,EPIC-613,"TLS, networking, proxy and private connectivity",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
+URS-F-0693,Functional,Must,EPIC-613,"TLS, networking, proxy and private connectivity",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
+URS-F-0694,Functional,Must,EPIC-700,Git synchronization and CI/CD helpers,M7,7,"Declarative apply, drift and CI integration tests",Proposed
+URS-F-0695,Functional,Must,EPIC-700,Git synchronization and CI/CD helpers,M7,7,"Declarative apply, drift and CI integration tests",Proposed
+URS-F-0696,Functional,Must,EPIC-700,Git synchronization and CI/CD helpers,M7,7,"Declarative apply, drift and CI integration tests",Proposed
+URS-F-0697,Functional,Must,EPIC-700,Git synchronization and CI/CD helpers,M7,7,"Declarative apply, drift and CI integration tests",Proposed
+URS-F-0698,Functional,Must,EPIC-700,Git synchronization and CI/CD helpers,M7,7,"Declarative apply, drift and CI integration tests",Proposed
+URS-F-0699,Functional,Must,EPIC-700,Git synchronization and CI/CD helpers,M7,7,"Declarative apply, drift and CI integration tests",Proposed
+URS-F-0700,Functional,Must,EPIC-700,Git synchronization and CI/CD helpers,M7,7,"Declarative apply, drift and CI integration tests",Proposed
+URS-F-0701,Functional,Must,EPIC-700,Git synchronization and CI/CD helpers,M7,7,"Declarative apply, drift and CI integration tests",Proposed
+URS-F-0702,Functional,Must,EPIC-701,Terraform and OpenTofu provider,M7,7,"Declarative apply, drift and CI integration tests",Proposed
+URS-F-0703,Functional,Must,EPIC-701,Terraform and OpenTofu provider,M7,7,"Declarative apply, drift and CI integration tests",Proposed
+URS-F-0704,Functional,Must,EPIC-701,Terraform and OpenTofu provider,M7,7,"Declarative apply, drift and CI integration tests",Proposed
+URS-F-0705,Functional,Must,EPIC-701,Terraform and OpenTofu provider,M7,7,"Declarative apply, drift and CI integration tests",Proposed
+URS-F-0706,Functional,Must,EPIC-701,Terraform and OpenTofu provider,M7,7,"Declarative apply, drift and CI integration tests",Proposed
+URS-F-0707,Functional,Must,EPIC-701,Terraform and OpenTofu provider,M7,7,"Declarative apply, drift and CI integration tests",Proposed
+URS-F-0708,Functional,Must,EPIC-701,Terraform and OpenTofu provider,M7,7,"Declarative apply, drift and CI integration tests",Proposed
+URS-F-0709,Functional,Must,EPIC-701,Terraform and OpenTofu provider,M7,7,"Declarative apply, drift and CI integration tests",Proposed
+URS-F-0710,Functional,Must,EPIC-702,Kubernetes operator and declarative resources,M7,7,"Declarative apply, drift and CI integration tests",Proposed
+URS-F-0711,Functional,Must,EPIC-702,Kubernetes operator and declarative resources,M7,7,"Declarative apply, drift and CI integration tests",Proposed
+URS-F-0712,Functional,Must,EPIC-702,Kubernetes operator and declarative resources,M7,7,"Declarative apply, drift and CI integration tests",Proposed
+URS-F-0713,Functional,Must,EPIC-702,Kubernetes operator and declarative resources,M7,7,"Declarative apply, drift and CI integration tests",Proposed
+URS-F-0714,Functional,Must,EPIC-702,Kubernetes operator and declarative resources,M7,7,"Declarative apply, drift and CI integration tests",Proposed
+URS-F-0715,Functional,Must,EPIC-702,Kubernetes operator and declarative resources,M7,7,"Declarative apply, drift and CI integration tests",Proposed
+URS-F-0716,Functional,Must,EPIC-702,Kubernetes operator and declarative resources,M7,7,"Declarative apply, drift and CI integration tests",Proposed
+URS-F-0717,Functional,Must,EPIC-702,Kubernetes operator and declarative resources,M7,7,"Declarative apply, drift and CI integration tests",Proposed
+URS-F-0718,Functional,Must,EPIC-703,Public SDKs and embedded integration libraries,M7,7,OpenAPI contract and authenticated end-to-end API tests,Proposed
+URS-F-0719,Functional,Must,EPIC-703,Public SDKs and embedded integration libraries,M7,7,OpenAPI contract and authenticated end-to-end API tests,Proposed
+URS-F-0720,Functional,Must,EPIC-703,Public SDKs and embedded integration libraries,M7,7,OpenAPI contract and authenticated end-to-end API tests,Proposed
+URS-F-0721,Functional,Must,EPIC-703,Public SDKs and embedded integration libraries,M7,7,OpenAPI contract and authenticated end-to-end API tests,Proposed
+URS-F-0722,Functional,Must,EPIC-703,Public SDKs and embedded integration libraries,M7,7,OpenAPI contract and authenticated end-to-end API tests,Proposed
+URS-F-0723,Functional,Must,EPIC-703,Public SDKs and embedded integration libraries,M7,7,OpenAPI contract and authenticated end-to-end API tests,Proposed
+URS-F-0724,Functional,Must,EPIC-703,Public SDKs and embedded integration libraries,M7,7,OpenAPI contract and authenticated end-to-end API tests,Proposed
+URS-F-0725,Functional,Must,EPIC-703,Public SDKs and embedded integration libraries,M7,7,OpenAPI contract and authenticated end-to-end API tests,Proposed
+URS-F-0726,Functional,Must,EPIC-704,Kestra migration importer and conformance suite,M7,7,Black-box differential and migration fixture tests,Proposed
+URS-F-0727,Functional,Must,EPIC-704,Kestra migration importer and conformance suite,M7,7,Black-box differential and migration fixture tests,Proposed
+URS-F-0728,Functional,Must,EPIC-704,Kestra migration importer and conformance suite,M7,7,Black-box differential and migration fixture tests,Proposed
+URS-F-0729,Functional,Must,EPIC-704,Kestra migration importer and conformance suite,M7,7,Black-box differential and migration fixture tests,Proposed
+URS-F-0730,Functional,Must,EPIC-704,Kestra migration importer and conformance suite,M7,7,Black-box differential and migration fixture tests,Proposed
+URS-F-0731,Functional,Must,EPIC-704,Kestra migration importer and conformance suite,M7,7,Black-box differential and migration fixture tests,Proposed
+URS-F-0732,Functional,Must,EPIC-704,Kestra migration importer and conformance suite,M7,7,Black-box differential and migration fixture tests,Proposed
+URS-F-0733,Functional,Must,EPIC-704,Kestra migration importer and conformance suite,M7,7,Black-box differential and migration fixture tests,Proposed
+URS-F-0734,Functional,Must,EPIC-705,"Documentation, examples and community governance",M7,7,Documentation build and external contributor usability test,Proposed
+URS-F-0735,Functional,Must,EPIC-705,"Documentation, examples and community governance",M7,7,Documentation build and external contributor usability test,Proposed
+URS-F-0736,Functional,Must,EPIC-705,"Documentation, examples and community governance",M7,7,Documentation build and external contributor usability test,Proposed
+URS-F-0737,Functional,Must,EPIC-705,"Documentation, examples and community governance",M7,7,Documentation build and external contributor usability test,Proposed
+URS-F-0738,Functional,Must,EPIC-705,"Documentation, examples and community governance",M7,7,Documentation build and external contributor usability test,Proposed
+URS-F-0739,Functional,Must,EPIC-705,"Documentation, examples and community governance",M7,7,Documentation build and external contributor usability test,Proposed
+URS-F-0740,Functional,Must,EPIC-705,"Documentation, examples and community governance",M7,7,Documentation build and external contributor usability test,Proposed
+URS-F-0741,Functional,Must,EPIC-705,"Documentation, examples and community governance",M7,7,Documentation build and external contributor usability test,Proposed
+URS-F-0742,Functional,Must,EPIC-706,Reference integration environments and certification,M7,7,Release-gate evidence review,Proposed
+URS-F-0743,Functional,Must,EPIC-706,Reference integration environments and certification,M7,7,Release-gate evidence review,Proposed
+URS-F-0744,Functional,Must,EPIC-706,Reference integration environments and certification,M7,7,Release-gate evidence review,Proposed
+URS-F-0745,Functional,Must,EPIC-706,Reference integration environments and certification,M7,7,Release-gate evidence review,Proposed
+URS-F-0746,Functional,Must,EPIC-706,Reference integration environments and certification,M7,7,Release-gate evidence review,Proposed
+URS-F-0747,Functional,Must,EPIC-706,Reference integration environments and certification,M7,7,Release-gate evidence review,Proposed
+URS-F-0748,Functional,Must,EPIC-706,Reference integration environments and certification,M7,7,Release-gate evidence review,Proposed
+URS-F-0749,Functional,Must,EPIC-706,Reference integration environments and certification,M7,7,Release-gate evidence review,Proposed
+URS-F-0750,Functional,Must,EPIC-800,Deterministic simulation and dry-run engine,M8,8,Feature-specific end-to-end and policy tests,Proposed
+URS-F-0751,Functional,Must,EPIC-800,Deterministic simulation and dry-run engine,M8,8,Feature-specific end-to-end and policy tests,Proposed
+URS-F-0752,Functional,Must,EPIC-800,Deterministic simulation and dry-run engine,M8,8,Feature-specific end-to-end and policy tests,Proposed
+URS-F-0753,Functional,Must,EPIC-800,Deterministic simulation and dry-run engine,M8,8,Feature-specific end-to-end and policy tests,Proposed
+URS-F-0754,Functional,Must,EPIC-800,Deterministic simulation and dry-run engine,M8,8,Feature-specific end-to-end and policy tests,Proposed
+URS-F-0755,Functional,Must,EPIC-800,Deterministic simulation and dry-run engine,M8,8,Feature-specific end-to-end and policy tests,Proposed
+URS-F-0756,Functional,Must,EPIC-800,Deterministic simulation and dry-run engine,M8,8,Feature-specific end-to-end and policy tests,Proposed
+URS-F-0757,Functional,Must,EPIC-800,Deterministic simulation and dry-run engine,M8,8,Feature-specific end-to-end and policy tests,Proposed
+URS-F-0758,Functional,Must,EPIC-801,Agentic authoring and operational assistant,M8,8,Feature-specific end-to-end and policy tests,Proposed
+URS-F-0759,Functional,Must,EPIC-801,Agentic authoring and operational assistant,M8,8,Feature-specific end-to-end and policy tests,Proposed
+URS-F-0760,Functional,Must,EPIC-801,Agentic authoring and operational assistant,M8,8,Feature-specific end-to-end and policy tests,Proposed
+URS-F-0761,Functional,Must,EPIC-801,Agentic authoring and operational assistant,M8,8,Feature-specific end-to-end and policy tests,Proposed
+URS-F-0762,Functional,Must,EPIC-801,Agentic authoring and operational assistant,M8,8,Feature-specific end-to-end and policy tests,Proposed
+URS-F-0763,Functional,Must,EPIC-801,Agentic authoring and operational assistant,M8,8,Feature-specific end-to-end and policy tests,Proposed
+URS-F-0764,Functional,Must,EPIC-801,Agentic authoring and operational assistant,M8,8,Feature-specific end-to-end and policy tests,Proposed
+URS-F-0765,Functional,Must,EPIC-801,Agentic authoring and operational assistant,M8,8,Feature-specific end-to-end and policy tests,Proposed
+URS-F-0766,Functional,Must,EPIC-802,Policy as code and admission controller,M8,8,Feature-specific end-to-end and policy tests,Proposed
+URS-F-0767,Functional,Must,EPIC-802,Policy as code and admission controller,M8,8,Feature-specific end-to-end and policy tests,Proposed
+URS-F-0768,Functional,Must,EPIC-802,Policy as code and admission controller,M8,8,Feature-specific end-to-end and policy tests,Proposed
+URS-F-0769,Functional,Must,EPIC-802,Policy as code and admission controller,M8,8,Feature-specific end-to-end and policy tests,Proposed
+URS-F-0770,Functional,Must,EPIC-802,Policy as code and admission controller,M8,8,Feature-specific end-to-end and policy tests,Proposed
+URS-F-0771,Functional,Must,EPIC-802,Policy as code and admission controller,M8,8,Feature-specific end-to-end and policy tests,Proposed
+URS-F-0772,Functional,Must,EPIC-802,Policy as code and admission controller,M8,8,Feature-specific end-to-end and policy tests,Proposed
+URS-F-0773,Functional,Must,EPIC-802,Policy as code and admission controller,M8,8,Feature-specific end-to-end and policy tests,Proposed
+URS-F-0774,Functional,Must,EPIC-803,Multi-region and edge worker topology,M8,8,Feature-specific end-to-end and policy tests,Proposed
+URS-F-0775,Functional,Must,EPIC-803,Multi-region and edge worker topology,M8,8,Feature-specific end-to-end and policy tests,Proposed
+URS-F-0776,Functional,Must,EPIC-803,Multi-region and edge worker topology,M8,8,Feature-specific end-to-end and policy tests,Proposed
+URS-F-0777,Functional,Must,EPIC-803,Multi-region and edge worker topology,M8,8,Feature-specific end-to-end and policy tests,Proposed
+URS-F-0778,Functional,Must,EPIC-803,Multi-region and edge worker topology,M8,8,Feature-specific end-to-end and policy tests,Proposed
+URS-F-0779,Functional,Must,EPIC-803,Multi-region and edge worker topology,M8,8,Feature-specific end-to-end and policy tests,Proposed
+URS-F-0780,Functional,Must,EPIC-803,Multi-region and edge worker topology,M8,8,Feature-specific end-to-end and policy tests,Proposed
+URS-F-0781,Functional,Must,EPIC-803,Multi-region and edge worker topology,M8,8,Feature-specific end-to-end and policy tests,Proposed
+URS-F-0782,Functional,Must,EPIC-804,Open enterprise distribution and packaging,M8,8,Feature-specific end-to-end and policy tests,Proposed
+URS-F-0783,Functional,Must,EPIC-804,Open enterprise distribution and packaging,M8,8,Feature-specific end-to-end and policy tests,Proposed
+URS-F-0784,Functional,Must,EPIC-804,Open enterprise distribution and packaging,M8,8,Feature-specific end-to-end and policy tests,Proposed
+URS-F-0785,Functional,Must,EPIC-804,Open enterprise distribution and packaging,M8,8,Feature-specific end-to-end and policy tests,Proposed
+URS-F-0786,Functional,Must,EPIC-804,Open enterprise distribution and packaging,M8,8,Feature-specific end-to-end and policy tests,Proposed
+URS-F-0787,Functional,Must,EPIC-804,Open enterprise distribution and packaging,M8,8,Feature-specific end-to-end and policy tests,Proposed
+URS-F-0788,Functional,Must,EPIC-804,Open enterprise distribution and packaging,M8,8,Feature-specific end-to-end and policy tests,Proposed
+URS-F-0789,Functional,Must,EPIC-804,Open enterprise distribution and packaging,M8,8,Feature-specific end-to-end and policy tests,Proposed
+URS-F-0790,Functional,Must,EPIC-805,General availability quality and launch readiness,M8,8,Release-gate evidence review,Proposed
+URS-F-0791,Functional,Must,EPIC-805,General availability quality and launch readiness,M8,8,Release-gate evidence review,Proposed
+URS-F-0792,Functional,Must,EPIC-805,General availability quality and launch readiness,M8,8,Release-gate evidence review,Proposed
+URS-F-0793,Functional,Must,EPIC-805,General availability quality and launch readiness,M8,8,Release-gate evidence review,Proposed
+URS-F-0794,Functional,Must,EPIC-805,General availability quality and launch readiness,M8,8,Release-gate evidence review,Proposed
+URS-F-0795,Functional,Must,EPIC-805,General availability quality and launch readiness,M8,8,Release-gate evidence review,Proposed
+URS-F-0796,Functional,Must,EPIC-805,General availability quality and launch readiness,M8,8,Release-gate evidence review,Proposed
+URS-F-0797,Functional,Must,EPIC-805,General availability quality and launch readiness,M8,8,Release-gate evidence review,Proposed
+URS-F-0798,Functional,Must,EPIC-011,AI-native engineering factory and autonomous contribution controls,M0,0,"AI engineering workflow, isolation and evidence-gate tests",Proposed
+URS-F-0799,Functional,Must,EPIC-011,AI-native engineering factory and autonomous contribution controls,M0,0,"AI engineering workflow, isolation and evidence-gate tests",Proposed
+URS-F-0800,Functional,Must,EPIC-011,AI-native engineering factory and autonomous contribution controls,M0,0,"AI engineering workflow, isolation and evidence-gate tests",Proposed
+URS-F-0801,Functional,Must,EPIC-011,AI-native engineering factory and autonomous contribution controls,M0,0,"AI engineering workflow, isolation and evidence-gate tests",Proposed
+URS-F-0802,Functional,Must,EPIC-011,AI-native engineering factory and autonomous contribution controls,M0,0,"AI engineering workflow, isolation and evidence-gate tests",Proposed
+URS-F-0803,Functional,Must,EPIC-011,AI-native engineering factory and autonomous contribution controls,M0,0,"AI engineering workflow, isolation and evidence-gate tests",Proposed
+URS-F-0804,Functional,Must,EPIC-011,AI-native engineering factory and autonomous contribution controls,M0,0,"AI engineering workflow, isolation and evidence-gate tests",Proposed
+URS-F-0805,Functional,Must,EPIC-011,AI-native engineering factory and autonomous contribution controls,M0,0,"AI engineering workflow, isolation and evidence-gate tests",Proposed
+URS-F-0806,Functional,Must,EPIC-806,First-class agent mesh runtime and governance,M8,8,"Agent mesh state, budget, policy, failover and evaluation end-to-end tests",Proposed
+URS-F-0807,Functional,Must,EPIC-806,First-class agent mesh runtime and governance,M8,8,"Agent mesh state, budget, policy, failover and evaluation end-to-end tests",Proposed
+URS-F-0808,Functional,Must,EPIC-806,First-class agent mesh runtime and governance,M8,8,"Agent mesh state, budget, policy, failover and evaluation end-to-end tests",Proposed
+URS-F-0809,Functional,Must,EPIC-806,First-class agent mesh runtime and governance,M8,8,"Agent mesh state, budget, policy, failover and evaluation end-to-end tests",Proposed
+URS-F-0810,Functional,Must,EPIC-806,First-class agent mesh runtime and governance,M8,8,"Agent mesh state, budget, policy, failover and evaluation end-to-end tests",Proposed
+URS-F-0811,Functional,Must,EPIC-806,First-class agent mesh runtime and governance,M8,8,"Agent mesh state, budget, policy, failover and evaluation end-to-end tests",Proposed
+URS-F-0812,Functional,Must,EPIC-806,First-class agent mesh runtime and governance,M8,8,"Agent mesh state, budget, policy, failover and evaluation end-to-end tests",Proposed
+URS-F-0813,Functional,Must,EPIC-806,First-class agent mesh runtime and governance,M8,8,"Agent mesh state, budget, policy, failover and evaluation end-to-end tests",Proposed
+URS-F-0814,Functional,Must,EPIC-806,First-class agent mesh runtime and governance,M8,8,"Agent mesh state, budget, policy, failover and evaluation end-to-end tests",Proposed
+URS-F-0815,Functional,Must,EPIC-806,First-class agent mesh runtime and governance,M8,8,"Agent mesh state, budget, policy, failover and evaluation end-to-end tests",Proposed
+URS-F-0816,Functional,Must,EPIC-806,First-class agent mesh runtime and governance,M8,8,"Agent mesh state, budget, policy, failover and evaluation end-to-end tests",Proposed
+URS-F-0817,Functional,Must,EPIC-806,First-class agent mesh runtime and governance,M8,8,"Agent mesh state, budget, policy, failover and evaluation end-to-end tests",Proposed
+URS-F-0818,Functional,Must,EPIC-806,First-class agent mesh runtime and governance,M8,8,"Agent mesh state, budget, policy, failover and evaluation end-to-end tests",Proposed
+URS-F-0819,Functional,Must,EPIC-806,First-class agent mesh runtime and governance,M8,8,"Agent mesh state, budget, policy, failover and evaluation end-to-end tests",Proposed
+URS-F-0820,Functional,Must,EPIC-704,Kestra migration importer and conformance suite,M7,7,"Black-box differential API, CLI, expression and import/export conformance tests",Proposed
+URS-F-0821,Functional,Must,EPIC-704,Kestra migration importer and conformance suite,M7,7,"Black-box differential API, CLI, expression and import/export conformance tests",Proposed
+URS-F-0822,Functional,Must,EPIC-704,Kestra migration importer and conformance suite,M7,7,"Black-box differential API, CLI, expression and import/export conformance tests",Proposed
+URS-F-0823,Functional,Must,EPIC-704,Kestra migration importer and conformance suite,M7,7,"Black-box differential API, CLI, expression and import/export conformance tests",Proposed
+URS-F-0824,Functional,Must,EPIC-704,Kestra migration importer and conformance suite,M7,7,"Black-box differential API, CLI, expression and import/export conformance tests",Proposed
+URS-F-0825,Functional,Must,EPIC-704,Kestra migration importer and conformance suite,M7,7,"Black-box differential API, CLI, expression and import/export conformance tests",Proposed
+URS-F-0826,Functional,Must,EPIC-606,"Containers, Kubernetes and Helm deployment",M6,6,"On-premises Kubernetes installation, upgrade and failure-recovery tests",Proposed
+URS-F-0827,Functional,Must,EPIC-606,"Containers, Kubernetes and Helm deployment",M6,6,Air-gapped bundle installation and upgrade tests,Proposed
+URS-F-0828,Functional,Must,EPIC-606,"Containers, Kubernetes and Helm deployment",M6,6,Cross-distribution Kubernetes conformance and upgrade tests,Proposed
+URS-F-0829,Functional,Must,EPIC-704,Kestra migration importer and conformance suite,M7,7,Full-fidelity identity and governance migration fixtures,Proposed
+URS-F-0830,Functional,Must,EPIC-704,Kestra migration importer and conformance suite,M7,7,"Historical execution, log, artifact and audit migration fixtures",Proposed
+URS-F-0831,Functional,Must,EPIC-704,Kestra migration importer and conformance suite,M7,7,"Identifier-mapping, collision and referential-integrity tests",Proposed
+URS-F-0832,Functional,Must,EPIC-704,Kestra migration importer and conformance suite,M7,7,"Interrupted, repeated and rolled-back migration end-to-end tests",Proposed
+URS-F-0833,Functional,Must,EPIC-704,Kestra migration importer and conformance suite,M7,7,"Secret-reference migration, redaction and unresolved-binding tests",Proposed
+URS-F-0834,Functional,Must,EPIC-612,Security hardening and software supply chain,M6,6,Compliance control-crosswalk schema and completeness tests,Proposed
+URS-F-0835,Functional,Must,EPIC-504,Immutable audit log and evidence export,M5,5,"Compliance evidence export, redaction and authorization tests",Proposed
+URS-F-0836,Functional,Must,EPIC-011,AI-native engineering factory and autonomous contribution controls,M0,0,"AI merge-policy, quorum and evidence-replay tests",Proposed
+URS-F-0837,Functional,Must,EPIC-011,AI-native engineering factory and autonomous contribution controls,M0,0,Protected-branch and release-authority policy tests,Proposed
+URS-NFR-AGENT-001,Non-functional,Must,EPIC-806,First-class agent mesh runtime and governance,M8,8,Adversarial runaway-loop and concurrent tool-call tests.,Proposed
+URS-NFR-AGENT-002,Non-functional,Must,EPIC-806,First-class agent mesh runtime and governance,M8,8,Provenance graph completeness tests.,Proposed
+URS-NFR-AGENT-003,Non-functional,Must,EPIC-806,First-class agent mesh runtime and governance,M8,8,"Cross-tenant, prompt-injection and capability-confusion tests.",Proposed
+URS-NFR-AGENT-004,Non-functional,Must,EPIC-806,First-class agent mesh runtime and governance,M8,8,Provider substitution and outage tests.,Proposed
+URS-NFR-AIENGINEERING-001,Non-functional,Must,EPIC-011,AI-native engineering factory and autonomous contribution controls,M0,0,Repository policy and pull-request evidence audit.,Proposed
+URS-NFR-AIENGINEERING-002,Non-functional,Must,EPIC-011,AI-native engineering factory and autonomous contribution controls,M0,0,"Provenance-schema, secret-scan and clean-room gate tests.",Proposed
+URS-NFR-AIENGINEERING-003,Non-functional,Must,EPIC-011,AI-native engineering factory and autonomous contribution controls,M0,0,Credential canary and branch-protection integration tests.,Proposed
+URS-NFR-AIENGINEERING-004,Non-functional,Must,EPIC-011,AI-native engineering factory and autonomous contribution controls,M0,0,Golden evidence-bundle and policy replay tests.,Proposed
+URS-NFR-AVAILABILITY-001,Non-functional,Must,EPIC-600,Standalone server and compact deployment,M6,6,Reference topology soak test and SLO calculation.,Proposed
+URS-NFR-AVAILABILITY-001,Non-functional,Must,EPIC-602,PostgreSQL transactional backend,M6,6,Reference topology soak test and SLO calculation.,Proposed
+URS-NFR-AVAILABILITY-002,Non-functional,Must,EPIC-601,Distributed services and high availability,M6,6,Multi-replica chaos and zone-spread tests.,Proposed
+URS-NFR-AVAILABILITY-002,Non-functional,Must,EPIC-603,PostgreSQL distributed work queue and notifications,M6,6,Multi-replica chaos and zone-spread tests.,Proposed
+URS-NFR-AVAILABILITY-003,Non-functional,Must,EPIC-609,"Backup, restore and disaster recovery",M6,6,"Isolated restore exercise on the on-premises Kubernetes reference topology, with measured data-loss window and service-restoration time.",Proposed
+URS-NFR-AVAILABILITY-003,Non-functional,Must,EPIC-805,General availability quality and launch readiness,M8,8,"Isolated restore exercise on the on-premises Kubernetes reference topology, with measured data-loss window and service-restoration time.",Proposed
+URS-NFR-AVAILABILITY-004,Non-functional,Must,EPIC-509,"Announcements, maintenance mode and kill switch",M5,5,Upgrade and drain conformance suite.,Proposed
+URS-NFR-AVAILABILITY-004,Non-functional,Must,EPIC-601,Distributed services and high availability,M6,6,Upgrade and drain conformance suite.,Proposed
+URS-NFR-AVAILABILITY-004,Non-functional,Must,EPIC-610,"Upgrades, migrations and LTS policy",M6,6,Upgrade and drain conformance suite.,Proposed
+URS-NFR-COMPLIANCE-001,Non-functional,Must,EPIC-504,Immutable audit log and evidence export,M5,5,Control-crosswalk validation and sample evidence-package review by an independent security or compliance reviewer.,Proposed
+URS-NFR-COMPLIANCE-001,Non-functional,Must,EPIC-612,Security hardening and software supply chain,M6,6,Control-crosswalk validation and sample evidence-package review by an independent security or compliance reviewer.,Proposed
+URS-NFR-COMPLIANCE-001,Non-functional,Must,EPIC-805,General availability quality and launch readiness,M8,8,Control-crosswalk validation and sample evidence-package review by an independent security or compliance reviewer.,Proposed
+URS-NFR-MAINTAINABILITY-001,Non-functional,Must,EPIC-001,"Repository engineering, CI and release foundation",M0,0,Static architecture test in CI.,Proposed
+URS-NFR-MAINTAINABILITY-001,Non-functional,Must,EPIC-007,Execution event model and state machine,M0,0,Static architecture test in CI.,Proposed
+URS-NFR-MAINTAINABILITY-001,Non-functional,Must,EPIC-009,"PostgreSQL transport, inbox and transactional outbox",M0,0,Static architecture test in CI.,Proposed
+URS-NFR-MAINTAINABILITY-001,Non-functional,Must,EPIC-010,Internal object storage and artifact addressing,M0,0,Static architecture test in CI.,Proposed
+URS-NFR-MAINTAINABILITY-002,Non-functional,Must,EPIC-004,"Flow DSL, YAML model and schema",M0,0,Automated schema and API compatibility checks.,Proposed
+URS-NFR-MAINTAINABILITY-002,Non-functional,Must,EPIC-300,Plugin SDK and manifest contract,M3,3,Automated schema and API compatibility checks.,Proposed
+URS-NFR-MAINTAINABILITY-002,Non-functional,Must,EPIC-400,Versioned REST API and OpenAPI contract,M4,4,Automated schema and API compatibility checks.,Proposed
+URS-NFR-MAINTAINABILITY-002,Non-functional,Must,EPIC-610,"Upgrades, migrations and LTS policy",M6,6,Automated schema and API compatibility checks.,Proposed
+URS-NFR-MAINTAINABILITY-003,Non-functional,Must,EPIC-008,Metadata persistence and migrations,M0,0,Migration golden tests.,Proposed
+URS-NFR-MAINTAINABILITY-003,Non-functional,Must,EPIC-610,"Upgrades, migrations and LTS policy",M6,6,Migration golden tests.,Proposed
+URS-NFR-MAINTAINABILITY-004,Non-functional,Must,EPIC-001,"Repository engineering, CI and release foundation",M0,0,Traceability validator and release gate.,Proposed
+URS-NFR-MAINTAINABILITY-004,Non-functional,Must,EPIC-805,General availability quality and launch readiness,M8,8,Traceability validator and release gate.,Proposed
+URS-NFR-MAINTAINABILITY-005,Non-functional,Must,EPIC-001,"Repository engineering, CI and release foundation",M0,0,CI regeneration and clean-tree check.,Proposed
+URS-NFR-MAINTAINABILITY-005,Non-functional,Must,EPIC-402,CLI and generated client SDKs,M4,4,CI regeneration and clean-tree check.,Proposed
+URS-NFR-MAINTAINABILITY-005,Non-functional,Must,EPIC-705,"Documentation, examples and community governance",M7,7,CI regeneration and clean-tree check.,Proposed
+URS-NFR-MAINTAINABILITY-006,Non-functional,Must,EPIC-001,"Repository engineering, CI and release foundation",M0,0,Dependency and license scanning.,Proposed
+URS-NFR-MAINTAINABILITY-006,Non-functional,Must,EPIC-612,Security hardening and software supply chain,M6,6,Dependency and license scanning.,Proposed
+URS-NFR-OPERABILITY-001,Non-functional,Must,EPIC-600,Standalone server and compact deployment,M6,6,Kubernetes and Compose health tests.,Proposed
+URS-NFR-OPERABILITY-001,Non-functional,Must,EPIC-601,Distributed services and high availability,M6,6,Kubernetes and Compose health tests.,Proposed
+URS-NFR-OPERABILITY-001,Non-functional,Must,EPIC-606,"Containers, Kubernetes and Helm deployment",M6,6,Kubernetes and Compose health tests.,Proposed
+URS-NFR-OPERABILITY-002,Non-functional,Must,EPIC-607,"OpenTelemetry, Prometheus and log shipping",M6,6,Telemetry cardinality audit.,Proposed
+URS-NFR-OPERABILITY-003,Non-functional,Must,EPIC-607,"OpenTelemetry, Prometheus and log shipping",M6,6,Alert fixture and runbook audit.,Proposed
+URS-NFR-OPERABILITY-003,Non-functional,Must,EPIC-705,"Documentation, examples and community governance",M7,7,Alert fixture and runbook audit.,Proposed
+URS-NFR-OPERABILITY-004,Non-functional,Must,EPIC-003,Configuration and feature flag system,M0,0,Security test with seeded sensitive data.,Proposed
+URS-NFR-OPERABILITY-004,Non-functional,Must,EPIC-607,"OpenTelemetry, Prometheus and log shipping",M6,6,Security test with seeded sensitive data.,Proposed
+URS-NFR-OPERABILITY-004,Non-functional,Must,EPIC-612,Security hardening and software supply chain,M6,6,Security test with seeded sensitive data.,Proposed
+URS-NFR-OPERABILITY-005,Non-functional,Must,EPIC-105,"Concurrency, admission control and fairness",M1,1,Dashboard and telemetry contract tests.,Proposed
+URS-NFR-OPERABILITY-005,Non-functional,Must,EPIC-601,Distributed services and high availability,M6,6,Dashboard and telemetry contract tests.,Proposed
+URS-NFR-OPERABILITY-005,Non-functional,Must,EPIC-607,"OpenTelemetry, Prometheus and log shipping",M6,6,Dashboard and telemetry contract tests.,Proposed
+URS-NFR-OPERABILITY-006,Non-functional,Must,EPIC-610,"Upgrades, migrations and LTS policy",M6,6,Release metadata validation.,Proposed
+URS-NFR-PERFORMANCE-001,Non-functional,Must,EPIC-400,Versioned REST API and OpenAPI contract,M4,4,Repeatable load test with 10 million retained execution records and realistic filters.,Proposed
+URS-NFR-PERFORMANCE-001,Non-functional,Must,EPIC-409,"Search, indexing and retrieval projections",M4,4,Repeatable load test with 10 million retained execution records and realistic filters.,Proposed
+URS-NFR-PERFORMANCE-002,Non-functional,Must,EPIC-100,Executor and orchestration reducer,M1,1,End-to-end launch benchmark under mixed workload.,Proposed
+URS-NFR-PERFORMANCE-002,Non-functional,Must,EPIC-400,Versioned REST API and OpenAPI contract,M4,4,End-to-end launch benchmark under mixed workload.,Proposed
+URS-NFR-PERFORMANCE-003,Non-functional,Must,EPIC-102,Scheduler and temporal correctness,M1,1,Virtual-clock and real-time scheduler benchmark.,Proposed
+URS-NFR-PERFORMANCE-004,Non-functional,Must,EPIC-100,Executor and orchestration reducer,M1,1,Published benchmark on a fixed reference topology.,Proposed
+URS-NFR-PERFORMANCE-004,Non-functional,Must,EPIC-101,"Worker protocol, leases and heartbeats",M1,1,Published benchmark on a fixed reference topology.,Proposed
+URS-NFR-PERFORMANCE-004,Non-functional,Must,EPIC-603,PostgreSQL distributed work queue and notifications,M6,6,Published benchmark on a fixed reference topology.,Proposed
+URS-NFR-PERFORMANCE-005,Non-functional,Must,EPIC-105,"Concurrency, admission control and fairness",M1,1,Soak test with mixed short and long tasks.,Proposed
+URS-NFR-PERFORMANCE-005,Non-functional,Must,EPIC-601,Distributed services and high availability,M6,6,Soak test with mixed short and long tasks.,Proposed
+URS-NFR-PERFORMANCE-005,Non-functional,Must,EPIC-611,"Performance, scale and chaos qualification",M6,6,Soak test with mixed short and long tasks.,Proposed
+URS-NFR-PERFORMANCE-006,Non-functional,Must,EPIC-203,"Loops, foreach, while and until",M2,2,Synthetic large-DAG and loop benchmark.,Proposed
+URS-NFR-PERFORMANCE-006,Non-functional,Must,EPIC-407,"Execution details, Gantt, logs and debugging UI",M4,4,Synthetic large-DAG and loop benchmark.,Proposed
+URS-NFR-PERFORMANCE-007,Non-functional,Must,EPIC-111,"Logs, metrics, outputs and artifact events",M1,1,Burst and sustained log-load test with exporter outage.,Proposed
+URS-NFR-PERFORMANCE-007,Non-functional,Must,EPIC-607,"OpenTelemetry, Prometheus and log shipping",M6,6,Burst and sustained log-load test with exporter outage.,Proposed
+URS-NFR-PERFORMANCE-008,Non-functional,Must,EPIC-010,Internal object storage and artifact addressing,M0,0,Storage adapter performance and memory profiling.,Proposed
+URS-NFR-PERFORMANCE-008,Non-functional,Must,EPIC-605,Object storage backends and lifecycle,M6,6,Storage adapter performance and memory profiling.,Proposed
+URS-NFR-PERFORMANCE-009,Non-functional,Must,EPIC-601,Distributed services and high availability,M6,6,Comparative scale-out benchmark.,Proposed
+URS-NFR-PERFORMANCE-009,Non-functional,Must,EPIC-611,"Performance, scale and chaos qualification",M6,6,Comparative scale-out benchmark.,Proposed
+URS-NFR-PERFORMANCE-010,Non-functional,Must,EPIC-611,"Performance, scale and chaos qualification",M6,6,"Published 24-hour mixed-workload, retention-query and failure-recovery benchmark on a fixed bill of materials.",Proposed
+URS-NFR-PERFORMANCE-010,Non-functional,Must,EPIC-805,General availability quality and launch readiness,M8,8,"Published 24-hour mixed-workload, retention-query and failure-recovery benchmark on a fixed bill of materials.",Proposed
+URS-NFR-PORTABILITY-001,Non-functional,Must,EPIC-305,"Plugin registry, signing, SBOM and marketplace metadata",M3,3,Offline installation and test run.,Proposed
+URS-NFR-PORTABILITY-001,Non-functional,Must,EPIC-804,Open enterprise distribution and packaging,M8,8,Offline installation and test run.,Proposed
+URS-NFR-PORTABILITY-002,Non-functional,Must,EPIC-606,"Containers, Kubernetes and Helm deployment",M6,6,Multi-architecture release CI.,Proposed
+URS-NFR-PORTABILITY-003,Non-functional,Must,EPIC-009,"PostgreSQL transport, inbox and transactional outbox",M0,0,Static architecture checks plus adapter contract tests for each extensible backend category.,Proposed
+URS-NFR-PORTABILITY-003,Non-functional,Must,EPIC-010,Internal object storage and artifact addressing,M0,0,Static architecture checks plus adapter contract tests for each extensible backend category.,Proposed
+URS-NFR-PORTABILITY-003,Non-functional,Must,EPIC-209,Task runner interface and capability model,M2,2,Static architecture checks plus adapter contract tests for each extensible backend category.,Proposed
+URS-NFR-PORTABILITY-003,Non-functional,Must,EPIC-409,"Search, indexing and retrieval projections",M4,4,Static architecture checks plus adapter contract tests for each extensible backend category.,Proposed
+URS-NFR-PORTABILITY-003,Non-functional,Must,EPIC-506,External secrets managers and secret lifecycle,M5,5,Static architecture checks plus adapter contract tests for each extensible backend category.,Proposed
+URS-NFR-PRIVACY-001,Non-functional,Must,EPIC-003,Configuration and feature flag system,M0,0,Network capture in a clean reference deployment.,Proposed
+URS-NFR-PRIVACY-001,Non-functional,Must,EPIC-404,"Web UI shell, navigation and accessibility",M4,4,Network capture in a clean reference deployment.,Proposed
+URS-NFR-PRIVACY-001,Non-functional,Must,EPIC-804,Open enterprise distribution and packaging,M8,8,Network capture in a clean reference deployment.,Proposed
+URS-NFR-PRIVACY-002,Non-functional,Must,EPIC-008,Metadata persistence and migrations,M0,0,Privacy and schema review.,Proposed
+URS-NFR-PRIVACY-002,Non-functional,Must,EPIC-504,Immutable audit log and evidence export,M5,5,Privacy and schema review.,Proposed
+URS-NFR-PRIVACY-002,Non-functional,Must,EPIC-608,"Retention, purge and data lifecycle",M6,6,Privacy and schema review.,Proposed
+URS-NFR-RELIABILITY-001,Non-functional,Must,EPIC-007,Execution event model and state machine,M0,0,"Fault-injection tests that terminate services and PostgreSQL connections at every commit, claim and acknowledgement boundary.",Proposed
+URS-NFR-RELIABILITY-001,Non-functional,Must,EPIC-008,Metadata persistence and migrations,M0,0,"Fault-injection tests that terminate services and PostgreSQL connections at every commit, claim and acknowledgement boundary.",Proposed
+URS-NFR-RELIABILITY-001,Non-functional,Must,EPIC-009,"PostgreSQL transport, inbox and transactional outbox",M0,0,"Fault-injection tests that terminate services and PostgreSQL connections at every commit, claim and acknowledgement boundary.",Proposed
+URS-NFR-RELIABILITY-001,Non-functional,Must,EPIC-108,"Recovery, reconciliation and invariant repair",M1,1,"Fault-injection tests that terminate services and PostgreSQL connections at every commit, claim and acknowledgement boundary.",Proposed
+URS-NFR-RELIABILITY-002,Non-functional,Must,EPIC-007,Execution event model and state machine,M0,0,Property-based and integration tests with duplicate and reordered delivery.,Proposed
+URS-NFR-RELIABILITY-002,Non-functional,Must,EPIC-009,"PostgreSQL transport, inbox and transactional outbox",M0,0,Property-based and integration tests with duplicate and reordered delivery.,Proposed
+URS-NFR-RELIABILITY-002,Non-functional,Must,EPIC-100,Executor and orchestration reducer,M1,1,Property-based and integration tests with duplicate and reordered delivery.,Proposed
+URS-NFR-RELIABILITY-002,Non-functional,Must,EPIC-103,Trigger runtime and occurrence lifecycle,M1,1,Property-based and integration tests with duplicate and reordered delivery.,Proposed
+URS-NFR-RELIABILITY-003,Non-functional,Must,EPIC-101,"Worker protocol, leases and heartbeats",M1,1,"Chaos tests with paused processes, network partitions and delayed completions.",Proposed
+URS-NFR-RELIABILITY-003,Non-functional,Must,EPIC-102,Scheduler and temporal correctness,M1,1,"Chaos tests with paused processes, network partitions and delayed completions.",Proposed
+URS-NFR-RELIABILITY-003,Non-functional,Must,EPIC-601,Distributed services and high availability,M6,6,"Chaos tests with paused processes, network partitions and delayed completions.",Proposed
+URS-NFR-RELIABILITY-004,Non-functional,Must,EPIC-007,Execution event model and state machine,M0,0,Golden event-stream and property-based reducer tests.,Proposed
+URS-NFR-RELIABILITY-004,Non-functional,Must,EPIC-100,Executor and orchestration reducer,M1,1,Golden event-stream and property-based reducer tests.,Proposed
+URS-NFR-RELIABILITY-005,Non-functional,Must,EPIC-401,"Realtime API, webhooks and event subscriptions",M4,4,Dependency isolation and outage integration tests.,Proposed
+URS-NFR-RELIABILITY-005,Non-functional,Must,EPIC-409,"Search, indexing and retrieval projections",M4,4,Dependency isolation and outage integration tests.,Proposed
+URS-NFR-RELIABILITY-005,Non-functional,Must,EPIC-604,Search and analytics projection backend,M6,6,Dependency isolation and outage integration tests.,Proposed
+URS-NFR-RELIABILITY-005,Non-functional,Must,EPIC-607,"OpenTelemetry, Prometheus and log shipping",M6,6,Dependency isolation and outage integration tests.,Proposed
+URS-NFR-RELIABILITY-006,Non-functional,Must,EPIC-010,Internal object storage and artifact addressing,M0,0,Storage adapter conformance and corruption-injection tests.,Proposed
+URS-NFR-RELIABILITY-006,Non-functional,Must,EPIC-605,Object storage backends and lifecycle,M6,6,Storage adapter conformance and corruption-injection tests.,Proposed
+URS-NFR-RELIABILITY-006,Non-functional,Must,EPIC-609,"Backup, restore and disaster recovery",M6,6,Storage adapter conformance and corruption-injection tests.,Proposed
+URS-NFR-RELIABILITY-007,Non-functional,Must,EPIC-108,"Recovery, reconciliation and invariant repair",M1,1,End-to-end recovery suite with invariant counters.,Proposed
+URS-NFR-RELIABILITY-007,Non-functional,Must,EPIC-601,Distributed services and high availability,M6,6,End-to-end recovery suite with invariant counters.,Proposed
+URS-NFR-RELIABILITY-008,Non-functional,Must,EPIC-102,Scheduler and temporal correctness,M1,1,Virtual-clock and multi-node skew tests.,Proposed
+URS-NFR-RELIABILITY-008,Non-functional,Must,EPIC-104,"Retries, timeout, pause, cancellation, kill and restart",M1,1,Virtual-clock and multi-node skew tests.,Proposed
+URS-NFR-RELIABILITY-008,Non-functional,Must,EPIC-601,Distributed services and high availability,M6,6,Virtual-clock and multi-node skew tests.,Proposed
+URS-NFR-SECURITY-001,Non-functional,Must,EPIC-503,Multi-tenancy and resource isolation,M5,5,"Automated negative tests, database checks and independent penetration testing.",Proposed
+URS-NFR-SECURITY-001,Non-functional,Must,EPIC-604,Search and analytics projection backend,M6,6,"Automated negative tests, database checks and independent penetration testing.",Proposed
+URS-NFR-SECURITY-001,Non-functional,Must,EPIC-605,Object storage backends and lifecycle,M6,6,"Automated negative tests, database checks and independent penetration testing.",Proposed
+URS-NFR-SECURITY-002,Non-functional,Must,EPIC-303,Isolated language-neutral plugin runtime,M3,3,Threat-model review and deployment policy tests.,Proposed
+URS-NFR-SECURITY-002,Non-functional,Must,EPIC-501,"Service accounts, API tokens and credentials",M5,5,Threat-model review and deployment policy tests.,Proposed
+URS-NFR-SECURITY-002,Non-functional,Must,EPIC-612,Security hardening and software supply chain,M6,6,Threat-model review and deployment policy tests.,Proposed
+URS-NFR-SECURITY-003,Non-functional,Must,EPIC-111,"Logs, metrics, outputs and artifact events",M1,1,Canary-secret scanning and redaction tests.,Proposed
+URS-NFR-SECURITY-003,Non-functional,Must,EPIC-205,"Inputs, outputs and variables",M2,2,Canary-secret scanning and redaction tests.,Proposed
+URS-NFR-SECURITY-003,Non-functional,Must,EPIC-506,External secrets managers and secret lifecycle,M5,5,Canary-secret scanning and redaction tests.,Proposed
+URS-NFR-SECURITY-003,Non-functional,Must,EPIC-607,"OpenTelemetry, Prometheus and log shipping",M6,6,Canary-secret scanning and redaction tests.,Proposed
+URS-NFR-SECURITY-004,Non-functional,Must,EPIC-613,"TLS, networking, proxy and private connectivity",M6,6,Automated protocol scan and reference deployment test.,Proposed
+URS-NFR-SECURITY-005,Non-functional,Must,EPIC-506,External secrets managers and secret lifecycle,M5,5,Configuration audit and restore test.,Proposed
+URS-NFR-SECURITY-005,Non-functional,Must,EPIC-602,PostgreSQL transactional backend,M6,6,Configuration audit and restore test.,Proposed
+URS-NFR-SECURITY-005,Non-functional,Must,EPIC-605,Object storage backends and lifecycle,M6,6,Configuration audit and restore test.,Proposed
+URS-NFR-SECURITY-006,Non-functional,Must,EPIC-501,"Service accounts, API tokens and credentials",M5,5,"Automated token, certificate and external-secret rotation tests.",Proposed
+URS-NFR-SECURITY-006,Non-functional,Must,EPIC-502,"SSO, OIDC, SAML, LDAP and SCIM",M5,5,"Automated token, certificate and external-secret rotation tests.",Proposed
+URS-NFR-SECURITY-006,Non-functional,Must,EPIC-506,External secrets managers and secret lifecycle,M5,5,"Automated token, certificate and external-secret rotation tests.",Proposed
+URS-NFR-SECURITY-006,Non-functional,Must,EPIC-613,"TLS, networking, proxy and private connectivity",M6,6,"Automated token, certificate and external-secret rotation tests.",Proposed
+URS-NFR-SECURITY-007,Non-functional,Must,EPIC-001,"Repository engineering, CI and release foundation",M0,0,Release pipeline policy gate.,Proposed
+URS-NFR-SECURITY-007,Non-functional,Must,EPIC-305,"Plugin registry, signing, SBOM and marketplace metadata",M3,3,Release pipeline policy gate.,Proposed
+URS-NFR-SECURITY-007,Non-functional,Must,EPIC-612,Security hardening and software supply chain,M6,6,Release pipeline policy gate.,Proposed
+URS-NFR-SECURITY-008,Non-functional,Must,EPIC-209,Task runner interface and capability model,M2,2,Architecture test and runtime process inspection.,Proposed
+URS-NFR-SECURITY-008,Non-functional,Must,EPIC-221,Docker and OCI task runner,M2,2,Architecture test and runtime process inspection.,Proposed
+URS-NFR-SECURITY-008,Non-functional,Must,EPIC-222,Kubernetes task runner,M2,2,Architecture test and runtime process inspection.,Proposed
+URS-NFR-SECURITY-008,Non-functional,Must,EPIC-303,Isolated language-neutral plugin runtime,M3,3,Architecture test and runtime process inspection.,Proposed
+URS-NFR-SECURITY-009,Non-functional,Must,EPIC-504,Immutable audit log and evidence export,M5,5,Endpoint-to-audit traceability suite.,Proposed
+URS-NFR-SECURITY-010,Non-functional,Must,EPIC-003,Configuration and feature flag system,M0,0,Configuration conformance and container scan.,Proposed
+URS-NFR-SECURITY-010,Non-functional,Must,EPIC-403,Authentication session and credential entry points,M4,4,Configuration conformance and container scan.,Proposed
+URS-NFR-SECURITY-010,Non-functional,Must,EPIC-505,"Plugin allow, restrict and version policy",M5,5,Configuration conformance and container scan.,Proposed
+URS-NFR-SECURITY-010,Non-functional,Must,EPIC-612,Security hardening and software supply chain,M6,6,Configuration conformance and container scan.,Proposed
+URS-NFR-USABILITY-001,Non-functional,Must,EPIC-004,"Flow DSL, YAML model and schema",M0,0,Editor benchmark and validation contract tests.,Proposed
+URS-NFR-USABILITY-001,Non-functional,Must,EPIC-405,Flow code editor and validation experience,M4,4,Editor benchmark and validation contract tests.,Proposed
+URS-NFR-USABILITY-002,Non-functional,Must,EPIC-105,"Concurrency, admission control and fairness",M1,1,Scenario-based UI and API acceptance tests.,Proposed
+URS-NFR-USABILITY-002,Non-functional,Must,EPIC-109,Task and execution cache,M1,1,Scenario-based UI and API acceptance tests.,Proposed
+URS-NFR-USABILITY-002,Non-functional,Must,EPIC-500,"Users, groups, roles, bindings and authorization",M5,5,Scenario-based UI and API acceptance tests.,Proposed
+URS-NFR-USABILITY-002,Non-functional,Must,EPIC-802,Policy as code and admission controller,M8,8,Scenario-based UI and API acceptance tests.,Proposed
+URS-NFR-USABILITY-003,Non-functional,Must,EPIC-001,"Repository engineering, CI and release foundation",M0,0,Quarterly external documentation usability test.,Proposed
+URS-NFR-USABILITY-003,Non-functional,Must,EPIC-411,"Blueprints, playground and onboarding",M4,4,Quarterly external documentation usability test.,Proposed
+URS-NFR-USABILITY-003,Non-functional,Must,EPIC-600,Standalone server and compact deployment,M6,6,Quarterly external documentation usability test.,Proposed
+URS-NFR-USABILITY-004,Non-functional,Must,EPIC-404,"Web UI shell, navigation and accessibility",M4,4,Automated accessibility scan plus manual audit.,Proposed
+URS-NFR-USABILITY-004,Non-functional,Must,EPIC-405,Flow code editor and validation experience,M4,4,Automated accessibility scan plus manual audit.,Proposed
+URS-NFR-USABILITY-004,Non-functional,Must,EPIC-407,"Execution details, Gantt, logs and debugging UI",M4,4,Automated accessibility scan plus manual audit.,Proposed
+URS-NFR-USABILITY-005,Non-functional,Must,EPIC-402,CLI and generated client SDKs,M4,4,Interaction and CLI contract tests.,Proposed
+URS-NFR-USABILITY-005,Non-functional,Must,EPIC-410,"Namespace, settings and administration UI",M4,4,Interaction and CLI contract tests.,Proposed
+URS-NFR-USABILITY-005,Non-functional,Must,EPIC-608,"Retention, purge and data lifecycle",M6,6,Interaction and CLI contract tests.,Proposed

@@ -1,0 +1,17 @@
+id: parallel_dag
+namespace: examples.engine
+tasks:
+  - id: extract_a
+    type: core.return
+    value: A
+  - id: extract_b
+    type: core.return
+    value: B
+  - id: combine
+    type: core.return
+    dependsOn:
+      - extract_a
+      - extract_b
+    value:
+      left: "{{ outputs.extract_a.value }}"
+      right: "{{ outputs.extract_b.value }}"

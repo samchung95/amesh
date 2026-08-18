@@ -1,0 +1,56 @@
+[
+  {
+    "id": "M0",
+    "title": "Foundation and clean-room baseline",
+    "wave": 0,
+    "exit": "Repository, legal boundary, parity inventory, DSL and state foundations are accepted."
+  },
+  {
+    "id": "M1",
+    "title": "Single-node durable engine",
+    "wave": 1,
+    "exit": "A PostgreSQL-backed standalone server survives process failure and runs scheduled workflows."
+  },
+  {
+    "id": "M2",
+    "title": "Workflow semantics and core runners",
+    "wave": 2,
+    "exit": "Core flow control, files, errors, retries and process/container execution pass conformance tests."
+  },
+  {
+    "id": "M3",
+    "title": "Plugin platform and integration packs",
+    "wave": 3,
+    "exit": "Third parties can build, test, publish and safely execute versioned plugins."
+  },
+  {
+    "id": "M4",
+    "title": "API, UI and self-service",
+    "wave": 4,
+    "exit": "Users can author, launch, observe, debug and administer workflows without direct database access."
+  },
+  {
+    "id": "M5",
+    "title": "Open governance and enterprise-class controls",
+    "wave": 5,
+    "exit": "Identity, tenancy, policy, audit, secrets, approvals and lineage are production-ready and fully OSS."
+  },
+  {
+    "id": "M6",
+    "title": "Distributed operations and reliability",
+    "wave": 6,
+    "exit": "The platform scales horizontally, is observable, upgradeable, recoverable and security-hardened."
+  },
+  {
+    "id": "M7",
+    "title": "Compatibility, infrastructure as code and ecosystem",
+    "wave": 7,
+    "exit": "Migration tooling, SDKs, GitOps, Terraform, operator and documentation support adoption."
+  },
+  {
+    "id": "M8",
+    "title": "Differentiation and general availability",
+    "wave": 8,
+    "exit": "Differentiating features and GA quality targets are proven under reference workloads."
+  }
+]

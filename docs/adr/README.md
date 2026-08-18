@@ -1,0 +1,22 @@
+# Architecture decision records
+
+Accepted ADRs record product-owner decisions supplied through 2026-08-16. No foundational ADR remains proposed. Replacing an accepted decision requires a superseding ADR rather than silent edits.
+
+| ADR | Status | Decision | Question |
+|---|---|---|---|
+| [ADR-000: Strict clean-room implementation track](000-clean-room-implementation-track.md) | Accepted | Use public contracts, observable behavior and independent tests; do not provide upstream source or presentation assets to implementers. | Q-002 |
+| [ADR-001: Modular monorepo with a Python foundation](001-modular-monorepo-with-a-python-foundation.md) | Accepted / transitional | Retain the Python skeleton as an independent executable specification while Java reaches differential parity. | Q-006 |
+| [ADR-002: PostgreSQL as authoritative platform and transport store](002-postgresql-authoritative-metadata-and-execution-state.md) | Accepted | PostgreSQL is the sole reference relational backend and internal durable transport. | Q-008, Q-009 |
+| [ADR-003: At-least-once delivery with idempotency and fencing](003-at-least-once-delivery-with-idempotency-and-fencing.md) | Accepted | Use stable identities, inbox/outbox records, retries, leases and fencing; do not claim generic exactly-once side effects. | Q-008 |
+| [ADR-004: Object storage for large files and artifacts](004-object-storage-for-large-files-and-artifacts.md) | Accepted | Use provider-neutral S3-compatible object storage for large data; MinIO is the self-hosted reference. | Q-008, Q-009, Q-012 |
+| [ADR-005: Isolated language-neutral plugins](005-isolated-language-neutral-plugins-as-the-default-third-party-model.md) | Accepted | Use versioned RPC/OCI plugins and automated migration; unchanged Kestra JAR support is not a baseline promise. | Q-010 |
+| [ADR-006: PostgreSQL search as a rebuildable projection](006-search-as-a-rebuildable-projection.md) | Accepted | Use PostgreSQL FTS, projections and rollups; search is never execution truth. | Q-008, Q-009 |
+| [ADR-007: React/TypeScript web client](007-react-typescript-web-client.md) | Accepted | Build the web UI with React and TypeScript against public APIs. | Q-007 |
+| [ADR-008: AGPL-3.0-only for one open distribution](008-agpl-3-0-for-one-open-distribution.md) | Accepted and confirmed | Ship all capabilities under AGPL-3.0-only without licence-key or field-of-use restrictions. | Q-004, Q-022 |
+| [ADR-009: Native core with complete Kestra compatibility façades](009-native-contracts-first-compatibility-facade-second.md) | Accepted | Provide version-pinned compatibility for YAML, Pebble, REST, CLI, execution semantics and import/export. | Q-005 |
+| [ADR-010: Production core language](010-production-core-language.md) | Accepted | Use Java 25 core with React/TypeScript UI and Java/Python/TypeScript plugin SDKs. | Q-006 |
+| [ADR-011: On-premises Kubernetes reference deployment](011-on-premises-kubernetes-reference-deployment.md) | Accepted | Use on-premises Kubernetes/Helm as the first production and qualification topology. | Q-012 |
+| [ADR-012: Profile M and minimal v1 recovery](012-profile-m-and-minimal-v1-recovery.md) | Accepted | Qualify profile M and use RPO 48h/RTO 8h as the first stable release gate. | Q-015, Q-016 |
+| [ADR-013: Full side-by-side migration](013-full-side-by-side-migration.md) | Accepted | Migrate resources, governance, history, logs, artifacts and audit evidence through resumable bundles. | Q-017 |
+| [ADR-014: SOC 2 and ISO/IEC 27001 readiness](014-soc2-and-iso27001-readiness.md) | Accepted | Build a traceable control and evidence model without claiming certification. | Q-018 |
+| [ADR-015: Agent quorum and human release authority](015-agent-quorum-and-human-release-authority.md) | Accepted | Agent quorum may merge ordinary changes; named human approval remains mandatory for defined high-risk actions and stable releases. | Q-021 |

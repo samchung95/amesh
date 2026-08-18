@@ -1,0 +1,59 @@
+name: amesh
+
+services:
+  api:
+    build:
+      context: .
+    environment:
+      APP_ENV: development
+      DATABASE_URL: postgresql+asyncpg://amesh:amesh@postgres:5432/amesh
+      OBJECT_STORAGE_ENDPOINT: http://minio:9000
+      OBJECT_STORAGE_BUCKET: amesh
+      OBJECT_STORAGE_ACCESS_KEY: minio
+      OBJECT_STORAGE_SECRET_KEY: minio-development-only
+      AUTH_MODE: development
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_started
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: amesh
+      POSTGRES_USER: amesh
+      POSTGRES_PASSWORD: amesh
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./migrations/0001_foundation.sql:/docker-entrypoint-initdb.d/0001_foundation.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U amesh -d amesh"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  minio:
+    image: minio/minio:latest # Development only; pin a tested digest for production
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: minio-development-only
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio-data:/data
+
+volumes:
+  postgres-data:
+  minio-data:

@@ -1,0 +1,91 @@
+{
+  "$defs": {
+    "ExecutionState": {
+      "enum": [
+        "CREATED",
+        "QUEUED",
+        "RUNNING",
+        "PAUSED",
+        "CANCELLING",
+        "CANCELLED",
+        "SUCCESS",
+        "FAILED",
+        "WARNING",
+        "RESTARTING"
+      ],
+      "title": "ExecutionState",
+      "type": "string"
+    }
+  },
+  "properties": {
+    "applied_event_ids": {
+      "default": [],
+      "items": {
+        "format": "uuid",
+        "type": "string"
+      },
+      "title": "Applied Event Ids",
+      "type": "array"
+    },
+    "epoch": {
+      "default": 1,
+      "minimum": 1,
+      "title": "Epoch",
+      "type": "integer"
+    },
+    "execution_id": {
+      "format": "uuid",
+      "title": "Execution Id",
+      "type": "string"
+    },
+    "flow_id": {
+      "title": "Flow Id",
+      "type": "string"
+    },
+    "flow_revision": {
+      "minimum": 1,
+      "title": "Flow Revision",
+      "type": "integer"
+    },
+    "last_event_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Last Event At"
+    },
+    "namespace": {
+      "title": "Namespace",
+      "type": "string"
+    },
+    "state": {
+      "$ref": "#/$defs/ExecutionState",
+      "default": "CREATED"
+    },
+    "tenant_id": {
+      "title": "Tenant Id",
+      "type": "string"
+    },
+    "version": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Version",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "execution_id",
+    "tenant_id",
+    "namespace",
+    "flow_id",
+    "flow_revision"
+  ],
+  "title": "ExecutionSnapshot",
+  "type": "object"
+}

@@ -1,0 +1,33 @@
+name: Plugin proposal
+description: Propose a new integration or plugin capability
+title: "[Plugin]: "
+labels: ["area:plugins"]
+body:
+  - type: input
+    id: service
+    attributes:
+      label: Service or technology
+    validations:
+      required: true
+  - type: textarea
+    id: use_cases
+    attributes:
+      label: Concrete user outcomes
+    validations:
+      required: true
+  - type: textarea
+    id: extensions
+    attributes:
+      label: Required tasks, triggers, conditions or runners
+    validations:
+      required: true
+  - type: textarea
+    id: security
+    attributes:
+      label: Authentication, secret, network and data risks
+    validations:
+      required: true
+  - type: textarea
+    id: fixtures
+    attributes:
+      label: Open integration-test fixtures and supported versions

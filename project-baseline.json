@@ -1,0 +1,60 @@
+{
+  "product": "AMESH",
+  "repository_slug": "amesh",
+  "status": "Architecture-locked, implementation-ready backlog scaffold",
+  "generated_on": "2026-08-16",
+  "parity_target": {
+    "product": "Kestra",
+    "version": "1.3.30",
+    "tag": "v1.3.30",
+    "commit": "db49f3b2c2af60d61df10adb6f9fc34e4776b65b",
+    "release_date": "2026-07-28"
+  },
+  "license": "AGPL-3.0-only",
+  "compatibility_policy": "Version-pinned compatibility for Kestra YAML, Pebble expressions, REST API, CLI, execution semantics and documented import/export formats; parity plus AMESH-specific capabilities.",
+  "clean_room": true,
+  "product_expansion": "Agent Mesh",
+  "internal_transport": "PostgreSQL-only",
+  "metadata_database": "PostgreSQL-only",
+  "frontend": "React/TypeScript",
+  "production_backend_language": "Java 25 modular durable core; Python foundation retained as an independent executable specification",
+  "priority_personas": [
+    "AI workflow developer",
+    "Software engineer",
+    "Platform engineer"
+  ],
+  "production_deployment": "On-premises Kubernetes via Helm; Docker Compose for development; single-host profile secondary",
+  "initial_integration_pack": [
+    "HTTP/REST",
+    "Webhooks",
+    "Git",
+    "GitHub",
+    "PostgreSQL",
+    "S3-compatible storage / MinIO",
+    "Docker/OCI",
+    "Kubernetes",
+    "OpenAI-compatible model APIs",
+    "MCP"
+  ],
+  "scale_profile": {
+    "name": "M",
+    "executions_per_day": 100000,
+    "active_task_runs": 1000,
+    "sustained_task_starts_per_second": 50,
+    "retained_execution_records": 10000000
+  },
+  "availability_slo": "99.9% monthly control-plane availability excluding declared maintenance",
+  "first_stable_release_recovery": {
+    "rpo_hours": 48,
+    "rto_hours": 8,
+    "profile": "minimal/community baseline",
+    "post_ga_hardened_target": "RPO <= 4 hours and RTO <= 4 hours"
+  },
+  "migration_depth": "Full side-by-side migration of resources, identity/governance configuration, historical executions, task runs, logs, artifacts and audit evidence",
+  "compliance_readiness": [
+    "SOC 2",
+    "ISO/IEC 27001"
+  ],
+  "ai_change_authority": "Independent agent quorum may merge normal changes after deterministic gates; named human approval is required for security-sensitive changes, licensing/governance changes and stable releases",
+  "license_policy": "AGPL-3.0-only; strongest network copyleft selected while retaining open-source status; no additional field-of-use restriction"
+}

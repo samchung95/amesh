@@ -1,0 +1,109 @@
+# Epic backlog
+
+This backlog contains 103 epics and is generated from `backlog/epics.json`.
+
+| Epic | Milestone | Domain | Requirements | Goal |
+|---|---|---|---:|---|
+| [EPIC-000](epics/epic-000-clean-room-governance-and-parity-baseline.md) | M0 | governance | 7 | Establish a defensible, repeatable method for reproducing observable capabilities without copying protected expression. |
+| [EPIC-001](epics/epic-001-repository-engineering-ci-and-release-foundation.md) | M0 | engineering | 13 | Create a contributor-friendly monorepo with deterministic builds, quality gates and release automation. |
+| [EPIC-002](epics/epic-002-canonical-resource-model-and-identifiers.md) | M0 | domain | 7 | Define stable resource identities and lifecycle conventions used across APIs, storage, events and permissions. |
+| [EPIC-003](epics/epic-003-configuration-and-feature-flag-system.md) | M0 | platform | 10 | Offer typed, layered and auditable configuration for standalone and distributed deployments. |
+| [EPIC-004](epics/epic-004-flow-dsl-yaml-model-and-schema.md) | M0 | dsl | 10 | Define a declarative workflow language capable of representing the full target feature set. |
+| [EPIC-005](epics/epic-005-expression-and-templating-engine.md) | M0 | dsl | 8 | Provide deterministic runtime rendering for dynamic workflow values without granting arbitrary code execution. |
+| [EPIC-006](epics/epic-006-flow-revisions-change-history-and-promotion.md) | M0 | domain | 7 | Make workflow definitions immutable by revision and safely promotable across environments. |
+| [EPIC-007](epics/epic-007-execution-event-model-and-state-machine.md) | M0 | engine | 12 | Define the authoritative deterministic state transitions for workflows, tasks, triggers and service components. |
+| [EPIC-008](epics/epic-008-metadata-persistence-and-migrations.md) | M0 | storage | 11 | Persist platform metadata transactionally with clear repository boundaries and safe schema evolution. |
+| [EPIC-009](epics/epic-009-postgresql-transport-inbox-and-transactional-outbox.md) | M0 | messaging | 12 | Provide durable PostgreSQL-backed work delivery while preserving transactional correctness, idempotency and replayability. |
+| [EPIC-010](epics/epic-010-internal-object-storage-and-artifact-addressing.md) | M0 | storage | 12 | Store workflow files and artifacts independently from orchestration metadata. |
+| [EPIC-011](epics/epic-011-ai-native-engineering-factory-and-autonomous-contribution-controls.md) | M0 | engineering | 14 | Make elastic AI engineering teams productive while preserving independent review, clean-room provenance, isolation and deterministic release evidence. |
+| [EPIC-100](epics/epic-100-executor-and-orchestration-reducer.md) | M1 | engine | 12 | Drive executions from committed state and events without executing untrusted task code in the control plane. |
+| [EPIC-101](epics/epic-101-worker-protocol-leases-and-heartbeats.md) | M1 | engine | 10 | Safely assign runnable work to workers and recover ownership after failure. |
+| [EPIC-102](epics/epic-102-scheduler-and-temporal-correctness.md) | M1 | engine | 11 | Create due executions exactly according to declared temporal semantics despite restarts and multiple scheduler replicas. |
+| [EPIC-103](epics/epic-103-trigger-runtime-and-occurrence-lifecycle.md) | M1 | engine | 9 | Unify schedule, polling, webhook, realtime, flow and programmatic triggers under one occurrence model. |
+| [EPIC-104](epics/epic-104-retries-timeout-pause-cancellation-kill-and-restart.md) | M1 | engine | 9 | Give users predictable control over failure recovery and execution interruption. |
+| [EPIC-105](epics/epic-105-concurrency-admission-control-and-fairness.md) | M1 | engine | 11 | Protect shared capacity while offering predictable fairness across tenants, namespaces, flows and task types. |
+| [EPIC-106](epics/epic-106-backfill-replay-and-historical-reprocessing.md) | M1 | engine | 8 | Run historical workload ranges safely and observably without confusing them with live trigger traffic. |
+| [EPIC-107](epics/epic-107-subflows-dependencies-and-system-flows.md) | M1 | engine | 8 | Compose workflows while preserving parent-child state, outputs, cancellation and authorization. |
+| [EPIC-108](epics/epic-108-recovery-reconciliation-and-invariant-repair.md) | M1 | reliability | 10 | Continuously detect and safely repair drift caused by process, PostgreSQL, worker, runner or object-storage failure. |
+| [EPIC-109](epics/epic-109-task-and-execution-cache.md) | M1 | engine | 9 | Reuse deterministic task results without hiding provenance or serving stale data unexpectedly. |
+| [EPIC-110](epics/epic-110-sla-checks-and-execution-policy-evaluation.md) | M1 | engine | 8 | Evaluate operational expectations during and after executions and make violations actionable. |
+| [EPIC-111](epics/epic-111-logs-metrics-outputs-and-artifact-events.md) | M1 | observability | 10 | Capture task-produced evidence as structured, searchable and streamable execution data. |
+| [EPIC-200](epics/epic-200-runnable-task-contract.md) | M2 | workflow | 8 | Define the lifecycle contract for units of executable work. |
+| [EPIC-201](epics/epic-201-sequential-parallel-and-dag-flowables.md) | M2 | workflow | 8 | Express common dependency and parallelism patterns as first-class flowable tasks. |
+| [EPIC-202](epics/epic-202-conditional-branching-and-switch-semantics.md) | M2 | workflow | 7 | Choose workflow branches from safe expressions with explainable decisions. |
+| [EPIC-203](epics/epic-203-loops-foreach-while-and-until.md) | M2 | workflow | 9 | Repeat work over data or conditions while maintaining bounded, resumable state. |
+| [EPIC-204](epics/epic-204-errors-finally-and-after-execution-hooks.md) | M2 | workflow | 8 | Run recovery and cleanup logic predictably for task, branch and execution outcomes. |
+| [EPIC-205](epics/epic-205-inputs-outputs-and-variables.md) | M2 | workflow | 9 | Provide typed data contracts at flow and task boundaries. |
+| [EPIC-206](epics/epic-206-labels-metadata-and-plugin-defaults.md) | M2 | workflow | 7 | Apply searchable metadata and inherited defaults without hidden ambiguity. |
+| [EPIC-207](epics/epic-207-namespace-files-key-value-store-and-secrets.md) | M2 | workflow | 8 | Offer namespace-scoped shared resources with inheritance and fine-grained access control. |
+| [EPIC-208](epics/epic-208-working-directories-and-execution-files.md) | M2 | workflow | 8 | Move files safely between tasks, runners and object storage. |
+| [EPIC-209](epics/epic-209-task-runner-interface-and-capability-model.md) | M2 | runner | 10 | Separate task semantics from the environment that executes user code. |
+| [EPIC-220](epics/epic-220-local-process-task-runner.md) | M2 | runner | 7 | Run trusted scripts and commands directly on a worker for local development and controlled environments. |
+| [EPIC-221](epics/epic-221-docker-and-oci-task-runner.md) | M2 | runner | 9 | Execute isolated task containers with governed images, mounts, networking and cleanup. |
+| [EPIC-222](epics/epic-222-kubernetes-task-runner.md) | M2 | runner | 9 | Run task attempts as isolated Kubernetes resources across configured clusters. |
+| [EPIC-223](epics/epic-223-cloud-batch-vm-and-serverless-runners.md) | M2 | runner | 8 | Offload task execution to managed cloud compute through interchangeable adapters. |
+| [EPIC-300](epics/epic-300-plugin-sdk-and-manifest-contract.md) | M3 | plugins | 9 | Let independent developers extend tasks, triggers, conditions, runners, storage and secrets through stable contracts. |
+| [EPIC-301](epics/epic-301-plugin-discovery-resolution-and-dependency-isolation.md) | M3 | plugins | 8 | Resolve a deterministic plugin set for each flow revision without classpath or dependency ambiguity. |
+| [EPIC-302](epics/epic-302-trusted-in-process-plugin-runtime.md) | M3 | plugins | 8 | Run selected high-trust plugins with low overhead while containing dependency and lifecycle failures. |
+| [EPIC-303](epics/epic-303-isolated-language-neutral-plugin-runtime.md) | M3 | plugins | 10 | Execute third-party plugins out of process or in OCI sandboxes through a language-neutral protocol. |
+| [EPIC-304](epics/epic-304-trigger-condition-and-notification-extension-contracts.md) | M3 | plugins | 7 | Make non-task workflow extensions first-class and durable. |
+| [EPIC-305](epics/epic-305-plugin-registry-signing-sbom-and-marketplace-metadata.md) | M3 | plugins | 10 | Distribute plugins with verifiable provenance and enough metadata for safe adoption. |
+| [EPIC-306](epics/epic-306-core-utility-plugin-pack.md) | M3 | plugins | 8 | Ship dependable generic building blocks for control flow, HTTP, files, data conversion and diagnostics. |
+| [EPIC-307](epics/epic-307-multi-language-script-plugin-pack.md) | M3 | plugins | 8 | Run scripts in common languages with consistent dependency, file, log, metric and output behavior. |
+| [EPIC-308](epics/epic-308-database-analytics-and-storage-plugin-pack.md) | M3 | plugins | 8 | Connect workflows to widely used databases, warehouses and object stores. |
+| [EPIC-309](epics/epic-309-cloud-and-infrastructure-plugin-pack.md) | M3 | plugins | 8 | Automate cloud and infrastructure services with scoped identity and normalized behavior. |
+| [EPIC-310](epics/epic-310-messaging-and-event-stream-plugin-pack.md) | M3 | plugins | 8 | Publish, consume and trigger workflows from common messaging systems. |
+| [EPIC-311](epics/epic-311-notification-and-collaboration-plugin-pack.md) | M3 | plugins | 7 | Deliver human and machine notifications through common communication platforms. |
+| [EPIC-312](epics/epic-312-ai-agent-and-mcp-plugin-pack.md) | M3 | plugins | 8 | Integrate model calls and tool-using agents without making the core engine provider-specific. |
+| [EPIC-313](epics/epic-313-plugin-developer-portal-and-certification-suite.md) | M3 | plugins | 7 | Reduce plugin development friction and define transparent quality levels. |
+| [EPIC-400](epics/epic-400-versioned-rest-api-and-openapi-contract.md) | M4 | api | 11 | Expose the complete supported control plane through a stable, documented and automatable API. |
+| [EPIC-401](epics/epic-401-realtime-api-webhooks-and-event-subscriptions.md) | M4 | api | 9 | Deliver state, log and audit changes to clients without fragile polling. |
+| [EPIC-402](epics/epic-402-cli-and-generated-client-sdks.md) | M4 | api | 10 | Make all common platform operations scriptable and suitable for CI/CD. |
+| [EPIC-403](epics/epic-403-authentication-session-and-credential-entry-points.md) | M4 | security | 9 | Provide secure local and federated entry points while keeping authorization separate. |
+| [EPIC-404](epics/epic-404-web-ui-shell-navigation-and-accessibility.md) | M4 | ui | 10 | Provide a responsive, permission-aware and accessible web application for all platform personas. |
+| [EPIC-405](epics/epic-405-flow-code-editor-and-validation-experience.md) | M4 | ui | 10 | Offer a productive schema-aware editor for the declarative flow language. |
+| [EPIC-406](epics/epic-406-visual-no-code-editor-and-topology-model.md) | M4 | ui | 8 | Author and understand workflows visually without creating a second incompatible representation. |
+| [EPIC-407](epics/epic-407-execution-details-gantt-logs-and-debugging-ui.md) | M4 | ui | 10 | Help users diagnose execution behavior from one coherent timeline. |
+| [EPIC-408](epics/epic-408-dashboards-query-language-and-saved-views.md) | M4 | ui | 8 | Create operational and business views from execution, log, metric, SLA and asset data. |
+| [EPIC-409](epics/epic-409-search-indexing-and-retrieval-projections.md) | M4 | search | 11 | Find flows, executions, logs, assets and governance records quickly without making the search index authoritative. |
+| [EPIC-410](epics/epic-410-namespace-settings-and-administration-ui.md) | M4 | ui | 9 | Administer resources and platform configuration without direct database or file access. |
+| [EPIC-411](epics/epic-411-blueprints-playground-and-onboarding.md) | M4 | ui | 9 | Help users learn and start workflows without weakening production controls. |
+| [EPIC-500](epics/epic-500-users-groups-roles-bindings-and-authorization.md) | M5 | governance | 9 | Enforce fine-grained least-privilege access consistently across every platform resource and action. |
+| [EPIC-501](epics/epic-501-service-accounts-api-tokens-and-credentials.md) | M5 | governance | 10 | Support non-human automation identities with scoped, rotatable and observable credentials. |
+| [EPIC-502](epics/epic-502-sso-oidc-saml-ldap-and-scim.md) | M5 | governance | 9 | Integrate enterprise identity providers using open standards and auditable mapping. |
+| [EPIC-503](epics/epic-503-multi-tenancy-and-resource-isolation.md) | M5 | governance | 9 | Host multiple organizations or environments with strong logical isolation and independent administration. |
+| [EPIC-504](epics/epic-504-immutable-audit-log-and-evidence-export.md) | M5 | governance | 12 | Record security and administrative actions as tamper-evident, queryable evidence. |
+| [EPIC-505](epics/epic-505-plugin-allow-restrict-and-version-policy.md) | M5 | governance | 9 | Control which plugin capabilities and versions may be authored or executed in each scope. |
+| [EPIC-506](epics/epic-506-external-secrets-managers-and-secret-lifecycle.md) | M5 | security | 12 | Resolve secrets from approved stores without making the orchestration database a plaintext vault. |
+| [EPIC-507](epics/epic-507-assets-lineage-and-catalog.md) | M5 | governance | 8 | Represent data and infrastructure assets and their relationship to workflows and executions. |
+| [EPIC-508](epics/epic-508-apps-forms-and-human-approval-tasks.md) | M5 | governance | 8 | Build governed human-in-the-loop experiences on top of durable workflows. |
+| [EPIC-509](epics/epic-509-announcements-maintenance-mode-and-kill-switch.md) | M5 | operations | 9 | Control instance-wide operational posture during incidents and planned maintenance. |
+| [EPIC-510](epics/epic-510-flow-unit-tests-and-quality-gates.md) | M5 | governance | 8 | Test workflow behavior deterministically before deployment or promotion. |
+| [EPIC-600](epics/epic-600-standalone-server-and-compact-deployment.md) | M6 | operations | 11 | Run the complete platform on one host or small cluster with minimal dependencies. |
+| [EPIC-601](epics/epic-601-distributed-services-and-high-availability.md) | M6 | operations | 17 | Scale platform roles independently and survive ordinary node or zone failures. |
+| [EPIC-602](epics/epic-602-postgresql-transactional-backend.md) | M6 | storage | 10 | Provide a production-grade PostgreSQL backend for compact and horizontally scaled deployments. |
+| [EPIC-603](epics/epic-603-postgresql-distributed-work-queue-and-notifications.md) | M6 | messaging | 10 | Scale durable orchestration using partitioned PostgreSQL queues, notifications, leases and dead-letter workflows without an external broker. |
+| [EPIC-604](epics/epic-604-search-and-analytics-projection-backend.md) | M6 | search | 10 | Scale read-heavy UI, log and analytics queries through rebuildable PostgreSQL projections, partitions and rollups. |
+| [EPIC-605](epics/epic-605-object-storage-backends-and-lifecycle.md) | M6 | storage | 12 | Operate internal storage reliably across local and cloud object stores. |
+| [EPIC-606](epics/epic-606-containers-kubernetes-and-helm-deployment.md) | M6 | operations | 13 | Provide secure, portable and air-gapped-capable deployment artifacts for the on-premises Kubernetes reference environment. |
+| [EPIC-607](epics/epic-607-opentelemetry-prometheus-and-log-shipping.md) | M6 | observability | 15 | Expose actionable telemetry without coupling the platform to one vendor. |
+| [EPIC-608](epics/epic-608-retention-purge-and-data-lifecycle.md) | M6 | operations | 10 | Control metadata, logs, metrics, artifacts and audit growth safely. |
+| [EPIC-609](epics/epic-609-backup-restore-and-disaster-recovery.md) | M6 | reliability | 10 | Restore a consistent platform state after data loss or regional failure. |
+| [EPIC-610](epics/epic-610-upgrades-migrations-and-lts-policy.md) | M6 | operations | 12 | Upgrade the platform predictably without silently changing workflow behavior. |
+| [EPIC-611](epics/epic-611-performance-scale-and-chaos-qualification.md) | M6 | reliability | 11 | Qualify correctness, performance and recovery under profile M load and adversarial failures on the on-premises Kubernetes reference topology. |
+| [EPIC-612](epics/epic-612-security-hardening-and-software-supply-chain.md) | M6 | security | 15 | Reduce platform and workload attack surface and produce verifiable release artifacts. |
+| [EPIC-613](epics/epic-613-tls-networking-proxy-and-private-connectivity.md) | M6 | operations | 10 | Operate across enterprise networks without weakening transport or destination controls. |
+| [EPIC-700](epics/epic-700-git-synchronization-and-ci-cd-helpers.md) | M7 | devops | 8 | Manage workflow resources through source control and automated promotion. |
+| [EPIC-701](epics/epic-701-terraform-and-opentofu-provider.md) | M7 | devops | 8 | Manage platform configuration declaratively through standard infrastructure-as-code tooling. |
+| [EPIC-702](epics/epic-702-kubernetes-operator-and-declarative-resources.md) | M7 | devops | 8 | Reconcile platform resources from Kubernetes custom resources when Kubernetes is the control environment. |
+| [EPIC-703](epics/epic-703-public-sdks-and-embedded-integration-libraries.md) | M7 | api | 8 | Integrate the orchestrator into applications using supported language libraries. |
+| [EPIC-704](epics/epic-704-kestra-migration-importer-and-conformance-suite.md) | M7 | compatibility | 19 | Provide version-pinned compatibility plus full side-by-side migration of resources, identity and governance configuration, execution history, logs, artifacts and audit evidence. |
+| [EPIC-705](epics/epic-705-documentation-examples-and-community-governance.md) | M7 | community | 10 | Make the platform understandable, supportable and governable as a durable open-source project. |
+| [EPIC-706](epics/epic-706-reference-integration-environments-and-certification.md) | M7 | quality | 8 | Continuously test platform and plugin behavior against real services and deployment topologies. |
+| [EPIC-800](epics/epic-800-deterministic-simulation-and-dry-run-engine.md) | M8 | differentiation | 8 | Preview workflow behavior and policy impact without performing undeclared external side effects. |
+| [EPIC-801](epics/epic-801-agentic-authoring-and-operational-assistant.md) | M8 | differentiation | 8 | Use AI to assist authoring and diagnosis while keeping changes reviewable and policy-bound. |
+| [EPIC-802](epics/epic-802-policy-as-code-and-admission-controller.md) | M8 | differentiation | 9 | Evaluate authoring, deployment and execution policy through open, testable rules. |
+| [EPIC-803](epics/epic-803-multi-region-and-edge-worker-topology.md) | M8 | differentiation | 8 | Place execution near private infrastructure while maintaining centralized governance and durable control. |
+| [EPIC-804](epics/epic-804-open-enterprise-distribution-and-packaging.md) | M8 | differentiation | 10 | Ship every production capability under an OSI-approved license without artificial feature gates. |
+| [EPIC-805](epics/epic-805-general-availability-quality-and-launch-readiness.md) | M8 | quality | 12 | Define objective evidence required before declaring the first stable release. |
+| [EPIC-806](epics/epic-806-first-class-agent-mesh-runtime-and-governance.md) | M8 | differentiation | 18 | Run durable, governed multi-agent meshes with typed hand-offs, bounded autonomy, provider portability and complete execution evidence. |

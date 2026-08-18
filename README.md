@@ -1,0 +1,205 @@
+# AMESH — Agent Mesh
+
+> **Status:** architecture-locked, implementation-ready requirements, backlog and executable specification. AMESH is not yet a production-ready orchestrator and does not yet claim Kestra compatibility.
+
+AMESH is a strict clean-room, fully open-source durable workflow and agent orchestration platform. Its first compatibility baseline is pinned to **Kestra 1.3.30** at commit `db49f3b2c2af60d61df10adb6f9fc34e4776b65b`, allowing compatibility to be measured against a stable target rather than an undefined “latest” release.
+
+The product target is broader than OSS feature parity. AMESH also independently implements publicly documented advanced capabilities and adds a first-class, governed agent-mesh runtime. All production capabilities are intended to ship in one **AGPL-3.0** distribution.
+
+## Locked direction
+
+| Area | Decision |
+|---|---|
+| Product | **AMESH**, meaning **Agent Mesh** |
+| Implementation | Strict clean room; public specifications, observable behavior and independently authored conformance tests only |
+| Scope | Kestra OSS parity, independently implemented advanced capabilities and AMESH differentiators |
+| Compatibility | YAML, Pebble expressions, REST API, CLI, execution semantics and documented import/export formats |
+| Durable state and internal transport | PostgreSQL only; `LISTEN/NOTIFY` is a wake-up optimization, not delivery truth |
+| Object storage | S3-compatible interface; MinIO in the development stack |
+| Production core | Modular Java 25; Python retained as an independent executable specification until differential parity |
+| Frontend | React and TypeScript |
+| First runners | Local process, Docker/OCI and Kubernetes |
+| Plugins | Isolated language-neutral protocol; Java, Python and TypeScript SDKs first |
+| Primary users | AI workflow developers, software engineers and platform engineers |
+| Production | On-premises Kubernetes/Helm reference; Docker Compose development; single-host secondary |
+| Scale | Profile M: 100,000 executions/day, 1,000 active task runs, 50 starts/s, 10 million retained |
+| Availability and recovery | 99.9% monthly control-plane target; v1 RPO <= 48h and RTO <= 8h |
+| Migration | Full side-by-side resources, identity/governance, history, logs, artifacts and audit evidence |
+| Compliance | SOC 2 and ISO/IEC 27001 readiness; certification is not claimed |
+| Engineering model | Independent agent quorum for normal merges; human approval for high-risk changes and stable releases |
+| Licence | AGPL-3.0-only, confirmed as the strongest selected copyleft while retaining open-source status |
+
+**Java 25 is accepted for the modular production core.** The checked-in Python foundation remains an independent executable specification until the Java implementation passes equivalent golden, property and differential tests. The choice is driven primarily by exact Pebble/JVM-adjacent compatibility and durable PostgreSQL service maturity, not by Java being universally better. See the [accepted language rationale](docs/architecture/backend-language-evaluation.md) and [ADR-010](docs/adr/010-production-core-language.md).
+
+## Repository contents
+
+- **837 functional requirements** and **63 non-functional requirements** in Markdown, JSON and CSV.
+- **103 implementation epics** across nine milestone waves.
+- **992 requirement-to-epic traceability links**.
+- A machine-readable parity matrix and GitHub-ready issue bodies.
+- Architecture for deterministic execution, PostgreSQL queues, leases, fencing, scheduling, plugins, tenancy, security, HA and disaster recovery.
+- Full compatibility workstreams for Kestra YAML, Pebble, REST, CLI, execution behavior and import/export.
+- AMESH-specific workstreams for agent meshes, deterministic simulation, policy-as-code and evidence-backed AI assistance.
+- A small Python/FastAPI executable specification for flow validation and immutable execution reduction.
+- A PostgreSQL + MinIO Docker Compose development topology.
+- Reproducible planning, contract, validation and packaging scripts.
+
+## Architecture at a glance
+
+```text
+React / TypeScript web client
+CLI and generated client SDKs
+               |
+REST / WebSocket / compatibility facade
+               |
+Java 25 durable control plane
+- resource and revision services
+- source-preserving YAML + Pebble compatibility
+- command validation and deterministic reducer
+- executor, scheduler and trigger services
+- authorization, audit, policy and tenancy
+               |
+PostgreSQL
+- authoritative resources and execution snapshots
+- immutable events
+- transactional inbox/outbox
+- partitioned work queues
+- leases and fencing tokens
+- PostgreSQL search and analytics projections
+               |
+Workers and isolated plugin hosts
+- local process runner
+- Docker/OCI runner
+- Kubernetes runner
+- Java / Python / TypeScript plugin SDKs
+               |
+S3-compatible artifact and internal file storage
+```
+
+Core correctness rules:
+
+1. PostgreSQL is authoritative for committed orchestration state and internal durable delivery.
+2. State-changing commands and results are idempotent.
+3. Delivery is at least once; arbitrary external side effects are not advertised as exactly once.
+4. Workers, schedulers and reconcilers use expiring leases with monotonically increasing fencing tokens.
+5. A stale owner cannot commit after reassignment, retry, cancellation or restart.
+6. Large files and artifacts live in object storage rather than PostgreSQL queue payloads.
+7. Search and analytics are rebuildable PostgreSQL projections, never execution truth.
+8. Untrusted user code and third-party plugins run outside control-plane processes.
+9. Tenant and authorization context is mandatory at API, persistence, queue, storage and plugin boundaries.
+10. Compatibility claims require version-pinned differential evidence.
+
+Start with the [architecture overview](docs/architecture/README.md), [on-premises Kubernetes reference](docs/architecture/on-premises-kubernetes.md), [execution semantics](docs/architecture/execution-semantics.md), [PostgreSQL transport design](docs/architecture/postgresql-transport.md), [full migration architecture](docs/architecture/migration.md) and [compatibility architecture](docs/architecture/compatibility.md).
+
+## Repository map
+
+```text
+.github/                    CI, ownership, issue and pull-request policy
+backlog/
+  epics/                    One implementation-ready issue body per epic
+  epics.json                Canonical epic metadata and generated bodies
+  github-issues.ndjson      GitHub-ready issue import records
+  labels.json               Proposed labels
+  milestones.json           Milestone definitions
+requirements/
+  URS.md                    Human-readable User Requirements Specification
+  urs.json                  Canonical requirement records
+  urs.csv                   Flat requirement export
+  traceability.csv          Requirement-to-epic evidence map
+  parity-matrix.csv         Parity and intentional-difference scope
+docs/
+  adr/                      Architecture decision records
+  architecture/             Runtime, storage, security and compatibility design
+  governance/               Clean-room, threat and AI-engineering controls
+  product/                  Vision, decisions, personas, roadmap and differentiators
+src/amesh/                  Python executable specification
+tests/                      Specification tests
+migrations/                 Provisional PostgreSQL schema
+proto/                      Worker and isolated-plugin protocol drafts
+scripts/                    Regeneration, validation, packaging and publication tools
+```
+
+## Local quick start
+
+Requirements: Python 3.12+, Docker with Compose v2 and Git.
+
+```bash
+cp .env.example .env
+docker compose up -d postgres minio
+python -m venv .venv
+. .venv/bin/activate
+python -m pip install -e '.[dev,runtime]'
+make validate-core
+uvicorn amesh.app:app --reload
+```
+
+Open `http://localhost:8000/docs`, then validate the sample flow:
+
+```bash
+curl -sS -X POST http://localhost:8000/api/v1/flows/validate \
+  -H 'content-type: application/yaml' \
+  --data-binary @examples/hello-world.yaml
+```
+
+The current API demonstrates only validation and deterministic state reduction. It does not yet schedule or execute workflow tasks.
+
+## Planning workflow
+
+`requirements/urs.json` and structured epic fields in `backlog/epics.json` are canonical. After changing either:
+
+```bash
+python scripts/regenerate_planning_artifacts.py
+python scripts/validate_backlog.py
+```
+
+The regeneration script updates the human URS, CSV exports, traceability matrix, parity matrix, epic issue bodies, backlog index, GitHub issue records and roadmap. CI rejects generated drift.
+
+Useful validation commands:
+
+```bash
+make validate-core     # tests, requirements, clean-room scan and compilation
+make validate          # also formatting, linting, typing and generated-file drift
+make contracts         # regenerate JSON Schema and OpenAPI
+make package           # create source archives and checksums
+```
+
+## Compatibility and clean-room policy
+
+AMESH is not affiliated with or endorsed by Kestra. The project may study public documentation, public schemas, public API behavior and independently obtained black-box observations. Clean-room implementers must not copy Kestra source code, documentation prose, visual assets or trademarks into AMESH.
+
+A full compatibility claim is blocked until all declared surfaces have green differential fixtures and known gaps are published. Native AMESH contracts may exist internally, but the compatibility façade must reproduce the pinned public behavior where compatibility is declared.
+
+See the [clean-room policy](docs/governance/clean-room-policy.md), [parity charter](docs/product/parity-charter.md) and [source provenance register](SOURCES.md).
+
+## Roadmap and implementation start
+
+The roadmap is dependency-based, not calendar-based. AI engineering capacity can scale horizontally, but milestone exits remain evidence gates.
+
+- [Roadmap](docs/product/roadmap.md)
+- [Decision register](docs/product/decision-register.md)
+- [Decision status](DECISIONS_NEEDED.md)
+- [Implementation kickoff](docs/product/implementation-kickoff.md)
+- [Implementation status](IMPLEMENTATION_STATUS.md)
+
+All foundational product decisions are accepted. M0 can begin using the dependency-ordered launch sequence in the implementation kickoff document. Later implementation choices are captured as ADRs and may not silently weaken the accepted compatibility, security, migration or release guarantees.
+
+## GitHub publication
+
+No remote repository has been created or pushed by this working-tree update. Publication scripts are guarded and default to a private repository:
+
+```bash
+export GITHUB_OWNER=samchung95
+export GITHUB_REPO=amesh
+export GITHUB_VISIBILITY=private
+export CONFIRM_PUBLISH=samchung95/amesh
+
+bash scripts/publish_github.sh
+bash scripts/bootstrap_github_backlog.sh --dry-run
+bash scripts/bootstrap_github_backlog.sh
+```
+
+Review the working tree and authorize commit, push and issue creation as separate actions.
+
+## License
+
+AMESH is licensed under **GNU Affero General Public License v3.0 only** (`AGPL-3.0-only`). This decision is confirmed. AMESH does not add a non-commercial, competitor or hosted-service restriction because doing so would conflict with the fully open-source objective. See the [licence policy](docs/product/license-policy.md).

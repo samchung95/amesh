@@ -1,0 +1,115 @@
+syntax = "proto3";
+
+package openorchestrator.worker.v1;
+
+service WorkerControl {
+  rpc Register(RegisterRequest) returns (RegisterResponse);
+  rpc Work(stream WorkerMessage) returns (stream ControlMessage);
+}
+
+message RegisterRequest {
+  string worker_id = 1;
+  string instance_name = 2;
+  string version = 3;
+  string worker_group = 4;
+  string capabilities_json = 5;
+  string labels_json = 6;
+}
+
+message RegisterResponse {
+  string session_id = 1;
+  string short_lived_token = 2;
+  int32 heartbeat_interval_seconds = 3;
+  repeated string accepted_protocol_versions = 4;
+}
+
+message WorkerMessage {
+  oneof value {
+    WorkerHeartbeat heartbeat = 1;
+    ClaimAcknowledgement claim = 2;
+    AttemptStarted started = 3;
+    AttemptProgress progress = 4;
+    AttemptCompleted completed = 5;
+    CancellationAcknowledgement cancellation = 6;
+  }
+}
+
+message ControlMessage {
+  oneof value {
+    TaskDispatch dispatch = 1;
+    CancelAttempt cancel = 2;
+    DrainWorker drain = 3;
+    SessionRefresh refresh = 4;
+  }
+}
+
+message WorkerHeartbeat {
+  string worker_id = 1;
+  string session_id = 2;
+  string capacity_json = 3;
+  repeated ActiveLease leases = 4;
+}
+
+message ActiveLease {
+  string attempt_id = 1;
+  int64 fencing_token = 2;
+}
+
+message TaskDispatch {
+  string dispatch_id = 1;
+  string tenant_id = 2;
+  string execution_id = 3;
+  string task_run_id = 4;
+  string attempt_id = 5;
+  int64 fencing_token = 6;
+  int64 lease_expires_unix_ms = 7;
+  string task_request_json = 8;
+}
+
+message ClaimAcknowledgement {
+  string dispatch_id = 1;
+  string attempt_id = 2;
+  int64 fencing_token = 3;
+  bool accepted = 4;
+  string reason = 5;
+}
+
+message AttemptStarted {
+  string attempt_id = 1;
+  int64 fencing_token = 2;
+  string runner_reference = 3;
+}
+
+message AttemptProgress {
+  string attempt_id = 1;
+  int64 fencing_token = 2;
+  string progress_json = 3;
+}
+
+message AttemptCompleted {
+  string attempt_id = 1;
+  int64 fencing_token = 2;
+  string result_json = 3;
+}
+
+message CancelAttempt {
+  string attempt_id = 1;
+  int64 fencing_token = 2;
+  string reason = 3;
+  int64 force_after_unix_ms = 4;
+}
+
+message CancellationAcknowledgement {
+  string attempt_id = 1;
+  int64 fencing_token = 2;
+  string status = 3;
+}
+
+message DrainWorker {
+  string reason = 1;
+  int64 deadline_unix_ms = 2;
+}
+
+message SessionRefresh {
+  string short_lived_token = 1;
+}

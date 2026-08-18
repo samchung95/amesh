@@ -1,0 +1,120 @@
+syntax = "proto3";
+
+package openorchestrator.plugin.v1;
+
+service PluginRuntime {
+  rpc Describe(DescribeRequest) returns (DescribeResponse);
+  rpc Validate(ValidateRequest) returns (ValidateResponse);
+  rpc Invoke(stream InvocationClientMessage) returns (stream InvocationServerMessage);
+}
+
+message DescribeRequest {
+  string platform_version = 1;
+  repeated string supported_protocol_versions = 2;
+}
+
+message DescribeResponse {
+  string package_name = 1;
+  string package_version = 2;
+  string package_digest = 3;
+  string protocol_version = 4;
+  repeated PluginType plugin_types = 5;
+}
+
+message PluginType {
+  string type = 1;
+  string kind = 2;
+  string json_schema = 3;
+  repeated string requested_capabilities = 4;
+}
+
+message ValidateRequest {
+  string plugin_type = 1;
+  string configuration_json = 2;
+}
+
+message ValidateResponse {
+  repeated ValidationIssue issues = 1;
+}
+
+message ValidationIssue {
+  string code = 1;
+  string message = 2;
+  string json_pointer = 3;
+  string severity = 4;
+}
+
+message InvocationClientMessage {
+  oneof value {
+    StartInvocation start = 1;
+    CancelInvocation cancel = 2;
+    CapabilityResponse capability_response = 3;
+  }
+}
+
+message InvocationServerMessage {
+  oneof value {
+    InvocationHeartbeat heartbeat = 1;
+    LogRecord log = 2;
+    MetricRecord metric = 3;
+    CapabilityRequest capability_request = 4;
+    InvocationResult result = 5;
+  }
+}
+
+message StartInvocation {
+  string invocation_id = 1;
+  string tenant_id = 2;
+  string plugin_type = 3;
+  string configuration_json = 4;
+  string context_json = 5;
+  int64 fencing_token = 6;
+}
+
+message CancelInvocation {
+  string invocation_id = 1;
+  string reason = 2;
+}
+
+message InvocationHeartbeat {
+  string invocation_id = 1;
+  int64 observed_fencing_token = 2;
+  string progress_json = 3;
+}
+
+message LogRecord {
+  string invocation_id = 1;
+  string level = 2;
+  string message = 3;
+  string fields_json = 4;
+}
+
+message MetricRecord {
+  string invocation_id = 1;
+  string name = 2;
+  string kind = 3;
+  double value = 4;
+  string labels_json = 5;
+}
+
+message CapabilityRequest {
+  string request_id = 1;
+  string invocation_id = 2;
+  string capability_type = 3;
+  string scope_json = 4;
+}
+
+message CapabilityResponse {
+  string request_id = 1;
+  bool granted = 2;
+  string short_lived_token = 3;
+  string metadata_json = 4;
+}
+
+message InvocationResult {
+  string invocation_id = 1;
+  string status = 2;
+  string outputs_json = 3;
+  repeated string artifact_uris = 4;
+  string error_json = 5;
+}

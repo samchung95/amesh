@@ -1,0 +1,22 @@
+id: hello_world
+namespace: examples.getting_started
+description: Foundation validation example
+labels:
+  owner: platform-team
+inputs:
+  - id: name
+    type: STRING
+    required: false
+    default: World
+tasks:
+  - id: greet
+    type: core.log
+    message: "Hello {{ inputs.name }}"
+  - id: done
+    type: core.return
+    dependsOn:
+      - greet
+    value:
+      message: "Hello {{ inputs.name }}"
+outputs:
+  message: "{{ outputs.done.value.message }}"
