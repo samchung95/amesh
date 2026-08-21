@@ -29,9 +29,10 @@ orchestration_queue
 orchestration_inbox
   consumer_name, message_id, processed_at, result_checksum
 
-orchestration_dead_letter
-  message_id, source_queue_id, failure_class, payload_checksum,
-  redacted_payload, attempt_count, quarantined_at, resolution
+durable_dead_letters
+  id, tenant_id, source_type, source_id, message_id, lane, partition_key,
+  message_type, schema_version, failure_class, payload_checksum,
+  attempt_count, last_error, quarantined_at, resolution, resolved_at, resolved_by
 
 projection_checkpoint
   projection_name, shard, last_event_position, updated_at
@@ -48,6 +49,12 @@ The physical design may combine outbox and queue records, but their semantic res
 5. Renew the lease with a compare-and-set on owner and token.
 6. Commit completion only when attempt, owner and fencing token still match.
 7. On expiry, another worker may claim the row with a larger token.
+
+The candidate query admits only the oldest `READY` or `CLAIMED` row for a tenant/lane/partition. A
+completed or explicitly quarantined head releases the next row. Exhausting `max_attempts` atomically
+moves the queue row to `DEAD_LETTER` and creates one pending `durable_dead_letters` record. Outbox
+failure recording follows the same bounded policy. Replay resolves that immutable evidence and resets
+the retained source row for another bounded delivery cycle.
 
 ## Scaling strategy
 

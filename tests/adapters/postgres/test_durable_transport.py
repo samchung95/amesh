@@ -16,7 +16,12 @@ from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 
 from amesh.adapters.postgres import PostgresDurableTransport, PostgresTenantRepository
 from amesh.domain import TenantDefinition
-from amesh.ports import DurableEnvelope, StaleWorkClaimError
+from amesh.ports import (
+    DeadLetterReplayError,
+    DurableEnvelope,
+    MessageIdentityConflict,
+    StaleWorkClaimError,
+)
 
 TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
 
@@ -26,21 +31,27 @@ pytestmark = pytest.mark.skipif(
 )
 
 
-def envelope(message_id: UUID, *, tenant_id: str = "default") -> DurableEnvelope:
+def envelope(
+    message_id: UUID,
+    *,
+    tenant_id: str = "default",
+    partition_key: str | None = None,
+) -> DurableEnvelope:
     return DurableEnvelope(
         message_id=message_id,
         message_type="TaskDispatchRequested",
         schema_version=1,
         tenant_id=tenant_id,
-        partition_key=f"execution:{message_id}",
+        partition_key=partition_key or f"execution:{message_id}",
         correlation_id=uuid4(),
         produced_at=datetime.now(UTC),
+        trace_context={"traceparent": "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01"},
         payload={"taskRunId": "task-1"},
     )
 
 
 @asynccontextmanager
-async def transport_for(message_id: UUID) -> AsyncIterator[PostgresDurableTransport]:
+async def transport_for(*message_ids: UUID) -> AsyncIterator[PostgresDurableTransport]:
     if TEST_DATABASE_URL is None:
         raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
     engine: AsyncEngine = create_async_engine(TEST_DATABASE_URL)
@@ -48,18 +59,17 @@ async def transport_for(message_id: UUID) -> AsyncIterator[PostgresDurableTransp
         yield PostgresDurableTransport(engine)
     finally:
         async with engine.begin() as connection:
-            await connection.execute(
-                text("DELETE FROM consumed_messages WHERE message_id = :message_id"),
-                {"message_id": message_id},
-            )
-            await connection.execute(
-                text("DELETE FROM durable_work_queue WHERE message_id = :message_id"),
-                {"message_id": message_id},
-            )
-            await connection.execute(
-                text("DELETE FROM messages_outbox WHERE message_id = :message_id"),
-                {"message_id": message_id},
-            )
+            for message_id in message_ids:
+                for table in (
+                    "durable_dead_letters",
+                    "consumed_messages",
+                    "durable_work_queue",
+                    "messages_outbox",
+                ):
+                    await connection.execute(
+                        text(f"DELETE FROM {table} WHERE message_id = :message_id"),
+                        {"message_id": message_id},
+                    )
         await engine.dispose()
 
 
@@ -67,9 +77,15 @@ def test_enqueue_claim_and_acknowledge() -> None:
     async def scenario() -> None:
         message_id = uuid4()
         async with transport_for(message_id) as transport:
-            queue_id = await transport.enqueue("task-dispatch", envelope(message_id))
-            duplicate_id = await transport.enqueue("task-dispatch", envelope(message_id))
+            message = envelope(message_id)
+            queue_id = await transport.enqueue("task-dispatch", message)
+            duplicate_id = await transport.enqueue("task-dispatch", message)
             assert duplicate_id == queue_id
+            with pytest.raises(MessageIdentityConflict):
+                await transport.enqueue(
+                    "task-dispatch",
+                    message.model_copy(update={"payload": {"taskRunId": "different"}}),
+                )
 
             claims = await transport.claim(
                 "task-dispatch",
@@ -84,6 +100,7 @@ def test_enqueue_claim_and_acknowledge() -> None:
             assert claim.fencing_token == 1
             assert claim.delivery_attempt == 1
             assert claim.envelope.message_id == message_id
+            assert "traceparent" in claim.envelope.trace_context
 
             extended_until = await transport.extend(
                 queue_id,
@@ -108,6 +125,53 @@ def test_enqueue_claim_and_acknowledge() -> None:
                     lease_duration=timedelta(seconds=30),
                 )
                 == []
+            )
+
+    asyncio.run(scenario())
+
+
+def test_partition_head_of_line_is_claimed_in_order() -> None:
+    async def scenario() -> None:
+        first_id = uuid4()
+        second_id = uuid4()
+        partition = f"execution:{uuid4()}"
+        async with transport_for(first_id, second_id) as transport:
+            first_queue_id = await transport.enqueue(
+                "ordered",
+                envelope(first_id, partition_key=partition),
+            )
+            second_queue_id = await transport.enqueue(
+                "ordered",
+                envelope(second_id, partition_key=partition),
+            )
+
+            first_claims = await transport.claim(
+                "ordered",
+                "worker-1",
+                tenant_id="default",
+                limit=2,
+                lease_duration=timedelta(seconds=30),
+            )
+            assert [claim.queue_id for claim in first_claims] == [first_queue_id]
+            await transport.acknowledge(
+                first_queue_id,
+                "worker-1",
+                first_claims[0].fencing_token,
+                tenant_id="default",
+            )
+            second_claims = await transport.claim(
+                "ordered",
+                "worker-2",
+                tenant_id="default",
+                limit=2,
+                lease_duration=timedelta(seconds=30),
+            )
+            assert [claim.queue_id for claim in second_claims] == [second_queue_id]
+            await transport.acknowledge(
+                second_queue_id,
+                "worker-2",
+                second_claims[0].fencing_token,
+                tenant_id="default",
             )
 
     asyncio.run(scenario())
@@ -222,6 +286,145 @@ def test_release_makes_claim_available_for_retry() -> None:
                 queue_id,
                 "worker-2",
                 second.fencing_token,
+                tenant_id="default",
+            )
+
+    asyncio.run(scenario())
+
+
+def test_bounded_queue_retry_quarantines_and_replays_poison_message() -> None:
+    async def scenario() -> None:
+        message_id = uuid4()
+        async with transport_for(message_id) as transport:
+            queue_id = await transport.enqueue(
+                "poison-test",
+                envelope(message_id),
+                max_attempts=2,
+            )
+            for consumer_id in ("worker-1", "worker-2"):
+                claim = (
+                    await transport.claim(
+                        "poison-test",
+                        consumer_id,
+                        tenant_id="default",
+                        limit=1,
+                        lease_duration=timedelta(seconds=30),
+                    )
+                )[0]
+                await transport.release(
+                    queue_id,
+                    consumer_id,
+                    claim.fencing_token,
+                    tenant_id="default",
+                    retry_at=datetime.now(UTC),
+                    reason="invalid payload",
+                    failure_class="poison.schema",
+                )
+
+            assert (
+                await transport.claim(
+                    "poison-test",
+                    "worker-3",
+                    tenant_id="default",
+                    limit=1,
+                    lease_duration=timedelta(seconds=30),
+                )
+                == []
+            )
+            dead_letter = (await transport.list_dead_letters(tenant_id="default"))[-1]
+            assert dead_letter.message_id == message_id
+            assert dead_letter.failure_class == "poison.schema"
+            assert dead_letter.attempt_count == 2
+            assert len(dead_letter.payload_checksum) == 64
+            diagnostics = await transport.diagnostics(tenant_id="default")
+            assert diagnostics.poison_message_count >= 1
+            assert diagnostics.dead_letter_count >= 1
+            assert diagnostics.redelivery_count >= 1
+
+            await transport.replay_dead_letter(
+                dead_letter.dead_letter_id,
+                tenant_id="default",
+                actor_id="test:transport",
+            )
+            with pytest.raises(DeadLetterReplayError):
+                await transport.replay_dead_letter(
+                    dead_letter.dead_letter_id,
+                    tenant_id="default",
+                    actor_id="test:transport",
+                )
+            replayed = (
+                await transport.claim(
+                    "poison-test",
+                    "worker-3",
+                    tenant_id="default",
+                    limit=1,
+                    lease_duration=timedelta(seconds=30),
+                )
+            )[0]
+            assert replayed.delivery_attempt == 1
+            await transport.acknowledge(
+                queue_id,
+                "worker-3",
+                replayed.fencing_token,
+                tenant_id="default",
+            )
+
+    asyncio.run(scenario())
+
+
+def test_bounded_outbox_failure_quarantines_and_replays_publication() -> None:
+    async def scenario() -> None:
+        message_id = uuid4()
+        message = envelope(message_id)
+        lane = f"outbox-failure-{message_id}"
+        async with transport_for(message_id) as transport:
+            sequence = await transport.enqueue_outbox(lane, message, max_attempts=2)
+            assert (
+                await transport.record_outbox_failure(
+                    sequence,
+                    tenant_id="default",
+                    retry_at=datetime.now(UTC),
+                    reason="publisher unavailable",
+                    failure_class="postgres.transient",
+                )
+                is False
+            )
+            assert (
+                await transport.record_outbox_failure(
+                    sequence,
+                    tenant_id="default",
+                    retry_at=datetime.now(UTC),
+                    reason="publisher unavailable",
+                    failure_class="postgres.transient",
+                )
+                is True
+            )
+            dead_letter = (await transport.list_dead_letters(tenant_id="default"))[-1]
+            assert dead_letter.source_type == "OUTBOX"
+            assert dead_letter.message_id == message_id
+            diagnostics = await transport.diagnostics(tenant_id="default")
+            assert diagnostics.outbox_dead_letter_count >= 1
+            assert diagnostics.outbox_retry_count >= 2
+
+            await transport.replay_dead_letter(
+                dead_letter.dead_letter_id,
+                tenant_id="default",
+                actor_id="test:transport",
+            )
+            assert await transport.publish_outbox(tenant_id="default", limit=1) == 1
+            claim = (
+                await transport.claim(
+                    lane,
+                    "worker-1",
+                    tenant_id="default",
+                    limit=1,
+                    lease_duration=timedelta(seconds=30),
+                )
+            )[0]
+            await transport.acknowledge(
+                claim.queue_id,
+                "worker-1",
+                claim.fencing_token,
                 tenant_id="default",
             )
 

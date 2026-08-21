@@ -478,3 +478,45 @@ release-to-release rolling upgrades remain in their dedicated later epics. They 
 EPIC-008.
 
 Verdict: PASS — EPIC-008 closed.
+
+## EPIC-009: PostgreSQL transport, inbox and transactional outbox — 2026-08-22
+
+Spec source: `backlog/epics/epic-009-postgresql-transport-inbox-and-transactional-outbox.md`,
+`docs/architecture/messaging.md` and `docs/architecture/postgresql-transport.md`.
+
+Verified with `uv`, Python 3.13.12 and PostgreSQL 17:
+
+- [x] `DurableEnvelope` persists a versioned identity, type, tenant, partition, correlation,
+  causation, timestamp, trace context and payload; its JSON Schema is checked in and drift-tested.
+- [x] Reusing a queue or outbox message identity with changed immutable content is rejected, while an
+  exact retry returns the original durable identity.
+- [x] Event/outbox triggers publish only with their committed state transaction; forced rollback leaves
+  state, event and outbox unchanged.
+- [x] Consumer inbox insertion is idempotent. A subprocess crash after inbox commit causes lease
+  redelivery with a higher fence and no duplicate logical effect.
+- [x] Claim selection admits only the oldest non-terminal row per tenant/lane/partition, preventing a
+  second execution/trigger message from overtaking its head under batched `SKIP LOCKED` claims.
+- [x] Queue and outbox publication failures honor configurable positive attempt bounds. Exhaustion
+  atomically creates forced-RLS dead-letter evidence containing source identity, schema, failure class,
+  SHA-256 payload checksum, attempt count and error without duplicating the payload.
+- [x] Authorized replay resolves the immutable quarantine record, resets the retained source for a new
+  bounded cycle and rejects repeated or stale replay.
+- [x] Tenant-authorized diagnostics report eligible/outbox lag, depth, claims, expired claims,
+  redeliveries, poison rows, pending dead letters and outbox retry/dead-letter totals.
+- [x] A fresh ephemeral database applies all 13 migrations and produces the same canonical schema and
+  seed fingerprints as an independent fresh database; a second application is empty.
+- [x] Full suite: 126 passed, four environment-gated tests skipped, 82.29% branch coverage.
+- [x] Ruff formatting/lint, strict mypy, generated contracts/planning drift, backlog validation,
+  clean-room validation, compilation, Compose rendering, uv lock and diff checks pass.
+
+Adversarial pass: changed-content duplicate IDs, concurrent partition candidates, expired fences,
+process death after inbox commit, exhausted queue/outbox retries and repeated dead-letter replay are
+rejected, serialized or quarantined without losing the durable source row. The checked-in OpenRouter
+smoke default remains `openai/gpt-5.6-luna`; its live test is environment-gated because no key is
+present.
+
+Qualification boundary: multi-node PostgreSQL failover, cross-region delivery and scale-profile chaos
+remain with EPIC-601/603/611. External APIs still require plugin/task idempotency, probe or compensation;
+AMESH does not claim generic exactly-once external side effects.
+
+Verdict: PASS — EPIC-009 closed.

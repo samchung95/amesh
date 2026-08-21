@@ -66,14 +66,14 @@ URS-F-0064,Functional,Must,EPIC-008,Metadata persistence and migrations,M0,0,Rep
 URS-F-0065,Functional,Must,EPIC-008,Metadata persistence and migrations,M0,0,Repository or storage adapter contract and fault-injection tests,Verified
 URS-F-0066,Functional,Must,EPIC-008,Metadata persistence and migrations,M0,0,Repository or storage adapter contract and fault-injection tests,Verified
 URS-F-0067,Functional,Must,EPIC-008,Metadata persistence and migrations,M0,0,Repository or storage adapter contract and fault-injection tests,Verified
-URS-F-0068,Functional,Must,EPIC-009,"PostgreSQL transport, inbox and transactional outbox",M0,0,"Delivery, ordering, duplicate and outage conformance tests",Proposed
-URS-F-0069,Functional,Must,EPIC-009,"PostgreSQL transport, inbox and transactional outbox",M0,0,"Delivery, ordering, duplicate and outage conformance tests",Proposed
-URS-F-0070,Functional,Must,EPIC-009,"PostgreSQL transport, inbox and transactional outbox",M0,0,"Delivery, ordering, duplicate and outage conformance tests",Proposed
-URS-F-0071,Functional,Must,EPIC-009,"PostgreSQL transport, inbox and transactional outbox",M0,0,"Delivery, ordering, duplicate and outage conformance tests",Proposed
-URS-F-0072,Functional,Must,EPIC-009,"PostgreSQL transport, inbox and transactional outbox",M0,0,"Delivery, ordering, duplicate and outage conformance tests",Proposed
-URS-F-0073,Functional,Must,EPIC-009,"PostgreSQL transport, inbox and transactional outbox",M0,0,"Delivery, ordering, duplicate and outage conformance tests",Proposed
-URS-F-0074,Functional,Must,EPIC-009,"PostgreSQL transport, inbox and transactional outbox",M0,0,"Delivery, ordering, duplicate and outage conformance tests",Proposed
-URS-F-0075,Functional,Must,EPIC-009,"PostgreSQL transport, inbox and transactional outbox",M0,0,"Delivery, ordering, duplicate and outage conformance tests",Proposed
+URS-F-0068,Functional,Must,EPIC-009,"PostgreSQL transport, inbox and transactional outbox",M0,0,"Delivery, ordering, duplicate and outage conformance tests",Verified
+URS-F-0069,Functional,Must,EPIC-009,"PostgreSQL transport, inbox and transactional outbox",M0,0,"Delivery, ordering, duplicate and outage conformance tests",Verified
+URS-F-0070,Functional,Must,EPIC-009,"PostgreSQL transport, inbox and transactional outbox",M0,0,"Delivery, ordering, duplicate and outage conformance tests",Verified
+URS-F-0071,Functional,Must,EPIC-009,"PostgreSQL transport, inbox and transactional outbox",M0,0,"Delivery, ordering, duplicate and outage conformance tests",Verified
+URS-F-0072,Functional,Must,EPIC-009,"PostgreSQL transport, inbox and transactional outbox",M0,0,"Delivery, ordering, duplicate and outage conformance tests",Verified
+URS-F-0073,Functional,Must,EPIC-009,"PostgreSQL transport, inbox and transactional outbox",M0,0,"Delivery, ordering, duplicate and outage conformance tests",Verified
+URS-F-0074,Functional,Must,EPIC-009,"PostgreSQL transport, inbox and transactional outbox",M0,0,"Delivery, ordering, duplicate and outage conformance tests",Verified
+URS-F-0075,Functional,Must,EPIC-009,"PostgreSQL transport, inbox and transactional outbox",M0,0,"Delivery, ordering, duplicate and outage conformance tests",Verified
 URS-F-0076,Functional,Must,EPIC-010,Internal object storage and artifact addressing,M0,0,Repository or storage adapter contract and fault-injection tests,Proposed
 URS-F-0077,Functional,Must,EPIC-010,Internal object storage and artifact addressing,M0,0,Repository or storage adapter contract and fault-injection tests,Proposed
 URS-F-0078,Functional,Must,EPIC-010,Internal object storage and artifact addressing,M0,0,Repository or storage adapter contract and fault-injection tests,Proposed
@@ -910,11 +910,11 @@ URS-NFR-PERFORMANCE-010,Non-functional,Must,EPIC-805,General availability qualit
 URS-NFR-PORTABILITY-001,Non-functional,Must,EPIC-305,"Plugin registry, signing, SBOM and marketplace metadata",M3,3,Offline installation and test run.,Proposed
 URS-NFR-PORTABILITY-001,Non-functional,Must,EPIC-804,Open enterprise distribution and packaging,M8,8,Offline installation and test run.,Proposed
 URS-NFR-PORTABILITY-002,Non-functional,Must,EPIC-606,"Containers, Kubernetes and Helm deployment",M6,6,Multi-architecture release CI.,Proposed
-URS-NFR-PORTABILITY-003,Non-functional,Must,EPIC-009,"PostgreSQL transport, inbox and transactional outbox",M0,0,Static architecture checks plus adapter contract tests for each extensible backend category.,Proposed
-URS-NFR-PORTABILITY-003,Non-functional,Must,EPIC-010,Internal object storage and artifact addressing,M0,0,Static architecture checks plus adapter contract tests for each extensible backend category.,Proposed
-URS-NFR-PORTABILITY-003,Non-functional,Must,EPIC-209,Task runner interface and capability model,M2,2,Static architecture checks plus adapter contract tests for each extensible backend category.,Proposed
-URS-NFR-PORTABILITY-003,Non-functional,Must,EPIC-409,"Search, indexing and retrieval projections",M4,4,Static architecture checks plus adapter contract tests for each extensible backend category.,Proposed
-URS-NFR-PORTABILITY-003,Non-functional,Must,EPIC-506,External secrets managers and secret lifecycle,M5,5,Static architecture checks plus adapter contract tests for each extensible backend category.,Proposed
+URS-NFR-PORTABILITY-003,Non-functional,Must,EPIC-009,"PostgreSQL transport, inbox and transactional outbox",M0,0,Static architecture checks plus adapter contract tests for each extensible backend category.,In Progress
+URS-NFR-PORTABILITY-003,Non-functional,Must,EPIC-010,Internal object storage and artifact addressing,M0,0,Static architecture checks plus adapter contract tests for each extensible backend category.,In Progress
+URS-NFR-PORTABILITY-003,Non-functional,Must,EPIC-209,Task runner interface and capability model,M2,2,Static architecture checks plus adapter contract tests for each extensible backend category.,In Progress
+URS-NFR-PORTABILITY-003,Non-functional,Must,EPIC-409,"Search, indexing and retrieval projections",M4,4,Static architecture checks plus adapter contract tests for each extensible backend category.,In Progress
+URS-NFR-PORTABILITY-003,Non-functional,Must,EPIC-506,External secrets managers and secret lifecycle,M5,5,Static architecture checks plus adapter contract tests for each extensible backend category.,In Progress
 URS-NFR-PRIVACY-001,Non-functional,Must,EPIC-003,Configuration and feature flag system,M0,0,Network capture in a clean reference deployment.,In Progress
 URS-NFR-PRIVACY-001,Non-functional,Must,EPIC-404,"Web UI shell, navigation and accessibility",M4,4,Network capture in a clean reference deployment.,In Progress
 URS-NFR-PRIVACY-001,Non-functional,Must,EPIC-804,Open enterprise distribution and packaging,M8,8,Network capture in a clean reference deployment.,In Progress

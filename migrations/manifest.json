@@ -72,6 +72,12 @@
       "mode": "expand",
       "onlineCompatible": true,
       "rollbackGuidance": "Stop metadata writers and forward-fix additive tables or constraints; retain logs, metrics, assets and trigger definitions according to retention policy."
+    },
+    {
+      "file": "0013_transport_dead_letters.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Stop transport publishers and consumers and forward-fix additive retry or quarantine fields; retain queued, outbox and dead-letter evidence for operator resolution."
     }
   ]
 }

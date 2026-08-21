@@ -23,6 +23,7 @@ from amesh.domain.execution import (  # noqa: E402
 )
 from amesh.dsl.models import FlowDefinition  # noqa: E402
 from amesh.dsl.registry import default_resource_registry  # noqa: E402
+from amesh.ports.durable_transport import DurableEnvelope  # noqa: E402
 
 
 def dump(path: Path, value: Any) -> None:
@@ -36,6 +37,7 @@ def dump(path: Path, value: Any) -> None:
 
 def main() -> int:
     dump(ROOT / "schemas" / "flow.schema.json", FlowDefinition.model_json_schema())
+    dump(ROOT / "schemas" / "message-envelope.schema.json", DurableEnvelope.model_json_schema())
     dump(ROOT / "schemas" / "resource-catalog.json", default_resource_registry().catalog())
     dump(ROOT / "schemas" / "execution-command.schema.json", ExecutionCommand.model_json_schema())
     dump(ROOT / "schemas" / "execution-event.schema.json", ExecutionEvent.model_json_schema())

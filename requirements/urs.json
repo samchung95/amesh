@@ -1884,7 +1884,7 @@
       "id": "URS-F-0068",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-009",
@@ -1906,13 +1906,17 @@
       "dependencies": [
         "EPIC-007",
         "EPIC-008"
+      ],
+      "evidence": [
+        "schemas/message-envelope.schema.json",
+        "src/amesh/ports/durable_transport.py::DurableEnvelope"
       ]
     },
     {
       "id": "URS-F-0069",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-009",
@@ -1934,13 +1938,17 @@
       "dependencies": [
         "EPIC-007",
         "EPIC-008"
+      ],
+      "evidence": [
+        "migrations/0011_execution_event_model.sql",
+        "tests/executor/test_postgres_executor.py::test_rolled_back_state_event_does_not_escape_through_outbox"
       ]
     },
     {
       "id": "URS-F-0070",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-009",
@@ -1962,13 +1970,17 @@
       "dependencies": [
         "EPIC-007",
         "EPIC-008"
+      ],
+      "evidence": [
+        "tests/adapters/postgres/test_durable_transport.py::test_outbox_publish_and_consumer_inbox_are_idempotent",
+        "tests/adapters/postgres/test_durable_transport.py::test_process_crash_after_inbox_commit_redelivers_without_duplicate_effect"
       ]
     },
     {
       "id": "URS-F-0071",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-009",
@@ -1990,13 +2002,17 @@
       "dependencies": [
         "EPIC-007",
         "EPIC-008"
+      ],
+      "evidence": [
+        "src/amesh/adapters/postgres/durable_transport.py",
+        "tests/adapters/postgres/test_durable_transport.py::test_partition_head_of_line_is_claimed_in_order"
       ]
     },
     {
       "id": "URS-F-0072",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-009",
@@ -2018,13 +2034,18 @@
       "dependencies": [
         "EPIC-007",
         "EPIC-008"
+      ],
+      "evidence": [
+        "migrations/0013_transport_dead_letters.sql",
+        "tests/adapters/postgres/test_durable_transport.py::test_bounded_queue_retry_quarantines_and_replays_poison_message",
+        "tests/adapters/postgres/test_durable_transport.py::test_bounded_outbox_failure_quarantines_and_replays_publication"
       ]
     },
     {
       "id": "URS-F-0073",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-009",
@@ -2046,13 +2067,17 @@
       "dependencies": [
         "EPIC-007",
         "EPIC-008"
+      ],
+      "evidence": [
+        "src/amesh/ports/durable_transport.py::TransportDiagnostics",
+        "tests/adapters/postgres/test_durable_transport.py::test_bounded_queue_retry_quarantines_and_replays_poison_message"
       ]
     },
     {
       "id": "URS-F-0074",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-009",
@@ -2074,13 +2099,17 @@
       "dependencies": [
         "EPIC-007",
         "EPIC-008"
+      ],
+      "evidence": [
+        "src/amesh/adapters/postgres/durable_transport.py",
+        "tests/adapters/postgres/test_durable_transport.py"
       ]
     },
     {
       "id": "URS-F-0075",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-009",
@@ -2102,6 +2131,10 @@
       "dependencies": [
         "EPIC-007",
         "EPIC-008"
+      ],
+      "evidence": [
+        "docs/architecture/messaging.md#external-side-effect-responsibility",
+        "docs/architecture/postgresql-transport.md"
       ]
     },
     {
@@ -23390,7 +23423,8 @@
       "priority": "Must",
       "status": "In Progress",
       "evidence": [
-        "tests/test_reducer.py::test_domain_modules_do_not_import_infrastructure_frameworks"
+        "tests/test_reducer.py::test_domain_modules_do_not_import_infrastructure_frameworks",
+        "src/amesh/ports/durable_transport.py"
       ]
     },
     {
@@ -23744,7 +23778,12 @@
         "EPIC-506"
       ],
       "priority": "Must",
-      "status": "Proposed"
+      "status": "In Progress",
+      "evidence": [
+        "src/amesh/ports/durable_transport.py",
+        "src/amesh/adapters/postgres/durable_transport.py",
+        "tests/adapters/postgres/test_durable_transport.py"
+      ]
     },
     {
       "id": "URS-NFR-PRIVACY-001",
@@ -23797,7 +23836,8 @@
       "status": "In Progress",
       "evidence": [
         "tests/executor/test_postgres_executor.py::test_rolled_back_state_event_does_not_escape_through_outbox",
-        "migrations/0011_execution_event_model.sql"
+        "migrations/0011_execution_event_model.sql",
+        "tests/adapters/postgres/test_durable_transport.py::test_process_crash_after_inbox_commit_redelivers_without_duplicate_effect"
       ]
     },
     {
@@ -23817,7 +23857,8 @@
       "status": "In Progress",
       "evidence": [
         "tests/test_reducer.py::test_command_decision_preserves_metadata_and_deduplicates_by_stable_key",
-        "tests/executor/test_postgres_executor.py::test_duplicate_task_result_is_idempotent_and_illegal_transition_is_recorded"
+        "tests/executor/test_postgres_executor.py::test_duplicate_task_result_is_idempotent_and_illegal_transition_is_recorded",
+        "tests/adapters/postgres/test_durable_transport.py::test_outbox_publish_and_consumer_inbox_are_idempotent"
       ]
     },
     {

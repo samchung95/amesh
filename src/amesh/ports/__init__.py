@@ -11,9 +11,13 @@ from .credential_repository import (
     CredentialRepository,
 )
 from .durable_transport import (
+    DeadLetterRecord,
+    DeadLetterReplayError,
     DurableEnvelope,
     DurableTransport,
+    MessageIdentityConflict,
     StaleWorkClaimError,
+    TransportDiagnostics,
     WorkClaim,
 )
 from .execution_repository import (
@@ -59,6 +63,8 @@ __all__ = [
     "CredentialPrincipal",
     "CredentialRateLimitExceeded",
     "CredentialRepository",
+    "DeadLetterRecord",
+    "DeadLetterReplayError",
     "DurableEnvelope",
     "DurableTransport",
     "ExecutionLogEntry",
@@ -67,6 +73,7 @@ __all__ = [
     "ExecutionStateConflictError",
     "LastAdministratorError",
     "LogLevel",
+    "MessageIdentityConflict",
     "MetadataRepository",
     "MetadataVersionConflict",
     "MetricKind",
@@ -92,6 +99,7 @@ __all__ = [
     "TenantQuotaExceeded",
     "TenantRepository",
     "TenantUnavailableError",
+    "TransportDiagnostics",
     "WorkClaim",
     "WorkerMetadata",
     "WorkerStatus",

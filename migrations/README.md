@@ -52,6 +52,11 @@ and adds the composite identities required for tenant-safe foreign keys. It is a
 migration. Stop new metadata writers and forward-fix if it fails; do not discard retained execution
 evidence as a rollback shortcut.
 
+Migration `0013_transport_dead_letters.sql` adds bounded outbox retry state, JSON envelope
+constraints, partition-order support and tenant-isolated payload-safe dead-letter evidence. It is an
+additive `expand` migration; stop publishers/consumers and forward-fix on failure while retaining queue,
+outbox and quarantine rows.
+
 ## Migration modes
 
 - `bootstrap` creates the initial schema and is only safe for an empty database.
