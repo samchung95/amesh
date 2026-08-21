@@ -3,14 +3,13 @@ from __future__ import annotations
 import asyncio
 import logging
 from datetime import UTC, datetime
-from uuid import uuid4
 
 from sqlalchemy.ext.asyncio import create_async_engine
 
 from amesh.adapters.kubernetes import KubernetesJobRunner
 from amesh.adapters.postgres import PostgresExecutionRepository
 from amesh.config import Settings, get_settings
-from amesh.domain import ExecutionState
+from amesh.domain import ExecutionState, new_runtime_id
 from amesh.executor import InProcessExecutor, kubernetes_job_handler
 from amesh.observability import configure_structured_logging
 from amesh.scheduler import CronScheduler
@@ -86,7 +85,7 @@ async def recover_once(repository: PostgresExecutionRepository, settings: Settin
 
 
 async def run_worker(settings: Settings) -> None:
-    worker_id = str(uuid4())
+    worker_id = str(new_runtime_id())
     engine = create_async_engine(settings.database_url)
     repository = PostgresExecutionRepository(engine)
     LOGGER.info("worker started", extra={"worker_id": worker_id})

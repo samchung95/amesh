@@ -1,6 +1,10 @@
 # Implementation status
 
-AMESH has implemented and verified the product-owner-amended two-month MVP vertical slice and tagged it as `v0.2.0-mvp`. The broader 103-epic roadmap and all parity claims remain open.
+AMESH has implemented and verified the product-owner-amended two-month MVP vertical slice and tagged it as `v0.2.0-mvp`. Post-MVP work has completed EPIC-002; the remainder of the 103-epic roadmap and all unverified parity claims remain open.
+
+## Completed after the MVP tag
+
+- EPIC-002: canonical tenant/namespace/flow/revision/execution/task-run/trigger/worker/plugin/asset keys; UUIDv7 runtime identities; shared metadata, lifecycle and deterministic serialization contracts; persisted flow metadata; and REST ETag conditional updates.
 
 ## Implemented MVP slice
 

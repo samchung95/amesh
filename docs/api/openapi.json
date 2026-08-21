@@ -368,12 +368,24 @@
       },
       "PersistedFlow": {
         "properties": {
+          "etag": {
+            "title": "Etag",
+            "type": "string"
+          },
           "flow_id": {
             "title": "Flow Id",
             "type": "string"
           },
+          "metadata": {
+            "$ref": "#/components/schemas/ResourceMetadata"
+          },
           "namespace": {
             "title": "Namespace",
+            "type": "string"
+          },
+          "resource_id": {
+            "format": "uuid",
+            "title": "Resource Id",
             "type": "string"
           },
           "revision": {
@@ -384,13 +396,21 @@
           "semantic_hash": {
             "title": "Semantic Hash",
             "type": "string"
+          },
+          "tenant_id": {
+            "title": "Tenant Id",
+            "type": "string"
           }
         },
         "required": [
+          "resource_id",
+          "tenant_id",
           "namespace",
           "flow_id",
           "revision",
-          "semantic_hash"
+          "semantic_hash",
+          "metadata",
+          "etag"
         ],
         "title": "PersistedFlow",
         "type": "object"
@@ -496,6 +516,93 @@
           "snapshot"
         ],
         "title": "ReduceExecutionResponse",
+        "type": "object"
+      },
+      "ResourceLifecycle": {
+        "enum": [
+          "ACTIVE",
+          "ARCHIVED",
+          "TOMBSTONED"
+        ],
+        "title": "ResourceLifecycle",
+        "type": "string"
+      },
+      "ResourceMetadata": {
+        "properties": {
+          "annotations": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Annotations",
+            "type": "object"
+          },
+          "archived_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Archived At"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "created_by": {
+            "default": "system",
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Created By",
+            "type": "string"
+          },
+          "deleted_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Deleted At"
+          },
+          "labels": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Labels",
+            "type": "object"
+          },
+          "lifecycle": {
+            "$ref": "#/components/schemas/ResourceLifecycle",
+            "default": "ACTIVE"
+          },
+          "resource_version": {
+            "default": 1,
+            "minimum": 1.0,
+            "title": "Resource Version",
+            "type": "integer"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          },
+          "updated_by": {
+            "default": "system",
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Updated By",
+            "type": "string"
+          }
+        },
+        "title": "ResourceMetadata",
         "type": "object"
       },
       "RunnerMode": {
@@ -967,6 +1074,22 @@
       "put": {
         "operationId": "apply_flow_api_v1_flows_put",
         "parameters": [
+          {
+            "in": "header",
+            "name": "If-Match",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "If-Match"
+            }
+          },
           {
             "in": "header",
             "name": "authorization",

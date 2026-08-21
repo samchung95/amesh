@@ -3,13 +3,20 @@ from __future__ import annotations
 import hashlib
 import json
 from datetime import UTC, datetime
-from uuid import UUID, uuid4, uuid5
+from uuid import UUID
 
 from sqlalchemy import text
 from sqlalchemy.engine import RowMapping
 from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine
 
-from amesh.domain import ExecutionEventType, ExecutionState
+from amesh.domain import (
+    ExecutionEventType,
+    ExecutionState,
+    ResourceMetadata,
+    ResourceVersionConflict,
+    new_runtime_id,
+    resource_etag,
+)
 from amesh.dsl import FlowDefinition
 from amesh.ports.execution_repository import (
     ExecutionRepository,
@@ -23,8 +30,8 @@ from amesh.ports.execution_repository import (
 
 _UPSERT_NAMESPACE = text(
     """
-    INSERT INTO namespaces (tenant_id, name)
-    SELECT tenants.id, :namespace
+    INSERT INTO namespaces (id, tenant_id, name)
+    SELECT :namespace_id, tenants.id, :namespace
     FROM tenants
     WHERE tenants.slug = :tenant_slug
     ON CONFLICT (tenant_id, name) DO UPDATE SET name = EXCLUDED.name
@@ -34,8 +41,8 @@ _UPSERT_NAMESPACE = text(
 
 _UPSERT_FLOW = text(
     """
-    INSERT INTO flows (tenant_id, namespace_id, flow_key)
-    VALUES (:tenant_id, :namespace_id, :flow_key)
+    INSERT INTO flows (id, tenant_id, namespace_id, flow_key)
+    VALUES (:resource_id, :tenant_id, :namespace_id, :flow_key)
     ON CONFLICT (tenant_id, namespace_id, flow_key)
     DO UPDATE SET flow_key = EXCLUDED.flow_key
     RETURNING id
@@ -81,10 +88,18 @@ _ACTIVATE_FLOW_REVISION = text(
     UPDATE flows
     SET active_revision = :revision,
         status = 'ACTIVE',
+        labels = CAST(:labels AS jsonb),
+        annotations = CAST(:annotations AS jsonb),
+        updated_by = :actor_id,
         version = version + 1,
         updated_at = now()
     WHERE tenant_id = :tenant_id
       AND id = :flow_id
+      AND (
+          CAST(:expected_version AS bigint) IS NULL
+          OR version = CAST(:expected_version AS bigint)
+      )
+    RETURNING version
     """
 )
 
@@ -249,10 +264,22 @@ _GET_FLOW_DEFINITION = text(
 _LIST_FLOWS = text(
     """
     SELECT
+        flows.id,
+        tenants.slug AS tenant_slug,
         namespaces.name AS namespace,
         flows.flow_key,
         flow_revisions.revision,
-        flow_revisions.semantic_hash
+        flow_revisions.semantic_hash,
+        flows.labels,
+        flows.annotations,
+        flows.created_by,
+        flows.updated_by,
+        flows.version,
+        flows.lifecycle,
+        flows.archived_at,
+        flows.deleted_at,
+        flows.created_at,
+        flows.updated_at
     FROM flows
     JOIN tenants ON tenants.id = flows.tenant_id
     JOIN namespaces ON namespaces.id = flows.namespace_id
@@ -261,6 +288,36 @@ _LIST_FLOWS = text(
      AND flow_revisions.revision = flows.active_revision
     WHERE tenants.slug = :tenant_slug
     ORDER BY namespaces.name, flows.flow_key
+    """
+)
+
+_GET_PERSISTED_FLOW = text(
+    """
+    SELECT
+        flows.id,
+        tenants.slug AS tenant_slug,
+        namespaces.name AS namespace,
+        flows.flow_key,
+        flow_revisions.revision,
+        flow_revisions.semantic_hash,
+        flows.labels,
+        flows.annotations,
+        flows.created_by,
+        flows.updated_by,
+        flows.version,
+        flows.lifecycle,
+        flows.archived_at,
+        flows.deleted_at,
+        flows.created_at,
+        flows.updated_at
+    FROM flows
+    JOIN tenants ON tenants.id = flows.tenant_id
+    JOIN namespaces ON namespaces.id = flows.namespace_id
+    JOIN flow_revisions
+      ON flow_revisions.flow_id = flows.id
+     AND flow_revisions.revision = flows.active_revision
+    WHERE flows.tenant_id = :tenant_id
+      AND flows.id = :flow_id
     """
 )
 
@@ -492,6 +549,7 @@ class PostgresExecutionRepository(ExecutionRepository):
         flow: FlowDefinition,
         *,
         tenant_id: str,
+        expected_etag: str | None = None,
     ) -> PersistedFlow:
         encoded, semantic_hash = _canonical_flow(flow)
         async with self._engine.begin() as connection:
@@ -514,20 +572,40 @@ class PostgresExecutionRepository(ExecutionRepository):
                 semantic_hash,
                 encoded,
             )
-            await connection.execute(
+            expected_version: int | None = None
+            if expected_etag is not None:
+                current_result = await connection.execute(
+                    _GET_PERSISTED_FLOW,
+                    {"tenant_id": tenant_uuid, "flow_id": flow_uuid},
+                )
+                current_row = current_result.mappings().one_or_none()
+                if current_row is None or _to_flow(current_row).etag != expected_etag:
+                    raise ResourceVersionConflict(
+                        f"flow {flow.namespace}.{flow.id} does not match If-Match"
+                    )
+                expected_version = int(current_row["version"])
+            activation = await connection.execute(
                 _ACTIVATE_FLOW_REVISION,
                 {
                     "tenant_id": tenant_uuid,
                     "flow_id": flow_uuid,
                     "revision": flow.revision,
+                    "labels": json.dumps(flow.labels),
+                    "annotations": json.dumps(flow.annotations),
+                    "actor_id": "system:admin-token",
+                    "expected_version": expected_version,
                 },
             )
-        return PersistedFlow(
-            namespace=flow.namespace,
-            flow_id=flow.id,
-            revision=flow.revision,
-            semantic_hash=semantic_hash,
-        )
+            if activation.scalar_one_or_none() is None:
+                raise ResourceVersionConflict(
+                    f"flow {flow.namespace}.{flow.id} changed during conditional update"
+                )
+            result = await connection.execute(
+                _GET_PERSISTED_FLOW,
+                {"tenant_id": tenant_uuid, "flow_id": flow_uuid},
+            )
+            row = result.mappings().one()
+        return _to_flow(row)
 
     async def get_flow(
         self,
@@ -557,15 +635,7 @@ class PostgresExecutionRepository(ExecutionRepository):
                 {"tenant_slug": tenant_id},
             )
             rows = result.mappings().all()
-        return [
-            PersistedFlow(
-                namespace=row["namespace"],
-                flow_id=row["flow_key"],
-                revision=row["revision"],
-                semantic_hash=row["semantic_hash"],
-            )
-            for row in rows
-        ]
+        return [_to_flow(row) for row in rows]
 
     async def create_execution(
         self,
@@ -575,7 +645,7 @@ class PostgresExecutionRepository(ExecutionRepository):
         inputs: dict[str, object],
         idempotency_key: str | None = None,
     ) -> PersistedExecution:
-        execution_id = uuid4()
+        execution_id = new_runtime_id()
         created_at = datetime.now(UTC)
         encoded, semantic_hash = _canonical_flow(flow)
 
@@ -596,7 +666,15 @@ class PostgresExecutionRepository(ExecutionRepository):
             )
             await connection.execute(
                 _ACTIVATE_FLOW_REVISION,
-                {"tenant_id": tenant_uuid, "flow_id": flow_id, "revision": flow.revision},
+                {
+                    "tenant_id": tenant_uuid,
+                    "flow_id": flow_id,
+                    "revision": flow.revision,
+                    "labels": json.dumps(flow.labels),
+                    "annotations": json.dumps(flow.annotations),
+                    "actor_id": "system:executor",
+                    "expected_version": None,
+                },
             )
             insert_result = await connection.execute(
                 _INSERT_EXECUTION,
@@ -634,7 +712,7 @@ class PostgresExecutionRepository(ExecutionRepository):
                     _INSERT_TASK_RUN,
                     [
                         {
-                            "task_run_id": uuid5(execution_id, f"task:{task.id}"),
+                            "task_run_id": new_runtime_id(),
                             "tenant_id": tenant_uuid,
                             "execution_id": execution_id,
                             "task_id": task.id,
@@ -677,7 +755,7 @@ class PostgresExecutionRepository(ExecutionRepository):
         async with self._engine.begin() as connection:
             result = await connection.execute(
                 _START_TASK,
-                {"task_run_id": task_run_id, "attempt_id": uuid4()},
+                {"task_run_id": task_run_id, "attempt_id": new_runtime_id()},
             )
             row = result.mappings().one_or_none()
         if row is None:
@@ -765,7 +843,11 @@ class PostgresExecutionRepository(ExecutionRepository):
     ) -> tuple[UUID, UUID]:
         result = await connection.execute(
             _UPSERT_NAMESPACE,
-            {"tenant_slug": tenant_slug, "namespace": namespace},
+            {
+                "namespace_id": new_runtime_id(),
+                "tenant_slug": tenant_slug,
+                "namespace": namespace,
+            },
         )
         row = result.mappings().one_or_none()
         if row is None:
@@ -781,7 +863,12 @@ class PostgresExecutionRepository(ExecutionRepository):
     ) -> UUID:
         result = await connection.execute(
             _UPSERT_FLOW,
-            {"tenant_id": tenant_id, "namespace_id": namespace_id, "flow_key": flow_key},
+            {
+                "resource_id": new_runtime_id(),
+                "tenant_id": tenant_id,
+                "namespace_id": namespace_id,
+                "flow_key": flow_key,
+            },
         )
         return UUID(str(result.scalar_one()))
 
@@ -797,7 +884,7 @@ class PostgresExecutionRepository(ExecutionRepository):
         await connection.execute(
             _INSERT_FLOW_REVISION,
             {
-                "revision_id": uuid4(),
+                "revision_id": new_runtime_id(),
                 "tenant_id": tenant_id,
                 "flow_id": flow_id,
                 "revision": flow.revision,
@@ -823,7 +910,7 @@ class PostgresExecutionRepository(ExecutionRepository):
         execution_id: UUID,
         occurred_at: datetime,
     ) -> None:
-        correlation_id = uuid4()
+        correlation_id = new_runtime_id()
         event_types = (
             ExecutionEventType.CREATED,
             ExecutionEventType.QUEUED,
@@ -836,7 +923,7 @@ class PostgresExecutionRepository(ExecutionRepository):
                     "tenant_id": tenant_id,
                     "execution_id": execution_id,
                     "sequence": sequence,
-                    "event_id": uuid4(),
+                    "event_id": new_runtime_id(),
                     "event_type": event_type.value,
                     "correlation_id": correlation_id,
                     "occurred_at": occurred_at,
@@ -883,9 +970,9 @@ class PostgresExecutionRepository(ExecutionRepository):
                     "execution_id": execution_id,
                     "expected_epoch": expected_epoch,
                     "state": state.value,
-                    "event_id": uuid4(),
+                    "event_id": new_runtime_id(),
                     "event_type": event_type.value,
-                    "correlation_id": uuid4(),
+                    "correlation_id": new_runtime_id(),
                     "payload": json.dumps(payload),
                 },
             )
@@ -917,6 +1004,40 @@ def _to_execution(row: RowMapping) -> PersistedExecution:
         inputs=row["inputs"],
         created_at=row["created_at"],
         updated_at=row["updated_at"],
+    )
+
+
+def _to_flow(row: RowMapping) -> PersistedFlow:
+    metadata = ResourceMetadata(
+        labels=row["labels"],
+        annotations=row["annotations"],
+        created_at=row["created_at"],
+        updated_at=row["updated_at"],
+        created_by=row["created_by"],
+        updated_by=row["updated_by"],
+        resource_version=row["version"],
+        lifecycle=row["lifecycle"],
+        archived_at=row["archived_at"],
+        deleted_at=row["deleted_at"],
+    )
+    representation = {
+        "resourceId": str(row["id"]),
+        "tenantId": row["tenant_slug"],
+        "namespace": row["namespace"],
+        "flowId": row["flow_key"],
+        "revision": row["revision"],
+        "semanticHash": row["semantic_hash"],
+        "metadata": metadata.model_dump(mode="json", exclude_none=True),
+    }
+    return PersistedFlow(
+        resource_id=row["id"],
+        tenant_id=row["tenant_slug"],
+        namespace=row["namespace"],
+        flow_id=row["flow_key"],
+        revision=row["revision"],
+        semantic_hash=row["semantic_hash"],
+        metadata=metadata,
+        etag=resource_etag(representation),
     )
 
 

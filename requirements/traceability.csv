@@ -13,13 +13,13 @@ URS-F-0011,Functional,Must,EPIC-001,"Repository engineering, CI and release foun
 URS-F-0012,Functional,Must,EPIC-001,"Repository engineering, CI and release foundation",M0,0,Repository validation and CI tests,Proposed
 URS-F-0013,Functional,Must,EPIC-001,"Repository engineering, CI and release foundation",M0,0,Repository validation and CI tests,Proposed
 URS-F-0014,Functional,Must,EPIC-001,"Repository engineering, CI and release foundation",M0,0,Repository validation and CI tests,Proposed
-URS-F-0015,Functional,Must,EPIC-002,Canonical resource model and identifiers,M0,0,Domain model unit and serialization compatibility tests,Proposed
-URS-F-0016,Functional,Must,EPIC-002,Canonical resource model and identifiers,M0,0,Domain model unit and serialization compatibility tests,Proposed
-URS-F-0017,Functional,Must,EPIC-002,Canonical resource model and identifiers,M0,0,Domain model unit and serialization compatibility tests,Proposed
-URS-F-0018,Functional,Must,EPIC-002,Canonical resource model and identifiers,M0,0,Domain model unit and serialization compatibility tests,Proposed
-URS-F-0019,Functional,Must,EPIC-002,Canonical resource model and identifiers,M0,0,Domain model unit and serialization compatibility tests,Proposed
-URS-F-0020,Functional,Must,EPIC-002,Canonical resource model and identifiers,M0,0,Domain model unit and serialization compatibility tests,Proposed
-URS-F-0021,Functional,Must,EPIC-002,Canonical resource model and identifiers,M0,0,Domain model unit and serialization compatibility tests,Proposed
+URS-F-0015,Functional,Must,EPIC-002,Canonical resource model and identifiers,M0,0,Domain model unit and serialization compatibility tests,Verified
+URS-F-0016,Functional,Must,EPIC-002,Canonical resource model and identifiers,M0,0,Domain model unit and serialization compatibility tests,Verified
+URS-F-0017,Functional,Must,EPIC-002,Canonical resource model and identifiers,M0,0,Domain model unit and serialization compatibility tests,Verified
+URS-F-0018,Functional,Must,EPIC-002,Canonical resource model and identifiers,M0,0,Domain model unit and serialization compatibility tests,Verified
+URS-F-0019,Functional,Must,EPIC-002,Canonical resource model and identifiers,M0,0,Domain model unit and serialization compatibility tests,Verified
+URS-F-0020,Functional,Must,EPIC-002,Canonical resource model and identifiers,M0,0,Domain model unit and serialization compatibility tests,Verified
+URS-F-0021,Functional,Must,EPIC-002,Canonical resource model and identifiers,M0,0,Domain model unit and serialization compatibility tests,Verified
 URS-F-0022,Functional,Must,EPIC-003,Configuration and feature flag system,M0,0,Configuration and service integration tests,Proposed
 URS-F-0023,Functional,Must,EPIC-003,Configuration and feature flag system,M0,0,Configuration and service integration tests,Proposed
 URS-F-0024,Functional,Must,EPIC-003,Configuration and feature flag system,M0,0,Configuration and service integration tests,Proposed

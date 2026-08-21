@@ -3,9 +3,11 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from enum import StrEnum
 from typing import Any
-from uuid import UUID, uuid4
+from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
+
+from .identity import new_runtime_id
 
 
 class ExecutionState(StrEnum):
@@ -42,11 +44,11 @@ class InvalidTransition(ValueError):
 class ExecutionEvent(BaseModel):
     model_config = ConfigDict(frozen=True)
 
-    event_id: UUID = Field(default_factory=uuid4)
+    event_id: UUID = Field(default_factory=new_runtime_id)
     event_type: ExecutionEventType
     schema_version: int = Field(default=1, ge=1)
     occurred_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
-    correlation_id: UUID = Field(default_factory=uuid4)
+    correlation_id: UUID = Field(default_factory=new_runtime_id)
     causation_id: UUID | None = None
     actor_id: str = "system"
     reason: str | None = None

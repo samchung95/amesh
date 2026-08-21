@@ -7,7 +7,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from amesh.domain import ExecutionState
+from amesh.domain import ExecutionState, ResourceMetadata
 from amesh.dsl import FlowDefinition
 
 
@@ -45,10 +45,14 @@ class PersistedExecution(BaseModel):
 class PersistedFlow(BaseModel):
     model_config = ConfigDict(frozen=True)
 
+    resource_id: UUID
+    tenant_id: str
     namespace: str
     flow_id: str
     revision: int = Field(ge=1)
     semantic_hash: str
+    metadata: ResourceMetadata
+    etag: str
 
 
 class PersistedTaskRun(BaseModel):
@@ -70,6 +74,7 @@ class ExecutionRepository(Protocol):
         flow: FlowDefinition,
         *,
         tenant_id: str,
+        expected_etag: str | None = None,
     ) -> PersistedFlow: ...
 
     async def get_flow(

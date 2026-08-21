@@ -94,3 +94,18 @@ def test_semantic_hash_ignores_mapping_order() -> None:
     )
     assert left.valid and right.valid
     assert left.semantic_hash == right.semantic_hash
+
+
+def test_canonical_identifier_policy_is_applied_to_flow_components() -> None:
+    result = validate_flow_document(
+        """
+id: bad flow
+namespace: company..team
+tasks:
+  - id: bad task
+    type: core.return
+"""
+    )
+
+    assert not result.valid
+    assert {issue.path for issue in result.issues} >= {"id", "namespace", "tasks.0.id"}

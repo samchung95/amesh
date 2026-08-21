@@ -26,7 +26,7 @@ from amesh.api.models import (
     TaskLog,
 )
 from amesh.config import Settings, get_settings
-from amesh.domain import InvalidTransition, reduce_execution
+from amesh.domain import InvalidTransition, ResourceVersionConflict, reduce_execution
 from amesh.dsl import (
     FlowDefinition,
     FlowDocumentError,
@@ -150,7 +150,9 @@ async def validate_flow(request: Request) -> FlowValidationResult:
 )
 async def apply_flow(
     request: Request,
+    response: Response,
     repository: RepositoryDependency,
+    if_match: Annotated[str | None, Header(alias="If-Match")] = None,
 ) -> PersistedFlow:
     try:
         result = validate_flow_document(await request.body())
@@ -166,9 +168,20 @@ async def apply_flow(
         )
     flow = FlowDefinition.model_validate(result.canonical)
     try:
-        return await repository.apply_flow(flow, tenant_id="default")
+        persisted = await repository.apply_flow(
+            flow,
+            tenant_id="default",
+            expected_etag=if_match,
+        )
+    except ResourceVersionConflict as exc:
+        raise HTTPException(
+            status_code=status.HTTP_412_PRECONDITION_FAILED,
+            detail=str(exc),
+        ) from exc
     except ValueError as exc:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
+    response.headers["ETag"] = persisted.etag
+    return persisted
 
 
 @app.get(

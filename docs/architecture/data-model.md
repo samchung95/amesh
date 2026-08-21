@@ -22,6 +22,16 @@ by object-storage URI.
 | Asset | provider + external key | asset UUID | Catalog and lineage |
 | App/approval | tenant-scoped key | UUID | Human interaction resources |
 
+## Canonical resource contract
+
+User-facing natural keys preserve spelling and compare case-sensitively. Flow, task, input and trigger IDs match `^[a-zA-Z0-9][a-zA-Z0-9_-]*$`; dotted namespaces validate each segment by the same rule. Tenant slugs are lowercase. Length limits and the internal reserved prefix are enforced by the domain identity module and reused by DSL, API and persistence adapters.
+
+Mutable runtime records use RFC 9562 UUIDv7 values generated in the application. Existing persisted UUID values remain readable during migration. A managed resource carries labels, annotations, creation/update timestamps, creating/updating actor, a monotonically increasing resource version and an ETag derived from its canonical representation.
+
+Lifecycle is explicit: `ACTIVE` resources may be archived or tombstoned, archived resources may be restored or tombstoned, and tombstones may be restored only while their retained metadata exists. Hard deletion is a retention operation outside ordinary resource CRUD. Lifecycle transitions return a new versioned value and reject stale expected versions.
+
+Canonical hashing uses compact UTF-8 JSON with recursively sorted object keys over the current I-JSON-compatible resource value domain. Arrays retain order. Hash and ETag inputs exclude their own derived digest fields.
+
 ## Core tables
 
 ```text

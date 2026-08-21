@@ -249,13 +249,18 @@ def render_epic_body(
         "",
     ]
     for requirement in functional:
-        lines.append(f"- [ ] **{requirement['id']}** — {requirement['statement']}")
+        checked = "x" if requirement["status"] == "Verified" else " "
+        lines.append(f"- [{checked}] **{requirement['id']}** — {requirement['statement']}")
     if not functional:
         lines.append("- [ ] No functional requirement is currently mapped.")
 
     if epic.get("mvp_progress"):
         lines.extend(["", "## MVP implementation progress", ""])
         lines.extend(f"- {item}" for item in epic["mvp_progress"])
+
+    if epic.get("implementation_progress"):
+        lines.extend(["", "## Implementation completion evidence", ""])
+        lines.extend(f"- {item}" for item in epic["implementation_progress"])
 
     if epic.get("non_goals"):
         lines.extend(["", "## Explicit non-goals", ""])
@@ -279,6 +284,7 @@ def render_epic_body(
     else:
         lines.append("- None")
 
+    done_mark = "x" if epic.get("state") == "done" else " "
     lines.extend(
         [
             "",
@@ -304,13 +310,13 @@ def render_epic_body(
             "",
             "## Definition of done",
             "",
-            "- [ ] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.",
-            "- [ ] Public API, DSL, event and plugin contract changes pass compatibility checks.",
-            "- [ ] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.",
-            "- [ ] Security, tenant isolation, redaction and audit behavior are reviewed.",
-            "- [ ] Documentation, examples, migration notes and operational runbooks are updated.",
-            "- [ ] Performance and recovery budgets are measured when this epic is on a critical path.",
-            "- [ ] `python scripts/validate_backlog.py` passes.",
+            f"- [{done_mark}] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.",
+            f"- [{done_mark}] Public API, DSL, event and plugin contract changes pass compatibility checks.",
+            f"- [{done_mark}] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.",
+            f"- [{done_mark}] Security, tenant isolation, redaction and audit behavior are reviewed.",
+            f"- [{done_mark}] Documentation, examples, migration notes and operational runbooks are updated.",
+            f"- [{done_mark}] Performance and recovery budgets are measured when this epic is on a critical path.",
+            f"- [{done_mark}] `python scripts/validate_backlog.py` passes.",
             "",
             "## Risks and unknowns",
             "",

@@ -1,4 +1,4 @@
-# AMESH MVP architecture
+# AMESH architecture
 
 AMESH is a Python 3.12 asyncio control plane whose correctness comes from a pure reducer, PostgreSQL transactions, idempotent messages, expiring leases and fencing tokens. PostgreSQL is authoritative; notifications, workers and external model providers are replaceable edges.
 
@@ -26,6 +26,7 @@ YAML / CLI / REST / webhooks
 ## Component boundaries
 
 - `domain` contains immutable execution and task state plus pure transition functions; it has no framework or database imports.
+- `domain.identity` and `domain.resources` own canonical natural-key validation, UUIDv7 runtime identity, managed-resource metadata, lifecycle transitions, concurrency tags and canonical hashing. Every API, repository and future UI/auth module consumes these contracts rather than defining local variants.
 - `dsl` parses and validates the MVP YAML model and native expression references.
 - `ports` defines transport, runner and plugin contracts.
 - `adapters` implements PostgreSQL, process, Kubernetes and external-provider boundaries.

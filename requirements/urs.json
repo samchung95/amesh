@@ -390,7 +390,7 @@
       "id": "URS-F-0015",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-002",
@@ -408,13 +408,17 @@
       "verification": "Domain model unit and serialization compatibility tests",
       "source_scope": "Kestra v1.3.30 public behavior and architecture parity baseline",
       "local_sequence": 1,
-      "dependencies": []
+      "dependencies": [],
+      "evidence": [
+        "tests/domain/test_identity.py",
+        "tests/executor/test_postgres_executor.py::test_canonical_resource_metadata_and_uuid7_are_persisted"
+      ]
     },
     {
       "id": "URS-F-0016",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-002",
@@ -432,13 +436,18 @@
       "verification": "Domain model unit and serialization compatibility tests",
       "source_scope": "Kestra v1.3.30 public behavior and architecture parity baseline",
       "local_sequence": 2,
-      "dependencies": []
+      "dependencies": [],
+      "evidence": [
+        "tests/domain/test_identity.py::test_identifier_policy_is_consistent_and_case_preserving",
+        "tests/domain/test_identity.py::test_identifier_length_limits_are_enforced_at_the_boundary",
+        "tests/test_flow_validation.py::test_canonical_identifier_policy_is_applied_to_flow_components"
+      ]
     },
     {
       "id": "URS-F-0017",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-002",
@@ -456,13 +465,17 @@
       "verification": "Domain model unit and serialization compatibility tests",
       "source_scope": "Kestra v1.3.30 public behavior and architecture parity baseline",
       "local_sequence": 3,
-      "dependencies": []
+      "dependencies": [],
+      "evidence": [
+        "tests/domain/test_identity.py::test_runtime_ids_are_uuid7_and_sort_in_generation_order",
+        "tests/executor/test_postgres_executor.py::test_canonical_resource_metadata_and_uuid7_are_persisted"
+      ]
     },
     {
       "id": "URS-F-0018",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-002",
@@ -480,13 +493,18 @@
       "verification": "Domain model unit and serialization compatibility tests",
       "source_scope": "Kestra v1.3.30 public behavior and architecture parity baseline",
       "local_sequence": 4,
-      "dependencies": []
+      "dependencies": [],
+      "evidence": [
+        "tests/domain/test_resources.py::test_resource_metadata_revision_enforces_optimistic_concurrency",
+        "tests/executor/test_postgres_executor.py::test_canonical_resource_metadata_and_uuid7_are_persisted",
+        "migrations/0003_canonical_resource_metadata.sql"
+      ]
     },
     {
       "id": "URS-F-0019",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-002",
@@ -504,13 +522,17 @@
       "verification": "Domain model unit and serialization compatibility tests",
       "source_scope": "Kestra v1.3.30 public behavior and architecture parity baseline",
       "local_sequence": 5,
-      "dependencies": []
+      "dependencies": [],
+      "evidence": [
+        "tests/domain/test_resources.py::test_resource_metadata_revision_enforces_optimistic_concurrency",
+        "tests/api/test_mvp_api.py::test_authenticated_flow_execution_and_webhook_api"
+      ]
     },
     {
       "id": "URS-F-0020",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-002",
@@ -528,13 +550,17 @@
       "verification": "Domain model unit and serialization compatibility tests",
       "source_scope": "Kestra v1.3.30 public behavior and architecture parity baseline",
       "local_sequence": 6,
-      "dependencies": []
+      "dependencies": [],
+      "evidence": [
+        "tests/domain/test_resources.py::test_resource_lifecycle_archive_tombstone_and_restore",
+        "docs/architecture/data-model.md"
+      ]
     },
     {
       "id": "URS-F-0021",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-002",
@@ -552,7 +578,11 @@
       "verification": "Domain model unit and serialization compatibility tests",
       "source_scope": "Kestra v1.3.30 public behavior and architecture parity baseline",
       "local_sequence": 7,
-      "dependencies": []
+      "dependencies": [],
+      "evidence": [
+        "tests/domain/test_resources.py::test_canonical_serialization_is_mapping_order_independent",
+        "tests/domain/test_resources.py::test_managed_resource_etag_covers_identity_metadata_and_spec"
+      ]
     },
     {
       "id": "URS-F-0022",

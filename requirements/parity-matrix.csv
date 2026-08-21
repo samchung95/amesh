@@ -1,7 +1,7 @@
 epic_id,capability_area,milestone,parity_scope,compatibility_level,status,requirement_count,evidence
 EPIC-000,Clean-room governance and parity baseline,M0,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,7,
 EPIC-001,"Repository engineering, CI and release foundation",M0,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,13,
-EPIC-002,Canonical resource model and identifiers,M0,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,7,
+EPIC-002,Canonical resource model and identifiers,M0,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Verified,7,TESTLOG.md; tests/domain/test_identity.py; tests/domain/test_resources.py; tests/executor/test_postgres_executor.py; tests/api/test_mvp_api.py
 EPIC-003,Configuration and feature flag system,M0,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,10,
 EPIC-004,"Flow DSL, YAML model and schema",M0,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,10,
 EPIC-005,Expression and templating engine,M0,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,8,

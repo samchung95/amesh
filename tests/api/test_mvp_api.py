@@ -90,6 +90,22 @@ tasks:
                 )
                 assert applied.status_code == 200
                 assert applied.json()["namespace"] == namespace
+                assert applied.headers["etag"] == applied.json()["etag"]
+
+                stale_update = await client.put(
+                    "/api/v1/flows",
+                    content=flow_yaml,
+                    headers={**headers, "If-Match": '"sha256:stale"'},
+                )
+                assert stale_update.status_code == 412
+
+                conditional_update = await client.put(
+                    "/api/v1/flows",
+                    content=flow_yaml,
+                    headers={**headers, "If-Match": applied.headers["etag"]},
+                )
+                assert conditional_update.status_code == 200
+                assert conditional_update.headers["etag"] != applied.headers["etag"]
 
                 listed_flows = await client.get(
                     "/api/v1/flows",

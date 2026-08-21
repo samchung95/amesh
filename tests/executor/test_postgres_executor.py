@@ -178,6 +178,81 @@ def test_terminal_execution_event_is_fenced_by_epoch() -> None:
     asyncio.run(scenario())
 
 
+def test_canonical_resource_metadata_and_uuid7_are_persisted() -> None:
+    async def scenario() -> None:
+        if TEST_DATABASE_URL is None:
+            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
+        flow = FlowDefinition.model_validate(
+            {
+                "id": "resource_contract",
+                "namespace": f"tests.resources.{uuid4().hex}",
+                "labels": {"team": "platform"},
+                "annotations": {"purpose": "EPIC-002 verification"},
+                "tasks": [{"id": "done", "type": "core.return", "value": "ok"}],
+            }
+        )
+        engine = create_async_engine(TEST_DATABASE_URL)
+        repository = PostgresExecutionRepository(engine)
+        execution_id: UUID | None = None
+        try:
+            persisted_flow = await repository.apply_flow(flow, tenant_id="default")
+            assert persisted_flow.resource_id.version == 7
+            assert persisted_flow.tenant_id == "default"
+            assert persisted_flow.metadata.labels == {"team": "platform"}
+            assert persisted_flow.metadata.annotations == {"purpose": "EPIC-002 verification"}
+            assert persisted_flow.metadata.resource_version >= 2
+            assert persisted_flow.etag.startswith('"sha256:')
+
+            execution = await repository.create_execution(flow, tenant_id="default", inputs={})
+            execution_id = execution.execution_id
+            task_runs = await repository.list_task_runs(execution_id)
+            assert execution_id.version == 7
+            assert all(task.task_run_id.version == 7 for task in task_runs)
+
+            async with engine.connect() as connection:
+                row = (
+                    (
+                        await connection.execute(
+                            text(
+                                "SELECT namespaces.id AS namespace_id, flows.id AS flow_id, "
+                                "flow_revisions.id AS revision_id "
+                                "FROM flows "
+                                "JOIN namespaces ON namespaces.id = flows.namespace_id "
+                                "JOIN flow_revisions ON flow_revisions.flow_id = flows.id "
+                                "WHERE namespaces.name = :namespace AND flows.flow_key = :flow_key "
+                                "ORDER BY flow_revisions.revision DESC LIMIT 1"
+                            ),
+                            {"namespace": flow.namespace, "flow_key": flow.id},
+                        )
+                    )
+                    .mappings()
+                    .one()
+                )
+                event_ids = (
+                    (
+                        await connection.execute(
+                            text(
+                                "SELECT event_id FROM execution_events "
+                                "WHERE execution_id = :execution_id"
+                            ),
+                            {"execution_id": execution_id},
+                        )
+                    )
+                    .scalars()
+                    .all()
+                )
+            assert UUID(str(row["namespace_id"])).version == 7
+            assert UUID(str(row["flow_id"])).version == 7
+            assert UUID(str(row["revision_id"])).version == 7
+            assert all(UUID(str(event_id)).version == 7 for event_id in event_ids)
+        finally:
+            if execution_id is not None:
+                await cleanup_execution(engine, execution_id)
+            await engine.dispose()
+
+    asyncio.run(scenario())
+
+
 def test_core_log_emits_execution_context(
     caplog: pytest.LogCaptureFixture,
 ) -> None:

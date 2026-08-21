@@ -1,5 +1,30 @@
 # Test Log
 
+## EPIC-002: Canonical resource model and identifiers — 2026-08-21
+
+Spec source: Agent Hotel card `c1` and canonical `backlog/epics.json` EPIC-002 DoD.
+
+Verified with `uv` and PostgreSQL 17:
+
+- [x] Canonical typed natural keys cover tenants, namespaces, flows, revisions, task runs, triggers, workers, plugins and assets; DSL flow/input/task/trigger IDs use the same validators.
+- [x] Identifier syntax, the internal reserved prefix, 128-character boundary, dotted namespaces, lowercase tenant slugs and case-preserving behavior have positive and rejected-input tests.
+- [x] New execution, task-run, attempt, revision, event, correlation and worker identities use monotonically sortable RFC 9562 UUIDv7 values; PostgreSQL integration verifies persisted UUID versions.
+- [x] Managed-resource metadata represents labels, annotations, timezone-aware timestamps, actors, resource versions and active/archived/tombstoned lifecycle state.
+- [x] Versioned metadata revisions reject stale expected versions; REST flow writes return an ETag, accept matching `If-Match`, and reject stale tags with HTTP 412.
+- [x] Archive, tombstone and restoration transitions increment resource versions and reject invalid same-state transitions; hard deletion remains a retention operation by design.
+- [x] Compact sorted UTF-8 JSON produces mapping-order-independent hashes and ETags and rejects non-finite numbers.
+- [x] Migration 0003 adds canonical metadata to current managed PostgreSQL resources. A fresh temporary database applied migrations 0001–0003 in order and exposed all expected flow metadata columns.
+- [x] Generated flow schema and OpenAPI contracts match the code.
+- [x] A real server boot on port 28999 returned `health=ok`, version `0.2.0`, and OpenAPI title `AMESH`; the verified process was stopped after the probe.
+- [x] Full suite: `pytest --cov=amesh --cov-report=term-missing` — 53 passed, 4 environment-gated tests skipped, 76.11% branch coverage.
+- [x] `ruff format --check`, `ruff check`, strict `mypy`, `uv lock --check`, contract generation, backlog validation, clean-room and build gates pass.
+
+Adversarial pass: malformed/overlength identifiers, non-lowercase tenants, empty namespace segments, internal-prefix IDs, stale resource versions, stale ETags, invalid lifecycle transitions and NaN canonicalization all fail deterministically.
+
+Not covered: user/group authorization policy, tenant isolation enforcement and UI consumption of these contracts. Those belong to the declared dependent epics EPIC-500, EPIC-503 and EPIC-404 rather than EPIC-002.
+
+Verdict: PASS — EPIC-002 requirements URS-F-0015 through URS-F-0021 verified.
+
 ## M-0: Repository housekeeping + M-1: MVP re-scope — 2026-08-19
 
 Spec source: PLAN.md M-0/M-1 DoD (housekeeping items from the 2026-08-18 repo review).

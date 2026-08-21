@@ -2,9 +2,9 @@
 
 ## Current state
 
-- What works: W1–W8 are complete for the product-owner-amended MVP. The completion audit verifies PostgreSQL `LISTEN/NOTIFY` wake-ups, epoch-fenced execution terminal events, CLI execution listing, deployed cron polling, the clean-cluster quickstart, release artifacts and live deployed health/metrics.
-- What's in flight: no MVP implementation work; `v0.2.0-mvp` is the release handoff.
-- Known broken / TODO: the uninterrupted 86,400-second qualification was deferred by the product owner to EPIC-611; broader roadmap epics and requirements remain open.
+- What works: the tagged `v0.2.0-mvp` baseline passes its 47-test suite; PostgreSQL durability, local/Kubernetes execution, REST/CLI, OpenRouter Luna, Helm and observability remain the verified foundation.
+- What's in flight: EPIC-002 is complete and closed on the authoritative board; EPIC-500 is the next dependency-ready epic in the requested multi-user/RBAC path.
+- Known broken / TODO: the five requested post-MVP product areas remain open. The uninterrupted 86,400-second qualification remains under EPIC-611 and still gates production-readiness claims.
 - How to run/test: use `uv run --extra runtime --extra dev pytest`; set `AMESH_TEST_DATABASE_URL` for PostgreSQL integration tests and `OPENROUTER_API_KEY` for live LLM tests.
 
 ## Session log
@@ -15,3 +15,16 @@
 - W8 checkpoint: candidate `amesh:mvp-w8f` passed 47 tests at 80.47% branch coverage plus artifact, Helm, policy and exact-image cron/log checks. The owner-accepted soak reached cycle 270 with 270 independently re-read, unique single-attempt successes after 270 task-pod kills, 27 server-pod kills and 13 worker-pod kills; both replacement Deployments were Ready with zero restarts. The two-second soak-only recovery grace intentionally produced fenced losing contenders while preserving exactly-once persisted completion.
 - Deviations from plan: on 2026-08-21 the product owner deferred the remaining uninterrupted 24-hour soak and authorized release progression. The full-duration criterion is preserved under EPIC-611 and no broader production-readiness claim is made. The W7 worker remains a deliberately single-tenant delayed recovery loop; general distributed dispatch and HA remain deferred.
 - Next step when resuming: continue the dependency-ordered backlog; run EPIC-611's uninterrupted 86,400-second qualification before making broader availability, scale or production-readiness claims. The path-back audit left all 900 broad roadmap requirements `Proposed` because the MVP slices do not satisfy their complete acceptance criteria.
+
+### 2026-08-21 (post-MVP roadmap session 1)
+
+- Did: accepted the five requested roadmap areas; registered the repository with the Agent Hotel daemon; made its board the primary execution tracker; selected dependency-free EPIC-002 as the first card; verified the existing tests; mapped direct dependency chains; researched UUIDv7 and canonical serialization choices.
+- Deviations from plan: the finished MVP plan was superseded by the requested roadmap-completion goal. No product code has changed yet.
+- Next step when resuming: implement and verify EPIC-002 against card `c1`, update its canonical backlog evidence, and only then select the next dependency-ready epic.
+
+### 2026-08-21 (post-MVP roadmap session 1, EPIC-002 completion)
+
+- Did: added canonical natural-key models; adopted UUIDv7 through the uv-locked `uuid6` package; switched new execution, task-run, attempt, revision, event and worker IDs to UUIDv7; added shared metadata, lifecycle, canonical hash and ETag contracts; persisted managed-resource metadata through migration 0003; exposed flow ETags and REST `If-Match`; regenerated contracts; linked all seven EPIC-002 requirements to evidence.
+- Verification: 53 tests passed with real PostgreSQL at 76.11% branch coverage; clean-database migrations 0001–0003 passed; focused ETag and UUIDv7 persistence tests passed; Ruff and strict mypy passed.
+- Deviations from plan: the existing Compose database required its already-applied 0001/0002 checksums registered before migration 0003; no schema or product data was reset. The worker software-version column required the new concurrency field to be named `resource_version`.
+- Next step when resuming: select EPIC-500 as the next dependency-ready requested epic and begin its architecture-first RBAC design.

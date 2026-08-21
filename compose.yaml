@@ -37,6 +37,7 @@ services:
       - postgres-data:/var/lib/postgresql/data
       - ./migrations/0001_foundation.sql:/docker-entrypoint-initdb.d/0001_foundation.sql:ro
       - ./migrations/0002_mvp_task_retry.sql:/docker-entrypoint-initdb.d/0002_mvp_task_retry.sql:ro
+      - ./migrations/0003_canonical_resource_metadata.sql:/docker-entrypoint-initdb.d/0003_canonical_resource_metadata.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U amesh -d amesh"]
       interval: 5s

@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Completed EPIC-002 with canonical resource keys, UUIDv7 runtime identities, shared metadata/lifecycle contracts, deterministic hashes and ETags, persisted flow metadata, conditional REST updates, and the `0003_canonical_resource_metadata.sql` migration.
+
 ## 0.2.0-mvp — 2026-08-21
 
 - Added the PostgreSQL durable transport adapter with idempotent outbox publication, consumer-inbox deduplication, expiring leases, retries, fencing and lane-specific `LISTEN/NOTIFY` wake-ups; process-crash tests prove redelivery without duplicate-effective work.

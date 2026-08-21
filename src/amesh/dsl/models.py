@@ -6,11 +6,13 @@ from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 from croniter import croniter
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from amesh.domain.identity import NamespaceId, NaturalId
+
 
 class InputDefinition(BaseModel):
     model_config = ConfigDict(extra="allow")
 
-    id: str = Field(min_length=1, max_length=128)
+    id: NaturalId
     type: str = Field(min_length=1, max_length=256)
     required: bool = False
     default: Any | None = None
@@ -21,7 +23,7 @@ class InputDefinition(BaseModel):
 class TriggerDefinition(BaseModel):
     model_config = ConfigDict(extra="allow")
 
-    id: str = Field(min_length=1, max_length=128)
+    id: NaturalId
     type: str = Field(min_length=1, max_length=512)
     disabled: bool = False
     cron: str | None = None
@@ -55,7 +57,7 @@ class TaskDefinition(BaseModel):
     # run_if) from being silently swallowed into `extra` as inert plugin fields.
     model_config = ConfigDict(extra="allow", populate_by_name=True)
 
-    id: str = Field(min_length=1, max_length=128)
+    id: NaturalId
     type: str = Field(min_length=1, max_length=512)
     description: str | None = None
     depends_on: list[str] = Field(default_factory=list, alias="dependsOn")
@@ -90,12 +92,13 @@ class TaskDefinition(BaseModel):
 class FlowDefinition(BaseModel):
     model_config = ConfigDict(extra="forbid", populate_by_name=True)
 
-    id: str = Field(min_length=1, max_length=128)
-    namespace: str = Field(min_length=1, max_length=255)
+    id: NaturalId
+    namespace: NamespaceId
     description: str | None = None
     revision: int = Field(default=1, ge=1)
     disabled: bool = False
     labels: dict[str, str] = Field(default_factory=dict)
+    annotations: dict[str, str] = Field(default_factory=dict)
     inputs: list[InputDefinition] = Field(default_factory=list)
     variables: dict[str, Any] = Field(default_factory=dict)
     tasks: list[TaskDefinition] = Field(min_length=1)
@@ -103,14 +106,6 @@ class FlowDefinition(BaseModel):
     outputs: dict[str, Any] = Field(default_factory=dict)
     errors: list[TaskDefinition] = Field(default_factory=list)
     finally_tasks: list[TaskDefinition] = Field(default_factory=list, alias="finally")
-
-    @model_validator(mode="after")
-    def validate_identifiers(self) -> FlowDefinition:
-        if not self.namespace or self.namespace.startswith(".") or self.namespace.endswith("."):
-            raise ValueError("namespace must be a non-empty dotted identifier")
-        if ".." in self.namespace:
-            raise ValueError("namespace cannot contain empty segments")
-        return self
 
 
 class ValidationIssue(BaseModel):

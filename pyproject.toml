@@ -34,6 +34,7 @@ dependencies = [
   "pydantic-settings==2.15.0",
   "PyYAML>=6.0.2,<7",
   "tzdata>=2026.3",
+  "uuid6>=2025.0.1,<2026",
   "uvicorn[standard]>=0.34,<1",
 ]
 

@@ -10,5 +10,6 @@ It establishes the first explicit persistence concepts for:
 - a PostgreSQL durable work queue with claims, lease expiry and fencing tokens;
 - worker registrations, task runs and task attempts;
 - generic fenced leases and audit events.
+- canonical labels, annotations, actor, lifecycle, tombstone and resource-version metadata for managed tenant, namespace, flow, execution and worker records.
 
-This is intentionally the MVP migration history. Compatibility windows, online index strategies, rollback/forward-fix policy and upgrade qualification remain post-MVP work.
+Migration `0003_canonical_resource_metadata.sql` is the EPIC-002 forward migration. It preserves existing UUID records while new application-created runtime records use UUIDv7. Compatibility windows, online index strategies, rollback/forward-fix policy and upgrade qualification remain later backlog work.
