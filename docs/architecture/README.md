@@ -172,6 +172,7 @@ flowchart TB
 ## Detailed documents
 
 - [Backend language evaluation](backend-language-evaluation.md)
+- [Flow DSL and validation](flow-dsl.md)
 - [PostgreSQL durable transport](postgresql-transport.md)
 - [Execution semantics](execution-semantics.md)
 - [State machine](state-machine.md)

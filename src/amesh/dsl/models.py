@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Literal, cast
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from croniter import croniter
@@ -90,8 +90,9 @@ class TaskDefinition(BaseModel):
 
 
 class FlowDefinition(BaseModel):
-    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+    model_config = ConfigDict(extra="allow", populate_by_name=True)
 
+    api_version: Literal["amesh.flow/v1"] = Field(default="amesh.flow/v1", alias="apiVersion")
     id: NaturalId
     namespace: NamespaceId
     description: str | None = None
@@ -107,16 +108,52 @@ class FlowDefinition(BaseModel):
     errors: list[TaskDefinition] = Field(default_factory=list)
     finally_tasks: list[TaskDefinition] = Field(default_factory=list, alias="finally")
 
+    @model_validator(mode="after")
+    def reject_unknown_core_fields(self) -> FlowDefinition:
+        unknown = sorted(key for key in (self.model_extra or {}) if not key.startswith("x-"))
+        if unknown:
+            raise ValueError(
+                "unknown core fields: "
+                + ", ".join(repr(key) for key in unknown)
+                + "; extension fields must start with 'x-'"
+            )
+        return self
+
+    @classmethod
+    def __get_pydantic_json_schema__(cls, core_schema: Any, handler: Any) -> dict[str, Any]:
+        schema = cast(dict[str, Any], handler(core_schema))
+        schema["additionalProperties"] = False
+        schema["patternProperties"] = {"^x-": {}}
+        return schema
+
+
+class SourcePosition(BaseModel):
+    line: int = Field(ge=1)
+    column: int = Field(ge=1)
+    offset: int = Field(ge=0)
+
+
+class SourceRange(BaseModel):
+    start: SourcePosition
+    end: SourcePosition
+
 
 class ValidationIssue(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
     code: str
     message: str
     path: str
+    hint: str
+    source_range: SourceRange | None = Field(default=None, alias="sourceRange")
     severity: str = "error"
 
 
 class FlowValidationResult(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
     valid: bool
+    ir_version: Literal["amesh.flow/v1"] | None = Field(default=None, alias="irVersion")
     semantic_hash: str | None = None
     canonical: dict[str, Any] | None = None
     issues: list[ValidationIssue] = Field(default_factory=list)

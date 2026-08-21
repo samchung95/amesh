@@ -367,7 +367,7 @@ async def apply_flow(
     if not result.valid or result.canonical is None:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=[issue.model_dump(mode="json") for issue in result.issues],
+            detail=[issue.model_dump(mode="json", by_alias=True) for issue in result.issues],
         )
     flow = FlowDefinition.model_validate(result.canonical)
     await authorize_request(

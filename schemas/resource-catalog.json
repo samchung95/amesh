@@ -1,0 +1,452 @@
+{
+  "resources": [
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "default": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "editor": {
+        "category": "Inputs",
+        "description": "Declare a STRING flow input.",
+        "propertyOrder": [
+          "default"
+        ],
+        "title": "String input"
+      },
+      "kind": "input",
+      "type": "STRING"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "default": {
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "editor": {
+        "category": "Inputs",
+        "description": "Declare a array flow input.",
+        "propertyOrder": [
+          "default"
+        ],
+        "title": "Array input"
+      },
+      "kind": "input",
+      "type": "array"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "default": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "editor": {
+        "category": "Inputs",
+        "description": "Declare a boolean flow input.",
+        "propertyOrder": [
+          "default"
+        ],
+        "title": "Boolean input"
+      },
+      "kind": "input",
+      "type": "boolean"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "default": {
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "editor": {
+        "category": "Inputs",
+        "description": "Declare a integer flow input.",
+        "propertyOrder": [
+          "default"
+        ],
+        "title": "Integer input"
+      },
+      "kind": "input",
+      "type": "integer"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "default": {
+            "type": "number"
+          }
+        },
+        "type": "object"
+      },
+      "editor": {
+        "category": "Inputs",
+        "description": "Declare a number flow input.",
+        "propertyOrder": [
+          "default"
+        ],
+        "title": "Number input"
+      },
+      "kind": "input",
+      "type": "number"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "default": {
+            "type": "object"
+          }
+        },
+        "type": "object"
+      },
+      "editor": {
+        "category": "Inputs",
+        "description": "Declare a object flow input.",
+        "propertyOrder": [
+          "default"
+        ],
+        "title": "Object input"
+      },
+      "kind": "input",
+      "type": "object"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "default": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "editor": {
+        "category": "Inputs",
+        "description": "Declare a string flow input.",
+        "propertyOrder": [
+          "default"
+        ],
+        "title": "String input"
+      },
+      "kind": "input",
+      "type": "string"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "anyOf": [
+          {
+            "required": [
+              "prompt"
+            ]
+          },
+          {
+            "required": [
+              "messages"
+            ]
+          }
+        ],
+        "properties": {
+          "maxCompletionTokens": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "messages": {
+            "items": {
+              "type": "object"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "model": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "prompt": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "timeoutSeconds": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          }
+        },
+        "type": "object"
+      },
+      "editor": {
+        "category": "Agents",
+        "description": "Call an OpenAI-compatible language model endpoint.",
+        "propertyOrder": [
+          "model",
+          "prompt",
+          "messages",
+          "maxCompletionTokens"
+        ],
+        "title": "LLM completion"
+      },
+      "kind": "task",
+      "type": "agent.llm"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "arguments": {
+            "type": "object"
+          },
+          "endpoint": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "timeoutSeconds": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          },
+          "tool": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "endpoint",
+          "tool"
+        ],
+        "type": "object"
+      },
+      "editor": {
+        "category": "Agents",
+        "description": "Invoke a tool on a Model Context Protocol server.",
+        "propertyOrder": [
+          "endpoint",
+          "tool",
+          "arguments",
+          "timeoutSeconds"
+        ],
+        "title": "MCP tool"
+      },
+      "kind": "task",
+      "type": "agent.mcp"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "body": {},
+          "headers": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "method": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "timeoutSeconds": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          },
+          "url": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "url"
+        ],
+        "type": "object"
+      },
+      "editor": {
+        "category": "Core",
+        "description": "Call an HTTP endpoint and expose its response.",
+        "propertyOrder": [
+          "method",
+          "url",
+          "headers",
+          "body",
+          "timeoutSeconds"
+        ],
+        "title": "HTTP request"
+      },
+      "kind": "task",
+      "type": "core.http"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "timeoutSeconds": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "message"
+        ],
+        "type": "object"
+      },
+      "editor": {
+        "category": "Core",
+        "description": "Write a rendered message to the execution log.",
+        "propertyOrder": [
+          "message"
+        ],
+        "title": "Log message"
+      },
+      "kind": "task",
+      "type": "core.log"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "timeoutSeconds": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          },
+          "value": {}
+        },
+        "type": "object"
+      },
+      "editor": {
+        "category": "Core",
+        "description": "Return a value as task output.",
+        "propertyOrder": [
+          "value"
+        ],
+        "title": "Return value"
+      },
+      "kind": "task",
+      "type": "core.return"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "command": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "environment": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "image": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "resources": {
+            "type": "object"
+          },
+          "timeoutSeconds": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "command"
+        ],
+        "type": "object"
+      },
+      "editor": {
+        "category": "Core",
+        "description": "Run a command through the selected task runner.",
+        "propertyOrder": [
+          "image",
+          "command",
+          "environment",
+          "resources",
+          "timeoutSeconds"
+        ],
+        "title": "Shell command"
+      },
+      "kind": "task",
+      "type": "core.shell"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "cron": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "timezone": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "cron"
+        ],
+        "type": "object"
+      },
+      "editor": {
+        "category": "Core",
+        "description": "Create occurrences on a cron schedule in an IANA timezone.",
+        "propertyOrder": [
+          "cron",
+          "timezone"
+        ],
+        "title": "Cron schedule"
+      },
+      "kind": "trigger",
+      "type": "core.cron"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {},
+        "type": "object"
+      },
+      "editor": {
+        "category": "Core",
+        "description": "Start a flow from its authenticated webhook endpoint.",
+        "propertyOrder": [],
+        "title": "Webhook"
+      },
+      "kind": "trigger",
+      "type": "core.webhook"
+    }
+  ],
+  "schemaVersion": "amesh.resource-catalog/v1"
+}

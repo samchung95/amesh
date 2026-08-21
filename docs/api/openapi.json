@@ -568,6 +568,18 @@
             ],
             "title": "Canonical"
           },
+          "irVersion": {
+            "anyOf": [
+              {
+                "const": "amesh.flow/v1",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Irversion"
+          },
           "issues": {
             "items": {
               "$ref": "#/components/schemas/ValidationIssue"
@@ -1258,6 +1270,48 @@
         "title": "RunnerMode",
         "type": "string"
       },
+      "SourcePosition": {
+        "properties": {
+          "column": {
+            "minimum": 1.0,
+            "title": "Column",
+            "type": "integer"
+          },
+          "line": {
+            "minimum": 1.0,
+            "title": "Line",
+            "type": "integer"
+          },
+          "offset": {
+            "minimum": 0.0,
+            "title": "Offset",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "line",
+          "column",
+          "offset"
+        ],
+        "title": "SourcePosition",
+        "type": "object"
+      },
+      "SourceRange": {
+        "properties": {
+          "end": {
+            "$ref": "#/components/schemas/SourcePosition"
+          },
+          "start": {
+            "$ref": "#/components/schemas/SourcePosition"
+          }
+        },
+        "required": [
+          "start",
+          "end"
+        ],
+        "title": "SourceRange",
+        "type": "object"
+      },
       "TaskLog": {
         "properties": {
           "attempt": {
@@ -1525,6 +1579,10 @@
             "title": "Code",
             "type": "string"
           },
+          "hint": {
+            "title": "Hint",
+            "type": "string"
+          },
           "message": {
             "title": "Message",
             "type": "string"
@@ -1537,12 +1595,23 @@
             "default": "error",
             "title": "Severity",
             "type": "string"
+          },
+          "sourceRange": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SourceRange"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "required": [
           "code",
           "message",
-          "path"
+          "path",
+          "hint"
         ],
         "title": "ValidationIssue",
         "type": "object"

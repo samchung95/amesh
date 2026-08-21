@@ -1,5 +1,28 @@
 # Test Log
 
+## EPIC-004: Flow DSL, YAML model and schema — 2026-08-22
+
+Spec source: Agent Hotel card `c5` and canonical `backlog/epics.json` EPIC-004 DoD.
+
+Verified with `uv`, Python 3.13 and PostgreSQL 17:
+
+- [x] YAML 1.2 and JSON documents normalize to the same explicit `amesh.flow/v1` canonical IR and semantic hash; canonical data includes the defaulted `apiVersion`.
+- [x] Required fields, field types, canonical identifiers, duplicate input/trigger/task ids, sibling references, nested dependencies and cycles fail deterministically.
+- [x] Round-trip edits retain existing comments, ordering, quoting and indentation where practical; JSON edits render as stable indented JSON.
+- [x] The resource registry validates core and plugin-defined task, trigger and input configuration with JSON Schema Draft 2020-12 and emits deterministic editor metadata.
+- [x] The canonical IR covers namespace, flow id, description, labels, inputs, variables, tasks, triggers, errors, `finally`, outputs and `x-` extensions.
+- [x] Parser, structural, reference and resource-schema failures return stable codes, paths, one-based source ranges and remediation hints. Duplicate YAML keys fail with the second-key location.
+- [x] Unknown unprefixed flow fields fail; `x-` fields remain canonical and semantic. Comments, key order and YAML layout do not affect semantic hashes.
+- [x] Generated `flow.schema.json`, `resource-catalog.json`, execution schemas and OpenAPI output match implementation types.
+- [x] A 5,003-line flow measured 0.598 seconds p95 across 10 uninstrumented local runs, below the 1-second target. The pytest performance case uses `no_cover` so coverage tracing does not invalidate the latency measurement.
+- [x] Full suite with `AMESH_TEST_DATABASE_URL`: 91 passed, 4 environment-gated tests skipped, 80.29% branch coverage.
+
+Adversarial pass: malformed and duplicate-key YAML, non-object roots, missing fields, invalid identifiers, duplicate ids, missing dependencies, dependency cycles, unknown resource types, wrong plugin property types, unsupported plugin properties and unknown core fields fail closed with machine-readable evidence.
+
+Shared `URS-NFR-USABILITY-001` remains In Progress until EPIC-405 integrates the server contract into the editor. Shared `URS-NFR-MAINTAINABILITY-002` remains In Progress until EPIC-300/400/610 complete their plugin, API and upgrade compatibility owners.
+
+Verdict: PASS — EPIC-004 requirements URS-F-0029 through URS-F-0036 and its implemented contributions to both shared NFRs are verified.
+
 ## EPIC-503: Multi-tenancy and resource isolation — 2026-08-21
 
 Spec source: Agent Hotel card `c4` and canonical `backlog/epics.json` EPIC-503 DoD.

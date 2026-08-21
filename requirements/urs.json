@@ -756,7 +756,7 @@
       "id": "URS-F-0029",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-004",
@@ -776,13 +776,17 @@
       "local_sequence": 1,
       "dependencies": [
         "EPIC-002"
+      ],
+      "evidence": [
+        "tests/test_dsl_contract.py::test_yaml_and_json_produce_the_same_versioned_canonical_ir",
+        "src/amesh/dsl/validator.py"
       ]
     },
     {
       "id": "URS-F-0030",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-004",
@@ -802,13 +806,17 @@
       "local_sequence": 2,
       "dependencies": [
         "EPIC-002"
+      ],
+      "evidence": [
+        "tests/test_flow_validation.py",
+        "tests/test_dsl_contract.py::test_plugin_schema_validates_configuration_and_generates_editor_metadata"
       ]
     },
     {
       "id": "URS-F-0031",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-004",
@@ -828,13 +836,17 @@
       "local_sequence": 3,
       "dependencies": [
         "EPIC-002"
+      ],
+      "evidence": [
+        "tests/test_dsl_contract.py::test_round_trip_edit_preserves_comments_and_existing_layout",
+        "src/amesh/dsl/source.py"
       ]
     },
     {
       "id": "URS-F-0032",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-004",
@@ -854,13 +866,18 @@
       "local_sequence": 4,
       "dependencies": [
         "EPIC-002"
+      ],
+      "evidence": [
+        "tests/test_dsl_contract.py::test_plugin_schema_validates_configuration_and_generates_editor_metadata",
+        "tests/test_generated_contracts.py::test_generated_json_schemas_are_current",
+        "schemas/resource-catalog.json"
       ]
     },
     {
       "id": "URS-F-0033",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-004",
@@ -880,13 +897,17 @@
       "local_sequence": 5,
       "dependencies": [
         "EPIC-002"
+      ],
+      "evidence": [
+        "tests/test_dsl_contract.py::test_all_supported_flow_sections_enter_the_canonical_ir",
+        "schemas/flow.schema.json"
       ]
     },
     {
       "id": "URS-F-0034",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-004",
@@ -906,13 +927,17 @@
       "local_sequence": 6,
       "dependencies": [
         "EPIC-002"
+      ],
+      "evidence": [
+        "tests/test_dsl_contract.py::test_every_source_validation_issue_has_range_and_remediation_hint",
+        "tests/test_dsl_contract.py::test_duplicate_yaml_mapping_key_has_a_machine_readable_location"
       ]
     },
     {
       "id": "URS-F-0035",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-004",
@@ -932,13 +957,17 @@
       "local_sequence": 7,
       "dependencies": [
         "EPIC-002"
+      ],
+      "evidence": [
+        "tests/test_dsl_contract.py::test_unknown_core_field_is_rejected_but_x_extension_is_hashed",
+        "src/amesh/dsl/models.py"
       ]
     },
     {
       "id": "URS-F-0036",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-004",
@@ -958,6 +987,10 @@
       "local_sequence": 8,
       "dependencies": [
         "EPIC-002"
+      ],
+      "evidence": [
+        "tests/test_flow_validation.py::test_semantic_hash_ignores_mapping_order",
+        "tests/test_dsl_contract.py::test_semantic_hash_ignores_comments_and_yaml_formatting"
       ]
     },
     {
@@ -23306,7 +23339,13 @@
         "EPIC-610"
       ],
       "priority": "Must",
-      "status": "Proposed"
+      "status": "In Progress",
+      "evidence": [
+        "docs/adr/021-round-trip-yaml-and-resource-schema-registry.md",
+        "tests/test_generated_contracts.py::test_generated_json_schemas_are_current",
+        "schemas/flow.schema.json",
+        "schemas/resource-catalog.json"
+      ]
     },
     {
       "id": "URS-NFR-MAINTAINABILITY-003",
@@ -23968,7 +24007,11 @@
         "EPIC-405"
       ],
       "priority": "Must",
-      "status": "Proposed"
+      "status": "In Progress",
+      "evidence": [
+        "tests/test_dsl_contract.py::test_every_source_validation_issue_has_range_and_remediation_hint",
+        "tests/test_dsl_contract.py::test_five_thousand_line_flow_validation_p95_is_below_one_second"
+      ]
     },
     {
       "id": "URS-NFR-USABILITY-002",

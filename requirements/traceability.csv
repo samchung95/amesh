@@ -27,14 +27,14 @@ URS-F-0025,Functional,Must,EPIC-003,Configuration and feature flag system,M0,0,C
 URS-F-0026,Functional,Must,EPIC-003,Configuration and feature flag system,M0,0,Configuration and service integration tests,Proposed
 URS-F-0027,Functional,Must,EPIC-003,Configuration and feature flag system,M0,0,Configuration and service integration tests,Proposed
 URS-F-0028,Functional,Must,EPIC-003,Configuration and feature flag system,M0,0,Configuration and service integration tests,Proposed
-URS-F-0029,Functional,Must,EPIC-004,"Flow DSL, YAML model and schema",M0,0,"Parser, schema, rendering and compatibility tests",Proposed
-URS-F-0030,Functional,Must,EPIC-004,"Flow DSL, YAML model and schema",M0,0,"Parser, schema, rendering and compatibility tests",Proposed
-URS-F-0031,Functional,Must,EPIC-004,"Flow DSL, YAML model and schema",M0,0,"Parser, schema, rendering and compatibility tests",Proposed
-URS-F-0032,Functional,Must,EPIC-004,"Flow DSL, YAML model and schema",M0,0,"Parser, schema, rendering and compatibility tests",Proposed
-URS-F-0033,Functional,Must,EPIC-004,"Flow DSL, YAML model and schema",M0,0,"Parser, schema, rendering and compatibility tests",Proposed
-URS-F-0034,Functional,Must,EPIC-004,"Flow DSL, YAML model and schema",M0,0,"Parser, schema, rendering and compatibility tests",Proposed
-URS-F-0035,Functional,Must,EPIC-004,"Flow DSL, YAML model and schema",M0,0,"Parser, schema, rendering and compatibility tests",Proposed
-URS-F-0036,Functional,Must,EPIC-004,"Flow DSL, YAML model and schema",M0,0,"Parser, schema, rendering and compatibility tests",Proposed
+URS-F-0029,Functional,Must,EPIC-004,"Flow DSL, YAML model and schema",M0,0,"Parser, schema, rendering and compatibility tests",Verified
+URS-F-0030,Functional,Must,EPIC-004,"Flow DSL, YAML model and schema",M0,0,"Parser, schema, rendering and compatibility tests",Verified
+URS-F-0031,Functional,Must,EPIC-004,"Flow DSL, YAML model and schema",M0,0,"Parser, schema, rendering and compatibility tests",Verified
+URS-F-0032,Functional,Must,EPIC-004,"Flow DSL, YAML model and schema",M0,0,"Parser, schema, rendering and compatibility tests",Verified
+URS-F-0033,Functional,Must,EPIC-004,"Flow DSL, YAML model and schema",M0,0,"Parser, schema, rendering and compatibility tests",Verified
+URS-F-0034,Functional,Must,EPIC-004,"Flow DSL, YAML model and schema",M0,0,"Parser, schema, rendering and compatibility tests",Verified
+URS-F-0035,Functional,Must,EPIC-004,"Flow DSL, YAML model and schema",M0,0,"Parser, schema, rendering and compatibility tests",Verified
+URS-F-0036,Functional,Must,EPIC-004,"Flow DSL, YAML model and schema",M0,0,"Parser, schema, rendering and compatibility tests",Verified
 URS-F-0037,Functional,Must,EPIC-005,Expression and templating engine,M0,0,"Parser, schema, rendering and compatibility tests",Proposed
 URS-F-0038,Functional,Must,EPIC-005,Expression and templating engine,M0,0,"Parser, schema, rendering and compatibility tests",Proposed
 URS-F-0039,Functional,Must,EPIC-005,Expression and templating engine,M0,0,"Parser, schema, rendering and compatibility tests",Proposed
@@ -860,10 +860,10 @@ URS-NFR-MAINTAINABILITY-001,Non-functional,Must,EPIC-001,"Repository engineering
 URS-NFR-MAINTAINABILITY-001,Non-functional,Must,EPIC-007,Execution event model and state machine,M0,0,Static architecture test in CI.,Proposed
 URS-NFR-MAINTAINABILITY-001,Non-functional,Must,EPIC-009,"PostgreSQL transport, inbox and transactional outbox",M0,0,Static architecture test in CI.,Proposed
 URS-NFR-MAINTAINABILITY-001,Non-functional,Must,EPIC-010,Internal object storage and artifact addressing,M0,0,Static architecture test in CI.,Proposed
-URS-NFR-MAINTAINABILITY-002,Non-functional,Must,EPIC-004,"Flow DSL, YAML model and schema",M0,0,Automated schema and API compatibility checks.,Proposed
-URS-NFR-MAINTAINABILITY-002,Non-functional,Must,EPIC-300,Plugin SDK and manifest contract,M3,3,Automated schema and API compatibility checks.,Proposed
-URS-NFR-MAINTAINABILITY-002,Non-functional,Must,EPIC-400,Versioned REST API and OpenAPI contract,M4,4,Automated schema and API compatibility checks.,Proposed
-URS-NFR-MAINTAINABILITY-002,Non-functional,Must,EPIC-610,"Upgrades, migrations and LTS policy",M6,6,Automated schema and API compatibility checks.,Proposed
+URS-NFR-MAINTAINABILITY-002,Non-functional,Must,EPIC-004,"Flow DSL, YAML model and schema",M0,0,Automated schema and API compatibility checks.,In Progress
+URS-NFR-MAINTAINABILITY-002,Non-functional,Must,EPIC-300,Plugin SDK and manifest contract,M3,3,Automated schema and API compatibility checks.,In Progress
+URS-NFR-MAINTAINABILITY-002,Non-functional,Must,EPIC-400,Versioned REST API and OpenAPI contract,M4,4,Automated schema and API compatibility checks.,In Progress
+URS-NFR-MAINTAINABILITY-002,Non-functional,Must,EPIC-610,"Upgrades, migrations and LTS policy",M6,6,Automated schema and API compatibility checks.,In Progress
 URS-NFR-MAINTAINABILITY-003,Non-functional,Must,EPIC-008,Metadata persistence and migrations,M0,0,Migration golden tests.,Proposed
 URS-NFR-MAINTAINABILITY-003,Non-functional,Must,EPIC-610,"Upgrades, migrations and LTS policy",M6,6,Migration golden tests.,Proposed
 URS-NFR-MAINTAINABILITY-004,Non-functional,Must,EPIC-001,"Repository engineering, CI and release foundation",M0,0,Traceability validator and release gate.,Proposed
@@ -976,8 +976,8 @@ URS-NFR-SECURITY-010,Non-functional,Must,EPIC-003,Configuration and feature flag
 URS-NFR-SECURITY-010,Non-functional,Must,EPIC-403,Authentication session and credential entry points,M4,4,Configuration conformance and container scan.,Proposed
 URS-NFR-SECURITY-010,Non-functional,Must,EPIC-505,"Plugin allow, restrict and version policy",M5,5,Configuration conformance and container scan.,Proposed
 URS-NFR-SECURITY-010,Non-functional,Must,EPIC-612,Security hardening and software supply chain,M6,6,Configuration conformance and container scan.,Proposed
-URS-NFR-USABILITY-001,Non-functional,Must,EPIC-004,"Flow DSL, YAML model and schema",M0,0,Editor benchmark and validation contract tests.,Proposed
-URS-NFR-USABILITY-001,Non-functional,Must,EPIC-405,Flow code editor and validation experience,M4,4,Editor benchmark and validation contract tests.,Proposed
+URS-NFR-USABILITY-001,Non-functional,Must,EPIC-004,"Flow DSL, YAML model and schema",M0,0,Editor benchmark and validation contract tests.,In Progress
+URS-NFR-USABILITY-001,Non-functional,Must,EPIC-405,Flow code editor and validation experience,M4,4,Editor benchmark and validation contract tests.,In Progress
 URS-NFR-USABILITY-002,Non-functional,Must,EPIC-105,"Concurrency, admission control and fairness",M1,1,Scenario-based UI and API acceptance tests.,In Progress
 URS-NFR-USABILITY-002,Non-functional,Must,EPIC-109,Task and execution cache,M1,1,Scenario-based UI and API acceptance tests.,In Progress
 URS-NFR-USABILITY-002,Non-functional,Must,EPIC-500,"Users, groups, roles, bindings and authorization",M5,5,Scenario-based UI and API acceptance tests.,In Progress

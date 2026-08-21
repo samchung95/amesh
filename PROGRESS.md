@@ -60,3 +60,16 @@
 - Verification: 82 tests passed with real PostgreSQL at 79.65% branch coverage; a clean database applied migrations 0001–0009 and exposed 18 tenant-isolation policies; a non-superuser/non-owner tenant-repository login test passed; Ruff, strict mypy, lock, generated contract/planning, backlog, clean-room, compile, build, Compose and Helm gates passed.
 - Deviations from plan: shared URS-NFR-SECURITY-001 remains In Progress because EPIC-604/605 and the independent pre-GA penetration test remain open. No tenancy dependency was added; PostgreSQL RLS and typed AMESH contracts provide the required boundary.
 - Next step when resuming: close and commit card `c4`, then select the next dependency-ready epic from the remaining requested frontend, compatibility, login, orchestration-control and HA/DR areas.
+
+### 2026-08-21 (post-MVP roadmap session 1, EPIC-004 start)
+
+- Did: closed EPIC-503 on card `c4` and committed it as `1b35594`; selected dependency-ready EPIC-004 on card `c5`; compared PyYAML source-mark patching, a new parser and `ruamel.yaml` round-trip parsing; accepted ADR-021 for a versioned Pydantic canonical IR, round-trip YAML source tree and Draft 2020-12 resource-schema registry.
+- Deviations from plan: this epic adds `ruamel.yaml` and `jsonschema` because comment-preserving edits and standards-complete plugin schema validation are established library responsibilities.
+- Next step when resuming: implement the editable document, source-range mapper, resource registry and versioned validation result before extending generated contracts.
+
+### 2026-08-22 (post-MVP roadmap session 1, EPIC-004 completion)
+
+- Did: completed EPIC-004 with YAML 1.2/JSON parsing into `amesh.flow/v1`; comment-preserving programmatic edits; common, reference, cycle and installed-resource validation; source ranges and remediation hints; `x-` extension policy; deterministic semantic hashes; Draft 2020-12 resource schemas/editor metadata; generated contract artifacts; ADR-021 and the flow DSL guide. Linked URS-F-0029 through URS-F-0036 to evidence.
+- Verification: 91 tests passed with real PostgreSQL at 80.29% branch coverage; generated flow/resource/OpenAPI contracts matched; a 5,003-line flow measured 0.598 seconds p95 over 10 uninstrumented runs; Ruff, strict mypy and focused API/DSL checks passed.
+- Deviations from plan: shared URS-NFR-USABILITY-001 remains In Progress for EPIC-405 editor integration, and URS-NFR-MAINTAINABILITY-002 remains In Progress for EPIC-300/400/610. `ruamel.yaml`, `jsonschema` and the latter's type stubs were added through `uv` after the build-vs-buy review.
+- Next step when resuming: close and commit card `c5`, then select dependency-ready EPIC-005 to complete the requested Pebble-compatible expression layer.

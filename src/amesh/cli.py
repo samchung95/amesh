@@ -70,7 +70,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             print(str(exc), file=sys.stderr)
             return 2
         if args.as_json:
-            print(result.model_dump_json(indent=2))
+            print(result.model_dump_json(indent=2, by_alias=True))
         elif result.valid:
             print(f"valid: {path} ({result.semantic_hash})")
         else:

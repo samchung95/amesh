@@ -247,6 +247,9 @@
     }
   },
   "additionalProperties": false,
+  "patternProperties": {
+    "^x-": {}
+  },
   "properties": {
     "annotations": {
       "additionalProperties": {
@@ -254,6 +257,12 @@
       },
       "title": "Annotations",
       "type": "object"
+    },
+    "apiVersion": {
+      "const": "amesh.flow/v1",
+      "default": "amesh.flow/v1",
+      "title": "Apiversion",
+      "type": "string"
     },
     "description": {
       "anyOf": [

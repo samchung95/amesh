@@ -13,6 +13,7 @@ sys.path.insert(0, str(ROOT / "src"))
 from amesh.app import app  # noqa: E402
 from amesh.domain.execution import ExecutionEvent, ExecutionSnapshot  # noqa: E402
 from amesh.dsl.models import FlowDefinition  # noqa: E402
+from amesh.dsl.registry import default_resource_registry  # noqa: E402
 
 
 def dump(path: Path, value: Any) -> None:
@@ -26,6 +27,7 @@ def dump(path: Path, value: Any) -> None:
 
 def main() -> int:
     dump(ROOT / "schemas" / "flow.schema.json", FlowDefinition.model_json_schema())
+    dump(ROOT / "schemas" / "resource-catalog.json", default_resource_registry().catalog())
     dump(ROOT / "schemas" / "execution-event.schema.json", ExecutionEvent.model_json_schema())
     dump(ROOT / "schemas" / "execution-snapshot.schema.json", ExecutionSnapshot.model_json_schema())
     dump(ROOT / "docs" / "api" / "openapi.json", app.openapi())
