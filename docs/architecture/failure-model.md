@@ -6,6 +6,8 @@
 | Webserver dies after commit before response | Retry returns original committed result |
 | Outbox publisher dies after publish before mark | Message may redeliver; consumer inbox deduplicates |
 | Executor dies mid-decision | No partial state outside transaction; another executor reprocesses event |
+| Executors race for one task | One compare-and-swap owns the attempt and dispatch; losing executors observe the committed running state |
+| Failed prerequisite survives executor loss | Restarted orchestration terminates the unsatisfiable graph with stable failed/blocked diagnostics |
 | Scheduler partition | New epoch fences old scheduler; duplicate occurrence identity prevents double launch |
 | Worker loses network | Lease expires; policy requeues or quarantines; late completion is fenced |
 | Runner continues after lease loss | Workload may have external effects; platform rejects stale result and surfaces ambiguity |

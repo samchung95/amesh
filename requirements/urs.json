@@ -2349,7 +2349,12 @@
       "id": "URS-F-0084",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/executor/test_postgres_executor.py::test_all_execution_launch_sources_are_persisted",
+        "tests/api/test_mvp_api.py::test_authenticated_flow_execution_and_webhook_api",
+        "tests/scheduler/test_cron_scheduler.py::test_cron_occurrence_is_unique_across_scheduler_restart_and_renders_outputs"
+      ],
       "milestone": "M1",
       "wave": 1,
       "epic_id": "EPIC-100",
@@ -2378,7 +2383,11 @@
       "id": "URS-F-0085",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "src/amesh/executor/service.py::reduce_orchestration",
+        "tests/scheduler/test_cron_scheduler.py::test_cron_occurrence_is_unique_across_scheduler_restart_and_renders_outputs"
+      ],
       "milestone": "M1",
       "wave": 1,
       "epic_id": "EPIC-100",
@@ -2407,7 +2416,11 @@
       "id": "URS-F-0086",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/test_reducer.py::test_task_run_reducer_replays_retry_history_and_deduplicates",
+        "tests/executor/test_orchestration_reducer.py::test_orchestration_reducer_is_deterministic_for_parallel_and_blocked_branches"
+      ],
       "milestone": "M1",
       "wave": 1,
       "epic_id": "EPIC-100",
@@ -2436,7 +2449,11 @@
       "id": "URS-F-0087",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/executor/test_postgres_executor.py::test_parallel_dag_resumes_from_persisted_task_state_after_restart",
+        "tests/executor/test_orchestration_reducer.py::test_orchestration_reducer_is_deterministic_for_parallel_and_blocked_branches"
+      ],
       "milestone": "M1",
       "wave": 1,
       "epic_id": "EPIC-100",
@@ -2465,7 +2482,12 @@
       "id": "URS-F-0088",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "migrations/0014_executor_dispatch.sql",
+        "tests/executor/test_postgres_executor.py::test_parallel_dag_resumes_from_persisted_task_state_after_restart",
+        "tests/executor/test_postgres_executor.py::test_rolled_back_state_event_does_not_escape_through_outbox"
+      ],
       "milestone": "M1",
       "wave": 1,
       "epic_id": "EPIC-100",
@@ -2494,7 +2516,10 @@
       "id": "URS-F-0089",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/executor/test_postgres_executor.py::test_parallel_dag_resumes_from_persisted_task_state_after_restart"
+      ],
       "milestone": "M1",
       "wave": 1,
       "epic_id": "EPIC-100",
@@ -2523,7 +2548,10 @@
       "id": "URS-F-0090",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/executor/test_postgres_executor.py::test_executor_terminates_unsatisfiable_graph_with_diagnostics"
+      ],
       "milestone": "M1",
       "wave": 1,
       "epic_id": "EPIC-100",
@@ -2552,7 +2580,10 @@
       "id": "URS-F-0091",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/executor/test_postgres_executor.py::test_optimistic_task_start_allows_only_one_executor_owner"
+      ],
       "milestone": "M1",
       "wave": 1,
       "epic_id": "EPIC-100",
@@ -23858,7 +23889,8 @@
       "evidence": [
         "tests/test_reducer.py::test_command_decision_preserves_metadata_and_deduplicates_by_stable_key",
         "tests/executor/test_postgres_executor.py::test_duplicate_task_result_is_idempotent_and_illegal_transition_is_recorded",
-        "tests/adapters/postgres/test_durable_transport.py::test_outbox_publish_and_consumer_inbox_are_idempotent"
+        "tests/adapters/postgres/test_durable_transport.py::test_outbox_publish_and_consumer_inbox_are_idempotent",
+        "tests/executor/test_postgres_executor.py::test_optimistic_task_start_allows_only_one_executor_owner"
       ]
     },
     {
@@ -23888,9 +23920,10 @@
         "EPIC-100"
       ],
       "priority": "Must",
-      "status": "In Progress",
+      "status": "Verified",
       "evidence": [
-        "tests/test_reducer.py::test_execution_replay_is_byte_stable_across_one_hundred_runs"
+        "tests/test_reducer.py::test_execution_replay_is_byte_stable_across_one_hundred_runs",
+        "tests/executor/test_orchestration_reducer.py::test_orchestration_reducer_is_deterministic_for_parallel_and_blocked_branches"
       ]
     },
     {

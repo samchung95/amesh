@@ -14,7 +14,13 @@ from amesh.adapters.postgres import PostgresExecutionRepository
 from amesh.domain import ExecutionState
 from amesh.dsl import FlowDefinition, validate_flow_document
 from amesh.executor import InProcessExecutor
-from amesh.ports import ExecutionStateConflictError, TaskRunState, TaskStateConflictError
+from amesh.ports import (
+    ExecutionLaunchSource,
+    ExecutionStateConflictError,
+    PersistedTaskRun,
+    TaskRunState,
+    TaskStateConflictError,
+)
 
 TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
 ROOT = Path(__file__).resolve().parents[2]
@@ -153,6 +159,19 @@ def test_parallel_dag_resumes_from_persisted_task_state_after_restart() -> None:
                     text("SELECT count(*) FROM messages_outbox WHERE partition_key = :key"),
                     {"key": f"execution:{execution_id}"},
                 )
+                outbox_contracts = (
+                    (
+                        await connection.execute(
+                            text(
+                                "SELECT subject, envelope ->> 'message_type' "
+                                "FROM messages_outbox WHERE partition_key = :key"
+                            ),
+                            {"key": f"execution:{execution_id}"},
+                        )
+                    )
+                    .tuples()
+                    .all()
+                )
             assert events == [
                 "ExecutionCreated",
                 "ExecutionQueued",
@@ -166,9 +185,164 @@ def test_parallel_dag_resumes_from_persisted_task_state_after_restart() -> None:
                     "TaskRunSucceeded",
                 ]
             assert outbox_count == len(events) + len(task_events)
+            assert outbox_contracts.count(("task-dispatch", "DispatchTaskRun")) == 3
+            assert ("execution-events", "ExecutionSucceeded") in outbox_contracts
         finally:
             await cleanup_execution(resumed_engine, execution_id)
             await resumed_engine.dispose()
+
+    asyncio.run(scenario())
+
+
+def test_all_execution_launch_sources_are_persisted() -> None:
+    async def scenario() -> None:
+        if TEST_DATABASE_URL is None:
+            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
+        flow = FlowDefinition.model_validate(
+            {
+                "id": "launch_sources",
+                "namespace": f"tests.launch.{uuid4().hex}",
+                "tasks": [{"id": "done", "type": "core.return", "value": "ok"}],
+            }
+        )
+        engine = create_async_engine(TEST_DATABASE_URL)
+        repository = PostgresExecutionRepository(engine)
+        execution_ids: list[UUID] = []
+        try:
+            for source in ExecutionLaunchSource:
+                execution = await repository.create_execution(
+                    flow,
+                    tenant_id="default",
+                    inputs={},
+                    trigger={"launch_key": source.value},
+                    launch_source=source,
+                )
+                execution_ids.append(execution.execution_id)
+                assert execution.trigger == {
+                    "launch_key": source.value,
+                    "source": source.value,
+                }
+        finally:
+            for execution_id in execution_ids:
+                await cleanup_execution(engine, execution_id)
+            await engine.dispose()
+
+    asyncio.run(scenario())
+
+
+def test_optimistic_task_start_allows_only_one_executor_owner() -> None:
+    async def scenario() -> None:
+        if TEST_DATABASE_URL is None:
+            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
+        flow = FlowDefinition.model_validate(
+            {
+                "id": "executor_ownership",
+                "namespace": f"tests.executor.ownership.{uuid4().hex}",
+                "tasks": [{"id": "only", "type": "core.return", "value": "ok"}],
+            }
+        )
+        first_engine = create_async_engine(TEST_DATABASE_URL)
+        second_engine = create_async_engine(TEST_DATABASE_URL)
+        first_repository = PostgresExecutionRepository(first_engine)
+        second_repository = PostgresExecutionRepository(second_engine)
+        execution = await first_repository.create_execution(flow, tenant_id="default", inputs={})
+        task_run = (
+            await first_repository.list_task_runs(execution.execution_id, tenant_id="default")
+        )[0]
+        try:
+            results = await asyncio.gather(
+                first_repository.start_task(task_run.task_run_id, tenant_id="default"),
+                second_repository.start_task(task_run.task_run_id, tenant_id="default"),
+                return_exceptions=True,
+            )
+            assert sum(isinstance(result, PersistedTaskRun) for result in results) == 1
+            assert sum(isinstance(result, TaskStateConflictError) for result in results) == 1
+            async with first_engine.connect() as connection:
+                started_events = await connection.scalar(
+                    text(
+                        "SELECT count(*) FROM task_run_events "
+                        "WHERE task_run_id = :task_run_id AND event_type = 'TaskRunStarted'"
+                    ),
+                    {"task_run_id": task_run.task_run_id},
+                )
+                dispatches = await connection.scalar(
+                    text(
+                        "SELECT count(*) FROM messages_outbox "
+                        "WHERE partition_key = :partition_key AND subject = 'task-dispatch'"
+                    ),
+                    {"partition_key": f"execution:{execution.execution_id}"},
+                )
+            assert started_events == 1
+            assert dispatches == 1
+        finally:
+            await cleanup_execution(first_engine, execution.execution_id)
+            await first_engine.dispose()
+            await second_engine.dispose()
+
+    asyncio.run(scenario())
+
+
+def test_executor_terminates_unsatisfiable_graph_with_diagnostics() -> None:
+    async def scenario() -> None:
+        if TEST_DATABASE_URL is None:
+            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
+        flow = FlowDefinition.model_validate(
+            {
+                "id": "unsatisfiable_graph",
+                "namespace": f"tests.executor.deadlock.{uuid4().hex}",
+                "tasks": [
+                    {"id": "upstream", "type": "core.return", "value": "ok"},
+                    {
+                        "id": "blocked",
+                        "type": "core.return",
+                        "dependsOn": ["upstream"],
+                        "value": "never",
+                    },
+                ],
+            }
+        )
+        engine = create_async_engine(TEST_DATABASE_URL)
+        repository = PostgresExecutionRepository(engine)
+        executor = InProcessExecutor(repository)
+        execution = await repository.create_execution(flow, tenant_id="default", inputs={})
+        try:
+            upstream = next(
+                task_run
+                for task_run in await repository.list_task_runs(
+                    execution.execution_id,
+                    tenant_id="default",
+                )
+                if task_run.task_id == "upstream"
+            )
+            running = await repository.start_task(upstream.task_run_id, tenant_id="default")
+            await repository.fail_task(
+                running.task_run_id,
+                running.current_attempt,
+                "worker vanished after recording failure",
+                tenant_id="default",
+            )
+
+            progress = await executor.run_ready(
+                flow,
+                execution.execution_id,
+                tenant_id="default",
+            )
+            assert progress.state is ExecutionState.FAILED
+            async with engine.connect() as connection:
+                reason = await connection.scalar(
+                    text(
+                        "SELECT reason FROM execution_events "
+                        "WHERE execution_id = :execution_id "
+                        "AND event_type = 'ExecutionFailed'"
+                    ),
+                    {"execution_id": execution.execution_id},
+                )
+            assert reason == (
+                "unsatisfiable execution graph; failed=['upstream']; blocked=['blocked']"
+            )
+        finally:
+            await cleanup_execution(engine, execution.execution_id)
+            await engine.dispose()
 
     asyncio.run(scenario())
 
@@ -599,7 +773,7 @@ def test_executor_populates_the_documented_expression_context() -> None:
                 "tenant": "default",
                 "task": "context",
                 "taskrun": f"{task_run.task_run_id}:1:RUNNING",
-                "trigger": {},
+                "trigger": {"source": "manual"},
                 "input": "Ada",
                 "output": "loaded",
                 "variable": "apac",

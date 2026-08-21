@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
+from enum import StrEnum
 from typing import Any, Protocol
 from uuid import UUID
 
@@ -16,6 +17,16 @@ class TaskStateConflictError(RuntimeError):
 
 class ExecutionStateConflictError(RuntimeError):
     """Raised when an execution transition uses a stale epoch or illegal state."""
+
+
+class ExecutionLaunchSource(StrEnum):
+    """Supported origins for a durable execution launch."""
+
+    MANUAL = "manual"
+    API = "api"
+    SCHEDULED = "scheduled"
+    EVENT = "event"
+    SUBFLOW = "subflow"
 
 
 class PersistedExecution(BaseModel):
@@ -87,6 +98,7 @@ class ExecutionRepository(Protocol):
         tenant_id: str,
         inputs: dict[str, Any],
         trigger: dict[str, Any] | None = None,
+        launch_source: ExecutionLaunchSource = ExecutionLaunchSource.MANUAL,
         idempotency_key: str | None = None,
         actor_id: str = "system:executor",
     ) -> PersistedExecution: ...
@@ -107,7 +119,13 @@ class ExecutionRepository(Protocol):
         tenant_id: str,
     ) -> list[PersistedTaskRun]: ...
 
-    async def start_task(self, task_run_id: UUID, *, tenant_id: str) -> PersistedTaskRun: ...
+    async def start_task(
+        self,
+        task_run_id: UUID,
+        *,
+        tenant_id: str,
+        dispatch: bool = True,
+    ) -> PersistedTaskRun: ...
 
     async def complete_task(
         self,

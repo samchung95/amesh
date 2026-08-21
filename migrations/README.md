@@ -57,6 +57,10 @@ constraints, partition-order support and tenant-isolated payload-safe dead-lette
 additive `expand` migration; stop publishers/consumers and forward-fix on failure while retaining queue,
 outbox and quarantine rows.
 
+Migration `0014_executor_dispatch.sql` makes an eligible `TaskRunStarted` event an explicit
+`task-dispatch` outbox command while condition-skipped task starts remain ordinary task-run events. The
+event and dispatch are committed atomically by the existing task-run event trigger.
+
 ## Migration modes
 
 - `bootstrap` creates the initial schema and is only safe for an empty database.

@@ -21,6 +21,7 @@ from .durable_transport import (
     WorkClaim,
 )
 from .execution_repository import (
+    ExecutionLaunchSource,
     ExecutionRepository,
     ExecutionStateConflictError,
     PersistedExecution,
@@ -67,6 +68,7 @@ __all__ = [
     "DeadLetterReplayError",
     "DurableEnvelope",
     "DurableTransport",
+    "ExecutionLaunchSource",
     "ExecutionLogEntry",
     "ExecutionMetric",
     "ExecutionRepository",

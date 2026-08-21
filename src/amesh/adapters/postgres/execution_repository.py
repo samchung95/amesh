@@ -23,6 +23,7 @@ from amesh.domain import (
 )
 from amesh.dsl import FlowDefinition
 from amesh.ports.execution_repository import (
+    ExecutionLaunchSource,
     ExecutionRepository,
     ExecutionStateConflictError,
     PersistedExecution,
@@ -825,6 +826,7 @@ class PostgresExecutionRepository(ExecutionRepository):
         tenant_id: str,
         inputs: dict[str, object],
         trigger: dict[str, object] | None = None,
+        launch_source: ExecutionLaunchSource = ExecutionLaunchSource.MANUAL,
         idempotency_key: str | None = None,
         actor_id: str = "system:executor",
     ) -> PersistedExecution:
@@ -881,6 +883,8 @@ class PostgresExecutionRepository(ExecutionRepository):
                     "expected_version": None,
                 },
             )
+            launch_context = dict(trigger or {})
+            launch_context["source"] = launch_source.value
             insert_result = await connection.execute(
                 _INSERT_EXECUTION,
                 {
@@ -892,7 +896,7 @@ class PostgresExecutionRepository(ExecutionRepository):
                     "flow_key": flow.id,
                     "idempotency_key": idempotency_key,
                     "inputs": json.dumps(inputs),
-                    "trigger_context": json.dumps(trigger or {}),
+                    "trigger_context": json.dumps(launch_context),
                     "labels": json.dumps(flow.labels),
                     "actor_id": actor_id,
                     "created_at": created_at,
@@ -978,7 +982,13 @@ class PostgresExecutionRepository(ExecutionRepository):
             rows = result.mappings().all()
         return [_to_task_run(row) for row in rows]
 
-    async def start_task(self, task_run_id: UUID, *, tenant_id: str) -> PersistedTaskRun:
+    async def start_task(
+        self,
+        task_run_id: UUID,
+        *,
+        tenant_id: str,
+        dispatch: bool = True,
+    ) -> PersistedTaskRun:
         command_id = new_runtime_id()
         correlation_id = new_runtime_id()
         conflict_message: str | None = None
@@ -1000,25 +1010,25 @@ class PostgresExecutionRepository(ExecutionRepository):
                     command_id,
                     TaskRunEventType.STARTED,
                     correlation_id,
+                    payload={"dispatch": dispatch},
                 )
             else:
                 row = await self._get_task_run_row(connection, tenant_uuid, task_run_id)
-                if row is None or TaskRunState(row["state"]) is not TaskRunState.RUNNING:
-                    conflict_message = f"task run {task_run_id} is not waiting"
-                    if row is not None:
-                        await self._record_rejection(
-                            connection,
-                            tenant_uuid,
-                            command_id,
-                            "task_run",
-                            task_run_id,
-                            TransitionRejectionCode.ILLEGAL_TRANSITION,
-                            str(row["state"]),
-                            int(row["version"]),
-                            None,
-                            conflict_message,
-                            correlation_id,
-                        )
+                conflict_message = f"task run {task_run_id} is not waiting"
+                if row is not None:
+                    await self._record_rejection(
+                        connection,
+                        tenant_uuid,
+                        command_id,
+                        "task_run",
+                        task_run_id,
+                        TransitionRejectionCode.ILLEGAL_TRANSITION,
+                        str(row["state"]),
+                        int(row["version"]),
+                        None,
+                        conflict_message,
+                        correlation_id,
+                    )
         if conflict_message is not None or row is None:
             raise TaskStateConflictError(
                 conflict_message or f"task run {task_run_id} does not exist"

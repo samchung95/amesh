@@ -78,6 +78,12 @@
       "mode": "expand",
       "onlineCompatible": true,
       "rollbackGuidance": "Stop transport publishers and consumers and forward-fix additive retry or quarantine fields; retain queued, outbox and dead-letter evidence for operator resolution."
+    },
+    {
+      "file": "0014_executor_dispatch.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Pause executor dispatch publication and forward-fix the task-run event trigger; retain task-run events and outbox rows as recovery evidence."
     }
   ]
 }

@@ -86,6 +86,7 @@ from amesh.observability import (
 )
 from amesh.ports import (
     CredentialRateLimitExceeded,
+    ExecutionLaunchSource,
     LastAdministratorError,
     PersistedExecution,
     PersistedFlow,
@@ -530,6 +531,7 @@ async def create_execution(
         settings,
         tenant_id=tenant_id,
         actor_id=str(actor.principal_id),
+        launch_source=ExecutionLaunchSource.API,
     )
 
 
@@ -683,6 +685,7 @@ async def trigger_webhook(
         settings,
         tenant_id=tenant_id,
         actor_id=str(actor.principal_id),
+        launch_source=ExecutionLaunchSource.EVENT,
         trigger_context={
             "id": trigger.id,
             "type": trigger.type,
@@ -699,6 +702,7 @@ async def _execute_flow(
     *,
     tenant_id: str,
     actor_id: str,
+    launch_source: ExecutionLaunchSource,
     trigger_context: dict[str, object] | None = None,
 ) -> ExecutionDetail:
     if flow.disabled:
@@ -737,6 +741,7 @@ async def _execute_flow(
                 tenant_id=tenant_id,
                 inputs=request.inputs,
                 trigger=trigger_context,
+                launch_source=launch_source,
                 idempotency_key=request.idempotency_key,
                 actor_id=actor_id,
             )

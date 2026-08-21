@@ -11,7 +11,7 @@ EPIC-008,Metadata persistence and migrations,M0,Kestra v1.3.30 public behavior a
 EPIC-009,"PostgreSQL transport, inbox and transactional outbox",M0,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,12,
 EPIC-010,Internal object storage and artifact addressing,M0,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,12,
 EPIC-011,AI-native engineering factory and autonomous contribution controls,M0,AMESH differentiator; not a Kestra-parity claim,Intentional difference,Planned,14,
-EPIC-100,Executor and orchestration reducer,M1,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,12,
+EPIC-100,Executor and orchestration reducer,M1,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Verified,12,TESTLOG.md; docs/architecture/execution-semantics.md; tests/executor/test_orchestration_reducer.py; tests/executor/test_postgres_executor.py; tests/api/test_mvp_api.py; tests/scheduler/test_cron_scheduler.py
 EPIC-101,"Worker protocol, leases and heartbeats",M1,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,10,
 EPIC-102,Scheduler and temporal correctness,M1,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,11,
 EPIC-103,Trigger runtime and occurrence lifecycle,M1,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,9,

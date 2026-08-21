@@ -82,14 +82,14 @@ URS-F-0080,Functional,Must,EPIC-010,Internal object storage and artifact address
 URS-F-0081,Functional,Must,EPIC-010,Internal object storage and artifact addressing,M0,0,Repository or storage adapter contract and fault-injection tests,Proposed
 URS-F-0082,Functional,Must,EPIC-010,Internal object storage and artifact addressing,M0,0,Repository or storage adapter contract and fault-injection tests,Proposed
 URS-F-0083,Functional,Must,EPIC-010,Internal object storage and artifact addressing,M0,0,Repository or storage adapter contract and fault-injection tests,Proposed
-URS-F-0084,Functional,Must,EPIC-100,Executor and orchestration reducer,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0085,Functional,Must,EPIC-100,Executor and orchestration reducer,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0086,Functional,Must,EPIC-100,Executor and orchestration reducer,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0087,Functional,Must,EPIC-100,Executor and orchestration reducer,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0088,Functional,Must,EPIC-100,Executor and orchestration reducer,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0089,Functional,Must,EPIC-100,Executor and orchestration reducer,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0090,Functional,Must,EPIC-100,Executor and orchestration reducer,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0091,Functional,Must,EPIC-100,Executor and orchestration reducer,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0084,Functional,Must,EPIC-100,Executor and orchestration reducer,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0085,Functional,Must,EPIC-100,Executor and orchestration reducer,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0086,Functional,Must,EPIC-100,Executor and orchestration reducer,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0087,Functional,Must,EPIC-100,Executor and orchestration reducer,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0088,Functional,Must,EPIC-100,Executor and orchestration reducer,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0089,Functional,Must,EPIC-100,Executor and orchestration reducer,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0090,Functional,Must,EPIC-100,Executor and orchestration reducer,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0091,Functional,Must,EPIC-100,Executor and orchestration reducer,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
 URS-F-0092,Functional,Must,EPIC-101,"Worker protocol, leases and heartbeats",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
 URS-F-0093,Functional,Must,EPIC-101,"Worker protocol, leases and heartbeats",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
 URS-F-0094,Functional,Must,EPIC-101,"Worker protocol, leases and heartbeats",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
@@ -932,8 +932,8 @@ URS-NFR-RELIABILITY-002,Non-functional,Must,EPIC-103,Trigger runtime and occurre
 URS-NFR-RELIABILITY-003,Non-functional,Must,EPIC-101,"Worker protocol, leases and heartbeats",M1,1,"Chaos tests with paused processes, network partitions and delayed completions.",Proposed
 URS-NFR-RELIABILITY-003,Non-functional,Must,EPIC-102,Scheduler and temporal correctness,M1,1,"Chaos tests with paused processes, network partitions and delayed completions.",Proposed
 URS-NFR-RELIABILITY-003,Non-functional,Must,EPIC-601,Distributed services and high availability,M6,6,"Chaos tests with paused processes, network partitions and delayed completions.",Proposed
-URS-NFR-RELIABILITY-004,Non-functional,Must,EPIC-007,Execution event model and state machine,M0,0,Golden event-stream and property-based reducer tests.,In Progress
-URS-NFR-RELIABILITY-004,Non-functional,Must,EPIC-100,Executor and orchestration reducer,M1,1,Golden event-stream and property-based reducer tests.,In Progress
+URS-NFR-RELIABILITY-004,Non-functional,Must,EPIC-007,Execution event model and state machine,M0,0,Golden event-stream and property-based reducer tests.,Verified
+URS-NFR-RELIABILITY-004,Non-functional,Must,EPIC-100,Executor and orchestration reducer,M1,1,Golden event-stream and property-based reducer tests.,Verified
 URS-NFR-RELIABILITY-005,Non-functional,Must,EPIC-401,"Realtime API, webhooks and event subscriptions",M4,4,Dependency isolation and outage integration tests.,Proposed
 URS-NFR-RELIABILITY-005,Non-functional,Must,EPIC-409,"Search, indexing and retrieval projections",M4,4,Dependency isolation and outage integration tests.,Proposed
 URS-NFR-RELIABILITY-005,Non-functional,Must,EPIC-604,Search and analytics projection backend,M6,6,Dependency isolation and outage integration tests.,Proposed

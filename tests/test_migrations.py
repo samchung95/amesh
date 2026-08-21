@@ -33,6 +33,7 @@ def test_checked_in_migration_manifest_is_complete_and_ordered() -> None:
             (11, "execution_event_model"),
             (12, "metadata_repository"),
             (13, "transport_dead_letters"),
+            (14, "executor_dispatch"),
         )
     ]
     assert all(item.rollback_guidance for item in plan)

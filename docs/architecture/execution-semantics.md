@@ -82,6 +82,10 @@ An `AFTER INSERT` trigger writes the corresponding versioned envelope to `messag
 same database transaction as each event. The publisher can observe it only after commit; rollback
 removes the state change, event and outbox row together.
 
+Each execution records one launch source: `manual`, `api`, `scheduled`, `event` or `subflow`.
+Source-specific context is stored beside that value, and an idempotency key owns duplicate launch
+suppression for schedules, events and subflow callers.
+
 ## Execution graph
 
 A flow revision compiles into a canonical graph. Dynamic constructs create graph fragments through
@@ -96,6 +100,19 @@ A task becomes runnable only when:
 - admission and concurrency policy grants capacity;
 - the execution is not paused, cancelling or terminal;
 - the task and plugin remain permitted.
+
+`reduce_orchestration()` derives runnable task IDs, retry waiting, success or an unsatisfiable-graph
+failure from the committed flow revision and task-run snapshot. The decision is pure and preserves
+canonical flow order, so parallel executor instances reach the same branch decision. PostgreSQL then
+compare-and-swaps a task from `WAITING` or eligible `RETRY_DELAY` to `RUNNING`; a losing executor does
+not reuse the winner's running attempt. A false `runIf` condition is persisted as a skipped success
+without emitting a dispatch command.
+
+An eligible `TaskRunStarted` event produces a `DispatchTaskRun` envelope on `task-dispatch` in the same
+transaction as the task state and immutable event. Task completion and terminal execution envelopes
+remain on the task-run and execution event subjects for downstream event/subflow consumers. If a
+restarted executor sees failed prerequisites or another graph state with no legal progress, it commits
+`ExecutionFailed` with deterministic `failed` and `blocked` diagnostics.
 
 ## Attempts and retries
 

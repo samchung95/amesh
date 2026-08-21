@@ -160,8 +160,9 @@ tasks:
                 execution_id = UUID(created_payload["execution"]["execution_id"])
                 execution_ids.append(execution_id)
                 assert created_payload["execution"]["state"] == "SUCCESS"
+                assert created_payload["execution"]["trigger"] == {"source": "api"}
                 assert created_payload["taskRuns"][0]["result"] == {
-                    "value": {"message": "manual", "trigger": {}},
+                    "value": {"message": "manual", "trigger": {"source": "api"}},
                 }
 
                 fetched = await client.get(
@@ -174,7 +175,7 @@ tasks:
                     headers={"authorization": "Bearer test-token"},
                 )
                 assert logs.json()[0]["output"] == {
-                    "value": {"message": "manual", "trigger": {}},
+                    "value": {"message": "manual", "trigger": {"source": "api"}},
                 }
 
                 webhook = await client.post(
@@ -189,6 +190,7 @@ tasks:
                     "value": {
                         "message": "webhook",
                         "trigger": {
+                            "source": "event",
                             "id": "incoming",
                             "type": "core.webhook",
                             "body": {"message": "webhook"},

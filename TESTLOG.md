@@ -520,3 +520,40 @@ remain with EPIC-601/603/611. External APIs still require plugin/task idempotenc
 AMESH does not claim generic exactly-once external side effects.
 
 Verdict: PASS — EPIC-009 closed.
+
+## EPIC-100: Executor and orchestration reducer — 2026-08-22
+
+Spec source: `backlog/epics/epic-100-executor-and-orchestration-reducer.md` and
+`docs/architecture/execution-semantics.md`.
+
+Verified with `uv`, Python 3.13.12 and PostgreSQL 17:
+
+- [x] Manual, API, scheduled, event and subflow launch sources use one typed contract and persist
+  source-specific trigger context; concurrent scheduled occurrences retain one execution identity.
+- [x] The pure orchestration reducer derives dependency-ready tasks, retry waiting, terminal success
+  and stable failed/blocked diagnostics in canonical flow order; 100 repeated reductions are identical.
+- [x] Sequential, parallel and dependency-driven tasks execute from committed task-run state. A false
+  condition records a skipped success without invoking the handler or emitting a dispatch command.
+- [x] Eligible `TaskRunStarted` events emit `DispatchTaskRun` on `task-dispatch`; task results,
+  downstream task events and terminal execution events remain transactionally coupled to the outbox.
+- [x] Restart recovery resumes without rerunning completed tasks, and a recovered failed prerequisite
+  terminates the unsatisfiable graph with an actionable immutable execution event.
+- [x] Two PostgreSQL executor repositories racing for one task produce one running attempt, one
+  dispatch and one deterministic loser conflict; stale execution epochs remain fenced.
+- [x] A guarded fresh database applied all 14 migrations and all 20 focused executor/scheduler/API
+  tests passed.
+- [x] Full suite: 130 passed, four environment-gated tests skipped. Coverage excluding tests marked
+  `no_cover`: 82%.
+- [x] Ruff formatting/lint, strict mypy, planning generation, backlog validation, clean-room,
+  compilation, generated-contract, Compose, uv lock and diff gates pass.
+
+Adversarial pass: duplicate launch occurrences, duplicate task results, competing executor claims,
+false conditions, failed prerequisites, stale epochs, restart recovery and forced transaction rollback
+produce one logical owner/effect or deterministic persisted diagnostics. The checked-in OpenRouter
+smoke model remains `openai/gpt-5.6-luna`; its live test is environment-gated without a key.
+
+Qualification boundary: the fixed-topology 60-minute distributed throughput target remains unclaimed
+until the deployment qualification epic. Duplicate subflow-delivery qualification remains shared with
+EPIC-103; EPIC-100 supplies the typed subflow launch boundary and deterministic executor behavior.
+
+Verdict: PASS — EPIC-100 closed.

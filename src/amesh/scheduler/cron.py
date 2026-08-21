@@ -8,7 +8,7 @@ from croniter import croniter
 
 from amesh.dsl import FlowDefinition
 from amesh.dsl.models import TriggerDefinition
-from amesh.ports import ExecutionRepository, PersistedExecution
+from amesh.ports import ExecutionLaunchSource, ExecutionRepository, PersistedExecution
 
 
 @dataclass(frozen=True)
@@ -77,6 +77,7 @@ class CronScheduler:
                 "date": scheduled_utc.isoformat(),
                 "timezone": trigger.timezone,
             },
+            launch_source=ExecutionLaunchSource.SCHEDULED,
             idempotency_key=occurrence_key,
         )
 
