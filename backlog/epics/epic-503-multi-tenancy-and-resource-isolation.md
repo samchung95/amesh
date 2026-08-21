@@ -12,14 +12,18 @@ Host multiple organizations or environments with strong logical isolation and in
 
 ## In scope
 
-- [ ] **URS-F-0518** — The system shall scope every resource, query, message, cache entry, artifact and audit event to an explicit tenant.
-- [ ] **URS-F-0519** — The system shall require tenant context at service boundaries and reject implicit fallback outside single-tenant mode.
-- [ ] **URS-F-0520** — The system shall support tenant creation, suspension, deletion, export and restoration workflows.
-- [ ] **URS-F-0521** — The system shall apply tenant-specific quotas, retention, encryption, identity providers, plugins and feature flags.
-- [ ] **URS-F-0522** — The system shall prevent identifiers, timing, search, metrics, logs and error messages from leaking cross-tenant information.
-- [ ] **URS-F-0523** — The system shall support tenant-aware worker groups and storage prefixes or buckets.
-- [ ] **URS-F-0524** — The system shall let super-administrators operate across tenants with separately audited privileges.
-- [ ] **URS-F-0525** — The system shall prove isolation with adversarial automated tests and database policy checks.
+- [x] **URS-F-0518** — The system shall scope every resource, query, message, cache entry, artifact and audit event to an explicit tenant.
+- [x] **URS-F-0519** — The system shall require tenant context at service boundaries and reject implicit fallback outside single-tenant mode.
+- [x] **URS-F-0520** — The system shall support tenant creation, suspension, deletion, export and restoration workflows.
+- [x] **URS-F-0521** — The system shall apply tenant-specific quotas, retention, encryption, identity providers, plugins and feature flags.
+- [x] **URS-F-0522** — The system shall prevent identifiers, timing, search, metrics, logs and error messages from leaking cross-tenant information.
+- [x] **URS-F-0523** — The system shall support tenant-aware worker groups and storage prefixes or buckets.
+- [x] **URS-F-0524** — The system shall let super-administrators operate across tenants with separately audited privileges.
+- [x] **URS-F-0525** — The system shall prove isolation with adversarial automated tests and database policy checks.
+
+## Implementation completion evidence
+
+- 2026-08-21 — EPIC-503 is complete. AMESH now requires explicit tenant context in multi-tenant mode; manages tenant creation, suspension, export, tombstone and restore; enforces tenant execution quotas, feature flags and plugin allowlists; routes schedulers and workers by active tenant and worker group; derives immutable tenant storage prefixes; scopes execution and durable-transport operations through transaction-local forced PostgreSQL RLS; supports a non-superuser tenant-repository login through restricted security-definer selectors and a narrow administration role; uses tenant-specific queue notification channels; and separately audits cross-tenant super-administration. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`multi-tenancy.md`](../../docs/operations/multi-tenancy.md), [`0006_multi_tenancy.sql`](../../migrations/0006_multi_tenancy.sql), [`0008_restricted_tenant_resolution.sql`](../../migrations/0008_restricted_tenant_resolution.sql), [`0009_tenant_administration_role.sql`](../../migrations/0009_tenant_administration_role.sql), [`test_tenant_repository.py`](../../tests/adapters/postgres/test_tenant_repository.py), [`test_durable_transport.py`](../../tests/adapters/postgres/test_durable_transport.py), and [`test_tenant_api.py`](../../tests/api/test_tenant_api.py). Shared URS-NFR-SECURITY-001 remains In Progress until EPIC-604/605 and pre-GA penetration testing complete.
 
 ## Non-functional requirements
 
@@ -46,13 +50,13 @@ Host multiple organizations or environments with strong logical isolation and in
 
 ## Definition of done
 
-- [ ] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
-- [ ] Public API, DSL, event and plugin contract changes pass compatibility checks.
-- [ ] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
-- [ ] Security, tenant isolation, redaction and audit behavior are reviewed.
-- [ ] Documentation, examples, migration notes and operational runbooks are updated.
-- [ ] Performance and recovery budgets are measured when this epic is on a critical path.
-- [ ] `python scripts/validate_backlog.py` passes.
+- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
+- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.
+- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
+- [x] Security, tenant isolation, redaction and audit behavior are reviewed.
+- [x] Documentation, examples, migration notes and operational runbooks are updated.
+- [x] Performance and recovery budgets are measured when this epic is on a critical path.
+- [x] `python scripts/validate_backlog.py` passes.
 
 ## Risks and unknowns
 

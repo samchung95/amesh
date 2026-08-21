@@ -43,7 +43,7 @@ class CronScheduler:
         *,
         trigger_id: str,
         scheduled_for: datetime,
-        tenant_id: str = "default",
+        tenant_id: str,
         inputs: dict[str, object] | None = None,
     ) -> PersistedExecution:
         trigger = next(
@@ -79,7 +79,7 @@ class CronScheduler:
         flow: FlowDefinition,
         *,
         at: datetime,
-        tenant_id: str = "default",
+        tenant_id: str,
     ) -> list[PersistedExecution]:
         scheduled_for = _require_aware(at).astimezone(UTC).replace(second=0, microsecond=0)
         executions: list[PersistedExecution] = []

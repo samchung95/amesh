@@ -1,5 +1,29 @@
 # Test Log
 
+## EPIC-503: Multi-tenancy and resource isolation — 2026-08-21
+
+Spec source: Agent Hotel card `c4` and canonical `backlog/epics.json` EPIC-503 DoD.
+
+Verified with `uv` and PostgreSQL 17:
+
+- [x] Multi-tenant mode requires `X-Amesh-Tenant`; single-tenant mode alone may use the configured default. Unknown, suspended, tombstoned and inaccessible tenants return generic responses without disclosing tenant existence.
+- [x] Instance administrators can create, list, inspect, update, suspend, export, tombstone and restore tenants. Every lifecycle operation writes explicit tenant audit evidence marked `superAdmin: true`; ordinary viewer credentials are denied from every tenant-administration route.
+- [x] Tenant policy persists retention, storage budget, encryption-key and identity-provider references, plugin allowlists, feature flags, execution concurrency and worker groups. Execution creation enforces the feature flag, plugin allowlist and concurrent-run quota.
+- [x] Tenant storage keys are rooted at immutable `tenants/<slug>/` prefixes. Schedulers and recovery workers enumerate only active tenants assigned to their configured worker group.
+- [x] Execution, task-run, queue, inbox and outbox interfaces require tenant context. Their PostgreSQL adapters use a transaction-local tenant UUID and `SET LOCAL ROLE amesh_runtime` before accessing forced-RLS tables.
+- [x] The runtime role is `NOLOGIN NOBYPASSRLS`; a clean database exposes 18 tenant-isolation policies. A non-superuser, non-owner login with only runtime-role membership resolves its tenant and sees only that tenant, while direct table access and a cross-tenant insert are rejected.
+- [x] Queue claim, extension, acknowledgement, release, outbox publication and wait paths are tenant scoped. Tenant-specific notification channels prevent another tenant's enqueue from waking a waiter.
+- [x] Same-name flows coexist in separate tenants; flow and execution reads do not cross tenants; inaccessible and nonexistent tenant probes return identical bodies; tenant slugs do not appear as metric labels.
+- [x] Migrations 0006–0009 applied to the existing database. A fresh temporary database applied migrations 0001–0009, recorded nine checksums, created the non-bypass runtime, restricted resolver and tenant-administration roles, installed 18 RLS policies and replaced the shared notification function.
+- [x] Full suite: `pytest --cov=amesh --cov-branch --cov-report=term-missing` — 82 passed, 4 environment-gated tests skipped, 79.65% branch coverage.
+- [x] Ruff format/lint, strict mypy, uv lock, generated OpenAPI/planning, backlog, clean-room, compile, source/wheel build, Compose configuration and Helm 4 lint/render gates pass. The build reports only the pre-existing setuptools license-metadata deprecation warnings.
+
+Adversarial pass: missing tenant context, malformed/unknown/suspended tenant context, an active but unauthorized tenant, cross-tenant RLS reads and writes, cross-tenant queue claims and notifications, plugin denial, disabled execution policy, exhausted tenant concurrency and every unauthorized tenant-administration route fail closed.
+
+Not covered: search projections, cloud object-store adapters and their lifecycle controls, external identity-provider protocols, database backup/restore qualification and an independent pre-GA penetration test. Those remain assigned to EPIC-604/605, EPIC-502 and the HA/DR/release epics. Shared `URS-NFR-SECURITY-001` therefore remains In Progress.
+
+Verdict: PASS — EPIC-503 requirements URS-F-0518 through URS-F-0525 and its implemented contribution to shared URS-NFR-SECURITY-001 are verified.
+
 ## EPIC-501: Service accounts, API tokens and credentials — 2026-08-21
 
 Spec source: Agent Hotel card `c3` and canonical `backlog/epics.json` EPIC-501 DoD.

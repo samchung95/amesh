@@ -2,8 +2,8 @@
 
 ## Current state
 
-- What works: the tagged `v0.2.0-mvp` baseline passes its 47-test suite; PostgreSQL durability, local/Kubernetes execution, REST/CLI, OpenRouter Luna, Helm and observability remain the verified foundation.
-- What's in flight: EPIC-501 is complete and closed on board card `c3`; dependency-ready EPIC-503 is next for the requested multi-tenancy area.
+- What works: the tagged `v0.2.0-mvp` foundation plus EPIC-002, EPIC-500, EPIC-501 and EPIC-503 are implemented; PostgreSQL RLS now enforces explicit tenant execution and transport boundaries, with tenant lifecycle/policy APIs and tenant-aware workers.
+- What's in flight: EPIC-503 has passed all gates and is ready for card closure/commit; the next requested dependency-ready epic will be selected immediately afterward.
 - Known broken / TODO: the five requested post-MVP product areas remain open. The uninterrupted 86,400-second qualification remains under EPIC-611 and still gates production-readiness claims.
 - How to run/test: use `uv run --extra runtime --extra dev pytest`; set `AMESH_TEST_DATABASE_URL` for PostgreSQL integration tests and `OPENROUTER_API_KEY` for live LLM tests.
 
@@ -47,3 +47,16 @@
 - Did: completed EPIC-501 with PostgreSQL-authoritative service/workload credentials; one-time 256-bit opaque token disclosure; keyed digests; scope/audience/expiry/last-use metadata; independent quotas; bounded rotation overlap; current/previous pepper rollout; immediate token, derived-child and principal-epoch revocation; worker/plugin exchange; production durable bearer authentication; failure/success auditing without plaintext; migration 0005; Helm Secret wiring; ADR-019; API contract and runbook updates; and evidence links for URS-F-0502 through URS-F-0509.
 - Verification: 76 tests passed with real PostgreSQL at 79.14% branch coverage; a clean database applied migrations 0001–0005; Ruff, strict mypy, lock, generated OpenAPI/planning, backlog, clean-room, compile, Compose and Helm gates passed. Shared `URS-NFR-SECURITY-002` and `URS-NFR-SECURITY-006` are `In Progress` because their other owning epics remain open.
 - Next step when resuming: close board card `c3`, commit EPIC-501, and select the next dependency-ready requested epic.
+
+### 2026-08-21 (post-MVP roadmap session 1, EPIC-503 start)
+
+- Did: closed EPIC-501 as `df29a1a`; selected dependency-ready EPIC-503 on card `c4`; compared application filters, shared-schema PostgreSQL RLS and database-per-tenant approaches; accepted ADR-020 for explicit request context plus transaction-local `amesh_runtime` RLS enforcement.
+- Deviations from plan: no tenancy dependency was added. The required lifecycle, policy and repository contracts are AMESH-specific, while PostgreSQL already provides the database isolation primitive.
+- Next step when resuming: implement tenant domain contracts, migration 0006, the tenant administration repository/API and tenant-scoped runtime transactions.
+
+### 2026-08-21 (post-MVP roadmap session 1, EPIC-503 completion)
+
+- Did: completed EPIC-503 with explicit multi-tenant request context; tenant lifecycle, policy, export and administration APIs; PostgreSQL forced RLS through non-bypass runtime/administration roles and restricted resolver functions; tenant-scoped execution and durable transport; tenant-specific queue notifications; execution/plugin/feature quotas; worker-group routing; immutable storage prefixes; separately audited super-administration; Helm settings; ADR-020; migrations 0006–0009; and the multi-tenancy runbook. Linked URS-F-0518 through URS-F-0525 to automated evidence.
+- Verification: 82 tests passed with real PostgreSQL at 79.65% branch coverage; a clean database applied migrations 0001–0009 and exposed 18 tenant-isolation policies; a non-superuser/non-owner tenant-repository login test passed; Ruff, strict mypy, lock, generated contract/planning, backlog, clean-room, compile, build, Compose and Helm gates passed.
+- Deviations from plan: shared URS-NFR-SECURITY-001 remains In Progress because EPIC-604/605 and the independent pre-GA penetration test remain open. No tenancy dependency was added; PostgreSQL RLS and typed AMESH contracts provide the required boundary.
+- Next step when resuming: close and commit card `c4`, then select the next dependency-ready epic from the remaining requested frontend, compatibility, login, orchestration-control and HA/DR areas.

@@ -10,6 +10,7 @@ from sqlalchemy.engine import RowMapping
 from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine
 
 from amesh.domain import (
+    SYSTEM_TENANT_ID,
     AuthorizationPolicySnapshot,
     AuthorizationScopeType,
     NamespaceAuthorizationBoundary,
@@ -725,7 +726,7 @@ async def _write_audit(
         _INSERT_AUDIT,
         {
             "event_id": new_runtime_id(),
-            "tenant_id": tenant_id,
+            "tenant_id": tenant_id or SYSTEM_TENANT_ID,
             "actor_id": actor_id,
             "action": action,
             "resource_type": resource_type,

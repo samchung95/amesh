@@ -65,7 +65,7 @@ class DurableTransport(Protocol):
         available_at: datetime | None = None,
     ) -> int: ...
 
-    async def publish_outbox(self, *, limit: int) -> int: ...
+    async def publish_outbox(self, *, tenant_id: str, limit: int) -> int: ...
 
     async def record_consumed(
         self,
@@ -78,11 +78,18 @@ class DurableTransport(Protocol):
         lane: str,
         consumer_id: str,
         *,
+        tenant_id: str,
         limit: int,
         lease_duration: timedelta,
     ) -> list[WorkClaim]: ...
 
-    async def wait_for_work(self, lane: str, *, timeout_seconds: float) -> bool: ...
+    async def wait_for_work(
+        self,
+        lane: str,
+        *,
+        tenant_id: str,
+        timeout_seconds: float,
+    ) -> bool: ...
 
     async def extend(
         self,
@@ -90,6 +97,8 @@ class DurableTransport(Protocol):
         consumer_id: str,
         fencing_token: int,
         lease_duration: timedelta,
+        *,
+        tenant_id: str,
     ) -> datetime: ...
 
     async def acknowledge(
@@ -97,6 +106,8 @@ class DurableTransport(Protocol):
         queue_id: int,
         consumer_id: str,
         fencing_token: int,
+        *,
+        tenant_id: str,
     ) -> None: ...
 
     async def release(
@@ -105,6 +116,7 @@ class DurableTransport(Protocol):
         consumer_id: str,
         fencing_token: int,
         *,
+        tenant_id: str,
         retry_at: datetime,
         reason: str,
     ) -> None: ...

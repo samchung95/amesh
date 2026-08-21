@@ -31,7 +31,7 @@ spec:
             - name: DATABASE_URL
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.database.existingSecret | quote }}
-                  key: {{ .Values.database.key | quote }}
+                  name: {{ default .Values.database.existingSecret .Values.database.migrationExistingSecret | quote }}
+                  key: {{ .Values.database.migrationKey | quote }}
             - name: LOG_LEVEL
               value: {{ .Values.logLevel | quote }}

@@ -98,7 +98,7 @@ class ExecutionRepository(Protocol):
         actor_id: str = "system:executor",
     ) -> PersistedExecution: ...
 
-    async def get_execution(self, execution_id: UUID) -> PersistedExecution: ...
+    async def get_execution(self, execution_id: UUID, *, tenant_id: str) -> PersistedExecution: ...
 
     async def list_executions(
         self,
@@ -107,15 +107,22 @@ class ExecutionRepository(Protocol):
         limit: int = 100,
     ) -> list[PersistedExecution]: ...
 
-    async def list_task_runs(self, execution_id: UUID) -> list[PersistedTaskRun]: ...
+    async def list_task_runs(
+        self,
+        execution_id: UUID,
+        *,
+        tenant_id: str,
+    ) -> list[PersistedTaskRun]: ...
 
-    async def start_task(self, task_run_id: UUID) -> PersistedTaskRun: ...
+    async def start_task(self, task_run_id: UUID, *, tenant_id: str) -> PersistedTaskRun: ...
 
     async def complete_task(
         self,
         task_run_id: UUID,
         attempt: int,
         result: dict[str, Any],
+        *,
+        tenant_id: str,
     ) -> PersistedTaskRun: ...
 
     async def retry_task(
@@ -123,6 +130,7 @@ class ExecutionRepository(Protocol):
         task_run_id: UUID,
         attempt: int,
         *,
+        tenant_id: str,
         retry_at: datetime,
         reason: str,
     ) -> PersistedTaskRun: ...
@@ -132,12 +140,15 @@ class ExecutionRepository(Protocol):
         task_run_id: UUID,
         attempt: int,
         reason: str,
+        *,
+        tenant_id: str,
     ) -> PersistedTaskRun: ...
 
     async def complete_execution(
         self,
         execution_id: UUID,
         *,
+        tenant_id: str,
         expected_epoch: int,
     ) -> PersistedExecution: ...
 
@@ -146,5 +157,6 @@ class ExecutionRepository(Protocol):
         execution_id: UUID,
         reason: str,
         *,
+        tenant_id: str,
         expected_epoch: int,
     ) -> PersistedExecution: ...

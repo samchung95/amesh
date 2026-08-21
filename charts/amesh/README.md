@@ -1,6 +1,17 @@
 # AMESH MVP Helm quickstart
 
-This chart installs the accepted single-tenant MVP as three roles: a pre-install/pre-upgrade migration Job, one API server Deployment and one delayed recovery-worker Deployment. PostgreSQL is external to the chart. Credentials are read from existing Kubernetes Secrets; the chart does not create production defaults.
+This chart installs AMESH as three roles: a pre-install/pre-upgrade migration Job, one API server
+Deployment and one recovery-worker Deployment. PostgreSQL is external to the chart. Credentials are
+read from existing Kubernetes Secrets; the chart does not create production defaults. The default is
+single-tenant compatibility mode. Set `tenancy.mode=multi` and select `worker.group` to enable explicit
+tenant requests and tenant-aware worker routing; see the
+[multi-tenancy runbook](../../docs/operations/multi-tenancy.md).
+
+`database.migrationExistingSecret` can hold a table-owner/migration login separately from the
+application login in `database.existingSecret`. Restricted tenant-repository logins need the roles
+documented in the multi-tenancy runbook; the combined server still needs its existing authorization
+and credential-store grants. Leaving the migration Secret empty uses the application Secret for
+development compatibility. Full per-component least-privilege qualification remains EPIC-612 work.
 
 ## Requirements
 

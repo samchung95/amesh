@@ -14156,7 +14156,7 @@
       "id": "URS-F-0518",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M5",
       "wave": 5,
       "epic_id": "EPIC-503",
@@ -14178,13 +14178,20 @@
       "dependencies": [
         "EPIC-002",
         "EPIC-500"
+      ],
+      "evidence": [
+        "migrations/0006_multi_tenancy.sql",
+        "migrations/0008_restricted_tenant_resolution.sql",
+        "migrations/0009_tenant_administration_role.sql",
+        "tests/api/test_tenant_api.py::test_multi_tenant_api_lifecycle_and_resource_isolation",
+        "tests/adapters/postgres/test_durable_transport.py::test_queue_claims_and_notifications_are_tenant_isolated"
       ]
     },
     {
       "id": "URS-F-0519",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M5",
       "wave": 5,
       "epic_id": "EPIC-503",
@@ -14206,13 +14213,17 @@
       "dependencies": [
         "EPIC-002",
         "EPIC-500"
+      ],
+      "evidence": [
+        "src/amesh/app.py::require_tenant_context",
+        "tests/api/test_tenant_api.py::test_multi_tenant_api_lifecycle_and_resource_isolation"
       ]
     },
     {
       "id": "URS-F-0520",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M5",
       "wave": 5,
       "epic_id": "EPIC-503",
@@ -14234,13 +14245,17 @@
       "dependencies": [
         "EPIC-002",
         "EPIC-500"
+      ],
+      "evidence": [
+        "src/amesh/tenancy.py",
+        "tests/api/test_tenant_api.py::test_multi_tenant_api_lifecycle_and_resource_isolation"
       ]
     },
     {
       "id": "URS-F-0521",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M5",
       "wave": 5,
       "epic_id": "EPIC-503",
@@ -14262,13 +14277,18 @@
       "dependencies": [
         "EPIC-002",
         "EPIC-500"
+      ],
+      "evidence": [
+        "src/amesh/domain/tenancy.py::TenantPolicy",
+        "tests/adapters/postgres/test_tenant_repository.py::test_tenant_plugin_feature_and_concurrency_policy_are_enforced",
+        "tests/api/test_tenant_api.py::test_multi_tenant_api_lifecycle_and_resource_isolation"
       ]
     },
     {
       "id": "URS-F-0522",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M5",
       "wave": 5,
       "epic_id": "EPIC-503",
@@ -14290,13 +14310,18 @@
       "dependencies": [
         "EPIC-002",
         "EPIC-500"
+      ],
+      "evidence": [
+        "migrations/0007_tenant_queue_notifications.sql",
+        "tests/api/test_tenant_api.py::test_multi_tenant_api_lifecycle_and_resource_isolation",
+        "tests/adapters/postgres/test_durable_transport.py::test_queue_claims_and_notifications_are_tenant_isolated"
       ]
     },
     {
       "id": "URS-F-0523",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M5",
       "wave": 5,
       "epic_id": "EPIC-503",
@@ -14318,13 +14343,18 @@
       "dependencies": [
         "EPIC-002",
         "EPIC-500"
+      ],
+      "evidence": [
+        "src/amesh/worker.py",
+        "src/amesh/domain/tenancy.py::tenant_storage_key",
+        "tests/adapters/postgres/test_tenant_repository.py::test_tenant_lifecycle_policy_export_workers_and_rls_isolation"
       ]
     },
     {
       "id": "URS-F-0524",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M5",
       "wave": 5,
       "epic_id": "EPIC-503",
@@ -14346,13 +14376,18 @@
       "dependencies": [
         "EPIC-002",
         "EPIC-500"
+      ],
+      "evidence": [
+        "src/amesh/adapters/postgres/tenant_repository.py",
+        "tests/api/test_authorization_api.py::test_every_protected_rest_surface_enforces_tenant_and_permission_policy",
+        "tests/api/test_tenant_api.py::test_multi_tenant_api_lifecycle_and_resource_isolation"
       ]
     },
     {
       "id": "URS-F-0525",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M5",
       "wave": 5,
       "epic_id": "EPIC-503",
@@ -14374,6 +14409,11 @@
       "dependencies": [
         "EPIC-002",
         "EPIC-500"
+      ],
+      "evidence": [
+        "tests/adapters/postgres/test_tenant_repository.py::test_tenant_lifecycle_policy_export_workers_and_rls_isolation",
+        "tests/adapters/postgres/test_durable_transport.py::test_queue_claims_and_notifications_are_tenant_isolated",
+        "tests/api/test_tenant_api.py::test_multi_tenant_api_lifecycle_and_resource_isolation"
       ]
     },
     {
@@ -23759,7 +23799,16 @@
         "EPIC-605"
       ],
       "priority": "Must",
-      "status": "Proposed"
+      "status": "In Progress",
+      "evidence": [
+        "migrations/0006_multi_tenancy.sql",
+        "migrations/0007_tenant_queue_notifications.sql",
+        "migrations/0008_restricted_tenant_resolution.sql",
+        "migrations/0009_tenant_administration_role.sql",
+        "tests/adapters/postgres/test_tenant_repository.py::test_tenant_lifecycle_policy_export_workers_and_rls_isolation",
+        "tests/adapters/postgres/test_durable_transport.py::test_queue_claims_and_notifications_are_tenant_isolated",
+        "tests/api/test_tenant_api.py::test_multi_tenant_api_lifecycle_and_resource_isolation"
+      ]
     },
     {
       "id": "URS-NFR-SECURITY-002",

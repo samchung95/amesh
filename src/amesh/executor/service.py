@@ -71,7 +71,7 @@ class InProcessExecutor:
         self,
         flow: FlowDefinition,
         *,
-        tenant_id: str = "default",
+        tenant_id: str,
         inputs: dict[str, Any] | None = None,
     ) -> UUID:
         if flow.disabled:
@@ -88,13 +88,14 @@ class InProcessExecutor:
         flow: FlowDefinition,
         execution_id: UUID,
         *,
+        tenant_id: str,
         max_tasks: int | None = None,
     ) -> ExecutionProgress:
         if max_tasks is not None and max_tasks < 1:
             raise ValueError("max_tasks must be at least 1")
 
-        execution = await self._repository.get_execution(execution_id)
-        task_runs = await self._repository.list_task_runs(execution_id)
+        execution = await self._repository.get_execution(execution_id, tenant_id=tenant_id)
+        task_runs = await self._repository.list_task_runs(execution_id, tenant_id=tenant_id)
         if execution.state is not ExecutionState.RUNNING:
             return ExecutionProgress(
                 execution_id=execution_id,
@@ -145,16 +146,23 @@ class InProcessExecutor:
             )
         )
 
-        updated_task_runs = await self._repository.list_task_runs(execution_id)
+        updated_task_runs = await self._repository.list_task_runs(
+            execution_id,
+            tenant_id=tenant_id,
+        )
         if updated_task_runs and all(
             task_run.state is TaskRunState.SUCCESS for task_run in updated_task_runs
         ):
             execution = await self._repository.complete_execution(
                 execution_id,
                 expected_epoch=execution.epoch,
+                tenant_id=tenant_id,
             )
         else:
-            execution = await self._repository.get_execution(execution_id)
+            execution = await self._repository.get_execution(
+                execution_id,
+                tenant_id=tenant_id,
+            )
         return ExecutionProgress(
             execution_id=execution_id,
             state=execution.state,
@@ -166,9 +174,15 @@ class InProcessExecutor:
         self,
         flow: FlowDefinition,
         execution_id: UUID,
+        *,
+        tenant_id: str,
     ) -> ExecutionProgress:
         while True:
-            progress = await self.run_ready(flow, execution_id)
+            progress = await self.run_ready(
+                flow,
+                execution_id,
+                tenant_id=tenant_id,
+            )
             if progress.state is ExecutionState.SUCCESS:
                 return progress
             if progress.state is not ExecutionState.RUNNING:
@@ -212,7 +226,10 @@ class InProcessExecutor:
         running = (
             task_run
             if task_run.state is TaskRunState.RUNNING
-            else await self._repository.start_task(task_run.task_run_id)
+            else await self._repository.start_task(
+                task_run.task_run_id,
+                tenant_id=tenant_id,
+            )
         )
         handler = self._handlers.get(task.type)
         if handler is None:
@@ -221,11 +238,13 @@ class InProcessExecutor:
                 running.task_run_id,
                 running.current_attempt,
                 reason,
+                tenant_id=tenant_id,
             )
             await self._repository.fail_execution(
                 execution_id,
                 reason,
                 expected_epoch=execution_epoch,
+                tenant_id=tenant_id,
             )
             raise TaskExecutionError(reason)
         context = TaskExecutionContext(
@@ -264,23 +283,27 @@ class InProcessExecutor:
                     running.current_attempt,
                     retry_at=retry_at,
                     reason=reason,
+                    tenant_id=tenant_id,
                 )
                 return
             await self._repository.fail_task(
                 running.task_run_id,
                 running.current_attempt,
                 reason,
+                tenant_id=tenant_id,
             )
             await self._repository.fail_execution(
                 execution_id,
                 reason,
                 expected_epoch=execution_epoch,
+                tenant_id=tenant_id,
             )
             raise TaskExecutionError(reason) from exc
         await self._repository.complete_task(
             running.task_run_id,
             running.current_attempt,
             result,
+            tenant_id=tenant_id,
         )
 
 
@@ -320,6 +343,7 @@ async def _run_core_log(
     LOGGER.info(
         message,
         extra={
+            "tenant_id": context.tenant_id,
             "execution_id": str(context.execution_id),
             "task_run_id": str(context.task_run_id),
             "task_id": task.id,

@@ -38,6 +38,8 @@ spec:
               value: {{ .Values.worker.pollSeconds | quote }}
             - name: WORKER_RECOVERY_GRACE_SECONDS
               value: {{ .Values.worker.recoveryGraceSeconds | quote }}
+            - name: WORKER_GROUP
+              value: {{ .Values.worker.group | quote }}
           resources:
             {{- toYaml .Values.worker.resources | nindent 12 }}
       nodeSelector:

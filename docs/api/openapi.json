@@ -141,6 +141,29 @@
         "title": "CreateExecutionRequest",
         "type": "object"
       },
+      "CreateTenantRequest": {
+        "properties": {
+          "displayName": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Displayname",
+            "type": "string"
+          },
+          "policy": {
+            "$ref": "#/components/schemas/TenantPolicy"
+          },
+          "slug": {
+            "title": "Slug",
+            "type": "string"
+          }
+        },
+        "required": [
+          "slug",
+          "displayName"
+        ],
+        "title": "CreateTenantRequest",
+        "type": "object"
+      },
       "CredentialKind": {
         "enum": [
           "API_TOKEN",
@@ -1281,6 +1304,181 @@
         "title": "TaskRunState",
         "type": "string"
       },
+      "TenantDefinition": {
+        "properties": {
+          "display_name": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Display Name",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/ResourceMetadata"
+          },
+          "policy": {
+            "$ref": "#/components/schemas/TenantPolicy"
+          },
+          "slug": {
+            "maxLength": 63,
+            "minLength": 1,
+            "pattern": "^[a-z0-9][a-z0-9-]*$",
+            "title": "Slug",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/TenantStatus",
+            "default": "ACTIVE"
+          },
+          "storage_prefix": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Storage Prefix"
+          }
+        },
+        "required": [
+          "slug",
+          "display_name"
+        ],
+        "title": "TenantDefinition",
+        "type": "object"
+      },
+      "TenantExport": {
+        "properties": {
+          "export_id": {
+            "format": "uuid",
+            "title": "Export Id",
+            "type": "string"
+          },
+          "exported_at": {
+            "format": "date-time",
+            "title": "Exported At",
+            "type": "string"
+          },
+          "exported_by": {
+            "minLength": 1,
+            "title": "Exported By",
+            "type": "string"
+          },
+          "resource_counts": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Resource Counts",
+            "type": "object"
+          },
+          "tenant": {
+            "$ref": "#/components/schemas/TenantDefinition"
+          }
+        },
+        "required": [
+          "tenant",
+          "resource_counts",
+          "exported_by"
+        ],
+        "title": "TenantExport",
+        "type": "object"
+      },
+      "TenantPolicy": {
+        "properties": {
+          "encryption_key_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Encryption Key Ref"
+          },
+          "feature_flags": {
+            "patternProperties": {
+              "^[A-Za-z0-9][A-Za-z0-9_-]*$": {
+                "type": "boolean"
+              }
+            },
+            "propertyNames": {
+              "maxLength": 128,
+              "minLength": 1
+            },
+            "title": "Feature Flags",
+            "type": "object"
+          },
+          "identity_provider_refs": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Identity Provider Refs",
+            "type": "array"
+          },
+          "max_concurrent_executions": {
+            "default": 100,
+            "maximum": 1000000.0,
+            "minimum": 1.0,
+            "title": "Max Concurrent Executions",
+            "type": "integer"
+          },
+          "max_storage_bytes": {
+            "default": 10737418240,
+            "minimum": 1.0,
+            "title": "Max Storage Bytes",
+            "type": "integer"
+          },
+          "plugin_allowlist": {
+            "default": [
+              "*"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "title": "Plugin Allowlist",
+            "type": "array"
+          },
+          "retention_days": {
+            "default": 30,
+            "maximum": 36500.0,
+            "minimum": 1.0,
+            "title": "Retention Days",
+            "type": "integer"
+          },
+          "worker_groups": {
+            "default": [
+              "default"
+            ],
+            "items": {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+              "type": "string"
+            },
+            "title": "Worker Groups",
+            "type": "array"
+          }
+        },
+        "title": "TenantPolicy",
+        "type": "object"
+      },
+      "TenantStatus": {
+        "enum": [
+          "ACTIVE",
+          "SUSPENDED",
+          "TOMBSTONED"
+        ],
+        "title": "TenantStatus",
+        "type": "string"
+      },
       "ValidationError": {
         "properties": {
           "ctx": {
@@ -2220,6 +2418,116 @@
         ]
       }
     },
+    "/api/v1/admin/tenants": {
+      "get": {
+        "operationId": "list_tenants_api_v1_admin_tenants_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/TenantDefinition"
+                  },
+                  "title": "Response List Tenants Api V1 Admin Tenants Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Tenants",
+        "tags": [
+          "tenants"
+        ]
+      },
+      "post": {
+        "operationId": "create_tenant_api_v1_admin_tenants_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTenantRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantDefinition"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Tenant",
+        "tags": [
+          "tenants"
+        ]
+      }
+    },
     "/api/v1/admin/tenants/{tenant_id}/namespaces/{namespace}/authorization-boundary": {
       "put": {
         "operationId": "set_namespace_authorization_boundary_api_v1_admin_tenants__tenant_id__namespaces__namespace__authorization_boundary_put",
@@ -2284,6 +2592,362 @@
         "summary": "Set Namespace Authorization Boundary",
         "tags": [
           "authorization"
+        ]
+      }
+    },
+    "/api/v1/admin/tenants/{tenant_slug}": {
+      "delete": {
+        "operationId": "delete_tenant_api_v1_admin_tenants__tenant_slug__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tenant_slug",
+            "required": true,
+            "schema": {
+              "title": "Tenant Slug",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantDefinition"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Delete Tenant",
+        "tags": [
+          "tenants"
+        ]
+      },
+      "get": {
+        "operationId": "get_tenant_api_v1_admin_tenants__tenant_slug__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tenant_slug",
+            "required": true,
+            "schema": {
+              "title": "Tenant Slug",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantDefinition"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Tenant",
+        "tags": [
+          "tenants"
+        ]
+      }
+    },
+    "/api/v1/admin/tenants/{tenant_slug}/exports": {
+      "post": {
+        "operationId": "export_tenant_api_v1_admin_tenants__tenant_slug__exports_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tenant_slug",
+            "required": true,
+            "schema": {
+              "title": "Tenant Slug",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantExport"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Export Tenant",
+        "tags": [
+          "tenants"
+        ]
+      }
+    },
+    "/api/v1/admin/tenants/{tenant_slug}/policy": {
+      "put": {
+        "operationId": "update_tenant_policy_api_v1_admin_tenants__tenant_slug__policy_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tenant_slug",
+            "required": true,
+            "schema": {
+              "title": "Tenant Slug",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TenantPolicy"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantDefinition"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Update Tenant Policy",
+        "tags": [
+          "tenants"
+        ]
+      }
+    },
+    "/api/v1/admin/tenants/{tenant_slug}/restore": {
+      "post": {
+        "operationId": "restore_tenant_api_v1_admin_tenants__tenant_slug__restore_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tenant_slug",
+            "required": true,
+            "schema": {
+              "title": "Tenant Slug",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantDefinition"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Restore Tenant",
+        "tags": [
+          "tenants"
+        ]
+      }
+    },
+    "/api/v1/admin/tenants/{tenant_slug}/suspend": {
+      "post": {
+        "operationId": "suspend_tenant_api_v1_admin_tenants__tenant_slug__suspend_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tenant_slug",
+            "required": true,
+            "schema": {
+              "title": "Tenant Slug",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantDefinition"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Suspend Tenant",
+        "tags": [
+          "tenants"
         ]
       }
     },
@@ -2421,16 +3085,6 @@
           },
           {
             "in": "header",
-            "name": "X-Amesh-Tenant",
-            "required": false,
-            "schema": {
-              "default": "default",
-              "title": "X-Amesh-Tenant",
-              "type": "string"
-            }
-          },
-          {
-            "in": "header",
             "name": "authorization",
             "required": false,
             "schema": {
@@ -2443,6 +3097,22 @@
                 }
               ],
               "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
             }
           }
         ],
@@ -2482,16 +3152,6 @@
         "parameters": [
           {
             "in": "header",
-            "name": "X-Amesh-Tenant",
-            "required": false,
-            "schema": {
-              "default": "default",
-              "title": "X-Amesh-Tenant",
-              "type": "string"
-            }
-          },
-          {
-            "in": "header",
             "name": "authorization",
             "required": false,
             "schema": {
@@ -2504,6 +3164,22 @@
                 }
               ],
               "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
             }
           }
         ],
@@ -2551,16 +3227,6 @@
         "parameters": [
           {
             "in": "header",
-            "name": "X-Amesh-Tenant",
-            "required": false,
-            "schema": {
-              "default": "default",
-              "title": "X-Amesh-Tenant",
-              "type": "string"
-            }
-          },
-          {
-            "in": "header",
             "name": "authorization",
             "required": false,
             "schema": {
@@ -2573,6 +3239,22 @@
                 }
               ],
               "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
             }
           }
         ],
@@ -2630,16 +3312,6 @@
           },
           {
             "in": "header",
-            "name": "X-Amesh-Tenant",
-            "required": false,
-            "schema": {
-              "default": "default",
-              "title": "X-Amesh-Tenant",
-              "type": "string"
-            }
-          },
-          {
-            "in": "header",
             "name": "authorization",
             "required": false,
             "schema": {
@@ -2652,6 +3324,22 @@
                 }
               ],
               "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
             }
           }
         ],
@@ -2699,16 +3387,6 @@
           },
           {
             "in": "header",
-            "name": "X-Amesh-Tenant",
-            "required": false,
-            "schema": {
-              "default": "default",
-              "title": "X-Amesh-Tenant",
-              "type": "string"
-            }
-          },
-          {
-            "in": "header",
             "name": "authorization",
             "required": false,
             "schema": {
@@ -2721,6 +3399,22 @@
                 }
               ],
               "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
             }
           }
         ],
@@ -2762,16 +3456,6 @@
         "parameters": [
           {
             "in": "header",
-            "name": "X-Amesh-Tenant",
-            "required": false,
-            "schema": {
-              "default": "default",
-              "title": "X-Amesh-Tenant",
-              "type": "string"
-            }
-          },
-          {
-            "in": "header",
             "name": "authorization",
             "required": false,
             "schema": {
@@ -2784,6 +3468,22 @@
                 }
               ],
               "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
             }
           }
         ],
@@ -2839,16 +3539,6 @@
           },
           {
             "in": "header",
-            "name": "X-Amesh-Tenant",
-            "required": false,
-            "schema": {
-              "default": "default",
-              "title": "X-Amesh-Tenant",
-              "type": "string"
-            }
-          },
-          {
-            "in": "header",
             "name": "authorization",
             "required": false,
             "schema": {
@@ -2861,6 +3551,22 @@
                 }
               ],
               "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
             }
           }
         ],
@@ -2955,16 +3661,6 @@
           },
           {
             "in": "header",
-            "name": "X-Amesh-Tenant",
-            "required": false,
-            "schema": {
-              "default": "default",
-              "title": "X-Amesh-Tenant",
-              "type": "string"
-            }
-          },
-          {
-            "in": "header",
             "name": "authorization",
             "required": false,
             "schema": {
@@ -2977,6 +3673,22 @@
                 }
               ],
               "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
             }
           }
         ],

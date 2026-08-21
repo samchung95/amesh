@@ -10,6 +10,7 @@ from sqlalchemy.engine import RowMapping
 from sqlalchemy.ext.asyncio import AsyncEngine
 from sqlalchemy.sql.elements import TextClause
 
+from amesh.adapters.postgres.tenant_context import tenant_transaction
 from amesh.ports.durable_transport import (
     DurableEnvelope,
     DurableTransport,
@@ -86,6 +87,7 @@ _PUBLISH_OUTBOX = text(
             available_at
         FROM messages_outbox
         WHERE published_at IS NULL
+          AND tenant_id = :tenant_id
           AND available_at <= now()
         ORDER BY available_at, sequence
         FOR UPDATE SKIP LOCKED
@@ -149,6 +151,7 @@ _CLAIM = text(
         SELECT id
         FROM durable_work_queue
         WHERE lane = :lane
+          AND tenant_id = :tenant_id
           AND delivery_attempt < max_attempts
           AND (
               (state = 'READY' AND available_at <= now())
@@ -184,6 +187,7 @@ _EXTEND = text(
     SET lease_expires_at = now() + make_interval(secs => :lease_seconds),
         updated_at = now()
     WHERE id = :queue_id
+      AND tenant_id = :tenant_id
       AND state = 'CLAIMED'
       AND claimed_by = :consumer_id
       AND fencing_token = :fencing_token
@@ -201,6 +205,7 @@ _ACKNOWLEDGE = text(
         completed_at = now(),
         updated_at = now()
     WHERE id = :queue_id
+      AND tenant_id = :tenant_id
       AND state = 'CLAIMED'
       AND claimed_by = :consumer_id
       AND fencing_token = :fencing_token
@@ -219,6 +224,7 @@ _RELEASE = text(
         last_error = :reason,
         updated_at = now()
     WHERE id = :queue_id
+      AND tenant_id = :tenant_id
       AND state = 'CLAIMED'
       AND claimed_by = :consumer_id
       AND fencing_token = :fencing_token
@@ -253,7 +259,10 @@ class PostgresDurableTransport(DurableTransport):
             "available_at": available_at,
             "tenant_slug": envelope.tenant_id,
         }
-        async with self._engine.begin() as connection:
+        async with tenant_transaction(self._engine, envelope.tenant_id) as (
+            connection,
+            _tenant_uuid,
+        ):
             result = await connection.execute(_ENQUEUE, parameters)
             queue_id = result.scalar_one_or_none()
         if queue_id is None:
@@ -267,7 +276,10 @@ class PostgresDurableTransport(DurableTransport):
         *,
         available_at: datetime | None = None,
     ) -> int:
-        async with self._engine.begin() as connection:
+        async with tenant_transaction(self._engine, envelope.tenant_id) as (
+            connection,
+            _tenant_uuid,
+        ):
             result = await connection.execute(
                 _ENQUEUE_OUTBOX,
                 {
@@ -284,11 +296,17 @@ class PostgresDurableTransport(DurableTransport):
             raise LookupError(f"tenant {envelope.tenant_id!r} does not exist")
         return int(sequence)
 
-    async def publish_outbox(self, *, limit: int) -> int:
+    async def publish_outbox(self, *, tenant_id: str, limit: int) -> int:
         if limit < 1:
             raise ValueError("outbox publish limit must be at least 1")
-        async with self._engine.begin() as connection:
-            result = await connection.execute(_PUBLISH_OUTBOX, {"limit": limit})
+        async with tenant_transaction(self._engine, tenant_id) as (
+            connection,
+            tenant_uuid,
+        ):
+            result = await connection.execute(
+                _PUBLISH_OUTBOX,
+                {"tenant_id": tenant_uuid, "limit": limit},
+            )
             published = result.scalars().all()
         return len(published)
 
@@ -297,7 +315,10 @@ class PostgresDurableTransport(DurableTransport):
         consumer_name: str,
         envelope: DurableEnvelope,
     ) -> bool:
-        async with self._engine.begin() as connection:
+        async with tenant_transaction(self._engine, envelope.tenant_id) as (
+            connection,
+            _tenant_uuid,
+        ):
             result = await connection.execute(
                 _RECORD_CONSUMED,
                 {
@@ -316,6 +337,7 @@ class PostgresDurableTransport(DurableTransport):
         lane: str,
         consumer_id: str,
         *,
+        tenant_id: str,
         limit: int,
         lease_duration: timedelta,
     ) -> list[WorkClaim]:
@@ -323,11 +345,15 @@ class PostgresDurableTransport(DurableTransport):
         if limit < 1:
             raise ValueError("claim limit must be at least 1")
 
-        async with self._engine.begin() as connection:
+        async with tenant_transaction(self._engine, tenant_id) as (
+            connection,
+            tenant_uuid,
+        ):
             result = await connection.execute(
                 _CLAIM,
                 {
                     "lane": lane,
+                    "tenant_id": tenant_uuid,
                     "consumer_id": consumer_id,
                     "limit": limit,
                     "lease_seconds": lease_seconds,
@@ -336,7 +362,13 @@ class PostgresDurableTransport(DurableTransport):
             rows = result.mappings().all()
         return [_to_work_claim(row) for row in rows]
 
-    async def wait_for_work(self, lane: str, *, timeout_seconds: float) -> bool:
+    async def wait_for_work(
+        self,
+        lane: str,
+        *,
+        tenant_id: str,
+        timeout_seconds: float,
+    ) -> bool:
         if not lane:
             raise ValueError("work lane must not be empty")
         if timeout_seconds <= 0:
@@ -348,6 +380,20 @@ class PostgresDurableTransport(DurableTransport):
                 1,
             )
         )
+        tenant_uuid = await connection.fetchval(
+            """
+            SELECT id
+            FROM tenants
+            WHERE slug = $1
+              AND status = 'ACTIVE'
+              AND lifecycle = 'ACTIVE'
+            """,
+            tenant_id,
+        )
+        if tenant_uuid is None:
+            await connection.close()
+            raise LookupError("tenant is unavailable")
+        channel = f"amesh_work_{str(tenant_uuid).replace('-', '')}"
         wake = asyncio.Event()
 
         def listener(
@@ -360,7 +406,7 @@ class PostgresDurableTransport(DurableTransport):
             if payload == lane:
                 wake.set()
 
-        await connection.add_listener("amesh_work", listener)
+        await connection.add_listener(channel, listener)
         try:
             ready = await connection.fetchval(
                 """
@@ -368,11 +414,13 @@ class PostgresDurableTransport(DurableTransport):
                     SELECT 1
                     FROM durable_work_queue
                     WHERE lane = $1
+                      AND tenant_id = $2
                       AND state = 'READY'
                       AND available_at <= now()
                 )
                 """,
                 lane,
+                tenant_uuid,
             )
             if ready:
                 return True
@@ -382,7 +430,7 @@ class PostgresDurableTransport(DurableTransport):
                 return False
             return True
         finally:
-            await connection.remove_listener("amesh_work", listener)
+            await connection.remove_listener(channel, listener)
             await connection.close()
 
     async def extend(
@@ -391,13 +439,19 @@ class PostgresDurableTransport(DurableTransport):
         consumer_id: str,
         fencing_token: int,
         lease_duration: timedelta,
+        *,
+        tenant_id: str,
     ) -> datetime:
         lease_seconds = _positive_lease_seconds(lease_duration)
-        async with self._engine.begin() as connection:
+        async with tenant_transaction(self._engine, tenant_id) as (
+            connection,
+            tenant_uuid,
+        ):
             result = await connection.execute(
                 _EXTEND,
                 {
                     "queue_id": queue_id,
+                    "tenant_id": tenant_uuid,
                     "consumer_id": consumer_id,
                     "fencing_token": fencing_token,
                     "lease_seconds": lease_seconds,
@@ -415,12 +469,15 @@ class PostgresDurableTransport(DurableTransport):
         queue_id: int,
         consumer_id: str,
         fencing_token: int,
+        *,
+        tenant_id: str,
     ) -> None:
         await self._mutate_claim(
             _ACKNOWLEDGE,
             queue_id=queue_id,
             consumer_id=consumer_id,
             fencing_token=fencing_token,
+            tenant_id=tenant_id,
         )
 
     async def release(
@@ -429,6 +486,7 @@ class PostgresDurableTransport(DurableTransport):
         consumer_id: str,
         fencing_token: int,
         *,
+        tenant_id: str,
         retry_at: datetime,
         reason: str,
     ) -> None:
@@ -437,6 +495,7 @@ class PostgresDurableTransport(DurableTransport):
             queue_id=queue_id,
             consumer_id=consumer_id,
             fencing_token=fencing_token,
+            tenant_id=tenant_id,
             retry_at=retry_at,
             reason=reason,
         )
@@ -448,6 +507,7 @@ class PostgresDurableTransport(DurableTransport):
         queue_id: int,
         consumer_id: str,
         fencing_token: int,
+        tenant_id: str,
         **parameters: object,
     ) -> None:
         values = {
@@ -456,7 +516,11 @@ class PostgresDurableTransport(DurableTransport):
             "fencing_token": fencing_token,
             **parameters,
         }
-        async with self._engine.begin() as connection:
+        async with tenant_transaction(self._engine, tenant_id) as (
+            connection,
+            tenant_uuid,
+        ):
+            values["tenant_id"] = tenant_uuid
             result = await connection.execute(statement, values)
             mutated_id = result.scalar_one_or_none()
         if mutated_id is None:

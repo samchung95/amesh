@@ -64,6 +64,10 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 - name: KUBERNETES_TASK_NAMESPACE
   value: {{ include "amesh.taskNamespace" . | quote }}
+- name: TENANCY_MODE
+  value: {{ .Values.tenancy.mode | quote }}
+- name: SINGLE_TENANT_SLUG
+  value: {{ .Values.tenancy.singleTenantSlug | quote }}
 - name: LOG_LEVEL
   value: {{ .Values.logLevel | quote }}
 - name: OPENROUTER_MODEL

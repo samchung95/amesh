@@ -10,7 +10,9 @@ from uuid import UUID
 
 from fastapi import Depends, FastAPI, Header, HTTPException, Request, Response, status
 from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
+from pydantic import TypeAdapter, ValidationError
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
+from starlette.responses import JSONResponse
 
 from amesh import __version__
 from amesh.adapters.kubernetes import KubernetesJobRunner
@@ -19,10 +21,12 @@ from amesh.adapters.postgres import (
     PostgresAuthorizationRepository,
     PostgresCredentialRepository,
     PostgresExecutionRepository,
+    PostgresTenantRepository,
 )
 from amesh.api.models import (
     AuthorizationExplanationRequest,
     CreateExecutionRequest,
+    CreateTenantRequest,
     ExchangeCredentialRequest,
     ExecutionDetail,
     HealthResponse,
@@ -52,6 +56,10 @@ from amesh.domain import (
     ResourceVersionConflict,
     RoleBinding,
     RoleDefinition,
+    TenantDefinition,
+    TenantExport,
+    TenantPolicy,
+    TenantSlug,
     reduce_execution,
 )
 from amesh.dsl import (
@@ -71,8 +79,11 @@ from amesh.ports import (
     LastAdministratorError,
     PersistedExecution,
     PersistedFlow,
+    TenantQuotaExceeded,
+    TenantUnavailableError,
 )
 from amesh.tasks import agent_llm_handler, agent_mcp_handler, core_http_handler
+from amesh.tenancy import TenantService
 
 LOGGER = logging.getLogger("amesh.api")
 
@@ -84,6 +95,18 @@ app = FastAPI(
         "execution control, webhook triggers and execution logs."
     ),
 )
+
+
+@app.exception_handler(TenantUnavailableError)
+async def tenant_unavailable_handler(
+    request: Request,
+    exc: TenantUnavailableError,
+) -> JSONResponse:
+    del request, exc
+    return JSONResponse(
+        status_code=status.HTTP_404_NOT_FOUND,
+        content={"detail": "tenant unavailable"},
+    )
 
 
 @app.middleware("http")
@@ -164,6 +187,20 @@ def get_credential_service() -> CredentialService:
 CredentialServiceDependency = Annotated[CredentialService, Depends(get_credential_service)]
 
 
+@lru_cache
+def get_tenant_repository() -> PostgresTenantRepository:
+    return PostgresTenantRepository(database_engine())
+
+
+@lru_cache
+def get_tenant_service() -> TenantService:
+    return TenantService(get_tenant_repository())
+
+
+TenantServiceDependency = Annotated[TenantService, Depends(get_tenant_service)]
+_TENANT_SLUG_ADAPTER = TypeAdapter(TenantSlug)
+
+
 _BOOTSTRAP_PRINCIPAL_ID = UUID("00000000-0000-7000-8000-000000000001")
 
 
@@ -172,6 +209,12 @@ async def authenticate_actor(
     credential_service: CredentialServiceDependency,
     authorization: Annotated[str | None, Header()] = None,
 ) -> ActorContext:
+    if authorization is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="valid bearer token required",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
     expected = f"Bearer {settings.amesh_admin_token.get_secret_value()}"
     if (
         settings.app_env == "development"
@@ -210,6 +253,29 @@ async def authenticate_actor(
 ActorDependency = Annotated[ActorContext, Depends(authenticate_actor)]
 
 
+async def require_tenant_context(
+    settings: SettingsDependency,
+    tenant_header: Annotated[str | None, Header(alias="X-Amesh-Tenant")] = None,
+) -> str:
+    if tenant_header is None:
+        if settings.tenancy_mode != "single":
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="X-Amesh-Tenant header required",
+            )
+        tenant_header = settings.single_tenant_slug
+    try:
+        return _TENANT_SLUG_ADAPTER.validate_python(tenant_header)
+    except ValidationError:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="tenant unavailable",
+        ) from None
+
+
+TenantDependency = Annotated[str, Depends(require_tenant_context)]
+
+
 async def authorize_request(
     service: AuthorizationService,
     actor: ActorContext,
@@ -230,6 +296,11 @@ async def authorize_request(
             )
         )
     except AuthorizationDenied as exc:
+        if tenant_id is not None and not exc.decision.matched_role_names:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="tenant unavailable",
+            ) from exc
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="not authorized",
@@ -283,8 +354,8 @@ async def apply_flow(
     repository: RepositoryDependency,
     actor: ActorDependency,
     authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
     if_match: Annotated[str | None, Header(alias="If-Match")] = None,
-    tenant_id: Annotated[str, Header(alias="X-Amesh-Tenant")] = "default",
 ) -> PersistedFlow:
     try:
         result = validate_flow_document(await request.body())
@@ -334,7 +405,7 @@ async def list_flows(
     repository: RepositoryDependency,
     actor: ActorDependency,
     authorization_service: AuthorizationServiceDependency,
-    tenant_id: Annotated[str, Header(alias="X-Amesh-Tenant")] = "default",
+    tenant_id: TenantDependency,
 ) -> list[PersistedFlow]:
     await authorize_request(
         authorization_service,
@@ -357,7 +428,7 @@ async def create_execution(
     settings: SettingsDependency,
     actor: ActorDependency,
     authorization_service: AuthorizationServiceDependency,
-    tenant_id: Annotated[str, Header(alias="X-Amesh-Tenant")] = "default",
+    tenant_id: TenantDependency,
 ) -> ExecutionDetail:
     await authorize_request(
         authorization_service,
@@ -394,8 +465,8 @@ async def list_executions(
     repository: RepositoryDependency,
     actor: ActorDependency,
     authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
     limit: int = 100,
-    tenant_id: Annotated[str, Header(alias="X-Amesh-Tenant")] = "default",
 ) -> list[PersistedExecution]:
     await authorize_request(
         authorization_service,
@@ -422,7 +493,7 @@ async def get_execution(
     repository: RepositoryDependency,
     actor: ActorDependency,
     authorization_service: AuthorizationServiceDependency,
-    tenant_id: Annotated[str, Header(alias="X-Amesh-Tenant")] = "default",
+    tenant_id: TenantDependency,
 ) -> ExecutionDetail:
     await authorize_request(
         authorization_service,
@@ -432,12 +503,10 @@ async def get_execution(
         tenant_id=tenant_id,
     )
     try:
-        execution = await repository.get_execution(execution_id)
-        if execution.tenant_id != tenant_id:
-            raise LookupError(f"execution {execution_id} does not exist")
+        execution = await repository.get_execution(execution_id, tenant_id=tenant_id)
     except LookupError as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
-    task_runs = await repository.list_task_runs(execution_id)
+    task_runs = await repository.list_task_runs(execution_id, tenant_id=tenant_id)
     return ExecutionDetail(execution=execution, taskRuns=task_runs)
 
 
@@ -451,7 +520,7 @@ async def get_execution_logs(
     repository: RepositoryDependency,
     actor: ActorDependency,
     authorization_service: AuthorizationServiceDependency,
-    tenant_id: Annotated[str, Header(alias="X-Amesh-Tenant")] = "default",
+    tenant_id: TenantDependency,
 ) -> list[TaskLog]:
     await authorize_request(
         authorization_service,
@@ -461,10 +530,8 @@ async def get_execution_logs(
         tenant_id=tenant_id,
     )
     try:
-        execution = await repository.get_execution(execution_id)
-        if execution.tenant_id != tenant_id:
-            raise LookupError(f"execution {execution_id} does not exist")
-        task_runs = await repository.list_task_runs(execution_id)
+        await repository.get_execution(execution_id, tenant_id=tenant_id)
+        task_runs = await repository.list_task_runs(execution_id, tenant_id=tenant_id)
     except LookupError as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
     return [
@@ -492,8 +559,8 @@ async def trigger_webhook(
     settings: SettingsDependency,
     actor: ActorDependency,
     authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
     runner: RunnerMode = RunnerMode.LOCAL,
-    tenant_id: Annotated[str, Header(alias="X-Amesh-Tenant")] = "default",
 ) -> ExecutionDetail:
     await authorize_request(
         authorization_service,
@@ -581,21 +648,198 @@ async def _execute_flow(
         },
     )
     try:
-        execution = await repository.create_execution(
+        try:
+            execution = await repository.create_execution(
+                flow,
+                tenant_id=tenant_id,
+                inputs=request.inputs,
+                idempotency_key=request.idempotency_key,
+                actor_id=actor_id,
+            )
+        except (TenantQuotaExceeded, ValueError) as exc:
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
+        await executor.run_to_completion(
             flow,
+            execution.execution_id,
             tenant_id=tenant_id,
-            inputs=request.inputs,
-            idempotency_key=request.idempotency_key,
-            actor_id=actor_id,
         )
-        await executor.run_to_completion(flow, execution.execution_id)
         return ExecutionDetail(
-            execution=await repository.get_execution(execution.execution_id),
-            taskRuns=await repository.list_task_runs(execution.execution_id),
+            execution=await repository.get_execution(
+                execution.execution_id,
+                tenant_id=tenant_id,
+            ),
+            taskRuns=await repository.list_task_runs(
+                execution.execution_id,
+                tenant_id=tenant_id,
+            ),
         )
     finally:
         if kubernetes_runner is not None:
             await kubernetes_runner.close()
+
+
+async def _authorize_tenant_administration(
+    service: AuthorizationService,
+    actor: ActorContext,
+) -> None:
+    await authorize_request(
+        service,
+        actor,
+        resource_type="tenant",
+        action=PermissionAction.MANAGE,
+    )
+
+
+@app.post(
+    "/api/v1/admin/tenants",
+    response_model=TenantDefinition,
+    status_code=status.HTTP_201_CREATED,
+    tags=["tenants"],
+)
+async def create_tenant(
+    request: CreateTenantRequest,
+    tenants: TenantServiceDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+) -> TenantDefinition:
+    await _authorize_tenant_administration(authorization_service, actor)
+    try:
+        return await tenants.create(
+            slug=request.slug,
+            display_name=request.display_name,
+            policy=request.policy,
+            actor_id=str(actor.principal_id),
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
+
+
+@app.get(
+    "/api/v1/admin/tenants",
+    response_model=list[TenantDefinition],
+    tags=["tenants"],
+)
+async def list_tenants(
+    tenants: TenantServiceDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+) -> list[TenantDefinition]:
+    await _authorize_tenant_administration(authorization_service, actor)
+    return await tenants.list()
+
+
+@app.get(
+    "/api/v1/admin/tenants/{tenant_slug}",
+    response_model=TenantDefinition,
+    tags=["tenants"],
+)
+async def get_tenant(
+    tenant_slug: str,
+    tenants: TenantServiceDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+) -> TenantDefinition:
+    await _authorize_tenant_administration(authorization_service, actor)
+    try:
+        return await tenants.get(tenant_slug)
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+
+
+@app.put(
+    "/api/v1/admin/tenants/{tenant_slug}/policy",
+    response_model=TenantDefinition,
+    tags=["tenants"],
+)
+async def update_tenant_policy(
+    tenant_slug: str,
+    policy: TenantPolicy,
+    tenants: TenantServiceDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+) -> TenantDefinition:
+    await _authorize_tenant_administration(authorization_service, actor)
+    try:
+        return await tenants.update_policy(
+            tenant_slug,
+            policy,
+            actor_id=str(actor.principal_id),
+        )
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+
+
+@app.post(
+    "/api/v1/admin/tenants/{tenant_slug}/suspend",
+    response_model=TenantDefinition,
+    tags=["tenants"],
+)
+async def suspend_tenant(
+    tenant_slug: str,
+    tenants: TenantServiceDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+) -> TenantDefinition:
+    await _authorize_tenant_administration(authorization_service, actor)
+    try:
+        return await tenants.suspend(tenant_slug, actor_id=str(actor.principal_id))
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+
+
+@app.delete(
+    "/api/v1/admin/tenants/{tenant_slug}",
+    response_model=TenantDefinition,
+    tags=["tenants"],
+)
+async def delete_tenant(
+    tenant_slug: str,
+    tenants: TenantServiceDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+) -> TenantDefinition:
+    await _authorize_tenant_administration(authorization_service, actor)
+    try:
+        return await tenants.delete(tenant_slug, actor_id=str(actor.principal_id))
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+
+
+@app.post(
+    "/api/v1/admin/tenants/{tenant_slug}/restore",
+    response_model=TenantDefinition,
+    tags=["tenants"],
+)
+async def restore_tenant(
+    tenant_slug: str,
+    tenants: TenantServiceDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+) -> TenantDefinition:
+    await _authorize_tenant_administration(authorization_service, actor)
+    try:
+        return await tenants.restore(tenant_slug, actor_id=str(actor.principal_id))
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+
+
+@app.post(
+    "/api/v1/admin/tenants/{tenant_slug}/exports",
+    response_model=TenantExport,
+    status_code=status.HTTP_201_CREATED,
+    tags=["tenants"],
+)
+async def export_tenant(
+    tenant_slug: str,
+    tenants: TenantServiceDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+) -> TenantExport:
+    await _authorize_tenant_administration(authorization_service, actor)
+    try:
+        return await tenants.export(tenant_slug, actor_id=str(actor.principal_id))
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
 
 
 @app.post(
@@ -1086,7 +1330,8 @@ async def reduce_execution_events(
     request: ReduceExecutionRequest,
     actor: ActorDependency,
     authorization_service: AuthorizationServiceDependency,
-    tenant_id: Annotated[str, Header(alias="X-Amesh-Tenant")] = "default",
+    tenant_id: TenantDependency,
+    tenants: TenantServiceDependency,
 ) -> ReduceExecutionResponse:
     await authorize_request(
         authorization_service,
@@ -1095,6 +1340,13 @@ async def reduce_execution_events(
         action=PermissionAction.MANAGE,
         tenant_id=tenant_id,
     )
+    try:
+        await tenants.require_active(tenant_id)
+    except TenantUnavailableError:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="tenant unavailable",
+        ) from None
     if request.snapshot.tenant_id != tenant_id:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

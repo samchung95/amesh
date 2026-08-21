@@ -15,6 +15,7 @@ from amesh.domain import (
     NamespaceId,
     PermissionAction,
     PrincipalType,
+    TenantPolicy,
     TenantSlug,
 )
 from amesh.ports import PersistedExecution, PersistedTaskRun
@@ -105,3 +106,11 @@ class ExchangeCredentialRequest(BaseModel):
 
 class RevokedCredentialsResponse(BaseModel):
     revoked_count: int = Field(alias="revokedCount", ge=0)
+
+
+class CreateTenantRequest(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    slug: str
+    display_name: str = Field(alias="displayName", min_length=1, max_length=255)
+    policy: TenantPolicy = Field(default_factory=TenantPolicy)

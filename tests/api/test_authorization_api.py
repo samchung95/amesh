@@ -13,6 +13,7 @@ from sqlalchemy.ext.asyncio import create_async_engine
 from amesh.adapters.postgres import (
     PostgresAuthorizationRepository,
     PostgresExecutionRepository,
+    PostgresTenantRepository,
 )
 from amesh.app import (
     app,
@@ -20,6 +21,7 @@ from amesh.app import (
     get_authorization_repository,
     get_authorization_service,
     get_repository,
+    get_tenant_service,
 )
 from amesh.authorization import AuthorizationService
 from amesh.config import Settings, get_settings
@@ -32,7 +34,9 @@ from amesh.domain import (
     PrincipalDefinition,
     PrincipalType,
     RoleBinding,
+    TenantDefinition,
 )
+from amesh.tenancy import TenantService
 
 TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
 
@@ -49,7 +53,10 @@ def test_every_protected_rest_surface_enforces_tenant_and_permission_policy() ->
         engine = create_async_engine(TEST_DATABASE_URL)
         policy_repository = PostgresAuthorizationRepository(engine)
         execution_repository = PostgresExecutionRepository(engine)
+        tenant_repository = PostgresTenantRepository(engine)
+        tenant_service = TenantService(tenant_repository)
         suffix = uuid4().hex[:12]
+        cross_tenant_slug = f"authorization-cross-{suffix}"
         audit_actor = f"test:api-authorization:{suffix}"
         principal = PrincipalDefinition(
             principal_type=PrincipalType.USER,
@@ -70,11 +77,19 @@ def test_every_protected_rest_surface_enforces_tenant_and_permission_policy() ->
         )
         await policy_repository.create_principal(principal, actor_id=audit_actor)
         await policy_repository.create_binding(binding, actor_id=audit_actor)
+        cross_tenant_definition = await tenant_repository.create(
+            TenantDefinition(
+                slug=cross_tenant_slug,
+                display_name="Authorization cross-tenant probe",
+            ),
+            actor_id=audit_actor,
+        )
         service = AuthorizationService(policy_repository)
         app.dependency_overrides[authenticate_actor] = lambda: actor
         app.dependency_overrides[get_authorization_repository] = lambda: policy_repository
         app.dependency_overrides[get_authorization_service] = lambda: service
         app.dependency_overrides[get_repository] = lambda: execution_repository
+        app.dependency_overrides[get_tenant_service] = lambda: tenant_service
         missing_id = uuid4()
         snapshot = ExecutionSnapshot(
             execution_id=missing_id,
@@ -100,12 +115,18 @@ def test_every_protected_rest_surface_enforces_tenant_and_permission_policy() ->
                 assert validation.status_code == 200
 
                 assert (await client.get("/api/v1/flows")).status_code == 200
-                cross_tenant = await client.get(
+                cross_tenant_response = await client.get(
                     "/api/v1/flows",
-                    headers={"X-Amesh-Tenant": "tenant-b"},
+                    headers={"X-Amesh-Tenant": cross_tenant_slug},
                 )
-                assert cross_tenant.status_code == 403
-                assert cross_tenant.json() == {"detail": "not authorized"}
+                assert cross_tenant_response.status_code == 404
+                assert cross_tenant_response.json() == {"detail": "tenant unavailable"}
+                missing_tenant = await client.get(
+                    "/api/v1/flows",
+                    headers={"X-Amesh-Tenant": f"missing-{suffix}"},
+                )
+                assert missing_tenant.status_code == 404
+                assert missing_tenant.json() == cross_tenant_response.json()
 
                 denied_requests = [
                     client.put(
@@ -134,6 +155,20 @@ def test_every_protected_rest_surface_enforces_tenant_and_permission_policy() ->
                         },
                     ),
                     client.get("/api/v1/admin/principals"),
+                    client.get("/api/v1/admin/tenants"),
+                    client.get("/api/v1/admin/tenants/default"),
+                    client.post(
+                        "/api/v1/admin/tenants",
+                        json={"slug": "denied-tenant", "displayName": "Denied tenant"},
+                    ),
+                    client.put(
+                        "/api/v1/admin/tenants/default/policy",
+                        json={},
+                    ),
+                    client.post("/api/v1/admin/tenants/default/suspend"),
+                    client.delete("/api/v1/admin/tenants/default"),
+                    client.post("/api/v1/admin/tenants/default/restore"),
+                    client.post("/api/v1/admin/tenants/default/exports"),
                     client.get(f"/api/v1/admin/principals/{uuid4()}/credentials"),
                     client.post(
                         "/api/v1/admin/principals",
@@ -222,6 +257,10 @@ def test_every_protected_rest_surface_enforces_tenant_and_permission_policy() ->
                 await connection.execute(
                     text("DELETE FROM audit_events WHERE actor_id = :actor_id"),
                     {"actor_id": audit_actor},
+                )
+                await connection.execute(
+                    text("DELETE FROM tenants WHERE id = :tenant_id"),
+                    {"tenant_id": cross_tenant_definition.id},
                 )
             await engine.dispose()
 

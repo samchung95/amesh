@@ -516,14 +516,14 @@ URS-F-0514,Functional,Must,EPIC-502,"SSO, OIDC, SAML, LDAP and SCIM",M5,5,"Autho
 URS-F-0515,Functional,Must,EPIC-502,"SSO, OIDC, SAML, LDAP and SCIM",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
 URS-F-0516,Functional,Must,EPIC-502,"SSO, OIDC, SAML, LDAP and SCIM",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
 URS-F-0517,Functional,Must,EPIC-502,"SSO, OIDC, SAML, LDAP and SCIM",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
-URS-F-0518,Functional,Must,EPIC-503,Multi-tenancy and resource isolation,M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
-URS-F-0519,Functional,Must,EPIC-503,Multi-tenancy and resource isolation,M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
-URS-F-0520,Functional,Must,EPIC-503,Multi-tenancy and resource isolation,M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
-URS-F-0521,Functional,Must,EPIC-503,Multi-tenancy and resource isolation,M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
-URS-F-0522,Functional,Must,EPIC-503,Multi-tenancy and resource isolation,M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
-URS-F-0523,Functional,Must,EPIC-503,Multi-tenancy and resource isolation,M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
-URS-F-0524,Functional,Must,EPIC-503,Multi-tenancy and resource isolation,M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
-URS-F-0525,Functional,Must,EPIC-503,Multi-tenancy and resource isolation,M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0518,Functional,Must,EPIC-503,Multi-tenancy and resource isolation,M5,5,"Authorization, audit and administrative end-to-end tests",Verified
+URS-F-0519,Functional,Must,EPIC-503,Multi-tenancy and resource isolation,M5,5,"Authorization, audit and administrative end-to-end tests",Verified
+URS-F-0520,Functional,Must,EPIC-503,Multi-tenancy and resource isolation,M5,5,"Authorization, audit and administrative end-to-end tests",Verified
+URS-F-0521,Functional,Must,EPIC-503,Multi-tenancy and resource isolation,M5,5,"Authorization, audit and administrative end-to-end tests",Verified
+URS-F-0522,Functional,Must,EPIC-503,Multi-tenancy and resource isolation,M5,5,"Authorization, audit and administrative end-to-end tests",Verified
+URS-F-0523,Functional,Must,EPIC-503,Multi-tenancy and resource isolation,M5,5,"Authorization, audit and administrative end-to-end tests",Verified
+URS-F-0524,Functional,Must,EPIC-503,Multi-tenancy and resource isolation,M5,5,"Authorization, audit and administrative end-to-end tests",Verified
+URS-F-0525,Functional,Must,EPIC-503,Multi-tenancy and resource isolation,M5,5,"Authorization, audit and administrative end-to-end tests",Verified
 URS-F-0526,Functional,Must,EPIC-504,Immutable audit log and evidence export,M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
 URS-F-0527,Functional,Must,EPIC-504,Immutable audit log and evidence export,M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
 URS-F-0528,Functional,Must,EPIC-504,Immutable audit log and evidence export,M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
@@ -946,9 +946,9 @@ URS-NFR-RELIABILITY-007,Non-functional,Must,EPIC-601,Distributed services and hi
 URS-NFR-RELIABILITY-008,Non-functional,Must,EPIC-102,Scheduler and temporal correctness,M1,1,Virtual-clock and multi-node skew tests.,Proposed
 URS-NFR-RELIABILITY-008,Non-functional,Must,EPIC-104,"Retries, timeout, pause, cancellation, kill and restart",M1,1,Virtual-clock and multi-node skew tests.,Proposed
 URS-NFR-RELIABILITY-008,Non-functional,Must,EPIC-601,Distributed services and high availability,M6,6,Virtual-clock and multi-node skew tests.,Proposed
-URS-NFR-SECURITY-001,Non-functional,Must,EPIC-503,Multi-tenancy and resource isolation,M5,5,"Automated negative tests, database checks and independent penetration testing.",Proposed
-URS-NFR-SECURITY-001,Non-functional,Must,EPIC-604,Search and analytics projection backend,M6,6,"Automated negative tests, database checks and independent penetration testing.",Proposed
-URS-NFR-SECURITY-001,Non-functional,Must,EPIC-605,Object storage backends and lifecycle,M6,6,"Automated negative tests, database checks and independent penetration testing.",Proposed
+URS-NFR-SECURITY-001,Non-functional,Must,EPIC-503,Multi-tenancy and resource isolation,M5,5,"Automated negative tests, database checks and independent penetration testing.",In Progress
+URS-NFR-SECURITY-001,Non-functional,Must,EPIC-604,Search and analytics projection backend,M6,6,"Automated negative tests, database checks and independent penetration testing.",In Progress
+URS-NFR-SECURITY-001,Non-functional,Must,EPIC-605,Object storage backends and lifecycle,M6,6,"Automated negative tests, database checks and independent penetration testing.",In Progress
 URS-NFR-SECURITY-002,Non-functional,Must,EPIC-303,Isolated language-neutral plugin runtime,M3,3,Threat-model review and deployment policy tests.,In Progress
 URS-NFR-SECURITY-002,Non-functional,Must,EPIC-501,"Service accounts, API tokens and credentials",M5,5,Threat-model review and deployment policy tests.,In Progress
 URS-NFR-SECURITY-002,Non-functional,Must,EPIC-612,Security hardening and software supply chain,M6,6,Threat-model review and deployment policy tests.,In Progress

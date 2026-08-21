@@ -11,7 +11,12 @@ worker:
   replicas: 1
   pollSeconds: 5
   recoveryGraceSeconds: 120
+  group: default
   resources: {}
+
+tenancy:
+  mode: single
+  singleTenantSlug: default
 
 service:
   type: ClusterIP
@@ -28,6 +33,8 @@ serviceAccount:
 database:
   existingSecret: amesh-database
   key: database-url
+  migrationExistingSecret: ""
+  migrationKey: database-url
 
 adminToken:
   existingSecret: amesh-admin

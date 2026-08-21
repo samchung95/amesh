@@ -78,9 +78,13 @@ def test_local_process_task_retries_then_succeeds(tmp_path: Path) -> None:
             repository,
             handlers={"core.shell": local_process_handler(LocalProcessRunner())},
         )
-        execution_id = await executor.create_execution(flow)
+        execution_id = await executor.create_execution(flow, tenant_id="default")
         try:
-            completed = await executor.run_to_completion(flow, execution_id)
+            completed = await executor.run_to_completion(
+                flow,
+                execution_id,
+                tenant_id="default",
+            )
             assert completed.state is ExecutionState.SUCCESS
             assert completed.task_runs[0].current_attempt == 2
             assert completed.task_runs[0].result is not None
@@ -107,22 +111,35 @@ def test_retry_fences_late_result_from_superseded_attempt() -> None:
             await repository.create_execution(flow, tenant_id="default", inputs={})
         ).execution_id
         try:
-            task_run = (await repository.list_task_runs(execution_id))[0]
-            first = await repository.start_task(task_run.task_run_id)
+            task_run = (await repository.list_task_runs(execution_id, tenant_id="default"))[0]
+            first = await repository.start_task(task_run.task_run_id, tenant_id="default")
             await repository.retry_task(
                 first.task_run_id,
                 first.current_attempt,
                 retry_at=datetime.now(UTC),
                 reason="worker disappeared",
+                tenant_id="default",
             )
-            second = await repository.start_task(task_run.task_run_id)
+            second = await repository.start_task(task_run.task_run_id, tenant_id="default")
             assert second.current_attempt == 2
             with pytest.raises(TaskStateConflictError):
                 await repository.complete_task(
-                    first.task_run_id, first.current_attempt, {"late": True}
+                    first.task_run_id,
+                    first.current_attempt,
+                    {"late": True},
+                    tenant_id="default",
                 )
-            await repository.complete_task(second.task_run_id, second.current_attempt, {"ok": True})
-            completed = await repository.complete_execution(execution_id, expected_epoch=1)
+            await repository.complete_task(
+                second.task_run_id,
+                second.current_attempt,
+                {"ok": True},
+                tenant_id="default",
+            )
+            completed = await repository.complete_execution(
+                execution_id,
+                tenant_id="default",
+                expected_epoch=1,
+            )
             assert completed.state is ExecutionState.SUCCESS
         finally:
             await cleanup_execution(engine, execution_id)

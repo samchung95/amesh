@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from functools import lru_cache
+from typing import Literal
 
 from pydantic import Field, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -30,6 +31,9 @@ class Settings(BaseSettings):
     amesh_admin_token: SecretStr = SecretStr("development-token")
     amesh_token_pepper: SecretStr = SecretStr("development-token-pepper")
     amesh_previous_token_pepper: SecretStr | None = None
+    tenancy_mode: Literal["single", "multi"] = "single"
+    single_tenant_slug: str = "default"
+    worker_group: str = "default"
     kubernetes_context: str | None = None
     kubernetes_task_namespace: str = "amesh-tasks"
     worker_poll_seconds: float = Field(default=5.0, gt=0)

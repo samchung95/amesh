@@ -9,9 +9,10 @@ import pytest
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 
-from amesh.adapters.postgres import PostgresExecutionRepository
-from amesh.app import app, get_repository
+from amesh.adapters.postgres import PostgresExecutionRepository, PostgresTenantRepository
+from amesh.app import app, get_repository, get_tenant_service
 from amesh.config import Settings, get_settings
+from amesh.tenancy import TenantService
 
 TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
 
@@ -50,11 +51,13 @@ def test_authenticated_flow_execution_and_webhook_api() -> None:
             raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
         engine = create_async_engine(TEST_DATABASE_URL)
         repository = PostgresExecutionRepository(engine)
+        tenant_service = TenantService(PostgresTenantRepository(engine))
         settings = Settings(
             database_url=TEST_DATABASE_URL,
             amesh_admin_token="test-token",
         )
         app.dependency_overrides[get_repository] = lambda: repository
+        app.dependency_overrides[get_tenant_service] = lambda: tenant_service
         app.dependency_overrides[get_settings] = lambda: settings
         namespace = f"tests.api.{uuid4().hex}"
         flow_id = "api_flow"

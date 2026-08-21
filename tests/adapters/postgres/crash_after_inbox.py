@@ -16,6 +16,7 @@ async def claim_record_and_exit(database_url: str, lane: str) -> int:
     claims = await transport.claim(
         lane,
         "crashing-worker",
+        tenant_id="default",
         limit=1,
         lease_duration=timedelta(milliseconds=100),
     )

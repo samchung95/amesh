@@ -14,6 +14,7 @@ from amesh.domain import (
     ExecutionState,
     ResourceMetadata,
     ResourceVersionConflict,
+    TenantPolicy,
     new_runtime_id,
     resource_etag,
 )
@@ -27,6 +28,9 @@ from amesh.ports.execution_repository import (
     TaskRunState,
     TaskStateConflictError,
 )
+from amesh.ports.tenant_repository import TenantQuotaExceeded, TenantUnavailableError
+
+from .tenant_context import tenant_transaction
 
 _UPSERT_NAMESPACE = text(
     """
@@ -233,6 +237,7 @@ _GET_EXECUTION = text(
     FROM executions
     JOIN tenants ON tenants.id = executions.tenant_id
     WHERE executions.id = :execution_id
+      AND tenants.slug = :tenant_slug
     """
 )
 
@@ -344,10 +349,12 @@ _LIST_TASK_RUNS = text(
         task_runs.retry_at,
         task_attempts.result
     FROM task_runs
+    JOIN tenants ON tenants.id = task_runs.tenant_id
     LEFT JOIN task_attempts
       ON task_attempts.task_run_id = task_runs.id
      AND task_attempts.attempt = task_runs.current_attempt
     WHERE task_runs.execution_id = :execution_id
+      AND tenants.slug = :tenant_slug
     ORDER BY task_runs.created_at, task_runs.task_path
     """
 )
@@ -362,6 +369,7 @@ _START_TASK = text(
             retry_at = NULL,
             updated_at = now()
         WHERE id = :task_run_id
+          AND tenant_id = :tenant_id
           AND (
               state = 'WAITING'
               OR (state = 'RETRY_DELAY' AND retry_at <= now())
@@ -418,6 +426,7 @@ _FINISH_TASK = text(
             result = CAST(:result AS jsonb),
             finished_at = now()
         WHERE task_run_id = :task_run_id
+          AND tenant_id = :tenant_id
           AND attempt = :attempt
           AND state = 'RUNNING'
         RETURNING task_run_id, result
@@ -429,6 +438,7 @@ _FINISH_TASK = text(
             updated_at = now()
         FROM finished_attempt
         WHERE task_runs.id = finished_attempt.task_run_id
+          AND task_runs.tenant_id = :tenant_id
           AND task_runs.current_attempt = :attempt
           AND task_runs.state = 'RUNNING'
         RETURNING
@@ -453,6 +463,7 @@ _RETRY_TASK = text(
             result = CAST(:result AS jsonb),
             finished_at = now()
         WHERE task_run_id = :task_run_id
+          AND tenant_id = :tenant_id
           AND attempt = :attempt
           AND state = 'RUNNING'
         RETURNING task_run_id, result
@@ -464,6 +475,7 @@ _RETRY_TASK = text(
             updated_at = now()
         FROM failed_attempt
         WHERE task_runs.id = failed_attempt.task_run_id
+          AND task_runs.tenant_id = :tenant_id
           AND task_runs.current_attempt = :attempt
           AND task_runs.state = 'RUNNING'
         RETURNING
@@ -489,6 +501,7 @@ _FINISH_EXECUTION = text(
             updated_at = now(),
             terminal_at = now()
         WHERE id = :execution_id
+          AND tenant_id = :tenant_id
           AND state = 'RUNNING'
           AND epoch = :expected_epoch
         RETURNING
@@ -564,13 +577,17 @@ class PostgresExecutionRepository(ExecutionRepository):
         actor_id: str = "system:flow-manager",
     ) -> PersistedFlow:
         encoded, semantic_hash = _canonical_flow(flow)
-        async with self._engine.begin() as connection:
+        async with tenant_transaction(self._engine, tenant_id) as (connection, scoped_tenant_id):
+            policy = await _load_tenant_policy(connection)
+            _require_allowed_plugins(policy, flow)
             tenant_uuid, namespace_id = await self._ensure_namespace(
                 connection,
                 tenant_id,
                 flow.namespace,
                 actor_id,
             )
+            if tenant_uuid != scoped_tenant_id:
+                raise TenantUnavailableError("tenant context changed during flow application")
             flow_uuid = await self._ensure_flow(
                 connection,
                 tenant_uuid,
@@ -629,7 +646,7 @@ class PostgresExecutionRepository(ExecutionRepository):
         *,
         tenant_id: str,
     ) -> FlowDefinition:
-        async with self._engine.connect() as connection:
+        async with tenant_transaction(self._engine, tenant_id) as (connection, _tenant_uuid):
             result = await connection.execute(
                 _GET_FLOW_DEFINITION,
                 {
@@ -644,7 +661,7 @@ class PostgresExecutionRepository(ExecutionRepository):
         return FlowDefinition.model_validate(definition)
 
     async def list_flows(self, *, tenant_id: str) -> list[PersistedFlow]:
-        async with self._engine.connect() as connection:
+        async with tenant_transaction(self._engine, tenant_id) as (connection, _tenant_uuid):
             result = await connection.execute(
                 _LIST_FLOWS,
                 {"tenant_slug": tenant_id},
@@ -665,13 +682,27 @@ class PostgresExecutionRepository(ExecutionRepository):
         created_at = datetime.now(UTC)
         encoded, semantic_hash = _canonical_flow(flow)
 
-        async with self._engine.begin() as connection:
+        async with tenant_transaction(self._engine, tenant_id) as (connection, scoped_tenant_id):
+            policy = await _load_tenant_policy(connection)
+            _require_allowed_plugins(policy, flow)
+            if not policy.feature_enabled("executions"):
+                raise TenantQuotaExceeded("tenant execution feature is disabled")
+            running_count = int(
+                await connection.scalar(
+                    text("SELECT count(*) FROM executions WHERE state = 'RUNNING'")
+                )
+                or 0
+            )
+            if running_count >= policy.max_concurrent_executions:
+                raise TenantQuotaExceeded("tenant concurrent execution quota exceeded")
             tenant_uuid, namespace_id = await self._ensure_namespace(
                 connection,
                 tenant_id,
                 flow.namespace,
                 actor_id,
             )
+            if tenant_uuid != scoped_tenant_id:
+                raise TenantUnavailableError("tenant context changed during execution creation")
             flow_id = await self._ensure_flow(
                 connection,
                 tenant_uuid,
@@ -747,11 +778,14 @@ class PostgresExecutionRepository(ExecutionRepository):
                     ],
                 )
 
-        return await self.get_execution(execution_id)
+        return await self.get_execution(execution_id, tenant_id=tenant_id)
 
-    async def get_execution(self, execution_id: UUID) -> PersistedExecution:
-        async with self._engine.connect() as connection:
-            result = await connection.execute(_GET_EXECUTION, {"execution_id": execution_id})
+    async def get_execution(self, execution_id: UUID, *, tenant_id: str) -> PersistedExecution:
+        async with tenant_transaction(self._engine, tenant_id) as (connection, _tenant_uuid):
+            result = await connection.execute(
+                _GET_EXECUTION,
+                {"execution_id": execution_id, "tenant_slug": tenant_id},
+            )
             row = result.mappings().one_or_none()
         if row is None:
             raise LookupError(f"execution {execution_id} does not exist")
@@ -763,7 +797,7 @@ class PostgresExecutionRepository(ExecutionRepository):
         tenant_id: str,
         limit: int = 100,
     ) -> list[PersistedExecution]:
-        async with self._engine.connect() as connection:
+        async with tenant_transaction(self._engine, tenant_id) as (connection, _tenant_uuid):
             result = await connection.execute(
                 _LIST_EXECUTIONS,
                 {"tenant_slug": tenant_id, "limit": limit},
@@ -771,17 +805,29 @@ class PostgresExecutionRepository(ExecutionRepository):
             rows = result.mappings().all()
         return [_to_execution(row) for row in rows]
 
-    async def list_task_runs(self, execution_id: UUID) -> list[PersistedTaskRun]:
-        async with self._engine.connect() as connection:
-            result = await connection.execute(_LIST_TASK_RUNS, {"execution_id": execution_id})
+    async def list_task_runs(
+        self,
+        execution_id: UUID,
+        *,
+        tenant_id: str,
+    ) -> list[PersistedTaskRun]:
+        async with tenant_transaction(self._engine, tenant_id) as (connection, _tenant_uuid):
+            result = await connection.execute(
+                _LIST_TASK_RUNS,
+                {"execution_id": execution_id, "tenant_slug": tenant_id},
+            )
             rows = result.mappings().all()
         return [_to_task_run(row) for row in rows]
 
-    async def start_task(self, task_run_id: UUID) -> PersistedTaskRun:
-        async with self._engine.begin() as connection:
+    async def start_task(self, task_run_id: UUID, *, tenant_id: str) -> PersistedTaskRun:
+        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
             result = await connection.execute(
                 _START_TASK,
-                {"task_run_id": task_run_id, "attempt_id": new_runtime_id()},
+                {
+                    "task_run_id": task_run_id,
+                    "attempt_id": new_runtime_id(),
+                    "tenant_id": tenant_uuid,
+                },
             )
             row = result.mappings().one_or_none()
         if row is None:
@@ -793,22 +839,32 @@ class PostgresExecutionRepository(ExecutionRepository):
         task_run_id: UUID,
         attempt: int,
         result: dict[str, object],
+        *,
+        tenant_id: str,
     ) -> PersistedTaskRun:
-        return await self._finish_task(task_run_id, attempt, TaskRunState.SUCCESS, result)
+        return await self._finish_task(
+            task_run_id,
+            attempt,
+            TaskRunState.SUCCESS,
+            result,
+            tenant_id=tenant_id,
+        )
 
     async def retry_task(
         self,
         task_run_id: UUID,
         attempt: int,
         *,
+        tenant_id: str,
         retry_at: datetime,
         reason: str,
     ) -> PersistedTaskRun:
-        async with self._engine.begin() as connection:
+        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
             result = await connection.execute(
                 _RETRY_TASK,
                 {
                     "task_run_id": task_run_id,
+                    "tenant_id": tenant_uuid,
                     "attempt": attempt,
                     "retry_at": retry_at,
                     "result": json.dumps({"error": reason}),
@@ -824,18 +880,22 @@ class PostgresExecutionRepository(ExecutionRepository):
         task_run_id: UUID,
         attempt: int,
         reason: str,
+        *,
+        tenant_id: str,
     ) -> PersistedTaskRun:
         return await self._finish_task(
             task_run_id,
             attempt,
             TaskRunState.FAILED,
             {"error": reason},
+            tenant_id=tenant_id,
         )
 
     async def complete_execution(
         self,
         execution_id: UUID,
         *,
+        tenant_id: str,
         expected_epoch: int,
     ) -> PersistedExecution:
         return await self._finish_execution(
@@ -843,6 +903,7 @@ class PostgresExecutionRepository(ExecutionRepository):
             ExecutionState.SUCCESS,
             ExecutionEventType.SUCCEEDED,
             {},
+            tenant_id=tenant_id,
             expected_epoch=expected_epoch,
         )
 
@@ -851,6 +912,7 @@ class PostgresExecutionRepository(ExecutionRepository):
         execution_id: UUID,
         reason: str,
         *,
+        tenant_id: str,
         expected_epoch: int,
     ) -> PersistedExecution:
         return await self._finish_execution(
@@ -858,6 +920,7 @@ class PostgresExecutionRepository(ExecutionRepository):
             ExecutionState.FAILED,
             ExecutionEventType.FAILED,
             {"reason": reason},
+            tenant_id=tenant_id,
             expected_epoch=expected_epoch,
         )
 
@@ -972,12 +1035,15 @@ class PostgresExecutionRepository(ExecutionRepository):
         attempt: int,
         state: TaskRunState,
         result_payload: dict[str, object],
+        *,
+        tenant_id: str,
     ) -> PersistedTaskRun:
-        async with self._engine.begin() as connection:
+        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
             result = await connection.execute(
                 _FINISH_TASK,
                 {
                     "task_run_id": task_run_id,
+                    "tenant_id": tenant_uuid,
                     "attempt": attempt,
                     "state": state.value,
                     "result": json.dumps(result_payload),
@@ -995,13 +1061,15 @@ class PostgresExecutionRepository(ExecutionRepository):
         event_type: ExecutionEventType,
         payload: dict[str, object],
         *,
+        tenant_id: str,
         expected_epoch: int,
     ) -> PersistedExecution:
-        async with self._engine.begin() as connection:
+        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
             result = await connection.execute(
                 _FINISH_EXECUTION,
                 {
                     "execution_id": execution_id,
+                    "tenant_id": tenant_uuid,
                     "expected_epoch": expected_epoch,
                     "state": state.value,
                     "event_id": new_runtime_id(),
@@ -1012,7 +1080,7 @@ class PostgresExecutionRepository(ExecutionRepository):
             )
             row = result.mappings().one_or_none()
         if row is None:
-            existing = await self.get_execution(execution_id)
+            existing = await self.get_execution(execution_id, tenant_id=tenant_id)
             if existing.epoch != expected_epoch:
                 raise ExecutionStateConflictError(
                     f"execution {execution_id} is fenced at epoch {existing.epoch}; "
@@ -1092,3 +1160,16 @@ def _canonical_flow(flow: FlowDefinition) -> tuple[str, str]:
     canonical = flow.model_dump(mode="json", by_alias=True, exclude_none=True)
     encoded = json.dumps(canonical, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
     return encoded, hashlib.sha256(encoded.encode("utf-8")).hexdigest()
+
+
+async def _load_tenant_policy(connection: AsyncConnection) -> TenantPolicy:
+    settings = await connection.scalar(text("SELECT settings FROM tenants"))
+    if settings is None:
+        raise TenantUnavailableError("tenant is unavailable")
+    return TenantPolicy.model_validate(settings)
+
+
+def _require_allowed_plugins(policy: TenantPolicy, flow: FlowDefinition) -> None:
+    denied = sorted({task.type for task in flow.tasks if not policy.allows_plugin(task.type)})
+    if denied:
+        raise ValueError("tenant plugin policy does not allow: " + ", ".join(denied))

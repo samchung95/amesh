@@ -282,6 +282,7 @@ def evaluate_authorization(
 
     role_by_name = {role.name: role for role in snapshot.roles}
     subject_ids = {request.actor.principal_id, *snapshot.group_ids}
+    applicable_roles: set[str] = set()
     allowed_roles: set[str] = set()
     denied_roles: set[str] = set()
 
@@ -293,6 +294,7 @@ def evaluate_authorization(
         role = role_by_name.get(binding.role_name)
         if role is None:
             continue
+        applicable_roles.add(role.name)
         for permission in role.permissions:
             if not permission.matches(request.resource_type, request.action):
                 continue
@@ -322,6 +324,7 @@ def evaluate_authorization(
         reason_code="NO_MATCHING_GRANT",
         summary="no role grants the requested resource action in this scope",
         policy_version=snapshot.version,
+        matched_role_names=tuple(sorted(applicable_roles)),
     )
 
 

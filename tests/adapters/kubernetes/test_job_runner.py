@@ -97,8 +97,10 @@ def test_executor_job_survives_pod_deletion_on_kind() -> None:
                 )
             ],
         )
-        execution_id = await executor.create_execution(flow)
-        execution_task = asyncio.create_task(executor.run_to_completion(flow, execution_id))
+        execution_id = await executor.create_execution(flow, tenant_id="default")
+        execution_task = asyncio.create_task(
+            executor.run_to_completion(flow, execution_id, tenant_id="default")
+        )
         try:
             deleted_pod = await wait_for_running_pod(observer, namespace)
             await observer.delete_namespaced_pod(
@@ -161,8 +163,13 @@ def test_fresh_executor_reconciles_running_job_after_control_plane_loss() -> Non
             tasks=[task],
         )
         execution = await repository.create_execution(flow, tenant_id="default", inputs={})
-        task_run = (await repository.list_task_runs(execution.execution_id))[0]
-        running = await repository.start_task(task_run.task_run_id)
+        task_run = (
+            await repository.list_task_runs(
+                execution.execution_id,
+                tenant_id="default",
+            )
+        )[0]
+        running = await repository.start_task(task_run.task_run_id, tenant_id="default")
         context = TaskExecutionContext(
             tenant_id="default",
             execution_id=execution.execution_id,
@@ -201,7 +208,11 @@ def test_fresh_executor_reconciles_running_job_after_control_plane_loss() -> Non
                 recover_running_types=frozenset({"core.shell"}),
             )
             completed = await asyncio.wait_for(
-                resumed_executor.run_to_completion(flow, execution.execution_id),
+                resumed_executor.run_to_completion(
+                    flow,
+                    execution.execution_id,
+                    tenant_id="default",
+                ),
                 timeout=90,
             )
 

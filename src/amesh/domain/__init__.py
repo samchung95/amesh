@@ -67,10 +67,21 @@ from .resources import (
     revise_resource_metadata,
     transition_resource_lifecycle,
 )
+from .tenancy import (
+    SYSTEM_TENANT_ID,
+    SYSTEM_TENANT_SLUG,
+    TenantDefinition,
+    TenantExport,
+    TenantPolicy,
+    TenantStatus,
+    tenant_storage_key,
+)
 
 __all__ = [
     "BUILT_IN_ROLES",
     "INSTANCE_ADMIN_ROLE",
+    "SYSTEM_TENANT_ID",
+    "SYSTEM_TENANT_SLUG",
     "ActorContext",
     "AssetKey",
     "AuthorizationDecision",
@@ -111,8 +122,12 @@ __all__ = [
     "RuntimeResourceType",
     "StoredCredential",
     "TaskRunKey",
+    "TenantDefinition",
+    "TenantExport",
     "TenantKey",
+    "TenantPolicy",
     "TenantSlug",
+    "TenantStatus",
     "TriggerKey",
     "WorkerKey",
     "canonical_hash",
@@ -126,6 +141,7 @@ __all__ = [
     "reduce_execution",
     "resource_etag",
     "revise_resource_metadata",
+    "tenant_storage_key",
     "token_digest",
     "transition_resource_lifecycle",
 ]

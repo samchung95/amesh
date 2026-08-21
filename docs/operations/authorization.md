@@ -8,6 +8,8 @@ AMESH stores authorization policy in PostgreSQL. Apply migration
 The shared `AMESH_ADMIN_TOKEN` is a local bootstrap credential only. It works when both
 `APP_ENV=development` and `AUTH_MODE=development`. Any other combination rejects it; durable
 service-account and workload credentials are described in the [credential runbook](credentials.md).
+Tenant lifecycle, policy and RLS operations are described in the
+[multi-tenancy runbook](multi-tenancy.md).
 
 Send the selected tenant on resource requests:
 
@@ -19,7 +21,8 @@ uv run --extra runtime python -m amesh \
 
 HTTP clients use `Authorization: Bearer ...` and `X-Amesh-Tenant: <tenant>`. Namespace-scoped
 authorization is derived from the resource or route. A denied request returns `403` with the generic
-body `{"detail":"not authorized"}`.
+body `{"detail":"not authorized"}`. A tenant-scoped request with no applicable tenant role returns
+the same `404 tenant unavailable` response as an unknown tenant so tenant existence is not disclosed.
 
 ## Policy administration
 

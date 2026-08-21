@@ -27,6 +27,11 @@ from .task_runner import (
     StaleRunnerAttemptError,
     TaskRunner,
 )
+from .tenant_repository import (
+    TenantQuotaExceeded,
+    TenantRepository,
+    TenantUnavailableError,
+)
 
 __all__ = [
     "AuthorizationRepository",
@@ -54,6 +59,9 @@ __all__ = [
     "TaskRunState",
     "TaskRunner",
     "TaskStateConflictError",
+    "TenantQuotaExceeded",
+    "TenantRepository",
+    "TenantUnavailableError",
     "WorkClaim",
 ]
 from .authorization_repository import (

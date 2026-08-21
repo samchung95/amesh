@@ -63,9 +63,14 @@ def test_parallel_dag_resumes_from_persisted_task_state_after_restart() -> None:
         first_engine = create_async_engine(TEST_DATABASE_URL)
         first_repository = PostgresExecutionRepository(first_engine)
         first_executor = InProcessExecutor(first_repository)
-        execution_id = await first_executor.create_execution(flow)
+        execution_id = await first_executor.create_execution(flow, tenant_id="default")
 
-        first_progress = await first_executor.run_ready(flow, execution_id, max_tasks=1)
+        first_progress = await first_executor.run_ready(
+            flow,
+            execution_id,
+            tenant_id="default",
+            max_tasks=1,
+        )
         assert first_progress.state is ExecutionState.RUNNING
         assert first_progress.tasks_run == 1
         assert (
@@ -78,7 +83,11 @@ def test_parallel_dag_resumes_from_persisted_task_state_after_restart() -> None:
         try:
             resumed_repository = PostgresExecutionRepository(resumed_engine)
             resumed_executor = InProcessExecutor(resumed_repository)
-            completed = await resumed_executor.run_to_completion(flow, execution_id)
+            completed = await resumed_executor.run_to_completion(
+                flow,
+                execution_id,
+                tenant_id="default",
+            )
 
             assert completed.state is ExecutionState.SUCCESS
             assert {task_run.task_id for task_run in completed.task_runs} == {
@@ -143,9 +152,13 @@ def test_terminal_execution_event_is_fenced_by_epoch() -> None:
                 )
 
             with pytest.raises(ExecutionStateConflictError, match="fenced at epoch 1"):
-                await repository.complete_execution(execution_id, expected_epoch=2)
+                await repository.complete_execution(
+                    execution_id,
+                    tenant_id="default",
+                    expected_epoch=2,
+                )
 
-            unchanged = await repository.get_execution(execution_id)
+            unchanged = await repository.get_execution(execution_id, tenant_id="default")
             assert unchanged.state is ExecutionState.RUNNING
             async with engine.connect() as connection:
                 event_count_after_stale_write = await connection.scalar(
@@ -156,8 +169,16 @@ def test_terminal_execution_event_is_fenced_by_epoch() -> None:
                 )
             assert event_count_after_stale_write == event_count_before
 
-            completed = await repository.complete_execution(execution_id, expected_epoch=1)
-            repeated = await repository.complete_execution(execution_id, expected_epoch=1)
+            completed = await repository.complete_execution(
+                execution_id,
+                tenant_id="default",
+                expected_epoch=1,
+            )
+            repeated = await repository.complete_execution(
+                execution_id,
+                tenant_id="default",
+                expected_epoch=1,
+            )
             assert completed.state is ExecutionState.SUCCESS
             assert repeated == completed
 
@@ -205,7 +226,10 @@ def test_canonical_resource_metadata_and_uuid7_are_persisted() -> None:
 
             execution = await repository.create_execution(flow, tenant_id="default", inputs={})
             execution_id = execution.execution_id
-            task_runs = await repository.list_task_runs(execution_id)
+            task_runs = await repository.list_task_runs(
+                execution_id,
+                tenant_id="default",
+            )
             assert execution_id.version == 7
             assert all(task.task_run_id.version == 7 for task in task_runs)
 
@@ -275,16 +299,21 @@ def test_core_log_emits_execution_context(
         engine = create_async_engine(TEST_DATABASE_URL)
         repository = PostgresExecutionRepository(engine)
         executor = InProcessExecutor(repository)
-        execution_id = await executor.create_execution(flow)
+        execution_id = await executor.create_execution(flow, tenant_id="default")
 
         try:
             with caplog.at_level("INFO", logger="amesh.task.core.log"):
-                completed = await executor.run_to_completion(flow, execution_id)
+                completed = await executor.run_to_completion(
+                    flow,
+                    execution_id,
+                    tenant_id="default",
+                )
             assert completed.state is ExecutionState.SUCCESS
             record = next(
                 record for record in caplog.records if record.name == "amesh.task.core.log"
             )
             assert record.message == "durable message"
+            assert record.tenant_id == "default"
             assert record.execution_id == str(execution_id)
             assert record.task_id == "announce"
         finally:

@@ -21,3 +21,17 @@ Migration `0004_authorization.sql` is the EPIC-500 forward migration. It seeds i
 Migration `0005_service_credentials.sql` is the EPIC-501 forward migration. It adds principal
 credential epochs plus credential lifecycle and independent fixed-window quota tables. Only keyed
 digests and non-secret metadata are persisted; token material is not a schema field.
+
+Migration `0006_multi_tenancy.sql` is the EPIC-503 forward migration. It adds tenant policy,
+storage-prefix and export state, makes worker and audit tenant ownership explicit, creates the
+`amesh_runtime` role and forces tenant-ID RLS across runtime tables. Migration
+`0007_tenant_queue_notifications.sql` replaces the shared queue wake-up channel with a channel derived
+from the tenant UUID so one tenant's enqueue does not wake another tenant's waiter.
+Migration `0008_restricted_tenant_resolution.sql` moves active-tenant lookup behind a minimal
+security-definer function owned by a `NOLOGIN BYPASSRLS` resolver. Application database logins need
+only membership in `amesh_runtime`; they do not need table ownership, superuser or direct tenant-table
+access before entering the restricted role.
+Migration `0009_tenant_administration_role.sql` adds a narrow `NOLOGIN` tenant-administration role
+for lifecycle/export operations and a security-definer worker-group selector. Server logins that
+perform tenant administration need membership in both `amesh_runtime` and `amesh_tenant_admin`;
+worker-only logins need only `amesh_runtime`.

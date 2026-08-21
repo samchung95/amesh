@@ -125,12 +125,14 @@ def test_cron_occurrence_is_unique_across_scheduler_restart_and_renders_outputs(
                 flow,
                 trigger_id=trigger.id,
                 scheduled_for=scheduled_for,
+                tenant_id="default",
                 inputs={"greeting": "hello"},
             ),
             second_scheduler.fire_occurrence(
                 flow,
                 trigger_id=trigger.id,
                 scheduled_for=scheduled_for,
+                tenant_id="default",
                 inputs={"greeting": "hello"},
             ),
         )
@@ -140,6 +142,7 @@ def test_cron_occurrence_is_unique_across_scheduler_restart_and_renders_outputs(
             completed = await InProcessExecutor(first_repository).run_to_completion(
                 flow,
                 first.execution_id,
+                tenant_id="default",
             )
             assert completed.state is ExecutionState.SUCCESS
             results = {task_run.task_id: task_run.result for task_run in completed.task_runs}
@@ -156,6 +159,7 @@ def test_cron_occurrence_is_unique_across_scheduler_restart_and_renders_outputs(
                     flow,
                     trigger_id=trigger.id,
                     scheduled_for=scheduled_for,
+                    tenant_id="default",
                     inputs={"greeting": "hello"},
                 )
                 assert restarted.execution_id == first.execution_id
@@ -203,10 +207,18 @@ def test_worker_poll_fires_applied_cron_flow_once_per_minute() -> None:
         executions = []
 
         try:
-            assert await schedule_once(repository, now=first_poll) == 1
             assert (
                 await schedule_once(
                     repository,
+                    tenant_ids=("default",),
+                    now=first_poll,
+                )
+                == 1
+            )
+            assert (
+                await schedule_once(
+                    repository,
+                    tenant_ids=("default",),
                     now=first_poll.replace(second=55),
                 )
                 == 1

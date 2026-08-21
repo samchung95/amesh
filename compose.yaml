@@ -40,6 +40,10 @@ services:
       - ./migrations/0003_canonical_resource_metadata.sql:/docker-entrypoint-initdb.d/0003_canonical_resource_metadata.sql:ro
       - ./migrations/0004_authorization.sql:/docker-entrypoint-initdb.d/0004_authorization.sql:ro
       - ./migrations/0005_service_credentials.sql:/docker-entrypoint-initdb.d/0005_service_credentials.sql:ro
+      - ./migrations/0006_multi_tenancy.sql:/docker-entrypoint-initdb.d/0006_multi_tenancy.sql:ro
+      - ./migrations/0007_tenant_queue_notifications.sql:/docker-entrypoint-initdb.d/0007_tenant_queue_notifications.sql:ro
+      - ./migrations/0008_restricted_tenant_resolution.sql:/docker-entrypoint-initdb.d/0008_restricted_tenant_resolution.sql:ro
+      - ./migrations/0009_tenant_administration_role.sql:/docker-entrypoint-initdb.d/0009_tenant_administration_role.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U amesh -d amesh"]
       interval: 5s
