@@ -14,7 +14,10 @@ from amesh.domain import (
     ExecutionState,
     ResourceMetadata,
     ResourceVersionConflict,
+    TaskRunEventType,
+    TaskRunState,
     TenantPolicy,
+    TransitionRejectionCode,
     new_runtime_id,
     resource_etag,
 )
@@ -25,7 +28,6 @@ from amesh.ports.execution_repository import (
     PersistedExecution,
     PersistedFlow,
     PersistedTaskRun,
-    TaskRunState,
     TaskStateConflictError,
 )
 from amesh.ports.tenant_repository import TenantQuotaExceeded, TenantUnavailableError
@@ -177,9 +179,11 @@ _INSERT_EXECUTION_EVENT = text(
         event_id,
         event_type,
         schema_version,
+        idempotency_key,
         correlation_id,
         causation_id,
         actor_id,
+        reason,
         occurred_at,
         payload
     )
@@ -189,10 +193,12 @@ _INSERT_EXECUTION_EVENT = text(
         :sequence,
         :event_id,
         :event_type,
-        1,
+        2,
+        :idempotency_key,
         :correlation_id,
         NULL,
         :actor_id,
+        :reason,
         :occurred_at,
         '{}'::jsonb
     )
@@ -201,25 +207,137 @@ _INSERT_EXECUTION_EVENT = text(
 
 _INSERT_TASK_RUN = text(
     """
-    INSERT INTO task_runs (
-        id,
+    WITH inserted AS (
+        INSERT INTO task_runs (
+            id,
+            tenant_id,
+            execution_id,
+            task_path,
+            state,
+            current_attempt,
+            version
+        )
+        VALUES (
+            :task_run_id,
+            :tenant_id,
+            :execution_id,
+            :task_id,
+            'WAITING',
+            0,
+            1
+        )
+        ON CONFLICT (id) DO NOTHING
+        RETURNING id, tenant_id, execution_id, task_path, version
+    )
+    INSERT INTO task_run_events (
         tenant_id,
+        task_run_id,
         execution_id,
-        task_path,
-        state,
-        current_attempt,
-        version
+        sequence,
+        event_id,
+        event_type,
+        schema_version,
+        idempotency_key,
+        correlation_id,
+        causation_id,
+        actor_id,
+        reason,
+        occurred_at,
+        payload
     )
-    VALUES (
-        :task_run_id,
+    SELECT
+        inserted.tenant_id,
+        inserted.id,
+        inserted.execution_id,
+        inserted.version,
+        :event_id,
+        'TaskRunCreated',
+        1,
+        :idempotency_key,
+        :correlation_id,
+        NULL,
+        :actor_id,
+        NULL,
+        :occurred_at,
+        jsonb_build_object('task_id', inserted.task_path)
+    FROM inserted
+    """
+)
+
+_INSERT_TASK_RUN_EVENT = text(
+    """
+    INSERT INTO task_run_events (
+        tenant_id,
+        task_run_id,
+        execution_id,
+        sequence,
+        event_id,
+        event_type,
+        schema_version,
+        idempotency_key,
+        correlation_id,
+        causation_id,
+        actor_id,
+        reason,
+        occurred_at,
+        payload
+    ) VALUES (
         :tenant_id,
+        :task_run_id,
         :execution_id,
-        :task_id,
-        'WAITING',
-        0,
-        0
+        :sequence,
+        :event_id,
+        :event_type,
+        1,
+        :idempotency_key,
+        :correlation_id,
+        NULL,
+        :actor_id,
+        :reason,
+        now(),
+        CAST(:payload AS jsonb)
     )
-    ON CONFLICT (id) DO NOTHING
+    """
+)
+
+_INSERT_TRANSITION_REJECTION = text(
+    """
+    INSERT INTO transition_rejections (
+        tenant_id,
+        rejection_id,
+        command_id,
+        idempotency_key,
+        schema_version,
+        aggregate_type,
+        aggregate_id,
+        code,
+        current_state,
+        current_version,
+        current_epoch,
+        actor_id,
+        reason,
+        correlation_id,
+        causation_id,
+        occurred_at
+    ) VALUES (
+        :tenant_id,
+        :rejection_id,
+        :command_id,
+        :idempotency_key,
+        1,
+        :aggregate_type,
+        :aggregate_id,
+        :code,
+        :current_state,
+        :current_version,
+        :current_epoch,
+        :actor_id,
+        :reason,
+        :correlation_id,
+        NULL,
+        now()
+    )
+    ON CONFLICT (tenant_id, aggregate_type, aggregate_id, idempotency_key) DO NOTHING
     """
 )
 
@@ -360,6 +478,26 @@ _LIST_TASK_RUNS = text(
     WHERE task_runs.execution_id = :execution_id
       AND tenants.slug = :tenant_slug
     ORDER BY task_runs.created_at, task_runs.task_path
+    """
+)
+
+_GET_TASK_RUN = text(
+    """
+    SELECT
+        task_runs.id,
+        task_runs.execution_id,
+        task_runs.task_path,
+        task_runs.state,
+        task_runs.current_attempt,
+        task_runs.version,
+        task_runs.retry_at,
+        task_attempts.result
+    FROM task_runs
+    LEFT JOIN task_attempts
+      ON task_attempts.task_run_id = task_runs.id
+     AND task_attempts.attempt = task_runs.current_attempt
+    WHERE task_runs.id = :task_run_id
+      AND task_runs.tenant_id = :tenant_id
     """
 )
 
@@ -528,9 +666,11 @@ _FINISH_EXECUTION = text(
             event_id,
             event_type,
             schema_version,
+            idempotency_key,
             correlation_id,
             causation_id,
             actor_id,
+            reason,
             occurred_at,
             payload
         )
@@ -540,10 +680,12 @@ _FINISH_EXECUTION = text(
             finished.version,
             :event_id,
             :event_type,
-            1,
+            2,
+            :idempotency_key,
             :correlation_id,
             NULL,
             'mvp-executor',
+            :reason,
             now(),
             CAST(:payload AS jsonb)
         FROM finished
@@ -773,17 +915,25 @@ class PostgresExecutionRepository(ExecutionRepository):
                     created_at,
                     actor_id,
                 )
-                await connection.execute(
-                    _INSERT_TASK_RUN,
-                    [
+                task_rows: list[dict[str, object]] = []
+                for task in flow.tasks:
+                    task_event_id = new_runtime_id()
+                    task_rows.append(
                         {
                             "task_run_id": new_runtime_id(),
                             "tenant_id": tenant_uuid,
                             "execution_id": execution_id,
                             "task_id": task.id,
+                            "event_id": task_event_id,
+                            "idempotency_key": str(task_event_id),
+                            "correlation_id": new_runtime_id(),
+                            "actor_id": actor_id,
+                            "occurred_at": created_at,
                         }
-                        for task in flow.tasks
-                    ],
+                    )
+                await connection.execute(
+                    _INSERT_TASK_RUN,
+                    task_rows,
                 )
 
         return await self.get_execution(execution_id, tenant_id=tenant_id)
@@ -828,6 +978,9 @@ class PostgresExecutionRepository(ExecutionRepository):
         return [_to_task_run(row) for row in rows]
 
     async def start_task(self, task_run_id: UUID, *, tenant_id: str) -> PersistedTaskRun:
+        command_id = new_runtime_id()
+        correlation_id = new_runtime_id()
+        conflict_message: str | None = None
         async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
             result = await connection.execute(
                 _START_TASK,
@@ -838,8 +991,37 @@ class PostgresExecutionRepository(ExecutionRepository):
                 },
             )
             row = result.mappings().one_or_none()
-        if row is None:
-            raise TaskStateConflictError(f"task run {task_run_id} is not waiting")
+            if row is not None:
+                await self._insert_task_event(
+                    connection,
+                    tenant_uuid,
+                    row,
+                    command_id,
+                    TaskRunEventType.STARTED,
+                    correlation_id,
+                )
+            else:
+                row = await self._get_task_run_row(connection, tenant_uuid, task_run_id)
+                if row is None or TaskRunState(row["state"]) is not TaskRunState.RUNNING:
+                    conflict_message = f"task run {task_run_id} is not waiting"
+                    if row is not None:
+                        await self._record_rejection(
+                            connection,
+                            tenant_uuid,
+                            command_id,
+                            "task_run",
+                            task_run_id,
+                            TransitionRejectionCode.ILLEGAL_TRANSITION,
+                            str(row["state"]),
+                            int(row["version"]),
+                            None,
+                            conflict_message,
+                            correlation_id,
+                        )
+        if conflict_message is not None or row is None:
+            raise TaskStateConflictError(
+                conflict_message or f"task run {task_run_id} does not exist"
+            )
         return _to_task_run(row)
 
     async def complete_task(
@@ -867,6 +1049,9 @@ class PostgresExecutionRepository(ExecutionRepository):
         retry_at: datetime,
         reason: str,
     ) -> PersistedTaskRun:
+        command_id = new_runtime_id()
+        correlation_id = new_runtime_id()
+        conflict_message: str | None = None
         async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
             result = await connection.execute(
                 _RETRY_TASK,
@@ -879,8 +1064,44 @@ class PostgresExecutionRepository(ExecutionRepository):
                 },
             )
             row = result.mappings().one_or_none()
-        if row is None:
-            raise TaskStateConflictError(f"task run {task_run_id} attempt {attempt} is not running")
+            if row is not None:
+                await self._insert_task_event(
+                    connection,
+                    tenant_uuid,
+                    row,
+                    command_id,
+                    TaskRunEventType.RETRY_SCHEDULED,
+                    correlation_id,
+                    reason=reason,
+                    payload={"retry_at": retry_at.isoformat(), "error": reason},
+                )
+            else:
+                row = await self._get_task_run_row(connection, tenant_uuid, task_run_id)
+                is_duplicate = (
+                    row is not None
+                    and TaskRunState(row["state"]) is TaskRunState.RETRY_DELAY
+                    and int(row["current_attempt"]) == attempt
+                )
+                if not is_duplicate:
+                    conflict_message = f"task run {task_run_id} attempt {attempt} is not running"
+                    if row is not None:
+                        await self._record_rejection(
+                            connection,
+                            tenant_uuid,
+                            command_id,
+                            "task_run",
+                            task_run_id,
+                            TransitionRejectionCode.ILLEGAL_TRANSITION,
+                            str(row["state"]),
+                            int(row["version"]),
+                            None,
+                            conflict_message,
+                            correlation_id,
+                        )
+        if conflict_message is not None or row is None:
+            raise TaskStateConflictError(
+                conflict_message or f"task run {task_run_id} does not exist"
+            )
         return _to_task_run(row)
 
     async def fail_task(
@@ -1020,22 +1241,24 @@ class PostgresExecutionRepository(ExecutionRepository):
             ExecutionEventType.QUEUED,
             ExecutionEventType.STARTED,
         )
-        await connection.execute(
-            _INSERT_EXECUTION_EVENT,
-            [
+        parameters: list[dict[str, object]] = []
+        for sequence, event_type in enumerate(event_types, start=1):
+            event_id = new_runtime_id()
+            parameters.append(
                 {
                     "tenant_id": tenant_id,
                     "execution_id": execution_id,
                     "sequence": sequence,
-                    "event_id": new_runtime_id(),
+                    "event_id": event_id,
                     "event_type": event_type.value,
+                    "idempotency_key": str(event_id),
                     "correlation_id": correlation_id,
                     "actor_id": actor_id,
+                    "reason": None,
                     "occurred_at": occurred_at,
                 }
-                for sequence, event_type in enumerate(event_types, start=1)
-            ],
-        )
+            )
+        await connection.execute(_INSERT_EXECUTION_EVENT, parameters)
 
     async def _finish_task(
         self,
@@ -1046,6 +1269,9 @@ class PostgresExecutionRepository(ExecutionRepository):
         *,
         tenant_id: str,
     ) -> PersistedTaskRun:
+        command_id = new_runtime_id()
+        correlation_id = new_runtime_id()
+        conflict_message: str | None = None
         async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
             result = await connection.execute(
                 _FINISH_TASK,
@@ -1058,8 +1284,51 @@ class PostgresExecutionRepository(ExecutionRepository):
                 },
             )
             row = result.mappings().one_or_none()
-        if row is None:
-            raise TaskStateConflictError(f"task run {task_run_id} attempt {attempt} is not running")
+            if row is not None:
+                event_type = (
+                    TaskRunEventType.SUCCEEDED
+                    if state is TaskRunState.SUCCESS
+                    else TaskRunEventType.FAILED
+                )
+                await self._insert_task_event(
+                    connection,
+                    tenant_uuid,
+                    row,
+                    command_id,
+                    event_type,
+                    correlation_id,
+                    reason=str(result_payload.get("error"))
+                    if result_payload.get("error") is not None
+                    else None,
+                    payload=result_payload,
+                )
+            else:
+                row = await self._get_task_run_row(connection, tenant_uuid, task_run_id)
+                is_duplicate = (
+                    row is not None
+                    and TaskRunState(row["state"]) is state
+                    and int(row["current_attempt"]) == attempt
+                )
+                if not is_duplicate:
+                    conflict_message = f"task run {task_run_id} attempt {attempt} is not running"
+                    if row is not None:
+                        await self._record_rejection(
+                            connection,
+                            tenant_uuid,
+                            command_id,
+                            "task_run",
+                            task_run_id,
+                            TransitionRejectionCode.ILLEGAL_TRANSITION,
+                            str(row["state"]),
+                            int(row["version"]),
+                            None,
+                            conflict_message,
+                            correlation_id,
+                        )
+        if conflict_message is not None or row is None:
+            raise TaskStateConflictError(
+                conflict_message or f"task run {task_run_id} does not exist"
+            )
         return _to_task_run(row)
 
     async def _finish_execution(
@@ -1072,6 +1341,10 @@ class PostgresExecutionRepository(ExecutionRepository):
         tenant_id: str,
         expected_epoch: int,
     ) -> PersistedExecution:
+        event_id = new_runtime_id()
+        correlation_id = new_runtime_id()
+        reason = str(payload.get("reason")) if payload.get("reason") is not None else None
+        conflict_message: str | None = None
         async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
             result = await connection.execute(
                 _FINISH_EXECUTION,
@@ -1080,26 +1353,138 @@ class PostgresExecutionRepository(ExecutionRepository):
                     "tenant_id": tenant_uuid,
                     "expected_epoch": expected_epoch,
                     "state": state.value,
-                    "event_id": new_runtime_id(),
+                    "event_id": event_id,
                     "event_type": event_type.value,
-                    "correlation_id": new_runtime_id(),
+                    "idempotency_key": str(event_id),
+                    "correlation_id": correlation_id,
+                    "reason": reason,
                     "payload": json.dumps(payload),
                 },
             )
             row = result.mappings().one_or_none()
-        if row is None:
-            existing = await self.get_execution(execution_id, tenant_id=tenant_id)
-            if existing.epoch != expected_epoch:
-                raise ExecutionStateConflictError(
-                    f"execution {execution_id} is fenced at epoch {existing.epoch}; "
-                    f"received {expected_epoch}"
+            if row is None:
+                existing_result = await connection.execute(
+                    _GET_EXECUTION,
+                    {"execution_id": execution_id, "tenant_slug": tenant_id},
                 )
-            if existing.state is state:
-                return existing
+                row = existing_result.mappings().one_or_none()
+                if row is None:
+                    conflict_message = f"execution {execution_id} does not exist"
+                elif int(row["epoch"]) != expected_epoch:
+                    conflict_message = (
+                        f"execution {execution_id} is fenced at epoch {row['epoch']}; "
+                        f"received {expected_epoch}"
+                    )
+                    await self._record_rejection(
+                        connection,
+                        tenant_uuid,
+                        event_id,
+                        "execution",
+                        execution_id,
+                        TransitionRejectionCode.EPOCH_CONFLICT,
+                        str(row["state"]),
+                        int(row["version"]),
+                        int(row["epoch"]),
+                        conflict_message,
+                        correlation_id,
+                    )
+                elif ExecutionState(row["state"]) is not state:
+                    conflict_message = (
+                        f"execution {execution_id} cannot transition from "
+                        f"{row['state']} to {state.value}"
+                    )
+                    await self._record_rejection(
+                        connection,
+                        tenant_uuid,
+                        event_id,
+                        "execution",
+                        execution_id,
+                        TransitionRejectionCode.ILLEGAL_TRANSITION,
+                        str(row["state"]),
+                        int(row["version"]),
+                        int(row["epoch"]),
+                        conflict_message,
+                        correlation_id,
+                    )
+        if conflict_message is not None or row is None:
             raise ExecutionStateConflictError(
-                f"execution {execution_id} cannot transition from {existing.state.value} to {state.value}"
+                conflict_message or f"execution {execution_id} does not exist"
             )
         return _to_execution(row)
+
+    async def _get_task_run_row(
+        self,
+        connection: AsyncConnection,
+        tenant_id: UUID,
+        task_run_id: UUID,
+    ) -> RowMapping | None:
+        result = await connection.execute(
+            _GET_TASK_RUN,
+            {"task_run_id": task_run_id, "tenant_id": tenant_id},
+        )
+        return result.mappings().one_or_none()
+
+    async def _insert_task_event(
+        self,
+        connection: AsyncConnection,
+        tenant_id: UUID,
+        row: RowMapping,
+        event_id: UUID,
+        event_type: TaskRunEventType,
+        correlation_id: UUID,
+        *,
+        reason: str | None = None,
+        payload: dict[str, object] | None = None,
+    ) -> None:
+        await connection.execute(
+            _INSERT_TASK_RUN_EVENT,
+            {
+                "tenant_id": tenant_id,
+                "task_run_id": row["id"],
+                "execution_id": row["execution_id"],
+                "sequence": row["version"],
+                "event_id": event_id,
+                "event_type": event_type.value,
+                "idempotency_key": str(event_id),
+                "correlation_id": correlation_id,
+                "actor_id": "mvp-executor",
+                "reason": reason,
+                "payload": json.dumps(payload or {}),
+            },
+        )
+
+    async def _record_rejection(
+        self,
+        connection: AsyncConnection,
+        tenant_id: UUID,
+        command_id: UUID,
+        aggregate_type: str,
+        aggregate_id: UUID,
+        code: TransitionRejectionCode,
+        current_state: str,
+        current_version: int,
+        current_epoch: int | None,
+        reason: str,
+        correlation_id: UUID,
+    ) -> None:
+        await connection.execute(
+            _INSERT_TRANSITION_REJECTION,
+            {
+                "tenant_id": tenant_id,
+                "rejection_id": command_id,
+                "command_id": command_id,
+                "idempotency_key": str(command_id),
+                "aggregate_type": aggregate_type,
+                "aggregate_id": aggregate_id,
+                "code": code.value,
+                "current_state": current_state,
+                "current_version": current_version,
+                "current_epoch": current_epoch,
+                "actor_id": "mvp-executor",
+                "reason": reason,
+                "correlation_id": correlation_id,
+            },
+        )
 
 
 def _to_execution(row: RowMapping) -> PersistedExecution:

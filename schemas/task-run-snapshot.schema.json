@@ -1,19 +1,15 @@
 {
   "$defs": {
-    "ExecutionState": {
+    "TaskRunState": {
       "enum": [
-        "CREATED",
-        "QUEUED",
+        "WAITING",
         "RUNNING",
-        "PAUSED",
-        "CANCELLING",
-        "CANCELLED",
+        "RETRY_DELAY",
         "SUCCESS",
         "FAILED",
-        "WARNING",
-        "RESTARTING"
+        "CANCELLED"
       ],
-      "title": "ExecutionState",
+      "title": "TaskRunState",
       "type": "string"
     }
   },
@@ -35,25 +31,16 @@
       "title": "Applied Idempotency Keys",
       "type": "array"
     },
-    "epoch": {
-      "default": 1,
-      "minimum": 1,
-      "title": "Epoch",
+    "current_attempt": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Current Attempt",
       "type": "integer"
     },
     "execution_id": {
       "format": "uuid",
       "title": "Execution Id",
       "type": "string"
-    },
-    "flow_id": {
-      "title": "Flow Id",
-      "type": "string"
-    },
-    "flow_revision": {
-      "minimum": 1,
-      "title": "Flow Revision",
-      "type": "integer"
     },
     "last_event_at": {
       "anyOf": [
@@ -68,16 +55,17 @@
       "default": null,
       "title": "Last Event At"
     },
-    "namespace": {
-      "title": "Namespace",
+    "state": {
+      "$ref": "#/$defs/TaskRunState",
+      "default": "WAITING"
+    },
+    "task_id": {
+      "title": "Task Id",
       "type": "string"
     },
-    "state": {
-      "$ref": "#/$defs/ExecutionState",
-      "default": "CREATED"
-    },
-    "tenant_id": {
-      "title": "Tenant Id",
+    "task_run_id": {
+      "format": "uuid",
+      "title": "Task Run Id",
       "type": "string"
     },
     "version": {
@@ -88,12 +76,10 @@
     }
   },
   "required": [
+    "task_run_id",
     "execution_id",
-    "tenant_id",
-    "namespace",
-    "flow_id",
-    "flow_revision"
+    "task_id"
   ],
-  "title": "ExecutionSnapshot",
+  "title": "TaskRunSnapshot",
   "type": "object"
 }

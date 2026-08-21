@@ -50,14 +50,14 @@ URS-F-0048,Functional,Must,EPIC-006,"Flow revisions, change history and promotio
 URS-F-0049,Functional,Must,EPIC-006,"Flow revisions, change history and promotion",M0,0,Domain model unit and serialization compatibility tests,Proposed
 URS-F-0050,Functional,Must,EPIC-006,"Flow revisions, change history and promotion",M0,0,Domain model unit and serialization compatibility tests,Proposed
 URS-F-0051,Functional,Must,EPIC-006,"Flow revisions, change history and promotion",M0,0,Domain model unit and serialization compatibility tests,Proposed
-URS-F-0052,Functional,Must,EPIC-007,Execution event model and state machine,M0,0,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0053,Functional,Must,EPIC-007,Execution event model and state machine,M0,0,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0054,Functional,Must,EPIC-007,Execution event model and state machine,M0,0,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0055,Functional,Must,EPIC-007,Execution event model and state machine,M0,0,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0056,Functional,Must,EPIC-007,Execution event model and state machine,M0,0,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0057,Functional,Must,EPIC-007,Execution event model and state machine,M0,0,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0058,Functional,Must,EPIC-007,Execution event model and state machine,M0,0,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0059,Functional,Must,EPIC-007,Execution event model and state machine,M0,0,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0052,Functional,Must,EPIC-007,Execution event model and state machine,M0,0,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0053,Functional,Must,EPIC-007,Execution event model and state machine,M0,0,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0054,Functional,Must,EPIC-007,Execution event model and state machine,M0,0,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0055,Functional,Must,EPIC-007,Execution event model and state machine,M0,0,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0056,Functional,Must,EPIC-007,Execution event model and state machine,M0,0,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0057,Functional,Must,EPIC-007,Execution event model and state machine,M0,0,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0058,Functional,Must,EPIC-007,Execution event model and state machine,M0,0,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0059,Functional,Must,EPIC-007,Execution event model and state machine,M0,0,"Automated unit, integration, crash-recovery and conformance tests",Verified
 URS-F-0060,Functional,Must,EPIC-008,Metadata persistence and migrations,M0,0,Repository or storage adapter contract and fault-injection tests,Proposed
 URS-F-0061,Functional,Must,EPIC-008,Metadata persistence and migrations,M0,0,Repository or storage adapter contract and fault-injection tests,Proposed
 URS-F-0062,Functional,Must,EPIC-008,Metadata persistence and migrations,M0,0,Repository or storage adapter contract and fault-injection tests,Proposed
@@ -856,10 +856,10 @@ URS-NFR-AVAILABILITY-004,Non-functional,Must,EPIC-610,"Upgrades, migrations and 
 URS-NFR-COMPLIANCE-001,Non-functional,Must,EPIC-504,Immutable audit log and evidence export,M5,5,Control-crosswalk validation and sample evidence-package review by an independent security or compliance reviewer.,Proposed
 URS-NFR-COMPLIANCE-001,Non-functional,Must,EPIC-612,Security hardening and software supply chain,M6,6,Control-crosswalk validation and sample evidence-package review by an independent security or compliance reviewer.,Proposed
 URS-NFR-COMPLIANCE-001,Non-functional,Must,EPIC-805,General availability quality and launch readiness,M8,8,Control-crosswalk validation and sample evidence-package review by an independent security or compliance reviewer.,Proposed
-URS-NFR-MAINTAINABILITY-001,Non-functional,Must,EPIC-001,"Repository engineering, CI and release foundation",M0,0,Static architecture test in CI.,Proposed
-URS-NFR-MAINTAINABILITY-001,Non-functional,Must,EPIC-007,Execution event model and state machine,M0,0,Static architecture test in CI.,Proposed
-URS-NFR-MAINTAINABILITY-001,Non-functional,Must,EPIC-009,"PostgreSQL transport, inbox and transactional outbox",M0,0,Static architecture test in CI.,Proposed
-URS-NFR-MAINTAINABILITY-001,Non-functional,Must,EPIC-010,Internal object storage and artifact addressing,M0,0,Static architecture test in CI.,Proposed
+URS-NFR-MAINTAINABILITY-001,Non-functional,Must,EPIC-001,"Repository engineering, CI and release foundation",M0,0,Static architecture test in CI.,In Progress
+URS-NFR-MAINTAINABILITY-001,Non-functional,Must,EPIC-007,Execution event model and state machine,M0,0,Static architecture test in CI.,In Progress
+URS-NFR-MAINTAINABILITY-001,Non-functional,Must,EPIC-009,"PostgreSQL transport, inbox and transactional outbox",M0,0,Static architecture test in CI.,In Progress
+URS-NFR-MAINTAINABILITY-001,Non-functional,Must,EPIC-010,Internal object storage and artifact addressing,M0,0,Static architecture test in CI.,In Progress
 URS-NFR-MAINTAINABILITY-002,Non-functional,Must,EPIC-004,"Flow DSL, YAML model and schema",M0,0,Automated schema and API compatibility checks.,In Progress
 URS-NFR-MAINTAINABILITY-002,Non-functional,Must,EPIC-300,Plugin SDK and manifest contract,M3,3,Automated schema and API compatibility checks.,In Progress
 URS-NFR-MAINTAINABILITY-002,Non-functional,Must,EPIC-400,Versioned REST API and OpenAPI contract,M4,4,Automated schema and API compatibility checks.,In Progress
@@ -921,19 +921,19 @@ URS-NFR-PRIVACY-001,Non-functional,Must,EPIC-804,Open enterprise distribution an
 URS-NFR-PRIVACY-002,Non-functional,Must,EPIC-008,Metadata persistence and migrations,M0,0,Privacy and schema review.,Proposed
 URS-NFR-PRIVACY-002,Non-functional,Must,EPIC-504,Immutable audit log and evidence export,M5,5,Privacy and schema review.,Proposed
 URS-NFR-PRIVACY-002,Non-functional,Must,EPIC-608,"Retention, purge and data lifecycle",M6,6,Privacy and schema review.,Proposed
-URS-NFR-RELIABILITY-001,Non-functional,Must,EPIC-007,Execution event model and state machine,M0,0,"Fault-injection tests that terminate services and PostgreSQL connections at every commit, claim and acknowledgement boundary.",Proposed
-URS-NFR-RELIABILITY-001,Non-functional,Must,EPIC-008,Metadata persistence and migrations,M0,0,"Fault-injection tests that terminate services and PostgreSQL connections at every commit, claim and acknowledgement boundary.",Proposed
-URS-NFR-RELIABILITY-001,Non-functional,Must,EPIC-009,"PostgreSQL transport, inbox and transactional outbox",M0,0,"Fault-injection tests that terminate services and PostgreSQL connections at every commit, claim and acknowledgement boundary.",Proposed
-URS-NFR-RELIABILITY-001,Non-functional,Must,EPIC-108,"Recovery, reconciliation and invariant repair",M1,1,"Fault-injection tests that terminate services and PostgreSQL connections at every commit, claim and acknowledgement boundary.",Proposed
-URS-NFR-RELIABILITY-002,Non-functional,Must,EPIC-007,Execution event model and state machine,M0,0,Property-based and integration tests with duplicate and reordered delivery.,Proposed
-URS-NFR-RELIABILITY-002,Non-functional,Must,EPIC-009,"PostgreSQL transport, inbox and transactional outbox",M0,0,Property-based and integration tests with duplicate and reordered delivery.,Proposed
-URS-NFR-RELIABILITY-002,Non-functional,Must,EPIC-100,Executor and orchestration reducer,M1,1,Property-based and integration tests with duplicate and reordered delivery.,Proposed
-URS-NFR-RELIABILITY-002,Non-functional,Must,EPIC-103,Trigger runtime and occurrence lifecycle,M1,1,Property-based and integration tests with duplicate and reordered delivery.,Proposed
+URS-NFR-RELIABILITY-001,Non-functional,Must,EPIC-007,Execution event model and state machine,M0,0,"Fault-injection tests that terminate services and PostgreSQL connections at every commit, claim and acknowledgement boundary.",In Progress
+URS-NFR-RELIABILITY-001,Non-functional,Must,EPIC-008,Metadata persistence and migrations,M0,0,"Fault-injection tests that terminate services and PostgreSQL connections at every commit, claim and acknowledgement boundary.",In Progress
+URS-NFR-RELIABILITY-001,Non-functional,Must,EPIC-009,"PostgreSQL transport, inbox and transactional outbox",M0,0,"Fault-injection tests that terminate services and PostgreSQL connections at every commit, claim and acknowledgement boundary.",In Progress
+URS-NFR-RELIABILITY-001,Non-functional,Must,EPIC-108,"Recovery, reconciliation and invariant repair",M1,1,"Fault-injection tests that terminate services and PostgreSQL connections at every commit, claim and acknowledgement boundary.",In Progress
+URS-NFR-RELIABILITY-002,Non-functional,Must,EPIC-007,Execution event model and state machine,M0,0,Property-based and integration tests with duplicate and reordered delivery.,In Progress
+URS-NFR-RELIABILITY-002,Non-functional,Must,EPIC-009,"PostgreSQL transport, inbox and transactional outbox",M0,0,Property-based and integration tests with duplicate and reordered delivery.,In Progress
+URS-NFR-RELIABILITY-002,Non-functional,Must,EPIC-100,Executor and orchestration reducer,M1,1,Property-based and integration tests with duplicate and reordered delivery.,In Progress
+URS-NFR-RELIABILITY-002,Non-functional,Must,EPIC-103,Trigger runtime and occurrence lifecycle,M1,1,Property-based and integration tests with duplicate and reordered delivery.,In Progress
 URS-NFR-RELIABILITY-003,Non-functional,Must,EPIC-101,"Worker protocol, leases and heartbeats",M1,1,"Chaos tests with paused processes, network partitions and delayed completions.",Proposed
 URS-NFR-RELIABILITY-003,Non-functional,Must,EPIC-102,Scheduler and temporal correctness,M1,1,"Chaos tests with paused processes, network partitions and delayed completions.",Proposed
 URS-NFR-RELIABILITY-003,Non-functional,Must,EPIC-601,Distributed services and high availability,M6,6,"Chaos tests with paused processes, network partitions and delayed completions.",Proposed
-URS-NFR-RELIABILITY-004,Non-functional,Must,EPIC-007,Execution event model and state machine,M0,0,Golden event-stream and property-based reducer tests.,Proposed
-URS-NFR-RELIABILITY-004,Non-functional,Must,EPIC-100,Executor and orchestration reducer,M1,1,Golden event-stream and property-based reducer tests.,Proposed
+URS-NFR-RELIABILITY-004,Non-functional,Must,EPIC-007,Execution event model and state machine,M0,0,Golden event-stream and property-based reducer tests.,In Progress
+URS-NFR-RELIABILITY-004,Non-functional,Must,EPIC-100,Executor and orchestration reducer,M1,1,Golden event-stream and property-based reducer tests.,In Progress
 URS-NFR-RELIABILITY-005,Non-functional,Must,EPIC-401,"Realtime API, webhooks and event subscriptions",M4,4,Dependency isolation and outage integration tests.,Proposed
 URS-NFR-RELIABILITY-005,Non-functional,Must,EPIC-409,"Search, indexing and retrieval projections",M4,4,Dependency isolation and outage integration tests.,Proposed
 URS-NFR-RELIABILITY-005,Non-functional,Must,EPIC-604,Search and analytics projection backend,M6,6,Dependency isolation and outage integration tests.,Proposed

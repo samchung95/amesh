@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import os
+from datetime import UTC, datetime
 from pathlib import Path
 from uuid import UUID, uuid4
 
@@ -13,7 +14,7 @@ from amesh.adapters.postgres import PostgresExecutionRepository
 from amesh.domain import ExecutionState
 from amesh.dsl import FlowDefinition, validate_flow_document
 from amesh.executor import InProcessExecutor
-from amesh.ports import ExecutionStateConflictError, TaskRunState
+from amesh.ports import ExecutionStateConflictError, TaskRunState, TaskStateConflictError
 
 TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
 ROOT = Path(__file__).resolve().parents[2]
@@ -33,6 +34,23 @@ def load_parallel_dag() -> FlowDefinition:
 
 async def cleanup_execution(engine: AsyncEngine, execution_id: UUID) -> None:
     async with engine.begin() as connection:
+        await connection.execute(
+            text("DELETE FROM messages_outbox WHERE partition_key = :partition_key"),
+            {"partition_key": f"execution:{execution_id}"},
+        )
+        await connection.execute(
+            text(
+                "DELETE FROM transition_rejections WHERE "
+                "(aggregate_type = 'execution' AND aggregate_id = :execution_id) OR "
+                "(aggregate_type = 'task_run' AND aggregate_id IN "
+                "(SELECT id FROM task_runs WHERE execution_id = :execution_id))"
+            ),
+            {"execution_id": execution_id},
+        )
+        await connection.execute(
+            text("DELETE FROM task_run_events WHERE execution_id = :execution_id"),
+            {"execution_id": execution_id},
+        )
         await connection.execute(
             text(
                 "DELETE FROM task_attempts WHERE task_run_id IN "
@@ -115,12 +133,39 @@ def test_parallel_dag_resumes_from_persisted_task_state_after_restart() -> None:
                     .scalars()
                     .all()
                 )
+                task_events = (
+                    (
+                        await connection.execute(
+                            text(
+                                "SELECT task_runs.task_path, task_run_events.event_type "
+                                "FROM task_run_events "
+                                "JOIN task_runs ON task_runs.id = task_run_events.task_run_id "
+                                "WHERE task_run_events.execution_id = :execution_id "
+                                "ORDER BY task_runs.task_path, task_run_events.sequence"
+                            ),
+                            {"execution_id": execution_id},
+                        )
+                    )
+                    .tuples()
+                    .all()
+                )
+                outbox_count = await connection.scalar(
+                    text("SELECT count(*) FROM messages_outbox WHERE partition_key = :key"),
+                    {"key": f"execution:{execution_id}"},
+                )
             assert events == [
                 "ExecutionCreated",
                 "ExecutionQueued",
                 "ExecutionStarted",
                 "ExecutionSucceeded",
             ]
+            for task_id in ("combine", "extract_a", "extract_b"):
+                assert [event for task, event in task_events if task == task_id] == [
+                    "TaskRunCreated",
+                    "TaskRunStarted",
+                    "TaskRunSucceeded",
+                ]
+            assert outbox_count == len(events) + len(task_events)
         finally:
             await cleanup_execution(resumed_engine, execution_id)
             await resumed_engine.dispose()
@@ -150,6 +195,10 @@ def test_terminal_execution_event_is_fenced_by_epoch() -> None:
                     ),
                     {"execution_id": execution_id},
                 )
+                outbox_count_before = await connection.scalar(
+                    text("SELECT count(*) FROM messages_outbox WHERE partition_key = :key"),
+                    {"key": f"execution:{execution_id}"},
+                )
 
             with pytest.raises(ExecutionStateConflictError, match="fenced at epoch 1"):
                 await repository.complete_execution(
@@ -167,7 +216,32 @@ def test_terminal_execution_event_is_fenced_by_epoch() -> None:
                     ),
                     {"execution_id": execution_id},
                 )
+                rejection = (
+                    (
+                        await connection.execute(
+                            text(
+                                "SELECT code, current_state, current_epoch "
+                                "FROM transition_rejections "
+                                "WHERE aggregate_type = 'execution' "
+                                "AND aggregate_id = :execution_id"
+                            ),
+                            {"execution_id": execution_id},
+                        )
+                    )
+                    .mappings()
+                    .one()
+                )
+                outbox_count_after_stale_write = await connection.scalar(
+                    text("SELECT count(*) FROM messages_outbox WHERE partition_key = :key"),
+                    {"key": f"execution:{execution_id}"},
+                )
             assert event_count_after_stale_write == event_count_before
+            assert outbox_count_after_stale_write == outbox_count_before
+            assert rejection == {
+                "code": "EPOCH_CONFLICT",
+                "current_state": "RUNNING",
+                "current_epoch": 1,
+            }
 
             completed = await repository.complete_execution(
                 execution_id,
@@ -192,6 +266,147 @@ def test_terminal_execution_event_is_fenced_by_epoch() -> None:
                     {"execution_id": execution_id},
                 )
             assert terminal_event_count == 1
+        finally:
+            await cleanup_execution(engine, execution_id)
+            await engine.dispose()
+
+    asyncio.run(scenario())
+
+
+def test_rolled_back_state_event_does_not_escape_through_outbox() -> None:
+    async def scenario() -> None:
+        if TEST_DATABASE_URL is None:
+            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
+        flow = load_parallel_dag().model_copy(update={"namespace": f"tests.outbox.{uuid4().hex}"})
+        engine = create_async_engine(TEST_DATABASE_URL)
+        repository = PostgresExecutionRepository(engine)
+        execution = await repository.create_execution(flow, tenant_id="default", inputs={})
+        execution_id = execution.execution_id
+        rolled_back_event_id = uuid4()
+
+        try:
+            with pytest.raises(RuntimeError, match="force transaction rollback"):
+                async with engine.begin() as connection:
+                    tenant_id = await connection.scalar(
+                        text("SELECT id FROM tenants WHERE slug = 'default'")
+                    )
+                    await connection.execute(
+                        text(
+                            "UPDATE executions SET version = version + 1 WHERE id = :execution_id"
+                        ),
+                        {"execution_id": execution_id},
+                    )
+                    await connection.execute(
+                        text(
+                            "INSERT INTO execution_events ("
+                            "tenant_id, execution_id, sequence, event_id, event_type, "
+                            "schema_version, idempotency_key, correlation_id, actor_id, "
+                            "occurred_at, payload) VALUES ("
+                            ":tenant_id, :execution_id, 4, :event_id, 'ExecutionPaused', "
+                            "2, :idempotency_key, :correlation_id, 'test', now(), '{}'::jsonb)"
+                        ),
+                        {
+                            "tenant_id": tenant_id,
+                            "execution_id": execution_id,
+                            "event_id": rolled_back_event_id,
+                            "idempotency_key": str(rolled_back_event_id),
+                            "correlation_id": uuid4(),
+                        },
+                    )
+                    raise RuntimeError("force transaction rollback")
+
+            persisted = await repository.get_execution(execution_id, tenant_id="default")
+            assert persisted.version == execution.version
+            async with engine.connect() as connection:
+                assert (
+                    await connection.scalar(
+                        text("SELECT count(*) FROM execution_events WHERE event_id = :event_id"),
+                        {"event_id": rolled_back_event_id},
+                    )
+                    == 0
+                )
+                assert (
+                    await connection.scalar(
+                        text("SELECT count(*) FROM messages_outbox WHERE message_id = :event_id"),
+                        {"event_id": rolled_back_event_id},
+                    )
+                    == 0
+                )
+        finally:
+            await cleanup_execution(engine, execution_id)
+            await engine.dispose()
+
+    asyncio.run(scenario())
+
+
+def test_duplicate_task_result_is_idempotent_and_illegal_transition_is_recorded() -> None:
+    async def scenario() -> None:
+        if TEST_DATABASE_URL is None:
+            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
+        flow = FlowDefinition.model_validate(
+            {
+                "id": "task_event_contract",
+                "namespace": f"tests.task.events.{uuid4().hex}",
+                "tasks": [{"id": "done", "type": "core.return", "value": "ok"}],
+            }
+        )
+        engine = create_async_engine(TEST_DATABASE_URL)
+        repository = PostgresExecutionRepository(engine)
+        execution = await repository.create_execution(flow, tenant_id="default", inputs={})
+        execution_id = execution.execution_id
+
+        try:
+            task = (await repository.list_task_runs(execution_id, tenant_id="default"))[0]
+            running = await repository.start_task(task.task_run_id, tenant_id="default")
+            completed = await repository.complete_task(
+                task.task_run_id,
+                running.current_attempt,
+                {"value": "ok"},
+                tenant_id="default",
+            )
+            repeated = await repository.complete_task(
+                task.task_run_id,
+                running.current_attempt,
+                {"value": "ok"},
+                tenant_id="default",
+            )
+            assert repeated == completed
+
+            with pytest.raises(TaskStateConflictError, match="is not running"):
+                await repository.retry_task(
+                    task.task_run_id,
+                    running.current_attempt,
+                    tenant_id="default",
+                    retry_at=datetime.now(UTC),
+                    reason="must not retry success",
+                )
+
+            persisted = (await repository.list_task_runs(execution_id, tenant_id="default"))[0]
+            assert persisted.state is TaskRunState.SUCCESS
+            async with engine.connect() as connection:
+                task_event_count = await connection.scalar(
+                    text("SELECT count(*) FROM task_run_events WHERE task_run_id = :task_run_id"),
+                    {"task_run_id": task.task_run_id},
+                )
+                rejection = (
+                    (
+                        await connection.execute(
+                            text(
+                                "SELECT code, current_state FROM transition_rejections "
+                                "WHERE aggregate_type = 'task_run' "
+                                "AND aggregate_id = :task_run_id"
+                            ),
+                            {"task_run_id": task.task_run_id},
+                        )
+                    )
+                    .mappings()
+                    .one()
+                )
+            assert task_event_count == 3
+            assert dict(rejection) == {
+                "code": "ILLEGAL_TRANSITION",
+                "current_state": "SUCCESS",
+            }
         finally:
             await cleanup_execution(engine, execution_id)
             await engine.dispose()

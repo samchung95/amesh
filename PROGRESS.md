@@ -2,8 +2,8 @@
 
 ## Current state
 
-- What works: the tagged `v0.2.0-mvp` foundation plus EPIC-002, EPIC-004, EPIC-005, EPIC-404, EPIC-500, EPIC-501 and EPIC-503 are implemented; AMESH now includes a container-served graphical control room over its tenant-aware API.
-- What's in flight: EPIC-404 has passed all gates and is ready for card closure/commit; the next requested dependency-ready epic will be selected immediately afterward.
+- What works: the tagged `v0.2.0-mvp` foundation plus EPIC-002, EPIC-004, EPIC-005, EPIC-007, EPIC-404, EPIC-500, EPIC-501 and EPIC-503 are implemented; AMESH now includes a deterministic execution/task event model and a container-served graphical control room over its tenant-aware API.
+- What's in flight: EPIC-007 has passed its implementation, PostgreSQL, replay, rollback and traceability gates and is ready for card closure/commit; the next dependency-ready epic will be selected immediately afterward.
 - Known broken / TODO: the five requested post-MVP product areas remain open. The uninterrupted 86,400-second qualification remains under EPIC-611 and still gates production-readiness claims.
 - How to run/test: use `uv run --extra runtime --extra dev pytest`; set `AMESH_TEST_DATABASE_URL` for PostgreSQL integration tests and `OPENROUTER_API_KEY` for live LLM tests.
 
@@ -100,3 +100,10 @@
 - Verification: 107 Python tests passed with four environment-gated skips against PostgreSQL; eight frontend unit tests passed at 100% isolated-unit coverage; five desktop/tablet browser acceptance cases passed with axe reporting no critical/serious findings and only the local app origin observed; ESLint, TypeScript/Vite, Ruff, strict mypy, uv lock, generated contracts/planning, backlog, clean-room, compilation, Compose, Docker image and diff gates passed.
 - Deviations from plan: EPIC-400 remains To-Do because its full API surface depends on unfinished resource owners, but the existing versioned `/api/v1` flow/execution/authorization slice satisfied EPIC-404. Shared URS-NFR-USABILITY-004 and URS-NFR-PRIVACY-001 remain In Progress for their other owners and the pre-GA cross-browser/screen-reader matrix.
 - Next step when resuming: close and commit card `c8`, then select the next dependency-ready epic from the remaining login, orchestration-control and HA/DR areas.
+
+### 2026-08-22 (post-MVP roadmap session 1, EPIC-007 completion)
+
+- Did: selected dependency-ready EPIC-007 after deferring the EPIC-403/EPIC-502 circular dependency; added immutable typed/versioned execution and task-run command, event, snapshot, transition and rejection contracts; pure lifecycle reducers; stable idempotency; replay and execution-v1 upcasting; PostgreSQL task history and rejection evidence; schema-v2 execution metadata; and same-transaction event-to-outbox triggers. Updated generated schemas, migration documentation, execution semantics and canonical requirement evidence.
+- Verified: 118 Python/PostgreSQL tests pass with four environment-gated skips at 80.89% branch coverage; a fresh database applies all 11 migrations and exposes forced RLS plus both outbox triggers; 100 repeated replays are byte-equivalent; duplicate task results have one logical effect; stale execution/task transitions preserve state and record evidence; forced rollback leaves neither event nor outbox row. Ruff, strict mypy, uv lock, planning/contracts, backlog, clean-room, compile, Compose and diff gates pass.
+- Deviations from plan: the live OpenRouter smoke remains environment-gated because `OPENROUTER_API_KEY` is absent; its checked-in default remains `openai/gpt-5.6-luna`. Helm was not rerun because the Helm executable is absent and EPIC-007 changes no chart template; the fresh migration and Compose configuration were verified directly. Shared reliability and maintainability NFRs remain In Progress for EPIC-008/009/100/103/108 and distributed failover qualification.
+- Next step when resuming: close EPIC-007 and select the next dependency-ready backlog epic in the loops/subflows/backfill/recovery chain.

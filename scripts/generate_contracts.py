@@ -11,7 +11,16 @@ sys.path.insert(0, str(ROOT / "src"))
 
 # These imports must run after the sys.path bootstrap above.
 from amesh.app import app  # noqa: E402
-from amesh.domain.execution import ExecutionEvent, ExecutionSnapshot  # noqa: E402
+from amesh.domain.execution import (  # noqa: E402
+    ExecutionCommand,
+    ExecutionEvent,
+    ExecutionSnapshot,
+    ExecutionTransition,
+    TaskRunCommand,
+    TaskRunEvent,
+    TaskRunSnapshot,
+    TaskRunTransition,
+)
 from amesh.dsl.models import FlowDefinition  # noqa: E402
 from amesh.dsl.registry import default_resource_registry  # noqa: E402
 
@@ -28,8 +37,20 @@ def dump(path: Path, value: Any) -> None:
 def main() -> int:
     dump(ROOT / "schemas" / "flow.schema.json", FlowDefinition.model_json_schema())
     dump(ROOT / "schemas" / "resource-catalog.json", default_resource_registry().catalog())
+    dump(ROOT / "schemas" / "execution-command.schema.json", ExecutionCommand.model_json_schema())
     dump(ROOT / "schemas" / "execution-event.schema.json", ExecutionEvent.model_json_schema())
     dump(ROOT / "schemas" / "execution-snapshot.schema.json", ExecutionSnapshot.model_json_schema())
+    dump(
+        ROOT / "schemas" / "execution-transition.schema.json",
+        ExecutionTransition.model_json_schema(),
+    )
+    dump(ROOT / "schemas" / "task-run-command.schema.json", TaskRunCommand.model_json_schema())
+    dump(ROOT / "schemas" / "task-run-event.schema.json", TaskRunEvent.model_json_schema())
+    dump(ROOT / "schemas" / "task-run-snapshot.schema.json", TaskRunSnapshot.model_json_schema())
+    dump(
+        ROOT / "schemas" / "task-run-transition.schema.json",
+        TaskRunTransition.model_json_schema(),
+    )
     dump(ROOT / "docs" / "api" / "openapi.json", app.openapi())
     print("Generated schemas and OpenAPI contract.")
     return 0

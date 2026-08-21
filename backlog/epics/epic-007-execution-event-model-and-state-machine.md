@@ -12,14 +12,18 @@ Define the authoritative deterministic state transitions for workflows, tasks, t
 
 ## In scope
 
-- [ ] **URS-F-0052** — The system shall represent all commands, decisions and state changes as typed versioned events.
-- [ ] **URS-F-0053** — The system shall enforce legal execution and task-run state transitions through a pure deterministic reducer.
-- [ ] **URS-F-0054** — The system shall retain immutable transition history with actor, reason, correlation and causation identifiers.
-- [ ] **URS-F-0055** — The system shall make duplicate commands and events idempotent by stable idempotency keys.
-- [ ] **URS-F-0056** — The system shall support replay from event history to rebuild current execution state.
-- [ ] **URS-F-0057** — The system shall record rejected transitions and invariant violations without corrupting state.
-- [ ] **URS-F-0058** — The system shall version the event schema and provide upcasters for supported historical versions.
-- [ ] **URS-F-0059** — The system shall publish committed events only after the corresponding state transaction succeeds.
+- [x] **URS-F-0052** — The system shall represent all commands, decisions and state changes as typed versioned events.
+- [x] **URS-F-0053** — The system shall enforce legal execution and task-run state transitions through a pure deterministic reducer.
+- [x] **URS-F-0054** — The system shall retain immutable transition history with actor, reason, correlation and causation identifiers.
+- [x] **URS-F-0055** — The system shall make duplicate commands and events idempotent by stable idempotency keys.
+- [x] **URS-F-0056** — The system shall support replay from event history to rebuild current execution state.
+- [x] **URS-F-0057** — The system shall record rejected transitions and invariant violations without corrupting state.
+- [x] **URS-F-0058** — The system shall version the event schema and provide upcasters for supported historical versions.
+- [x] **URS-F-0059** — The system shall publish committed events only after the corresponding state transaction succeeds.
+
+## Implementation completion evidence
+
+- 2026-08-22 — EPIC-007 is complete. AMESH now defines immutable, typed and versioned execution/task-run commands, events, snapshots, accepted decisions and rejected decisions; enforces both lifecycles through pure transition tables; deduplicates stable command/event identities; replays canonical history; upcasts execution event schema v1 to v2; persists actor, reason, correlation and causation metadata plus task history and rejection evidence; and creates each event outbox record transactionally through PostgreSQL triggers. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`execution-semantics.md`](../../docs/architecture/execution-semantics.md), [`execution.py`](../../src/amesh/domain/execution.py), [`reducer.py`](../../src/amesh/domain/reducer.py), [`0011_execution_event_model.sql`](../../migrations/0011_execution_event_model.sql), [`test_reducer.py`](../../tests/test_reducer.py), and [`test_postgres_executor.py`](../../tests/executor/test_postgres_executor.py). Shared reliability and maintainability NFRs remain In Progress for their other owning epics and distributed failover qualification.
 
 ## Non-functional requirements
 
@@ -51,13 +55,13 @@ Define the authoritative deterministic state transitions for workflows, tasks, t
 
 ## Definition of done
 
-- [ ] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
-- [ ] Public API, DSL, event and plugin contract changes pass compatibility checks.
-- [ ] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
-- [ ] Security, tenant isolation, redaction and audit behavior are reviewed.
-- [ ] Documentation, examples, migration notes and operational runbooks are updated.
-- [ ] Performance and recovery budgets are measured when this epic is on a critical path.
-- [ ] `python scripts/validate_backlog.py` passes.
+- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
+- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.
+- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
+- [x] Security, tenant isolation, redaction and audit behavior are reviewed.
+- [x] Documentation, examples, migration notes and operational runbooks are updated.
+- [x] Performance and recovery budgets are measured when this epic is on a critical path.
+- [x] `python scripts/validate_backlog.py` passes.
 
 ## Risks and unknowns
 

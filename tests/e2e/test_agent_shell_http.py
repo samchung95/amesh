@@ -52,6 +52,23 @@ class CallbackHandler(BaseHTTPRequestHandler):
 async def cleanup_execution(engine: AsyncEngine, execution_id: UUID) -> None:
     async with engine.begin() as connection:
         await connection.execute(
+            text("DELETE FROM messages_outbox WHERE partition_key = :partition_key"),
+            {"partition_key": f"execution:{execution_id}"},
+        )
+        await connection.execute(
+            text(
+                "DELETE FROM transition_rejections WHERE "
+                "(aggregate_type = 'execution' AND aggregate_id = :execution_id) OR "
+                "(aggregate_type = 'task_run' AND aggregate_id IN "
+                "(SELECT id FROM task_runs WHERE execution_id = :execution_id))"
+            ),
+            {"execution_id": execution_id},
+        )
+        await connection.execute(
+            text("DELETE FROM task_run_events WHERE execution_id = :execution_id"),
+            {"execution_id": execution_id},
+        )
+        await connection.execute(
             text(
                 "DELETE FROM task_attempts WHERE task_run_id IN "
                 "(SELECT id FROM task_runs WHERE execution_id = :execution_id)"

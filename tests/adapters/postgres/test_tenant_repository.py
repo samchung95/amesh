@@ -279,7 +279,15 @@ def test_tenant_plugin_feature_and_concurrency_policy_are_enforced() -> None:
         finally:
             async with engine.begin() as connection:
                 parameters = {"tenant_id": tenant.id}
-                for table in ("task_attempts", "task_runs", "execution_events", "executions"):
+                for table in (
+                    "messages_outbox",
+                    "transition_rejections",
+                    "task_run_events",
+                    "task_attempts",
+                    "task_runs",
+                    "execution_events",
+                    "executions",
+                ):
                     await connection.execute(
                         text(f"DELETE FROM {table} WHERE tenant_id = :tenant_id"),
                         parameters,

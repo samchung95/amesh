@@ -1,3 +1,5 @@
+from amesh.domain import TaskRunState
+
 from .credential_repository import (
     CredentialPrincipal,
     CredentialRateLimitExceeded,
@@ -15,7 +17,6 @@ from .execution_repository import (
     PersistedExecution,
     PersistedFlow,
     PersistedTaskRun,
-    TaskRunState,
     TaskStateConflictError,
 )
 from .object_store import ObjectMetadata, ObjectStore

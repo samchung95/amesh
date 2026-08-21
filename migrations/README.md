@@ -39,3 +39,9 @@ worker-only logins need only `amesh_runtime`.
 Migration `0010_execution_trigger_context.sql` persists the immutable trigger metadata supplied when an
 execution is created, allowing the expression engine to restore cron and webhook context after process
 or executor restarts.
+
+Migration `0011_execution_event_model.sql` upgrades execution events to schema version 2 with stable
+idempotency keys and reasons, versions command-inbox records, adds immutable task-run history and
+transition-rejection evidence, and attaches tenant-isolated event-to-outbox triggers. Because the
+trigger and event insert share the state transaction, uncommitted events cannot escape through the
+outbox publisher.

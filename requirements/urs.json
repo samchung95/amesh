@@ -1387,7 +1387,7 @@
       "id": "URS-F-0052",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-007",
@@ -1408,13 +1408,17 @@
       "local_sequence": 1,
       "dependencies": [
         "EPIC-002"
+      ],
+      "evidence": [
+        "tests/test_reducer.py::test_command_decision_preserves_metadata_and_deduplicates_by_stable_key",
+        "tests/test_reducer.py::test_task_command_decision_is_typed_and_version_checked"
       ]
     },
     {
       "id": "URS-F-0053",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-007",
@@ -1435,13 +1439,17 @@
       "local_sequence": 2,
       "dependencies": [
         "EPIC-002"
+      ],
+      "evidence": [
+        "tests/test_reducer.py::test_happy_path_and_duplicate_idempotency",
+        "tests/test_reducer.py::test_task_run_reducer_replays_retry_history_and_deduplicates"
       ]
     },
     {
       "id": "URS-F-0054",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-007",
@@ -1462,13 +1470,17 @@
       "local_sequence": 3,
       "dependencies": [
         "EPIC-002"
+      ],
+      "evidence": [
+        "migrations/0011_execution_event_model.sql",
+        "tests/executor/test_postgres_executor.py::test_parallel_dag_resumes_from_persisted_task_state_after_restart"
       ]
     },
     {
       "id": "URS-F-0055",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-007",
@@ -1489,13 +1501,17 @@
       "local_sequence": 4,
       "dependencies": [
         "EPIC-002"
+      ],
+      "evidence": [
+        "tests/test_reducer.py::test_command_decision_preserves_metadata_and_deduplicates_by_stable_key",
+        "tests/executor/test_postgres_executor.py::test_duplicate_task_result_is_idempotent_and_illegal_transition_is_recorded"
       ]
     },
     {
       "id": "URS-F-0056",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-007",
@@ -1516,13 +1532,17 @@
       "local_sequence": 5,
       "dependencies": [
         "EPIC-002"
+      ],
+      "evidence": [
+        "tests/test_reducer.py::test_execution_replay_is_byte_stable_across_one_hundred_runs",
+        "tests/test_reducer.py::test_task_run_reducer_replays_retry_history_and_deduplicates"
       ]
     },
     {
       "id": "URS-F-0057",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-007",
@@ -1543,13 +1563,18 @@
       "local_sequence": 6,
       "dependencies": [
         "EPIC-002"
+      ],
+      "evidence": [
+        "tests/test_reducer.py::test_rejected_command_is_deterministic_and_does_not_mutate",
+        "tests/executor/test_postgres_executor.py::test_terminal_execution_event_is_fenced_by_epoch",
+        "tests/executor/test_postgres_executor.py::test_duplicate_task_result_is_idempotent_and_illegal_transition_is_recorded"
       ]
     },
     {
       "id": "URS-F-0058",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-007",
@@ -1570,13 +1595,17 @@
       "local_sequence": 7,
       "dependencies": [
         "EPIC-002"
+      ],
+      "evidence": [
+        "tests/test_reducer.py::test_historical_execution_event_upcasts_and_unknown_version_fails",
+        "src/amesh/domain/reducer.py::upcast_execution_event"
       ]
     },
     {
       "id": "URS-F-0059",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-007",
@@ -1597,6 +1626,10 @@
       "local_sequence": 8,
       "dependencies": [
         "EPIC-002"
+      ],
+      "evidence": [
+        "migrations/0011_execution_event_model.sql",
+        "tests/executor/test_postgres_executor.py::test_rolled_back_state_event_does_not_escape_through_outbox"
       ]
     },
     {
@@ -23323,7 +23356,10 @@
         "EPIC-010"
       ],
       "priority": "Must",
-      "status": "Proposed"
+      "status": "In Progress",
+      "evidence": [
+        "tests/test_reducer.py::test_domain_modules_do_not_import_infrastructure_frameworks"
+      ]
     },
     {
       "id": "URS-NFR-MAINTAINABILITY-002",
@@ -23718,7 +23754,11 @@
         "EPIC-108"
       ],
       "priority": "Must",
-      "status": "Proposed"
+      "status": "In Progress",
+      "evidence": [
+        "tests/executor/test_postgres_executor.py::test_rolled_back_state_event_does_not_escape_through_outbox",
+        "migrations/0011_execution_event_model.sql"
+      ]
     },
     {
       "id": "URS-NFR-RELIABILITY-002",
@@ -23734,7 +23774,11 @@
         "EPIC-103"
       ],
       "priority": "Must",
-      "status": "Proposed"
+      "status": "In Progress",
+      "evidence": [
+        "tests/test_reducer.py::test_command_decision_preserves_metadata_and_deduplicates_by_stable_key",
+        "tests/executor/test_postgres_executor.py::test_duplicate_task_result_is_idempotent_and_illegal_transition_is_recorded"
+      ]
     },
     {
       "id": "URS-NFR-RELIABILITY-003",
@@ -23763,7 +23807,10 @@
         "EPIC-100"
       ],
       "priority": "Must",
-      "status": "Proposed"
+      "status": "In Progress",
+      "evidence": [
+        "tests/test_reducer.py::test_execution_replay_is_byte_stable_across_one_hundred_runs"
+      ]
     },
     {
       "id": "URS-NFR-RELIABILITY-005",

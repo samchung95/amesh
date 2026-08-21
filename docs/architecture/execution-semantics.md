@@ -42,6 +42,46 @@ The command handler:
 A retry of the same idempotency key returns the original committed result when request semantics match.
 Reuse of a key with a different payload is rejected.
 
+## Authoritative event contract
+
+`amesh.domain` owns immutable execution and task-run command, event, snapshot, transition and
+rejection models. The reducer is a pure transition-table lookup: it performs no database, web,
+queue, search or object-storage I/O. Execution events use schema version 2; task-run events use
+schema version 1. The execution upcaster accepts the historical version-1 shape, derives its stable
+idempotency key from `event_id`, promotes a payload reason into the event header and rejects unknown
+versions.
+
+The persisted execution lifecycle is:
+
+```text
+CREATED -> QUEUED -> RUNNING -> SUCCESS | FAILED | WARNING
+                       |  |
+                       |  +-> PAUSED -> RUNNING
+                       +----> CANCELLING -> CANCELLED
+FAILED | WARNING | CANCELLED -> RESTARTING -> RUNNING  (new epoch)
+```
+
+The persisted task-run lifecycle is:
+
+```text
+WAITING -> RUNNING -> SUCCESS | FAILED
+             |
+             +-> RETRY_DELAY -> RUNNING
+WAITING | RUNNING | RETRY_DELAY -> CANCELLED
+```
+
+Every accepted event retains an event identity, stable idempotency key, schema version, actor,
+optional reason, correlation/causation identities, occurrence time and typed payload. Replaying the
+same ordered history from the same initial snapshot produces the same canonical snapshot. Repeated
+event IDs or idempotency keys are no-ops; an illegal or stale command returns immutable rejection
+evidence without changing the snapshot.
+
+PostgreSQL stores execution history in `execution_events`, task history in `task_run_events`, and
+durable rejected decisions in `transition_rejections`. Row-level security applies to all three.
+An `AFTER INSERT` trigger writes the corresponding versioned envelope to `messages_outbox` in the
+same database transaction as each event. The publisher can observe it only after commit; rollback
+removes the state change, event and outbox row together.
+
 ## Execution graph
 
 A flow revision compiles into a canonical graph. Dynamic constructs create graph fragments through

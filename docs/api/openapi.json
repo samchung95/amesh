@@ -415,6 +415,19 @@
           "event_type": {
             "$ref": "#/components/schemas/ExecutionEventType"
           },
+          "idempotency_key": {
+            "anyOf": [
+              {
+                "maxLength": 256,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Idempotency Key"
+          },
           "occurred_at": {
             "format": "date-time",
             "title": "Occurred At",
@@ -437,8 +450,8 @@
             "title": "Reason"
           },
           "schema_version": {
-            "default": 1,
-            "minimum": 1.0,
+            "const": 2,
+            "default": 2,
             "title": "Schema Version",
             "type": "integer"
           }
@@ -475,6 +488,14 @@
               "type": "string"
             },
             "title": "Applied Event Ids",
+            "type": "array"
+          },
+          "applied_idempotency_keys": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Applied Idempotency Keys",
             "type": "array"
           },
           "epoch": {
@@ -1358,7 +1379,8 @@
           "RUNNING",
           "RETRY_DELAY",
           "SUCCESS",
-          "FAILED"
+          "FAILED",
+          "CANCELLED"
         ],
         "title": "TaskRunState",
         "type": "string"

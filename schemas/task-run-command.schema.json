@@ -1,20 +1,15 @@
 {
   "$defs": {
-    "ExecutionEventType": {
+    "TaskRunCommandType": {
       "enum": [
-        "ExecutionCreated",
-        "ExecutionQueued",
-        "ExecutionStarted",
-        "ExecutionPaused",
-        "ExecutionResumed",
-        "ExecutionCancelRequested",
-        "ExecutionCancelled",
-        "ExecutionSucceeded",
-        "ExecutionFailed",
-        "ExecutionWarned",
-        "ExecutionRestartRequested"
+        "CreateTaskRun",
+        "StartTaskRun",
+        "ScheduleTaskRunRetry",
+        "SucceedTaskRun",
+        "FailTaskRun",
+        "CancelTaskRun"
       ],
-      "title": "ExecutionEventType",
+      "title": "TaskRunCommandType",
       "type": "string"
     }
   },
@@ -37,36 +32,36 @@
       "default": null,
       "title": "Causation Id"
     },
+    "command_id": {
+      "format": "uuid",
+      "title": "Command Id",
+      "type": "string"
+    },
+    "command_type": {
+      "$ref": "#/$defs/TaskRunCommandType"
+    },
     "correlation_id": {
       "format": "uuid",
       "title": "Correlation Id",
       "type": "string"
     },
-    "event_id": {
-      "format": "uuid",
-      "title": "Event Id",
-      "type": "string"
-    },
-    "event_type": {
-      "$ref": "#/$defs/ExecutionEventType"
-    },
-    "idempotency_key": {
+    "expected_version": {
       "anyOf": [
         {
-          "maxLength": 256,
-          "minLength": 1,
-          "type": "string"
+          "minimum": 0,
+          "type": "integer"
         },
         {
           "type": "null"
         }
       ],
       "default": null,
-      "title": "Idempotency Key"
+      "title": "Expected Version"
     },
-    "occurred_at": {
-      "format": "date-time",
-      "title": "Occurred At",
+    "idempotency_key": {
+      "maxLength": 256,
+      "minLength": 1,
+      "title": "Idempotency Key",
       "type": "string"
     },
     "payload": {
@@ -87,15 +82,21 @@
       "title": "Reason"
     },
     "schema_version": {
-      "const": 2,
-      "default": 2,
+      "const": 1,
+      "default": 1,
       "title": "Schema Version",
       "type": "integer"
+    },
+    "submitted_at": {
+      "format": "date-time",
+      "title": "Submitted At",
+      "type": "string"
     }
   },
   "required": [
-    "event_type"
+    "command_type",
+    "idempotency_key"
   ],
-  "title": "ExecutionEvent",
+  "title": "TaskRunCommand",
   "type": "object"
 }

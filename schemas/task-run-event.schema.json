@@ -1,20 +1,15 @@
 {
   "$defs": {
-    "ExecutionEventType": {
+    "TaskRunEventType": {
       "enum": [
-        "ExecutionCreated",
-        "ExecutionQueued",
-        "ExecutionStarted",
-        "ExecutionPaused",
-        "ExecutionResumed",
-        "ExecutionCancelRequested",
-        "ExecutionCancelled",
-        "ExecutionSucceeded",
-        "ExecutionFailed",
-        "ExecutionWarned",
-        "ExecutionRestartRequested"
+        "TaskRunCreated",
+        "TaskRunStarted",
+        "TaskRunRetryScheduled",
+        "TaskRunSucceeded",
+        "TaskRunFailed",
+        "TaskRunCancelled"
       ],
-      "title": "ExecutionEventType",
+      "title": "TaskRunEventType",
       "type": "string"
     }
   },
@@ -48,7 +43,7 @@
       "type": "string"
     },
     "event_type": {
-      "$ref": "#/$defs/ExecutionEventType"
+      "$ref": "#/$defs/TaskRunEventType"
     },
     "idempotency_key": {
       "anyOf": [
@@ -87,8 +82,8 @@
       "title": "Reason"
     },
     "schema_version": {
-      "const": 2,
-      "default": 2,
+      "const": 1,
+      "default": 1,
       "title": "Schema Version",
       "type": "integer"
     }
@@ -96,6 +91,6 @@
   "required": [
     "event_type"
   ],
-  "title": "ExecutionEvent",
+  "title": "TaskRunEvent",
   "type": "object"
 }

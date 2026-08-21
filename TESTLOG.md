@@ -412,3 +412,26 @@ Adversarial pass: an unbound UI session receives the same concealed tenant 404; 
 Qualification boundary: Chromium desktop and tablet are automated. Firefox, Edge, Safari, iPadOS and NVDA/VoiceOver remain in the pre-GA manual matrix, and the shared accessibility/privacy NFRs remain In Progress for their other owning epics.
 
 Verdict: PASS — EPIC-404 closed.
+
+## EPIC-007: Execution event model and state machine — 2026-08-22
+
+Spec source: `backlog/epics/epic-007-execution-event-model-and-state-machine.md` and `docs/architecture/execution-semantics.md`.
+
+Verified with Python 3.13.12 and PostgreSQL 17:
+
+- [x] Immutable execution/task-run commands, events, snapshots, accepted transitions and rejected transitions validate as typed versioned contracts; all introduced public contracts have checked-in JSON Schemas.
+- [x] Pure transition tables enforce legal execution and task-run lifecycles without infrastructure imports; illegal transitions leave the input snapshot unchanged.
+- [x] Stable idempotency keys deduplicate commands/events and repeated persisted task results produce one logical effect.
+- [x] Ordered execution and task histories replay to their canonical snapshots; 100 repeated execution replays are byte-equivalent.
+- [x] Execution event schema v1 upcasts to v2 with a stable key/reason, while unsupported versions fail explicitly.
+- [x] PostgreSQL persists execution/task actor, reason, correlation and causation fields and durable execution/task rejection evidence under forced tenant RLS.
+- [x] Every inserted execution/task event creates one versioned outbox envelope in the same transaction; a forced rollback leaves the state version, event table and outbox unchanged.
+- [x] A fresh database applies all 11 migrations and exposes `execution_event_outbox`, `task_run_event_outbox`, and forced RLS on both new evidence tables.
+- [x] Full suite: 118 passed, four environment-gated tests skipped, 80.89% branch coverage.
+- [x] Ruff formatting/lint, strict mypy, uv lock, generated schema/OpenAPI/planning drift, backlog validation, clean-room validation, compilation, Docker Compose rendering and diff checks pass.
+
+Adversarial pass: stale epochs, stale task versions, illegal terminal transitions, repeated commands/events/results, unsupported event schemas, reordered state changes and forced transaction rollback are rejected or deduplicated without corrupting authoritative state.
+
+Qualification boundary: live OpenRouter (`openai/gpt-5.6-luna`) and kind tests remain environment-gated because their credentials/context are absent. Helm was not rerun because the executable is unavailable and this epic changes no chart template. Shared reliability/maintainability NFRs remain In Progress for their remaining owners and distributed failover tests.
+
+Verdict: PASS — EPIC-007 closed.

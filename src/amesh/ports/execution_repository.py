@@ -1,22 +1,13 @@
 from __future__ import annotations
 
 from datetime import datetime
-from enum import StrEnum
 from typing import Any, Protocol
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from amesh.domain import ExecutionState, ResourceMetadata
+from amesh.domain import ExecutionState, ResourceMetadata, TaskRunState
 from amesh.dsl import FlowDefinition
-
-
-class TaskRunState(StrEnum):
-    WAITING = "WAITING"
-    RUNNING = "RUNNING"
-    RETRY_DELAY = "RETRY_DELAY"
-    SUCCESS = "SUCCESS"
-    FAILED = "FAILED"
 
 
 class TaskStateConflictError(RuntimeError):
