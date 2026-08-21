@@ -1,5 +1,36 @@
 # Test Log
 
+## EPIC-602: PostgreSQL transactional backend — 2026-08-22
+
+Spec source: Agent Hotel card `c22` and canonical `backlog/epics.json` EPIC-602 DoD.
+
+Verified with `uv`, Python 3.13 and PostgreSQL 15, 16, 17 and 18:
+
+- [x] A centralized async engine factory applies bounded pools, overflow and timeout limits,
+  pre-ping/recycle recovery, asyncpg prepared-statement caching and explicit TLS modes.
+- [x] Optional replica routing is limited to documented stale-tolerant flow and execution list reads;
+  commands and consistency-sensitive reads remain on the primary.
+- [x] PostgreSQL 15–18 each applied all 22 migrations and passed the migration/operations suite.
+- [x] Queue claim and outbox plans use their partial covering indexes; scheduler due-work selection uses
+  its due index. PostgreSQL 17 qualification measured a 0.477 ms critical-query p95, below the
+  published 50 ms local threshold; versions 15, 16 and 18 measured 0.437, 0.447 and 0.469 ms.
+- [x] Migration 0022 adds an auditable WAL-LSN/object-manifest backup checkpoint used by the
+  documented coordinated PostgreSQL/object-store PITR procedure.
+- [x] The operations repository inventories table bloat/statistics signals and partition presence;
+  the qualification command emits version, TLS, schema, index, query-plan and maintenance evidence.
+- [x] The complete product suite passes against a fresh 22-migration PostgreSQL 17 database;
+  configuration, engine, migration, operations, observability and API routing tests are included.
+- [x] Compose validation, Ruff formatting/lint, strict mypy, planning/backlog validation, generated
+  contracts, clean-room, lockfile, compilation and diff gates pass.
+
+Qualification boundary: the accepted profile is self-managed PostgreSQL 15–18. High-volume
+retention/partition rollout remains In Progress under EPIC-608, and credentialed AWS RDS, Azure
+Database for PostgreSQL and Google Cloud SQL qualification remains deferred to EPIC-706. No
+managed-cloud support claim is made. The shared availability and encryption NFRs remain In Progress.
+
+Verdict: PASS — EPIC-602 closes through the accepted self-managed profile and explicit product-owner
+re-scope; URS-F-0598, 0599, 0600, 0601, 0604 and 0605 are verified.
+
 ## EPIC-203: Loops, foreach, while and until — 2026-08-22
 
 Spec source: Agent Hotel card `c21` and canonical `backlog/epics.json` EPIC-203 DoD.

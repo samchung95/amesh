@@ -7,7 +7,6 @@ from datetime import UTC, datetime
 from uuid import UUID
 
 from sqlalchemy.exc import DBAPIError
-from sqlalchemy.ext.asyncio import create_async_engine
 
 from amesh.adapters.kubernetes import KubernetesJobRunner
 from amesh.adapters.postgres import (
@@ -18,6 +17,7 @@ from amesh.adapters.postgres import (
 )
 from amesh.backfills import BackfillService
 from amesh.config import Settings, get_settings
+from amesh.database import create_database_engine
 from amesh.domain import ExecutionState, new_runtime_id
 from amesh.executor import InProcessExecutor, kubernetes_job_handler
 from amesh.observability import configure_structured_logging
@@ -136,7 +136,7 @@ async def backfill_once(
 async def run_worker(settings: Settings) -> None:
     worker_uuid = new_runtime_id()
     worker_id = str(worker_uuid)
-    engine = create_async_engine(settings.database_url)
+    engine = create_database_engine(settings)
     repository = PostgresExecutionRepository(engine)
     scheduler_repository = PostgresSchedulerRepository(engine)
     backfill_repository = PostgresBackfillRepository(engine)

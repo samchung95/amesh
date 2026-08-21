@@ -54,6 +54,9 @@ Set `DATABASE_SLOW_QUERY_SECONDS` to the desired positive threshold; the default
 These metrics have no tenant, SQL text or identifier labels, avoiding unbounded cardinality and data
 leakage.
 
+Pool budgets, optional stale-read replica routing, TLS modes, compatibility qualification and
+backup-consistent WAL/object checkpoints are defined in the [PostgreSQL operations guide](postgresql.md).
+
 ## Metadata data inventory
 
 | Data | Persisted fields | Purpose | Sensitivity | Retention owner |

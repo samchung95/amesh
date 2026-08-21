@@ -1,6 +1,7 @@
 from fastapi.testclient import TestClient
 
-from amesh.app import _build_flow_graph, app
+from amesh.app import _build_flow_graph, app, get_read_repository
+from amesh.config import Settings
 from amesh.dsl import FlowDefinition
 from amesh.ports import PersistedIterationSummary
 
@@ -61,3 +62,23 @@ def test_loop_graph_uses_aggregated_template_nodes() -> None:
     assert graph.nodes[1].label == "capture"
     assert graph.nodes[1].iteration_count == 3
     assert graph.nodes[1].state == "SUCCESS"
+
+
+def test_read_repository_uses_primary_unless_replica_is_configured(monkeypatch) -> None:
+    primary = object()
+    replica = object()
+    monkeypatch.setattr(
+        "amesh.app.get_settings",
+        lambda: Settings(_env_file=None),
+    )
+    assert get_read_repository(primary) is primary
+
+    monkeypatch.setattr(
+        "amesh.app.get_settings",
+        lambda: Settings(
+            _env_file=None,
+            database_read_replica_url="postgresql+asyncpg://replica/amesh",
+        ),
+    )
+    monkeypatch.setattr("amesh.app.get_replica_repository", lambda: replica)
+    assert get_read_repository(primary) is replica

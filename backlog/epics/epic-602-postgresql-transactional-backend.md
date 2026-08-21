@@ -12,14 +12,18 @@ Provide a production-grade PostgreSQL backend for compact and horizontally scale
 
 ## In scope
 
-- [ ] **URS-F-0598** — The system shall support current supported PostgreSQL major versions under an explicit compatibility matrix.
-- [ ] **URS-F-0599** — The system shall use connection pools, prepared statements, indexes and partitioning appropriate to execution workloads.
-- [ ] **URS-F-0600** — The system shall implement queue claims, locks and scheduler ownership without long blocking transactions.
-- [ ] **URS-F-0601** — The system shall support read replicas only for explicitly stale-tolerant queries.
+- [x] **URS-F-0598** — The system shall support current supported PostgreSQL major versions under an explicit compatibility matrix.
+- [x] **URS-F-0599** — The system shall use connection pools, prepared statements, indexes and partitioning appropriate to execution workloads.
+- [x] **URS-F-0600** — The system shall implement queue claims, locks and scheduler ownership without long blocking transactions.
+- [x] **URS-F-0601** — The system shall support read replicas only for explicitly stale-tolerant queries.
 - [ ] **URS-F-0602** — The system shall provide maintenance for table bloat, partitions, statistics and high-volume event retention.
 - [ ] **URS-F-0603** — The system shall test managed PostgreSQL services and TLS configurations across major cloud providers.
-- [ ] **URS-F-0604** — The system shall publish query plans and benchmark thresholds for critical operations.
-- [ ] **URS-F-0605** — The system shall support backup-consistent object-storage metadata and point-in-time recovery procedures.
+- [x] **URS-F-0604** — The system shall publish query plans and benchmark thresholds for critical operations.
+- [x] **URS-F-0605** — The system shall support backup-consistent object-storage metadata and point-in-time recovery procedures.
+
+## Implementation completion evidence
+
+- 2026-08-22 — The accepted EPIC-602 self-managed profile is complete. AMESH now centralizes bounded async pools, prepared-statement caching, pre-ping/recycle recovery and TLS verification; optional replica routing is limited to flow/execution list reads. PostgreSQL 15, 16, 17 and 18 each applied all 22 migrations and passed operations qualification. Critical plan/index and latency reports are reproducible, and a durable WAL-LSN/object-manifest checkpoint supports coordinated PITR procedures. Per product-owner direction, high-volume retention/partition rollout remains In Progress under EPIC-608 and credentialed AWS/Azure/GCP qualification is deferred to EPIC-706; no managed-cloud support claim is made. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`postgresql.md`](../../docs/operations/postgresql.md), [`qualify_postgres.py`](../../scripts/qualify_postgres.py), [`test_operations_repository.py`](../../tests/adapters/postgres/test_operations_repository.py) and [`ci.yml`](../../.github/workflows/ci.yml).
 
 ## Non-functional requirements
 
@@ -47,13 +51,13 @@ Provide a production-grade PostgreSQL backend for compact and horizontally scale
 
 ## Definition of done
 
-- [ ] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
-- [ ] Public API, DSL, event and plugin contract changes pass compatibility checks.
-- [ ] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
-- [ ] Security, tenant isolation, redaction and audit behavior are reviewed.
-- [ ] Documentation, examples, migration notes and operational runbooks are updated.
-- [ ] Performance and recovery budgets are measured when this epic is on a critical path.
-- [ ] `python scripts/validate_backlog.py` passes.
+- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
+- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.
+- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
+- [x] Security, tenant isolation, redaction and audit behavior are reviewed.
+- [x] Documentation, examples, migration notes and operational runbooks are updated.
+- [x] Performance and recovery budgets are measured when this epic is on a critical path.
+- [x] `python scripts/validate_backlog.py` passes.
 
 ## Risks and unknowns
 

@@ -25,6 +25,14 @@ class Settings(BaseSettings):
     app_host: str = "0.0.0.0"
     app_port: int = Field(default=8000, ge=1, le=65535)
     database_url: str = "postgresql+asyncpg://amesh:amesh@localhost:5432/amesh"
+    database_read_replica_url: str | None = None
+    database_pool_size: int = Field(default=10, ge=1, le=100)
+    database_max_overflow: int = Field(default=10, ge=0, le=100)
+    database_pool_timeout_seconds: float = Field(default=30, gt=0)
+    database_pool_recycle_seconds: int = Field(default=1_800, ge=30)
+    database_prepared_statement_cache_size: int = Field(default=100, ge=0, le=1_000)
+    database_tls_mode: Literal["disable", "require", "verify-full"] = "disable"
+    database_tls_ca_file: str | None = None
     database_slow_query_seconds: float = Field(default=0.5, gt=0)
     object_storage_endpoint: str = "http://localhost:9000"
     object_storage_region: str = "us-east-1"
@@ -52,6 +60,12 @@ class Settings(BaseSettings):
             raise ValueError("AMESH_TOKEN_PEPPER cannot be empty")
         if self.app_env != "development" and pepper == "development-token-pepper":
             raise ValueError("production requires an externally supplied AMESH_TOKEN_PEPPER")
+        if not self.database_url.startswith("postgresql+asyncpg://"):
+            raise ValueError("DATABASE_URL must use postgresql+asyncpg")
+        if self.database_read_replica_url is not None and not (
+            self.database_read_replica_url.startswith("postgresql+asyncpg://")
+        ):
+            raise ValueError("DATABASE_READ_REPLICA_URL must use postgresql+asyncpg")
         return self
 
 

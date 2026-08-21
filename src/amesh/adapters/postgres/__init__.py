@@ -4,18 +4,26 @@ from .credential_repository import PostgresCredentialRepository
 from .durable_transport import PostgresDurableTransport
 from .execution_repository import PostgresExecutionRepository
 from .metadata_repository import PostgresMetadataRepository
+from .operations_repository import (
+    BackupCheckpoint,
+    PostgresOperationsRepository,
+    TableMaintenanceStatus,
+)
 from .scheduler_repository import PostgresSchedulerRepository
 from .tenant_repository import PostgresTenantRepository
 from .worker_repository import PostgresWorkerRepository
 
 __all__ = [
+    "BackupCheckpoint",
     "PostgresAuthorizationRepository",
     "PostgresBackfillRepository",
     "PostgresCredentialRepository",
     "PostgresDurableTransport",
     "PostgresExecutionRepository",
     "PostgresMetadataRepository",
+    "PostgresOperationsRepository",
     "PostgresSchedulerRepository",
     "PostgresTenantRepository",
     "PostgresWorkerRepository",
+    "TableMaintenanceStatus",
 ]

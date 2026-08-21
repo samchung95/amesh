@@ -45,6 +45,29 @@ app.kubernetes.io/instance: {{ .Release.Name }}
     secretKeyRef:
       name: {{ .Values.database.existingSecret | quote }}
       key: {{ .Values.database.key | quote }}
+{{- if .Values.database.readReplicaExistingSecret }}
+- name: DATABASE_READ_REPLICA_URL
+  valueFrom:
+    secretKeyRef:
+      name: {{ .Values.database.readReplicaExistingSecret | quote }}
+      key: {{ .Values.database.readReplicaKey | quote }}
+{{- end }}
+- name: DATABASE_POOL_SIZE
+  value: {{ .Values.database.poolSize | quote }}
+- name: DATABASE_MAX_OVERFLOW
+  value: {{ .Values.database.maxOverflow | quote }}
+- name: DATABASE_POOL_TIMEOUT_SECONDS
+  value: {{ .Values.database.poolTimeoutSeconds | quote }}
+- name: DATABASE_POOL_RECYCLE_SECONDS
+  value: {{ .Values.database.poolRecycleSeconds | quote }}
+- name: DATABASE_PREPARED_STATEMENT_CACHE_SIZE
+  value: {{ .Values.database.preparedStatementCacheSize | quote }}
+- name: DATABASE_TLS_MODE
+  value: {{ .Values.database.tlsMode | quote }}
+{{- if .Values.database.tlsCAFile }}
+- name: DATABASE_TLS_CA_FILE
+  value: {{ .Values.database.tlsCAFile | quote }}
+{{- end }}
 - name: AMESH_ADMIN_TOKEN
   valueFrom:
     secretKeyRef:

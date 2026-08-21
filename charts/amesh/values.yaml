@@ -33,8 +33,17 @@ serviceAccount:
 database:
   existingSecret: amesh-database
   key: database-url
+  readReplicaExistingSecret: ""
+  readReplicaKey: database-read-replica-url
   migrationExistingSecret: ""
   migrationKey: database-url
+  poolSize: 10
+  maxOverflow: 10
+  poolTimeoutSeconds: 30
+  poolRecycleSeconds: 1800
+  preparedStatementCacheSize: 100
+  tlsMode: verify-full
+  tlsCAFile: ""
 
 adminToken:
   existingSecret: amesh-admin

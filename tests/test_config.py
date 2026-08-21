@@ -12,6 +12,18 @@ def test_reference_configuration_is_postgresql_only() -> None:
     assert settings.database_url.startswith("postgresql+asyncpg://")
     assert not hasattr(settings, "nats_url")
     assert settings.object_storage_bucket == "amesh"
+    assert settings.database_pool_size == 10
+    assert settings.database_prepared_statement_cache_size == 100
+
+
+def test_database_urls_require_the_async_postgresql_driver() -> None:
+    with pytest.raises(ValueError, match="DATABASE_URL"):
+        Settings(_env_file=None, database_url="sqlite+aiosqlite:///amesh.db")
+    with pytest.raises(ValueError, match="DATABASE_READ_REPLICA_URL"):
+        Settings(
+            _env_file=None,
+            database_read_replica_url="mysql+asyncmy://amesh@replica/amesh",
+        )
 
 
 def test_development_bootstrap_token_fails_closed_outside_development() -> None:

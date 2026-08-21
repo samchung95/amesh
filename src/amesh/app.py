@@ -23,7 +23,7 @@ from fastapi import (
 )
 from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 from pydantic import TypeAdapter, ValidationError
-from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
+from sqlalchemy.ext.asyncio import AsyncEngine
 from starlette.responses import JSONResponse
 
 from amesh import __version__
@@ -67,6 +67,7 @@ from amesh.authorization import AuthorizationDenied, AuthorizationService
 from amesh.backfills import BackfillService
 from amesh.config import Settings, get_settings
 from amesh.credentials import CredentialOperationError, CredentialService, InvalidCredential
+from amesh.database import create_database_engine
 from amesh.domain import (
     ActorContext,
     AdmissionDecision,
@@ -193,7 +194,16 @@ async def observe_http(
 def database_engine() -> AsyncEngine:
     settings = get_settings()
     return instrument_database(
-        create_async_engine(settings.database_url),
+        create_database_engine(settings),
+        slow_query_seconds=settings.database_slow_query_seconds,
+    )
+
+
+@lru_cache
+def read_database_engine() -> AsyncEngine:
+    settings = get_settings()
+    return instrument_database(
+        create_database_engine(settings, read_replica=True),
         slow_query_seconds=settings.database_slow_query_seconds,
     )
 
@@ -206,6 +216,25 @@ def get_repository() -> PostgresExecutionRepository:
 RepositoryDependency = Annotated[
     PostgresExecutionRepository,
     Depends(get_repository),
+]
+
+
+@lru_cache
+def get_replica_repository() -> PostgresExecutionRepository:
+    return PostgresExecutionRepository(read_database_engine())
+
+
+def get_read_repository(
+    primary: RepositoryDependency,
+) -> PostgresExecutionRepository:
+    if get_settings().database_read_replica_url is None:
+        return primary
+    return get_replica_repository()
+
+
+ReadRepositoryDependency = Annotated[
+    PostgresExecutionRepository,
+    Depends(get_read_repository),
 ]
 
 
@@ -577,7 +606,7 @@ async def apply_flow(
     tags=["flows"],
 )
 async def list_flows(
-    repository: RepositoryDependency,
+    repository: ReadRepositoryDependency,
     actor: ActorDependency,
     authorization_service: AuthorizationServiceDependency,
     tenant_id: TenantDependency,
@@ -713,7 +742,7 @@ async def create_execution(
     tags=["executions"],
 )
 async def list_executions(
-    repository: RepositoryDependency,
+    repository: ReadRepositoryDependency,
     actor: ActorDependency,
     authorization_service: AuthorizationServiceDependency,
     tenant_id: TenantDependency,

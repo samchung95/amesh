@@ -48,6 +48,10 @@ A recoverable backup includes:
 6. Kubernetes and Helm configuration needed to recreate the service topology;
 7. identifier maps and manifests for active migrations.
 
+The object manifest is completed first, then `scripts/record_backup_checkpoint.py` records its URI and
+checksum beside the current WAL LSN and migration version. The retained base backup and WAL archive
+must cover that checkpoint, and object versioning must preserve every version named by the manifest.
+
 Search projections may be excluded only when their rebuild time fits the selected RTO.
 
 ## Backup policy for the v1 gate

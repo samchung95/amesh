@@ -5,6 +5,7 @@ import hashlib
 import json
 import os
 import re
+import ssl
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal
@@ -14,6 +15,7 @@ from uuid import uuid4
 import asyncpg  # type: ignore[import-untyped]
 
 from amesh.config import get_settings
+from amesh.database import database_ssl_argument
 from amesh.observability import configure_structured_logging
 
 _MIGRATION_LOCK = 280465470280
@@ -115,10 +117,16 @@ def migration_plan(directory: Path) -> tuple[MigrationDescriptor, ...]:
     return tuple(plan)
 
 
-async def apply_migrations(database_url: str, directory: Path) -> list[str]:
+async def apply_migrations(
+    database_url: str,
+    directory: Path,
+    *,
+    ssl_argument: ssl.SSLContext | bool | None = None,
+) -> list[str]:
     plan = migration_plan(directory)
     connection = await asyncpg.connect(
-        database_url.replace("postgresql+asyncpg://", "postgresql://", 1)
+        database_url.replace("postgresql+asyncpg://", "postgresql://", 1),
+        ssl=ssl_argument,
     )
     applied: list[str] = []
     try:
@@ -285,7 +293,13 @@ def _replace_database(parts: SplitResult, database: str, *, asyncpg: bool = True
 def main() -> None:
     settings = get_settings()
     configure_structured_logging(settings.log_level)
-    applied = asyncio.run(apply_migrations(settings.database_url, migration_directory()))
+    applied = asyncio.run(
+        apply_migrations(
+            settings.database_url,
+            migration_directory(),
+            ssl_argument=database_ssl_argument(settings),
+        )
+    )
     print(f"applied {len(applied)} migration(s): {', '.join(applied) or 'none'}")
 
 

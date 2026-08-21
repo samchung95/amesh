@@ -126,6 +126,12 @@
       "mode": "expand",
       "onlineCompatible": true,
       "rollbackGuidance": "Pause new asynchronous task deferrals and forward-fix additive attempt evidence or resume-token state; retain task attempt history and reject unresolved callbacks until reconciled."
+    },
+    {
+      "file": "0022_postgresql_operations.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Stop recording new backup checkpoints and forward-fix the additive table; retain existing LSN and object-manifest evidence for restore qualification."
     }
   ]
 }

@@ -7,6 +7,12 @@ services:
     environment:
       APP_ENV: development
       DATABASE_URL: postgresql+asyncpg://amesh:amesh@postgres:5432/amesh
+      DATABASE_POOL_SIZE: "10"
+      DATABASE_MAX_OVERFLOW: "10"
+      DATABASE_POOL_TIMEOUT_SECONDS: "30"
+      DATABASE_POOL_RECYCLE_SECONDS: "1800"
+      DATABASE_PREPARED_STATEMENT_CACHE_SIZE: "100"
+      DATABASE_TLS_MODE: disable
       OBJECT_STORAGE_ENDPOINT: http://minio:9000
       OBJECT_STORAGE_BUCKET: amesh
       OBJECT_STORAGE_ACCESS_KEY: minio
@@ -54,6 +60,10 @@ services:
       - ./migrations/0016_worker_protocol.sql:/docker-entrypoint-initdb.d/0016_worker_protocol.sql:ro
       - ./migrations/0017_execution_interventions.sql:/docker-entrypoint-initdb.d/0017_execution_interventions.sql:ro
       - ./migrations/0018_subflow_relationships.sql:/docker-entrypoint-initdb.d/0018_subflow_relationships.sql:ro
+      - ./migrations/0019_admission_control.sql:/docker-entrypoint-initdb.d/0019_admission_control.sql:ro
+      - ./migrations/0020_backfills.sql:/docker-entrypoint-initdb.d/0020_backfills.sql:ro
+      - ./migrations/0021_runnable_task_contract.sql:/docker-entrypoint-initdb.d/0021_runnable_task_contract.sql:ro
+      - ./migrations/0022_postgresql_operations.sql:/docker-entrypoint-initdb.d/0022_postgresql_operations.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U amesh -d amesh"]
       interval: 5s

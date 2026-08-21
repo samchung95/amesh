@@ -596,14 +596,14 @@ URS-F-0594,Functional,Must,EPIC-601,Distributed services and high availability,M
 URS-F-0595,Functional,Must,EPIC-601,Distributed services and high availability,M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
 URS-F-0596,Functional,Must,EPIC-601,Distributed services and high availability,M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
 URS-F-0597,Functional,Must,EPIC-601,Distributed services and high availability,M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
-URS-F-0598,Functional,Must,EPIC-602,PostgreSQL transactional backend,M6,6,Repository or storage adapter contract and fault-injection tests,Proposed
-URS-F-0599,Functional,Must,EPIC-602,PostgreSQL transactional backend,M6,6,Repository or storage adapter contract and fault-injection tests,Proposed
-URS-F-0600,Functional,Must,EPIC-602,PostgreSQL transactional backend,M6,6,Repository or storage adapter contract and fault-injection tests,Proposed
-URS-F-0601,Functional,Must,EPIC-602,PostgreSQL transactional backend,M6,6,Repository or storage adapter contract and fault-injection tests,Proposed
-URS-F-0602,Functional,Must,EPIC-602,PostgreSQL transactional backend,M6,6,Repository or storage adapter contract and fault-injection tests,Proposed
-URS-F-0603,Functional,Must,EPIC-602,PostgreSQL transactional backend,M6,6,Repository or storage adapter contract and fault-injection tests,Proposed
-URS-F-0604,Functional,Must,EPIC-602,PostgreSQL transactional backend,M6,6,Repository or storage adapter contract and fault-injection tests,Proposed
-URS-F-0605,Functional,Must,EPIC-602,PostgreSQL transactional backend,M6,6,Repository or storage adapter contract and fault-injection tests,Proposed
+URS-F-0598,Functional,Must,EPIC-602,PostgreSQL transactional backend,M6,6,Repository or storage adapter contract and fault-injection tests,Verified
+URS-F-0599,Functional,Must,EPIC-602,PostgreSQL transactional backend,M6,6,Repository or storage adapter contract and fault-injection tests,Verified
+URS-F-0600,Functional,Must,EPIC-602,PostgreSQL transactional backend,M6,6,Repository or storage adapter contract and fault-injection tests,Verified
+URS-F-0601,Functional,Must,EPIC-602,PostgreSQL transactional backend,M6,6,Repository or storage adapter contract and fault-injection tests,Verified
+URS-F-0602,Functional,Must,EPIC-602,PostgreSQL transactional backend,M6,6,Repository or storage adapter contract and fault-injection tests,In Progress
+URS-F-0603,Functional,Must,EPIC-602,PostgreSQL transactional backend,M6,6,Repository or storage adapter contract and fault-injection tests,In Progress
+URS-F-0604,Functional,Must,EPIC-602,PostgreSQL transactional backend,M6,6,Repository or storage adapter contract and fault-injection tests,Verified
+URS-F-0605,Functional,Must,EPIC-602,PostgreSQL transactional backend,M6,6,Repository or storage adapter contract and fault-injection tests,Verified
 URS-F-0606,Functional,Must,EPIC-603,PostgreSQL distributed work queue and notifications,M6,6,"PostgreSQL delivery, ordering, duplicate, failover and saturation conformance tests",Proposed
 URS-F-0607,Functional,Must,EPIC-603,PostgreSQL distributed work queue and notifications,M6,6,"PostgreSQL delivery, ordering, duplicate, failover and saturation conformance tests",Proposed
 URS-F-0608,Functional,Must,EPIC-603,PostgreSQL distributed work queue and notifications,M6,6,"PostgreSQL delivery, ordering, duplicate, failover and saturation conformance tests",Proposed
@@ -844,8 +844,8 @@ URS-NFR-AIENGINEERING-001,Non-functional,Must,EPIC-011,AI-native engineering fac
 URS-NFR-AIENGINEERING-002,Non-functional,Must,EPIC-011,AI-native engineering factory and autonomous contribution controls,M0,0,"Provenance-schema, secret-scan and clean-room gate tests.",Proposed
 URS-NFR-AIENGINEERING-003,Non-functional,Must,EPIC-011,AI-native engineering factory and autonomous contribution controls,M0,0,Credential canary and branch-protection integration tests.,Proposed
 URS-NFR-AIENGINEERING-004,Non-functional,Must,EPIC-011,AI-native engineering factory and autonomous contribution controls,M0,0,Golden evidence-bundle and policy replay tests.,Proposed
-URS-NFR-AVAILABILITY-001,Non-functional,Must,EPIC-600,Standalone server and compact deployment,M6,6,Reference topology soak test and SLO calculation.,Proposed
-URS-NFR-AVAILABILITY-001,Non-functional,Must,EPIC-602,PostgreSQL transactional backend,M6,6,Reference topology soak test and SLO calculation.,Proposed
+URS-NFR-AVAILABILITY-001,Non-functional,Must,EPIC-600,Standalone server and compact deployment,M6,6,Reference topology soak test and SLO calculation.,In Progress
+URS-NFR-AVAILABILITY-001,Non-functional,Must,EPIC-602,PostgreSQL transactional backend,M6,6,Reference topology soak test and SLO calculation.,In Progress
 URS-NFR-AVAILABILITY-002,Non-functional,Must,EPIC-601,Distributed services and high availability,M6,6,Multi-replica chaos and zone-spread tests.,Proposed
 URS-NFR-AVAILABILITY-002,Non-functional,Must,EPIC-603,PostgreSQL distributed work queue and notifications,M6,6,Multi-replica chaos and zone-spread tests.,Proposed
 URS-NFR-AVAILABILITY-003,Non-functional,Must,EPIC-609,"Backup, restore and disaster recovery",M6,6,"Isolated restore exercise on the on-premises Kubernetes reference topology, with measured data-loss window and service-restoration time.",Proposed
@@ -957,9 +957,9 @@ URS-NFR-SECURITY-003,Non-functional,Must,EPIC-205,"Inputs, outputs and variables
 URS-NFR-SECURITY-003,Non-functional,Must,EPIC-506,External secrets managers and secret lifecycle,M5,5,Canary-secret scanning and redaction tests.,Proposed
 URS-NFR-SECURITY-003,Non-functional,Must,EPIC-607,"OpenTelemetry, Prometheus and log shipping",M6,6,Canary-secret scanning and redaction tests.,Proposed
 URS-NFR-SECURITY-004,Non-functional,Must,EPIC-613,"TLS, networking, proxy and private connectivity",M6,6,Automated protocol scan and reference deployment test.,Proposed
-URS-NFR-SECURITY-005,Non-functional,Must,EPIC-506,External secrets managers and secret lifecycle,M5,5,Configuration audit and restore test.,Proposed
-URS-NFR-SECURITY-005,Non-functional,Must,EPIC-602,PostgreSQL transactional backend,M6,6,Configuration audit and restore test.,Proposed
-URS-NFR-SECURITY-005,Non-functional,Must,EPIC-605,Object storage backends and lifecycle,M6,6,Configuration audit and restore test.,Proposed
+URS-NFR-SECURITY-005,Non-functional,Must,EPIC-506,External secrets managers and secret lifecycle,M5,5,Configuration audit and restore test.,In Progress
+URS-NFR-SECURITY-005,Non-functional,Must,EPIC-602,PostgreSQL transactional backend,M6,6,Configuration audit and restore test.,In Progress
+URS-NFR-SECURITY-005,Non-functional,Must,EPIC-605,Object storage backends and lifecycle,M6,6,Configuration audit and restore test.,In Progress
 URS-NFR-SECURITY-006,Non-functional,Must,EPIC-501,"Service accounts, API tokens and credentials",M5,5,"Automated token, certificate and external-secret rotation tests.",In Progress
 URS-NFR-SECURITY-006,Non-functional,Must,EPIC-502,"SSO, OIDC, SAML, LDAP and SCIM",M5,5,"Automated token, certificate and external-secret rotation tests.",In Progress
 URS-NFR-SECURITY-006,Non-functional,Must,EPIC-506,External secrets managers and secret lifecycle,M5,5,"Automated token, certificate and external-secret rotation tests.",In Progress

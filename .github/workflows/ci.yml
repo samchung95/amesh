@@ -49,3 +49,45 @@ jobs:
       - uses: actions/checkout@v4
       - name: Validate Compose
         run: docker compose config --quiet
+
+  postgres-compatibility:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        postgres: ["15", "16", "17", "18"]
+    services:
+      postgres:
+        image: postgres:${{ matrix.postgres }}-alpine
+        env:
+          POSTGRES_DB: amesh
+          POSTGRES_USER: amesh
+          POSTGRES_PASSWORD: amesh
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U amesh -d amesh"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 20
+    env:
+      DATABASE_URL: postgresql+asyncpg://amesh:amesh@localhost:5432/amesh
+      AMESH_TEST_DATABASE_URL: postgresql+asyncpg://amesh:amesh@localhost:5432/amesh
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: |
+          python -m pip install uv
+          uv sync --extra runtime --extra dev --locked
+      - name: Apply migrations
+        run: uv run python -m amesh.migrations
+      - name: Verify migration and PostgreSQL operations contracts
+        run: >-
+          uv run pytest
+          tests/test_migrations.py
+          tests/adapters/postgres/test_migration_contract.py
+          tests/adapters/postgres/test_operations_repository.py
