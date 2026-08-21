@@ -21,6 +21,10 @@ Express common dependency and parallelism patterns as first-class flowable tasks
 - [ ] **URS-F-0194** — The system shall render child task contexts without leaking sibling-private values.
 - [ ] **URS-F-0195** — The system shall visualize expanded dependency graphs before and during execution.
 
+## MVP implementation progress
+
+- 2026-08-21 — W2 verified the accepted top-level DAG slice: independent ready tasks run concurrently, dependants wait for successful predecessors and persisted progress resumes after executor restart. Evidence: [`TESTLOG.md`](../../TESTLOG.md) and [`test_postgres_executor.py`](../../tests/executor/test_postgres_executor.py). Nested flowables, joins and the broader epic remain open.
+
 ## Non-functional requirements
 
 - [ ] No epic-specific NFR is mapped yet; general security, maintainability and test gates still apply.

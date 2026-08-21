@@ -1,6 +1,6 @@
 # AMESH — Agent Mesh
 
-> **Status:** architecture-locked, implementation-ready requirements, backlog and executable specification. AMESH is not yet a production-ready orchestrator and does not yet claim Kestra compatibility.
+> **Status:** the product-owner-amended two-month MVP is delivered as `v0.2.0-mvp`. AMESH is not yet a production-ready orchestrator and does not claim Kestra compatibility; the uninterrupted 24-hour qualification remains deferred to EPIC-611.
 
 AMESH is a strict clean-room, fully open-source durable workflow and agent orchestration platform. Its first compatibility baseline is pinned to **Kestra 1.3.30** at commit `db49f3b2c2af60d61df10adb6f9fc34e4776b65b`, allowing compatibility to be measured against a stable target rather than an undefined “latest” release.
 
@@ -40,7 +40,7 @@ The product target is broader than OSS feature parity. AMESH also independently 
 - Architecture for deterministic execution, PostgreSQL queues, leases, fencing, scheduling, plugins, tenancy, security, HA and disaster recovery.
 - Full compatibility workstreams for Kestra YAML, Pebble, REST, CLI, execution behavior and import/export.
 - AMESH-specific workstreams for agent meshes, deterministic simulation, policy-as-code and evidence-backed AI assistance.
-- A small Python/FastAPI executable specification for flow validation and immutable execution reduction.
+- A running Python/FastAPI MVP control plane with durable PostgreSQL execution, cron/manual/webhook triggers, local and Kubernetes Job runners, agent tasks, recovery worker, REST/CLI access, metrics and structured logs.
 - A PostgreSQL + MinIO Docker Compose development topology.
 - Reproducible planning, contract, validation and packaging scripts.
 
@@ -112,7 +112,8 @@ docs/
   architecture/             Runtime, storage, security and compatibility design
   governance/               Clean-room, threat and AI-engineering controls
   product/                  Vision, decisions, personas, roadmap and differentiators
-src/amesh/                  Python executable specification
+charts/amesh/               Minimal external-PostgreSQL Kubernetes/Helm MVP
+src/amesh/                  Python MVP control plane, workers, ports and adapters
 tests/                      Specification tests
 migrations/                 Provisional PostgreSQL schema
 proto/                      Worker and isolated-plugin protocol drafts
@@ -121,35 +122,40 @@ scripts/                    Regeneration, validation, packaging and publication 
 
 ## Local quick start
 
-Requirements: Python 3.12+, Docker with Compose v2 and Git.
+Requirements: Python 3.12+, [uv](https://docs.astral.sh/uv/), Docker with Compose v2 and Git.
 
 ```bash
 cp .env.example .env
 docker compose up -d postgres minio
-python -m venv .venv
-. .venv/bin/activate
-python -m pip install -e '.[dev,runtime]'
-make validate-core
-uvicorn amesh.app:app --reload
+uv sync --extra runtime --extra dev
+uv run --extra runtime --extra dev pytest
+uv run --extra runtime python -m amesh.server
 ```
 
-Open `http://localhost:8000/docs`, then validate the sample flow:
+Open `http://localhost:8000/docs`, then validate and apply a sample flow:
 
 ```bash
 curl -sS -X POST http://localhost:8000/api/v1/flows/validate \
   -H 'content-type: application/yaml' \
   --data-binary @examples/hello-world.yaml
+
+uv run --extra runtime python -m amesh \
+  --token development-token apply examples/parallel-dag.yaml
+uv run --extra runtime python -m amesh \
+  --token development-token run examples.engine parallel_dag
 ```
 
-The current API demonstrates only validation and deterministic state reduction. It does not yet schedule or execute workflow tasks.
+The API also supports flow/execution lists, execution details and logs, webhook triggers, OpenRouter/OpenAI-compatible LLM tasks, MCP tool calls, local-process tasks and Kubernetes Job tasks. Prometheus metrics are exposed at `http://localhost:8000/metrics`.
+
+For the reference Kubernetes path—external PostgreSQL, existing Secrets, Helm migration/server/worker roles, a real Luna → Job → HTTP run and cleanup—follow the [MVP Helm quickstart](charts/amesh/README.md).
 
 ## Planning workflow
 
 `requirements/urs.json` and structured epic fields in `backlog/epics.json` are canonical. After changing either:
 
 ```bash
-python scripts/regenerate_planning_artifacts.py
-python scripts/validate_backlog.py
+uv run --extra runtime --extra dev python scripts/regenerate_planning_artifacts.py
+uv run --extra runtime --extra dev python scripts/validate_backlog.py
 ```
 
 The regeneration script updates the human URS, CSV exports, traceability matrix, parity matrix, epic issue bodies, backlog index, GitHub issue records and roadmap. CI rejects generated drift.
@@ -157,10 +163,12 @@ The regeneration script updates the human URS, CSV exports, traceability matrix,
 Useful validation commands:
 
 ```bash
-make validate-core     # tests, requirements, clean-room scan and compilation
-make validate          # also formatting, linting, typing and generated-file drift
-make contracts         # regenerate JSON Schema and OpenAPI
-make package           # create source archives and checksums
+uv run --extra runtime --extra dev pytest
+uv run --extra runtime --extra dev ruff format --check src tests scripts
+uv run --extra runtime --extra dev ruff check src tests scripts
+uv run --extra runtime --extra dev mypy src
+uv run --extra runtime --extra dev python scripts/generate_contracts.py
+uv run --extra runtime --extra dev python scripts/regenerate_planning_artifacts.py --check
 ```
 
 ## Compatibility and clean-room policy
@@ -182,7 +190,7 @@ The roadmap is dependency-based, not calendar-based. AI engineering capacity can
 - [Implementation kickoff](docs/product/implementation-kickoff.md)
 - [Implementation status](IMPLEMENTATION_STATUS.md)
 
-All foundational product decisions are accepted. M0 can begin using the dependency-ordered launch sequence in the implementation kickoff document. Later implementation choices are captured as ADRs and may not silently weaken the accepted compatibility, security, migration or release guarantees.
+All foundational product decisions are accepted. The two-month MVP completed W1–W8 under the product-owner-approved W8 soak deferral and is tagged `v0.2.0-mvp`; the broader dependency-ordered roadmap remains open. Later implementation choices are captured as ADRs and may not silently weaken the accepted compatibility, security, migration or release guarantees.
 
 ## GitHub publication
 

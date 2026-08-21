@@ -21,6 +21,10 @@ Provide durable PostgreSQL-backed work delivery while preserving transactional c
 - [ ] **URS-F-0074** — The system shall provide a PostgreSQL-backed durable queue adapter with transactional outbox, inbox, claim, retry and dead-letter semantics.
 - [ ] **URS-F-0075** — The system shall document at-least-once delivery and external side-effect idempotency responsibilities.
 
+## MVP implementation progress
+
+- 2026-08-21 — W1 verified the accepted PostgreSQL transport slice: idempotent enqueue, `SKIP LOCKED` claims, expiring leases, monotonic fencing, transactional outbox publication, consumer-inbox deduplication, process-crash recovery and lane-specific `LISTEN/NOTIFY` wake-ups without polling. Evidence: [`TESTLOG.md`](../../TESTLOG.md) and [`test_durable_transport.py`](../../tests/adapters/postgres/test_durable_transport.py). Dead-letter policy and the broader parity epic remain open.
+
 ## Non-functional requirements
 
 - [ ] **URS-NFR-RELIABILITY-001** — The platform shall not lose an accepted state-changing command after the API or durable PostgreSQL transport acknowledges it. Target: Zero lost acknowledged commands in crash-consistency and failover tests.

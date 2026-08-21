@@ -21,6 +21,10 @@ Expose actionable telemetry without coupling the platform to one vendor.
 - [ ] **URS-F-0644** — The system shall redact sensitive values before telemetry export.
 - [ ] **URS-F-0645** — The system shall continue core operation when telemetry collectors or exporters are unavailable.
 
+## MVP implementation progress
+
+- 2026-08-21 — W7 verified the accepted Prometheus/logging slice: `/metrics` exposes process, build and normalized HTTP request counters through the Helm Service, which carries scrape annotations, while server and worker stdout is newline-delimited JSON. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`test_observability.py`](../../tests/test_observability.py), and [`observability.py`](../../src/amesh/observability.py). OpenTelemetry, dashboards, alerts, shipping and the broader telemetry epic remain open.
+
 ## Non-functional requirements
 
 - [ ] **URS-NFR-RELIABILITY-005** — Core orchestration shall continue when optional search, telemetry, outbound webhook or analytics services are unavailable. Target: New and running executions continue within documented latency budgets during optional-service outage tests.

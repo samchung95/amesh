@@ -1,0 +1,7 @@
+AMESH {{ .Chart.AppVersion }} is installed.
+
+Port-forward the API:
+  kubectl -n {{ .Release.Namespace }} port-forward service/{{ include "amesh.fullname" . }} {{ .Values.service.port }}:{{ .Values.service.port }}
+
+The API requires the bearer token stored in Secret {{ .Values.adminToken.existingSecret }}.
+Prometheus metrics are served at /metrics on the same service.

@@ -55,9 +55,50 @@
       "title": "InputDefinition",
       "type": "object"
     },
+    "RetryPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "backoffMultiplier": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Backoffmultiplier",
+          "type": "number"
+        },
+        "delaySeconds": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Delayseconds",
+          "type": "number"
+        },
+        "maxAttempts": {
+          "default": 1,
+          "maximum": 100,
+          "minimum": 1,
+          "title": "Maxattempts",
+          "type": "integer"
+        }
+      },
+      "title": "RetryPolicy",
+      "type": "object"
+    },
     "TaskDefinition": {
       "additionalProperties": true,
       "properties": {
+        "command": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Command"
+        },
         "dependsOn": {
           "items": {
             "type": "string"
@@ -77,11 +118,38 @@
           "default": null,
           "title": "Description"
         },
+        "environment": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Environment",
+          "type": "object"
+        },
         "id": {
           "maxLength": 128,
           "minLength": 1,
           "title": "Id",
           "type": "string"
+        },
+        "image": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Image"
+        },
+        "resources": {
+          "additionalProperties": true,
+          "title": "Resources",
+          "type": "object"
+        },
+        "retry": {
+          "$ref": "#/$defs/RetryPolicy"
         },
         "runIf": {
           "anyOf": [
@@ -102,6 +170,19 @@
           "title": "Tasks",
           "type": "array"
         },
+        "timeoutSeconds": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Timeoutseconds"
+        },
         "type": {
           "maxLength": 512,
           "minLength": 1,
@@ -119,6 +200,18 @@
     "TriggerDefinition": {
       "additionalProperties": true,
       "properties": {
+        "cron": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cron"
+        },
         "disabled": {
           "default": false,
           "title": "Disabled",
@@ -128,6 +221,11 @@
           "maxLength": 128,
           "minLength": 1,
           "title": "Id",
+          "type": "string"
+        },
+        "timezone": {
+          "default": "UTC",
+          "title": "Timezone",
           "type": "string"
         },
         "type": {

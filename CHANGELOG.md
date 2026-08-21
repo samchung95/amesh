@@ -1,7 +1,15 @@
 # Changelog
 
-## Unreleased — 2026-08-19
+## 0.2.0-mvp — 2026-08-21
 
+- Added the PostgreSQL durable transport adapter with idempotent outbox publication, consumer-inbox deduplication, expiring leases, retries, fencing and lane-specific `LISTEN/NOTIFY` wake-ups; process-crash tests prove redelivery without duplicate-effective work.
+- Added a PostgreSQL-backed MVP DAG executor with persisted execution events, task runs and attempts plus epoch-fenced terminal event append; a fresh executor instance resumes `parallel-dag.yaml` without rerunning completed work.
+- Added the runner port and local-process adapter with argv execution, captured results, persisted retry scheduling, timeout/cancellation escalation and stale-attempt result fencing.
+- Added deployed-worker cron polling with timezone-aware calculation and PostgreSQL execution idempotency across concurrent/restarted schedulers, plus sandboxed AMESH-native Jinja rendering for inputs, outputs, variables and `runIf`.
+- Added the Kubernetes Job runner on the shared runner contract with deterministic Job reconciliation, resource/deadline mapping, pod log/exit capture, cancellation cleanup and a real kind pod-deletion recovery test.
+- Added structured `core.log`, native `core.return`, HTTP, OpenRouter/OpenAI-compatible LLM and official MCP task handlers; authenticated flow/execution/webhook/log REST endpoints; matching CLI commands including execution listing; and a live API-triggered Luna → Kubernetes shell → HTTP demonstration.
+- Added a uv-locked non-root container and minimal Helm chart with external-PostgreSQL migration hook, server and recovery-worker roles, task-Job RBAC, health probes, external Secret references, structured JSON logs and Prometheus `/metrics`; verified on a fresh kind cluster.
+- Added opt-in live OpenRouter LLM contract testing with `openai/gpt-5.6-luna` as the default model.
 - Confirmed Python 3.12 asyncio as the production durable control plane (ADR-016), superseding the Java 25 selection before any Java implementation began; updated README, decision register, baseline and status documents accordingly.
 - Added the two-month MVP scope (`docs/product/mvp-scope.md`): a durable engine slice with local-process and Kubernetes Job runners, cron scheduling, native expressions, agent task types and a minimal Helm chart, plus an explicit deferral register and accepted cons.
 - Initialized the git repository with a full baseline commit.
@@ -10,6 +18,7 @@
 - Renamed the protobuf packages from `openorchestrator.*` to `amesh.*`.
 - Pinned `fastapi`, `pydantic` and `pydantic-settings` exactly to keep the byte-stable generated-contract test deterministic.
 - Made generated planning and contract artifacts byte-identical on Windows (`newline="\n"`), so CI drift gates cannot be tripped by the platform.
+- Completed the owner-amended W8 release gate: 270 unique single-attempt executions survived 270 task-pod, 27 server-pod and 13 worker-pod deletions with zero lost or duplicated persisted executions; the clean-cluster quickstart and all release gates passed. The remaining uninterrupted 24-hour qualification is explicitly deferred to EPIC-611.
 
 ## 0.1.0-dev.1 — 2026-08-16
 

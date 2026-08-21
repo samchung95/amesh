@@ -21,6 +21,10 @@ Ship dependable generic building blocks for control flow, HTTP, files, data conv
 - [ ] **URS-F-0342** — The system shall apply SSRF, decompression bomb, path traversal and payload size protections.
 - [ ] **URS-F-0343** — The system shall cover all core utilities with deterministic integration fixtures.
 
+## MVP implementation progress
+
+- 2026-08-21 — W6 verified the accepted in-process utility slice: `core.return` persists native values, `core.log` emits a structured execution-aware record and persists its message, and `core.http` captures JSON/text responses and completes the Kubernetes demo callback. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`test_postgres_executor.py`](../../tests/executor/test_postgres_executor.py), [`test_handlers.py`](../../tests/tasks/test_handlers.py), and [`test_agent_shell_http.py`](../../tests/e2e/test_agent_shell_http.py). The broader utility plugin pack remains open.
+
 ## Non-functional requirements
 
 - [ ] No epic-specific NFR is mapped yet; general security, maintainability and test gates still apply.

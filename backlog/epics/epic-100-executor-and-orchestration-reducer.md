@@ -21,6 +21,10 @@ Drive executions from committed state and events without executing untrusted tas
 - [ ] **URS-F-0090** — The system shall detect deadlocked or unsatisfiable execution graphs and terminate them with actionable diagnostics.
 - [ ] **URS-F-0091** — The system shall support horizontally scaled executor instances through partitioning, leases or optimistic coordination.
 
+## MVP implementation progress
+
+- 2026-08-21 — W2 verified the accepted executor slice: PostgreSQL-backed execution, task-run and attempt state; dependency readiness; terminal events appended only by the current execution epoch; and restart recovery without rerunning completed tasks. Evidence: [`TESTLOG.md`](../../TESTLOG.md) and [`test_postgres_executor.py`](../../tests/executor/test_postgres_executor.py). The full orchestration reducer epic remains open.
+
 ## Non-functional requirements
 
 - [ ] **URS-NFR-RELIABILITY-002** — The platform shall tolerate duplicate commands, events, trigger occurrences and task results without duplicate logical state transitions. Target: All conformance duplicate-injection scenarios produce one logical effect.

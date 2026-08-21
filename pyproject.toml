@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "amesh"
-version = "0.1.0.dev0"
+version = "0.2.0"
 description = "AMESH (Agent Mesh), a clean-room AGPL durable workflow and agent orchestration platform"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -18,15 +18,22 @@ classifiers = [
   "Topic :: System :: Distributed Computing",
 ]
 dependencies = [
+  "croniter>=6.2.4,<7",
   # fastapi, pydantic and pydantic-settings are pinned exactly because
   # tests/test_generated_contracts.py asserts byte-stable generated schemas
   # and OpenAPI output; a schema-emission change in either library would
   # otherwise break CI with no code change. Bump deliberately and
   # regenerate contracts (make contracts) in the same commit.
   "fastapi==0.141.1",
+  "httpx>=0.28,<1",
+  "jinja2>=3.1.6,<4",
+  "kubernetes>=36.0.3,<37",
+  "mcp>=2,<3",
+  "prometheus-client>=0.25,<1",
   "pydantic==2.13.4",
   "pydantic-settings==2.15.0",
   "PyYAML>=6.0.2,<7",
+  "tzdata>=2026.3",
   "uvicorn[standard]>=0.34,<1",
 ]
 
@@ -37,11 +44,11 @@ runtime = [
   "aioboto3>=13.3,<14",
 ]
 dev = [
-  "httpx>=0.28,<1",
   "mypy>=1.14,<2",
   "pytest>=8.3,<9",
   "pytest-cov>=6,<7",
   "ruff>=0.9,<1",
+  "types-croniter>=6.2.4.20260711,<7",
   "types-PyYAML>=6.0.12,<7",
 ]
 

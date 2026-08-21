@@ -7,6 +7,10 @@ from uuid import UUID
 from pydantic import BaseModel, ConfigDict, Field
 
 
+class StaleWorkClaimError(RuntimeError):
+    """Raised when a queue mutation uses an expired or superseded fencing token."""
+
+
 class DurableEnvelope(BaseModel):
     """Versioned payload stored in the PostgreSQL durable work queue."""
 
@@ -53,6 +57,22 @@ class DurableTransport(Protocol):
         priority: int = 0,
     ) -> int: ...
 
+    async def enqueue_outbox(
+        self,
+        subject: str,
+        envelope: DurableEnvelope,
+        *,
+        available_at: datetime | None = None,
+    ) -> int: ...
+
+    async def publish_outbox(self, *, limit: int) -> int: ...
+
+    async def record_consumed(
+        self,
+        consumer_name: str,
+        envelope: DurableEnvelope,
+    ) -> bool: ...
+
     async def claim(
         self,
         lane: str,
@@ -61,6 +81,8 @@ class DurableTransport(Protocol):
         limit: int,
         lease_duration: timedelta,
     ) -> list[WorkClaim]: ...
+
+    async def wait_for_work(self, lane: str, *, timeout_seconds: float) -> bool: ...
 
     async def extend(
         self,

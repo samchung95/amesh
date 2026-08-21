@@ -21,6 +21,10 @@ Give users predictable control over failure recovery and execution interruption.
 - [ ] **URS-F-0122** — The system shall invalidate stale worker results after cancellation, retry or restart through fencing.
 - [ ] **URS-F-0123** — The system shall surface a complete intervention history and predicted consequences before destructive actions.
 
+## MVP implementation progress
+
+- 2026-08-21 — W3 verified the accepted MVP slice: persisted retry attempts with delay and exponential backoff, local task timeout and cancellation escalation, and attempt fencing that rejects a superseded result. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`test_local_process_execution.py`](../../tests/executor/test_local_process_execution.py), and [`test_process_runner.py`](../../tests/adapters/local/test_process_runner.py). The broader parity requirements remain open.
+
 ## Non-functional requirements
 
 - [ ] **URS-NFR-RELIABILITY-008** — Temporal decisions shall tolerate bounded clock skew and use monotonic time for local deadlines where possible. Target: Correct schedule, lease and timeout behavior with plus or minus 30 seconds node skew.

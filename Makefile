@@ -4,44 +4,44 @@ help:
 	@printf '%s\n' "install dev format lint typecheck test validate run compose-up compose-down package clean"
 
 install:
-	python -m pip install -e .
+	uv sync
 
 dev:
-	python -m pip install -e '.[dev,runtime]'
+	uv sync --extra runtime --extra dev
 
 format:
-	ruff format .
-	ruff check --fix .
+	uv run --extra runtime --extra dev ruff format src tests scripts
+	uv run --extra runtime --extra dev ruff check --fix src tests scripts
 
 lint:
-	ruff format --check .
-	ruff check .
+	uv run --extra runtime --extra dev ruff format --check src tests scripts
+	uv run --extra runtime --extra dev ruff check src tests scripts
 
 typecheck:
-	mypy
+	uv run --extra runtime --extra dev mypy src
 
 test:
-	pytest --cov=amesh --cov-report=term-missing
+	uv run --extra runtime --extra dev pytest --cov=amesh --cov-report=term-missing
 
 validate: lint typecheck test
-	python scripts/regenerate_planning_artifacts.py
-	python scripts/validate_backlog.py
-	python scripts/check_clean_room.py
-	python scripts/generate_contracts.py
+	uv run --extra runtime --extra dev python scripts/regenerate_planning_artifacts.py
+	uv run --extra runtime --extra dev python scripts/validate_backlog.py
+	uv run --extra runtime --extra dev python scripts/check_clean_room.py
+	uv run --extra runtime --extra dev python scripts/generate_contracts.py
 	git diff --exit-code -- backlog requirements docs/product/roadmap.md schemas docs/api/openapi.json
 
 validate-core:
-	python scripts/regenerate_planning_artifacts.py
-	pytest
-	python scripts/validate_backlog.py
-	python scripts/check_clean_room.py
-	python -m compileall -q src tests scripts
+	uv run --extra runtime --extra dev python scripts/regenerate_planning_artifacts.py
+	uv run --extra runtime --extra dev pytest
+	uv run --extra runtime --extra dev python scripts/validate_backlog.py
+	uv run --extra runtime --extra dev python scripts/check_clean_room.py
+	uv run --extra runtime --extra dev python -m compileall -q src tests scripts
 
 contracts:
-	python scripts/generate_contracts.py
+	uv run --extra runtime --extra dev python scripts/generate_contracts.py
 
 run:
-	uvicorn amesh.app:app --host 0.0.0.0 --port 8000 --reload
+	uv run --extra runtime python -m amesh.server
 
 compose-up:
 	docker compose up -d --build

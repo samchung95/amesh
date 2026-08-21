@@ -21,6 +21,10 @@ Make all common platform operations scriptable and suitable for CI/CD.
 - [ ] **URS-F-0420** — The system shall support non-interactive service-account authentication in CI.
 - [ ] **URS-F-0421** — The system shall provide shell completion and command documentation generated from the command model.
 
+## MVP implementation progress
+
+- 2026-08-21 — W6 verified CLI commands for flow validation/apply/list, execution create/get/list/logs and webhook invocation against the MVP REST contract. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`test_cli.py`](../../tests/test_cli.py), and [`cli.py`](../../src/amesh/cli.py). Generated SDKs and the broader CLI surface remain open.
+
 ## Non-functional requirements
 
 - [ ] **URS-NFR-USABILITY-005** — Destructive UI and CLI operations shall present impact, scope and recovery consequences before execution. Target: All destructive-action catalog entries have preview or explicit force semantics.

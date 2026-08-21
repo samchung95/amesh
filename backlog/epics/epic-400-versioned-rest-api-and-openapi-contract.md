@@ -21,6 +21,10 @@ Expose the complete supported control plane through a stable, documented and aut
 - [ ] **URS-F-0404** — The system shall version incompatible contracts and publish a deprecation schedule.
 - [ ] **URS-F-0405** — The system shall enforce authorization and tenant scope before resource existence is disclosed.
 
+## MVP implementation progress
+
+- 2026-08-21 — W6 verified the accepted `/api/v1` slice for flow validation/apply/list, execution create/get/list, task logs and webhooks, and regenerated the OpenAPI contract. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`test_mvp_api.py`](../../tests/api/test_mvp_api.py), and [`openapi.json`](../../api/openapi.json). Pagination, asynchronous commands and the broader API remain open.
+
 ## Non-functional requirements
 
 - [ ] **URS-NFR-PERFORMANCE-001** — Common authenticated read and write APIs shall remain responsive at the standard reference scale. Target: Provisional target: p95 below 500 ms and p99 below 1.5 s excluding bulk exports and external dependencies.

@@ -1,6 +1,6 @@
 # PostgreSQL migrations
 
-`0001_foundation.sql` is a provisional review schema, not a production migration history.
+The MVP image applies the ordered `*.sql` files through `python -m amesh.migrations`. The runner uses a PostgreSQL advisory transaction lock, records each filename and SHA-256 checksum in `amesh_schema_migrations`, skips already-applied files and rejects checksum drift. The Helm chart runs it as a pre-install/pre-upgrade hook before server or worker rollout.
 
 It establishes the first explicit persistence concepts for:
 
@@ -11,4 +11,4 @@ It establishes the first explicit persistence concepts for:
 - worker registrations, task runs and task attempts;
 - generic fenced leases and audit events.
 
-Production migration tooling must add transactional migration locking, compatibility windows, online index strategies, rollback/forward-fix policy and upgrade fixtures before this schema is used beyond local development.
+This is intentionally the MVP migration history. Compatibility windows, online index strategies, rollback/forward-fix policy and upgrade qualification remain post-MVP work.

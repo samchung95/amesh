@@ -21,6 +21,10 @@ Qualify correctness, performance and recovery under profile M load and adversari
 - [ ] **URS-F-0676** — The system shall track performance regressions and require explicit approval beyond defined budgets.
 - [ ] **URS-F-0677** — The system shall provide capacity-planning guidance from benchmark and telemetry evidence.
 
+## MVP implementation progress
+
+- 2026-08-21 — MVP fault injection completed 270 unique single-attempt executions with 270 task-pod, 27 server-pod and 13 worker-pod deletions and zero lost or duplicated persisted executions. The product owner explicitly deferred the remainder of the planned uninterrupted 24-hour run. Deferred acceptance criterion: run the checked-in soak for at least 86,400 elapsed seconds on a documented release-candidate topology, produce a passing final report with no failures, and independently verify every execution ID, task-run cardinality, attempt number and output before making broader availability, scale or production-readiness claims. Evidence: [`TESTLOG.md`](../../TESTLOG.md) and [`scripts/soak_mvp.py`](../../scripts/soak_mvp.py). Profile-M load, scale-out and the broader epic remain open.
+
 ## Non-functional requirements
 
 - [ ] **URS-NFR-PERFORMANCE-005** — The distributed reference profile shall support large numbers of active executions and task runs. Target: Profile M target: 1,000 active task runs while accepting at least 100,000 executions over a 24-hour mixed-workload qualification run.

@@ -21,6 +21,10 @@ Integrate model calls and tool-using agents without making the core engine provi
 - [ ] **URS-F-0389** — The system shall require approval or policy checks for high-impact tools and sensitive data movement.
 - [ ] **URS-F-0390** — The system shall support replay with pinned model and prompt metadata while acknowledging provider nondeterminism.
 
+## MVP implementation progress
+
+- 2026-08-21 — W6 verified OpenAI-compatible `agent.llm` with OpenRouter `openai/gpt-5.6-luna` as the default live-test model and `agent.mcp` tool invocation through the official MCP v2 client. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`test_handlers.py`](../../tests/tasks/test_handlers.py), [`test_openrouter_smoke.py`](../../tests/llm/test_openrouter_smoke.py), and [`test_agent_shell_http.py`](../../tests/e2e/test_agent_shell_http.py). Provider breadth, agent loops and the broader plugin epic remain open.
+
 ## Non-functional requirements
 
 - [ ] No epic-specific NFR is mapped yet; general security, maintainability and test gates still apply.

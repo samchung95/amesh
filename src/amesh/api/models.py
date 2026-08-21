@@ -1,8 +1,12 @@
 from __future__ import annotations
 
-from pydantic import BaseModel, Field
+from enum import StrEnum
+from typing import Any
+
+from pydantic import BaseModel, ConfigDict, Field
 
 from amesh.domain import ExecutionEvent, ExecutionSnapshot
+from amesh.ports import PersistedExecution, PersistedTaskRun
 
 
 class HealthResponse(BaseModel):
@@ -18,3 +22,30 @@ class ReduceExecutionRequest(BaseModel):
 class ReduceExecutionResponse(BaseModel):
     snapshot: ExecutionSnapshot
     duplicate_events_ignored: int = 0
+
+
+class RunnerMode(StrEnum):
+    LOCAL = "local"
+    KUBERNETES = "kubernetes"
+
+
+class CreateExecutionRequest(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    namespace: str
+    flow_id: str = Field(alias="flowId")
+    inputs: dict[str, Any] = Field(default_factory=dict)
+    runner: RunnerMode = RunnerMode.LOCAL
+    idempotency_key: str | None = Field(default=None, alias="idempotencyKey")
+
+
+class ExecutionDetail(BaseModel):
+    execution: PersistedExecution
+    task_runs: list[PersistedTaskRun] = Field(alias="taskRuns")
+
+
+class TaskLog(BaseModel):
+    task_id: str = Field(alias="taskId")
+    attempt: int
+    state: str
+    output: dict[str, Any] | None = None

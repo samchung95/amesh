@@ -21,6 +21,10 @@ Unify schedule, polling, webhook, realtime, flow and programmatic triggers under
 - [ ] **URS-F-0114** — The system shall route flow-completion events to dependent flows without relying on polling.
 - [ ] **URS-F-0115** — The system shall allow plugins to implement polling and realtime trigger adapters through stable interfaces.
 
+## MVP implementation progress
+
+- 2026-08-21 — W6 verified the accepted webhook slice: a static-token-protected endpoint resolves a stored flow, derives an idempotency key from the supplied or generated occurrence identity, and returns the completed execution. Evidence: [`TESTLOG.md`](../../TESTLOG.md) and [`test_mvp_api.py`](../../tests/api/test_mvp_api.py). The broader trigger occurrence lifecycle remains open.
+
 ## Non-functional requirements
 
 - [ ] **URS-NFR-RELIABILITY-002** — The platform shall tolerate duplicate commands, events, trigger occurrences and task results without duplicate logical state transitions. Target: All conformance duplicate-injection scenarios produce one logical effect.

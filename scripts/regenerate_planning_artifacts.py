@@ -253,6 +253,10 @@ def render_epic_body(
     if not functional:
         lines.append("- [ ] No functional requirement is currently mapped.")
 
+    if epic.get("mvp_progress"):
+        lines.extend(["", "## MVP implementation progress", ""])
+        lines.extend(f"- {item}" for item in epic["mvp_progress"])
+
     if epic.get("non_goals"):
         lines.extend(["", "## Explicit non-goals", ""])
         lines.extend(f"- {item}" for item in epic["non_goals"])

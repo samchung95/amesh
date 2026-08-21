@@ -1,0 +1,60 @@
+image:
+  repository: amesh
+  tag: mvp
+  pullPolicy: IfNotPresent
+
+server:
+  replicas: 1
+  resources: {}
+
+worker:
+  replicas: 1
+  pollSeconds: 5
+  recoveryGraceSeconds: 120
+  resources: {}
+
+service:
+  type: ClusterIP
+  port: 8000
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/path: /metrics
+    prometheus.io/port: "8000"
+
+serviceAccount:
+  create: true
+  name: ""
+
+database:
+  existingSecret: amesh-database
+  key: database-url
+
+adminToken:
+  existingSecret: amesh-admin
+  key: token
+
+openRouter:
+  existingSecret: ""
+  key: api-key
+  model: openai/gpt-5.6-luna
+
+taskNamespace: ""
+logLevel: INFO
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext:
+  runAsNonRoot: true
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

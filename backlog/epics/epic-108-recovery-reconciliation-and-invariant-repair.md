@@ -21,6 +21,10 @@ Continuously detect and safely repair drift caused by process, PostgreSQL, worke
 - [ ] **URS-F-0154** — The system shall publish repair metrics, unresolved invariant counts and runbook links.
 - [ ] **URS-F-0155** — The system shall prove recovery scenarios through fault-injection and crash-consistency tests.
 
+## MVP implementation progress
+
+- 2026-08-21 — The MVP recovery slice resumed persisted DAG state and in-flight Kubernetes Jobs, rejected stale task and execution commits through attempt/epoch fencing, and completed 270 unique single-attempt soak executions while deleting every task pod plus 27 server pods and 13 worker pods. Independent API rereads found zero lost or duplicated executions. The product owner deferred the remaining uninterrupted 24-hour qualification to EPIC-611; projection repair, quarantine, targeted/rate-limited reconciliation and the broader epic remain open. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`src/amesh/worker.py`](../../src/amesh/worker.py), and [`scripts/soak_mvp.py`](../../scripts/soak_mvp.py).
+
 ## Non-functional requirements
 
 - [ ] **URS-NFR-RELIABILITY-001** — The platform shall not lose an accepted state-changing command after the API or durable PostgreSQL transport acknowledges it. Target: Zero lost acknowledged commands in crash-consistency and failover tests.

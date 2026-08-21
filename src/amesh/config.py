@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from functools import lru_cache
 
-from pydantic import Field
+from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -27,6 +27,11 @@ class Settings(BaseSettings):
     object_storage_endpoint: str = "http://localhost:9000"
     object_storage_bucket: str = "amesh"
     auth_mode: str = "development"
+    amesh_admin_token: SecretStr = SecretStr("development-token")
+    kubernetes_context: str | None = None
+    kubernetes_task_namespace: str = "amesh-tasks"
+    worker_poll_seconds: float = Field(default=5.0, gt=0)
+    worker_recovery_grace_seconds: float = Field(default=120.0, ge=0)
     log_level: str = "INFO"
 
 

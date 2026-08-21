@@ -21,6 +21,10 @@ Run task attempts as isolated Kubernetes resources across configured clusters.
 - [ ] **URS-F-0279** — The system shall distinguish scheduling, image, infrastructure, eviction and user-process failures.
 - [ ] **URS-F-0280** — The system shall support workload identity without long-lived cloud credentials.
 
+## MVP implementation progress
+
+- 2026-08-21 — W5 verified the accepted Kubernetes slice on kind v0.32.0 / Kubernetes v1.36.1: AMESH creates one deterministic Job for a persisted attempt, captures the replacement pod's log and exit code, and cleans up the owned Job after the original pod is deleted mid-task. Evidence: [`TESTLOG.md`](../../TESTLOG.md) and [`test_job_runner.py`](../../tests/adapters/kubernetes/test_job_runner.py). Multi-cluster policy, identity, streaming and the broader epic remain open.
+
 ## Non-functional requirements
 
 - [ ] **URS-NFR-SECURITY-008** — Untrusted user code and third-party plugins shall not execute inside the webserver, scheduler, executor or metadata database process. Target: All untrusted reference tasks and plugins run through isolated runners or plugin services.

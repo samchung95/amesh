@@ -21,6 +21,10 @@ Define a declarative workflow language capable of representing the full target f
 - [ ] **URS-F-0035** — The system shall support forward-compatible extension fields while rejecting unknown core fields by policy.
 - [ ] **URS-F-0036** — The system shall calculate deterministic semantic hashes that ignore non-semantic formatting.
 
+## MVP implementation progress
+
+- 2026-08-21 — W3–W5 extended the validated MVP YAML model and generated JSON Schema with retry, timeout, command, image, environment, resources and typed cron trigger fields while preserving `dependsOn` and `runIf` validation. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`models.py`](../../src/amesh/dsl/models.py), and [`flow.schema.json`](../../schemas/flow.schema.json). The full target language remains open.
+
 ## Non-functional requirements
 
 - [ ] **URS-NFR-USABILITY-001** — Flow validation shall return actionable errors tied to source locations. Target: p95 validation response below 1 second for a 5,000-line flow; every error includes code and location.

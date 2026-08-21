@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 from typing import Any
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
+from croniter import croniter
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
@@ -22,6 +24,30 @@ class TriggerDefinition(BaseModel):
     id: str = Field(min_length=1, max_length=128)
     type: str = Field(min_length=1, max_length=512)
     disabled: bool = False
+    cron: str | None = None
+    timezone: str = "UTC"
+
+    @model_validator(mode="after")
+    def validate_cron(self) -> TriggerDefinition:
+        if self.type != "core.cron":
+            return self
+        if self.cron is None:
+            raise ValueError("core.cron trigger requires cron")
+        if not croniter.is_valid(self.cron):
+            raise ValueError("core.cron trigger has an invalid cron expression")
+        try:
+            ZoneInfo(self.timezone)
+        except ZoneInfoNotFoundError as exc:
+            raise ValueError(f"unknown trigger timezone {self.timezone!r}") from exc
+        return self
+
+
+class RetryPolicy(BaseModel):
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
+    max_attempts: int = Field(default=1, ge=1, le=100, alias="maxAttempts")
+    delay_seconds: float = Field(default=0, ge=0, alias="delaySeconds")
+    backoff_multiplier: float = Field(default=1, ge=1, alias="backoffMultiplier")
 
 
 class TaskDefinition(BaseModel):
@@ -34,6 +60,12 @@ class TaskDefinition(BaseModel):
     description: str | None = None
     depends_on: list[str] = Field(default_factory=list, alias="dependsOn")
     run_if: str | None = Field(default=None, alias="runIf")
+    retry: RetryPolicy = Field(default_factory=RetryPolicy)
+    timeout_seconds: float | None = Field(default=None, gt=0, alias="timeoutSeconds")
+    command: list[str] | None = None
+    image: str | None = None
+    environment: dict[str, str] = Field(default_factory=dict)
+    resources: dict[str, Any] = Field(default_factory=dict)
     tasks: list[TaskDefinition] = Field(default_factory=list)
 
     @model_validator(mode="before")

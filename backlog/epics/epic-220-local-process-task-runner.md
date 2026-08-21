@@ -20,6 +20,10 @@ Run trusted scripts and commands directly on a worker for local development and 
 - [ ] **URS-F-0263** — The system shall disable the runner by default in untrusted multi-tenant deployments.
 - [ ] **URS-F-0264** — The system shall capture exit code, signal, duration and peak resource use.
 
+## MVP implementation progress
+
+- 2026-08-21 — W3 verified the accepted MVP slice: argv-based local execution without shell parsing, environment and working-directory support, stdout/stderr capture, timeout and cancellation termination, and exit-code/duration capture. Evidence: [`TESTLOG.md`](../../TESTLOG.md) and [`test_process_runner.py`](../../tests/adapters/local/test_process_runner.py). Streaming metadata, resource limits and cross-platform process-group qualification remain open.
+
 ## Non-functional requirements
 
 - [ ] No epic-specific NFR is mapped yet; general security, maintainability and test gates still apply.

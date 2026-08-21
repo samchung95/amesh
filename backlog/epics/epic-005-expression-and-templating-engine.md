@@ -21,6 +21,10 @@ Provide deterministic runtime rendering for dynamic workflow values without gran
 - [ ] **URS-F-0043** — The system shall provide compatibility tests for the selected Kestra Pebble expression subset.
 - [ ] **URS-F-0044** — The system shall allow future expression engines through a stable adapter without changing flow storage.
 
+## MVP implementation progress
+
+- 2026-08-21 — W4 verified the accepted native-expression slice: sandboxed Jinja rendering over `inputs`, prior task `outputs` and flow `vars`, including native scalar/object values and boolean `runIf`. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`test_native.py`](../../tests/expressions/test_native.py), and [`test_cron_scheduler.py`](../../tests/scheduler/test_cron_scheduler.py). Pebble compatibility and the broader filter, secret and resource-bound requirements remain open.
+
 ## Non-functional requirements
 
 - [ ] No epic-specific NFR is mapped yet; general security, maintainability and test gates still apply.

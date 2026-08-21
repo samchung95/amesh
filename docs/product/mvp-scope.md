@@ -1,6 +1,6 @@
 # AMESH MVP scope — two-month vertical slice
 
-**Status:** Proposed re-scope, pending product-owner ratification
+**Status:** Implemented and release-qualified; on 2026-08-21 the product owner accepted the verified 270-cycle induced-failure run and deferred the remaining uninterrupted 24-hour qualification to EPIC-611
 **Authored:** 2026-08-19
 **Window:** 8 working weeks from kickoff
 **Relationship to the roadmap:** a calendar-boxed vertical slice through M0–M2, not a replacement for the dependency-based roadmap. The 103-epic backlog remains canonical; nothing here deletes scope.
@@ -50,6 +50,7 @@ Deferred means **parked, not abandoned**. Every row names the epic(s) where the 
 | Multi-tenancy, RBAC, SSO/SAML/SCIM, audit | EPIC-500–506 | First deployment with >1 team of users; schema already carries `tenant_id` everywhere so no data migration is created by waiting |
 | Web UI (authoring, topology, Gantt, dashboards) | EPIC-404–411 | Post-MVP; API-first MVP keeps the OpenAPI contract as the UI's foundation |
 | HA / distributed control plane, backup/restore drills | EPIC-601, EPIC-609, EPIC-611 | After single-node durability evidence exists (MVP week 8 soak is the input) |
+| Uninterrupted 24-hour induced-failure qualification | EPIC-611 | Before making broader availability, scale or production-readiness claims; rerun for at least 86,400 elapsed seconds with zero lost or duplicated executions |
 | Subflows, loops/foreach, backfill/replay, caches, SLA | EPIC-104 (partial), 106, 107, 109, 110, 203 | Next engine iteration after MVP; retries/timeouts/cancel land in MVP |
 | Object-storage artifact pipeline | EPIC-010, EPIC-605 | Logs/outputs outgrow PostgreSQL rows (bounded in MVP); MinIO stays in the dev stack |
 | Search/analytics projections, dashboards | EPIC-408, 409, 604 | UI wave |
@@ -67,6 +68,7 @@ Deferred means **parked, not abandoned**. Every row names the epic(s) where the 
 7. **Performance ceiling.** The Python engine will not reach Profile M; MVP claims stop at demo scale.
 8. **Some MVP code is scaffolding.** The expression engine, auth stopgap and log storage are expected to be replaced. They are cheap on purpose.
 9. **K8s-in-MVP has a real price.** Roughly +1–1.5 weeks versus a Docker-only MVP: kind/k3d test infrastructure, Job lifecycle edge cases, and Helm packaging. Paid for by deferring EPIC-221 and keeping the UI out of scope.
+10. **The full-duration soak is deferred.** On 2026-08-21 the product owner stopped the W8 run after 270 successful cycles (270 task-pod, 27 server-pod and 13 worker-pod deletions) and accepted that evidence for the MVP tag. The uninterrupted 24-hour run remains an explicit EPIC-611 qualification item and must pass before broader availability, scale or production-readiness claims.
 
 ## 5. Eight-week plan
 
@@ -81,7 +83,7 @@ Each week ends with an objectively checkable exit. Weeks 6–8 carry the schedul
 | 5 | Kubernetes Job runner | Same flow runs tasks as Jobs on kind; deleting the worker pod mid-task reconciles |
 | 6 | `agent.llm` + `agent.mcp` + REST/CLI surface | Demo agent flow (LLM → shell → HTTP) triggered via API runs on K8s |
 | 7 | Helm chart + metrics + structured logs | `helm install` on a fresh kind cluster → demo flow green, `/metrics` scraped |
-| 8 | Hardening, soak, docs, tag | 24h soak with induced pod kills: zero lost/duplicated executions; quickstart reproduced on a clean machine; `v0.2.0-mvp` tagged |
+| 8 | Hardening, soak, docs, tag | Owner-accepted 270-cycle induced-pod-kill run: zero lost/duplicated executions; uninterrupted 24-hour qualification deferred to EPIC-611; quickstart reproduced on a clean machine; `v0.2.0-mvp` tagged |
 
 ## 6. Path back to the full roadmap
 

@@ -21,6 +21,10 @@ Create due executions exactly according to declared temporal semantics despite r
 - [ ] **URS-F-0106** — The system shall preview future occurrences and explain why a schedule did or did not fire.
 - [ ] **URS-F-0107** — The system shall operate safely with multiple scheduler replicas and PostgreSQL failover or connection interruption.
 
+## MVP implementation progress
+
+- 2026-08-21 — W4 verified the accepted cron slice: the deployed worker polls applied flows, timezone-aware cron calculation normalizes the due minute and a stable occurrence idempotency key makes concurrent and restarted scheduler instances converge on one transactional execution. A release-candidate kind test produced one successful execution for one occurrence. Evidence: [`TESTLOG.md`](../../TESTLOG.md) and [`test_cron_scheduler.py`](../../tests/scheduler/test_cron_scheduler.py). Persistent next-fire cursors, catch-up policies, leases and temporal qualification remain open.
+
 ## Non-functional requirements
 
 - [ ] **URS-NFR-RELIABILITY-003** — The platform shall prevent an expired scheduler, worker or service owner from committing after ownership transfers. Target: Zero accepted stale mutations in lease-expiry and partition tests.

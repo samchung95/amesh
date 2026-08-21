@@ -21,6 +21,10 @@ Provide secure local and federated entry points while keeping authorization sepa
 - [ ] **URS-F-0428** — The system shall expose a provider-neutral authentication interface used by OIDC, SAML, LDAP and local modes.
 - [ ] **URS-F-0429** — The system shall disable local password authentication when policy requires federated-only access.
 
+## MVP implementation progress
+
+- 2026-08-21 — W6 verified the explicitly accepted single-admin MVP boundary: protected REST endpoints reject missing bearer credentials and accept the configured static admin token while validation remains public. Evidence: [`TESTLOG.md`](../../TESTLOG.md) and [`test_mvp_api.py`](../../tests/api/test_mvp_api.py). Sessions, users, federation and the broader authentication epic remain open.
+
 ## Non-functional requirements
 
 - [ ] **URS-NFR-SECURITY-010** — Fresh production-oriented configurations shall fail closed for authentication, plugin trust, network exposure and secrets. Target: Security baseline scanner reports no critical unsafe defaults.

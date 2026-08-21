@@ -21,6 +21,11 @@ Separate task semantics from the environment that executes user code.
 - [ ] **URS-F-0256** — The system shall clean up orphan runtime resources through idempotent reconciliation.
 - [ ] **URS-F-0257** — The system shall allow namespace and worker-group policy to select or prohibit runners.
 
+## MVP implementation progress
+
+- 2026-08-21 — W3 verified the accepted MVP slice: a runner port with command, environment, working-directory and deadline inputs; normalized status, output, exit-code and duration results; and fenced cancellation. Evidence: [`TESTLOG.md`](../../TESTLOG.md) and [`test_process_runner.py`](../../tests/adapters/local/test_process_runner.py).
+- 2026-08-21 — W5 verified that the same port drives owned Kubernetes Jobs and returns normalized pod results without changing PostgreSQL attempt fencing. Evidence: [`TESTLOG.md`](../../TESTLOG.md) and [`test_job_runner.py`](../../tests/adapters/kubernetes/test_job_runner.py). Capability advertisement, policy and the broader runner contract remain open.
+
 ## Non-functional requirements
 
 - [ ] **URS-NFR-SECURITY-008** — Untrusted user code and third-party plugins shall not execute inside the webserver, scheduler, executor or metadata database process. Target: All untrusted reference tasks and plugins run through isolated runners or plugin services.

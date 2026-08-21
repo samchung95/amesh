@@ -1,0 +1,17 @@
+# Progress Log
+
+## Current state
+
+- What works: W1–W8 are complete for the product-owner-amended MVP. The completion audit verifies PostgreSQL `LISTEN/NOTIFY` wake-ups, epoch-fenced execution terminal events, CLI execution listing, deployed cron polling, the clean-cluster quickstart, release artifacts and live deployed health/metrics.
+- What's in flight: no MVP implementation work; `v0.2.0-mvp` is the release handoff.
+- Known broken / TODO: the uninterrupted 86,400-second qualification was deferred by the product owner to EPIC-611; broader roadmap epics and requirements remain open.
+- How to run/test: use `uv run --extra runtime --extra dev pytest`; set `AMESH_TEST_DATABASE_URL` for PostgreSQL integration tests and `OPENROUTER_API_KEY` for live LLM tests.
+
+## Session log
+
+### 2026-08-21
+
+- Did: fast-forwarded the accepted Python MVP rescope onto `main`; implemented and verified the PostgreSQL durable queue, transactional outbox publisher and consumer inbox; added a live OpenRouter contract test with GPT-5.6 Luna as the default model; established the root architecture and cold-resume tracker; closed W1; implemented persisted execution/task/attempt state and restartable DAG scheduling; closed W2; implemented the runner port, local-process adapter, persisted retry scheduling, timeout/cancellation escalation and stale-attempt fencing; closed W3; implemented timezone-aware cron calculation, transactional occurrence deduplication, sandboxed native expressions, output interpolation and `runIf`; closed W4; implemented the Kubernetes Job adapter and verified pod-deletion reconciliation on kind; closed W5; implemented `core.http`, OpenAI-compatible `agent.llm`, official-SDK `agent.mcp`, authenticated REST and matching CLI surfaces; ran the checked-in Luna → Kubernetes shell → HTTP demo through the API; closed W6; added the uv-locked non-root image, external-PostgreSQL Helm migration hook, server/recovery-worker deployments, RBAC, JSON logs and Prometheus endpoint; installed on a fresh kind cluster and ran the demo through the installed Service; closed W7; reconciled evidence-linked progress into all affected epic files through the canonical planning generator.
+- W8 checkpoint: candidate `amesh:mvp-w8f` passed 47 tests at 80.47% branch coverage plus artifact, Helm, policy and exact-image cron/log checks. The owner-accepted soak reached cycle 270 with 270 independently re-read, unique single-attempt successes after 270 task-pod kills, 27 server-pod kills and 13 worker-pod kills; both replacement Deployments were Ready with zero restarts. The two-second soak-only recovery grace intentionally produced fenced losing contenders while preserving exactly-once persisted completion.
+- Deviations from plan: on 2026-08-21 the product owner deferred the remaining uninterrupted 24-hour soak and authorized release progression. The full-duration criterion is preserved under EPIC-611 and no broader production-readiness claim is made. The W7 worker remains a deliberately single-tenant delayed recovery loop; general distributed dispatch and HA remain deferred.
+- Next step when resuming: continue the dependency-ordered backlog; run EPIC-611's uninterrupted 86,400-second qualification before making broader availability, scale or production-readiness claims. The path-back audit left all 900 broad roadmap requirements `Proposed` because the MVP slices do not satisfy their complete acceptance criteria.

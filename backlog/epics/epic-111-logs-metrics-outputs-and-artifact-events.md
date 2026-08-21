@@ -21,6 +21,10 @@ Capture task-produced evidence as structured, searchable and streamable executio
 - [ ] **URS-F-0178** — The system shall apply redaction, retention, sampling and export policies before external shipment.
 - [ ] **URS-F-0179** — The system shall continue execution when optional telemetry sinks are temporarily unavailable.
 
+## MVP implementation progress
+
+- 2026-08-21 — W6–W7 verified the accepted MVP evidence slice: task results are persisted and queryable through execution/log APIs, while server and worker processes emit structured JSON records carrying HTTP, execution or worker context. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`test_mvp_api.py`](../../tests/api/test_mvp_api.py), and [`test_observability.py`](../../tests/test_observability.py). Streaming, artifacts and the broader observability epic remain open.
+
 ## Non-functional requirements
 
 - [ ] **URS-NFR-PERFORMANCE-007** — Log ingestion shall not block task completion and shall apply explicit overload policy. Target: Provisional target: 50,000 log records per second per standard cluster with bounded buffers.
