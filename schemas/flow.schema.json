@@ -433,6 +433,11 @@
       "title": "Revision",
       "type": "integer"
     },
+    "system": {
+      "default": false,
+      "title": "System",
+      "type": "boolean"
+    },
     "tasks": {
       "items": {
         "$ref": "#/$defs/TaskDefinition"

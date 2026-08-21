@@ -138,14 +138,14 @@ URS-F-0136,Functional,Must,EPIC-106,"Backfill, replay and historical reprocessin
 URS-F-0137,Functional,Must,EPIC-106,"Backfill, replay and historical reprocessing",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
 URS-F-0138,Functional,Must,EPIC-106,"Backfill, replay and historical reprocessing",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
 URS-F-0139,Functional,Must,EPIC-106,"Backfill, replay and historical reprocessing",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0140,Functional,Must,EPIC-107,"Subflows, dependencies and system flows",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0141,Functional,Must,EPIC-107,"Subflows, dependencies and system flows",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0142,Functional,Must,EPIC-107,"Subflows, dependencies and system flows",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0143,Functional,Must,EPIC-107,"Subflows, dependencies and system flows",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0144,Functional,Must,EPIC-107,"Subflows, dependencies and system flows",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0145,Functional,Must,EPIC-107,"Subflows, dependencies and system flows",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0146,Functional,Must,EPIC-107,"Subflows, dependencies and system flows",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0147,Functional,Must,EPIC-107,"Subflows, dependencies and system flows",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0140,Functional,Must,EPIC-107,"Subflows, dependencies and system flows",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0141,Functional,Must,EPIC-107,"Subflows, dependencies and system flows",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0142,Functional,Must,EPIC-107,"Subflows, dependencies and system flows",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0143,Functional,Must,EPIC-107,"Subflows, dependencies and system flows",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0144,Functional,Must,EPIC-107,"Subflows, dependencies and system flows",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0145,Functional,Must,EPIC-107,"Subflows, dependencies and system flows",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0146,Functional,Must,EPIC-107,"Subflows, dependencies and system flows",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0147,Functional,Must,EPIC-107,"Subflows, dependencies and system flows",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
 URS-F-0148,Functional,Must,EPIC-108,"Recovery, reconciliation and invariant repair",M1,1,"Fault-injection, replay and invariant tests",Proposed
 URS-F-0149,Functional,Must,EPIC-108,"Recovery, reconciliation and invariant repair",M1,1,"Fault-injection, replay and invariant tests",Proposed
 URS-F-0150,Functional,Must,EPIC-108,"Recovery, reconciliation and invariant repair",M1,1,"Fault-injection, replay and invariant tests",Proposed

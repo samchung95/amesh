@@ -129,6 +129,7 @@ class FlowDefinition(BaseModel):
     description: str | None = None
     revision: int = Field(default=1, ge=1)
     disabled: bool = False
+    system: bool = False
     timeout_seconds: float | None = Field(default=None, gt=0, alias="timeoutSeconds")
     labels: dict[str, str] = Field(default_factory=dict)
     annotations: dict[str, str] = Field(default_factory=dict)

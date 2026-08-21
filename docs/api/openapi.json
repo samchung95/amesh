@@ -1082,6 +1082,11 @@
             "title": "Created At",
             "type": "string"
           },
+          "created_by": {
+            "default": "system:executor",
+            "title": "Created By",
+            "type": "string"
+          },
           "epoch": {
             "minimum": 1.0,
             "title": "Epoch",
@@ -1096,9 +1101,22 @@
             "title": "Flow Id",
             "type": "string"
           },
+          "flow_revision": {
+            "default": 1,
+            "minimum": 1.0,
+            "title": "Flow Revision",
+            "type": "integer"
+          },
           "inputs": {
             "additionalProperties": true,
             "title": "Inputs",
+            "type": "object"
+          },
+          "labels": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Labels",
             "type": "object"
           },
           "namespace": {
@@ -1201,6 +1219,117 @@
           "etag"
         ],
         "title": "PersistedFlow",
+        "type": "object"
+      },
+      "PersistedSubflow": {
+        "properties": {
+          "child_execution_id": {
+            "format": "uuid",
+            "title": "Child Execution Id",
+            "type": "string"
+          },
+          "child_flow_id": {
+            "title": "Child Flow Id",
+            "type": "string"
+          },
+          "child_namespace": {
+            "title": "Child Namespace",
+            "type": "string"
+          },
+          "child_state": {
+            "$ref": "#/components/schemas/ExecutionState"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "created_by": {
+            "title": "Created By",
+            "type": "string"
+          },
+          "depth": {
+            "minimum": 1.0,
+            "title": "Depth",
+            "type": "integer"
+          },
+          "invocation_key": {
+            "title": "Invocation Key",
+            "type": "string"
+          },
+          "mode": {
+            "$ref": "#/components/schemas/SubflowMode"
+          },
+          "output_mapping": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Output Mapping",
+            "type": "object"
+          },
+          "parent_attempt": {
+            "minimum": 1.0,
+            "title": "Parent Attempt",
+            "type": "integer"
+          },
+          "parent_execution_id": {
+            "format": "uuid",
+            "title": "Parent Execution Id",
+            "type": "string"
+          },
+          "parent_flow_id": {
+            "title": "Parent Flow Id",
+            "type": "string"
+          },
+          "parent_flow_revision": {
+            "minimum": 1.0,
+            "title": "Parent Flow Revision",
+            "type": "integer"
+          },
+          "parent_namespace": {
+            "title": "Parent Namespace",
+            "type": "string"
+          },
+          "parent_task_run_id": {
+            "format": "uuid",
+            "title": "Parent Task Run Id",
+            "type": "string"
+          },
+          "propagation": {
+            "$ref": "#/components/schemas/SubflowPropagation"
+          },
+          "relationship_id": {
+            "format": "uuid",
+            "title": "Relationship Id",
+            "type": "string"
+          },
+          "target_revision": {
+            "minimum": 1.0,
+            "title": "Target Revision",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "relationship_id",
+          "parent_execution_id",
+          "parent_task_run_id",
+          "parent_attempt",
+          "child_execution_id",
+          "invocation_key",
+          "mode",
+          "depth",
+          "target_revision",
+          "propagation",
+          "parent_namespace",
+          "parent_flow_id",
+          "parent_flow_revision",
+          "child_namespace",
+          "child_flow_id",
+          "child_state",
+          "created_by",
+          "created_at"
+        ],
+        "title": "PersistedSubflow",
         "type": "object"
       },
       "PersistedTaskRun": {
@@ -1720,6 +1849,46 @@
           "end"
         ],
         "title": "SourceRange",
+        "type": "object"
+      },
+      "SubflowMode": {
+        "enum": [
+          "SYNC",
+          "ASYNC",
+          "DETACHED"
+        ],
+        "title": "SubflowMode",
+        "type": "string"
+      },
+      "SubflowPropagation": {
+        "properties": {
+          "cancellation": {
+            "default": true,
+            "title": "Cancellation",
+            "type": "boolean"
+          },
+          "failure": {
+            "default": true,
+            "title": "Failure",
+            "type": "boolean"
+          },
+          "pause": {
+            "default": true,
+            "title": "Pause",
+            "type": "boolean"
+          },
+          "restart": {
+            "default": true,
+            "title": "Restart",
+            "type": "boolean"
+          },
+          "success": {
+            "default": true,
+            "title": "Success",
+            "type": "boolean"
+          }
+        },
+        "title": "SubflowPropagation",
         "type": "object"
       },
       "TaskLog": {
@@ -4380,6 +4549,168 @@
           }
         },
         "summary": "Get Execution Logs",
+        "tags": [
+          "executions"
+        ]
+      }
+    },
+    "/api/v1/executions/{execution_id}/parent-subflow": {
+      "get": {
+        "operationId": "get_execution_parent_subflow_api_v1_executions__execution_id__parent_subflow_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "execution_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Execution Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/PersistedSubflow"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Response Get Execution Parent Subflow Api V1 Executions  Execution Id  Parent Subflow Get"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Execution Parent Subflow",
+        "tags": [
+          "executions"
+        ]
+      }
+    },
+    "/api/v1/executions/{execution_id}/subflows": {
+      "get": {
+        "operationId": "list_execution_subflows_api_v1_executions__execution_id__subflows_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "execution_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Execution Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PersistedSubflow"
+                  },
+                  "title": "Response List Execution Subflows Api V1 Executions  Execution Id  Subflows Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Execution Subflows",
         "tags": [
           "executions"
         ]

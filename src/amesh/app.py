@@ -10,7 +10,17 @@ from time import perf_counter
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request, Response, status
+from fastapi import (
+    BackgroundTasks,
+    Depends,
+    FastAPI,
+    Header,
+    HTTPException,
+    Query,
+    Request,
+    Response,
+    status,
+)
 from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 from pydantic import TypeAdapter, ValidationError
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
@@ -77,9 +87,11 @@ from amesh.dsl import (
 )
 from amesh.executor import (
     InProcessExecutor,
+    SubflowCoordinator,
     kubernetes_job_handler,
     local_process_handler,
     preview_execution_intervention,
+    subflow_task_handler,
 )
 from amesh.frontend import SpaStaticFiles, find_frontend_dist
 from amesh.migrations import migration_directory
@@ -98,6 +110,7 @@ from amesh.ports import (
     LastAdministratorError,
     PersistedExecution,
     PersistedFlow,
+    PersistedSubflow,
     TenantQuotaExceeded,
     TenantUnavailableError,
     WorkerFenceError,
@@ -478,6 +491,14 @@ async def apply_flow(
         tenant_id=tenant_id,
         namespace=flow.namespace,
     )
+    if flow.system:
+        await authorize_request(
+            authorization_service,
+            actor,
+            resource_type="tenant",
+            action=PermissionAction.MANAGE,
+            tenant_id=tenant_id,
+        )
     try:
         persisted = await repository.apply_flow(
             flow,
@@ -567,6 +588,7 @@ async def preview_schedule(
 )
 async def create_execution(
     request: CreateExecutionRequest,
+    background_tasks: BackgroundTasks,
     repository: RepositoryDependency,
     settings: SettingsDependency,
     actor: ActorDependency,
@@ -596,6 +618,9 @@ async def create_execution(
         settings,
         tenant_id=tenant_id,
         actor_id=str(actor.principal_id),
+        actor=actor,
+        authorization_service=authorization_service,
+        background_tasks=background_tasks,
         launch_source=ExecutionLaunchSource.API,
     )
 
@@ -704,6 +729,80 @@ async def get_execution(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
     task_runs = await repository.list_task_runs(execution_id, tenant_id=tenant_id)
     return ExecutionDetail(execution=execution, taskRuns=task_runs)
+
+
+@app.get(
+    "/api/v1/executions/{execution_id}/subflows",
+    response_model=list[PersistedSubflow],
+    tags=["executions"],
+)
+async def list_execution_subflows(
+    execution_id: UUID,
+    repository: RepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> list[PersistedSubflow]:
+    try:
+        parent = await repository.get_execution(execution_id, tenant_id=tenant_id)
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="execution",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+        namespace=parent.namespace,
+    )
+    relationships = await repository.list_subflows(execution_id, tenant_id=tenant_id)
+    for relationship in relationships:
+        await authorize_request(
+            authorization_service,
+            actor,
+            resource_type="execution",
+            action=PermissionAction.VIEW,
+            tenant_id=tenant_id,
+            namespace=relationship.child_namespace,
+        )
+    return relationships
+
+
+@app.get(
+    "/api/v1/executions/{execution_id}/parent-subflow",
+    response_model=PersistedSubflow | None,
+    tags=["executions"],
+)
+async def get_execution_parent_subflow(
+    execution_id: UUID,
+    repository: RepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> PersistedSubflow | None:
+    try:
+        child = await repository.get_execution(execution_id, tenant_id=tenant_id)
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="execution",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+        namespace=child.namespace,
+    )
+    relationship = await repository.get_parent_subflow(execution_id, tenant_id=tenant_id)
+    if relationship is not None:
+        await authorize_request(
+            authorization_service,
+            actor,
+            resource_type="execution",
+            action=PermissionAction.VIEW,
+            tenant_id=tenant_id,
+            namespace=relationship.parent_namespace,
+        )
+    return relationship
 
 
 @app.post(
@@ -882,6 +981,7 @@ async def trigger_webhook(
     flow_id: str,
     trigger_id: str,
     request: Request,
+    background_tasks: BackgroundTasks,
     repository: RepositoryDependency,
     settings: SettingsDependency,
     actor: ActorDependency,
@@ -933,6 +1033,9 @@ async def trigger_webhook(
         settings,
         tenant_id=tenant_id,
         actor_id=str(actor.principal_id),
+        actor=actor,
+        authorization_service=authorization_service,
+        background_tasks=background_tasks,
         launch_source=ExecutionLaunchSource.EVENT,
         trigger_context={
             "id": trigger.id,
@@ -950,6 +1053,9 @@ async def _execute_flow(
     *,
     tenant_id: str,
     actor_id: str,
+    actor: ActorContext,
+    authorization_service: AuthorizationService,
+    background_tasks: BackgroundTasks,
     launch_source: ExecutionLaunchSource,
     trigger_context: dict[str, object] | None = None,
 ) -> ExecutionDetail:
@@ -973,15 +1079,78 @@ async def _execute_flow(
     else:
         shell_handler = local_process_handler(LocalProcessRunner())
 
-    executor = InProcessExecutor(
+    handlers = {
+        "core.shell": shell_handler,
+        "core.http": core_http_handler(),
+        "agent.llm": agent_llm_handler(),
+        "agent.mcp": agent_mcp_handler(),
+    }
+
+    async def authorize_subflow(child_flow: FlowDefinition) -> None:
+        await authorize_request(
+            authorization_service,
+            actor,
+            resource_type="execution",
+            action=PermissionAction.EXECUTE,
+            tenant_id=tenant_id,
+            namespace=child_flow.namespace,
+        )
+        if child_flow.system:
+            await authorize_request(
+                authorization_service,
+                actor,
+                resource_type="tenant",
+                action=PermissionAction.MANAGE,
+                tenant_id=tenant_id,
+            )
+
+    for task in flow.tasks:
+        if task.type != "core.subflow":
+            continue
+        extra = task.model_extra or {}
+        child_flow_id = extra.get("flowId")
+        child_namespace = extra.get("namespace", flow.namespace)
+        child_revision = extra.get("revision")
+        if not isinstance(child_flow_id, str) or "{{" in child_flow_id:
+            continue
+        if not isinstance(child_namespace, str) or "{{" in child_namespace:
+            continue
+        try:
+            child_flow = await repository.get_flow(
+                child_namespace,
+                child_flow_id,
+                tenant_id=tenant_id,
+                revision=child_revision if isinstance(child_revision, int) else None,
+            )
+        except LookupError as exc:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+        await authorize_subflow(child_flow)
+
+    def executor_factory() -> InProcessExecutor:
+        return InProcessExecutor(
+            repository,
+            handlers=handlers,
+            recover_running_types=frozenset({"core.subflow"}),
+        )
+
+    handlers["core.subflow"] = subflow_task_handler(
         repository,
-        handlers={
-            "core.shell": shell_handler,
-            "core.http": core_http_handler(),
-            "agent.llm": agent_llm_handler(),
-            "agent.mcp": agent_mcp_handler(),
-        },
+        executor_factory,
+        authorize_subflow,
     )
+    executor = executor_factory()
+    background_scheduled = False
+
+    async def run_pending_subflows() -> None:
+        try:
+            await SubflowCoordinator(repository, executor_factory).run_pending(
+                execution.execution_id,
+                tenant_id=tenant_id,
+            )
+        finally:
+            if kubernetes_runner is not None:
+                await kubernetes_runner.close()
+
     try:
         try:
             execution = await repository.create_execution(
@@ -1000,7 +1169,7 @@ async def _execute_flow(
             execution.execution_id,
             tenant_id=tenant_id,
         )
-        return ExecutionDetail(
+        detail = ExecutionDetail(
             execution=await repository.get_execution(
                 execution.execution_id,
                 tenant_id=tenant_id,
@@ -1010,8 +1179,11 @@ async def _execute_flow(
                 tenant_id=tenant_id,
             ),
         )
+        background_tasks.add_task(run_pending_subflows)
+        background_scheduled = True
+        return detail
     finally:
-        if kubernetes_runner is not None:
+        if kubernetes_runner is not None and not background_scheduled:
             await kubernetes_runner.close()
 
 

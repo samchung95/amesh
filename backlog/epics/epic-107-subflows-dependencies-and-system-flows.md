@@ -12,14 +12,18 @@ Compose workflows while preserving parent-child state, outputs, cancellation and
 
 ## In scope
 
-- [ ] **URS-F-0140** — The system shall invoke another flow by tenant, namespace, identifier and selected or current revision.
-- [ ] **URS-F-0141** — The system shall pass typed inputs, labels, correlation and trace context from parent to child.
-- [ ] **URS-F-0142** — The system shall choose synchronous wait, asynchronous launch or detached invocation semantics.
-- [ ] **URS-F-0143** — The system shall propagate success, failure, cancellation, pause and restart according to explicit policy.
-- [ ] **URS-F-0144** — The system shall map child outputs and artifacts back to the parent with schema validation.
-- [ ] **URS-F-0145** — The system shall prevent recursive invocation beyond configured depth and detect dependency cycles.
-- [ ] **URS-F-0146** — The system shall support privileged system flows for notifications, governance and operational automation.
-- [ ] **URS-F-0147** — The system shall authorize parent and child resources independently and record cross-namespace access.
+- [x] **URS-F-0140** — The system shall invoke another flow by tenant, namespace, identifier and selected or current revision.
+- [x] **URS-F-0141** — The system shall pass typed inputs, labels, correlation and trace context from parent to child.
+- [x] **URS-F-0142** — The system shall choose synchronous wait, asynchronous launch or detached invocation semantics.
+- [x] **URS-F-0143** — The system shall propagate success, failure, cancellation, pause and restart according to explicit policy.
+- [x] **URS-F-0144** — The system shall map child outputs and artifacts back to the parent with schema validation.
+- [x] **URS-F-0145** — The system shall prevent recursive invocation beyond configured depth and detect dependency cycles.
+- [x] **URS-F-0146** — The system shall support privileged system flows for notifications, governance and operational automation.
+- [x] **URS-F-0147** — The system shall authorize parent and child resources independently and record cross-namespace access.
+
+## Implementation completion evidence
+
+- 2026-08-22 — EPIC-107 is complete. The `core.subflow` task now launches current or pinned child revisions in synchronous, asynchronous or detached mode and persists tenant-scoped parent/child lineage with invocation identity, depth, policy, actor and cross-namespace evidence. Typed inputs, inherited labels, correlation/trace context, schema-validated output and artifact mappings, cycle/depth rejection, configurable state/restart propagation and privileged system-flow authorization are covered by engine and API tests. Authorized child and parent relationship endpoints expose the durable graph. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`execution-semantics.md`](../../docs/architecture/execution-semantics.md), [`0018_subflow_relationships.sql`](../../migrations/0018_subflow_relationships.sql), [`test_subflows.py`](../../tests/executor/test_subflows.py), and [`test_subflow_api.py`](../../tests/api/test_subflow_api.py).
 
 ## Non-functional requirements
 
@@ -44,13 +48,13 @@ Compose workflows while preserving parent-child state, outputs, cancellation and
 
 ## Definition of done
 
-- [ ] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
-- [ ] Public API, DSL, event and plugin contract changes pass compatibility checks.
-- [ ] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
-- [ ] Security, tenant isolation, redaction and audit behavior are reviewed.
-- [ ] Documentation, examples, migration notes and operational runbooks are updated.
-- [ ] Performance and recovery budgets are measured when this epic is on a critical path.
-- [ ] `python scripts/validate_backlog.py` passes.
+- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
+- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.
+- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
+- [x] Security, tenant isolation, redaction and audit behavior are reviewed.
+- [x] Documentation, examples, migration notes and operational runbooks are updated.
+- [x] Performance and recovery budgets are measured when this epic is on a critical path.
+- [x] `python scripts/validate_backlog.py` passes.
 
 ## Risks and unknowns
 

@@ -76,6 +76,12 @@ execution timeouts and cancellation escalations without making node wall clocks 
 additive; pause intervention writers and forward-fix on failure while retaining execution, task and
 attempt history.
 
+Migration `0018_subflow_relationships.sql` adds the tenant-isolated parent/child execution relation,
+including invocation identity, parent attempt, pinned child revision, mode, nesting depth, propagation
+policy, output mapping and actor evidence. Unique tenant-scoped invocation and child constraints make
+recovery idempotent. It is additive; pause subflow launchers and forward-fix on failure while retaining
+both executions and their task/event history.
+
 ## Migration modes
 
 - `bootstrap` creates the initial schema and is only safe for an empty database.

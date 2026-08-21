@@ -38,6 +38,36 @@ class ExecutionInterventionAction(StrEnum):
     RESTART = "RESTART"
 
 
+class SubflowMode(StrEnum):
+    SYNC = "SYNC"
+    ASYNC = "ASYNC"
+    DETACHED = "DETACHED"
+
+
+class SubflowPropagation(BaseModel):
+    model_config = ConfigDict(frozen=True, populate_by_name=True)
+
+    success: bool = True
+    failure: bool = True
+    cancellation: bool = True
+    pause: bool = True
+    restart: bool = True
+
+
+class SubflowLaunchContext(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    parent_execution_id: UUID
+    parent_task_run_id: UUID
+    parent_attempt: int = Field(ge=1)
+    invocation_key: str = Field(min_length=1, max_length=512)
+    mode: SubflowMode
+    depth: int = Field(ge=1)
+    target_revision: int = Field(ge=1)
+    propagation: SubflowPropagation = Field(default_factory=SubflowPropagation)
+    output_mapping: dict[str, str] = Field(default_factory=dict)
+
+
 class PersistedExecution(BaseModel):
     model_config = ConfigDict(frozen=True)
 
@@ -48,8 +78,11 @@ class PersistedExecution(BaseModel):
     version: int = Field(ge=0)
     namespace: str
     flow_id: str
+    flow_revision: int = Field(default=1, ge=1)
     inputs: dict[str, Any] = Field(default_factory=dict)
+    labels: dict[str, str] = Field(default_factory=dict)
     trigger: dict[str, Any] = Field(default_factory=dict)
+    created_by: str = "system:executor"
     created_at: datetime
     updated_at: datetime
     timeout_at: datetime | None = None
@@ -113,6 +146,30 @@ class ExecutionInterventionRecord(BaseModel):
     payload: dict[str, Any] = Field(default_factory=dict)
 
 
+class PersistedSubflow(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    relationship_id: UUID
+    parent_execution_id: UUID
+    parent_task_run_id: UUID
+    parent_attempt: int = Field(ge=1)
+    child_execution_id: UUID
+    invocation_key: str
+    mode: SubflowMode
+    depth: int = Field(ge=1)
+    target_revision: int = Field(ge=1)
+    propagation: SubflowPropagation
+    output_mapping: dict[str, str] = Field(default_factory=dict)
+    parent_namespace: str
+    parent_flow_id: str
+    parent_flow_revision: int = Field(ge=1)
+    child_namespace: str
+    child_flow_id: str
+    child_state: ExecutionState
+    created_by: str
+    created_at: datetime
+
+
 class ExecutionRepository(Protocol):
     async def apply_flow(
         self,
@@ -129,6 +186,7 @@ class ExecutionRepository(Protocol):
         flow_id: str,
         *,
         tenant_id: str,
+        revision: int | None = None,
     ) -> FlowDefinition: ...
 
     async def list_flows(self, *, tenant_id: str) -> list[PersistedFlow]: ...
@@ -143,6 +201,8 @@ class ExecutionRepository(Protocol):
         launch_source: ExecutionLaunchSource = ExecutionLaunchSource.MANUAL,
         idempotency_key: str | None = None,
         actor_id: str = "system:executor",
+        labels: dict[str, str] | None = None,
+        subflow: SubflowLaunchContext | None = None,
     ) -> PersistedExecution: ...
 
     async def get_execution(self, execution_id: UUID, *, tenant_id: str) -> PersistedExecution: ...
@@ -265,3 +325,17 @@ class ExecutionRepository(Protocol):
         tenant_id: str,
         expected_epoch: int,
     ) -> PersistedExecution: ...
+
+    async def list_subflows(
+        self,
+        execution_id: UUID,
+        *,
+        tenant_id: str,
+    ) -> list[PersistedSubflow]: ...
+
+    async def get_parent_subflow(
+        self,
+        execution_id: UUID,
+        *,
+        tenant_id: str,
+    ) -> PersistedSubflow | None: ...

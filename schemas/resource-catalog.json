@@ -405,6 +405,118 @@
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "additionalProperties": false,
         "properties": {
+          "artifactMapping": {
+            "additionalProperties": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "artifactSchema": {
+            "type": "object"
+          },
+          "flowId": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "inputs": {
+            "type": "object"
+          },
+          "labels": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "maxDepth": {
+            "maximum": 100,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "mode": {
+            "enum": [
+              "SYNC",
+              "ASYNC",
+              "DETACHED"
+            ],
+            "type": "string"
+          },
+          "namespace": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "outputMapping": {
+            "additionalProperties": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "outputSchema": {
+            "type": "object"
+          },
+          "propagation": {
+            "additionalProperties": false,
+            "properties": {
+              "cancellation": {
+                "type": "boolean"
+              },
+              "failure": {
+                "type": "boolean"
+              },
+              "pause": {
+                "type": "boolean"
+              },
+              "restart": {
+                "type": "boolean"
+              },
+              "success": {
+                "type": "boolean"
+              }
+            },
+            "type": "object"
+          },
+          "revision": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "timeoutSeconds": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "flowId"
+        ],
+        "type": "object"
+      },
+      "editor": {
+        "category": "Core",
+        "description": "Launch a revision-pinned child flow with durable parent-child lineage.",
+        "propertyOrder": [
+          "namespace",
+          "flowId",
+          "revision",
+          "mode",
+          "inputs",
+          "labels",
+          "propagation",
+          "outputMapping",
+          "outputSchema",
+          "artifactMapping",
+          "artifactSchema",
+          "maxDepth"
+        ],
+        "title": "Invoke subflow"
+      },
+      "kind": "task",
+      "type": "core.subflow"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
           "condition": {
             "type": "string"
           },

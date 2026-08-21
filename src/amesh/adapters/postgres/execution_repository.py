@@ -31,7 +31,10 @@ from amesh.ports.execution_repository import (
     ExecutionStateConflictError,
     PersistedExecution,
     PersistedFlow,
+    PersistedSubflow,
     PersistedTaskRun,
+    SubflowLaunchContext,
+    SubflowPropagation,
     TaskStateConflictError,
 )
 from amesh.ports.tenant_repository import TenantQuotaExceeded, TenantUnavailableError
@@ -183,6 +186,99 @@ _SELECT_EXECUTION_BY_IDEMPOTENCY = text(
     FROM executions
     WHERE tenant_id = :tenant_id
       AND idempotency_key = :idempotency_key
+    """
+)
+
+_INSERT_SUBFLOW = text(
+    """
+    INSERT INTO execution_subflows (
+        id,
+        tenant_id,
+        parent_execution_id,
+        parent_task_run_id,
+        parent_attempt,
+        child_execution_id,
+        invocation_key,
+        mode,
+        depth,
+        target_revision,
+        propagation,
+        output_mapping,
+        created_by
+    )
+    VALUES (
+        :relationship_id,
+        :tenant_id,
+        :parent_execution_id,
+        :parent_task_run_id,
+        :parent_attempt,
+        :child_execution_id,
+        :invocation_key,
+        :mode,
+        :depth,
+        :target_revision,
+        CAST(:propagation AS jsonb),
+        CAST(:output_mapping AS jsonb),
+        :actor_id
+    )
+    ON CONFLICT (tenant_id, invocation_key) DO NOTHING
+    RETURNING id
+    """
+)
+
+_SELECT_SUBFLOW_CHILD_BY_INVOCATION = text(
+    """
+    SELECT child_execution_id
+    FROM execution_subflows
+    WHERE tenant_id = :tenant_id
+      AND invocation_key = :invocation_key
+    """
+)
+
+_SUBFLOW_COLUMNS = """
+    relationships.id,
+    relationships.parent_execution_id,
+    relationships.parent_task_run_id,
+    relationships.parent_attempt,
+    relationships.child_execution_id,
+    relationships.invocation_key,
+    relationships.mode,
+    relationships.depth,
+    relationships.target_revision,
+    relationships.propagation,
+    relationships.output_mapping,
+    parent.namespace_name AS parent_namespace,
+    parent.flow_key AS parent_flow_id,
+    parent_revision.revision AS parent_flow_revision,
+    child.namespace_name AS child_namespace,
+    child.flow_key AS child_flow_id,
+    child.state AS child_state,
+    relationships.created_by,
+    relationships.created_at
+"""
+
+_LIST_CHILD_SUBFLOWS = text(
+    f"""
+    SELECT {_SUBFLOW_COLUMNS}
+    FROM execution_subflows AS relationships
+    JOIN executions AS parent ON parent.id = relationships.parent_execution_id
+    JOIN flow_revisions AS parent_revision ON parent_revision.id = parent.flow_revision_id
+    JOIN executions AS child ON child.id = relationships.child_execution_id
+    WHERE relationships.tenant_id = :tenant_id
+      AND relationships.parent_execution_id = :execution_id
+    ORDER BY relationships.created_at, relationships.id
+    """
+)
+
+_GET_PARENT_SUBFLOW = text(
+    f"""
+    SELECT {_SUBFLOW_COLUMNS}
+    FROM execution_subflows AS relationships
+    JOIN executions AS parent ON parent.id = relationships.parent_execution_id
+    JOIN flow_revisions AS parent_revision ON parent_revision.id = parent.flow_revision_id
+    JOIN executions AS child ON child.id = relationships.child_execution_id
+    WHERE relationships.tenant_id = :tenant_id
+      AND relationships.child_execution_id = :execution_id
     """
 )
 
@@ -367,14 +463,18 @@ _GET_EXECUTION = text(
         executions.version,
         executions.namespace_name,
         executions.flow_key,
+        flow_revisions.revision AS flow_revision,
         executions.inputs,
+        executions.labels,
         executions.trigger_context,
+        executions.created_by,
         executions.created_at,
         executions.updated_at,
         executions.timeout_at,
         executions.cancel_deadline_at
     FROM executions
     JOIN tenants ON tenants.id = executions.tenant_id
+    JOIN flow_revisions ON flow_revisions.id = executions.flow_revision_id
     WHERE executions.id = :execution_id
       AND tenants.slug = :tenant_slug
     """
@@ -390,14 +490,18 @@ _LIST_EXECUTIONS = text(
         executions.version,
         executions.namespace_name,
         executions.flow_key,
+        flow_revisions.revision AS flow_revision,
         executions.inputs,
+        executions.labels,
         executions.trigger_context,
+        executions.created_by,
         executions.created_at,
         executions.updated_at,
         executions.timeout_at,
         executions.cancel_deadline_at
     FROM executions
     JOIN tenants ON tenants.id = executions.tenant_id
+    JOIN flow_revisions ON flow_revisions.id = executions.flow_revision_id
     WHERE tenants.slug = :tenant_slug
     ORDER BY executions.created_at DESC, executions.id
     LIMIT :limit
@@ -412,7 +516,7 @@ _GET_FLOW_DEFINITION = text(
     JOIN namespaces ON namespaces.id = flows.namespace_id
     JOIN flow_revisions
       ON flow_revisions.flow_id = flows.id
-     AND flow_revisions.revision = flows.active_revision
+     AND flow_revisions.revision = COALESCE(:revision, flows.active_revision)
     WHERE tenants.slug = :tenant_slug
       AND namespaces.name = :namespace
       AND flows.flow_key = :flow_key
@@ -779,10 +883,13 @@ _FINISH_EXECUTION = text(
             state,
             epoch,
             version,
+            flow_revision_id,
             namespace_name,
             flow_key,
             inputs,
+            labels,
             trigger_context,
+            created_by,
             created_at,
             updated_at,
             timeout_at,
@@ -826,10 +933,13 @@ _FINISH_EXECUTION = text(
         finished.state,
         finished.epoch,
         finished.version,
+        flow_revisions.revision AS flow_revision,
         finished.namespace_name,
         finished.flow_key,
         finished.inputs,
+        finished.labels,
         finished.trigger_context,
+        finished.created_by,
         finished.created_at,
         finished.updated_at,
         finished.timeout_at,
@@ -837,6 +947,7 @@ _FINISH_EXECUTION = text(
     FROM finished
     JOIN event ON event.execution_id = finished.id
     JOIN tenants ON tenants.id = finished.tenant_id
+    JOIN flow_revisions ON flow_revisions.id = finished.flow_revision_id
     """
 )
 
@@ -1053,6 +1164,7 @@ class PostgresExecutionRepository(ExecutionRepository):
         flow_id: str,
         *,
         tenant_id: str,
+        revision: int | None = None,
     ) -> FlowDefinition:
         async with tenant_transaction(self._engine, tenant_id) as (connection, _tenant_uuid):
             result = await connection.execute(
@@ -1061,6 +1173,7 @@ class PostgresExecutionRepository(ExecutionRepository):
                     "tenant_slug": tenant_id,
                     "namespace": namespace,
                     "flow_key": flow_id,
+                    "revision": revision,
                 },
             )
             definition = result.scalar_one_or_none()
@@ -1087,7 +1200,11 @@ class PostgresExecutionRepository(ExecutionRepository):
         launch_source: ExecutionLaunchSource = ExecutionLaunchSource.MANUAL,
         idempotency_key: str | None = None,
         actor_id: str = "system:executor",
+        labels: dict[str, str] | None = None,
+        subflow: SubflowLaunchContext | None = None,
     ) -> PersistedExecution:
+        if subflow is not None and flow.revision != subflow.target_revision:
+            raise ValueError("subflow target revision does not match the loaded flow revision")
         execution_id = new_runtime_id()
         encoded, semantic_hash = _canonical_flow(flow)
 
@@ -1131,18 +1248,19 @@ class PostgresExecutionRepository(ExecutionRepository):
                 encoded,
                 actor_id,
             )
-            await connection.execute(
-                _ACTIVATE_FLOW_REVISION,
-                {
-                    "tenant_id": tenant_uuid,
-                    "flow_id": flow_id,
-                    "revision": flow.revision,
-                    "labels": json.dumps(flow.labels),
-                    "annotations": json.dumps(flow.annotations),
-                    "actor_id": actor_id,
-                    "expected_version": None,
-                },
-            )
+            if subflow is None:
+                await connection.execute(
+                    _ACTIVATE_FLOW_REVISION,
+                    {
+                        "tenant_id": tenant_uuid,
+                        "flow_id": flow_id,
+                        "revision": flow.revision,
+                        "labels": json.dumps(flow.labels),
+                        "annotations": json.dumps(flow.annotations),
+                        "actor_id": actor_id,
+                        "expected_version": None,
+                    },
+                )
             launch_context = dict(trigger or {})
             launch_context["source"] = launch_source.value
             insert_result = await connection.execute(
@@ -1157,7 +1275,7 @@ class PostgresExecutionRepository(ExecutionRepository):
                     "idempotency_key": idempotency_key,
                     "inputs": json.dumps(inputs),
                     "trigger_context": json.dumps(launch_context),
-                    "labels": json.dumps(flow.labels),
+                    "labels": json.dumps({**flow.labels, **(labels or {})}),
                     "actor_id": actor_id,
                     "created_at": created_at,
                     "timeout_at": (
@@ -1206,6 +1324,38 @@ class PostgresExecutionRepository(ExecutionRepository):
                     task_rows,
                 )
 
+            if subflow is not None:
+                relationship_id = await connection.scalar(
+                    _INSERT_SUBFLOW,
+                    {
+                        "relationship_id": new_runtime_id(),
+                        "tenant_id": tenant_uuid,
+                        "parent_execution_id": subflow.parent_execution_id,
+                        "parent_task_run_id": subflow.parent_task_run_id,
+                        "parent_attempt": subflow.parent_attempt,
+                        "child_execution_id": execution_id,
+                        "invocation_key": subflow.invocation_key,
+                        "mode": subflow.mode.value,
+                        "depth": subflow.depth,
+                        "target_revision": subflow.target_revision,
+                        "propagation": subflow.propagation.model_dump_json(),
+                        "output_mapping": json.dumps(subflow.output_mapping),
+                        "actor_id": actor_id,
+                    },
+                )
+                if relationship_id is None:
+                    existing_child = await connection.scalar(
+                        _SELECT_SUBFLOW_CHILD_BY_INVOCATION,
+                        {
+                            "tenant_id": tenant_uuid,
+                            "invocation_key": subflow.invocation_key,
+                        },
+                    )
+                    if existing_child != execution_id:
+                        raise ExecutionStateConflictError(
+                            "subflow invocation identity resolves to another child execution"
+                        )
+
         return await self.get_execution(execution_id, tenant_id=tenant_id)
 
     async def get_execution(self, execution_id: UUID, *, tenant_id: str) -> PersistedExecution:
@@ -1232,6 +1382,44 @@ class PostgresExecutionRepository(ExecutionRepository):
             )
             rows = result.mappings().all()
         return [_to_execution(row) for row in rows]
+
+    async def list_subflows(
+        self,
+        execution_id: UUID,
+        *,
+        tenant_id: str,
+    ) -> list[PersistedSubflow]:
+        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+            rows = (
+                (
+                    await connection.execute(
+                        _LIST_CHILD_SUBFLOWS,
+                        {"tenant_id": tenant_uuid, "execution_id": execution_id},
+                    )
+                )
+                .mappings()
+                .all()
+            )
+        return [_to_subflow(row) for row in rows]
+
+    async def get_parent_subflow(
+        self,
+        execution_id: UUID,
+        *,
+        tenant_id: str,
+    ) -> PersistedSubflow | None:
+        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+            row = (
+                (
+                    await connection.execute(
+                        _GET_PARENT_SUBFLOW,
+                        {"tenant_id": tenant_uuid, "execution_id": execution_id},
+                    )
+                )
+                .mappings()
+                .one_or_none()
+            )
+        return _to_subflow(row) if row is not None else None
 
     async def list_task_runs(
         self,
@@ -2570,12 +2758,39 @@ def _to_execution(row: RowMapping) -> PersistedExecution:
         version=row["version"],
         namespace=row["namespace_name"],
         flow_id=row["flow_key"],
+        flow_revision=row["flow_revision"],
         inputs=row["inputs"],
+        labels=row["labels"],
         trigger=row["trigger_context"],
+        created_by=row["created_by"],
         created_at=row["created_at"],
         updated_at=row["updated_at"],
         timeout_at=row["timeout_at"],
         cancel_deadline_at=row["cancel_deadline_at"],
+    )
+
+
+def _to_subflow(row: RowMapping) -> PersistedSubflow:
+    return PersistedSubflow(
+        relationship_id=row["id"],
+        parent_execution_id=row["parent_execution_id"],
+        parent_task_run_id=row["parent_task_run_id"],
+        parent_attempt=row["parent_attempt"],
+        child_execution_id=row["child_execution_id"],
+        invocation_key=row["invocation_key"],
+        mode=row["mode"],
+        depth=row["depth"],
+        target_revision=row["target_revision"],
+        propagation=SubflowPropagation.model_validate(row["propagation"]),
+        output_mapping=row["output_mapping"],
+        parent_namespace=row["parent_namespace"],
+        parent_flow_id=row["parent_flow_id"],
+        parent_flow_revision=row["parent_flow_revision"],
+        child_namespace=row["child_namespace"],
+        child_flow_id=row["child_flow_id"],
+        child_state=row["child_state"],
+        created_by=row["created_by"],
+        created_at=row["created_at"],
     )
 
 

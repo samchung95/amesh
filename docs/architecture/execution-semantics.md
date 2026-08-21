@@ -153,6 +153,37 @@ worker cannot commit. Every intervention requires the preview's execution versio
 authorized REST surface exposes preview, apply and immutable intervention history under
 `/api/v1/executions/{execution_id}/interventions`.
 
+## Subflows
+
+`core.subflow` resolves a child by tenant, namespace, flow ID and either its active revision or an
+explicit revision. Creation of the child execution and its `execution_subflows` relationship is one
+transaction. The relationship records the parent execution, task run and attempt, child execution,
+invocation identity, target revision, nesting depth, mode, propagation policy, output mapping and
+actor. Repeating the same parent task attempt resolves the same child rather than launching a
+duplicate.
+
+The three invocation modes are:
+
+- `SYNC`: the task waits for the child, applies the declared failure/cancellation/pause policy and
+  maps the child's committed task results into parent outputs and artifact references.
+- `ASYNC`: the parent task commits the durable child reference immediately; post-response coordination
+  executes the child independently and can resume it from the stored relationship.
+- `DETACHED`: launch and execution are independent and all parent-state propagation flags are disabled.
+
+Inputs are rendered in the parent context and checked against the child flow's declared input types.
+Labels merge child defaults, parent execution labels and invocation labels. Correlation and trace
+context are copied into the immutable child trigger context. `outputMapping` and `artifactMapping` are
+rendered only after child completion; optional draft-2020-12 `outputSchema` and `artifactSchema`
+documents reject an invalid mapped result before the parent task commits it.
+
+Lineage traversal rejects repeated namespace/flow identities and enforces `maxDepth`. Parent task
+replay launches a new child when `propagation.restart` is true and reuses the prior committed child
+when it is false. The API independently authorizes the parent and every child namespace. A flow marked
+`system: true` additionally requires tenant-management authority both when applied and when invoked.
+Authorized callers can inspect both directions of the durable graph at
+`/api/v1/executions/{execution_id}/subflows` and
+`/api/v1/executions/{execution_id}/parent-subflow`.
+
 ## External side effects
 
 Plugin and task authors must choose one:

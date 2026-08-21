@@ -4047,7 +4047,7 @@
       "id": "URS-F-0140",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M1",
       "wave": 1,
       "epic_id": "EPIC-107",
@@ -4068,13 +4068,17 @@
       "local_sequence": 1,
       "dependencies": [
         "EPIC-100"
+      ],
+      "evidence": [
+        "tests/executor/test_subflows.py::test_sync_subflow_pins_revision_maps_outputs_and_preserves_lineage",
+        "tests/api/test_subflow_api.py::test_subflow_execution_and_lineage_api"
       ]
     },
     {
       "id": "URS-F-0141",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M1",
       "wave": 1,
       "epic_id": "EPIC-107",
@@ -4095,13 +4099,16 @@
       "local_sequence": 2,
       "dependencies": [
         "EPIC-100"
+      ],
+      "evidence": [
+        "tests/executor/test_subflows.py::test_sync_subflow_pins_revision_maps_outputs_and_preserves_lineage"
       ]
     },
     {
       "id": "URS-F-0142",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M1",
       "wave": 1,
       "epic_id": "EPIC-107",
@@ -4122,13 +4129,16 @@
       "local_sequence": 3,
       "dependencies": [
         "EPIC-100"
+      ],
+      "evidence": [
+        "tests/executor/test_subflows.py::test_async_and_detached_children_run_independently_from_successful_parent"
       ]
     },
     {
       "id": "URS-F-0143",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M1",
       "wave": 1,
       "epic_id": "EPIC-107",
@@ -4149,13 +4159,16 @@
       "local_sequence": 4,
       "dependencies": [
         "EPIC-100"
+      ],
+      "evidence": [
+        "tests/executor/test_subflows.py::test_sync_subflow_honors_cancellation_and_restart_propagation_policy"
       ]
     },
     {
       "id": "URS-F-0144",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M1",
       "wave": 1,
       "epic_id": "EPIC-107",
@@ -4176,13 +4189,17 @@
       "local_sequence": 5,
       "dependencies": [
         "EPIC-100"
+      ],
+      "evidence": [
+        "tests/executor/test_subflows.py::test_sync_subflow_pins_revision_maps_outputs_and_preserves_lineage",
+        "tests/executor/test_subflows.py::test_subflow_rejects_cycles_invalid_inputs_and_unauthorized_system_flows"
       ]
     },
     {
       "id": "URS-F-0145",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M1",
       "wave": 1,
       "epic_id": "EPIC-107",
@@ -4203,13 +4220,16 @@
       "local_sequence": 6,
       "dependencies": [
         "EPIC-100"
+      ],
+      "evidence": [
+        "tests/executor/test_subflows.py::test_subflow_rejects_cycles_invalid_inputs_and_unauthorized_system_flows"
       ]
     },
     {
       "id": "URS-F-0146",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M1",
       "wave": 1,
       "epic_id": "EPIC-107",
@@ -4230,13 +4250,17 @@
       "local_sequence": 7,
       "dependencies": [
         "EPIC-100"
+      ],
+      "evidence": [
+        "tests/executor/test_subflows.py::test_subflow_rejects_cycles_invalid_inputs_and_unauthorized_system_flows",
+        "tests/api/test_subflow_api.py::test_subflow_execution_and_lineage_api"
       ]
     },
     {
       "id": "URS-F-0147",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M1",
       "wave": 1,
       "epic_id": "EPIC-107",
@@ -4257,6 +4281,10 @@
       "local_sequence": 8,
       "dependencies": [
         "EPIC-100"
+      ],
+      "evidence": [
+        "tests/executor/test_subflows.py::test_sync_subflow_pins_revision_maps_outputs_and_preserves_lineage",
+        "tests/api/test_subflow_api.py::test_subflow_execution_and_lineage_api"
       ]
     },
     {

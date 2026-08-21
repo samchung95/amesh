@@ -4,7 +4,7 @@ import asyncio
 import hashlib
 import logging
 from collections.abc import Awaitable, Callable, Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from typing import Any
 from uuid import UUID, uuid5
@@ -42,6 +42,8 @@ class TaskExecutionContext:
     inputs: Mapping[str, Any]
     outputs: Mapping[str, dict[str, Any]]
     variables: Mapping[str, Any]
+    labels: Mapping[str, str] = field(default_factory=dict)
+    trigger: Mapping[str, Any] = field(default_factory=dict)
 
 
 TaskHandler = Callable[[TaskDefinition, TaskExecutionContext], Awaitable[dict[str, Any]]]
@@ -61,6 +63,10 @@ class TaskExecutionFailure(RuntimeError):
     def __init__(self, message: str, category: FailureCategory) -> None:
         super().__init__(message)
         self.category = category
+
+
+class TaskExecutionPaused(RuntimeError):
+    """Signal that a handler durably paused its execution and kept its attempt live."""
 
 
 def classify_task_failure(exc: Exception) -> FailureCategory:
@@ -383,16 +389,24 @@ class InProcessExecutor:
             inputs=execution.inputs,
             outputs=outputs,
             variables=flow.variables,
+            labels=execution.labels,
+            trigger=execution.trigger,
         )
         try:
             if condition_error is not None:
                 raise condition_error
-            rendered_task = self._expressions.render_task(task, expression_context)
+            rendered_task = _render_task_for_execution(
+                self._expressions,
+                task,
+                expression_context,
+            )
             if task.timeout_seconds is None:
                 result = await handler(rendered_task, context)
             else:
                 async with asyncio.timeout(task.timeout_seconds):
                     result = await handler(rendered_task, context)
+        except TaskExecutionPaused:
+            return _TaskRunOutcome(claimed=True)
         except Exception as exc:
             category = classify_task_failure(exc)
             reason = f"task {task.id!r} failed [{category.value}]: {exc}"
@@ -618,3 +632,25 @@ async def _run_core_return(
     del context
     extra = task.model_extra or {}
     return {"value": extra.get("value")}
+
+
+def _render_task_for_execution(
+    expressions: ExpressionEngine,
+    task: TaskDefinition,
+    context: ExpressionContext,
+) -> TaskDefinition:
+    extra = task.model_extra or {}
+    deferred_keys = frozenset(
+        {"outputMapping", "outputSchema", "artifactMapping", "artifactSchema"}
+    )
+    deferred = {key: extra[key] for key in deferred_keys if key in extra}
+    if task.type != "core.subflow" or not deferred:
+        return expressions.render_task(task, context)
+
+    payload = task.model_dump(mode="python", by_alias=True)
+    for key in deferred:
+        payload.pop(key, None)
+    rendered = expressions.render_task(TaskDefinition.model_validate(payload), context)
+    rendered_payload = rendered.model_dump(mode="python", by_alias=True)
+    rendered_payload.update(deferred)
+    return TaskDefinition.model_validate(rendered_payload)

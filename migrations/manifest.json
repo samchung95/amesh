@@ -102,6 +102,12 @@
       "mode": "expand",
       "onlineCompatible": true,
       "rollbackGuidance": "Pause execution interventions and forward-fix additive deadline or classification fields; retain execution/task events and active attempt evidence."
+    },
+    {
+      "file": "0018_subflow_relationships.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Pause new subflow launches and forward-fix the additive relationship contract; retain parent and child executions plus immutable task and execution evidence."
     }
   ]
 }

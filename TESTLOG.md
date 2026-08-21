@@ -672,3 +672,48 @@ monotonic local deadlines. Live multi-node plus/minus-30-second clock-skew and P
 qualification remains shared with EPIC-601; the mapped reliability NFR remains In Progress.
 
 Verdict: PASS — EPIC-104 closed.
+
+## EPIC-107: Subflows, dependencies and system flows — 2026-08-22
+
+Spec source: `backlog/epics/epic-107-subflows-dependencies-and-system-flows.md` and
+`docs/architecture/execution-semantics.md`.
+
+Verified with `uv`, Python 3.13.12 and PostgreSQL 17:
+
+- [x] `core.subflow` resolves active or pinned child revisions and atomically persists an idempotent,
+  tenant-isolated relationship to the parent execution, task run and attempt.
+- [x] Synchronous, asynchronous and detached modes execute with distinct waiting/propagation behavior;
+  the API schedules independent children after the parent response and the durable coordinator resumes
+  incomplete descendants.
+- [x] Typed inputs, inherited and invocation labels, correlation/trace context, output mappings and
+  artifact mappings cross the parent/child boundary. Draft-2020-12 schemas reject invalid mapped
+  results before the parent task commits.
+- [x] Explicit failure, cancellation, pause and restart policy tests cover propagation and prior-child
+  reuse. Recursive identities, excessive depth, invalid inputs and invalid output schemas fail
+  deterministically.
+- [x] System flows require tenant-management authority. Parent and child namespace execution checks
+  are independent; denied cross-namespace/system launches create no parent execution. Relationship
+  records preserve both namespaces, the initiating actor and pinned revisions.
+- [x] Authorized REST endpoints expose child relationships and a child's parent relationship. The API
+  end-to-end test applies ordinary and system children in separate namespaces and completes a
+  post-response asynchronous child.
+- [x] A guarded fresh database applied all 18 migrations. Full suite: 156 passed, four
+  environment-gated tests skipped. Coverage excluding the `no_cover` performance case: 155 passed,
+  four skipped, one deselected, 83% branch coverage. The 5,000-line validation performance gate also
+  passed without instrumentation.
+- [x] Frontend suite: eight tests passed with 100% reported coverage; production Vite build and ESLint
+  completed.
+- [x] Ruff formatting/lint, strict mypy, uv lock, planning/backlog generation and validation,
+  clean-room, compilation, generated-contract, Compose and diff gates pass.
+
+Adversarial pass: selected versus active revision, duplicate task-attempt invocation, invalid input
+types, invalid mapped output schemas, direct recursion, cancelled and paused children, restart with
+child replay disabled, detached child failure, cross-namespace denial and privileged system-flow denial
+produce deterministic persisted results. The checked-in OpenRouter smoke default remains
+`openai/gpt-5.6-luna`; its live test is environment-gated without a key.
+
+Qualification boundary: `execution_subflows` is the authoritative recovery input for unfinished child
+trees. Broad stuck-execution discovery and automated invariant repair remain owned by EPIC-108 rather
+than being duplicated in this epic.
+
+Verdict: PASS — EPIC-107 closed.
