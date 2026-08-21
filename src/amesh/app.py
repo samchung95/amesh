@@ -61,9 +61,13 @@ from amesh.config import Settings, get_settings
 from amesh.credentials import CredentialOperationError, CredentialService, InvalidCredential
 from amesh.domain import (
     ActorContext,
+    AdmissionDecision,
+    AdmissionDiagnostics,
+    AdmissionResourceType,
     AuthorizationDecision,
     AuthorizationRequest,
     CredentialMetadata,
+    ExecutionState,
     InvalidTransition,
     IssuedCredential,
     NamespaceAuthorizationBoundary,
@@ -305,6 +309,7 @@ ActorDependency = Annotated[ActorContext, Depends(authenticate_actor)]
 
 async def require_tenant_context(
     settings: SettingsDependency,
+    tenant_service: TenantServiceDependency,
     tenant_header: Annotated[str | None, Header(alias="X-Amesh-Tenant")] = None,
 ) -> str:
     if tenant_header is None:
@@ -315,12 +320,21 @@ async def require_tenant_context(
             )
         tenant_header = settings.single_tenant_slug
     try:
-        return _TENANT_SLUG_ADAPTER.validate_python(tenant_header)
+        tenant_slug = _TENANT_SLUG_ADAPTER.validate_python(tenant_header)
     except ValidationError:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="tenant unavailable",
         ) from None
+    try:
+        await tenant_service.consume_api_request(tenant_slug)
+    except TenantQuotaExceeded as exc:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="tenant API request quota exceeded",
+            headers={"Retry-After": "60"},
+        ) from exc
+    return tenant_slug
 
 
 TenantDependency = Annotated[str, Depends(require_tenant_context)]
@@ -650,6 +664,110 @@ async def list_executions(
             detail="limit must be between 1 and 1000",
         )
     return await repository.list_executions(tenant_id=tenant_id, limit=limit)
+
+
+@app.get(
+    "/api/v1/executions/{execution_id}/admission",
+    response_model=AdmissionDecision,
+    tags=["executions"],
+)
+async def get_execution_admission(
+    execution_id: UUID,
+    repository: RepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> AdmissionDecision:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="execution",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+    )
+    decision = await repository.get_admission(
+        AdmissionResourceType.EXECUTION,
+        execution_id,
+        tenant_id=tenant_id,
+    )
+    if decision is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="admission not found")
+    return decision
+
+
+@app.get(
+    "/api/v1/task-runs/{task_run_id}/admission",
+    response_model=AdmissionDecision,
+    tags=["executions"],
+)
+async def get_task_admission(
+    task_run_id: UUID,
+    repository: RepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> AdmissionDecision:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="execution",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+    )
+    decision = await repository.get_admission(
+        AdmissionResourceType.TASK,
+        task_run_id,
+        tenant_id=tenant_id,
+    )
+    if decision is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="admission not found")
+    return decision
+
+
+@app.get(
+    "/api/v1/admissions/diagnostics",
+    response_model=AdmissionDiagnostics,
+    tags=["operations"],
+)
+async def get_admission_diagnostics(
+    repository: RepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> AdmissionDiagnostics:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="execution",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+    )
+    return await repository.admission_diagnostics(tenant_id=tenant_id)
+
+
+@app.post("/api/v1/admissions/reconcile", tags=["operations"])
+async def reconcile_admissions(
+    repository: RepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    limit: int = 100,
+) -> dict[str, int]:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="tenant",
+        action=PermissionAction.MANAGE,
+        tenant_id=tenant_id,
+    )
+    try:
+        promoted = await repository.reconcile_admission(tenant_id=tenant_id, limit=limit)
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=str(exc),
+        ) from exc
+    return {"promoted": promoted}
 
 
 @app.get(
@@ -1164,11 +1282,12 @@ async def _execute_flow(
             )
         except (TenantQuotaExceeded, ValueError) as exc:
             raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
-        await executor.run_to_completion(
-            flow,
-            execution.execution_id,
-            tenant_id=tenant_id,
-        )
+        if execution.state is ExecutionState.RUNNING:
+            await executor.run_to_completion(
+                flow,
+                execution.execution_id,
+                tenant_id=tenant_id,
+            )
         detail = ExecutionDetail(
             execution=await repository.get_execution(
                 execution.execution_id,
@@ -1179,8 +1298,9 @@ async def _execute_flow(
                 tenant_id=tenant_id,
             ),
         )
-        background_tasks.add_task(run_pending_subflows)
-        background_scheduled = True
+        if detail.execution.state is ExecutionState.SUCCESS:
+            background_tasks.add_task(run_pending_subflows)
+            background_scheduled = True
         return detail
     finally:
         if kubernetes_runner is not None and not background_scheduled:

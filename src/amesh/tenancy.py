@@ -63,3 +63,12 @@ class TenantService:
 
     async def export(self, tenant_slug: str, *, actor_id: str) -> TenantExport:
         return await self._repository.export(tenant_slug, actor_id=actor_id)
+
+    async def consume_api_request(self, tenant_slug: str) -> int:
+        return await self._repository.consume_api_request(tenant_slug)
+
+    async def reserve_storage_bytes(self, tenant_slug: str, amount: int) -> int:
+        return await self._repository.reserve_storage_bytes(tenant_slug, amount)
+
+    async def release_storage_bytes(self, tenant_slug: str, amount: int) -> int:
+        return await self._repository.release_storage_bytes(tenant_slug, amount)

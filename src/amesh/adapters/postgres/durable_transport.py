@@ -132,6 +132,7 @@ _PUBLISH_OUTBOX = text(
             message_type,
             schema_version,
             envelope,
+            priority,
             max_attempts,
             available_at
         )
@@ -143,6 +144,7 @@ _PUBLISH_OUTBOX = text(
             pending.envelope ->> 'message_type',
             CAST(pending.envelope ->> 'schema_version' AS integer),
             pending.envelope,
+            COALESCE(CAST(pending.envelope #>> '{payload,event,priority}' AS integer), 0),
             pending.max_attempts,
             pending.available_at
         FROM pending

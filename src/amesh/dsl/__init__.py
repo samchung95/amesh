@@ -1,4 +1,10 @@
-from .models import FlowDefinition, FlowValidationResult, SourcePosition, SourceRange
+from .models import (
+    FlowDefinition,
+    FlowValidationResult,
+    SourcePosition,
+    SourceRange,
+    TaskDefinition,
+)
 from .registry import (
     EditorMetadata,
     ResourceKind,
@@ -20,6 +26,7 @@ __all__ = [
     "ResourceSchemaRegistry",
     "SourcePosition",
     "SourceRange",
+    "TaskDefinition",
     "default_resource_registry",
     "parse_editable_flow_document",
     "validate_flow_document",

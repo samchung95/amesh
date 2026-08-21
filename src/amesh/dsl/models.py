@@ -7,6 +7,7 @@ from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 from croniter import croniter
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from amesh.domain.admission import ConcurrencyLimit
 from amesh.domain.identity import NamespaceId, NaturalId
 
 
@@ -99,6 +100,9 @@ class TaskDefinition(BaseModel):
     image: str | None = None
     environment: dict[str, str] = Field(default_factory=dict)
     resources: dict[str, Any] = Field(default_factory=dict)
+    concurrency: list[ConcurrencyLimit] = Field(default_factory=list)
+    priority: int = Field(default=0, ge=-1000, le=1000)
+    worker_group: NaturalId | None = Field(default=None, alias="workerGroup")
     tasks: list[TaskDefinition] = Field(default_factory=list)
 
     @model_validator(mode="before")
@@ -135,6 +139,8 @@ class FlowDefinition(BaseModel):
     annotations: dict[str, str] = Field(default_factory=dict)
     inputs: list[InputDefinition] = Field(default_factory=list)
     variables: dict[str, Any] = Field(default_factory=dict)
+    concurrency: list[ConcurrencyLimit] = Field(default_factory=list)
+    priority: int = Field(default=0, ge=-1000, le=1000)
     tasks: list[TaskDefinition] = Field(min_length=1)
     triggers: list[TriggerDefinition] = Field(default_factory=list)
     outputs: dict[str, Any] = Field(default_factory=dict)

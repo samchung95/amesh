@@ -7,7 +7,16 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from amesh.domain import ExecutionState, FailureCategory, ResourceMetadata, TaskRunState
+from amesh.domain import (
+    AdmissionDecision,
+    AdmissionDiagnostics,
+    AdmissionResourceType,
+    ExecutionState,
+    FailureCategory,
+    ResolvedAdmissionPolicy,
+    ResourceMetadata,
+    TaskRunState,
+)
 from amesh.dsl import FlowDefinition
 
 
@@ -205,6 +214,37 @@ class ExecutionRepository(Protocol):
         subflow: SubflowLaunchContext | None = None,
     ) -> PersistedExecution: ...
 
+    async def request_admission(
+        self,
+        resource_type: AdmissionResourceType,
+        resource_id: UUID,
+        policies: tuple[ResolvedAdmissionPolicy, ...],
+        *,
+        tenant_id: str,
+        priority: int = 0,
+    ) -> AdmissionDecision: ...
+
+    async def get_admission(
+        self,
+        resource_type: AdmissionResourceType,
+        resource_id: UUID,
+        *,
+        tenant_id: str,
+    ) -> AdmissionDecision | None: ...
+
+    async def release_admission(
+        self,
+        resource_type: AdmissionResourceType,
+        resource_id: UUID,
+        *,
+        tenant_id: str,
+        reason: str = "resource completed",
+    ) -> bool: ...
+
+    async def reconcile_admission(self, *, tenant_id: str, limit: int = 100) -> int: ...
+
+    async def admission_diagnostics(self, *, tenant_id: str) -> AdmissionDiagnostics: ...
+
     async def get_execution(self, execution_id: UUID, *, tenant_id: str) -> PersistedExecution: ...
 
     async def list_executions(
@@ -227,6 +267,8 @@ class ExecutionRepository(Protocol):
         *,
         tenant_id: str,
         dispatch: bool = True,
+        priority: int = 0,
+        worker_group: str | None = None,
     ) -> PersistedTaskRun: ...
 
     async def complete_task(

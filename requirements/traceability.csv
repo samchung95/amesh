@@ -122,14 +122,14 @@ URS-F-0120,Functional,Must,EPIC-104,"Retries, timeout, pause, cancellation, kill
 URS-F-0121,Functional,Must,EPIC-104,"Retries, timeout, pause, cancellation, kill and restart",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
 URS-F-0122,Functional,Must,EPIC-104,"Retries, timeout, pause, cancellation, kill and restart",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
 URS-F-0123,Functional,Must,EPIC-104,"Retries, timeout, pause, cancellation, kill and restart",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
-URS-F-0124,Functional,Must,EPIC-105,"Concurrency, admission control and fairness",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0125,Functional,Must,EPIC-105,"Concurrency, admission control and fairness",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0126,Functional,Must,EPIC-105,"Concurrency, admission control and fairness",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0127,Functional,Must,EPIC-105,"Concurrency, admission control and fairness",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0128,Functional,Must,EPIC-105,"Concurrency, admission control and fairness",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0129,Functional,Must,EPIC-105,"Concurrency, admission control and fairness",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0130,Functional,Must,EPIC-105,"Concurrency, admission control and fairness",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0131,Functional,Must,EPIC-105,"Concurrency, admission control and fairness",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0124,Functional,Must,EPIC-105,"Concurrency, admission control and fairness",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0125,Functional,Must,EPIC-105,"Concurrency, admission control and fairness",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0126,Functional,Must,EPIC-105,"Concurrency, admission control and fairness",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0127,Functional,Must,EPIC-105,"Concurrency, admission control and fairness",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0128,Functional,Must,EPIC-105,"Concurrency, admission control and fairness",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0129,Functional,Must,EPIC-105,"Concurrency, admission control and fairness",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0130,Functional,Must,EPIC-105,"Concurrency, admission control and fairness",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0131,Functional,Must,EPIC-105,"Concurrency, admission control and fairness",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
 URS-F-0132,Functional,Must,EPIC-106,"Backfill, replay and historical reprocessing",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
 URS-F-0133,Functional,Must,EPIC-106,"Backfill, replay and historical reprocessing",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
 URS-F-0134,Functional,Must,EPIC-106,"Backfill, replay and historical reprocessing",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed

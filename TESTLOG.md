@@ -1,5 +1,27 @@
 # Test Log
 
+## EPIC-105: Concurrency, admission control and fairness — 2026-08-22
+
+Spec source: Agent Hotel card `c17` and canonical `backlog/epics.json` EPIC-105 DoD.
+
+Verified with `uv`, Python 3.13 and PostgreSQL 17 on a fresh 19-migration database:
+
+- [x] Execution admission resolves global, tenant, namespace, flow, worker-group and expression-keyed limits atomically and persists an explainable decision for every request.
+- [x] `QUEUE`, `CANCEL`, `FAIL`, `REPLACE` and `SKIP` behaviors have deterministic execution outcomes; global replacement is rejected by the DSL contract.
+- [x] Queue ordering combines explicit priority with one-point-per-minute aging, reports stable queue positions and admits waiting work after capacity is released or an expired lease is reconciled.
+- [x] Task admission serializes dynamically keyed work and preserves configured priority and worker-group routing through the durable queue.
+- [x] Tenant concurrent-execution, queued-execution, log-byte, storage-byte and API-request budgets are enforced with transactionally updated counters.
+- [x] Admission explanation, tenant diagnostics and bounded reconciliation are available through authenticated REST endpoints.
+- [x] Focused admission integration suite: 6 passed. Full uninstrumented suite: 164 passed, 4 environment-gated tests skipped.
+- [x] Branch-coverage suite passed at 82.59%, above the 75% gate, with the instrumentation-sensitive 50 ms execution-deadline case excluded and verified separately without coverage. That unchanged timing test passes uninstrumented and was not redesigned under the requested defer-and-move-forward policy.
+- [x] Ruff format/lint, strict mypy, lockfile, generated contracts/planning, backlog, clean-room, compile and Compose configuration gates pass.
+
+Adversarial pass: simultaneous contenders, exhausted capacities, all terminal behaviors, replacement victim cancellation, priority aging, expired leases, dynamic task keys, quota exhaustion and cross-tenant admission diagnostics fail closed or remain tenant isolated as specified.
+
+Product-owner-approved deferrals remain owned by existing epics: the 24-hour profile-M soak is EPIC-611, and the full reference dashboard/alert package is EPIC-607.
+
+Verdict: PASS — EPIC-105 requirements URS-F-0124 through URS-F-0131 are verified.
+
 ## EPIC-004: Flow DSL, YAML model and schema — 2026-08-22
 
 Spec source: Agent Hotel card `c5` and canonical `backlog/epics.json` EPIC-004 DoD.

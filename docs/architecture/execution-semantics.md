@@ -114,6 +114,32 @@ remain on the task-run and execution event subjects for downstream event/subflow
 restarted executor sees failed prerequisites or another graph state with no legal progress, it commits
 `ExecutionFailed` with deterministic `failed` and `blocked` diagnostics.
 
+## Admission control
+
+Flows and tasks may declare `concurrency` rules with a stable ID, positive limit, scope and limit
+behavior. Scopes are `GLOBAL`, `TENANT`, `NAMESPACE`, `FLOW`, `WORKER_GROUP` and `KEY`; a key is
+rendered once by the bounded native expression engine and must produce a scalar. Tasks may also set a
+bounded `priority` and optional `workerGroup`; workers reject task dispatch outside their explicit
+group.
+
+PostgreSQL advisory transaction locks serialize competing reservations for the same evaluated bucket.
+One request records the evaluated policy set and decision, while one leased reservation per policy
+holds capacity. Completion and retry release all reservations idempotently. Reconciliation expires
+lost leases and admits queued requests by priority plus one aging point per minute, so lower-priority
+work eventually overtakes continuously arriving higher-priority work. `REPLACE` cancels the oldest
+same-tenant holder before admitting its replacement; cross-tenant global replacement is deliberately
+rejected by DSL validation.
+
+When capacity is exhausted, `QUEUE` leaves an execution or task pending, `CANCEL` and `FAIL` persist the
+corresponding terminal state, `SKIP` persists success without running user code and `REPLACE` fences the
+displaced resource. The execution and task admission endpoints expose the outcome, reason, limiting
+policy, scope and bucket, active count, configured limit, queue position and queue age. Tenant policy
+adds active-execution, queued-execution, storage-byte, log-byte and per-minute API request budgets.
+
+`GET /api/v1/admissions/diagnostics` returns active reservations, queued requests, oldest queue age and
+pressure by limiting policy. Tenant administrators can invoke `POST /api/v1/admissions/reconcile`;
+ordinary release paths also reconcile queued work immediately.
+
 ## Attempts and retries
 
 A logical task run can contain multiple attempts. Each attempt receives a distinct `attempt_id`; retry

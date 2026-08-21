@@ -1,6 +1,221 @@
 {
   "components": {
     "schemas": {
+      "AdmissionDecision": {
+        "properties": {
+          "active_count": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Active Count",
+            "type": "integer"
+          },
+          "admitted_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Admitted At"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "limit": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Limit"
+          },
+          "limiting_bucket": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Limiting Bucket"
+          },
+          "limiting_policy_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Limiting Policy Id"
+          },
+          "limiting_scope": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AdmissionScope"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "outcome": {
+            "$ref": "#/components/schemas/AdmissionOutcome"
+          },
+          "priority": {
+            "default": 0,
+            "title": "Priority",
+            "type": "integer"
+          },
+          "queue_age_seconds": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Queue Age Seconds",
+            "type": "number"
+          },
+          "queue_position": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Queue Position"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          },
+          "released_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Released At"
+          },
+          "replaced_resource_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Replaced Resource Id"
+          },
+          "request_id": {
+            "format": "uuid",
+            "title": "Request Id",
+            "type": "string"
+          },
+          "resource_id": {
+            "format": "uuid",
+            "title": "Resource Id",
+            "type": "string"
+          },
+          "resource_type": {
+            "$ref": "#/components/schemas/AdmissionResourceType"
+          }
+        },
+        "required": [
+          "request_id",
+          "resource_type",
+          "resource_id",
+          "outcome",
+          "reason",
+          "created_at"
+        ],
+        "title": "AdmissionDecision",
+        "type": "object"
+      },
+      "AdmissionDiagnostics": {
+        "properties": {
+          "active_reservations": {
+            "minimum": 0.0,
+            "title": "Active Reservations",
+            "type": "integer"
+          },
+          "oldest_queue_age_seconds": {
+            "minimum": 0.0,
+            "title": "Oldest Queue Age Seconds",
+            "type": "number"
+          },
+          "pressure_by_policy": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Pressure By Policy",
+            "type": "object"
+          },
+          "queued_requests": {
+            "minimum": 0.0,
+            "title": "Queued Requests",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "active_reservations",
+          "queued_requests",
+          "oldest_queue_age_seconds"
+        ],
+        "title": "AdmissionDiagnostics",
+        "type": "object"
+      },
+      "AdmissionOutcome": {
+        "enum": [
+          "ADMITTED",
+          "QUEUED",
+          "CANCELLED",
+          "FAILED",
+          "REPLACED",
+          "SKIPPED",
+          "RELEASED",
+          "EXPIRED"
+        ],
+        "title": "AdmissionOutcome",
+        "type": "string"
+      },
+      "AdmissionResourceType": {
+        "enum": [
+          "EXECUTION",
+          "TASK"
+        ],
+        "title": "AdmissionResourceType",
+        "type": "string"
+      },
+      "AdmissionScope": {
+        "enum": [
+          "GLOBAL",
+          "TENANT",
+          "NAMESPACE",
+          "FLOW",
+          "WORKER_GROUP",
+          "KEY"
+        ],
+        "title": "AdmissionScope",
+        "type": "string"
+      },
       "AuthorizationDecision": {
         "properties": {
           "allowed": {
@@ -2057,11 +2272,31 @@
             "title": "Identity Provider Refs",
             "type": "array"
           },
+          "max_api_requests_per_minute": {
+            "default": 100000,
+            "maximum": 10000000.0,
+            "minimum": 1.0,
+            "title": "Max Api Requests Per Minute",
+            "type": "integer"
+          },
           "max_concurrent_executions": {
             "default": 100,
             "maximum": 1000000.0,
             "minimum": 1.0,
             "title": "Max Concurrent Executions",
+            "type": "integer"
+          },
+          "max_log_bytes": {
+            "default": 1073741824,
+            "minimum": 1.0,
+            "title": "Max Log Bytes",
+            "type": "integer"
+          },
+          "max_queued_executions": {
+            "default": 10000,
+            "maximum": 10000000.0,
+            "minimum": 1.0,
+            "title": "Max Queued Executions",
             "type": "integer"
           },
           "max_storage_bytes": {
@@ -3808,6 +4043,150 @@
         ]
       }
     },
+    "/api/v1/admissions/diagnostics": {
+      "get": {
+        "operationId": "get_admission_diagnostics_api_v1_admissions_diagnostics_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdmissionDiagnostics"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Admission Diagnostics",
+        "tags": [
+          "operations"
+        ]
+      }
+    },
+    "/api/v1/admissions/reconcile": {
+      "post": {
+        "operationId": "reconcile_admissions_api_v1_admissions_reconcile_post",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "integer"
+                  },
+                  "title": "Response Reconcile Admissions Api V1 Admissions Reconcile Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Reconcile Admissions",
+        "tags": [
+          "operations"
+        ]
+      }
+    },
     "/api/v1/authorization/explain": {
       "post": {
         "operationId": "explain_authorization_api_v1_authorization_explain_post",
@@ -4223,6 +4602,81 @@
           }
         },
         "summary": "Get Execution",
+        "tags": [
+          "executions"
+        ]
+      }
+    },
+    "/api/v1/executions/{execution_id}/admission": {
+      "get": {
+        "operationId": "get_execution_admission_api_v1_executions__execution_id__admission_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "execution_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Execution Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdmissionDecision"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Execution Admission",
         "tags": [
           "executions"
         ]
@@ -5001,6 +5455,81 @@
         "summary": "Preview Schedule",
         "tags": [
           "triggers"
+        ]
+      }
+    },
+    "/api/v1/task-runs/{task_run_id}/admission": {
+      "get": {
+        "operationId": "get_task_admission_api_v1_task_runs__task_run_id__admission_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "task_run_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Task Run Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdmissionDecision"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Task Admission",
+        "tags": [
+          "executions"
         ]
       }
     },

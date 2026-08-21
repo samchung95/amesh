@@ -23,6 +23,12 @@ from amesh.domain import (
 )
 from amesh.ports.tenant_repository import TenantRepository, TenantUnavailableError
 
+from .quota import (
+    TenantQuotaType,
+    release_tenant_quota,
+    reserve_tenant_quota,
+)
+
 _TENANT_COLUMNS = """
     id,
     slug,
@@ -388,6 +394,65 @@ class PostgresTenantRepository(TenantRepository):
             )
         return [str(value) for value in values]
 
+    async def consume_api_request(self, tenant_slug: str) -> int:
+        async with tenant_admin_transaction(self._engine) as connection:
+            row = (
+                (
+                    await connection.execute(
+                        text(
+                            """
+                            SELECT id, settings
+                            FROM tenants
+                            WHERE slug = :tenant_slug AND status = 'ACTIVE'
+                              AND lifecycle = 'ACTIVE'
+                            FOR UPDATE
+                            """
+                        ),
+                        {"tenant_slug": tenant_slug},
+                    )
+                )
+                .mappings()
+                .one_or_none()
+            )
+            if row is None:
+                raise TenantUnavailableError("tenant unavailable")
+            policy = TenantPolicy.model_validate(row["settings"])
+            window_start = await connection.scalar(
+                text("SELECT date_trunc('minute', clock_timestamp())")
+            )
+            if not isinstance(window_start, datetime):
+                raise TypeError("PostgreSQL returned an invalid quota window")
+            return await reserve_tenant_quota(
+                connection,
+                UUID(str(row["id"])),
+                TenantQuotaType.API_REQUESTS,
+                1,
+                policy.max_api_requests_per_minute,
+                window_start=window_start,
+            )
+
+    async def reserve_storage_bytes(self, tenant_slug: str, amount: int) -> int:
+        async with tenant_admin_transaction(self._engine) as connection:
+            row = await _lock_tenant_policy(connection, tenant_slug)
+            policy = TenantPolicy.model_validate(row["settings"])
+            return await reserve_tenant_quota(
+                connection,
+                UUID(str(row["id"])),
+                TenantQuotaType.STORAGE_BYTES,
+                amount,
+                policy.max_storage_bytes,
+            )
+
+    async def release_storage_bytes(self, tenant_slug: str, amount: int) -> int:
+        async with tenant_admin_transaction(self._engine) as connection:
+            row = await _lock_tenant_policy(connection, tenant_slug)
+            return await release_tenant_quota(
+                connection,
+                UUID(str(row["id"])),
+                TenantQuotaType.STORAGE_BYTES,
+                amount,
+            )
+
 
 def _to_tenant(row: RowMapping) -> TenantDefinition:
     return TenantDefinition(
@@ -410,6 +475,33 @@ def _to_tenant(row: RowMapping) -> TenantDefinition:
             updated_at=row["updated_at"],
         ),
     )
+
+
+async def _lock_tenant_policy(
+    connection: AsyncConnection,
+    tenant_slug: str,
+) -> RowMapping:
+    row = (
+        (
+            await connection.execute(
+                text(
+                    """
+                    SELECT id, settings
+                    FROM tenants
+                    WHERE slug = :tenant_slug AND status = 'ACTIVE'
+                      AND lifecycle = 'ACTIVE'
+                    FOR UPDATE
+                    """
+                ),
+                {"tenant_slug": tenant_slug},
+            )
+        )
+        .mappings()
+        .one_or_none()
+    )
+    if row is None:
+        raise TenantUnavailableError("tenant unavailable")
+    return row
 
 
 async def _write_tenant_audit(

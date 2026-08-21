@@ -11,6 +11,7 @@ from sqlalchemy.ext.asyncio import create_async_engine
 
 from amesh.adapters.postgres import (
     PostgresAuthorizationRepository,
+    PostgresTenantRepository,
     PostgresWorkerRepository,
 )
 from amesh.app import (
@@ -18,11 +19,13 @@ from amesh.app import (
     authenticate_actor,
     get_authorization_repository,
     get_authorization_service,
+    get_tenant_service,
     get_worker_repository,
 )
 from amesh.authorization import AuthorizationService
 from amesh.domain import ActorContext, PrincipalType
 from amesh.ports import WorkerRegistration
+from amesh.tenancy import TenantService
 
 TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
 
@@ -40,6 +43,7 @@ def test_worker_inventory_and_fenced_drain_api() -> None:
         workers = PostgresWorkerRepository(engine)
         authorization_repository = PostgresAuthorizationRepository(engine)
         authorization_service = AuthorizationService(authorization_repository)
+        tenant_service = TenantService(PostgresTenantRepository(engine))
         actor = ActorContext(
             principal_id=uuid4(),
             principal_type=PrincipalType.SYSTEM,
@@ -64,6 +68,7 @@ def test_worker_inventory_and_fenced_drain_api() -> None:
         app.dependency_overrides[get_authorization_repository] = lambda: authorization_repository
         app.dependency_overrides[get_authorization_service] = lambda: authorization_service
         app.dependency_overrides[get_worker_repository] = lambda: workers
+        app.dependency_overrides[get_tenant_service] = lambda: tenant_service
         transport = httpx.ASGITransport(app=app)
         try:
             async with httpx.AsyncClient(

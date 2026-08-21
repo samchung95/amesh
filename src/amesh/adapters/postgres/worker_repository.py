@@ -149,6 +149,10 @@ _CLAIM_TASKS = text(
               task_definition.definition ->> 'runner' IS NULL
               OR workers.runner_types ? (task_definition.definition ->> 'runner')
           )
+          AND (
+              task_definition.definition ->> 'workerGroup' IS NULL
+              OR workers.worker_group = task_definition.definition ->> 'workerGroup'
+          )
         ORDER BY queue.priority DESC, queue.available_at, queue.id
         FOR UPDATE OF queue, attempts SKIP LOCKED
         LIMIT :limit

@@ -1,5 +1,97 @@
 {
   "$defs": {
+    "AdmissionBehavior": {
+      "enum": [
+        "QUEUE",
+        "CANCEL",
+        "FAIL",
+        "REPLACE",
+        "SKIP"
+      ],
+      "title": "AdmissionBehavior",
+      "type": "string"
+    },
+    "AdmissionScope": {
+      "enum": [
+        "GLOBAL",
+        "TENANT",
+        "NAMESPACE",
+        "FLOW",
+        "WORKER_GROUP",
+        "KEY"
+      ],
+      "title": "AdmissionScope",
+      "type": "string"
+    },
+    "ConcurrencyLimit": {
+      "additionalProperties": false,
+      "description": "A versioned DSL concurrency rule shared by flows and tasks.",
+      "properties": {
+        "behavior": {
+          "$ref": "#/$defs/AdmissionBehavior",
+          "default": "QUEUE"
+        },
+        "id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+          "title": "Id",
+          "type": "string"
+        },
+        "key": {
+          "anyOf": [
+            {
+              "maxLength": 2048,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Key"
+        },
+        "leaseSeconds": {
+          "default": 3600,
+          "maximum": 604800,
+          "minimum": 1,
+          "title": "Leaseseconds",
+          "type": "integer"
+        },
+        "limit": {
+          "maximum": 1000000,
+          "minimum": 1,
+          "title": "Limit",
+          "type": "integer"
+        },
+        "scope": {
+          "$ref": "#/$defs/AdmissionScope"
+        },
+        "workerGroup": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Workergroup"
+        }
+      },
+      "required": [
+        "id",
+        "scope",
+        "limit"
+      ],
+      "title": "ConcurrencyLimit",
+      "type": "object"
+    },
     "InputDefinition": {
       "additionalProperties": true,
       "properties": {
@@ -120,6 +212,13 @@
           "default": null,
           "title": "Command"
         },
+        "concurrency": {
+          "items": {
+            "$ref": "#/$defs/ConcurrencyLimit"
+          },
+          "title": "Concurrency",
+          "type": "array"
+        },
         "dependsOn": {
           "items": {
             "type": "string"
@@ -164,6 +263,13 @@
           ],
           "default": null,
           "title": "Image"
+        },
+        "priority": {
+          "default": 0,
+          "maximum": 1000,
+          "minimum": -1000,
+          "title": "Priority",
+          "type": "integer"
         },
         "resources": {
           "additionalProperties": true,
@@ -210,6 +316,21 @@
           "minLength": 1,
           "title": "Type",
           "type": "string"
+        },
+        "workerGroup": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Workergroup"
         }
       },
       "required": [
@@ -364,6 +485,13 @@
       "title": "Apiversion",
       "type": "string"
     },
+    "concurrency": {
+      "items": {
+        "$ref": "#/$defs/ConcurrencyLimit"
+      },
+      "title": "Concurrency",
+      "type": "array"
+    },
     "description": {
       "anyOf": [
         {
@@ -426,6 +554,13 @@
       "additionalProperties": true,
       "title": "Outputs",
       "type": "object"
+    },
+    "priority": {
+      "default": 0,
+      "maximum": 1000,
+      "minimum": -1000,
+      "title": "Priority",
+      "type": "integer"
     },
     "revision": {
       "default": 1,

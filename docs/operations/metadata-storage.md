@@ -20,6 +20,12 @@ Execution logs and metrics have tenant-safe foreign keys to their execution and 
 Worker heartbeat and asset updates use resource versions so stale writers cannot overwrite newer
 metadata.
 
+Tenant quota usage is stored transactionally beside metadata. Log insertion reserves the UTF-8 message
+and structured-field byte count before the row is written; a rejected insert rolls back both changes.
+Storage adapters reserve and release bytes through `TenantRepository`, and tenant-scoped API requests
+consume a database-time, one-minute window. The applicable limits are `max_log_bytes`,
+`max_storage_bytes` and `max_api_requests_per_minute` in `TenantPolicy`.
+
 ## Transaction and migration contract
 
 Tenant repository operations explicitly use PostgreSQL `READ COMMITTED` transactions after selecting

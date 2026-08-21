@@ -8,7 +8,7 @@ from sqlalchemy import text
 from sqlalchemy.engine import RowMapping
 from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine
 
-from amesh.domain import new_runtime_id
+from amesh.domain import TenantPolicy, new_runtime_id
 from amesh.ports.metadata_repository import (
     AssetMetadata,
     ExecutionLogEntry,
@@ -22,6 +22,7 @@ from amesh.ports.metadata_repository import (
     WorkerStatus,
 )
 
+from .quota import TenantQuotaType, reserve_tenant_quota
 from .tenant_context import tenant_transaction
 
 _INSERT_TRIGGER = text(
@@ -377,6 +378,21 @@ class PostgresMetadataRepository(MetadataRepository):
         tenant_id: str,
     ) -> ExecutionLogEntry:
         async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+            settings = await connection.scalar(
+                text("SELECT settings FROM tenants WHERE id = :tenant_id FOR UPDATE"),
+                {"tenant_id": tenant_uuid},
+            )
+            if settings is None:
+                raise LookupError("tenant is unavailable")
+            policy = TenantPolicy.model_validate(settings)
+            encoded_fields = json.dumps(entry.fields)
+            await reserve_tenant_quota(
+                connection,
+                tenant_uuid,
+                TenantQuotaType.LOG_BYTES,
+                len(entry.message.encode("utf-8")) + len(encoded_fields.encode("utf-8")),
+                policy.max_log_bytes,
+            )
             row = (
                 (
                     await connection.execute(
@@ -389,7 +405,7 @@ class PostgresMetadataRepository(MetadataRepository):
                             "level": entry.level.value,
                             "logger": entry.logger,
                             "message": entry.message,
-                            "fields": json.dumps(entry.fields),
+                            "fields": encoded_fields,
                             "redacted": entry.redacted,
                             "occurred_at": entry.occurred_at,
                         },

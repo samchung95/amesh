@@ -5,7 +5,7 @@ from uuid import uuid4
 
 import httpx
 
-from amesh.app import app, authenticate_actor, get_authorization_service
+from amesh.app import app, authenticate_actor, get_authorization_service, get_tenant_service
 from amesh.config import Settings, get_settings
 from amesh.domain import (
     ActorContext,
@@ -30,6 +30,12 @@ class CapabilityServiceStub:
         )
 
 
+class TenantQuotaStub:
+    async def consume_api_request(self, tenant_slug: str) -> int:
+        del tenant_slug
+        return 1
+
+
 def test_ui_session_returns_server_authoritative_capabilities_and_privacy_policy() -> None:
     actor = ActorContext(
         principal_id=uuid4(),
@@ -46,6 +52,7 @@ def test_ui_session_returns_server_authoritative_capabilities_and_privacy_policy
     app.dependency_overrides[authenticate_actor] = lambda: actor
     app.dependency_overrides[get_authorization_service] = lambda: service
     app.dependency_overrides[get_settings] = lambda: settings
+    app.dependency_overrides[get_tenant_service] = TenantQuotaStub
 
     async def scenario() -> None:
         transport = httpx.ASGITransport(app=app)
@@ -85,6 +92,7 @@ def test_ui_session_conceals_tenant_when_no_capability_is_granted() -> None:
     )
     app.dependency_overrides[authenticate_actor] = lambda: actor
     app.dependency_overrides[get_authorization_service] = lambda: CapabilityServiceStub(set())
+    app.dependency_overrides[get_tenant_service] = TenantQuotaStub
 
     async def scenario() -> None:
         transport = httpx.ASGITransport(app=app)

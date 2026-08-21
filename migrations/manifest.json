@@ -108,6 +108,12 @@
       "mode": "expand",
       "onlineCompatible": true,
       "rollbackGuidance": "Pause new subflow launches and forward-fix the additive relationship contract; retain parent and child executions plus immutable task and execution evidence."
+    },
+    {
+      "file": "0019_admission_control.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Pause new admission requests and forward-fix the additive reservation and quota tables; retain decision evidence until affected executions and task runs are reconciled."
     }
   ]
 }

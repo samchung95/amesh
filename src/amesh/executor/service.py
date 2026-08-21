@@ -11,7 +11,13 @@ from uuid import UUID, uuid5
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from amesh.domain import ExecutionState, FailureCategory
+from amesh.domain import (
+    AdmissionOutcome,
+    AdmissionResourceType,
+    ExecutionState,
+    FailureCategory,
+    resolve_admission_policies,
+)
 from amesh.dsl import FlowDefinition
 from amesh.dsl.models import RetryPolicy, TaskDefinition
 from amesh.expressions import (
@@ -316,6 +322,9 @@ class InProcessExecutor:
                     for task_run in progress.task_runs
                     if task_run.state is TaskRunState.WAITING
                 ]
+                if any(task.concurrency and task.id in waiting for task in flow.tasks):
+                    await asyncio.sleep(0.05)
+                    continue
                 raise ExecutionBlockedError(
                     f"execution {execution_id} has no runnable tasks; waiting={waiting}"
                 )
@@ -341,6 +350,41 @@ class InProcessExecutor:
             )
         )
         expression_context = _expression_context(flow, execution, projected, task, outputs)
+        if task.concurrency and task_run.state is not TaskRunState.RUNNING:
+            admission = await self._repository.request_admission(
+                AdmissionResourceType.TASK,
+                task_run.task_run_id,
+                resolve_admission_policies(
+                    task.concurrency,
+                    resource_type=AdmissionResourceType.TASK,
+                    tenant_id=tenant_id,
+                    namespace=flow.namespace,
+                    flow_id=flow.id,
+                    render_key=lambda value: self._expressions.render_value(
+                        value,
+                        expression_context,
+                    ),
+                ),
+                tenant_id=tenant_id,
+                priority=task.priority,
+            )
+            if admission.outcome is AdmissionOutcome.QUEUED:
+                await asyncio.sleep(0.05)
+                await self._repository.reconcile_admission(tenant_id=tenant_id, limit=100)
+                return _TaskRunOutcome(claimed=False)
+            if admission.outcome in {
+                AdmissionOutcome.CANCELLED,
+                AdmissionOutcome.FAILED,
+                AdmissionOutcome.SKIPPED,
+            }:
+                return _TaskRunOutcome(
+                    claimed=True,
+                    failure=(
+                        admission.reason
+                        if admission.outcome is not AdmissionOutcome.SKIPPED
+                        else None
+                    ),
+                )
         condition_error: Exception | None = None
         try:
             condition_matches = task.run_if is None or self._expressions.evaluate_condition(
@@ -358,6 +402,8 @@ class InProcessExecutor:
                     task_run.task_run_id,
                     tenant_id=tenant_id,
                     dispatch=condition_matches,
+                    priority=task.priority,
+                    worker_group=task.worker_group,
                 )
             )
         except TaskStateConflictError:

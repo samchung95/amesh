@@ -205,6 +205,20 @@ def test_metadata_repository_round_trip_constraints_and_rls() -> None:
                 occurred_at=now,
             )
             assert await metadata.append_log(log, tenant_id="default") == log
+            async with engine.connect() as connection:
+                assert (
+                    int(
+                        await connection.scalar(
+                            text(
+                                "SELECT amount FROM tenant_quota_usage "
+                                "WHERE quota_type = 'LOG_BYTES' "
+                                "AND tenant_id = (SELECT id FROM tenants WHERE slug = 'default')"
+                            )
+                        )
+                        or 0
+                    )
+                    > 0
+                )
             assert await metadata.append_metric(metric, tenant_id="default") == metric
             assert await metadata.list_logs(execution.execution_id, tenant_id="default") == [log]
             assert await metadata.list_metrics(execution.execution_id, tenant_id="default") == [

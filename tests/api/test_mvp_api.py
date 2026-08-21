@@ -191,6 +191,25 @@ tasks:
                     "value": {"message": "manual", "trigger": {"source": "api"}},
                 }
 
+                admission = await client.get(
+                    f"/api/v1/executions/{execution_id}/admission",
+                    headers={"authorization": "Bearer test-token"},
+                )
+                assert admission.status_code == 200
+                assert admission.json()["outcome"] == "RELEASED"
+                diagnostics = await client.get(
+                    "/api/v1/admissions/diagnostics",
+                    headers={"authorization": "Bearer test-token"},
+                )
+                assert diagnostics.status_code == 200
+                assert "active_reservations" in diagnostics.json()
+                reconciled = await client.post(
+                    "/api/v1/admissions/reconcile",
+                    headers={"authorization": "Bearer test-token"},
+                )
+                assert reconciled.status_code == 200
+                assert reconciled.json()["promoted"] >= 0
+
                 fetched = await client.get(
                     f"/api/v1/executions/{execution_id}",
                     headers={"authorization": "Bearer test-token"},
@@ -231,6 +250,22 @@ tasks:
                 assert executions.status_code == 200
                 returned_ids = {UUID(item["execution_id"]) for item in executions.json()}
                 assert set(execution_ids) <= returned_ids
+                async with engine.connect() as connection:
+                    assert (
+                        int(
+                            await connection.scalar(
+                                text(
+                                    "SELECT coalesce(sum(amount), 0) "
+                                    "FROM tenant_quota_usage "
+                                    "WHERE quota_type = 'API_REQUESTS' "
+                                    "AND tenant_id = "
+                                    "(SELECT id FROM tenants WHERE slug = 'default')"
+                                )
+                            )
+                            or 0
+                        )
+                        >= 1
+                    )
         finally:
             app.dependency_overrides.clear()
             for execution_id in execution_ids:
