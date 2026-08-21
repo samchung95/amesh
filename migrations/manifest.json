@@ -84,6 +84,12 @@
       "mode": "expand",
       "onlineCompatible": true,
       "rollbackGuidance": "Pause executor dispatch publication and forward-fix the task-run event trigger; retain task-run events and outbox rows as recovery evidence."
+    },
+    {
+      "file": "0015_scheduler_state.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Pause schedulers and forward-fix additive cursor or ownership fields; retain schedule state so missed occurrences can be reconciled deterministically."
     }
   ]
 }

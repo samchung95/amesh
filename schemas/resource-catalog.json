@@ -405,8 +405,40 @@
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "additionalProperties": false,
         "properties": {
+          "condition": {
+            "type": "string"
+          },
           "cron": {
             "minLength": 1,
+            "type": "string"
+          },
+          "end": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "maxCatchUp": {
+            "maximum": 10000,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "misfireGraceSeconds": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "misfirePolicy": {
+            "enum": [
+              "SKIP",
+              "CATCH_UP",
+              "COALESCE",
+              "BACKFILL"
+            ],
+            "type": "string"
+          },
+          "paused": {
+            "type": "boolean"
+          },
+          "start": {
+            "format": "date-time",
             "type": "string"
           },
           "timezone": {
@@ -424,12 +456,89 @@
         "description": "Create occurrences on a cron schedule in an IANA timezone.",
         "propertyOrder": [
           "cron",
-          "timezone"
+          "timezone",
+          "start",
+          "end",
+          "paused",
+          "condition",
+          "misfirePolicy",
+          "misfireGraceSeconds",
+          "maxCatchUp"
         ],
         "title": "Cron schedule"
       },
       "kind": "trigger",
       "type": "core.cron"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "condition": {
+            "type": "string"
+          },
+          "end": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "interval": {
+            "format": "duration",
+            "type": "string"
+          },
+          "maxCatchUp": {
+            "maximum": 10000,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "misfireGraceSeconds": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "misfirePolicy": {
+            "enum": [
+              "SKIP",
+              "CATCH_UP",
+              "COALESCE",
+              "BACKFILL"
+            ],
+            "type": "string"
+          },
+          "paused": {
+            "type": "boolean"
+          },
+          "start": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "timezone": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "interval"
+        ],
+        "type": "object"
+      },
+      "editor": {
+        "category": "Core",
+        "description": "Create occurrences at a fixed elapsed-time interval.",
+        "propertyOrder": [
+          "interval",
+          "timezone",
+          "start",
+          "end",
+          "paused",
+          "condition",
+          "misfirePolicy",
+          "misfireGraceSeconds",
+          "maxCatchUp"
+        ],
+        "title": "Interval schedule"
+      },
+      "kind": "trigger",
+      "type": "core.interval"
     },
     {
       "configurationSchema": {

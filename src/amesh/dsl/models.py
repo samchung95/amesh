@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime, timedelta
 from typing import Any, Literal, cast
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
@@ -21,26 +22,50 @@ class InputDefinition(BaseModel):
 
 
 class TriggerDefinition(BaseModel):
-    model_config = ConfigDict(extra="allow")
+    model_config = ConfigDict(extra="allow", populate_by_name=True)
 
     id: NaturalId
     type: str = Field(min_length=1, max_length=512)
     disabled: bool = False
+    paused: bool = False
     cron: str | None = None
+    interval: timedelta | None = None
     timezone: str = "UTC"
+    start_at: datetime | None = Field(default=None, alias="start")
+    end_at: datetime | None = Field(default=None, alias="end")
+    condition: str | None = None
+    misfire_policy: Literal["SKIP", "CATCH_UP", "COALESCE", "BACKFILL"] = Field(
+        default="SKIP",
+        alias="misfirePolicy",
+    )
+    misfire_grace_seconds: int = Field(default=60, ge=0, alias="misfireGraceSeconds")
+    max_catch_up: int = Field(default=1000, ge=1, le=10_000, alias="maxCatchUp")
 
     @model_validator(mode="after")
     def validate_cron(self) -> TriggerDefinition:
-        if self.type != "core.cron":
+        if self.type not in {"core.cron", "core.interval"}:
             return self
-        if self.cron is None:
-            raise ValueError("core.cron trigger requires cron")
-        if not croniter.is_valid(self.cron):
-            raise ValueError("core.cron trigger has an invalid cron expression")
+        if self.type == "core.cron":
+            if self.cron is None:
+                raise ValueError("core.cron trigger requires cron")
+            if not croniter.is_valid(self.cron):
+                raise ValueError("core.cron trigger has an invalid cron expression")
+            if self.interval is not None:
+                raise ValueError("core.cron trigger cannot declare interval")
+        else:
+            if self.interval is None or self.interval.total_seconds() <= 0:
+                raise ValueError("core.interval trigger requires a positive interval")
+            if self.cron is not None:
+                raise ValueError("core.interval trigger cannot declare cron")
         try:
             ZoneInfo(self.timezone)
         except ZoneInfoNotFoundError as exc:
             raise ValueError(f"unknown trigger timezone {self.timezone!r}") from exc
+        for field_name, value in (("start", self.start_at), ("end", self.end_at)):
+            if value is not None and (value.tzinfo is None or value.utcoffset() is None):
+                raise ValueError(f"trigger {field_name} must include a timezone")
+        if self.start_at is not None and self.end_at is not None and self.start_at >= self.end_at:
+            raise ValueError("trigger start must precede end")
         return self
 
 

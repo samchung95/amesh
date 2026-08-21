@@ -91,6 +91,10 @@ namespace: {namespace}
 triggers:
   - id: incoming
     type: core.webhook
+  - id: every_hour
+    type: core.cron
+    cron: "0 * * * *"
+    timezone: UTC
 tasks:
   - id: echo
     type: core.return
@@ -144,6 +148,28 @@ tasks:
                     item["namespace"] == namespace and item["flow_id"] == flow_id
                     for item in listed_flows.json()
                 )
+
+                preview = await client.get(
+                    f"/api/v1/flows/{namespace}/{flow_id}/schedules/every_hour/preview",
+                    headers={"authorization": "Bearer test-token"},
+                    params={"after": "2026-08-21T12:05:00Z", "count": 2},
+                )
+                assert preview.status_code == 200
+                assert preview.json() == {
+                    "trigger_id": "every_hour",
+                    "eligible": True,
+                    "explanation": "next 2 occurrence(s) are eligible",
+                    "occurrences": [
+                        {
+                            "trigger_id": "every_hour",
+                            "scheduled_for": "2026-08-21T13:00:00Z",
+                        },
+                        {
+                            "trigger_id": "every_hour",
+                            "scheduled_for": "2026-08-21T14:00:00Z",
+                        },
+                    ],
+                }
 
                 created = await client.post(
                     "/api/v1/executions",

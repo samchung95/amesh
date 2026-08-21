@@ -45,6 +45,7 @@ from .metadata_repository import (
 )
 from .object_store import ObjectMetadata, ObjectStore
 from .plugin_runtime import PluginInvocation, PluginRuntime
+from .scheduler_repository import SchedulerFenceError, SchedulerRepository, ScheduleState
 from .task_runner import (
     RunnerRequest,
     RunnerResult,
@@ -93,6 +94,9 @@ __all__ = [
     "RunnerRequest",
     "RunnerResult",
     "RunnerStatus",
+    "ScheduleState",
+    "SchedulerFenceError",
+    "SchedulerRepository",
     "StaleRunnerAttemptError",
     "StaleWorkClaimError",
     "TaskRunState",

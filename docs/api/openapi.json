@@ -323,6 +323,25 @@
         "title": "CredentialStatus",
         "type": "string"
       },
+      "CronOccurrence": {
+        "properties": {
+          "scheduled_for": {
+            "format": "date-time",
+            "title": "Scheduled For",
+            "type": "string"
+          },
+          "trigger_id": {
+            "title": "Trigger Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "trigger_id",
+          "scheduled_for"
+        ],
+        "title": "CronOccurrence",
+        "type": "object"
+      },
       "ExchangeCredentialRequest": {
         "properties": {
           "audience": {
@@ -1350,6 +1369,37 @@
         ],
         "title": "RunnerMode",
         "type": "string"
+      },
+      "SchedulePreview": {
+        "properties": {
+          "eligible": {
+            "title": "Eligible",
+            "type": "boolean"
+          },
+          "explanation": {
+            "title": "Explanation",
+            "type": "string"
+          },
+          "occurrences": {
+            "items": {
+              "$ref": "#/components/schemas/CronOccurrence"
+            },
+            "title": "Occurrences",
+            "type": "array"
+          },
+          "trigger_id": {
+            "title": "Trigger Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "trigger_id",
+          "eligible",
+          "explanation",
+          "occurrences"
+        ],
+        "title": "SchedulePreview",
+        "type": "object"
       },
       "SourcePosition": {
         "properties": {
@@ -3824,6 +3874,125 @@
         "summary": "Validate Flow",
         "tags": [
           "flows"
+        ]
+      }
+    },
+    "/api/v1/flows/{namespace}/{flow_id}/schedules/{trigger_id}/preview": {
+      "get": {
+        "operationId": "preview_schedule_api_v1_flows__namespace___flow_id__schedules__trigger_id__preview_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "namespace",
+            "required": true,
+            "schema": {
+              "title": "Namespace",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "flow_id",
+            "required": true,
+            "schema": {
+              "title": "Flow Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "trigger_id",
+            "required": true,
+            "schema": {
+              "title": "Trigger Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "after",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "After"
+            }
+          },
+          {
+            "in": "query",
+            "name": "count",
+            "required": false,
+            "schema": {
+              "default": 5,
+              "title": "Count",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SchedulePreview"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Preview Schedule",
+        "tags": [
+          "triggers"
         ]
       }
     },

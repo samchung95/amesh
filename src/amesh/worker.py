@@ -4,11 +4,17 @@ import asyncio
 import logging
 from collections.abc import Sequence
 from datetime import UTC, datetime
+from uuid import UUID
 
+from sqlalchemy.exc import DBAPIError
 from sqlalchemy.ext.asyncio import create_async_engine
 
 from amesh.adapters.kubernetes import KubernetesJobRunner
-from amesh.adapters.postgres import PostgresExecutionRepository, PostgresTenantRepository
+from amesh.adapters.postgres import (
+    PostgresExecutionRepository,
+    PostgresSchedulerRepository,
+    PostgresTenantRepository,
+)
 from amesh.config import Settings, get_settings
 from amesh.domain import ExecutionState, new_runtime_id
 from amesh.executor import InProcessExecutor, kubernetes_job_handler
@@ -21,12 +27,18 @@ LOGGER = logging.getLogger("amesh.worker")
 
 async def schedule_once(
     repository: PostgresExecutionRepository,
+    scheduler_repository: PostgresSchedulerRepository,
     *,
     tenant_ids: Sequence[str],
+    scheduler_id: UUID,
     now: datetime | None = None,
 ) -> int:
-    scheduler = CronScheduler(repository)
-    scheduled_at = now or datetime.now(UTC)
+    scheduler = CronScheduler(
+        repository,
+        scheduler_repository,
+        owner_id=scheduler_id,
+    )
+    scheduled_at = now or await scheduler_repository.database_time()
     scheduled = 0
     for tenant_id in tenant_ids:
         for persisted_flow in await repository.list_flows(tenant_id=tenant_id):
@@ -35,8 +47,6 @@ async def schedule_once(
                 persisted_flow.flow_id,
                 tenant_id=tenant_id,
             )
-            if flow.disabled:
-                continue
             scheduled += len(
                 await scheduler.fire_due_occurrences(
                     flow,
@@ -109,16 +119,31 @@ async def recover_once(
 
 
 async def run_worker(settings: Settings) -> None:
-    worker_id = str(new_runtime_id())
+    worker_uuid = new_runtime_id()
+    worker_id = str(worker_uuid)
     engine = create_async_engine(settings.database_url)
     repository = PostgresExecutionRepository(engine)
+    scheduler_repository = PostgresSchedulerRepository(engine)
     tenant_repository = PostgresTenantRepository(engine)
     LOGGER.info("worker started", extra={"worker_id": worker_id})
     try:
         while True:
-            tenant_ids = await tenant_repository.list_active_for_worker_group(settings.worker_group)
-            await schedule_once(repository, tenant_ids=tenant_ids)
-            await recover_once(repository, settings, tenant_ids=tenant_ids)
+            try:
+                tenant_ids = await tenant_repository.list_active_for_worker_group(
+                    settings.worker_group
+                )
+                await schedule_once(
+                    repository,
+                    scheduler_repository,
+                    tenant_ids=tenant_ids,
+                    scheduler_id=worker_uuid,
+                )
+                await recover_once(repository, settings, tenant_ids=tenant_ids)
+            except (DBAPIError, OSError):
+                LOGGER.exception(
+                    "worker database cycle interrupted; retrying",
+                    extra={"worker_id": worker_id},
+                )
             await asyncio.sleep(settings.worker_poll_seconds)
     finally:
         await engine.dispose()

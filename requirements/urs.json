@@ -2828,7 +2828,11 @@
       "id": "URS-F-0100",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/scheduler/test_temporal_rules.py::test_cron_dst_gap_is_skipped_and_overlap_uses_earliest_instant_once",
+        "tests/scheduler/test_temporal_rules.py::test_interval_preview_honors_start_and_explains_condition"
+      ],
       "milestone": "M1",
       "wave": 1,
       "epic_id": "EPIC-102",
@@ -2857,7 +2861,10 @@
       "id": "URS-F-0101",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/scheduler/test_temporal_rules.py::test_cron_dst_gap_is_skipped_and_overlap_uses_earliest_instant_once"
+      ],
       "milestone": "M1",
       "wave": 1,
       "epic_id": "EPIC-102",
@@ -2886,7 +2893,10 @@
       "id": "URS-F-0102",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/scheduler/test_cron_scheduler.py::test_postgres_scheduler_claim_is_single_owner_and_stale_completion_is_fenced"
+      ],
       "milestone": "M1",
       "wave": 1,
       "epic_id": "EPIC-102",
@@ -2915,7 +2925,10 @@
       "id": "URS-F-0103",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/scheduler/test_temporal_rules.py::test_misfire_policy_is_applied_to_persisted_cursor"
+      ],
       "milestone": "M1",
       "wave": 1,
       "epic_id": "EPIC-102",
@@ -2944,7 +2957,11 @@
       "id": "URS-F-0104",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/scheduler/test_temporal_rules.py::test_interval_preview_honors_start_and_explains_condition",
+        "tests/scheduler/test_temporal_rules.py::test_preview_explains_disabled_paused_and_end_constraints"
+      ],
       "milestone": "M1",
       "wave": 1,
       "epic_id": "EPIC-102",
@@ -2973,7 +2990,11 @@
       "id": "URS-F-0105",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/scheduler/test_cron_scheduler.py::test_cron_occurrence_is_unique_across_scheduler_restart_and_renders_outputs",
+        "tests/scheduler/test_cron_scheduler.py::test_postgres_scheduler_claim_is_single_owner_and_stale_completion_is_fenced"
+      ],
       "milestone": "M1",
       "wave": 1,
       "epic_id": "EPIC-102",
@@ -3002,7 +3023,11 @@
       "id": "URS-F-0106",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/api/test_mvp_api.py::test_authenticated_flow_execution_and_webhook_api",
+        "tests/scheduler/test_temporal_rules.py::test_interval_preview_honors_start_and_explains_condition"
+      ],
       "milestone": "M1",
       "wave": 1,
       "epic_id": "EPIC-102",
@@ -3031,7 +3056,11 @@
       "id": "URS-F-0107",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/scheduler/test_cron_scheduler.py::test_postgres_scheduler_claim_is_single_owner_and_stale_completion_is_fenced",
+        "tests/test_worker.py::test_worker_retries_after_database_connection_interruption"
+      ],
       "milestone": "M1",
       "wave": 1,
       "epic_id": "EPIC-102",

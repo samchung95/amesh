@@ -9,12 +9,12 @@ import pytest
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 
-from amesh.adapters.postgres import PostgresExecutionRepository
+from amesh.adapters.postgres import PostgresExecutionRepository, PostgresSchedulerRepository
 from amesh.domain import ExecutionState
 from amesh.dsl.models import FlowDefinition, TaskDefinition, TriggerDefinition
 from amesh.executor import InProcessExecutor
-from amesh.ports import PersistedFlow
-from amesh.scheduler import CronScheduler
+from amesh.ports import PersistedFlow, SchedulerFenceError
+from amesh.scheduler import CronScheduler, ScheduleAction
 from amesh.worker import schedule_once
 
 TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
@@ -255,6 +255,8 @@ def test_worker_poll_fires_applied_cron_flow_once_per_minute() -> None:
         )
         engine = create_async_engine(TEST_DATABASE_URL)
         repository = ScopedPostgresExecutionRepository(engine, flow.namespace, flow.id)
+        scheduler_repository = PostgresSchedulerRepository(engine)
+        scheduler_id = uuid4()
         await repository.apply_flow(flow, tenant_id="default")
         first_poll = datetime(2026, 8, 21, 12, 0, 5, tzinfo=UTC)
         executions = []
@@ -263,7 +265,9 @@ def test_worker_poll_fires_applied_cron_flow_once_per_minute() -> None:
             assert (
                 await schedule_once(
                     repository,
+                    scheduler_repository,
                     tenant_ids=("default",),
+                    scheduler_id=scheduler_id,
                     now=first_poll,
                 )
                 == 1
@@ -271,10 +275,12 @@ def test_worker_poll_fires_applied_cron_flow_once_per_minute() -> None:
             assert (
                 await schedule_once(
                     repository,
+                    scheduler_repository,
                     tenant_ids=("default",),
+                    scheduler_id=scheduler_id,
                     now=first_poll.replace(second=55),
                 )
-                == 1
+                == 0
             )
             executions = [
                 execution
@@ -290,5 +296,110 @@ def test_worker_poll_fires_applied_cron_flow_once_per_minute() -> None:
             if executions:
                 await cleanup_execution(engine, executions[0].execution_id)
             await engine.dispose()
+
+    asyncio.run(scenario())
+
+
+def test_postgres_scheduler_claim_is_single_owner_and_stale_completion_is_fenced() -> None:
+    async def scenario() -> None:
+        if TEST_DATABASE_URL is None:
+            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
+        flow = FlowDefinition(
+            id="scheduler_fence",
+            namespace=f"tests.scheduler.fence.{uuid4().hex}",
+            triggers=[
+                TriggerDefinition(
+                    id="every_minute",
+                    type="core.cron",
+                    cron="* * * * *",
+                    timezone="UTC",
+                    misfire_grace_seconds=0,
+                )
+            ],
+            tasks=[TaskDefinition(id="done", type="core.return", value="done")],
+        )
+        first_engine = create_async_engine(TEST_DATABASE_URL)
+        second_engine = create_async_engine(TEST_DATABASE_URL)
+        first_executions = PostgresExecutionRepository(first_engine)
+        second_executions = PostgresExecutionRepository(second_engine)
+        first_states = PostgresSchedulerRepository(first_engine)
+        second_states = PostgresSchedulerRepository(second_engine)
+        first_owner = uuid4()
+        second_owner = uuid4()
+        due_at = datetime(2026, 8, 21, 12, 0, tzinfo=UTC)
+        execution_ids: list[UUID] = []
+
+        try:
+            await first_executions.apply_flow(flow, tenant_id="default")
+            first_result, second_result = await asyncio.gather(
+                CronScheduler(
+                    first_executions,
+                    first_states,
+                    owner_id=first_owner,
+                ).evaluate_due_occurrences(flow, at=due_at, tenant_id="default"),
+                CronScheduler(
+                    second_executions,
+                    second_states,
+                    owner_id=second_owner,
+                ).evaluate_due_occurrences(flow, at=due_at, tenant_id="default"),
+            )
+            evaluations = [first_result[0], second_result[0]]
+            assert sorted(item.action for item in evaluations) == [
+                ScheduleAction.FIRED,
+                ScheduleAction.NOT_DUE,
+            ]
+            execution_ids = [
+                execution.execution_id for item in evaluations for execution in item.executions
+            ]
+            assert len(execution_ids) == 1
+
+            stale = await first_states.claim_schedule(
+                tenant_id="default",
+                namespace=flow.namespace,
+                flow_id=flow.id,
+                flow_revision=flow.revision,
+                trigger_id="every_minute",
+                initial_next_fire_at=due_at,
+                due_before=due_at + timedelta(minutes=1),
+                owner_id=first_owner,
+                lease_duration=timedelta(milliseconds=10),
+            )
+            assert stale.claimed
+            await asyncio.sleep(0.05)
+            current = await second_states.claim_schedule(
+                tenant_id="default",
+                namespace=flow.namespace,
+                flow_id=flow.id,
+                flow_revision=flow.revision,
+                trigger_id="every_minute",
+                initial_next_fire_at=due_at,
+                due_before=due_at + timedelta(minutes=1),
+                owner_id=second_owner,
+                lease_duration=timedelta(seconds=30),
+            )
+            assert current.claimed
+            assert current.fencing_token > stale.fencing_token
+            with pytest.raises(SchedulerFenceError):
+                await first_states.complete_schedule(
+                    tenant_id="default",
+                    trigger_definition_id=stale.trigger_definition_id,
+                    owner_id=first_owner,
+                    fencing_token=stale.fencing_token,
+                    evaluated_at=due_at + timedelta(minutes=1),
+                    next_fire_at=due_at + timedelta(minutes=2),
+                    last_occurrence_at=due_at + timedelta(minutes=1),
+                    decision="stale owner must not commit",
+                    missed_count=0,
+                )
+        finally:
+            for execution_id in execution_ids:
+                await cleanup_execution(first_engine, execution_id)
+            async with first_engine.begin() as connection:
+                await connection.execute(
+                    text("DELETE FROM scheduler_states WHERE namespace_name = :namespace"),
+                    {"namespace": flow.namespace},
+                )
+            await first_engine.dispose()
+            await second_engine.dispose()
 
     asyncio.run(scenario())

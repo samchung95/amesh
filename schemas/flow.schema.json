@@ -202,6 +202,18 @@
     "TriggerDefinition": {
       "additionalProperties": true,
       "properties": {
+        "condition": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Condition"
+        },
         "cron": {
           "anyOf": [
             {
@@ -219,12 +231,80 @@
           "title": "Disabled",
           "type": "boolean"
         },
+        "end": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "End"
+        },
         "id": {
           "maxLength": 128,
           "minLength": 1,
           "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
           "title": "Id",
           "type": "string"
+        },
+        "interval": {
+          "anyOf": [
+            {
+              "format": "duration",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Interval"
+        },
+        "maxCatchUp": {
+          "default": 1000,
+          "maximum": 10000,
+          "minimum": 1,
+          "title": "Maxcatchup",
+          "type": "integer"
+        },
+        "misfireGraceSeconds": {
+          "default": 60,
+          "minimum": 0,
+          "title": "Misfiregraceseconds",
+          "type": "integer"
+        },
+        "misfirePolicy": {
+          "default": "SKIP",
+          "enum": [
+            "SKIP",
+            "CATCH_UP",
+            "COALESCE",
+            "BACKFILL"
+          ],
+          "title": "Misfirepolicy",
+          "type": "string"
+        },
+        "paused": {
+          "default": false,
+          "title": "Paused",
+          "type": "boolean"
+        },
+        "start": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Start"
         },
         "timezone": {
           "default": "UTC",

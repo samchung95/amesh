@@ -98,14 +98,14 @@ URS-F-0096,Functional,Must,EPIC-101,"Worker protocol, leases and heartbeats",M1,
 URS-F-0097,Functional,Must,EPIC-101,"Worker protocol, leases and heartbeats",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
 URS-F-0098,Functional,Must,EPIC-101,"Worker protocol, leases and heartbeats",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
 URS-F-0099,Functional,Must,EPIC-101,"Worker protocol, leases and heartbeats",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0100,Functional,Must,EPIC-102,Scheduler and temporal correctness,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0101,Functional,Must,EPIC-102,Scheduler and temporal correctness,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0102,Functional,Must,EPIC-102,Scheduler and temporal correctness,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0103,Functional,Must,EPIC-102,Scheduler and temporal correctness,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0104,Functional,Must,EPIC-102,Scheduler and temporal correctness,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0105,Functional,Must,EPIC-102,Scheduler and temporal correctness,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0106,Functional,Must,EPIC-102,Scheduler and temporal correctness,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0107,Functional,Must,EPIC-102,Scheduler and temporal correctness,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0100,Functional,Must,EPIC-102,Scheduler and temporal correctness,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0101,Functional,Must,EPIC-102,Scheduler and temporal correctness,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0102,Functional,Must,EPIC-102,Scheduler and temporal correctness,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0103,Functional,Must,EPIC-102,Scheduler and temporal correctness,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0104,Functional,Must,EPIC-102,Scheduler and temporal correctness,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0105,Functional,Must,EPIC-102,Scheduler and temporal correctness,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0106,Functional,Must,EPIC-102,Scheduler and temporal correctness,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0107,Functional,Must,EPIC-102,Scheduler and temporal correctness,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
 URS-F-0108,Functional,Must,EPIC-103,Trigger runtime and occurrence lifecycle,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
 URS-F-0109,Functional,Must,EPIC-103,Trigger runtime and occurrence lifecycle,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
 URS-F-0110,Functional,Must,EPIC-103,Trigger runtime and occurrence lifecycle,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed

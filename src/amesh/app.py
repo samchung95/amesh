@@ -4,6 +4,7 @@ import asyncio
 import logging
 import secrets
 from collections.abc import Awaitable, Callable
+from datetime import UTC, datetime
 from functools import lru_cache
 from time import perf_counter
 from typing import Annotated
@@ -93,6 +94,7 @@ from amesh.ports import (
     TenantQuotaExceeded,
     TenantUnavailableError,
 )
+from amesh.scheduler import CronScheduler, SchedulePreview
 from amesh.tasks import agent_llm_handler, agent_mcp_handler, core_http_handler
 from amesh.tenancy import TenantService
 
@@ -493,6 +495,49 @@ async def list_flows(
         tenant_id=tenant_id,
     )
     return await repository.list_flows(tenant_id=tenant_id)
+
+
+@app.get(
+    "/api/v1/flows/{namespace}/{flow_id}/schedules/{trigger_id}/preview",
+    response_model=SchedulePreview,
+    tags=["triggers"],
+)
+async def preview_schedule(
+    namespace: str,
+    flow_id: str,
+    trigger_id: str,
+    repository: RepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    after: datetime | None = None,
+    count: int = 5,
+) -> SchedulePreview:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="flow",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    try:
+        flow = await repository.get_flow(namespace, flow_id, tenant_id=tenant_id)
+        trigger = next(item for item in flow.triggers if item.id == trigger_id)
+        return CronScheduler(repository).preview(
+            trigger,
+            after=after or datetime.now(UTC),
+            count=count,
+            flow=flow,
+        )
+    except (LookupError, StopIteration) as exc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="schedule not found"
+        ) from exc
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)
+        ) from exc
 
 
 @app.post(

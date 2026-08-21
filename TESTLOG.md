@@ -557,3 +557,42 @@ until the deployment qualification epic. Duplicate subflow-delivery qualificatio
 EPIC-103; EPIC-100 supplies the typed subflow launch boundary and deterministic executor behavior.
 
 Verdict: PASS — EPIC-100 closed.
+
+## EPIC-102: Scheduler and temporal correctness — 2026-08-22
+
+Spec source: `backlog/epics/epic-102-scheduler-and-temporal-correctness.md` and
+`docs/architecture/scheduler-and-triggers.md`.
+
+Verified with `uv`, Python 3.13.12 and PostgreSQL 17:
+
+- [x] `core.cron` and ISO-8601 `core.interval` schedules validate explicit IANA timezones. Cron
+  calendar calculation skips nonexistent Berlin wall time and selects the earliest instant once for
+  the autumn overlap; interval schedules use a documented elapsed-time anchor.
+- [x] Migration 0015 adds tenant-isolated next-fire cursors, last-decision evidence, database-time
+  leases and monotonic fencing tokens. A stale owner cannot complete after lease expiry and takeover.
+- [x] Skip, catch-up, coalesce and backfill-required policies consume a bounded persisted missed range;
+  a restarted worker does not reconsider a completed occurrence.
+- [x] Flow/trigger disabled state, pause, aware start/end bounds and boolean conditions are checked
+  before launch. Stable revision-scoped occurrence keys deduplicate concurrent and restarted owners.
+- [x] The flow-authorized schedule-preview endpoint returns 1–100 future occurrences and explains
+  eligibility without changing the durable cursor.
+- [x] Two scheduler engines racing one PostgreSQL row produce one owner and one execution. Worker
+  database cycles retry after connection interruption so a post-failover connection can be established.
+- [x] A guarded fresh database applied all 15 migrations. Full suite: 142 passed, four
+  environment-gated tests skipped; coverage excluding `no_cover` tests: 82.50%.
+- [x] Frontend suite: eight tests passed with 100% reported coverage and the production Vite build
+  completed.
+- [x] Ruff formatting/lint, strict mypy, planning generation, backlog validation, clean-room,
+  compilation, generated-contract, Compose, uv lock and diff gates pass.
+
+Adversarial pass: DST gaps and overlaps, five missed occurrences under every policy, disabled/paused/
+ended/false-condition schedules, concurrent owners, expired fences, scheduler restart, repeated
+occurrence identity and a simulated database connection interruption produce a deterministic decision,
+one logical execution or a retry without accepting a stale cursor mutation. The checked-in OpenRouter
+smoke default remains `openai/gpt-5.6-luna`; its live test is environment-gated without a key.
+
+Qualification boundary: EPIC-102 records `BACKFILL_REQUIRED`; EPIC-106 owns the first-class backfill
+resource and lifecycle. Fixed-topology p99 scheduling load and live multi-node PostgreSQL failover remain
+shared NFR qualification for the scale and HA epics.
+
+Verdict: PASS — EPIC-102 closed.

@@ -61,6 +61,10 @@ Migration `0014_executor_dispatch.sql` makes an eligible `TaskRunStarted` event 
 `task-dispatch` outbox command while condition-skipped task starts remain ordinary task-run events. The
 event and dispatch are committed atomically by the existing task-run event trigger.
 
+Migration `0015_scheduler_state.sql` adds tenant-isolated next-fire cursors, database-time leases,
+monotonic fencing tokens and latest schedule-decision evidence. It is additive; pause scheduler
+replicas and forward-fix on failure without discarding cursor state.
+
 ## Migration modes
 
 - `bootstrap` creates the initial schema and is only safe for an empty database.
