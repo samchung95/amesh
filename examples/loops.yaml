@@ -1,0 +1,34 @@
+apiVersion: amesh.flow/v1
+id: durable_loops
+namespace: examples.engine
+description: Bounded foreach, while and until loops with durable iteration state.
+tasks:
+  - id: batches
+    type: core.foreach
+    items: [alpha, beta, gamma, delta]
+    batchSize: 2
+    maxConcurrency: 2
+    maxIterations: 10
+    maxTaskRuns: 20
+    tasks:
+      - id: return_batch
+        type: core.return
+        value: "{{ iteration.value }}"
+  - id: repeat_while
+    type: core.while
+    dependsOn: [batches]
+    condition: "{{ iteration.index < 3 }}"
+    maxIterations: 4
+    tasks:
+      - id: return_while_index
+        type: core.return
+        value: "{{ iteration.index }}"
+  - id: repeat_until
+    type: core.until
+    dependsOn: [repeat_while]
+    condition: "{{ iteration.index >= 2 }}"
+    maxIterations: 4
+    tasks:
+      - id: return_until_index
+        type: core.return
+        value: "{{ iteration.index }}"

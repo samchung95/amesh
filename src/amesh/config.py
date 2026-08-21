@@ -27,7 +27,10 @@ class Settings(BaseSettings):
     database_url: str = "postgresql+asyncpg://amesh:amesh@localhost:5432/amesh"
     database_slow_query_seconds: float = Field(default=0.5, gt=0)
     object_storage_endpoint: str = "http://localhost:9000"
+    object_storage_region: str = "us-east-1"
     object_storage_bucket: str = "amesh"
+    object_storage_access_key: SecretStr = SecretStr("minio")
+    object_storage_secret_key: SecretStr = SecretStr("minio-development-only")
     auth_mode: str = "development"
     amesh_admin_token: SecretStr = SecretStr("development-token")
     amesh_token_pepper: SecretStr = SecretStr("development-token-pepper")

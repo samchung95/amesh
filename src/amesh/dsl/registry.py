@@ -355,6 +355,103 @@ def _core_descriptors() -> tuple[ResourceSchemaDescriptor, ...]:
             )
         ),
         _descriptor(
+            "core.foreach",
+            ResourceKind.TASK,
+            _object_schema(
+                {
+                    "items": {"type": ["array", "object", "string"]},
+                    "range": {
+                        "type": "object",
+                        "properties": {
+                            "start": {"type": "integer"},
+                            "end": {"type": "integer"},
+                            "step": {"type": "integer", "not": {"const": 0}},
+                        },
+                        "required": ["end"],
+                        "additionalProperties": False,
+                    },
+                    "manifestUri": {"type": "string", "minLength": 1},
+                    "batchSize": {"type": "integer", "minimum": 1},
+                    "failurePolicy": {
+                        "type": "string",
+                        "enum": ["FAIL_FAST", "CONTINUE_ON_ERROR", "COLLECT_ALL"],
+                    },
+                    "maxConcurrency": {"type": "integer", "minimum": 1, "maximum": 10_000},
+                    "maxIterations": {"type": "integer", "minimum": 1, "maximum": 1_000_000},
+                    "maxDurationSeconds": {"type": "number", "exclusiveMinimum": 0},
+                    "maxTaskRuns": {"type": "integer", "minimum": 1, "maximum": 1_000_000},
+                    "inlinePayloadBytes": {"type": "integer", "minimum": 1},
+                    "continueIf": {"type": "string", "minLength": 1},
+                    "breakIf": {"type": "string", "minLength": 1},
+                    "timeoutSeconds": timeout,
+                },
+                any_of=(
+                    {"required": ["items"]},
+                    {"required": ["range"]},
+                    {"required": ["manifestUri"]},
+                ),
+            ),
+            title="For each",
+            description="Repeat child tasks over a bounded collection or item manifest.",
+            category="Flow control",
+            property_order=(
+                "items",
+                "range",
+                "manifestUri",
+                "batchSize",
+                "maxConcurrency",
+                "failurePolicy",
+                "maxIterations",
+                "maxDurationSeconds",
+                "maxTaskRuns",
+            ),
+        ),
+        *(
+            _descriptor(
+                resource_type,
+                ResourceKind.TASK,
+                _object_schema(
+                    {
+                        "condition": {"type": "string", "minLength": 1},
+                        "failurePolicy": {
+                            "type": "string",
+                            "enum": ["FAIL_FAST", "CONTINUE_ON_ERROR", "COLLECT_ALL"],
+                        },
+                        "maxIterations": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 1_000_000,
+                        },
+                        "maxDurationSeconds": {"type": "number", "exclusiveMinimum": 0},
+                        "maxTaskRuns": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 1_000_000,
+                        },
+                        "inlinePayloadBytes": {"type": "integer", "minimum": 1},
+                        "continueIf": {"type": "string", "minLength": 1},
+                        "breakIf": {"type": "string", "minLength": 1},
+                        "timeoutSeconds": timeout,
+                    },
+                    required=("condition", "maxIterations"),
+                ),
+                title=title,
+                description=description,
+                category="Flow control",
+                property_order=(
+                    "condition",
+                    "failurePolicy",
+                    "maxIterations",
+                    "maxDurationSeconds",
+                    "maxTaskRuns",
+                ),
+            )
+            for resource_type, title, description in (
+                ("core.while", "While", "Repeat child tasks while a condition remains true."),
+                ("core.until", "Until", "Repeat child tasks until a condition becomes true."),
+            )
+        ),
+        _descriptor(
             "agent.llm",
             ResourceKind.TASK,
             _object_schema(

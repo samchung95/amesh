@@ -1493,6 +1493,22 @@
             "title": "Failurepolicy",
             "type": "string"
           },
+          "iterationCount": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Iterationcount"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
           "maxConcurrency": {
             "anyOf": [
               {
@@ -1565,6 +1581,7 @@
         },
         "required": [
           "taskId",
+          "label",
           "taskType",
           "order",
           "depth",
@@ -2092,6 +2109,17 @@
                 "type": "null"
               }
             ]
+          },
+          "iteration_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Iteration Key"
           },
           "result": {
             "anyOf": [

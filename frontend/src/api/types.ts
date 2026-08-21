@@ -53,6 +53,7 @@ export interface PersistedTaskRun {
   version: number
   retry_at: string | null
   result: Record<string, unknown> | null
+  iteration_key: string | null
 }
 
 export interface ExecutionDetail {
@@ -62,17 +63,19 @@ export interface ExecutionDetail {
 
 export interface FlowGraphNode {
   taskId: string
+  label: string
   taskType: string
   order: number
   depth: number
   parentId: string | null
   dependencies: string[]
   children: string[]
-  mode: 'SEQUENTIAL' | 'PARALLEL' | 'DAG' | null
+  mode: 'SEQUENTIAL' | 'PARALLEL' | 'DAG' | 'FOREACH' | 'WHILE' | 'UNTIL' | null
   failurePolicy: 'FAIL_FAST' | 'CONTINUE_ON_ERROR' | 'COLLECT_ALL'
   maxConcurrency: number | null
   state: string | null
   result: Record<string, unknown> | null
+  iterationCount: number | null
 }
 
 export interface FlowGraphEdge {

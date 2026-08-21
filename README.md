@@ -149,6 +149,10 @@ Apply `examples/nested-flowables.yaml`, then open **Flows → Open graph** to in
 sequential, bounded-parallel and DAG plan before execution. Execution details show the same graph with
 live task states.
 
+Apply `examples/loops.yaml` to try bounded foreach, while and until execution. The live graph shows one
+aggregated node per loop child and its completed iteration count instead of rendering every generated
+task run.
+
 The production container also serves the graphical control room at `http://localhost:8000`. In the
 development configuration, connect with token `development-token` and tenant `default`. See the
 [frontend guide](frontend/README.md) for the Vite workflow, supported browsers and accessibility

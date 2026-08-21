@@ -294,6 +294,129 @@
       "configurationSchema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "additionalProperties": false,
+        "anyOf": [
+          {
+            "required": [
+              "items"
+            ]
+          },
+          {
+            "required": [
+              "range"
+            ]
+          },
+          {
+            "required": [
+              "manifestUri"
+            ]
+          }
+        ],
+        "properties": {
+          "batchSize": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "breakIf": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "continueIf": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "failurePolicy": {
+            "enum": [
+              "FAIL_FAST",
+              "CONTINUE_ON_ERROR",
+              "COLLECT_ALL"
+            ],
+            "type": "string"
+          },
+          "inlinePayloadBytes": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "items": {
+            "type": [
+              "array",
+              "object",
+              "string"
+            ]
+          },
+          "manifestUri": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxConcurrency": {
+            "maximum": 10000,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "maxDurationSeconds": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          },
+          "maxIterations": {
+            "maximum": 1000000,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "maxTaskRuns": {
+            "maximum": 1000000,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "range": {
+            "additionalProperties": false,
+            "properties": {
+              "end": {
+                "type": "integer"
+              },
+              "start": {
+                "type": "integer"
+              },
+              "step": {
+                "not": {
+                  "const": 0
+                },
+                "type": "integer"
+              }
+            },
+            "required": [
+              "end"
+            ],
+            "type": "object"
+          },
+          "timeoutSeconds": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          }
+        },
+        "type": "object"
+      },
+      "editor": {
+        "category": "Flow control",
+        "description": "Repeat child tasks over a bounded collection or item manifest.",
+        "propertyOrder": [
+          "items",
+          "range",
+          "manifestUri",
+          "batchSize",
+          "maxConcurrency",
+          "failurePolicy",
+          "maxIterations",
+          "maxDurationSeconds",
+          "maxTaskRuns"
+        ],
+        "title": "For each"
+      },
+      "kind": "task",
+      "type": "core.foreach"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
         "properties": {
           "body": {},
           "headers": {
@@ -625,6 +748,144 @@
       },
       "kind": "task",
       "type": "core.subflow"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "breakIf": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "condition": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "continueIf": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "failurePolicy": {
+            "enum": [
+              "FAIL_FAST",
+              "CONTINUE_ON_ERROR",
+              "COLLECT_ALL"
+            ],
+            "type": "string"
+          },
+          "inlinePayloadBytes": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "maxDurationSeconds": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          },
+          "maxIterations": {
+            "maximum": 1000000,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "maxTaskRuns": {
+            "maximum": 1000000,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "timeoutSeconds": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "condition",
+          "maxIterations"
+        ],
+        "type": "object"
+      },
+      "editor": {
+        "category": "Flow control",
+        "description": "Repeat child tasks until a condition becomes true.",
+        "propertyOrder": [
+          "condition",
+          "failurePolicy",
+          "maxIterations",
+          "maxDurationSeconds",
+          "maxTaskRuns"
+        ],
+        "title": "Until"
+      },
+      "kind": "task",
+      "type": "core.until"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "breakIf": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "condition": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "continueIf": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "failurePolicy": {
+            "enum": [
+              "FAIL_FAST",
+              "CONTINUE_ON_ERROR",
+              "COLLECT_ALL"
+            ],
+            "type": "string"
+          },
+          "inlinePayloadBytes": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "maxDurationSeconds": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          },
+          "maxIterations": {
+            "maximum": 1000000,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "maxTaskRuns": {
+            "maximum": 1000000,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "timeoutSeconds": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "condition",
+          "maxIterations"
+        ],
+        "type": "object"
+      },
+      "editor": {
+        "category": "Flow control",
+        "description": "Repeat child tasks while a condition remains true.",
+        "propertyOrder": [
+          "condition",
+          "failurePolicy",
+          "maxIterations",
+          "maxDurationSeconds",
+          "maxTaskRuns"
+        ],
+        "title": "While"
+      },
+      "kind": "task",
+      "type": "core.while"
     },
     {
       "configurationSchema": {

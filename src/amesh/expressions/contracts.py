@@ -66,6 +66,7 @@ class ExpressionContext:
     variables: Mapping[str, Any] = field(default_factory=dict)
     labels: Mapping[str, Any] = field(default_factory=dict)
     namespace: Mapping[str, Any] = field(default_factory=dict)
+    iteration: Mapping[str, Any] = field(default_factory=dict)
     secrets: Mapping[str, str] = field(default_factory=dict, repr=False)
     key_values: Mapping[str, Any] = field(default_factory=dict)
 
@@ -81,6 +82,7 @@ class ExpressionContext:
             "vars": self.variables,
             "labels": self.labels,
             "namespace": self.namespace,
+            "iteration": self.iteration,
         }
 
 

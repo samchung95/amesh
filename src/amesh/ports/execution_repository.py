@@ -119,6 +119,7 @@ class PersistedTaskRun(BaseModel):
     task_run_id: UUID
     execution_id: UUID
     task_id: str
+    iteration_key: str | None = None
     state: TaskRunState
     current_attempt: int = Field(ge=0)
     version: int = Field(ge=0)
@@ -126,6 +127,19 @@ class PersistedTaskRun(BaseModel):
     result: dict[str, Any] | None = None
     failure_category: FailureCategory | None = None
     evidence: dict[str, Any] = Field(default_factory=dict)
+
+
+class PersistedIterationSummary(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    loop_id: str
+    task_id: str
+    iteration_count: int = Field(ge=0)
+    waiting: int = Field(ge=0)
+    running: int = Field(ge=0)
+    succeeded: int = Field(ge=0)
+    failed: int = Field(ge=0)
+    cancelled: int = Field(ge=0)
 
 
 class PersistedTaskDeferral(BaseModel):
@@ -275,7 +289,32 @@ class ExecutionRepository(Protocol):
         execution_id: UUID,
         *,
         tenant_id: str,
+        include_iterations: bool = True,
     ) -> list[PersistedTaskRun]: ...
+
+    async def list_iteration_summaries(
+        self,
+        execution_id: UUID,
+        *,
+        tenant_id: str,
+    ) -> list[PersistedIterationSummary]: ...
+
+    async def ensure_iteration_task_runs(
+        self,
+        execution_id: UUID,
+        iteration_key: str,
+        task_ids: tuple[str, ...],
+        *,
+        tenant_id: str,
+    ) -> list[PersistedTaskRun]: ...
+
+    async def task_attempt_started_at(
+        self,
+        task_run_id: UUID,
+        attempt: int,
+        *,
+        tenant_id: str,
+    ) -> datetime: ...
 
     async def start_task(
         self,

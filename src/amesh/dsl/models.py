@@ -153,7 +153,18 @@ class TaskDefinition(BaseModel):
     def validate_self_dependency(self) -> TaskDefinition:
         if self.id in self.depends_on:
             raise ValueError(f"task {self.id!r} cannot depend on itself")
-        if self.type in {"core.sequential", "core.parallel", "core.dag"} and not self.tasks:
+        if (
+            self.type
+            in {
+                "core.sequential",
+                "core.parallel",
+                "core.dag",
+                "core.foreach",
+                "core.while",
+                "core.until",
+            }
+            and not self.tasks
+        ):
             raise ValueError(f"flowable task {self.id!r} requires at least one child task")
         return self
 

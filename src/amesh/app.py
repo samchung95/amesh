@@ -37,6 +37,7 @@ from amesh.adapters.postgres import (
     PostgresTenantRepository,
     PostgresWorkerRepository,
 )
+from amesh.adapters.s3 import S3ObjectStore
 from amesh.api.models import (
     AuthorizationExplanationRequest,
     BackfillActionRequest,
@@ -128,6 +129,7 @@ from amesh.ports import (
     LastAdministratorError,
     PersistedExecution,
     PersistedFlow,
+    PersistedIterationSummary,
     PersistedSubflow,
     PersistedTaskRun,
     TaskStateConflictError,
@@ -1127,7 +1129,11 @@ async def get_execution(
         execution = await repository.get_execution(execution_id, tenant_id=tenant_id)
     except LookupError as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
-    task_runs = await repository.list_task_runs(execution_id, tenant_id=tenant_id)
+    task_runs = await repository.list_task_runs(
+        execution_id,
+        tenant_id=tenant_id,
+        include_iterations=False,
+    )
     return ExecutionDetail(execution=execution, taskRuns=task_runs)
 
 
@@ -1160,8 +1166,16 @@ async def get_execution_graph(
         )
     except LookupError as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
-    task_runs = await repository.list_task_runs(execution_id, tenant_id=tenant_id)
-    return _build_flow_graph(flow, task_runs)
+    task_runs = await repository.list_task_runs(
+        execution_id,
+        tenant_id=tenant_id,
+        include_iterations=False,
+    )
+    iteration_summaries = await repository.list_iteration_summaries(
+        execution_id,
+        tenant_id=tenant_id,
+    )
+    return _build_flow_graph(flow, task_runs, iteration_summaries)
 
 
 @app.post(
@@ -1575,6 +1589,13 @@ async def _execute_flow(
         "agent.llm": agent_llm_handler(),
         "agent.mcp": agent_mcp_handler(),
     }
+    object_store = S3ObjectStore(
+        endpoint=settings.object_storage_endpoint,
+        region=settings.object_storage_region,
+        bucket=settings.object_storage_bucket,
+        access_key=settings.object_storage_access_key.get_secret_value(),
+        secret_key=settings.object_storage_secret_key.get_secret_value(),
+    )
 
     async def authorize_subflow(child_flow: FlowDefinition) -> None:
         await authorize_request(
@@ -1621,6 +1642,7 @@ async def _execute_flow(
             repository,
             handlers=handlers,
             recover_running_types=frozenset({"core.subflow"}),
+            object_store=object_store,
         )
 
     handlers["core.subflow"] = subflow_task_handler(
@@ -1682,6 +1704,7 @@ async def _execute_flow(
 def _build_flow_graph(
     flow: FlowDefinition,
     task_runs: list[PersistedTaskRun] | None = None,
+    iteration_summaries: list[PersistedIterationSummary] | None = None,
 ) -> FlowGraph:
     plan = compile_flow_tasks(flow)
     plan_by_id = {node.task.id: node for node in plan}
@@ -1695,42 +1718,96 @@ def _build_flow_graph(
             parent_id = plan_by_id[parent_id].parent_id
         return value
 
-    nodes = tuple(
-        FlowGraphNode(
-            taskId=node.task.id,
-            taskType=node.task.type,
-            order=node.order,
-            depth=depth(node.task.id),
-            parentId=node.parent_id,
-            dependencies=node.dependencies,
-            children=node.children,
-            mode=node.mode,
-            failurePolicy=node.failure_policy.value,
-            maxConcurrency=node.max_concurrency,
-            state=(runs_by_id[node.task.id].state.value if node.task.id in runs_by_id else None),
-            result=(runs_by_id[node.task.id].result if node.task.id in runs_by_id else None),
+    summaries = {
+        (summary.loop_id, summary.task_id): summary for summary in iteration_summaries or []
+    }
+    nodes: list[FlowGraphNode] = []
+    edges: list[FlowGraphEdge] = []
+    for node in plan:
+        dynamic_children = (
+            tuple(f"{node.task.id}--template--{child.id}" for child in node.task.tasks)
+            if node.dynamic
+            else node.children
         )
-        for node in plan
-    )
-    edges = tuple(
-        [
-            FlowGraphEdge(source=node.parent_id, target=node.task.id, kind="contains")
-            for node in plan
-            if node.parent_id is not None
-        ]
-        + [
+        nodes.append(
+            FlowGraphNode(
+                taskId=node.task.id,
+                label=node.task.id,
+                taskType=node.task.type,
+                order=len(nodes),
+                depth=depth(node.task.id),
+                parentId=node.parent_id,
+                dependencies=node.dependencies,
+                children=dynamic_children,
+                mode=node.mode,
+                failurePolicy=node.failure_policy.value,
+                maxConcurrency=node.max_concurrency,
+                state=(
+                    runs_by_id[node.task.id].state.value if node.task.id in runs_by_id else None
+                ),
+                result=(runs_by_id[node.task.id].result if node.task.id in runs_by_id else None),
+                iterationCount=(
+                    int((runs_by_id[node.task.id].result or {}).get("iterationCount", 0))
+                    if node.dynamic and node.task.id in runs_by_id
+                    else None
+                ),
+            )
+        )
+        if node.parent_id is not None:
+            edges.append(FlowGraphEdge(source=node.parent_id, target=node.task.id, kind="contains"))
+        edges.extend(
             FlowGraphEdge(source=dependency, target=node.task.id, kind="dependsOn")
-            for node in plan
             for dependency in node.dependencies
-        ]
-    )
+        )
+        if not node.dynamic:
+            continue
+        for child in node.task.tasks:
+            child_node_id = f"{node.task.id}--template--{child.id}"
+            summary = summaries.get((node.task.id, child.id))
+            nodes.append(
+                FlowGraphNode(
+                    taskId=child_node_id,
+                    label=child.id,
+                    taskType=child.type,
+                    order=len(nodes),
+                    depth=depth(node.task.id) + 1,
+                    parentId=node.task.id,
+                    dependencies=tuple(
+                        f"{node.task.id}--template--{dependency}" for dependency in child.depends_on
+                    ),
+                    failurePolicy=node.failure_policy.value,
+                    state=_iteration_summary_state(summary),
+                    iterationCount=summary.iteration_count if summary is not None else 0,
+                )
+            )
+            edges.append(FlowGraphEdge(source=node.task.id, target=child_node_id, kind="contains"))
+            edges.extend(
+                FlowGraphEdge(
+                    source=f"{node.task.id}--template--{dependency}",
+                    target=child_node_id,
+                    kind="dependsOn",
+                )
+                for dependency in child.depends_on
+            )
     return FlowGraph(
         namespace=flow.namespace,
         flowId=flow.id,
         revision=flow.revision,
-        nodes=nodes,
-        edges=edges,
+        nodes=tuple(nodes),
+        edges=tuple(edges),
     )
+
+
+def _iteration_summary_state(summary: PersistedIterationSummary | None) -> str | None:
+    if summary is None or summary.iteration_count == 0:
+        return None
+    if summary.failed or summary.cancelled:
+        return "FAILED"
+    if summary.running:
+        return "RUNNING"
+    if summary.waiting:
+        return "WAITING"
+    return "SUCCESS"
 
 
 async def _authorize_tenant_administration(

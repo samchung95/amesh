@@ -12,14 +12,18 @@ Repeat work over data or conditions while maintaining bounded, resumable state.
 
 ## In scope
 
-- [ ] **URS-F-0203** — The system shall iterate over arrays, maps, ranges, batches and streamed item manifests.
-- [ ] **URS-F-0204** — The system shall expose stable iteration index, key, value and parent context to each child run.
-- [ ] **URS-F-0205** — The system shall apply per-loop parallelism and preserve deterministic output ordering.
-- [ ] **URS-F-0206** — The system shall evaluate while and until conditions at documented checkpoints.
-- [ ] **URS-F-0207** — The system shall enforce maximum iterations, duration and generated task-run limits.
-- [ ] **URS-F-0208** — The system shall resume loops after restart without repeating acknowledged iterations.
-- [ ] **URS-F-0209** — The system shall support break, continue and failure aggregation policies.
-- [ ] **URS-F-0210** — The system shall store large iteration payloads in object storage rather than execution metadata.
+- [x] **URS-F-0203** — The system shall iterate over arrays, maps, ranges, batches and streamed item manifests.
+- [x] **URS-F-0204** — The system shall expose stable iteration index, key, value and parent context to each child run.
+- [x] **URS-F-0205** — The system shall apply per-loop parallelism and preserve deterministic output ordering.
+- [x] **URS-F-0206** — The system shall evaluate while and until conditions at documented checkpoints.
+- [x] **URS-F-0207** — The system shall enforce maximum iterations, duration and generated task-run limits.
+- [x] **URS-F-0208** — The system shall resume loops after restart without repeating acknowledged iterations.
+- [x] **URS-F-0209** — The system shall support break, continue and failure aggregation policies.
+- [x] **URS-F-0210** — The system shall store large iteration payloads in object storage rather than execution metadata.
+
+## Implementation completion evidence
+
+- 2026-08-22 — EPIC-203 functional scope is complete. Durable foreach loops consume arrays, sorted maps, ranges, batches and streamed JSONL manifests with stable iteration context, bounded parallelism and deterministic aggregates. While and until checkpoints, expansion limits, restart recovery, break/continue and all failure policies are verified against PostgreSQL. Large aggregates spill through the tenant-scoped object-store port, and execution graphs expose bounded per-template summaries. The shared 100,000-task-run UI NFR remains In Progress under EPIC-407. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`execution-semantics.md`](../../docs/architecture/execution-semantics.md), [`loops.yaml`](../../examples/loops.yaml), [`test_loops.py`](../../tests/executor/test_loops.py), [`test_api.py`](../../tests/test_api.py) and [`FlowGraphView.tsx`](../../frontend/src/components/FlowGraphView.tsx).
 
 ## Non-functional requirements
 
@@ -46,13 +50,13 @@ Repeat work over data or conditions while maintaining bounded, resumable state.
 
 ## Definition of done
 
-- [ ] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
-- [ ] Public API, DSL, event and plugin contract changes pass compatibility checks.
-- [ ] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
-- [ ] Security, tenant isolation, redaction and audit behavior are reviewed.
-- [ ] Documentation, examples, migration notes and operational runbooks are updated.
-- [ ] Performance and recovery budgets are measured when this epic is on a critical path.
-- [ ] `python scripts/validate_backlog.py` passes.
+- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
+- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.
+- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
+- [x] Security, tenant isolation, redaction and audit behavior are reviewed.
+- [x] Documentation, examples, migration notes and operational runbooks are updated.
+- [x] Performance and recovery budgets are measured when this epic is on a critical path.
+- [x] `python scripts/validate_backlog.py` passes.
 
 ## Risks and unknowns
 

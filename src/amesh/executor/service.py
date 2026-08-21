@@ -41,6 +41,7 @@ from amesh.expressions import (
 from amesh.ports import (
     ExecutionLaunchSource,
     ExecutionRepository,
+    ObjectStore,
     PersistedExecution,
     PersistedTaskRun,
     TaskRunState,
@@ -54,6 +55,14 @@ from .contracts import (
     TaskContextResources,
     TaskDeferral,
     TaskHandlerResult,
+)
+from .loops import (
+    LOOP_TASK_TYPES,
+    LoopItem,
+    LoopIterationContext,
+    LoopSpec,
+    iter_foreach_items,
+    parse_loop_spec,
 )
 
 LOGGER = logging.getLogger("amesh.task.core.log")
@@ -99,6 +108,7 @@ class TaskExecutionContext:
     variables: Mapping[str, Any]
     labels: Mapping[str, str] = field(default_factory=dict)
     trigger: Mapping[str, Any] = field(default_factory=dict)
+    iteration: LoopIterationContext | None = None
     secret_scopes: tuple[str, ...] = ()
     secrets: Mapping[str, str] = field(default_factory=dict)
     files: Mapping[str, str] = field(default_factory=dict)
@@ -141,6 +151,12 @@ class TaskPlatformError(TaskExecutionFailure):
 
 class TaskResourceLimitError(TaskUserCodeError):
     """Raised when task-produced evidence exceeds its declared contract limits."""
+
+
+class LoopExecutionFailure(TaskUserCodeError):
+    def __init__(self, message: str, result: dict[str, Any]) -> None:
+        super().__init__(message)
+        self.result = result
 
 
 class TaskExecutionPaused(RuntimeError):
@@ -215,14 +231,16 @@ class InProcessExecutor:
         recover_running_types: frozenset[str] | None = None,
         context_provider: TaskContextProvider | None = None,
         resource_registry: ResourceSchemaRegistry | None = None,
+        object_store: ObjectStore | None = None,
     ) -> None:
         self._repository = repository
         self._handlers = _core_handlers()
         self._handlers.update(handlers or {})
         self._expressions = expressions or NativeExpressionEngine()
-        self._recover_running_types = recover_running_types or frozenset()
+        self._recover_running_types = (recover_running_types or frozenset()) | LOOP_TASK_TYPES
         self._context_provider = context_provider
         self._resource_registry = resource_registry or default_resource_registry()
+        self._object_store = object_store
 
     async def create_execution(
         self,
@@ -418,7 +436,7 @@ class InProcessExecutor:
             changed = False
             for node in plan:
                 task_run = by_task_id[node.task.id]
-                if not node.flowable or task_run.state is not TaskRunState.WAITING:
+                if not node.flowable or node.dynamic or task_run.state is not TaskRunState.WAITING:
                     continue
                 if not _parent_is_running(node, by_task_id):
                     continue
@@ -433,7 +451,7 @@ class InProcessExecutor:
 
             for node in reversed(plan):
                 task_run = by_task_id[node.task.id]
-                if not node.flowable or task_run.state is not TaskRunState.RUNNING:
+                if not node.flowable or node.dynamic or task_run.state is not TaskRunState.RUNNING:
                     continue
                 children = [by_task_id[child_id] for child_id in node.children]
                 failed = [
@@ -538,6 +556,7 @@ class InProcessExecutor:
         task_run: PersistedTaskRun,
         task: TaskDefinition,
         outputs: Mapping[str, dict[str, Any]],
+        iteration: LoopIterationContext | None = None,
     ) -> _TaskRunOutcome:
         tenant_id = execution.tenant_id
         execution_id = execution.execution_id
@@ -551,7 +570,14 @@ class InProcessExecutor:
                 }
             )
         )
-        expression_context = _expression_context(flow, execution, projected, task, outputs)
+        expression_context = _expression_context(
+            flow,
+            execution,
+            projected,
+            task,
+            outputs,
+            iteration=iteration,
+        )
         if task.concurrency and task_run.state is not TaskRunState.RUNNING:
             admission = await self._repository.request_admission(
                 AdmissionResourceType.TASK,
@@ -619,7 +645,7 @@ class InProcessExecutor:
             )
             return _TaskRunOutcome(claimed=True)
         handler = self._handlers.get(task.type)
-        if handler is None:
+        if handler is None and task.type not in LOOP_TASK_TYPES:
             reason = f"no in-process handler registered for task type {task.type!r}"
             await self._repository.fail_task(
                 running.task_run_id,
@@ -652,6 +678,7 @@ class InProcessExecutor:
                 variables=flow.variables,
                 labels=execution.labels,
                 trigger=execution.trigger,
+                iteration=iteration,
                 secret_scopes=rendered_task.contract.secret_scopes,
                 secrets=resources.secrets,
                 files=resources.files,
@@ -661,11 +688,27 @@ class InProcessExecutor:
                     execution_id=execution_id,
                 ),
             )
+
+            async def invoke() -> TaskHandlerResult:
+                if rendered_task.type in LOOP_TASK_TYPES:
+                    return await self._run_loop(
+                        flow,
+                        execution,
+                        running,
+                        rendered_task,
+                        outputs,
+                    )
+                if handler is None:
+                    raise TaskConfigurationError(
+                        f"no in-process handler registered for task type {task.type!r}"
+                    )
+                return await handler(rendered_task, context)
+
             if task.timeout_seconds is None:
-                result = await handler(rendered_task, context)
+                result = await invoke()
             else:
                 async with asyncio.timeout(task.timeout_seconds):
-                    result = await handler(rendered_task, context)
+                    result = await invoke()
             if isinstance(result, TaskDeferral):
                 await self._repository.defer_task(
                     running.task_run_id,
@@ -732,6 +775,7 @@ class InProcessExecutor:
                 running.current_attempt,
                 reason,
                 tenant_id=tenant_id,
+                result=(exc.result if isinstance(exc, LoopExecutionFailure) else None),
                 failure_category=category,
             )
             return _TaskRunOutcome(claimed=True, failure=reason)
@@ -751,6 +795,381 @@ class InProcessExecutor:
             if deferral is not None and deferral.state == "WAITING":
                 return True
         return False
+
+    async def _run_loop(
+        self,
+        flow: FlowDefinition,
+        execution: PersistedExecution,
+        parent_run: PersistedTaskRun,
+        task: TaskDefinition,
+        upstream_outputs: Mapping[str, dict[str, Any]],
+    ) -> dict[str, Any]:
+        spec = parse_loop_spec(task)
+        started_at = await self._repository.task_attempt_started_at(
+            parent_run.task_run_id,
+            parent_run.current_attempt,
+            tenant_id=execution.tenant_id,
+        )
+        results: list[dict[str, Any]] = []
+        collected_failure = False
+
+        async def require_capacity(next_count: int) -> None:
+            if next_count > spec.max_iterations:
+                raise TaskResourceLimitError(
+                    f"loop {task.id!r} exceeded maxIterations={spec.max_iterations}"
+                )
+            if next_count * len(task.tasks) > spec.max_task_runs:
+                raise TaskResourceLimitError(
+                    f"loop {task.id!r} exceeded maxTaskRuns={spec.max_task_runs}"
+                )
+            database_now = await self._repository.database_time()
+            if (database_now - started_at).total_seconds() > spec.max_duration_seconds:
+                raise TaskResourceLimitError(
+                    f"loop {task.id!r} exceeded maxDurationSeconds={spec.max_duration_seconds}"
+                )
+
+        async def run_item(item: LoopItem) -> tuple[dict[str, Any], bool, bool]:
+            iteration = LoopIterationContext(
+                index=item.index,
+                key=item.key,
+                value=item.value,
+                parent={
+                    "taskId": task.id,
+                    "taskRunId": str(parent_run.task_run_id),
+                    "attempt": parent_run.current_attempt,
+                },
+            )
+            if spec.continue_if is not None and self._evaluate_loop_condition(
+                spec.continue_if,
+                flow,
+                execution,
+                parent_run,
+                task,
+                upstream_outputs,
+                iteration,
+            ):
+                return (
+                    {
+                        "index": item.index,
+                        "key": item.key,
+                        "state": "CONTINUED",
+                        "children": {},
+                    },
+                    False,
+                    False,
+                )
+            aggregate, child_outputs = await self._run_loop_iteration(
+                flow,
+                execution,
+                task,
+                iteration,
+                upstream_outputs,
+            )
+            failed = aggregate["state"] == "FAILED"
+            should_break = spec.break_if is not None and self._evaluate_loop_condition(
+                spec.break_if,
+                flow,
+                execution,
+                parent_run,
+                task,
+                {**upstream_outputs, **child_outputs},
+                iteration,
+            )
+            if should_break:
+                aggregate["control"] = "BREAK"
+            return aggregate, failed, should_break
+
+        if task.type == "core.foreach":
+            concurrency = task.max_concurrency or 1
+            wave: list[LoopItem] = []
+            stop = False
+            async for item in iter_foreach_items(
+                spec,
+                tenant_id=execution.tenant_id,
+                object_store=self._object_store,
+            ):
+                await require_capacity(item.index + 1)
+                wave.append(item)
+                if len(wave) < concurrency:
+                    continue
+                outcomes = await asyncio.gather(*(run_item(candidate) for candidate in wave))
+                for aggregate, failed, should_break in outcomes:
+                    results.append(aggregate)
+                    collected_failure = collected_failure or failed
+                    stop = (
+                        stop
+                        or should_break
+                        or (failed and task.failure_policy is FlowableFailurePolicy.FAIL_FAST)
+                    )
+                wave = []
+                if stop:
+                    break
+            if wave and not stop:
+                outcomes = await asyncio.gather(*(run_item(candidate) for candidate in wave))
+                for aggregate, failed, should_break in outcomes:
+                    results.append(aggregate)
+                    collected_failure = collected_failure or failed
+                    stop = (
+                        stop
+                        or should_break
+                        or (failed and task.failure_policy is FlowableFailurePolicy.FAIL_FAST)
+                    )
+        else:
+            previous_outputs: dict[str, dict[str, Any]] = {}
+            terminated = False
+            for index in range(spec.max_iterations):
+                await require_capacity(index + 1)
+                iteration = LoopIterationContext(
+                    index=index,
+                    key=str(index),
+                    value=previous_outputs or None,
+                    parent={
+                        "taskId": task.id,
+                        "taskRunId": str(parent_run.task_run_id),
+                        "attempt": parent_run.current_attempt,
+                    },
+                )
+                if task.type == "core.while" and not self._evaluate_loop_condition(
+                    spec.condition or "",
+                    flow,
+                    execution,
+                    parent_run,
+                    task,
+                    {**upstream_outputs, **previous_outputs},
+                    iteration,
+                ):
+                    terminated = True
+                    break
+                aggregate, failed, should_break = await run_item(
+                    LoopItem(index=index, key=str(index), value=previous_outputs or None)
+                )
+                results.append(aggregate)
+                collected_failure = collected_failure or failed
+                previous_outputs = {
+                    child_id: child["output"]
+                    for child_id, child in aggregate["children"].items()
+                    if child["state"] == TaskRunState.SUCCESS.value
+                    and isinstance(child["output"], dict)
+                }
+                if should_break or (
+                    failed and task.failure_policy is FlowableFailurePolicy.FAIL_FAST
+                ):
+                    terminated = True
+                    break
+                if task.type == "core.until" and self._evaluate_loop_condition(
+                    spec.condition or "",
+                    flow,
+                    execution,
+                    parent_run,
+                    task,
+                    {**upstream_outputs, **previous_outputs},
+                    iteration,
+                ):
+                    terminated = True
+                    break
+            if not terminated:
+                raise TaskResourceLimitError(
+                    f"loop {task.id!r} reached maxIterations={spec.max_iterations} "
+                    "before its condition terminated"
+                )
+
+        result = await self._finalize_loop_result(execution, parent_run, task, spec, results)
+        if collected_failure and task.failure_policy in {
+            FlowableFailurePolicy.FAIL_FAST,
+            FlowableFailurePolicy.COLLECT_ALL,
+        }:
+            reason = f"loop {task.id!r} collected failed iterations"
+            raise LoopExecutionFailure(reason, {**result, "error": reason})
+        return result
+
+    async def _run_loop_iteration(
+        self,
+        flow: FlowDefinition,
+        execution: PersistedExecution,
+        loop_task: TaskDefinition,
+        iteration: LoopIterationContext,
+        upstream_outputs: Mapping[str, dict[str, Any]],
+    ) -> tuple[dict[str, Any], dict[str, dict[str, Any]]]:
+        iteration_key = f"{loop_task.id}:{iteration.index:08d}"
+        task_ids = tuple(task.id for task in loop_task.tasks)
+        task_runs = await self._repository.ensure_iteration_task_runs(
+            execution.execution_id,
+            iteration_key,
+            task_ids,
+            tenant_id=execution.tenant_id,
+        )
+        tasks_by_id = {task.id: task for task in loop_task.tasks}
+
+        while True:
+            runs_by_id = {task_run.task_id: task_run for task_run in task_runs}
+            outputs = {
+                task_id: task_run.result or {}
+                for task_id, task_run in runs_by_id.items()
+                if task_run.state is TaskRunState.SUCCESS
+            }
+            pending = [
+                task for task in loop_task.tasks if not _task_run_is_terminal(runs_by_id[task.id])
+            ]
+            if not pending:
+                break
+            now = await self._repository.database_time()
+            ready: list[TaskDefinition] = []
+            for task in pending:
+                task_run = runs_by_id[task.id]
+                if task_run.state is TaskRunState.RUNNING:
+                    deferral = await self._repository.get_task_deferral(
+                        task_run.task_run_id,
+                        tenant_id=execution.tenant_id,
+                    )
+                    if deferral is not None and deferral.state == "WAITING":
+                        continue
+                elif not _is_ready(task_run, now):
+                    continue
+                if all(
+                    runs_by_id[dependency].state is TaskRunState.SUCCESS
+                    for dependency in task.depends_on
+                ):
+                    ready.append(task)
+            if not ready:
+                if any(
+                    task_run.state in {TaskRunState.RUNNING, TaskRunState.RETRY_DELAY}
+                    for task_run in runs_by_id.values()
+                ):
+                    await asyncio.sleep(0.05)
+                    task_runs = await self._repository.ensure_iteration_task_runs(
+                        execution.execution_id,
+                        iteration_key,
+                        task_ids,
+                        tenant_id=execution.tenant_id,
+                    )
+                    continue
+                break
+            await asyncio.gather(
+                *(
+                    self._run_task(
+                        flow,
+                        execution,
+                        runs_by_id[task.id],
+                        task,
+                        {
+                            **upstream_outputs,
+                            **{
+                                task_id: output
+                                for task_id, output in outputs.items()
+                                if task_id in _template_visible_output_ids(task.id, tasks_by_id)
+                            },
+                        },
+                        iteration=iteration,
+                    )
+                    for task in ready
+                )
+            )
+            task_runs = await self._repository.ensure_iteration_task_runs(
+                execution.execution_id,
+                iteration_key,
+                task_ids,
+                tenant_id=execution.tenant_id,
+            )
+
+        runs_by_id = {task_run.task_id: task_run for task_run in task_runs}
+        outputs = {
+            task_id: task_run.result or {}
+            for task_id, task_run in runs_by_id.items()
+            if task_run.state is TaskRunState.SUCCESS
+        }
+        failed = any(
+            task_run.state in {TaskRunState.FAILED, TaskRunState.CANCELLED}
+            for task_run in runs_by_id.values()
+        )
+        aggregate = {
+            "index": iteration.index,
+            "key": iteration.key,
+            "state": "FAILED" if failed else "SUCCESS",
+            "childOrder": list(task_ids),
+            "children": {
+                task_id: {
+                    "state": runs_by_id[task_id].state.value,
+                    "output": (
+                        runs_by_id[task_id].result
+                        if runs_by_id[task_id].state is TaskRunState.SUCCESS
+                        else None
+                    ),
+                    "error": (
+                        (runs_by_id[task_id].result or {}).get("error")
+                        if runs_by_id[task_id].state
+                        in {TaskRunState.FAILED, TaskRunState.CANCELLED}
+                        else None
+                    ),
+                }
+                for task_id in task_ids
+            },
+        }
+        return aggregate, outputs
+
+    def _evaluate_loop_condition(
+        self,
+        expression: str,
+        flow: FlowDefinition,
+        execution: PersistedExecution,
+        parent_run: PersistedTaskRun,
+        task: TaskDefinition,
+        outputs: Mapping[str, dict[str, Any]],
+        iteration: LoopIterationContext,
+    ) -> bool:
+        return self._expressions.evaluate_condition(
+            expression,
+            _expression_context(
+                flow,
+                execution,
+                parent_run,
+                task,
+                outputs,
+                iteration=iteration,
+            ),
+        )
+
+    async def _finalize_loop_result(
+        self,
+        execution: PersistedExecution,
+        parent_run: PersistedTaskRun,
+        task: TaskDefinition,
+        spec: LoopSpec,
+        results: list[dict[str, Any]],
+    ) -> dict[str, Any]:
+        aggregate = {
+            "mode": task.type.removeprefix("core.").upper(),
+            "failurePolicy": task.failure_policy.value,
+            "iterationCount": len(results),
+            "iterations": sorted(results, key=lambda result: int(result["index"])),
+        }
+        encoded = json.dumps(aggregate, separators=(",", ":"), ensure_ascii=False).encode()
+        if len(encoded) <= spec.inline_payload_bytes:
+            return aggregate
+        if self._object_store is None:
+            raise TaskConfigurationError(
+                f"loop {task.id!r} produced {len(encoded)} bytes and requires an object store"
+            )
+
+        async def chunks() -> Any:
+            yield encoded
+
+        metadata = await self._object_store.put(
+            execution.tenant_id,
+            (
+                f"loops/{execution.execution_id}/{parent_run.task_run_id}/"
+                f"attempt-{parent_run.current_attempt}.json"
+            ),
+            chunks(),
+            content_type="application/json",
+        )
+        return {
+            "mode": aggregate["mode"],
+            "failurePolicy": aggregate["failurePolicy"],
+            "iterationCount": len(results),
+            "manifestUri": metadata.uri,
+            "sizeBytes": metadata.size,
+            "checksumSha256": metadata.checksum_sha256,
+        }
 
     async def _resolve_context_resources(
         self,
@@ -848,7 +1267,7 @@ def reduce_orchestration(
     runnable = tuple(
         node.task.id
         for node in plan
-        if not node.flowable
+        if (not node.flowable or node.dynamic)
         and _is_ready(task_runs_by_id[node.task.id], now)
         and _parent_is_running(node, task_runs_by_id)
         and _dependencies_satisfied(node, plan_by_id, task_runs_by_id)
@@ -893,7 +1312,7 @@ def _select_ready_tasks(
     limited_counts: dict[str, int] = {}
     for node in plan:
         task_run = task_runs_by_id[node.task.id]
-        if node.flowable or task_run.state is not TaskRunState.RUNNING:
+        if (node.flowable and not node.dynamic) or task_run.state is not TaskRunState.RUNNING:
             continue
         for ancestor in _flowable_ancestors(node, plan_by_id):
             if ancestor.max_concurrency is not None:
@@ -901,7 +1320,7 @@ def _select_ready_tasks(
 
     selected: list[PlannedTask] = []
     for node in plan:
-        if node.flowable:
+        if node.flowable and not node.dynamic:
             continue
         task_run = task_runs_by_id[node.task.id]
         recovering = (
@@ -999,12 +1418,29 @@ def _aggregate_flowable_result(
     }
 
 
+def _template_visible_output_ids(
+    task_id: str,
+    tasks_by_id: Mapping[str, TaskDefinition],
+) -> frozenset[str]:
+    visible: set[str] = set()
+    pending = list(tasks_by_id[task_id].depends_on)
+    while pending:
+        dependency = pending.pop()
+        if dependency in visible:
+            continue
+        visible.add(dependency)
+        pending.extend(tasks_by_id[dependency].depends_on)
+    return frozenset(visible)
+
+
 def _expression_context(
     flow: FlowDefinition,
     execution: PersistedExecution,
     task_run: PersistedTaskRun,
     task: TaskDefinition,
     outputs: Mapping[str, dict[str, Any]],
+    *,
+    iteration: LoopIterationContext | None = None,
 ) -> ExpressionContext:
     return ExpressionContext(
         flow={
@@ -1030,6 +1466,7 @@ def _expression_context(
         variables=flow.variables,
         labels=flow.labels,
         namespace={"id": flow.namespace},
+        iteration=iteration.as_mapping() if iteration is not None else {},
     )
 
 
@@ -1038,7 +1475,9 @@ def _require_matching_plan(
     task_runs_by_id: Mapping[str, PersistedTaskRun],
 ) -> None:
     expected = {node.task.id for node in compile_flow_tasks(flow)}
-    persisted = set(task_runs_by_id)
+    persisted = {
+        task_id for task_id, task_run in task_runs_by_id.items() if task_run.iteration_key is None
+    }
     if expected != persisted:
         raise ExecutionBlockedError(
             f"persisted task plan does not match flow revision: expected={sorted(expected)}, "
@@ -1171,11 +1610,13 @@ def _render_task_for_execution(
     context: ExpressionContext,
 ) -> TaskDefinition:
     extra = task.model_extra or {}
-    deferred_keys = frozenset(
-        {"outputMapping", "outputSchema", "artifactMapping", "artifactSchema"}
+    deferred_keys = (
+        frozenset({"condition", "continueIf", "breakIf"})
+        if task.type in LOOP_TASK_TYPES
+        else frozenset({"outputMapping", "outputSchema", "artifactMapping", "artifactSchema"})
     )
     deferred = {key: extra[key] for key in deferred_keys if key in extra}
-    if task.type != "core.subflow" or not deferred:
+    if task.type not in {"core.subflow", *LOOP_TASK_TYPES} or not deferred:
         return expressions.render_task(task, context)
 
     payload = task.model_dump(mode="python", by_alias=True)

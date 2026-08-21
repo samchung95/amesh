@@ -24,13 +24,14 @@ export function FlowGraphView({ graph }: { graph: FlowGraph }) {
             <div className="flow-node-body">
               <div className="flow-node-title">
                 {node.mode ? <Layers3 size={16} aria-hidden="true" /> : <GitBranch size={16} aria-hidden="true" />}
-                <strong>{node.taskId}</strong>
+                <strong>{node.label}</strong>
                 <code>{node.taskType}</code>
               </div>
               <div className="flow-node-meta">
                 {node.parentId ? <span>inside {node.parentId}</span> : <span>root</span>}
                 {node.mode ? <span>{node.mode.toLowerCase()} · {node.failurePolicy.toLowerCase().replaceAll('_', ' ')}</span> : null}
                 {node.maxConcurrency ? <span>limit {node.maxConcurrency}</span> : null}
+                {node.iterationCount !== null ? <span>{node.iterationCount} iterations</span> : null}
               </div>
               {node.dependencies.length ? (
                 <div className="flow-node-dependencies" aria-label="Dependencies">

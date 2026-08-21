@@ -42,6 +42,7 @@ from amesh.ports.execution_repository import (
     ExecutionStateConflictError,
     PersistedExecution,
     PersistedFlow,
+    PersistedIterationSummary,
     PersistedSubflow,
     PersistedTaskDeferral,
     PersistedTaskRun,
@@ -490,6 +491,7 @@ _INSERT_TASK_RUN = text(
             tenant_id,
             execution_id,
             task_path,
+            iteration_key,
             state,
             current_attempt,
             version
@@ -499,12 +501,13 @@ _INSERT_TASK_RUN = text(
             :tenant_id,
             :execution_id,
             :task_id,
+            :iteration_key,
             'WAITING',
             0,
             1
         )
-        ON CONFLICT (id) DO NOTHING
-        RETURNING id, tenant_id, execution_id, task_path, version
+        ON CONFLICT (tenant_id, execution_id, task_path, iteration_key) DO NOTHING
+        RETURNING id, tenant_id, execution_id, task_path, iteration_key, version
     )
     INSERT INTO task_run_events (
         tenant_id,
@@ -536,7 +539,10 @@ _INSERT_TASK_RUN = text(
         :actor_id,
         NULL,
         :occurred_at,
-        jsonb_build_object('task_id', inserted.task_path)
+        jsonb_build_object(
+            'task_id', inserted.task_path,
+            'iteration_key', inserted.iteration_key
+        )
     FROM inserted
     """
 )
@@ -754,6 +760,7 @@ _LIST_TASK_RUNS = text(
         task_runs.id,
         task_runs.execution_id,
         task_runs.task_path,
+        task_runs.iteration_key,
         task_runs.state,
         task_runs.current_attempt,
         task_runs.version,
@@ -768,6 +775,64 @@ _LIST_TASK_RUNS = text(
      AND task_attempts.attempt = task_runs.current_attempt
     WHERE task_runs.execution_id = :execution_id
       AND tenants.slug = :tenant_slug
+      AND (:include_iterations OR task_runs.iteration_key IS NULL)
+    ORDER BY task_runs.created_at, task_runs.task_path, task_runs.iteration_key
+    """
+)
+
+_LIST_ITERATION_SUMMARIES = text(
+    """
+    SELECT
+        split_part(iteration_key, ':', 1) AS loop_id,
+        task_path AS task_id,
+        count(DISTINCT iteration_key) AS iteration_count,
+        count(*) FILTER (WHERE state = 'WAITING') AS waiting,
+        count(*) FILTER (WHERE state IN ('RUNNING', 'RETRY_DELAY')) AS running,
+        count(*) FILTER (WHERE state = 'SUCCESS') AS succeeded,
+        count(*) FILTER (WHERE state = 'FAILED') AS failed,
+        count(*) FILTER (WHERE state = 'CANCELLED') AS cancelled
+    FROM task_runs
+    JOIN tenants ON tenants.id = task_runs.tenant_id
+    WHERE task_runs.execution_id = :execution_id
+      AND tenants.slug = :tenant_slug
+      AND iteration_key IS NOT NULL
+    GROUP BY split_part(iteration_key, ':', 1), task_path
+    ORDER BY loop_id, task_id
+    """
+)
+
+_TASK_ATTEMPT_STARTED_AT = text(
+    """
+    SELECT task_attempts.started_at
+    FROM task_attempts
+    JOIN task_runs ON task_runs.id = task_attempts.task_run_id
+    WHERE task_attempts.task_run_id = :task_run_id
+      AND task_attempts.attempt = :attempt
+      AND task_attempts.tenant_id = :tenant_id
+    """
+)
+
+_LIST_ITERATION_TASK_RUNS = text(
+    """
+    SELECT
+        task_runs.id,
+        task_runs.execution_id,
+        task_runs.task_path,
+        task_runs.iteration_key,
+        task_runs.state,
+        task_runs.current_attempt,
+        task_runs.version,
+        task_runs.retry_at,
+        task_attempts.result,
+        task_attempts.failure_category,
+        task_attempts.evidence
+    FROM task_runs
+    LEFT JOIN task_attempts
+      ON task_attempts.task_run_id = task_runs.id
+     AND task_attempts.attempt = task_runs.current_attempt
+    WHERE task_runs.execution_id = :execution_id
+      AND task_runs.tenant_id = :tenant_id
+      AND task_runs.iteration_key = :iteration_key
     ORDER BY task_runs.created_at, task_runs.task_path
     """
 )
@@ -1580,6 +1645,7 @@ class PostgresExecutionRepository(ExecutionRepository):
                             "tenant_id": tenant_uuid,
                             "execution_id": execution_id,
                             "task_id": task.id,
+                            "iteration_key": None,
                             "event_id": task_event_id,
                             "idempotency_key": str(task_event_id),
                             "correlation_id": new_runtime_id(),
@@ -1792,14 +1858,97 @@ class PostgresExecutionRepository(ExecutionRepository):
         execution_id: UUID,
         *,
         tenant_id: str,
+        include_iterations: bool = True,
     ) -> list[PersistedTaskRun]:
         async with tenant_transaction(self._engine, tenant_id) as (connection, _tenant_uuid):
             result = await connection.execute(
                 _LIST_TASK_RUNS,
-                {"execution_id": execution_id, "tenant_slug": tenant_id},
+                {
+                    "execution_id": execution_id,
+                    "tenant_slug": tenant_id,
+                    "include_iterations": include_iterations,
+                },
             )
             rows = result.mappings().all()
         return [_to_task_run(row) for row in rows]
+
+    async def list_iteration_summaries(
+        self,
+        execution_id: UUID,
+        *,
+        tenant_id: str,
+    ) -> list[PersistedIterationSummary]:
+        async with tenant_transaction(self._engine, tenant_id) as (connection, _tenant_uuid):
+            result = await connection.execute(
+                _LIST_ITERATION_SUMMARIES,
+                {"execution_id": execution_id, "tenant_slug": tenant_id},
+            )
+            rows = result.mappings().all()
+        return [PersistedIterationSummary.model_validate(row) for row in rows]
+
+    async def ensure_iteration_task_runs(
+        self,
+        execution_id: UUID,
+        iteration_key: str,
+        task_ids: tuple[str, ...],
+        *,
+        tenant_id: str,
+    ) -> list[PersistedTaskRun]:
+        if not iteration_key or len(iteration_key) > 512:
+            raise ValueError("iteration key must contain between 1 and 512 characters")
+        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+            occurred_at = await connection.scalar(_DATABASE_TIME)
+            if not isinstance(occurred_at, datetime):
+                raise TypeError("PostgreSQL returned an invalid database timestamp")
+            rows: list[dict[str, object]] = []
+            for task_id in task_ids:
+                event_id = new_runtime_id()
+                rows.append(
+                    {
+                        "task_run_id": new_runtime_id(),
+                        "tenant_id": tenant_uuid,
+                        "execution_id": execution_id,
+                        "task_id": task_id,
+                        "iteration_key": iteration_key,
+                        "event_id": event_id,
+                        "idempotency_key": str(event_id),
+                        "correlation_id": new_runtime_id(),
+                        "actor_id": "system:loop",
+                        "occurred_at": occurred_at,
+                    }
+                )
+            if rows:
+                await connection.execute(_INSERT_TASK_RUN, rows)
+            result = await connection.execute(
+                _LIST_ITERATION_TASK_RUNS,
+                {
+                    "tenant_id": tenant_uuid,
+                    "execution_id": execution_id,
+                    "iteration_key": iteration_key,
+                },
+            )
+            task_runs = result.mappings().all()
+        return [_to_task_run(task_run) for task_run in task_runs]
+
+    async def task_attempt_started_at(
+        self,
+        task_run_id: UUID,
+        attempt: int,
+        *,
+        tenant_id: str,
+    ) -> datetime:
+        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+            started_at = await connection.scalar(
+                _TASK_ATTEMPT_STARTED_AT,
+                {
+                    "task_run_id": task_run_id,
+                    "attempt": attempt,
+                    "tenant_id": tenant_uuid,
+                },
+            )
+        if not isinstance(started_at, datetime):
+            raise LookupError(f"task run {task_run_id} attempt {attempt} does not exist")
+        return started_at
 
     async def start_task(
         self,
@@ -3992,6 +4141,7 @@ def _to_task_run(row: RowMapping) -> PersistedTaskRun:
         task_run_id=row["id"],
         execution_id=row["execution_id"],
         task_id=row["task_path"],
+        iteration_key=row.get("iteration_key"),
         state=row["state"],
         current_attempt=row["current_attempt"],
         version=row["version"],

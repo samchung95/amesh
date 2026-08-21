@@ -82,6 +82,7 @@ class FlowGraphNode(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
     task_id: str = Field(alias="taskId")
+    label: str
     task_type: str = Field(alias="taskType")
     order: int = Field(ge=0)
     depth: int = Field(ge=0)
@@ -93,6 +94,7 @@ class FlowGraphNode(BaseModel):
     max_concurrency: int | None = Field(default=None, alias="maxConcurrency")
     state: str | None = None
     result: dict[str, Any] | None = None
+    iteration_count: int | None = Field(default=None, alias="iterationCount", ge=0)
 
 
 class FlowGraphEdge(BaseModel):

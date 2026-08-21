@@ -8,7 +8,12 @@ FLOWABLE_MODES = {
     "core.sequential": "SEQUENTIAL",
     "core.parallel": "PARALLEL",
     "core.dag": "DAG",
+    "core.foreach": "FOREACH",
+    "core.while": "WHILE",
+    "core.until": "UNTIL",
 }
+
+DYNAMIC_FLOWABLE_MODES = frozenset({"FOREACH", "WHILE", "UNTIL"})
 
 
 @dataclass(frozen=True)
@@ -25,6 +30,10 @@ class PlannedTask:
     @property
     def flowable(self) -> bool:
         return self.mode is not None
+
+    @property
+    def dynamic(self) -> bool:
+        return self.mode in DYNAMIC_FLOWABLE_MODES
 
 
 def compile_flow_tasks(flow: FlowDefinition) -> tuple[PlannedTask, ...]:
@@ -61,7 +70,7 @@ def compile_flow_tasks(flow: FlowDefinition) -> tuple[PlannedTask, ...]:
                 max_concurrency=task.max_concurrency,
             )
             planned.append(node)
-            if mode is not None:
+            if mode is not None and mode not in DYNAMIC_FLOWABLE_MODES:
                 walk(
                     task.tasks,
                     parent_id=task.id,

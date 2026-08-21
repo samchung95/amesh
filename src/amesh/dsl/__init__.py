@@ -1,4 +1,10 @@
-from .flowables import FLOWABLE_MODES, PlannedTask, compile_flow_tasks, visible_output_ids
+from .flowables import (
+    DYNAMIC_FLOWABLE_MODES,
+    FLOWABLE_MODES,
+    PlannedTask,
+    compile_flow_tasks,
+    visible_output_ids,
+)
 from .models import (
     FlowableFailurePolicy,
     FlowDefinition,
@@ -20,6 +26,7 @@ from .source import EditableFlowDocument, FlowDocumentError, parse_editable_flow
 from .validator import validate_flow_document
 
 __all__ = [
+    "DYNAMIC_FLOWABLE_MODES",
     "FLOWABLE_MODES",
     "EditableFlowDocument",
     "EditorMetadata",

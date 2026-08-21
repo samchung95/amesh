@@ -1,5 +1,29 @@
 # Test Log
 
+## EPIC-203: Loops, foreach, while and until — 2026-08-22
+
+Spec source: Agent Hotel card `c21` and canonical `backlog/epics.json` EPIC-203 DoD.
+
+Verified with `uv`, Python 3.13 and PostgreSQL 17 on a fresh 21-migration database:
+
+- [x] `core.foreach` consumes arrays, deterministically ordered maps, ranges, batches and chunked JSONL object manifests.
+- [x] Child expressions receive stable iteration index, key, value and parent identity.
+- [x] Per-loop concurrency is bounded and parent results remain index ordered when children finish out of order.
+- [x] `core.while` checks before execution and `core.until` checks afterward, with prior successful child outputs available to the next checkpoint.
+- [x] Iteration, duration and generated-task-run limits fail with durable diagnostics.
+- [x] A fresh executor resumes acknowledged iteration children without duplicate attempts and reruns only interrupted work.
+- [x] Continue, break, fail-fast, continue-on-error and collect-all semantics produce deterministic aggregates.
+- [x] Oversized aggregates spill through the tenant-scoped object-store interface with size and SHA-256 metadata.
+- [x] Execution detail reads exclude generated rows by default; graph reads reduce them to per-template state/count summaries rendered by the control room.
+- [x] Focused loop/API integration suite: 8 passed. Fresh-database product suite: 190 passed and 4 environment-gated tests skipped.
+- [x] The branch-coverage run measured 82.52%, above the 75% gate; its five failures came from unrelated stale data in the long-lived shared database, while the subsequent isolated-database run passed completely.
+- [x] A 100,000-item streamed range enumerated in 0.333 seconds with 0.002 MiB measured peak allocation, and its summarized graph remained two nodes. Full persisted-run/browser qualification stays In Progress under shared `URS-NFR-PERFORMANCE-006` and EPIC-407.
+- [x] Ruff format/lint, strict mypy, generated contracts, frontend lint/unit tests and production build pass.
+
+Adversarial pass: invalid expansion bounds, child failure policies, interrupted attempts, out-of-order completion, duration exhaustion, object-manifest chunk boundaries and tenant-bounded graph aggregation fail closed or converge as specified.
+
+Verdict: PASS — EPIC-203 functional requirements URS-F-0203 through URS-F-0210 are verified; shared URS-NFR-PERFORMANCE-006 remains In Progress.
+
 ## EPIC-201: Sequential, parallel and DAG flowables — 2026-08-22
 
 Spec source: Agent Hotel card `c20` and canonical `backlog/epics.json` EPIC-201 DoD.

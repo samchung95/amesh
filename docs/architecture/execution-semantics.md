@@ -132,6 +132,28 @@ contains outputs from transitive dependencies only; independent sibling output i
 `GET /api/v1/executions/{execution_id}/graph` returns the pinned revision with current durable task
 states and results. The control room renders both contracts on flow and execution detail pages.
 
+### Durable loops
+
+`core.foreach` consumes one array, deterministically key-sorted map, integer range or streamed JSONL
+`manifestUri`; `batchSize` groups source records without first buffering the complete source. Each
+iteration receives stable `iteration.index`, `iteration.key`, `iteration.value` and
+`iteration.parent` values. `maxConcurrency` bounds foreach iterations, while the parent aggregate is
+always sorted by iteration index.
+
+`core.while` evaluates `condition` before an iteration. `core.until` runs an iteration and evaluates
+`condition` afterward. Both pass the prior iteration's successful child outputs as the next iteration
+value. `continueIf` skips child creation for the selected foreach item; `breakIf` stops after the
+current sequential iteration or bounded parallel wave. `FAIL_FAST`, `CONTINUE_ON_ERROR` and
+`COLLECT_ALL` use the same parent-state rules as static flowables.
+
+Every generated child has a durable `(execution, task, iteration)` identity and ordinary attempts.
+Restart reuses terminal children and reruns only unacknowledged work. `maxIterations`,
+`maxDurationSeconds` and `maxTaskRuns` bound expansion. Parent results stay inline through
+`inlinePayloadBytes`; larger aggregates are written to the configured tenant-prefixed object store and
+the task result retains the manifest URI, size and SHA-256 checksum. Execution graph responses group
+generated rows into one template node per loop child with an iteration count, keeping the control-room
+view bounded.
+
 ## Admission control
 
 Flows and tasks may declare `concurrency` rules with a stable ID, positive limit, scope and limit
