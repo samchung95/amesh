@@ -35,3 +35,7 @@ Migration `0009_tenant_administration_role.sql` adds a narrow `NOLOGIN` tenant-a
 for lifecycle/export operations and a security-definer worker-group selector. Server logins that
 perform tenant administration need membership in both `amesh_runtime` and `amesh_tenant_admin`;
 worker-only logins need only `amesh_runtime`.
+
+Migration `0010_execution_trigger_context.sql` persists the immutable trigger metadata supplied when an
+execution is created, allowing the expression engine to restore cron and webhook context after process
+or executor restarts.

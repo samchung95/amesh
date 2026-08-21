@@ -321,3 +321,78 @@ def test_core_log_emits_execution_context(
             await engine.dispose()
 
     asyncio.run(scenario())
+
+
+def test_executor_populates_the_documented_expression_context() -> None:
+    async def scenario() -> None:
+        if TEST_DATABASE_URL is None:
+            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
+        namespace = f"tests.expressions.{uuid4().hex}"
+        flow = FlowDefinition.model_validate(
+            {
+                "id": "expression_context",
+                "namespace": namespace,
+                "revision": 4,
+                "labels": {"team": "platform"},
+                "variables": {"region": "apac"},
+                "tasks": [
+                    {"id": "seed", "type": "core.return", "value": "loaded"},
+                    {
+                        "id": "context",
+                        "type": "core.return",
+                        "dependsOn": ["seed"],
+                        "value": {
+                            "flow": "{{ flow.id }}:{{ flow.revision }}",
+                            "execution": "{{ execution.id }}",
+                            "state": "{{ execution.state }}",
+                            "tenant": "{{ execution.tenantId }}",
+                            "task": "{{ task.id }}",
+                            "taskrun": "{{ taskrun.id }}:{{ taskrun.attempt }}:{{ taskrun.state }}",
+                            "trigger": "{{ trigger }}",
+                            "input": "{{ inputs.name }}",
+                            "output": "{{ outputs.seed.value }}",
+                            "variable": "{{ vars.region }}",
+                            "label": "{{ labels.team }}",
+                            "namespace": "{{ namespace.id }}",
+                        },
+                    },
+                ],
+            }
+        )
+        engine = create_async_engine(TEST_DATABASE_URL)
+        repository = PostgresExecutionRepository(engine)
+        executor = InProcessExecutor(repository)
+        execution_id = await executor.create_execution(
+            flow,
+            tenant_id="default",
+            inputs={"name": "Ada"},
+        )
+
+        try:
+            completed = await executor.run_to_completion(
+                flow,
+                execution_id,
+                tenant_id="default",
+            )
+            task_run = next(item for item in completed.task_runs if item.task_id == "context")
+            assert task_run.result is not None
+            value = task_run.result["value"]
+            assert value == {
+                "flow": "expression_context:4",
+                "execution": str(execution_id),
+                "state": "RUNNING",
+                "tenant": "default",
+                "task": "context",
+                "taskrun": f"{task_run.task_run_id}:1:RUNNING",
+                "trigger": {},
+                "input": "Ada",
+                "output": "loaded",
+                "variable": "apac",
+                "label": "platform",
+                "namespace": namespace,
+            }
+        finally:
+            await cleanup_execution(engine, execution_id)
+            await engine.dispose()
+
+    asyncio.run(scenario())

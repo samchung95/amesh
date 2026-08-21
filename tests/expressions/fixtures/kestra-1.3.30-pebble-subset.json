@@ -1,0 +1,77 @@
+{
+  "compatibilityVersion": "kestra-pebble/1.3.30-subset-1",
+  "cases": [
+    {
+      "id": "native-arithmetic",
+      "template": "{{ inputs.count + 1 }}",
+      "context": {"inputs": {"count": 2}},
+      "expected": 3
+    },
+    {
+      "id": "dot-and-subscript-access",
+      "template": "{{ outputs['first-task'].value }}",
+      "context": {"outputs": {"first-task": {"value": "done"}}},
+      "expected": "done"
+    },
+    {
+      "id": "pebble-concatenation",
+      "template": "{{ inputs.first ~ '-' ~ inputs.last }}",
+      "context": {"inputs": {"first": "Ada", "last": "Lovelace"}},
+      "expected": "Ada-Lovelace"
+    },
+    {
+      "id": "null-coalescing",
+      "template": "{{ trigger.date ?? inputs.fallback }}",
+      "context": {"trigger": {}, "inputs": {"fallback": "manual"}},
+      "expected": "manual"
+    },
+    {
+      "id": "elseif-control-flow",
+      "template": "{% if inputs.score > 90 %}high{% elseif inputs.score > 50 %}medium{% else %}low{% endif %}",
+      "context": {"inputs": {"score": 75}},
+      "expected": "medium"
+    },
+    {
+      "id": "bounded-loop",
+      "template": "{% for item in inputs['items'] %}{{ item }}{% else %}empty{% endfor %}",
+      "context": {"inputs": {"items": [1, 2, 3]}},
+      "expected": 123
+    },
+    {
+      "id": "string-and-collection-filters",
+      "template": "{{ inputs.names | sort | join(',') | upper }}",
+      "context": {"inputs": {"names": ["grace", "ada"]}},
+      "expected": "ADA,GRACE"
+    },
+    {
+      "id": "json-conversion",
+      "template": "{{ inputs.document | fromJson }}",
+      "context": {"inputs": {"document": "{\"ready\":true,\"count\":2}"}},
+      "expected": {"ready": true, "count": 2}
+    },
+    {
+      "id": "yaml-conversion",
+      "template": "{{ inputs.document | fromYaml }}",
+      "context": {"inputs": {"document": "ready: true\ncount: 2\n"}},
+      "expected": {"ready": true, "count": 2}
+    },
+    {
+      "id": "date-operation",
+      "template": "{{ inputs.at | dateAdd(1, 'DAYS') | date('yyyy-MM-dd HH:mm') }}",
+      "context": {"inputs": {"at": "2026-08-22T09:30:00Z"}},
+      "expected": "2026-08-23 09:30"
+    },
+    {
+      "id": "selected-functions",
+      "template": "{{ max(inputs['values']) + kv('increment') }}",
+      "context": {"inputs": {"values": [3, 8, 5]}, "keyValues": {"increment": 2}},
+      "expected": 10
+    },
+    {
+      "id": "recursive-render",
+      "template": "{{ render(vars.greeting) }}",
+      "context": {"inputs": {"name": "Ada"}, "vars": {"greeting": "Hello {{ inputs.name }}"}},
+      "expected": "Hello Ada"
+    }
+  ]
+}

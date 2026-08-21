@@ -71,6 +71,12 @@ class CronScheduler:
             flow,
             tenant_id=tenant_id,
             inputs=inputs or {},
+            trigger={
+                "id": trigger.id,
+                "type": trigger.type,
+                "date": scheduled_utc.isoformat(),
+                "timezone": trigger.timezone,
+            },
             idempotency_key=occurrence_key,
         )
 

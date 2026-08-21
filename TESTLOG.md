@@ -365,3 +365,26 @@ Adversarial pass: the accepted partial soak continuously removed the active task
 Not covered: the deferred uninterrupted 24-hour run, HA, profile-M load, multi-node control plane, backup/restore, cross-distribution qualification and other broader EPIC-611 requirements. These are not claimed by `v0.2.0-mvp`.
 
 Verdict: PASS — W8 closed under the product-owner-amended exit; full-duration qualification remains open in EPIC-611.
+
+## EPIC-005: Expression and templating engine — 2026-08-22
+
+Spec source: `backlog/epics/epic-005-expression-and-templating-engine.md` and ADR-022.
+
+Verified with `uv`, Python 3.13.12 and PostgreSQL 17:
+
+- [x] `ExpressionEngine` provides a storage-independent compile, render, preview, task-render and condition adapter contract.
+- [x] Native scalar, collection and object rendering covers flow, execution, task, task-run, trigger, input, output, variable, label, namespace, secret and key-value contexts.
+- [x] The version-pinned `kestra-pebble/1.3.30-subset-1` corpus passes 12 syntax, control-flow, filter, conversion, date and function cases.
+- [x] Syntax and AST validation raise compile errors separately from missing runtime values, invalid conversions and sandbox denials.
+- [x] Deterministic tests enforce template, AST, context-memory, collection, nesting, recursion, output and elapsed-time bounds.
+- [x] Secret-derived values remain available to task execution but are redacted from previews, expression errors, representations and `core.log` output.
+- [x] A PostgreSQL execution proves the executor populates the documented context and renders a dependent task from upstream output.
+- [x] A representative four-value render measured 0.2222 ms median and 0.2324 ms p95 over 1,000 warmed in-process renders.
+- [x] Full suite: 104 passed, 4 environment-gated tests skipped, 80.05% branch coverage.
+- [x] Ruff formatting and lint, strict mypy, backlog validation, clean-room validation, compilation and generated-contract drift gates pass.
+
+Adversarial pass: unsafe attribute access, oversized input/output, excessive recursion, an elapsed deadline, missing values and secret-bearing conversion failures are rejected without exposing the secret.
+
+Compatibility boundary: the checked-in subset is complete for this epic; it does not claim every Pebble construct or externally effectful Kestra function. Those gaps are explicit in `docs/architecture/expressions.md` and require a newly versioned corpus.
+
+Verdict: PASS — EPIC-005 closed.

@@ -128,6 +128,7 @@ _INSERT_EXECUTION = text(
         version,
         idempotency_key,
         inputs,
+        trigger_context,
         labels,
         created_by,
         updated_by,
@@ -146,6 +147,7 @@ _INSERT_EXECUTION = text(
         3,
         :idempotency_key,
         CAST(:inputs AS jsonb),
+        CAST(:trigger_context AS jsonb),
         CAST(:labels AS jsonb),
         :actor_id,
         :actor_id,
@@ -232,6 +234,7 @@ _GET_EXECUTION = text(
         executions.namespace_name,
         executions.flow_key,
         executions.inputs,
+        executions.trigger_context,
         executions.created_at,
         executions.updated_at
     FROM executions
@@ -252,6 +255,7 @@ _LIST_EXECUTIONS = text(
         executions.namespace_name,
         executions.flow_key,
         executions.inputs,
+        executions.trigger_context,
         executions.created_at,
         executions.updated_at
     FROM executions
@@ -513,6 +517,7 @@ _FINISH_EXECUTION = text(
             namespace_name,
             flow_key,
             inputs,
+            trigger_context,
             created_at,
             updated_at
     ), event AS (
@@ -553,6 +558,7 @@ _FINISH_EXECUTION = text(
         finished.namespace_name,
         finished.flow_key,
         finished.inputs,
+        finished.trigger_context,
         finished.created_at,
         finished.updated_at
     FROM finished
@@ -675,6 +681,7 @@ class PostgresExecutionRepository(ExecutionRepository):
         *,
         tenant_id: str,
         inputs: dict[str, object],
+        trigger: dict[str, object] | None = None,
         idempotency_key: str | None = None,
         actor_id: str = "system:executor",
     ) -> PersistedExecution:
@@ -742,6 +749,7 @@ class PostgresExecutionRepository(ExecutionRepository):
                     "flow_key": flow.id,
                     "idempotency_key": idempotency_key,
                     "inputs": json.dumps(inputs),
+                    "trigger_context": json.dumps(trigger or {}),
                     "labels": json.dumps(flow.labels),
                     "actor_id": actor_id,
                     "created_at": created_at,
@@ -1104,6 +1112,7 @@ def _to_execution(row: RowMapping) -> PersistedExecution:
         namespace=row["namespace_name"],
         flow_id=row["flow_key"],
         inputs=row["inputs"],
+        trigger=row["trigger_context"],
         created_at=row["created_at"],
         updated_at=row["updated_at"],
     )

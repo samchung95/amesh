@@ -38,6 +38,7 @@ class PersistedExecution(BaseModel):
     namespace: str
     flow_id: str
     inputs: dict[str, Any] = Field(default_factory=dict)
+    trigger: dict[str, Any] = Field(default_factory=dict)
     created_at: datetime
     updated_at: datetime
 
@@ -94,6 +95,7 @@ class ExecutionRepository(Protocol):
         *,
         tenant_id: str,
         inputs: dict[str, Any],
+        trigger: dict[str, Any] | None = None,
         idempotency_key: str | None = None,
         actor_id: str = "system:executor",
     ) -> PersistedExecution: ...

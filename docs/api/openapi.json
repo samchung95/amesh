@@ -815,6 +815,11 @@
             "title": "Tenant Id",
             "type": "string"
           },
+          "trigger": {
+            "additionalProperties": true,
+            "title": "Trigger",
+            "type": "object"
+          },
           "updated_at": {
             "format": "date-time",
             "title": "Updated At",

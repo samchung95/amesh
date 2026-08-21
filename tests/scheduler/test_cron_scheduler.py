@@ -104,6 +104,19 @@ def test_cron_occurrence_is_unique_across_scheduler_restart_and_renders_outputs(
                         "value": "not-run",
                     }
                 ),
+                TaskDefinition.model_validate(
+                    {
+                        "id": "trigger_context",
+                        "type": "core.return",
+                        "dependsOn": ["second"],
+                        "value": {
+                            "id": "{{ trigger.id }}",
+                            "type": "{{ trigger.type }}",
+                            "date": "{{ trigger.date }}",
+                            "timezone": "{{ trigger.timezone }}",
+                        },
+                    }
+                ),
             ],
         )
         scheduled_for = datetime(2026, 8, 21, 12, 0, tzinfo=UTC)
@@ -137,6 +150,12 @@ def test_cron_occurrence_is_unique_across_scheduler_restart_and_renders_outputs(
             ),
         )
         assert concurrent_duplicate.execution_id == first.execution_id
+        assert first.trigger == {
+            "id": "every_minute",
+            "type": "core.cron",
+            "date": "2026-08-21T12:00:00+00:00",
+            "timezone": "UTC",
+        }
 
         try:
             completed = await InProcessExecutor(first_repository).run_to_completion(
@@ -149,6 +168,7 @@ def test_cron_occurrence_is_unique_across_scheduler_restart_and_renders_outputs(
             assert results["first"] == {"value": "hello"}
             assert results["second"] == {"value": "hello world"}
             assert results["guarded"] == {"skipped": True}
+            assert results["trigger_context"] == {"value": first.trigger}
 
             await second_engine.dispose()
             restarted_engine = create_async_engine(TEST_DATABASE_URL)

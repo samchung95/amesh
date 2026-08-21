@@ -41,6 +41,8 @@ The importer never silently drops fields. Every source range has a disposition. 
 - Match parsing, escaping, null/error behavior, functions, filters and custom extension semantics.
 - Maintain a differential fixture corpus for expressions and rendered values.
 - Keep expression evaluation side-effect-free unless a public contract explicitly says otherwise.
+- The implemented `kestra-pebble/1.3.30-subset-1` surface and its explicit gaps are published in the
+  [expression engine contract](expressions.md); broader compatibility must use a new version and corpus.
 
 ### REST API
 

@@ -73,3 +73,16 @@
 - Verification: 91 tests passed with real PostgreSQL at 80.29% branch coverage; generated flow/resource/OpenAPI contracts matched; a 5,003-line flow measured 0.598 seconds p95 over 10 uninstrumented runs; Ruff, strict mypy and focused API/DSL checks passed.
 - Deviations from plan: shared URS-NFR-USABILITY-001 remains In Progress for EPIC-405 editor integration, and URS-NFR-MAINTAINABILITY-002 remains In Progress for EPIC-300/400/610. `ruamel.yaml`, `jsonschema` and the latter's type stubs were added through `uv` after the build-vs-buy review.
 - Next step when resuming: close and commit card `c5`, then select dependency-ready EPIC-005 to complete the requested Pebble-compatible expression layer.
+
+### 2026-08-22 (post-MVP roadmap session 1, EPIC-005 start)
+
+- Did: closed EPIC-004 on card `c5` and committed it as `0f6e2f2`; selected dependency-ready EPIC-005 on card `c6`; compared a JVM Pebble boundary, an unavailable maintained Python Pebble port and a versioned compatibility facade over the existing Jinja sandbox; accepted ADR-022 for the explicit `kestra-pebble/1.3.30-subset-1` adapter.
+- Deviations from plan: no expression dependency was added. The existing Jinja native sandbox supplies the maintained parser/evaluator primitive; AMESH owns only the bounded compatibility, context and redaction contracts.
+- Next step when resuming: implement the engine protocol, typed contexts, selected filters/functions, compile/runtime errors and resource limits before wiring the executor context.
+
+### 2026-08-22 (post-MVP roadmap session 1, EPIC-005 completion)
+
+- Did: completed EPIC-005 with the storage-independent `ExpressionEngine`; typed execution contexts; versioned `kestra-pebble/1.3.30-subset-1` syntax, filters, functions and fixture corpus; immutable sandbox; separate compile/render failures; deterministic template, AST, context, collection, nesting, recursion, output and elapsed-time limits; and secret-aware previews, errors, representations and core logs. Linked URS-F-0037 through URS-F-0044 to evidence.
+- Verification: 104 tests passed with real PostgreSQL at 80.05% branch coverage; the 12-case compatibility corpus and executor context integration passed; a representative render measured 0.2324 ms p95 over 1,000 warmed runs; Ruff, strict mypy, backlog, clean-room, compilation and generated-contract gates passed.
+- Deviations from plan: no new expression dependency was needed. Compatibility remains explicitly bounded to the published subset; effectful Kestra functions stay with their owning capability epics.
+- Next step when resuming: close and commit card `c6`, then select the next dependency-ready epic from the requested graphical frontend, orchestration control and HA/DR areas.

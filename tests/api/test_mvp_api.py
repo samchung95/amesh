@@ -70,7 +70,9 @@ triggers:
 tasks:
   - id: echo
     type: core.return
-    value: "{{{{ inputs.message }}}}"
+    value:
+      message: "{{{{ inputs.message }}}}"
+      trigger: "{{{{ trigger }}}}"
 """
         headers = {
             "authorization": "Bearer test-token",
@@ -134,7 +136,9 @@ tasks:
                 execution_id = UUID(created_payload["execution"]["execution_id"])
                 execution_ids.append(execution_id)
                 assert created_payload["execution"]["state"] == "SUCCESS"
-                assert created_payload["taskRuns"][0]["result"] == {"value": "manual"}
+                assert created_payload["taskRuns"][0]["result"] == {
+                    "value": {"message": "manual", "trigger": {}},
+                }
 
                 fetched = await client.get(
                     f"/api/v1/executions/{execution_id}",
@@ -145,7 +149,9 @@ tasks:
                     f"/api/v1/executions/{execution_id}/logs",
                     headers={"authorization": "Bearer test-token"},
                 )
-                assert logs.json()[0]["output"] == {"value": "manual"}
+                assert logs.json()[0]["output"] == {
+                    "value": {"message": "manual", "trigger": {}},
+                }
 
                 webhook = await client.post(
                     f"/api/v1/webhooks/{namespace}/{flow_id}/incoming",
@@ -155,7 +161,16 @@ tasks:
                 assert webhook.status_code == 200
                 webhook_payload = webhook.json()
                 execution_ids.append(UUID(webhook_payload["execution"]["execution_id"]))
-                assert webhook_payload["taskRuns"][0]["result"] == {"value": "webhook"}
+                assert webhook_payload["taskRuns"][0]["result"] == {
+                    "value": {
+                        "message": "webhook",
+                        "trigger": {
+                            "id": "incoming",
+                            "type": "core.webhook",
+                            "body": {"message": "webhook"},
+                        },
+                    },
+                }
 
                 executions = await client.get(
                     "/api/v1/executions",

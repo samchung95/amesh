@@ -13,8 +13,13 @@ from pydantic import BaseModel, ConfigDict, Field
 from amesh.domain import ExecutionState
 from amesh.dsl import FlowDefinition
 from amesh.dsl.models import TaskDefinition
-from amesh.expressions import NativeExpressionEngine
-from amesh.ports import ExecutionRepository, PersistedTaskRun, TaskRunState
+from amesh.expressions import (
+    ExpressionContext,
+    ExpressionEngine,
+    NativeExpressionEngine,
+    redact_secret_values,
+)
+from amesh.ports import ExecutionRepository, PersistedExecution, PersistedTaskRun, TaskRunState
 
 LOGGER = logging.getLogger("amesh.task.core.log")
 
@@ -58,7 +63,7 @@ class InProcessExecutor:
         self,
         repository: ExecutionRepository,
         handlers: Mapping[str, TaskHandler] | None = None,
-        expressions: NativeExpressionEngine | None = None,
+        expressions: ExpressionEngine | None = None,
         recover_running_types: frozenset[str] | None = None,
     ) -> None:
         self._repository = repository
@@ -133,14 +138,11 @@ class InProcessExecutor:
         await asyncio.gather(
             *(
                 self._run_task(
-                    execution.tenant_id,
-                    execution_id,
-                    execution.epoch,
+                    flow,
+                    execution,
                     task_runs_by_id[task.id],
                     task,
-                    execution.inputs,
                     outputs,
-                    flow.variables,
                 )
                 for task in ready
             )
@@ -214,15 +216,14 @@ class InProcessExecutor:
 
     async def _run_task(
         self,
-        tenant_id: str,
-        execution_id: UUID,
-        execution_epoch: int,
+        flow: FlowDefinition,
+        execution: PersistedExecution,
         task_run: PersistedTaskRun,
         task: TaskDefinition,
-        inputs: Mapping[str, Any],
         outputs: Mapping[str, dict[str, Any]],
-        variables: Mapping[str, Any],
     ) -> None:
+        tenant_id = execution.tenant_id
+        execution_id = execution.execution_id
         running = (
             task_run
             if task_run.state is TaskRunState.RUNNING
@@ -243,7 +244,7 @@ class InProcessExecutor:
             await self._repository.fail_execution(
                 execution_id,
                 reason,
-                expected_epoch=execution_epoch,
+                expected_epoch=execution.epoch,
                 tenant_id=tenant_id,
             )
             raise TaskExecutionError(reason)
@@ -253,16 +254,36 @@ class InProcessExecutor:
             task_run_id=running.task_run_id,
             attempt=running.current_attempt,
             attempt_id=uuid5(running.task_run_id, f"attempt:{running.current_attempt}"),
-            inputs=inputs,
+            inputs=execution.inputs,
             outputs=outputs,
-            variables=variables,
+            variables=flow.variables,
         )
         try:
-            expression_context = {
-                "inputs": inputs,
-                "outputs": outputs,
-                "vars": variables,
-            }
+            expression_context = ExpressionContext(
+                flow={
+                    "id": flow.id,
+                    "namespace": flow.namespace,
+                    "revision": flow.revision,
+                },
+                execution={
+                    "id": str(execution.execution_id),
+                    "state": execution.state.value,
+                    "startDate": execution.created_at,
+                    "tenantId": execution.tenant_id,
+                },
+                task=task.model_dump(mode="python", by_alias=True),
+                taskrun={
+                    "id": str(running.task_run_id),
+                    "attempt": running.current_attempt,
+                    "state": running.state.value,
+                },
+                trigger=execution.trigger,
+                inputs=execution.inputs,
+                outputs=outputs,
+                variables=flow.variables,
+                labels=flow.labels,
+                namespace={"id": flow.namespace},
+            )
             if task.run_if is not None and not self._expressions.evaluate_condition(
                 task.run_if,
                 expression_context,
@@ -295,7 +316,7 @@ class InProcessExecutor:
             await self._repository.fail_execution(
                 execution_id,
                 reason,
-                expected_epoch=execution_epoch,
+                expected_epoch=execution.epoch,
                 tenant_id=tenant_id,
             )
             raise TaskExecutionError(reason) from exc
@@ -339,7 +360,7 @@ async def _run_core_log(
     context: TaskExecutionContext,
 ) -> dict[str, Any]:
     extra = task.model_extra or {}
-    message = str(extra.get("message", ""))
+    message = str(redact_secret_values(extra.get("message", "")))
     LOGGER.info(
         message,
         extra={

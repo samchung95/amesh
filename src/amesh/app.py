@@ -606,6 +606,11 @@ async def trigger_webhook(
         settings,
         tenant_id=tenant_id,
         actor_id=str(actor.principal_id),
+        trigger_context={
+            "id": trigger.id,
+            "type": trigger.type,
+            "body": payload,
+        },
     )
 
 
@@ -617,6 +622,7 @@ async def _execute_flow(
     *,
     tenant_id: str,
     actor_id: str,
+    trigger_context: dict[str, object] | None = None,
 ) -> ExecutionDetail:
     if flow.disabled:
         raise HTTPException(
@@ -653,6 +659,7 @@ async def _execute_flow(
                 flow,
                 tenant_id=tenant_id,
                 inputs=request.inputs,
+                trigger=trigger_context,
                 idempotency_key=request.idempotency_key,
                 actor_id=actor_id,
             )
