@@ -7,7 +7,8 @@
         "ScheduleTaskRunRetry",
         "SucceedTaskRun",
         "FailTaskRun",
-        "CancelTaskRun"
+        "CancelTaskRun",
+        "RestartTaskRun"
       ],
       "title": "TaskRunCommandType",
       "type": "string"

@@ -4,7 +4,7 @@ import asyncio
 import logging
 import secrets
 from collections.abc import Awaitable, Callable
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from functools import lru_cache
 from time import perf_counter
 from typing import Annotated
@@ -32,6 +32,8 @@ from amesh.api.models import (
     CreateTenantRequest,
     ExchangeCredentialRequest,
     ExecutionDetail,
+    ExecutionInterventionPreviewRequest,
+    ExecutionInterventionRequest,
     HealthResponse,
     IssueCredentialRequest,
     IssuedCredentialResponse,
@@ -77,6 +79,7 @@ from amesh.executor import (
     InProcessExecutor,
     kubernetes_job_handler,
     local_process_handler,
+    preview_execution_intervention,
 )
 from amesh.frontend import SpaStaticFiles, find_frontend_dist
 from amesh.migrations import migration_directory
@@ -88,7 +91,10 @@ from amesh.observability import (
 )
 from amesh.ports import (
     CredentialRateLimitExceeded,
+    ExecutionInterventionPreview,
+    ExecutionInterventionRecord,
     ExecutionLaunchSource,
+    ExecutionStateConflictError,
     LastAdministratorError,
     PersistedExecution,
     PersistedFlow,
@@ -698,6 +704,137 @@ async def get_execution(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
     task_runs = await repository.list_task_runs(execution_id, tenant_id=tenant_id)
     return ExecutionDetail(execution=execution, taskRuns=task_runs)
+
+
+@app.post(
+    "/api/v1/executions/{execution_id}/interventions/preview",
+    response_model=ExecutionInterventionPreview,
+    tags=["executions"],
+)
+async def preview_execution_control(
+    execution_id: UUID,
+    request: ExecutionInterventionPreviewRequest,
+    repository: RepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> ExecutionInterventionPreview:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="execution",
+        action=PermissionAction.MANAGE,
+        tenant_id=tenant_id,
+    )
+    try:
+        execution = await repository.get_execution(execution_id, tenant_id=tenant_id)
+        flow = await repository.get_flow(
+            execution.namespace,
+            execution.flow_id,
+            tenant_id=tenant_id,
+        )
+        task_runs = await repository.list_task_runs(execution_id, tenant_id=tenant_id)
+        return preview_execution_intervention(
+            flow,
+            execution,
+            task_runs,
+            request.action,
+            checkpoint_task_id=request.checkpoint_task_id,
+            now=await repository.database_time(),
+        )
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
+
+
+@app.post(
+    "/api/v1/executions/{execution_id}/interventions",
+    response_model=ExecutionDetail,
+    tags=["executions"],
+)
+async def apply_execution_control(
+    execution_id: UUID,
+    request: ExecutionInterventionRequest,
+    repository: RepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> ExecutionDetail:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="execution",
+        action=PermissionAction.MANAGE,
+        tenant_id=tenant_id,
+    )
+    try:
+        execution = await repository.get_execution(execution_id, tenant_id=tenant_id)
+        flow = await repository.get_flow(
+            execution.namespace,
+            execution.flow_id,
+            tenant_id=tenant_id,
+        )
+        task_runs = await repository.list_task_runs(execution_id, tenant_id=tenant_id)
+        preview = preview_execution_intervention(
+            flow,
+            execution,
+            task_runs,
+            request.action,
+            checkpoint_task_id=request.checkpoint_task_id,
+            now=await repository.database_time(),
+        )
+        updated = await repository.apply_execution_intervention(
+            execution_id,
+            request.action,
+            tenant_id=tenant_id,
+            expected_version=request.expected_version,
+            expected_epoch=request.expected_epoch,
+            actor_id=str(actor.principal_id),
+            reason=request.reason,
+            grace_period=timedelta(seconds=request.grace_seconds),
+            reset_task_ids=preview.impacted_task_ids,
+            checkpoint_task_id=request.checkpoint_task_id,
+            restart_timeout=(
+                timedelta(seconds=flow.timeout_seconds)
+                if flow.timeout_seconds is not None
+                else None
+            ),
+        )
+        updated_tasks = await repository.list_task_runs(execution_id, tenant_id=tenant_id)
+        return ExecutionDetail(execution=updated, taskRuns=updated_tasks)
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    except (ExecutionStateConflictError, ValueError) as exc:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
+
+
+@app.get(
+    "/api/v1/executions/{execution_id}/interventions",
+    response_model=list[ExecutionInterventionRecord],
+    tags=["executions"],
+)
+async def list_execution_control_history(
+    execution_id: UUID,
+    repository: RepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> list[ExecutionInterventionRecord]:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="execution",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+    )
+    try:
+        return await repository.list_execution_interventions(
+            execution_id,
+            tenant_id=tenant_id,
+        )
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
 
 
 @app.get(

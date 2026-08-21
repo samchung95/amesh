@@ -1,18 +1,19 @@
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import logging
 from collections.abc import Awaitable, Callable, Mapping
 from dataclasses import dataclass
-from datetime import UTC, datetime, timedelta
+from datetime import datetime, timedelta
 from typing import Any
 from uuid import UUID, uuid5
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from amesh.domain import ExecutionState
+from amesh.domain import ExecutionState, FailureCategory
 from amesh.dsl import FlowDefinition
-from amesh.dsl.models import TaskDefinition
+from amesh.dsl.models import RetryPolicy, TaskDefinition
 from amesh.expressions import (
     ExpressionContext,
     ExpressionEngine,
@@ -52,6 +53,45 @@ class ExecutionBlockedError(RuntimeError):
 
 class TaskExecutionError(RuntimeError):
     """Raised after a task failure has been persisted."""
+
+
+class TaskExecutionFailure(RuntimeError):
+    """Handler failure carrying the normalized task failure category."""
+
+    def __init__(self, message: str, category: FailureCategory) -> None:
+        super().__init__(message)
+        self.category = category
+
+
+def classify_task_failure(exc: Exception) -> FailureCategory:
+    """Normalize handler failures into the retry contract's stable categories."""
+
+    if isinstance(exc, TaskExecutionFailure):
+        return exc.category
+    if isinstance(exc, TimeoutError):
+        return FailureCategory.TIMED_OUT
+    if isinstance(exc, (TypeError, ValueError)):
+        return FailureCategory.NON_RETRYABLE
+    if isinstance(exc, OSError):
+        return FailureCategory.INFRASTRUCTURE
+    return FailureCategory.RETRYABLE
+
+
+def retry_delay_seconds(
+    policy: RetryPolicy,
+    task_run_id: UUID,
+    attempt: int,
+) -> float:
+    """Calculate bounded exponential delay with deterministic per-attempt jitter."""
+
+    delay = policy.delay_seconds * policy.backoff_multiplier ** (attempt - 1)
+    if policy.jitter_ratio:
+        digest = hashlib.sha256(f"{task_run_id}:{attempt}".encode()).digest()
+        unit = int.from_bytes(digest[:8], "big") / (2**64 - 1)
+        delay *= 1 - policy.jitter_ratio + (2 * policy.jitter_ratio * unit)
+    if policy.max_interval_seconds is not None:
+        delay = min(delay, policy.max_interval_seconds)
+    return delay
 
 
 class ExecutionProgress(BaseModel):
@@ -135,7 +175,21 @@ class InProcessExecutor:
                 task_runs=tuple(task_runs),
             )
 
-        now = datetime.now(UTC)
+        now = await self._repository.database_time()
+        if execution.timeout_at is not None and now >= execution.timeout_at:
+            timed_out = await self._repository.timeout_execution(
+                execution_id,
+                tenant_id=tenant_id,
+                expected_epoch=execution.epoch,
+            )
+            return ExecutionProgress(
+                execution_id=execution_id,
+                state=timed_out.state,
+                tasks_run=0,
+                task_runs=tuple(
+                    await self._repository.list_task_runs(execution_id, tenant_id=tenant_id)
+                ),
+            )
         decision = reduce_orchestration(flow, task_runs, now=now)
         if decision.terminal_state is not None:
             execution = await self._finish_execution(execution, decision)
@@ -165,18 +219,30 @@ class InProcessExecutor:
             for task_id, task_run in task_runs_by_id.items()
             if task_run.state is TaskRunState.SUCCESS
         }
-        outcomes = await asyncio.gather(
-            *(
-                self._run_task(
-                    flow,
-                    execution,
-                    task_runs_by_id[task.id],
-                    task,
-                    outputs,
-                )
-                for task in ready
+        task_coroutines = tuple(
+            self._run_task(
+                flow,
+                execution,
+                task_runs_by_id[task.id],
+                task,
+                outputs,
             )
+            for task in ready
         )
+        try:
+            if execution.timeout_at is None:
+                outcomes = await asyncio.gather(*task_coroutines)
+            else:
+                remaining = max((execution.timeout_at - now).total_seconds(), 0)
+                async with asyncio.timeout(remaining):
+                    outcomes = await asyncio.gather(*task_coroutines)
+        except TimeoutError as exc:
+            await self._repository.timeout_execution(
+                execution_id,
+                tenant_id=tenant_id,
+                expected_epoch=execution.epoch,
+            )
+            raise TaskExecutionError("execution deadline exceeded") from exc
 
         updated_task_runs = await self._repository.list_task_runs(
             execution_id,
@@ -185,7 +251,7 @@ class InProcessExecutor:
         updated_decision = reduce_orchestration(
             flow,
             updated_task_runs,
-            now=datetime.now(UTC),
+            now=await self._repository.database_time(),
         )
         if updated_decision.terminal_state is not None:
             execution = await self._finish_execution(execution, updated_decision)
@@ -235,7 +301,8 @@ class InProcessExecutor:
                     default=None,
                 )
                 if retry_at is not None:
-                    delay_seconds = max((retry_at - datetime.now(UTC)).total_seconds(), 0)
+                    database_now = await self._repository.database_time()
+                    delay_seconds = max((retry_at - database_now).total_seconds(), 0)
                     await asyncio.sleep(min(delay_seconds, 1))
                     continue
                 waiting = [
@@ -321,13 +388,38 @@ class InProcessExecutor:
             if condition_error is not None:
                 raise condition_error
             rendered_task = self._expressions.render_task(task, expression_context)
-            result = await handler(rendered_task, context)
+            if task.timeout_seconds is None:
+                result = await handler(rendered_task, context)
+            else:
+                async with asyncio.timeout(task.timeout_seconds):
+                    result = await handler(rendered_task, context)
         except Exception as exc:
-            reason = f"task {task.id!r} failed: {exc}"
-            if running.current_attempt < task.retry.max_attempts:
-                retry_at = datetime.now(UTC) + timedelta(
-                    seconds=task.retry.delay_seconds
-                    * task.retry.backoff_multiplier ** (running.current_attempt - 1)
+            category = classify_task_failure(exc)
+            reason = f"task {task.id!r} failed [{category.value}]: {exc}"
+            if category is FailureCategory.CANCELLED:
+                await self._repository.cancel_task(
+                    running.task_run_id,
+                    running.current_attempt,
+                    reason,
+                    tenant_id=tenant_id,
+                )
+                return _TaskRunOutcome(claimed=True, failure=reason)
+            if (
+                category
+                in {
+                    FailureCategory.RETRYABLE,
+                    FailureCategory.TIMED_OUT,
+                    FailureCategory.INFRASTRUCTURE,
+                }
+                and running.current_attempt < task.retry.max_attempts
+            ):
+                database_now = await self._repository.database_time()
+                retry_at = database_now + timedelta(
+                    seconds=retry_delay_seconds(
+                        task.retry,
+                        running.task_run_id,
+                        running.current_attempt,
+                    )
                 )
                 await self._repository.retry_task(
                     running.task_run_id,
@@ -335,6 +427,7 @@ class InProcessExecutor:
                     retry_at=retry_at,
                     reason=reason,
                     tenant_id=tenant_id,
+                    failure_category=category,
                 )
                 return _TaskRunOutcome(claimed=True)
             await self._repository.fail_task(
@@ -342,6 +435,7 @@ class InProcessExecutor:
                 running.current_attempt,
                 reason,
                 tenant_id=tenant_id,
+                failure_category=category,
             )
             return _TaskRunOutcome(claimed=True, failure=reason)
         await self._repository.complete_task(

@@ -96,6 +96,12 @@
       "mode": "expand",
       "onlineCompatible": true,
       "rollbackGuidance": "Drain remote workers and forward-fix additive protocol or heartbeat fields; retain worker and attempt lease evidence until all claims are reconciled."
+    },
+    {
+      "file": "0017_execution_interventions.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Pause execution interventions and forward-fix additive deadline or classification fields; retain execution/task events and active attempt evidence."
     }
   ]
 }

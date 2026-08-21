@@ -70,6 +70,12 @@ types and capacity, worker/task heartbeat evidence, cancellation acknowledgement
 attempt identity used by atomic fenced dispatch. It is additive; pause worker claimers and forward-fix
 on failure while retaining task attempts, queue rows and their fencing evidence.
 
+Migration `0017_execution_interventions.sql` adds execution timeout and cancellation deadlines plus
+attempt cancellation-request and normalized failure-category evidence. Partial indexes select due
+execution timeouts and cancellation escalations without making node wall clocks authoritative. It is
+additive; pause intervention writers and forward-fix on failure while retaining execution, task and
+attempt history.
+
 ## Migration modes
 
 - `bootstrap` creates the initial schema and is only safe for an empty database.

@@ -67,6 +67,9 @@ _TASK_TRANSITIONS: dict[tuple[TaskRunState, TaskRunEventType], TaskRunState] = {
     (TaskRunState.WAITING, TaskRunEventType.CANCELLED): TaskRunState.CANCELLED,
     (TaskRunState.RUNNING, TaskRunEventType.CANCELLED): TaskRunState.CANCELLED,
     (TaskRunState.RETRY_DELAY, TaskRunEventType.CANCELLED): TaskRunState.CANCELLED,
+    (TaskRunState.SUCCESS, TaskRunEventType.RESTARTED): TaskRunState.WAITING,
+    (TaskRunState.FAILED, TaskRunEventType.RESTARTED): TaskRunState.WAITING,
+    (TaskRunState.CANCELLED, TaskRunEventType.RESTARTED): TaskRunState.WAITING,
 }
 
 _TASK_COMMAND_EVENTS: dict[TaskRunCommandType, TaskRunEventType] = {
@@ -76,6 +79,7 @@ _TASK_COMMAND_EVENTS: dict[TaskRunCommandType, TaskRunEventType] = {
     TaskRunCommandType.SUCCEED: TaskRunEventType.SUCCEEDED,
     TaskRunCommandType.FAIL: TaskRunEventType.FAILED,
     TaskRunCommandType.CANCEL: TaskRunEventType.CANCELLED,
+    TaskRunCommandType.RESTART: TaskRunEventType.RESTARTED,
 }
 
 

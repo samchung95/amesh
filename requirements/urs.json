@@ -3340,7 +3340,10 @@
       "id": "URS-F-0116",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/executor/test_execution_control.py::test_retry_policy_is_bounded_and_failures_are_classified"
+      ],
       "milestone": "M1",
       "wave": 1,
       "epic_id": "EPIC-104",
@@ -3368,7 +3371,11 @@
       "id": "URS-F-0117",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/executor/test_execution_control.py::test_retry_policy_is_bounded_and_failures_are_classified",
+        "tests/executor/test_execution_control.py::test_task_timeout_retries_only_to_configured_attempt_limit"
+      ],
       "milestone": "M1",
       "wave": 1,
       "epic_id": "EPIC-104",
@@ -3396,7 +3403,11 @@
       "id": "URS-F-0118",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/executor/test_execution_control.py::test_execution_and_task_deadlines_persist_timeout_category",
+        "tests/executor/test_execution_control.py::test_task_timeout_retries_only_to_configured_attempt_limit"
+      ],
       "milestone": "M1",
       "wave": 1,
       "epic_id": "EPIC-104",
@@ -3424,7 +3435,10 @@
       "id": "URS-F-0119",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/executor/test_execution_control.py::test_pause_resume_preserves_completed_work_and_history"
+      ],
       "milestone": "M1",
       "wave": 1,
       "epic_id": "EPIC-104",
@@ -3452,7 +3466,10 @@
       "id": "URS-F-0120",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/executor/test_execution_control.py::test_cancel_escalation_invalidates_stale_attempt_results"
+      ],
       "milestone": "M1",
       "wave": 1,
       "epic_id": "EPIC-104",
@@ -3480,7 +3497,10 @@
       "id": "URS-F-0121",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/executor/test_execution_control.py::test_restart_from_checkpoint_preserves_upstream_and_advances_epoch"
+      ],
       "milestone": "M1",
       "wave": 1,
       "epic_id": "EPIC-104",
@@ -3508,7 +3528,11 @@
       "id": "URS-F-0122",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/executor/test_execution_control.py::test_cancel_escalation_invalidates_stale_attempt_results",
+        "tests/executor/test_execution_control.py::test_restart_from_checkpoint_preserves_upstream_and_advances_epoch"
+      ],
       "milestone": "M1",
       "wave": 1,
       "epic_id": "EPIC-104",
@@ -3536,7 +3560,10 @@
       "id": "URS-F-0123",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/api/test_execution_control_api.py::test_execution_intervention_preview_apply_and_history_api"
+      ],
       "milestone": "M1",
       "wave": 1,
       "epic_id": "EPIC-104",
@@ -24044,7 +24071,13 @@
         "EPIC-601"
       ],
       "priority": "Must",
-      "status": "Proposed"
+      "status": "In Progress",
+      "evidence": [
+        "tests/scheduler/test_temporal_rules.py::test_cron_dst_gap_is_skipped_and_overlap_uses_earliest_instant_once",
+        "tests/scheduler/test_cron_scheduler.py::test_postgres_scheduler_claim_is_single_owner_and_stale_completion_is_fenced",
+        "tests/worker/test_worker_protocol.py::test_versioned_worker_protocol_fences_dispatch_and_recovers_lost_work",
+        "tests/executor/test_execution_control.py::test_execution_and_task_deadlines_persist_timeout_category"
+      ]
     },
     {
       "id": "URS-NFR-SECURITY-001",

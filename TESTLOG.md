@@ -632,3 +632,43 @@ Qualification boundary: the Profile-M target of 50 task starts/second for 60 min
 network-partition/PostgreSQL-failover qualification remain shared NFR work for EPIC-603/601/611.
 
 Verdict: PASS — EPIC-101 closed.
+
+## EPIC-104: Retries, timeouts and execution interventions — 2026-08-22
+
+Spec source: `backlog/epics/epic-104-retries-timeout-pause-cancellation-kill-and-restart.md`
+and `docs/architecture/execution-semantics.md`.
+
+Verified with `uv`, Python 3.13.12 and PostgreSQL 17:
+
+- [x] Retry policies enforce attempt count, delay, exponential backoff, maximum interval and stable
+  per-attempt jitter; retryable, non-retryable, cancelled, timed-out and infrastructure categories
+  are persisted and drive retry eligibility.
+- [x] Task handlers use monotonic asyncio deadlines. Execution deadlines are persisted from
+  PostgreSQL time and atomically fail/fence active attempts when due.
+- [x] Pause admits no new runnable task, resume continues from committed state, and completed task
+  output and attempt counts remain unchanged.
+- [x] Cancellation first persists a worker-visible request and grace deadline. Force cancellation is
+  rejected before that deadline, succeeds after it, invalidates the active attempt and rejects a late
+  result.
+- [x] Checkpoint restart resets the selected task and its descendants, preserves successful upstream
+  output, advances the execution epoch and rejects a stale pre-restart attempt result.
+- [x] Authorized preview/apply/history endpoints report affected and preserved tasks, destructive
+  consequences, current version/epoch and immutable actor/reason history; a stale preview is rejected.
+- [x] A guarded fresh database applied all 17 migrations. Full suite: 151 passed, four
+  environment-gated tests skipped; coverage excluding tests marked `no_cover`: 82.56%.
+- [x] Frontend suite: eight tests passed with 100% reported coverage; production Vite build and ESLint
+  completed.
+- [x] Ruff formatting/lint, strict mypy, backlog generation/validation, clean-room, compilation,
+  generated-contract, Compose, uv lock and diff gates pass.
+
+Adversarial pass: invalid failure types, bounded retry jitter, execution and task timeouts, pause
+admission, force-before-deadline, stale optimistic previews, late post-cancel completion and late
+pre-restart completion produce deterministic persisted outcomes without accepting stale work. The
+checked-in OpenRouter smoke default remains `openai/gpt-5.6-luna`; its live test is environment-gated
+without a key.
+
+Qualification boundary: scheduler, worker and executor temporal decisions use PostgreSQL time and
+monotonic local deadlines. Live multi-node plus/minus-30-second clock-skew and PostgreSQL failover
+qualification remains shared with EPIC-601; the mapped reliability NFR remains In Progress.
+
+Verdict: PASS — EPIC-104 closed.

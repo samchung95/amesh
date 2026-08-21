@@ -2,10 +2,17 @@ from __future__ import annotations
 
 from typing import Any
 
+from amesh.domain import FailureCategory
 from amesh.dsl.models import TaskDefinition
 from amesh.ports import RunnerRequest, RunnerStatus, TaskRunner
 
-from .service import TaskExecutionContext, TaskHandler
+from .service import TaskExecutionContext, TaskExecutionFailure, TaskHandler
+
+_RUNNER_FAILURE_CATEGORIES = {
+    RunnerStatus.FAILED: FailureCategory.RETRYABLE,
+    RunnerStatus.CANCELLED: FailureCategory.CANCELLED,
+    RunnerStatus.TIMED_OUT: FailureCategory.TIMED_OUT,
+}
 
 
 def local_process_handler(runner: TaskRunner) -> TaskHandler:
@@ -27,7 +34,10 @@ def local_process_handler(runner: TaskRunner) -> TaskHandler:
         if result.status is not RunnerStatus.SUCCESS:
             stderr = str(result.outputs.get("stderr", "")).strip()
             detail = f": {stderr}" if stderr else ""
-            raise RuntimeError(f"local process ended as {result.status.value}{detail}")
+            raise TaskExecutionFailure(
+                f"local process ended as {result.status.value}{detail}",
+                _RUNNER_FAILURE_CATEGORIES[result.status],
+            )
         return {"exitCode": result.exit_code, **result.outputs}
 
     return run
@@ -56,7 +66,10 @@ def kubernetes_job_handler(runner: TaskRunner) -> TaskHandler:
         if result.status is not RunnerStatus.SUCCESS:
             detail = str(result.diagnostics.get("message", "")).strip()
             suffix = f": {detail}" if detail else ""
-            raise RuntimeError(f"Kubernetes Job ended as {result.status.value}{suffix}")
+            raise TaskExecutionFailure(
+                f"Kubernetes Job ended as {result.status.value}{suffix}",
+                _RUNNER_FAILURE_CATEGORIES[result.status],
+            )
         return {
             "exitCode": result.exit_code,
             **result.outputs,

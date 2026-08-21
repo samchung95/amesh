@@ -37,6 +37,8 @@ _ALIASES = {
     "max_attempts": "maxAttempts",
     "delay_seconds": "delaySeconds",
     "backoff_multiplier": "backoffMultiplier",
+    "max_interval_seconds": "maxIntervalSeconds",
+    "jitter_ratio": "jitterRatio",
     "finally_tasks": "finally",
 }
 _TASK_STRUCTURE_FIELDS = {

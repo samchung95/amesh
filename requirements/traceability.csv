@@ -114,14 +114,14 @@ URS-F-0112,Functional,Must,EPIC-103,Trigger runtime and occurrence lifecycle,M1,
 URS-F-0113,Functional,Must,EPIC-103,Trigger runtime and occurrence lifecycle,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
 URS-F-0114,Functional,Must,EPIC-103,Trigger runtime and occurrence lifecycle,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
 URS-F-0115,Functional,Must,EPIC-103,Trigger runtime and occurrence lifecycle,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0116,Functional,Must,EPIC-104,"Retries, timeout, pause, cancellation, kill and restart",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0117,Functional,Must,EPIC-104,"Retries, timeout, pause, cancellation, kill and restart",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0118,Functional,Must,EPIC-104,"Retries, timeout, pause, cancellation, kill and restart",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0119,Functional,Must,EPIC-104,"Retries, timeout, pause, cancellation, kill and restart",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0120,Functional,Must,EPIC-104,"Retries, timeout, pause, cancellation, kill and restart",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0121,Functional,Must,EPIC-104,"Retries, timeout, pause, cancellation, kill and restart",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0122,Functional,Must,EPIC-104,"Retries, timeout, pause, cancellation, kill and restart",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0123,Functional,Must,EPIC-104,"Retries, timeout, pause, cancellation, kill and restart",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0116,Functional,Must,EPIC-104,"Retries, timeout, pause, cancellation, kill and restart",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0117,Functional,Must,EPIC-104,"Retries, timeout, pause, cancellation, kill and restart",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0118,Functional,Must,EPIC-104,"Retries, timeout, pause, cancellation, kill and restart",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0119,Functional,Must,EPIC-104,"Retries, timeout, pause, cancellation, kill and restart",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0120,Functional,Must,EPIC-104,"Retries, timeout, pause, cancellation, kill and restart",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0121,Functional,Must,EPIC-104,"Retries, timeout, pause, cancellation, kill and restart",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0122,Functional,Must,EPIC-104,"Retries, timeout, pause, cancellation, kill and restart",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0123,Functional,Must,EPIC-104,"Retries, timeout, pause, cancellation, kill and restart",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
 URS-F-0124,Functional,Must,EPIC-105,"Concurrency, admission control and fairness",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
 URS-F-0125,Functional,Must,EPIC-105,"Concurrency, admission control and fairness",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
 URS-F-0126,Functional,Must,EPIC-105,"Concurrency, admission control and fairness",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
@@ -943,9 +943,9 @@ URS-NFR-RELIABILITY-006,Non-functional,Must,EPIC-605,Object storage backends and
 URS-NFR-RELIABILITY-006,Non-functional,Must,EPIC-609,"Backup, restore and disaster recovery",M6,6,Storage adapter conformance and corruption-injection tests.,Proposed
 URS-NFR-RELIABILITY-007,Non-functional,Must,EPIC-108,"Recovery, reconciliation and invariant repair",M1,1,End-to-end recovery suite with invariant counters.,Proposed
 URS-NFR-RELIABILITY-007,Non-functional,Must,EPIC-601,Distributed services and high availability,M6,6,End-to-end recovery suite with invariant counters.,Proposed
-URS-NFR-RELIABILITY-008,Non-functional,Must,EPIC-102,Scheduler and temporal correctness,M1,1,Virtual-clock and multi-node skew tests.,Proposed
-URS-NFR-RELIABILITY-008,Non-functional,Must,EPIC-104,"Retries, timeout, pause, cancellation, kill and restart",M1,1,Virtual-clock and multi-node skew tests.,Proposed
-URS-NFR-RELIABILITY-008,Non-functional,Must,EPIC-601,Distributed services and high availability,M6,6,Virtual-clock and multi-node skew tests.,Proposed
+URS-NFR-RELIABILITY-008,Non-functional,Must,EPIC-102,Scheduler and temporal correctness,M1,1,Virtual-clock and multi-node skew tests.,In Progress
+URS-NFR-RELIABILITY-008,Non-functional,Must,EPIC-104,"Retries, timeout, pause, cancellation, kill and restart",M1,1,Virtual-clock and multi-node skew tests.,In Progress
+URS-NFR-RELIABILITY-008,Non-functional,Must,EPIC-601,Distributed services and high availability,M6,6,Virtual-clock and multi-node skew tests.,In Progress
 URS-NFR-SECURITY-001,Non-functional,Must,EPIC-503,Multi-tenancy and resource isolation,M5,5,"Automated negative tests, database checks and independent penetration testing.",In Progress
 URS-NFR-SECURITY-001,Non-functional,Must,EPIC-604,Search and analytics projection backend,M6,6,"Automated negative tests, database checks and independent penetration testing.",In Progress
 URS-NFR-SECURITY-001,Non-functional,Must,EPIC-605,Object storage backends and lifecycle,M6,6,"Automated negative tests, database checks and independent penetration testing.",In Progress

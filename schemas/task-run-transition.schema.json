@@ -105,7 +105,8 @@
         "TaskRunRetryScheduled",
         "TaskRunSucceeded",
         "TaskRunFailed",
-        "TaskRunCancelled"
+        "TaskRunCancelled",
+        "TaskRunRestarted"
       ],
       "title": "TaskRunEventType",
       "type": "string"

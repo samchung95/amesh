@@ -498,6 +498,240 @@
         "title": "ExecutionEventType",
         "type": "string"
       },
+      "ExecutionInterventionAction": {
+        "enum": [
+          "PAUSE",
+          "RESUME",
+          "REQUEST_CANCEL",
+          "CONFIRM_CANCEL",
+          "FORCE_CANCEL",
+          "RESTART"
+        ],
+        "title": "ExecutionInterventionAction",
+        "type": "string"
+      },
+      "ExecutionInterventionPreview": {
+        "properties": {
+          "action": {
+            "$ref": "#/components/schemas/ExecutionInterventionAction"
+          },
+          "checkpoint_task_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Checkpoint Task Id"
+          },
+          "consequences": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Consequences",
+            "type": "array"
+          },
+          "current_epoch": {
+            "minimum": 1.0,
+            "title": "Current Epoch",
+            "type": "integer"
+          },
+          "current_state": {
+            "$ref": "#/components/schemas/ExecutionState"
+          },
+          "current_version": {
+            "minimum": 0.0,
+            "title": "Current Version",
+            "type": "integer"
+          },
+          "destructive": {
+            "default": false,
+            "title": "Destructive",
+            "type": "boolean"
+          },
+          "execution_id": {
+            "format": "uuid",
+            "title": "Execution Id",
+            "type": "string"
+          },
+          "force_available_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Force Available At"
+          },
+          "impacted_task_ids": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Impacted Task Ids",
+            "type": "array"
+          },
+          "invalidates_active_claims": {
+            "default": false,
+            "title": "Invalidates Active Claims",
+            "type": "boolean"
+          },
+          "predicted_state": {
+            "$ref": "#/components/schemas/ExecutionState"
+          },
+          "preserved_task_ids": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Preserved Task Ids",
+            "type": "array"
+          }
+        },
+        "required": [
+          "execution_id",
+          "action",
+          "current_state",
+          "predicted_state",
+          "current_version",
+          "current_epoch"
+        ],
+        "title": "ExecutionInterventionPreview",
+        "type": "object"
+      },
+      "ExecutionInterventionPreviewRequest": {
+        "properties": {
+          "action": {
+            "$ref": "#/components/schemas/ExecutionInterventionAction"
+          },
+          "checkpointTaskId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Checkpointtaskid"
+          },
+          "graceSeconds": {
+            "default": 30,
+            "minimum": 0.0,
+            "title": "Graceseconds",
+            "type": "number"
+          }
+        },
+        "required": [
+          "action"
+        ],
+        "title": "ExecutionInterventionPreviewRequest",
+        "type": "object"
+      },
+      "ExecutionInterventionRecord": {
+        "properties": {
+          "action": {
+            "$ref": "#/components/schemas/ExecutionInterventionAction"
+          },
+          "actor_id": {
+            "title": "Actor Id",
+            "type": "string"
+          },
+          "event_type": {
+            "title": "Event Type",
+            "type": "string"
+          },
+          "occurred_at": {
+            "format": "date-time",
+            "title": "Occurred At",
+            "type": "string"
+          },
+          "payload": {
+            "additionalProperties": true,
+            "title": "Payload",
+            "type": "object"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "sequence": {
+            "minimum": 1.0,
+            "title": "Sequence",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "sequence",
+          "action",
+          "event_type",
+          "actor_id",
+          "occurred_at"
+        ],
+        "title": "ExecutionInterventionRecord",
+        "type": "object"
+      },
+      "ExecutionInterventionRequest": {
+        "properties": {
+          "action": {
+            "$ref": "#/components/schemas/ExecutionInterventionAction"
+          },
+          "checkpointTaskId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Checkpointtaskid"
+          },
+          "expectedEpoch": {
+            "minimum": 1.0,
+            "title": "Expectedepoch",
+            "type": "integer"
+          },
+          "expectedVersion": {
+            "minimum": 0.0,
+            "title": "Expectedversion",
+            "type": "integer"
+          },
+          "graceSeconds": {
+            "default": 30,
+            "minimum": 0.0,
+            "title": "Graceseconds",
+            "type": "number"
+          },
+          "reason": {
+            "maxLength": 1024,
+            "minLength": 1,
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "action",
+          "expectedVersion",
+          "expectedEpoch",
+          "reason"
+        ],
+        "title": "ExecutionInterventionRequest",
+        "type": "object"
+      },
       "ExecutionSnapshot": {
         "properties": {
           "applied_event_ids": {
@@ -592,6 +826,17 @@
           "RESTARTING"
         ],
         "title": "ExecutionState",
+        "type": "string"
+      },
+      "FailureCategory": {
+        "enum": [
+          "RETRYABLE",
+          "NON_RETRYABLE",
+          "CANCELLED",
+          "TIMED_OUT",
+          "INFRASTRUCTURE"
+        ],
+        "title": "FailureCategory",
         "type": "string"
       },
       "FlowValidationResult": {
@@ -820,6 +1065,18 @@
       },
       "PersistedExecution": {
         "properties": {
+          "cancel_deadline_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cancel Deadline At"
+          },
           "created_at": {
             "format": "date-time",
             "title": "Created At",
@@ -854,6 +1111,18 @@
           "tenant_id": {
             "title": "Tenant Id",
             "type": "string"
+          },
+          "timeout_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Timeout At"
           },
           "trigger": {
             "additionalProperties": true,
@@ -945,6 +1214,16 @@
             "format": "uuid",
             "title": "Execution Id",
             "type": "string"
+          },
+          "failure_category": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FailureCategory"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "result": {
             "anyOf": [
@@ -3775,6 +4054,253 @@
           }
         },
         "summary": "Get Execution",
+        "tags": [
+          "executions"
+        ]
+      }
+    },
+    "/api/v1/executions/{execution_id}/interventions": {
+      "get": {
+        "operationId": "list_execution_control_history_api_v1_executions__execution_id__interventions_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "execution_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Execution Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ExecutionInterventionRecord"
+                  },
+                  "title": "Response List Execution Control History Api V1 Executions  Execution Id  Interventions Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Execution Control History",
+        "tags": [
+          "executions"
+        ]
+      },
+      "post": {
+        "operationId": "apply_execution_control_api_v1_executions__execution_id__interventions_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "execution_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Execution Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExecutionInterventionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExecutionDetail"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Apply Execution Control",
+        "tags": [
+          "executions"
+        ]
+      }
+    },
+    "/api/v1/executions/{execution_id}/interventions/preview": {
+      "post": {
+        "operationId": "preview_execution_control_api_v1_executions__execution_id__interventions_preview_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "execution_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Execution Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExecutionInterventionPreviewRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExecutionInterventionPreview"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Preview Execution Control",
         "tags": [
           "executions"
         ]

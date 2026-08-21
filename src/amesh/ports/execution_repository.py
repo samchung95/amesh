@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from enum import StrEnum
 from typing import Any, Protocol
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from amesh.domain import ExecutionState, ResourceMetadata, TaskRunState
+from amesh.domain import ExecutionState, FailureCategory, ResourceMetadata, TaskRunState
 from amesh.dsl import FlowDefinition
 
 
@@ -29,6 +29,15 @@ class ExecutionLaunchSource(StrEnum):
     SUBFLOW = "subflow"
 
 
+class ExecutionInterventionAction(StrEnum):
+    PAUSE = "PAUSE"
+    RESUME = "RESUME"
+    REQUEST_CANCEL = "REQUEST_CANCEL"
+    CONFIRM_CANCEL = "CONFIRM_CANCEL"
+    FORCE_CANCEL = "FORCE_CANCEL"
+    RESTART = "RESTART"
+
+
 class PersistedExecution(BaseModel):
     model_config = ConfigDict(frozen=True)
 
@@ -43,6 +52,8 @@ class PersistedExecution(BaseModel):
     trigger: dict[str, Any] = Field(default_factory=dict)
     created_at: datetime
     updated_at: datetime
+    timeout_at: datetime | None = None
+    cancel_deadline_at: datetime | None = None
 
 
 class PersistedFlow(BaseModel):
@@ -69,6 +80,37 @@ class PersistedTaskRun(BaseModel):
     version: int = Field(ge=0)
     retry_at: datetime | None = None
     result: dict[str, Any] | None = None
+    failure_category: FailureCategory | None = None
+
+
+class ExecutionInterventionPreview(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    execution_id: UUID
+    action: ExecutionInterventionAction
+    current_state: ExecutionState
+    predicted_state: ExecutionState
+    current_version: int = Field(ge=0)
+    current_epoch: int = Field(ge=1)
+    checkpoint_task_id: str | None = None
+    impacted_task_ids: tuple[str, ...] = ()
+    preserved_task_ids: tuple[str, ...] = ()
+    invalidates_active_claims: bool = False
+    destructive: bool = False
+    force_available_at: datetime | None = None
+    consequences: tuple[str, ...] = ()
+
+
+class ExecutionInterventionRecord(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    sequence: int = Field(ge=1)
+    action: ExecutionInterventionAction
+    event_type: str
+    actor_id: str
+    reason: str | None = None
+    occurred_at: datetime
+    payload: dict[str, Any] = Field(default_factory=dict)
 
 
 class ExecutionRepository(Protocol):
@@ -148,9 +190,22 @@ class ExecutionRepository(Protocol):
         reason: str,
         worker_id: UUID | None = None,
         fencing_token: int | None = None,
+        failure_category: FailureCategory = FailureCategory.RETRYABLE,
     ) -> PersistedTaskRun: ...
 
     async def fail_task(
+        self,
+        task_run_id: UUID,
+        attempt: int,
+        reason: str,
+        *,
+        tenant_id: str,
+        worker_id: UUID | None = None,
+        fencing_token: int | None = None,
+        failure_category: FailureCategory = FailureCategory.NON_RETRYABLE,
+    ) -> PersistedTaskRun: ...
+
+    async def cancel_task(
         self,
         task_run_id: UUID,
         attempt: int,
@@ -173,6 +228,39 @@ class ExecutionRepository(Protocol):
         self,
         execution_id: UUID,
         reason: str,
+        *,
+        tenant_id: str,
+        expected_epoch: int,
+    ) -> PersistedExecution: ...
+
+    async def database_time(self) -> datetime: ...
+
+    async def apply_execution_intervention(
+        self,
+        execution_id: UUID,
+        action: ExecutionInterventionAction,
+        *,
+        tenant_id: str,
+        expected_version: int,
+        expected_epoch: int,
+        actor_id: str,
+        reason: str,
+        grace_period: timedelta = timedelta(seconds=30),
+        reset_task_ids: tuple[str, ...] = (),
+        checkpoint_task_id: str | None = None,
+        restart_timeout: timedelta | None = None,
+    ) -> PersistedExecution: ...
+
+    async def list_execution_interventions(
+        self,
+        execution_id: UUID,
+        *,
+        tenant_id: str,
+    ) -> list[ExecutionInterventionRecord]: ...
+
+    async def timeout_execution(
+        self,
+        execution_id: UUID,
         *,
         tenant_id: str,
         expected_epoch: int,

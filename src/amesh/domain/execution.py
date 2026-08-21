@@ -23,6 +23,14 @@ class ExecutionState(StrEnum):
     RESTARTING = "RESTARTING"
 
 
+class FailureCategory(StrEnum):
+    RETRYABLE = "RETRYABLE"
+    NON_RETRYABLE = "NON_RETRYABLE"
+    CANCELLED = "CANCELLED"
+    TIMED_OUT = "TIMED_OUT"
+    INFRASTRUCTURE = "INFRASTRUCTURE"
+
+
 class ExecutionEventType(StrEnum):
     CREATED = "ExecutionCreated"
     QUEUED = "ExecutionQueued"
@@ -67,6 +75,7 @@ class TaskRunEventType(StrEnum):
     SUCCEEDED = "TaskRunSucceeded"
     FAILED = "TaskRunFailed"
     CANCELLED = "TaskRunCancelled"
+    RESTARTED = "TaskRunRestarted"
 
 
 class TaskRunCommandType(StrEnum):
@@ -76,6 +85,7 @@ class TaskRunCommandType(StrEnum):
     SUCCEED = "SucceedTaskRun"
     FAIL = "FailTaskRun"
     CANCEL = "CancelTaskRun"
+    RESTART = "RestartTaskRun"
 
 
 class TransitionRejectionCode(StrEnum):

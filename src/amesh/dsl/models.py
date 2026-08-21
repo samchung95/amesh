@@ -75,6 +75,12 @@ class RetryPolicy(BaseModel):
     max_attempts: int = Field(default=1, ge=1, le=100, alias="maxAttempts")
     delay_seconds: float = Field(default=0, ge=0, alias="delaySeconds")
     backoff_multiplier: float = Field(default=1, ge=1, alias="backoffMultiplier")
+    max_interval_seconds: float | None = Field(
+        default=None,
+        gt=0,
+        alias="maxIntervalSeconds",
+    )
+    jitter_ratio: float = Field(default=0, ge=0, le=1, alias="jitterRatio")
 
 
 class TaskDefinition(BaseModel):
@@ -123,6 +129,7 @@ class FlowDefinition(BaseModel):
     description: str | None = None
     revision: int = Field(default=1, ge=1)
     disabled: bool = False
+    timeout_seconds: float | None = Field(default=None, gt=0, alias="timeoutSeconds")
     labels: dict[str, str] = Field(default_factory=dict)
     annotations: dict[str, str] = Field(default_factory=dict)
     inputs: list[InputDefinition] = Field(default_factory=list)

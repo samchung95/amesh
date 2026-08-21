@@ -118,7 +118,16 @@ restarted executor sees failed prerequisites or another graph state with no lega
 
 A logical task run can contain multiple attempts. Each attempt receives a distinct `attempt_id`; retry
 does not erase prior evidence. The attempt policy records classification, retry index, planned delay,
-actual eligibility time and the triggering failure.
+actual eligibility time and the triggering failure. Flow YAML accepts `maxAttempts`, `delaySeconds`,
+`backoffMultiplier`, `maxIntervalSeconds` and `jitterRatio`; jitter is stable for one task-run attempt
+and the final delay never exceeds the configured maximum interval. Failures persist as `RETRYABLE`,
+`NON_RETRYABLE`, `CANCELLED`, `TIMED_OUT` or `INFRASTRUCTURE`, and only the configured retryable
+categories consume another attempt.
+
+Task handlers run inside `asyncio.timeout()`, whose local deadline is monotonic. An execution's
+optional `timeoutSeconds` becomes an absolute PostgreSQL-time deadline when the execution is created.
+Executors calculate remaining time from database time, and a due deadline atomically fences active
+attempts and persists the execution and affected task outcomes.
 
 ## Cancellation
 
@@ -131,6 +140,18 @@ Cancellation is cooperative first:
 5. after a configured deadline, force termination can occur;
 6. stale completion is rejected by attempt state and fencing token;
 7. cleanup/finally behavior follows explicit flow policy.
+
+Pause changes only execution admission: completed outputs and in-flight attempts remain committed,
+while no new dependency-ready task is started until resume. Cancellation records a database-time grace
+deadline and marks live attempts for cooperative cancellation. Confirmation is accepted after live
+attempts acknowledge the request; force cancellation is accepted only after the persisted deadline.
+
+Terminal failed, cancelled or warning executions can restart from the whole graph or one named task
+checkpoint. The checkpoint and every downstream task return to `WAITING`, successful upstream tasks
+remain committed, prior attempts remain immutable history, and the execution epoch advances so an old
+worker cannot commit. Every intervention requires the preview's execution version and epoch. The
+authorized REST surface exposes preview, apply and immutable intervention history under
+`/api/v1/executions/{execution_id}/interventions`.
 
 ## External side effects
 

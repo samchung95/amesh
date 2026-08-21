@@ -71,12 +71,32 @@
           "title": "Delayseconds",
           "type": "number"
         },
+        "jitterRatio": {
+          "default": 0,
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Jitterratio",
+          "type": "number"
+        },
         "maxAttempts": {
           "default": 1,
           "maximum": 100,
           "minimum": 1,
           "title": "Maxattempts",
           "type": "integer"
+        },
+        "maxIntervalSeconds": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Maxintervalseconds"
         }
       },
       "title": "RetryPolicy",
@@ -420,6 +440,19 @@
       "minItems": 1,
       "title": "Tasks",
       "type": "array"
+    },
+    "timeoutSeconds": {
+      "anyOf": [
+        {
+          "exclusiveMinimum": 0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Timeoutseconds"
     },
     "triggers": {
       "items": {

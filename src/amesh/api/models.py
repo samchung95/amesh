@@ -18,7 +18,7 @@ from amesh.domain import (
     TenantPolicy,
     TenantSlug,
 )
-from amesh.ports import PersistedExecution, PersistedTaskRun
+from amesh.ports import ExecutionInterventionAction, PersistedExecution, PersistedTaskRun
 
 
 class HealthResponse(BaseModel):
@@ -75,6 +75,20 @@ class CreateExecutionRequest(BaseModel):
 class ExecutionDetail(BaseModel):
     execution: PersistedExecution
     task_runs: list[PersistedTaskRun] = Field(alias="taskRuns")
+
+
+class ExecutionInterventionPreviewRequest(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    action: ExecutionInterventionAction
+    grace_seconds: float = Field(default=30, ge=0, alias="graceSeconds")
+    checkpoint_task_id: str | None = Field(default=None, alias="checkpointTaskId")
+
+
+class ExecutionInterventionRequest(ExecutionInterventionPreviewRequest):
+    expected_version: int = Field(alias="expectedVersion", ge=0)
+    expected_epoch: int = Field(alias="expectedEpoch", ge=1)
+    reason: str = Field(min_length=1, max_length=1024)
 
 
 class TaskLog(BaseModel):
