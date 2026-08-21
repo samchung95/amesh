@@ -13,10 +13,13 @@ services:
       DATABASE_POOL_RECYCLE_SECONDS: "1800"
       DATABASE_PREPARED_STATEMENT_CACHE_SIZE: "100"
       DATABASE_TLS_MODE: disable
+      OBJECT_STORAGE_BACKEND: s3
       OBJECT_STORAGE_ENDPOINT: http://minio:9000
+      OBJECT_STORAGE_REGION: us-east-1
       OBJECT_STORAGE_BUCKET: amesh
       OBJECT_STORAGE_ACCESS_KEY: minio
       OBJECT_STORAGE_SECRET_KEY: minio-development-only
+      OBJECT_STORAGE_WORKLOAD_IDENTITY: "false"
       AUTH_MODE: development
       PRODUCT_TELEMETRY_ENABLED: "false"
     ports:
@@ -26,6 +29,8 @@ services:
         condition: service_healthy
       minio:
         condition: service_started
+      minio-init:
+        condition: service_completed_successfully
     read_only: true
     tmpfs:
       - /tmp
@@ -84,6 +89,20 @@ services:
       - "9001:9001"
     volumes:
       - minio-data:/data
+
+  minio-init:
+    image: minio/mc:RELEASE.2025-08-13T08-35-41Z
+    depends_on:
+      minio:
+        condition: service_started
+    entrypoint:
+      - /bin/sh
+      - -c
+      - >-
+        until mc alias set local http://minio:9000 minio minio-development-only;
+        do sleep 1; done;
+        mc mb --ignore-existing local/amesh;
+        mc version enable local/amesh
 
 volumes:
   postgres-data:

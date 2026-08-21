@@ -21,6 +21,12 @@ documented in the multi-tenancy runbook; the combined server still needs its exi
 and credential-store grants. Leaving the migration Secret empty uses the application Secret for
 development compatibility. Full per-component least-privilege qualification remains EPIC-612 work.
 
+Object storage is external to the chart. Configure `objectStorage.backend`, its endpoint/account URL,
+bucket and optional encryption key. Workload identity is the default; S3 or Azure static credentials
+can instead come from `objectStorage.existingSecret`. See the
+[object-storage runbook](../../docs/operations/object-storage.md) for the provider matrix, secret keys,
+integrity checks and migration procedure.
+
 ## Requirements
 
 - Docker, kind, kubectl and Helm 4

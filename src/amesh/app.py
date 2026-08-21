@@ -39,7 +39,6 @@ from amesh.adapters.postgres import (
     PostgresTenantRepository,
     PostgresWorkerRepository,
 )
-from amesh.adapters.s3 import S3ObjectStore
 from amesh.api.models import (
     AuthorizationExplanationRequest,
     BackfillActionRequest,
@@ -153,6 +152,7 @@ from amesh.ports import (
 )
 from amesh.reconciliation import ReconciliationService
 from amesh.scheduler import CronScheduler, SchedulePreview
+from amesh.storage.factory import build_object_store
 from amesh.tasks import agent_llm_handler, agent_mcp_handler, core_http_handler
 from amesh.tenancy import TenantService
 
@@ -1806,13 +1806,7 @@ async def _execute_flow(
         "agent.llm": agent_llm_handler(),
         "agent.mcp": agent_mcp_handler(),
     }
-    object_store = S3ObjectStore(
-        endpoint=settings.object_storage_endpoint,
-        region=settings.object_storage_region,
-        bucket=settings.object_storage_bucket,
-        access_key=settings.object_storage_access_key.get_secret_value(),
-        secret_key=settings.object_storage_secret_key.get_secret_value(),
-    )
+    object_store = build_object_store(settings)
 
     async def authorize_subflow(child_flow: FlowDefinition) -> None:
         await authorize_request(

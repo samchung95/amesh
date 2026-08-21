@@ -76,6 +76,12 @@ def test_database_readiness_pool_slow_query_and_migration_metrics() -> None:
             "amesh_reconciliation_findings_total",
             "amesh_reconciliation_unresolved",
             "amesh_reconciliation_duration_seconds_count",
+            "amesh_storage_requests_total",
+            "amesh_storage_request_duration_seconds_count",
+            "amesh_storage_transfer_bytes_total",
+            "amesh_storage_object_bytes",
+            "amesh_storage_objects",
+            "amesh_storage_corruption_total",
         ):
             assert name in metrics
 

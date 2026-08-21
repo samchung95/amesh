@@ -15,7 +15,7 @@ The product target is broader than OSS feature parity. AMESH also independently 
 | Scope | Kestra OSS parity, independently implemented advanced capabilities and AMESH differentiators |
 | Compatibility | YAML, Pebble expressions, REST API, CLI, execution semantics and documented import/export formats |
 | Durable state and internal transport | PostgreSQL only; `LISTEN/NOTIFY` is a wake-up optimization, not delivery truth |
-| Object storage | S3-compatible interface; MinIO in the development stack |
+| Object storage | S3-compatible, Azure Blob and GCS adapters; MinIO in the development stack |
 | Production core | Python 3.12 asyncio, confirmed by [ADR-016](docs/adr/016-python-production-core.md); robustness comes from the PostgreSQL/fencing/pure-reducer design, and performance claims are earned by measurement |
 | Frontend | React and TypeScript |
 | First runners | Local process, Docker/OCI and Kubernetes |
@@ -73,7 +73,7 @@ Workers and isolated plugin hosts
 - Kubernetes runner
 - Java / Python / TypeScript plugin SDKs
                |
-S3-compatible artifact and internal file storage
+S3-compatible, Azure Blob or GCS artifact and internal file storage
 ```
 
 Core correctness rules:
@@ -89,7 +89,7 @@ Core correctness rules:
 9. Tenant and authorization context is mandatory at API, persistence, queue, storage and plugin boundaries.
 10. Compatibility claims require version-pinned differential evidence.
 
-Start with the [architecture overview](docs/architecture/README.md), [on-premises Kubernetes reference](docs/architecture/on-premises-kubernetes.md), [execution semantics](docs/architecture/execution-semantics.md), [PostgreSQL transport design](docs/architecture/postgresql-transport.md), [distributed queue operations](docs/operations/distributed-queue.md), [PostgreSQL operations guide](docs/operations/postgresql.md), [full migration architecture](docs/architecture/migration.md) and [compatibility architecture](docs/architecture/compatibility.md).
+Start with the [architecture overview](docs/architecture/README.md), [on-premises Kubernetes reference](docs/architecture/on-premises-kubernetes.md), [execution semantics](docs/architecture/execution-semantics.md), [PostgreSQL transport design](docs/architecture/postgresql-transport.md), [distributed queue operations](docs/operations/distributed-queue.md), [PostgreSQL operations guide](docs/operations/postgresql.md), [object-storage operations](docs/operations/object-storage.md), [full migration architecture](docs/architecture/migration.md) and [compatibility architecture](docs/architecture/compatibility.md).
 
 ## Repository map
 
@@ -126,7 +126,7 @@ Requirements: Python 3.12+, [uv](https://docs.astral.sh/uv/), Docker with Compos
 
 ```bash
 cp .env.example .env
-docker compose up -d postgres minio
+docker compose up -d postgres minio minio-init
 uv sync --extra runtime --extra dev
 uv run --extra runtime --extra dev pytest
 uv run --extra runtime python -m amesh.server

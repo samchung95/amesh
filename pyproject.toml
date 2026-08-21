@@ -45,6 +45,9 @@ runtime = [
   "SQLAlchemy[asyncio]>=2.0.36,<3",
   "asyncpg>=0.30,<1",
   "aioboto3>=13.3,<14",
+  "azure-storage-blob[aio]>=12.30,<13",
+  "azure-identity>=1.25,<2",
+  "google-cloud-storage>=3.13,<4",
 ]
 dev = [
   "mypy>=1.14,<2",

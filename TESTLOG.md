@@ -965,3 +965,42 @@ Progress in EPIC-611/606/607. No external PostgreSQL/object-store quorum or long
 made by this functional closure.
 
 Verdict: PASS — EPIC-601 functional scope closed.
+
+## EPIC-605: Object storage backends and lifecycle — 2026-08-22
+
+Spec source: `backlog/epics/epic-605-object-storage-backends-and-lifecycle.md` and
+`docs/operations/object-storage.md`.
+
+Verified with `uv`, Python 3.13.12, MinIO and Helm 4.0.0:
+
+- [x] The execution path selects S3-compatible, Azure Blob or Google Cloud Storage through one
+  tenant-scoped streaming contract. Provider-fake conformance covers upload, download, metadata,
+  inventory, lifecycle and tenant-prefix rejection for all three adapters.
+- [x] Typed environment and Helm settings cover static credentials, ambient workload identity,
+  private/custom endpoints, proxy, custom CA and customer-managed encryption identifiers. The chart
+  emits only the static secret keys relevant to the selected backend.
+- [x] Every upload records SHA-256 metadata and retries read-after-write visibility. Downloads spool
+  in bounded memory and compare size plus SHA-256 before yielding any bytes; corruption injection
+  produces `ObjectIntegrityError` and a corruption metric.
+- [x] Lifecycle application blocks referenced, legally held and not-yet-expired objects. An accepted
+  deletion returns an explicit deletion marker; the reference MinIO bucket is versioned.
+- [x] Backend migration streams in deterministic key order, verifies both sides and atomically saves
+  an object/byte/key checkpoint after every copy. An interruption after the first object resumed
+  without recopying it. The `amesh storage validate` and `storage migrate` CLI commands expose both
+  operations.
+- [x] Prometheus exposes bounded backend/operation request, latency, transfer-byte, inventory and
+  corruption signals without tenant or object labels.
+- [x] A 10 GiB logical upload completed below the 256 MiB process-memory target. A real MinIO run
+  passed multipart upload, verified download, lifecycle blocking, inventory validation and versioned
+  delete.
+- [x] A guarded fresh database applied all 25 migrations. Full suite: 224 passed and four
+  environment-gated tests skipped. Ruff formatting/lint, strict mypy, uv lock, Compose, all four Helm
+  profile lints, planning regeneration/validation and diff checks pass.
+
+Qualification boundary: managed Azure/GCP accounts, private network policy and provider outage drills
+remain release-environment certification under EPIC-706. EPIC-609 consumes the verified inventory and
+version-aware adapter contract next; URS-F-0629 remains In Progress until the coordinated restore
+exercise passes. The checked-in OpenRouter default remains `openai/gpt-5.6-luna`; this storage change
+does not invoke an LLM.
+
+Verdict: PASS — EPIC-605 portable storage scope closed.

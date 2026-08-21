@@ -1,0 +1,200 @@
+from __future__ import annotations
+
+import asyncio
+import hashlib
+from collections.abc import AsyncIterator
+from datetime import datetime
+from typing import Any
+
+import google.auth
+from google.api_core.client_options import ClientOptions
+from google.auth.transport.requests import AuthorizedSession
+from google.cloud import storage  # type: ignore[import-untyped]
+from google.oauth2 import service_account
+
+from amesh.ports import ObjectMetadata, StorageBackend
+from amesh.storage.keys import parse_tenant_uri, relative_tenant_key, tenant_object_key
+
+_PART_BYTES = 8 * 1024 * 1024
+_READ_BYTES = 64 * 1024
+
+
+class GoogleCloudStorageObjectStore:
+    def __init__(
+        self,
+        *,
+        bucket: str,
+        project: str | None = None,
+        endpoint: str | None = None,
+        credentials_file: str | None = None,
+        encryption_key_id: str | None = None,
+        proxy_url: str | None = None,
+        ca_file: str | None = None,
+        client: Any | None = None,
+    ) -> None:
+        self._bucket = bucket
+        self._project = project
+        self._endpoint = endpoint
+        self._credentials_file = credentials_file
+        self._encryption_key_id = encryption_key_id
+        self._proxy_url = proxy_url
+        self._ca_file = ca_file
+        self._injected_client = client
+
+    @property
+    def backend(self) -> StorageBackend:
+        return StorageBackend.GCS
+
+    async def put(
+        self,
+        tenant_id: str,
+        key: str,
+        chunks: AsyncIterator[bytes],
+        *,
+        content_type: str | None = None,
+    ) -> ObjectMetadata:
+        object_key = tenant_object_key(tenant_id, key)
+        blob = self._blob(object_key)
+        writer = await asyncio.to_thread(
+            blob.open,
+            "wb",
+            chunk_size=_PART_BYTES,
+            content_type=content_type,
+            ignore_flush=True,
+        )
+        digest = hashlib.sha256()
+        size = 0
+        try:
+            async for chunk in chunks:
+                if not chunk:
+                    continue
+                digest.update(chunk)
+                size += len(chunk)
+                await asyncio.to_thread(writer.write, chunk)
+        except BaseException:
+            terminate = getattr(writer, "terminate", None)
+            if callable(terminate):
+                await asyncio.to_thread(terminate)
+            raise
+        else:
+            await asyncio.to_thread(writer.close)
+        blob.metadata = {"amesh_sha256": digest.hexdigest()}
+        await asyncio.to_thread(blob.patch)
+        await asyncio.to_thread(blob.reload)
+        return self._metadata(tenant_id, object_key, blob)
+
+    def get(self, tenant_id: str, uri: str) -> AsyncIterator[bytes]:
+        async def chunks() -> AsyncIterator[bytes]:
+            object_key = self._uri_key(tenant_id, uri)
+            blob = self._blob(object_key)
+            reader = await asyncio.to_thread(blob.open, "rb", chunk_size=_READ_BYTES)
+            try:
+                while chunk := await asyncio.to_thread(reader.read, _READ_BYTES):
+                    yield bytes(chunk)
+            finally:
+                await asyncio.to_thread(reader.close)
+
+        return chunks()
+
+    async def delete(self, tenant_id: str, uri: str) -> None:
+        object_key = self._uri_key(tenant_id, uri)
+        blob = self._blob(object_key)
+        await asyncio.to_thread(blob.reload)
+        await asyncio.to_thread(blob.delete, if_generation_match=blob.generation)
+
+    async def head(self, tenant_id: str, uri: str) -> ObjectMetadata:
+        object_key = self._uri_key(tenant_id, uri)
+        blob = self._blob(object_key)
+        await asyncio.to_thread(blob.reload)
+        return self._metadata(tenant_id, object_key, blob)
+
+    def iter_objects(self, tenant_id: str) -> AsyncIterator[ObjectMetadata]:
+        async def objects() -> AsyncIterator[ObjectMetadata]:
+            client = self._client()
+            prefix = f"tenants/{tenant_id}/"
+            blobs = await asyncio.to_thread(
+                lambda: list(client.list_blobs(self._bucket, prefix=prefix))
+            )
+            for blob in blobs:
+                yield self._metadata(tenant_id, str(blob.name), blob)
+
+        return objects()
+
+    async def set_lifecycle(
+        self,
+        tenant_id: str,
+        uri: str,
+        *,
+        retention_until: datetime | None,
+        legal_hold: bool,
+    ) -> ObjectMetadata:
+        object_key = self._uri_key(tenant_id, uri)
+        blob = self._blob(object_key)
+        await asyncio.to_thread(blob.reload)
+        metadata = dict(blob.metadata or {})
+        if retention_until is None:
+            metadata.pop("amesh_retention_until", None)
+        else:
+            metadata["amesh_retention_until"] = retention_until.isoformat()
+        metadata["amesh_legal_hold"] = str(legal_hold).lower()
+        blob.metadata = metadata
+        blob.temporary_hold = legal_hold or retention_until is not None
+        await asyncio.to_thread(blob.patch, if_metageneration_match=blob.metageneration)
+        await asyncio.to_thread(blob.reload)
+        return self._metadata(tenant_id, object_key, blob)
+
+    def _client(self) -> Any:
+        if self._injected_client is not None:
+            return self._injected_client
+        credentials: Any
+        project = self._project
+        if self._credentials_file is not None:
+            credentials = service_account.Credentials.from_service_account_file(  # type: ignore[no-untyped-call]
+                self._credentials_file,
+                scopes=("https://www.googleapis.com/auth/devstorage.read_write",),
+            )
+        else:
+            credentials, detected_project = google.auth.default(
+                scopes=("https://www.googleapis.com/auth/devstorage.read_write",)
+            )
+            project = project or detected_project
+        session = AuthorizedSession(credentials)  # type: ignore[no-untyped-call]
+        if self._proxy_url is not None:
+            session.proxies.update({"http": self._proxy_url, "https": self._proxy_url})
+        if self._ca_file is not None:
+            session.verify = self._ca_file
+        options = ClientOptions(api_endpoint=self._endpoint) if self._endpoint else None
+        self._injected_client = storage.Client(
+            project=project,
+            credentials=credentials,
+            _http=session,
+            client_options=options,
+        )
+        return self._injected_client
+
+    def _blob(self, object_key: str) -> Any:
+        bucket = self._client().bucket(self._bucket)
+        return bucket.blob(object_key, kms_key_name=self._encryption_key_id)
+
+    def _uri_key(self, tenant_id: str, uri: str) -> str:
+        return parse_tenant_uri(tenant_id, uri, scheme="gs", container=self._bucket)
+
+    def _metadata(self, tenant_id: str, object_key: str, blob: Any) -> ObjectMetadata:
+        metadata = dict(blob.metadata or {})
+        checksum = metadata.get("amesh_sha256")
+        if checksum is None:
+            raise ValueError(f"object gs://{self._bucket}/{object_key} has no SHA-256 metadata")
+        retention = metadata.get("amesh_retention_until")
+        return ObjectMetadata(
+            uri=f"gs://{self._bucket}/{object_key}",
+            tenant_id=tenant_id,
+            size=int(blob.size),
+            checksum_sha256=checksum,
+            content_type=blob.content_type,
+            key=relative_tenant_key(tenant_id, object_key),
+            backend=self.backend,
+            version_id=str(blob.generation) if blob.generation is not None else None,
+            encryption_key_id=getattr(blob, "kms_key_name", None) or self._encryption_key_id,
+            retention_until=datetime.fromisoformat(retention) if retention else None,
+            legal_hold=metadata.get("amesh_legal_hold") == "true",
+        )

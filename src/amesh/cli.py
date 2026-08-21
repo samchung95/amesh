@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import asyncio
 import json
 import os
 import sys
@@ -12,7 +13,10 @@ import httpx
 import yaml
 
 from amesh import __version__
+from amesh.config import Settings
 from amesh.dsl import FlowDocumentError, validate_flow_document
+from amesh.ports import StorageMigrationCheckpoint
+from amesh.storage.factory import build_object_store
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -57,6 +61,18 @@ def build_parser() -> argparse.ArgumentParser:
     webhook.add_argument("trigger_id")
     webhook.add_argument("--runner", choices=("local", "kubernetes"), default="local")
     webhook.add_argument("--input", action="append", default=[])
+
+    storage = subcommands.add_parser("storage", help="Validate or migrate object storage")
+    storage_commands = storage.add_subparsers(dest="storage_command", required=True)
+    storage_validate = storage_commands.add_parser(
+        "validate", help="Verify the configured tenant storage inventory"
+    )
+    storage_validate.add_argument("--metadata-only", action="store_true")
+    storage_migrate = storage_commands.add_parser(
+        "migrate", help="Copy the configured tenant storage to another backend"
+    )
+    storage_migrate.add_argument("destination_config", type=Path)
+    storage_migrate.add_argument("--checkpoint", type=Path, required=True)
     return parser
 
 
@@ -77,6 +93,36 @@ def main(argv: Sequence[str] | None = None) -> int:
             for issue in result.issues:
                 print(f"{issue.severity}: {issue.path}: {issue.code}: {issue.message}")
         return 0 if result.valid else 1
+    if args.command == "storage":
+        try:
+            if args.storage_command == "validate":
+                report = asyncio.run(
+                    build_object_store(Settings()).validate_inventory(
+                        args.tenant,
+                        verify_content=not args.metadata_only,
+                    )
+                )
+                print(report.model_dump_json(indent=2))
+                return 0 if not report.corrupt else 1
+            destination_settings = Settings.model_validate(
+                json.loads(args.destination_config.read_text(encoding="utf-8"))
+            )
+            checkpoint = _load_storage_checkpoint(args.checkpoint)
+            migration_checkpoint = asyncio.run(
+                build_object_store(Settings()).migrate_to(
+                    build_object_store(destination_settings),
+                    args.tenant,
+                    checkpoint=checkpoint,
+                    write_checkpoint=lambda value: _write_storage_checkpoint(
+                        args.checkpoint, value
+                    ),
+                )
+            )
+            print(migration_checkpoint.model_dump_json(indent=2))
+            return 0
+        except (OSError, ValueError, RuntimeError) as exc:
+            print(str(exc), file=sys.stderr)
+            return 2
     try:
         with httpx.Client(
             base_url=args.api_url,
@@ -142,6 +188,21 @@ def _parse_inputs(values: Sequence[str]) -> dict[str, Any]:
             raise ValueError(f"input {value!r} must use key=value")
         inputs[key] = yaml.safe_load(encoded)
     return inputs
+
+
+def _load_storage_checkpoint(path: Path) -> StorageMigrationCheckpoint | None:
+    if not path.exists():
+        return None
+    return StorageMigrationCheckpoint.model_validate_json(path.read_text(encoding="utf-8"))
+
+
+async def _write_storage_checkpoint(
+    path: Path,
+    checkpoint: StorageMigrationCheckpoint,
+) -> None:
+    temporary = path.with_suffix(f"{path.suffix}.tmp")
+    temporary.write_text(checkpoint.model_dump_json(indent=2), encoding="utf-8")
+    temporary.replace(path)
 
 
 if __name__ == "__main__":

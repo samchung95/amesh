@@ -72,6 +72,36 @@ RECONCILIATION_DURATION = Histogram(
     "amesh_reconciliation_duration_seconds",
     "Duration of AMESH reconciliation runs.",
 )
+STORAGE_REQUESTS = Counter(
+    "amesh_storage_requests",
+    "AMESH object-storage requests by backend, operation and outcome.",
+    ("backend", "operation", "outcome"),
+)
+STORAGE_REQUEST_DURATION = Histogram(
+    "amesh_storage_request_duration_seconds",
+    "Duration of AMESH object-storage requests by backend and operation.",
+    ("backend", "operation"),
+)
+STORAGE_TRANSFER_BYTES = Counter(
+    "amesh_storage_transfer_bytes",
+    "Bytes transferred through AMESH object storage by backend and direction.",
+    ("backend", "direction"),
+)
+STORAGE_OBJECT_BYTES = Gauge(
+    "amesh_storage_object_bytes",
+    "Bytes observed in the latest AMESH object-storage inventory by backend.",
+    ("backend",),
+)
+STORAGE_OBJECTS = Gauge(
+    "amesh_storage_objects",
+    "Objects observed in the latest AMESH object-storage inventory by backend.",
+    ("backend",),
+)
+STORAGE_CORRUPTION = Counter(
+    "amesh_storage_corruption",
+    "AMESH object checksum mismatches by backend.",
+    ("backend",),
+)
 
 _INSTRUMENTED_ENGINES: WeakSet[AsyncEngine] = WeakSet()
 

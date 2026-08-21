@@ -12,14 +12,18 @@ Operate internal storage reliably across local and cloud object stores.
 
 ## In scope
 
-- [ ] **URS-F-0622** — The system shall support S3-compatible, Azure Blob and Google Cloud Storage backends.
-- [ ] **URS-F-0623** — The system shall use tenant-aware prefixes or containers and configurable encryption keys.
-- [ ] **URS-F-0624** — The system shall support proxy, private endpoint, custom certificate authority and workload identity configurations.
-- [ ] **URS-F-0625** — The system shall verify read-after-write assumptions and compensate for backend-specific consistency behavior.
-- [ ] **URS-F-0626** — The system shall apply retention, lifecycle, legal hold and deletion markers without orphaning referenced artifacts.
-- [ ] **URS-F-0627** — The system shall support migration between storage backends with checksum verification and resumability.
-- [ ] **URS-F-0628** — The system shall publish storage usage, request, latency, error and corruption metrics.
+- [x] **URS-F-0622** — The system shall support S3-compatible, Azure Blob and Google Cloud Storage backends.
+- [x] **URS-F-0623** — The system shall use tenant-aware prefixes or containers and configurable encryption keys.
+- [x] **URS-F-0624** — The system shall support proxy, private endpoint, custom certificate authority and workload identity configurations.
+- [x] **URS-F-0625** — The system shall verify read-after-write assumptions and compensate for backend-specific consistency behavior.
+- [x] **URS-F-0626** — The system shall apply retention, lifecycle, legal hold and deletion markers without orphaning referenced artifacts.
+- [x] **URS-F-0627** — The system shall support migration between storage backends with checksum verification and resumability.
+- [x] **URS-F-0628** — The system shall publish storage usage, request, latency, error and corruption metrics.
 - [ ] **URS-F-0629** — The system shall include storage data in backup, restore and disaster-recovery validation.
+
+## Implementation completion evidence
+
+- 2026-08-22 — EPIC-605 portable storage scope is complete. The execution path selects S3-compatible, Azure Blob or Google Cloud Storage adapters through one tenant-scoped streaming contract. Workload identity, static credentials, private endpoints, proxy/custom CA and provider encryption-key settings are exposed through typed configuration and Helm values. Verified reads spool in bounded memory and reject checksum corruption before yielding data; read-after-write retries compensate for delayed visibility. Lifecycle decisions block referenced, retained or held objects; migration is checksum-verified, deterministic and resumable through an atomically persisted CLI checkpoint. Backend-bounded Prometheus metrics cover usage, requests, latency, errors and corruption. Provider-fake conformance passed for all three adapters, real versioned MinIO passed multipart/inventory/lifecycle behavior, and the 10 GiB logical transfer stayed below the 256 MiB target. Managed Azure/GCP environment certification remains EPIC-706 qualification. Coordinated backup/restore use of the verified inventory is intentionally completed next under EPIC-609, so URS-F-0629 remains In Progress until that exercise passes. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`object-storage.md`](../../docs/operations/object-storage.md), [`test_service.py`](../../tests/storage/test_service.py), [`test_provider_adapters.py`](../../tests/storage/test_provider_adapters.py), and [`test_minio_integration.py`](../../tests/storage/test_minio_integration.py).
 
 ## Non-functional requirements
 
@@ -51,13 +55,13 @@ Operate internal storage reliably across local and cloud object stores.
 
 ## Definition of done
 
-- [ ] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
-- [ ] Public API, DSL, event and plugin contract changes pass compatibility checks.
-- [ ] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
-- [ ] Security, tenant isolation, redaction and audit behavior are reviewed.
-- [ ] Documentation, examples, migration notes and operational runbooks are updated.
-- [ ] Performance and recovery budgets are measured when this epic is on a critical path.
-- [ ] `python scripts/validate_backlog.py` passes.
+- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
+- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.
+- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
+- [x] Security, tenant isolation, redaction and audit behavior are reviewed.
+- [x] Documentation, examples, migration notes and operational runbooks are updated.
+- [x] Performance and recovery budgets are measured when this epic is on a critical path.
+- [x] `python scripts/validate_backlog.py` passes.
 
 ## Risks and unknowns
 

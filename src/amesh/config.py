@@ -35,10 +35,27 @@ class Settings(BaseSettings):
     database_tls_ca_file: str | None = None
     database_slow_query_seconds: float = Field(default=0.5, gt=0)
     object_storage_endpoint: str = "http://localhost:9000"
+    object_storage_backend: Literal["s3", "azure", "gcs"] = "s3"
     object_storage_region: str = "us-east-1"
     object_storage_bucket: str = "amesh"
     object_storage_access_key: SecretStr = SecretStr("minio")
     object_storage_secret_key: SecretStr = SecretStr("minio-development-only")
+    object_storage_workload_identity: bool = False
+    object_storage_encryption_key_id: str | None = None
+    object_storage_proxy_url: str | None = None
+    object_storage_ca_file: str | None = None
+    object_storage_azure_account_url: str | None = None
+    object_storage_azure_account_key: SecretStr | None = None
+    object_storage_gcs_project: str | None = None
+    object_storage_gcs_endpoint: str | None = None
+    object_storage_gcs_credentials_file: str | None = None
+    object_storage_consistency_attempts: int = Field(default=5, ge=1, le=20)
+    object_storage_consistency_delay_seconds: float = Field(default=0.1, ge=0, le=30)
+    object_storage_spool_memory_bytes: int = Field(
+        default=8 * 1024 * 1024,
+        ge=64 * 1024,
+        le=128 * 1024 * 1024,
+    )
     auth_mode: str = "development"
     amesh_admin_token: SecretStr = SecretStr("development-token")
     amesh_token_pepper: SecretStr = SecretStr("development-token-pepper")
@@ -75,6 +92,16 @@ class Settings(BaseSettings):
             self.database_read_replica_url.startswith("postgresql+asyncpg://")
         ):
             raise ValueError("DATABASE_READ_REPLICA_URL must use postgresql+asyncpg")
+        if self.object_storage_backend == "azure" and self.object_storage_azure_account_url is None:
+            raise ValueError("OBJECT_STORAGE_AZURE_ACCOUNT_URL is required for the Azure backend")
+        if (
+            self.object_storage_backend == "gcs"
+            and not self.object_storage_workload_identity
+            and self.object_storage_gcs_credentials_file is None
+        ):
+            raise ValueError(
+                "GCS requires workload identity or OBJECT_STORAGE_GCS_CREDENTIALS_FILE"
+            )
         return self
 
 

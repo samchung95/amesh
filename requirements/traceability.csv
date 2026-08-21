@@ -620,14 +620,14 @@ URS-F-0618,Functional,Must,EPIC-604,Search and analytics projection backend,M6,6
 URS-F-0619,Functional,Must,EPIC-604,Search and analytics projection backend,M6,6,"PostgreSQL projection rebuild, isolation, retention and query-load tests",Proposed
 URS-F-0620,Functional,Must,EPIC-604,Search and analytics projection backend,M6,6,"PostgreSQL projection rebuild, isolation, retention and query-load tests",Proposed
 URS-F-0621,Functional,Must,EPIC-604,Search and analytics projection backend,M6,6,"PostgreSQL projection rebuild, isolation, retention and query-load tests",Proposed
-URS-F-0622,Functional,Must,EPIC-605,Object storage backends and lifecycle,M6,6,Repository or storage adapter contract and fault-injection tests,Proposed
-URS-F-0623,Functional,Must,EPIC-605,Object storage backends and lifecycle,M6,6,Repository or storage adapter contract and fault-injection tests,Proposed
-URS-F-0624,Functional,Must,EPIC-605,Object storage backends and lifecycle,M6,6,Repository or storage adapter contract and fault-injection tests,Proposed
-URS-F-0625,Functional,Must,EPIC-605,Object storage backends and lifecycle,M6,6,Repository or storage adapter contract and fault-injection tests,Proposed
-URS-F-0626,Functional,Must,EPIC-605,Object storage backends and lifecycle,M6,6,Repository or storage adapter contract and fault-injection tests,Proposed
-URS-F-0627,Functional,Must,EPIC-605,Object storage backends and lifecycle,M6,6,Repository or storage adapter contract and fault-injection tests,Proposed
-URS-F-0628,Functional,Must,EPIC-605,Object storage backends and lifecycle,M6,6,Repository or storage adapter contract and fault-injection tests,Proposed
-URS-F-0629,Functional,Must,EPIC-605,Object storage backends and lifecycle,M6,6,Repository or storage adapter contract and fault-injection tests,Proposed
+URS-F-0622,Functional,Must,EPIC-605,Object storage backends and lifecycle,M6,6,Repository or storage adapter contract and fault-injection tests,Verified
+URS-F-0623,Functional,Must,EPIC-605,Object storage backends and lifecycle,M6,6,Repository or storage adapter contract and fault-injection tests,Verified
+URS-F-0624,Functional,Must,EPIC-605,Object storage backends and lifecycle,M6,6,Repository or storage adapter contract and fault-injection tests,Verified
+URS-F-0625,Functional,Must,EPIC-605,Object storage backends and lifecycle,M6,6,Repository or storage adapter contract and fault-injection tests,Verified
+URS-F-0626,Functional,Must,EPIC-605,Object storage backends and lifecycle,M6,6,Repository or storage adapter contract and fault-injection tests,Verified
+URS-F-0627,Functional,Must,EPIC-605,Object storage backends and lifecycle,M6,6,Repository or storage adapter contract and fault-injection tests,Verified
+URS-F-0628,Functional,Must,EPIC-605,Object storage backends and lifecycle,M6,6,Repository or storage adapter contract and fault-injection tests,Verified
+URS-F-0629,Functional,Must,EPIC-605,Object storage backends and lifecycle,M6,6,Repository or storage adapter contract and fault-injection tests,In Progress
 URS-F-0630,Functional,Must,EPIC-606,"Containers, Kubernetes and Helm deployment",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
 URS-F-0631,Functional,Must,EPIC-606,"Containers, Kubernetes and Helm deployment",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
 URS-F-0632,Functional,Must,EPIC-606,"Containers, Kubernetes and Helm deployment",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
@@ -901,8 +901,8 @@ URS-NFR-PERFORMANCE-006,Non-functional,Must,EPIC-203,"Loops, foreach, while and 
 URS-NFR-PERFORMANCE-006,Non-functional,Must,EPIC-407,"Execution details, Gantt, logs and debugging UI",M4,4,Synthetic large-DAG and loop benchmark.,In Progress
 URS-NFR-PERFORMANCE-007,Non-functional,Must,EPIC-111,"Logs, metrics, outputs and artifact events",M1,1,Burst and sustained log-load test with exporter outage.,Proposed
 URS-NFR-PERFORMANCE-007,Non-functional,Must,EPIC-607,"OpenTelemetry, Prometheus and log shipping",M6,6,Burst and sustained log-load test with exporter outage.,Proposed
-URS-NFR-PERFORMANCE-008,Non-functional,Must,EPIC-010,Internal object storage and artifact addressing,M0,0,Storage adapter performance and memory profiling.,Proposed
-URS-NFR-PERFORMANCE-008,Non-functional,Must,EPIC-605,Object storage backends and lifecycle,M6,6,Storage adapter performance and memory profiling.,Proposed
+URS-NFR-PERFORMANCE-008,Non-functional,Must,EPIC-010,Internal object storage and artifact addressing,M0,0,Storage adapter performance and memory profiling.,Verified
+URS-NFR-PERFORMANCE-008,Non-functional,Must,EPIC-605,Object storage backends and lifecycle,M6,6,Storage adapter performance and memory profiling.,Verified
 URS-NFR-PERFORMANCE-009,Non-functional,Must,EPIC-601,Distributed services and high availability,M6,6,Comparative scale-out benchmark.,In Progress
 URS-NFR-PERFORMANCE-009,Non-functional,Must,EPIC-611,"Performance, scale and chaos qualification",M6,6,Comparative scale-out benchmark.,In Progress
 URS-NFR-PERFORMANCE-010,Non-functional,Must,EPIC-611,"Performance, scale and chaos qualification",M6,6,"Published 24-hour mixed-workload, retention-query and failure-recovery benchmark on a fixed bill of materials.",Proposed
@@ -938,9 +938,9 @@ URS-NFR-RELIABILITY-005,Non-functional,Must,EPIC-401,"Realtime API, webhooks and
 URS-NFR-RELIABILITY-005,Non-functional,Must,EPIC-409,"Search, indexing and retrieval projections",M4,4,Dependency isolation and outage integration tests.,Proposed
 URS-NFR-RELIABILITY-005,Non-functional,Must,EPIC-604,Search and analytics projection backend,M6,6,Dependency isolation and outage integration tests.,Proposed
 URS-NFR-RELIABILITY-005,Non-functional,Must,EPIC-607,"OpenTelemetry, Prometheus and log shipping",M6,6,Dependency isolation and outage integration tests.,Proposed
-URS-NFR-RELIABILITY-006,Non-functional,Must,EPIC-010,Internal object storage and artifact addressing,M0,0,Storage adapter conformance and corruption-injection tests.,Proposed
-URS-NFR-RELIABILITY-006,Non-functional,Must,EPIC-605,Object storage backends and lifecycle,M6,6,Storage adapter conformance and corruption-injection tests.,Proposed
-URS-NFR-RELIABILITY-006,Non-functional,Must,EPIC-609,"Backup, restore and disaster recovery",M6,6,Storage adapter conformance and corruption-injection tests.,Proposed
+URS-NFR-RELIABILITY-006,Non-functional,Must,EPIC-010,Internal object storage and artifact addressing,M0,0,Storage adapter conformance and corruption-injection tests.,Verified
+URS-NFR-RELIABILITY-006,Non-functional,Must,EPIC-605,Object storage backends and lifecycle,M6,6,Storage adapter conformance and corruption-injection tests.,Verified
+URS-NFR-RELIABILITY-006,Non-functional,Must,EPIC-609,"Backup, restore and disaster recovery",M6,6,Storage adapter conformance and corruption-injection tests.,Verified
 URS-NFR-RELIABILITY-007,Non-functional,Must,EPIC-108,"Recovery, reconciliation and invariant repair",M1,1,End-to-end recovery suite with invariant counters.,Verified
 URS-NFR-RELIABILITY-007,Non-functional,Must,EPIC-601,Distributed services and high availability,M6,6,End-to-end recovery suite with invariant counters.,Verified
 URS-NFR-RELIABILITY-008,Non-functional,Must,EPIC-102,Scheduler and temporal correctness,M1,1,Virtual-clock and multi-node skew tests.,In Progress

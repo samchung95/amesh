@@ -55,7 +55,14 @@ from .metadata_repository import (
     WorkerMetadata,
     WorkerStatus,
 )
-from .object_store import ObjectMetadata, ObjectStore
+from .object_store import (
+    ObjectLifecycleResult,
+    ObjectMetadata,
+    ObjectStorageBackend,
+    ObjectStore,
+    StorageBackend,
+    StorageMigrationCheckpoint,
+)
 from .plugin_runtime import PluginInvocation, PluginRuntime
 from .reconciliation_repository import (
     ReconciliationAlreadyRunningError,
@@ -116,7 +123,9 @@ __all__ = [
     "MetadataRepository",
     "MetadataVersionConflict",
     "MetricKind",
+    "ObjectLifecycleResult",
     "ObjectMetadata",
+    "ObjectStorageBackend",
     "ObjectStore",
     "PersistedAsset",
     "PersistedExecution",
@@ -143,6 +152,8 @@ __all__ = [
     "ServiceRegistryRepository",
     "StaleRunnerAttemptError",
     "StaleWorkClaimError",
+    "StorageBackend",
+    "StorageMigrationCheckpoint",
     "SubflowLaunchContext",
     "SubflowMode",
     "SubflowPropagation",

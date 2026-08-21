@@ -83,6 +83,27 @@ database:
   tlsMode: verify-full
   tlsCAFile: ""
 
+objectStorage:
+  backend: s3
+  endpoint: ""
+  region: us-east-1
+  bucket: amesh
+  workloadIdentity: true
+  encryptionKeyId: ""
+  proxyURL: ""
+  caFile: ""
+  azureAccountURL: ""
+  googleProject: ""
+  googleEndpoint: ""
+  googleCredentialsFile: ""
+  consistencyAttempts: 5
+  consistencyDelaySeconds: 0.1
+  spoolMemoryBytes: 8388608
+  existingSecret: ""
+  accessKeyKey: access-key
+  secretKeyKey: secret-key
+  azureAccountKeyKey: azure-account-key
+
 adminToken:
   existingSecret: amesh-admin
   key: token

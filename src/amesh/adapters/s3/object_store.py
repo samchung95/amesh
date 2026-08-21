@@ -2,11 +2,14 @@ from __future__ import annotations
 
 import hashlib
 from collections.abc import AsyncIterator
-from urllib.parse import urlsplit
+from datetime import datetime
+from typing import Any
 
 import aioboto3  # type: ignore[import-untyped]
+from botocore.config import Config  # type: ignore[import-untyped]
 
-from amesh.ports import ObjectMetadata
+from amesh.ports import ObjectMetadata, StorageBackend
+from amesh.storage.keys import parse_tenant_uri, relative_tenant_key, tenant_object_key
 
 _PART_BYTES = 5 * 1024 * 1024
 
@@ -18,17 +21,30 @@ class S3ObjectStore:
         endpoint: str,
         region: str,
         bucket: str,
-        access_key: str,
-        secret_key: str,
+        access_key: str | None,
+        secret_key: str | None,
+        encryption_key_id: str | None = None,
+        proxy_url: str | None = None,
+        ca_file: str | None = None,
+        session: Any | None = None,
     ) -> None:
         self._endpoint = endpoint
         self._region = region
         self._bucket = bucket
-        self._session = aioboto3.Session(
+        self._encryption_key_id = encryption_key_id
+        self._verify: bool | str = ca_file or True
+        self._config = Config(
+            proxies={"http": proxy_url, "https": proxy_url} if proxy_url else None,
+        )
+        self._session = session or aioboto3.Session(
             aws_access_key_id=access_key,
             aws_secret_access_key=secret_key,
             region_name=region,
         )
+
+    @property
+    def backend(self) -> StorageBackend:
+        return StorageBackend.S3
 
     async def put(
         self,
@@ -47,10 +63,14 @@ class S3ObjectStore:
             "s3",
             endpoint_url=self._endpoint,
             region_name=self._region,
+            verify=self._verify,
+            config=self._config,
         ) as client:
+            encryption = self._encryption_parameters()
             upload = await client.create_multipart_upload(
                 Bucket=self._bucket,
                 Key=object_key,
+                **encryption,
                 **({"ContentType": content_type} if content_type else {}),
             )
             upload_id = str(upload["UploadId"])
@@ -89,6 +109,11 @@ class S3ObjectStore:
                     UploadId=upload_id,
                     MultipartUpload={"Parts": parts},
                 )
+                await client.put_object_tagging(
+                    Bucket=self._bucket,
+                    Key=object_key,
+                    Tagging={"TagSet": [{"Key": "amesh-sha256", "Value": digest.hexdigest()}]},
+                )
             except Exception:
                 await client.abort_multipart_upload(
                     Bucket=self._bucket,
@@ -102,6 +127,9 @@ class S3ObjectStore:
             size=size,
             checksum_sha256=digest.hexdigest(),
             content_type=content_type,
+            key=key.strip("/"),
+            backend=self.backend,
+            encryption_key_id=self._encryption_key_id,
         )
 
     def get(self, tenant_id: str, uri: str) -> AsyncIterator[bytes]:
@@ -111,12 +139,16 @@ class S3ObjectStore:
                 "s3",
                 endpoint_url=self._endpoint,
                 region_name=self._region,
+                verify=self._verify,
+                config=self._config,
             ) as client:
                 response = await client.get_object(Bucket=self._bucket, Key=object_key)
-                async with response["Body"] as body:
-                    async for chunk in body.iter_chunks(chunk_size=64 * 1024):
-                        if chunk:
-                            yield bytes(chunk)
+                body = response["Body"]
+                try:
+                    while chunk := await body.read(64 * 1024):
+                        yield bytes(chunk)
+                finally:
+                    body.close()
 
         return chunks()
 
@@ -126,8 +158,77 @@ class S3ObjectStore:
             "s3",
             endpoint_url=self._endpoint,
             region_name=self._region,
+            verify=self._verify,
+            config=self._config,
         ) as client:
             await client.delete_object(Bucket=self._bucket, Key=object_key)
+
+    async def head(self, tenant_id: str, uri: str) -> ObjectMetadata:
+        object_key = self._uri_key(tenant_id, uri)
+        async with self._session.client(
+            "s3",
+            endpoint_url=self._endpoint,
+            region_name=self._region,
+            verify=self._verify,
+            config=self._config,
+        ) as client:
+            response = await client.head_object(Bucket=self._bucket, Key=object_key)
+            tags = await client.get_object_tagging(Bucket=self._bucket, Key=object_key)
+        values = {item["Key"]: item["Value"] for item in tags.get("TagSet", [])}
+        return self._metadata(tenant_id, object_key, response, values)
+
+    def iter_objects(self, tenant_id: str) -> AsyncIterator[ObjectMetadata]:
+        async def objects() -> AsyncIterator[ObjectMetadata]:
+            prefix = f"tenants/{tenant_id}/"
+            async with self._session.client(
+                "s3",
+                endpoint_url=self._endpoint,
+                region_name=self._region,
+                verify=self._verify,
+                config=self._config,
+            ) as client:
+                paginator = client.get_paginator("list_objects_v2")
+                async for page in paginator.paginate(Bucket=self._bucket, Prefix=prefix):
+                    for item in page.get("Contents", []):
+                        object_key = str(item["Key"])
+                        uri = f"s3://{self._bucket}/{object_key}"
+                        yield await self.head(tenant_id, uri)
+
+        return objects()
+
+    async def set_lifecycle(
+        self,
+        tenant_id: str,
+        uri: str,
+        *,
+        retention_until: datetime | None,
+        legal_hold: bool,
+    ) -> ObjectMetadata:
+        object_key = self._uri_key(tenant_id, uri)
+        async with self._session.client(
+            "s3",
+            endpoint_url=self._endpoint,
+            region_name=self._region,
+            verify=self._verify,
+            config=self._config,
+        ) as client:
+            existing = await client.get_object_tagging(Bucket=self._bucket, Key=object_key)
+            values = {item["Key"]: item["Value"] for item in existing.get("TagSet", [])}
+            if retention_until is None:
+                values.pop("amesh-retention-until", None)
+            else:
+                values["amesh-retention-until"] = retention_until.isoformat()
+            values["amesh-legal-hold"] = str(legal_hold).lower()
+            await client.put_object_tagging(
+                Bucket=self._bucket,
+                Key=object_key,
+                Tagging={
+                    "TagSet": [
+                        {"Key": key, "Value": value} for key, value in sorted(values.items())
+                    ]
+                },
+            )
+        return await self.head(tenant_id, uri)
 
     async def _upload_part(
         self,
@@ -147,15 +248,48 @@ class S3ObjectStore:
         return {"ETag": response["ETag"], "PartNumber": part_number}
 
     def _tenant_key(self, tenant_id: str, key: str) -> str:
-        normalized = key.strip("/")
-        if not normalized or ".." in normalized.split("/"):
-            raise ValueError("object key must be a non-empty normalized relative path")
-        return f"tenants/{tenant_id}/{normalized}"
+        return tenant_object_key(tenant_id, key)
 
     def _uri_key(self, tenant_id: str, uri: str) -> str:
-        parsed = urlsplit(uri)
-        key = parsed.path.lstrip("/")
-        prefix = f"tenants/{tenant_id}/"
-        if parsed.scheme != "s3" or parsed.netloc != self._bucket or not key.startswith(prefix):
-            raise ValueError("object URI is outside the tenant storage prefix")
-        return key
+        return parse_tenant_uri(tenant_id, uri, scheme="s3", container=self._bucket)
+
+    def _metadata(
+        self,
+        tenant_id: str,
+        object_key: str,
+        response: dict[str, object],
+        tags: dict[str, str],
+    ) -> ObjectMetadata:
+        checksum = tags.get("amesh-sha256")
+        if checksum is None:
+            raise ValueError(f"object s3://{self._bucket}/{object_key} has no SHA-256 metadata")
+        retention = tags.get("amesh-retention-until")
+        content_length = response["ContentLength"]
+        if not isinstance(content_length, int):
+            raise ValueError("S3 object ContentLength is invalid")
+        content_type = response.get("ContentType")
+        version_id = response.get("VersionId")
+        encryption_key_id = response.get("SSEKMSKeyId")
+        return ObjectMetadata(
+            uri=f"s3://{self._bucket}/{object_key}",
+            tenant_id=tenant_id,
+            size=content_length,
+            checksum_sha256=checksum,
+            content_type=content_type if isinstance(content_type, str) else None,
+            key=relative_tenant_key(tenant_id, object_key),
+            backend=self.backend,
+            version_id=version_id if isinstance(version_id, str) else None,
+            encryption_key_id=(
+                encryption_key_id if isinstance(encryption_key_id, str) else self._encryption_key_id
+            ),
+            retention_until=datetime.fromisoformat(retention) if retention else None,
+            legal_hold=tags.get("amesh-legal-hold") == "true",
+        )
+
+    def _encryption_parameters(self) -> dict[str, str]:
+        if self._encryption_key_id is None:
+            return {}
+        return {
+            "ServerSideEncryption": "aws:kms",
+            "SSEKMSKeyId": self._encryption_key_id,
+        }

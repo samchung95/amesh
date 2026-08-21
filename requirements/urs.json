@@ -17357,7 +17357,7 @@
       "id": "URS-F-0622",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M6",
       "wave": 6,
       "epic_id": "EPIC-605",
@@ -17377,13 +17377,17 @@
       "local_sequence": 1,
       "dependencies": [
         "EPIC-010"
+      ],
+      "evidence": [
+        "tests/storage/test_provider_adapters.py",
+        "tests/storage/test_minio_integration.py"
       ]
     },
     {
       "id": "URS-F-0623",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M6",
       "wave": 6,
       "epic_id": "EPIC-605",
@@ -17403,13 +17407,17 @@
       "local_sequence": 2,
       "dependencies": [
         "EPIC-010"
+      ],
+      "evidence": [
+        "tests/storage/test_provider_adapters.py",
+        "tests/storage/test_service.py::test_verified_storage_retries_visibility_and_detects_corruption_before_yield"
       ]
     },
     {
       "id": "URS-F-0624",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M6",
       "wave": 6,
       "epic_id": "EPIC-605",
@@ -17429,13 +17437,17 @@
       "local_sequence": 3,
       "dependencies": [
         "EPIC-010"
+      ],
+      "evidence": [
+        "tests/test_config.py::test_object_storage_backend_configuration_and_workload_identity",
+        "charts/amesh/templates/_helpers.tpl"
       ]
     },
     {
       "id": "URS-F-0625",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M6",
       "wave": 6,
       "epic_id": "EPIC-605",
@@ -17455,13 +17467,17 @@
       "local_sequence": 4,
       "dependencies": [
         "EPIC-010"
+      ],
+      "evidence": [
+        "tests/storage/test_service.py::test_verified_storage_retries_visibility_and_detects_corruption_before_yield",
+        "tests/storage/test_minio_integration.py"
       ]
     },
     {
       "id": "URS-F-0626",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M6",
       "wave": 6,
       "epic_id": "EPIC-605",
@@ -17481,13 +17497,17 @@
       "local_sequence": 5,
       "dependencies": [
         "EPIC-010"
+      ],
+      "evidence": [
+        "tests/storage/test_service.py::test_lifecycle_never_deletes_referenced_held_or_retained_objects",
+        "tests/storage/test_minio_integration.py"
       ]
     },
     {
       "id": "URS-F-0627",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M6",
       "wave": 6,
       "epic_id": "EPIC-605",
@@ -17507,13 +17527,17 @@
       "local_sequence": 6,
       "dependencies": [
         "EPIC-010"
+      ],
+      "evidence": [
+        "tests/storage/test_service.py::test_checksum_verified_migration_resumes_from_durable_checkpoint",
+        "tests/test_cli.py::test_storage_cli_validates_and_persists_migration_checkpoint"
       ]
     },
     {
       "id": "URS-F-0628",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M6",
       "wave": 6,
       "epic_id": "EPIC-605",
@@ -17533,13 +17557,17 @@
       "local_sequence": 7,
       "dependencies": [
         "EPIC-010"
+      ],
+      "evidence": [
+        "tests/storage/test_service.py::test_storage_metrics_are_published_without_tenant_labels",
+        "tests/test_observability.py::test_database_readiness_pool_slow_query_and_migration_metrics"
       ]
     },
     {
       "id": "URS-F-0629",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "In Progress",
       "milestone": "M6",
       "wave": 6,
       "epic_id": "EPIC-605",
@@ -17559,6 +17587,10 @@
       "local_sequence": 8,
       "dependencies": [
         "EPIC-010"
+      ],
+      "evidence": [
+        "src/amesh/storage/service.py::VerifiedObjectStore.validate_inventory",
+        "docs/operations/object-storage.md"
       ]
     },
     {
@@ -23848,7 +23880,11 @@
         "EPIC-605"
       ],
       "priority": "Must",
-      "status": "Proposed"
+      "status": "Verified",
+      "evidence": [
+        "tests/storage/test_service.py::test_ten_gibibyte_logical_upload_stays_below_memory_budget",
+        "src/amesh/storage/service.py::VerifiedObjectStore.get"
+      ]
     },
     {
       "id": "URS-NFR-PERFORMANCE-009",
@@ -24071,7 +24107,11 @@
         "EPIC-609"
       ],
       "priority": "Must",
-      "status": "Proposed"
+      "status": "Verified",
+      "evidence": [
+        "tests/storage/test_service.py::test_verified_storage_retries_visibility_and_detects_corruption_before_yield",
+        "tests/storage/test_minio_integration.py"
+      ]
     },
     {
       "id": "URS-NFR-RELIABILITY-007",
@@ -24129,7 +24169,9 @@
         "migrations/0009_tenant_administration_role.sql",
         "tests/adapters/postgres/test_tenant_repository.py::test_tenant_lifecycle_policy_export_workers_and_rls_isolation",
         "tests/adapters/postgres/test_durable_transport.py::test_queue_claims_and_notifications_are_tenant_isolated",
-        "tests/api/test_tenant_api.py::test_multi_tenant_api_lifecycle_and_resource_isolation"
+        "tests/api/test_tenant_api.py::test_multi_tenant_api_lifecycle_and_resource_isolation",
+        "tests/storage/test_provider_adapters.py",
+        "tests/storage/test_service.py::test_storage_metrics_are_published_without_tenant_labels"
       ]
     },
     {
@@ -24194,7 +24236,12 @@
         "EPIC-506"
       ],
       "priority": "Must",
-      "status": "In Progress"
+      "status": "In Progress",
+      "evidence": [
+        "src/amesh/storage/factory.py",
+        "tests/storage/test_provider_adapters.py",
+        "docs/operations/object-storage.md"
+      ]
     },
     {
       "id": "URS-NFR-SECURITY-006",

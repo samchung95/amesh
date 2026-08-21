@@ -68,6 +68,70 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 - name: DATABASE_TLS_CA_FILE
   value: {{ .Values.database.tlsCAFile | quote }}
 {{- end }}
+- name: OBJECT_STORAGE_BACKEND
+  value: {{ .Values.objectStorage.backend | quote }}
+- name: OBJECT_STORAGE_ENDPOINT
+  value: {{ .Values.objectStorage.endpoint | quote }}
+- name: OBJECT_STORAGE_REGION
+  value: {{ .Values.objectStorage.region | quote }}
+- name: OBJECT_STORAGE_BUCKET
+  value: {{ .Values.objectStorage.bucket | quote }}
+- name: OBJECT_STORAGE_WORKLOAD_IDENTITY
+  value: {{ .Values.objectStorage.workloadIdentity | quote }}
+- name: OBJECT_STORAGE_CONSISTENCY_ATTEMPTS
+  value: {{ .Values.objectStorage.consistencyAttempts | quote }}
+- name: OBJECT_STORAGE_CONSISTENCY_DELAY_SECONDS
+  value: {{ .Values.objectStorage.consistencyDelaySeconds | quote }}
+- name: OBJECT_STORAGE_SPOOL_MEMORY_BYTES
+  value: {{ .Values.objectStorage.spoolMemoryBytes | quote }}
+{{- if .Values.objectStorage.encryptionKeyId }}
+- name: OBJECT_STORAGE_ENCRYPTION_KEY_ID
+  value: {{ .Values.objectStorage.encryptionKeyId | quote }}
+{{- end }}
+{{- if .Values.objectStorage.proxyURL }}
+- name: OBJECT_STORAGE_PROXY_URL
+  value: {{ .Values.objectStorage.proxyURL | quote }}
+{{- end }}
+{{- if .Values.objectStorage.caFile }}
+- name: OBJECT_STORAGE_CA_FILE
+  value: {{ .Values.objectStorage.caFile | quote }}
+{{- end }}
+{{- if .Values.objectStorage.azureAccountURL }}
+- name: OBJECT_STORAGE_AZURE_ACCOUNT_URL
+  value: {{ .Values.objectStorage.azureAccountURL | quote }}
+{{- end }}
+{{- if .Values.objectStorage.googleProject }}
+- name: OBJECT_STORAGE_GCS_PROJECT
+  value: {{ .Values.objectStorage.googleProject | quote }}
+{{- end }}
+{{- if .Values.objectStorage.googleEndpoint }}
+- name: OBJECT_STORAGE_GCS_ENDPOINT
+  value: {{ .Values.objectStorage.googleEndpoint | quote }}
+{{- end }}
+{{- if .Values.objectStorage.googleCredentialsFile }}
+- name: OBJECT_STORAGE_GCS_CREDENTIALS_FILE
+  value: {{ .Values.objectStorage.googleCredentialsFile | quote }}
+{{- end }}
+{{- if .Values.objectStorage.existingSecret }}
+{{- if eq .Values.objectStorage.backend "s3" }}
+- name: OBJECT_STORAGE_ACCESS_KEY
+  valueFrom:
+    secretKeyRef:
+      name: {{ .Values.objectStorage.existingSecret | quote }}
+      key: {{ .Values.objectStorage.accessKeyKey | quote }}
+- name: OBJECT_STORAGE_SECRET_KEY
+  valueFrom:
+    secretKeyRef:
+      name: {{ .Values.objectStorage.existingSecret | quote }}
+      key: {{ .Values.objectStorage.secretKeyKey | quote }}
+{{- else if eq .Values.objectStorage.backend "azure" }}
+- name: OBJECT_STORAGE_AZURE_ACCOUNT_KEY
+  valueFrom:
+    secretKeyRef:
+      name: {{ .Values.objectStorage.existingSecret | quote }}
+      key: {{ .Values.objectStorage.azureAccountKeyKey | quote }}
+{{- end }}
+{{- end }}
 - name: AMESH_ADMIN_TOKEN
   valueFrom:
     secretKeyRef:
