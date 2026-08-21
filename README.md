@@ -145,12 +145,16 @@ uv run --extra runtime python -m amesh \
   --token development-token --tenant default run examples.engine parallel_dag
 ```
 
+Apply `examples/nested-flowables.yaml`, then open **Flows → Open graph** to inspect its expanded
+sequential, bounded-parallel and DAG plan before execution. Execution details show the same graph with
+live task states.
+
 The production container also serves the graphical control room at `http://localhost:8000`. In the
 development configuration, connect with token `development-token` and tenant `default`. See the
 [frontend guide](frontend/README.md) for the Vite workflow, supported browsers and accessibility
 qualification boundary.
 
-The API also supports flow/execution lists, execution details and logs, webhook triggers, PostgreSQL-backed users/groups/roles/scoped bindings, authorization explanations, OpenRouter/OpenAI-compatible LLM tasks, MCP tool calls, local-process tasks and Kubernetes Job tasks. Prometheus metrics are exposed at `http://localhost:8000/metrics`. The shared token is development-only; see the [authorization runbook](docs/operations/authorization.md).
+The API also supports flow/execution lists, pre-execution and live execution graphs, execution details and logs, webhook triggers, PostgreSQL-backed users/groups/roles/scoped bindings, authorization explanations, OpenRouter/OpenAI-compatible LLM tasks, MCP tool calls, local-process tasks and Kubernetes Job tasks. Prometheus metrics are exposed at `http://localhost:8000/metrics`. The shared token is development-only; see the [authorization runbook](docs/operations/authorization.md).
 
 For the reference Kubernetes path—external PostgreSQL, existing Secrets, Helm migration/server/worker roles, a real Luna → Job → HTTP run and cleanup—follow the [MVP Helm quickstart](charts/amesh/README.md).
 

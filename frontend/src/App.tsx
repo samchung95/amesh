@@ -9,6 +9,7 @@ import { ConnectionGate } from './components/ConnectionGate'
 import { DashboardPage } from './pages/DashboardPage'
 import { ExecutionDetailPage } from './pages/ExecutionDetailPage'
 import { ExecutionsPage } from './pages/ExecutionsPage'
+import { FlowDetailPage } from './pages/FlowDetailPage'
 import { FlowsPage } from './pages/FlowsPage'
 import { PlaceholderPage } from './pages/PlaceholderPage'
 
@@ -56,6 +57,7 @@ function WorkspaceRoutes({ session }: { session: UiSession }) {
       <Route element={<AppShell session={session} />}>
         <Route index element={<DashboardPage session={session} />} />
         <Route path="flows" element={<CapabilityRoute session={session} capability="flows.view" title="Flows"><FlowsPage session={session} /></CapabilityRoute>} />
+        <Route path="flows/:namespace/:flowId" element={<CapabilityRoute session={session} capability="flows.view" title="Flow"><FlowDetailPage /></CapabilityRoute>} />
         <Route path="executions" element={<CapabilityRoute session={session} capability="executions.view" title="Executions"><ExecutionsPage session={session} /></CapabilityRoute>} />
         <Route path="executions/:executionId" element={<CapabilityRoute session={session} capability="executions.view" title="Execution"><ExecutionDetailPage /></CapabilityRoute>} />
         <Route path="namespaces" element={<CapabilityRoute session={session} capability="namespaces.view" title="Namespaces"><PlaceholderPage title="Namespaces" /></CapabilityRoute>} />

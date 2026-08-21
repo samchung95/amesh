@@ -1,4 +1,6 @@
+from .flowables import FLOWABLE_MODES, PlannedTask, compile_flow_tasks, visible_output_ids
 from .models import (
+    FlowableFailurePolicy,
     FlowDefinition,
     FlowValidationResult,
     RunnableTaskContract,
@@ -18,11 +20,14 @@ from .source import EditableFlowDocument, FlowDocumentError, parse_editable_flow
 from .validator import validate_flow_document
 
 __all__ = [
+    "FLOWABLE_MODES",
     "EditableFlowDocument",
     "EditorMetadata",
     "FlowDefinition",
     "FlowDocumentError",
     "FlowValidationResult",
+    "FlowableFailurePolicy",
+    "PlannedTask",
     "ResourceKind",
     "ResourceSchemaDescriptor",
     "ResourceSchemaRegistry",
@@ -31,7 +36,9 @@ __all__ = [
     "SourceRange",
     "TaskDefinition",
     "TaskResourceLimits",
+    "compile_flow_tasks",
     "default_resource_registry",
     "parse_editable_flow_document",
     "validate_flow_document",
+    "visible_output_ids",
 ]

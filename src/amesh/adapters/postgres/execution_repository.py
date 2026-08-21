@@ -32,7 +32,7 @@ from amesh.domain import (
     resolve_admission_policies,
     resource_etag,
 )
-from amesh.dsl import FlowDefinition
+from amesh.dsl import FlowDefinition, compile_flow_tasks
 from amesh.expressions import ExpressionContext, NativeExpressionEngine
 from amesh.ports.execution_repository import (
     ExecutionInterventionAction,
@@ -1564,7 +1564,7 @@ class PostgresExecutionRepository(ExecutionRepository):
                 )
                 task_rows: list[dict[str, object]] = []
                 for task in (
-                    flow.tasks
+                    (node.task for node in compile_flow_tasks(flow))
                     if initial_state
                     not in {
                         ExecutionState.CANCELLED,
@@ -2162,6 +2162,7 @@ class PostgresExecutionRepository(ExecutionRepository):
         reason: str,
         *,
         tenant_id: str,
+        result: dict[str, object] | None = None,
         worker_id: UUID | None = None,
         fencing_token: int | None = None,
         failure_category: FailureCategory = FailureCategory.NON_RETRYABLE,
@@ -2171,7 +2172,7 @@ class PostgresExecutionRepository(ExecutionRepository):
             task_run_id,
             attempt,
             TaskRunState.FAILED,
-            {"error": reason},
+            result or {"error": reason},
             tenant_id=tenant_id,
             worker_id=worker_id,
             fencing_token=fencing_token,
@@ -4075,6 +4076,12 @@ async def _load_tenant_policy(connection: AsyncConnection) -> TenantPolicy:
 
 
 def _require_allowed_plugins(policy: TenantPolicy, flow: FlowDefinition) -> None:
-    denied = sorted({task.type for task in flow.tasks if not policy.allows_plugin(task.type)})
+    denied = sorted(
+        {
+            node.task.type
+            for node in compile_flow_tasks(flow)
+            if not policy.allows_plugin(node.task.type)
+        }
+    )
     if denied:
         raise ValueError("tenant plugin policy does not allow: " + ", ".join(denied))

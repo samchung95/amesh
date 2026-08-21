@@ -92,6 +92,15 @@
       "title": "ConcurrencyLimit",
       "type": "object"
     },
+    "FlowableFailurePolicy": {
+      "enum": [
+        "FAIL_FAST",
+        "CONTINUE_ON_ERROR",
+        "COLLECT_ALL"
+      ],
+      "title": "FlowableFailurePolicy",
+      "type": "string"
+    },
     "InputDefinition": {
       "additionalProperties": true,
       "properties": {
@@ -273,6 +282,10 @@
           "title": "Environment",
           "type": "object"
         },
+        "failurePolicy": {
+          "$ref": "#/$defs/FlowableFailurePolicy",
+          "default": "FAIL_FAST"
+        },
         "id": {
           "maxLength": 128,
           "minLength": 1,
@@ -291,6 +304,20 @@
           ],
           "default": null,
           "title": "Image"
+        },
+        "maxConcurrency": {
+          "anyOf": [
+            {
+              "maximum": 10000,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Maxconcurrency"
         },
         "priority": {
           "default": 0,

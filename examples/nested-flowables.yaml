@@ -1,0 +1,37 @@
+apiVersion: amesh.flow/v1
+id: nested_flowables
+namespace: examples.engine
+description: Durable sequential, bounded-parallel and dependency-driven child execution.
+tasks:
+  - id: prepare
+    type: core.sequential
+    tasks:
+      - id: validate
+        type: core.return
+        value: valid
+      - id: normalize
+        type: core.return
+        value: normalized
+  - id: enrich
+    type: core.parallel
+    dependsOn: [prepare]
+    maxConcurrency: 2
+    failurePolicy: COLLECT_ALL
+    tasks:
+      - id: geography
+        type: core.return
+        value: singapore
+      - id: segment
+        type: core.return
+        value: enterprise
+  - id: publish
+    type: core.dag
+    dependsOn: [enrich]
+    tasks:
+      - id: report
+        type: core.return
+        value: ready
+      - id: notify
+        type: core.log
+        dependsOn: [report]
+        message: "Nested flowables completed"

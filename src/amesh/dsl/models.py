@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timedelta
+from enum import StrEnum
 from typing import Any, Literal, cast
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
@@ -92,6 +93,12 @@ class TaskResourceLimits(BaseModel):
     max_artifact_bytes: int = Field(default=104_857_600, alias="maxArtifactBytes", ge=1)
 
 
+class FlowableFailurePolicy(StrEnum):
+    FAIL_FAST = "FAIL_FAST"
+    CONTINUE_ON_ERROR = "CONTINUE_ON_ERROR"
+    COLLECT_ALL = "COLLECT_ALL"
+
+
 class RunnableTaskContract(BaseModel):
     model_config = ConfigDict(extra="forbid", populate_by_name=True)
 
@@ -122,6 +129,11 @@ class TaskDefinition(BaseModel):
     concurrency: list[ConcurrencyLimit] = Field(default_factory=list)
     priority: int = Field(default=0, ge=-1000, le=1000)
     worker_group: NaturalId | None = Field(default=None, alias="workerGroup")
+    failure_policy: FlowableFailurePolicy = Field(
+        default=FlowableFailurePolicy.FAIL_FAST,
+        alias="failurePolicy",
+    )
+    max_concurrency: int | None = Field(default=None, alias="maxConcurrency", ge=1, le=10_000)
     contract: RunnableTaskContract = Field(default_factory=RunnableTaskContract)
     tasks: list[TaskDefinition] = Field(default_factory=list)
 
@@ -141,6 +153,8 @@ class TaskDefinition(BaseModel):
     def validate_self_dependency(self) -> TaskDefinition:
         if self.id in self.depends_on:
             raise ValueError(f"task {self.id!r} cannot depend on itself")
+        if self.type in {"core.sequential", "core.parallel", "core.dag"} and not self.tasks:
+            raise ValueError(f"flowable task {self.id!r} requires at least one child task")
         return self
 
 

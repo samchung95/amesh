@@ -41,12 +41,16 @@ describe('API client', () => {
 
     await api.health()
     await api.session()
+    await api.flowGraph('team/data', 'daily flow')
     await api.execution('run/one')
+    await api.executionGraph('run/one')
 
     expect(fetchMock.mock.calls.map((call) => call[0] as string)).toEqual([
       '/health',
       '/api/v1/ui/session',
+      '/api/v1/flows/team%2Fdata/daily%20flow/graph',
       '/api/v1/executions/run%2Fone',
+      '/api/v1/executions/run%2Fone/graph',
     ])
   })
 

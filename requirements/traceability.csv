@@ -186,14 +186,14 @@ URS-F-0184,Functional,Must,EPIC-200,Runnable task contract,M2,2,DSL validation p
 URS-F-0185,Functional,Must,EPIC-200,Runnable task contract,M2,2,DSL validation plus end-to-end workflow conformance tests,Verified
 URS-F-0186,Functional,Must,EPIC-200,Runnable task contract,M2,2,DSL validation plus end-to-end workflow conformance tests,Verified
 URS-F-0187,Functional,Must,EPIC-200,Runnable task contract,M2,2,DSL validation plus end-to-end workflow conformance tests,Verified
-URS-F-0188,Functional,Must,EPIC-201,"Sequential, parallel and DAG flowables",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
-URS-F-0189,Functional,Must,EPIC-201,"Sequential, parallel and DAG flowables",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
-URS-F-0190,Functional,Must,EPIC-201,"Sequential, parallel and DAG flowables",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
-URS-F-0191,Functional,Must,EPIC-201,"Sequential, parallel and DAG flowables",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
-URS-F-0192,Functional,Must,EPIC-201,"Sequential, parallel and DAG flowables",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
-URS-F-0193,Functional,Must,EPIC-201,"Sequential, parallel and DAG flowables",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
-URS-F-0194,Functional,Must,EPIC-201,"Sequential, parallel and DAG flowables",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
-URS-F-0195,Functional,Must,EPIC-201,"Sequential, parallel and DAG flowables",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0188,Functional,Must,EPIC-201,"Sequential, parallel and DAG flowables",M2,2,DSL validation plus end-to-end workflow conformance tests,Verified
+URS-F-0189,Functional,Must,EPIC-201,"Sequential, parallel and DAG flowables",M2,2,DSL validation plus end-to-end workflow conformance tests,Verified
+URS-F-0190,Functional,Must,EPIC-201,"Sequential, parallel and DAG flowables",M2,2,DSL validation plus end-to-end workflow conformance tests,Verified
+URS-F-0191,Functional,Must,EPIC-201,"Sequential, parallel and DAG flowables",M2,2,DSL validation plus end-to-end workflow conformance tests,Verified
+URS-F-0192,Functional,Must,EPIC-201,"Sequential, parallel and DAG flowables",M2,2,DSL validation plus end-to-end workflow conformance tests,Verified
+URS-F-0193,Functional,Must,EPIC-201,"Sequential, parallel and DAG flowables",M2,2,DSL validation plus end-to-end workflow conformance tests,Verified
+URS-F-0194,Functional,Must,EPIC-201,"Sequential, parallel and DAG flowables",M2,2,DSL validation plus end-to-end workflow conformance tests,Verified
+URS-F-0195,Functional,Must,EPIC-201,"Sequential, parallel and DAG flowables",M2,2,DSL validation plus end-to-end workflow conformance tests,Verified
 URS-F-0196,Functional,Must,EPIC-202,Conditional branching and switch semantics,M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
 URS-F-0197,Functional,Must,EPIC-202,Conditional branching and switch semantics,M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
 URS-F-0198,Functional,Must,EPIC-202,Conditional branching and switch semantics,M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed

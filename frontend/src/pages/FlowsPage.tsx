@@ -1,7 +1,7 @@
 import { FileCode2, Plus, Search, Workflow } from 'lucide-react'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useSearchParams } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 
 import type { UiSession } from '../api/types'
 import { useFlows } from '../app/queries'
@@ -30,7 +30,7 @@ export function FlowsPage({ session }: { session: UiSession }) {
       {!flows.isPending && !flows.error && !visible.length ? <EmptyState title="No flows in this view" body={query || selectedNamespace ? 'Clear the current filters or change workspace context.' : 'Apply a YAML flow through the API or CLI to see it here.'} /> : null}
       {visible.length ? (
         <section className="table-shell" aria-label="Flows">
-          <table><thead><tr><th>Flow</th><th>Namespace</th><th>Revision</th><th>Contract</th><th><span className="sr-only">Actions</span></th></tr></thead><tbody>{visible.map((flow) => <tr key={flow.resource_id}><td><span className="primary-cell"><Workflow size={17} aria-hidden="true" /><strong>{flow.flow_id}</strong></span></td><td><code>{flow.namespace}</code></td><td>r{flow.revision}</td><td><span className="hash"><FileCode2 size={14} aria-hidden="true" />{flow.semantic_hash.slice(0, 12)}</span></td><td><button className="button button-quiet" type="button" disabled title="Editor arrives with EPIC-405">Open</button></td></tr>)}</tbody></table>
+          <table><thead><tr><th>Flow</th><th>Namespace</th><th>Revision</th><th>Contract</th><th><span className="sr-only">Actions</span></th></tr></thead><tbody>{visible.map((flow) => <tr key={flow.resource_id}><td><span className="primary-cell"><Workflow size={17} aria-hidden="true" /><strong>{flow.flow_id}</strong></span></td><td><code>{flow.namespace}</code></td><td>r{flow.revision}</td><td><span className="hash"><FileCode2 size={14} aria-hidden="true" />{flow.semantic_hash.slice(0, 12)}</span></td><td><Link className="button button-quiet" to={`/flows/${encodeURIComponent(flow.namespace)}/${encodeURIComponent(flow.flow_id)}`}>Open graph</Link></td></tr>)}</tbody></table>
         </section>
       ) : null}
     </div>

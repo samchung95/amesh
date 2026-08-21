@@ -1,5 +1,6 @@
 import type {
   ExecutionDetail,
+  FlowGraph,
   HealthResponse,
   PersistedExecution,
   PersistedFlow,
@@ -52,8 +53,12 @@ export function createApiClient(connection: ApiConnection) {
       return request<UiSession>(`/api/v1/ui/session${suffix}`)
     },
     flows: async () => request<PersistedFlow[]>('/api/v1/flows'),
+    flowGraph: async (namespace: string, flowId: string) =>
+      request<FlowGraph>(`/api/v1/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/graph`),
     executions: async () => request<PersistedExecution[]>('/api/v1/executions?limit=200'),
     execution: async (executionId: string) =>
       request<ExecutionDetail>(`/api/v1/executions/${encodeURIComponent(executionId)}`),
+    executionGraph: async (executionId: string) =>
+      request<FlowGraph>(`/api/v1/executions/${encodeURIComponent(executionId)}/graph`),
   }
 }

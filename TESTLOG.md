@@ -1,5 +1,27 @@
 # Test Log
 
+## EPIC-201: Sequential, parallel and DAG flowables — 2026-08-22
+
+Spec source: Agent Hotel card `c20` and canonical `backlog/epics.json` EPIC-201 DoD.
+
+Verified with `uv`, Python 3.13 and PostgreSQL 17 on a fresh 21-migration database:
+
+- [x] Nested `core.sequential`, `core.parallel` and `core.dag` definitions compile to deterministic parent/child task plans and persist every task-run identity before execution.
+- [x] Sequential children run in declared order; parallel and DAG children run from explicit dependency edges and respect enclosing `maxConcurrency` limits.
+- [x] Missing nested references and dependency cycles fail validation before flow revision creation.
+- [x] Flowable parents aggregate declared child order, states, successful outputs and normalized errors under `FAIL_FAST`, `CONTINUE_ON_ERROR` and `COLLECT_ALL`.
+- [x] Independent parallel siblings receive no sibling-private outputs; dependency-driven children receive only transitive predecessor outputs.
+- [x] A fresh executor instance resumes the persisted nested DAG after one child succeeds, with no duplicate attempts.
+- [x] Authorized flow and execution graph endpoints expose expanded nodes, containment/dependency edges and live task states; the control-room flow and execution pages render them.
+- [x] Focused DSL, PostgreSQL restart/policy and API graph tests pass on an isolated database. Full product suite: 184 passed and 4 environment-gated tests skipped; the separately enabled OpenRouter Luna smoke reached the provider but returned no `choices` and is deferred as external, unrelated evidence per product-owner direction.
+- [x] Branch-coverage suite: 183 passed, 4 skipped and the already-known instrumentation-sensitive deadline test was separately covered by the uninstrumented run; 83.26% exceeded the 75% gate.
+- [x] A 1,000-child nested DAG compiled 100 times at a 1.329 ms local mean; no distributed throughput claim is made.
+- [x] Ruff format/lint, strict mypy, generated contracts/planning, backlog, clean-room, compile, frontend lint/unit tests and production frontend build pass.
+
+Adversarial pass: nested reference/cycle rejection, process restart, bounded concurrency, fail-fast short-circuiting, continuation after failure, collect-all completion, sibling-output isolation and tenant-authorized graph reads fail closed or converge as specified.
+
+Verdict: PASS — EPIC-201 requirements URS-F-0188 through URS-F-0195 are verified.
+
 ## EPIC-200: Runnable task contract — 2026-08-22
 
 Spec source: Agent Hotel card `c19` and canonical `backlog/epics.json` EPIC-200 DoD.

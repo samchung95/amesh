@@ -46,6 +46,9 @@ from amesh.api.models import (
     ExecutionDetail,
     ExecutionInterventionPreviewRequest,
     ExecutionInterventionRequest,
+    FlowGraph,
+    FlowGraphEdge,
+    FlowGraphNode,
     HealthResponse,
     IssueCredentialRequest,
     IssuedCredentialResponse,
@@ -95,6 +98,7 @@ from amesh.dsl import (
     FlowDefinition,
     FlowDocumentError,
     FlowValidationResult,
+    compile_flow_tasks,
     validate_flow_document,
 )
 from amesh.executor import (
@@ -584,6 +588,34 @@ async def list_flows(
         tenant_id=tenant_id,
     )
     return await repository.list_flows(tenant_id=tenant_id)
+
+
+@app.get(
+    "/api/v1/flows/{namespace}/{flow_id}/graph",
+    response_model=FlowGraph,
+    tags=["flows"],
+)
+async def get_flow_graph(
+    namespace: str,
+    flow_id: str,
+    repository: RepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> FlowGraph:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="flow",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    try:
+        flow = await repository.get_flow(namespace, flow_id, tenant_id=tenant_id)
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    return _build_flow_graph(flow)
 
 
 @app.get(
@@ -1099,6 +1131,39 @@ async def get_execution(
     return ExecutionDetail(execution=execution, taskRuns=task_runs)
 
 
+@app.get(
+    "/api/v1/executions/{execution_id}/graph",
+    response_model=FlowGraph,
+    tags=["executions"],
+)
+async def get_execution_graph(
+    execution_id: UUID,
+    repository: RepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> FlowGraph:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="execution",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+    )
+    try:
+        execution = await repository.get_execution(execution_id, tenant_id=tenant_id)
+        flow = await repository.get_flow(
+            execution.namespace,
+            execution.flow_id,
+            tenant_id=tenant_id,
+            revision=execution.flow_revision,
+        )
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    task_runs = await repository.list_task_runs(execution_id, tenant_id=tenant_id)
+    return _build_flow_graph(flow, task_runs)
+
+
 @app.post(
     "/api/v1/executions/{execution_id}/task-runs/{task_run_id}/resume",
     response_model=PersistedTaskRun,
@@ -1612,6 +1677,60 @@ async def _execute_flow(
     finally:
         if kubernetes_runner is not None and not background_scheduled:
             await kubernetes_runner.close()
+
+
+def _build_flow_graph(
+    flow: FlowDefinition,
+    task_runs: list[PersistedTaskRun] | None = None,
+) -> FlowGraph:
+    plan = compile_flow_tasks(flow)
+    plan_by_id = {node.task.id: node for node in plan}
+    runs_by_id = {task_run.task_id: task_run for task_run in task_runs or []}
+
+    def depth(task_id: str) -> int:
+        value = 0
+        parent_id = plan_by_id[task_id].parent_id
+        while parent_id is not None:
+            value += 1
+            parent_id = plan_by_id[parent_id].parent_id
+        return value
+
+    nodes = tuple(
+        FlowGraphNode(
+            taskId=node.task.id,
+            taskType=node.task.type,
+            order=node.order,
+            depth=depth(node.task.id),
+            parentId=node.parent_id,
+            dependencies=node.dependencies,
+            children=node.children,
+            mode=node.mode,
+            failurePolicy=node.failure_policy.value,
+            maxConcurrency=node.max_concurrency,
+            state=(runs_by_id[node.task.id].state.value if node.task.id in runs_by_id else None),
+            result=(runs_by_id[node.task.id].result if node.task.id in runs_by_id else None),
+        )
+        for node in plan
+    )
+    edges = tuple(
+        [
+            FlowGraphEdge(source=node.parent_id, target=node.task.id, kind="contains")
+            for node in plan
+            if node.parent_id is not None
+        ]
+        + [
+            FlowGraphEdge(source=dependency, target=node.task.id, kind="dependsOn")
+            for node in plan
+            for dependency in node.dependencies
+        ]
+    )
+    return FlowGraph(
+        namespace=flow.namespace,
+        flowId=flow.id,
+        revision=flow.revision,
+        nodes=nodes,
+        edges=edges,
+    )
 
 
 async def _authorize_tenant_administration(

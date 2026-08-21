@@ -114,6 +114,24 @@ remain on the task-run and execution event subjects for downstream event/subflow
 restarted executor sees failed prerequisites or another graph state with no legal progress, it commits
 `ExecutionFailed` with deterministic `failed` and `blocked` diagnostics.
 
+### Nested flowables
+
+`core.sequential`, `core.parallel` and `core.dag` compile into the same durable plan as ordinary tasks.
+The flowable parent and every nested child receive task-run identities when the execution is created;
+the parent runs as a non-dispatched aggregate while executable leaves retain ordinary attempts and
+restart behavior. Sequential flowables inject predecessor edges in declared order. Parallel and DAG
+flowables admit ready leaves concurrently, bounded by `maxConcurrency` at every enclosing flowable.
+
+Child completion is reduced in declared order into a parent result containing `childOrder`, each child
+state, successful output and normalized error. `FAIL_FAST` fails the parent on the first terminal child
+failure, `CONTINUE_ON_ERROR` waits for every child and succeeds with the complete aggregate, and
+`COLLECT_ALL` waits for every child before failing when any child failed. A child expression context
+contains outputs from transitive dependencies only; independent sibling output is not visible.
+
+`GET /api/v1/flows/{namespace}/{flow_id}/graph` returns the expanded revision before execution.
+`GET /api/v1/executions/{execution_id}/graph` returns the pinned revision with current durable task
+states and results. The control room renders both contracts on flow and execution detail pages.
+
 ## Admission control
 
 Flows and tasks may declare `concurrency` rules with a stable ID, positive limit, scope and limit

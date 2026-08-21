@@ -60,6 +60,35 @@ export interface ExecutionDetail {
   taskRuns: PersistedTaskRun[]
 }
 
+export interface FlowGraphNode {
+  taskId: string
+  taskType: string
+  order: number
+  depth: number
+  parentId: string | null
+  dependencies: string[]
+  children: string[]
+  mode: 'SEQUENTIAL' | 'PARALLEL' | 'DAG' | null
+  failurePolicy: 'FAIL_FAST' | 'CONTINUE_ON_ERROR' | 'COLLECT_ALL'
+  maxConcurrency: number | null
+  state: string | null
+  result: Record<string, unknown> | null
+}
+
+export interface FlowGraphEdge {
+  source: string
+  target: string
+  kind: 'contains' | 'dependsOn'
+}
+
+export interface FlowGraph {
+  namespace: string
+  flowId: string
+  revision: number
+  nodes: FlowGraphNode[]
+  edges: FlowGraphEdge[]
+}
+
 export interface HealthResponse {
   status: string
   version: string

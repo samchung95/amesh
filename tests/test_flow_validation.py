@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from amesh.dsl import validate_flow_document
+from amesh.dsl import FlowDefinition, compile_flow_tasks, validate_flow_document, visible_output_ids
 
 
 def test_example_flow_is_valid() -> None:
@@ -43,6 +43,67 @@ tasks:
     )
     assert not result.valid
     assert any(issue.code == "dependency_cycle" for issue in result.issues)
+
+
+def test_nested_flowables_compile_to_a_deterministic_plan() -> None:
+    flow = FlowDefinition.model_validate(
+        {
+            "id": "nested",
+            "namespace": "tests",
+            "tasks": [
+                {
+                    "id": "sequence",
+                    "type": "core.sequential",
+                    "failurePolicy": "CONTINUE_ON_ERROR",
+                    "tasks": [
+                        {"id": "first", "type": "core.return"},
+                        {"id": "second", "type": "core.return"},
+                    ],
+                },
+                {
+                    "id": "after",
+                    "type": "core.return",
+                    "dependsOn": ["sequence"],
+                },
+            ],
+        }
+    )
+
+    plan = compile_flow_tasks(flow)
+
+    assert [node.task.id for node in plan] == ["sequence", "first", "second", "after"]
+    assert [node.dependencies for node in plan] == [(), (), ("first",), ("sequence",)]
+    assert plan[0].children == ("first", "second")
+    assert visible_output_ids("second", plan) == frozenset({"first"})
+    assert visible_output_ids("after", plan) == frozenset({"sequence"})
+
+
+def test_nested_flowable_dependencies_are_validated_within_their_sibling_scope() -> None:
+    result = validate_flow_document(
+        """
+id: nested_invalid
+namespace: tests
+tasks:
+  - id: graph
+    type: core.dag
+    tasks:
+      - id: a
+        type: core.return
+        dependsOn: [b]
+      - id: b
+        type: core.return
+        dependsOn: [a]
+      - id: missing
+        type: core.return
+        dependsOn: [outside]
+"""
+    )
+
+    assert not result.valid
+    assert {issue.code for issue in result.issues} >= {
+        "dependency_cycle",
+        "missing_dependency",
+    }
 
 
 def test_snake_case_depends_on_is_honoured() -> None:

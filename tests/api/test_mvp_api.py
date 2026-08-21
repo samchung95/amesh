@@ -148,6 +148,13 @@ tasks:
                     item["namespace"] == namespace and item["flow_id"] == flow_id
                     for item in listed_flows.json()
                 )
+                flow_graph = await client.get(
+                    f"/api/v1/flows/{namespace}/{flow_id}/graph",
+                    headers={"authorization": "Bearer test-token"},
+                )
+                assert flow_graph.status_code == 200
+                assert [node["taskId"] for node in flow_graph.json()["nodes"]] == ["echo"]
+                assert flow_graph.json()["nodes"][0]["state"] is None
 
                 preview = await client.get(
                     f"/api/v1/flows/{namespace}/{flow_id}/schedules/every_hour/preview",
@@ -215,6 +222,12 @@ tasks:
                     headers={"authorization": "Bearer test-token"},
                 )
                 assert fetched.status_code == 200
+                execution_graph = await client.get(
+                    f"/api/v1/executions/{execution_id}/graph",
+                    headers={"authorization": "Bearer test-token"},
+                )
+                assert execution_graph.status_code == 200
+                assert execution_graph.json()["nodes"][0]["state"] == "SUCCESS"
                 logs = await client.get(
                     f"/api/v1/executions/{execution_id}/logs",
                     headers={"authorization": "Bearer test-token"},

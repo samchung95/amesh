@@ -347,6 +347,7 @@ class ExecutionRepository(Protocol):
         reason: str,
         *,
         tenant_id: str,
+        result: dict[str, object] | None = None,
         worker_id: UUID | None = None,
         fencing_token: int | None = None,
         failure_category: FailureCategory = FailureCategory.NON_RETRYABLE,

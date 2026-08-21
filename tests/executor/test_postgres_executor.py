@@ -12,8 +12,8 @@ from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 
 from amesh.adapters.postgres import PostgresExecutionRepository
 from amesh.domain import ExecutionState
-from amesh.dsl import FlowDefinition, validate_flow_document
-from amesh.executor import InProcessExecutor
+from amesh.dsl import FlowDefinition, TaskDefinition, validate_flow_document
+from amesh.executor import InProcessExecutor, TaskExecutionContext, TaskExecutionError
 from amesh.ports import (
     ExecutionLaunchSource,
     ExecutionStateConflictError,
@@ -782,6 +782,207 @@ def test_executor_populates_the_documented_expression_context() -> None:
             }
         finally:
             await cleanup_execution(engine, execution_id)
+            await engine.dispose()
+
+    asyncio.run(scenario())
+
+
+def test_nested_flowables_are_durable_bounded_and_policy_driven() -> None:
+    async def scenario() -> None:
+        if TEST_DATABASE_URL is None:
+            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
+
+        observed_outputs: dict[str, tuple[str, ...]] = {}
+        call_order: list[str] = []
+
+        async def capture(
+            task: TaskDefinition,
+            context: TaskExecutionContext,
+        ) -> dict[str, object]:
+            task_id = task.id
+            call_order.append(task_id)
+            observed_outputs[task_id] = tuple(sorted(context.outputs))
+            return {"task": task_id}
+
+        async def fail(
+            task: TaskDefinition,
+            context: TaskExecutionContext,
+        ) -> dict[str, object]:
+            del context
+            task_id = task.id
+            call_order.append(task_id)
+            raise ValueError("expected child failure")
+
+        handlers = {"tests.capture": capture, "tests.fail": fail}
+        execution_ids: list[UUID] = []
+        engine = create_async_engine(TEST_DATABASE_URL)
+        repository = PostgresExecutionRepository(engine)
+        try:
+            dag_flow = FlowDefinition.model_validate(
+                {
+                    "id": "bounded_dag",
+                    "namespace": f"tests.flowables.{uuid4().hex}",
+                    "tasks": [
+                        {
+                            "id": "graph",
+                            "type": "core.dag",
+                            "maxConcurrency": 1,
+                            "tasks": [
+                                {"id": "left", "type": "tests.capture"},
+                                {"id": "right", "type": "tests.capture"},
+                                {
+                                    "id": "join",
+                                    "type": "tests.capture",
+                                    "dependsOn": ["left", "right"],
+                                },
+                            ],
+                        }
+                    ],
+                }
+            )
+            executor = InProcessExecutor(repository, handlers=handlers)
+            dag_execution_id = await executor.create_execution(dag_flow, tenant_id="default")
+            execution_ids.append(dag_execution_id)
+
+            first = await executor.run_ready(dag_flow, dag_execution_id, tenant_id="default")
+            assert first.tasks_run == 1
+            await engine.dispose()
+
+            engine = create_async_engine(TEST_DATABASE_URL)
+            repository = PostgresExecutionRepository(engine)
+            executor = InProcessExecutor(repository, handlers=handlers)
+            second = await executor.run_ready(dag_flow, dag_execution_id, tenant_id="default")
+            assert second.tasks_run == 1
+            completed = await executor.run_ready(
+                dag_flow,
+                dag_execution_id,
+                tenant_id="default",
+            )
+            assert completed.state is ExecutionState.SUCCESS
+            assert completed.tasks_run == 1
+            assert observed_outputs["left"] == ()
+            assert observed_outputs["right"] == ()
+            assert observed_outputs["join"] == ("left", "right")
+            graph_run = next(item for item in completed.task_runs if item.task_id == "graph")
+            assert graph_run.result is not None
+            assert graph_run.result["childOrder"] == ["left", "right", "join"]
+
+            continue_flow = FlowDefinition.model_validate(
+                {
+                    "id": "continue_sequence",
+                    "namespace": f"tests.flowables.{uuid4().hex}",
+                    "tasks": [
+                        {
+                            "id": "sequence",
+                            "type": "core.sequential",
+                            "failurePolicy": "CONTINUE_ON_ERROR",
+                            "tasks": [
+                                {"id": "expected_failure", "type": "tests.fail"},
+                                {"id": "continued", "type": "tests.capture"},
+                            ],
+                        }
+                    ],
+                }
+            )
+            continue_executor = InProcessExecutor(repository, handlers=handlers)
+            continue_execution_id = await continue_executor.create_execution(
+                continue_flow,
+                tenant_id="default",
+            )
+            execution_ids.append(continue_execution_id)
+            continued = await continue_executor.run_to_completion(
+                continue_flow,
+                continue_execution_id,
+                tenant_id="default",
+            )
+            assert continued.state is ExecutionState.SUCCESS
+            assert call_order.index("expected_failure") < call_order.index("continued")
+            sequence_run = next(item for item in continued.task_runs if item.task_id == "sequence")
+            assert sequence_run.result is not None
+            assert sequence_run.result["children"]["expected_failure"]["state"] == "FAILED"
+
+            fail_fast_flow = FlowDefinition.model_validate(
+                {
+                    "id": "fail_fast_sequence",
+                    "namespace": f"tests.flowables.{uuid4().hex}",
+                    "tasks": [
+                        {
+                            "id": "sequence_fail_fast",
+                            "type": "core.sequential",
+                            "tasks": [
+                                {"id": "stop_here", "type": "tests.fail"},
+                                {"id": "never_run", "type": "tests.capture"},
+                            ],
+                        }
+                    ],
+                }
+            )
+            fail_fast_executor = InProcessExecutor(repository, handlers=handlers)
+            fail_fast_execution_id = await fail_fast_executor.create_execution(
+                fail_fast_flow,
+                tenant_id="default",
+            )
+            execution_ids.append(fail_fast_execution_id)
+            with pytest.raises(TaskExecutionError):
+                await fail_fast_executor.run_ready(
+                    fail_fast_flow,
+                    fail_fast_execution_id,
+                    tenant_id="default",
+                )
+            fail_fast_runs = await repository.list_task_runs(
+                fail_fast_execution_id,
+                tenant_id="default",
+            )
+            assert (
+                next(item for item in fail_fast_runs if item.task_id == "never_run").state
+                is TaskRunState.WAITING
+            )
+
+            collect_flow = FlowDefinition.model_validate(
+                {
+                    "id": "collect_parallel",
+                    "namespace": f"tests.flowables.{uuid4().hex}",
+                    "tasks": [
+                        {
+                            "id": "collection",
+                            "type": "core.parallel",
+                            "failurePolicy": "COLLECT_ALL",
+                            "tasks": [
+                                {"id": "collected_failure", "type": "tests.fail"},
+                                {"id": "collected_success", "type": "tests.capture"},
+                            ],
+                        }
+                    ],
+                }
+            )
+            collect_executor = InProcessExecutor(repository, handlers=handlers)
+            collect_execution_id = await collect_executor.create_execution(
+                collect_flow,
+                tenant_id="default",
+            )
+            execution_ids.append(collect_execution_id)
+            with pytest.raises(TaskExecutionError):
+                await collect_executor.run_ready(
+                    collect_flow,
+                    collect_execution_id,
+                    tenant_id="default",
+                )
+            collect_runs = await repository.list_task_runs(
+                collect_execution_id,
+                tenant_id="default",
+            )
+            assert (
+                next(item for item in collect_runs if item.task_id == "collected_success").state
+                is TaskRunState.SUCCESS
+            )
+            collection_run = next(item for item in collect_runs if item.task_id == "collection")
+            assert collection_run.state is TaskRunState.FAILED
+            assert collection_run.result is not None
+            assert collection_run.result["children"]["collected_failure"]["state"] == "FAILED"
+            assert collection_run.result["children"]["collected_success"]["state"] == "SUCCESS"
+        finally:
+            for execution_id in execution_ids:
+                await cleanup_execution(engine, execution_id)
             await engine.dispose()
 
     asyncio.run(scenario())

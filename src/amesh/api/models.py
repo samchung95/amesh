@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from enum import StrEnum
-from typing import Any
+from typing import Any, Literal
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -76,6 +76,39 @@ class CreateExecutionRequest(BaseModel):
 class ExecutionDetail(BaseModel):
     execution: PersistedExecution
     task_runs: list[PersistedTaskRun] = Field(alias="taskRuns")
+
+
+class FlowGraphNode(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    task_id: str = Field(alias="taskId")
+    task_type: str = Field(alias="taskType")
+    order: int = Field(ge=0)
+    depth: int = Field(ge=0)
+    parent_id: str | None = Field(default=None, alias="parentId")
+    dependencies: tuple[str, ...] = ()
+    children: tuple[str, ...] = ()
+    mode: str | None = None
+    failure_policy: str = Field(alias="failurePolicy")
+    max_concurrency: int | None = Field(default=None, alias="maxConcurrency")
+    state: str | None = None
+    result: dict[str, Any] | None = None
+
+
+class FlowGraphEdge(BaseModel):
+    source: str
+    target: str
+    kind: Literal["contains", "dependsOn"]
+
+
+class FlowGraph(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    namespace: str
+    flow_id: str = Field(alias="flowId")
+    revision: int = Field(ge=1)
+    nodes: tuple[FlowGraphNode, ...]
+    edges: tuple[FlowGraphEdge, ...]
 
 
 class ResumeTaskRequest(BaseModel):

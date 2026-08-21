@@ -257,6 +257,44 @@
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "additionalProperties": false,
         "properties": {
+          "failurePolicy": {
+            "enum": [
+              "FAIL_FAST",
+              "CONTINUE_ON_ERROR",
+              "COLLECT_ALL"
+            ],
+            "type": "string"
+          },
+          "maxConcurrency": {
+            "maximum": 10000,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "timeoutSeconds": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          }
+        },
+        "type": "object"
+      },
+      "editor": {
+        "category": "Flow control",
+        "description": "Execute child tasks from explicit dependency edges.",
+        "propertyOrder": [
+          "failurePolicy",
+          "maxConcurrency",
+          "timeoutSeconds"
+        ],
+        "title": "DAG"
+      },
+      "kind": "task",
+      "type": "core.dag"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
           "body": {},
           "headers": {
             "additionalProperties": {
@@ -331,6 +369,44 @@
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "additionalProperties": false,
         "properties": {
+          "failurePolicy": {
+            "enum": [
+              "FAIL_FAST",
+              "CONTINUE_ON_ERROR",
+              "COLLECT_ALL"
+            ],
+            "type": "string"
+          },
+          "maxConcurrency": {
+            "maximum": 10000,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "timeoutSeconds": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          }
+        },
+        "type": "object"
+      },
+      "editor": {
+        "category": "Flow control",
+        "description": "Execute independent child tasks with bounded concurrency.",
+        "propertyOrder": [
+          "failurePolicy",
+          "maxConcurrency",
+          "timeoutSeconds"
+        ],
+        "title": "Parallel"
+      },
+      "kind": "task",
+      "type": "core.parallel"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
           "timeoutSeconds": {
             "exclusiveMinimum": 0,
             "type": "number"
@@ -349,6 +425,44 @@
       },
       "kind": "task",
       "type": "core.return"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "failurePolicy": {
+            "enum": [
+              "FAIL_FAST",
+              "CONTINUE_ON_ERROR",
+              "COLLECT_ALL"
+            ],
+            "type": "string"
+          },
+          "maxConcurrency": {
+            "maximum": 10000,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "timeoutSeconds": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          }
+        },
+        "type": "object"
+      },
+      "editor": {
+        "category": "Flow control",
+        "description": "Execute child tasks in declared order.",
+        "propertyOrder": [
+          "failurePolicy",
+          "maxConcurrency",
+          "timeoutSeconds"
+        ],
+        "title": "Sequential"
+      },
+      "kind": "task",
+      "type": "core.sequential"
     },
     {
       "configurationSchema": {

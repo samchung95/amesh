@@ -21,11 +21,15 @@ from amesh.domain import (
     resolve_admission_policies,
 )
 from amesh.dsl import (
+    FlowableFailurePolicy,
     FlowDefinition,
+    PlannedTask,
     ResourceKind,
     ResourceSchemaRegistry,
     TaskResourceLimits,
+    compile_flow_tasks,
     default_resource_registry,
+    visible_output_ids,
 )
 from amesh.dsl.models import RetryPolicy, TaskDefinition
 from amesh.expressions import (
@@ -308,6 +312,12 @@ class InProcessExecutor:
                 tenant_id=tenant_id,
             )
 
+        plan = compile_flow_tasks(flow)
+        task_runs = await self._advance_flowables(
+            plan,
+            task_runs,
+            tenant_id=tenant_id,
+        )
         decision = reduce_orchestration(flow, task_runs, now=now)
         if decision.terminal_state is not None:
             execution = await self._finish_execution(execution, decision)
@@ -320,18 +330,14 @@ class InProcessExecutor:
 
         task_runs_by_id = {task_run.task_id: task_run for task_run in task_runs}
         runnable_ids = set(decision.runnable_task_ids)
-        ready = [
-            task
-            for task in flow.tasks
-            if task.id in runnable_ids
-            or (
-                task_runs_by_id[task.id].state is TaskRunState.RUNNING
-                and task.type in self._recover_running_types
-                and task_runs_by_id[task.id].task_run_id not in deferred_task_run_ids
-            )
-        ]
-        if max_tasks is not None:
-            ready = ready[:max_tasks]
+        ready = _select_ready_tasks(
+            plan,
+            task_runs_by_id,
+            runnable_ids,
+            self._recover_running_types,
+            deferred_task_run_ids,
+            max_tasks=max_tasks,
+        )
 
         outputs = {
             task_id: task_run.result or {}
@@ -342,11 +348,15 @@ class InProcessExecutor:
             self._run_task(
                 flow,
                 execution,
-                task_runs_by_id[task.id],
-                task,
-                outputs,
+                task_runs_by_id[node.task.id],
+                node.task,
+                {
+                    task_id: output
+                    for task_id, output in outputs.items()
+                    if task_id in visible_output_ids(node.task.id, plan)
+                },
             )
-            for task in ready
+            for node in ready
         )
         try:
             if execution.timeout_at is None:
@@ -367,6 +377,11 @@ class InProcessExecutor:
             execution_id,
             tenant_id=tenant_id,
         )
+        updated_task_runs = await self._advance_flowables(
+            plan,
+            updated_task_runs,
+            tenant_id=tenant_id,
+        )
         updated_decision = reduce_orchestration(
             flow,
             updated_task_runs,
@@ -383,9 +398,83 @@ class InProcessExecutor:
             task_runs=tuple(updated_task_runs),
         )
         failure = next((outcome.failure for outcome in outcomes if outcome.failure), None)
-        if failure is not None:
+        if failure is not None and updated_decision.terminal_state is not None:
             raise TaskExecutionError(updated_decision.diagnostic or failure)
         return progress
+
+    async def _advance_flowables(
+        self,
+        plan: tuple[PlannedTask, ...],
+        task_runs: list[PersistedTaskRun],
+        *,
+        tenant_id: str,
+    ) -> list[PersistedTaskRun]:
+        """Start and reduce durable flowable parents without dispatching handlers."""
+
+        by_node_id = {node.task.id: node for node in plan}
+        by_task_id = {task_run.task_id: task_run for task_run in task_runs}
+        changed = True
+        while changed:
+            changed = False
+            for node in plan:
+                task_run = by_task_id[node.task.id]
+                if not node.flowable or task_run.state is not TaskRunState.WAITING:
+                    continue
+                if not _parent_is_running(node, by_task_id):
+                    continue
+                if not _dependencies_satisfied(node, by_node_id, by_task_id):
+                    continue
+                by_task_id[node.task.id] = await self._repository.start_task(
+                    task_run.task_run_id,
+                    tenant_id=tenant_id,
+                    dispatch=False,
+                )
+                changed = True
+
+            for node in reversed(plan):
+                task_run = by_task_id[node.task.id]
+                if not node.flowable or task_run.state is not TaskRunState.RUNNING:
+                    continue
+                children = [by_task_id[child_id] for child_id in node.children]
+                failed = [
+                    child
+                    for child in children
+                    if child.state in {TaskRunState.FAILED, TaskRunState.CANCELLED}
+                ]
+                terminal = all(_task_run_is_terminal(child) for child in children)
+                if failed and node.failure_policy is FlowableFailurePolicy.FAIL_FAST:
+                    failed_ids = [child.task_id for child in failed]
+                    reason = f"flowable child failure: {failed_ids}"
+                    by_task_id[node.task.id] = await self._repository.fail_task(
+                        task_run.task_run_id,
+                        task_run.current_attempt,
+                        reason,
+                        tenant_id=tenant_id,
+                        result={**_aggregate_flowable_result(node, children), "error": reason},
+                    )
+                    changed = True
+                elif terminal and (
+                    not failed or node.failure_policy is FlowableFailurePolicy.CONTINUE_ON_ERROR
+                ):
+                    by_task_id[node.task.id] = await self._repository.complete_task(
+                        task_run.task_run_id,
+                        task_run.current_attempt,
+                        _aggregate_flowable_result(node, children),
+                        tenant_id=tenant_id,
+                    )
+                    changed = True
+                elif terminal and node.failure_policy is FlowableFailurePolicy.COLLECT_ALL:
+                    failed_ids = [child.task_id for child in failed]
+                    reason = f"flowable collected child failures: {failed_ids}"
+                    by_task_id[node.task.id] = await self._repository.fail_task(
+                        task_run.task_run_id,
+                        task_run.current_attempt,
+                        reason,
+                        tenant_id=tenant_id,
+                        result={**_aggregate_flowable_result(node, children), "error": reason},
+                    )
+                    changed = True
+        return [by_task_id[node.task.id] for node in plan]
 
     async def run_to_completion(
         self,
@@ -431,7 +520,11 @@ class InProcessExecutor:
                     for task_run in progress.task_runs
                     if task_run.state is TaskRunState.WAITING
                 ]
-                if any(task.concurrency and task.id in waiting for task in flow.tasks):
+                if any(
+                    node.task.concurrency and node.task.id in waiting
+                    for node in compile_flow_tasks(flow)
+                    if not node.flowable
+                ):
                     await asyncio.sleep(0.05)
                     continue
                 raise ExecutionBlockedError(
@@ -724,35 +817,41 @@ def reduce_orchestration(
 ) -> OrchestrationDecision:
     """Reduce committed task state to one deterministic orchestration decision."""
 
+    plan = compile_flow_tasks(flow)
     task_runs_by_id = {task_run.task_id: task_run for task_run in task_runs}
     _require_matching_plan(flow, task_runs_by_id)
     failed = [
-        task.id
-        for task in flow.tasks
-        if task_runs_by_id[task.id].state in {TaskRunState.FAILED, TaskRunState.CANCELLED}
+        node.task.id
+        for node in plan
+        if node.parent_id is None
+        and task_runs_by_id[node.task.id].state in {TaskRunState.FAILED, TaskRunState.CANCELLED}
     ]
     if failed:
         blocked = [
-            task.id
-            for task in flow.tasks
-            if task_runs_by_id[task.id].state is TaskRunState.WAITING
-            and any(dependency in failed for dependency in task.depends_on)
+            node.task.id
+            for node in plan
+            if node.parent_id is None
+            and task_runs_by_id[node.task.id].state is TaskRunState.WAITING
+            and any(dependency in failed for dependency in node.dependencies)
         ]
         return OrchestrationDecision(
             terminal_state=ExecutionState.FAILED,
             diagnostic=(f"unsatisfiable execution graph; failed={failed}; blocked={blocked}"),
         )
-    if task_runs and all(task_run.state is TaskRunState.SUCCESS for task_run in task_runs):
+    top_level = [node for node in plan if node.parent_id is None]
+    if top_level and all(
+        task_runs_by_id[node.task.id].state is TaskRunState.SUCCESS for node in top_level
+    ):
         return OrchestrationDecision(terminal_state=ExecutionState.SUCCESS)
 
+    plan_by_id = {node.task.id: node for node in plan}
     runnable = tuple(
-        task.id
-        for task in flow.tasks
-        if _is_ready(task_runs_by_id[task.id], now)
-        and all(
-            task_runs_by_id[dependency].state is TaskRunState.SUCCESS
-            for dependency in task.depends_on
-        )
+        node.task.id
+        for node in plan
+        if not node.flowable
+        and _is_ready(task_runs_by_id[node.task.id], now)
+        and _parent_is_running(node, task_runs_by_id)
+        and _dependencies_satisfied(node, plan_by_id, task_runs_by_id)
     )
     if runnable:
         return OrchestrationDecision(runnable_task_ids=runnable)
@@ -771,14 +870,133 @@ def reduce_orchestration(
         return OrchestrationDecision(retry_at=retry_at)
 
     blocked = [
-        f"{task.id}<-{','.join(task.depends_on) or 'condition'}"
-        for task in flow.tasks
-        if task_runs_by_id[task.id].state is not TaskRunState.SUCCESS
+        f"{node.task.id}<-{','.join(node.dependencies) or 'condition'}"
+        for node in plan
+        if task_runs_by_id[node.task.id].state is not TaskRunState.SUCCESS
     ]
     return OrchestrationDecision(
         terminal_state=ExecutionState.FAILED,
         diagnostic=f"unsatisfiable execution graph; blocked={blocked}",
     )
+
+
+def _select_ready_tasks(
+    plan: tuple[PlannedTask, ...],
+    task_runs_by_id: Mapping[str, PersistedTaskRun],
+    runnable_ids: set[str],
+    recover_running_types: frozenset[str],
+    deferred_task_run_ids: set[UUID],
+    *,
+    max_tasks: int | None,
+) -> list[PlannedTask]:
+    plan_by_id = {node.task.id: node for node in plan}
+    limited_counts: dict[str, int] = {}
+    for node in plan:
+        task_run = task_runs_by_id[node.task.id]
+        if node.flowable or task_run.state is not TaskRunState.RUNNING:
+            continue
+        for ancestor in _flowable_ancestors(node, plan_by_id):
+            if ancestor.max_concurrency is not None:
+                limited_counts[ancestor.task.id] = limited_counts.get(ancestor.task.id, 0) + 1
+
+    selected: list[PlannedTask] = []
+    for node in plan:
+        if node.flowable:
+            continue
+        task_run = task_runs_by_id[node.task.id]
+        recovering = (
+            task_run.state is TaskRunState.RUNNING
+            and node.task.type in recover_running_types
+            and task_run.task_run_id not in deferred_task_run_ids
+        )
+        if node.task.id not in runnable_ids and not recovering:
+            continue
+        ancestors = _flowable_ancestors(node, plan_by_id)
+        if not recovering and any(
+            ancestor.max_concurrency is not None
+            and limited_counts.get(ancestor.task.id, 0) >= ancestor.max_concurrency
+            for ancestor in ancestors
+        ):
+            continue
+        selected.append(node)
+        if not recovering:
+            for ancestor in ancestors:
+                if ancestor.max_concurrency is not None:
+                    limited_counts[ancestor.task.id] = limited_counts.get(ancestor.task.id, 0) + 1
+        if max_tasks is not None and len(selected) >= max_tasks:
+            break
+    return selected
+
+
+def _flowable_ancestors(
+    node: PlannedTask,
+    plan_by_id: Mapping[str, PlannedTask],
+) -> tuple[PlannedTask, ...]:
+    ancestors: list[PlannedTask] = []
+    parent_id = node.parent_id
+    while parent_id is not None:
+        parent = plan_by_id[parent_id]
+        ancestors.append(parent)
+        parent_id = parent.parent_id
+    return tuple(ancestors)
+
+
+def _parent_is_running(
+    node: PlannedTask,
+    task_runs_by_id: Mapping[str, PersistedTaskRun],
+) -> bool:
+    return node.parent_id is None or task_runs_by_id[node.parent_id].state is TaskRunState.RUNNING
+
+
+def _dependencies_satisfied(
+    node: PlannedTask,
+    plan_by_id: Mapping[str, PlannedTask],
+    task_runs_by_id: Mapping[str, PersistedTaskRun],
+) -> bool:
+    for dependency_id in node.dependencies:
+        dependency = task_runs_by_id[dependency_id]
+        if dependency.state is TaskRunState.SUCCESS:
+            continue
+        if (
+            dependency.state in {TaskRunState.FAILED, TaskRunState.CANCELLED}
+            and node.parent_id is not None
+            and plan_by_id[dependency_id].parent_id == node.parent_id
+            and plan_by_id[node.parent_id].failure_policy is not FlowableFailurePolicy.FAIL_FAST
+        ):
+            continue
+        return False
+    return True
+
+
+def _task_run_is_terminal(task_run: PersistedTaskRun) -> bool:
+    return task_run.state in {
+        TaskRunState.SUCCESS,
+        TaskRunState.FAILED,
+        TaskRunState.CANCELLED,
+    }
+
+
+def _aggregate_flowable_result(
+    node: PlannedTask,
+    children: list[PersistedTaskRun],
+) -> dict[str, Any]:
+    return {
+        "mode": node.mode,
+        "failurePolicy": node.failure_policy.value,
+        "childOrder": [child.task_id for child in children],
+        "children": {
+            child.task_id: {
+                "state": child.state.value,
+                "output": child.result if child.state is TaskRunState.SUCCESS else None,
+                "error": (
+                    (child.result or {}).get("error")
+                    if child.state in {TaskRunState.FAILED, TaskRunState.CANCELLED}
+                    else None
+                ),
+            }
+            for child in children
+        },
+    }
 
 
 def _expression_context(
@@ -819,7 +1037,7 @@ def _require_matching_plan(
     flow: FlowDefinition,
     task_runs_by_id: Mapping[str, PersistedTaskRun],
 ) -> None:
-    expected = {task.id for task in flow.tasks}
+    expected = {node.task.id for node in compile_flow_tasks(flow)}
     persisted = set(task_runs_by_id)
     if expected != persisted:
         raise ExecutionBlockedError(

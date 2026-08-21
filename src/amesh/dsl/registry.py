@@ -313,6 +313,47 @@ def _core_descriptors() -> tuple[ResourceSchemaDescriptor, ...]:
                 "maxDepth",
             ),
         ),
+        *(
+            _descriptor(
+                resource_type,
+                ResourceKind.TASK,
+                _object_schema(
+                    {
+                        "failurePolicy": {
+                            "type": "string",
+                            "enum": ["FAIL_FAST", "CONTINUE_ON_ERROR", "COLLECT_ALL"],
+                        },
+                        "maxConcurrency": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 10_000,
+                        },
+                        "timeoutSeconds": timeout,
+                    }
+                ),
+                title=title,
+                description=description,
+                category="Flow control",
+                property_order=("failurePolicy", "maxConcurrency", "timeoutSeconds"),
+            )
+            for resource_type, title, description in (
+                (
+                    "core.sequential",
+                    "Sequential",
+                    "Execute child tasks in declared order.",
+                ),
+                (
+                    "core.parallel",
+                    "Parallel",
+                    "Execute independent child tasks with bounded concurrency.",
+                ),
+                (
+                    "core.dag",
+                    "DAG",
+                    "Execute child tasks from explicit dependency edges.",
+                ),
+            )
+        ),
         _descriptor(
             "agent.llm",
             ResourceKind.TASK,
