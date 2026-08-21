@@ -318,6 +318,348 @@
         "title": "AuthorizationScopeType",
         "type": "string"
       },
+      "BackfillActionRequest": {
+        "properties": {
+          "reason": {
+            "maxLength": 1024,
+            "minLength": 1,
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "reason"
+        ],
+        "title": "BackfillActionRequest",
+        "type": "object"
+      },
+      "BackfillPreview": {
+        "properties": {
+          "estimatedCostUnits": {
+            "minimum": 0.0,
+            "title": "Estimatedcostunits",
+            "type": "integer"
+          },
+          "estimatedTaskRuns": {
+            "minimum": 0.0,
+            "title": "Estimatedtaskruns",
+            "type": "integer"
+          },
+          "executionCount": {
+            "minimum": 0.0,
+            "title": "Executioncount",
+            "type": "integer"
+          },
+          "idempotencyKeyTemplate": {
+            "title": "Idempotencykeytemplate",
+            "type": "string"
+          },
+          "selectionKind": {
+            "$ref": "#/components/schemas/BackfillSelectionKind"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Warnings",
+            "type": "array"
+          }
+        },
+        "required": [
+          "selectionKind",
+          "executionCount",
+          "estimatedTaskRuns",
+          "estimatedCostUnits",
+          "idempotencyKeyTemplate",
+          "warnings"
+        ],
+        "title": "BackfillPreview",
+        "type": "object"
+      },
+      "BackfillRecord": {
+        "properties": {
+          "actualCostUnits": {
+            "minimum": 0.0,
+            "title": "Actualcostunits",
+            "type": "integer"
+          },
+          "backfillId": {
+            "format": "uuid",
+            "title": "Backfillid",
+            "type": "string"
+          },
+          "cancelled": {
+            "minimum": 0.0,
+            "title": "Cancelled",
+            "type": "integer"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "title": "Createdat",
+            "type": "string"
+          },
+          "createdBy": {
+            "title": "Createdby",
+            "type": "string"
+          },
+          "durationSeconds": {
+            "minimum": 0.0,
+            "title": "Durationseconds",
+            "type": "number"
+          },
+          "estimatedCostUnits": {
+            "minimum": 0.0,
+            "title": "Estimatedcostunits",
+            "type": "integer"
+          },
+          "failed": {
+            "minimum": 0.0,
+            "title": "Failed",
+            "type": "integer"
+          },
+          "finishedAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finishedat"
+          },
+          "flowId": {
+            "title": "Flowid",
+            "type": "string"
+          },
+          "flowRevision": {
+            "minimum": 1.0,
+            "title": "Flowrevision",
+            "type": "integer"
+          },
+          "inputs": {
+            "additionalProperties": true,
+            "title": "Inputs",
+            "type": "object"
+          },
+          "labels": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Labels",
+            "type": "object"
+          },
+          "maxConcurrency": {
+            "minimum": 1.0,
+            "title": "Maxconcurrency",
+            "type": "integer"
+          },
+          "namespace": {
+            "title": "Namespace",
+            "type": "string"
+          },
+          "pending": {
+            "minimum": 0.0,
+            "title": "Pending",
+            "type": "integer"
+          },
+          "priority": {
+            "title": "Priority",
+            "type": "integer"
+          },
+          "ratePerMinute": {
+            "minimum": 1.0,
+            "title": "Rateperminute",
+            "type": "integer"
+          },
+          "running": {
+            "minimum": 0.0,
+            "title": "Running",
+            "type": "integer"
+          },
+          "selectionKind": {
+            "$ref": "#/components/schemas/BackfillSelectionKind"
+          },
+          "state": {
+            "$ref": "#/components/schemas/BackfillState"
+          },
+          "succeeded": {
+            "minimum": 0.0,
+            "title": "Succeeded",
+            "type": "integer"
+          },
+          "tenantId": {
+            "title": "Tenantid",
+            "type": "string"
+          },
+          "total": {
+            "minimum": 0.0,
+            "title": "Total",
+            "type": "integer"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "title": "Updatedat",
+            "type": "string"
+          }
+        },
+        "required": [
+          "backfillId",
+          "tenantId",
+          "namespace",
+          "flowId",
+          "flowRevision",
+          "state",
+          "selectionKind",
+          "inputs",
+          "labels",
+          "maxConcurrency",
+          "ratePerMinute",
+          "priority",
+          "total",
+          "pending",
+          "running",
+          "succeeded",
+          "failed",
+          "cancelled",
+          "durationSeconds",
+          "estimatedCostUnits",
+          "actualCostUnits",
+          "createdBy",
+          "createdAt",
+          "updatedAt"
+        ],
+        "title": "BackfillRecord",
+        "type": "object"
+      },
+      "BackfillSelection": {
+        "properties": {
+          "occurrences": {
+            "default": [],
+            "items": {
+              "format": "date-time",
+              "type": "string"
+            },
+            "title": "Occurrences",
+            "type": "array"
+          },
+          "partitions": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Partitions",
+            "type": "array"
+          },
+          "sourceExecutionIds": {
+            "default": [],
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "title": "Sourceexecutionids",
+            "type": "array"
+          },
+          "timeRange": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TimeRangeSelection"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "title": "BackfillSelection",
+        "type": "object"
+      },
+      "BackfillSelectionKind": {
+        "enum": [
+          "TIME_RANGE",
+          "PARTITIONS",
+          "OCCURRENCES",
+          "REPLAY"
+        ],
+        "title": "BackfillSelectionKind",
+        "type": "string"
+      },
+      "BackfillSpec": {
+        "properties": {
+          "flowId": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Flowid",
+            "type": "string"
+          },
+          "flowRevision": {
+            "minimum": 1.0,
+            "title": "Flowrevision",
+            "type": "integer"
+          },
+          "inputs": {
+            "additionalProperties": true,
+            "title": "Inputs",
+            "type": "object"
+          },
+          "labels": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Labels",
+            "type": "object"
+          },
+          "maxConcurrency": {
+            "default": 1,
+            "maximum": 10000.0,
+            "minimum": 1.0,
+            "title": "Maxconcurrency",
+            "type": "integer"
+          },
+          "namespace": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Namespace",
+            "type": "string"
+          },
+          "priority": {
+            "default": 0,
+            "maximum": 1000000.0,
+            "minimum": -1000000.0,
+            "title": "Priority",
+            "type": "integer"
+          },
+          "ratePerMinute": {
+            "default": 60,
+            "maximum": 1000000.0,
+            "minimum": 1.0,
+            "title": "Rateperminute",
+            "type": "integer"
+          },
+          "selection": {
+            "$ref": "#/components/schemas/BackfillSelection"
+          }
+        },
+        "required": [
+          "namespace",
+          "flowId",
+          "flowRevision",
+          "selection"
+        ],
+        "title": "BackfillSpec",
+        "type": "object"
+      },
+      "BackfillState": {
+        "enum": [
+          "RUNNING",
+          "PAUSED",
+          "CANCELLED",
+          "COMPLETED"
+        ],
+        "title": "BackfillState",
+        "type": "string"
+      },
       "CreateExecutionRequest": {
         "properties": {
           "flowId": {
@@ -2348,6 +2690,33 @@
         "title": "TenantStatus",
         "type": "string"
       },
+      "TimeRangeSelection": {
+        "properties": {
+          "end": {
+            "format": "date-time",
+            "title": "End",
+            "type": "string"
+          },
+          "intervalSeconds": {
+            "maximum": 31536000.0,
+            "minimum": 1.0,
+            "title": "Intervalseconds",
+            "type": "integer"
+          },
+          "start": {
+            "format": "date-time",
+            "title": "Start",
+            "type": "string"
+          }
+        },
+        "required": [
+          "start",
+          "end",
+          "intervalSeconds"
+        ],
+        "title": "TimeRangeSelection",
+        "type": "object"
+      },
       "UiSessionResponse": {
         "properties": {
           "capabilities": {
@@ -4243,6 +4612,565 @@
         "summary": "Explain Authorization",
         "tags": [
           "authorization"
+        ]
+      }
+    },
+    "/api/v1/backfills": {
+      "get": {
+        "operationId": "list_backfills_api_v1_backfills_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "maximum": 1000,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/BackfillRecord"
+                  },
+                  "title": "Response List Backfills Api V1 Backfills Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Backfills",
+        "tags": [
+          "backfills"
+        ]
+      },
+      "post": {
+        "operationId": "create_backfill_api_v1_backfills_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BackfillSpec"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BackfillRecord"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Backfill",
+        "tags": [
+          "backfills"
+        ]
+      }
+    },
+    "/api/v1/backfills/preview": {
+      "post": {
+        "operationId": "preview_backfill_api_v1_backfills_preview_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BackfillSpec"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BackfillPreview"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Preview Backfill",
+        "tags": [
+          "backfills"
+        ]
+      }
+    },
+    "/api/v1/backfills/{backfill_id}": {
+      "get": {
+        "operationId": "get_backfill_api_v1_backfills__backfill_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "backfill_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Backfill Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BackfillRecord"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Backfill",
+        "tags": [
+          "backfills"
+        ]
+      }
+    },
+    "/api/v1/backfills/{backfill_id}/cancel": {
+      "post": {
+        "operationId": "cancel_backfill_api_v1_backfills__backfill_id__cancel_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "backfill_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Backfill Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BackfillActionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BackfillRecord"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Cancel Backfill",
+        "tags": [
+          "backfills"
+        ]
+      }
+    },
+    "/api/v1/backfills/{backfill_id}/pause": {
+      "post": {
+        "operationId": "pause_backfill_api_v1_backfills__backfill_id__pause_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "backfill_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Backfill Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BackfillActionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BackfillRecord"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Pause Backfill",
+        "tags": [
+          "backfills"
+        ]
+      }
+    },
+    "/api/v1/backfills/{backfill_id}/resume": {
+      "post": {
+        "operationId": "resume_backfill_api_v1_backfills__backfill_id__resume_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "backfill_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Backfill Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BackfillActionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BackfillRecord"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Resume Backfill",
+        "tags": [
+          "backfills"
         ]
       }
     },

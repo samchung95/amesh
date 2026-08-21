@@ -12,14 +12,18 @@ Run historical workload ranges safely and observably without confusing them with
 
 ## In scope
 
-- [ ] **URS-F-0132** — The system shall create backfills over explicit time ranges, partitions or selected trigger occurrences.
-- [ ] **URS-F-0133** — The system shall preview the number of executions and estimated impact before submitting a backfill.
-- [ ] **URS-F-0134** — The system shall apply concurrency, rate, priority, labels, inputs and revision pinning to a backfill.
-- [ ] **URS-F-0135** — The system shall pause, resume, cancel and monitor a backfill as a first-class resource.
-- [ ] **URS-F-0136** — The system shall replay one or more prior executions while preserving source lineage.
-- [ ] **URS-F-0137** — The system shall prevent accidental duplicate external effects through dry-run and idempotency guidance.
-- [ ] **URS-F-0138** — The system shall track generated executions and aggregate success, failure, duration and cost.
-- [ ] **URS-F-0139** — The system shall resume incomplete backfills after service restart without regenerating completed occurrences.
+- [x] **URS-F-0132** — The system shall create backfills over explicit time ranges, partitions or selected trigger occurrences.
+- [x] **URS-F-0133** — The system shall preview the number of executions and estimated impact before submitting a backfill.
+- [x] **URS-F-0134** — The system shall apply concurrency, rate, priority, labels, inputs and revision pinning to a backfill.
+- [x] **URS-F-0135** — The system shall pause, resume, cancel and monitor a backfill as a first-class resource.
+- [x] **URS-F-0136** — The system shall replay one or more prior executions while preserving source lineage.
+- [x] **URS-F-0137** — The system shall prevent accidental duplicate external effects through dry-run and idempotency guidance.
+- [x] **URS-F-0138** — The system shall track generated executions and aggregate success, failure, duration and cost.
+- [x] **URS-F-0139** — The system shall resume incomplete backfills after service restart without regenerating completed occurrences.
+
+## Implementation completion evidence
+
+- 2026-08-22 — EPIC-106 is complete. Backfills are durable tenant-scoped resources over bounded time-range, partition, selected-occurrence or replay item sets. Dry-run preview reports count, task/cost impact and idempotency guidance. PostgreSQL state and outbox events preserve lifecycle and source lineage; workers apply pinned revisions, concurrency, rolling rate, priority, labels and inputs, then resume deterministic occurrence keys after restart without duplicate executions. Authorized APIs preview, create, list, monitor, pause, resume and cancel. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`execution-semantics.md`](../../docs/architecture/execution-semantics.md), [`0020_backfills.sql`](../../migrations/0020_backfills.sql), [`test_backfills.py`](../../tests/adapters/postgres/test_backfills.py), [`test_backfill_api.py`](../../tests/api/test_backfill_api.py) and [`test_backfill_contract.py`](../../tests/test_backfill_contract.py).
 
 ## Non-functional requirements
 
@@ -46,13 +50,13 @@ Run historical workload ranges safely and observably without confusing them with
 
 ## Definition of done
 
-- [ ] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
-- [ ] Public API, DSL, event and plugin contract changes pass compatibility checks.
-- [ ] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
-- [ ] Security, tenant isolation, redaction and audit behavior are reviewed.
-- [ ] Documentation, examples, migration notes and operational runbooks are updated.
-- [ ] Performance and recovery budgets are measured when this epic is on a critical path.
-- [ ] `python scripts/validate_backlog.py` passes.
+- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
+- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.
+- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
+- [x] Security, tenant isolation, redaction and audit behavior are reviewed.
+- [x] Documentation, examples, migration notes and operational runbooks are updated.
+- [x] Performance and recovery budgets are measured when this epic is on a critical path.
+- [x] `python scripts/validate_backlog.py` passes.
 
 ## Risks and unknowns
 

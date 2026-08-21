@@ -5,6 +5,7 @@ from .authorization_repository import (
     LastAdministratorError,
     PolicyVersionChanged,
 )
+from .backfill_repository import BackfillItemDefinition, BackfillRepository
 from .credential_repository import (
     CredentialPrincipal,
     CredentialRateLimitExceeded,
@@ -83,6 +84,8 @@ __all__ = [
     "WORKER_PROTOCOL_VERSION",
     "AssetMetadata",
     "AuthorizationRepository",
+    "BackfillItemDefinition",
+    "BackfillRepository",
     "CredentialPrincipal",
     "CredentialRateLimitExceeded",
     "CredentialRepository",

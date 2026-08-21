@@ -11,10 +11,12 @@ from sqlalchemy.ext.asyncio import create_async_engine
 
 from amesh.adapters.kubernetes import KubernetesJobRunner
 from amesh.adapters.postgres import (
+    PostgresBackfillRepository,
     PostgresExecutionRepository,
     PostgresSchedulerRepository,
     PostgresTenantRepository,
 )
+from amesh.backfills import BackfillService
 from amesh.config import Settings, get_settings
 from amesh.domain import ExecutionState, new_runtime_id
 from amesh.executor import InProcessExecutor, kubernetes_job_handler
@@ -118,12 +120,26 @@ async def recover_once(
     return recovered
 
 
+async def backfill_once(
+    repository: PostgresExecutionRepository,
+    backfill_repository: PostgresBackfillRepository,
+    *,
+    tenant_ids: Sequence[str],
+) -> int:
+    service = BackfillService(repository, backfill_repository)
+    processed = 0
+    for tenant_id in tenant_ids:
+        processed += await service.process_active(tenant_id=tenant_id)
+    return processed
+
+
 async def run_worker(settings: Settings) -> None:
     worker_uuid = new_runtime_id()
     worker_id = str(worker_uuid)
     engine = create_async_engine(settings.database_url)
     repository = PostgresExecutionRepository(engine)
     scheduler_repository = PostgresSchedulerRepository(engine)
+    backfill_repository = PostgresBackfillRepository(engine)
     tenant_repository = PostgresTenantRepository(engine)
     LOGGER.info("worker started", extra={"worker_id": worker_id})
     try:
@@ -137,6 +153,11 @@ async def run_worker(settings: Settings) -> None:
                     scheduler_repository,
                     tenant_ids=tenant_ids,
                     scheduler_id=worker_uuid,
+                )
+                await backfill_once(
+                    repository,
+                    backfill_repository,
+                    tenant_ids=tenant_ids,
                 )
                 await recover_once(repository, settings, tenant_ids=tenant_ids)
             except (DBAPIError, OSError):

@@ -91,6 +91,10 @@ class ExecutionInterventionRequest(ExecutionInterventionPreviewRequest):
     reason: str = Field(min_length=1, max_length=1024)
 
 
+class BackfillActionRequest(BaseModel):
+    reason: str = Field(min_length=1, max_length=1024)
+
+
 class TaskLog(BaseModel):
     task_id: str = Field(alias="taskId")
     attempt: int

@@ -210,6 +210,29 @@ Authorized callers can inspect both directions of the durable graph at
 `/api/v1/executions/{execution_id}/subflows` and
 `/api/v1/executions/{execution_id}/parent-subflow`.
 
+## Backfills and replay
+
+A backfill is a tenant-scoped durable resource pinned to one flow revision. Its selector expands to a
+bounded, deterministic item set from an explicit time range and interval, partition keys, selected
+occurrence timestamps or source execution IDs. `POST /api/v1/backfills/preview` is the dry-run path: it
+creates no state and reports execution count, estimated task/cost units, side-effect warnings and an
+occurrence-scoped idempotency-key template. Submission uses the same selector through
+`POST /api/v1/backfills`.
+
+The worker admits no more than the backfill's concurrent capacity or rolling one-minute rate budget.
+Every generated execution uses normal tenant/admission controls, the backfill priority, caller inputs
+and labels, a pinned revision and the stable key `backfill:<backfill-id>:<occurrence-key>`. Therefore a
+worker crash after execution creation but before item linkage converges on the same execution when the
+pending item is pumped again. Pausing stops new generation, resuming continues pending items, and
+cancelling marks only not-yet-generated items cancelled; already-created executions retain their
+ordinary independent lifecycle and evidence.
+
+Replay is the same controller with source-execution items. All sources must match the selected flow and
+revision. Source inputs and labels are retained unless explicitly overridden, while the item row and
+execution trigger preserve source-to-replay lineage. Monitoring aggregates pending, running, succeeded,
+failed and cancelled items plus actual task-based cost units. Backfill state events enter the
+transactional outbox, and completion is recorded only after every generated execution is terminal.
+
 ## External side effects
 
 Plugin and task authors must choose one:

@@ -43,7 +43,7 @@ commands_inbox, messages_outbox, consumed_messages
 dispatches, leases, resource_reservations
 trigger_definitions, trigger_instances, trigger_occurrences
 workers, service_instances
-backfills, backfill_occurrences
+backfills, backfill_items, backfill_events
 namespace_files, kv_entries, secret_metadata
 artifacts, artifact_references, cache_entries
 logs, metrics, execution_outputs

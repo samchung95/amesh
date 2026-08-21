@@ -36,6 +36,8 @@ class ExecutionLaunchSource(StrEnum):
     SCHEDULED = "scheduled"
     EVENT = "event"
     SUBFLOW = "subflow"
+    BACKFILL = "backfill"
+    REPLAY = "replay"
 
 
 class ExecutionInterventionAction(StrEnum):
@@ -212,6 +214,7 @@ class ExecutionRepository(Protocol):
         actor_id: str = "system:executor",
         labels: dict[str, str] | None = None,
         subflow: SubflowLaunchContext | None = None,
+        priority: int | None = None,
     ) -> PersistedExecution: ...
 
     async def request_admission(

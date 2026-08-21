@@ -1,5 +1,26 @@
 # Test Log
 
+## EPIC-106: Backfill, replay and historical reprocessing — 2026-08-22
+
+Spec source: Agent Hotel card `c18` and canonical `backlog/epics.json` EPIC-106 DoD.
+
+Verified with `uv`, Python 3.13 and PostgreSQL 17 on a fresh 20-migration database:
+
+- [x] Time ranges, partitions, selected occurrence timestamps and prior-execution IDs expand to bounded deterministic item sets.
+- [x] Dry-run preview creates no state and reports execution count, task/cost impact, side-effect warnings and an occurrence-scoped idempotency-key template.
+- [x] Submission pins one flow revision and applies backfill concurrency, rolling rate, execution-admission priority, labels and input overrides.
+- [x] Backfills are tenant-scoped first-class resources with list/get monitoring and pause, resume, cancel and automatic-completion states.
+- [x] Replay retains source lineage, inputs and labels while allowing explicit overrides; all replay sources must match the pinned flow revision.
+- [x] Generated executions use deterministic idempotency keys, normal admission controls and durable item linkage; a fresh service instance resumes pending items without regenerating completed occurrences.
+- [x] Aggregate monitoring reports pending, running, succeeded, failed and cancelled items, total execution duration, estimated cost units and actual task-based cost units.
+- [x] Backfill state/item evidence emits transactional outbox events. Cancellation stops pending generation while already-created executions retain their ordinary lifecycle.
+- [x] Focused domain, PostgreSQL and API suite: 5 passed. Full uninstrumented suite: 169 passed, 4 environment-gated tests skipped.
+- [x] Branch-coverage suite passed at 82.55%, above the 75% gate, with the instrumentation-sensitive 50 ms execution-deadline case excluded and verified separately without coverage.
+
+Adversarial pass: ambiguous selectors, naive timestamps, oversized ranges, mismatched replay sources, lifecycle conflicts, tenant authorization, rate/concurrency pressure, restart pumping and repeated idempotent pumping fail closed or converge as specified.
+
+Verdict: PASS — EPIC-106 requirements URS-F-0132 through URS-F-0139 are verified.
+
 ## EPIC-105: Concurrency, admission control and fairness — 2026-08-22
 
 Spec source: Agent Hotel card `c17` and canonical `backlog/epics.json` EPIC-105 DoD.

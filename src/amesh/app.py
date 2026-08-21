@@ -31,6 +31,7 @@ from amesh.adapters.kubernetes import KubernetesJobRunner
 from amesh.adapters.local import LocalProcessRunner
 from amesh.adapters.postgres import (
     PostgresAuthorizationRepository,
+    PostgresBackfillRepository,
     PostgresCredentialRepository,
     PostgresExecutionRepository,
     PostgresTenantRepository,
@@ -38,6 +39,7 @@ from amesh.adapters.postgres import (
 )
 from amesh.api.models import (
     AuthorizationExplanationRequest,
+    BackfillActionRequest,
     CreateExecutionRequest,
     CreateTenantRequest,
     ExchangeCredentialRequest,
@@ -57,6 +59,7 @@ from amesh.api.models import (
     UiSessionResponse,
 )
 from amesh.authorization import AuthorizationDenied, AuthorizationService
+from amesh.backfills import BackfillService
 from amesh.config import Settings, get_settings
 from amesh.credentials import CredentialOperationError, CredentialService, InvalidCredential
 from amesh.domain import (
@@ -66,6 +69,10 @@ from amesh.domain import (
     AdmissionResourceType,
     AuthorizationDecision,
     AuthorizationRequest,
+    BackfillPreview,
+    BackfillRecord,
+    BackfillSpec,
+    BackfillState,
     CredentialMetadata,
     ExecutionState,
     InvalidTransition,
@@ -188,6 +195,28 @@ def get_repository() -> PostgresExecutionRepository:
 RepositoryDependency = Annotated[
     PostgresExecutionRepository,
     Depends(get_repository),
+]
+
+
+@lru_cache
+def get_backfill_repository() -> PostgresBackfillRepository:
+    return PostgresBackfillRepository(database_engine())
+
+
+BackfillRepositoryDependency = Annotated[
+    PostgresBackfillRepository,
+    Depends(get_backfill_repository),
+]
+
+
+@lru_cache
+def get_backfill_service() -> BackfillService:
+    return BackfillService(get_repository(), get_backfill_repository())
+
+
+BackfillServiceDependency = Annotated[
+    BackfillService,
+    Depends(get_backfill_service),
 ]
 SettingsDependency = Annotated[Settings, Depends(get_settings)]
 
@@ -768,6 +797,222 @@ async def reconcile_admissions(
             detail=str(exc),
         ) from exc
     return {"promoted": promoted}
+
+
+@app.post(
+    "/api/v1/backfills/preview",
+    response_model=BackfillPreview,
+    tags=["backfills"],
+)
+async def preview_backfill(
+    request: BackfillSpec,
+    service: BackfillServiceDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> BackfillPreview:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="execution",
+        action=PermissionAction.EXECUTE,
+        tenant_id=tenant_id,
+        namespace=request.namespace,
+    )
+    try:
+        return await service.preview(request, tenant_id=tenant_id)
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=str(exc),
+        ) from exc
+
+
+@app.post(
+    "/api/v1/backfills",
+    response_model=BackfillRecord,
+    status_code=status.HTTP_201_CREATED,
+    tags=["backfills"],
+)
+async def create_backfill(
+    request: BackfillSpec,
+    service: BackfillServiceDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> BackfillRecord:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="execution",
+        action=PermissionAction.EXECUTE,
+        tenant_id=tenant_id,
+        namespace=request.namespace,
+    )
+    try:
+        return await service.create(
+            request,
+            tenant_id=tenant_id,
+            actor_id=str(actor.principal_id),
+        )
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    except (TenantQuotaExceeded, ValueError) as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=str(exc),
+        ) from exc
+
+
+@app.get(
+    "/api/v1/backfills",
+    response_model=list[BackfillRecord],
+    tags=["backfills"],
+)
+async def list_backfills(
+    repository: BackfillRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    limit: int = Query(default=100, ge=1, le=1000),
+) -> list[BackfillRecord]:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="execution",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+    )
+    return await repository.list_backfills(tenant_id=tenant_id, limit=limit)
+
+
+@app.get(
+    "/api/v1/backfills/{backfill_id}",
+    response_model=BackfillRecord,
+    tags=["backfills"],
+)
+async def get_backfill(
+    backfill_id: UUID,
+    repository: BackfillRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> BackfillRecord:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="execution",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+    )
+    try:
+        return await repository.refresh_backfill(backfill_id, tenant_id=tenant_id)
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+
+
+async def _transition_backfill(
+    backfill_id: UUID,
+    state: BackfillState,
+    request: BackfillActionRequest,
+    repository: PostgresBackfillRepository,
+    actor: ActorContext,
+    authorization_service: AuthorizationService,
+    tenant_id: str,
+) -> BackfillRecord:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="execution",
+        action=PermissionAction.EXECUTE,
+        tenant_id=tenant_id,
+    )
+    try:
+        return await repository.transition_backfill(
+            backfill_id,
+            state,
+            tenant_id=tenant_id,
+            actor_id=str(actor.principal_id),
+            reason=request.reason,
+        )
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
+
+
+@app.post(
+    "/api/v1/backfills/{backfill_id}/pause",
+    response_model=BackfillRecord,
+    tags=["backfills"],
+)
+async def pause_backfill(
+    backfill_id: UUID,
+    request: BackfillActionRequest,
+    repository: BackfillRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> BackfillRecord:
+    return await _transition_backfill(
+        backfill_id,
+        BackfillState.PAUSED,
+        request,
+        repository,
+        actor,
+        authorization_service,
+        tenant_id,
+    )
+
+
+@app.post(
+    "/api/v1/backfills/{backfill_id}/resume",
+    response_model=BackfillRecord,
+    tags=["backfills"],
+)
+async def resume_backfill(
+    backfill_id: UUID,
+    request: BackfillActionRequest,
+    repository: BackfillRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> BackfillRecord:
+    return await _transition_backfill(
+        backfill_id,
+        BackfillState.RUNNING,
+        request,
+        repository,
+        actor,
+        authorization_service,
+        tenant_id,
+    )
+
+
+@app.post(
+    "/api/v1/backfills/{backfill_id}/cancel",
+    response_model=BackfillRecord,
+    tags=["backfills"],
+)
+async def cancel_backfill(
+    backfill_id: UUID,
+    request: BackfillActionRequest,
+    repository: BackfillRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> BackfillRecord:
+    return await _transition_backfill(
+        backfill_id,
+        BackfillState.CANCELLED,
+        request,
+        repository,
+        actor,
+        authorization_service,
+        tenant_id,
+    )
 
 
 @app.get(

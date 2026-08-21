@@ -1365,6 +1365,7 @@ class PostgresExecutionRepository(ExecutionRepository):
         actor_id: str = "system:executor",
         labels: dict[str, str] | None = None,
         subflow: SubflowLaunchContext | None = None,
+        priority: int | None = None,
     ) -> PersistedExecution:
         if subflow is not None and flow.revision != subflow.target_revision:
             raise ValueError("subflow target revision does not match the loaded flow revision")
@@ -1471,7 +1472,7 @@ class PostgresExecutionRepository(ExecutionRepository):
                 AdmissionResourceType.EXECUTION,
                 execution_id,
                 resolved_policies,
-                flow.priority,
+                flow.priority if priority is None else priority,
             )
             if (
                 admission.outcome is AdmissionOutcome.FAILED
