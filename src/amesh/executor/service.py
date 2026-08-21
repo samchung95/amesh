@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import asyncio
 import hashlib
+import json
 import logging
 from collections.abc import Awaitable, Callable, Mapping
+from contextlib import suppress
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from typing import Any
@@ -18,7 +20,13 @@ from amesh.domain import (
     FailureCategory,
     resolve_admission_policies,
 )
-from amesh.dsl import FlowDefinition
+from amesh.dsl import (
+    FlowDefinition,
+    ResourceKind,
+    ResourceSchemaRegistry,
+    TaskResourceLimits,
+    default_resource_registry,
+)
 from amesh.dsl.models import RetryPolicy, TaskDefinition
 from amesh.expressions import (
     ExpressionContext,
@@ -35,7 +43,44 @@ from amesh.ports import (
     TaskStateConflictError,
 )
 
+from .contracts import (
+    TaskCompletion,
+    TaskContextProvider,
+    TaskContextRequest,
+    TaskContextResources,
+    TaskDeferral,
+    TaskHandlerResult,
+)
+
 LOGGER = logging.getLogger("amesh.task.core.log")
+
+
+class TaskCancellationChannel:
+    """Typed, polling cancellation signal backed by durable execution state."""
+
+    def __init__(
+        self,
+        repository: ExecutionRepository | None = None,
+        *,
+        tenant_id: str | None = None,
+        execution_id: UUID | None = None,
+    ) -> None:
+        self._repository = repository
+        self._tenant_id = tenant_id
+        self._execution_id = execution_id
+
+    async def requested(self) -> bool:
+        if self._repository is None or self._tenant_id is None or self._execution_id is None:
+            return False
+        execution = await self._repository.get_execution(
+            self._execution_id,
+            tenant_id=self._tenant_id,
+        )
+        return execution.state in {ExecutionState.CANCELLING, ExecutionState.CANCELLED}
+
+    async def wait(self, *, poll_interval: float = 0.05) -> None:
+        while not await self.requested():
+            await asyncio.sleep(poll_interval)
 
 
 @dataclass(frozen=True)
@@ -50,9 +95,13 @@ class TaskExecutionContext:
     variables: Mapping[str, Any]
     labels: Mapping[str, str] = field(default_factory=dict)
     trigger: Mapping[str, Any] = field(default_factory=dict)
+    secret_scopes: tuple[str, ...] = ()
+    secrets: Mapping[str, str] = field(default_factory=dict)
+    files: Mapping[str, str] = field(default_factory=dict)
+    cancellation: TaskCancellationChannel = field(default_factory=TaskCancellationChannel)
 
 
-TaskHandler = Callable[[TaskDefinition, TaskExecutionContext], Awaitable[dict[str, Any]]]
+TaskHandler = Callable[[TaskDefinition, TaskExecutionContext], Awaitable[TaskHandlerResult]]
 
 
 class ExecutionBlockedError(RuntimeError):
@@ -69,6 +118,25 @@ class TaskExecutionFailure(RuntimeError):
     def __init__(self, message: str, category: FailureCategory) -> None:
         super().__init__(message)
         self.category = category
+
+
+class TaskConfigurationError(TaskExecutionFailure):
+    def __init__(self, message: str) -> None:
+        super().__init__(message, FailureCategory.CONFIGURATION)
+
+
+class TaskUserCodeError(TaskExecutionFailure):
+    def __init__(self, message: str) -> None:
+        super().__init__(message, FailureCategory.USER_CODE)
+
+
+class TaskPlatformError(TaskExecutionFailure):
+    def __init__(self, message: str) -> None:
+        super().__init__(message, FailureCategory.PLATFORM)
+
+
+class TaskResourceLimitError(TaskUserCodeError):
+    """Raised when task-produced evidence exceeds its declared contract limits."""
 
 
 class TaskExecutionPaused(RuntimeError):
@@ -141,12 +209,16 @@ class InProcessExecutor:
         handlers: Mapping[str, TaskHandler] | None = None,
         expressions: ExpressionEngine | None = None,
         recover_running_types: frozenset[str] | None = None,
+        context_provider: TaskContextProvider | None = None,
+        resource_registry: ResourceSchemaRegistry | None = None,
     ) -> None:
         self._repository = repository
         self._handlers = _core_handlers()
         self._handlers.update(handlers or {})
         self._expressions = expressions or NativeExpressionEngine()
         self._recover_running_types = recover_running_types or frozenset()
+        self._context_provider = context_provider
+        self._resource_registry = resource_registry or default_resource_registry()
 
     async def create_execution(
         self,
@@ -158,6 +230,7 @@ class InProcessExecutor:
     ) -> UUID:
         if flow.disabled:
             raise ValueError(f"flow {flow.namespace}.{flow.id} is disabled")
+        _validate_registered_task_schemas(flow, self._resource_registry)
         execution = await self._repository.create_execution(
             flow,
             tenant_id=tenant_id,
@@ -202,6 +275,39 @@ class InProcessExecutor:
                     await self._repository.list_task_runs(execution_id, tenant_id=tenant_id)
                 ),
             )
+        deferred_task_run_ids: set[UUID] = set()
+        expired_deferral = False
+        for task_run in task_runs:
+            if task_run.state is not TaskRunState.RUNNING:
+                continue
+            deferral = await self._repository.get_task_deferral(
+                task_run.task_run_id,
+                tenant_id=tenant_id,
+            )
+            if deferral is None:
+                continue
+            if deferral.state == "EXPIRED" or (
+                deferral.state == "WAITING"
+                and deferral.expires_at is not None
+                and now >= deferral.expires_at
+            ):
+                with suppress(TaskStateConflictError):
+                    await self._repository.fail_task(
+                        task_run.task_run_id,
+                        deferral.attempt,
+                        "asynchronous task deferral expired",
+                        tenant_id=tenant_id,
+                        failure_category=FailureCategory.TIMED_OUT,
+                    )
+                expired_deferral = True
+            elif deferral.state == "WAITING":
+                deferred_task_run_ids.add(task_run.task_run_id)
+        if expired_deferral:
+            task_runs = await self._repository.list_task_runs(
+                execution_id,
+                tenant_id=tenant_id,
+            )
+
         decision = reduce_orchestration(flow, task_runs, now=now)
         if decision.terminal_state is not None:
             execution = await self._finish_execution(execution, decision)
@@ -221,6 +327,7 @@ class InProcessExecutor:
             or (
                 task_runs_by_id[task.id].state is TaskRunState.RUNNING
                 and task.type in self._recover_running_types
+                and task_runs_by_id[task.id].task_run_id not in deferred_task_run_ids
             )
         ]
         if max_tasks is not None:
@@ -301,6 +408,8 @@ class InProcessExecutor:
                 )
             if progress.tasks_run == 0:
                 if any(task_run.state is TaskRunState.RUNNING for task_run in progress.task_runs):
+                    if await self._has_waiting_deferral(progress.task_runs, tenant_id):
+                        return progress
                     await asyncio.sleep(0.05)
                     continue
                 retry_at = min(
@@ -426,18 +535,6 @@ class InProcessExecutor:
                 tenant_id=tenant_id,
             )
             return _TaskRunOutcome(claimed=True, failure=reason)
-        context = TaskExecutionContext(
-            tenant_id=tenant_id,
-            execution_id=execution_id,
-            task_run_id=running.task_run_id,
-            attempt=running.current_attempt,
-            attempt_id=uuid5(running.task_run_id, f"attempt:{running.current_attempt}"),
-            inputs=execution.inputs,
-            outputs=outputs,
-            variables=flow.variables,
-            labels=execution.labels,
-            trigger=execution.trigger,
-        )
         try:
             if condition_error is not None:
                 raise condition_error
@@ -446,11 +543,58 @@ class InProcessExecutor:
                 task,
                 expression_context,
             )
+            resources = await self._resolve_context_resources(
+                rendered_task,
+                execution,
+                running,
+            )
+            context = TaskExecutionContext(
+                tenant_id=tenant_id,
+                execution_id=execution_id,
+                task_run_id=running.task_run_id,
+                attempt=running.current_attempt,
+                attempt_id=uuid5(running.task_run_id, f"attempt:{running.current_attempt}"),
+                inputs=execution.inputs,
+                outputs=outputs,
+                variables=flow.variables,
+                labels=execution.labels,
+                trigger=execution.trigger,
+                secret_scopes=rendered_task.contract.secret_scopes,
+                secrets=resources.secrets,
+                files=resources.files,
+                cancellation=TaskCancellationChannel(
+                    self._repository,
+                    tenant_id=tenant_id,
+                    execution_id=execution_id,
+                ),
+            )
             if task.timeout_seconds is None:
                 result = await handler(rendered_task, context)
             else:
                 async with asyncio.timeout(task.timeout_seconds):
                     result = await handler(rendered_task, context)
+            if isinstance(result, TaskDeferral):
+                await self._repository.defer_task(
+                    running.task_run_id,
+                    running.current_attempt,
+                    result.resume_token,
+                    tenant_id=tenant_id,
+                    metadata=result.metadata,
+                    expires_at=result.expires_at,
+                )
+                return _TaskRunOutcome(claimed=True)
+            output, evidence = normalize_task_completion(
+                result,
+                rendered_task.contract.resource_limits,
+            )
+            await self._repository.complete_task(
+                running.task_run_id,
+                running.current_attempt,
+                output,
+                tenant_id=tenant_id,
+                evidence=evidence,
+            )
+            return _TaskRunOutcome(claimed=True)
         except TaskExecutionPaused:
             return _TaskRunOutcome(claimed=True)
         except Exception as exc:
@@ -498,13 +642,58 @@ class InProcessExecutor:
                 failure_category=category,
             )
             return _TaskRunOutcome(claimed=True, failure=reason)
-        await self._repository.complete_task(
-            running.task_run_id,
-            running.current_attempt,
-            result,
-            tenant_id=tenant_id,
-        )
-        return _TaskRunOutcome(claimed=True)
+
+    async def _has_waiting_deferral(
+        self,
+        task_runs: tuple[PersistedTaskRun, ...],
+        tenant_id: str,
+    ) -> bool:
+        for task_run in task_runs:
+            if task_run.state is not TaskRunState.RUNNING:
+                continue
+            deferral = await self._repository.get_task_deferral(
+                task_run.task_run_id,
+                tenant_id=tenant_id,
+            )
+            if deferral is not None and deferral.state == "WAITING":
+                return True
+        return False
+
+    async def _resolve_context_resources(
+        self,
+        task: TaskDefinition,
+        execution: PersistedExecution,
+        task_run: PersistedTaskRun,
+    ) -> TaskContextResources:
+        contract = task.contract
+        if self._context_provider is None:
+            if contract.secret_scopes:
+                raise TaskConfigurationError(
+                    f"task {task.id!r} declares secret scopes but no context provider is configured"
+                )
+            return TaskContextResources(files=contract.files)
+        try:
+            resources = await self._context_provider.resolve(
+                TaskContextRequest(
+                    tenantId=execution.tenant_id,
+                    executionId=str(execution.execution_id),
+                    taskRunId=str(task_run.task_run_id),
+                    attempt=task_run.current_attempt,
+                    taskType=task.type,
+                    secretScopes=contract.secret_scopes,
+                    declaredFiles=contract.files,
+                )
+            )
+        except TaskExecutionFailure:
+            raise
+        except Exception as exc:
+            raise TaskPlatformError(f"task context provider failed: {exc}") from exc
+        unexpected_files = sorted(set(resources.files) - set(contract.files))
+        if unexpected_files:
+            raise TaskConfigurationError(
+                "context provider returned undeclared files: " + ", ".join(unexpected_files)
+            )
+        return resources
 
     async def _finish_execution(
         self,
@@ -644,6 +833,84 @@ def _is_ready(task_run: PersistedTaskRun, now: datetime) -> bool:
         return True
     retry_at = task_run.retry_at
     return task_run.state is TaskRunState.RETRY_DELAY and retry_at is not None and retry_at <= now
+
+
+def normalize_task_completion(
+    result: dict[str, Any] | TaskCompletion,
+    limits: TaskResourceLimits,
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    completion = result if isinstance(result, TaskCompletion) else TaskCompletion(output=result)
+    serialized = completion.model_dump(mode="json", by_alias=True)
+    output = serialized["output"]
+    logs = serialized["logs"]
+    artifacts = serialized["artifacts"]
+    output_bytes = _json_size(output)
+    log_bytes = _json_size(logs)
+    artifact_bytes = sum(int(artifact["sizeBytes"]) for artifact in artifacts)
+    _require_within_limit("output", output_bytes, limits.max_output_bytes)
+    _require_within_limit("log", log_bytes, limits.max_log_bytes)
+    _require_within_limit("artifact", artifact_bytes, limits.max_artifact_bytes)
+    return output, {
+        "logs": logs,
+        "metrics": serialized["metrics"],
+        "artifacts": artifacts,
+        "exit": serialized["exit"],
+        "sizes": {
+            "outputBytes": output_bytes,
+            "logBytes": log_bytes,
+            "artifactBytes": artifact_bytes,
+        },
+    }
+
+
+def _json_size(value: object) -> int:
+    return len(json.dumps(value, ensure_ascii=False, separators=(",", ":")).encode("utf-8"))
+
+
+def _require_within_limit(kind: str, actual: int, limit: int) -> None:
+    if actual > limit:
+        raise TaskResourceLimitError(
+            f"task {kind} evidence is {actual} bytes; configured limit is {limit} bytes"
+        )
+
+
+def _validate_registered_task_schemas(
+    flow: FlowDefinition,
+    registry: ResourceSchemaRegistry,
+) -> None:
+    structural = {
+        "id",
+        "type",
+        "description",
+        "dependsOn",
+        "runIf",
+        "retry",
+        "tasks",
+        "contract",
+    }
+    pending = list(flow.tasks)
+    while pending:
+        task = pending.pop(0)
+        pending[0:0] = task.tasks
+        if registry.descriptor(ResourceKind.TASK, task.type) is None:
+            continue
+        payload = task.model_dump(
+            mode="json",
+            by_alias=True,
+            exclude_none=True,
+            exclude_defaults=True,
+        )
+        configuration = {
+            key: value
+            for key, value in payload.items()
+            if key not in structural and not key.startswith("x-")
+        }
+        issues = registry.validate(ResourceKind.TASK, task.type, configuration)
+        if issues:
+            details = "; ".join(issue.message for issue in issues)
+            raise TaskConfigurationError(
+                f"task {task.id!r} configuration does not match {task.type!r}: {details}"
+            )
 
 
 def _core_handlers() -> dict[str, TaskHandler]:

@@ -125,6 +125,19 @@ class PersistedTaskRun(BaseModel):
     retry_at: datetime | None = None
     result: dict[str, Any] | None = None
     failure_category: FailureCategory | None = None
+    evidence: dict[str, Any] = Field(default_factory=dict)
+
+
+class PersistedTaskDeferral(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    task_run_id: UUID
+    attempt: int = Field(ge=1)
+    state: str
+    metadata: dict[str, Any] = Field(default_factory=dict)
+    expires_at: datetime | None = None
+    deferred_at: datetime
+    resumed_at: datetime | None = None
 
 
 class ExecutionInterventionPreview(BaseModel):
@@ -283,6 +296,35 @@ class ExecutionRepository(Protocol):
         tenant_id: str,
         worker_id: UUID | None = None,
         fencing_token: int | None = None,
+        evidence: dict[str, object] | None = None,
+    ) -> PersistedTaskRun: ...
+
+    async def defer_task(
+        self,
+        task_run_id: UUID,
+        attempt: int,
+        resume_token: str,
+        *,
+        tenant_id: str,
+        metadata: dict[str, object],
+        expires_at: datetime | None = None,
+    ) -> PersistedTaskDeferral: ...
+
+    async def get_task_deferral(
+        self,
+        task_run_id: UUID,
+        *,
+        tenant_id: str,
+    ) -> PersistedTaskDeferral | None: ...
+
+    async def resume_deferred_task(
+        self,
+        task_run_id: UUID,
+        resume_token: str,
+        result: dict[str, object],
+        *,
+        tenant_id: str,
+        evidence: dict[str, object] | None = None,
     ) -> PersistedTaskRun: ...
 
     async def retry_task(

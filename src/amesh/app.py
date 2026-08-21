@@ -52,6 +52,7 @@ from amesh.api.models import (
     ReadinessResponse,
     ReduceExecutionRequest,
     ReduceExecutionResponse,
+    ResumeTaskRequest,
     RevokedCredentialsResponse,
     RotateCredentialRequest,
     RunnerMode,
@@ -99,8 +100,10 @@ from amesh.dsl import (
 from amesh.executor import (
     InProcessExecutor,
     SubflowCoordinator,
+    TaskResourceLimitError,
     kubernetes_job_handler,
     local_process_handler,
+    normalize_task_completion,
     preview_execution_intervention,
     subflow_task_handler,
 )
@@ -122,6 +125,8 @@ from amesh.ports import (
     PersistedExecution,
     PersistedFlow,
     PersistedSubflow,
+    PersistedTaskRun,
+    TaskStateConflictError,
     TenantQuotaExceeded,
     TenantUnavailableError,
     WorkerFenceError,
@@ -1092,6 +1097,63 @@ async def get_execution(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
     task_runs = await repository.list_task_runs(execution_id, tenant_id=tenant_id)
     return ExecutionDetail(execution=execution, taskRuns=task_runs)
+
+
+@app.post(
+    "/api/v1/executions/{execution_id}/task-runs/{task_run_id}/resume",
+    response_model=PersistedTaskRun,
+    tags=["executions"],
+)
+async def resume_task_run(
+    execution_id: UUID,
+    task_run_id: UUID,
+    request: ResumeTaskRequest,
+    repository: RepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> PersistedTaskRun:
+    try:
+        execution = await repository.get_execution(execution_id, tenant_id=tenant_id)
+        flow = await repository.get_flow(
+            execution.namespace,
+            execution.flow_id,
+            tenant_id=tenant_id,
+            revision=execution.flow_revision,
+        )
+        task_runs = await repository.list_task_runs(execution_id, tenant_id=tenant_id)
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="execution",
+        action=PermissionAction.EXECUTE,
+        tenant_id=tenant_id,
+        namespace=execution.namespace,
+    )
+    task_run = next((item for item in task_runs if item.task_run_id == task_run_id), None)
+    if task_run is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="task run not found")
+    task = next((item for item in flow.tasks if item.id == task_run.task_id), None)
+    if task is None:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT, detail="task contract unavailable"
+        )
+    try:
+        output, evidence = normalize_task_completion(
+            request.completion,
+            task.contract.resource_limits,
+        )
+        return await repository.resume_deferred_task(
+            task_run_id,
+            request.resume_token,
+            output,
+            tenant_id=tenant_id,
+            evidence=evidence,
+        )
+    except (TaskResourceLimitError, TaskStateConflictError, ValueError) as exc:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
 
 
 @app.get(

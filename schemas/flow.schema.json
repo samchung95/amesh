@@ -194,6 +194,31 @@
       "title": "RetryPolicy",
       "type": "object"
     },
+    "RunnableTaskContract": {
+      "additionalProperties": false,
+      "properties": {
+        "files": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Files",
+          "type": "object"
+        },
+        "resourceLimits": {
+          "$ref": "#/$defs/TaskResourceLimits"
+        },
+        "secretScopes": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Secretscopes",
+          "type": "array"
+        }
+      },
+      "title": "RunnableTaskContract",
+      "type": "object"
+    },
     "TaskDefinition": {
       "additionalProperties": true,
       "properties": {
@@ -218,6 +243,9 @@
           },
           "title": "Concurrency",
           "type": "array"
+        },
+        "contract": {
+          "$ref": "#/$defs/RunnableTaskContract"
         },
         "dependsOn": {
           "items": {
@@ -338,6 +366,31 @@
         "type"
       ],
       "title": "TaskDefinition",
+      "type": "object"
+    },
+    "TaskResourceLimits": {
+      "additionalProperties": false,
+      "properties": {
+        "maxArtifactBytes": {
+          "default": 104857600,
+          "minimum": 1,
+          "title": "Maxartifactbytes",
+          "type": "integer"
+        },
+        "maxLogBytes": {
+          "default": 1048576,
+          "minimum": 1,
+          "title": "Maxlogbytes",
+          "type": "integer"
+        },
+        "maxOutputBytes": {
+          "default": 1048576,
+          "minimum": 1,
+          "title": "Maxoutputbytes",
+          "type": "integer"
+        }
+      },
+      "title": "TaskResourceLimits",
       "type": "object"
     },
     "TriggerDefinition": {

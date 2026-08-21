@@ -49,6 +49,7 @@ _TASK_STRUCTURE_FIELDS = {
     "runIf",
     "retry",
     "tasks",
+    "contract",
 }
 _TRIGGER_STRUCTURE_FIELDS = {"id", "type", "disabled"}
 _INPUT_STRUCTURE_FIELDS = {"id", "type", "required", "description", "sensitive"}

@@ -120,6 +120,12 @@
       "mode": "expand",
       "onlineCompatible": true,
       "rollbackGuidance": "Pause backfill workers and forward-fix the additive backfill resource, occurrence and event tables; retain generated execution lineage and immutable event evidence."
+    },
+    {
+      "file": "0021_runnable_task_contract.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Pause new asynchronous task deferrals and forward-fix additive attempt evidence or resume-token state; retain task attempt history and reject unresolved callbacks until reconciled."
     }
   ]
 }

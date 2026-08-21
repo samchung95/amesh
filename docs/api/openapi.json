@@ -1391,7 +1391,10 @@
           "NON_RETRYABLE",
           "CANCELLED",
           "TIMED_OUT",
-          "INFRASTRUCTURE"
+          "INFRASTRUCTURE",
+          "CONFIGURATION",
+          "USER_CODE",
+          "PLATFORM"
         ],
         "title": "FailureCategory",
         "type": "string"
@@ -1896,6 +1899,11 @@
             "title": "Current Attempt",
             "type": "integer"
           },
+          "evidence": {
+            "additionalProperties": true,
+            "title": "Evidence",
+            "type": "object"
+          },
           "execution_id": {
             "format": "uuid",
             "title": "Execution Id",
@@ -2196,6 +2204,25 @@
         "title": "ResourceMetadata",
         "type": "object"
       },
+      "ResumeTaskRequest": {
+        "properties": {
+          "completion": {
+            "$ref": "#/components/schemas/TaskCompletion"
+          },
+          "resumeToken": {
+            "maxLength": 4096,
+            "minLength": 16,
+            "title": "Resumetoken",
+            "type": "string"
+          }
+        },
+        "required": [
+          "resumeToken",
+          "completion"
+        ],
+        "title": "ResumeTaskRequest",
+        "type": "object"
+      },
       "RevokedCredentialsResponse": {
         "properties": {
           "revokedCount": {
@@ -2448,6 +2475,125 @@
         "title": "SubflowPropagation",
         "type": "object"
       },
+      "TaskArtifactRecord": {
+        "properties": {
+          "mediaType": {
+            "anyOf": [
+              {
+                "maxLength": 255,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mediatype"
+          },
+          "sizeBytes": {
+            "minimum": 0.0,
+            "title": "Sizebytes",
+            "type": "integer"
+          },
+          "uri": {
+            "maxLength": 4096,
+            "minLength": 1,
+            "title": "Uri",
+            "type": "string"
+          }
+        },
+        "required": [
+          "uri",
+          "sizeBytes"
+        ],
+        "title": "TaskArtifactRecord",
+        "type": "object"
+      },
+      "TaskCompletion": {
+        "properties": {
+          "artifacts": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/TaskArtifactRecord"
+            },
+            "title": "Artifacts",
+            "type": "array"
+          },
+          "exit": {
+            "$ref": "#/components/schemas/TaskExitMetadata"
+          },
+          "logs": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/TaskLogRecord"
+            },
+            "title": "Logs",
+            "type": "array"
+          },
+          "metrics": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/TaskMetricRecord"
+            },
+            "title": "Metrics",
+            "type": "array"
+          },
+          "output": {
+            "additionalProperties": true,
+            "title": "Output",
+            "type": "object"
+          }
+        },
+        "title": "TaskCompletion",
+        "type": "object"
+      },
+      "TaskExitMetadata": {
+        "properties": {
+          "code": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Code"
+          },
+          "durationMs": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Durationms"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "maxLength": 4096,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "status": {
+            "default": "SUCCESS",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "title": "TaskExitMetadata",
+        "type": "object"
+      },
       "TaskLog": {
         "properties": {
           "attempt": {
@@ -2481,6 +2627,83 @@
           "state"
         ],
         "title": "TaskLog",
+        "type": "object"
+      },
+      "TaskLogRecord": {
+        "properties": {
+          "fields": {
+            "additionalProperties": true,
+            "title": "Fields",
+            "type": "object"
+          },
+          "level": {
+            "default": "INFO",
+            "maxLength": 32,
+            "minLength": 1,
+            "title": "Level",
+            "type": "string"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          },
+          "redacted": {
+            "default": false,
+            "title": "Redacted",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "message"
+        ],
+        "title": "TaskLogRecord",
+        "type": "object"
+      },
+      "TaskMetricRecord": {
+        "properties": {
+          "labels": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Labels",
+            "type": "object"
+          },
+          "name": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "unit": {
+            "anyOf": [
+              {
+                "maxLength": 64,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unit"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "title": "Value"
+          }
+        },
+        "required": [
+          "name",
+          "value"
+        ],
+        "title": "TaskMetricRecord",
         "type": "object"
       },
       "TaskRunState": {
@@ -6093,6 +6316,101 @@
           }
         },
         "summary": "List Execution Subflows",
+        "tags": [
+          "executions"
+        ]
+      }
+    },
+    "/api/v1/executions/{execution_id}/task-runs/{task_run_id}/resume": {
+      "post": {
+        "operationId": "resume_task_run_api_v1_executions__execution_id__task_runs__task_run_id__resume_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "execution_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Execution Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "task_run_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Task Run Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResumeTaskRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PersistedTaskRun"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Resume Task Run",
         "tags": [
           "executions"
         ]

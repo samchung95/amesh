@@ -12,14 +12,18 @@ Define the lifecycle contract for units of executable work.
 
 ## In scope
 
-- [ ] **URS-F-0180** — The system shall validate task configuration against plugin-provided schemas before an execution starts.
-- [ ] **URS-F-0181** — The system shall create one task-run identity per logical attempt and preserve attempt history.
-- [ ] **URS-F-0182** — The system shall supply a typed execution context, scoped secrets, files, variables and cancellation channel.
-- [ ] **URS-F-0183** — The system shall capture structured outputs, metrics, logs, artifacts and exit metadata.
-- [ ] **URS-F-0184** — The system shall distinguish user-code failure, configuration failure, infrastructure failure and platform failure.
-- [ ] **URS-F-0185** — The system shall support synchronous completion and asynchronous deferral with a durable resume token.
-- [ ] **URS-F-0186** — The system shall bound task resource use and enforce output, log and artifact limits.
-- [ ] **URS-F-0187** — The system shall make task completion idempotent and reject stale attempt results.
+- [x] **URS-F-0180** — The system shall validate task configuration against plugin-provided schemas before an execution starts.
+- [x] **URS-F-0181** — The system shall create one task-run identity per logical attempt and preserve attempt history.
+- [x] **URS-F-0182** — The system shall supply a typed execution context, scoped secrets, files, variables and cancellation channel.
+- [x] **URS-F-0183** — The system shall capture structured outputs, metrics, logs, artifacts and exit metadata.
+- [x] **URS-F-0184** — The system shall distinguish user-code failure, configuration failure, infrastructure failure and platform failure.
+- [x] **URS-F-0185** — The system shall support synchronous completion and asynchronous deferral with a durable resume token.
+- [x] **URS-F-0186** — The system shall bound task resource use and enforce output, log and artifact limits.
+- [x] **URS-F-0187** — The system shall make task completion idempotent and reject stale attempt results.
+
+## Implementation completion evidence
+
+- 2026-08-22 — EPIC-200 is complete. Registered task schemas are validated before execution creation; every attempt retains its durable identity and history. Handlers receive typed inputs, outputs, variables, declared secret scopes/files and a durable cancellation channel, and can return structured output, logs, metrics, artifacts and exit evidence under configured size limits. Failure categories distinguish configuration, user-code, infrastructure and platform causes. Asynchronous handlers persist hashed, expiring resume tokens and survive executor restart; the authorized resume API converges duplicate callbacks while stale attempts fail closed. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`execution-semantics.md`](../../docs/architecture/execution-semantics.md), [`0021_runnable_task_contract.sql`](../../migrations/0021_runnable_task_contract.sql), [`test_runnable_task_contract.py`](../../tests/executor/test_runnable_task_contract.py), [`test_task_deferral.py`](../../tests/executor/test_task_deferral.py) and [`test_task_resume_api.py`](../../tests/api/test_task_resume_api.py).
 
 ## Non-functional requirements
 
@@ -45,13 +49,13 @@ Define the lifecycle contract for units of executable work.
 
 ## Definition of done
 
-- [ ] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
-- [ ] Public API, DSL, event and plugin contract changes pass compatibility checks.
-- [ ] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
-- [ ] Security, tenant isolation, redaction and audit behavior are reviewed.
-- [ ] Documentation, examples, migration notes and operational runbooks are updated.
-- [ ] Performance and recovery budgets are measured when this epic is on a critical path.
-- [ ] `python scripts/validate_backlog.py` passes.
+- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
+- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.
+- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
+- [x] Security, tenant isolation, redaction and audit behavior are reviewed.
+- [x] Documentation, examples, migration notes and operational runbooks are updated.
+- [x] Performance and recovery budgets are measured when this epic is on a critical path.
+- [x] `python scripts/validate_backlog.py` passes.
 
 ## Risks and unknowns
 

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import hmac
 import json
 from collections.abc import Mapping
 from datetime import datetime, timedelta
@@ -42,6 +43,7 @@ from amesh.ports.execution_repository import (
     PersistedExecution,
     PersistedFlow,
     PersistedSubflow,
+    PersistedTaskDeferral,
     PersistedTaskRun,
     SubflowLaunchContext,
     SubflowPropagation,
@@ -758,6 +760,7 @@ _LIST_TASK_RUNS = text(
         task_runs.retry_at,
         task_attempts.result
         ,task_attempts.failure_category
+        ,task_attempts.evidence
     FROM task_runs
     JOIN tenants ON tenants.id = task_runs.tenant_id
     LEFT JOIN task_attempts
@@ -781,6 +784,7 @@ _GET_TASK_RUN = text(
         task_runs.retry_at,
         task_attempts.result
         ,task_attempts.failure_category
+        ,task_attempts.evidence
     FROM task_runs
     LEFT JOIN task_attempts
       ON task_attempts.task_run_id = task_runs.id
@@ -887,6 +891,7 @@ _FINISH_TASK = text(
         UPDATE task_attempts AS attempts
         SET state = :state,
             result = CAST(:result AS jsonb),
+            evidence = CAST(:evidence AS jsonb),
             failure_category = CAST(:failure_category AS text),
             finished_at = clock_timestamp(),
             lease_expires_at = NULL,
@@ -897,6 +902,7 @@ _FINISH_TASK = text(
             attempts.task_run_id,
             attempts.result,
             attempts.failure_category,
+            attempts.evidence,
             eligible_attempt.queue_id
     ), acknowledged_queue AS (
         DELETE FROM durable_work_queue AS queue
@@ -934,6 +940,7 @@ _FINISH_TASK = text(
             task_runs.retry_at,
             finished_attempt.result,
             finished_attempt.failure_category
+            ,finished_attempt.evidence
     )
     SELECT * FROM finished_run
     """
@@ -1862,6 +1869,7 @@ class PostgresExecutionRepository(ExecutionRepository):
         tenant_id: str,
         worker_id: UUID | None = None,
         fencing_token: int | None = None,
+        evidence: dict[str, object] | None = None,
     ) -> PersistedTaskRun:
         _require_complete_claim(worker_id, fencing_token)
         return await self._finish_task(
@@ -1872,6 +1880,197 @@ class PostgresExecutionRepository(ExecutionRepository):
             tenant_id=tenant_id,
             worker_id=worker_id,
             fencing_token=fencing_token,
+            evidence=evidence,
+        )
+
+    async def defer_task(
+        self,
+        task_run_id: UUID,
+        attempt: int,
+        resume_token: str,
+        *,
+        tenant_id: str,
+        metadata: dict[str, object],
+        expires_at: datetime | None = None,
+    ) -> PersistedTaskDeferral:
+        digest = _resume_token_digest(resume_token)
+        command_id = new_runtime_id()
+        correlation_id = new_runtime_id()
+        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+            inserted = (
+                (
+                    await connection.execute(
+                        text(
+                            """
+                            INSERT INTO task_deferrals (
+                                tenant_id, task_run_id, attempt, resume_token_digest,
+                                metadata, expires_at
+                            )
+                            SELECT
+                                :tenant_id, task_runs.id, :attempt, :digest,
+                                CAST(:metadata AS jsonb), :expires_at
+                            FROM task_runs
+                            JOIN task_attempts
+                              ON task_attempts.tenant_id = task_runs.tenant_id
+                             AND task_attempts.task_run_id = task_runs.id
+                             AND task_attempts.attempt = :attempt
+                            WHERE task_runs.tenant_id = :tenant_id
+                              AND task_runs.id = :task_run_id
+                              AND task_runs.current_attempt = :attempt
+                              AND task_runs.state = 'RUNNING'
+                              AND task_attempts.state = 'RUNNING'
+                            ON CONFLICT (tenant_id, task_run_id, attempt) DO NOTHING
+                            RETURNING *
+                            """
+                        ),
+                        {
+                            "tenant_id": tenant_uuid,
+                            "task_run_id": task_run_id,
+                            "attempt": attempt,
+                            "digest": digest,
+                            "metadata": json.dumps(metadata),
+                            "expires_at": expires_at,
+                        },
+                    )
+                )
+                .mappings()
+                .one_or_none()
+            )
+            if inserted is None:
+                existing = await self._get_deferral_row(connection, tenant_uuid, task_run_id)
+                if (
+                    existing is None
+                    or int(existing["attempt"]) != attempt
+                    or not hmac.compare_digest(str(existing["resume_token_digest"]), digest)
+                ):
+                    raise TaskStateConflictError(
+                        f"task run {task_run_id} attempt {attempt} cannot be deferred"
+                    )
+                return _to_task_deferral(existing)
+            row = (
+                (
+                    await connection.execute(
+                        text(
+                            """
+                            UPDATE task_runs
+                            SET version = version + 1, updated_at = clock_timestamp()
+                            WHERE tenant_id = :tenant_id AND id = :task_run_id
+                            RETURNING id, execution_id, task_path, state,
+                                      current_attempt, version, retry_at
+                            """
+                        ),
+                        {"tenant_id": tenant_uuid, "task_run_id": task_run_id},
+                    )
+                )
+                .mappings()
+                .one()
+            )
+            await self._insert_task_event(
+                connection,
+                tenant_uuid,
+                row,
+                command_id,
+                TaskRunEventType.DEFERRED,
+                correlation_id,
+                reason="task deferred for asynchronous completion",
+                payload={
+                    "attempt": attempt,
+                    "expiresAt": expires_at.isoformat() if expires_at is not None else None,
+                    "metadata": metadata,
+                },
+            )
+        return _to_task_deferral(inserted)
+
+    async def get_task_deferral(
+        self,
+        task_run_id: UUID,
+        *,
+        tenant_id: str,
+    ) -> PersistedTaskDeferral | None:
+        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+            row = await self._get_deferral_row(connection, tenant_uuid, task_run_id)
+        return _to_task_deferral(row) if row is not None else None
+
+    async def resume_deferred_task(
+        self,
+        task_run_id: UUID,
+        resume_token: str,
+        result: dict[str, object],
+        *,
+        tenant_id: str,
+        evidence: dict[str, object] | None = None,
+    ) -> PersistedTaskRun:
+        digest = _resume_token_digest(resume_token)
+        expired = False
+        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+            deferral = await self._get_deferral_row(connection, tenant_uuid, task_run_id)
+            if deferral is None or not hmac.compare_digest(
+                str(deferral["resume_token_digest"]), digest
+            ):
+                raise TaskStateConflictError("invalid or unavailable task resume token")
+            state = str(deferral["state"])
+            if state == "EXPIRED":
+                raise TaskStateConflictError("task resume token has expired")
+            expires_at = deferral["expires_at"]
+            now = await connection.scalar(_DATABASE_TIME)
+            if (
+                state == "WAITING"
+                and expires_at is not None
+                and isinstance(now, datetime)
+                and now >= expires_at
+            ):
+                await connection.execute(
+                    text(
+                        """
+                        UPDATE task_deferrals SET state = 'EXPIRED'
+                        WHERE tenant_id = :tenant_id AND task_run_id = :task_run_id
+                          AND attempt = :attempt AND state = 'WAITING'
+                        """
+                    ),
+                    {
+                        "tenant_id": tenant_uuid,
+                        "task_run_id": task_run_id,
+                        "attempt": deferral["attempt"],
+                    },
+                )
+                expired = True
+            attempt = int(deferral["attempt"])
+        if expired:
+            raise TaskStateConflictError("task resume token has expired")
+        completed = await self._finish_task(
+            task_run_id,
+            attempt,
+            TaskRunState.SUCCESS,
+            result,
+            tenant_id=tenant_id,
+            evidence=evidence,
+        )
+        return completed
+
+    async def _get_deferral_row(
+        self,
+        connection: AsyncConnection,
+        tenant_id: UUID,
+        task_run_id: UUID,
+    ) -> RowMapping | None:
+        return (
+            (
+                await connection.execute(
+                    text(
+                        """
+                        SELECT task_run_id, attempt, resume_token_digest, state,
+                               metadata, expires_at, deferred_at, resumed_at
+                        FROM task_deferrals
+                        WHERE tenant_id = :tenant_id AND task_run_id = :task_run_id
+                        ORDER BY attempt DESC
+                        LIMIT 1
+                        """
+                    ),
+                    {"tenant_id": tenant_id, "task_run_id": task_run_id},
+                )
+            )
+            .mappings()
+            .one_or_none()
         )
 
     async def retry_task(
@@ -2905,6 +3104,7 @@ class PostgresExecutionRepository(ExecutionRepository):
         worker_id: UUID | None = None,
         fencing_token: int | None = None,
         failure_category: FailureCategory | None = None,
+        evidence: dict[str, object] | None = None,
     ) -> PersistedTaskRun:
         command_id = new_runtime_id()
         correlation_id = new_runtime_id()
@@ -2918,6 +3118,7 @@ class PostgresExecutionRepository(ExecutionRepository):
                     "attempt": attempt,
                     "state": state.value,
                     "result": json.dumps(result_payload),
+                    "evidence": json.dumps(evidence or {}),
                     "worker_id": worker_id,
                     "worker_consumer_id": str(worker_id) if worker_id is not None else None,
                     "fencing_token": fencing_token,
@@ -2928,6 +3129,26 @@ class PostgresExecutionRepository(ExecutionRepository):
             )
             row = result.mappings().one_or_none()
             if row is not None:
+                await connection.execute(
+                    text(
+                        """
+                        UPDATE task_deferrals
+                        SET state = CASE WHEN :state = 'SUCCESS' THEN 'COMPLETED' ELSE 'EXPIRED' END,
+                            resumed_at = CASE
+                                WHEN :state = 'SUCCESS' THEN clock_timestamp()
+                                ELSE resumed_at
+                            END
+                        WHERE tenant_id = :tenant_id AND task_run_id = :task_run_id
+                          AND attempt = :attempt AND state = 'WAITING'
+                        """
+                    ),
+                    {
+                        "tenant_id": tenant_uuid,
+                        "task_run_id": task_run_id,
+                        "attempt": attempt,
+                        "state": state.value,
+                    },
+                )
                 event_type = {
                     TaskRunState.SUCCESS: TaskRunEventType.SUCCEEDED,
                     TaskRunState.FAILED: TaskRunEventType.FAILED,
@@ -3776,7 +3997,26 @@ def _to_task_run(row: RowMapping) -> PersistedTaskRun:
         retry_at=row["retry_at"],
         result=row["result"],
         failure_category=row["failure_category"],
+        evidence=row.get("evidence") or {},
     )
+
+
+def _to_task_deferral(row: RowMapping) -> PersistedTaskDeferral:
+    return PersistedTaskDeferral(
+        task_run_id=row["task_run_id"],
+        attempt=row["attempt"],
+        state=row["state"],
+        metadata=row["metadata"],
+        expires_at=row["expires_at"],
+        deferred_at=row["deferred_at"],
+        resumed_at=row["resumed_at"],
+    )
+
+
+def _resume_token_digest(resume_token: str) -> str:
+    if not resume_token:
+        raise ValueError("resume token must not be empty")
+    return hashlib.sha256(resume_token.encode("utf-8")).hexdigest()
 
 
 def _to_admission_decision(row: RowMapping) -> AdmissionDecision:

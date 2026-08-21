@@ -40,6 +40,7 @@ def test_checked_in_migration_manifest_is_complete_and_ordered() -> None:
             (18, "subflow_relationships"),
             (19, "admission_control"),
             (20, "backfills"),
+            (21, "runnable_task_contract"),
         )
     ]
     assert all(item.rollback_guidance for item in plan)

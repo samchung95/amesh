@@ -84,6 +84,25 @@ class RetryPolicy(BaseModel):
     jitter_ratio: float = Field(default=0, ge=0, le=1, alias="jitterRatio")
 
 
+class TaskResourceLimits(BaseModel):
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
+    max_output_bytes: int = Field(default=1_048_576, alias="maxOutputBytes", ge=1)
+    max_log_bytes: int = Field(default=1_048_576, alias="maxLogBytes", ge=1)
+    max_artifact_bytes: int = Field(default=104_857_600, alias="maxArtifactBytes", ge=1)
+
+
+class RunnableTaskContract(BaseModel):
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
+    secret_scopes: tuple[str, ...] = Field(default=(), alias="secretScopes")
+    files: dict[str, str] = Field(default_factory=dict)
+    resource_limits: TaskResourceLimits = Field(
+        default_factory=TaskResourceLimits,
+        alias="resourceLimits",
+    )
+
+
 class TaskDefinition(BaseModel):
     # populate_by_name keeps snake_case spellings of aliased fields (depends_on,
     # run_if) from being silently swallowed into `extra` as inert plugin fields.
@@ -103,6 +122,7 @@ class TaskDefinition(BaseModel):
     concurrency: list[ConcurrencyLimit] = Field(default_factory=list)
     priority: int = Field(default=0, ge=-1000, le=1000)
     worker_group: NaturalId | None = Field(default=None, alias="workerGroup")
+    contract: RunnableTaskContract = Field(default_factory=RunnableTaskContract)
     tasks: list[TaskDefinition] = Field(default_factory=list)
 
     @model_validator(mode="before")

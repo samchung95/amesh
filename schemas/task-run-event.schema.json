@@ -4,6 +4,7 @@
       "enum": [
         "TaskRunCreated",
         "TaskRunStarted",
+        "TaskRunDeferred",
         "TaskRunRetryScheduled",
         "TaskRunSucceeded",
         "TaskRunFailed",

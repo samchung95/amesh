@@ -1,5 +1,26 @@
 # Test Log
 
+## EPIC-200: Runnable task contract — 2026-08-22
+
+Spec source: Agent Hotel card `c19` and canonical `backlog/epics.json` EPIC-200 DoD.
+
+Verified with `uv`, Python 3.13 and PostgreSQL 17 on a fresh 21-migration database:
+
+- [x] Installed task configurations are checked against registered JSON Schemas before execution creation; invalid core and plugin configuration fails deterministically.
+- [x] Every attempt retains a distinct durable identity and immutable history, with duplicate completion converging on the first committed result and stale attempts rejected.
+- [x] The typed handler context contains inputs, outputs, variables, labels, trigger data, declared secret scopes/files and a durable cancellation channel; context-provider output cannot add undeclared files.
+- [x] Plain and structured task completions persist output plus logs, metrics, artifact references, exit metadata and encoded-size evidence.
+- [x] Configuration, user-code, infrastructure and platform failures have stable categories; output, log and artifact limits fail the attempt before oversized evidence commits.
+- [x] Async deferral stores only a hashed, optional-expiry resume token, emits `TaskRunDeferred`, survives a fresh executor instance and does not re-invoke the handler while waiting.
+- [x] The tenant-authorized resume API rejects unauthenticated, wrong-token, expired and oversized callbacks, while a valid duplicate returns the original committed completion.
+- [x] Focused unit, PostgreSQL restart and API suite: 12 passed on a fresh database.
+- [x] Full uninstrumented suite: 181 passed, 4 environment-gated tests skipped. Branch-coverage suite: 180 passed, 4 skipped, 1 instrumentation-sensitive deadline test deselected and separately verified by the full suite; 82.88% coverage exceeded the 75% gate.
+- [x] Ruff formatting/lint, strict mypy, lockfile, generated contracts/planning, backlog, clean-room, compile, frontend lint, 8 frontend unit tests and production frontend build pass.
+
+Adversarial pass: invalid schemas, missing secret providers, undeclared files, each evidence limit, wrong and expired resume tokens, duplicate callbacks, restart recovery and stale attempts fail closed or converge as specified. Resume-token plaintext is not persisted.
+
+Verdict: PASS — EPIC-200 requirements URS-F-0180 through URS-F-0187 are verified.
+
 ## EPIC-106: Backfill, replay and historical reprocessing — 2026-08-22
 
 Spec source: Agent Hotel card `c18` and canonical `backlog/epics.json` EPIC-106 DoD.

@@ -62,6 +62,7 @@ _TASK_TRANSITIONS: dict[tuple[TaskRunState, TaskRunEventType], TaskRunState] = {
     (TaskRunState.WAITING, TaskRunEventType.STARTED): TaskRunState.RUNNING,
     (TaskRunState.RETRY_DELAY, TaskRunEventType.STARTED): TaskRunState.RUNNING,
     (TaskRunState.RUNNING, TaskRunEventType.RETRY_SCHEDULED): TaskRunState.RETRY_DELAY,
+    (TaskRunState.RUNNING, TaskRunEventType.DEFERRED): TaskRunState.RUNNING,
     (TaskRunState.RUNNING, TaskRunEventType.SUCCEEDED): TaskRunState.SUCCESS,
     (TaskRunState.RUNNING, TaskRunEventType.FAILED): TaskRunState.FAILED,
     (TaskRunState.WAITING, TaskRunEventType.CANCELLED): TaskRunState.CANCELLED,

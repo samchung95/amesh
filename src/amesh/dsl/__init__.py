@@ -1,9 +1,11 @@
 from .models import (
     FlowDefinition,
     FlowValidationResult,
+    RunnableTaskContract,
     SourcePosition,
     SourceRange,
     TaskDefinition,
+    TaskResourceLimits,
 )
 from .registry import (
     EditorMetadata,
@@ -24,9 +26,11 @@ __all__ = [
     "ResourceKind",
     "ResourceSchemaDescriptor",
     "ResourceSchemaRegistry",
+    "RunnableTaskContract",
     "SourcePosition",
     "SourceRange",
     "TaskDefinition",
+    "TaskResourceLimits",
     "default_resource_registry",
     "parse_editable_flow_document",
     "validate_flow_document",

@@ -178,14 +178,14 @@ URS-F-0176,Functional,Must,EPIC-111,"Logs, metrics, outputs and artifact events"
 URS-F-0177,Functional,Must,EPIC-111,"Logs, metrics, outputs and artifact events",M1,1,Telemetry contract and outage tests,Proposed
 URS-F-0178,Functional,Must,EPIC-111,"Logs, metrics, outputs and artifact events",M1,1,Telemetry contract and outage tests,Proposed
 URS-F-0179,Functional,Must,EPIC-111,"Logs, metrics, outputs and artifact events",M1,1,Telemetry contract and outage tests,Proposed
-URS-F-0180,Functional,Must,EPIC-200,Runnable task contract,M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
-URS-F-0181,Functional,Must,EPIC-200,Runnable task contract,M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
-URS-F-0182,Functional,Must,EPIC-200,Runnable task contract,M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
-URS-F-0183,Functional,Must,EPIC-200,Runnable task contract,M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
-URS-F-0184,Functional,Must,EPIC-200,Runnable task contract,M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
-URS-F-0185,Functional,Must,EPIC-200,Runnable task contract,M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
-URS-F-0186,Functional,Must,EPIC-200,Runnable task contract,M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
-URS-F-0187,Functional,Must,EPIC-200,Runnable task contract,M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0180,Functional,Must,EPIC-200,Runnable task contract,M2,2,DSL validation plus end-to-end workflow conformance tests,Verified
+URS-F-0181,Functional,Must,EPIC-200,Runnable task contract,M2,2,DSL validation plus end-to-end workflow conformance tests,Verified
+URS-F-0182,Functional,Must,EPIC-200,Runnable task contract,M2,2,DSL validation plus end-to-end workflow conformance tests,Verified
+URS-F-0183,Functional,Must,EPIC-200,Runnable task contract,M2,2,DSL validation plus end-to-end workflow conformance tests,Verified
+URS-F-0184,Functional,Must,EPIC-200,Runnable task contract,M2,2,DSL validation plus end-to-end workflow conformance tests,Verified
+URS-F-0185,Functional,Must,EPIC-200,Runnable task contract,M2,2,DSL validation plus end-to-end workflow conformance tests,Verified
+URS-F-0186,Functional,Must,EPIC-200,Runnable task contract,M2,2,DSL validation plus end-to-end workflow conformance tests,Verified
+URS-F-0187,Functional,Must,EPIC-200,Runnable task contract,M2,2,DSL validation plus end-to-end workflow conformance tests,Verified
 URS-F-0188,Functional,Must,EPIC-201,"Sequential, parallel and DAG flowables",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
 URS-F-0189,Functional,Must,EPIC-201,"Sequential, parallel and DAG flowables",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
 URS-F-0190,Functional,Must,EPIC-201,"Sequential, parallel and DAG flowables",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed

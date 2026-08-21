@@ -210,6 +210,29 @@ Authorized callers can inspect both directions of the durable graph at
 `/api/v1/executions/{execution_id}/subflows` and
 `/api/v1/executions/{execution_id}/parent-subflow`.
 
+## Runnable task contract
+
+Before an executor creates an execution, every installed task type is checked against its registered
+JSON Schema. Each live attempt receives a typed context containing tenant and execution identities,
+inputs, prior outputs, variables, labels, trigger data, declared secret scopes, resolved files and a
+polling cancellation channel. A context provider sees only the scopes and file declarations present in
+the flow contract; declaring secrets without a configured provider fails as a configuration error.
+
+A synchronous handler returns either a plain output object or a structured completion containing
+output, logs, metrics, artifact references and exit metadata. `contract.resourceLimits` bounds encoded
+output and log bytes plus declared artifact bytes before completion is committed. Attempt evidence is
+stored separately from the task result, and failures retain stable configuration, user-code,
+infrastructure or platform classifications.
+
+An asynchronous handler returns a deferral with a resume token, optional expiry and metadata. Only the
+SHA-256 token digest is persisted in the tenant-scoped `task_deferrals` table. The task attempt remains
+`RUNNING`, emits `TaskRunDeferred` through the transactional outbox and is not re-invoked after executor
+restart. An authorized caller completes it through
+`POST /api/v1/executions/{execution_id}/task-runs/{task_run_id}/resume`. The first valid callback wins;
+the same token then returns the original completion, while wrong, expired or stale-attempt callbacks
+fail without replacing committed evidence. An expired deferral is persisted as expired and fails its
+live attempt with the timed-out category instead of leaving an execution permanently running.
+
 ## Backfills and replay
 
 A backfill is a tenant-scoped durable resource pinned to one flow revision. Its selector expands to a

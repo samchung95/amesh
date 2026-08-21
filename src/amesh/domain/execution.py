@@ -29,6 +29,9 @@ class FailureCategory(StrEnum):
     CANCELLED = "CANCELLED"
     TIMED_OUT = "TIMED_OUT"
     INFRASTRUCTURE = "INFRASTRUCTURE"
+    CONFIGURATION = "CONFIGURATION"
+    USER_CODE = "USER_CODE"
+    PLATFORM = "PLATFORM"
 
 
 class ExecutionEventType(StrEnum):
@@ -71,6 +74,7 @@ class TaskRunState(StrEnum):
 class TaskRunEventType(StrEnum):
     CREATED = "TaskRunCreated"
     STARTED = "TaskRunStarted"
+    DEFERRED = "TaskRunDeferred"
     RETRY_SCHEDULED = "TaskRunRetryScheduled"
     SUCCEEDED = "TaskRunSucceeded"
     FAILED = "TaskRunFailed"

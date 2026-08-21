@@ -18,6 +18,7 @@ from amesh.domain import (
     TenantPolicy,
     TenantSlug,
 )
+from amesh.executor import TaskCompletion
 from amesh.ports import ExecutionInterventionAction, PersistedExecution, PersistedTaskRun
 
 
@@ -75,6 +76,13 @@ class CreateExecutionRequest(BaseModel):
 class ExecutionDetail(BaseModel):
     execution: PersistedExecution
     task_runs: list[PersistedTaskRun] = Field(alias="taskRuns")
+
+
+class ResumeTaskRequest(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    resume_token: str = Field(alias="resumeToken", min_length=16, max_length=4096)
+    completion: TaskCompletion
 
 
 class ExecutionInterventionPreviewRequest(BaseModel):
