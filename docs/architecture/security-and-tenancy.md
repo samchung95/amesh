@@ -66,6 +66,7 @@ High-risk operations support step-up authentication, impact preview and durable 
 have reason, actor, scope and optional expiry. Audit access is itself audited.
 
 The development bootstrap bearer token is accepted only when both `APP_ENV=development` and
-`AUTH_MODE=development`; every other mode fails closed until the durable authentication entry points
-from EPIC-403 and EPIC-501 are configured. See the
-[authorization runbook](../operations/authorization.md).
+`AUTH_MODE=development`. Every mode accepts PostgreSQL-authoritative service/workload credentials
+whose token scopes narrow the principal's current policy grants. Interactive user authentication
+remains EPIC-403 work. See the [authorization runbook](../operations/authorization.md) and
+[credential runbook](../operations/credentials.md).

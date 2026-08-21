@@ -12,7 +12,12 @@ It establishes the first explicit persistence concepts for:
 - generic fenced leases and audit events.
 - canonical labels, annotations, actor, lifecycle, tombstone and resource-version metadata for managed tenant, namespace, flow, execution and worker records.
 - PostgreSQL-authoritative principals, group memberships, roles, permissions, scoped bindings, namespace authorization boundaries and revocation versions.
+- HMAC-digested API and derived workload credentials, principal revocation epochs and per-token usage windows.
 
 Migration `0003_canonical_resource_metadata.sql` is the EPIC-002 forward migration. It preserves existing UUID records while new application-created runtime records use UUIDv7. Compatibility windows, online index strategies, rollback/forward-fix policy and upgrade qualification remain later backlog work.
 
 Migration `0004_authorization.sql` is the EPIC-500 forward migration. It seeds immutable built-in role definitions and attaches statement-level policy-version triggers to every authorization policy table. The migration is forward-only; restore or upgrade qualification remains governed by the later HA/DR epics.
+
+Migration `0005_service_credentials.sql` is the EPIC-501 forward migration. It adds principal
+credential epochs plus credential lifecycle and independent fixed-window quota tables. Only keyed
+digests and non-secret metadata are persisted; token material is not a schema field.

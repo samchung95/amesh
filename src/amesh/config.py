@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from functools import lru_cache
 
-from pydantic import Field, SecretStr
+from pydantic import Field, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -28,11 +28,22 @@ class Settings(BaseSettings):
     object_storage_bucket: str = "amesh"
     auth_mode: str = "development"
     amesh_admin_token: SecretStr = SecretStr("development-token")
+    amesh_token_pepper: SecretStr = SecretStr("development-token-pepper")
+    amesh_previous_token_pepper: SecretStr | None = None
     kubernetes_context: str | None = None
     kubernetes_task_namespace: str = "amesh-tasks"
     worker_poll_seconds: float = Field(default=5.0, gt=0)
     worker_recovery_grace_seconds: float = Field(default=120.0, ge=0)
     log_level: str = "INFO"
+
+    @model_validator(mode="after")
+    def validate_token_pepper(self) -> Settings:
+        pepper = self.amesh_token_pepper.get_secret_value()
+        if not pepper:
+            raise ValueError("AMESH_TOKEN_PEPPER cannot be empty")
+        if self.app_env != "development" and pepper == "development-token-pepper":
+            raise ValueError("production requires an externally supplied AMESH_TOKEN_PEPPER")
+        return self
 
 
 @lru_cache

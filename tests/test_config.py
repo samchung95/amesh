@@ -20,9 +20,10 @@ def test_development_bootstrap_token_fails_closed_outside_development() -> None:
         app_env="production",
         auth_mode="development",
         amesh_admin_token="test-token",
+        amesh_token_pepper="test-production-pepper",
     )
 
     with pytest.raises(HTTPException) as caught:
-        asyncio.run(authenticate_actor(settings, "Bearer test-token"))
+        asyncio.run(authenticate_actor(settings, None, "Bearer test-token"))
 
     assert caught.value.status_code == 401

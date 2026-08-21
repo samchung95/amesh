@@ -3,7 +3,7 @@
 ## Current state
 
 - What works: the tagged `v0.2.0-mvp` baseline passes its 47-test suite; PostgreSQL durability, local/Kubernetes execution, REST/CLI, OpenRouter Luna, Helm and observability remain the verified foundation.
-- What's in flight: EPIC-500 implementation, evidence and gates are complete on board card `c2`; board closure and selection of EPIC-501 are the remaining transition steps.
+- What's in flight: EPIC-501 is complete and closed on board card `c3`; dependency-ready EPIC-503 is next for the requested multi-tenancy area.
 - Known broken / TODO: the five requested post-MVP product areas remain open. The uninterrupted 86,400-second qualification remains under EPIC-611 and still gates production-readiness claims.
 - How to run/test: use `uv run --extra runtime --extra dev pytest`; set `AMESH_TEST_DATABASE_URL` for PostgreSQL integration tests and `OPENROUTER_API_KEY` for live LLM tests.
 
@@ -35,3 +35,15 @@
 - Verification: 68 tests passed with real PostgreSQL at 78.54% branch coverage; clean-database migrations 0001–0004 passed; every current endpoint has public-or-protected acceptance evidence; Ruff, strict mypy, lock, generated contract/planning, backlog, clean-room, compile, build, Compose, Helm and diff gates passed. The pure evaluator measured 1.64 microseconds per decision over 100,000 local calls without making a distributed throughput claim.
 - Deviations from plan: no authorization dependency was added because the evaluated libraries do not replace AMESH-specific persistence, evidence, invalidation and administrator-safety rules; Oso Cloud would also introduce a second external authority. Shared `URS-NFR-USABILITY-002` is `In Progress`: EPIC-500's authorization evidence is complete, while its admission/cache/UI owners remain open.
 - Next step when resuming: close board card `c2`, commit EPIC-500, select dependency-ready EPIC-501 and implement durable service-account/API-token credentials before the login/session epic.
+
+### 2026-08-21 (post-MVP roadmap session 1, EPIC-501 start)
+
+- Did: closed and committed EPIC-500 as `8a4b227`; selected EPIC-501 on card `c3`; reviewed Python `secrets`/HMAC, RFC 6750 bearer-token guidance and self-contained token tradeoffs; accepted ADR-019 for 256-bit opaque bearer tokens whose HMAC digests, revocation state, scopes, audiences, expiry, usage and quotas remain PostgreSQL-authoritative.
+- Deviations from plan: no credential dependency was added. Self-contained JWT/PASETO tokens would still require authoritative revocation, quota and last-used state, while password hashing is unnecessary for server-generated 256-bit secrets.
+- Next step when resuming: implement token/scope domain contracts, migration 0005, the credential repository/service and durable bearer authentication entry point.
+
+### 2026-08-21 (post-MVP roadmap session 1, EPIC-501 completion)
+
+- Did: completed EPIC-501 with PostgreSQL-authoritative service/workload credentials; one-time 256-bit opaque token disclosure; keyed digests; scope/audience/expiry/last-use metadata; independent quotas; bounded rotation overlap; current/previous pepper rollout; immediate token, derived-child and principal-epoch revocation; worker/plugin exchange; production durable bearer authentication; failure/success auditing without plaintext; migration 0005; Helm Secret wiring; ADR-019; API contract and runbook updates; and evidence links for URS-F-0502 through URS-F-0509.
+- Verification: 76 tests passed with real PostgreSQL at 79.14% branch coverage; a clean database applied migrations 0001–0005; Ruff, strict mypy, lock, generated OpenAPI/planning, backlog, clean-room, compile, Compose and Helm gates passed. Shared `URS-NFR-SECURITY-002` and `URS-NFR-SECURITY-006` are `In Progress` because their other owning epics remain open.
+- Next step when resuming: close board card `c3`, commit EPIC-501, and select the next dependency-ready requested epic.

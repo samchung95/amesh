@@ -6,8 +6,8 @@ AMESH stores authorization policy in PostgreSQL. Apply migration
 ## Development bootstrap
 
 The shared `AMESH_ADMIN_TOKEN` is a local bootstrap credential only. It works when both
-`APP_ENV=development` and `AUTH_MODE=development`. Any other combination rejects it and requires the
-future durable credential provider from EPIC-403/EPIC-501.
+`APP_ENV=development` and `AUTH_MODE=development`. Any other combination rejects it; durable
+service-account and workload credentials are described in the [credential runbook](credentials.md).
 
 Send the selected tenant on resource requests:
 
@@ -38,5 +38,6 @@ No server restart or manual cache flush is required. Removing a binding or group
 leave zero enabled effective instance administrators returns `409` and rolls back.
 
 Principal, group, role, binding and boundary mutations append an `audit_events` row with the actor,
-action and affected authorization resource. Credential creation, login sessions, token rotation and
-external identity providers are intentionally handled by EPIC-403, EPIC-501 and EPIC-502.
+action and affected authorization resource. Credential issuance, use, failure, rotation and
+revocation use the same audit store without token plaintext. Interactive user login and external
+identity providers remain EPIC-403 and EPIC-502 work.

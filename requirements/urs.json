@@ -13682,7 +13682,7 @@
       "id": "URS-F-0502",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M5",
       "wave": 5,
       "epic_id": "EPIC-501",
@@ -13703,13 +13703,17 @@
       "local_sequence": 1,
       "dependencies": [
         "EPIC-500"
+      ],
+      "evidence": [
+        "migrations/0004_authorization.sql",
+        "tests/adapters/postgres/test_credential_repository.py::test_postgres_service_tokens_rotation_exchange_quota_and_revocation"
       ]
     },
     {
       "id": "URS-F-0503",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M5",
       "wave": 5,
       "epic_id": "EPIC-501",
@@ -13730,13 +13734,18 @@
       "local_sequence": 2,
       "dependencies": [
         "EPIC-500"
+      ],
+      "evidence": [
+        "src/amesh/domain/credentials.py",
+        "migrations/0005_service_credentials.sql",
+        "tests/adapters/postgres/test_credential_repository.py"
       ]
     },
     {
       "id": "URS-F-0504",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M5",
       "wave": 5,
       "epic_id": "EPIC-501",
@@ -13757,13 +13766,17 @@
       "local_sequence": 3,
       "dependencies": [
         "EPIC-500"
+      ],
+      "evidence": [
+        "src/amesh/credentials.py",
+        "tests/api/test_credential_api.py::test_api_token_is_shown_once_and_authenticates_outside_development"
       ]
     },
     {
       "id": "URS-F-0505",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M5",
       "wave": 5,
       "epic_id": "EPIC-501",
@@ -13784,13 +13797,18 @@
       "local_sequence": 4,
       "dependencies": [
         "EPIC-500"
+      ],
+      "evidence": [
+        "src/amesh/adapters/postgres/credential_repository.py",
+        "tests/adapters/postgres/test_credential_repository.py::test_postgres_service_tokens_rotation_exchange_quota_and_revocation",
+        "tests/api/test_credential_api.py"
       ]
     },
     {
       "id": "URS-F-0506",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M5",
       "wave": 5,
       "epic_id": "EPIC-501",
@@ -13811,13 +13829,17 @@
       "local_sequence": 5,
       "dependencies": [
         "EPIC-500"
+      ],
+      "evidence": [
+        "src/amesh/credentials.py",
+        "tests/adapters/postgres/test_credential_repository.py::test_postgres_service_tokens_rotation_exchange_quota_and_revocation"
       ]
     },
     {
       "id": "URS-F-0507",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M5",
       "wave": 5,
       "epic_id": "EPIC-501",
@@ -13838,13 +13860,17 @@
       "local_sequence": 6,
       "dependencies": [
         "EPIC-500"
+      ],
+      "evidence": [
+        "migrations/0005_service_credentials.sql",
+        "tests/adapters/postgres/test_credential_repository.py::test_postgres_service_tokens_rotation_exchange_quota_and_revocation"
       ]
     },
     {
       "id": "URS-F-0508",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M5",
       "wave": 5,
       "epic_id": "EPIC-501",
@@ -13865,13 +13891,17 @@
       "local_sequence": 7,
       "dependencies": [
         "EPIC-500"
+      ],
+      "evidence": [
+        "src/amesh/adapters/postgres/credential_repository.py",
+        "tests/adapters/postgres/test_credential_repository.py::test_postgres_service_tokens_rotation_exchange_quota_and_revocation"
       ]
     },
     {
       "id": "URS-F-0509",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M5",
       "wave": 5,
       "epic_id": "EPIC-501",
@@ -13892,6 +13922,10 @@
       "local_sequence": 8,
       "dependencies": [
         "EPIC-500"
+      ],
+      "evidence": [
+        "src/amesh/app.py",
+        "tests/api/test_credential_api.py::test_api_token_is_shown_once_and_authenticates_outside_development"
       ]
     },
     {
@@ -23740,7 +23774,12 @@
         "EPIC-612"
       ],
       "priority": "Must",
-      "status": "Proposed"
+      "status": "In Progress",
+      "evidence": [
+        "docs/adr/019-opaque-hmac-api-and-workload-tokens.md",
+        "src/amesh/credentials.py",
+        "tests/adapters/postgres/test_credential_repository.py"
+      ]
     },
     {
       "id": "URS-NFR-SECURITY-003",
@@ -23800,7 +23839,13 @@
         "EPIC-613"
       ],
       "priority": "Must",
-      "status": "Proposed"
+      "status": "In Progress",
+      "evidence": [
+        "src/amesh/config.py",
+        "charts/amesh/templates/_helpers.tpl",
+        "docs/operations/credentials.md",
+        "tests/adapters/postgres/test_credential_repository.py"
+      ]
     },
     {
       "id": "URS-NFR-SECURITY-007",

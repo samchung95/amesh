@@ -17,25 +17,34 @@ from amesh.adapters.kubernetes import KubernetesJobRunner
 from amesh.adapters.local import LocalProcessRunner
 from amesh.adapters.postgres import (
     PostgresAuthorizationRepository,
+    PostgresCredentialRepository,
     PostgresExecutionRepository,
 )
 from amesh.api.models import (
     AuthorizationExplanationRequest,
     CreateExecutionRequest,
+    ExchangeCredentialRequest,
     ExecutionDetail,
     HealthResponse,
+    IssueCredentialRequest,
+    IssuedCredentialResponse,
     ReduceExecutionRequest,
     ReduceExecutionResponse,
+    RevokedCredentialsResponse,
+    RotateCredentialRequest,
     RunnerMode,
     TaskLog,
 )
 from amesh.authorization import AuthorizationDenied, AuthorizationService
 from amesh.config import Settings, get_settings
+from amesh.credentials import CredentialOperationError, CredentialService, InvalidCredential
 from amesh.domain import (
     ActorContext,
     AuthorizationDecision,
     AuthorizationRequest,
+    CredentialMetadata,
     InvalidTransition,
+    IssuedCredential,
     NamespaceAuthorizationBoundary,
     PermissionAction,
     PrincipalDefinition,
@@ -57,7 +66,12 @@ from amesh.executor import (
     local_process_handler,
 )
 from amesh.observability import HTTP_REQUEST_DURATION, HTTP_REQUESTS
-from amesh.ports import LastAdministratorError, PersistedExecution, PersistedFlow
+from amesh.ports import (
+    CredentialRateLimitExceeded,
+    LastAdministratorError,
+    PersistedExecution,
+    PersistedFlow,
+)
 from amesh.tasks import agent_llm_handler, agent_mcp_handler, core_http_handler
 
 LOGGER = logging.getLogger("amesh.api")
@@ -132,32 +146,65 @@ AuthorizationRepositoryDependency = Annotated[
 ]
 
 
+@lru_cache
+def get_credential_repository() -> PostgresCredentialRepository:
+    return PostgresCredentialRepository(database_engine())
+
+
+@lru_cache
+def get_credential_service() -> CredentialService:
+    settings = get_settings()
+    return CredentialService(
+        get_credential_repository(),
+        token_pepper=settings.amesh_token_pepper,
+        previous_token_pepper=settings.amesh_previous_token_pepper,
+    )
+
+
+CredentialServiceDependency = Annotated[CredentialService, Depends(get_credential_service)]
+
+
 _BOOTSTRAP_PRINCIPAL_ID = UUID("00000000-0000-7000-8000-000000000001")
 
 
 async def authenticate_actor(
     settings: SettingsDependency,
+    credential_service: CredentialServiceDependency,
     authorization: Annotated[str | None, Header()] = None,
 ) -> ActorContext:
-    if settings.app_env != "development" or settings.auth_mode != "development":
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="a configured authentication provider is required",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
     expected = f"Bearer {settings.amesh_admin_token.get_secret_value()}"
-    if authorization is None or not secrets.compare_digest(authorization, expected):
+    if (
+        settings.app_env == "development"
+        and settings.auth_mode == "development"
+        and authorization is not None
+        and secrets.compare_digest(authorization, expected)
+    ):
+        return ActorContext(
+            principal_id=_BOOTSTRAP_PRINCIPAL_ID,
+            principal_type=PrincipalType.SYSTEM,
+            display="development-bootstrap-admin",
+            bootstrap_admin=True,
+        )
+    if credential_service is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="valid bearer token required",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    return ActorContext(
-        principal_id=_BOOTSTRAP_PRINCIPAL_ID,
-        principal_type=PrincipalType.SYSTEM,
-        display="development-bootstrap-admin",
-        bootstrap_admin=True,
-    )
+    try:
+        return await credential_service.authenticate_bearer(authorization)
+    except CredentialRateLimitExceeded as exc:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="credential rate limit exceeded",
+            headers={"Retry-After": "60"},
+        ) from exc
+    except InvalidCredential as exc:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="valid bearer token required",
+            headers={"WWW-Authenticate": "Bearer"},
+        ) from exc
 
 
 ActorDependency = Annotated[ActorContext, Depends(authenticate_actor)]
@@ -814,6 +861,189 @@ async def set_namespace_authorization_boundary(
         )
     except LookupError as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+
+
+def _issued_credential_response(issued: IssuedCredential) -> IssuedCredentialResponse:
+    return IssuedCredentialResponse(
+        metadata=issued.metadata,
+        token=issued.token.get_secret_value(),
+    )
+
+
+@app.post(
+    "/api/v1/admin/principals/{principal_id}/credentials",
+    response_model=IssuedCredentialResponse,
+    status_code=status.HTTP_201_CREATED,
+    tags=["credentials"],
+)
+async def issue_credential(
+    principal_id: UUID,
+    request: IssueCredentialRequest,
+    credentials: CredentialServiceDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+) -> IssuedCredentialResponse:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="credential",
+        action=PermissionAction.MANAGE,
+    )
+    try:
+        issued = await credentials.issue(
+            principal_id,
+            name=request.name,
+            scopes=request.scopes,
+            audience=request.audience,
+            expires_at=request.expires_at,
+            rate_limit_per_minute=request.rate_limit_per_minute,
+            actor_id=str(actor.principal_id),
+        )
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    except (CredentialOperationError, ValueError) as exc:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
+    return _issued_credential_response(issued)
+
+
+@app.get(
+    "/api/v1/admin/principals/{principal_id}/credentials",
+    response_model=list[CredentialMetadata],
+    tags=["credentials"],
+)
+async def list_credentials(
+    principal_id: UUID,
+    credentials: CredentialServiceDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+) -> list[CredentialMetadata]:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="credential",
+        action=PermissionAction.VIEW,
+    )
+    return await credentials.list(principal_id)
+
+
+@app.post(
+    "/api/v1/admin/credentials/{credential_id}/rotate",
+    response_model=IssuedCredentialResponse,
+    status_code=status.HTTP_201_CREATED,
+    tags=["credentials"],
+)
+async def rotate_credential(
+    credential_id: UUID,
+    request: RotateCredentialRequest,
+    credentials: CredentialServiceDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+) -> IssuedCredentialResponse:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="credential",
+        action=PermissionAction.MANAGE,
+    )
+    try:
+        issued = await credentials.rotate(
+            credential_id,
+            overlap_seconds=request.overlap_seconds,
+            actor_id=str(actor.principal_id),
+        )
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    except (CredentialOperationError, ValueError) as exc:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
+    return _issued_credential_response(issued)
+
+
+@app.delete(
+    "/api/v1/admin/credentials/{credential_id}",
+    response_model=RevokedCredentialsResponse,
+    tags=["credentials"],
+)
+async def revoke_credential(
+    credential_id: UUID,
+    credentials: CredentialServiceDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+) -> RevokedCredentialsResponse:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="credential",
+        action=PermissionAction.MANAGE,
+    )
+    try:
+        revoked = await credentials.revoke(credential_id, actor_id=str(actor.principal_id))
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    return RevokedCredentialsResponse(revokedCount=revoked)
+
+
+@app.delete(
+    "/api/v1/admin/principals/{principal_id}/credentials",
+    response_model=RevokedCredentialsResponse,
+    tags=["credentials"],
+)
+async def revoke_all_credentials(
+    principal_id: UUID,
+    credentials: CredentialServiceDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+) -> RevokedCredentialsResponse:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="credential",
+        action=PermissionAction.MANAGE,
+    )
+    try:
+        revoked = await credentials.revoke_all(
+            principal_id,
+            actor_id=str(actor.principal_id),
+        )
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    return RevokedCredentialsResponse(revokedCount=revoked)
+
+
+@app.post(
+    "/api/v1/credentials/exchange",
+    response_model=IssuedCredentialResponse,
+    status_code=status.HTTP_201_CREATED,
+    tags=["credentials"],
+)
+async def exchange_workload_credential(
+    request: ExchangeCredentialRequest,
+    credentials: CredentialServiceDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+) -> IssuedCredentialResponse:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="credential",
+        action=PermissionAction.USE,
+    )
+    if actor.credential_id is None:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="workload exchange requires an API credential",
+        )
+    try:
+        issued = await credentials.exchange(
+            actor.credential_id,
+            principal_id=actor.principal_id,
+            scopes=request.scopes,
+            audience=request.audience,
+            expires_in_seconds=request.expires_in_seconds,
+            rate_limit_per_minute=request.rate_limit_per_minute,
+        )
+    except (CredentialOperationError, LookupError, ValueError) as exc:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
+    return _issued_credential_response(issued)
 
 
 @app.post(

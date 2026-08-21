@@ -50,6 +50,18 @@ app.kubernetes.io/instance: {{ .Release.Name }}
     secretKeyRef:
       name: {{ .Values.adminToken.existingSecret | quote }}
       key: {{ .Values.adminToken.key | quote }}
+- name: AMESH_TOKEN_PEPPER
+  valueFrom:
+    secretKeyRef:
+      name: {{ .Values.tokenPepper.existingSecret | quote }}
+      key: {{ .Values.tokenPepper.key | quote }}
+{{- if .Values.tokenPepper.previousKey }}
+- name: AMESH_PREVIOUS_TOKEN_PEPPER
+  valueFrom:
+    secretKeyRef:
+      name: {{ .Values.tokenPepper.existingSecret | quote }}
+      key: {{ .Values.tokenPepper.previousKey | quote }}
+{{- end }}
 - name: KUBERNETES_TASK_NAMESPACE
   value: {{ include "amesh.taskNamespace" . | quote }}
 - name: LOG_LEVEL

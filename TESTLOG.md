@@ -1,5 +1,31 @@
 # Test Log
 
+## EPIC-501: Service accounts, API tokens and credentials — 2026-08-21
+
+Spec source: Agent Hotel card `c3` and canonical `backlog/epics.json` EPIC-501 DoD.
+
+Verified with `uv` and PostgreSQL 17:
+
+- [x] Service-account principals receive direct and group-derived instance, tenant and namespace roles through the existing authorization policy.
+- [x] UUIDv7 opaque tokens contain 256 random bits; only keyed HMAC-SHA-256 digests plus name, scopes, audience, expiry, status, quota and last-use metadata persist.
+- [x] Issue and rotation responses disclose a secret once; metadata lists expose neither the secret nor digest; current and replacement tokens both authenticate during a bounded overlap.
+- [x] Single-token revocation recursively revokes derived children. Principal-wide revocation increments a credential epoch and invalidates every token on its next request.
+- [x] Worker/plugin exchange produces a different-audience, scope-narrowed token capped at one hour; an ineligible principal or broadened scope fails deterministically.
+- [x] Every token owns an independent PostgreSQL fixed-window quota. Exhaustion returns HTTP 429 without exhausting another token.
+- [x] Issue, exchange, use, authentication failure, rotation and revocation write audit evidence containing no token plaintext. The credential table has no plaintext-token column.
+- [x] Production rejects the development pepper; current/previous pepper rollover accepts old tokens while new tokens use only the new pepper. Helm renders both values from existing Secret keys without an image rebuild.
+- [x] Service accounts have no interactive-login route; durable service-account tokens authenticate outside development, while the development bootstrap token is rejected there.
+- [x] Every new credential endpoint has negative permission coverage.
+- [x] Migration 0005 applied to the existing database. A fresh temporary database applied migrations 0001–0005 and contained both credential tables, the principal credential epoch and five migration records.
+- [x] Full suite: `pytest --cov=amesh --cov-report=term-missing` — 76 passed, 4 environment-gated tests skipped, 79.14% branch coverage.
+- [x] Ruff formatting/lint, strict mypy, uv lock, generated OpenAPI/planning, backlog, clean-room, compile, Compose and Helm lint/render gates pass.
+
+Adversarial pass: wrong audience, digest mismatch after pepper rollover, exhausted quota, scope broadening, parent revocation, principal-wide revocation, development token in production and every unauthorized administration route fail closed without token disclosure.
+
+Not covered: human login/browser sessions, external identity providers and general tenant provisioning. Those remain assigned to EPIC-403, EPIC-502 and EPIC-503.
+
+Verdict: PASS — EPIC-501 requirements URS-F-0502 through URS-F-0509 and its contributions to shared URS-NFR-SECURITY-002/006 are verified.
+
 ## EPIC-500: Users, groups, roles, bindings and authorization — 2026-08-21
 
 Spec source: Agent Hotel card `c2` and canonical `backlog/epics.json` EPIC-500 DoD.

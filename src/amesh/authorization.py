@@ -37,10 +37,14 @@ class AuthorizationService:
             key = (
                 version,
                 request.actor.principal_id,
+                request.actor.credential_id,
+                request.actor.credential_scopes,
+                request.actor.credential_audience,
                 request.tenant_id,
                 request.namespace,
                 request.resource_type,
                 request.action,
+                request.audience,
             )
             cached = self._cache.get(key)
             if cached is not None:

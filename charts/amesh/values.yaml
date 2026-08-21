@@ -33,6 +33,11 @@ adminToken:
   existingSecret: amesh-admin
   key: token
 
+tokenPepper:
+  existingSecret: amesh-admin
+  key: token-pepper
+  previousKey: ""
+
 openRouter:
   existingSecret: ""
   key: api-key

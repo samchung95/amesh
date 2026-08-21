@@ -235,3 +235,39 @@ def test_nonhuman_callers_use_the_same_server_side_policy(
     )
 
     assert evaluate_authorization(_request(actor), snapshot).allowed
+
+
+def test_credential_scope_and_audience_narrow_role_grants() -> None:
+    actor = ActorContext(
+        principal_id=uuid4(),
+        principal_type=PrincipalType.SERVICE_ACCOUNT,
+        display="automation",
+        credential_id=uuid4(),
+        credential_scopes=("flow:view",),
+        credential_audience="amesh-api",
+    )
+    snapshot = AuthorizationPolicySnapshot(
+        version=1,
+        roles=BUILT_IN_ROLES,
+        bindings=(
+            RoleBinding(
+                principal_id=actor.principal_id,
+                principal_type=actor.principal_type,
+                role_name="tenant-admin",
+                scope_type=AuthorizationScopeType.TENANT,
+                tenant_id="tenant-a",
+            ),
+        ),
+    )
+
+    assert evaluate_authorization(_request(actor), snapshot).allowed
+    scope_denied = evaluate_authorization(
+        _request(actor, action=PermissionAction.UPDATE),
+        snapshot,
+    )
+    assert scope_denied.reason_code == "CREDENTIAL_SCOPE_DENY"
+    audience_denied = evaluate_authorization(
+        _request(actor, audience="amesh-worker"),
+        snapshot,
+    )
+    assert audience_denied.reason_code == "CREDENTIAL_AUDIENCE_MISMATCH"

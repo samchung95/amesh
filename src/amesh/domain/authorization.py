@@ -62,6 +62,9 @@ class ActorContext(BaseModel):
     principal_type: PrincipalType
     display: str = Field(min_length=1, max_length=255)
     bootstrap_admin: bool = False
+    credential_id: UUID | None = None
+    credential_scopes: tuple[str, ...] = ("*:*",)
+    credential_audience: str = "amesh-api"
 
 
 class PrincipalDefinition(BaseModel):
@@ -147,6 +150,7 @@ class AuthorizationRequest(BaseModel):
     namespace: NamespaceId | None = None
     resource_type: ResourceType
     action: PermissionAction
+    audience: str = "amesh-api"
 
 
 class AuthorizationPolicySnapshot(BaseModel):
@@ -253,6 +257,27 @@ def evaluate_authorization(
             summary="development bootstrap administrator",
             policy_version=snapshot.version,
             matched_role_names=(INSTANCE_ADMIN_ROLE,),
+        )
+
+    from .credentials import credential_scope_allows
+
+    if request.actor.credential_audience != request.audience:
+        return AuthorizationDecision(
+            allowed=False,
+            reason_code="CREDENTIAL_AUDIENCE_MISMATCH",
+            summary="the credential audience does not match this service",
+            policy_version=snapshot.version,
+        )
+    if not credential_scope_allows(
+        request.actor.credential_scopes,
+        request.resource_type,
+        request.action,
+    ):
+        return AuthorizationDecision(
+            allowed=False,
+            reason_code="CREDENTIAL_SCOPE_DENY",
+            summary="the credential does not include the requested resource action",
+            policy_version=snapshot.version,
         )
 
     role_by_name = {role.name: role for role in snapshot.roles}

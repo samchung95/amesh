@@ -1,3 +1,8 @@
+from .credential_repository import (
+    CredentialPrincipal,
+    CredentialRateLimitExceeded,
+    CredentialRepository,
+)
 from .durable_transport import (
     DurableEnvelope,
     DurableTransport,
@@ -25,6 +30,9 @@ from .task_runner import (
 
 __all__ = [
     "AuthorizationRepository",
+    "CredentialPrincipal",
+    "CredentialRateLimitExceeded",
+    "CredentialRepository",
     "DurableEnvelope",
     "DurableTransport",
     "ExecutionRepository",

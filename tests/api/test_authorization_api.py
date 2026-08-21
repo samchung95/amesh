@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import os
+from datetime import UTC, datetime, timedelta
 from uuid import UUID, uuid4
 
 import httpx
@@ -133,6 +134,7 @@ def test_every_protected_rest_surface_enforces_tenant_and_permission_policy() ->
                         },
                     ),
                     client.get("/api/v1/admin/principals"),
+                    client.get(f"/api/v1/admin/principals/{uuid4()}/credentials"),
                     client.post(
                         "/api/v1/admin/principals",
                         json={
@@ -165,6 +167,28 @@ def test_every_protected_rest_surface_enforces_tenant_and_permission_policy() ->
                     client.delete(f"/api/v1/admin/bindings/{uuid4()}"),
                     client.put(
                         "/api/v1/admin/tenants/default/namespaces/tests/authorization-boundary"
+                    ),
+                    client.post(
+                        f"/api/v1/admin/principals/{uuid4()}/credentials",
+                        json={
+                            "name": "denied",
+                            "scopes": ["flow:view"],
+                            "expiresAt": (datetime.now(UTC) + timedelta(hours=1)).isoformat(),
+                        },
+                    ),
+                    client.post(
+                        f"/api/v1/admin/credentials/{uuid4()}/rotate",
+                        json={"overlapSeconds": 60},
+                    ),
+                    client.delete(f"/api/v1/admin/credentials/{uuid4()}"),
+                    client.delete(f"/api/v1/admin/principals/{uuid4()}/credentials"),
+                    client.post(
+                        "/api/v1/credentials/exchange",
+                        json={
+                            "scopes": ["worker:view"],
+                            "audience": "amesh-worker",
+                            "expiresInSeconds": 300,
+                        },
                     ),
                     client.post(
                         "/api/v1/authorization/explain",

@@ -500,14 +500,14 @@ URS-F-0498,Functional,Must,EPIC-500,"Users, groups, roles, bindings and authoriz
 URS-F-0499,Functional,Must,EPIC-500,"Users, groups, roles, bindings and authorization",M5,5,"Authorization, audit and administrative end-to-end tests",Verified
 URS-F-0500,Functional,Must,EPIC-500,"Users, groups, roles, bindings and authorization",M5,5,"Authorization, audit and administrative end-to-end tests",Verified
 URS-F-0501,Functional,Must,EPIC-500,"Users, groups, roles, bindings and authorization",M5,5,"Authorization, audit and administrative end-to-end tests",Verified
-URS-F-0502,Functional,Must,EPIC-501,"Service accounts, API tokens and credentials",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
-URS-F-0503,Functional,Must,EPIC-501,"Service accounts, API tokens and credentials",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
-URS-F-0504,Functional,Must,EPIC-501,"Service accounts, API tokens and credentials",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
-URS-F-0505,Functional,Must,EPIC-501,"Service accounts, API tokens and credentials",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
-URS-F-0506,Functional,Must,EPIC-501,"Service accounts, API tokens and credentials",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
-URS-F-0507,Functional,Must,EPIC-501,"Service accounts, API tokens and credentials",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
-URS-F-0508,Functional,Must,EPIC-501,"Service accounts, API tokens and credentials",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
-URS-F-0509,Functional,Must,EPIC-501,"Service accounts, API tokens and credentials",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0502,Functional,Must,EPIC-501,"Service accounts, API tokens and credentials",M5,5,"Authorization, audit and administrative end-to-end tests",Verified
+URS-F-0503,Functional,Must,EPIC-501,"Service accounts, API tokens and credentials",M5,5,"Authorization, audit and administrative end-to-end tests",Verified
+URS-F-0504,Functional,Must,EPIC-501,"Service accounts, API tokens and credentials",M5,5,"Authorization, audit and administrative end-to-end tests",Verified
+URS-F-0505,Functional,Must,EPIC-501,"Service accounts, API tokens and credentials",M5,5,"Authorization, audit and administrative end-to-end tests",Verified
+URS-F-0506,Functional,Must,EPIC-501,"Service accounts, API tokens and credentials",M5,5,"Authorization, audit and administrative end-to-end tests",Verified
+URS-F-0507,Functional,Must,EPIC-501,"Service accounts, API tokens and credentials",M5,5,"Authorization, audit and administrative end-to-end tests",Verified
+URS-F-0508,Functional,Must,EPIC-501,"Service accounts, API tokens and credentials",M5,5,"Authorization, audit and administrative end-to-end tests",Verified
+URS-F-0509,Functional,Must,EPIC-501,"Service accounts, API tokens and credentials",M5,5,"Authorization, audit and administrative end-to-end tests",Verified
 URS-F-0510,Functional,Must,EPIC-502,"SSO, OIDC, SAML, LDAP and SCIM",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
 URS-F-0511,Functional,Must,EPIC-502,"SSO, OIDC, SAML, LDAP and SCIM",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
 URS-F-0512,Functional,Must,EPIC-502,"SSO, OIDC, SAML, LDAP and SCIM",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
@@ -949,9 +949,9 @@ URS-NFR-RELIABILITY-008,Non-functional,Must,EPIC-601,Distributed services and hi
 URS-NFR-SECURITY-001,Non-functional,Must,EPIC-503,Multi-tenancy and resource isolation,M5,5,"Automated negative tests, database checks and independent penetration testing.",Proposed
 URS-NFR-SECURITY-001,Non-functional,Must,EPIC-604,Search and analytics projection backend,M6,6,"Automated negative tests, database checks and independent penetration testing.",Proposed
 URS-NFR-SECURITY-001,Non-functional,Must,EPIC-605,Object storage backends and lifecycle,M6,6,"Automated negative tests, database checks and independent penetration testing.",Proposed
-URS-NFR-SECURITY-002,Non-functional,Must,EPIC-303,Isolated language-neutral plugin runtime,M3,3,Threat-model review and deployment policy tests.,Proposed
-URS-NFR-SECURITY-002,Non-functional,Must,EPIC-501,"Service accounts, API tokens and credentials",M5,5,Threat-model review and deployment policy tests.,Proposed
-URS-NFR-SECURITY-002,Non-functional,Must,EPIC-612,Security hardening and software supply chain,M6,6,Threat-model review and deployment policy tests.,Proposed
+URS-NFR-SECURITY-002,Non-functional,Must,EPIC-303,Isolated language-neutral plugin runtime,M3,3,Threat-model review and deployment policy tests.,In Progress
+URS-NFR-SECURITY-002,Non-functional,Must,EPIC-501,"Service accounts, API tokens and credentials",M5,5,Threat-model review and deployment policy tests.,In Progress
+URS-NFR-SECURITY-002,Non-functional,Must,EPIC-612,Security hardening and software supply chain,M6,6,Threat-model review and deployment policy tests.,In Progress
 URS-NFR-SECURITY-003,Non-functional,Must,EPIC-111,"Logs, metrics, outputs and artifact events",M1,1,Canary-secret scanning and redaction tests.,Proposed
 URS-NFR-SECURITY-003,Non-functional,Must,EPIC-205,"Inputs, outputs and variables",M2,2,Canary-secret scanning and redaction tests.,Proposed
 URS-NFR-SECURITY-003,Non-functional,Must,EPIC-506,External secrets managers and secret lifecycle,M5,5,Canary-secret scanning and redaction tests.,Proposed
@@ -960,10 +960,10 @@ URS-NFR-SECURITY-004,Non-functional,Must,EPIC-613,"TLS, networking, proxy and pr
 URS-NFR-SECURITY-005,Non-functional,Must,EPIC-506,External secrets managers and secret lifecycle,M5,5,Configuration audit and restore test.,Proposed
 URS-NFR-SECURITY-005,Non-functional,Must,EPIC-602,PostgreSQL transactional backend,M6,6,Configuration audit and restore test.,Proposed
 URS-NFR-SECURITY-005,Non-functional,Must,EPIC-605,Object storage backends and lifecycle,M6,6,Configuration audit and restore test.,Proposed
-URS-NFR-SECURITY-006,Non-functional,Must,EPIC-501,"Service accounts, API tokens and credentials",M5,5,"Automated token, certificate and external-secret rotation tests.",Proposed
-URS-NFR-SECURITY-006,Non-functional,Must,EPIC-502,"SSO, OIDC, SAML, LDAP and SCIM",M5,5,"Automated token, certificate and external-secret rotation tests.",Proposed
-URS-NFR-SECURITY-006,Non-functional,Must,EPIC-506,External secrets managers and secret lifecycle,M5,5,"Automated token, certificate and external-secret rotation tests.",Proposed
-URS-NFR-SECURITY-006,Non-functional,Must,EPIC-613,"TLS, networking, proxy and private connectivity",M6,6,"Automated token, certificate and external-secret rotation tests.",Proposed
+URS-NFR-SECURITY-006,Non-functional,Must,EPIC-501,"Service accounts, API tokens and credentials",M5,5,"Automated token, certificate and external-secret rotation tests.",In Progress
+URS-NFR-SECURITY-006,Non-functional,Must,EPIC-502,"SSO, OIDC, SAML, LDAP and SCIM",M5,5,"Automated token, certificate and external-secret rotation tests.",In Progress
+URS-NFR-SECURITY-006,Non-functional,Must,EPIC-506,External secrets managers and secret lifecycle,M5,5,"Automated token, certificate and external-secret rotation tests.",In Progress
+URS-NFR-SECURITY-006,Non-functional,Must,EPIC-613,"TLS, networking, proxy and private connectivity",M6,6,"Automated token, certificate and external-secret rotation tests.",In Progress
 URS-NFR-SECURITY-007,Non-functional,Must,EPIC-001,"Repository engineering, CI and release foundation",M0,0,Release pipeline policy gate.,Proposed
 URS-NFR-SECURITY-007,Non-functional,Must,EPIC-305,"Plugin registry, signing, SBOM and marketplace metadata",M3,3,Release pipeline policy gate.,Proposed
 URS-NFR-SECURITY-007,Non-functional,Must,EPIC-612,Security hardening and software supply chain,M6,6,Release pipeline policy gate.,Proposed
