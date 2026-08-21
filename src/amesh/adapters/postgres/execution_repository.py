@@ -30,19 +30,26 @@ from amesh.ports.execution_repository import (
 
 _UPSERT_NAMESPACE = text(
     """
-    INSERT INTO namespaces (id, tenant_id, name)
-    SELECT :namespace_id, tenants.id, :namespace
+    INSERT INTO namespaces (id, tenant_id, name, created_by, updated_by)
+    SELECT :namespace_id, tenants.id, :namespace, :actor_id, :actor_id
     FROM tenants
     WHERE tenants.slug = :tenant_slug
-    ON CONFLICT (tenant_id, name) DO UPDATE SET name = EXCLUDED.name
+    ON CONFLICT (tenant_id, name) DO UPDATE
+    SET name = EXCLUDED.name,
+        updated_by = EXCLUDED.updated_by,
+        updated_at = now()
     RETURNING id, tenant_id
     """
 )
 
 _UPSERT_FLOW = text(
     """
-    INSERT INTO flows (id, tenant_id, namespace_id, flow_key)
-    VALUES (:resource_id, :tenant_id, :namespace_id, :flow_key)
+    INSERT INTO flows (
+        id, tenant_id, namespace_id, flow_key, created_by, updated_by
+    )
+    VALUES (
+        :resource_id, :tenant_id, :namespace_id, :flow_key, :actor_id, :actor_id
+    )
     ON CONFLICT (tenant_id, namespace_id, flow_key)
     DO UPDATE SET flow_key = EXCLUDED.flow_key
     RETURNING id
@@ -67,7 +74,7 @@ _INSERT_FLOW_REVISION = text(
         :revision,
         :semantic_hash,
         CAST(:canonical_definition AS jsonb),
-        'mvp-executor'
+        :actor_id
     )
     ON CONFLICT (tenant_id, flow_id, revision) DO NOTHING
     """
@@ -118,6 +125,8 @@ _INSERT_EXECUTION = text(
         idempotency_key,
         inputs,
         labels,
+        created_by,
+        updated_by,
         created_at,
         updated_at
     )
@@ -134,6 +143,8 @@ _INSERT_EXECUTION = text(
         :idempotency_key,
         CAST(:inputs AS jsonb),
         CAST(:labels AS jsonb),
+        :actor_id,
+        :actor_id,
         :created_at,
         :created_at
     )
@@ -175,7 +186,7 @@ _INSERT_EXECUTION_EVENT = text(
         1,
         :correlation_id,
         NULL,
-        'mvp-executor',
+        :actor_id,
         :occurred_at,
         '{}'::jsonb
     )
@@ -550,6 +561,7 @@ class PostgresExecutionRepository(ExecutionRepository):
         *,
         tenant_id: str,
         expected_etag: str | None = None,
+        actor_id: str = "system:flow-manager",
     ) -> PersistedFlow:
         encoded, semantic_hash = _canonical_flow(flow)
         async with self._engine.begin() as connection:
@@ -557,12 +569,14 @@ class PostgresExecutionRepository(ExecutionRepository):
                 connection,
                 tenant_id,
                 flow.namespace,
+                actor_id,
             )
             flow_uuid = await self._ensure_flow(
                 connection,
                 tenant_uuid,
                 namespace_id,
                 flow.id,
+                actor_id,
             )
             await self._ensure_flow_revision(
                 connection,
@@ -571,6 +585,7 @@ class PostgresExecutionRepository(ExecutionRepository):
                 flow,
                 semantic_hash,
                 encoded,
+                actor_id,
             )
             expected_version: int | None = None
             if expected_etag is not None:
@@ -592,7 +607,7 @@ class PostgresExecutionRepository(ExecutionRepository):
                     "revision": flow.revision,
                     "labels": json.dumps(flow.labels),
                     "annotations": json.dumps(flow.annotations),
-                    "actor_id": "system:admin-token",
+                    "actor_id": actor_id,
                     "expected_version": expected_version,
                 },
             )
@@ -644,6 +659,7 @@ class PostgresExecutionRepository(ExecutionRepository):
         tenant_id: str,
         inputs: dict[str, object],
         idempotency_key: str | None = None,
+        actor_id: str = "system:executor",
     ) -> PersistedExecution:
         execution_id = new_runtime_id()
         created_at = datetime.now(UTC)
@@ -654,8 +670,15 @@ class PostgresExecutionRepository(ExecutionRepository):
                 connection,
                 tenant_id,
                 flow.namespace,
+                actor_id,
             )
-            flow_id = await self._ensure_flow(connection, tenant_uuid, namespace_id, flow.id)
+            flow_id = await self._ensure_flow(
+                connection,
+                tenant_uuid,
+                namespace_id,
+                flow.id,
+                actor_id,
+            )
             flow_revision_id = await self._ensure_flow_revision(
                 connection,
                 tenant_uuid,
@@ -663,6 +686,7 @@ class PostgresExecutionRepository(ExecutionRepository):
                 flow,
                 semantic_hash,
                 encoded,
+                actor_id,
             )
             await connection.execute(
                 _ACTIVATE_FLOW_REVISION,
@@ -672,7 +696,7 @@ class PostgresExecutionRepository(ExecutionRepository):
                     "revision": flow.revision,
                     "labels": json.dumps(flow.labels),
                     "annotations": json.dumps(flow.annotations),
-                    "actor_id": "system:executor",
+                    "actor_id": actor_id,
                     "expected_version": None,
                 },
             )
@@ -688,6 +712,7 @@ class PostgresExecutionRepository(ExecutionRepository):
                     "idempotency_key": idempotency_key,
                     "inputs": json.dumps(inputs),
                     "labels": json.dumps(flow.labels),
+                    "actor_id": actor_id,
                     "created_at": created_at,
                 },
             )
@@ -707,6 +732,7 @@ class PostgresExecutionRepository(ExecutionRepository):
                     tenant_uuid,
                     execution_id,
                     created_at,
+                    actor_id,
                 )
                 await connection.execute(
                     _INSERT_TASK_RUN,
@@ -840,6 +866,7 @@ class PostgresExecutionRepository(ExecutionRepository):
         connection: AsyncConnection,
         tenant_slug: str,
         namespace: str,
+        actor_id: str,
     ) -> tuple[UUID, UUID]:
         result = await connection.execute(
             _UPSERT_NAMESPACE,
@@ -847,6 +874,7 @@ class PostgresExecutionRepository(ExecutionRepository):
                 "namespace_id": new_runtime_id(),
                 "tenant_slug": tenant_slug,
                 "namespace": namespace,
+                "actor_id": actor_id,
             },
         )
         row = result.mappings().one_or_none()
@@ -860,6 +888,7 @@ class PostgresExecutionRepository(ExecutionRepository):
         tenant_id: UUID,
         namespace_id: UUID,
         flow_key: str,
+        actor_id: str,
     ) -> UUID:
         result = await connection.execute(
             _UPSERT_FLOW,
@@ -868,6 +897,7 @@ class PostgresExecutionRepository(ExecutionRepository):
                 "tenant_id": tenant_id,
                 "namespace_id": namespace_id,
                 "flow_key": flow_key,
+                "actor_id": actor_id,
             },
         )
         return UUID(str(result.scalar_one()))
@@ -880,6 +910,7 @@ class PostgresExecutionRepository(ExecutionRepository):
         flow: FlowDefinition,
         semantic_hash: str,
         canonical_definition: str,
+        actor_id: str,
     ) -> UUID:
         await connection.execute(
             _INSERT_FLOW_REVISION,
@@ -890,6 +921,7 @@ class PostgresExecutionRepository(ExecutionRepository):
                 "revision": flow.revision,
                 "semantic_hash": semantic_hash,
                 "canonical_definition": canonical_definition,
+                "actor_id": actor_id,
             },
         )
         result = await connection.execute(
@@ -909,6 +941,7 @@ class PostgresExecutionRepository(ExecutionRepository):
         tenant_id: UUID,
         execution_id: UUID,
         occurred_at: datetime,
+        actor_id: str,
     ) -> None:
         correlation_id = new_runtime_id()
         event_types = (
@@ -926,6 +959,7 @@ class PostgresExecutionRepository(ExecutionRepository):
                     "event_id": new_runtime_id(),
                     "event_type": event_type.value,
                     "correlation_id": correlation_id,
+                    "actor_id": actor_id,
                     "occurred_at": occurred_at,
                 }
                 for sequence, event_type in enumerate(event_types, start=1)

@@ -1,5 +1,31 @@
 # Test Log
 
+## EPIC-500: Users, groups, roles, bindings and authorization — 2026-08-21
+
+Spec source: Agent Hotel card `c2` and canonical `backlog/epics.json` EPIC-500 DoD.
+
+Verified with `uv` and PostgreSQL 17:
+
+- [x] Typed resource/action permissions cover view, create, update, delete, execute, manage and use with explicit allow/deny effects.
+- [x] UUIDv7 principals and bindings support users, groups, service accounts, workers and plugins at instance, tenant and namespace scopes.
+- [x] Namespace grants inherit down dotted namespace trees; explicit denies override grants and declared boundaries stop parent inheritance.
+- [x] REST resource endpoints authorize server-side with tenant context and generic denials; CLI requests send `X-Amesh-Tenant`; service-account, worker and plugin actors use the same policy service. Realtime/UI surfaces do not yet exist and must consume this boundary when implemented.
+- [x] PostgreSQL statement triggers increment a monotonic policy version for every principal, membership, role, permission, binding or boundary mutation. Cached allows are missed immediately after binding and group-membership revocation.
+- [x] The administrator-only explanation API returns reason codes, policy versions and matched roles; ordinary 403/404 responses do not disclose inaccessible tenant, namespace or resource details.
+- [x] Six immutable built-in roles are seeded. Deleting a binding or group membership that would remove the final effective instance administrator rolls back with HTTP 409.
+- [x] Every current product endpoint is catalogued in API acceptance coverage: health, readiness, metrics and content-only flow validation are intentionally anonymous; every resource-bearing operation has negative permission and tenant-isolation evidence. No realtime stream exists yet.
+- [x] Authorization administration mutations append actor/resource evidence to `audit_events`.
+- [x] Migration 0004 applied to the existing database. A fresh temporary database applied migrations 0001–0004 and contained policy version 1 plus all six built-in roles.
+- [x] Full suite: `pytest --cov=amesh --cov-report=term-missing` — 68 passed, 4 environment-gated tests skipped, 78.54% branch coverage.
+- [x] Focused evaluator measurement: 100,000 cached-input pure decisions in 0.164400 seconds (1.64 microseconds/decision, 608,273 decisions/second) on the development workstation; this is not a distributed production throughput claim.
+- [x] Ruff formatting/lint, strict mypy and generated OpenAPI snapshot gates pass.
+
+Adversarial pass: cross-tenant headers, viewer writes, every administrative surface, mismatched binding principal types, explicit deny, namespace-boundary crossing, stale cached grants, final direct administrator removal and final group-derived administrator removal all fail deterministically.
+
+Not covered: durable login/session credentials, API-token lifecycle, external identity providers, tenant provisioning/isolation and graphical UI consumption. These remain explicitly assigned to EPIC-403, EPIC-501, EPIC-502, EPIC-503 and EPIC-404.
+
+Verdict: PASS — EPIC-500 requirements URS-F-0494 through URS-F-0501 and its authorization contribution to URS-NFR-USABILITY-002 are verified.
+
 ## EPIC-002: Canonical resource model and identifiers — 2026-08-21
 
 Spec source: Agent Hotel card `c1` and canonical `backlog/epics.json` EPIC-002 DoD.

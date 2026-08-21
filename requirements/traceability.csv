@@ -492,14 +492,14 @@ URS-F-0490,Functional,Must,EPIC-411,"Blueprints, playground and onboarding",M4,4
 URS-F-0491,Functional,Must,EPIC-411,"Blueprints, playground and onboarding",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
 URS-F-0492,Functional,Must,EPIC-411,"Blueprints, playground and onboarding",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
 URS-F-0493,Functional,Must,EPIC-411,"Blueprints, playground and onboarding",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
-URS-F-0494,Functional,Must,EPIC-500,"Users, groups, roles, bindings and authorization",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
-URS-F-0495,Functional,Must,EPIC-500,"Users, groups, roles, bindings and authorization",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
-URS-F-0496,Functional,Must,EPIC-500,"Users, groups, roles, bindings and authorization",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
-URS-F-0497,Functional,Must,EPIC-500,"Users, groups, roles, bindings and authorization",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
-URS-F-0498,Functional,Must,EPIC-500,"Users, groups, roles, bindings and authorization",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
-URS-F-0499,Functional,Must,EPIC-500,"Users, groups, roles, bindings and authorization",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
-URS-F-0500,Functional,Must,EPIC-500,"Users, groups, roles, bindings and authorization",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
-URS-F-0501,Functional,Must,EPIC-500,"Users, groups, roles, bindings and authorization",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0494,Functional,Must,EPIC-500,"Users, groups, roles, bindings and authorization",M5,5,"Authorization, audit and administrative end-to-end tests",Verified
+URS-F-0495,Functional,Must,EPIC-500,"Users, groups, roles, bindings and authorization",M5,5,"Authorization, audit and administrative end-to-end tests",Verified
+URS-F-0496,Functional,Must,EPIC-500,"Users, groups, roles, bindings and authorization",M5,5,"Authorization, audit and administrative end-to-end tests",Verified
+URS-F-0497,Functional,Must,EPIC-500,"Users, groups, roles, bindings and authorization",M5,5,"Authorization, audit and administrative end-to-end tests",Verified
+URS-F-0498,Functional,Must,EPIC-500,"Users, groups, roles, bindings and authorization",M5,5,"Authorization, audit and administrative end-to-end tests",Verified
+URS-F-0499,Functional,Must,EPIC-500,"Users, groups, roles, bindings and authorization",M5,5,"Authorization, audit and administrative end-to-end tests",Verified
+URS-F-0500,Functional,Must,EPIC-500,"Users, groups, roles, bindings and authorization",M5,5,"Authorization, audit and administrative end-to-end tests",Verified
+URS-F-0501,Functional,Must,EPIC-500,"Users, groups, roles, bindings and authorization",M5,5,"Authorization, audit and administrative end-to-end tests",Verified
 URS-F-0502,Functional,Must,EPIC-501,"Service accounts, API tokens and credentials",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
 URS-F-0503,Functional,Must,EPIC-501,"Service accounts, API tokens and credentials",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
 URS-F-0504,Functional,Must,EPIC-501,"Service accounts, API tokens and credentials",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
@@ -978,10 +978,10 @@ URS-NFR-SECURITY-010,Non-functional,Must,EPIC-505,"Plugin allow, restrict and ve
 URS-NFR-SECURITY-010,Non-functional,Must,EPIC-612,Security hardening and software supply chain,M6,6,Configuration conformance and container scan.,Proposed
 URS-NFR-USABILITY-001,Non-functional,Must,EPIC-004,"Flow DSL, YAML model and schema",M0,0,Editor benchmark and validation contract tests.,Proposed
 URS-NFR-USABILITY-001,Non-functional,Must,EPIC-405,Flow code editor and validation experience,M4,4,Editor benchmark and validation contract tests.,Proposed
-URS-NFR-USABILITY-002,Non-functional,Must,EPIC-105,"Concurrency, admission control and fairness",M1,1,Scenario-based UI and API acceptance tests.,Proposed
-URS-NFR-USABILITY-002,Non-functional,Must,EPIC-109,Task and execution cache,M1,1,Scenario-based UI and API acceptance tests.,Proposed
-URS-NFR-USABILITY-002,Non-functional,Must,EPIC-500,"Users, groups, roles, bindings and authorization",M5,5,Scenario-based UI and API acceptance tests.,Proposed
-URS-NFR-USABILITY-002,Non-functional,Must,EPIC-802,Policy as code and admission controller,M8,8,Scenario-based UI and API acceptance tests.,Proposed
+URS-NFR-USABILITY-002,Non-functional,Must,EPIC-105,"Concurrency, admission control and fairness",M1,1,Scenario-based UI and API acceptance tests.,In Progress
+URS-NFR-USABILITY-002,Non-functional,Must,EPIC-109,Task and execution cache,M1,1,Scenario-based UI and API acceptance tests.,In Progress
+URS-NFR-USABILITY-002,Non-functional,Must,EPIC-500,"Users, groups, roles, bindings and authorization",M5,5,Scenario-based UI and API acceptance tests.,In Progress
+URS-NFR-USABILITY-002,Non-functional,Must,EPIC-802,Policy as code and admission controller,M8,8,Scenario-based UI and API acceptance tests.,In Progress
 URS-NFR-USABILITY-003,Non-functional,Must,EPIC-001,"Repository engineering, CI and release foundation",M0,0,Quarterly external documentation usability test.,Proposed
 URS-NFR-USABILITY-003,Non-functional,Must,EPIC-411,"Blueprints, playground and onboarding",M4,4,Quarterly external documentation usability test.,Proposed
 URS-NFR-USABILITY-003,Non-functional,Must,EPIC-600,Standalone server and compact deployment,M6,6,Quarterly external documentation usability test.,Proposed

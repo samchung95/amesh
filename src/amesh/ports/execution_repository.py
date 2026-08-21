@@ -75,6 +75,7 @@ class ExecutionRepository(Protocol):
         *,
         tenant_id: str,
         expected_etag: str | None = None,
+        actor_id: str = "system:flow-manager",
     ) -> PersistedFlow: ...
 
     async def get_flow(
@@ -94,6 +95,7 @@ class ExecutionRepository(Protocol):
         tenant_id: str,
         inputs: dict[str, Any],
         idempotency_key: str | None = None,
+        actor_id: str = "system:executor",
     ) -> PersistedExecution: ...
 
     async def get_execution(self, execution_id: UUID) -> PersistedExecution: ...

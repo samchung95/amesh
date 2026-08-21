@@ -13,7 +13,10 @@ class FakeClient:
 
     def __init__(self, **kwargs: Any) -> None:
         assert kwargs["base_url"] == "http://amesh.test"
-        assert kwargs["headers"] == {"authorization": "Bearer test-token"}
+        assert kwargs["headers"] == {
+            "authorization": "Bearer test-token",
+            "x-amesh-tenant": "tenant-a",
+        }
 
     def __enter__(self) -> FakeClient:
         return self
@@ -49,6 +52,8 @@ def test_run_command_calls_execution_api(monkeypatch: Any, capsys: Any) -> None:
             "http://amesh.test",
             "--token",
             "test-token",
+            "--tenant",
+            "tenant-a",
             "run",
             "examples.mvp",
             "agent_shell_http",
@@ -79,6 +84,8 @@ def test_executions_command_lists_executions(monkeypatch: Any, capsys: Any) -> N
             "http://amesh.test",
             "--token",
             "test-token",
+            "--tenant",
+            "tenant-a",
             "executions",
             "--limit",
             "25",

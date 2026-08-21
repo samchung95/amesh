@@ -24,10 +24,12 @@ from .task_runner import (
 )
 
 __all__ = [
+    "AuthorizationRepository",
     "DurableEnvelope",
     "DurableTransport",
     "ExecutionRepository",
     "ExecutionStateConflictError",
+    "LastAdministratorError",
     "ObjectMetadata",
     "ObjectStore",
     "PersistedExecution",
@@ -35,6 +37,7 @@ __all__ = [
     "PersistedTaskRun",
     "PluginInvocation",
     "PluginRuntime",
+    "PolicyVersionChanged",
     "RunnerRequest",
     "RunnerResult",
     "RunnerStatus",
@@ -45,3 +48,8 @@ __all__ = [
     "TaskStateConflictError",
     "WorkClaim",
 ]
+from .authorization_repository import (
+    AuthorizationRepository,
+    LastAdministratorError,
+    PolicyVersionChanged,
+)

@@ -1,6 +1,108 @@
 {
   "components": {
     "schemas": {
+      "AuthorizationDecision": {
+        "properties": {
+          "allowed": {
+            "title": "Allowed",
+            "type": "boolean"
+          },
+          "matched_role_names": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Matched Role Names",
+            "type": "array"
+          },
+          "policy_version": {
+            "minimum": 1.0,
+            "title": "Policy Version",
+            "type": "integer"
+          },
+          "reason_code": {
+            "title": "Reason Code",
+            "type": "string"
+          },
+          "summary": {
+            "title": "Summary",
+            "type": "string"
+          }
+        },
+        "required": [
+          "allowed",
+          "reason_code",
+          "summary",
+          "policy_version"
+        ],
+        "title": "AuthorizationDecision",
+        "type": "object"
+      },
+      "AuthorizationExplanationRequest": {
+        "properties": {
+          "action": {
+            "$ref": "#/components/schemas/PermissionAction"
+          },
+          "namespace": {
+            "anyOf": [
+              {
+                "maxLength": 255,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Namespace"
+          },
+          "principalId": {
+            "format": "uuid",
+            "title": "Principalid",
+            "type": "string"
+          },
+          "principalType": {
+            "$ref": "#/components/schemas/PrincipalType"
+          },
+          "resourceType": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Resourcetype",
+            "type": "string"
+          },
+          "tenantId": {
+            "anyOf": [
+              {
+                "maxLength": 63,
+                "minLength": 1,
+                "pattern": "^[a-z0-9][a-z0-9-]*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tenantid"
+          }
+        },
+        "required": [
+          "principalId",
+          "principalType",
+          "resourceType",
+          "action"
+        ],
+        "title": "AuthorizationExplanationRequest",
+        "type": "object"
+      },
+      "AuthorizationScopeType": {
+        "enum": [
+          "INSTANCE",
+          "TENANT",
+          "NAMESPACE"
+        ],
+        "title": "AuthorizationScopeType",
+        "type": "string"
+      },
       "CreateExecutionRequest": {
         "properties": {
           "flowId": {
@@ -304,6 +406,81 @@
         "title": "HealthResponse",
         "type": "object"
       },
+      "NamespaceAuthorizationBoundary": {
+        "properties": {
+          "namespace": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Namespace",
+            "type": "string"
+          },
+          "tenant_id": {
+            "maxLength": 63,
+            "minLength": 1,
+            "pattern": "^[a-z0-9][a-z0-9-]*$",
+            "title": "Tenant Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "tenant_id",
+          "namespace"
+        ],
+        "title": "NamespaceAuthorizationBoundary",
+        "type": "object"
+      },
+      "Permission": {
+        "properties": {
+          "action": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PermissionAction"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Action"
+          },
+          "effect": {
+            "$ref": "#/components/schemas/PermissionEffect",
+            "default": "ALLOW"
+          },
+          "resource_type": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Resource Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "resource_type",
+          "action"
+        ],
+        "title": "Permission",
+        "type": "object"
+      },
+      "PermissionAction": {
+        "enum": [
+          "view",
+          "create",
+          "update",
+          "delete",
+          "execute",
+          "manage",
+          "use"
+        ],
+        "title": "PermissionAction",
+        "type": "string"
+      },
+      "PermissionEffect": {
+        "enum": [
+          "ALLOW",
+          "DENY"
+        ],
+        "title": "PermissionEffect",
+        "type": "string"
+      },
       "PersistedExecution": {
         "properties": {
           "created_at": {
@@ -480,6 +657,58 @@
         "title": "PersistedTaskRun",
         "type": "object"
       },
+      "PrincipalDefinition": {
+        "properties": {
+          "display_name": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Display Name",
+            "type": "string"
+          },
+          "enabled": {
+            "default": true,
+            "title": "Enabled",
+            "type": "boolean"
+          },
+          "handle": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+            "title": "Handle",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/ResourceMetadata"
+          },
+          "principal_type": {
+            "$ref": "#/components/schemas/PrincipalType"
+          }
+        },
+        "required": [
+          "principal_type",
+          "handle",
+          "display_name"
+        ],
+        "title": "PrincipalDefinition",
+        "type": "object"
+      },
+      "PrincipalType": {
+        "enum": [
+          "USER",
+          "GROUP",
+          "SERVICE_ACCOUNT",
+          "WORKER",
+          "PLUGIN",
+          "SYSTEM"
+        ],
+        "title": "PrincipalType",
+        "type": "string"
+      },
       "ReduceExecutionRequest": {
         "properties": {
           "events": {
@@ -603,6 +832,110 @@
           }
         },
         "title": "ResourceMetadata",
+        "type": "object"
+      },
+      "RoleBinding": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "namespace": {
+            "anyOf": [
+              {
+                "maxLength": 255,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Namespace"
+          },
+          "principal_id": {
+            "format": "uuid",
+            "title": "Principal Id",
+            "type": "string"
+          },
+          "principal_type": {
+            "$ref": "#/components/schemas/PrincipalType"
+          },
+          "role_name": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+            "title": "Role Name",
+            "type": "string"
+          },
+          "scope_type": {
+            "$ref": "#/components/schemas/AuthorizationScopeType"
+          },
+          "tenant_id": {
+            "anyOf": [
+              {
+                "maxLength": 63,
+                "minLength": 1,
+                "pattern": "^[a-z0-9][a-z0-9-]*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tenant Id"
+          }
+        },
+        "required": [
+          "principal_id",
+          "principal_type",
+          "role_name",
+          "scope_type"
+        ],
+        "title": "RoleBinding",
+        "type": "object"
+      },
+      "RoleDefinition": {
+        "properties": {
+          "built_in": {
+            "default": false,
+            "title": "Built In",
+            "type": "boolean"
+          },
+          "description": {
+            "default": "",
+            "maxLength": 4096,
+            "title": "Description",
+            "type": "string"
+          },
+          "display_name": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Display Name",
+            "type": "string"
+          },
+          "name": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+            "title": "Name",
+            "type": "string"
+          },
+          "permissions": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/Permission"
+            },
+            "title": "Permissions",
+            "type": "array"
+          }
+        },
+        "required": [
+          "name",
+          "display_name"
+        ],
+        "title": "RoleDefinition",
         "type": "object"
       },
       "RunnerMode": {
@@ -736,6 +1069,679 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/api/v1/admin/bindings": {
+      "get": {
+        "operationId": "list_role_bindings_api_v1_admin_bindings_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/RoleBinding"
+                  },
+                  "title": "Response List Role Bindings Api V1 Admin Bindings Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Role Bindings",
+        "tags": [
+          "authorization"
+        ]
+      },
+      "post": {
+        "operationId": "create_role_binding_api_v1_admin_bindings_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RoleBinding"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoleBinding"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Role Binding",
+        "tags": [
+          "authorization"
+        ]
+      }
+    },
+    "/api/v1/admin/bindings/{binding_id}": {
+      "delete": {
+        "operationId": "delete_role_binding_api_v1_admin_bindings__binding_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "binding_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Binding Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Namespace",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Namespace"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Delete Role Binding",
+        "tags": [
+          "authorization"
+        ]
+      }
+    },
+    "/api/v1/admin/groups/{group_id}/members/{member_id}": {
+      "delete": {
+        "operationId": "remove_group_member_api_v1_admin_groups__group_id__members__member_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Group Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "member_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Member Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Remove Group Member",
+        "tags": [
+          "authorization"
+        ]
+      },
+      "put": {
+        "operationId": "add_group_member_api_v1_admin_groups__group_id__members__member_id__put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "group_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Group Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "member_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Member Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Add Group Member",
+        "tags": [
+          "authorization"
+        ]
+      }
+    },
+    "/api/v1/admin/principals": {
+      "get": {
+        "operationId": "list_principals_api_v1_admin_principals_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PrincipalDefinition"
+                  },
+                  "title": "Response List Principals Api V1 Admin Principals Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Principals",
+        "tags": [
+          "authorization"
+        ]
+      },
+      "post": {
+        "operationId": "create_principal_api_v1_admin_principals_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PrincipalDefinition"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PrincipalDefinition"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Principal",
+        "tags": [
+          "authorization"
+        ]
+      }
+    },
+    "/api/v1/admin/roles": {
+      "get": {
+        "operationId": "list_roles_api_v1_admin_roles_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/RoleDefinition"
+                  },
+                  "title": "Response List Roles Api V1 Admin Roles Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Roles",
+        "tags": [
+          "authorization"
+        ]
+      }
+    },
+    "/api/v1/admin/roles/{role_name}": {
+      "put": {
+        "operationId": "upsert_role_api_v1_admin_roles__role_name__put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "role_name",
+            "required": true,
+            "schema": {
+              "title": "Role Name",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RoleDefinition"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoleDefinition"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Upsert Role",
+        "tags": [
+          "authorization"
+        ]
+      }
+    },
+    "/api/v1/admin/tenants/{tenant_id}/namespaces/{namespace}/authorization-boundary": {
+      "put": {
+        "operationId": "set_namespace_authorization_boundary_api_v1_admin_tenants__tenant_id__namespaces__namespace__authorization_boundary_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tenant_id",
+            "required": true,
+            "schema": {
+              "title": "Tenant Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "namespace",
+            "required": true,
+            "schema": {
+              "title": "Namespace",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NamespaceAuthorizationBoundary"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Set Namespace Authorization Boundary",
+        "tags": [
+          "authorization"
+        ]
+      }
+    },
+    "/api/v1/authorization/explain": {
+      "post": {
+        "operationId": "explain_authorization_api_v1_authorization_explain_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AuthorizationExplanationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthorizationDecision"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Explain Authorization",
+        "tags": [
+          "authorization"
+        ]
+      }
+    },
     "/api/v1/executions": {
       "get": {
         "operationId": "list_executions_api_v1_executions_get",
@@ -748,6 +1754,16 @@
               "default": 100,
               "title": "Limit",
               "type": "integer"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "default": "default",
+              "title": "X-Amesh-Tenant",
+              "type": "string"
             }
           },
           {
@@ -801,6 +1817,16 @@
       "post": {
         "operationId": "create_execution_api_v1_executions_post",
         "parameters": [
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "default": "default",
+              "title": "X-Amesh-Tenant",
+              "type": "string"
+            }
+          },
           {
             "in": "header",
             "name": "authorization",
@@ -859,6 +1885,34 @@
     "/api/v1/executions/reduce": {
       "post": {
         "operationId": "reduce_execution_events_api_v1_executions_reduce_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "default": "default",
+              "title": "X-Amesh-Tenant",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -908,6 +1962,16 @@
             "schema": {
               "format": "uuid",
               "title": "Execution Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "default": "default",
+              "title": "X-Amesh-Tenant",
               "type": "string"
             }
           },
@@ -972,6 +2036,16 @@
           },
           {
             "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "default": "default",
+              "title": "X-Amesh-Tenant",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
             "name": "authorization",
             "required": false,
             "schema": {
@@ -1023,6 +2097,16 @@
       "get": {
         "operationId": "list_flows_api_v1_flows_get",
         "parameters": [
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "default": "default",
+              "title": "X-Amesh-Tenant",
+              "type": "string"
+            }
+          },
           {
             "in": "header",
             "name": "authorization",
@@ -1088,6 +2172,16 @@
                 }
               ],
               "title": "If-Match"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "default": "default",
+              "title": "X-Amesh-Tenant",
+              "type": "string"
             }
           },
           {
@@ -1194,6 +2288,16 @@
             "schema": {
               "$ref": "#/components/schemas/RunnerMode",
               "default": "local"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "default": "default",
+              "title": "X-Amesh-Tenant",
+              "type": "string"
             }
           },
           {

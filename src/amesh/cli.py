@@ -23,6 +23,7 @@ def build_parser() -> argparse.ArgumentParser:
         default=os.getenv("AMESH_API_URL", "http://127.0.0.1:8000"),
     )
     parser.add_argument("--token", default=os.getenv("AMESH_ADMIN_TOKEN"))
+    parser.add_argument("--tenant", default=os.getenv("AMESH_TENANT", "default"))
     subcommands = parser.add_subparsers(dest="command", required=True)
 
     validate = subcommands.add_parser("validate", help="Validate a flow YAML or JSON file")
@@ -79,7 +80,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     try:
         with httpx.Client(
             base_url=args.api_url,
-            headers=_authorization_headers(args.token),
+            headers=_request_headers(args.token, args.tenant),
             timeout=120,
         ) as client:
             if args.command == "apply":
@@ -126,8 +127,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     return 2
 
 
-def _authorization_headers(token: str | None) -> dict[str, str]:
-    return {"authorization": f"Bearer {token}"} if token else {}
+def _request_headers(token: str | None, tenant: str) -> dict[str, str]:
+    headers = {"x-amesh-tenant": tenant}
+    if token:
+        headers["authorization"] = f"Bearer {token}"
+    return headers
 
 
 def _parse_inputs(values: Sequence[str]) -> dict[str, Any]:

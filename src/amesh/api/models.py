@@ -2,10 +2,18 @@ from __future__ import annotations
 
 from enum import StrEnum
 from typing import Any
+from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from amesh.domain import ExecutionEvent, ExecutionSnapshot
+from amesh.domain import (
+    ExecutionEvent,
+    ExecutionSnapshot,
+    NamespaceId,
+    PermissionAction,
+    PrincipalType,
+    TenantSlug,
+)
 from amesh.ports import PersistedExecution, PersistedTaskRun
 
 
@@ -49,3 +57,14 @@ class TaskLog(BaseModel):
     attempt: int
     state: str
     output: dict[str, Any] | None = None
+
+
+class AuthorizationExplanationRequest(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    principal_id: UUID = Field(alias="principalId")
+    principal_type: PrincipalType = Field(alias="principalType")
+    tenant_id: TenantSlug | None = Field(default=None, alias="tenantId")
+    namespace: NamespaceId | None = None
+    resource_type: str = Field(alias="resourceType", min_length=1, max_length=128)
+    action: PermissionAction

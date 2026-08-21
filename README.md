@@ -140,12 +140,12 @@ curl -sS -X POST http://localhost:8000/api/v1/flows/validate \
   --data-binary @examples/hello-world.yaml
 
 uv run --extra runtime python -m amesh \
-  --token development-token apply examples/parallel-dag.yaml
+  --token development-token --tenant default apply examples/parallel-dag.yaml
 uv run --extra runtime python -m amesh \
-  --token development-token run examples.engine parallel_dag
+  --token development-token --tenant default run examples.engine parallel_dag
 ```
 
-The API also supports flow/execution lists, execution details and logs, webhook triggers, OpenRouter/OpenAI-compatible LLM tasks, MCP tool calls, local-process tasks and Kubernetes Job tasks. Prometheus metrics are exposed at `http://localhost:8000/metrics`.
+The API also supports flow/execution lists, execution details and logs, webhook triggers, PostgreSQL-backed users/groups/roles/scoped bindings, authorization explanations, OpenRouter/OpenAI-compatible LLM tasks, MCP tool calls, local-process tasks and Kubernetes Job tasks. Prometheus metrics are exposed at `http://localhost:8000/metrics`. The shared token is development-only; see the [authorization runbook](docs/operations/authorization.md).
 
 For the reference Kubernetes path—external PostgreSQL, existing Secrets, Helm migration/server/worker roles, a real Luna → Job → HTTP run and cleanup—follow the [MVP Helm quickstart](charts/amesh/README.md).
 

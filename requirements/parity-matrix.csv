@@ -63,7 +63,7 @@ EPIC-408,"Dashboards, query language and saved views",M4,Kestra v1.3.30 public b
 EPIC-409,"Search, indexing and retrieval projections",M4,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,11,
 EPIC-410,"Namespace, settings and administration UI",M4,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,9,
 EPIC-411,"Blueprints, playground and onboarding",M4,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,9,
-EPIC-500,"Users, groups, roles, bindings and authorization",M5,Publicly documented Kestra enterprise-class capability; independent fully-OSS implementation,P0 capability,Planned,9,
+EPIC-500,"Users, groups, roles, bindings and authorization",M5,Publicly documented Kestra enterprise-class capability; independent fully-OSS implementation,P0 capability,Verified,9,TESTLOG.md; tests/domain/test_authorization.py; tests/adapters/postgres/test_authorization_repository.py; tests/api/test_authorization_api.py
 EPIC-501,"Service accounts, API tokens and credentials",M5,Publicly documented Kestra enterprise-class capability; independent fully-OSS implementation,P0 capability,Planned,10,
 EPIC-502,"SSO, OIDC, SAML, LDAP and SCIM",M5,Publicly documented Kestra enterprise-class capability; independent fully-OSS implementation,P0 capability,Planned,9,
 EPIC-503,Multi-tenancy and resource isolation,M5,Publicly documented Kestra enterprise-class capability; independent fully-OSS implementation,P0 capability,Planned,9,

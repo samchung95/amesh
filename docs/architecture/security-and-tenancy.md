@@ -25,6 +25,20 @@ Permissions are evaluated by resource/action at instance, tenant and namespace s
 checks improve usability but are never authoritative. Every repository and message handler receives
 explicit tenant and actor context.
 
+EPIC-500 implements this boundary through typed actor, permission, role, binding, scope, boundary and
+decision contracts. Explicit denies override allows. Namespace grants inherit down dotted namespace
+trees until a declared authorization boundary. PostgreSQL stores principals, group memberships,
+roles, permissions, bindings and boundaries as the authority.
+
+Decision-cache entries include the monotonic PostgreSQL policy version. Principal, membership, role,
+permission, binding and boundary mutations increment that version transactionally; the next request
+cannot reuse an older grant. Ordinary denials return only `not authorized`. The detailed
+`/api/v1/authorization/explain` evidence is itself restricted to authorization administrators.
+
+The built-in roles are `instance-admin`, `tenant-admin`, `namespace-admin`, `flow-author`, `operator`
+and `viewer`. Built-in definitions are immutable, and repository transactions reject removal of the
+final effective instance administrator, including administrators granted through a group.
+
 ## Tenant isolation
 
 - Tenant ID is present in resources, messages, cache keys, object paths and index documents.
@@ -50,3 +64,8 @@ prevents traversal and decompression bombs. HTTP capabilities enforce destinatio
 
 High-risk operations support step-up authentication, impact preview and durable audit. Emergency controls
 have reason, actor, scope and optional expiry. Audit access is itself audited.
+
+The development bootstrap bearer token is accepted only when both `APP_ENV=development` and
+`AUTH_MODE=development`; every other mode fails closed until the durable authentication entry points
+from EPIC-403 and EPIC-501 are configured. See the
+[authorization runbook](../operations/authorization.md).

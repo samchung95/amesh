@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Completed EPIC-002 with canonical resource keys, UUIDv7 runtime identities, shared metadata/lifecycle contracts, deterministic hashes and ETags, persisted flow metadata, conditional REST updates, and the `0003_canonical_resource_metadata.sql` migration.
+- Completed EPIC-500 with PostgreSQL-backed principals, groups, roles, permissions and scoped bindings; deny-overrides namespace inheritance; revocation-safe decision caching; administrator explanations; built-in roles and last-admin protection; server-side REST/CLI/non-human policy contracts; audit evidence; and migration `0004_authorization.sql`.
 
 ## 0.2.0-mvp — 2026-08-21
 

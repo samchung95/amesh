@@ -27,6 +27,7 @@ YAML / CLI / REST / webhooks
 
 - `domain` contains immutable execution and task state plus pure transition functions; it has no framework or database imports.
 - `domain.identity` and `domain.resources` own canonical natural-key validation, UUIDv7 runtime identity, managed-resource metadata, lifecycle transitions, concurrency tags and canonical hashing. Every API, repository and future UI/auth module consumes these contracts rather than defining local variants.
+- `domain.authorization` owns actors, permissions, roles, scoped bindings, namespace boundaries and deterministic deny-overrides evaluation. PostgreSQL policy rows and a monotonic policy version are authoritative; REST, CLI and non-human callers consume one authorization service rather than embedding local permission checks.
 - `dsl` parses and validates the MVP YAML model and native expression references.
 - `ports` defines transport, runner and plugin contracts.
 - `adapters` implements PostgreSQL, process, Kubernetes and external-provider boundaries.

@@ -3,7 +3,7 @@
 ## Current state
 
 - What works: the tagged `v0.2.0-mvp` baseline passes its 47-test suite; PostgreSQL durability, local/Kubernetes execution, REST/CLI, OpenRouter Luna, Helm and observability remain the verified foundation.
-- What's in flight: EPIC-002 is complete and closed on the authoritative board; EPIC-500 is the next dependency-ready epic in the requested multi-user/RBAC path.
+- What's in flight: EPIC-500 implementation, evidence and gates are complete on board card `c2`; board closure and selection of EPIC-501 are the remaining transition steps.
 - Known broken / TODO: the five requested post-MVP product areas remain open. The uninterrupted 86,400-second qualification remains under EPIC-611 and still gates production-readiness claims.
 - How to run/test: use `uv run --extra runtime --extra dev pytest`; set `AMESH_TEST_DATABASE_URL` for PostgreSQL integration tests and `OPENROUTER_API_KEY` for live LLM tests.
 
@@ -28,3 +28,10 @@
 - Verification: 53 tests passed with real PostgreSQL at 76.11% branch coverage; clean-database migrations 0001–0003 passed; focused ETag and UUIDv7 persistence tests passed; Ruff and strict mypy passed.
 - Deviations from plan: the existing Compose database required its already-applied 0001/0002 checksums registered before migration 0003; no schema or product data was reset. The worker software-version column required the new concurrency field to be named `resource_version`.
 - Next step when resuming: select EPIC-500 as the next dependency-ready requested epic and begin its architecture-first RBAC design.
+
+### 2026-08-21 (post-MVP roadmap session 1, EPIC-500 completion)
+
+- Did: closed EPIC-002 on card `c1` and committed it as `b9c7eb5`; selected and completed EPIC-500 on card `c2`; accepted ADR-018; added PostgreSQL-authoritative principals, groups, roles, permissions, scoped bindings and namespace boundaries; implemented deny-overrides evaluation, policy-version cache invalidation, group and binding revocation, administrator explanations, built-in roles and effective last-admin protection; applied server-side authorization to every resource API; added tenant-aware CLI requests, shared non-human actor contracts, audit writes, migration 0004 and the administration runbook; linked all eight functional requirements to evidence.
+- Verification: 68 tests passed with real PostgreSQL at 78.54% branch coverage; clean-database migrations 0001–0004 passed; every current endpoint has public-or-protected acceptance evidence; Ruff, strict mypy, lock, generated contract/planning, backlog, clean-room, compile, build, Compose, Helm and diff gates passed. The pure evaluator measured 1.64 microseconds per decision over 100,000 local calls without making a distributed throughput claim.
+- Deviations from plan: no authorization dependency was added because the evaluated libraries do not replace AMESH-specific persistence, evidence, invalidation and administrator-safety rules; Oso Cloud would also introduce a second external authority. Shared `URS-NFR-USABILITY-002` is `In Progress`: EPIC-500's authorization evidence is complete, while its admission/cache/UI owners remain open.
+- Next step when resuming: close board card `c2`, commit EPIC-500, select dependency-ready EPIC-501 and implement durable service-account/API-token credentials before the login/session epic.

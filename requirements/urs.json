@@ -13425,7 +13425,7 @@
       "id": "URS-F-0494",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M5",
       "wave": 5,
       "epic_id": "EPIC-500",
@@ -13446,13 +13446,17 @@
       "local_sequence": 1,
       "dependencies": [
         "EPIC-002"
+      ],
+      "evidence": [
+        "src/amesh/domain/authorization.py",
+        "tests/domain/test_authorization.py"
       ]
     },
     {
       "id": "URS-F-0495",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M5",
       "wave": 5,
       "epic_id": "EPIC-500",
@@ -13473,13 +13477,18 @@
       "local_sequence": 2,
       "dependencies": [
         "EPIC-002"
+      ],
+      "evidence": [
+        "migrations/0004_authorization.sql",
+        "tests/adapters/postgres/test_authorization_repository.py",
+        "tests/api/test_authorization_api.py::test_bootstrap_administrator_can_manage_and_explain_authorization"
       ]
     },
     {
       "id": "URS-F-0496",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M5",
       "wave": 5,
       "epic_id": "EPIC-500",
@@ -13500,13 +13509,18 @@
       "local_sequence": 3,
       "dependencies": [
         "EPIC-002"
+      ],
+      "evidence": [
+        "src/amesh/domain/authorization.py",
+        "tests/domain/test_authorization.py::test_namespace_boundary_stops_parent_inheritance",
+        "tests/domain/test_authorization.py::test_explicit_deny_overrides_group_and_direct_grants"
       ]
     },
     {
       "id": "URS-F-0497",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M5",
       "wave": 5,
       "epic_id": "EPIC-500",
@@ -13527,13 +13541,19 @@
       "local_sequence": 4,
       "dependencies": [
         "EPIC-002"
+      ],
+      "evidence": [
+        "src/amesh/app.py",
+        "src/amesh/cli.py",
+        "tests/domain/test_authorization.py::test_nonhuman_callers_use_the_same_server_side_policy",
+        "tests/api/test_authorization_api.py"
       ]
     },
     {
       "id": "URS-F-0498",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M5",
       "wave": 5,
       "epic_id": "EPIC-500",
@@ -13554,13 +13574,19 @@
       "local_sequence": 5,
       "dependencies": [
         "EPIC-002"
+      ],
+      "evidence": [
+        "src/amesh/authorization.py",
+        "migrations/0004_authorization.sql",
+        "tests/test_authorization_service.py",
+        "tests/adapters/postgres/test_authorization_repository.py"
       ]
     },
     {
       "id": "URS-F-0499",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M5",
       "wave": 5,
       "epic_id": "EPIC-500",
@@ -13581,13 +13607,18 @@
       "local_sequence": 6,
       "dependencies": [
         "EPIC-002"
+      ],
+      "evidence": [
+        "src/amesh/app.py",
+        "tests/domain/test_authorization.py::test_denial_summary_does_not_include_resource_identity",
+        "tests/api/test_authorization_api.py"
       ]
     },
     {
       "id": "URS-F-0500",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M5",
       "wave": 5,
       "epic_id": "EPIC-500",
@@ -13608,13 +13639,19 @@
       "local_sequence": 7,
       "dependencies": [
         "EPIC-002"
+      ],
+      "evidence": [
+        "src/amesh/domain/authorization.py",
+        "src/amesh/adapters/postgres/authorization_repository.py",
+        "tests/adapters/postgres/test_authorization_repository.py",
+        "tests/api/test_authorization_api.py::test_bootstrap_administrator_can_manage_and_explain_authorization"
       ]
     },
     {
       "id": "URS-F-0501",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M5",
       "wave": 5,
       "epic_id": "EPIC-500",
@@ -13635,6 +13672,10 @@
       "local_sequence": 8,
       "dependencies": [
         "EPIC-002"
+      ],
+      "evidence": [
+        "tests/api/test_authorization_api.py::test_every_protected_rest_surface_enforces_tenant_and_permission_policy",
+        "tests/api/test_mvp_api.py"
       ]
     },
     {
@@ -23849,7 +23890,13 @@
         "EPIC-802"
       ],
       "priority": "Must",
-      "status": "Proposed"
+      "status": "In Progress",
+      "evidence": [
+        "src/amesh/domain/authorization.py",
+        "src/amesh/app.py",
+        "tests/api/test_authorization_api.py",
+        "TESTLOG.md"
+      ]
     },
     {
       "id": "URS-NFR-USABILITY-003",
