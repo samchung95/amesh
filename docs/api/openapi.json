@@ -2281,6 +2281,376 @@
         "title": "ReadinessResponse",
         "type": "object"
       },
+      "ReconciliationDisposition": {
+        "enum": [
+          "DETECTED",
+          "REPAIRED",
+          "QUARANTINED"
+        ],
+        "title": "ReconciliationDisposition",
+        "type": "string"
+      },
+      "ReconciliationFinding": {
+        "properties": {
+          "detail": {
+            "additionalProperties": true,
+            "title": "Detail",
+            "type": "object"
+          },
+          "disposition": {
+            "$ref": "#/components/schemas/ReconciliationDisposition"
+          },
+          "expectedVersion": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expectedversion"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "invariant": {
+            "$ref": "#/components/schemas/ReconciliationInvariant"
+          },
+          "observedAt": {
+            "format": "date-time",
+            "title": "Observedat",
+            "type": "string"
+          },
+          "repairAction": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Repairaction"
+          },
+          "resolvedAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolvedat"
+          },
+          "resourceId": {
+            "title": "Resourceid",
+            "type": "string"
+          },
+          "resourceType": {
+            "title": "Resourcetype",
+            "type": "string"
+          },
+          "runbook": {
+            "title": "Runbook",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "invariant",
+          "resourceType",
+          "resourceId",
+          "disposition",
+          "runbook",
+          "observedAt"
+        ],
+        "title": "ReconciliationFinding",
+        "type": "object"
+      },
+      "ReconciliationInvariant": {
+        "enum": [
+          "EXPIRED_LEASE",
+          "ORPHAN_TASK_RUN",
+          "STUCK_EXECUTION",
+          "MISSING_DISPATCH",
+          "UNPROJECTED_EVENT",
+          "MISSING_SCHEDULE_PROJECTION"
+        ],
+        "title": "ReconciliationInvariant",
+        "type": "string"
+      },
+      "ReconciliationMode": {
+        "enum": [
+          "DRY_RUN",
+          "APPLY"
+        ],
+        "title": "ReconciliationMode",
+        "type": "string"
+      },
+      "ReconciliationRequest": {
+        "properties": {
+          "executionId": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Executionid"
+          },
+          "idempotencyKey": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Idempotencykey",
+            "type": "string"
+          },
+          "maxFindings": {
+            "default": 500,
+            "maximum": 1000.0,
+            "minimum": 1.0,
+            "title": "Maxfindings",
+            "type": "integer"
+          },
+          "maxRepairs": {
+            "default": 25,
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Maxrepairs",
+            "type": "integer"
+          },
+          "mode": {
+            "$ref": "#/components/schemas/ReconciliationMode",
+            "default": "DRY_RUN"
+          },
+          "reason": {
+            "maxLength": 1024,
+            "minLength": 1,
+            "title": "Reason",
+            "type": "string"
+          },
+          "since": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Since"
+          },
+          "staleAfterSeconds": {
+            "default": 300,
+            "maximum": 86400.0,
+            "minimum": 30.0,
+            "title": "Staleafterseconds",
+            "type": "integer"
+          },
+          "triggerDefinitionId": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Triggerdefinitionid"
+          },
+          "until": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Until"
+          },
+          "workerId": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Workerid"
+          }
+        },
+        "required": [
+          "idempotencyKey",
+          "reason"
+        ],
+        "title": "ReconciliationRequest",
+        "type": "object"
+      },
+      "ReconciliationRun": {
+        "properties": {
+          "actorId": {
+            "title": "Actorid",
+            "type": "string"
+          },
+          "completedAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completedat"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "title": "Createdat",
+            "type": "string"
+          },
+          "findingCount": {
+            "minimum": 0.0,
+            "title": "Findingcount",
+            "type": "integer"
+          },
+          "findings": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/ReconciliationFinding"
+            },
+            "title": "Findings",
+            "type": "array"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "idempotencyKey": {
+            "title": "Idempotencykey",
+            "type": "string"
+          },
+          "maxRepairs": {
+            "minimum": 0.0,
+            "title": "Maxrepairs",
+            "type": "integer"
+          },
+          "mode": {
+            "$ref": "#/components/schemas/ReconciliationMode"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          },
+          "repairsApplied": {
+            "minimum": 0.0,
+            "title": "Repairsapplied",
+            "type": "integer"
+          },
+          "since": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Since"
+          },
+          "state": {
+            "$ref": "#/components/schemas/ReconciliationRunState"
+          },
+          "targetId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Targetid"
+          },
+          "targetType": {
+            "$ref": "#/components/schemas/ReconciliationTargetType"
+          },
+          "tenantId": {
+            "title": "Tenantid",
+            "type": "string"
+          },
+          "unresolvedCount": {
+            "minimum": 0.0,
+            "title": "Unresolvedcount",
+            "type": "integer"
+          },
+          "until": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Until"
+          }
+        },
+        "required": [
+          "id",
+          "tenantId",
+          "mode",
+          "targetType",
+          "state",
+          "maxRepairs",
+          "repairsApplied",
+          "findingCount",
+          "unresolvedCount",
+          "actorId",
+          "reason",
+          "idempotencyKey",
+          "createdAt"
+        ],
+        "title": "ReconciliationRun",
+        "type": "object"
+      },
+      "ReconciliationRunState": {
+        "enum": [
+          "RUNNING",
+          "COMPLETED",
+          "FAILED"
+        ],
+        "title": "ReconciliationRunState",
+        "type": "string"
+      },
+      "ReconciliationTargetType": {
+        "enum": [
+          "TENANT",
+          "EXECUTION",
+          "TRIGGER",
+          "WORKER",
+          "TIME_RANGE"
+        ],
+        "title": "ReconciliationTargetType",
+        "type": "string"
+      },
       "ReduceExecutionRequest": {
         "properties": {
           "events": {
@@ -7061,6 +7431,235 @@
         "summary": "Preview Schedule",
         "tags": [
           "triggers"
+        ]
+      }
+    },
+    "/api/v1/reconciliations": {
+      "get": {
+        "operationId": "list_reconciliations_api_v1_reconciliations_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 200,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ReconciliationRun"
+                  },
+                  "title": "Response List Reconciliations Api V1 Reconciliations Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Reconciliations",
+        "tags": [
+          "operations"
+        ]
+      },
+      "post": {
+        "operationId": "run_reconciliation_api_v1_reconciliations_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReconciliationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReconciliationRun"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Run Reconciliation",
+        "tags": [
+          "operations"
+        ]
+      }
+    },
+    "/api/v1/reconciliations/{run_id}": {
+      "get": {
+        "operationId": "get_reconciliation_api_v1_reconciliations__run_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Run Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReconciliationRun"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Reconciliation",
+        "tags": [
+          "operations"
         ]
       }
     },

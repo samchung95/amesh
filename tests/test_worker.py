@@ -6,6 +6,7 @@ import pytest
 
 from amesh import worker
 from amesh.config import Settings
+from amesh.ports import ReconciliationAlreadyRunningError
 
 
 class StopWorker(BaseException):
@@ -56,3 +57,31 @@ def test_worker_retries_after_database_connection_interruption(
         assert engine.disposed
 
     asyncio.run(scenario())
+
+
+def test_periodic_reconciliation_skips_a_tenant_already_being_repaired(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    class BusyService:
+        def __init__(self, repository: object) -> None:
+            del repository
+            self.calls: list[str] = []
+
+        async def run(self, request: object, *, tenant_id: str, actor_id: str) -> object:
+            del request, actor_id
+            self.calls.append(tenant_id)
+            raise ReconciliationAlreadyRunningError("simulated concurrent reconciler")
+
+    service = BusyService(object())
+    monkeypatch.setattr(worker, "ReconciliationService", lambda repository: service)
+
+    repaired = asyncio.run(
+        worker.reconcile_once(
+            object(),  # type: ignore[arg-type]
+            Settings(database_url="postgresql+asyncpg://amesh:amesh@localhost/amesh"),
+            tenant_ids=["first", "second"],
+        )
+    )
+
+    assert repaired == 0
+    assert service.calls == ["first", "second"]

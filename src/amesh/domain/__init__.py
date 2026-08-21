@@ -92,6 +92,16 @@ from .identity import (
     WorkerKey,
     new_runtime_id,
 )
+from .reconciliation import (
+    ReconciliationDisposition,
+    ReconciliationFinding,
+    ReconciliationInvariant,
+    ReconciliationMode,
+    ReconciliationRequest,
+    ReconciliationRun,
+    ReconciliationRunState,
+    ReconciliationTargetType,
+)
 from .reducer import (
     decide_execution,
     decide_task_run,
@@ -180,6 +190,14 @@ __all__ = [
     "PluginKey",
     "PrincipalDefinition",
     "PrincipalType",
+    "ReconciliationDisposition",
+    "ReconciliationFinding",
+    "ReconciliationInvariant",
+    "ReconciliationMode",
+    "ReconciliationRequest",
+    "ReconciliationRun",
+    "ReconciliationRunState",
+    "ReconciliationTargetType",
     "ResolvedAdmissionPolicy",
     "ResourceLifecycle",
     "ResourceMetadata",

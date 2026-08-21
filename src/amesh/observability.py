@@ -53,6 +53,25 @@ DATABASE_MIGRATIONS_EXPECTED = Gauge(
     "amesh_database_migrations_expected",
     "Number of migrations in the checked-in AMESH migration manifest.",
 )
+RECONCILIATION_RUNS = Counter(
+    "amesh_reconciliation_runs",
+    "Completed AMESH reconciliation runs by mode.",
+    ("mode",),
+)
+RECONCILIATION_FINDINGS = Counter(
+    "amesh_reconciliation_findings",
+    "AMESH reconciliation findings by bounded invariant and disposition.",
+    ("invariant", "disposition"),
+)
+RECONCILIATION_UNRESOLVED = Gauge(
+    "amesh_reconciliation_unresolved",
+    "Unresolved findings from the latest AMESH reconciliation run by invariant.",
+    ("invariant",),
+)
+RECONCILIATION_DURATION = Histogram(
+    "amesh_reconciliation_duration_seconds",
+    "Duration of AMESH reconciliation runs.",
+)
 
 _INSTRUMENTED_ENGINES: WeakSet[AsyncEngine] = WeakSet()
 

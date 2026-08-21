@@ -57,6 +57,10 @@ from .metadata_repository import (
 )
 from .object_store import ObjectMetadata, ObjectStore
 from .plugin_runtime import PluginInvocation, PluginRuntime
+from .reconciliation_repository import (
+    ReconciliationAlreadyRunningError,
+    ReconciliationRepository,
+)
 from .scheduler_repository import SchedulerFenceError, SchedulerRepository, ScheduleState
 from .task_runner import (
     RunnerRequest,
@@ -126,6 +130,8 @@ __all__ = [
     "PluginRuntime",
     "PolicyVersionChanged",
     "QueueShardDiagnostics",
+    "ReconciliationAlreadyRunningError",
+    "ReconciliationRepository",
     "RunnerRequest",
     "RunnerResult",
     "RunnerStatus",

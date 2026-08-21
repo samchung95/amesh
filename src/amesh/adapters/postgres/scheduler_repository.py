@@ -38,7 +38,18 @@ _ENSURE_SCHEDULE = text(
       AND flows.flow_key = :flow_key
       AND flow_revisions.revision = :flow_revision
       AND trigger_definitions.trigger_key = :trigger_key
-    ON CONFLICT (trigger_definition_id) DO NOTHING
+    ON CONFLICT (trigger_definition_id) DO UPDATE SET
+        next_fire_at = COALESCE(scheduler_states.next_fire_at, EXCLUDED.next_fire_at),
+        last_decision = CASE
+            WHEN scheduler_states.next_fire_at IS NULL
+                THEN 'scheduler initialized rebuilt projection'
+            ELSE scheduler_states.last_decision
+        END,
+        updated_at = CASE
+            WHEN scheduler_states.next_fire_at IS NULL
+                THEN clock_timestamp()
+            ELSE scheduler_states.updated_at
+        END
     """
 )
 

@@ -38,6 +38,12 @@ spec:
               value: {{ .Values.worker.pollSeconds | quote }}
             - name: WORKER_RECOVERY_GRACE_SECONDS
               value: {{ .Values.worker.recoveryGraceSeconds | quote }}
+            - name: WORKER_RECONCILIATION_INTERVAL_SECONDS
+              value: {{ .Values.worker.reconciliationIntervalSeconds | quote }}
+            - name: WORKER_RECONCILIATION_MAX_REPAIRS
+              value: {{ .Values.worker.reconciliationMaxRepairs | quote }}
+            - name: WORKER_RECONCILIATION_STUCK_AFTER_SECONDS
+              value: {{ .Values.worker.reconciliationStuckAfterSeconds | quote }}
             - name: WORKER_GROUP
               value: {{ .Values.worker.group | quote }}
           resources:

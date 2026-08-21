@@ -896,3 +896,34 @@ trees. Broad stuck-execution discovery and automated invariant repair remain own
 than being duplicated in this epic.
 
 Verdict: PASS — EPIC-107 closed.
+
+## EPIC-108: Recovery, reconciliation and invariant repair — 2026-08-22
+
+Spec source: `backlog/epics/epic-108-recovery-reconciliation-and-invariant-repair.md` and
+`docs/operations/reconciliation.md`.
+
+Verified with `uv`, Python 3.13.12 and PostgreSQL 17:
+
+- [x] Migration 0024 persists tenant-isolated reconciliation runs and findings with durable
+  idempotency keys, evidence, dispositions, resolution timestamps and operator runbook links.
+- [x] The reconciler detects expired queue leases, orphan running tasks, stale active executions,
+  missing task dispatches, unprojected execution/task events and missing schedule projections.
+- [x] Dry-run does not mutate workload state. Apply uses observed versions/fences to rebuild outbox
+  and scheduler projections or requeue recoverable leases; stale or ambiguous state is quarantined.
+- [x] Tenant, execution, trigger, worker and time-range targeting share a global finding cap and a
+  bounded repair cap. Deferred repairable findings remain detected for the next pass.
+- [x] Every apply outcome is audited. Tenant-management REST endpoints provide run, list and detail
+  access, while the worker automatically runs bounded per-tenant reconciliation once per minute.
+- [x] Prometheus exposes run, finding, unresolved-invariant and duration metrics. The Helm worker
+  values and environment example expose the reconciliation interval, cap and stale threshold.
+- [x] Seven focused unit/API/PostgreSQL tests passed. Fault injection proved dry-run isolation,
+  idempotent repeated apply, one-repair throttling, ambiguous quarantine and second-pass convergence.
+- [x] A guarded fresh database applied all 24 migrations. Full suite: 207 passed and four
+  environment-gated tests skipped. Generated OpenAPI, formatting, Ruff and strict mypy gates pass.
+- [x] The live OpenRouter contract test passed using `openai/gpt-5.6-luna`.
+
+Qualification boundary: the reference repairable faults converged in seconds, satisfying
+URS-NFR-RELIABILITY-007. The shared acknowledged-command failover target remains In Progress for the
+distributed HA stage; this epic does not claim zone or PostgreSQL failover qualification.
+
+Verdict: PASS — EPIC-108 closed.

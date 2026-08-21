@@ -4,6 +4,7 @@ import asyncio
 import logging
 from collections.abc import Sequence
 from datetime import UTC, datetime
+from time import monotonic
 from uuid import UUID
 
 from sqlalchemy.exc import DBAPIError
@@ -12,15 +13,23 @@ from amesh.adapters.kubernetes import KubernetesJobRunner
 from amesh.adapters.postgres import (
     PostgresBackfillRepository,
     PostgresExecutionRepository,
+    PostgresReconciliationRepository,
     PostgresSchedulerRepository,
     PostgresTenantRepository,
 )
 from amesh.backfills import BackfillService
 from amesh.config import Settings, get_settings
 from amesh.database import create_database_engine
-from amesh.domain import ExecutionState, new_runtime_id
+from amesh.domain import (
+    ExecutionState,
+    ReconciliationMode,
+    ReconciliationRequest,
+    new_runtime_id,
+)
 from amesh.executor import InProcessExecutor, kubernetes_job_handler
 from amesh.observability import configure_structured_logging
+from amesh.ports import ReconciliationAlreadyRunningError
+from amesh.reconciliation import ReconciliationService
 from amesh.scheduler import CronScheduler
 from amesh.tasks import agent_llm_handler, agent_mcp_handler, core_http_handler
 
@@ -133,6 +142,35 @@ async def backfill_once(
     return processed
 
 
+async def reconcile_once(
+    repository: PostgresReconciliationRepository,
+    settings: Settings,
+    *,
+    tenant_ids: Sequence[str],
+) -> int:
+    service = ReconciliationService(repository)
+    bucket = datetime.now(UTC).replace(second=0, microsecond=0).isoformat()
+    repaired = 0
+    for tenant_id in tenant_ids:
+        try:
+            run = await service.run(
+                ReconciliationRequest(
+                    mode=ReconciliationMode.APPLY,
+                    staleAfterSeconds=settings.worker_reconciliation_stuck_after_seconds,
+                    maxFindings=min(settings.worker_reconciliation_max_repairs * 10, 1_000),
+                    maxRepairs=settings.worker_reconciliation_max_repairs,
+                    idempotencyKey=f"automatic:{bucket}",
+                    reason="periodic durable-state reconciliation",
+                ),
+                tenant_id=tenant_id,
+                actor_id="system:reconciler",
+            )
+        except ReconciliationAlreadyRunningError:
+            continue
+        repaired += run.repairs_applied
+    return repaired
+
+
 async def run_worker(settings: Settings) -> None:
     worker_uuid = new_runtime_id()
     worker_id = str(worker_uuid)
@@ -140,7 +178,9 @@ async def run_worker(settings: Settings) -> None:
     repository = PostgresExecutionRepository(engine)
     scheduler_repository = PostgresSchedulerRepository(engine)
     backfill_repository = PostgresBackfillRepository(engine)
+    reconciliation_repository = PostgresReconciliationRepository(engine)
     tenant_repository = PostgresTenantRepository(engine)
+    next_reconciliation_at = 0.0
     LOGGER.info("worker started", extra={"worker_id": worker_id})
     try:
         while True:
@@ -160,6 +200,16 @@ async def run_worker(settings: Settings) -> None:
                     tenant_ids=tenant_ids,
                 )
                 await recover_once(repository, settings, tenant_ids=tenant_ids)
+                current_time = monotonic()
+                if current_time >= next_reconciliation_at:
+                    await reconcile_once(
+                        reconciliation_repository,
+                        settings,
+                        tenant_ids=tenant_ids,
+                    )
+                    next_reconciliation_at = (
+                        current_time + settings.worker_reconciliation_interval_seconds
+                    )
             except (DBAPIError, OSError):
                 LOGGER.exception(
                     "worker database cycle interrupted; retrying",

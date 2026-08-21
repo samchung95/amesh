@@ -146,14 +146,14 @@ URS-F-0144,Functional,Must,EPIC-107,"Subflows, dependencies and system flows",M1
 URS-F-0145,Functional,Must,EPIC-107,"Subflows, dependencies and system flows",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
 URS-F-0146,Functional,Must,EPIC-107,"Subflows, dependencies and system flows",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
 URS-F-0147,Functional,Must,EPIC-107,"Subflows, dependencies and system flows",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
-URS-F-0148,Functional,Must,EPIC-108,"Recovery, reconciliation and invariant repair",M1,1,"Fault-injection, replay and invariant tests",Proposed
-URS-F-0149,Functional,Must,EPIC-108,"Recovery, reconciliation and invariant repair",M1,1,"Fault-injection, replay and invariant tests",Proposed
-URS-F-0150,Functional,Must,EPIC-108,"Recovery, reconciliation and invariant repair",M1,1,"Fault-injection, replay and invariant tests",Proposed
-URS-F-0151,Functional,Must,EPIC-108,"Recovery, reconciliation and invariant repair",M1,1,"Fault-injection, replay and invariant tests",Proposed
-URS-F-0152,Functional,Must,EPIC-108,"Recovery, reconciliation and invariant repair",M1,1,"Fault-injection, replay and invariant tests",Proposed
-URS-F-0153,Functional,Must,EPIC-108,"Recovery, reconciliation and invariant repair",M1,1,"Fault-injection, replay and invariant tests",Proposed
-URS-F-0154,Functional,Must,EPIC-108,"Recovery, reconciliation and invariant repair",M1,1,"Fault-injection, replay and invariant tests",Proposed
-URS-F-0155,Functional,Must,EPIC-108,"Recovery, reconciliation and invariant repair",M1,1,"Fault-injection, replay and invariant tests",Proposed
+URS-F-0148,Functional,Must,EPIC-108,"Recovery, reconciliation and invariant repair",M1,1,"Fault-injection, replay and invariant tests",Verified
+URS-F-0149,Functional,Must,EPIC-108,"Recovery, reconciliation and invariant repair",M1,1,"Fault-injection, replay and invariant tests",Verified
+URS-F-0150,Functional,Must,EPIC-108,"Recovery, reconciliation and invariant repair",M1,1,"Fault-injection, replay and invariant tests",Verified
+URS-F-0151,Functional,Must,EPIC-108,"Recovery, reconciliation and invariant repair",M1,1,"Fault-injection, replay and invariant tests",Verified
+URS-F-0152,Functional,Must,EPIC-108,"Recovery, reconciliation and invariant repair",M1,1,"Fault-injection, replay and invariant tests",Verified
+URS-F-0153,Functional,Must,EPIC-108,"Recovery, reconciliation and invariant repair",M1,1,"Fault-injection, replay and invariant tests",Verified
+URS-F-0154,Functional,Must,EPIC-108,"Recovery, reconciliation and invariant repair",M1,1,"Fault-injection, replay and invariant tests",Verified
+URS-F-0155,Functional,Must,EPIC-108,"Recovery, reconciliation and invariant repair",M1,1,"Fault-injection, replay and invariant tests",Verified
 URS-F-0156,Functional,Must,EPIC-109,Task and execution cache,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
 URS-F-0157,Functional,Must,EPIC-109,Task and execution cache,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
 URS-F-0158,Functional,Must,EPIC-109,Task and execution cache,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
@@ -941,8 +941,8 @@ URS-NFR-RELIABILITY-005,Non-functional,Must,EPIC-607,"OpenTelemetry, Prometheus 
 URS-NFR-RELIABILITY-006,Non-functional,Must,EPIC-010,Internal object storage and artifact addressing,M0,0,Storage adapter conformance and corruption-injection tests.,Proposed
 URS-NFR-RELIABILITY-006,Non-functional,Must,EPIC-605,Object storage backends and lifecycle,M6,6,Storage adapter conformance and corruption-injection tests.,Proposed
 URS-NFR-RELIABILITY-006,Non-functional,Must,EPIC-609,"Backup, restore and disaster recovery",M6,6,Storage adapter conformance and corruption-injection tests.,Proposed
-URS-NFR-RELIABILITY-007,Non-functional,Must,EPIC-108,"Recovery, reconciliation and invariant repair",M1,1,End-to-end recovery suite with invariant counters.,Proposed
-URS-NFR-RELIABILITY-007,Non-functional,Must,EPIC-601,Distributed services and high availability,M6,6,End-to-end recovery suite with invariant counters.,Proposed
+URS-NFR-RELIABILITY-007,Non-functional,Must,EPIC-108,"Recovery, reconciliation and invariant repair",M1,1,End-to-end recovery suite with invariant counters.,Verified
+URS-NFR-RELIABILITY-007,Non-functional,Must,EPIC-601,Distributed services and high availability,M6,6,End-to-end recovery suite with invariant counters.,Verified
 URS-NFR-RELIABILITY-008,Non-functional,Must,EPIC-102,Scheduler and temporal correctness,M1,1,Virtual-clock and multi-node skew tests.,In Progress
 URS-NFR-RELIABILITY-008,Non-functional,Must,EPIC-104,"Retries, timeout, pause, cancellation, kill and restart",M1,1,Virtual-clock and multi-node skew tests.,In Progress
 URS-NFR-RELIABILITY-008,Non-functional,Must,EPIC-601,Distributed services and high availability,M6,6,Virtual-clock and multi-node skew tests.,In Progress

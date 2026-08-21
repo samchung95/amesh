@@ -11,6 +11,9 @@ worker:
   replicas: 1
   pollSeconds: 5
   recoveryGraceSeconds: 120
+  reconciliationIntervalSeconds: 60
+  reconciliationMaxRepairs: 10
+  reconciliationStuckAfterSeconds: 300
   group: default
   resources: {}
 

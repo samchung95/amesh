@@ -138,6 +138,12 @@
       "mode": "expand",
       "onlineCompatible": true,
       "rollbackGuidance": "Keep the generated shard key and claim timestamp in place while old and new consumers overlap; forward-fix shard allocation without deleting committed queue rows."
+    },
+    {
+      "file": "0024_reconciliation_runs.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Stop new reconciliation runs and forward-fix the additive run/finding ledgers; retain repair and quarantine evidence with its audit events."
     }
   ]
 }

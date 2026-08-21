@@ -56,8 +56,8 @@ def test_database_readiness_pool_slow_query_and_migration_metrics() -> None:
         try:
             readiness = await database_readiness(engine, MIGRATIONS)
             assert readiness.ready
-            assert readiness.applied == readiness.expected == 23
-            assert readiness.latest_migration == "0023_distributed_queue_profile.sql"
+            assert readiness.applied == readiness.expected == 24
+            assert readiness.latest_migration == "0024_reconciliation_runs.sql"
             async with engine.connect() as connection:
                 await connection.execute(text("SELECT pg_sleep(0.005)"))
         finally:
@@ -72,6 +72,10 @@ def test_database_readiness_pool_slow_query_and_migration_metrics() -> None:
             "amesh_database_slow_queries_total",
             "amesh_database_migrations_applied",
             "amesh_database_migrations_expected",
+            "amesh_reconciliation_runs_total",
+            "amesh_reconciliation_findings_total",
+            "amesh_reconciliation_unresolved",
+            "amesh_reconciliation_duration_seconds_count",
         ):
             assert name in metrics
 

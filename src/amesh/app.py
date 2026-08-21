@@ -34,6 +34,7 @@ from amesh.adapters.postgres import (
     PostgresBackfillRepository,
     PostgresCredentialRepository,
     PostgresExecutionRepository,
+    PostgresReconciliationRepository,
     PostgresTenantRepository,
     PostgresWorkerRepository,
 )
@@ -87,6 +88,8 @@ from amesh.domain import (
     PermissionAction,
     PrincipalDefinition,
     PrincipalType,
+    ReconciliationRequest,
+    ReconciliationRun,
     ResourceVersionConflict,
     RoleBinding,
     RoleDefinition,
@@ -133,12 +136,14 @@ from amesh.ports import (
     PersistedIterationSummary,
     PersistedSubflow,
     PersistedTaskRun,
+    ReconciliationAlreadyRunningError,
     TaskStateConflictError,
     TenantQuotaExceeded,
     TenantUnavailableError,
     WorkerFenceError,
     WorkerInventory,
 )
+from amesh.reconciliation import ReconciliationService
 from amesh.scheduler import CronScheduler, SchedulePreview
 from amesh.tasks import agent_llm_handler, agent_mcp_handler, core_http_handler
 from amesh.tenancy import TenantService
@@ -320,6 +325,17 @@ def get_worker_repository() -> PostgresWorkerRepository:
 WorkerRepositoryDependency = Annotated[
     PostgresWorkerRepository,
     Depends(get_worker_repository),
+]
+
+
+@lru_cache
+def get_reconciliation_service() -> ReconciliationService:
+    return ReconciliationService(PostgresReconciliationRepository(database_engine()))
+
+
+ReconciliationServiceDependency = Annotated[
+    ReconciliationService,
+    Depends(get_reconciliation_service),
 ]
 _TENANT_SLUG_ADAPTER = TypeAdapter(TenantSlug)
 
@@ -865,6 +881,83 @@ async def reconcile_admissions(
             detail=str(exc),
         ) from exc
     return {"promoted": promoted}
+
+
+@app.post(
+    "/api/v1/reconciliations",
+    response_model=ReconciliationRun,
+    status_code=status.HTTP_201_CREATED,
+    tags=["operations"],
+)
+async def run_reconciliation(
+    request: ReconciliationRequest,
+    service: ReconciliationServiceDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> ReconciliationRun:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="tenant",
+        action=PermissionAction.MANAGE,
+        tenant_id=tenant_id,
+    )
+    try:
+        return await service.run(
+            request,
+            tenant_id=tenant_id,
+            actor_id=str(actor.principal_id),
+        )
+    except ReconciliationAlreadyRunningError as exc:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
+
+
+@app.get(
+    "/api/v1/reconciliations",
+    response_model=list[ReconciliationRun],
+    tags=["operations"],
+)
+async def list_reconciliations(
+    service: ReconciliationServiceDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    limit: int = Query(default=50, ge=1, le=200),
+) -> list[ReconciliationRun]:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="tenant",
+        action=PermissionAction.MANAGE,
+        tenant_id=tenant_id,
+    )
+    return await service.list_runs(tenant_id=tenant_id, limit=limit)
+
+
+@app.get(
+    "/api/v1/reconciliations/{run_id}",
+    response_model=ReconciliationRun,
+    tags=["operations"],
+)
+async def get_reconciliation(
+    run_id: UUID,
+    service: ReconciliationServiceDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> ReconciliationRun:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="tenant",
+        action=PermissionAction.MANAGE,
+        tenant_id=tenant_id,
+    )
+    try:
+        return await service.get(run_id, tenant_id=tenant_id)
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
 
 
 @app.post(

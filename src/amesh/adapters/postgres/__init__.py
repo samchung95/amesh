@@ -9,6 +9,7 @@ from .operations_repository import (
     PostgresOperationsRepository,
     TableMaintenanceStatus,
 )
+from .reconciliation_repository import PostgresReconciliationRepository
 from .scheduler_repository import PostgresSchedulerRepository
 from .tenant_repository import PostgresTenantRepository
 from .worker_repository import PostgresWorkerRepository
@@ -22,6 +23,7 @@ __all__ = [
     "PostgresExecutionRepository",
     "PostgresMetadataRepository",
     "PostgresOperationsRepository",
+    "PostgresReconciliationRepository",
     "PostgresSchedulerRepository",
     "PostgresTenantRepository",
     "PostgresWorkerRepository",

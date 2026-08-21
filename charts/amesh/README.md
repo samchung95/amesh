@@ -6,6 +6,8 @@ read from existing Kubernetes Secrets; the chart does not create production defa
 single-tenant compatibility mode. Set `tenancy.mode=multi` and select `worker.group` to enable explicit
 tenant requests and tenant-aware worker routing; see the
 [multi-tenancy runbook](../../docs/operations/multi-tenancy.md).
+The worker performs bounded durable-state reconciliation every 60 seconds by default; tune the three
+`worker.reconciliation*` values using the [reconciliation runbook](../../docs/operations/reconciliation.md).
 
 `database.migrationExistingSecret` can hold a table-owner/migration login separately from the
 application login in `database.existingSecret`. Restricted tenant-repository logins need the roles
