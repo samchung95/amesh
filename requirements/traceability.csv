@@ -90,14 +90,14 @@ URS-F-0088,Functional,Must,EPIC-100,Executor and orchestration reducer,M1,1,"Aut
 URS-F-0089,Functional,Must,EPIC-100,Executor and orchestration reducer,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
 URS-F-0090,Functional,Must,EPIC-100,Executor and orchestration reducer,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
 URS-F-0091,Functional,Must,EPIC-100,Executor and orchestration reducer,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
-URS-F-0092,Functional,Must,EPIC-101,"Worker protocol, leases and heartbeats",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0093,Functional,Must,EPIC-101,"Worker protocol, leases and heartbeats",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0094,Functional,Must,EPIC-101,"Worker protocol, leases and heartbeats",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0095,Functional,Must,EPIC-101,"Worker protocol, leases and heartbeats",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0096,Functional,Must,EPIC-101,"Worker protocol, leases and heartbeats",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0097,Functional,Must,EPIC-101,"Worker protocol, leases and heartbeats",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0098,Functional,Must,EPIC-101,"Worker protocol, leases and heartbeats",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0099,Functional,Must,EPIC-101,"Worker protocol, leases and heartbeats",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0092,Functional,Must,EPIC-101,"Worker protocol, leases and heartbeats",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0093,Functional,Must,EPIC-101,"Worker protocol, leases and heartbeats",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0094,Functional,Must,EPIC-101,"Worker protocol, leases and heartbeats",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0095,Functional,Must,EPIC-101,"Worker protocol, leases and heartbeats",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0096,Functional,Must,EPIC-101,"Worker protocol, leases and heartbeats",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0097,Functional,Must,EPIC-101,"Worker protocol, leases and heartbeats",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0098,Functional,Must,EPIC-101,"Worker protocol, leases and heartbeats",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0099,Functional,Must,EPIC-101,"Worker protocol, leases and heartbeats",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
 URS-F-0100,Functional,Must,EPIC-102,Scheduler and temporal correctness,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
 URS-F-0101,Functional,Must,EPIC-102,Scheduler and temporal correctness,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
 URS-F-0102,Functional,Must,EPIC-102,Scheduler and temporal correctness,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
@@ -929,9 +929,9 @@ URS-NFR-RELIABILITY-002,Non-functional,Must,EPIC-007,Execution event model and s
 URS-NFR-RELIABILITY-002,Non-functional,Must,EPIC-009,"PostgreSQL transport, inbox and transactional outbox",M0,0,Property-based and integration tests with duplicate and reordered delivery.,In Progress
 URS-NFR-RELIABILITY-002,Non-functional,Must,EPIC-100,Executor and orchestration reducer,M1,1,Property-based and integration tests with duplicate and reordered delivery.,In Progress
 URS-NFR-RELIABILITY-002,Non-functional,Must,EPIC-103,Trigger runtime and occurrence lifecycle,M1,1,Property-based and integration tests with duplicate and reordered delivery.,In Progress
-URS-NFR-RELIABILITY-003,Non-functional,Must,EPIC-101,"Worker protocol, leases and heartbeats",M1,1,"Chaos tests with paused processes, network partitions and delayed completions.",Proposed
-URS-NFR-RELIABILITY-003,Non-functional,Must,EPIC-102,Scheduler and temporal correctness,M1,1,"Chaos tests with paused processes, network partitions and delayed completions.",Proposed
-URS-NFR-RELIABILITY-003,Non-functional,Must,EPIC-601,Distributed services and high availability,M6,6,"Chaos tests with paused processes, network partitions and delayed completions.",Proposed
+URS-NFR-RELIABILITY-003,Non-functional,Must,EPIC-101,"Worker protocol, leases and heartbeats",M1,1,"Chaos tests with paused processes, network partitions and delayed completions.",In Progress
+URS-NFR-RELIABILITY-003,Non-functional,Must,EPIC-102,Scheduler and temporal correctness,M1,1,"Chaos tests with paused processes, network partitions and delayed completions.",In Progress
+URS-NFR-RELIABILITY-003,Non-functional,Must,EPIC-601,Distributed services and high availability,M6,6,"Chaos tests with paused processes, network partitions and delayed completions.",In Progress
 URS-NFR-RELIABILITY-004,Non-functional,Must,EPIC-007,Execution event model and state machine,M0,0,Golden event-stream and property-based reducer tests.,Verified
 URS-NFR-RELIABILITY-004,Non-functional,Must,EPIC-100,Executor and orchestration reducer,M1,1,Golden event-stream and property-based reducer tests.,Verified
 URS-NFR-RELIABILITY-005,Non-functional,Must,EPIC-401,"Realtime API, webhooks and event subscriptions",M4,4,Dependency isolation and outage integration tests.,Proposed

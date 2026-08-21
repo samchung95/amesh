@@ -596,3 +596,39 @@ resource and lifecycle. Fixed-topology p99 scheduling load and live multi-node P
 shared NFR qualification for the scale and HA epics.
 
 Verdict: PASS — EPIC-102 closed.
+
+## EPIC-101: Worker protocol, leases and heartbeats — 2026-08-22
+
+Spec source: `backlog/epics/epic-101-worker-protocol-leases-and-heartbeats.md` and
+`docs/architecture/workers-and-runners.md`.
+
+Verified with `uv`, Python 3.13.12 and PostgreSQL 17:
+
+- [x] Protocol-v1 registration preserves worker identity by tenant/group/instance and advertises
+  version, task capabilities, runner types, labels and logical capacity; incompatible protocol or
+  runner registrations do not receive work.
+- [x] A PostgreSQL transaction claims the durable dispatch queue row and current task attempt with
+  one worker, database-time lease and monotonic fence while enforcing capacity and compatibility.
+- [x] Fenced heartbeats renew both claims and persist worker/task progress, resource usage and
+  cancellation acknowledgement. Stale heartbeats and completions are rejected.
+- [x] A worker can drain without receiving new work while a live in-flight claim completes and
+  consumes its queue row atomically. Expired claims deterministically requeue or fail/quarantine.
+- [x] Authorized `/api/v1/workers` inventory exposes liveness, compatibility, capacity, claimed work
+  and utilization; drain uses an expected resource version and rejects stale or unauthorized calls.
+- [x] Pull polling and tenant-scoped PostgreSQL notification wake-up use the same durable repository;
+  notification remains an optimization over the queue source of truth.
+- [x] A guarded fresh database applied all 16 migrations. Full suite: 144 passed, four
+  environment-gated tests skipped.
+- [x] Frontend suite: eight tests passed with 100% reported coverage and the production Vite build
+  completed.
+
+Adversarial pass: incompatible registrations, wrong runners, capacity exhaustion, stale worker
+versions, expired claims, reassignment, delayed old-owner completion, explicit fail policy, repeated
+drain and read-only drain authorization all produce no accepted stale mutation. The checked-in
+OpenRouter smoke default remains `openai/gpt-5.6-luna`; its live test is environment-gated without a
+key.
+
+Qualification boundary: the Profile-M target of 50 task starts/second for 60 minutes and live
+network-partition/PostgreSQL-failover qualification remain shared NFR work for EPIC-603/601/611.
+
+Verdict: PASS — EPIC-101 closed.

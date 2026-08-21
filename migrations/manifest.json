@@ -90,6 +90,12 @@
       "mode": "expand",
       "onlineCompatible": true,
       "rollbackGuidance": "Pause schedulers and forward-fix additive cursor or ownership fields; retain schedule state so missed occurrences can be reconciled deterministically."
+    },
+    {
+      "file": "0016_worker_protocol.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Drain remote workers and forward-fix additive protocol or heartbeat fields; retain worker and attempt lease evidence until all claims are reconciled."
     }
   ]
 }

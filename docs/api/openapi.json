@@ -1804,6 +1804,157 @@
         ],
         "title": "ValidationIssue",
         "type": "object"
+      },
+      "WorkerCompatibility": {
+        "enum": [
+          "COMPATIBLE",
+          "INCOMPATIBLE"
+        ],
+        "title": "WorkerCompatibility",
+        "type": "string"
+      },
+      "WorkerInventory": {
+        "properties": {
+          "cancellation_acknowledged": {
+            "title": "Cancellation Acknowledged",
+            "type": "boolean"
+          },
+          "capabilities": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Capabilities",
+            "type": "array"
+          },
+          "capacity": {
+            "minimum": 1.0,
+            "title": "Capacity",
+            "type": "integer"
+          },
+          "claimed_work": {
+            "minimum": 0.0,
+            "title": "Claimed Work",
+            "type": "integer"
+          },
+          "compatibility": {
+            "$ref": "#/components/schemas/WorkerCompatibility"
+          },
+          "instance_name": {
+            "title": "Instance Name",
+            "type": "string"
+          },
+          "labels": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Labels",
+            "type": "object"
+          },
+          "last_heartbeat_at": {
+            "format": "date-time",
+            "title": "Last Heartbeat At",
+            "type": "string"
+          },
+          "liveness": {
+            "$ref": "#/components/schemas/WorkerLiveness"
+          },
+          "progress": {
+            "additionalProperties": true,
+            "title": "Progress",
+            "type": "object"
+          },
+          "protocol_version": {
+            "minimum": 1.0,
+            "title": "Protocol Version",
+            "type": "integer"
+          },
+          "resource_usage": {
+            "additionalProperties": true,
+            "title": "Resource Usage",
+            "type": "object"
+          },
+          "resource_version": {
+            "minimum": 1.0,
+            "title": "Resource Version",
+            "type": "integer"
+          },
+          "runner_types": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Runner Types",
+            "type": "array"
+          },
+          "status": {
+            "$ref": "#/components/schemas/WorkerStatus"
+          },
+          "tenant_id": {
+            "title": "Tenant Id",
+            "type": "string"
+          },
+          "utilization": {
+            "minimum": 0.0,
+            "title": "Utilization",
+            "type": "number"
+          },
+          "version": {
+            "title": "Version",
+            "type": "string"
+          },
+          "worker_group": {
+            "title": "Worker Group",
+            "type": "string"
+          },
+          "worker_id": {
+            "format": "uuid",
+            "title": "Worker Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "worker_id",
+          "tenant_id",
+          "worker_group",
+          "instance_name",
+          "version",
+          "protocol_version",
+          "status",
+          "liveness",
+          "compatibility",
+          "capabilities",
+          "runner_types",
+          "labels",
+          "capacity",
+          "claimed_work",
+          "utilization",
+          "progress",
+          "resource_usage",
+          "cancellation_acknowledged",
+          "last_heartbeat_at",
+          "resource_version"
+        ],
+        "title": "WorkerInventory",
+        "type": "object"
+      },
+      "WorkerLiveness": {
+        "enum": [
+          "LIVE",
+          "STALE",
+          "STOPPED"
+        ],
+        "title": "WorkerLiveness",
+        "type": "string"
+      },
+      "WorkerStatus": {
+        "enum": [
+          "STARTING",
+          "READY",
+          "DEGRADED",
+          "DRAINING",
+          "STOPPED"
+        ],
+        "title": "WorkerStatus",
+        "type": "string"
       }
     }
   },
@@ -4175,6 +4326,160 @@
         "summary": "Trigger Webhook",
         "tags": [
           "triggers"
+        ]
+      }
+    },
+    "/api/v1/workers": {
+      "get": {
+        "operationId": "list_workers_api_v1_workers_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/WorkerInventory"
+                  },
+                  "title": "Response List Workers Api V1 Workers Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Workers",
+        "tags": [
+          "workers"
+        ]
+      }
+    },
+    "/api/v1/workers/{worker_id}/drain": {
+      "post": {
+        "operationId": "drain_worker_api_v1_workers__worker_id__drain_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "worker_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Worker Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "expectedVersion",
+            "required": true,
+            "schema": {
+              "minimum": 1,
+              "title": "Expectedversion",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkerInventory"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Drain Worker",
+        "tags": [
+          "workers"
         ]
       }
     },

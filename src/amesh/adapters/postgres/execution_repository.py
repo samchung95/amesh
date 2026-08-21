@@ -564,16 +564,57 @@ _START_TASK = text(
 
 _FINISH_TASK = text(
     """
-    WITH finished_attempt AS (
-        UPDATE task_attempts
+    WITH eligible_attempt AS (
+        SELECT attempts.id, attempts.queue_id
+        FROM task_attempts AS attempts
+        WHERE attempts.task_run_id = :task_run_id
+          AND attempts.tenant_id = :tenant_id
+          AND attempts.attempt = :attempt
+          AND attempts.state = 'RUNNING'
+          AND (
+              (
+                  CAST(:worker_id AS uuid) IS NULL
+                  AND CAST(:fencing_token AS bigint) IS NULL
+                  AND attempts.worker_id IS NULL
+                  AND attempts.queue_id IS NULL
+              )
+              OR (
+                  attempts.worker_id = CAST(:worker_id AS uuid)
+                  AND attempts.fencing_token = CAST(:fencing_token AS bigint)
+                  AND attempts.lease_expires_at > clock_timestamp()
+                  AND EXISTS (
+                      SELECT 1
+                      FROM durable_work_queue AS queue
+                      WHERE queue.id = attempts.queue_id
+                        AND queue.tenant_id = attempts.tenant_id
+                        AND queue.state = 'CLAIMED'
+                        AND queue.claimed_by = :worker_consumer_id
+                        AND queue.fencing_token = CAST(:fencing_token AS bigint)
+                        AND queue.lease_expires_at > clock_timestamp()
+                  )
+              )
+          )
+        FOR UPDATE
+    ), finished_attempt AS (
+        UPDATE task_attempts AS attempts
         SET state = :state,
             result = CAST(:result AS jsonb),
-            finished_at = now()
-        WHERE task_run_id = :task_run_id
-          AND tenant_id = :tenant_id
-          AND attempt = :attempt
-          AND state = 'RUNNING'
-        RETURNING task_run_id, result
+            finished_at = clock_timestamp(),
+            lease_expires_at = NULL,
+            queue_id = NULL
+        FROM eligible_attempt
+        WHERE attempts.id = eligible_attempt.id
+        RETURNING attempts.task_run_id, attempts.result, eligible_attempt.queue_id
+    ), acknowledged_queue AS (
+        DELETE FROM durable_work_queue AS queue
+        USING finished_attempt
+        WHERE finished_attempt.queue_id IS NOT NULL
+          AND queue.id = finished_attempt.queue_id
+          AND queue.tenant_id = :tenant_id
+          AND queue.state = 'CLAIMED'
+          AND queue.claimed_by = :worker_consumer_id
+          AND queue.fencing_token = CAST(:fencing_token AS bigint)
+        RETURNING queue.id
     ), finished_run AS (
         UPDATE task_runs
         SET state = :state,
@@ -581,10 +622,15 @@ _FINISH_TASK = text(
             retry_at = NULL,
             updated_at = now()
         FROM finished_attempt
+        LEFT JOIN acknowledged_queue ON acknowledged_queue.id = finished_attempt.queue_id
         WHERE task_runs.id = finished_attempt.task_run_id
           AND task_runs.tenant_id = :tenant_id
           AND task_runs.current_attempt = :attempt
           AND task_runs.state = 'RUNNING'
+          AND (
+              finished_attempt.queue_id IS NULL
+              OR acknowledged_queue.id IS NOT NULL
+          )
         RETURNING
             task_runs.id,
             task_runs.execution_id,
@@ -601,16 +647,57 @@ _FINISH_TASK = text(
 
 _RETRY_TASK = text(
     """
-    WITH failed_attempt AS (
-        UPDATE task_attempts
+    WITH eligible_attempt AS (
+        SELECT attempts.id, attempts.queue_id
+        FROM task_attempts AS attempts
+        WHERE attempts.task_run_id = :task_run_id
+          AND attempts.tenant_id = :tenant_id
+          AND attempts.attempt = :attempt
+          AND attempts.state = 'RUNNING'
+          AND (
+              (
+                  CAST(:worker_id AS uuid) IS NULL
+                  AND CAST(:fencing_token AS bigint) IS NULL
+                  AND attempts.worker_id IS NULL
+                  AND attempts.queue_id IS NULL
+              )
+              OR (
+                  attempts.worker_id = CAST(:worker_id AS uuid)
+                  AND attempts.fencing_token = CAST(:fencing_token AS bigint)
+                  AND attempts.lease_expires_at > clock_timestamp()
+                  AND EXISTS (
+                      SELECT 1
+                      FROM durable_work_queue AS queue
+                      WHERE queue.id = attempts.queue_id
+                        AND queue.tenant_id = attempts.tenant_id
+                        AND queue.state = 'CLAIMED'
+                        AND queue.claimed_by = :worker_consumer_id
+                        AND queue.fencing_token = CAST(:fencing_token AS bigint)
+                        AND queue.lease_expires_at > clock_timestamp()
+                  )
+              )
+          )
+        FOR UPDATE
+    ), failed_attempt AS (
+        UPDATE task_attempts AS attempts
         SET state = 'FAILED',
             result = CAST(:result AS jsonb),
-            finished_at = now()
-        WHERE task_run_id = :task_run_id
-          AND tenant_id = :tenant_id
-          AND attempt = :attempt
-          AND state = 'RUNNING'
-        RETURNING task_run_id, result
+            finished_at = clock_timestamp(),
+            lease_expires_at = NULL,
+            queue_id = NULL
+        FROM eligible_attempt
+        WHERE attempts.id = eligible_attempt.id
+        RETURNING attempts.task_run_id, attempts.result, eligible_attempt.queue_id
+    ), acknowledged_queue AS (
+        DELETE FROM durable_work_queue AS queue
+        USING failed_attempt
+        WHERE failed_attempt.queue_id IS NOT NULL
+          AND queue.id = failed_attempt.queue_id
+          AND queue.tenant_id = :tenant_id
+          AND queue.state = 'CLAIMED'
+          AND queue.claimed_by = :worker_consumer_id
+          AND queue.fencing_token = CAST(:fencing_token AS bigint)
+        RETURNING queue.id
     ), retrying_run AS (
         UPDATE task_runs
         SET state = 'RETRY_DELAY',
@@ -618,10 +705,15 @@ _RETRY_TASK = text(
             retry_at = :retry_at,
             updated_at = now()
         FROM failed_attempt
+        LEFT JOIN acknowledged_queue ON acknowledged_queue.id = failed_attempt.queue_id
         WHERE task_runs.id = failed_attempt.task_run_id
           AND task_runs.tenant_id = :tenant_id
           AND task_runs.current_attempt = :attempt
           AND task_runs.state = 'RUNNING'
+          AND (
+              failed_attempt.queue_id IS NULL
+              OR acknowledged_queue.id IS NOT NULL
+          )
         RETURNING
             task_runs.id,
             task_runs.execution_id,
@@ -1042,13 +1134,18 @@ class PostgresExecutionRepository(ExecutionRepository):
         result: dict[str, object],
         *,
         tenant_id: str,
+        worker_id: UUID | None = None,
+        fencing_token: int | None = None,
     ) -> PersistedTaskRun:
+        _require_complete_claim(worker_id, fencing_token)
         return await self._finish_task(
             task_run_id,
             attempt,
             TaskRunState.SUCCESS,
             result,
             tenant_id=tenant_id,
+            worker_id=worker_id,
+            fencing_token=fencing_token,
         )
 
     async def retry_task(
@@ -1059,7 +1156,10 @@ class PostgresExecutionRepository(ExecutionRepository):
         tenant_id: str,
         retry_at: datetime,
         reason: str,
+        worker_id: UUID | None = None,
+        fencing_token: int | None = None,
     ) -> PersistedTaskRun:
+        _require_complete_claim(worker_id, fencing_token)
         command_id = new_runtime_id()
         correlation_id = new_runtime_id()
         conflict_message: str | None = None
@@ -1072,6 +1172,9 @@ class PostgresExecutionRepository(ExecutionRepository):
                     "attempt": attempt,
                     "retry_at": retry_at,
                     "result": json.dumps({"error": reason}),
+                    "worker_id": worker_id,
+                    "worker_consumer_id": str(worker_id) if worker_id is not None else None,
+                    "fencing_token": fencing_token,
                 },
             )
             row = result.mappings().one_or_none()
@@ -1089,7 +1192,9 @@ class PostgresExecutionRepository(ExecutionRepository):
             else:
                 row = await self._get_task_run_row(connection, tenant_uuid, task_run_id)
                 is_duplicate = (
-                    row is not None
+                    worker_id is None
+                    and fencing_token is None
+                    and row is not None
                     and TaskRunState(row["state"]) is TaskRunState.RETRY_DELAY
                     and int(row["current_attempt"]) == attempt
                 )
@@ -1122,13 +1227,18 @@ class PostgresExecutionRepository(ExecutionRepository):
         reason: str,
         *,
         tenant_id: str,
+        worker_id: UUID | None = None,
+        fencing_token: int | None = None,
     ) -> PersistedTaskRun:
+        _require_complete_claim(worker_id, fencing_token)
         return await self._finish_task(
             task_run_id,
             attempt,
             TaskRunState.FAILED,
             {"error": reason},
             tenant_id=tenant_id,
+            worker_id=worker_id,
+            fencing_token=fencing_token,
         )
 
     async def complete_execution(
@@ -1290,6 +1400,8 @@ class PostgresExecutionRepository(ExecutionRepository):
         result_payload: dict[str, object],
         *,
         tenant_id: str,
+        worker_id: UUID | None = None,
+        fencing_token: int | None = None,
     ) -> PersistedTaskRun:
         command_id = new_runtime_id()
         correlation_id = new_runtime_id()
@@ -1303,6 +1415,9 @@ class PostgresExecutionRepository(ExecutionRepository):
                     "attempt": attempt,
                     "state": state.value,
                     "result": json.dumps(result_payload),
+                    "worker_id": worker_id,
+                    "worker_consumer_id": str(worker_id) if worker_id is not None else None,
+                    "fencing_token": fencing_token,
                 },
             )
             row = result.mappings().one_or_none()
@@ -1327,7 +1442,9 @@ class PostgresExecutionRepository(ExecutionRepository):
             else:
                 row = await self._get_task_run_row(connection, tenant_uuid, task_run_id)
                 is_duplicate = (
-                    row is not None
+                    worker_id is None
+                    and fencing_token is None
+                    and row is not None
                     and TaskRunState(row["state"]) is state
                     and int(row["current_attempt"]) == attempt
                 )
@@ -1570,6 +1687,13 @@ def _to_task_run(row: RowMapping) -> PersistedTaskRun:
         retry_at=row["retry_at"],
         result=row["result"],
     )
+
+
+def _require_complete_claim(worker_id: UUID | None, fencing_token: int | None) -> None:
+    if (worker_id is None) != (fencing_token is None):
+        raise ValueError("worker_id and fencing_token must be supplied together")
+    if fencing_token is not None and fencing_token < 1:
+        raise ValueError("worker fencing token must be positive")
 
 
 def _canonical_flow(flow: FlowDefinition) -> tuple[str, str]:

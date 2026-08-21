@@ -5,6 +5,7 @@ from .execution_repository import PostgresExecutionRepository
 from .metadata_repository import PostgresMetadataRepository
 from .scheduler_repository import PostgresSchedulerRepository
 from .tenant_repository import PostgresTenantRepository
+from .worker_repository import PostgresWorkerRepository
 
 __all__ = [
     "PostgresAuthorizationRepository",
@@ -14,4 +15,5 @@ __all__ = [
     "PostgresMetadataRepository",
     "PostgresSchedulerRepository",
     "PostgresTenantRepository",
+    "PostgresWorkerRepository",
 ]

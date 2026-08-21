@@ -134,6 +134,8 @@ class ExecutionRepository(Protocol):
         result: dict[str, Any],
         *,
         tenant_id: str,
+        worker_id: UUID | None = None,
+        fencing_token: int | None = None,
     ) -> PersistedTaskRun: ...
 
     async def retry_task(
@@ -144,6 +146,8 @@ class ExecutionRepository(Protocol):
         tenant_id: str,
         retry_at: datetime,
         reason: str,
+        worker_id: UUID | None = None,
+        fencing_token: int | None = None,
     ) -> PersistedTaskRun: ...
 
     async def fail_task(
@@ -153,6 +157,8 @@ class ExecutionRepository(Protocol):
         reason: str,
         *,
         tenant_id: str,
+        worker_id: UUID | None = None,
+        fencing_token: int | None = None,
     ) -> PersistedTaskRun: ...
 
     async def complete_execution(

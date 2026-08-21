@@ -65,6 +65,11 @@ Migration `0015_scheduler_state.sql` adds tenant-isolated next-fire cursors, dat
 monotonic fencing tokens and latest schedule-decision evidence. It is additive; pause scheduler
 replicas and forward-fix on failure without discarding cursor state.
 
+Migration `0016_worker_protocol.sql` adds versioned worker registration fields, advertised runner
+types and capacity, worker/task heartbeat evidence, cancellation acknowledgement and the queue-to-task
+attempt identity used by atomic fenced dispatch. It is additive; pause worker claimers and forward-fix
+on failure while retaining task attempts, queue rows and their fencing evidence.
+
 ## Migration modes
 
 - `bootstrap` creates the initial schema and is only safe for an empty database.

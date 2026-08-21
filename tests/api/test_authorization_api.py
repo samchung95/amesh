@@ -14,6 +14,7 @@ from amesh.adapters.postgres import (
     PostgresAuthorizationRepository,
     PostgresExecutionRepository,
     PostgresTenantRepository,
+    PostgresWorkerRepository,
 )
 from amesh.app import (
     app,
@@ -22,6 +23,7 @@ from amesh.app import (
     get_authorization_service,
     get_repository,
     get_tenant_service,
+    get_worker_repository,
 )
 from amesh.authorization import AuthorizationService
 from amesh.config import Settings, get_settings
@@ -53,6 +55,7 @@ def test_every_protected_rest_surface_enforces_tenant_and_permission_policy() ->
         engine = create_async_engine(TEST_DATABASE_URL)
         policy_repository = PostgresAuthorizationRepository(engine)
         execution_repository = PostgresExecutionRepository(engine)
+        worker_repository = PostgresWorkerRepository(engine)
         tenant_repository = PostgresTenantRepository(engine)
         tenant_service = TenantService(tenant_repository)
         suffix = uuid4().hex[:12]
@@ -89,6 +92,7 @@ def test_every_protected_rest_surface_enforces_tenant_and_permission_policy() ->
         app.dependency_overrides[get_authorization_repository] = lambda: policy_repository
         app.dependency_overrides[get_authorization_service] = lambda: service
         app.dependency_overrides[get_repository] = lambda: execution_repository
+        app.dependency_overrides[get_worker_repository] = lambda: worker_repository
         app.dependency_overrides[get_tenant_service] = lambda: tenant_service
         missing_id = uuid4()
         snapshot = ExecutionSnapshot(
@@ -115,6 +119,7 @@ def test_every_protected_rest_surface_enforces_tenant_and_permission_policy() ->
                 assert validation.status_code == 200
 
                 assert (await client.get("/api/v1/flows")).status_code == 200
+                assert (await client.get("/api/v1/workers")).status_code == 200
                 cross_tenant_response = await client.get(
                     "/api/v1/flows",
                     headers={"X-Amesh-Tenant": cross_tenant_slug},
@@ -234,6 +239,10 @@ def test_every_protected_rest_surface_enforces_tenant_and_permission_policy() ->
                             "resourceType": "flow",
                             "action": "view",
                         },
+                    ),
+                    client.post(
+                        f"/api/v1/workers/{uuid4()}/drain",
+                        params={"expectedVersion": 1},
                     ),
                 ]
                 responses = await asyncio.gather(*denied_requests)

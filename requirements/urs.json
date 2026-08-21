@@ -2612,7 +2612,10 @@
       "id": "URS-F-0092",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/worker/test_worker_protocol.py::test_versioned_worker_protocol_fences_dispatch_and_recovers_lost_work"
+      ],
       "milestone": "M1",
       "wave": 1,
       "epic_id": "EPIC-101",
@@ -2639,7 +2642,10 @@
       "id": "URS-F-0093",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/worker/test_worker_protocol.py::test_versioned_worker_protocol_fences_dispatch_and_recovers_lost_work"
+      ],
       "milestone": "M1",
       "wave": 1,
       "epic_id": "EPIC-101",
@@ -2666,7 +2672,10 @@
       "id": "URS-F-0094",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/worker/test_worker_protocol.py::test_versioned_worker_protocol_fences_dispatch_and_recovers_lost_work"
+      ],
       "milestone": "M1",
       "wave": 1,
       "epic_id": "EPIC-101",
@@ -2693,7 +2702,10 @@
       "id": "URS-F-0095",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/worker/test_worker_protocol.py::test_versioned_worker_protocol_fences_dispatch_and_recovers_lost_work"
+      ],
       "milestone": "M1",
       "wave": 1,
       "epic_id": "EPIC-101",
@@ -2720,7 +2732,10 @@
       "id": "URS-F-0096",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/worker/test_worker_protocol.py::test_versioned_worker_protocol_fences_dispatch_and_recovers_lost_work"
+      ],
       "milestone": "M1",
       "wave": 1,
       "epic_id": "EPIC-101",
@@ -2747,7 +2762,11 @@
       "id": "URS-F-0097",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/worker/test_worker_protocol.py::test_versioned_worker_protocol_fences_dispatch_and_recovers_lost_work",
+        "tests/api/test_worker_api.py::test_worker_inventory_and_fenced_drain_api"
+      ],
       "milestone": "M1",
       "wave": 1,
       "epic_id": "EPIC-101",
@@ -2774,7 +2793,12 @@
       "id": "URS-F-0098",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/worker/test_worker_protocol.py::test_versioned_worker_protocol_fences_dispatch_and_recovers_lost_work",
+        "tests/api/test_worker_api.py::test_worker_inventory_and_fenced_drain_api",
+        "tests/api/test_authorization_api.py::test_every_protected_rest_surface_enforces_tenant_and_permission_policy"
+      ],
       "milestone": "M1",
       "wave": 1,
       "epic_id": "EPIC-101",
@@ -2801,7 +2825,10 @@
       "id": "URS-F-0099",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/worker/test_worker_protocol.py::test_versioned_worker_protocol_fences_dispatch_and_recovers_lost_work"
+      ],
       "milestone": "M1",
       "wave": 1,
       "epic_id": "EPIC-101",
@@ -23935,7 +23962,11 @@
         "EPIC-601"
       ],
       "priority": "Must",
-      "status": "Proposed"
+      "status": "In Progress",
+      "evidence": [
+        "tests/worker/test_worker_protocol.py::test_versioned_worker_protocol_fences_dispatch_and_recovers_lost_work",
+        "tests/scheduler/test_cron_scheduler.py::test_postgres_scheduler_claim_is_single_owner_and_stale_completion_is_fenced"
+      ]
     },
     {
       "id": "URS-NFR-RELIABILITY-004",

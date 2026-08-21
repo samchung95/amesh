@@ -12,14 +12,18 @@ Safely assign runnable work to workers and recover ownership after failure.
 
 ## In scope
 
-- [ ] **URS-F-0092** — The system shall register workers with stable identity, version, capabilities, labels, runner types and capacity.
-- [ ] **URS-F-0093** — The system shall lease task runs atomically to one eligible worker using expiring ownership and fencing tokens.
-- [ ] **URS-F-0094** — The system shall renew leases through heartbeats that include progress, resource use and cancellation acknowledgement.
-- [ ] **URS-F-0095** — The system shall reject stale completion or mutation attempts from a worker holding an obsolete fencing token.
-- [ ] **URS-F-0096** — The system shall requeue or fail task runs according to policy when a worker or lease disappears.
-- [ ] **URS-F-0097** — The system shall drain workers without assigning new work while allowing in-flight work to finish.
-- [ ] **URS-F-0098** — The system shall expose worker inventory, liveness, utilization, claimed work and compatibility status.
-- [ ] **URS-F-0099** — The system shall support pull-based and PostgreSQL-notification-assisted dispatch through one versioned worker protocol.
+- [x] **URS-F-0092** — The system shall register workers with stable identity, version, capabilities, labels, runner types and capacity.
+- [x] **URS-F-0093** — The system shall lease task runs atomically to one eligible worker using expiring ownership and fencing tokens.
+- [x] **URS-F-0094** — The system shall renew leases through heartbeats that include progress, resource use and cancellation acknowledgement.
+- [x] **URS-F-0095** — The system shall reject stale completion or mutation attempts from a worker holding an obsolete fencing token.
+- [x] **URS-F-0096** — The system shall requeue or fail task runs according to policy when a worker or lease disappears.
+- [x] **URS-F-0097** — The system shall drain workers without assigning new work while allowing in-flight work to finish.
+- [x] **URS-F-0098** — The system shall expose worker inventory, liveness, utilization, claimed work and compatibility status.
+- [x] **URS-F-0099** — The system shall support pull-based and PostgreSQL-notification-assisted dispatch through one versioned worker protocol.
+
+## Implementation completion evidence
+
+- 2026-08-22 — EPIC-101 is complete. Versioned worker registration is stable by tenant/group/instance and advertises version, task capabilities, runner types, labels and capacity. PostgreSQL atomically binds each eligible `DispatchTaskRun` queue claim to the current task attempt with one database-time lease and monotonic fencing token; heartbeats renew both rows and persist progress, resource use and cancellation acknowledgement. Completion consumes the queue claim atomically, stale owners are rejected after reassignment, expired work follows explicit requeue/fail policy, and draining blocks new claims while live work can finish. Authorized `/api/v1/workers` inventory and fenced drain controls expose liveness, compatibility, claimed work and utilization. Pull and tenant-scoped LISTEN/NOTIFY use the same protocol-v1 repository. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`workers-and-runners.md`](../../docs/architecture/workers-and-runners.md), [`0016_worker_protocol.sql`](../../migrations/0016_worker_protocol.sql), [`worker_repository.py`](../../src/amesh/adapters/postgres/worker_repository.py), [`test_worker_protocol.py`](../../tests/worker/test_worker_protocol.py), [`test_worker_api.py`](../../tests/api/test_worker_api.py) and [`test_authorization_api.py`](../../tests/api/test_authorization_api.py). The shared Profile-M 60-minute dispatch benchmark and live network-partition/failover qualification remain with EPIC-603/601/611.
 
 ## Non-functional requirements
 
@@ -47,13 +51,13 @@ Safely assign runnable work to workers and recover ownership after failure.
 
 ## Definition of done
 
-- [ ] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
-- [ ] Public API, DSL, event and plugin contract changes pass compatibility checks.
-- [ ] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
-- [ ] Security, tenant isolation, redaction and audit behavior are reviewed.
-- [ ] Documentation, examples, migration notes and operational runbooks are updated.
-- [ ] Performance and recovery budgets are measured when this epic is on a critical path.
-- [ ] `python scripts/validate_backlog.py` passes.
+- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
+- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.
+- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
+- [x] Security, tenant isolation, redaction and audit behavior are reviewed.
+- [x] Documentation, examples, migration notes and operational runbooks are updated.
+- [x] Performance and recovery budgets are measured when this epic is on a critical path.
+- [x] `python scripts/validate_backlog.py` passes.
 
 ## Risks and unknowns
 

@@ -58,8 +58,22 @@ from .tenant_repository import (
     TenantRepository,
     TenantUnavailableError,
 )
+from .worker_repository import (
+    WORKER_PROTOCOL_VERSION,
+    WorkerClaimHeartbeat,
+    WorkerCompatibility,
+    WorkerCompatibilityError,
+    WorkerFenceError,
+    WorkerInventory,
+    WorkerLiveness,
+    WorkerLossPolicy,
+    WorkerRegistration,
+    WorkerRepository,
+    WorkerTaskClaim,
+)
 
 __all__ = [
+    "WORKER_PROTOCOL_VERSION",
     "AssetMetadata",
     "AuthorizationRepository",
     "CredentialPrincipal",
@@ -107,6 +121,16 @@ __all__ = [
     "TenantUnavailableError",
     "TransportDiagnostics",
     "WorkClaim",
+    "WorkerClaimHeartbeat",
+    "WorkerCompatibility",
+    "WorkerCompatibilityError",
+    "WorkerFenceError",
+    "WorkerInventory",
+    "WorkerLiveness",
+    "WorkerLossPolicy",
     "WorkerMetadata",
+    "WorkerRegistration",
+    "WorkerRepository",
     "WorkerStatus",
+    "WorkerTaskClaim",
 ]

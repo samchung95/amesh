@@ -20,6 +20,25 @@ Matching considers tenant, worker group, trust domain, runner, plugin version, l
 egress and data-residency policy. Admission reserves scarce logical capacity before dispatch; the runner
 still enforces physical resource limits.
 
+The implemented protocol is version 1. A registration is stable by tenant, worker group and instance
+name; reconnecting updates the same worker identity. The registration advertises software version,
+task-type capabilities, runner types, labels and logical capacity. Workers pull committed
+`DispatchTaskRun` commands from PostgreSQL. `LISTEN/NOTIFY` only wakes the same pull loop and is never
+the source of truth.
+
+Claiming locks both the durable queue row and the current task attempt in one transaction. The two rows
+receive the same worker identity, database-time lease and monotonically increasing fencing token.
+Capacity and task/runner compatibility are evaluated before the claim. A heartbeat renews both rows in
+one transaction and records worker/task progress, resource usage and cancellation acknowledgement.
+Completion, retry and failure require the current live worker/fence pair and consume the queue claim in
+the same transaction; an expired owner cannot commit after reassignment.
+
+Expired claims can be requeued for another fenced delivery or failed and quarantined according to the
+selected worker-loss policy. Draining changes a worker to `DRAINING`, which prevents new claims while a
+live in-flight claim may still heartbeat and complete. Authorized operators can inspect liveness,
+compatibility, capacity, claimed work and utilization at `GET /api/v1/workers`, and fence a drain request
+with `POST /api/v1/workers/{worker_id}/drain?expectedVersion=N`.
+
 ## Runner boundary
 
 The runner request is declarative. It includes immutable task identity, image/command, environment

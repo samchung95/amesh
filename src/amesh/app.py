@@ -10,7 +10,7 @@ from time import perf_counter
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import Depends, FastAPI, Header, HTTPException, Request, Response, status
+from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request, Response, status
 from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 from pydantic import TypeAdapter, ValidationError
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
@@ -24,6 +24,7 @@ from amesh.adapters.postgres import (
     PostgresCredentialRepository,
     PostgresExecutionRepository,
     PostgresTenantRepository,
+    PostgresWorkerRepository,
 )
 from amesh.api.models import (
     AuthorizationExplanationRequest,
@@ -93,6 +94,8 @@ from amesh.ports import (
     PersistedFlow,
     TenantQuotaExceeded,
     TenantUnavailableError,
+    WorkerFenceError,
+    WorkerInventory,
 )
 from amesh.scheduler import CronScheduler, SchedulePreview
 from amesh.tasks import agent_llm_handler, agent_mcp_handler, core_http_handler
@@ -215,6 +218,17 @@ def get_tenant_service() -> TenantService:
 
 
 TenantServiceDependency = Annotated[TenantService, Depends(get_tenant_service)]
+
+
+@lru_cache
+def get_worker_repository() -> PostgresWorkerRepository:
+    return PostgresWorkerRepository(database_engine())
+
+
+WorkerRepositoryDependency = Annotated[
+    PostgresWorkerRepository,
+    Depends(get_worker_repository),
+]
 _TENANT_SLUG_ADAPTER = TypeAdapter(TenantSlug)
 
 
@@ -605,6 +619,58 @@ async def list_executions(
             detail="limit must be between 1 and 1000",
         )
     return await repository.list_executions(tenant_id=tenant_id, limit=limit)
+
+
+@app.get(
+    "/api/v1/workers",
+    response_model=list[WorkerInventory],
+    tags=["workers"],
+)
+async def list_workers(
+    workers: WorkerRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> list[WorkerInventory]:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="worker",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+    )
+    return await workers.list_worker_inventory(tenant_id=tenant_id)
+
+
+@app.post(
+    "/api/v1/workers/{worker_id}/drain",
+    response_model=WorkerInventory,
+    tags=["workers"],
+)
+async def drain_worker(
+    worker_id: UUID,
+    workers: WorkerRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    expected_version: Annotated[int, Query(alias="expectedVersion", ge=1)],
+) -> WorkerInventory:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="worker",
+        action=PermissionAction.MANAGE,
+        tenant_id=tenant_id,
+    )
+    try:
+        return await workers.drain_worker(
+            worker_id,
+            tenant_id=tenant_id,
+            expected_version=expected_version,
+            actor_id=str(actor.principal_id),
+        )
+    except WorkerFenceError as exc:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
 
 
 @app.get(

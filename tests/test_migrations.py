@@ -35,6 +35,7 @@ def test_checked_in_migration_manifest_is_complete_and_ordered() -> None:
             (13, "transport_dead_letters"),
             (14, "executor_dispatch"),
             (15, "scheduler_state"),
+            (16, "worker_protocol"),
         )
     ]
     assert all(item.rollback_guidance for item in plan)
