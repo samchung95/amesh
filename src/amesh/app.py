@@ -33,6 +33,7 @@ from amesh.api.models import (
     HealthResponse,
     IssueCredentialRequest,
     IssuedCredentialResponse,
+    ReadinessResponse,
     ReduceExecutionRequest,
     ReduceExecutionResponse,
     RevokedCredentialsResponse,
@@ -76,7 +77,13 @@ from amesh.executor import (
     local_process_handler,
 )
 from amesh.frontend import SpaStaticFiles, find_frontend_dist
-from amesh.observability import HTTP_REQUEST_DURATION, HTTP_REQUESTS
+from amesh.migrations import migration_directory
+from amesh.observability import (
+    HTTP_REQUEST_DURATION,
+    HTTP_REQUESTS,
+    database_readiness,
+    instrument_database,
+)
 from amesh.ports import (
     CredentialRateLimitExceeded,
     LastAdministratorError,
@@ -137,7 +144,11 @@ async def observe_http(
 
 @lru_cache
 def database_engine() -> AsyncEngine:
-    return create_async_engine(get_settings().database_url)
+    settings = get_settings()
+    return instrument_database(
+        create_async_engine(settings.database_url),
+        slow_query_seconds=settings.database_slow_query_seconds,
+    )
 
 
 @lru_cache
@@ -315,9 +326,20 @@ async def health() -> HealthResponse:
     return HealthResponse(status="ok", version=__version__)
 
 
-@app.get("/ready", response_model=HealthResponse, tags=["system"])
-async def ready() -> HealthResponse:
-    return HealthResponse(status="ready", version=__version__)
+@app.get("/ready", response_model=ReadinessResponse, tags=["system"])
+async def ready(response: Response) -> ReadinessResponse:
+    readiness = await database_readiness(database_engine(), migration_directory())
+    if not readiness.ready:
+        response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
+    return ReadinessResponse(
+        status="ready" if readiness.ready else "not-ready",
+        version=__version__,
+        database="ready" if readiness.ready else "unavailable",
+        migrations_applied=readiness.applied,
+        migrations_expected=readiness.expected,
+        latest_migration=readiness.latest_migration,
+        error=readiness.error,
+    )
 
 
 @app.get("/api/v1/ui/session", response_model=UiSessionResponse, tags=["ui"])

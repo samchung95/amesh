@@ -12,14 +12,18 @@ Persist platform metadata transactionally with clear repository boundaries and s
 
 ## In scope
 
-- [ ] **URS-F-0060** — The system shall provide repository interfaces for flows, revisions, executions, task runs, triggers, workers, logs, metrics, assets and governance resources.
-- [ ] **URS-F-0061** — The system shall implement PostgreSQL as the reference transactional backend.
-- [ ] **URS-F-0062** — The system shall use explicit transactions and isolation levels for scheduling, claiming, state transitions and outbox publication.
-- [ ] **URS-F-0063** — The system shall apply ordered forward migrations with preflight checks and rollback guidance.
-- [ ] **URS-F-0064** — The system shall support online-compatible migrations for rolling upgrades whenever feasible.
-- [ ] **URS-F-0065** — The system shall protect invariants with database constraints in addition to application validation.
-- [ ] **URS-F-0066** — The system shall expose health, pool saturation, slow query and migration status metrics.
-- [ ] **URS-F-0067** — The system shall provide deterministic seed data and ephemeral test database support.
+- [x] **URS-F-0060** — The system shall provide repository interfaces for flows, revisions, executions, task runs, triggers, workers, logs, metrics, assets and governance resources.
+- [x] **URS-F-0061** — The system shall implement PostgreSQL as the reference transactional backend.
+- [x] **URS-F-0062** — The system shall use explicit transactions and isolation levels for scheduling, claiming, state transitions and outbox publication.
+- [x] **URS-F-0063** — The system shall apply ordered forward migrations with preflight checks and rollback guidance.
+- [x] **URS-F-0064** — The system shall support online-compatible migrations for rolling upgrades whenever feasible.
+- [x] **URS-F-0065** — The system shall protect invariants with database constraints in addition to application validation.
+- [x] **URS-F-0066** — The system shall expose health, pool saturation, slow query and migration status metrics.
+- [x] **URS-F-0067** — The system shall provide deterministic seed data and ephemeral test database support.
+
+## Implementation completion evidence
+
+- 2026-08-22 — EPIC-008 is complete. AMESH now exposes cohesive PostgreSQL repositories for flows/revisions/executions/task runs, triggers/workers/logs/metrics/assets, tenants, authorization governance and credentials; materializes immutable trigger metadata in the flow transaction; uses explicit READ COMMITTED tenant transactions and SERIALIZABLE locked migrations; validates an ordered migration manifest with preflight, online-compatibility and rollback guidance; protects metadata and state invariants with constraints and forced tenant RLS; reports database readiness, pool, query and migration signals; and creates guarded ephemeral databases with canonical schema/seed fingerprints. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`metadata-storage.md`](../../docs/operations/metadata-storage.md), [`metadata_repository.py`](../../src/amesh/adapters/postgres/metadata_repository.py), [`migrations.py`](../../src/amesh/migrations.py), [`0012_metadata_repository.sql`](../../migrations/0012_metadata_repository.sql), [`test_metadata_repository.py`](../../tests/adapters/postgres/test_metadata_repository.py), and [`test_migration_contract.py`](../../tests/adapters/postgres/test_migration_contract.py). Shared reliability, migration-LTS and privacy-retention NFRs remain In Progress for their other owning epics.
 
 ## Non-functional requirements
 
@@ -50,13 +54,13 @@ Persist platform metadata transactionally with clear repository boundaries and s
 
 ## Definition of done
 
-- [ ] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
-- [ ] Public API, DSL, event and plugin contract changes pass compatibility checks.
-- [ ] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
-- [ ] Security, tenant isolation, redaction and audit behavior are reviewed.
-- [ ] Documentation, examples, migration notes and operational runbooks are updated.
-- [ ] Performance and recovery budgets are measured when this epic is on a critical path.
-- [ ] `python scripts/validate_backlog.py` passes.
+- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
+- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.
+- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
+- [x] Security, tenant isolation, redaction and audit behavior are reviewed.
+- [x] Documentation, examples, migration notes and operational runbooks are updated.
+- [x] Performance and recovery budgets are measured when this epic is on a critical path.
+- [x] `python scripts/validate_backlog.py` passes.
 
 ## Risks and unknowns
 

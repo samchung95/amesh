@@ -435,3 +435,46 @@ Adversarial pass: stale epochs, stale task versions, illegal terminal transition
 Qualification boundary: live OpenRouter (`openai/gpt-5.6-luna`) and kind tests remain environment-gated because their credentials/context are absent. Helm was not rerun because the executable is unavailable and this epic changes no chart template. Shared reliability/maintainability NFRs remain In Progress for their remaining owners and distributed failover tests.
 
 Verdict: PASS — EPIC-007 closed.
+
+## EPIC-008: Metadata persistence and migrations — 2026-08-22
+
+Spec source: `backlog/epics/epic-008-metadata-persistence-and-migrations.md` and
+`docs/operations/metadata-storage.md`.
+
+Verified with `uv`, Python 3.13.12 and PostgreSQL 17:
+
+- [x] Existing flow/revision/execution/task, tenant, authorization and credential repositories plus
+  the new metadata port cover the declared repository owners for triggers, workers, execution logs,
+  execution metrics and assets.
+- [x] Flow application materializes immutable trigger definitions in the same tenant transaction;
+  worker heartbeat and asset writes reject stale resource versions; log and metric foreign keys remain
+  tenant-safe.
+- [x] Runtime repository work uses explicit PostgreSQL `READ COMMITTED` transactions, migrations use
+  `SERIALIZABLE` with an advisory lock, and the existing event-to-outbox rollback test proves state and
+  publication atomicity.
+- [x] `manifest.json` defines the exact contiguous migration order, mode, mixed-version compatibility
+  and rollback guidance; the runner rejects checksum drift, unknown applied versions, unsupported
+  PostgreSQL and unsafe contract DDL classified as online-compatible.
+- [x] Migration 0012 adds forced tenant RLS, composite foreign keys, versioned identities and database
+  constraints for execution, task-run, task-attempt and worker states; a direct invalid-state write is
+  rejected by PostgreSQL.
+- [x] `/ready` verifies connectivity and exact migration parity. Prometheus exports bounded database
+  health, pool size/checkout, query duration, slow-query and applied/expected migration signals.
+- [x] Two guarded ephemeral databases independently applied all 12 migrations, produced identical
+  canonical schema and seed fingerprints, and returned no changes on a second application.
+- [x] The metadata data inventory maps persisted fields to purpose, sensitivity and retention owner;
+  retention execution remains with EPIC-608, so the shared privacy NFR remains In Progress.
+- [x] Full suite: 123 passed, four environment-gated tests skipped, 82.14% branch coverage.
+- [x] Ruff formatting/lint, strict mypy, generated OpenAPI/planning drift, backlog validation,
+  clean-room validation, compilation, Compose rendering, uv lock and diff checks pass.
+
+Adversarial pass: stale worker/asset versions, an invalid execution state, unlisted migrations,
+checksum drift, absent migration parity and unsafe ephemeral-database names fail without silently
+changing accepted metadata. The checked-in OpenRouter smoke default remains
+`openai/gpt-5.6-luna`; its live test is environment-gated because no key is present.
+
+Qualification boundary: multi-node PostgreSQL failover, backup/restore, retention purge and supported
+release-to-release rolling upgrades remain in their dedicated later epics. They are not claimed by
+EPIC-008.
+
+Verdict: PASS — EPIC-008 closed.

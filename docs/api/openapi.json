@@ -1032,6 +1032,61 @@
         "title": "PrincipalType",
         "type": "string"
       },
+      "ReadinessResponse": {
+        "properties": {
+          "database": {
+            "title": "Database",
+            "type": "string"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          },
+          "latest_migration": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latest Migration"
+          },
+          "migrations_applied": {
+            "title": "Migrations Applied",
+            "type": "integer"
+          },
+          "migrations_expected": {
+            "title": "Migrations Expected",
+            "type": "integer"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "version",
+          "database",
+          "migrations_applied",
+          "migrations_expected"
+        ],
+        "title": "ReadinessResponse",
+        "type": "object"
+      },
       "ReduceExecutionRequest": {
         "properties": {
           "events": {
@@ -3983,7 +4038,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HealthResponse"
+                  "$ref": "#/components/schemas/ReadinessResponse"
                 }
               }
             },

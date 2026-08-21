@@ -32,6 +32,7 @@ from amesh.ports.execution_repository import (
 )
 from amesh.ports.tenant_repository import TenantQuotaExceeded, TenantUnavailableError
 
+from .metadata_repository import store_flow_triggers
 from .tenant_context import tenant_transaction
 
 _UPSERT_NAMESPACE = text(
@@ -1225,7 +1226,18 @@ class PostgresExecutionRepository(ExecutionRepository):
             raise ValueError(
                 f"flow {flow.namespace}.{flow.id} revision {flow.revision} already has different content"
             )
-        return UUID(str(row["id"]))
+        revision_id = UUID(str(row["id"]))
+        await store_flow_triggers(
+            connection,
+            tenant_id,
+            revision_id,
+            tuple(
+                trigger.model_dump(mode="json", by_alias=True, exclude_none=True)
+                for trigger in flow.triggers
+            ),
+            actor_id,
+        )
+        return revision_id
 
     async def _insert_initial_events(
         self,

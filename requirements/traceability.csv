@@ -58,14 +58,14 @@ URS-F-0056,Functional,Must,EPIC-007,Execution event model and state machine,M0,0
 URS-F-0057,Functional,Must,EPIC-007,Execution event model and state machine,M0,0,"Automated unit, integration, crash-recovery and conformance tests",Verified
 URS-F-0058,Functional,Must,EPIC-007,Execution event model and state machine,M0,0,"Automated unit, integration, crash-recovery and conformance tests",Verified
 URS-F-0059,Functional,Must,EPIC-007,Execution event model and state machine,M0,0,"Automated unit, integration, crash-recovery and conformance tests",Verified
-URS-F-0060,Functional,Must,EPIC-008,Metadata persistence and migrations,M0,0,Repository or storage adapter contract and fault-injection tests,Proposed
-URS-F-0061,Functional,Must,EPIC-008,Metadata persistence and migrations,M0,0,Repository or storage adapter contract and fault-injection tests,Proposed
-URS-F-0062,Functional,Must,EPIC-008,Metadata persistence and migrations,M0,0,Repository or storage adapter contract and fault-injection tests,Proposed
-URS-F-0063,Functional,Must,EPIC-008,Metadata persistence and migrations,M0,0,Repository or storage adapter contract and fault-injection tests,Proposed
-URS-F-0064,Functional,Must,EPIC-008,Metadata persistence and migrations,M0,0,Repository or storage adapter contract and fault-injection tests,Proposed
-URS-F-0065,Functional,Must,EPIC-008,Metadata persistence and migrations,M0,0,Repository or storage adapter contract and fault-injection tests,Proposed
-URS-F-0066,Functional,Must,EPIC-008,Metadata persistence and migrations,M0,0,Repository or storage adapter contract and fault-injection tests,Proposed
-URS-F-0067,Functional,Must,EPIC-008,Metadata persistence and migrations,M0,0,Repository or storage adapter contract and fault-injection tests,Proposed
+URS-F-0060,Functional,Must,EPIC-008,Metadata persistence and migrations,M0,0,Repository or storage adapter contract and fault-injection tests,Verified
+URS-F-0061,Functional,Must,EPIC-008,Metadata persistence and migrations,M0,0,Repository or storage adapter contract and fault-injection tests,Verified
+URS-F-0062,Functional,Must,EPIC-008,Metadata persistence and migrations,M0,0,Repository or storage adapter contract and fault-injection tests,Verified
+URS-F-0063,Functional,Must,EPIC-008,Metadata persistence and migrations,M0,0,Repository or storage adapter contract and fault-injection tests,Verified
+URS-F-0064,Functional,Must,EPIC-008,Metadata persistence and migrations,M0,0,Repository or storage adapter contract and fault-injection tests,Verified
+URS-F-0065,Functional,Must,EPIC-008,Metadata persistence and migrations,M0,0,Repository or storage adapter contract and fault-injection tests,Verified
+URS-F-0066,Functional,Must,EPIC-008,Metadata persistence and migrations,M0,0,Repository or storage adapter contract and fault-injection tests,Verified
+URS-F-0067,Functional,Must,EPIC-008,Metadata persistence and migrations,M0,0,Repository or storage adapter contract and fault-injection tests,Verified
 URS-F-0068,Functional,Must,EPIC-009,"PostgreSQL transport, inbox and transactional outbox",M0,0,"Delivery, ordering, duplicate and outage conformance tests",Proposed
 URS-F-0069,Functional,Must,EPIC-009,"PostgreSQL transport, inbox and transactional outbox",M0,0,"Delivery, ordering, duplicate and outage conformance tests",Proposed
 URS-F-0070,Functional,Must,EPIC-009,"PostgreSQL transport, inbox and transactional outbox",M0,0,"Delivery, ordering, duplicate and outage conformance tests",Proposed
@@ -864,8 +864,8 @@ URS-NFR-MAINTAINABILITY-002,Non-functional,Must,EPIC-004,"Flow DSL, YAML model a
 URS-NFR-MAINTAINABILITY-002,Non-functional,Must,EPIC-300,Plugin SDK and manifest contract,M3,3,Automated schema and API compatibility checks.,In Progress
 URS-NFR-MAINTAINABILITY-002,Non-functional,Must,EPIC-400,Versioned REST API and OpenAPI contract,M4,4,Automated schema and API compatibility checks.,In Progress
 URS-NFR-MAINTAINABILITY-002,Non-functional,Must,EPIC-610,"Upgrades, migrations and LTS policy",M6,6,Automated schema and API compatibility checks.,In Progress
-URS-NFR-MAINTAINABILITY-003,Non-functional,Must,EPIC-008,Metadata persistence and migrations,M0,0,Migration golden tests.,Proposed
-URS-NFR-MAINTAINABILITY-003,Non-functional,Must,EPIC-610,"Upgrades, migrations and LTS policy",M6,6,Migration golden tests.,Proposed
+URS-NFR-MAINTAINABILITY-003,Non-functional,Must,EPIC-008,Metadata persistence and migrations,M0,0,Migration golden tests.,In Progress
+URS-NFR-MAINTAINABILITY-003,Non-functional,Must,EPIC-610,"Upgrades, migrations and LTS policy",M6,6,Migration golden tests.,In Progress
 URS-NFR-MAINTAINABILITY-004,Non-functional,Must,EPIC-001,"Repository engineering, CI and release foundation",M0,0,Traceability validator and release gate.,Proposed
 URS-NFR-MAINTAINABILITY-004,Non-functional,Must,EPIC-805,General availability quality and launch readiness,M8,8,Traceability validator and release gate.,Proposed
 URS-NFR-MAINTAINABILITY-005,Non-functional,Must,EPIC-001,"Repository engineering, CI and release foundation",M0,0,CI regeneration and clean-tree check.,Proposed
@@ -918,9 +918,9 @@ URS-NFR-PORTABILITY-003,Non-functional,Must,EPIC-506,External secrets managers a
 URS-NFR-PRIVACY-001,Non-functional,Must,EPIC-003,Configuration and feature flag system,M0,0,Network capture in a clean reference deployment.,In Progress
 URS-NFR-PRIVACY-001,Non-functional,Must,EPIC-404,"Web UI shell, navigation and accessibility",M4,4,Network capture in a clean reference deployment.,In Progress
 URS-NFR-PRIVACY-001,Non-functional,Must,EPIC-804,Open enterprise distribution and packaging,M8,8,Network capture in a clean reference deployment.,In Progress
-URS-NFR-PRIVACY-002,Non-functional,Must,EPIC-008,Metadata persistence and migrations,M0,0,Privacy and schema review.,Proposed
-URS-NFR-PRIVACY-002,Non-functional,Must,EPIC-504,Immutable audit log and evidence export,M5,5,Privacy and schema review.,Proposed
-URS-NFR-PRIVACY-002,Non-functional,Must,EPIC-608,"Retention, purge and data lifecycle",M6,6,Privacy and schema review.,Proposed
+URS-NFR-PRIVACY-002,Non-functional,Must,EPIC-008,Metadata persistence and migrations,M0,0,Privacy and schema review.,In Progress
+URS-NFR-PRIVACY-002,Non-functional,Must,EPIC-504,Immutable audit log and evidence export,M5,5,Privacy and schema review.,In Progress
+URS-NFR-PRIVACY-002,Non-functional,Must,EPIC-608,"Retention, purge and data lifecycle",M6,6,Privacy and schema review.,In Progress
 URS-NFR-RELIABILITY-001,Non-functional,Must,EPIC-007,Execution event model and state machine,M0,0,"Fault-injection tests that terminate services and PostgreSQL connections at every commit, claim and acknowledgement boundary.",In Progress
 URS-NFR-RELIABILITY-001,Non-functional,Must,EPIC-008,Metadata persistence and migrations,M0,0,"Fault-injection tests that terminate services and PostgreSQL connections at every commit, claim and acknowledgement boundary.",In Progress
 URS-NFR-RELIABILITY-001,Non-functional,Must,EPIC-009,"PostgreSQL transport, inbox and transactional outbox",M0,0,"Fault-injection tests that terminate services and PostgreSQL connections at every commit, claim and acknowledgement boundary.",In Progress

@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "migrations": [
+    {
+      "file": "0001_foundation.sql",
+      "mode": "bootstrap",
+      "onlineCompatible": false,
+      "rollbackGuidance": "Drop only the newly created empty AMESH database; never run this bootstrap against an existing application schema."
+    },
+    {
+      "file": "0002_mvp_task_retry.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Leave retry_at and its partial index in place and forward-fix consumers; removing the column requires a later contract migration."
+    },
+    {
+      "file": "0003_canonical_resource_metadata.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Keep additive resource metadata columns and forward-fix writers; do not discard actor or lifecycle evidence."
+    },
+    {
+      "file": "0004_authorization.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Disable new authorization entry points and forward-fix policy data; never silently remove bindings or audit evidence."
+    },
+    {
+      "file": "0005_service_credentials.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Stop issuing new credentials and forward-fix the schema; retain digests and revocation evidence until policy permits purge."
+    },
+    {
+      "file": "0006_multi_tenancy.sql",
+      "mode": "exclusive",
+      "onlineCompatible": false,
+      "rollbackGuidance": "Restore from the pre-migration backup if tenant ownership backfill fails; do not disable forced RLS as a rollback shortcut."
+    },
+    {
+      "file": "0007_tenant_queue_notifications.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Forward-fix notification routing; durable queue polling remains authoritative while notifications are unavailable."
+    },
+    {
+      "file": "0008_restricted_tenant_resolution.sql",
+      "mode": "exclusive",
+      "onlineCompatible": false,
+      "rollbackGuidance": "Restore the prior role grants only during a controlled rollback; never grant runtime callers table-owner or BYPASSRLS authority."
+    },
+    {
+      "file": "0009_tenant_administration_role.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Revoke use of the administration functions and forward-fix them; preserve tenant audit and export rows."
+    },
+    {
+      "file": "0010_execution_trigger_context.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Keep the additive trigger_context column and forward-fix readers; old readers safely ignore it."
+    },
+    {
+      "file": "0011_execution_event_model.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Pause event publication and forward-fix triggers/upcasters; retain immutable event, rejection and outbox evidence."
+    },
+    {
+      "file": "0012_metadata_repository.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Stop metadata writers and forward-fix additive tables or constraints; retain logs, metrics, assets and trigger definitions according to retention policy."
+    }
+  ]
+}

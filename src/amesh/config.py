@@ -25,6 +25,7 @@ class Settings(BaseSettings):
     app_host: str = "0.0.0.0"
     app_port: int = Field(default=8000, ge=1, le=65535)
     database_url: str = "postgresql+asyncpg://amesh:amesh@localhost:5432/amesh"
+    database_slow_query_seconds: float = Field(default=0.5, gt=0)
     object_storage_endpoint: str = "http://localhost:9000"
     object_storage_bucket: str = "amesh"
     auth_mode: str = "development"

@@ -1,6 +1,6 @@
 # PostgreSQL migrations
 
-The MVP image applies the ordered `*.sql` files through `python -m amesh.migrations`. The runner uses a PostgreSQL advisory transaction lock, records each filename and SHA-256 checksum in `amesh_schema_migrations`, skips already-applied files and rejects checksum drift. The Helm chart runs it as a pre-install/pre-upgrade hook before server or worker rollout.
+The MVP image applies the exact order declared in `manifest.json` through `python -m amesh.migrations`. The runner validates contiguous filenames, transaction wrappers, migration mode, online-compatibility classification and rollback guidance before connecting. It then checks PostgreSQL 15+, uses a serializable transaction and advisory lock, records each filename and SHA-256 checksum in `amesh_schema_migrations`, skips already-applied files, and rejects checksum drift or database migrations absent from the manifest. The Helm chart runs it as a pre-install/pre-upgrade hook before server or worker rollout.
 
 It establishes the first explicit persistence concepts for:
 
@@ -14,7 +14,7 @@ It establishes the first explicit persistence concepts for:
 - PostgreSQL-authoritative principals, group memberships, roles, permissions, scoped bindings, namespace authorization boundaries and revocation versions.
 - HMAC-digested API and derived workload credentials, principal revocation epochs and per-token usage windows.
 
-Migration `0003_canonical_resource_metadata.sql` is the EPIC-002 forward migration. It preserves existing UUID records while new application-created runtime records use UUIDv7. Compatibility windows, online index strategies, rollback/forward-fix policy and upgrade qualification remain later backlog work.
+Migration `0003_canonical_resource_metadata.sql` is the EPIC-002 forward migration. It preserves existing UUID records while new application-created runtime records use UUIDv7.
 
 Migration `0004_authorization.sql` is the EPIC-500 forward migration. It seeds immutable built-in role definitions and attaches statement-level policy-version triggers to every authorization policy table. The migration is forward-only; restore or upgrade qualification remains governed by the later HA/DR epics.
 
@@ -45,3 +45,25 @@ idempotency keys and reasons, versions command-inbox records, adds immutable tas
 transition-rejection evidence, and attaches tenant-isolated event-to-outbox triggers. Because the
 trigger and event insert share the state transaction, uncommitted events cannot escape through the
 outbox publisher.
+
+Migration `0012_metadata_repository.sql` adds tenant-isolated trigger definitions, execution logs,
+execution metrics and asset metadata; constrains execution, task-attempt, task-run and worker states;
+and adds the composite identities required for tenant-safe foreign keys. It is an additive `expand`
+migration. Stop new metadata writers and forward-fix if it fails; do not discard retained execution
+evidence as a rollback shortcut.
+
+## Migration modes
+
+- `bootstrap` creates the initial schema and is only safe for an empty database.
+- `expand` is additive and may run before all application instances are upgraded. The manifest checker
+  rejects common contract DDL when such a migration is marked online-compatible.
+- `exclusive` requires a controlled maintenance window because its data or privilege transition is
+  not safe under mixed application versions.
+
+Applied SQL is immutable. Correct an applied migration with a new forward migration. The exact
+operator response for each migration is its `rollbackGuidance` entry in `manifest.json`.
+
+For integration tests, `amesh.migrations.create_ephemeral_database()` creates a guarded
+`amesh_test_<random>` database and `drop_ephemeral_database()` refuses any other name. Applying the
+manifest twice must produce no second changes; `schema_fingerprint()` and `seed_fingerprint()` provide
+canonical repeatability evidence across fresh databases.

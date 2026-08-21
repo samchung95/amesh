@@ -1636,7 +1636,7 @@
       "id": "URS-F-0060",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-008",
@@ -1657,13 +1657,17 @@
       "dependencies": [
         "EPIC-002",
         "EPIC-007"
+      ],
+      "evidence": [
+        "src/amesh/ports/metadata_repository.py",
+        "tests/adapters/postgres/test_metadata_repository.py"
       ]
     },
     {
       "id": "URS-F-0061",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-008",
@@ -1684,13 +1688,17 @@
       "dependencies": [
         "EPIC-002",
         "EPIC-007"
+      ],
+      "evidence": [
+        "src/amesh/adapters/postgres/metadata_repository.py",
+        "migrations/0012_metadata_repository.sql"
       ]
     },
     {
       "id": "URS-F-0062",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-008",
@@ -1711,13 +1719,17 @@
       "dependencies": [
         "EPIC-002",
         "EPIC-007"
+      ],
+      "evidence": [
+        "src/amesh/adapters/postgres/tenant_context.py",
+        "tests/executor/test_postgres_executor.py::test_rolled_back_state_event_does_not_escape_through_outbox"
       ]
     },
     {
       "id": "URS-F-0063",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-008",
@@ -1738,13 +1750,17 @@
       "dependencies": [
         "EPIC-002",
         "EPIC-007"
+      ],
+      "evidence": [
+        "migrations/manifest.json",
+        "tests/test_migrations.py"
       ]
     },
     {
       "id": "URS-F-0064",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-008",
@@ -1765,13 +1781,17 @@
       "dependencies": [
         "EPIC-002",
         "EPIC-007"
+      ],
+      "evidence": [
+        "migrations/manifest.json",
+        "tests/adapters/postgres/test_migration_contract.py"
       ]
     },
     {
       "id": "URS-F-0065",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-008",
@@ -1792,13 +1812,17 @@
       "dependencies": [
         "EPIC-002",
         "EPIC-007"
+      ],
+      "evidence": [
+        "migrations/0012_metadata_repository.sql",
+        "tests/adapters/postgres/test_metadata_repository.py::test_metadata_repository_round_trip_constraints_and_rls"
       ]
     },
     {
       "id": "URS-F-0066",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-008",
@@ -1819,13 +1843,17 @@
       "dependencies": [
         "EPIC-002",
         "EPIC-007"
+      ],
+      "evidence": [
+        "src/amesh/observability.py",
+        "tests/test_observability.py::test_database_readiness_pool_slow_query_and_migration_metrics"
       ]
     },
     {
       "id": "URS-F-0067",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-008",
@@ -1846,6 +1874,10 @@
       "dependencies": [
         "EPIC-002",
         "EPIC-007"
+      ],
+      "evidence": [
+        "src/amesh/migrations.py::create_ephemeral_database",
+        "tests/adapters/postgres/test_migration_contract.py"
       ]
     },
     {
@@ -23395,7 +23427,11 @@
         "EPIC-610"
       ],
       "priority": "Must",
-      "status": "Proposed"
+      "status": "In Progress",
+      "evidence": [
+        "tests/adapters/postgres/test_migration_contract.py",
+        "src/amesh/migrations.py::schema_fingerprint"
+      ]
     },
     {
       "id": "URS-NFR-MAINTAINABILITY-004",
@@ -23738,7 +23774,11 @@
         "EPIC-608"
       ],
       "priority": "Must",
-      "status": "Proposed"
+      "status": "In Progress",
+      "evidence": [
+        "docs/operations/metadata-storage.md#metadata-data-inventory",
+        "tests/adapters/postgres/test_metadata_repository.py::test_metadata_repository_round_trip_constraints_and_rls"
+      ]
     },
     {
       "id": "URS-NFR-RELIABILITY-001",

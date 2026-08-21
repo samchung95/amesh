@@ -26,6 +26,14 @@ class HealthResponse(BaseModel):
     version: str
 
 
+class ReadinessResponse(HealthResponse):
+    database: str
+    migrations_applied: int
+    migrations_expected: int
+    latest_migration: str | None = None
+    error: str | None = None
+
+
 class UiSessionResponse(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
