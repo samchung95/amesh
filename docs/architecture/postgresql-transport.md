@@ -58,7 +58,8 @@ the retained source row for another bounded delivery cycle.
 
 ## Scaling strategy
 
-- Partition large queue and event tables by time and/or tenant hash.
+- Assign stable virtual queue shards from the partition key and partition large queue/event tables by
+  time and/or tenant hash only when the qualified retention profile requires physical partitioning.
 - Separate latency-sensitive lanes from bulk backfill, logs and maintenance work.
 - Limit claim batch size and transaction duration.
 - Use read replicas only for explicitly stale, non-authoritative queries.

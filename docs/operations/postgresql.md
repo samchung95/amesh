@@ -53,7 +53,7 @@ contains JSON `EXPLAIN` plans for queue claim, outbox publication and due-schedu
 migration version, table size/dead-row/autovacuum/analyze inventory and the latest backup checkpoint.
 The 50 ms p95 is a connectivity/control-query guard, not a throughput claim.
 
-Local qualification on 2026-08-22 applied all 22 migrations and passed the checkpoint/maintenance
+Local qualification on 2026-08-22 applied the then-current 22 migrations and passed the checkpoint/maintenance
 contract on each supported major:
 
 | PostgreSQL | `SELECT 1` p95 | Missing critical indexes | Result |

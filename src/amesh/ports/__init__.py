@@ -17,8 +17,10 @@ from .durable_transport import (
     DurableEnvelope,
     DurableTransport,
     MessageIdentityConflict,
+    QueueShardDiagnostics,
     StaleWorkClaimError,
     TransportDiagnostics,
+    TransportRetentionResult,
     WorkClaim,
 )
 from .execution_repository import (
@@ -123,6 +125,7 @@ __all__ = [
     "PluginInvocation",
     "PluginRuntime",
     "PolicyVersionChanged",
+    "QueueShardDiagnostics",
     "RunnerRequest",
     "RunnerResult",
     "RunnerStatus",
@@ -141,6 +144,7 @@ __all__ = [
     "TenantRepository",
     "TenantUnavailableError",
     "TransportDiagnostics",
+    "TransportRetentionResult",
     "WorkClaim",
     "WorkerClaimHeartbeat",
     "WorkerCompatibility",

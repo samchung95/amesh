@@ -3,9 +3,9 @@ from __future__ import annotations
 import asyncio
 import json
 from datetime import datetime, timedelta
+from time import perf_counter
 from uuid import UUID
 
-import asyncpg  # type: ignore[import-untyped]
 from sqlalchemy import text
 from sqlalchemy.engine import RowMapping
 from sqlalchemy.ext.asyncio import AsyncEngine
@@ -18,8 +18,10 @@ from amesh.ports.durable_transport import (
     DurableEnvelope,
     DurableTransport,
     MessageIdentityConflict,
+    QueueShardDiagnostics,
     StaleWorkClaimError,
     TransportDiagnostics,
+    TransportRetentionResult,
     WorkClaim,
 )
 
@@ -226,6 +228,11 @@ _CLAIM = text(
         WHERE candidate.lane = :lane
           AND candidate.tenant_id = :tenant_id
           AND candidate.delivery_attempt < candidate.max_attempts
+          AND mod(candidate.shard_key, :shard_count) = :shard_id
+          AND (
+              :accept_all_schema_versions
+              OR candidate.schema_version = ANY(CAST(:supported_schema_versions AS integer[]))
+          )
           AND (
               (candidate.state = 'READY' AND candidate.available_at <= now())
               OR (candidate.state = 'CLAIMED' AND candidate.lease_expires_at <= now())
@@ -248,12 +255,14 @@ _CLAIM = text(
         claimed_by = :consumer_id,
         fencing_token = queue.fencing_token + 1,
         lease_expires_at = now() + make_interval(secs => :lease_seconds),
+        last_claimed_at = clock_timestamp(),
         delivery_attempt = queue.delivery_attempt + 1,
         updated_at = now()
     FROM candidates
     WHERE queue.id = candidates.id
     RETURNING
         queue.id,
+        queue.shard_key,
         queue.lane,
         queue.claimed_by,
         queue.fencing_token,
@@ -431,8 +440,104 @@ _DIAGNOSTICS = text(
         )), 0)
          FROM messages_outbox) AS outbox_retry_count,
         (SELECT count(*) FROM messages_outbox
-         WHERE dead_lettered_at IS NOT NULL) AS outbox_dead_letter_count
+         WHERE dead_lettered_at IS NOT NULL) AS outbox_dead_letter_count,
+        count(*) FILTER (
+            WHERE state = 'COMPLETED'
+              AND completed_at >= clock_timestamp() - interval '1 minute'
+        ) AS completed_last_minute,
+        percentile_cont(0.95) WITHIN GROUP (
+            ORDER BY GREATEST(EXTRACT(EPOCH FROM last_claimed_at - available_at), 0)
+        ) FILTER (
+            WHERE last_claimed_at >= clock_timestamp() - interval '1 minute'
+        ) AS claim_p95_latency_seconds,
+        current_setting('server_version') AS postgres_version,
+        pg_is_in_recovery() AS postgres_in_recovery
     FROM durable_work_queue
+    """
+)
+
+_SHARD_DIAGNOSTICS = text(
+    """
+    WITH configured_shards AS (
+        SELECT generate_series(0, :shard_count - 1) AS shard_id
+    ), pressure AS (
+        SELECT
+            mod(shard_key, :shard_count) AS shard_id,
+            count(*) AS queue_depth,
+            EXTRACT(EPOCH FROM clock_timestamp() - min(available_at) FILTER (
+                WHERE state = 'READY' AND available_at <= clock_timestamp()
+            )) AS oldest_eligible_age_seconds
+        FROM durable_work_queue
+        WHERE state IN ('READY', 'CLAIMED')
+        GROUP BY mod(shard_key, :shard_count)
+    )
+    SELECT
+        configured_shards.shard_id,
+        COALESCE(pressure.queue_depth, 0) AS queue_depth,
+        pressure.oldest_eligible_age_seconds
+    FROM configured_shards
+    LEFT JOIN pressure USING (shard_id)
+    ORDER BY configured_shards.shard_id
+    """
+)
+
+_DELETE_COMPLETED_QUEUE = text(
+    """
+    DELETE FROM durable_work_queue
+    WHERE id IN (
+        SELECT id
+        FROM durable_work_queue
+        WHERE state = 'COMPLETED' AND completed_at < :before
+        ORDER BY completed_at, id
+        FOR UPDATE SKIP LOCKED
+        LIMIT :limit
+    )
+    RETURNING id
+    """
+)
+
+_DELETE_PUBLISHED_OUTBOX = text(
+    """
+    DELETE FROM messages_outbox
+    WHERE sequence IN (
+        SELECT sequence
+        FROM messages_outbox
+        WHERE published_at < :before
+        ORDER BY published_at, sequence
+        FOR UPDATE SKIP LOCKED
+        LIMIT :limit
+    )
+    RETURNING sequence
+    """
+)
+
+_DELETE_CONSUMED_INBOX = text(
+    """
+    DELETE FROM consumed_messages
+    WHERE (consumer_name, tenant_id, message_id) IN (
+        SELECT consumer_name, tenant_id, message_id
+        FROM consumed_messages
+        WHERE consumed_at < :before
+        ORDER BY consumed_at, consumer_name, message_id
+        FOR UPDATE SKIP LOCKED
+        LIMIT :limit
+    )
+    RETURNING message_id
+    """
+)
+
+_DELETE_RESOLVED_DEAD_LETTERS = text(
+    """
+    DELETE FROM durable_dead_letters
+    WHERE id IN (
+        SELECT id
+        FROM durable_dead_letters
+        WHERE resolution <> 'PENDING' AND resolved_at < :before
+        ORDER BY resolved_at, id
+        FOR UPDATE SKIP LOCKED
+        LIMIT :limit
+    )
+    RETURNING id
     """
 )
 
@@ -588,10 +693,19 @@ class PostgresDurableTransport(DurableTransport):
         tenant_id: str,
         limit: int,
         lease_duration: timedelta,
+        shard_id: int = 0,
+        shard_count: int = 1,
+        supported_schema_versions: tuple[int, ...] | None = None,
     ) -> list[WorkClaim]:
         lease_seconds = _positive_lease_seconds(lease_duration)
         if limit < 1:
             raise ValueError("claim limit must be at least 1")
+        _validate_shard(shard_id, shard_count)
+        if supported_schema_versions is not None and (
+            not supported_schema_versions
+            or any(version < 1 for version in supported_schema_versions)
+        ):
+            raise ValueError("supported schema versions must contain positive integers")
 
         async with tenant_transaction(self._engine, tenant_id) as (
             connection,
@@ -605,6 +719,10 @@ class PostgresDurableTransport(DurableTransport):
                     "consumer_id": consumer_id,
                     "limit": limit,
                     "lease_seconds": lease_seconds,
+                    "shard_id": shard_id,
+                    "shard_count": shard_count,
+                    "accept_all_schema_versions": supported_schema_versions is None,
+                    "supported_schema_versions": list(supported_schema_versions or ()),
                 },
             )
             rows = result.mappings().all()
@@ -621,65 +739,61 @@ class PostgresDurableTransport(DurableTransport):
             raise ValueError("work lane must not be empty")
         if timeout_seconds <= 0:
             raise ValueError("work wait timeout must be positive")
-        connection = await asyncpg.connect(
-            self._engine.url.render_as_string(hide_password=False).replace(
-                "postgresql+asyncpg://",
-                "postgresql://",
-                1,
-            )
-        )
-        tenant_uuid = await connection.fetchval(
-            """
-            SELECT id
-            FROM tenants
-            WHERE slug = $1
-              AND status = 'ACTIVE'
-              AND lifecycle = 'ACTIVE'
-            """,
-            tenant_id,
-        )
-        if tenant_uuid is None:
-            await connection.close()
-            raise LookupError("tenant is unavailable")
-        channel = f"amesh_work_{str(tenant_uuid).replace('-', '')}"
-        wake = asyncio.Event()
-
-        def listener(
-            connection: object,
-            process_id: int,
-            channel: str,
-            payload: str,
-        ) -> None:
-            del connection, process_id, channel
-            if payload == lane:
-                wake.set()
-
-        await connection.add_listener(channel, listener)
-        try:
-            ready = await connection.fetchval(
+        async with self._engine.connect() as pooled_connection:
+            raw_connection = await pooled_connection.get_raw_connection()
+            connection = raw_connection.driver_connection
+            if connection is None:
+                raise RuntimeError("PostgreSQL notification driver connection is unavailable")
+            tenant_uuid = await connection.fetchval(
                 """
-                SELECT EXISTS (
-                    SELECT 1
-                    FROM durable_work_queue
-                    WHERE lane = $1
-                      AND tenant_id = $2
-                      AND state = 'READY'
-                      AND available_at <= now()
-                )
+                SELECT id
+                FROM tenants
+                WHERE slug = $1
+                  AND status = 'ACTIVE'
+                  AND lifecycle = 'ACTIVE'
                 """,
-                lane,
-                tenant_uuid,
+                tenant_id,
             )
-            if ready:
-                return True
+            if tenant_uuid is None:
+                raise LookupError("tenant is unavailable")
+            channel = f"amesh_work_{str(tenant_uuid).replace('-', '')}"
+            wake = asyncio.Event()
+
+            def listener(
+                connection: object,
+                process_id: int,
+                channel: str,
+                payload: str,
+            ) -> None:
+                del connection, process_id, channel
+                if payload == lane:
+                    wake.set()
+
+            await connection.add_listener(channel, listener)
             try:
-                await asyncio.wait_for(wake.wait(), timeout=timeout_seconds)
-            except TimeoutError:
-                return False
-            return True
-        finally:
-            await connection.remove_listener(channel, listener)
-            await connection.close()
+                ready = await connection.fetchval(
+                    """
+                    SELECT EXISTS (
+                        SELECT 1
+                        FROM durable_work_queue
+                        WHERE lane = $1
+                          AND tenant_id = $2
+                          AND state = 'READY'
+                          AND available_at <= now()
+                    )
+                    """,
+                    lane,
+                    tenant_uuid,
+                )
+                if ready:
+                    return True
+                try:
+                    await asyncio.wait_for(wake.wait(), timeout=timeout_seconds)
+                except TimeoutError:
+                    return False
+                return True
+            finally:
+                await connection.remove_listener(channel, listener)
 
     async def extend(
         self,
@@ -810,12 +924,37 @@ class PostgresDurableTransport(DurableTransport):
                 },
             )
 
-    async def diagnostics(self, *, tenant_id: str) -> TransportDiagnostics:
+    async def diagnostics(
+        self,
+        *,
+        tenant_id: str,
+        shard_count: int = 16,
+    ) -> TransportDiagnostics:
+        _validate_shard(0, shard_count)
+        started = perf_counter()
         async with tenant_transaction(self._engine, tenant_id) as (
             connection,
             _tenant_uuid,
         ):
             row = (await connection.execute(_DIAGNOSTICS)).mappings().one()
+            shard_rows = (
+                (await connection.execute(_SHARD_DIAGNOSTICS, {"shard_count": shard_count}))
+                .mappings()
+                .all()
+            )
+        transaction_latency_ms = (perf_counter() - started) * 1_000
+        shards = tuple(
+            QueueShardDiagnostics(
+                shard_id=item["shard_id"],
+                queue_depth=item["queue_depth"],
+                oldest_eligible_age_seconds=item["oldest_eligible_age_seconds"],
+            )
+            for item in shard_rows
+        )
+        average_depth = sum(item.queue_depth for item in shards) / shard_count
+        shard_skew_ratio = (
+            max(item.queue_depth for item in shards) / average_depth if average_depth else 0.0
+        )
         return TransportDiagnostics(
             queue_depth=row["queue_depth"],
             oldest_eligible_age_seconds=row["oldest_eligible_age_seconds"],
@@ -828,6 +967,45 @@ class PostgresDurableTransport(DurableTransport):
             outbox_oldest_age_seconds=row["outbox_oldest_age_seconds"],
             outbox_retry_count=row["outbox_retry_count"],
             outbox_dead_letter_count=row["outbox_dead_letter_count"],
+            completed_last_minute=row["completed_last_minute"],
+            completion_throughput_per_second=row["completed_last_minute"] / 60,
+            claim_p95_latency_seconds=row["claim_p95_latency_seconds"],
+            shard_count=shard_count,
+            shard_skew_ratio=shard_skew_ratio,
+            shards=shards,
+            postgres_available=True,
+            postgres_version=row["postgres_version"],
+            postgres_in_recovery=row["postgres_in_recovery"],
+            transaction_latency_ms=transaction_latency_ms,
+        )
+
+    async def purge_terminal(
+        self,
+        *,
+        tenant_id: str,
+        before: datetime,
+        limit: int = 1_000,
+    ) -> TransportRetentionResult:
+        if limit < 1:
+            raise ValueError("retention limit must be at least 1")
+        parameters = {"before": before, "limit": limit}
+        async with tenant_transaction(self._engine, tenant_id) as (
+            connection,
+            _tenant_uuid,
+        ):
+            queue_rows = len((await connection.execute(_DELETE_COMPLETED_QUEUE, parameters)).all())
+            outbox_rows = len(
+                (await connection.execute(_DELETE_PUBLISHED_OUTBOX, parameters)).all()
+            )
+            inbox_rows = len((await connection.execute(_DELETE_CONSUMED_INBOX, parameters)).all())
+            dead_letter_rows = len(
+                (await connection.execute(_DELETE_RESOLVED_DEAD_LETTERS, parameters)).all()
+            )
+        return TransportRetentionResult(
+            queue_rows=queue_rows,
+            outbox_rows=outbox_rows,
+            inbox_rows=inbox_rows,
+            dead_letter_rows=dead_letter_rows,
         )
 
     async def _mutate_claim(
@@ -864,9 +1042,17 @@ def _positive_lease_seconds(lease_duration: timedelta) -> float:
     return lease_seconds
 
 
+def _validate_shard(shard_id: int, shard_count: int) -> None:
+    if shard_count < 1 or shard_count > 65_536:
+        raise ValueError("shard count must be between 1 and 65536")
+    if shard_id < 0 or shard_id >= shard_count:
+        raise ValueError("shard id must be within the configured shard count")
+
+
 def _to_work_claim(row: RowMapping) -> WorkClaim:
     return WorkClaim(
         queue_id=row["id"],
+        shard_key=row["shard_key"],
         lane=row["lane"],
         consumer_id=row["claimed_by"],
         fencing_token=row["fencing_token"],

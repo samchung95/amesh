@@ -132,6 +132,12 @@
       "mode": "expand",
       "onlineCompatible": true,
       "rollbackGuidance": "Stop recording new backup checkpoints and forward-fix the additive table; retain existing LSN and object-manifest evidence for restore qualification."
+    },
+    {
+      "file": "0023_distributed_queue_profile.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Keep the generated shard key and claim timestamp in place while old and new consumers overlap; forward-fix shard allocation without deleting committed queue rows."
     }
   ]
 }

@@ -55,7 +55,11 @@ attempts while retaining the resolved quarantine record. Consumers never skip po
 
 `DurableTransport.diagnostics()` returns tenant-authorized queue depth, oldest eligible/outbox age,
 claimed and expired-claim counts, redelivery totals, poison/dead-letter totals and outbox retry/dead
-letter totals. Database pool/query saturation remains available from `/metrics`.
+letter totals. It also reports virtual-shard skew, recent completion throughput, p95 claim latency and
+PostgreSQL probe state/latency. Database pool/query saturation remains available from `/metrics`.
+
+The operational shard allocation, rolling-upgrade, retention and Profile M qualification procedures
+are in [Distributed PostgreSQL queue operations](../operations/distributed-queue.md).
 
 ## External side-effect responsibility
 

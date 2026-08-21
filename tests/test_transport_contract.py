@@ -24,6 +24,7 @@ def test_work_claim_requires_positive_fencing_token() -> None:
     with pytest.raises(ValidationError):
         WorkClaim(
             queue_id=1,
+            shard_key=0,
             lane="task-dispatch",
             consumer_id="worker-1",
             fencing_token=0,

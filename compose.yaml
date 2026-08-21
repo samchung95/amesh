@@ -64,6 +64,7 @@ services:
       - ./migrations/0020_backfills.sql:/docker-entrypoint-initdb.d/0020_backfills.sql:ro
       - ./migrations/0021_runnable_task_contract.sql:/docker-entrypoint-initdb.d/0021_runnable_task_contract.sql:ro
       - ./migrations/0022_postgresql_operations.sql:/docker-entrypoint-initdb.d/0022_postgresql_operations.sql:ro
+      - ./migrations/0023_distributed_queue_profile.sql:/docker-entrypoint-initdb.d/0023_distributed_queue_profile.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U amesh -d amesh"]
       interval: 5s

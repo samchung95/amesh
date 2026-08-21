@@ -42,6 +42,7 @@ class WorkClaim(BaseModel):
     model_config = ConfigDict(frozen=True)
 
     queue_id: int = Field(ge=1)
+    shard_key: int = Field(ge=0, le=65_535)
     lane: str
     consumer_id: str
     fencing_token: int = Field(ge=1)
@@ -73,6 +74,27 @@ class DeadLetterRecord(BaseModel):
     resolved_by: str | None = None
 
 
+class QueueShardDiagnostics(BaseModel):
+    """Bounded virtual-shard queue pressure for one tenant."""
+
+    model_config = ConfigDict(frozen=True)
+
+    shard_id: int = Field(ge=0)
+    queue_depth: int = Field(ge=0)
+    oldest_eligible_age_seconds: float | None = Field(default=None, ge=0)
+
+
+class TransportRetentionResult(BaseModel):
+    """Counts removed by one bounded terminal-message retention pass."""
+
+    model_config = ConfigDict(frozen=True)
+
+    queue_rows: int = Field(ge=0)
+    outbox_rows: int = Field(ge=0)
+    inbox_rows: int = Field(ge=0)
+    dead_letter_rows: int = Field(ge=0)
+
+
 class TransportDiagnostics(BaseModel):
     """Bounded tenant transport health without message payloads or high-cardinality labels."""
 
@@ -89,6 +111,16 @@ class TransportDiagnostics(BaseModel):
     outbox_oldest_age_seconds: float | None = Field(default=None, ge=0)
     outbox_retry_count: int = Field(ge=0)
     outbox_dead_letter_count: int = Field(ge=0)
+    completed_last_minute: int = Field(ge=0)
+    completion_throughput_per_second: float = Field(ge=0)
+    claim_p95_latency_seconds: float | None = Field(default=None, ge=0)
+    shard_count: int = Field(ge=1)
+    shard_skew_ratio: float = Field(ge=0)
+    shards: tuple[QueueShardDiagnostics, ...]
+    postgres_available: bool
+    postgres_version: str
+    postgres_in_recovery: bool
+    transaction_latency_ms: float = Field(ge=0)
 
 
 class DurableTransport(Protocol):
@@ -143,6 +175,9 @@ class DurableTransport(Protocol):
         tenant_id: str,
         limit: int,
         lease_duration: timedelta,
+        shard_id: int = 0,
+        shard_count: int = 1,
+        supported_schema_versions: tuple[int, ...] | None = None,
     ) -> list[WorkClaim]: ...
 
     async def wait_for_work(
@@ -194,4 +229,17 @@ class DurableTransport(Protocol):
         actor_id: str,
     ) -> None: ...
 
-    async def diagnostics(self, *, tenant_id: str) -> TransportDiagnostics: ...
+    async def diagnostics(
+        self,
+        *,
+        tenant_id: str,
+        shard_count: int = 16,
+    ) -> TransportDiagnostics: ...
+
+    async def purge_terminal(
+        self,
+        *,
+        tenant_id: str,
+        before: datetime,
+        limit: int = 1_000,
+    ) -> TransportRetentionResult: ...

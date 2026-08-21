@@ -1,5 +1,43 @@
 # Test Log
 
+## EPIC-603: PostgreSQL distributed work queue and notifications — 2026-08-22
+
+Spec source: Agent Hotel card `c23` and canonical `backlog/epics.json` EPIC-603 DoD.
+
+Verified with `uv`, Python 3.13 and PostgreSQL 17:
+
+- [x] PostgreSQL remains the only internal durable transport: queue, transactional outbox, consumer
+  inbox, expiring lease/fence and immutable dead-letter evidence converge under duplicate delivery.
+- [x] Migration 0023 assigns a stable 16-bit SHA-256 virtual shard to every partition. Consumers claim
+  an assigned shard while the oldest non-terminal tenant/lane/partition row prevents overtaking.
+- [x] Consumers declare supported envelope schema versions. An old consumer waits at an unsupported
+  head; an overlapping rolling-upgrade consumer drains both versions without mutating committed rows.
+- [x] Independent lanes, replay, poison quarantine and bounded terminal queue/outbox/inbox/dead-letter
+  retention pass against an ephemeral database with all 23 migrations.
+- [x] Tenant diagnostics expose shard depth/skew, oldest age, expired leases, redelivery, one-minute
+  throughput, p95 claim latency, PostgreSQL state and diagnostics transaction latency without payloads.
+- [x] Notification waiting uses the configured SQLAlchemy pool connection, preserving reconnect and
+  TLS behavior. A fresh engine publishes and completes a previously committed outbox row; a crashed
+  subprocess claim is recovered and fenced in under one second with no duplicate inbox effect.
+- [x] Focused migration/transport/operations/observability suite: 20 passed.
+- [x] A fresh database applied all 23 migrations; the complete product suite passed 199 tests with
+  four environment-gated tests skipped.
+- [x] The four-consumer 60-second PostgreSQL 17 run produced and completed 3,000/3,000 messages in
+  60.014 seconds: 49.988 starts/second, 0.029011-second p95, 0.111138-second maximum and zero lag.
+- [x] Ruff formatting/lint, strict mypy, generated contracts/planning, backlog, clean-room, compilation,
+  Compose, uv lock and diff gates pass.
+
+Adversarial pass: duplicate identities, wrong virtual shard, unsupported schema head, stale fence,
+expired lease, poison exhaustion, repeated replay, process exit, engine replacement, tenant mismatch
+and lost-notification polling preserve committed work or fail deterministically.
+
+Qualification boundary: the canonical performance NFR requires a 60-minute run, and the availability
+NFR requires credentialed multi-replica/zone failure. Both shared NFRs remain In Progress for the HA
+qualification stage; this epic makes no 60-minute or zone-loss claim.
+
+Verdict: PASS — EPIC-603 functional requirements URS-F-0606 through URS-F-0613 are verified; shared
+URS-NFR-AVAILABILITY-002 and URS-NFR-PERFORMANCE-004 remain In Progress.
+
 ## EPIC-602: PostgreSQL transactional backend — 2026-08-22
 
 Spec source: Agent Hotel card `c22` and canonical `backlog/epics.json` EPIC-602 DoD.

@@ -41,7 +41,7 @@ def test_backup_checkpoint_and_maintenance_inventory_are_durable() -> None:
             )
 
             assert created.database_lsn
-            assert created.schema_version == "0022_postgresql_operations.sql"
+            assert created.schema_version == "0023_distributed_queue_profile.sql"
             assert await repository.latest_backup_checkpoint() == created
             maintenance = await repository.inspect_table_maintenance()
             backup_table = next(

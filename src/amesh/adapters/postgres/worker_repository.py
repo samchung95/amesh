@@ -162,6 +162,7 @@ _CLAIM_TASKS = text(
             claimed_by = :consumer_id,
             fencing_token = candidates.next_fencing_token,
             lease_expires_at = clock_timestamp() + make_interval(secs => :lease_seconds),
+            last_claimed_at = clock_timestamp(),
             delivery_attempt = queue.delivery_attempt + 1,
             updated_at = clock_timestamp()
         FROM candidates
