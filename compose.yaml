@@ -12,6 +12,7 @@ services:
       OBJECT_STORAGE_ACCESS_KEY: minio
       OBJECT_STORAGE_SECRET_KEY: minio-development-only
       AUTH_MODE: development
+      PRODUCT_TELEMETRY_ENABLED: "false"
     ports:
       - "8000:8000"
     depends_on:
@@ -44,6 +45,7 @@ services:
       - ./migrations/0007_tenant_queue_notifications.sql:/docker-entrypoint-initdb.d/0007_tenant_queue_notifications.sql:ro
       - ./migrations/0008_restricted_tenant_resolution.sql:/docker-entrypoint-initdb.d/0008_restricted_tenant_resolution.sql:ro
       - ./migrations/0009_tenant_administration_role.sql:/docker-entrypoint-initdb.d/0009_tenant_administration_role.sql:ro
+      - ./migrations/0010_execution_trigger_context.sql:/docker-entrypoint-initdb.d/0010_execution_trigger_context.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U amesh -d amesh"]
       interval: 5s

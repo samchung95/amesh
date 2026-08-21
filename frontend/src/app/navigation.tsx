@@ -1,0 +1,77 @@
+import {
+  Boxes,
+  Braces,
+  Cable,
+  ChartNoAxesCombined,
+  CircleGauge,
+  DatabaseZap,
+  LayoutGrid,
+  Settings2,
+  Workflow,
+  type LucideIcon,
+} from 'lucide-react'
+
+import type { Capability } from '../api/types'
+
+export type NavigationGroup = 'build' | 'operate' | 'govern'
+
+export interface NavigationItem {
+  id: string
+  labelKey: string
+  path: string
+  group: NavigationGroup
+  icon: LucideIcon
+  capability?: Capability
+}
+
+export const navigationItems: NavigationItem[] = [
+  { id: 'dashboard', labelKey: 'dashboard', path: '/', group: 'operate', icon: CircleGauge },
+  {
+    id: 'flows',
+    labelKey: 'flows',
+    path: '/flows',
+    group: 'build',
+    icon: Workflow,
+    capability: 'flows.view',
+  },
+  {
+    id: 'executions',
+    labelKey: 'executions',
+    path: '/executions',
+    group: 'operate',
+    icon: ChartNoAxesCombined,
+    capability: 'executions.view',
+  },
+  {
+    id: 'namespaces',
+    labelKey: 'namespaces',
+    path: '/namespaces',
+    group: 'build',
+    icon: Braces,
+    capability: 'namespaces.view',
+  },
+  { id: 'assets', labelKey: 'assets', path: '/assets', group: 'build', icon: DatabaseZap },
+  { id: 'apps', labelKey: 'apps', path: '/apps', group: 'build', icon: LayoutGrid },
+  {
+    id: 'plugins',
+    labelKey: 'plugins',
+    path: '/plugins',
+    group: 'govern',
+    icon: Cable,
+    capability: 'plugins.view',
+  },
+  {
+    id: 'administration',
+    labelKey: 'administration',
+    path: '/administration',
+    group: 'govern',
+    icon: Settings2,
+    capability: 'administration.manage',
+  },
+]
+
+export const groupIcons: Record<NavigationGroup, LucideIcon> = {
+  build: Boxes,
+  operate: CircleGauge,
+  govern: Settings2,
+}

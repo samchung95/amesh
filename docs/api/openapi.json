@@ -1538,6 +1538,63 @@
         "title": "TenantStatus",
         "type": "string"
       },
+      "UiSessionResponse": {
+        "properties": {
+          "capabilities": {
+            "additionalProperties": {
+              "type": "boolean"
+            },
+            "title": "Capabilities",
+            "type": "object"
+          },
+          "display": {
+            "title": "Display",
+            "type": "string"
+          },
+          "namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Namespace"
+          },
+          "principalId": {
+            "format": "uuid",
+            "title": "Principalid",
+            "type": "string"
+          },
+          "principalType": {
+            "$ref": "#/components/schemas/PrincipalType"
+          },
+          "serverVersion": {
+            "title": "Serverversion",
+            "type": "string"
+          },
+          "telemetryEnabled": {
+            "title": "Telemetryenabled",
+            "type": "boolean"
+          },
+          "tenantId": {
+            "title": "Tenantid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "principalId",
+          "principalType",
+          "display",
+          "tenantId",
+          "capabilities",
+          "telemetryEnabled",
+          "serverVersion"
+        ],
+        "title": "UiSessionResponse",
+        "type": "object"
+      },
       "ValidationError": {
         "properties": {
           "ctx": {
@@ -3690,6 +3747,87 @@
         "summary": "Validate Flow",
         "tags": [
           "flows"
+        ]
+      }
+    },
+    "/api/v1/ui/session": {
+      "get": {
+        "operationId": "get_ui_session_api_v1_ui_session_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "namespace",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Namespace"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UiSessionResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Ui Session",
+        "tags": [
+          "ui"
         ]
       }
     },

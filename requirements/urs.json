@@ -11706,7 +11706,7 @@
       "id": "URS-F-0430",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M4",
       "wave": 4,
       "epic_id": "EPIC-404",
@@ -11733,7 +11733,7 @@
       "id": "URS-F-0431",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M4",
       "wave": 4,
       "epic_id": "EPIC-404",
@@ -11760,7 +11760,7 @@
       "id": "URS-F-0432",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M4",
       "wave": 4,
       "epic_id": "EPIC-404",
@@ -11787,7 +11787,7 @@
       "id": "URS-F-0433",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M4",
       "wave": 4,
       "epic_id": "EPIC-404",
@@ -11814,7 +11814,7 @@
       "id": "URS-F-0434",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M4",
       "wave": 4,
       "epic_id": "EPIC-404",
@@ -11841,7 +11841,7 @@
       "id": "URS-F-0435",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M4",
       "wave": 4,
       "epic_id": "EPIC-404",
@@ -11868,7 +11868,7 @@
       "id": "URS-F-0436",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M4",
       "wave": 4,
       "epic_id": "EPIC-404",
@@ -11895,7 +11895,7 @@
       "id": "URS-F-0437",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M4",
       "wave": 4,
       "epic_id": "EPIC-404",
@@ -23687,7 +23687,7 @@
         "EPIC-804"
       ],
       "priority": "Must",
-      "status": "Proposed"
+      "status": "In Progress"
     },
     {
       "id": "URS-NFR-PRIVACY-002",
@@ -24063,7 +24063,7 @@
         "EPIC-407"
       ],
       "priority": "Must",
-      "status": "Proposed"
+      "status": "In Progress"
     },
     {
       "id": "URS-NFR-USABILITY-005",

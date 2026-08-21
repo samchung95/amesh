@@ -1,6 +1,15 @@
 # syntax=docker/dockerfile:1.7
 FROM ghcr.io/astral-sh/uv:0.11.31 AS uv
 
+FROM node:22-slim AS web
+WORKDIR /web
+COPY frontend/package.json frontend/package-lock.json ./
+RUN npm ci
+COPY frontend/index.html frontend/tsconfig.json frontend/tsconfig.app.json frontend/tsconfig.node.json ./
+COPY frontend/vite.config.ts ./
+COPY frontend/src ./src
+RUN npm run build
+
 FROM python:3.12-slim AS runtime
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -14,6 +23,7 @@ WORKDIR /app
 COPY --from=uv /uv /uvx /bin/
 COPY pyproject.toml uv.lock README.md LICENSE ./
 COPY src ./src
+COPY --from=web /web/dist ./src/amesh/web
 COPY migrations ./migrations
 COPY scripts/soak_mvp.py ./scripts/soak_mvp.py
 RUN uv sync --frozen --no-dev --extra runtime --no-editable

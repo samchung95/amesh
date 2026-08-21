@@ -26,6 +26,19 @@ class HealthResponse(BaseModel):
     version: str
 
 
+class UiSessionResponse(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    principal_id: UUID = Field(alias="principalId")
+    principal_type: PrincipalType = Field(alias="principalType")
+    display: str
+    tenant_id: str = Field(alias="tenantId")
+    namespace: str | None = None
+    capabilities: dict[str, bool]
+    telemetry_enabled: bool = Field(alias="telemetryEnabled")
+    server_version: str = Field(alias="serverVersion")
+
+
 class ReduceExecutionRequest(BaseModel):
     snapshot: ExecutionSnapshot
     events: list[ExecutionEvent] = Field(min_length=1)

@@ -38,6 +38,7 @@ class Settings(BaseSettings):
     kubernetes_task_namespace: str = "amesh-tasks"
     worker_poll_seconds: float = Field(default=5.0, gt=0)
     worker_recovery_grace_seconds: float = Field(default=120.0, ge=0)
+    product_telemetry_enabled: bool = False
     log_level: str = "INFO"
 
     @model_validator(mode="after")

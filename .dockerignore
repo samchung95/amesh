@@ -1,0 +1,12 @@
+.git
+.agent-hotel
+.claude
+.venv
+.pytest_cache
+.mypy_cache
+.ruff_cache
+frontend/node_modules
+frontend/dist
+frontend/coverage
+frontend/playwright-report
+frontend/test-results

@@ -388,3 +388,27 @@ Adversarial pass: unsafe attribute access, oversized input/output, excessive rec
 Compatibility boundary: the checked-in subset is complete for this epic; it does not claim every Pebble construct or externally effectful Kestra function. Those gaps are explicit in `docs/architecture/expressions.md` and require a newly versioned corpus.
 
 Verdict: PASS — EPIC-005 closed.
+
+## EPIC-404: Web UI shell, navigation and accessibility — 2026-08-22
+
+Spec source: `backlog/epics/epic-404-web-ui-shell-navigation-and-accessibility.md`, ADR-023 and `frontend/DESIGN.md`.
+
+Verified with Node 22.22.2, npm 10.9.7, Chromium 151, Python 3.13.12 and PostgreSQL 17:
+
+- [x] The React control room navigates dashboard, flows, executions, namespaces, assets, apps, plugins and administration routes with desktop and 768 px tablet layouts.
+- [x] `GET /api/v1/ui/session` derives action visibility from server authorization decisions; denied direct routes render a deterministic policy state and the API remains the enforcement boundary.
+- [x] Browser history, reloaded execution deep links, tenant/namespace context and locally saved execution views pass browser acceptance.
+- [x] Global live-resource search, `Ctrl+K` keyboard selection, notifications and retry recovery pass browser acceptance.
+- [x] English/Simplified Chinese switching, explicit IANA time zones and locale-sensitive date/number unit fixtures pass.
+- [x] The skip link, focus transfer, compact-rail accessible names and semantic landmarks pass keyboard/accessibility-tree assertions; axe reports no critical or serious WCAG 2.2 AA findings for the supported dashboard workflow.
+- [x] The browser network test observes only `http://127.0.0.1:4173`; telemetry is disabled by default and fonts are bundled.
+- [x] Eight frontend unit tests pass at 100% coverage for the isolated API/format units; five browser cases pass across desktop and tablet, with five deliberate cross-project skips.
+- [x] The Python suite passes with 107 tests and four environment-gated skips against PostgreSQL.
+- [x] ESLint, TypeScript/Vite build, Ruff formatting/lint, strict mypy, uv lock, planning/backlog, clean-room, compilation, Compose and diff gates pass.
+- [x] `amesh:epic-404` builds successfully with Node and uv stages and contains the compiled SPA served by FastAPI.
+
+Adversarial pass: an unbound UI session receives the same concealed tenant 404; denied administration remains unreachable by direct URL; a failed flow request recovers through retry; missing static API paths remain 404 instead of falling back to HTML; and the offline browser test makes no external request.
+
+Qualification boundary: Chromium desktop and tablet are automated. Firefox, Edge, Safari, iPadOS and NVDA/VoiceOver remain in the pre-GA manual matrix, and the shared accessibility/privacy NFRs remain In Progress for their other owning epics.
+
+Verdict: PASS — EPIC-404 closed.

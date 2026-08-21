@@ -2,8 +2,8 @@
 
 ## Current state
 
-- What works: the tagged `v0.2.0-mvp` foundation plus EPIC-002, EPIC-500, EPIC-501 and EPIC-503 are implemented; PostgreSQL RLS now enforces explicit tenant execution and transport boundaries, with tenant lifecycle/policy APIs and tenant-aware workers.
-- What's in flight: EPIC-503 has passed all gates and is ready for card closure/commit; the next requested dependency-ready epic will be selected immediately afterward.
+- What works: the tagged `v0.2.0-mvp` foundation plus EPIC-002, EPIC-004, EPIC-005, EPIC-404, EPIC-500, EPIC-501 and EPIC-503 are implemented; AMESH now includes a container-served graphical control room over its tenant-aware API.
+- What's in flight: EPIC-404 has passed all gates and is ready for card closure/commit; the next requested dependency-ready epic will be selected immediately afterward.
 - Known broken / TODO: the five requested post-MVP product areas remain open. The uninterrupted 86,400-second qualification remains under EPIC-611 and still gates production-readiness claims.
 - How to run/test: use `uv run --extra runtime --extra dev pytest`; set `AMESH_TEST_DATABASE_URL` for PostgreSQL integration tests and `OPENROUTER_API_KEY` for live LLM tests.
 
@@ -86,3 +86,17 @@
 - Verification: 104 tests passed with real PostgreSQL at 80.05% branch coverage; the 12-case compatibility corpus and executor context integration passed; a representative render measured 0.2324 ms p95 over 1,000 warmed runs; Ruff, strict mypy, backlog, clean-room, compilation and generated-contract gates passed.
 - Deviations from plan: no new expression dependency was needed. Compatibility remains explicitly bounded to the published subset; effectful Kestra functions stay with their owning capability epics.
 - Next step when resuming: close and commit card `c6`, then select the next dependency-ready epic from the requested graphical frontend, orchestration control and HA/DR areas.
+
+### 2026-08-22 (post-MVP roadmap session 1, EPIC-404 start)
+
+- Did: closed EPIC-005 as `43f095e`; briefly selected EPIC-400, then returned it to To-Do because its full resource surface depends on unfinished backfill, file, key-value and plugin owners and the user directed work to defer blockers and move forward; selected EPIC-404 on card `c8`. Researched the current React ecosystem and accepted ADR-023 for a Vite React SPA, React Router, TanStack Query, i18next, cmdk, AMESH-owned token CSS, Vitest and Playwright/axe.
+- Design: established `frontend/DESIGN.md` with a graphite-control-room direction, offline bundled typography, high-contrast signal palette, 44 px controls, keyboard focus, dense operational data surfaces and desktop/tablet/phone layouts before writing components.
+- Direct blocker fixed: fresh Docker Compose databases now apply migration 0010, which the completed trigger-context runtime requires.
+- Next step when resuming: scaffold the isolated frontend workspace with exact locked packages, implement the shell and server-authoritative session capability endpoint, then test its loading, error, empty, responsive, keyboard, localization and offline states.
+
+### 2026-08-22 (post-MVP roadmap session 1, EPIC-404 completion)
+
+- Did: completed EPIC-404 with a React/Vite control room; AMESH-owned graphite design system; dashboard, flow, execution and execution-detail views; reserved navigation for later product areas; server-authoritative capability rendering; tenant/namespace context; saved views; deep-link fallback; global live-resource command search; notifications; recovery states; bundled typography; English/Simplified Chinese locale and time-zone formatting; telemetry-off deployment policy; FastAPI static serving; and a Node-to-uv container build. Linked URS-F-0430 through URS-F-0437 to evidence and documented the browser/accessibility qualification boundary.
+- Verification: 107 Python tests passed with four environment-gated skips against PostgreSQL; eight frontend unit tests passed at 100% isolated-unit coverage; five desktop/tablet browser acceptance cases passed with axe reporting no critical/serious findings and only the local app origin observed; ESLint, TypeScript/Vite, Ruff, strict mypy, uv lock, generated contracts/planning, backlog, clean-room, compilation, Compose, Docker image and diff gates passed.
+- Deviations from plan: EPIC-400 remains To-Do because its full API surface depends on unfinished resource owners, but the existing versioned `/api/v1` flow/execution/authorization slice satisfied EPIC-404. Shared URS-NFR-USABILITY-004 and URS-NFR-PRIVACY-001 remain In Progress for their other owners and the pre-GA cross-browser/screen-reader matrix.
+- Next step when resuming: close and commit card `c8`, then select the next dependency-ready epic from the remaining login, orchestration-control and HA/DR areas.

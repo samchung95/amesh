@@ -428,14 +428,14 @@ URS-F-0426,Functional,Must,EPIC-403,Authentication session and credential entry 
 URS-F-0427,Functional,Must,EPIC-403,Authentication session and credential entry points,M4,4,Security integration tests and threat-model review,Proposed
 URS-F-0428,Functional,Must,EPIC-403,Authentication session and credential entry points,M4,4,Security integration tests and threat-model review,Proposed
 URS-F-0429,Functional,Must,EPIC-403,Authentication session and credential entry points,M4,4,Security integration tests and threat-model review,Proposed
-URS-F-0430,Functional,Must,EPIC-404,"Web UI shell, navigation and accessibility",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
-URS-F-0431,Functional,Must,EPIC-404,"Web UI shell, navigation and accessibility",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
-URS-F-0432,Functional,Must,EPIC-404,"Web UI shell, navigation and accessibility",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
-URS-F-0433,Functional,Must,EPIC-404,"Web UI shell, navigation and accessibility",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
-URS-F-0434,Functional,Must,EPIC-404,"Web UI shell, navigation and accessibility",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
-URS-F-0435,Functional,Must,EPIC-404,"Web UI shell, navigation and accessibility",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
-URS-F-0436,Functional,Must,EPIC-404,"Web UI shell, navigation and accessibility",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
-URS-F-0437,Functional,Must,EPIC-404,"Web UI shell, navigation and accessibility",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
+URS-F-0430,Functional,Must,EPIC-404,"Web UI shell, navigation and accessibility",M4,4,"Automated browser, accessibility and manual usability tests",Verified
+URS-F-0431,Functional,Must,EPIC-404,"Web UI shell, navigation and accessibility",M4,4,"Automated browser, accessibility and manual usability tests",Verified
+URS-F-0432,Functional,Must,EPIC-404,"Web UI shell, navigation and accessibility",M4,4,"Automated browser, accessibility and manual usability tests",Verified
+URS-F-0433,Functional,Must,EPIC-404,"Web UI shell, navigation and accessibility",M4,4,"Automated browser, accessibility and manual usability tests",Verified
+URS-F-0434,Functional,Must,EPIC-404,"Web UI shell, navigation and accessibility",M4,4,"Automated browser, accessibility and manual usability tests",Verified
+URS-F-0435,Functional,Must,EPIC-404,"Web UI shell, navigation and accessibility",M4,4,"Automated browser, accessibility and manual usability tests",Verified
+URS-F-0436,Functional,Must,EPIC-404,"Web UI shell, navigation and accessibility",M4,4,"Automated browser, accessibility and manual usability tests",Verified
+URS-F-0437,Functional,Must,EPIC-404,"Web UI shell, navigation and accessibility",M4,4,"Automated browser, accessibility and manual usability tests",Verified
 URS-F-0438,Functional,Must,EPIC-405,Flow code editor and validation experience,M4,4,"Automated browser, accessibility and manual usability tests",Proposed
 URS-F-0439,Functional,Must,EPIC-405,Flow code editor and validation experience,M4,4,"Automated browser, accessibility and manual usability tests",Proposed
 URS-F-0440,Functional,Must,EPIC-405,Flow code editor and validation experience,M4,4,"Automated browser, accessibility and manual usability tests",Proposed
@@ -915,9 +915,9 @@ URS-NFR-PORTABILITY-003,Non-functional,Must,EPIC-010,Internal object storage and
 URS-NFR-PORTABILITY-003,Non-functional,Must,EPIC-209,Task runner interface and capability model,M2,2,Static architecture checks plus adapter contract tests for each extensible backend category.,Proposed
 URS-NFR-PORTABILITY-003,Non-functional,Must,EPIC-409,"Search, indexing and retrieval projections",M4,4,Static architecture checks plus adapter contract tests for each extensible backend category.,Proposed
 URS-NFR-PORTABILITY-003,Non-functional,Must,EPIC-506,External secrets managers and secret lifecycle,M5,5,Static architecture checks plus adapter contract tests for each extensible backend category.,Proposed
-URS-NFR-PRIVACY-001,Non-functional,Must,EPIC-003,Configuration and feature flag system,M0,0,Network capture in a clean reference deployment.,Proposed
-URS-NFR-PRIVACY-001,Non-functional,Must,EPIC-404,"Web UI shell, navigation and accessibility",M4,4,Network capture in a clean reference deployment.,Proposed
-URS-NFR-PRIVACY-001,Non-functional,Must,EPIC-804,Open enterprise distribution and packaging,M8,8,Network capture in a clean reference deployment.,Proposed
+URS-NFR-PRIVACY-001,Non-functional,Must,EPIC-003,Configuration and feature flag system,M0,0,Network capture in a clean reference deployment.,In Progress
+URS-NFR-PRIVACY-001,Non-functional,Must,EPIC-404,"Web UI shell, navigation and accessibility",M4,4,Network capture in a clean reference deployment.,In Progress
+URS-NFR-PRIVACY-001,Non-functional,Must,EPIC-804,Open enterprise distribution and packaging,M8,8,Network capture in a clean reference deployment.,In Progress
 URS-NFR-PRIVACY-002,Non-functional,Must,EPIC-008,Metadata persistence and migrations,M0,0,Privacy and schema review.,Proposed
 URS-NFR-PRIVACY-002,Non-functional,Must,EPIC-504,Immutable audit log and evidence export,M5,5,Privacy and schema review.,Proposed
 URS-NFR-PRIVACY-002,Non-functional,Must,EPIC-608,"Retention, purge and data lifecycle",M6,6,Privacy and schema review.,Proposed
@@ -985,9 +985,9 @@ URS-NFR-USABILITY-002,Non-functional,Must,EPIC-802,Policy as code and admission 
 URS-NFR-USABILITY-003,Non-functional,Must,EPIC-001,"Repository engineering, CI and release foundation",M0,0,Quarterly external documentation usability test.,Proposed
 URS-NFR-USABILITY-003,Non-functional,Must,EPIC-411,"Blueprints, playground and onboarding",M4,4,Quarterly external documentation usability test.,Proposed
 URS-NFR-USABILITY-003,Non-functional,Must,EPIC-600,Standalone server and compact deployment,M6,6,Quarterly external documentation usability test.,Proposed
-URS-NFR-USABILITY-004,Non-functional,Must,EPIC-404,"Web UI shell, navigation and accessibility",M4,4,Automated accessibility scan plus manual audit.,Proposed
-URS-NFR-USABILITY-004,Non-functional,Must,EPIC-405,Flow code editor and validation experience,M4,4,Automated accessibility scan plus manual audit.,Proposed
-URS-NFR-USABILITY-004,Non-functional,Must,EPIC-407,"Execution details, Gantt, logs and debugging UI",M4,4,Automated accessibility scan plus manual audit.,Proposed
+URS-NFR-USABILITY-004,Non-functional,Must,EPIC-404,"Web UI shell, navigation and accessibility",M4,4,Automated accessibility scan plus manual audit.,In Progress
+URS-NFR-USABILITY-004,Non-functional,Must,EPIC-405,Flow code editor and validation experience,M4,4,Automated accessibility scan plus manual audit.,In Progress
+URS-NFR-USABILITY-004,Non-functional,Must,EPIC-407,"Execution details, Gantt, logs and debugging UI",M4,4,Automated accessibility scan plus manual audit.,In Progress
 URS-NFR-USABILITY-005,Non-functional,Must,EPIC-402,CLI and generated client SDKs,M4,4,Interaction and CLI contract tests.,Proposed
 URS-NFR-USABILITY-005,Non-functional,Must,EPIC-410,"Namespace, settings and administration UI",M4,4,Interaction and CLI contract tests.,Proposed
 URS-NFR-USABILITY-005,Non-functional,Must,EPIC-608,"Retention, purge and data lifecycle",M6,6,Interaction and CLI contract tests.,Proposed

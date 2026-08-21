@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import logging
 import secrets
 from collections.abc import Awaitable, Callable
@@ -38,6 +39,7 @@ from amesh.api.models import (
     RotateCredentialRequest,
     RunnerMode,
     TaskLog,
+    UiSessionResponse,
 )
 from amesh.authorization import AuthorizationDenied, AuthorizationService
 from amesh.config import Settings, get_settings
@@ -73,6 +75,7 @@ from amesh.executor import (
     kubernetes_job_handler,
     local_process_handler,
 )
+from amesh.frontend import SpaStaticFiles, find_frontend_dist
 from amesh.observability import HTTP_REQUEST_DURATION, HTTP_REQUESTS
 from amesh.ports import (
     CredentialRateLimitExceeded,
@@ -315,6 +318,58 @@ async def health() -> HealthResponse:
 @app.get("/ready", response_model=HealthResponse, tags=["system"])
 async def ready() -> HealthResponse:
     return HealthResponse(status="ready", version=__version__)
+
+
+@app.get("/api/v1/ui/session", response_model=UiSessionResponse, tags=["ui"])
+async def get_ui_session(
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    settings: SettingsDependency,
+    tenant_id: TenantDependency,
+    namespace: str | None = None,
+) -> UiSessionResponse:
+    requested_capabilities = {
+        "flows.view": ("flow", PermissionAction.VIEW),
+        "flows.create": ("flow", PermissionAction.CREATE),
+        "executions.view": ("execution", PermissionAction.VIEW),
+        "executions.execute": ("execution", PermissionAction.EXECUTE),
+        "namespaces.view": ("namespace", PermissionAction.VIEW),
+        "plugins.view": ("plugin", PermissionAction.VIEW),
+        "administration.manage": ("tenant", PermissionAction.MANAGE),
+    }
+    decisions = await asyncio.gather(
+        *(
+            authorization_service.decide(
+                AuthorizationRequest(
+                    actor=actor,
+                    tenant_id=tenant_id,
+                    namespace=namespace,
+                    resource_type=resource_type,
+                    action=action,
+                )
+            )
+            for resource_type, action in requested_capabilities.values()
+        )
+    )
+    capabilities = {
+        capability: decision.allowed
+        for capability, decision in zip(requested_capabilities, decisions, strict=True)
+    }
+    if not any(capabilities.values()):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="tenant unavailable",
+        )
+    return UiSessionResponse(
+        principalId=actor.principal_id,
+        principalType=actor.principal_type,
+        display=actor.display,
+        tenantId=tenant_id,
+        namespace=namespace,
+        capabilities=capabilities,
+        telemetryEnabled=settings.product_telemetry_enabled,
+        serverVersion=__version__,
+    )
 
 
 @app.get("/metrics", include_in_schema=False)
@@ -1376,3 +1431,8 @@ async def reduce_execution_events(
         snapshot=snapshot,
         duplicate_events_ignored=duplicates,
     )
+
+
+_FRONTEND_DIST = find_frontend_dist()
+if _FRONTEND_DIST is not None:
+    app.mount("/", SpaStaticFiles(directory=_FRONTEND_DIST, html=True), name="web")

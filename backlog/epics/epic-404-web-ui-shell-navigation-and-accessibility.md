@@ -12,14 +12,18 @@ Provide a responsive, permission-aware and accessible web application for all pl
 
 ## In scope
 
-- [ ] **URS-F-0430** — The system shall provide consistent navigation for dashboards, flows, executions, namespaces, assets, apps, plugins and administration.
-- [ ] **URS-F-0431** — The system shall hide or disable actions based on server-authoritative permissions without relying on UI checks for enforcement.
-- [ ] **URS-F-0432** — The system shall support deep links, browser history, saved views and tenant or namespace context.
-- [ ] **URS-F-0433** — The system shall meet WCAG 2.2 AA for keyboard access, focus, semantics, contrast and assistive technology in GA scope.
-- [ ] **URS-F-0434** — The system shall support responsive desktop and tablet layouts and a documented browser support policy.
-- [ ] **URS-F-0435** — The system shall provide global search, command palette, notifications and error recovery.
-- [ ] **URS-F-0436** — The system shall internationalize user-visible strings and locale-sensitive dates, numbers and time zones.
-- [ ] **URS-F-0437** — The system shall collect opt-in product telemetry only under explicit deployment policy.
+- [x] **URS-F-0430** — The system shall provide consistent navigation for dashboards, flows, executions, namespaces, assets, apps, plugins and administration.
+- [x] **URS-F-0431** — The system shall hide or disable actions based on server-authoritative permissions without relying on UI checks for enforcement.
+- [x] **URS-F-0432** — The system shall support deep links, browser history, saved views and tenant or namespace context.
+- [x] **URS-F-0433** — The system shall meet WCAG 2.2 AA for keyboard access, focus, semantics, contrast and assistive technology in GA scope.
+- [x] **URS-F-0434** — The system shall support responsive desktop and tablet layouts and a documented browser support policy.
+- [x] **URS-F-0435** — The system shall provide global search, command palette, notifications and error recovery.
+- [x] **URS-F-0436** — The system shall internationalize user-visible strings and locale-sensitive dates, numbers and time zones.
+- [x] **URS-F-0437** — The system shall collect opt-in product telemetry only under explicit deployment policy.
+
+## Implementation completion evidence
+
+- 2026-08-22 — EPIC-404 is complete. AMESH now ships a responsive React control room with consistent persona navigation, server-authoritative capability rendering, tenant/namespace context, deep links, browser history, saved execution views, API-backed flow/execution pages, global live-resource search, a keyboard command menu, notifications, retry recovery, English/Simplified Chinese locale and explicit time-zone formatting. The FastAPI image serves the compiled SPA and browser deep links, telemetry remains deployment-controlled and off by default, bundled fonts make the UI self-contained, and the supported shell passed desktop/tablet, same-origin privacy and WCAG 2.2 AA automated acceptance. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`README.md`](../../frontend/README.md), [`DESIGN.md`](../../frontend/DESIGN.md), [`shell.spec.ts`](../../frontend/e2e/shell.spec.ts), [`AppShell.tsx`](../../frontend/src/components/AppShell.tsx), [`test_ui_session_api.py`](../../tests/api/test_ui_session_api.py), and [`test_frontend.py`](../../tests/test_frontend.py). Shared URS-NFR-USABILITY-004 remains In Progress for EPIC-405/407 plus the pre-GA NVDA/VoiceOver matrix; shared URS-NFR-PRIVACY-001 remains In Progress for EPIC-003/804.
 
 ## Non-functional requirements
 
@@ -48,13 +52,13 @@ Provide a responsive, permission-aware and accessible web application for all pl
 
 ## Definition of done
 
-- [ ] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
-- [ ] Public API, DSL, event and plugin contract changes pass compatibility checks.
-- [ ] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
-- [ ] Security, tenant isolation, redaction and audit behavior are reviewed.
-- [ ] Documentation, examples, migration notes and operational runbooks are updated.
-- [ ] Performance and recovery budgets are measured when this epic is on a critical path.
-- [ ] `python scripts/validate_backlog.py` passes.
+- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
+- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.
+- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
+- [x] Security, tenant isolation, redaction and audit behavior are reviewed.
+- [x] Documentation, examples, migration notes and operational runbooks are updated.
+- [x] Performance and recovery budgets are measured when this epic is on a critical path.
+- [x] `python scripts/validate_backlog.py` passes.
 
 ## Risks and unknowns
 
