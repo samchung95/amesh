@@ -1,0 +1,31 @@
+{{- if and .Values.highAvailability.podDisruptionBudget.enabled (gt (int .Values.server.replicas) 1) }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "amesh.fullname" . }}-server
+  labels:
+    {{- include "amesh.labels" . | nindent 4 }}
+spec:
+  maxUnavailable: {{ .Values.highAvailability.podDisruptionBudget.maxUnavailable }}
+  selector:
+    matchLabels:
+      {{- include "amesh.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: server
+{{- end }}
+{{- range $role, $config := .Values.serviceRoles }}
+{{- if and $.Values.highAvailability.podDisruptionBudget.enabled $config.enabled (gt (int $config.replicas) 1) }}
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "amesh.fullname" $ }}-{{ $role }}
+  labels:
+    {{- include "amesh.labels" $ | nindent 4 }}
+spec:
+  maxUnavailable: {{ $.Values.highAvailability.podDisruptionBudget.maxUnavailable }}
+  selector:
+    matchLabels:
+      {{- include "amesh.selectorLabels" $ | nindent 6 }}
+      app.kubernetes.io/component: {{ $role }}
+{{- end }}
+{{- end }}

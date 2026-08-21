@@ -24,6 +24,10 @@ This profile is secondary and is not the v1 performance reference.
 
 Helm is the reference packaging target. Roles scale independently, use PodDisruptionBudgets and topology spread, and coordinate solely through PostgreSQL leases/queues plus object storage. Kubernetes task execution uses dedicated runner service accounts, execution namespaces and deny-by-default network policy.
 
+The checked-in chart materializes webserver, executor, scheduler, worker, indexer and maintenance as
+separate Deployments. See the [HA runbook](../operations/high-availability.md) for the tested S/M/L
+replica profiles and graceful-drain contract.
+
 The chart supports external PostgreSQL, S3-compatible object storage, ingress, TLS, identity, secrets and observability components without requiring a specific vendor.
 
 ### Portable Kubernetes

@@ -36,6 +36,11 @@ The minimal v1 values must be disclosed prominently. An operator with stricter b
 - Use readiness, graceful shutdown, PodDisruptionBudgets and topology spread in the on-premises Kubernetes reference deployment.
 - Never make Kubernetes leader-election objects or etcd authoritative for workflow execution state.
 
+Migration 0025 records each stateless role's incarnation, generation, version, failure domain,
+heartbeat, ownership and partition summary. Re-registering the same role/pod identity replaces the
+incarnation and fences the old process. The instance-administrator topology API and audited drain API
+are the operational surfaces described in [`../operations/high-availability.md`](../operations/high-availability.md).
+
 ## Backup set
 
 A recoverable backup includes:

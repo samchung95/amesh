@@ -588,14 +588,14 @@ URS-F-0586,Functional,Must,EPIC-600,Standalone server and compact deployment,M6,
 URS-F-0587,Functional,Must,EPIC-600,Standalone server and compact deployment,M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
 URS-F-0588,Functional,Must,EPIC-600,Standalone server and compact deployment,M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
 URS-F-0589,Functional,Must,EPIC-600,Standalone server and compact deployment,M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
-URS-F-0590,Functional,Must,EPIC-601,Distributed services and high availability,M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
-URS-F-0591,Functional,Must,EPIC-601,Distributed services and high availability,M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
-URS-F-0592,Functional,Must,EPIC-601,Distributed services and high availability,M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
-URS-F-0593,Functional,Must,EPIC-601,Distributed services and high availability,M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
-URS-F-0594,Functional,Must,EPIC-601,Distributed services and high availability,M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
-URS-F-0595,Functional,Must,EPIC-601,Distributed services and high availability,M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
-URS-F-0596,Functional,Must,EPIC-601,Distributed services and high availability,M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
-URS-F-0597,Functional,Must,EPIC-601,Distributed services and high availability,M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
+URS-F-0590,Functional,Must,EPIC-601,Distributed services and high availability,M6,6,"Reference deployment, upgrade and failure-recovery tests",Verified
+URS-F-0591,Functional,Must,EPIC-601,Distributed services and high availability,M6,6,"Reference deployment, upgrade and failure-recovery tests",Verified
+URS-F-0592,Functional,Must,EPIC-601,Distributed services and high availability,M6,6,"Reference deployment, upgrade and failure-recovery tests",Verified
+URS-F-0593,Functional,Must,EPIC-601,Distributed services and high availability,M6,6,"Reference deployment, upgrade and failure-recovery tests",Verified
+URS-F-0594,Functional,Must,EPIC-601,Distributed services and high availability,M6,6,"Reference deployment, upgrade and failure-recovery tests",Verified
+URS-F-0595,Functional,Must,EPIC-601,Distributed services and high availability,M6,6,"Reference deployment, upgrade and failure-recovery tests",Verified
+URS-F-0596,Functional,Must,EPIC-601,Distributed services and high availability,M6,6,"Reference deployment, upgrade and failure-recovery tests",Verified
+URS-F-0597,Functional,Must,EPIC-601,Distributed services and high availability,M6,6,"Reference deployment, upgrade and failure-recovery tests",Verified
 URS-F-0598,Functional,Must,EPIC-602,PostgreSQL transactional backend,M6,6,Repository or storage adapter contract and fault-injection tests,Verified
 URS-F-0599,Functional,Must,EPIC-602,PostgreSQL transactional backend,M6,6,Repository or storage adapter contract and fault-injection tests,Verified
 URS-F-0600,Functional,Must,EPIC-602,PostgreSQL transactional backend,M6,6,Repository or storage adapter contract and fault-injection tests,Verified
@@ -850,9 +850,9 @@ URS-NFR-AVAILABILITY-002,Non-functional,Must,EPIC-601,Distributed services and h
 URS-NFR-AVAILABILITY-002,Non-functional,Must,EPIC-603,PostgreSQL distributed work queue and notifications,M6,6,Multi-replica chaos and zone-spread tests.,In Progress
 URS-NFR-AVAILABILITY-003,Non-functional,Must,EPIC-609,"Backup, restore and disaster recovery",M6,6,"Isolated restore exercise on the on-premises Kubernetes reference topology, with measured data-loss window and service-restoration time.",Proposed
 URS-NFR-AVAILABILITY-003,Non-functional,Must,EPIC-805,General availability quality and launch readiness,M8,8,"Isolated restore exercise on the on-premises Kubernetes reference topology, with measured data-loss window and service-restoration time.",Proposed
-URS-NFR-AVAILABILITY-004,Non-functional,Must,EPIC-509,"Announcements, maintenance mode and kill switch",M5,5,Upgrade and drain conformance suite.,Proposed
-URS-NFR-AVAILABILITY-004,Non-functional,Must,EPIC-601,Distributed services and high availability,M6,6,Upgrade and drain conformance suite.,Proposed
-URS-NFR-AVAILABILITY-004,Non-functional,Must,EPIC-610,"Upgrades, migrations and LTS policy",M6,6,Upgrade and drain conformance suite.,Proposed
+URS-NFR-AVAILABILITY-004,Non-functional,Must,EPIC-509,"Announcements, maintenance mode and kill switch",M5,5,Upgrade and drain conformance suite.,In Progress
+URS-NFR-AVAILABILITY-004,Non-functional,Must,EPIC-601,Distributed services and high availability,M6,6,Upgrade and drain conformance suite.,In Progress
+URS-NFR-AVAILABILITY-004,Non-functional,Must,EPIC-610,"Upgrades, migrations and LTS policy",M6,6,Upgrade and drain conformance suite.,In Progress
 URS-NFR-COMPLIANCE-001,Non-functional,Must,EPIC-504,Immutable audit log and evidence export,M5,5,Control-crosswalk validation and sample evidence-package review by an independent security or compliance reviewer.,Proposed
 URS-NFR-COMPLIANCE-001,Non-functional,Must,EPIC-612,Security hardening and software supply chain,M6,6,Control-crosswalk validation and sample evidence-package review by an independent security or compliance reviewer.,Proposed
 URS-NFR-COMPLIANCE-001,Non-functional,Must,EPIC-805,General availability quality and launch readiness,M8,8,Control-crosswalk validation and sample evidence-package review by an independent security or compliance reviewer.,Proposed
@@ -873,18 +873,18 @@ URS-NFR-MAINTAINABILITY-005,Non-functional,Must,EPIC-402,CLI and generated clien
 URS-NFR-MAINTAINABILITY-005,Non-functional,Must,EPIC-705,"Documentation, examples and community governance",M7,7,CI regeneration and clean-tree check.,Proposed
 URS-NFR-MAINTAINABILITY-006,Non-functional,Must,EPIC-001,"Repository engineering, CI and release foundation",M0,0,Dependency and license scanning.,Proposed
 URS-NFR-MAINTAINABILITY-006,Non-functional,Must,EPIC-612,Security hardening and software supply chain,M6,6,Dependency and license scanning.,Proposed
-URS-NFR-OPERABILITY-001,Non-functional,Must,EPIC-600,Standalone server and compact deployment,M6,6,Kubernetes and Compose health tests.,Proposed
-URS-NFR-OPERABILITY-001,Non-functional,Must,EPIC-601,Distributed services and high availability,M6,6,Kubernetes and Compose health tests.,Proposed
-URS-NFR-OPERABILITY-001,Non-functional,Must,EPIC-606,"Containers, Kubernetes and Helm deployment",M6,6,Kubernetes and Compose health tests.,Proposed
+URS-NFR-OPERABILITY-001,Non-functional,Must,EPIC-600,Standalone server and compact deployment,M6,6,Kubernetes and Compose health tests.,In Progress
+URS-NFR-OPERABILITY-001,Non-functional,Must,EPIC-601,Distributed services and high availability,M6,6,Kubernetes and Compose health tests.,In Progress
+URS-NFR-OPERABILITY-001,Non-functional,Must,EPIC-606,"Containers, Kubernetes and Helm deployment",M6,6,Kubernetes and Compose health tests.,In Progress
 URS-NFR-OPERABILITY-002,Non-functional,Must,EPIC-607,"OpenTelemetry, Prometheus and log shipping",M6,6,Telemetry cardinality audit.,Proposed
 URS-NFR-OPERABILITY-003,Non-functional,Must,EPIC-607,"OpenTelemetry, Prometheus and log shipping",M6,6,Alert fixture and runbook audit.,Proposed
 URS-NFR-OPERABILITY-003,Non-functional,Must,EPIC-705,"Documentation, examples and community governance",M7,7,Alert fixture and runbook audit.,Proposed
 URS-NFR-OPERABILITY-004,Non-functional,Must,EPIC-003,Configuration and feature flag system,M0,0,Security test with seeded sensitive data.,Proposed
 URS-NFR-OPERABILITY-004,Non-functional,Must,EPIC-607,"OpenTelemetry, Prometheus and log shipping",M6,6,Security test with seeded sensitive data.,Proposed
 URS-NFR-OPERABILITY-004,Non-functional,Must,EPIC-612,Security hardening and software supply chain,M6,6,Security test with seeded sensitive data.,Proposed
-URS-NFR-OPERABILITY-005,Non-functional,Must,EPIC-105,"Concurrency, admission control and fairness",M1,1,Dashboard and telemetry contract tests.,Proposed
-URS-NFR-OPERABILITY-005,Non-functional,Must,EPIC-601,Distributed services and high availability,M6,6,Dashboard and telemetry contract tests.,Proposed
-URS-NFR-OPERABILITY-005,Non-functional,Must,EPIC-607,"OpenTelemetry, Prometheus and log shipping",M6,6,Dashboard and telemetry contract tests.,Proposed
+URS-NFR-OPERABILITY-005,Non-functional,Must,EPIC-105,"Concurrency, admission control and fairness",M1,1,Dashboard and telemetry contract tests.,In Progress
+URS-NFR-OPERABILITY-005,Non-functional,Must,EPIC-601,Distributed services and high availability,M6,6,Dashboard and telemetry contract tests.,In Progress
+URS-NFR-OPERABILITY-005,Non-functional,Must,EPIC-607,"OpenTelemetry, Prometheus and log shipping",M6,6,Dashboard and telemetry contract tests.,In Progress
 URS-NFR-OPERABILITY-006,Non-functional,Must,EPIC-610,"Upgrades, migrations and LTS policy",M6,6,Release metadata validation.,Proposed
 URS-NFR-PERFORMANCE-001,Non-functional,Must,EPIC-400,Versioned REST API and OpenAPI contract,M4,4,Repeatable load test with 10 million retained execution records and realistic filters.,Proposed
 URS-NFR-PERFORMANCE-001,Non-functional,Must,EPIC-409,"Search, indexing and retrieval projections",M4,4,Repeatable load test with 10 million retained execution records and realistic filters.,Proposed
@@ -894,17 +894,17 @@ URS-NFR-PERFORMANCE-003,Non-functional,Must,EPIC-102,Scheduler and temporal corr
 URS-NFR-PERFORMANCE-004,Non-functional,Must,EPIC-100,Executor and orchestration reducer,M1,1,Published benchmark on a fixed reference topology.,In Progress
 URS-NFR-PERFORMANCE-004,Non-functional,Must,EPIC-101,"Worker protocol, leases and heartbeats",M1,1,Published benchmark on a fixed reference topology.,In Progress
 URS-NFR-PERFORMANCE-004,Non-functional,Must,EPIC-603,PostgreSQL distributed work queue and notifications,M6,6,Published benchmark on a fixed reference topology.,In Progress
-URS-NFR-PERFORMANCE-005,Non-functional,Must,EPIC-105,"Concurrency, admission control and fairness",M1,1,Soak test with mixed short and long tasks.,Proposed
-URS-NFR-PERFORMANCE-005,Non-functional,Must,EPIC-601,Distributed services and high availability,M6,6,Soak test with mixed short and long tasks.,Proposed
-URS-NFR-PERFORMANCE-005,Non-functional,Must,EPIC-611,"Performance, scale and chaos qualification",M6,6,Soak test with mixed short and long tasks.,Proposed
+URS-NFR-PERFORMANCE-005,Non-functional,Must,EPIC-105,"Concurrency, admission control and fairness",M1,1,Soak test with mixed short and long tasks.,In Progress
+URS-NFR-PERFORMANCE-005,Non-functional,Must,EPIC-601,Distributed services and high availability,M6,6,Soak test with mixed short and long tasks.,In Progress
+URS-NFR-PERFORMANCE-005,Non-functional,Must,EPIC-611,"Performance, scale and chaos qualification",M6,6,Soak test with mixed short and long tasks.,In Progress
 URS-NFR-PERFORMANCE-006,Non-functional,Must,EPIC-203,"Loops, foreach, while and until",M2,2,Synthetic large-DAG and loop benchmark.,In Progress
 URS-NFR-PERFORMANCE-006,Non-functional,Must,EPIC-407,"Execution details, Gantt, logs and debugging UI",M4,4,Synthetic large-DAG and loop benchmark.,In Progress
 URS-NFR-PERFORMANCE-007,Non-functional,Must,EPIC-111,"Logs, metrics, outputs and artifact events",M1,1,Burst and sustained log-load test with exporter outage.,Proposed
 URS-NFR-PERFORMANCE-007,Non-functional,Must,EPIC-607,"OpenTelemetry, Prometheus and log shipping",M6,6,Burst and sustained log-load test with exporter outage.,Proposed
 URS-NFR-PERFORMANCE-008,Non-functional,Must,EPIC-010,Internal object storage and artifact addressing,M0,0,Storage adapter performance and memory profiling.,Proposed
 URS-NFR-PERFORMANCE-008,Non-functional,Must,EPIC-605,Object storage backends and lifecycle,M6,6,Storage adapter performance and memory profiling.,Proposed
-URS-NFR-PERFORMANCE-009,Non-functional,Must,EPIC-601,Distributed services and high availability,M6,6,Comparative scale-out benchmark.,Proposed
-URS-NFR-PERFORMANCE-009,Non-functional,Must,EPIC-611,"Performance, scale and chaos qualification",M6,6,Comparative scale-out benchmark.,Proposed
+URS-NFR-PERFORMANCE-009,Non-functional,Must,EPIC-601,Distributed services and high availability,M6,6,Comparative scale-out benchmark.,In Progress
+URS-NFR-PERFORMANCE-009,Non-functional,Must,EPIC-611,"Performance, scale and chaos qualification",M6,6,Comparative scale-out benchmark.,In Progress
 URS-NFR-PERFORMANCE-010,Non-functional,Must,EPIC-611,"Performance, scale and chaos qualification",M6,6,"Published 24-hour mixed-workload, retention-query and failure-recovery benchmark on a fixed bill of materials.",Proposed
 URS-NFR-PERFORMANCE-010,Non-functional,Must,EPIC-805,General availability quality and launch readiness,M8,8,"Published 24-hour mixed-workload, retention-query and failure-recovery benchmark on a fixed bill of materials.",Proposed
 URS-NFR-PORTABILITY-001,Non-functional,Must,EPIC-305,"Plugin registry, signing, SBOM and marketplace metadata",M3,3,Offline installation and test run.,Proposed
@@ -929,9 +929,9 @@ URS-NFR-RELIABILITY-002,Non-functional,Must,EPIC-007,Execution event model and s
 URS-NFR-RELIABILITY-002,Non-functional,Must,EPIC-009,"PostgreSQL transport, inbox and transactional outbox",M0,0,Property-based and integration tests with duplicate and reordered delivery.,In Progress
 URS-NFR-RELIABILITY-002,Non-functional,Must,EPIC-100,Executor and orchestration reducer,M1,1,Property-based and integration tests with duplicate and reordered delivery.,In Progress
 URS-NFR-RELIABILITY-002,Non-functional,Must,EPIC-103,Trigger runtime and occurrence lifecycle,M1,1,Property-based and integration tests with duplicate and reordered delivery.,In Progress
-URS-NFR-RELIABILITY-003,Non-functional,Must,EPIC-101,"Worker protocol, leases and heartbeats",M1,1,"Chaos tests with paused processes, network partitions and delayed completions.",In Progress
-URS-NFR-RELIABILITY-003,Non-functional,Must,EPIC-102,Scheduler and temporal correctness,M1,1,"Chaos tests with paused processes, network partitions and delayed completions.",In Progress
-URS-NFR-RELIABILITY-003,Non-functional,Must,EPIC-601,Distributed services and high availability,M6,6,"Chaos tests with paused processes, network partitions and delayed completions.",In Progress
+URS-NFR-RELIABILITY-003,Non-functional,Must,EPIC-101,"Worker protocol, leases and heartbeats",M1,1,"Chaos tests with paused processes, network partitions and delayed completions.",Verified
+URS-NFR-RELIABILITY-003,Non-functional,Must,EPIC-102,Scheduler and temporal correctness,M1,1,"Chaos tests with paused processes, network partitions and delayed completions.",Verified
+URS-NFR-RELIABILITY-003,Non-functional,Must,EPIC-601,Distributed services and high availability,M6,6,"Chaos tests with paused processes, network partitions and delayed completions.",Verified
 URS-NFR-RELIABILITY-004,Non-functional,Must,EPIC-007,Execution event model and state machine,M0,0,Golden event-stream and property-based reducer tests.,Verified
 URS-NFR-RELIABILITY-004,Non-functional,Must,EPIC-100,Executor and orchestration reducer,M1,1,Golden event-stream and property-based reducer tests.,Verified
 URS-NFR-RELIABILITY-005,Non-functional,Must,EPIC-401,"Realtime API, webhooks and event subscriptions",M4,4,Dependency isolation and outage integration tests.,Proposed

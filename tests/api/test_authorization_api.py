@@ -244,6 +244,11 @@ def test_every_protected_rest_surface_enforces_tenant_and_permission_policy() ->
                         f"/api/v1/workers/{uuid4()}/drain",
                         params={"expectedVersion": 1},
                     ),
+                    client.get("/api/v1/operations/topology"),
+                    client.post(
+                        f"/api/v1/operations/services/{uuid4()}/drain",
+                        json={"expectedVersion": 1, "reason": "denied"},
+                    ),
                 ]
                 responses = await asyncio.gather(*denied_requests)
                 assert all(response.status_code == 403 for response in responses)

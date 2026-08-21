@@ -12,14 +12,18 @@ Scale platform roles independently and survive ordinary node or zone failures.
 
 ## In scope
 
-- [ ] **URS-F-0590** — The system shall run webserver, executor, scheduler, worker, indexer and maintenance roles as independent scalable services.
-- [ ] **URS-F-0591** — The system shall assign partitioned work through durable messages, leases and fencing rather than node affinity.
-- [ ] **URS-F-0592** — The system shall continue orchestration through the loss and replacement of any stateless service instance.
-- [ ] **URS-F-0593** — The system shall support multiple replicas across failure zones with documented quorum dependencies.
-- [ ] **URS-F-0594** — The system shall drain, upgrade and replace instances without losing accepted work.
-- [ ] **URS-F-0595** — The system shall expose service registry, version skew, ownership, partition and failover status.
-- [ ] **URS-F-0596** — The system shall detect split-brain or stale ownership and reject unfenced mutations.
-- [ ] **URS-F-0597** — The system shall publish tested reference topologies for small, medium and large deployments.
+- [x] **URS-F-0590** — The system shall run webserver, executor, scheduler, worker, indexer and maintenance roles as independent scalable services.
+- [x] **URS-F-0591** — The system shall assign partitioned work through durable messages, leases and fencing rather than node affinity.
+- [x] **URS-F-0592** — The system shall continue orchestration through the loss and replacement of any stateless service instance.
+- [x] **URS-F-0593** — The system shall support multiple replicas across failure zones with documented quorum dependencies.
+- [x] **URS-F-0594** — The system shall drain, upgrade and replace instances without losing accepted work.
+- [x] **URS-F-0595** — The system shall expose service registry, version skew, ownership, partition and failover status.
+- [x] **URS-F-0596** — The system shall detect split-brain or stale ownership and reject unfenced mutations.
+- [x] **URS-F-0597** — The system shall publish tested reference topologies for small, medium and large deployments.
+
+## Implementation completion evidence
+
+- 2026-08-22 — EPIC-601 functional scope is complete. Migration 0025 adds a global service registry with incarnation generations that fence replaced processes. Webserver, executor, scheduler, worker, indexer and maintenance now run as independently scalable roles; scheduler/worker/queue work retains PostgreSQL leases and fences. Instance-admin APIs expose liveness, readiness, version skew, failure domains, ownership, partition strategy and failover status, and perform version-checked audited drains. Helm defaults and tested small/medium/large profiles add rolling updates, PDBs, zone spread, pre-stop drain and distinct readiness/liveness behavior. A real role-process test registered, accepted a drain, stopped before another cycle and persisted STOPPED; stale incarnation and drain versions were rejected. Helm 4.0.0 lint passed for all profiles, and a clean 25-migration database ran 213 passing tests with four environment skips. Per product-owner direction, the 24-hour 100,000-execution workload, measured two-to-four replica efficiency, and credentialed dependency failover certification remain In Progress under EPIC-611/606/607; no such capacity or external quorum claim is made. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`high-availability.md`](../../docs/operations/high-availability.md), [`test_service_registry.py`](../../tests/adapters/postgres/test_service_registry.py), and [`test_helm_ha.py`](../../tests/test_helm_ha.py).
 
 ## Non-functional requirements
 
@@ -63,13 +67,13 @@ Scale platform roles independently and survive ordinary node or zone failures.
 
 ## Definition of done
 
-- [ ] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
-- [ ] Public API, DSL, event and plugin contract changes pass compatibility checks.
-- [ ] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
-- [ ] Security, tenant isolation, redaction and audit behavior are reviewed.
-- [ ] Documentation, examples, migration notes and operational runbooks are updated.
-- [ ] Performance and recovery budgets are measured when this epic is on a critical path.
-- [ ] `python scripts/validate_backlog.py` passes.
+- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
+- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.
+- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
+- [x] Security, tenant isolation, redaction and audit behavior are reviewed.
+- [x] Documentation, examples, migration notes and operational runbooks are updated.
+- [x] Performance and recovery budgets are measured when this epic is on a critical path.
+- [x] `python scripts/validate_backlog.py` passes.
 
 ## Risks and unknowns
 

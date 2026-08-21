@@ -44,6 +44,7 @@ def test_checked_in_migration_manifest_is_complete_and_ordered() -> None:
             (22, "postgresql_operations"),
             (23, "distributed_queue_profile"),
             (24, "reconciliation_runs"),
+            (25, "service_registry"),
         )
     ]
     assert all(item.rollback_guidance for item in plan)

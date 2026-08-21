@@ -93,6 +93,12 @@ app.kubernetes.io/instance: {{ .Release.Name }}
   value: {{ .Values.tenancy.singleTenantSlug | quote }}
 - name: LOG_LEVEL
   value: {{ .Values.logLevel | quote }}
+- name: SERVICE_HEARTBEAT_SECONDS
+  value: {{ .Values.serviceHeartbeatSeconds | quote }}
+- name: SERVICE_STALE_AFTER_SECONDS
+  value: {{ .Values.serviceStaleAfterSeconds | quote }}
+- name: SERVICE_CYCLE_SECONDS
+  value: {{ .Values.serviceCycleSeconds | quote }}
 - name: OPENROUTER_MODEL
   value: {{ .Values.openRouter.model | quote }}
 {{- if .Values.openRouter.existingSecret }}

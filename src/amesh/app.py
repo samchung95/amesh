@@ -35,6 +35,7 @@ from amesh.adapters.postgres import (
     PostgresCredentialRepository,
     PostgresExecutionRepository,
     PostgresReconciliationRepository,
+    PostgresServiceRegistryRepository,
     PostgresTenantRepository,
     PostgresWorkerRepository,
 )
@@ -93,6 +94,12 @@ from amesh.domain import (
     ResourceVersionConflict,
     RoleBinding,
     RoleDefinition,
+    ServiceDrainRequest,
+    ServiceInstance,
+    ServiceLiveness,
+    ServiceRole,
+    ServiceState,
+    ServiceTopology,
     TenantDefinition,
     TenantExport,
     TenantPolicy,
@@ -137,6 +144,7 @@ from amesh.ports import (
     PersistedSubflow,
     PersistedTaskRun,
     ReconciliationAlreadyRunningError,
+    ServiceFenceError,
     TaskStateConflictError,
     TenantQuotaExceeded,
     TenantUnavailableError,
@@ -337,6 +345,21 @@ ReconciliationServiceDependency = Annotated[
     ReconciliationService,
     Depends(get_reconciliation_service),
 ]
+
+
+@lru_cache
+def get_service_registry_repository() -> PostgresServiceRegistryRepository:
+    settings = get_settings()
+    return PostgresServiceRegistryRepository(
+        database_engine(),
+        stale_after_seconds=settings.service_stale_after_seconds,
+    )
+
+
+ServiceRegistryRepositoryDependency = Annotated[
+    PostgresServiceRegistryRepository,
+    Depends(get_service_registry_repository),
+]
 _TENANT_SLUG_ADAPTER = TypeAdapter(TenantSlug)
 
 
@@ -462,8 +485,32 @@ async def health() -> HealthResponse:
 
 
 @app.get("/ready", response_model=ReadinessResponse, tags=["system"])
-async def ready(response: Response) -> ReadinessResponse:
+async def ready(
+    response: Response,
+    settings: SettingsDependency,
+    service_registry: ServiceRegistryRepositoryDependency,
+) -> ReadinessResponse:
     readiness = await database_readiness(database_engine(), migration_directory())
+    if readiness.ready and settings.service_instance_name is not None:
+        topology = await service_registry.topology()
+        registered_ready = any(
+            instance.role is ServiceRole.WEBSERVER
+            and instance.instance_name == settings.service_instance_name
+            and instance.liveness is ServiceLiveness.LIVE
+            and instance.state is ServiceState.READY
+            for instance in topology.instances
+        )
+        if not registered_ready:
+            response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
+            return ReadinessResponse(
+                status="not-ready",
+                version=__version__,
+                database="ready",
+                migrations_applied=readiness.applied,
+                migrations_expected=readiness.expected,
+                latest_migration=readiness.latest_migration,
+                error="service instance is not ready",
+            )
     if not readiness.ready:
         response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
     return ReadinessResponse(
@@ -958,6 +1005,54 @@ async def get_reconciliation(
         return await service.get(run_id, tenant_id=tenant_id)
     except LookupError as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+
+
+@app.get(
+    "/api/v1/operations/topology",
+    response_model=ServiceTopology,
+    tags=["operations"],
+)
+async def get_service_topology(
+    repository: ServiceRegistryRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+) -> ServiceTopology:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="instance",
+        action=PermissionAction.MANAGE,
+    )
+    return await repository.topology()
+
+
+@app.post(
+    "/api/v1/operations/services/{instance_id}/drain",
+    response_model=ServiceInstance,
+    tags=["operations"],
+)
+async def drain_service_instance(
+    instance_id: UUID,
+    request: ServiceDrainRequest,
+    repository: ServiceRegistryRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+) -> ServiceInstance:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="instance",
+        action=PermissionAction.MANAGE,
+    )
+    try:
+        return await repository.request_drain(
+            instance_id,
+            expected_version=request.expected_version,
+            actor_id=str(actor.principal_id),
+            reason=request.reason,
+        )
+    except ServiceFenceError as exc:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
 
 
 @app.post(

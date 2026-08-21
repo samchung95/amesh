@@ -7,6 +7,12 @@ metadata:
     app.kubernetes.io/component: server
 spec:
   replicas: {{ .Values.server.replicas }}
+  minReadySeconds: {{ .Values.highAvailability.minReadySeconds }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: {{ .Values.highAvailability.maxUnavailable }}
+      maxSurge: {{ .Values.highAvailability.maxSurge }}
   selector:
     matchLabels:
       {{- include "amesh.selectorLabels" . | nindent 6 }}
@@ -22,6 +28,7 @@ spec:
         {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
+      terminationGracePeriodSeconds: {{ .Values.highAvailability.terminationGracePeriodSeconds }}
       serviceAccountName: {{ include "amesh.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
@@ -33,6 +40,16 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           env:
             {{- include "amesh.runtimeEnv" . | nindent 12 }}
+            - name: SERVICE_ROLE
+              value: webserver
+            - name: SERVICE_INSTANCE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: SERVICE_FAILURE_ZONE
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
           ports:
             - name: http
               containerPort: 8000
@@ -45,6 +62,10 @@ spec:
             httpGet:
               path: /ready
               port: http
+          lifecycle:
+            preStop:
+              exec:
+                command: ["python", "-m", "amesh.role", "--drain"]
           resources:
             {{- toYaml .Values.server.resources | nindent 12 }}
       nodeSelector:
@@ -53,3 +74,11 @@ spec:
         {{- toYaml .Values.affinity | nindent 8 }}
       tolerations:
         {{- toYaml .Values.tolerations | nindent 8 }}
+      topologySpreadConstraints:
+        - maxSkew: {{ .Values.highAvailability.maxSkew }}
+          topologyKey: {{ .Values.highAvailability.topologyKey | quote }}
+          whenUnsatisfiable: {{ .Values.highAvailability.whenUnsatisfiable }}
+          labelSelector:
+            matchLabels:
+              {{- include "amesh.selectorLabels" . | nindent 14 }}
+              app.kubernetes.io/component: server

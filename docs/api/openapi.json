@@ -1385,6 +1385,16 @@
         "title": "ExecutionState",
         "type": "string"
       },
+      "FailoverStatus": {
+        "enum": [
+          "REDUNDANT",
+          "AVAILABLE",
+          "DRAINING",
+          "UNAVAILABLE"
+        ],
+        "title": "FailoverStatus",
+        "type": "string"
+      },
       "FailureCategory": {
         "enum": [
           "RETRYABLE",
@@ -2963,6 +2973,292 @@
           "occurrences"
         ],
         "title": "SchedulePreview",
+        "type": "object"
+      },
+      "ServiceCompatibility": {
+        "enum": [
+          "CURRENT",
+          "VERSION_SKEW"
+        ],
+        "title": "ServiceCompatibility",
+        "type": "string"
+      },
+      "ServiceDrainRequest": {
+        "properties": {
+          "expectedVersion": {
+            "minimum": 1.0,
+            "title": "Expectedversion",
+            "type": "integer"
+          },
+          "reason": {
+            "maxLength": 1024,
+            "minLength": 1,
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "expectedVersion",
+          "reason"
+        ],
+        "title": "ServiceDrainRequest",
+        "type": "object"
+      },
+      "ServiceInstance": {
+        "properties": {
+          "compatibility": {
+            "$ref": "#/components/schemas/ServiceCompatibility"
+          },
+          "dependencies": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Dependencies",
+            "type": "object"
+          },
+          "failureZone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Failurezone"
+          },
+          "generation": {
+            "minimum": 1.0,
+            "title": "Generation",
+            "type": "integer"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "instanceName": {
+            "title": "Instancename",
+            "type": "string"
+          },
+          "labels": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Labels",
+            "type": "object"
+          },
+          "lastHeartbeatAt": {
+            "format": "date-time",
+            "title": "Lastheartbeatat",
+            "type": "string"
+          },
+          "liveness": {
+            "$ref": "#/components/schemas/ServiceLiveness"
+          },
+          "ownership": {
+            "additionalProperties": true,
+            "title": "Ownership",
+            "type": "object"
+          },
+          "partitions": {
+            "additionalProperties": true,
+            "title": "Partitions",
+            "type": "object"
+          },
+          "registeredAt": {
+            "format": "date-time",
+            "title": "Registeredat",
+            "type": "string"
+          },
+          "resourceVersion": {
+            "minimum": 1.0,
+            "title": "Resourceversion",
+            "type": "integer"
+          },
+          "role": {
+            "$ref": "#/components/schemas/ServiceRole"
+          },
+          "state": {
+            "$ref": "#/components/schemas/ServiceState"
+          },
+          "stoppedAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stoppedat"
+          },
+          "version": {
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "role",
+          "instanceName",
+          "version",
+          "state",
+          "liveness",
+          "compatibility",
+          "generation",
+          "resourceVersion",
+          "registeredAt",
+          "lastHeartbeatAt"
+        ],
+        "title": "ServiceInstance",
+        "type": "object"
+      },
+      "ServiceLiveness": {
+        "enum": [
+          "LIVE",
+          "STALE",
+          "STOPPED"
+        ],
+        "title": "ServiceLiveness",
+        "type": "string"
+      },
+      "ServiceRole": {
+        "enum": [
+          "webserver",
+          "executor",
+          "scheduler",
+          "worker",
+          "indexer",
+          "maintenance"
+        ],
+        "title": "ServiceRole",
+        "type": "string"
+      },
+      "ServiceRoleStatus": {
+        "properties": {
+          "drainingInstances": {
+            "minimum": 0.0,
+            "title": "Draininginstances",
+            "type": "integer"
+          },
+          "failoverStatus": {
+            "$ref": "#/components/schemas/FailoverStatus"
+          },
+          "failureZones": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Failurezones",
+            "type": "array"
+          },
+          "liveInstances": {
+            "minimum": 0.0,
+            "title": "Liveinstances",
+            "type": "integer"
+          },
+          "readyInstances": {
+            "minimum": 0.0,
+            "title": "Readyinstances",
+            "type": "integer"
+          },
+          "role": {
+            "$ref": "#/components/schemas/ServiceRole"
+          },
+          "staleInstances": {
+            "minimum": 0.0,
+            "title": "Staleinstances",
+            "type": "integer"
+          },
+          "totalInstances": {
+            "minimum": 0.0,
+            "title": "Totalinstances",
+            "type": "integer"
+          },
+          "versions": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Versions",
+            "type": "array"
+          }
+        },
+        "required": [
+          "role",
+          "totalInstances",
+          "liveInstances",
+          "readyInstances",
+          "drainingInstances",
+          "staleInstances",
+          "failureZones",
+          "versions",
+          "failoverStatus"
+        ],
+        "title": "ServiceRoleStatus",
+        "type": "object"
+      },
+      "ServiceState": {
+        "enum": [
+          "STARTING",
+          "READY",
+          "DRAINING",
+          "STOPPED"
+        ],
+        "title": "ServiceState",
+        "type": "string"
+      },
+      "ServiceTopology": {
+        "properties": {
+          "coordination": {
+            "default": "postgresql-leases-and-fencing",
+            "title": "Coordination",
+            "type": "string"
+          },
+          "currentVersion": {
+            "title": "Currentversion",
+            "type": "string"
+          },
+          "instances": {
+            "items": {
+              "$ref": "#/components/schemas/ServiceInstance"
+            },
+            "title": "Instances",
+            "type": "array"
+          },
+          "observedAt": {
+            "format": "date-time",
+            "title": "Observedat",
+            "type": "string"
+          },
+          "quorumDependencies": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Quorumdependencies",
+            "type": "object"
+          },
+          "roles": {
+            "items": {
+              "$ref": "#/components/schemas/ServiceRoleStatus"
+            },
+            "title": "Roles",
+            "type": "array"
+          },
+          "versionSkew": {
+            "title": "Versionskew",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "observedAt",
+          "currentVersion",
+          "versionSkew",
+          "quorumDependencies",
+          "roles",
+          "instances"
+        ],
+        "title": "ServiceTopology",
         "type": "object"
       },
       "SourcePosition": {
@@ -7431,6 +7727,124 @@
         "summary": "Preview Schedule",
         "tags": [
           "triggers"
+        ]
+      }
+    },
+    "/api/v1/operations/services/{instance_id}/drain": {
+      "post": {
+        "operationId": "drain_service_instance_api_v1_operations_services__instance_id__drain_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "instance_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Instance Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ServiceDrainRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceInstance"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Drain Service Instance",
+        "tags": [
+          "operations"
+        ]
+      }
+    },
+    "/api/v1/operations/topology": {
+      "get": {
+        "operationId": "get_service_topology_api_v1_operations_topology_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceTopology"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Service Topology",
+        "tags": [
+          "operations"
         ]
       }
     },

@@ -16493,7 +16493,7 @@
       "id": "URS-F-0590",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M6",
       "wave": 6,
       "epic_id": "EPIC-601",
@@ -16521,7 +16521,7 @@
       "id": "URS-F-0591",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M6",
       "wave": 6,
       "epic_id": "EPIC-601",
@@ -16549,7 +16549,7 @@
       "id": "URS-F-0592",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M6",
       "wave": 6,
       "epic_id": "EPIC-601",
@@ -16577,7 +16577,7 @@
       "id": "URS-F-0593",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M6",
       "wave": 6,
       "epic_id": "EPIC-601",
@@ -16605,7 +16605,7 @@
       "id": "URS-F-0594",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M6",
       "wave": 6,
       "epic_id": "EPIC-601",
@@ -16633,7 +16633,7 @@
       "id": "URS-F-0595",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M6",
       "wave": 6,
       "epic_id": "EPIC-601",
@@ -16661,7 +16661,7 @@
       "id": "URS-F-0596",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M6",
       "wave": 6,
       "epic_id": "EPIC-601",
@@ -16689,7 +16689,7 @@
       "id": "URS-F-0597",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M6",
       "wave": 6,
       "epic_id": "EPIC-601",
@@ -23532,7 +23532,7 @@
         "EPIC-610"
       ],
       "priority": "Must",
-      "status": "Proposed"
+      "status": "In Progress"
     },
     {
       "id": "URS-NFR-COMPLIANCE-001",
@@ -23665,7 +23665,7 @@
         "EPIC-606"
       ],
       "priority": "Must",
-      "status": "Proposed"
+      "status": "In Progress"
     },
     {
       "id": "URS-NFR-OPERABILITY-002",
@@ -23722,7 +23722,7 @@
         "EPIC-607"
       ],
       "priority": "Must",
-      "status": "Proposed"
+      "status": "In Progress"
     },
     {
       "id": "URS-NFR-OPERABILITY-006",
@@ -23806,7 +23806,7 @@
         "EPIC-611"
       ],
       "priority": "Must",
-      "status": "Proposed"
+      "status": "In Progress"
     },
     {
       "id": "URS-NFR-PERFORMANCE-006",
@@ -23862,7 +23862,7 @@
         "EPIC-611"
       ],
       "priority": "Must",
-      "status": "Proposed"
+      "status": "In Progress"
     },
     {
       "id": "URS-NFR-PERFORMANCE-010",
@@ -24017,10 +24017,11 @@
         "EPIC-601"
       ],
       "priority": "Must",
-      "status": "In Progress",
+      "status": "Verified",
       "evidence": [
         "tests/worker/test_worker_protocol.py::test_versioned_worker_protocol_fences_dispatch_and_recovers_lost_work",
-        "tests/scheduler/test_cron_scheduler.py::test_postgres_scheduler_claim_is_single_owner_and_stale_completion_is_fenced"
+        "tests/scheduler/test_cron_scheduler.py::test_postgres_scheduler_claim_is_single_owner_and_stale_completion_is_fenced",
+        "tests/adapters/postgres/test_service_registry.py::test_registry_fences_replaced_instances_and_reports_failover_topology"
       ]
     },
     {

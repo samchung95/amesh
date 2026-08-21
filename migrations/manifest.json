@@ -144,6 +144,12 @@
       "mode": "expand",
       "onlineCompatible": true,
       "rollbackGuidance": "Stop new reconciliation runs and forward-fix the additive run/finding ledgers; retain repair and quarantine evidence with its audit events."
+    },
+    {
+      "file": "0025_service_registry.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Stop independent service-role deployments and forward-fix the additive registry; retain drain audit evidence and let compact deployments continue using PostgreSQL runtime truth."
     }
   ]
 }

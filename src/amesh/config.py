@@ -53,6 +53,12 @@ class Settings(BaseSettings):
     worker_reconciliation_interval_seconds: float = Field(default=60.0, ge=5)
     worker_reconciliation_max_repairs: int = Field(default=10, ge=1, le=100)
     worker_reconciliation_stuck_after_seconds: int = Field(default=300, ge=30, le=86_400)
+    service_role: str = Field(default="webserver", min_length=1, max_length=32)
+    service_instance_name: str | None = Field(default=None, min_length=1, max_length=256)
+    service_failure_zone: str | None = Field(default=None, min_length=1, max_length=256)
+    service_heartbeat_seconds: float = Field(default=5.0, ge=1, le=60)
+    service_stale_after_seconds: float = Field(default=20.0, ge=2, le=300)
+    service_cycle_seconds: float = Field(default=5.0, ge=0.1, le=300)
     product_telemetry_enabled: bool = False
     log_level: str = "INFO"
 

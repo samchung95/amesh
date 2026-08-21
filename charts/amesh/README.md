@@ -9,6 +9,12 @@ tenant requests and tenant-aware worker routing; see the
 The worker performs bounded durable-state reconciliation every 60 seconds by default; tune the three
 `worker.reconciliation*` values using the [reconciliation runbook](../../docs/operations/reconciliation.md).
 
+The default values deploy two replicas of each critical independent role plus one maintenance role.
+Select `profiles/small.yaml`, `profiles/medium.yaml` or `profiles/large.yaml` and follow the
+[high-availability runbook](../../docs/operations/high-availability.md) for topology, quorum, drain
+and qualification details. The legacy bundled worker is disabled by default and remains available as
+`worker.enabled=true` for compact compatibility.
+
 `database.migrationExistingSecret` can hold a table-owner/migration login separately from the
 application login in `database.existingSecret`. Restricted tenant-repository logins need the roles
 documented in the multi-tenancy runbook; the combined server still needs its existing authorization

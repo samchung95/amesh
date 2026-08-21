@@ -4,10 +4,11 @@ image:
   pullPolicy: IfNotPresent
 
 server:
-  replicas: 1
+  replicas: 2
   resources: {}
 
 worker:
+  enabled: false
   replicas: 1
   pollSeconds: 5
   recoveryGraceSeconds: 120
@@ -16,6 +17,40 @@ worker:
   reconciliationStuckAfterSeconds: 300
   group: default
   resources: {}
+
+serviceRoles:
+  executor:
+    enabled: true
+    replicas: 2
+    resources: {}
+  scheduler:
+    enabled: true
+    replicas: 2
+    resources: {}
+  worker:
+    enabled: true
+    replicas: 2
+    resources: {}
+  indexer:
+    enabled: true
+    replicas: 2
+    resources: {}
+  maintenance:
+    enabled: true
+    replicas: 1
+    resources: {}
+
+highAvailability:
+  topologyKey: topology.kubernetes.io/zone
+  maxSkew: 1
+  whenUnsatisfiable: ScheduleAnyway
+  terminationGracePeriodSeconds: 30
+  minReadySeconds: 5
+  maxUnavailable: 0
+  maxSurge: 1
+  podDisruptionBudget:
+    enabled: true
+    maxUnavailable: 1
 
 tenancy:
   mode: single
@@ -64,6 +99,9 @@ openRouter:
 
 taskNamespace: ""
 logLevel: INFO
+serviceHeartbeatSeconds: 5
+serviceStaleAfterSeconds: 20
+serviceCycleSeconds: 5
 
 podAnnotations: {}
 podLabels: {}

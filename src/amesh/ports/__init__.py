@@ -62,6 +62,7 @@ from .reconciliation_repository import (
     ReconciliationRepository,
 )
 from .scheduler_repository import SchedulerFenceError, SchedulerRepository, ScheduleState
+from .service_registry import ServiceFenceError, ServiceRegistryRepository
 from .task_runner import (
     RunnerRequest,
     RunnerResult,
@@ -138,6 +139,8 @@ __all__ = [
     "ScheduleState",
     "SchedulerFenceError",
     "SchedulerRepository",
+    "ServiceFenceError",
+    "ServiceRegistryRepository",
     "StaleRunnerAttemptError",
     "StaleWorkClaimError",
     "SubflowLaunchContext",

@@ -41,7 +41,7 @@ def test_backup_checkpoint_and_maintenance_inventory_are_durable() -> None:
             )
 
             assert created.database_lsn
-            assert created.schema_version == "0024_reconciliation_runs.sql"
+            assert created.schema_version == "0025_service_registry.sql"
             assert await repository.latest_backup_checkpoint() == created
             maintenance = await repository.inspect_table_maintenance()
             backup_table = next(

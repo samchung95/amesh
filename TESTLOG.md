@@ -927,3 +927,41 @@ URS-NFR-RELIABILITY-007. The shared acknowledged-command failover target remains
 distributed HA stage; this epic does not claim zone or PostgreSQL failover qualification.
 
 Verdict: PASS — EPIC-108 closed.
+
+## EPIC-601: Distributed services and high availability — 2026-08-22
+
+Spec source: `backlog/epics/epic-601-distributed-services-and-high-availability.md` and
+`docs/operations/high-availability.md`.
+
+Verified with `uv`, Python 3.13.12, PostgreSQL 17 and Helm 4.0.0:
+
+- [x] Webserver, executor, scheduler, worker gateway, indexer and maintenance are independent process
+  roles and Helm Deployments; each role owns only its bounded service cycle.
+- [x] Migration 0025 persists role, instance, version, failure domain, heartbeat, ownership,
+  partition strategy and dependency status. Replacement increments a generation and changes the
+  incarnation ID, causing old process heartbeats to fail their fence.
+- [x] Instance-admin topology and drain APIs are authenticated. Drain uses an expected resource
+  version, writes an audit event and keeps a draining process from taking another work cycle.
+- [x] A real indexer role process registered, became ready, accepted a drain and persisted `STOPPED`.
+  Stale incarnation heartbeats and stale drain requests were rejected.
+- [x] Scheduler cursor, worker claim and service incarnation ownership all use PostgreSQL time,
+  leases/generations and fencing; Kubernetes leader state is not authoritative.
+- [x] Default and small/medium/large Helm profiles define rolling-update bounds, graceful pre-stop,
+  PDBs where replicas permit, zone spread and separate liveness/readiness checks. Helm lint passed
+  for all four configurations.
+- [x] The operator runbook documents S/M/L replica counts, quorum dependencies, status inspection,
+  version skew, drain/replacement and the dependency-certification boundary.
+- [x] A guarded fresh database applied all 25 migrations. Full suite: 213 passed and four
+  environment-gated tests skipped. Generated OpenAPI, Compose, formatting, Ruff and strict mypy pass.
+
+Adversarial pass: replaced service incarnation, stale heartbeat, stale optimistic drain, active drain
+heartbeat, two-zone redundancy, stopped peer, version skew and unauthorized topology/drain access all
+produce deterministic outcomes without accepting stale ownership.
+
+Qualification boundary: stale-owner fencing and reconciliation convergence are verified. The
+60-second credentialed multi-zone failover, 24-hour/100,000-execution Profile M workload, measured
+two-to-four replica efficiency, live upgrade rehearsal and complete dashboard/alert catalog remain In
+Progress in EPIC-611/606/607. No external PostgreSQL/object-store quorum or long-run capacity claim is
+made by this functional closure.
+
+Verdict: PASS — EPIC-601 functional scope closed.
