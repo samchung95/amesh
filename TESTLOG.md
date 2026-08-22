@@ -1,5 +1,23 @@
 # Test Log
 
+## Deployed Dashboard and Flows recovery-state repair — 2026-08-22
+
+Spec source: Agent Hotel card `c31` and EPIC-404 deployment follow-up.
+
+- [x] Runtime logs reproduced `/api/v1/flows` as HTTP 500 while `/api/v1/executions?limit=200`
+  remained HTTP 200.
+- [x] PostgreSQL contained one affected flow among 862 rows: `updated_at` preceded `created_at`
+  by 536 microseconds after a concurrent upsert used an older transaction timestamp.
+- [x] The focused regression reproduced the original Pydantic validation error before the fix and
+  passed after flow deserialization normalized the timestamp at the persistence boundary.
+- [x] Focused Ruff and strict mypy checks passed.
+- [x] `docker compose up -d --build api` rebuilt a healthy API without replacing the PostgreSQL or
+  MinIO volumes.
+- [x] Fresh headless Chromium login rendered Dashboard metrics, opened Flows, displayed `863 / 863
+  flows`, observed HTTP 200 from flow and execution queries, and found no recovery-state heading.
+
+Verdict: PASS — the reported deployed view is repaired and the local stack remains running.
+
 ## EPIC-603: PostgreSQL distributed work queue and notifications — 2026-08-22
 
 Spec source: Agent Hotel card `c23` and canonical `backlog/epics.json` EPIC-603 DoD.

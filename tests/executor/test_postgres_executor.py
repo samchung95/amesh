@@ -666,6 +666,49 @@ def test_canonical_resource_metadata_and_uuid7_are_persisted() -> None:
     asyncio.run(scenario())
 
 
+def test_list_flows_normalizes_transaction_timestamp_skew() -> None:
+    async def scenario() -> None:
+        if TEST_DATABASE_URL is None:
+            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
+        flow = FlowDefinition.model_validate(
+            {
+                "id": "timestamp_skew",
+                "namespace": f"tests.resources.{uuid4().hex}",
+                "tasks": [{"id": "done", "type": "core.return", "value": "ok"}],
+            }
+        )
+        engine = create_async_engine(TEST_DATABASE_URL)
+        repository = PostgresExecutionRepository(engine)
+        persisted_flow = await repository.apply_flow(flow, tenant_id="default")
+        try:
+            async with engine.begin() as connection:
+                await connection.execute(
+                    text(
+                        "UPDATE flows "
+                        "SET updated_at = created_at - interval '1 millisecond' "
+                        "WHERE id = :flow_id"
+                    ),
+                    {"flow_id": persisted_flow.resource_id},
+                )
+
+            listed_flow = next(
+                candidate
+                for candidate in await repository.list_flows(tenant_id="default")
+                if candidate.resource_id == persisted_flow.resource_id
+            )
+
+            assert listed_flow.metadata.updated_at == listed_flow.metadata.created_at
+        finally:
+            async with engine.begin() as connection:
+                await connection.execute(
+                    text("UPDATE flows SET updated_at = created_at WHERE id = :flow_id"),
+                    {"flow_id": persisted_flow.resource_id},
+                )
+            await engine.dispose()
+
+    asyncio.run(scenario())
+
+
 def test_core_log_emits_execution_context(
     caplog: pytest.LogCaptureFixture,
 ) -> None:

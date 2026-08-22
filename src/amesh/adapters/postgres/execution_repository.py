@@ -4103,11 +4103,13 @@ def _to_subflow(row: RowMapping) -> PersistedSubflow:
 
 
 def _to_flow(row: RowMapping) -> PersistedFlow:
+    created_at = row["created_at"]
+    updated_at = max(created_at, row["updated_at"])
     metadata = ResourceMetadata(
         labels=row["labels"],
         annotations=row["annotations"],
-        created_at=row["created_at"],
-        updated_at=row["updated_at"],
+        created_at=created_at,
+        updated_at=updated_at,
         created_by=row["created_by"],
         updated_by=row["updated_by"],
         resource_version=row["version"],
