@@ -180,6 +180,12 @@
       "mode": "expand",
       "onlineCompatible": true,
       "rollbackGuidance": "Pause trigger ingestion and forward-fix the additive runtime, occurrence and event ledgers; retain checkpoints, dead letters, replay lineage and execution links as operational evidence."
+    },
+    {
+      "file": "0031_execution_checks.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Pause deadline and check-action consumers and forward-fix the additive policy, definition, evaluation and action ledgers; retain all compliance evidence."
     }
   ]
 }

@@ -7,6 +7,7 @@ import {
   DatabaseZap,
   LayoutGrid,
   RadioTower,
+  ShieldCheck,
   Settings2,
   Workflow,
   type LucideIcon,
@@ -50,6 +51,14 @@ export const navigationItems: NavigationItem[] = [
     group: 'operate',
     icon: RadioTower,
     capability: 'triggers.view',
+  },
+  {
+    id: 'checks',
+    labelKey: 'checks',
+    path: '/checks',
+    group: 'operate',
+    icon: ShieldCheck,
+    capability: 'checks.view',
   },
   {
     id: 'namespaces',

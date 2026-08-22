@@ -13,6 +13,7 @@ from amesh.adapters.kubernetes import KubernetesJobRunner
 from amesh.adapters.local import LocalProcessRunner
 from amesh.adapters.postgres import (
     PostgresBackfillRepository,
+    PostgresCheckRepository,
     PostgresExecutionRepository,
     PostgresReconciliationRepository,
     PostgresSchedulerRepository,
@@ -35,6 +36,7 @@ from amesh.executor import (
 )
 from amesh.observability import configure_structured_logging
 from amesh.ports import (
+    CheckRepository,
     ExecutionLaunchSource,
     ReconciliationAlreadyRunningError,
     TaskCacheRepository,
@@ -165,6 +167,84 @@ async def process_trigger_occurrences_once(
     return processed
 
 
+async def process_execution_checks_once(
+    repository: PostgresExecutionRepository,
+    checks: CheckRepository,
+    *,
+    tenant_ids: Sequence[str],
+    worker_id: UUID,
+    limit: int = 100,
+) -> int:
+    """Evaluate due checks and execute their bounded durable actions."""
+
+    processed = 0
+    for tenant_id in tenant_ids:
+        processed += await checks.process_due_checks(tenant_id=tenant_id, limit=limit)
+        actions = await checks.claim_actions(
+            tenant_id=tenant_id,
+            owner_id=worker_id,
+            lease_duration=timedelta(seconds=30),
+            limit=limit,
+        )
+        for action in actions:
+            try:
+                if action.action_type == "NOTIFY":
+                    await checks.publish_notification(action, tenant_id=tenant_id)
+                    evidence = {
+                        "decision": "notified",
+                        "channel": action.channel,
+                    }
+                elif action.action_type == "RUN_FLOW":
+                    if action.target_namespace is None or action.target_flow_id is None:
+                        raise ValueError("RUN_FLOW check action has no target")
+                    flow = await repository.get_flow(
+                        action.target_namespace,
+                        action.target_flow_id,
+                        tenant_id=tenant_id,
+                    )
+                    execution = await repository.create_execution(
+                        flow,
+                        tenant_id=tenant_id,
+                        inputs=action.payload,
+                        trigger={
+                            "id": "check-action",
+                            "type": "core.check",
+                            "evaluationId": str(action.evaluation_id),
+                            "sourceExecutionId": (
+                                str(action.execution_id) if action.execution_id else None
+                            ),
+                            "checkPolicyDepth": action.policy_depth + 1,
+                        },
+                        launch_source=ExecutionLaunchSource.EVENT,
+                        idempotency_key=f"check-action:{action.action_id}",
+                        actor_id="system:check-worker",
+                    )
+                    evidence = {
+                        "decision": "flow-launched",
+                        "executionId": str(execution.execution_id),
+                    }
+                else:
+                    raise ValueError(f"unsupported check action {action.action_type!r}")
+                await checks.complete_action(
+                    action.action_id,
+                    tenant_id=tenant_id,
+                    owner_id=worker_id,
+                    fencing_token=action.fencing_token,
+                    evidence=evidence,
+                )
+                processed += 1
+            except Exception as exc:
+                await checks.fail_action(
+                    action.action_id,
+                    tenant_id=tenant_id,
+                    owner_id=worker_id,
+                    fencing_token=action.fencing_token,
+                    error=str(exc),
+                    retry_delay=timedelta(seconds=30),
+                )
+    return processed
+
+
 async def recover_once(
     repository: PostgresExecutionRepository,
     settings: Settings,
@@ -283,6 +363,7 @@ async def run_worker(settings: Settings) -> None:
     repository = PostgresExecutionRepository(engine)
     scheduler_repository = PostgresSchedulerRepository(engine)
     trigger_runtime = PostgresTriggerRuntimeRepository(engine)
+    checks = PostgresCheckRepository(engine)
     backfill_repository = PostgresBackfillRepository(engine)
     reconciliation_repository = PostgresReconciliationRepository(engine)
     tenant_repository = PostgresTenantRepository(engine)
@@ -304,6 +385,12 @@ async def run_worker(settings: Settings) -> None:
                 await process_trigger_occurrences_once(
                     repository,
                     trigger_runtime,
+                    tenant_ids=tenant_ids,
+                    worker_id=worker_uuid,
+                )
+                await process_execution_checks_once(
+                    repository,
+                    checks,
                     tenant_ids=tenant_ids,
                     worker_id=worker_uuid,
                 )

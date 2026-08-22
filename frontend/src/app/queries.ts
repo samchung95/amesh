@@ -65,3 +65,36 @@ export function useTriggerOccurrences(enabled = true) {
     refetchInterval: 10_000,
   })
 }
+
+export function useCheckPolicies(enabled = true) {
+  const api = useApiClient()
+  const { settings } = useAppSettings()
+  return useQuery({
+    queryKey: ['check-policies', settings.tenant, settings.namespace],
+    queryFn: () => api.checkPolicies(settings.namespace || undefined),
+    enabled,
+    refetchInterval: 30_000,
+  })
+}
+
+export function useCheckEvaluations(enabled = true) {
+  const api = useApiClient()
+  const { settings } = useAppSettings()
+  return useQuery({
+    queryKey: ['check-evaluations', settings.tenant, settings.namespace],
+    queryFn: () => api.checkEvaluations(settings.namespace || undefined),
+    enabled,
+    refetchInterval: 10_000,
+  })
+}
+
+export function useCheckCompliance(enabled = true) {
+  const api = useApiClient()
+  const { settings } = useAppSettings()
+  return useQuery({
+    queryKey: ['check-compliance', settings.tenant, settings.namespace],
+    queryFn: () => api.checkCompliance(settings.namespace || undefined),
+    enabled,
+    refetchInterval: 10_000,
+  })
+}

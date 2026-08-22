@@ -101,6 +101,11 @@ claims, retry/dead-letter state, replay lineage and flow-revision activation sur
 connector restart. It is additive; pause trigger consumers and forward-fix on failure while retaining
 occurrence evidence.
 
+Migration `0031_execution_checks.sql` adds reusable namespace/plugin policies, immutable effective
+flow-revision definitions, database-time deadlines, independent evaluation evidence and a fenced,
+retry-bounded violation-action queue. It is additive; pause deadline/action consumers and forward-fix
+while retaining compliance evidence if application fails.
+
 ## Migration modes
 
 - `bootstrap` creates the initial schema and is only safe for an empty database.

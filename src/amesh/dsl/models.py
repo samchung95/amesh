@@ -233,6 +233,61 @@ class TaskDefinition(BaseModel):
         return self
 
 
+class CheckActionDefinition(BaseModel):
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
+    type: Literal["NOTIFY", "RUN_FLOW"]
+    namespace: NamespaceId | None = None
+    flow_id: NaturalId | None = Field(default=None, alias="flowId")
+    channel: str | None = Field(default=None, min_length=1, max_length=128)
+    payload: dict[str, Any] = Field(default_factory=dict)
+    max_depth: int = Field(default=4, ge=1, le=16, alias="maxDepth")
+    max_attempts: int = Field(default=3, ge=1, le=10, alias="maxAttempts")
+
+    @model_validator(mode="after")
+    def validate_target(self) -> CheckActionDefinition:
+        if self.type == "RUN_FLOW" and self.flow_id is None:
+            raise ValueError("RUN_FLOW check action requires flowId")
+        if self.type == "NOTIFY" and self.channel is None:
+            raise ValueError("NOTIFY check action requires channel")
+        return self
+
+
+class CheckDefinition(BaseModel):
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
+    id: NaturalId
+    type: Literal[
+        "DURATION",
+        "START_DELAY",
+        "FRESHNESS",
+        "COMPLETION_WINDOW",
+        "OUTPUT",
+        "EXPRESSION",
+    ]
+    severity: Literal["WARN", "FAIL"] = "FAIL"
+    threshold: timedelta | None = None
+    expression: str | None = Field(default=None, min_length=1, max_length=65_536)
+    enabled: bool = True
+    actions: tuple[CheckActionDefinition, ...] = Field(default=(), max_length=10)
+
+    @model_validator(mode="after")
+    def validate_check_contract(self) -> CheckDefinition:
+        threshold_types = {"DURATION", "START_DELAY", "FRESHNESS", "COMPLETION_WINDOW"}
+        expression_types = {"OUTPUT", "EXPRESSION"}
+        if self.type in threshold_types:
+            if self.threshold is None or self.threshold.total_seconds() <= 0:
+                raise ValueError(f"{self.type} check requires a positive threshold")
+            if self.expression is not None:
+                raise ValueError(f"{self.type} check cannot declare expression")
+        elif self.type in expression_types:
+            if self.expression is None:
+                raise ValueError(f"{self.type} check requires expression")
+            if self.threshold is not None:
+                raise ValueError(f"{self.type} check cannot declare threshold")
+        return self
+
+
 class FlowDefinition(BaseModel):
     model_config = ConfigDict(extra="allow", populate_by_name=True)
 
@@ -255,6 +310,8 @@ class FlowDefinition(BaseModel):
     priority: int = Field(default=0, ge=-1000, le=1000)
     tasks: list[TaskDefinition] = Field(min_length=1)
     triggers: list[TriggerDefinition] = Field(default_factory=list)
+    checks: list[CheckDefinition] = Field(default_factory=list)
+    check_policies: tuple[NaturalId, ...] = Field(default=(), alias="checkPolicies")
     outputs: dict[str, Any] = Field(default_factory=dict)
     errors: list[TaskDefinition] = Field(default_factory=list)
     finally_tasks: list[TaskDefinition] = Field(default_factory=list, alias="finally")
@@ -268,6 +325,11 @@ class FlowDefinition(BaseModel):
                 + ", ".join(repr(key) for key in unknown)
                 + "; extension fields must start with 'x-'"
             )
+        check_ids = [check.id for check in self.checks]
+        if len(set(check_ids)) != len(check_ids):
+            raise ValueError("flow check ids must be unique")
+        if len(set(self.check_policies)) != len(self.check_policies):
+            raise ValueError("flow checkPolicies must be unique")
         return self
 
     @classmethod

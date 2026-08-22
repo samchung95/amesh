@@ -23,6 +23,166 @@
       "title": "AdmissionScope",
       "type": "string"
     },
+    "CheckActionDefinition": {
+      "additionalProperties": false,
+      "properties": {
+        "channel": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Channel"
+        },
+        "flowId": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Flowid"
+        },
+        "maxAttempts": {
+          "default": 3,
+          "maximum": 10,
+          "minimum": 1,
+          "title": "Maxattempts",
+          "type": "integer"
+        },
+        "maxDepth": {
+          "default": 4,
+          "maximum": 16,
+          "minimum": 1,
+          "title": "Maxdepth",
+          "type": "integer"
+        },
+        "namespace": {
+          "anyOf": [
+            {
+              "maxLength": 255,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Namespace"
+        },
+        "payload": {
+          "additionalProperties": true,
+          "title": "Payload",
+          "type": "object"
+        },
+        "type": {
+          "enum": [
+            "NOTIFY",
+            "RUN_FLOW"
+          ],
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "title": "CheckActionDefinition",
+      "type": "object"
+    },
+    "CheckDefinition": {
+      "additionalProperties": false,
+      "properties": {
+        "actions": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/CheckActionDefinition"
+          },
+          "maxItems": 10,
+          "title": "Actions",
+          "type": "array"
+        },
+        "enabled": {
+          "default": true,
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "expression": {
+          "anyOf": [
+            {
+              "maxLength": 65536,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Expression"
+        },
+        "id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+          "title": "Id",
+          "type": "string"
+        },
+        "severity": {
+          "default": "FAIL",
+          "enum": [
+            "WARN",
+            "FAIL"
+          ],
+          "title": "Severity",
+          "type": "string"
+        },
+        "threshold": {
+          "anyOf": [
+            {
+              "format": "duration",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Threshold"
+        },
+        "type": {
+          "enum": [
+            "DURATION",
+            "START_DELAY",
+            "FRESHNESS",
+            "COMPLETION_WINDOW",
+            "OUTPUT",
+            "EXPRESSION"
+          ],
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "type"
+      ],
+      "title": "CheckDefinition",
+      "type": "object"
+    },
     "ConcurrencyLimit": {
       "additionalProperties": false,
       "description": "A versioned DSL concurrency rule shared by flows and tasks.",
@@ -745,6 +905,24 @@
       "default": "amesh.flow/v1",
       "title": "Apiversion",
       "type": "string"
+    },
+    "checkPolicies": {
+      "default": [],
+      "items": {
+        "maxLength": 128,
+        "minLength": 1,
+        "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+        "type": "string"
+      },
+      "title": "Checkpolicies",
+      "type": "array"
+    },
+    "checks": {
+      "items": {
+        "$ref": "#/$defs/CheckDefinition"
+      },
+      "title": "Checks",
+      "type": "array"
     },
     "concurrency": {
       "items": {

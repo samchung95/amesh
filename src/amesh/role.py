@@ -9,6 +9,7 @@ from sqlalchemy.exc import DBAPIError
 
 from amesh.adapters.postgres import (
     PostgresBackfillRepository,
+    PostgresCheckRepository,
     PostgresDurableTransport,
     PostgresExecutionRepository,
     PostgresReconciliationRepository,
@@ -27,6 +28,7 @@ from amesh.ports import ServiceFenceError, WorkerLossPolicy
 from amesh.service_runtime import RegisteredService, service_instance_name
 from amesh.worker import (
     backfill_once,
+    process_execution_checks_once,
     process_trigger_occurrences_once,
     reconcile_once,
     recover_once,
@@ -50,6 +52,7 @@ async def _run_cycle(
     transport: PostgresDurableTransport,
     task_cache: PostgresTaskCacheRepository | None = None,
     trigger_runtime: PostgresTriggerRuntimeRepository | None = None,
+    checks: PostgresCheckRepository | None = None,
 ) -> int:
     if role is ServiceRole.SCHEDULER:
         scheduled = await schedule_once(
@@ -69,9 +72,20 @@ async def _run_cycle(
             if trigger_runtime is not None
             else 0
         )
+        check_work = (
+            await process_execution_checks_once(
+                executions,
+                checks,
+                tenant_ids=tenant_ids,
+                worker_id=service.instance.instance_id,
+            )
+            if checks is not None
+            else 0
+        )
         return (
             scheduled
             + triggered
+            + check_work
             + await backfill_once(
                 executions,
                 backfills,
@@ -127,6 +141,7 @@ async def run_role(settings: Settings) -> None:
     transport = PostgresDurableTransport(engine)
     task_cache = PostgresTaskCacheRepository(engine)
     trigger_runtime = PostgresTriggerRuntimeRepository(engine)
+    checks = PostgresCheckRepository(engine)
     work_count = 0
     try:
         await service.register()
@@ -156,6 +171,7 @@ async def run_role(settings: Settings) -> None:
                     transport=transport,
                     task_cache=task_cache,
                     trigger_runtime=trigger_runtime,
+                    checks=checks,
                 )
             except (DBAPIError, OSError):
                 LOGGER.exception("service role cycle interrupted; retrying")

@@ -1,5 +1,42 @@
 # Test Log
 
+## EPIC-110: SLA, checks and execution policy evaluation — 2026-08-22
+
+Spec source: Agent Hotel card `c36` and canonical `backlog/epics.json` EPIC-110 DoD.
+
+Verified with `uv`, Python 3.13, PostgreSQL 17 and the deployed React control room:
+
+- [x] The versioned flow DSL validates and canonicalizes duration, start-delay, freshness,
+  completion-window, output and expression checks, including WARN/FAIL severity and bounded
+  notification/system-flow actions; invalid threshold, expression and action targets are rejected.
+- [x] Explicit checks, selected namespace policies and matching plugin-default policies materialize
+  with immutable flow revisions. Explicit IDs take precedence and policy updates write tenant audit
+  evidence.
+- [x] Execution start/terminal transactions and PostgreSQL-time deadline cycles persist independent
+  PASS/WARN/FAIL/ERROR outcomes with reason, point, subject, timing/expression evidence and labels.
+- [x] Compliance aggregation passed for tenant, namespace, flow, label and time groupings through the
+  authorized API. The `/checks` control-room route renders flow aggregation, evaluation evidence,
+  execution links and the reusable-policy inventory with a 10-second refresh.
+- [x] NOTIFY uses the existing durable outbox with a retry-stable envelope. RUN_FLOW uses ordinary
+  idempotent execution launch. Leased actions have bounded attempts; unique evaluation/action
+  identities and `maxDepth` persist recursive actions as SKIPPED.
+- [x] Fresh-database migration repeatability applied all 31 migrations twice with matching schema and
+  seed fingerprints.
+- [x] Complete backend suite: 267 collected; 260 passed, six environment/profile skips and the
+  pre-existing EPIC-104 50 ms execution-deadline timing test explicitly deselected.
+- [x] Ruff, formatting, strict mypy, generated flow/OpenAPI contracts, planning/backlog validation and
+  diff-whitespace checks passed. Frontend production build and 10 unit tests passed; modified-file
+  ESLint passed. Chromium acceptance passed six desktop tests with one tablet-only skip.
+- [x] Deployed acceptance reported migration 31/31 and healthy API/executor/scheduler services.
+  `demo.checks/checked-result` execution `01a028a6-2301-75f0-bbd1-8a66b6de320a` completed SUCCESS;
+  start, duration, freshness, completion, output and expression checks returned six PASS results and
+  `demo.checks.checked-result` compliance was 100%. `/checks` and all check APIs returned HTTP 200.
+
+No LLM invocation was required for deterministic check evaluation; the configured OpenRouter
+`openai/gpt-5.6-luna` default is unchanged.
+
+Verdict: PASS — EPIC-110 functional requirements URS-F-0164 through URS-F-0171 are verified.
+
 ## EPIC-109: Task and execution cache — 2026-08-22
 
 Spec source: Agent Hotel card `c34` and canonical `backlog/epics.json` EPIC-109 DoD.

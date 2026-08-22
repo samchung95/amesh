@@ -1,0 +1,39 @@
+apiVersion: amesh.flow/v1
+id: checked-result
+namespace: demo.checks
+revision: 1
+inputs:
+  - id: expected
+    type: STRING
+    required: false
+    default: ready
+labels:
+  service: demo
+tasks:
+  - id: result
+    type: core.return
+    value: ready
+checks:
+  - id: start-budget
+    type: START_DELAY
+    threshold: PT30S
+  - id: duration-budget
+    type: DURATION
+    threshold: PT5M
+  - id: freshness-budget
+    type: FRESHNESS
+    threshold: PT24H
+  - id: completion-budget
+    type: COMPLETION_WINDOW
+    threshold: PT5M
+  - id: expected-output
+    type: OUTPUT
+    expression: "{{ outputs.result.value == inputs.expected }}"
+    actions:
+      - type: NOTIFY
+        channel: operations
+        maxAttempts: 3
+  - id: terminal-success
+    type: EXPRESSION
+    severity: WARN
+    expression: "{{ execution.state == 'SUCCESS' }}"

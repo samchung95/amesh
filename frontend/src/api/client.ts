@@ -1,10 +1,13 @@
 import type {
+  CheckComplianceSummary,
+  CheckEvaluation,
   ExecutionDetail,
   ExecutionEvidencePage,
   AuthenticationProvider,
   FlowGraph,
   HealthResponse,
   LoginResponse,
+  NamespaceCheckPolicy,
   PersistedExecution,
   PersistedFlow,
   TriggerOccurrence,
@@ -91,6 +94,21 @@ export function createApiClient(connection: ApiConnection) {
       const params = new URLSearchParams({ limit: '200' })
       if (namespace) params.set('namespace', namespace)
       return request<TriggerOccurrence[]>(`/api/v1/trigger-occurrences?${params.toString()}`)
+    },
+    checkPolicies: async (namespace?: string) => {
+      const params = new URLSearchParams({ limit: '200' })
+      if (namespace) params.set('namespace', namespace)
+      return request<NamespaceCheckPolicy[]>(`/api/v1/check-policies?${params.toString()}`)
+    },
+    checkEvaluations: async (namespace?: string) => {
+      const params = new URLSearchParams({ limit: '200' })
+      if (namespace) params.set('namespace', namespace)
+      return request<CheckEvaluation[]>(`/api/v1/check-evaluations?${params.toString()}`)
+    },
+    checkCompliance: async (namespace?: string) => {
+      const params = new URLSearchParams({ groupBy: 'flow', limit: '200' })
+      if (namespace) params.set('namespace', namespace)
+      return request<CheckComplianceSummary[]>(`/api/v1/check-compliance?${params.toString()}`)
     },
     setTriggerPaused: async (namespace: string, flowId: string, triggerId: string, paused: boolean, reason: string) =>
       request<TriggerRuntimeState>(`/api/v1/triggers/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/${encodeURIComponent(triggerId)}/${paused ? 'pause' : 'resume'}`, {

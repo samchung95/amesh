@@ -14,6 +14,8 @@ const session = {
     'executions.execute': true,
     'triggers.view': true,
     'triggers.manage': true,
+    'checks.view': true,
+    'checks.manage': true,
     'namespaces.view': true,
     'plugins.view': true,
     'administration.manage': false,
@@ -40,12 +42,29 @@ const triggerOccurrences = [
   { occurrence_id: '00000000-0000-7000-8000-000000000302', tenant_id: 'default', trigger_definition_id: triggers[0].trigger_definition_id, namespace: 'examples.engine', flow_id: 'hello_world', flow_revision: 3, trigger_id: 'every_minute', trigger_type: 'core.cron', occurrence_key: 'core.cron:examples.engine:hello_world:3:every_minute:2026-08-21T12:01:00Z', state: 'SUCCEEDED', attempt: 1, max_attempts: 3, available_at: '2026-08-21T12:01:00Z', payload: {}, metadata: { source: 'schedule' }, evidence: { reason: 'scheduled occurrence created an execution' }, execution_id: executions[1].execution_id, replay_of: null, created_at: '2026-08-21T12:01:00Z', updated_at: '2026-08-21T12:01:01Z', completed_at: '2026-08-21T12:01:01Z' },
 ]
 
+const checkEvaluations = [
+  { evaluation_id: '00000000-0000-7000-8000-000000000401', tenant_id: 'default', check_definition_id: '00000000-0000-7000-8000-000000000402', execution_id: executions[1].execution_id, namespace: 'examples.agent', flow_id: 'luna_research', flow_revision: 1, check_id: 'research-output', check_type: 'OUTPUT', source: 'EXPLICIT', evaluation_point: 'TERMINAL', subject_key: `execution:${executions[1].execution_id}`, outcome: 'PASS', severity: 'FAIL', reason: 'expression evaluated true', evidence: { result: true }, labels: { service: 'research' }, evaluated_at: '2026-08-21T11:02:00Z' },
+  { evaluation_id: '00000000-0000-7000-8000-000000000403', tenant_id: 'default', check_definition_id: '00000000-0000-7000-8000-000000000404', execution_id: executions[0].execution_id, namespace: 'examples.engine', flow_id: 'hello_world', flow_revision: 3, check_id: 'start-latency', check_type: 'START_DELAY', source: 'NAMESPACE', evaluation_point: 'STARTED', subject_key: `execution:${executions[0].execution_id}`, outcome: 'WARN', severity: 'WARN', reason: 'execution start delay exceeded the configured threshold', evidence: { delaySeconds: 12 }, labels: { service: 'engine' }, evaluated_at: '2026-08-21T12:00:00Z' },
+]
+
+const checkCompliance = [
+  { group_key: 'examples.agent.luna_research', total: 1, passed: 1, warned: 0, failed: 0, errors: 0, compliance_rate: 1 },
+  { group_key: 'examples.engine.hello_world', total: 1, passed: 0, warned: 1, failed: 0, errors: 0, compliance_rate: 0 },
+]
+
+const checkPolicies = [
+  { policy_id: '00000000-0000-7000-8000-000000000405', tenant_id: 'default', namespace: 'examples.engine', policy_key: 'interactive-start', source: 'NAMESPACE', task_type: null, definition: { id: 'start-latency', type: 'START_DELAY', severity: 'WARN', threshold: 'PT10S', enabled: true, actions: [] }, enabled: true, created_at: '2026-08-21T10:00:00Z', updated_at: '2026-08-21T10:00:00Z' },
+]
+
 async function mockApi(page: Page, overrides = session) {
   await page.route('**/api/v1/ui/session**', (route) => route.fulfill({ json: overrides }))
   await page.route('**/api/v1/flows', (route) => route.fulfill({ json: flows }))
   await page.route('**/api/v1/executions?limit=200', (route) => route.fulfill({ json: executions }))
   await page.route('**/api/v1/triggers', (route) => route.fulfill({ json: triggers }))
   await page.route('**/api/v1/trigger-occurrences?limit=200', (route) => route.fulfill({ json: triggerOccurrences }))
+  await page.route('**/api/v1/check-evaluations?*', (route) => route.fulfill({ json: checkEvaluations }))
+  await page.route('**/api/v1/check-compliance?*', (route) => route.fulfill({ json: checkCompliance }))
+  await page.route('**/api/v1/check-policies?*', (route) => route.fulfill({ json: checkPolicies }))
   await page.route('**/api/v1/executions/*', (route) => route.fulfill({ json: { execution: executions[0], taskRuns: [{ task_run_id: '00000000-0000-7000-8000-000000000201', execution_id: executions[0].execution_id, task_id: 'return', state: 'SUCCESS', current_attempt: 1, version: 2, retry_at: null, result: { value: 'cached' }, evidence: { cache: { decision: 'HIT', reason: 'reused a matching result', keyHash: 'abc123', sourceExecutionId: executions[1].execution_id, sourceTaskRunId: '00000000-0000-7000-8000-000000000202', sourceAttempt: 1, expiresAt: '2026-08-21T13:00:00Z' } } }] } }))
 }
 
@@ -102,6 +121,17 @@ test('shows live trigger health and durable occurrence evidence', async ({ page 
   await expect(page.getByText('occurrence launched execution')).toBeVisible()
   await expect(page.getByText('scheduled occurrence created an execution')).toBeVisible()
   await expect(page.getByRole('link', { name: 'Execution', exact: true })).toBeVisible()
+})
+
+test('shows check compliance, evaluation evidence and reusable policies', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name === 'tablet', 'desktop check monitor acceptance')
+  await connect(page)
+  await page.getByRole('link', { name: 'Checks' }).click()
+  await expect(page.getByRole('heading', { name: 'Execution checks' })).toBeVisible()
+  await expect(page.getByText('examples.agent.luna_research', { exact: true }).first()).toBeVisible()
+  await expect(page.getByText('research-output')).toBeVisible()
+  await expect(page.getByText('expression evaluated true')).toBeVisible()
+  await expect(page.getByText('interactive-start')).toBeVisible()
 })
 
 test('switches locale and has no critical or serious automated accessibility findings', async ({ page }, testInfo) => {

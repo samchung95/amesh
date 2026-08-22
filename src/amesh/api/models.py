@@ -18,8 +18,10 @@ from amesh.domain import (
     TenantPolicy,
     TenantSlug,
 )
+from amesh.dsl import CheckDefinition
 from amesh.executor import TaskCompletion
 from amesh.ports import (
+    CheckPolicySource,
     ExecutionEvidenceEvent,
     ExecutionInterventionAction,
     PersistedExecution,
@@ -235,6 +237,15 @@ class TaskLog(BaseModel):
     attempt: int
     state: str
     output: dict[str, Any] | None = None
+
+
+class CheckPolicyUpsertRequest(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    source: CheckPolicySource = CheckPolicySource.NAMESPACE
+    task_type: str | None = Field(default=None, alias="taskType", max_length=256)
+    definition: CheckDefinition
+    enabled: bool = True
 
 
 class AuthorizationExplanationRequest(BaseModel):

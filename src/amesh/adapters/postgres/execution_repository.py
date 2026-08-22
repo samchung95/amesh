@@ -52,6 +52,12 @@ from amesh.ports.execution_repository import (
 )
 from amesh.ports.tenant_repository import TenantQuotaExceeded, TenantUnavailableError
 
+from .check_repository import (
+    evaluate_execution_terminal_checks,
+    record_execution_check_start,
+    store_flow_check_definitions,
+    synchronize_active_flow_checks,
+)
 from .metadata_repository import store_flow_triggers, store_task_evidence
 from .tenant_context import tenant_transaction
 from .trigger_runtime_repository import (
@@ -268,6 +274,7 @@ _INSERT_FLOW_REVISION = text(
         :actor_id
     )
     ON CONFLICT (tenant_id, flow_id, revision) DO NOTHING
+    RETURNING id
     """
 )
 
@@ -1172,6 +1179,7 @@ _FINISH_EXECUTION = text(
         finished.state,
         finished.epoch,
         finished.version,
+        finished.flow_revision_id,
         flow_revisions.revision AS flow_revision,
         finished.namespace_name,
         finished.flow_key,
@@ -1397,6 +1405,13 @@ class PostgresExecutionRepository(ExecutionRepository):
                 active_revision=flow.revision,
                 flow_disabled=flow.disabled,
             )
+            await synchronize_active_flow_checks(
+                connection,
+                tenant_uuid,
+                flow_uuid,
+                active_revision=flow.revision,
+                flow_disabled=flow.disabled,
+            )
             result = await connection.execute(
                 _GET_PERSISTED_FLOW,
                 {"tenant_id": tenant_uuid, "flow_id": flow_uuid},
@@ -1518,6 +1533,13 @@ class PostgresExecutionRepository(ExecutionRepository):
                     },
                 )
                 await synchronize_flow_trigger_runtime(
+                    connection,
+                    tenant_uuid,
+                    flow_id,
+                    active_revision=flow.revision,
+                    flow_disabled=flow.disabled,
+                )
+                await synchronize_active_flow_checks(
                     connection,
                     tenant_uuid,
                     flow_id,
@@ -1684,6 +1706,39 @@ class PostgresExecutionRepository(ExecutionRepository):
                     await connection.execute(
                         _INSERT_TASK_RUN,
                         task_rows,
+                    )
+                await record_execution_check_start(
+                    connection,
+                    tenant_uuid,
+                    flow_revision_id=flow_revision_id,
+                    execution_id=execution_id,
+                    execution_state=initial_state.value,
+                    namespace=flow.namespace,
+                    flow_id=flow.id,
+                    flow_revision=flow.revision,
+                    created_at=created_at,
+                    trigger=launch_context,
+                    labels=merged_labels,
+                )
+                if initial_state in {
+                    ExecutionState.CANCELLED,
+                    ExecutionState.FAILED,
+                    ExecutionState.SUCCESS,
+                }:
+                    await evaluate_execution_terminal_checks(
+                        connection,
+                        tenant_uuid,
+                        flow_revision_id=flow_revision_id,
+                        execution_id=execution_id,
+                        execution_state=initial_state.value,
+                        namespace=flow.namespace,
+                        flow_id=flow.id,
+                        flow_revision=flow.revision,
+                        created_at=created_at,
+                        terminal_at=created_at,
+                        inputs=inputs,
+                        trigger=launch_context,
+                        labels=merged_labels,
                     )
 
             if subflow is not None:
@@ -2589,6 +2644,26 @@ class PostgresExecutionRepository(ExecutionRepository):
                     reason=reason,
                     correlation_id=correlation_id,
                 )
+                await evaluate_execution_terminal_checks(
+                    connection,
+                    tenant_uuid,
+                    flow_revision_id=UUID(str(execution["flow_revision_id"])),
+                    execution_id=execution_id,
+                    execution_state=ExecutionState.CANCELLED.value,
+                    namespace=str(execution["namespace_name"]),
+                    flow_id=str(execution["flow_key"]),
+                    flow_revision=int(
+                        await connection.scalar(
+                            text("SELECT revision FROM flow_revisions WHERE id = :id"),
+                            {"id": execution["flow_revision_id"]},
+                        )
+                    ),
+                    created_at=execution["created_at"],
+                    terminal_at=now,
+                    inputs=dict(execution["inputs"]),
+                    trigger=dict(execution["trigger_context"]),
+                    labels=dict(execution["labels"]),
+                )
             elif action is ExecutionInterventionAction.RESTART:
                 _require_control_state(
                     action,
@@ -3192,7 +3267,7 @@ class PostgresExecutionRepository(ExecutionRepository):
         canonical_definition: str,
         actor_id: str,
     ) -> UUID:
-        await connection.execute(
+        inserted_revision_id = await connection.scalar(
             _INSERT_FLOW_REVISION,
             {
                 "revision_id": new_runtime_id(),
@@ -3224,6 +3299,13 @@ class PostgresExecutionRepository(ExecutionRepository):
             ),
             actor_id,
         )
+        if inserted_revision_id is not None:
+            await store_flow_check_definitions(
+                connection,
+                tenant_id,
+                revision_id,
+                flow,
+            )
         return revision_id
 
     async def _insert_initial_events(
@@ -3424,6 +3506,21 @@ class PostgresExecutionRepository(ExecutionRepository):
             )
             row = result.mappings().one_or_none()
             if row is not None:
+                await evaluate_execution_terminal_checks(
+                    connection,
+                    tenant_uuid,
+                    flow_revision_id=UUID(str(row["flow_revision_id"])),
+                    execution_id=execution_id,
+                    execution_state=state.value,
+                    namespace=str(row["namespace_name"]),
+                    flow_id=str(row["flow_key"]),
+                    flow_revision=int(row["flow_revision"]),
+                    created_at=row["created_at"],
+                    terminal_at=row["updated_at"],
+                    inputs=dict(row["inputs"]),
+                    trigger=dict(row["trigger_context"]),
+                    labels=dict(row["labels"]),
+                )
                 await emit_flow_completion_occurrences(
                     connection,
                     tenant_uuid,
@@ -3838,7 +3935,8 @@ class PostgresExecutionRepository(ExecutionRepository):
                             updated_at = clock_timestamp()
                         WHERE tenant_id = :tenant_id AND id = :execution_id
                           AND state = 'QUEUED'
-                        RETURNING version
+                        RETURNING version, flow_revision_id, namespace_name, flow_key,
+                                  inputs, labels, trigger_context, created_at, updated_at
                         """
                     ),
                     {"tenant_id": tenant_id, "execution_id": execution_id},
@@ -3864,6 +3962,24 @@ class PostgresExecutionRepository(ExecutionRepository):
                 "reason": "capacity became available",
                 "occurred_at": await connection.scalar(_DATABASE_TIME),
             },
+        )
+        flow_revision = await connection.scalar(
+            text("SELECT revision FROM flow_revisions WHERE id = :id"),
+            {"id": row["flow_revision_id"]},
+        )
+        await record_execution_check_start(
+            connection,
+            tenant_id,
+            flow_revision_id=UUID(str(row["flow_revision_id"])),
+            execution_id=execution_id,
+            execution_state=ExecutionState.RUNNING.value,
+            namespace=str(row["namespace_name"]),
+            flow_id=str(row["flow_key"]),
+            flow_revision=int(flow_revision),
+            created_at=row["created_at"],
+            started_at=row["updated_at"],
+            trigger=dict(row["trigger_context"]),
+            labels=dict(row["labels"]),
         )
 
     async def _terminate_replaced_resource(

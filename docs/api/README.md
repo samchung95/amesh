@@ -27,5 +27,8 @@
 - Inspect durable trigger health and occurrences with `GET /api/v1/triggers` and
   `GET /api/v1/trigger-occurrences`. Authorized operators can pause/resume a trigger or replay a
   dead-lettered occurrence; see the [trigger runbook](../operations/triggers.md).
+- Manage reusable execution-check policies with `GET/PUT /api/v1/check-policies`, inspect evidence
+  with `GET /api/v1/check-evaluations`, and aggregate it with `GET /api/v1/check-compliance`; see the
+  [execution-check runbook](../operations/execution-checks.md).
 
 Future generated SDKs must consume the supported API contract, not internal Python classes.

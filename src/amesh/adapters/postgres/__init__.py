@@ -1,6 +1,7 @@
 from .authentication_repository import PostgresAuthenticationRepository
 from .authorization_repository import PostgresAuthorizationRepository
 from .backfill_repository import PostgresBackfillRepository
+from .check_repository import PostgresCheckRepository
 from .credential_repository import PostgresCredentialRepository
 from .durable_transport import PostgresDurableTransport
 from .execution_repository import PostgresExecutionRepository
@@ -24,6 +25,7 @@ __all__ = [
     "PostgresAuthenticationRepository",
     "PostgresAuthorizationRepository",
     "PostgresBackfillRepository",
+    "PostgresCheckRepository",
     "PostgresCredentialRepository",
     "PostgresDurableTransport",
     "PostgresExecutionRepository",

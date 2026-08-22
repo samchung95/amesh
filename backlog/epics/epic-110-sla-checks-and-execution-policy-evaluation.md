@@ -12,14 +12,18 @@ Evaluate operational expectations during and after executions and make violation
 
 ## In scope
 
-- [ ] **URS-F-0164** — The system shall define duration, start-delay, freshness, completion-window, output and custom expression checks.
-- [ ] **URS-F-0165** — The system shall evaluate checks at deterministic lifecycle points and on periodic deadlines.
-- [ ] **URS-F-0166** — The system shall record pass, warn, fail and error outcomes separately from task execution state.
-- [ ] **URS-F-0167** — The system shall trigger notifications, system flows or policy actions from check and SLA outcomes.
-- [ ] **URS-F-0168** — The system shall aggregate compliance by tenant, namespace, flow, label and time period.
-- [ ] **URS-F-0169** — The system shall allow check definitions to be reused through namespace policy or plugin defaults.
-- [ ] **URS-F-0170** — The system shall prevent policy loops and bound the work caused by violation handlers.
-- [ ] **URS-F-0171** — The system shall expose evidence used for each evaluation.
+- [x] **URS-F-0164** — The system shall define duration, start-delay, freshness, completion-window, output and custom expression checks.
+- [x] **URS-F-0165** — The system shall evaluate checks at deterministic lifecycle points and on periodic deadlines.
+- [x] **URS-F-0166** — The system shall record pass, warn, fail and error outcomes separately from task execution state.
+- [x] **URS-F-0167** — The system shall trigger notifications, system flows or policy actions from check and SLA outcomes.
+- [x] **URS-F-0168** — The system shall aggregate compliance by tenant, namespace, flow, label and time period.
+- [x] **URS-F-0169** — The system shall allow check definitions to be reused through namespace policy or plugin defaults.
+- [x] **URS-F-0170** — The system shall prevent policy loops and bound the work caused by violation handlers.
+- [x] **URS-F-0171** — The system shall expose evidence used for each evaluation.
+
+## Implementation completion evidence
+
+- 2026-08-22 — EPIC-110 is complete. Flow revisions now pin explicit duration, start-delay, freshness, completion-window, output and expression checks together with selected namespace policies and matching plugin defaults. Lifecycle transactions and database-time deadlines record immutable PASS/WARN/FAIL/ERROR evidence independently from execution state. Tenant-RLS policy/evaluation APIs and the React checks monitor expose evidence and tenant/namespace/flow/label/time compliance aggregation. Violations enqueue leased, retry-bounded notification or idempotent system-flow actions; stable evaluation/action identities and maxDepth persist duplicate and loop decisions. Fresh-database migration, lifecycle, deadline, expression-error, policy-reuse, authorization, outbox, system-flow, loop-bound and browser acceptance tests passed. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`execution-checks.md`](../../docs/operations/execution-checks.md), [`029-durable-execution-check-ledger.md`](../../docs/adr/029-durable-execution-check-ledger.md), [`0031_execution_checks.sql`](../../migrations/0031_execution_checks.sql), [`test_check_repository.py`](../../tests/adapters/postgres/test_check_repository.py), [`test_check_api.py`](../../tests/api/test_check_api.py), [`test_dsl_contract.py`](../../tests/test_dsl_contract.py) and [`shell.spec.ts`](../../frontend/e2e/shell.spec.ts).
 
 ## Non-functional requirements
 
@@ -45,13 +49,13 @@ Evaluate operational expectations during and after executions and make violation
 
 ## Definition of done
 
-- [ ] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
-- [ ] Public API, DSL, event and plugin contract changes pass compatibility checks.
-- [ ] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
-- [ ] Security, tenant isolation, redaction and audit behavior are reviewed.
-- [ ] Documentation, examples, migration notes and operational runbooks are updated.
-- [ ] Performance and recovery budgets are measured when this epic is on a critical path.
-- [ ] `python scripts/validate_backlog.py` passes.
+- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
+- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.
+- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
+- [x] Security, tenant isolation, redaction and audit behavior are reviewed.
+- [x] Documentation, examples, migration notes and operational runbooks are updated.
+- [x] Performance and recovery budgets are measured when this epic is on a critical path.
+- [x] `python scripts/validate_backlog.py` passes.
 
 ## Risks and unknowns
 

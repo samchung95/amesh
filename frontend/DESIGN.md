@@ -56,3 +56,5 @@ grid.
   targets are at least 44 by 44 px.
 - English and Simplified Chinese are the first locale fixtures. Dates, numbers and time zones use the
   selected locale and explicit IANA zone.
+- Check monitoring uses the dense-data language for a four-signal compliance strip, flow aggregation,
+  durable evaluation ledger and reusable policy inventory. Outcome color never implies execution state.

@@ -162,14 +162,14 @@ URS-F-0160,Functional,Must,EPIC-109,Task and execution cache,M1,1,"Automated uni
 URS-F-0161,Functional,Must,EPIC-109,Task and execution cache,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
 URS-F-0162,Functional,Must,EPIC-109,Task and execution cache,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
 URS-F-0163,Functional,Must,EPIC-109,Task and execution cache,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
-URS-F-0164,Functional,Must,EPIC-110,"SLA, checks and execution policy evaluation",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0165,Functional,Must,EPIC-110,"SLA, checks and execution policy evaluation",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0166,Functional,Must,EPIC-110,"SLA, checks and execution policy evaluation",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0167,Functional,Must,EPIC-110,"SLA, checks and execution policy evaluation",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0168,Functional,Must,EPIC-110,"SLA, checks and execution policy evaluation",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0169,Functional,Must,EPIC-110,"SLA, checks and execution policy evaluation",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0170,Functional,Must,EPIC-110,"SLA, checks and execution policy evaluation",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0171,Functional,Must,EPIC-110,"SLA, checks and execution policy evaluation",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0164,Functional,Must,EPIC-110,"SLA, checks and execution policy evaluation",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0165,Functional,Must,EPIC-110,"SLA, checks and execution policy evaluation",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0166,Functional,Must,EPIC-110,"SLA, checks and execution policy evaluation",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0167,Functional,Must,EPIC-110,"SLA, checks and execution policy evaluation",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0168,Functional,Must,EPIC-110,"SLA, checks and execution policy evaluation",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0169,Functional,Must,EPIC-110,"SLA, checks and execution policy evaluation",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0170,Functional,Must,EPIC-110,"SLA, checks and execution policy evaluation",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0171,Functional,Must,EPIC-110,"SLA, checks and execution policy evaluation",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
 URS-F-0172,Functional,Must,EPIC-111,"Logs, metrics, outputs and artifact events",M1,1,Telemetry contract and outage tests,Verified
 URS-F-0173,Functional,Must,EPIC-111,"Logs, metrics, outputs and artifact events",M1,1,Telemetry contract and outage tests,Verified
 URS-F-0174,Functional,Must,EPIC-111,"Logs, metrics, outputs and artifact events",M1,1,Telemetry contract and outage tests,Verified

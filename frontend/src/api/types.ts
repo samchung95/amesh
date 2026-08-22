@@ -5,6 +5,8 @@ export type Capability =
   | 'executions.execute'
   | 'triggers.view'
   | 'triggers.manage'
+  | 'checks.view'
+  | 'checks.manage'
   | 'namespaces.view'
   | 'plugins.view'
   | 'administration.manage'
@@ -149,6 +151,60 @@ export interface TriggerOccurrence {
   created_at: string
   updated_at: string
   completed_at: string | null
+}
+
+export type CheckOutcome = 'PASS' | 'WARN' | 'FAIL' | 'ERROR'
+
+export interface CheckEvaluation {
+  evaluation_id: string
+  tenant_id: string
+  check_definition_id: string
+  execution_id: string | null
+  namespace: string
+  flow_id: string
+  flow_revision: number
+  check_id: string
+  check_type: 'DURATION' | 'START_DELAY' | 'FRESHNESS' | 'COMPLETION_WINDOW' | 'OUTPUT' | 'EXPRESSION'
+  source: 'EXPLICIT' | 'NAMESPACE' | 'PLUGIN_DEFAULT'
+  evaluation_point: 'STARTED' | 'TERMINAL' | 'DEADLINE' | 'FRESHNESS'
+  subject_key: string
+  outcome: CheckOutcome
+  severity: 'WARN' | 'FAIL'
+  reason: string
+  evidence: Record<string, unknown>
+  labels: Record<string, string>
+  evaluated_at: string
+}
+
+export interface CheckComplianceSummary {
+  group_key: string
+  total: number
+  passed: number
+  warned: number
+  failed: number
+  errors: number
+  compliance_rate: number
+}
+
+export interface NamespaceCheckPolicy {
+  policy_id: string
+  tenant_id: string
+  namespace: string
+  policy_key: string
+  source: 'NAMESPACE' | 'PLUGIN_DEFAULT'
+  task_type: string | null
+  definition: {
+    id: string
+    type: CheckEvaluation['check_type']
+    severity: 'WARN' | 'FAIL'
+    threshold?: string
+    expression?: string
+    enabled: boolean
+    actions: unknown[]
+  }
+  enabled: boolean
+  created_at: string
+  updated_at: string
 }
 
 export interface FlowGraphNode {

@@ -13,6 +13,10 @@ const definitions = {
   SUCCEEDED: { icon: CircleCheck, label: 'Succeeded', tone: 'success' },
   DEAD_LETTERED: { icon: CircleX, label: 'Dead letter', tone: 'failed' },
   PAUSED: { icon: TimerReset, label: 'Paused', tone: 'warning' },
+  PASS: { icon: CircleCheck, label: 'Pass', tone: 'success' },
+  WARN: { icon: TimerReset, label: 'Warning', tone: 'warning' },
+  FAIL: { icon: CircleX, label: 'Fail', tone: 'failed' },
+  ERROR: { icon: CircleX, label: 'Error', tone: 'failed' },
 } as const
 
 export function StatusBadge({ state }: { state: string }) {

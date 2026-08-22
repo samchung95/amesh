@@ -792,6 +792,382 @@
         "title": "ChangeLocalPasswordRequest",
         "type": "object"
       },
+      "CheckActionDefinition": {
+        "additionalProperties": false,
+        "properties": {
+          "channel": {
+            "anyOf": [
+              {
+                "maxLength": 128,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Channel"
+          },
+          "flowId": {
+            "anyOf": [
+              {
+                "maxLength": 128,
+                "minLength": 1,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Flowid"
+          },
+          "maxAttempts": {
+            "default": 3,
+            "maximum": 10.0,
+            "minimum": 1.0,
+            "title": "Maxattempts",
+            "type": "integer"
+          },
+          "maxDepth": {
+            "default": 4,
+            "maximum": 16.0,
+            "minimum": 1.0,
+            "title": "Maxdepth",
+            "type": "integer"
+          },
+          "namespace": {
+            "anyOf": [
+              {
+                "maxLength": 255,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Namespace"
+          },
+          "payload": {
+            "additionalProperties": true,
+            "title": "Payload",
+            "type": "object"
+          },
+          "type": {
+            "enum": [
+              "NOTIFY",
+              "RUN_FLOW"
+            ],
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "type"
+        ],
+        "title": "CheckActionDefinition",
+        "type": "object"
+      },
+      "CheckComplianceSummary": {
+        "properties": {
+          "compliance_rate": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Compliance Rate",
+            "type": "number"
+          },
+          "errors": {
+            "minimum": 0.0,
+            "title": "Errors",
+            "type": "integer"
+          },
+          "failed": {
+            "minimum": 0.0,
+            "title": "Failed",
+            "type": "integer"
+          },
+          "group_key": {
+            "title": "Group Key",
+            "type": "string"
+          },
+          "passed": {
+            "minimum": 0.0,
+            "title": "Passed",
+            "type": "integer"
+          },
+          "total": {
+            "minimum": 0.0,
+            "title": "Total",
+            "type": "integer"
+          },
+          "warned": {
+            "minimum": 0.0,
+            "title": "Warned",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "group_key",
+          "total",
+          "passed",
+          "warned",
+          "failed",
+          "errors",
+          "compliance_rate"
+        ],
+        "title": "CheckComplianceSummary",
+        "type": "object"
+      },
+      "CheckDefinition": {
+        "additionalProperties": false,
+        "properties": {
+          "actions": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/CheckActionDefinition"
+            },
+            "maxItems": 10,
+            "title": "Actions",
+            "type": "array"
+          },
+          "enabled": {
+            "default": true,
+            "title": "Enabled",
+            "type": "boolean"
+          },
+          "expression": {
+            "anyOf": [
+              {
+                "maxLength": 65536,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expression"
+          },
+          "id": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+            "title": "Id",
+            "type": "string"
+          },
+          "severity": {
+            "default": "FAIL",
+            "enum": [
+              "WARN",
+              "FAIL"
+            ],
+            "title": "Severity",
+            "type": "string"
+          },
+          "threshold": {
+            "anyOf": [
+              {
+                "format": "duration",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Threshold"
+          },
+          "type": {
+            "enum": [
+              "DURATION",
+              "START_DELAY",
+              "FRESHNESS",
+              "COMPLETION_WINDOW",
+              "OUTPUT",
+              "EXPRESSION"
+            ],
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "type"
+        ],
+        "title": "CheckDefinition",
+        "type": "object"
+      },
+      "CheckEvaluation": {
+        "properties": {
+          "check_definition_id": {
+            "format": "uuid",
+            "title": "Check Definition Id",
+            "type": "string"
+          },
+          "check_id": {
+            "title": "Check Id",
+            "type": "string"
+          },
+          "check_type": {
+            "title": "Check Type",
+            "type": "string"
+          },
+          "evaluated_at": {
+            "format": "date-time",
+            "title": "Evaluated At",
+            "type": "string"
+          },
+          "evaluation_id": {
+            "format": "uuid",
+            "title": "Evaluation Id",
+            "type": "string"
+          },
+          "evaluation_point": {
+            "$ref": "#/components/schemas/CheckEvaluationPoint"
+          },
+          "evidence": {
+            "additionalProperties": true,
+            "title": "Evidence",
+            "type": "object"
+          },
+          "execution_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Execution Id"
+          },
+          "flow_id": {
+            "title": "Flow Id",
+            "type": "string"
+          },
+          "flow_revision": {
+            "title": "Flow Revision",
+            "type": "integer"
+          },
+          "labels": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Labels",
+            "type": "object"
+          },
+          "namespace": {
+            "title": "Namespace",
+            "type": "string"
+          },
+          "outcome": {
+            "$ref": "#/components/schemas/CheckOutcome"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          },
+          "severity": {
+            "title": "Severity",
+            "type": "string"
+          },
+          "source": {
+            "title": "Source",
+            "type": "string"
+          },
+          "subject_key": {
+            "title": "Subject Key",
+            "type": "string"
+          },
+          "tenant_id": {
+            "title": "Tenant Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "evaluation_id",
+          "tenant_id",
+          "check_definition_id",
+          "namespace",
+          "flow_id",
+          "flow_revision",
+          "check_id",
+          "check_type",
+          "source",
+          "evaluation_point",
+          "subject_key",
+          "outcome",
+          "severity",
+          "reason",
+          "evidence",
+          "labels",
+          "evaluated_at"
+        ],
+        "title": "CheckEvaluation",
+        "type": "object"
+      },
+      "CheckEvaluationPoint": {
+        "enum": [
+          "STARTED",
+          "TERMINAL",
+          "DEADLINE",
+          "FRESHNESS"
+        ],
+        "title": "CheckEvaluationPoint",
+        "type": "string"
+      },
+      "CheckOutcome": {
+        "enum": [
+          "PASS",
+          "WARN",
+          "FAIL",
+          "ERROR"
+        ],
+        "title": "CheckOutcome",
+        "type": "string"
+      },
+      "CheckPolicySource": {
+        "enum": [
+          "NAMESPACE",
+          "PLUGIN_DEFAULT"
+        ],
+        "title": "CheckPolicySource",
+        "type": "string"
+      },
+      "CheckPolicyUpsertRequest": {
+        "properties": {
+          "definition": {
+            "$ref": "#/components/schemas/CheckDefinition"
+          },
+          "enabled": {
+            "default": true,
+            "title": "Enabled",
+            "type": "boolean"
+          },
+          "source": {
+            "$ref": "#/components/schemas/CheckPolicySource",
+            "default": "NAMESPACE"
+          },
+          "taskType": {
+            "anyOf": [
+              {
+                "maxLength": 256,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tasktype"
+          }
+        },
+        "required": [
+          "definition"
+        ],
+        "title": "CheckPolicyUpsertRequest",
+        "type": "object"
+      },
       "CreateExecutionRequest": {
         "properties": {
           "cacheMode": {
@@ -2103,6 +2479,71 @@
           "namespace"
         ],
         "title": "NamespaceAuthorizationBoundary",
+        "type": "object"
+      },
+      "NamespaceCheckPolicy": {
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "definition": {
+            "$ref": "#/components/schemas/CheckDefinition"
+          },
+          "enabled": {
+            "title": "Enabled",
+            "type": "boolean"
+          },
+          "namespace": {
+            "title": "Namespace",
+            "type": "string"
+          },
+          "policy_id": {
+            "format": "uuid",
+            "title": "Policy Id",
+            "type": "string"
+          },
+          "policy_key": {
+            "title": "Policy Key",
+            "type": "string"
+          },
+          "source": {
+            "$ref": "#/components/schemas/CheckPolicySource"
+          },
+          "task_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Task Type"
+          },
+          "tenant_id": {
+            "title": "Tenant Id",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "policy_id",
+          "tenant_id",
+          "namespace",
+          "policy_key",
+          "source",
+          "definition",
+          "enabled",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "NamespaceCheckPolicy",
         "type": "object"
       },
       "Permission": {
@@ -8842,6 +9283,569 @@
         "summary": "Resume Backfill",
         "tags": [
           "backfills"
+        ]
+      }
+    },
+    "/api/v1/check-compliance": {
+      "get": {
+        "operationId": "get_check_compliance_api_v1_check_compliance_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "groupBy",
+            "required": false,
+            "schema": {
+              "default": "flow",
+              "maxLength": 256,
+              "title": "Groupby",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "fromTime",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Fromtime"
+            }
+          },
+          {
+            "in": "query",
+            "name": "toTime",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Totime"
+            }
+          },
+          {
+            "in": "query",
+            "name": "namespace",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 255,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Namespace"
+            }
+          },
+          {
+            "in": "query",
+            "name": "flowId",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 128,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Flowid"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "maximum": 1000,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/CheckComplianceSummary"
+                  },
+                  "title": "Response Get Check Compliance Api V1 Check Compliance Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Check Compliance",
+        "tags": [
+          "checks"
+        ]
+      }
+    },
+    "/api/v1/check-evaluations": {
+      "get": {
+        "operationId": "list_check_evaluations_api_v1_check_evaluations_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "namespace",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 255,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Namespace"
+            }
+          },
+          {
+            "in": "query",
+            "name": "flowId",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 128,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Flowid"
+            }
+          },
+          {
+            "in": "query",
+            "name": "executionId",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Executionid"
+            }
+          },
+          {
+            "in": "query",
+            "name": "outcome",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/CheckOutcome"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Outcome"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "maximum": 1000,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/CheckEvaluation"
+                  },
+                  "title": "Response List Check Evaluations Api V1 Check Evaluations Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Check Evaluations",
+        "tags": [
+          "checks"
+        ]
+      }
+    },
+    "/api/v1/check-policies": {
+      "get": {
+        "operationId": "list_check_policies_api_v1_check_policies_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "namespace",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 255,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Namespace"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "maximum": 1000,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/NamespaceCheckPolicy"
+                  },
+                  "title": "Response List Check Policies Api V1 Check Policies Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Check Policies",
+        "tags": [
+          "checks"
+        ]
+      }
+    },
+    "/api/v1/check-policies/{namespace}/{policy_key}": {
+      "put": {
+        "operationId": "upsert_check_policy_api_v1_check_policies__namespace___policy_key__put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "namespace",
+            "required": true,
+            "schema": {
+              "title": "Namespace",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "policy_key",
+            "required": true,
+            "schema": {
+              "title": "Policy Key",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CheckPolicyUpsertRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NamespaceCheckPolicy"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Upsert Check Policy",
+        "tags": [
+          "checks"
         ]
       }
     },

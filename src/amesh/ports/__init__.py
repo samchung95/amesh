@@ -7,6 +7,17 @@ from .authorization_repository import (
     PolicyVersionChanged,
 )
 from .backfill_repository import BackfillItemDefinition, BackfillRepository
+from .checks import (
+    CheckActionRecord,
+    CheckActionState,
+    CheckComplianceSummary,
+    CheckEvaluation,
+    CheckEvaluationPoint,
+    CheckOutcome,
+    CheckPolicySource,
+    CheckRepository,
+    NamespaceCheckPolicy,
+)
 from .credential_repository import (
     CredentialPrincipal,
     CredentialRateLimitExceeded,
@@ -130,6 +141,14 @@ __all__ = [
     "AuthorizationRepository",
     "BackfillItemDefinition",
     "BackfillRepository",
+    "CheckActionRecord",
+    "CheckActionState",
+    "CheckComplianceSummary",
+    "CheckEvaluation",
+    "CheckEvaluationPoint",
+    "CheckOutcome",
+    "CheckPolicySource",
+    "CheckRepository",
     "CredentialPrincipal",
     "CredentialRateLimitExceeded",
     "CredentialRepository",
@@ -156,6 +175,7 @@ __all__ = [
     "MetadataRepository",
     "MetadataVersionConflict",
     "MetricKind",
+    "NamespaceCheckPolicy",
     "ObjectLifecycleResult",
     "ObjectMetadata",
     "ObjectStorageBackend",

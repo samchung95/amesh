@@ -38,6 +38,7 @@ from amesh.adapters.postgres import (
     PostgresAuthenticationRepository,
     PostgresAuthorizationRepository,
     PostgresBackfillRepository,
+    PostgresCheckRepository,
     PostgresCredentialRepository,
     PostgresExecutionRepository,
     PostgresMetadataRepository,
@@ -61,6 +62,7 @@ from amesh.api.models import (
     BulkExecutionItemResult,
     BulkExecutionRequest,
     ChangeLocalPasswordRequest,
+    CheckPolicyUpsertRequest,
     CreateExecutionRequest,
     CreateTenantRequest,
     ExchangeCredentialRequest,
@@ -171,12 +173,16 @@ from amesh.observability import (
     instrument_database,
 )
 from amesh.ports import (
+    CheckComplianceSummary,
+    CheckEvaluation,
+    CheckOutcome,
     CredentialRateLimitExceeded,
     ExecutionInterventionPreview,
     ExecutionInterventionRecord,
     ExecutionLaunchSource,
     ExecutionStateConflictError,
     LastAdministratorError,
+    NamespaceCheckPolicy,
     PersistedExecution,
     PersistedFlow,
     PersistedIterationSummary,
@@ -354,6 +360,17 @@ def get_trigger_runtime_repository() -> PostgresTriggerRuntimeRepository:
 TriggerRuntimeRepositoryDependency = Annotated[
     PostgresTriggerRuntimeRepository,
     Depends(get_trigger_runtime_repository),
+]
+
+
+@lru_cache
+def get_check_repository() -> PostgresCheckRepository:
+    return PostgresCheckRepository(database_engine())
+
+
+CheckRepositoryDependency = Annotated[
+    PostgresCheckRepository,
+    Depends(get_check_repository),
 ]
 
 
@@ -820,6 +837,8 @@ async def get_ui_session(
         "executions.execute": ("execution", PermissionAction.EXECUTE),
         "triggers.view": ("trigger", PermissionAction.VIEW),
         "triggers.manage": ("trigger", PermissionAction.MANAGE),
+        "checks.view": ("check", PermissionAction.VIEW),
+        "checks.manage": ("check", PermissionAction.MANAGE),
         "namespaces.view": ("namespace", PermissionAction.VIEW),
         "plugins.view": ("plugin", PermissionAction.VIEW),
         "administration.manage": ("tenant", PermissionAction.MANAGE),
@@ -1450,6 +1469,150 @@ async def purge_task_cache_entries(
         flow_id=request.flow_id,
         task_id=request.task_id,
     )
+
+
+@app.get(
+    "/api/v1/check-policies",
+    response_model=list[NamespaceCheckPolicy],
+    tags=["checks"],
+)
+async def list_check_policies(
+    checks: CheckRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    namespace: Annotated[str | None, Query(max_length=255)] = None,
+    limit: Annotated[int, Query(ge=1, le=1000)] = 100,
+) -> list[NamespaceCheckPolicy]:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="check",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    return await checks.list_policies(
+        tenant_id=tenant_id,
+        namespace=namespace,
+        limit=limit,
+    )
+
+
+@app.put(
+    "/api/v1/check-policies/{namespace}/{policy_key}",
+    response_model=NamespaceCheckPolicy,
+    tags=["checks"],
+)
+async def upsert_check_policy(
+    namespace: str,
+    policy_key: str,
+    request: CheckPolicyUpsertRequest,
+    checks: CheckRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> NamespaceCheckPolicy:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="check",
+        action=PermissionAction.MANAGE,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    try:
+        return await checks.upsert_policy(
+            tenant_id=tenant_id,
+            namespace=namespace,
+            policy_key=policy_key,
+            source=request.source,
+            task_type=request.task_type,
+            definition=request.definition,
+            enabled=request.enabled,
+            actor_id=str(actor.principal_id),
+        )
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=str(exc),
+        ) from exc
+
+
+@app.get(
+    "/api/v1/check-evaluations",
+    response_model=list[CheckEvaluation],
+    tags=["checks"],
+)
+async def list_check_evaluations(
+    checks: CheckRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    namespace: Annotated[str | None, Query(max_length=255)] = None,
+    flow_id: Annotated[str | None, Query(alias="flowId", max_length=128)] = None,
+    execution_id: Annotated[UUID | None, Query(alias="executionId")] = None,
+    outcome: CheckOutcome | None = None,
+    limit: Annotated[int, Query(ge=1, le=1000)] = 100,
+) -> list[CheckEvaluation]:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="check",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    return await checks.list_evaluations(
+        tenant_id=tenant_id,
+        namespace=namespace,
+        flow_id=flow_id,
+        execution_id=execution_id,
+        outcome=outcome,
+        limit=limit,
+    )
+
+
+@app.get(
+    "/api/v1/check-compliance",
+    response_model=list[CheckComplianceSummary],
+    tags=["checks"],
+)
+async def get_check_compliance(
+    checks: CheckRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    group_by: Annotated[str, Query(alias="groupBy", max_length=256)] = "flow",
+    from_time: Annotated[datetime | None, Query(alias="fromTime")] = None,
+    to_time: Annotated[datetime | None, Query(alias="toTime")] = None,
+    namespace: Annotated[str | None, Query(max_length=255)] = None,
+    flow_id: Annotated[str | None, Query(alias="flowId", max_length=128)] = None,
+    limit: Annotated[int, Query(ge=1, le=1000)] = 100,
+) -> list[CheckComplianceSummary]:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="check",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    try:
+        return await checks.summarize(
+            tenant_id=tenant_id,
+            group_by=group_by,
+            from_time=from_time,
+            to_time=to_time,
+            namespace=namespace,
+            flow_id=flow_id,
+            limit=limit,
+        )
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=str(exc),
+        ) from exc
 
 
 @app.get(

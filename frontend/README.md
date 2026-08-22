@@ -2,8 +2,9 @@
 
 The React/TypeScript control room is the graphical entry point for the current AMESH API. It provides
 permission-aware navigation, flow and execution lists, execution task-run detail, tenant/namespace
-context, saved execution views, global resource search, notifications, locale/time-zone controls and
-retryable offline states. Routes reserved for later UI epics remain visibly labelled and inactive.
+context, trigger health, execution-check compliance and evidence, global resource search,
+locale/time-zone controls and retryable offline states. Routes reserved for later UI epics remain
+visibly labelled and inactive.
 
 ## Run it
 
@@ -43,6 +44,7 @@ npm run test:e2e
 The browser suite covers connection, API-backed navigation, direct/reloaded deep links, the keyboard
 command menu, server-authoritative denied routes, Simplified Chinese switching, locale formatting,
 retry recovery, same-origin/offline privacy, a 768 px compact tablet layout and WCAG 2.2 AA axe rules.
+Trigger and check monitor fixtures cover durable occurrence and policy-evaluation evidence.
 
 ## Browser support policy
 

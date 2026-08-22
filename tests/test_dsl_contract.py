@@ -221,6 +221,60 @@ tasks:
     assert compact.semantic_hash == commented.semantic_hash
 
 
+def test_all_execution_check_contracts_validate_and_canonicalize() -> None:
+    result = validate_flow_document(
+        """id: checked
+namespace: tests.dsl
+checkPolicies: [baseline]
+tasks:
+  - id: result
+    type: core.return
+checks:
+  - {id: duration, type: DURATION, threshold: PT1H}
+  - {id: start, type: START_DELAY, threshold: PT30S}
+  - {id: fresh, type: FRESHNESS, threshold: PT24H}
+  - {id: window, type: COMPLETION_WINDOW, threshold: PT2H}
+  - {id: output, type: OUTPUT, expression: "{{ outputs.result.value == 'ok' }}"}
+  - id: expression
+    type: EXPRESSION
+    severity: WARN
+    expression: "{{ execution.state == 'SUCCESS' }}"
+    actions:
+      - {type: NOTIFY, channel: operations, maxAttempts: 2}
+      - {type: RUN_FLOW, flowId: handler, maxDepth: 3}
+"""
+    )
+
+    assert result.valid
+    assert result.canonical is not None
+    assert [item["type"] for item in result.canonical["checks"]] == [
+        "DURATION",
+        "START_DELAY",
+        "FRESHNESS",
+        "COMPLETION_WINDOW",
+        "OUTPUT",
+        "EXPRESSION",
+    ]
+    assert result.canonical["checkPolicies"] == ["baseline"]
+
+
+@pytest.mark.parametrize(
+    "check",
+    [
+        "{id: duration, type: DURATION}",
+        "{id: output, type: OUTPUT}",
+        "{id: notify, type: EXPRESSION, expression: '{{ true }}', actions: [{type: NOTIFY}]} ",
+        "{id: handler, type: EXPRESSION, expression: '{{ false }}', actions: [{type: RUN_FLOW}]} ",
+    ],
+)
+def test_invalid_execution_check_contracts_are_rejected(check: str) -> None:
+    result = validate_flow_document(
+        f"id: checked\nnamespace: tests.dsl\ntasks:\n  - id: result\n    type: core.return\nchecks:\n  - {check}\n"
+    )
+
+    assert not result.valid
+
+
 @pytest.mark.parametrize("runs", [5])
 @pytest.mark.no_cover
 def test_five_thousand_line_flow_validation_p95_is_below_one_second(runs: int) -> None:

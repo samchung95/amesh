@@ -51,7 +51,7 @@ Deferred means **parked, not abandoned**. Every row names the epic(s) where the 
 | Web UI (authoring, topology, Gantt, dashboards) | EPIC-404–411 | Post-MVP; API-first MVP keeps the OpenAPI contract as the UI's foundation |
 | HA / distributed control plane, backup/restore drills | EPIC-601, EPIC-609, EPIC-611 | After single-node durability evidence exists (MVP week 8 soak is the input) |
 | Uninterrupted 24-hour induced-failure qualification | EPIC-611 | Before making broader availability, scale or production-readiness claims; rerun for at least 86,400 elapsed seconds with zero lost or duplicated executions |
-| Subflows, loops/foreach, backfill/replay, caches, SLA | EPIC-104 (partial), 106, 107, 109, 110, 203 | Next engine iteration after MVP; retries/timeouts/cancel land in MVP |
+| Subflows, loops/foreach, backfill/replay, caches | EPIC-104 (partial), 106, 107, 109, 203 | Next engine iteration after MVP; retries/timeouts/cancel land in MVP |
 | Object-storage artifact pipeline | EPIC-010, EPIC-605 | Logs/outputs outgrow PostgreSQL rows (bounded in MVP); MinIO stays in the dev stack |
 | Search/analytics projections, dashboards | EPIC-408, 409, 604 | UI wave |
 | Compliance evidence, migration tooling, marketplace, agent-mesh differentiators beyond `agent.*` tasks | EPIC-504/514+, 700s, 800s | Per the existing roadmap ordering |

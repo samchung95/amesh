@@ -6,6 +6,8 @@ from .flowables import (
     visible_output_ids,
 )
 from .models import (
+    CheckActionDefinition,
+    CheckDefinition,
     FlowableFailurePolicy,
     FlowDefinition,
     FlowValidationResult,
@@ -31,6 +33,8 @@ from .validator import validate_flow_document
 __all__ = [
     "DYNAMIC_FLOWABLE_MODES",
     "FLOWABLE_MODES",
+    "CheckActionDefinition",
+    "CheckDefinition",
     "EditableFlowDocument",
     "EditorMetadata",
     "FlowDefinition",
