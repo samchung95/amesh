@@ -2,12 +2,19 @@
 
 ## Current state
 
-- What works: the original post-MVP foundation plus the first ten cards of the 50-epic local program are implemented, evidence-linked and deployed through migration 0040, including isolated/shared task workspaces and a versioned runner-neutral contract with local and Kubernetes capability negotiation.
-- What's in flight: the 50-epic local completion program is tracked on Agent Hotel cards `c37`–`c86`; cards `c37`–`c46` are complete and EPIC-220 on card `c47` is next. The local Docker Compose deployment is healthy at migration 40/40 on `http://localhost:8000`.
+- What works: the original post-MVP foundation plus the first eleven cards of the 50-epic local program are implemented, evidence-linked and deployed through migration 0040, including isolated/shared task workspaces, the runner-neutral contract and the fully qualified local process runner.
+- What's in flight: the 50-epic local completion program is tracked on Agent Hotel cards `c37`–`c86`; cards `c37`–`c47` are complete and EPIC-221 on card `c48` is next. The local Docker Compose deployment is healthy at migration 40/40 on `http://localhost:8000`.
 - Known broken / TODO: 20 external-cloud, SaaS, hosted-release, independent-certification, multi-region or long-duration epics are deferred. Cards `c15` and `c29` preserve unrelated backend test failures; `c87` records missing fresh-Compose mounts for migrations 0033–0036; and `c88` records seven pre-existing frontend lint errors. None blocks the current local program path.
 - How to run/test: use `uv run --extra runtime --extra dev pytest`; set `AMESH_TEST_DATABASE_URL` for PostgreSQL integration tests and `OPENROUTER_API_KEY` for live LLM tests.
 
 ## Session log
+
+### 2026-08-22 (50-epic local completion program, EPIC-220 completion)
+
+- Did: completed EPIC-220 with literal argv and explicit single-string shell modes; working directory, bounded environment and standard input; POSIX UID and typed CPU/memory/file/open-file/process limits; live ordered severity-mapped stdout/stderr; POSIX process-group and Windows process-tree escalation; portable process-tree CPU/peak-memory sampling; signal evidence; and local-runner enablement that defaults off in multi-tenant mode. Linked URS-F-0258 through URS-F-0264 to automated evidence.
+- Verification: a fresh PostgreSQL database applied all 40 migrations; 339 tests existed, cards `c15`/`c29` were explicitly deselected, and the remaining 337 produced 329 passes, eight environment/platform skips and zero failures. Ruff and strict mypy passed for 128 source files; focused adapter/API/DSL/generated-contract, backlog, lock, compilation, Compose and diff gates passed. Linux container qualification applied UID 100/open-file limit 32, reported CPU/peak memory, captured SIGTERM 15 and removed a timed-out descendant. The rebuilt services are healthy at 40/40, and deployed execution `01a02a20-5039-71a2-b8f4-282a4cd5499e` completed shell/stdin execution with the enforced open-file limit, stderr and resource metrics.
+- Deviations from plan: build-versus-buy selected cross-platform `psutil` 7.2.2 plus its development stubs, added with `uv`; no LLM call was required. One full-suite assertion caught an unnecessary rename of stable escalation labels, so the labels were restored without changing process-group behavior and the clean rerun passed. Deferred cards `c15`, `c29`, `c87` and `c88` remain untouched.
+- Next step when resuming: close and commit card `c47`, then select EPIC-221 on card `c48` for the Docker and OCI task runner.
 
 ### 2026-08-22 (50-epic local completion program, EPIC-209 completion)
 

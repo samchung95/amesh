@@ -12,17 +12,21 @@ Run trusted scripts and commands directly on a worker for local development and 
 
 ## In scope
 
-- [ ] **URS-F-0258** — The system shall execute argv-based commands without implicit shell parsing unless explicitly requested.
-- [ ] **URS-F-0259** — The system shall set working directory, environment, standard input, user and resource limits.
-- [ ] **URS-F-0260** — The system shall stream stdout and stderr while preserving ordering metadata and severity mapping.
-- [ ] **URS-F-0261** — The system shall terminate process groups reliably on cancellation or timeout.
-- [ ] **URS-F-0262** — The system shall support Linux and macOS development with documented Windows constraints.
-- [ ] **URS-F-0263** — The system shall disable the runner by default in untrusted multi-tenant deployments.
-- [ ] **URS-F-0264** — The system shall capture exit code, signal, duration and peak resource use.
+- [x] **URS-F-0258** — The system shall execute argv-based commands without implicit shell parsing unless explicitly requested.
+- [x] **URS-F-0259** — The system shall set working directory, environment, standard input, user and resource limits.
+- [x] **URS-F-0260** — The system shall stream stdout and stderr while preserving ordering metadata and severity mapping.
+- [x] **URS-F-0261** — The system shall terminate process groups reliably on cancellation or timeout.
+- [x] **URS-F-0262** — The system shall support Linux and macOS development with documented Windows constraints.
+- [x] **URS-F-0263** — The system shall disable the runner by default in untrusted multi-tenant deployments.
+- [x] **URS-F-0264** — The system shall capture exit code, signal, duration and peak resource use.
 
 ## MVP implementation progress
 
 - 2026-08-21 — W3 verified the accepted MVP slice: argv-based local execution without shell parsing, environment and working-directory support, stdout/stderr capture, timeout and cancellation termination, and exit-code/duration capture. Evidence: [`TESTLOG.md`](../../TESTLOG.md) and [`test_process_runner.py`](../../tests/adapters/local/test_process_runner.py). Streaming metadata, resource limits and cross-platform process-group qualification remain open.
+
+## Implementation completion evidence
+
+- 2026-08-22 — EPIC-220 is complete. The local adapter now provides literal argv and explicit single-string shell modes; working directory, bounded environment, stdin, POSIX UID and typed resource limits; live ordered severity-mapped stdout/stderr; POSIX process-group and Windows process-tree escalation; fail-closed multi-tenant enablement; and exit/signal/duration/CPU/peak-memory evidence. Evidence: [`test_process_runner_epic220.py`](../../tests/adapters/local/test_process_runner_epic220.py), [`local-process-runner.md`](../../docs/operations/local-process-runner.md) and [`workers-and-runners.md`](../../docs/architecture/workers-and-runners.md).
 
 ## Non-functional requirements
 
@@ -47,13 +51,13 @@ Run trusted scripts and commands directly on a worker for local development and 
 
 ## Definition of done
 
-- [ ] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
-- [ ] Public API, DSL, event and plugin contract changes pass compatibility checks.
-- [ ] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
-- [ ] Security, tenant isolation, redaction and audit behavior are reviewed.
-- [ ] Documentation, examples, migration notes and operational runbooks are updated.
-- [ ] Performance and recovery budgets are measured when this epic is on a critical path.
-- [ ] `python scripts/validate_backlog.py` passes.
+- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
+- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.
+- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
+- [x] Security, tenant isolation, redaction and audit behavior are reviewed.
+- [x] Documentation, examples, migration notes and operational runbooks are updated.
+- [x] Performance and recovery budgets are measured when this epic is on a critical path.
+- [x] `python scripts/validate_backlog.py` passes.
 
 ## Risks and unknowns
 

@@ -55,6 +55,11 @@ The equivalent environment value is JSON in `RUNNER_POLICIES`. Invalid duplicate
 runner names, or a default runner outside `allowedRunners` stop startup. Policy is evaluated before
 runner dispatch; it may select a default or reject an explicit task/API runner request.
 
+`LOCAL_PROCESS_RUNNER_ENABLED` is restart-required. When omitted it is enabled for `TENANCY_MODE=single`
+and disabled for `TENANCY_MODE=multi`. Setting it to `true` in a multi-tenant deployment is an explicit
+operator assertion that every tenant allowed to select `local` is trusted to run directly on that
+worker. Keep `allowedRunners: [kubernetes]` on untrusted namespace and worker-group rules.
+
 ## Feature flags
 
 Boolean flags are versioned and audited in PostgreSQL. Resolution order is namespace, tenant,

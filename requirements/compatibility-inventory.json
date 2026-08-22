@@ -3871,85 +3871,104 @@
       "requirement_id": "URS-F-0258",
       "epic_id": "EPIC-220",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/adapters/local/test_process_runner_epic220.py::test_urs_f_0258_argv_is_literal_and_shell_requires_explicit_single_string"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0259",
       "epic_id": "EPIC-220",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/adapters/local/test_process_runner_epic220.py::test_urs_f_0259_working_directory_environment_and_standard_input",
+        "tests/adapters/local/test_process_runner_epic220.py::test_urs_f_0259_posix_user_and_resource_limit",
+        "tests/adapters/local/test_process_runner_epic220.py::test_urs_f_0259_0262_windows_rejects_posix_only_controls"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0260",
       "epic_id": "EPIC-220",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/adapters/local/test_process_runner_epic220.py::test_urs_f_0260_streams_ordered_stdout_stderr_before_process_exit"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0261",
       "epic_id": "EPIC-220",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/adapters/local/test_process_runner_epic220.py::test_urs_f_0261_cancellation_and_timeout_terminate_descendant_processes"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0262",
       "epic_id": "EPIC-220",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/adapters/local/test_process_runner_epic220.py::test_urs_f_0262_0263_platform_contract_and_multitenant_fail_closed",
+        "tests/adapters/local/test_process_runner_epic220.py::test_urs_f_0259_posix_user_and_resource_limit",
+        "tests/adapters/local/test_process_runner_epic220.py::test_urs_f_0259_0262_windows_rejects_posix_only_controls"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0263",
       "epic_id": "EPIC-220",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/adapters/local/test_process_runner_epic220.py::test_urs_f_0262_0263_platform_contract_and_multitenant_fail_closed"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0264",
       "epic_id": "EPIC-220",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/adapters/local/test_process_runner_epic220.py::test_urs_f_0264_captures_exit_duration_cpu_and_peak_memory",
+        "tests/adapters/local/test_process_runner_epic220.py::test_urs_f_0264_captures_posix_termination_signal"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0265",

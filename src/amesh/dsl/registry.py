@@ -222,6 +222,7 @@ def _core_descriptors() -> tuple[ResourceSchemaDescriptor, ...]:
                             "items": {"type": "string"},
                             "uniqueItems": True,
                         },
+                        "shell": {"type": "boolean"},
                     },
                     "required": ["type"],
                     "additionalProperties": False,
@@ -313,6 +314,7 @@ def _core_descriptors() -> tuple[ResourceSchemaDescriptor, ...]:
                         "items": {"type": "string"},
                     },
                     "image": {"type": "string", "minLength": 1},
+                    "stdin": {"type": "string"},
                     "environment": string_map,
                     "resources": {"type": "object"},
                     "timeoutSeconds": timeout,
@@ -327,6 +329,7 @@ def _core_descriptors() -> tuple[ResourceSchemaDescriptor, ...]:
             property_order=(
                 "image",
                 "command",
+                "stdin",
                 "environment",
                 "inputFiles",
                 "outputFiles",

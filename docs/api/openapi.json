@@ -5207,6 +5207,14 @@
           "extensionType": {
             "$ref": "#/components/schemas/RunnerId"
           },
+          "features": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Features",
+            "type": "array"
+          },
           "networkAccess": {
             "default": [
               "inherit"
@@ -5215,6 +5223,14 @@
               "$ref": "#/components/schemas/RunnerNetworkAccess"
             },
             "title": "Networkaccess",
+            "type": "array"
+          },
+          "platforms": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Platforms",
             "type": "array"
           },
           "requiresCommand": {
@@ -5253,6 +5269,11 @@
           "supportsSecurityPolicy": {
             "default": false,
             "title": "Supportssecuritypolicy",
+            "type": "boolean"
+          },
+          "supportsStandardInput": {
+            "default": false,
+            "title": "Supportsstandardinput",
             "type": "boolean"
           },
           "supportsWorkingDirectory": {

@@ -50,6 +50,17 @@ class LocalProcessRunnerExtension(BaseModel):
     type: Literal[RunnerId.LOCAL]
     inherit_host_environment: bool = Field(default=False, alias="inheritHostEnvironment")
     allowed_host_environment: tuple[str, ...] = Field(default=(), alias="allowedHostEnvironment")
+    shell: bool = False
+
+
+class LocalProcessResourceLimits(BaseModel):
+    model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
+
+    cpu_seconds: int | None = Field(default=None, alias="cpuSeconds", ge=1)
+    memory_bytes: int | None = Field(default=None, alias="memoryBytes", ge=1)
+    file_size_bytes: int | None = Field(default=None, alias="fileSizeBytes", ge=1)
+    open_files: int | None = Field(default=None, alias="openFiles", ge=1)
+    processes: int | None = Field(default=None, ge=1)
 
 
 class KubernetesJobRunnerExtension(BaseModel):

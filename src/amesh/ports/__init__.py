@@ -1,6 +1,7 @@
 from amesh.domain import TaskRunState
 from amesh.domain.runner import (
     KubernetesJobRunnerExtension,
+    LocalProcessResourceLimits,
     LocalProcessRunnerExtension,
     RunnerExtension,
     RunnerId,
@@ -194,6 +195,7 @@ __all__ = [
     "FeatureFlagVersionConflict",
     "KubernetesJobRunnerExtension",
     "LastAdministratorError",
+    "LocalProcessResourceLimits",
     "LocalProcessRunnerExtension",
     "LogLevel",
     "LogSourceStream",

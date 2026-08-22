@@ -292,6 +292,7 @@ class TaskDefinition(BaseModel):
     retry: RetryPolicy = Field(default_factory=RetryPolicy)
     timeout_seconds: float | None = Field(default=None, gt=0, alias="timeoutSeconds")
     command: list[str] | None = None
+    standard_input: str | None = Field(default=None, alias="stdin")
     image: str | None = None
     environment: dict[str, str] = Field(default_factory=dict)
     resources: dict[str, Any] = Field(default_factory=dict)
@@ -368,6 +369,7 @@ class TaskDefinition(BaseModel):
                 ("runner_credentials", "runnerCredentials"),
                 ("network_policy", "networkPolicy"),
                 ("security_policy", "securityPolicy"),
+                ("standard_input", "stdin"),
             ):
                 if name in data and alias in data:
                     raise ValueError(f"task cannot set both {alias!r} and {name!r}")

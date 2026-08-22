@@ -3520,6 +3520,7 @@ async def list_runner_capabilities(
     actor: ActorDependency,
     authorization_service: AuthorizationServiceDependency,
     tenant_id: TenantDependency,
+    settings: SettingsDependency,
 ) -> list[RunnerCapabilities]:
     await authorize_request(
         authorization_service,
@@ -3528,10 +3529,10 @@ async def list_runner_capabilities(
         action=PermissionAction.VIEW,
         tenant_id=tenant_id,
     )
-    return [
-        LocalProcessRunner.CAPABILITIES,
-        KubernetesJobRunner.CAPABILITIES,
-    ]
+    capabilities = [KubernetesJobRunner.CAPABILITIES]
+    if settings.is_local_process_runner_enabled:
+        capabilities.insert(0, LocalProcessRunner.CAPABILITIES)
+    return capabilities
 
 
 @app.post(
@@ -4552,12 +4553,16 @@ async def _execute_flow(
         ) from exc
     runner_policy = RunnerPolicySet(settings.runner_policies)
     fallback_runner = RunnerId(request.runner.value)
+    available_runners = {RunnerId.KUBERNETES}
+    if settings.is_local_process_runner_enabled:
+        available_runners.add(RunnerId.LOCAL)
     try:
         selected_runners = required_runner_ids(
             (node.task for node in planned_tasks),
             runner_policy,
             namespace=flow.namespace,
             fallback=fallback_runner,
+            available=frozenset(available_runners),
         )
     except RunnerPolicyViolation as exc:
         raise HTTPException(

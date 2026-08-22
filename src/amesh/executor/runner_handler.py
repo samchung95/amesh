@@ -10,6 +10,7 @@ from pydantic import SecretStr
 from amesh.domain import FailureCategory
 from amesh.dsl.models import TaskDefinition
 from amesh.ports import (
+    LogLevel,
     LogSourceStream,
     RunnerDiagnostics,
     RunnerId,
@@ -73,6 +74,7 @@ def local_process_handler(
                         for name in context.files
                     },
                     working_directory=str(workspace.path),
+                    standardInput=task.standard_input,
                     resource_limits=task.resources,
                     network_policy=task.network_policy,
                     security_policy=task.security_policy,
@@ -95,6 +97,7 @@ def local_process_handler(
                         details={
                             "runnerStatus": result.status.value,
                             "exitCode": result.exit_code,
+                            "signal": result.signal,
                             "stdout": str(result.outputs.get("stdout", "")),
                             "stderr": str(result.outputs.get("stderr", "")),
                         },
@@ -106,6 +109,10 @@ def local_process_handler(
                     _RUNNER_FAILURE_CATEGORIES[result.status],
                     result={
                         "exitCode": result.exit_code,
+                        "signal": result.signal,
+                        "metrics": result.metrics.model_dump(
+                            mode="json", by_alias=True, exclude_none=True
+                        ),
                         **result.outputs,
                     },
                     evidence=_artifact_evidence(artifacts),
@@ -122,9 +129,12 @@ def local_process_handler(
             )
             logs = tuple(
                 TaskLogRecord(
+                    level=LogLevel(entry.level),
                     logger="amesh.task.core.shell",
                     message=entry.message,
+                    fields={"sequence": entry.sequence},
                     sourceStream=source,
+                    occurredAt=entry.occurred_at,
                 )
                 for entry in result.logs
                 if (
@@ -137,6 +147,10 @@ def local_process_handler(
             return TaskCompletion(
                 output={
                     "exitCode": result.exit_code,
+                    "signal": result.signal,
+                    "metrics": result.metrics.model_dump(
+                        mode="json", by_alias=True, exclude_none=True
+                    ),
                     **result.outputs,
                     "outputFiles": dict(collected.output_files),
                 },
@@ -227,8 +241,8 @@ def required_runner_ids(
     *,
     namespace: str,
     fallback: RunnerId,
+    available: frozenset[RunnerId] = frozenset(RunnerId),
 ) -> frozenset[RunnerId]:
-    available = frozenset(RunnerId)
     return frozenset(
         policy.select(
             namespace=namespace,

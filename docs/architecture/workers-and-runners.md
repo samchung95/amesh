@@ -43,9 +43,10 @@ with `POST /api/v1/workers/{worker_id}/drain?expectedVersion=N`.
 
 Runner contract `1.0` is declarative and immutable. `RunnerRequest` carries tenant, namespace,
 worker-group, execution/task/attempt identity and fencing token plus image or argv, environment,
-input-file references, working directory, resource limits, network policy, security policy, deadline,
-cancellation grace and one typed runner extension. `RunnerResult` normalizes runner identity, terminal
-status, exit code, ordered logs, metrics, outputs, artifact references and infrastructure diagnostics.
+input-file references, working directory, standard input, resource limits, network policy, security
+policy, deadline, cancellation grace and one typed runner extension. `RunnerResult` normalizes runner
+identity, terminal status, exit code, termination signal, ordered severity-mapped logs, CPU/duration/
+peak-memory metrics, outputs, artifact references and infrastructure diagnostics.
 
 Each adapter publishes `RunnerCapabilities`, including accepted request features, contract versions,
 network/security support, reconciliation support, extension type and its cancellation escalation. An
@@ -71,6 +72,13 @@ tasks:
 request, Pydantic redacts them, and they are never added to durable task output or runner diagnostics.
 The local adapter inherits only a bounded non-secret host environment unless its typed trusted-process
 extension explicitly enables broader inheritance.
+
+The local adapter always uses argv execution unless `taskRunner.shell: true` is explicit; shell mode
+accepts exactly one command string. It starts a separate POSIX process group or Windows process tree,
+streams both output pipes with one observed sequence, samples the process tree with `psutil`, and uses
+the same group/tree escalation for cancellation, timeout and reconciliation. POSIX workers additionally
+apply numeric UID and `cpuSeconds`, `memoryBytes`, `fileSizeBytes`, `openFiles` and `processes` limits
+before user code starts. See [the local process runner guide](../operations/local-process-runner.md).
 
 Runner selection evaluates the most-specific configured namespace-prefix and worker-group rule. A
 task-level `taskRunner.type` is the requested runner, then the matching rule's `defaultRunner`, then the
@@ -98,6 +106,6 @@ owned Jobs with a mismatched or absent active fence. Repeating reconciliation re
 cleanup after the resource is gone.
 
 Cancellation is fenced and reaches the runner through the task cancellation channel. The local
-sequence is `terminate` → wait for `cancelGraceSeconds` → `kill`; Kubernetes uses an owned Job delete
-with foreground propagation and bounded API retry. Timeout uses the same runner-owned cleanup path and
-normalizes to `TIMED_OUT`.
+sequence is process-group/tree `terminate` → wait for `cancelGraceSeconds` → process-group/tree `kill`;
+Kubernetes uses an owned Job delete with foreground propagation and bounded API retry. Timeout uses the
+same runner-owned cleanup path and normalizes to `TIMED_OUT`.

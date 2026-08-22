@@ -287,11 +287,15 @@ async def recover_once(
             workspace_manager = WorkingDirectoryManager(object_store)
             runner_policy = RunnerPolicySet(settings.runner_policies)
             fallback_runner = RunnerId(settings.execution_runner_mode)
+            available_runners = {RunnerId.KUBERNETES}
+            if settings.is_local_process_runner_enabled:
+                available_runners.add(RunnerId.LOCAL)
             selected_runners = required_runner_ids(
                 (node.task for node in compile_execution_tasks(flow)),
                 runner_policy,
                 namespace=flow.namespace,
                 fallback=fallback_runner,
+                available=frozenset(available_runners),
             )
             runner_handlers: dict[RunnerId, TaskHandler] = {}
             if RunnerId.LOCAL in selected_runners:

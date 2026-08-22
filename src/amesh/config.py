@@ -99,6 +99,7 @@ class Settings(BaseSettings):
     kubernetes_context: str | None = None
     kubernetes_task_namespace: str = "amesh-tasks"
     execution_runner_mode: Literal["local", "kubernetes"] = "kubernetes"
+    local_process_runner_enabled: bool | None = None
     runner_policies: tuple[RunnerPolicy, ...] = ()
     worker_poll_seconds: float = Field(default=5.0, gt=0)
     worker_recovery_grace_seconds: float = Field(default=120.0, ge=0)
@@ -173,6 +174,12 @@ class Settings(BaseSettings):
         if self.log_level.upper() not in {"DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"}:
             raise ValueError("LOG_LEVEL must be DEBUG, INFO, WARNING, ERROR or CRITICAL")
         return self
+
+    @property
+    def is_local_process_runner_enabled(self) -> bool:
+        if self.local_process_runner_enabled is not None:
+            return self.local_process_runner_enabled
+        return self.tenancy_mode == "single"
 
 
 class ConfigurationLoadError(ValueError):

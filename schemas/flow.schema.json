@@ -558,6 +558,11 @@
           "title": "Inherithostenvironment",
           "type": "boolean"
         },
+        "shell": {
+          "default": false,
+          "title": "Shell",
+          "type": "boolean"
+        },
         "type": {
           "const": "local",
           "title": "Type",
@@ -1081,6 +1086,18 @@
         },
         "securityPolicy": {
           "$ref": "#/$defs/RunnerSecurityPolicy"
+        },
+        "stdin": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Stdin"
         },
         "taskCache": {
           "$ref": "#/$defs/TaskCachePolicy"

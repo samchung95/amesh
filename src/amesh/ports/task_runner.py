@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
+from datetime import UTC, datetime
 from enum import StrEnum
 from typing import Any, Literal, Protocol
 
@@ -43,6 +44,7 @@ class RunnerRequest(BaseModel):
     credentials: tuple[ScopedRunnerCredential, ...] = ()
     input_files: dict[str, str] = Field(default_factory=dict)
     working_directory: str | None = None
+    standard_input: str | None = Field(default=None, alias="standardInput")
     resource_limits: dict[str, Any] = Field(default_factory=dict)
     network_policy: RunnerNetworkPolicy = Field(default_factory=RunnerNetworkPolicy)
     security_policy: RunnerSecurityPolicy = Field(default_factory=RunnerSecurityPolicy)
@@ -73,11 +75,16 @@ class RunnerLogStream(StrEnum):
 
 
 class RunnerLog(BaseModel):
-    model_config = ConfigDict(frozen=True)
+    model_config = ConfigDict(frozen=True, populate_by_name=True)
 
     sequence: int = Field(ge=0)
     stream: RunnerLogStream
+    level: Literal["INFO", "ERROR"] = "INFO"
     message: str
+    occurred_at: datetime = Field(
+        default_factory=lambda: datetime.now(UTC),
+        alias="occurredAt",
+    )
 
 
 class RunnerMetrics(BaseModel):
@@ -130,6 +137,7 @@ class RunnerCapabilities(BaseModel):
     requires_image: bool = Field(default=False, alias="requiresImage")
     supports_files: bool = Field(default=False, alias="supportsFiles")
     supports_working_directory: bool = Field(default=False, alias="supportsWorkingDirectory")
+    supports_standard_input: bool = Field(default=False, alias="supportsStandardInput")
     supports_resources: bool = Field(default=False, alias="supportsResources")
     network_access: tuple[RunnerNetworkAccess, ...] = Field(
         default=(RunnerNetworkAccess.INHERIT,),
@@ -140,6 +148,8 @@ class RunnerCapabilities(BaseModel):
     supports_reconciliation: bool = Field(default=True, alias="supportsReconciliation")
     extension_type: RunnerId = Field(alias="extensionType")
     cancellation_escalation: tuple[str, ...] = Field(alias="cancellationEscalation")
+    platforms: tuple[str, ...] = ()
+    features: tuple[str, ...] = ()
 
 
 class RunnerResult(BaseModel):
@@ -147,6 +157,7 @@ class RunnerResult(BaseModel):
 
     runner: RunnerId
     exit_code: int | None
+    signal: int | None = None
     status: RunnerStatus
     logs: tuple[RunnerLog, ...] = ()
     metrics: RunnerMetrics = Field(default_factory=RunnerMetrics)
@@ -179,6 +190,8 @@ def validate_runner_request(capabilities: RunnerCapabilities, request: RunnerReq
         reasons.append("files")
     if request.working_directory is not None and not capabilities.supports_working_directory:
         reasons.append("working directory")
+    if request.standard_input is not None and not capabilities.supports_standard_input:
+        reasons.append("standard input")
     if request.resource_limits and not capabilities.supports_resources:
         reasons.append("resource limits")
     if request.network_policy.access not in capabilities.network_access:

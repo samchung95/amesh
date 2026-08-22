@@ -1,5 +1,39 @@
 # Test Log
 
+## EPIC-220: Local process task runner — 2026-08-22
+
+Spec source: Agent Hotel card `c47` and canonical `backlog/epics.json` EPIC-220 DoD.
+
+Verified with `uv`, Python 3.13, PostgreSQL 17 and the deployed Compose Linux control plane:
+
+- [x] Argv execution never invokes a shell. Explicit `taskRunner.shell: true` accepts exactly one
+  command string and exposes the native shell boundary in validated YAML.
+- [x] Working directory, bounded/declared environment and standard input are applied. Linux/macOS
+  workers apply numeric UID plus CPU, memory, file-size, open-file and process limits before spawn;
+  Windows rejects those POSIX-only controls before process creation.
+- [x] Stdout and stderr are read concurrently and delivered before process exit with one sequence,
+  UTC occurrence time and `INFO`/`ERROR` mapping. Terminal task evidence retains that metadata.
+- [x] Cancellation, timeout and reconciliation terminate the full POSIX process group or Windows
+  process tree, wait for the declared grace period and then kill remaining descendants.
+- [x] Local execution defaults enabled for single-tenant mode and disabled for multi-tenant mode;
+  an explicit setting plus the matching runner policy is required to enable it for trusted tenants.
+- [x] Results capture exit code, POSIX signal, duration, CPU seconds and peak process-tree memory.
+  `psutil` 7.2.2 was selected for maintained Linux/macOS/Windows measurement and tree traversal.
+- [x] A fresh database applied all 40 migrations. Of 339 tests, only deferred cards `c15`/`c29`
+  were deselected; the remaining 337 produced 329 passes, eight environment/platform skips and no
+  failures.
+- [x] Ruff and strict mypy passed for 128 source files. Focused adapter/API/DSL/generated-contract,
+  backlog, clean-room, REUSE, uv lock, compilation, Compose and diff gates passed.
+- [x] Linux qualification enforced UID 100/open-file limit 32, captured signal 15, measured CPU/peak
+  memory and proved a timed-out child did not survive. The rebuilt services are healthy at 40/40.
+- [x] Deployed execution `01a02a20-5039-71a2-b8f4-282a4cd5499e` completed explicit shell/stdin work,
+  returned `SHELL:FROM_STDIN`, enforced `ulimit -n` at 32 and exposed stderr and resource metrics.
+
+No LLM invocation was required for deterministic process behavior; the configured OpenRouter
+`openai/gpt-5.6-luna` default is unchanged.
+
+Verdict: PASS — EPIC-220 functional requirements URS-F-0258 through URS-F-0264 are verified.
+
 ## EPIC-209: Task runner interface and capability model — 2026-08-22
 
 Spec source: Agent Hotel card `c46` and canonical `backlog/epics.json` EPIC-209 DoD.
