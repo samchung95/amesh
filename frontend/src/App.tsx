@@ -63,7 +63,7 @@ function WorkspaceRoutes({ session }: { session: UiSession }) {
       <Route element={<AppShell session={session} />}>
         <Route index element={<DashboardPage session={session} />} />
         <Route path="flows" element={<CapabilityRoute session={session} capability="flows.view" title="Flows"><FlowsPage session={session} /></CapabilityRoute>} />
-        <Route path="flows/:namespace/:flowId" element={<CapabilityRoute session={session} capability="flows.view" title="Flow"><FlowDetailPage /></CapabilityRoute>} />
+        <Route path="flows/:namespace/:flowId" element={<CapabilityRoute session={session} capability="flows.view" title="Flow"><FlowDetailPage session={session} /></CapabilityRoute>} />
         <Route path="executions" element={<CapabilityRoute session={session} capability="executions.view" title="Executions"><ExecutionsPage session={session} /></CapabilityRoute>} />
         <Route path="executions/:executionId" element={<CapabilityRoute session={session} capability="executions.view" title="Execution"><ExecutionDetailPage /></CapabilityRoute>} />
         <Route path="triggers" element={<CapabilityRoute session={session} capability="triggers.view" title="Triggers"><TriggersPage session={session} /></CapabilityRoute>} />

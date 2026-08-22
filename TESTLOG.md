@@ -1,5 +1,35 @@
 # Test Log
 
+## EPIC-205: Inputs, outputs and variables — 2026-08-22
+
+Spec source: Agent Hotel card `c42` and canonical `backlog/epics.json` EPIC-205 DoD.
+
+Verified with `uv`, Python 3.13, PostgreSQL 17, MinIO and the deployed Compose control plane:
+
+- [x] The canonical contract supports string, integer/number, boolean, datetime, duration, enum,
+  array, object, file and secret inputs with required/default/display/prefill/validation metadata.
+- [x] Manual, API, trigger and subflow launches validate before runnable persistence; legacy
+  undeclared input maps and the existing `INT` spelling remain compatible.
+- [x] Inline files move to tenant-scoped object storage under bounded payload/file limits; execution
+  metadata contains the internal object reference rather than the encoded content.
+- [x] Terminal outputs render against completed context, persist in migration 0037 and appear in
+  execution detail. Schema-sensitive inputs/outputs and matching secret values are redacted from
+  public executions, task results, evidence, event and log surfaces.
+- [x] `GET /flows/{namespace}/{flowId}/data-contract` and the React run form derive from the same
+  schema. Headless Chromium rendered five controls, including enum, file and password inputs.
+- [x] A fresh 37-migration database passed 288 tests with six environment/profile skips and only
+  the pre-existing cards `c15`/`c29` deselected. Ruff and strict mypy passed for 122 source files.
+- [x] Eleven frontend tests passed with 98.57% statement and 100% line coverage; the production
+  build passed. The seven pre-existing lint findings remain isolated on card `c88`.
+- [x] The rebuilt API, executor and scheduler are healthy at 37/37. Live acceptance rejected a
+  plaintext secret without creating an execution, staged a file, completed successfully and
+  returned redacted sensitive fields. The production SPA served the generated run form.
+
+No LLM invocation was required for deterministic schema validation; the configured OpenRouter
+`openai/gpt-5.6-luna` default is unchanged.
+
+Verdict: PASS — EPIC-205 functional requirements URS-F-0219 through URS-F-0226 are verified.
+
 ## EPIC-204: Errors, finally and after-execution hooks — 2026-08-22
 
 Spec source: Agent Hotel card `c41` and canonical `backlog/epics.json` EPIC-204 DoD.

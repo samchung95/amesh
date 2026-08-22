@@ -3,6 +3,7 @@ import type {
   CheckEvaluation,
   ExecutionDetail,
   ExecutionEvidencePage,
+  FlowDataContract,
   AuthenticationProvider,
   FlowGraph,
   HealthResponse,
@@ -85,6 +86,14 @@ export function createApiClient(connection: ApiConnection) {
     flows: async () => request<PersistedFlow[]>('/api/v1/flows'),
     flowGraph: async (namespace: string, flowId: string) =>
       request<FlowGraph>(`/api/v1/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/graph`),
+    flowDataContract: async (namespace: string, flowId: string) =>
+      request<FlowDataContract>(`/api/v1/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/data-contract`),
+    executeFlow: async (namespace: string, flowId: string, inputs: Record<string, unknown>) =>
+      request<ExecutionDetail>('/api/v1/executions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ namespace, flowId, inputs, runner: 'local' }),
+      }),
     executions: async () => request<PersistedExecution[]>('/api/v1/executions?limit=200'),
     triggers: async (namespace?: string) => {
       const suffix = namespace ? `?namespace=${encodeURIComponent(namespace)}` : ''

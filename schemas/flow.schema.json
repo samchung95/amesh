@@ -391,6 +391,19 @@
           "default": null,
           "title": "Description"
         },
+        "displayName": {
+          "anyOf": [
+            {
+              "maxLength": 256,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Displayname"
+        },
         "id": {
           "maxLength": 128,
           "minLength": 1,
@@ -398,10 +411,65 @@
           "title": "Id",
           "type": "string"
         },
+        "itemType": {
+          "anyOf": [
+            {
+              "maxLength": 256,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Itemtype"
+        },
+        "maxBytes": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Maxbytes"
+        },
+        "placeholder": {
+          "anyOf": [
+            {
+              "maxLength": 512,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Placeholder"
+        },
+        "prefill": {
+          "anyOf": [
+            {},
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Prefill"
+        },
         "required": {
           "default": false,
           "title": "Required",
           "type": "boolean"
+        },
+        "schema": {
+          "additionalProperties": true,
+          "title": "Schema",
+          "type": "object"
         },
         "sensitive": {
           "default": false,
@@ -413,6 +481,17 @@
           "minLength": 1,
           "title": "Type",
           "type": "string"
+        },
+        "validation": {
+          "additionalProperties": true,
+          "title": "Validation",
+          "type": "object"
+        },
+        "values": {
+          "default": [],
+          "items": {},
+          "title": "Values",
+          "type": "array"
         }
       },
       "required": [

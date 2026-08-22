@@ -73,6 +73,7 @@ from amesh.api.models import (
     ExecutionInterventionPreviewRequest,
     ExecutionInterventionRequest,
     FeatureFlagUpsertRequest,
+    FlowDataContract,
     FlowGraph,
     FlowGraphEdge,
     FlowGraphNode,
@@ -197,6 +198,7 @@ from amesh.ports import (
     CheckEvaluation,
     CheckOutcome,
     CredentialRateLimitExceeded,
+    ExecutionEvidenceEvent,
     ExecutionInterventionPreview,
     ExecutionInterventionRecord,
     ExecutionLaunchSource,
@@ -227,6 +229,16 @@ from amesh.scheduler import CronScheduler, SchedulePreview
 from amesh.storage.factory import build_object_store
 from amesh.tasks import agent_llm_handler, agent_mcp_handler, core_http_handler
 from amesh.tenancy import TenantService
+from amesh.workflow.data_contracts import (
+    DataContractError,
+    flow_input_contract,
+    redact_matching_values,
+    redact_sensitive_inputs,
+    redact_sensitive_outputs,
+    sensitive_execution_values,
+    stage_file_inputs,
+    validate_flow_inputs,
+)
 
 LOGGER = logging.getLogger("amesh.api")
 
@@ -1666,6 +1678,46 @@ async def get_flow_graph(
 
 
 @app.get(
+    "/api/v1/flows/{namespace}/{flow_id}/data-contract",
+    response_model=FlowDataContract,
+    tags=["flows"],
+)
+async def get_flow_data_contract(
+    namespace: str,
+    flow_id: str,
+    repository: RepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> FlowDataContract:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="flow",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    try:
+        flow = await repository.get_flow(namespace, flow_id, tenant_id=tenant_id)
+        return FlowDataContract(
+            namespace=flow.namespace,
+            flowId=flow.id,
+            revision=flow.revision,
+            inputSchema=flow_input_contract(flow),
+            outputs=flow.outputs,
+            variables=flow.variables,
+        )
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    except DataContractError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=str(exc),
+        ) from exc
+
+
+@app.get(
     "/api/v1/flows/{namespace}/{flow_id}/schedules/{trigger_id}/preview",
     response_model=SchedulePreview,
     tags=["triggers"],
@@ -2259,7 +2311,16 @@ async def list_executions(
         tenant_id=tenant_id,
     )
     executions = await repository.list_executions(tenant_id=tenant_id, limit=1000)
-    return collection_response(executions, query, default_limit=100)
+    public_executions: list[PersistedExecution] = []
+    for execution in executions:
+        flow = await repository.get_flow(
+            execution.namespace,
+            execution.flow_id,
+            tenant_id=tenant_id,
+            revision=execution.flow_revision,
+        )
+        public_executions.append(_public_execution(flow, execution))
+    return collection_response(public_executions, query, default_limit=100)
 
 
 @app.get(
@@ -2790,7 +2851,13 @@ async def get_execution(
         tenant_id=tenant_id,
         include_iterations=False,
     )
-    return ExecutionDetail(execution=execution, taskRuns=task_runs)
+    flow = await repository.get_flow(
+        execution.namespace,
+        execution.flow_id,
+        tenant_id=tenant_id,
+        revision=execution.flow_revision,
+    )
+    return _public_execution_detail(flow, execution, task_runs)
 
 
 @app.get(
@@ -2857,7 +2924,13 @@ async def get_execution_evidence(
         tenant_id=tenant_id,
     )
     try:
-        await repository.get_execution(execution_id, tenant_id=tenant_id)
+        execution = await repository.get_execution(execution_id, tenant_id=tenant_id)
+        flow = await repository.get_flow(
+            execution.namespace,
+            execution.flow_id,
+            tenant_id=tenant_id,
+            revision=execution.flow_revision,
+        )
     except LookupError as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
     events = await metadata.list_evidence_events(
@@ -2867,7 +2940,7 @@ async def get_execution_evidence(
         limit=limit,
     )
     return ExecutionEvidencePage(
-        items=events,
+        items=_public_evidence(flow, execution, events),
         nextCursor=_encode_cursor(events[-1].cursor) if events else cursor,
     )
 
@@ -2901,6 +2974,12 @@ async def stream_execution_evidence(
     )
     try:
         execution = await repository.get_execution(execution_id, tenant_id=tenant_id)
+        flow = await repository.get_flow(
+            execution.namespace,
+            execution.flow_id,
+            tenant_id=tenant_id,
+            revision=execution.flow_revision,
+        )
     except LookupError as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
     after_cursor = _decode_cursor(cursor)
@@ -2917,10 +2996,11 @@ async def stream_execution_evidence(
             )
             for event in events:
                 after_cursor = event.cursor
+                public_event = _public_evidence(flow, execution, [event])[0]
                 yield (
                     json.dumps(
                         {
-                            **event.model_dump(mode="json"),
+                            **public_event.model_dump(mode="json"),
                             "nextCursor": _encode_cursor(after_cursor),
                         },
                         separators=(",", ":"),
@@ -3182,7 +3262,7 @@ async def apply_execution_control(
             ),
         )
         updated_tasks = await repository.list_task_runs(execution_id, tenant_id=tenant_id)
-        return ExecutionDetail(execution=updated, taskRuns=updated_tasks)
+        return _public_execution_detail(flow, updated, updated_tasks)
     except LookupError as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
     except (ExecutionStateConflictError, ValueError) as exc:
@@ -3237,7 +3317,13 @@ async def get_execution_logs(
         tenant_id=tenant_id,
     )
     try:
-        await repository.get_execution(execution_id, tenant_id=tenant_id)
+        execution = await repository.get_execution(execution_id, tenant_id=tenant_id)
+        flow = await repository.get_flow(
+            execution.namespace,
+            execution.flow_id,
+            tenant_id=tenant_id,
+            revision=execution.flow_revision,
+        )
         task_runs = await repository.list_task_runs(execution_id, tenant_id=tenant_id)
     except LookupError as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
@@ -3246,7 +3332,16 @@ async def get_execution_logs(
             taskId=task_run.task_id,
             attempt=task_run.current_attempt,
             state=task_run.state.value,
-            output=task_run.result,
+            output=(
+                dict(
+                    redact_matching_values(
+                        task_run.result,
+                        sensitive_execution_values(flow, execution.inputs, execution.outputs),
+                    )
+                )
+                if task_run.result is not None
+                else None
+            ),
         )
         for task_run in task_runs
     ]
@@ -3278,7 +3373,13 @@ async def stream_execution_logs(
         tenant_id=tenant_id,
     )
     try:
-        await repository.get_execution(execution_id, tenant_id=tenant_id)
+        execution = await repository.get_execution(execution_id, tenant_id=tenant_id)
+        flow = await repository.get_flow(
+            execution.namespace,
+            execution.flow_id,
+            tenant_id=tenant_id,
+            revision=execution.flow_revision,
+        )
         task_runs = await repository.list_task_runs(execution_id, tenant_id=tenant_id)
     except LookupError as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
@@ -3290,7 +3391,20 @@ async def stream_execution_logs(
                     taskId=task_run.task_id,
                     attempt=task_run.current_attempt,
                     state=task_run.state.value,
-                    output=task_run.result,
+                    output=(
+                        dict(
+                            redact_matching_values(
+                                task_run.result,
+                                sensitive_execution_values(
+                                    flow,
+                                    execution.inputs,
+                                    execution.outputs,
+                                ),
+                            )
+                        )
+                        if task_run.result is not None
+                        else None
+                    ),
                 ).model_dump_json(by_alias=True)
                 + "\n"
             )
@@ -3359,6 +3473,20 @@ async def trigger_webhook(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail="webhook body must be an object",
         )
+    try:
+        payload = validate_flow_inputs(flow, payload)
+        payload = await stage_file_inputs(
+            flow,
+            payload,
+            build_object_store(settings),
+            tenant_id=tenant_id,
+        )
+        payload = validate_flow_inputs(flow, payload)
+    except DataContractError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=str(exc),
+        ) from exc
     source_key = idempotency_key or source_event_id
     if source_key is None:
         encoded_payload = json.dumps(
@@ -3376,7 +3504,7 @@ async def trigger_webhook(
         flow_revision=flow.revision,
         trigger_id=trigger.id,
         occurrence_key=occurrence_key,
-        payload=payload,
+        payload=redact_sensitive_inputs(flow, payload),
         metadata={"source": "webhook", "observedAt": datetime.now(UTC).isoformat()},
         max_pending=trigger.max_pending,
         max_attempts=trigger.max_attempts,
@@ -3387,9 +3515,10 @@ async def trigger_webhook(
             acceptance.occurrence.execution_id,
             tenant_id=tenant_id,
         )
-        return ExecutionDetail(
-            execution=existing,
-            taskRuns=await repository.list_task_runs(
+        return _public_execution_detail(
+            flow,
+            existing,
+            await repository.list_task_runs(
                 existing.execution_id,
                 tenant_id=tenant_id,
             ),
@@ -3482,6 +3611,56 @@ def _prefers_async_response(prefer: str | None) -> bool:
     return any(item.strip().lower() == "respond-async" for item in prefer.split(","))
 
 
+def _public_execution(flow: FlowDefinition, execution: PersistedExecution) -> PersistedExecution:
+    sensitive_values = sensitive_execution_values(flow, execution.inputs, execution.outputs)
+    return execution.model_copy(
+        update={
+            "inputs": redact_sensitive_inputs(flow, execution.inputs),
+            "outputs": redact_sensitive_outputs(flow, execution.outputs),
+            "trigger": dict(redact_matching_values(execution.trigger, sensitive_values)),
+            "lifecycle_evidence": dict(
+                redact_matching_values(execution.lifecycle_evidence, sensitive_values)
+            ),
+        }
+    )
+
+
+def _public_execution_detail(
+    flow: FlowDefinition,
+    execution: PersistedExecution,
+    task_runs: list[PersistedTaskRun],
+) -> ExecutionDetail:
+    sensitive_values = sensitive_execution_values(flow, execution.inputs, execution.outputs)
+    public_runs = [
+        task_run.model_copy(
+            update={
+                "result": (
+                    dict(redact_matching_values(task_run.result, sensitive_values))
+                    if task_run.result is not None
+                    else None
+                ),
+                "evidence": dict(redact_matching_values(task_run.evidence, sensitive_values)),
+            }
+        )
+        for task_run in task_runs
+    ]
+    return ExecutionDetail(execution=_public_execution(flow, execution), taskRuns=public_runs)
+
+
+def _public_evidence(
+    flow: FlowDefinition,
+    execution: PersistedExecution,
+    events: list[ExecutionEvidenceEvent],
+) -> list[ExecutionEvidenceEvent]:
+    sensitive_values = sensitive_execution_values(flow, execution.inputs, execution.outputs)
+    return [
+        event.model_copy(
+            update={"payload": dict(redact_matching_values(event.payload, sensitive_values))}
+        )
+        for event in events
+    ]
+
+
 def _resolve_idempotency_key(body_value: str | None, header_value: str | None) -> str | None:
     if body_value is not None and header_value is not None and body_value != header_value:
         raise HTTPException(
@@ -3513,6 +3692,21 @@ async def _execute_flow(
             status_code=status.HTTP_409_CONFLICT,
             detail=f"flow {flow.namespace}.{flow.id} is disabled",
         )
+    object_store = build_object_store(settings)
+    try:
+        validated_inputs = validate_flow_inputs(flow, request.inputs)
+        validated_inputs = await stage_file_inputs(
+            flow,
+            validated_inputs,
+            object_store,
+            tenant_id=tenant_id,
+        )
+        validated_inputs = validate_flow_inputs(flow, validated_inputs)
+    except DataContractError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=str(exc),
+        ) from exc
     kubernetes_runner: KubernetesJobRunner | None = None
     if request.runner is RunnerMode.KUBERNETES:
         if settings.kubernetes_context is None:
@@ -3534,8 +3728,6 @@ async def _execute_flow(
         "agent.llm": agent_llm_handler(),
         "agent.mcp": agent_mcp_handler(),
     }
-    object_store = build_object_store(settings)
-
     async def authorize_subflow(child_flow: FlowDefinition) -> None:
         await authorize_request(
             authorization_service,
@@ -3633,7 +3825,7 @@ async def _execute_flow(
             execution = await repository.create_execution(
                 flow,
                 tenant_id=tenant_id,
-                inputs=request.inputs,
+                inputs=validated_inputs,
                 trigger=execution_trigger or None,
                 launch_source=launch_source,
                 idempotency_key=idempotency_key,
@@ -3650,12 +3842,13 @@ async def _execute_flow(
                 execution.execution_id,
                 tenant_id=tenant_id,
             )
-        detail = ExecutionDetail(
-            execution=await repository.get_execution(
+        detail = _public_execution_detail(
+            flow,
+            await repository.get_execution(
                 execution.execution_id,
                 tenant_id=tenant_id,
             ),
-            taskRuns=await repository.list_task_runs(
+            await repository.list_task_runs(
                 execution.execution_id,
                 tenant_id=tenant_id,
             ),

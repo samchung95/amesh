@@ -42,6 +42,8 @@ describe('API client', () => {
     await api.health()
     await api.session()
     await api.flowGraph('team/data', 'daily flow')
+    await api.flowDataContract('team/data', 'daily flow')
+    await api.executeFlow('team/data', 'daily flow', { message: 'hello' })
     await api.execution('run/one')
     await api.executionGraph('run/one')
     await api.executionEvidence('run/one', 'cursor/value')
@@ -50,10 +52,20 @@ describe('API client', () => {
       '/health',
       '/api/v1/ui/session',
       '/api/v1/flows/team%2Fdata/daily%20flow/graph',
+      '/api/v1/flows/team%2Fdata/daily%20flow/data-contract',
+      '/api/v1/executions',
       '/api/v1/executions/run%2Fone',
       '/api/v1/executions/run%2Fone/graph',
       '/api/v1/executions/run%2Fone/evidence?cursor=cursor%2Fvalue',
     ])
+    const executeInit = fetchMock.mock.calls[4]?.[1] as RequestInit
+    expect(executeInit.method).toBe('POST')
+    expect(JSON.parse(executeInit.body as string)).toEqual({
+      namespace: 'team/data',
+      flowId: 'daily flow',
+      inputs: { message: 'hello' },
+      runner: 'local',
+    })
   })
 
   it('uses a deterministic fallback when JSON detail is not text', async () => {
@@ -61,6 +73,36 @@ describe('API client', () => {
     const api = createApiClient({ token: 'token', tenant: 'default', namespace: '' })
 
     await expect(api.flows()).rejects.toMatchObject({ message: 'Request failed with status 500' })
+  })
+
+  it('builds workflow control collection and mutation requests', async () => {
+    const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(new Response('{}', { status: 200 })))
+    vi.stubGlobal('fetch', fetchMock)
+    const api = createApiClient({ token: 'token', tenant: 'default', namespace: '' })
+
+    await api.providers()
+    await api.triggers('team/data')
+    await api.triggers()
+    await api.triggerOccurrences('team/data')
+    await api.triggerOccurrences()
+    await api.checkPolicies('team/data')
+    await api.checkEvaluations()
+    await api.checkCompliance('team/data')
+    await api.setTriggerPaused('team/data', 'daily flow', 'schedule/one', true, 'maintenance')
+    await api.replayTriggerOccurrence('occurrence/one', 'operator replay')
+
+    expect(fetchMock.mock.calls.map((call) => call[0] as string)).toEqual([
+      '/api/v1/auth/providers',
+      '/api/v1/triggers?namespace=team%2Fdata',
+      '/api/v1/triggers',
+      '/api/v1/trigger-occurrences?limit=200&namespace=team%2Fdata',
+      '/api/v1/trigger-occurrences?limit=200',
+      '/api/v1/check-policies?limit=200&namespace=team%2Fdata',
+      '/api/v1/check-evaluations?limit=200',
+      '/api/v1/check-compliance?groupBy=flow&limit=200&namespace=team%2Fdata',
+      '/api/v1/triggers/team%2Fdata/daily%20flow/schedule%2Fone/pause',
+      '/api/v1/trigger-occurrences/occurrence%2Fone/replay',
+    ])
   })
 
   it('creates a browser session without a bearer token', async () => {

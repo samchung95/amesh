@@ -125,6 +125,10 @@ Migration `0036_execution_lifecycle_hooks.sql` tags durable task runs as main, e
 after-execution work and adds structured execution lifecycle evidence. A partial index supports
 recovery of incomplete terminal hooks without changing primary execution-event authority.
 
+Migration `0037_execution_data_contracts.sql` adds terminal flow outputs to the execution aggregate.
+Inputs are validated before execution rows exist, while successful terminalization stores the bounded,
+typed output rendering in the same transaction as the terminal event.
+
 ## Migration modes
 
 - `bootstrap` creates the initial schema and is only safe for an empty database.

@@ -2,12 +2,25 @@
 
 ## Current state
 
-- What works: the original post-MVP foundation plus the first five cards of the 50-epic local program are implemented, evidence-linked and deployed through migration 0036, including typed configuration, immutable flow revisions, durable conditionals and restartable error/finally/after-execution lifecycle hooks.
-- What's in flight: the 50-epic local completion program is tracked on Agent Hotel cards `c37`–`c86`; cards `c37`–`c41` are complete and EPIC-205 on card `c42` is next. The local Docker Compose deployment is healthy at migration 36/36 on `http://localhost:8000`.
+- What works: the original post-MVP foundation plus the first six cards of the 50-epic local program are implemented, evidence-linked and deployed through migration 0037, including canonical typed data contracts, pre-launch validation, object-staged file inputs, terminal outputs, schema-driven redaction and a generated control-room run form.
+- What's in flight: the 50-epic local completion program is tracked on Agent Hotel cards `c37`–`c86`; cards `c37`–`c42` are complete and EPIC-206 on card `c43` is next. The local Docker Compose deployment is healthy at migration 37/37 on `http://localhost:8000`.
 - Known broken / TODO: 20 external-cloud, SaaS, hosted-release, independent-certification, multi-region or long-duration epics are deferred. Cards `c15` and `c29` preserve unrelated backend test failures; `c87` records missing fresh-Compose mounts for migrations 0033–0036; and `c88` records seven pre-existing frontend lint errors. None blocks the current local program path.
 - How to run/test: use `uv run --extra runtime --extra dev pytest`; set `AMESH_TEST_DATABASE_URL` for PostgreSQL integration tests and `OPENROUTER_API_KEY` for live LLM tests.
 
 ## Session log
+
+### 2026-08-22 (50-epic local completion program, EPIC-205 completion)
+
+- Did: completed EPIC-205 with one canonical DSL/API/UI input schema for string, integer/number, boolean, datetime, duration, enum, array, object, file and secret values; required/default/display/prefill/validation metadata; validation before runnable persistence across API, manual, trigger and subflow launches; object-storage file staging; typed terminal outputs; and schema-driven public redaction. Linked URS-F-0219 through URS-F-0226 to automated evidence.
+- Verification: a fresh PostgreSQL database applied all 37 migrations and the complete suite passed with 288 tests, six environment/profile skips and cards `c15`/`c29` explicitly deselected. Ruff and strict mypy passed for 122 source files; frontend 11-test coverage and production build passed. The rebuilt API/executor/scheduler are healthy at 37/37. Live API acceptance rejected plaintext secrets without creating rows, completed a valid file-backed execution and redacted sensitive values; headless Chromium rendered five generated input controls and the Run action.
+- Deviations from plan: no dependency or LLM call was required. Legacy flows without declarations retain bounded ad-hoc input compatibility, and legacy `INT` normalizes to `integer`. Shared cross-product secret non-disclosure remains In Progress under URS-NFR-SECURITY-003; the existing `c87`/`c88` deferred items remain untouched.
+- Next step when resuming: close and commit card `c42`, then select EPIC-206 on card `c43` for labels, metadata and plugin defaults.
+
+### 2026-08-22 (50-epic local completion program, EPIC-205 start)
+
+- Did: selected EPIC-205 on card `c42` and accepted a single canonical data-contract boundary over the existing Pydantic DSL, JSON Schema generator, expression engine and object-storage port. The boundary will own typed validation/defaults, form/API schema derivation, file staging, terminal flow-output rendering and schema-driven public redaction for API, manual, trigger and subflow launches.
+- Deviations from plan: no dependency or LLM call is required. Secret inputs use durable `secret://` references so plaintext secret material never enters execution metadata or events; the existing static `variables` context remains separate from execution inputs and the mutable key-value service.
+- Next step when resuming: implement the typed DSL/data-contract service and migration 0037, then wire every execution launch path and the control-room run form before fresh-database qualification.
 
 ### 2026-08-22 (50-epic local completion program, EPIC-204 completion)
 

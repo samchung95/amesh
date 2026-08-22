@@ -58,6 +58,12 @@ from amesh.ports.execution_repository import (
     TaskStateConflictError,
 )
 from amesh.ports.tenant_repository import TenantQuotaExceeded, TenantUnavailableError
+from amesh.workflow.data_contracts import (
+    redact_matching_values,
+    sensitive_execution_values,
+    validate_flow_data_contract,
+    validate_flow_inputs,
+)
 
 from .check_repository import (
     evaluate_execution_terminal_checks,
@@ -780,6 +786,7 @@ _GET_EXECUTION = text(
         executions.flow_key,
         flow_revisions.revision AS flow_revision,
         executions.inputs,
+        executions.outputs,
         executions.labels,
         executions.trigger_context,
         executions.created_by,
@@ -808,6 +815,7 @@ _LIST_EXECUTIONS = text(
         executions.flow_key,
         flow_revisions.revision AS flow_revision,
         executions.inputs,
+        executions.outputs,
         executions.labels,
         executions.trigger_context,
         executions.created_by,
@@ -1322,6 +1330,7 @@ _FINISH_EXECUTION = text(
     WITH finished AS (
         UPDATE executions
         SET state = :state,
+            outputs = CAST(:outputs AS jsonb),
             version = version + 1,
             updated_at = now(),
             terminal_at = now()
@@ -1339,6 +1348,7 @@ _FINISH_EXECUTION = text(
             namespace_name,
             flow_key,
             inputs,
+            outputs,
             labels,
             trigger_context,
             created_by,
@@ -1391,6 +1401,7 @@ _FINISH_EXECUTION = text(
         finished.namespace_name,
         finished.flow_key,
         finished.inputs,
+        finished.outputs,
         finished.labels,
         finished.trigger_context,
         finished.created_by,
@@ -1608,6 +1619,7 @@ class PostgresExecutionRepository(ExecutionRepository):
         actor_id: str = "system:flow-manager",
         revision_source: FlowRevisionSource | None = None,
     ) -> PersistedFlow:
+        validate_flow_data_contract(flow)
         async with tenant_transaction(self._engine, tenant_id) as (connection, scoped_tenant_id):
             policy = await _load_tenant_policy(connection)
             _require_allowed_plugins(policy, flow)
@@ -1887,6 +1899,7 @@ class PostgresExecutionRepository(ExecutionRepository):
     ) -> PersistedExecution:
         if subflow is not None and flow.revision != subflow.target_revision:
             raise ValueError("subflow target revision does not match the loaded flow revision")
+        inputs = validate_flow_inputs(flow, inputs)
         execution_id = new_runtime_id()
 
         async with tenant_transaction(self._engine, tenant_id) as (connection, scoped_tenant_id):
@@ -1973,7 +1986,12 @@ class PostgresExecutionRepository(ExecutionRepository):
                     flow_disabled=stored_flow.disabled,
                 )
             flow = stored_flow
-            launch_context = dict(trigger or {})
+            launch_context = dict(
+                redact_matching_values(
+                    dict(trigger or {}),
+                    sensitive_execution_values(flow, inputs, {}),
+                )
+            )
             launch_context["source"] = launch_source.value
             merged_labels = {**flow.labels, **(labels or {})}
             expression_context = ExpressionContext(
@@ -2995,6 +3013,7 @@ class PostgresExecutionRepository(ExecutionRepository):
         *,
         tenant_id: str,
         expected_epoch: int,
+        outputs: dict[str, object] | None = None,
     ) -> PersistedExecution:
         return await self._finish_execution(
             execution_id,
@@ -3003,6 +3022,7 @@ class PostgresExecutionRepository(ExecutionRepository):
             {},
             tenant_id=tenant_id,
             expected_epoch=expected_epoch,
+            outputs=outputs,
         )
 
     async def fail_execution(
@@ -3020,6 +3040,7 @@ class PostgresExecutionRepository(ExecutionRepository):
             {"reason": reason},
             tenant_id=tenant_id,
             expected_epoch=expected_epoch,
+            outputs=None,
         )
 
     async def record_execution_lifecycle(
@@ -4247,6 +4268,7 @@ class PostgresExecutionRepository(ExecutionRepository):
         *,
         tenant_id: str,
         expected_epoch: int,
+        outputs: dict[str, object] | None,
     ) -> PersistedExecution:
         event_id = new_runtime_id()
         correlation_id = new_runtime_id()
@@ -4266,6 +4288,7 @@ class PostgresExecutionRepository(ExecutionRepository):
                     "correlation_id": correlation_id,
                     "reason": reason,
                     "payload": json.dumps(payload),
+                    "outputs": json.dumps(outputs or {}),
                 },
             )
             row = result.mappings().one_or_none()
@@ -4995,6 +5018,7 @@ def _to_execution(row: RowMapping) -> PersistedExecution:
         flow_id=row["flow_key"],
         flow_revision=row["flow_revision"],
         inputs=row["inputs"],
+        outputs=row["outputs"],
         labels=row["labels"],
         trigger=row["trigger_context"],
         created_by=row["created_by"],

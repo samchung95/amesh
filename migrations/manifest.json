@@ -216,6 +216,12 @@
       "mode": "expand",
       "onlineCompatible": true,
       "rollbackGuidance": "Pause lifecycle-hook dispatch and forward-fix the additive phase and execution-evidence columns; preserve primary execution events and all lifecycle task attempts."
+    },
+    {
+      "file": "0037_execution_data_contracts.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Pause typed flow-output publication and forward-fix the additive outputs column; preserve execution inputs, task results and terminal event evidence."
     }
   ]
 }

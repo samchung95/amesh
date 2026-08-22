@@ -189,6 +189,17 @@ class ExecutionDetail(BaseModel):
     task_runs: list[PersistedTaskRun] = Field(alias="taskRuns")
 
 
+class FlowDataContract(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    namespace: str
+    flow_id: str = Field(alias="flowId")
+    revision: int = Field(ge=1)
+    input_schema: dict[str, Any] = Field(alias="inputSchema")
+    outputs: dict[str, Any] = Field(default_factory=dict)
+    variables: dict[str, Any] = Field(default_factory=dict)
+
+
 class ExecutionEvidencePage(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 

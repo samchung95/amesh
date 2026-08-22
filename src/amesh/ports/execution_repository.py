@@ -96,6 +96,7 @@ class PersistedExecution(BaseModel):
     flow_id: str
     flow_revision: int = Field(default=1, ge=1)
     inputs: dict[str, Any] = Field(default_factory=dict)
+    outputs: dict[str, Any] = Field(default_factory=dict)
     labels: dict[str, str] = Field(default_factory=dict)
     trigger: dict[str, Any] = Field(default_factory=dict)
     created_by: str = "system:executor"
@@ -488,6 +489,7 @@ class ExecutionRepository(Protocol):
         *,
         tenant_id: str,
         expected_epoch: int,
+        outputs: dict[str, object] | None = None,
     ) -> PersistedExecution: ...
 
     async def fail_execution(

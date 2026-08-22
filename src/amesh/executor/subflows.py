@@ -12,7 +12,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from amesh.domain import ExecutionState, FailureCategory, TaskRunState
 from amesh.dsl import FlowDefinition
-from amesh.dsl.models import InputDefinition, TaskDefinition
+from amesh.dsl.models import TaskDefinition
 from amesh.expressions import ExpressionContext, NativeExpressionEngine
 from amesh.ports import (
     ExecutionInterventionAction,
@@ -23,6 +23,7 @@ from amesh.ports import (
     SubflowMode,
     SubflowPropagation,
 )
+from amesh.workflow.data_contracts import output_contract, validate_flow_inputs
 
 from .service import (
     ExecutionBlockedError,
@@ -336,39 +337,7 @@ async def _lineage(
 
 
 def _validate_inputs(flow: FlowDefinition, supplied: Mapping[str, Any]) -> dict[str, Any]:
-    definitions = {definition.id: definition for definition in flow.inputs}
-    unknown = sorted(set(supplied) - set(definitions))
-    if unknown:
-        raise ValueError("unknown subflow inputs: " + ", ".join(unknown))
-    values = dict(supplied)
-    for definition in flow.inputs:
-        if definition.id not in values:
-            if definition.default is not None:
-                values[definition.id] = definition.default
-            elif definition.required:
-                raise ValueError(f"required subflow input {definition.id!r} is missing")
-            else:
-                continue
-        if not _input_matches(definition, values[definition.id]):
-            raise ValueError(f"subflow input {definition.id!r} must have type {definition.type!r}")
-    return values
-
-
-def _input_matches(definition: InputDefinition, value: Any) -> bool:
-    input_type = definition.type.lower()
-    if input_type == "string":
-        return isinstance(value, str)
-    if input_type == "integer":
-        return isinstance(value, int) and not isinstance(value, bool)
-    if input_type == "number":
-        return isinstance(value, (int, float)) and not isinstance(value, bool)
-    if input_type == "boolean":
-        return isinstance(value, bool)
-    if input_type == "object":
-        return isinstance(value, dict)
-    if input_type == "array":
-        return isinstance(value, list)
-    return False
+    return validate_flow_inputs(flow, supplied)
 
 
 async def _propagate_child_state(
@@ -419,7 +388,10 @@ def _map_child_values(
 ) -> dict[str, Any]:
     selected: Mapping[str, Any] = mapping
     if default_to_flow_outputs:
-        selected = mapping or flow.outputs or outputs
+        selected = mapping or {
+            output_id: output_contract(value).value
+            for output_id, value in flow.outputs.items()
+        } or outputs
     rendered = NativeExpressionEngine().render_value(
         dict(selected),
         ExpressionContext(

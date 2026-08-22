@@ -12,14 +12,18 @@ Provide typed data contracts at flow and task boundaries.
 
 ## In scope
 
-- [ ] **URS-F-0219** — The system shall declare string, number, boolean, datetime, duration, enum, array, object, file and secret input types.
-- [ ] **URS-F-0220** — The system shall apply required, default, validation, display, prefill and sensitivity metadata.
-- [ ] **URS-F-0221** — The system shall validate manual, API, trigger and subflow inputs before creating runnable work.
-- [ ] **URS-F-0222** — The system shall declare flow outputs rendered from completed execution context.
-- [ ] **URS-F-0223** — The system shall keep static variables separate from execution inputs and mutable key-value data.
-- [ ] **URS-F-0224** — The system shall enforce payload size limits and move large file values into internal storage.
-- [ ] **URS-F-0225** — The system shall generate UI forms and API schemas from the same input definitions.
-- [ ] **URS-F-0226** — The system shall redact sensitive inputs and outputs according to schema metadata and policy.
+- [x] **URS-F-0219** — The system shall declare string, number, boolean, datetime, duration, enum, array, object, file and secret input types.
+- [x] **URS-F-0220** — The system shall apply required, default, validation, display, prefill and sensitivity metadata.
+- [x] **URS-F-0221** — The system shall validate manual, API, trigger and subflow inputs before creating runnable work.
+- [x] **URS-F-0222** — The system shall declare flow outputs rendered from completed execution context.
+- [x] **URS-F-0223** — The system shall keep static variables separate from execution inputs and mutable key-value data.
+- [x] **URS-F-0224** — The system shall enforce payload size limits and move large file values into internal storage.
+- [x] **URS-F-0225** — The system shall generate UI forms and API schemas from the same input definitions.
+- [x] **URS-F-0226** — The system shall redact sensitive inputs and outputs according to schema metadata and policy.
+
+## Implementation completion evidence
+
+- 2026-08-22 — EPIC-205 is complete. One canonical contract validates typed manual, API, trigger and subflow inputs before runnable work exists, stages inline files through object storage, renders typed terminal outputs and redacts schema-sensitive values from public execution surfaces. The API schema and control-room run form derive from the same definitions. Evidence: [`test_data_contracts.py`](../../tests/workflow/test_data_contracts.py), [`test_data_contract_api.py`](../../tests/api/test_data_contract_api.py), [`FlowDetailPage.tsx`](../../frontend/src/pages/FlowDetailPage.tsx), [`typed-data-contract.yaml`](../../examples/typed-data-contract.yaml) and [`035-canonical-flow-data-contracts.md`](../../docs/adr/035-canonical-flow-data-contracts.md).
 
 ## Non-functional requirements
 
@@ -47,13 +51,13 @@ Provide typed data contracts at flow and task boundaries.
 
 ## Definition of done
 
-- [ ] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
-- [ ] Public API, DSL, event and plugin contract changes pass compatibility checks.
-- [ ] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
-- [ ] Security, tenant isolation, redaction and audit behavior are reviewed.
-- [ ] Documentation, examples, migration notes and operational runbooks are updated.
-- [ ] Performance and recovery budgets are measured when this epic is on a critical path.
-- [ ] `python scripts/validate_backlog.py` passes.
+- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
+- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.
+- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
+- [x] Security, tenant isolation, redaction and audit behavior are reviewed.
+- [x] Documentation, examples, migration notes and operational runbooks are updated.
+- [x] Performance and recovery budgets are measured when this epic is on a critical path.
+- [x] `python scripts/validate_backlog.py` passes.
 
 ## Risks and unknowns
 

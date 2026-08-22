@@ -7,6 +7,8 @@ from typing import Any, Final, Literal
 
 from pydantic import ValidationError
 
+from amesh.workflow.data_contracts import DataContractError, validate_flow_data_contract
+
 from .models import (
     FlowDefinition,
     FlowValidationResult,
@@ -625,6 +627,18 @@ def validate_flow_document(
 
     active_registry = registry or default_resource_registry()
     issues = _duplicate_issues(flow, parsed.source_map)
+    try:
+        validate_flow_data_contract(flow)
+    except DataContractError as exc:
+        issues.append(
+            _issue(
+                code="data_contract_validation",
+                message=str(exc),
+                path=("inputs",),
+                hint="Correct the typed input/output contract using the generated flow schema.",
+                source_map=parsed.source_map,
+            )
+        )
     issues.extend(_dependency_issues(flow.tasks, parsed.source_map))
     issues.extend(_dependency_issues(flow.errors, parsed.source_map, ("errors",)))
     issues.extend(_dependency_issues(flow.finally_tasks, parsed.source_map, ("finally",)))

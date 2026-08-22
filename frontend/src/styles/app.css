@@ -197,6 +197,21 @@ tbody tr:hover { background: var(--paper); }
 .flow-node-meta span + span::before { margin-right: 8px; content: "·"; }
 .flow-node-dependencies { margin-top: 8px; }
 .flow-node-dependencies span { display: inline-flex; align-items: center; gap: 4px; padding: 2px 6px; color: var(--accent); background: var(--success-soft); border-radius: 20px; font: .68rem "IBM Plex Mono", monospace; }
+.flow-run-panel form { display: grid; gap: 18px; }
+.flow-input-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.flow-input-field { display: grid; align-content: start; gap: 6px; min-width: 0; color: var(--ink); font-weight: 600; }
+.flow-input-field > span { display: flex; align-items: center; min-height: 20px; }
+.flow-input-field b { color: var(--danger); }
+.flow-input-field small { min-height: 18px; color: var(--muted); font-weight: 400; }
+.flow-input-field input:not([type="checkbox"]), .flow-input-field select, .flow-input-field textarea { width: 100%; min-height: 44px; padding: 10px 11px; color: var(--ink); background: var(--paper); border: 1px solid var(--line-strong); border-radius: var(--radius-control); }
+.flow-input-field textarea { min-height: 118px; resize: vertical; font: .75rem "IBM Plex Mono", monospace; }
+.flow-input-field input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--accent); }
+.flow-no-inputs { display: flex; align-items: center; gap: 8px; margin: 0; color: var(--muted); }
+.flow-run-panel .button { justify-self: start; }
+.execution-contract > div:last-child { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.execution-contract article { min-width: 0; padding: 14px; background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius-control); }
+.execution-contract h3 { margin: 0 0 8px; font-size: .78rem; }
+.execution-contract pre { max-height: 280px; margin: 0; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; }
 details summary { min-height: 36px; padding: 8px; cursor: pointer; color: var(--accent); }
 details pre { max-width: 480px; overflow: auto; padding: 10px; background: var(--paper); }
 .popover { position: fixed; z-index: 40; padding: 16px; background: var(--surface-raised); border: 1px solid var(--line-strong); border-radius: var(--radius-panel); box-shadow: var(--shadow-low); }
@@ -303,6 +318,8 @@ details pre { max-width: 480px; overflow: auto; padding: 10px; background: var(-
   .flow-node { grid-template-columns: auto minmax(0, 1fr); }
   .flow-node > .status { grid-column: 2; justify-self: start; }
   .flow-node-depth-1, .flow-node-depth-2, .flow-node-depth-3, .flow-node-depth-4 { margin-left: 20px; }
+  .flow-input-grid { grid-template-columns: 1fr; }
+  .execution-contract > div:last-child { grid-template-columns: 1fr; }
   .context-popover { top: 65px; left: 12px; width: min(310px, calc(100vw - 24px)); }
   .notification-popover { right: 12px; width: min(330px, calc(100vw - 24px)); }
   .connection-page { grid-template-columns: 1fr; }

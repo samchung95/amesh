@@ -6,7 +6,615 @@
         "additionalProperties": false,
         "properties": {
           "default": {
+            "type": "array"
+          },
+          "displayName": {
+            "maxLength": 256,
             "type": "string"
+          },
+          "itemType": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxBytes": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "placeholder": {
+            "maxLength": 512,
+            "type": "string"
+          },
+          "prefill": {
+            "type": "array"
+          },
+          "schema": {
+            "type": "object"
+          },
+          "validation": {
+            "type": "object"
+          },
+          "values": {
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "editor": {
+        "category": "Inputs",
+        "description": "Declare a ARRAY flow input.",
+        "propertyOrder": [
+          "displayName",
+          "default",
+          "prefill",
+          "placeholder",
+          "values",
+          "itemType",
+          "schema",
+          "validation",
+          "maxBytes"
+        ],
+        "title": "Array input"
+      },
+      "kind": "input",
+      "type": "ARRAY"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "default": {
+            "type": "boolean"
+          },
+          "displayName": {
+            "maxLength": 256,
+            "type": "string"
+          },
+          "itemType": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxBytes": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "placeholder": {
+            "maxLength": 512,
+            "type": "string"
+          },
+          "prefill": {
+            "type": "boolean"
+          },
+          "schema": {
+            "type": "object"
+          },
+          "validation": {
+            "type": "object"
+          },
+          "values": {
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "editor": {
+        "category": "Inputs",
+        "description": "Declare a BOOLEAN flow input.",
+        "propertyOrder": [
+          "displayName",
+          "default",
+          "prefill",
+          "placeholder",
+          "values",
+          "itemType",
+          "schema",
+          "validation",
+          "maxBytes"
+        ],
+        "title": "Boolean input"
+      },
+      "kind": "input",
+      "type": "BOOLEAN"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "default": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "displayName": {
+            "maxLength": 256,
+            "type": "string"
+          },
+          "itemType": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxBytes": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "placeholder": {
+            "maxLength": 512,
+            "type": "string"
+          },
+          "prefill": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "schema": {
+            "type": "object"
+          },
+          "validation": {
+            "type": "object"
+          },
+          "values": {
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "editor": {
+        "category": "Inputs",
+        "description": "Declare a DATETIME flow input.",
+        "propertyOrder": [
+          "displayName",
+          "default",
+          "prefill",
+          "placeholder",
+          "values",
+          "itemType",
+          "schema",
+          "validation",
+          "maxBytes"
+        ],
+        "title": "Datetime input"
+      },
+      "kind": "input",
+      "type": "DATETIME"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "default": {
+            "format": "duration",
+            "type": "string"
+          },
+          "displayName": {
+            "maxLength": 256,
+            "type": "string"
+          },
+          "itemType": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxBytes": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "placeholder": {
+            "maxLength": 512,
+            "type": "string"
+          },
+          "prefill": {
+            "format": "duration",
+            "type": "string"
+          },
+          "schema": {
+            "type": "object"
+          },
+          "validation": {
+            "type": "object"
+          },
+          "values": {
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "editor": {
+        "category": "Inputs",
+        "description": "Declare a DURATION flow input.",
+        "propertyOrder": [
+          "displayName",
+          "default",
+          "prefill",
+          "placeholder",
+          "values",
+          "itemType",
+          "schema",
+          "validation",
+          "maxBytes"
+        ],
+        "title": "Duration input"
+      },
+      "kind": "input",
+      "type": "DURATION"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "default": {},
+          "displayName": {
+            "maxLength": 256,
+            "type": "string"
+          },
+          "itemType": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxBytes": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "placeholder": {
+            "maxLength": 512,
+            "type": "string"
+          },
+          "prefill": {},
+          "schema": {
+            "type": "object"
+          },
+          "validation": {
+            "type": "object"
+          },
+          "values": {
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "editor": {
+        "category": "Inputs",
+        "description": "Declare a ENUM flow input.",
+        "propertyOrder": [
+          "displayName",
+          "default",
+          "prefill",
+          "placeholder",
+          "values",
+          "itemType",
+          "schema",
+          "validation",
+          "maxBytes"
+        ],
+        "title": "Enum input"
+      },
+      "kind": "input",
+      "type": "ENUM"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "default": {
+            "type": "object"
+          },
+          "displayName": {
+            "maxLength": 256,
+            "type": "string"
+          },
+          "itemType": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxBytes": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "placeholder": {
+            "maxLength": 512,
+            "type": "string"
+          },
+          "prefill": {
+            "type": "object"
+          },
+          "schema": {
+            "type": "object"
+          },
+          "validation": {
+            "type": "object"
+          },
+          "values": {
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "editor": {
+        "category": "Inputs",
+        "description": "Declare a FILE flow input.",
+        "propertyOrder": [
+          "displayName",
+          "default",
+          "prefill",
+          "placeholder",
+          "values",
+          "itemType",
+          "schema",
+          "validation",
+          "maxBytes"
+        ],
+        "title": "File input"
+      },
+      "kind": "input",
+      "type": "FILE"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "default": {
+            "type": "integer"
+          },
+          "displayName": {
+            "maxLength": 256,
+            "type": "string"
+          },
+          "itemType": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxBytes": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "placeholder": {
+            "maxLength": 512,
+            "type": "string"
+          },
+          "prefill": {
+            "type": "integer"
+          },
+          "schema": {
+            "type": "object"
+          },
+          "validation": {
+            "type": "object"
+          },
+          "values": {
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "editor": {
+        "category": "Inputs",
+        "description": "Declare a INTEGER flow input.",
+        "propertyOrder": [
+          "displayName",
+          "default",
+          "prefill",
+          "placeholder",
+          "values",
+          "itemType",
+          "schema",
+          "validation",
+          "maxBytes"
+        ],
+        "title": "Integer input"
+      },
+      "kind": "input",
+      "type": "INTEGER"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "default": {
+            "type": "number"
+          },
+          "displayName": {
+            "maxLength": 256,
+            "type": "string"
+          },
+          "itemType": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxBytes": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "placeholder": {
+            "maxLength": 512,
+            "type": "string"
+          },
+          "prefill": {
+            "type": "number"
+          },
+          "schema": {
+            "type": "object"
+          },
+          "validation": {
+            "type": "object"
+          },
+          "values": {
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "editor": {
+        "category": "Inputs",
+        "description": "Declare a NUMBER flow input.",
+        "propertyOrder": [
+          "displayName",
+          "default",
+          "prefill",
+          "placeholder",
+          "values",
+          "itemType",
+          "schema",
+          "validation",
+          "maxBytes"
+        ],
+        "title": "Number input"
+      },
+      "kind": "input",
+      "type": "NUMBER"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "default": {
+            "type": "object"
+          },
+          "displayName": {
+            "maxLength": 256,
+            "type": "string"
+          },
+          "itemType": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxBytes": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "placeholder": {
+            "maxLength": 512,
+            "type": "string"
+          },
+          "prefill": {
+            "type": "object"
+          },
+          "schema": {
+            "type": "object"
+          },
+          "validation": {
+            "type": "object"
+          },
+          "values": {
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "editor": {
+        "category": "Inputs",
+        "description": "Declare a OBJECT flow input.",
+        "propertyOrder": [
+          "displayName",
+          "default",
+          "prefill",
+          "placeholder",
+          "values",
+          "itemType",
+          "schema",
+          "validation",
+          "maxBytes"
+        ],
+        "title": "Object input"
+      },
+      "kind": "input",
+      "type": "OBJECT"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "default": {
+            "type": "string"
+          },
+          "displayName": {
+            "maxLength": 256,
+            "type": "string"
+          },
+          "itemType": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxBytes": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "placeholder": {
+            "maxLength": 512,
+            "type": "string"
+          },
+          "prefill": {
+            "type": "string"
+          },
+          "schema": {
+            "type": "object"
+          },
+          "validation": {
+            "type": "object"
+          },
+          "values": {
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "editor": {
+        "category": "Inputs",
+        "description": "Declare a SECRET flow input.",
+        "propertyOrder": [
+          "displayName",
+          "default",
+          "prefill",
+          "placeholder",
+          "values",
+          "itemType",
+          "schema",
+          "validation",
+          "maxBytes"
+        ],
+        "title": "Secret input"
+      },
+      "kind": "input",
+      "type": "SECRET"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "default": {
+            "type": "string"
+          },
+          "displayName": {
+            "maxLength": 256,
+            "type": "string"
+          },
+          "itemType": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxBytes": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "placeholder": {
+            "maxLength": 512,
+            "type": "string"
+          },
+          "prefill": {
+            "type": "string"
+          },
+          "schema": {
+            "type": "object"
+          },
+          "validation": {
+            "type": "object"
+          },
+          "values": {
+            "type": "array"
           }
         },
         "type": "object"
@@ -15,7 +623,15 @@
         "category": "Inputs",
         "description": "Declare a STRING flow input.",
         "propertyOrder": [
-          "default"
+          "displayName",
+          "default",
+          "prefill",
+          "placeholder",
+          "values",
+          "itemType",
+          "schema",
+          "validation",
+          "maxBytes"
         ],
         "title": "String input"
       },
@@ -29,6 +645,34 @@
         "properties": {
           "default": {
             "type": "array"
+          },
+          "displayName": {
+            "maxLength": 256,
+            "type": "string"
+          },
+          "itemType": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxBytes": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "placeholder": {
+            "maxLength": 512,
+            "type": "string"
+          },
+          "prefill": {
+            "type": "array"
+          },
+          "schema": {
+            "type": "object"
+          },
+          "validation": {
+            "type": "object"
+          },
+          "values": {
+            "type": "array"
           }
         },
         "type": "object"
@@ -37,7 +681,15 @@
         "category": "Inputs",
         "description": "Declare a array flow input.",
         "propertyOrder": [
-          "default"
+          "displayName",
+          "default",
+          "prefill",
+          "placeholder",
+          "values",
+          "itemType",
+          "schema",
+          "validation",
+          "maxBytes"
         ],
         "title": "Array input"
       },
@@ -51,6 +703,34 @@
         "properties": {
           "default": {
             "type": "boolean"
+          },
+          "displayName": {
+            "maxLength": 256,
+            "type": "string"
+          },
+          "itemType": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxBytes": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "placeholder": {
+            "maxLength": 512,
+            "type": "string"
+          },
+          "prefill": {
+            "type": "boolean"
+          },
+          "schema": {
+            "type": "object"
+          },
+          "validation": {
+            "type": "object"
+          },
+          "values": {
+            "type": "array"
           }
         },
         "type": "object"
@@ -59,7 +739,15 @@
         "category": "Inputs",
         "description": "Declare a boolean flow input.",
         "propertyOrder": [
-          "default"
+          "displayName",
+          "default",
+          "prefill",
+          "placeholder",
+          "values",
+          "itemType",
+          "schema",
+          "validation",
+          "maxBytes"
         ],
         "title": "Boolean input"
       },
@@ -72,7 +760,267 @@
         "additionalProperties": false,
         "properties": {
           "default": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "displayName": {
+            "maxLength": 256,
+            "type": "string"
+          },
+          "itemType": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxBytes": {
+            "minimum": 1,
             "type": "integer"
+          },
+          "placeholder": {
+            "maxLength": 512,
+            "type": "string"
+          },
+          "prefill": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "schema": {
+            "type": "object"
+          },
+          "validation": {
+            "type": "object"
+          },
+          "values": {
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "editor": {
+        "category": "Inputs",
+        "description": "Declare a datetime flow input.",
+        "propertyOrder": [
+          "displayName",
+          "default",
+          "prefill",
+          "placeholder",
+          "values",
+          "itemType",
+          "schema",
+          "validation",
+          "maxBytes"
+        ],
+        "title": "Datetime input"
+      },
+      "kind": "input",
+      "type": "datetime"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "default": {
+            "format": "duration",
+            "type": "string"
+          },
+          "displayName": {
+            "maxLength": 256,
+            "type": "string"
+          },
+          "itemType": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxBytes": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "placeholder": {
+            "maxLength": 512,
+            "type": "string"
+          },
+          "prefill": {
+            "format": "duration",
+            "type": "string"
+          },
+          "schema": {
+            "type": "object"
+          },
+          "validation": {
+            "type": "object"
+          },
+          "values": {
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "editor": {
+        "category": "Inputs",
+        "description": "Declare a duration flow input.",
+        "propertyOrder": [
+          "displayName",
+          "default",
+          "prefill",
+          "placeholder",
+          "values",
+          "itemType",
+          "schema",
+          "validation",
+          "maxBytes"
+        ],
+        "title": "Duration input"
+      },
+      "kind": "input",
+      "type": "duration"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "default": {},
+          "displayName": {
+            "maxLength": 256,
+            "type": "string"
+          },
+          "itemType": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxBytes": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "placeholder": {
+            "maxLength": 512,
+            "type": "string"
+          },
+          "prefill": {},
+          "schema": {
+            "type": "object"
+          },
+          "validation": {
+            "type": "object"
+          },
+          "values": {
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "editor": {
+        "category": "Inputs",
+        "description": "Declare a enum flow input.",
+        "propertyOrder": [
+          "displayName",
+          "default",
+          "prefill",
+          "placeholder",
+          "values",
+          "itemType",
+          "schema",
+          "validation",
+          "maxBytes"
+        ],
+        "title": "Enum input"
+      },
+      "kind": "input",
+      "type": "enum"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "default": {
+            "type": "object"
+          },
+          "displayName": {
+            "maxLength": 256,
+            "type": "string"
+          },
+          "itemType": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxBytes": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "placeholder": {
+            "maxLength": 512,
+            "type": "string"
+          },
+          "prefill": {
+            "type": "object"
+          },
+          "schema": {
+            "type": "object"
+          },
+          "validation": {
+            "type": "object"
+          },
+          "values": {
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "editor": {
+        "category": "Inputs",
+        "description": "Declare a file flow input.",
+        "propertyOrder": [
+          "displayName",
+          "default",
+          "prefill",
+          "placeholder",
+          "values",
+          "itemType",
+          "schema",
+          "validation",
+          "maxBytes"
+        ],
+        "title": "File input"
+      },
+      "kind": "input",
+      "type": "file"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "default": {
+            "type": "integer"
+          },
+          "displayName": {
+            "maxLength": 256,
+            "type": "string"
+          },
+          "itemType": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxBytes": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "placeholder": {
+            "maxLength": 512,
+            "type": "string"
+          },
+          "prefill": {
+            "type": "integer"
+          },
+          "schema": {
+            "type": "object"
+          },
+          "validation": {
+            "type": "object"
+          },
+          "values": {
+            "type": "array"
           }
         },
         "type": "object"
@@ -81,7 +1029,15 @@
         "category": "Inputs",
         "description": "Declare a integer flow input.",
         "propertyOrder": [
-          "default"
+          "displayName",
+          "default",
+          "prefill",
+          "placeholder",
+          "values",
+          "itemType",
+          "schema",
+          "validation",
+          "maxBytes"
         ],
         "title": "Integer input"
       },
@@ -95,6 +1051,34 @@
         "properties": {
           "default": {
             "type": "number"
+          },
+          "displayName": {
+            "maxLength": 256,
+            "type": "string"
+          },
+          "itemType": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxBytes": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "placeholder": {
+            "maxLength": 512,
+            "type": "string"
+          },
+          "prefill": {
+            "type": "number"
+          },
+          "schema": {
+            "type": "object"
+          },
+          "validation": {
+            "type": "object"
+          },
+          "values": {
+            "type": "array"
           }
         },
         "type": "object"
@@ -103,7 +1087,15 @@
         "category": "Inputs",
         "description": "Declare a number flow input.",
         "propertyOrder": [
-          "default"
+          "displayName",
+          "default",
+          "prefill",
+          "placeholder",
+          "values",
+          "itemType",
+          "schema",
+          "validation",
+          "maxBytes"
         ],
         "title": "Number input"
       },
@@ -117,6 +1109,34 @@
         "properties": {
           "default": {
             "type": "object"
+          },
+          "displayName": {
+            "maxLength": 256,
+            "type": "string"
+          },
+          "itemType": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxBytes": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "placeholder": {
+            "maxLength": 512,
+            "type": "string"
+          },
+          "prefill": {
+            "type": "object"
+          },
+          "schema": {
+            "type": "object"
+          },
+          "validation": {
+            "type": "object"
+          },
+          "values": {
+            "type": "array"
           }
         },
         "type": "object"
@@ -125,7 +1145,15 @@
         "category": "Inputs",
         "description": "Declare a object flow input.",
         "propertyOrder": [
-          "default"
+          "displayName",
+          "default",
+          "prefill",
+          "placeholder",
+          "values",
+          "itemType",
+          "schema",
+          "validation",
+          "maxBytes"
         ],
         "title": "Object input"
       },
@@ -139,6 +1167,92 @@
         "properties": {
           "default": {
             "type": "string"
+          },
+          "displayName": {
+            "maxLength": 256,
+            "type": "string"
+          },
+          "itemType": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxBytes": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "placeholder": {
+            "maxLength": 512,
+            "type": "string"
+          },
+          "prefill": {
+            "type": "string"
+          },
+          "schema": {
+            "type": "object"
+          },
+          "validation": {
+            "type": "object"
+          },
+          "values": {
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "editor": {
+        "category": "Inputs",
+        "description": "Declare a secret flow input.",
+        "propertyOrder": [
+          "displayName",
+          "default",
+          "prefill",
+          "placeholder",
+          "values",
+          "itemType",
+          "schema",
+          "validation",
+          "maxBytes"
+        ],
+        "title": "Secret input"
+      },
+      "kind": "input",
+      "type": "secret"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "default": {
+            "type": "string"
+          },
+          "displayName": {
+            "maxLength": 256,
+            "type": "string"
+          },
+          "itemType": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxBytes": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "placeholder": {
+            "maxLength": 512,
+            "type": "string"
+          },
+          "prefill": {
+            "type": "string"
+          },
+          "schema": {
+            "type": "object"
+          },
+          "validation": {
+            "type": "object"
+          },
+          "values": {
+            "type": "array"
           }
         },
         "type": "object"
@@ -147,7 +1261,15 @@
         "category": "Inputs",
         "description": "Declare a string flow input.",
         "propertyOrder": [
-          "default"
+          "displayName",
+          "default",
+          "prefill",
+          "placeholder",
+          "values",
+          "itemType",
+          "schema",
+          "validation",
+          "maxBytes"
         ],
         "title": "String input"
       },

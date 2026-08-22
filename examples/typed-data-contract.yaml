@@ -1,0 +1,46 @@
+apiVersion: amesh.flow/v1
+id: typed-data
+namespace: examples.data
+description: Exercise the generated input form and terminal output contract.
+inputs:
+  - id: message
+    type: STRING
+    required: true
+    displayName: Message
+    placeholder: Enter a message
+    validation:
+      minLength: 2
+  - id: copies
+    type: INTEGER
+    default: 1
+    validation:
+      minimum: 1
+      maximum: 10
+  - id: tier
+    type: ENUM
+    values: [standard, priority]
+    prefill: standard
+  - id: attachment
+    type: FILE
+    maxBytes: 1048576
+  - id: credential
+    type: SECRET
+    sensitive: true
+variables:
+  region: apac
+tasks:
+  - id: echo
+    type: core.return
+    value:
+      message: "{{ inputs.message }}"
+      copies: "{{ inputs.copies }}"
+      tier: "{{ inputs.tier }}"
+      region: "{{ vars.region }}"
+outputs:
+  result:
+    type: object
+    value: "{{ outputs.echo.value }}"
+  submittedMessage:
+    type: string
+    value: "{{ inputs.message }}"
+    sensitive: true

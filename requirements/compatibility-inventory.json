@@ -3264,97 +3264,121 @@
       "requirement_id": "URS-F-0219",
       "epic_id": "EPIC-205",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/workflow/test_data_contracts.py::test_one_contract_generates_schema_and_validates_all_supported_types"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0220",
       "epic_id": "EPIC-205",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/workflow/test_data_contracts.py::test_one_contract_generates_schema_and_validates_all_supported_types",
+        "tests/api/test_data_contract_api.py::test_api_schema_validation_terminal_outputs_and_public_redaction"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0221",
       "epic_id": "EPIC-205",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/api/test_data_contract_api.py::test_api_schema_validation_terminal_outputs_and_public_redaction",
+        "tests/executor/test_subflows.py"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0222",
       "epic_id": "EPIC-205",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/workflow/test_data_contracts.py::test_completed_outputs_render_and_sensitive_values_are_redacted",
+        "tests/api/test_data_contract_api.py::test_api_schema_validation_terminal_outputs_and_public_redaction"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0223",
       "epic_id": "EPIC-205",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/workflow/test_data_contracts.py::test_one_contract_generates_schema_and_validates_all_supported_types",
+        "tests/expressions/test_pebble_contract.py"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0224",
       "epic_id": "EPIC-205",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/workflow/test_data_contracts.py::test_inline_file_is_replaced_by_internal_object_reference",
+        "tests/workflow/test_data_contracts.py::test_one_contract_generates_schema_and_validates_all_supported_types"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0225",
       "epic_id": "EPIC-205",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/api/test_data_contract_api.py::test_api_schema_validation_terminal_outputs_and_public_redaction",
+        "frontend/src/pages/FlowDetailPage.tsx",
+        "frontend/src/api/client.test.ts"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0226",
       "epic_id": "EPIC-205",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/workflow/test_data_contracts.py::test_completed_outputs_render_and_sensitive_values_are_redacted",
+        "tests/api/test_data_contract_api.py::test_api_schema_validation_terminal_outputs_and_public_redaction"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0227",

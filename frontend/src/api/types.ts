@@ -43,9 +43,40 @@ export interface PersistedExecution {
   namespace: string
   flow_id: string
   inputs: Record<string, unknown>
+  outputs: Record<string, unknown>
   trigger: Record<string, unknown>
   created_at: string
   updated_at: string
+}
+
+export interface FlowInputSchemaProperty {
+  type?: string | string[]
+  enum?: unknown[]
+  title?: string
+  description?: string
+  default?: unknown
+  examples?: unknown[]
+  writeOnly?: boolean
+  ['x-amesh-input']?: {
+    type: string
+    sensitive: boolean
+    placeholder: string | null
+    prefill: unknown
+    maxBytes: number | null
+  }
+}
+
+export interface FlowDataContract {
+  namespace: string
+  flowId: string
+  revision: number
+  inputSchema: {
+    properties: Record<string, FlowInputSchemaProperty>
+    required: string[]
+    additionalProperties: boolean
+  }
+  outputs: Record<string, unknown>
+  variables: Record<string, unknown>
 }
 
 export interface PersistedTaskRun {

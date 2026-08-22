@@ -59,6 +59,7 @@ from amesh.ports import (
     TaskRunState,
     TaskStateConflictError,
 )
+from amesh.workflow.data_contracts import render_flow_outputs, validate_flow_inputs
 
 from .contracts import (
     TaskCompletion,
@@ -282,10 +283,11 @@ class InProcessExecutor:
         if flow.disabled:
             raise ValueError(f"flow {flow.namespace}.{flow.id} is disabled")
         _validate_registered_task_schemas(flow, self._resource_registry)
+        validated_inputs = validate_flow_inputs(flow, inputs or {})
         execution = await self._repository.create_execution(
             flow,
             tenant_id=tenant_id,
-            inputs=inputs or {},
+            inputs=validated_inputs,
             launch_source=launch_source,
         )
         return execution.execution_id
@@ -399,7 +401,7 @@ class InProcessExecutor:
                     primary_decision=decision,
                     max_tasks=max_tasks,
                 )
-            execution = await self._finish_execution(execution, decision)
+            execution = await self._finish_execution(flow, execution, decision, task_runs)
             return ExecutionProgress(
                 execution_id=execution_id,
                 state=execution.state,
@@ -483,7 +485,12 @@ class InProcessExecutor:
                         None,
                     ),
                 )
-            execution = await self._finish_execution(execution, updated_decision)
+            execution = await self._finish_execution(
+                flow,
+                execution,
+                updated_decision,
+                updated_task_runs,
+            )
         else:
             execution = await self._repository.get_execution(execution_id, tenant_id=tenant_id)
         progress = ExecutionProgress(
@@ -518,7 +525,12 @@ class InProcessExecutor:
                     tasks_run=claimed_tasks,
                     task_runs=tuple(task_runs),
                 )
-            finished = await self._finish_execution(execution, primary_decision)
+            finished = await self._finish_execution(
+                flow,
+                execution,
+                primary_decision,
+                task_runs,
+            )
             if primary_failure is not None:
                 raise TaskExecutionError(primary_decision.diagnostic or primary_failure)
             return ExecutionProgress(
@@ -669,7 +681,12 @@ class InProcessExecutor:
                 terminal_state=primary_state,
                 diagnostic=(str(primary.get("diagnostic")) if primary.get("diagnostic") else None),
             )
-            execution = await self._finish_execution(execution, terminal_decision)
+            execution = await self._finish_execution(
+                flow,
+                execution,
+                terminal_decision,
+                task_runs,
+            )
             return ExecutionProgress(
                 execution_id=execution.execution_id,
                 state=execution.state,
@@ -2346,14 +2363,50 @@ class InProcessExecutor:
 
     async def _finish_execution(
         self,
+        flow: FlowDefinition,
         execution: PersistedExecution,
         decision: OrchestrationDecision,
+        task_runs: list[PersistedTaskRun],
     ) -> PersistedExecution:
         if decision.terminal_state is ExecutionState.SUCCESS:
+            task_outputs = {
+                task_run.task_id: task_run.result or {}
+                for task_run in task_runs
+                if task_run.state is TaskRunState.SUCCESS
+            }
+            context = ExpressionContext(
+                flow={
+                    "id": flow.id,
+                    "namespace": flow.namespace,
+                    "revision": flow.revision,
+                },
+                execution={
+                    "id": str(execution.execution_id),
+                    "state": ExecutionState.SUCCESS.value,
+                    "startDate": execution.created_at,
+                    "tenantId": execution.tenant_id,
+                },
+                trigger=execution.trigger,
+                inputs=execution.inputs,
+                outputs=task_outputs,
+                variables=flow.variables,
+                labels=execution.labels,
+                namespace={"id": flow.namespace},
+            )
+            try:
+                outputs = render_flow_outputs(flow, self._expressions, context)
+            except (TypeError, ValueError) as exc:
+                return await self._repository.fail_execution(
+                    execution.execution_id,
+                    f"flow output contract failed: {exc}",
+                    expected_epoch=execution.epoch,
+                    tenant_id=execution.tenant_id,
+                )
             return await self._repository.complete_execution(
                 execution.execution_id,
                 expected_epoch=execution.epoch,
                 tenant_id=execution.tenant_id,
+                outputs=outputs,
             )
         if decision.terminal_state is ExecutionState.FAILED:
             return await self._repository.fail_execution(

@@ -6456,7 +6456,7 @@
       "id": "URS-F-0219",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M2",
       "wave": 2,
       "epic_id": "EPIC-205",
@@ -6478,13 +6478,16 @@
         "EPIC-004",
         "EPIC-005",
         "EPIC-010"
+      ],
+      "evidence": [
+        "tests/workflow/test_data_contracts.py::test_one_contract_generates_schema_and_validates_all_supported_types"
       ]
     },
     {
       "id": "URS-F-0220",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M2",
       "wave": 2,
       "epic_id": "EPIC-205",
@@ -6506,13 +6509,17 @@
         "EPIC-004",
         "EPIC-005",
         "EPIC-010"
+      ],
+      "evidence": [
+        "tests/workflow/test_data_contracts.py::test_one_contract_generates_schema_and_validates_all_supported_types",
+        "tests/api/test_data_contract_api.py::test_api_schema_validation_terminal_outputs_and_public_redaction"
       ]
     },
     {
       "id": "URS-F-0221",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M2",
       "wave": 2,
       "epic_id": "EPIC-205",
@@ -6534,13 +6541,17 @@
         "EPIC-004",
         "EPIC-005",
         "EPIC-010"
+      ],
+      "evidence": [
+        "tests/api/test_data_contract_api.py::test_api_schema_validation_terminal_outputs_and_public_redaction",
+        "tests/executor/test_subflows.py"
       ]
     },
     {
       "id": "URS-F-0222",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M2",
       "wave": 2,
       "epic_id": "EPIC-205",
@@ -6562,13 +6573,17 @@
         "EPIC-004",
         "EPIC-005",
         "EPIC-010"
+      ],
+      "evidence": [
+        "tests/workflow/test_data_contracts.py::test_completed_outputs_render_and_sensitive_values_are_redacted",
+        "tests/api/test_data_contract_api.py::test_api_schema_validation_terminal_outputs_and_public_redaction"
       ]
     },
     {
       "id": "URS-F-0223",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M2",
       "wave": 2,
       "epic_id": "EPIC-205",
@@ -6590,13 +6605,17 @@
         "EPIC-004",
         "EPIC-005",
         "EPIC-010"
+      ],
+      "evidence": [
+        "tests/workflow/test_data_contracts.py::test_one_contract_generates_schema_and_validates_all_supported_types",
+        "tests/expressions/test_pebble_contract.py"
       ]
     },
     {
       "id": "URS-F-0224",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M2",
       "wave": 2,
       "epic_id": "EPIC-205",
@@ -6618,13 +6637,17 @@
         "EPIC-004",
         "EPIC-005",
         "EPIC-010"
+      ],
+      "evidence": [
+        "tests/workflow/test_data_contracts.py::test_inline_file_is_replaced_by_internal_object_reference",
+        "tests/workflow/test_data_contracts.py::test_one_contract_generates_schema_and_validates_all_supported_types"
       ]
     },
     {
       "id": "URS-F-0225",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M2",
       "wave": 2,
       "epic_id": "EPIC-205",
@@ -6646,13 +6669,18 @@
         "EPIC-004",
         "EPIC-005",
         "EPIC-010"
+      ],
+      "evidence": [
+        "tests/api/test_data_contract_api.py::test_api_schema_validation_terminal_outputs_and_public_redaction",
+        "frontend/src/pages/FlowDetailPage.tsx",
+        "frontend/src/api/client.test.ts"
       ]
     },
     {
       "id": "URS-F-0226",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M2",
       "wave": 2,
       "epic_id": "EPIC-205",
@@ -6674,6 +6702,10 @@
         "EPIC-004",
         "EPIC-005",
         "EPIC-010"
+      ],
+      "evidence": [
+        "tests/workflow/test_data_contracts.py::test_completed_outputs_render_and_sensitive_values_are_redacted",
+        "tests/api/test_data_contract_api.py::test_api_schema_validation_terminal_outputs_and_public_redaction"
       ]
     },
     {
@@ -24495,7 +24527,11 @@
         "EPIC-607"
       ],
       "priority": "Must",
-      "status": "In Progress"
+      "status": "In Progress",
+      "evidence": [
+        "tests/api/test_data_contract_api.py::test_api_schema_validation_terminal_outputs_and_public_redaction",
+        "tests/executor/test_task_deferral.py::test_deferred_completion_persists_redacted_evidence"
+      ]
     },
     {
       "id": "URS-NFR-SECURITY-004",

@@ -354,6 +354,20 @@ execution trigger preserve source-to-replay lineage. Monitoring aggregates pendi
 failed and cancelled items plus actual task-based cost units. Backfill state events enter the
 transactional outbox, and completion is recorded only after every generated execution is terminal.
 
+## Typed flow data
+
+Execution creation validates caller inputs against the pinned flow revision before runnable task rows
+exist. Defaults are materialized into execution inputs; static flow variables remain in the separate
+`vars` expression namespace. Inline file values are replaced with tenant object-storage references,
+and secret inputs are durable references rather than secret plaintext.
+
+When the primary and pre-terminal lifecycle graph succeeds, declared flow outputs render from the
+completed expression context and are stored on the execution aggregate with the terminal event.
+Output rendering or type failure changes success to a configuration failure. Authorized public
+projections redact schema-marked inputs and outputs, including task results, logs and evidence that
+repeat those values. See [ADR-035](../adr/035-canonical-flow-data-contracts.md) and the
+[typed data guide](../how-to/typed-flow-data.md).
+
 ## External side effects
 
 Plugin and task authors must choose one:

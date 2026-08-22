@@ -13,7 +13,7 @@ from amesh.domain.identity import NamespaceId, NaturalId
 
 
 class InputDefinition(BaseModel):
-    model_config = ConfigDict(extra="allow")
+    model_config = ConfigDict(extra="allow", populate_by_name=True)
 
     id: NaturalId
     type: str = Field(min_length=1, max_length=256)
@@ -21,6 +21,18 @@ class InputDefinition(BaseModel):
     default: Any | None = None
     description: str | None = None
     sensitive: bool = False
+    display_name: str | None = Field(default=None, alias="displayName", max_length=256)
+    placeholder: str | None = Field(default=None, max_length=512)
+    prefill: Any | None = None
+    validation: dict[str, Any] = Field(default_factory=dict)
+    values: tuple[Any, ...] = ()
+    item_type: str | None = Field(default=None, alias="itemType", min_length=1, max_length=256)
+    value_schema: dict[str, Any] = Field(default_factory=dict, alias="schema")
+    max_bytes: int | None = Field(default=None, alias="maxBytes", ge=1)
+
+    @property
+    def has_default(self) -> bool:
+        return "default" in self.model_fields_set and self.default is not None
 
 
 class TriggerDefinition(BaseModel):
