@@ -3,6 +3,8 @@ export type Capability =
   | 'flows.create'
   | 'executions.view'
   | 'executions.execute'
+  | 'triggers.view'
+  | 'triggers.manage'
   | 'namespaces.view'
   | 'plugins.view'
   | 'administration.manage'
@@ -90,6 +92,63 @@ export interface ExecutionEvidenceEvent {
 export interface ExecutionEvidencePage {
   items: ExecutionEvidenceEvent[]
   nextCursor: string | null
+}
+
+export type TriggerOccurrenceState =
+  | 'ACCEPTED'
+  | 'DEFERRED'
+  | 'PROCESSING'
+  | 'RETRY_WAIT'
+  | 'SUCCEEDED'
+  | 'DEAD_LETTERED'
+
+export interface TriggerRuntimeState {
+  trigger_definition_id: string
+  tenant_id: string
+  namespace: string
+  flow_id: string
+  flow_revision: number
+  trigger_id: string
+  trigger_type: string
+  active: boolean
+  paused: boolean
+  checkpoint: Record<string, unknown>
+  cursor: string | null
+  last_evaluated_at: string | null
+  next_evaluation_at: string | null
+  last_occurrence_at: string | null
+  last_success_at: string | null
+  lag_seconds: number
+  pending_count: number
+  dead_letter_count: number
+  consecutive_failures: number
+  last_error: string | null
+  last_decision: string
+  updated_at: string
+}
+
+export interface TriggerOccurrence {
+  occurrence_id: string
+  tenant_id: string
+  trigger_definition_id: string
+  namespace: string
+  flow_id: string
+  flow_revision: number
+  trigger_id: string
+  trigger_type: string
+  occurrence_key: string
+  state: TriggerOccurrenceState
+  attempt: number
+  max_attempts: number
+  available_at: string
+  payload: Record<string, unknown>
+  metadata: Record<string, unknown>
+  evidence: Record<string, unknown>
+  execution_id: string | null
+  replay_of: string | null
+  created_at: string
+  updated_at: string
+  completed_at: string | null
 }
 
 export interface FlowGraphNode {

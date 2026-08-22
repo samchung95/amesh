@@ -12,6 +12,8 @@ const session = {
     'flows.create': true,
     'executions.view': true,
     'executions.execute': true,
+    'triggers.view': true,
+    'triggers.manage': true,
     'namespaces.view': true,
     'plugins.view': true,
     'administration.manage': false,
@@ -30,10 +32,20 @@ const executions = [
   { execution_id: '00000000-0000-7000-8000-000000000102', tenant_id: 'default', state: 'SUCCESS', epoch: 1, version: 4, namespace: 'examples.agent', flow_id: 'luna_research', inputs: {}, trigger: { type: 'cron' }, created_at: '2026-08-21T11:00:00Z', updated_at: '2026-08-21T11:02:00Z' },
 ]
 
+const triggers = [
+  { trigger_definition_id: '00000000-0000-7000-8000-000000000301', tenant_id: 'default', namespace: 'examples.engine', flow_id: 'hello_world', flow_revision: 3, trigger_id: 'every_minute', trigger_type: 'core.cron', active: true, paused: false, checkpoint: {}, cursor: null, last_evaluated_at: '2026-08-21T12:01:00Z', next_evaluation_at: '2026-08-21T12:02:00Z', last_occurrence_at: '2026-08-21T12:01:00Z', last_success_at: '2026-08-21T12:01:00Z', lag_seconds: 2, pending_count: 1, dead_letter_count: 0, consecutive_failures: 0, last_error: null, last_decision: 'occurrence launched execution', updated_at: '2026-08-21T12:01:00Z' },
+]
+
+const triggerOccurrences = [
+  { occurrence_id: '00000000-0000-7000-8000-000000000302', tenant_id: 'default', trigger_definition_id: triggers[0].trigger_definition_id, namespace: 'examples.engine', flow_id: 'hello_world', flow_revision: 3, trigger_id: 'every_minute', trigger_type: 'core.cron', occurrence_key: 'core.cron:examples.engine:hello_world:3:every_minute:2026-08-21T12:01:00Z', state: 'SUCCEEDED', attempt: 1, max_attempts: 3, available_at: '2026-08-21T12:01:00Z', payload: {}, metadata: { source: 'schedule' }, evidence: { reason: 'scheduled occurrence created an execution' }, execution_id: executions[1].execution_id, replay_of: null, created_at: '2026-08-21T12:01:00Z', updated_at: '2026-08-21T12:01:01Z', completed_at: '2026-08-21T12:01:01Z' },
+]
+
 async function mockApi(page: Page, overrides = session) {
   await page.route('**/api/v1/ui/session**', (route) => route.fulfill({ json: overrides }))
   await page.route('**/api/v1/flows', (route) => route.fulfill({ json: flows }))
   await page.route('**/api/v1/executions?limit=200', (route) => route.fulfill({ json: executions }))
+  await page.route('**/api/v1/triggers', (route) => route.fulfill({ json: triggers }))
+  await page.route('**/api/v1/trigger-occurrences?limit=200', (route) => route.fulfill({ json: triggerOccurrences }))
   await page.route('**/api/v1/executions/*', (route) => route.fulfill({ json: { execution: executions[0], taskRuns: [{ task_run_id: '00000000-0000-7000-8000-000000000201', execution_id: executions[0].execution_id, task_id: 'return', state: 'SUCCESS', current_attempt: 1, version: 2, retry_at: null, result: { value: 'cached' }, evidence: { cache: { decision: 'HIT', reason: 'reused a matching result', keyHash: 'abc123', sourceExecutionId: executions[1].execution_id, sourceTaskRunId: '00000000-0000-7000-8000-000000000202', sourceAttempt: 1, expiresAt: '2026-08-21T13:00:00Z' } } }] } }))
 }
 
@@ -79,6 +91,17 @@ test('uses server permissions for navigation and direct routes', async ({ page }
   await expect(administration).toHaveAttribute('aria-disabled', 'true')
   await page.goto('/administration')
   await expect(page.getByRole('heading', { name: 'Permission required' })).toBeVisible()
+})
+
+test('shows live trigger health and durable occurrence evidence', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name === 'tablet', 'desktop trigger monitor acceptance')
+  await connect(page)
+  await page.getByRole('link', { name: 'Triggers' }).click()
+  await expect(page.getByRole('heading', { name: 'Trigger runtime' })).toBeVisible()
+  await expect(page.getByText('every_minute').first()).toBeVisible()
+  await expect(page.getByText('occurrence launched execution')).toBeVisible()
+  await expect(page.getByText('scheduled occurrence created an execution')).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Execution', exact: true })).toBeVisible()
 })
 
 test('switches locale and has no critical or serious automated accessibility findings', async ({ page }, testInfo) => {

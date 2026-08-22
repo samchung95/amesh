@@ -1,0 +1,17 @@
+id: dependent
+namespace: demo.triggers
+triggers:
+  - id: after-source
+    type: core.flow
+    flowId: source
+    states: [SUCCESS]
+    inputs:
+      reason: source-completed
+    maxPending: 100
+    maxAttempts: 3
+    retryDelay: PT5S
+    maxDepth: 8
+tasks:
+  - id: confirm
+    type: core.return
+    value: dependent flow ran

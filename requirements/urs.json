@@ -3149,7 +3149,11 @@
       "id": "URS-F-0108",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/adapters/postgres/test_trigger_runtime_repository.py::test_trigger_revision_deduplication_backpressure_retry_replay_and_checkpoint",
+        "tests/api/test_trigger_runtime_api.py::test_trigger_health_pause_webhook_deduplication_and_replay_api"
+      ],
       "milestone": "M1",
       "wave": 1,
       "epic_id": "EPIC-103",
@@ -3177,7 +3181,10 @@
       "id": "URS-F-0109",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/adapters/postgres/test_trigger_runtime_repository.py::test_trigger_revision_deduplication_backpressure_retry_replay_and_checkpoint"
+      ],
       "milestone": "M1",
       "wave": 1,
       "epic_id": "EPIC-103",
@@ -3205,7 +3212,11 @@
       "id": "URS-F-0110",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/test_trigger_runtime.py::test_polling_checkpoint_is_committed_before_source_acknowledgement",
+        "tests/test_trigger_runtime.py::test_realtime_occurrence_is_durable_before_acknowledgement"
+      ],
       "milestone": "M1",
       "wave": 1,
       "epic_id": "EPIC-103",
@@ -3233,7 +3244,11 @@
       "id": "URS-F-0111",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/api/test_trigger_runtime_api.py::test_trigger_health_pause_webhook_deduplication_and_replay_api",
+        "tests/adapters/postgres/test_trigger_runtime_repository.py::test_trigger_revision_deduplication_backpressure_retry_replay_and_checkpoint"
+      ],
       "milestone": "M1",
       "wave": 1,
       "epic_id": "EPIC-103",
@@ -3261,7 +3276,11 @@
       "id": "URS-F-0112",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/adapters/postgres/test_trigger_runtime_repository.py::test_trigger_revision_deduplication_backpressure_retry_replay_and_checkpoint",
+        "tests/api/test_trigger_runtime_api.py::test_trigger_health_pause_webhook_deduplication_and_replay_api"
+      ],
       "milestone": "M1",
       "wave": 1,
       "epic_id": "EPIC-103",
@@ -3289,7 +3308,10 @@
       "id": "URS-F-0113",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/api/test_trigger_runtime_api.py::test_trigger_health_pause_webhook_deduplication_and_replay_api"
+      ],
       "milestone": "M1",
       "wave": 1,
       "epic_id": "EPIC-103",
@@ -3317,7 +3339,10 @@
       "id": "URS-F-0114",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/adapters/postgres/test_trigger_runtime_repository.py::test_flow_completion_is_transactionally_routed_without_source_polling"
+      ],
       "milestone": "M1",
       "wave": 1,
       "epic_id": "EPIC-103",
@@ -3345,7 +3370,11 @@
       "id": "URS-F-0115",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/test_trigger_runtime.py::test_polling_checkpoint_is_committed_before_source_acknowledgement",
+        "tests/test_trigger_runtime.py::test_realtime_occurrence_is_durable_before_acknowledgement"
+      ],
       "milestone": "M1",
       "wave": 1,
       "epic_id": "EPIC-103",

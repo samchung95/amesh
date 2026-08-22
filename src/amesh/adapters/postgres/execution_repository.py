@@ -54,6 +54,10 @@ from amesh.ports.tenant_repository import TenantQuotaExceeded, TenantUnavailable
 
 from .metadata_repository import store_flow_triggers, store_task_evidence
 from .tenant_context import tenant_transaction
+from .trigger_runtime_repository import (
+    emit_flow_completion_occurrences,
+    synchronize_flow_trigger_runtime,
+)
 
 _DATABASE_TIME = text("SELECT clock_timestamp()")
 
@@ -681,7 +685,7 @@ _LIST_EXECUTIONS = text(
 
 _GET_FLOW_DEFINITION = text(
     """
-    SELECT flow_revisions.canonical_definition
+    SELECT flow_revisions.canonical_definition, flow_revisions.semantic_hash
     FROM flows
     JOIN tenants ON tenants.id = flows.tenant_id
     JOIN namespaces ON namespaces.id = flows.namespace_id
@@ -1386,6 +1390,13 @@ class PostgresExecutionRepository(ExecutionRepository):
                 raise ResourceVersionConflict(
                     f"flow {flow.namespace}.{flow.id} changed during conditional update"
                 )
+            await synchronize_flow_trigger_runtime(
+                connection,
+                tenant_uuid,
+                flow_uuid,
+                active_revision=flow.revision,
+                flow_disabled=flow.disabled,
+            )
             result = await connection.execute(
                 _GET_PERSISTED_FLOW,
                 {"tenant_id": tenant_uuid, "flow_id": flow_uuid},
@@ -1411,10 +1422,19 @@ class PostgresExecutionRepository(ExecutionRepository):
                     "revision": revision,
                 },
             )
-            definition = result.scalar_one_or_none()
-        if definition is None:
+            row = result.mappings().one_or_none()
+        if row is None:
             raise LookupError(f"flow {namespace}.{flow_id} does not exist")
-        return FlowDefinition.model_validate(definition)
+        definition = row["canonical_definition"]
+        flow = FlowDefinition.model_validate(definition)
+        flow._persisted_canonical_definition = json.dumps(
+            definition,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+        )
+        flow._persisted_semantic_hash = str(row["semantic_hash"])
+        return flow
 
     async def list_flows(self, *, tenant_id: str) -> list[PersistedFlow]:
         async with tenant_transaction(self._engine, tenant_id) as (connection, _tenant_uuid):
@@ -1496,6 +1516,13 @@ class PostgresExecutionRepository(ExecutionRepository):
                         "actor_id": actor_id,
                         "expected_version": None,
                     },
+                )
+                await synchronize_flow_trigger_runtime(
+                    connection,
+                    tenant_uuid,
+                    flow_id,
+                    active_revision=flow.revision,
+                    flow_disabled=flow.disabled,
                 )
             launch_context = dict(trigger or {})
             launch_context["source"] = launch_source.value
@@ -3397,6 +3424,16 @@ class PostgresExecutionRepository(ExecutionRepository):
             )
             row = result.mappings().one_or_none()
             if row is not None:
+                await emit_flow_completion_occurrences(
+                    connection,
+                    tenant_uuid,
+                    source_execution_id=execution_id,
+                    source_namespace=str(row["namespace_name"]),
+                    source_flow_id=str(row["flow_key"]),
+                    source_flow_revision=int(row["flow_revision"]),
+                    terminal_state=state.value,
+                    source_trigger=dict(row["trigger_context"]),
+                )
                 await self._release_admission_tx(
                     connection,
                     tenant_uuid,
@@ -4225,6 +4262,11 @@ def _require_control_state(
 
 
 def _canonical_flow(flow: FlowDefinition) -> tuple[str, str]:
+    if (
+        flow._persisted_canonical_definition is not None
+        and flow._persisted_semantic_hash is not None
+    ):
+        return flow._persisted_canonical_definition, flow._persisted_semantic_hash
     canonical = flow.model_dump(mode="json", by_alias=True, exclude_none=True)
     encoded = json.dumps(canonical, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
     return encoded, hashlib.sha256(encoded.encode("utf-8")).hexdigest()

@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 import asyncio
+from datetime import UTC, datetime
+from types import SimpleNamespace
+from uuid import uuid4
 
 import pytest
 
@@ -57,6 +60,55 @@ def test_worker_retries_after_database_connection_interruption(
         assert engine.disposed
 
     asyncio.run(scenario())
+
+
+def test_scheduler_continues_after_one_flow_evaluation_fails(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    class ExecutionRepository:
+        async def list_flows(self, *, tenant_id: str) -> list[object]:
+            del tenant_id
+            return [
+                SimpleNamespace(namespace="tests", flow_id="broken"),
+                SimpleNamespace(namespace="tests", flow_id="healthy"),
+            ]
+
+        async def get_flow(self, namespace: str, flow_id: str, *, tenant_id: str) -> object:
+            del namespace, tenant_id
+            return SimpleNamespace(id=flow_id)
+
+    class SchedulerRepository:
+        async def database_time(self) -> datetime:
+            return datetime(2026, 8, 22, tzinfo=UTC)
+
+    class Scheduler:
+        def __init__(self, *args: object, **kwargs: object) -> None:
+            del args, kwargs
+
+        async def fire_due_occurrences(
+            self,
+            flow: SimpleNamespace,
+            *,
+            at: datetime,
+            tenant_id: str,
+        ) -> list[object]:
+            del at, tenant_id
+            if flow.id == "broken":
+                raise RuntimeError("simulated flow-specific scheduling failure")
+            return [object()]
+
+    monkeypatch.setattr(worker, "CronScheduler", Scheduler)
+
+    scheduled = asyncio.run(
+        worker.schedule_once(
+            ExecutionRepository(),  # type: ignore[arg-type]
+            SchedulerRepository(),  # type: ignore[arg-type]
+            tenant_ids=["default"],
+            scheduler_id=uuid4(),
+        )
+    )
+
+    assert scheduled == 1
 
 
 def test_periodic_reconciliation_skips_a_tenant_already_being_repaired(

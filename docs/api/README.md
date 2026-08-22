@@ -24,5 +24,8 @@
 - Cache-enabled flows accept execution `cacheMode` values `USE`, `BYPASS` and `REFRESH`. Inspect
   tenant entries with `GET /api/v1/task-cache` and soft-purge a key prefix or resource scope with
   `POST /api/v1/task-cache/purge`; see the [task cache runbook](../operations/task-cache.md).
+- Inspect durable trigger health and occurrences with `GET /api/v1/triggers` and
+  `GET /api/v1/trigger-occurrences`. Authorized operators can pause/resume a trigger or replay a
+  dead-lettered occurrence; see the [trigger runbook](../operations/triggers.md).
 
 Future generated SDKs must consume the supported API contract, not internal Python classes.

@@ -16,6 +16,7 @@ from .scheduler_repository import PostgresSchedulerRepository
 from .service_registry import PostgresServiceRegistryRepository
 from .task_cache_repository import PostgresTaskCacheRepository
 from .tenant_repository import PostgresTenantRepository
+from .trigger_runtime_repository import PostgresTriggerRuntimeRepository
 from .worker_repository import PostgresWorkerRepository
 
 __all__ = [
@@ -33,6 +34,7 @@ __all__ = [
     "PostgresServiceRegistryRepository",
     "PostgresTaskCacheRepository",
     "PostgresTenantRepository",
+    "PostgresTriggerRuntimeRepository",
     "PostgresWorkerRepository",
     "RecoveryExercise",
     "TableMaintenanceStatus",

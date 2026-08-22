@@ -149,6 +149,17 @@ tbody tr:hover { background: var(--paper); }
 .task-run-list .cache-hit { color: var(--success); }
 .task-run-list .cache-bypass { color: var(--muted); }
 .cache-summary { border-top: 1px solid var(--line); }
+.trigger-heading { align-items: center; }
+.trigger-table .state-panel { margin: 12px; }
+.trigger-table code { font: 500 .72rem "IBM Plex Mono", monospace; }
+.trigger-decision { max-width: 360px; white-space: normal; }
+.trigger-decision span, .trigger-decision small { display: block; overflow-wrap: anywhere; }
+.trigger-decision small { margin-top: 4px; color: var(--danger); }
+.occurrence-key { max-width: 280px; overflow: hidden; font-family: "IBM Plex Mono", monospace; text-overflow: ellipsis; }
+.trigger-actions { display: flex; align-items: center; gap: 8px; }
+.button-compact { min-height: 36px; padding: 6px 9px; font-size: .72rem; }
+.trigger-toolbar { margin-bottom: 12px; }
+.trigger-toolbar .result-count { padding: 0 4px 12px; }
 .task-index { font: 500 1.1rem "IBM Plex Mono", monospace; color: var(--line-strong); }
 .evidence-heading { align-items: end; }
 .evidence-filter { margin-left: auto; }

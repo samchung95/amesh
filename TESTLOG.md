@@ -1289,3 +1289,44 @@ standard-cluster ingestion rate and broader telemetry shipping/collector qualifi
 EPIC-607; shared cross-product secret non-disclosure remains In Progress for EPIC-205/506/607.
 
 Verdict: PASS — EPIC-111 closed.
+
+## EPIC-103: Trigger runtime and occurrence lifecycle — 2026-08-22
+
+Spec source: board card `c35` and
+`backlog/epics/epic-103-trigger-runtime-and-occurrence-lifecycle.md`.
+
+Verified with `uv`, Python 3.13.12, PostgreSQL 17, FastAPI 0.141.1, React/Vite and
+Docker Compose:
+
+- [x] Migration 0030 persists tenant-isolated trigger revision state, checkpoints, deduplicated
+  occurrences and immutable lifecycle events. Revision replacement activates/deactivates runtime
+  instances transactionally; leased claims reject stale owners.
+- [x] Connector-provided and derived keys converge repeated source delivery on one occurrence.
+  Backpressure, pause/resume, retry delay, attempt exhaustion, dead-letter and immutable manual replay
+  passed PostgreSQL and authorized API tests.
+- [x] Polling and realtime adapter tests proved that checkpoints/occurrences commit before the source
+  acknowledgement hook runs. Flow completion inserted a `core.flow` occurrence in the source terminal
+  transaction and the generic scheduler worker launched the dependent flow without source polling.
+- [x] The control room exposes a searchable Triggers health/occurrence view with access-aware
+  pause/resume and replay actions. Ten frontend unit tests, the production build and six applicable
+  Chromium E2E checks passed; six duplicate tablet cases were intentionally skipped by the suite.
+- [x] The clean 30-migration backend suite passed with 249 tests passing, six environment-gated tests
+  skipped and the known board-tracked EPIC-104 timing assertion deselected. Deployment then exposed
+  two direct scheduler blockers: expanded trigger defaults changed the rehydrated hash of older flow
+  revisions, and one flow-specific scheduling failure terminated the service. Persisted canonical
+  provenance and per-flow failure isolation were added; all nine scheduler/trigger integration tests
+  and all three worker unit tests passed afterward.
+- [x] Ruff formatting/lint, strict mypy, `uv lock --check`, generated OpenAPI/schema/planning
+  artifacts, backlog validation, example-flow validation and Compose configuration passed.
+- [x] The rebuilt live stack reported 30/30 migrations with API, executor and scheduler healthy.
+  Webhook event `epic103-live-20260822155827` returned source execution
+  `01a0287a-7151-709d-a2d8-49ba140fe458` as `SUCCESS`; repeating the event returned the same execution.
+  Its terminal transaction produced occurrence `4f77e470-3b5e-4825-aea7-03284f35c2ee`, which launched
+  dependent execution `01a0287a-7c0b-7704-8224-b11e1768c991` as `SUCCESS`. The live trigger API exposed
+  both definitions and `GET /triggers` served the production SPA with HTTP 200.
+
+Qualification boundary: EPIC-103's single-node functional contract is complete. Shared product-wide
+duplicate-injection qualification remains In Progress under URS-NFR-RELIABILITY-002; connector-pack
+emulators and fault injection remain EPIC-304.
+
+Verdict: PASS — EPIC-103 closed.

@@ -81,6 +81,36 @@ services:
     security_opt:
       - no-new-privileges:true
 
+  scheduler:
+    build:
+      context: .
+    command: ["python", "-m", "amesh.role"]
+    environment:
+      APP_ENV: development
+      DATABASE_URL: postgresql+asyncpg://amesh:amesh@postgres:5432/amesh
+      DATABASE_POOL_SIZE: "5"
+      DATABASE_MAX_OVERFLOW: "5"
+      DATABASE_TLS_MODE: disable
+      AUTH_MODE: development
+      PRODUCT_TELEMETRY_ENABLED: "false"
+      SERVICE_ROLE: scheduler
+      SERVICE_INSTANCE_NAME: compose-scheduler
+      SERVICE_CYCLE_SECONDS: "1"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-m", "amesh.role", "--check", "readiness"]
+      interval: 10s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+
   postgres:
     image: postgres:17-alpine
     environment:
@@ -120,6 +150,7 @@ services:
       - ./migrations/0027_interactive_authentication.sql:/docker-entrypoint-initdb.d/0027_interactive_authentication.sql:ro
       - ./migrations/0028_execution_evidence.sql:/docker-entrypoint-initdb.d/0028_execution_evidence.sql:ro
       - ./migrations/0029_task_cache.sql:/docker-entrypoint-initdb.d/0029_task_cache.sql:ro
+      - ./migrations/0030_trigger_occurrence_runtime.sql:/docker-entrypoint-initdb.d/0030_trigger_occurrence_runtime.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U amesh -d amesh"]
       interval: 5s

@@ -19,6 +19,8 @@ from amesh.ports import (
     PersistedExecution,
     SchedulerRepository,
     ScheduleState,
+    TriggerOccurrenceState,
+    TriggerRuntimeRepository,
 )
 
 
@@ -65,6 +67,7 @@ class CronScheduler:
         owner_id: UUID | None = None,
         lease_duration: timedelta = timedelta(seconds=30),
         expressions: ExpressionEngine | None = None,
+        trigger_runtime: TriggerRuntimeRepository | None = None,
     ) -> None:
         if lease_duration.total_seconds() <= 0:
             raise ValueError("scheduler lease duration must be positive")
@@ -73,6 +76,7 @@ class CronScheduler:
         self._owner_id = owner_id or new_runtime_id()
         self._lease_duration = lease_duration
         self._expressions = expressions or NativeExpressionEngine()
+        self._trigger_runtime = trigger_runtime
 
     def next_occurrence(
         self,
@@ -153,14 +157,72 @@ class CronScheduler:
             "timezone": trigger.timezone,
         }
         trigger_context.update(occurrence_metadata or {})
-        return await self._repository.create_execution(
-            flow,
-            tenant_id=tenant_id,
-            inputs=inputs or {},
-            trigger=trigger_context,
-            launch_source=ExecutionLaunchSource.SCHEDULED,
-            idempotency_key=occurrence_key,
-        )
+        claimed = None
+        if self._trigger_runtime is not None:
+            acceptance = await self._trigger_runtime.accept_occurrence(
+                tenant_id=tenant_id,
+                namespace=flow.namespace,
+                flow_id=flow.id,
+                flow_revision=flow.revision,
+                trigger_id=trigger.id,
+                occurrence_key=occurrence_key,
+                payload=inputs or {},
+                metadata={
+                    "source": "schedule",
+                    "observedAt": scheduled_utc.isoformat(),
+                    **(occurrence_metadata or {}),
+                },
+                max_pending=trigger.max_pending,
+                max_attempts=trigger.max_attempts,
+                retry_delay=trigger.retry_delay,
+            )
+            if acceptance.duplicate and acceptance.occurrence.execution_id is not None:
+                return await self._repository.get_execution(
+                    acceptance.occurrence.execution_id,
+                    tenant_id=tenant_id,
+                )
+            if acceptance.occurrence.state is not TriggerOccurrenceState.ACCEPTED:
+                raise RuntimeError(acceptance.reason)
+            claimed = await self._trigger_runtime.claim_occurrence(
+                acceptance.occurrence.occurrence_id,
+                tenant_id=tenant_id,
+                owner_id=self._owner_id,
+                lease_duration=self._lease_duration,
+            )
+        try:
+            execution = await self._repository.create_execution(
+                flow,
+                tenant_id=tenant_id,
+                inputs=inputs or {},
+                trigger=trigger_context,
+                launch_source=ExecutionLaunchSource.SCHEDULED,
+                idempotency_key=occurrence_key,
+            )
+        except Exception as exc:
+            if self._trigger_runtime is not None and claimed is not None:
+                await self._trigger_runtime.fail_occurrence(
+                    claimed.occurrence_id,
+                    tenant_id=tenant_id,
+                    owner_id=self._owner_id,
+                    fencing_token=claimed.fencing_token,
+                    error=str(exc),
+                    retry_delay=trigger.retry_delay,
+                )
+            raise
+        if self._trigger_runtime is not None and claimed is not None:
+            await self._trigger_runtime.complete_occurrence(
+                claimed.occurrence_id,
+                tenant_id=tenant_id,
+                owner_id=self._owner_id,
+                fencing_token=claimed.fencing_token,
+                execution_id=execution.execution_id,
+                evidence={
+                    "decision": "launched",
+                    "reason": "scheduled occurrence created an execution",
+                    "scheduledFor": scheduled_utc.isoformat(),
+                },
+            )
+        return execution
 
     async def fire_due_occurrences(
         self,

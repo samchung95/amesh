@@ -47,6 +47,12 @@ An optional isolated JVM bridge may host supported migrated Java plugins when di
 
 All SDKs generate or consume the same manifest, schemas and conformance contract. SDK convenience must not create different semantics between languages.
 
+Polling trigger adapters return normalized occurrences plus their next checkpoint. The runtime
+persists both before calling the adapter's acknowledgement hook. Realtime trigger adapters expose an
+async occurrence stream and are acknowledged only after durable acceptance. Both contracts carry a
+source occurrence key and observed timestamp; pause, backpressure, retry, claims and replay remain
+platform responsibilities rather than connector-specific behavior.
+
 ## Kestra migration path
 
 1. Parse the existing task/trigger configuration through the versioned compatibility model.

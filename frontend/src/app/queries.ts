@@ -43,3 +43,25 @@ export function useExecutions(enabled = true) {
     refetchInterval: 15_000,
   })
 }
+
+export function useTriggerRuntime(enabled = true) {
+  const api = useApiClient()
+  const { settings } = useAppSettings()
+  return useQuery({
+    queryKey: ['triggers', settings.tenant, settings.namespace],
+    queryFn: () => api.triggers(settings.namespace || undefined),
+    enabled,
+    refetchInterval: 10_000,
+  })
+}
+
+export function useTriggerOccurrences(enabled = true) {
+  const api = useApiClient()
+  const { settings } = useAppSettings()
+  return useQuery({
+    queryKey: ['trigger-occurrences', settings.tenant, settings.namespace],
+    queryFn: () => api.triggerOccurrences(settings.namespace || undefined),
+    enabled,
+    refetchInterval: 10_000,
+  })
+}

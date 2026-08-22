@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import json
 import logging
 import secrets
@@ -44,6 +45,7 @@ from amesh.adapters.postgres import (
     PostgresServiceRegistryRepository,
     PostgresTaskCacheRepository,
     PostgresTenantRepository,
+    PostgresTriggerRuntimeRepository,
     PostgresWorkerRepository,
 )
 from amesh.api.contracts import (
@@ -86,6 +88,7 @@ from amesh.api.models import (
     SetLocalPasswordRequest,
     TaskCachePurgeRequest,
     TaskLog,
+    TriggerActionRequest,
     UiSessionResponse,
 )
 from amesh.authentication import (
@@ -136,6 +139,7 @@ from amesh.domain import (
     TenantExport,
     TenantPolicy,
     TenantSlug,
+    new_runtime_id,
     reduce_execution,
 )
 from amesh.domain import (
@@ -185,6 +189,9 @@ from amesh.ports import (
     TaskStateConflictError,
     TenantQuotaExceeded,
     TenantUnavailableError,
+    TriggerOccurrence,
+    TriggerOccurrenceState,
+    TriggerRuntimeState,
     WorkerFenceError,
     WorkerInventory,
 )
@@ -336,6 +343,17 @@ def get_task_cache_repository() -> PostgresTaskCacheRepository:
 TaskCacheRepositoryDependency = Annotated[
     PostgresTaskCacheRepository,
     Depends(get_task_cache_repository),
+]
+
+
+@lru_cache
+def get_trigger_runtime_repository() -> PostgresTriggerRuntimeRepository:
+    return PostgresTriggerRuntimeRepository(database_engine())
+
+
+TriggerRuntimeRepositoryDependency = Annotated[
+    PostgresTriggerRuntimeRepository,
+    Depends(get_trigger_runtime_repository),
 ]
 
 
@@ -800,6 +818,8 @@ async def get_ui_session(
         "flows.create": ("flow", PermissionAction.CREATE),
         "executions.view": ("execution", PermissionAction.VIEW),
         "executions.execute": ("execution", PermissionAction.EXECUTE),
+        "triggers.view": ("trigger", PermissionAction.VIEW),
+        "triggers.manage": ("trigger", PermissionAction.MANAGE),
         "namespaces.view": ("namespace", PermissionAction.VIEW),
         "plugins.view": ("plugin", PermissionAction.VIEW),
         "administration.manage": ("tenant", PermissionAction.MANAGE),
@@ -1430,6 +1450,184 @@ async def purge_task_cache_entries(
         flow_id=request.flow_id,
         task_id=request.task_id,
     )
+
+
+@app.get(
+    "/api/v1/triggers",
+    response_model=list[TriggerRuntimeState],
+    tags=["triggers"],
+)
+async def list_trigger_runtime_states(
+    trigger_runtime: TriggerRuntimeRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    namespace: Annotated[str | None, Query(max_length=255)] = None,
+    flow_id: Annotated[str | None, Query(alias="flowId", max_length=128)] = None,
+    trigger_id: Annotated[str | None, Query(alias="triggerId", max_length=128)] = None,
+    active: bool | None = True,
+    limit: Annotated[int, Query(ge=1, le=1000)] = 100,
+) -> list[TriggerRuntimeState]:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="trigger",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    return await trigger_runtime.list_runtime_states(
+        tenant_id=tenant_id,
+        namespace=namespace,
+        flow_id=flow_id,
+        trigger_id=trigger_id,
+        active=active,
+        limit=limit,
+    )
+
+
+@app.get(
+    "/api/v1/trigger-occurrences",
+    response_model=list[TriggerOccurrence],
+    tags=["triggers"],
+)
+async def list_trigger_occurrences(
+    trigger_runtime: TriggerRuntimeRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    namespace: Annotated[str | None, Query(max_length=255)] = None,
+    flow_id: Annotated[str | None, Query(alias="flowId", max_length=128)] = None,
+    trigger_id: Annotated[str | None, Query(alias="triggerId", max_length=128)] = None,
+    occurrence_state: Annotated[
+        TriggerOccurrenceState | None,
+        Query(alias="state"),
+    ] = None,
+    limit: Annotated[int, Query(ge=1, le=1000)] = 100,
+) -> list[TriggerOccurrence]:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="trigger",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    return await trigger_runtime.list_occurrences(
+        tenant_id=tenant_id,
+        namespace=namespace,
+        flow_id=flow_id,
+        trigger_id=trigger_id,
+        state=occurrence_state,
+        limit=limit,
+    )
+
+
+@app.post(
+    "/api/v1/triggers/{namespace}/{flow_id}/{trigger_id}/pause",
+    response_model=TriggerRuntimeState,
+    tags=["triggers"],
+)
+async def pause_trigger_runtime(
+    namespace: str,
+    flow_id: str,
+    trigger_id: str,
+    request: TriggerActionRequest,
+    trigger_runtime: TriggerRuntimeRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> TriggerRuntimeState:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="trigger",
+        action=PermissionAction.MANAGE,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    try:
+        return await trigger_runtime.set_paused(
+            tenant_id=tenant_id,
+            namespace=namespace,
+            flow_id=flow_id,
+            trigger_id=trigger_id,
+            paused=True,
+            actor_id=str(actor.principal_id),
+            reason=request.reason,
+        )
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+
+
+@app.post(
+    "/api/v1/triggers/{namespace}/{flow_id}/{trigger_id}/resume",
+    response_model=TriggerRuntimeState,
+    tags=["triggers"],
+)
+async def resume_trigger_runtime(
+    namespace: str,
+    flow_id: str,
+    trigger_id: str,
+    request: TriggerActionRequest,
+    trigger_runtime: TriggerRuntimeRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> TriggerRuntimeState:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="trigger",
+        action=PermissionAction.MANAGE,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    try:
+        return await trigger_runtime.set_paused(
+            tenant_id=tenant_id,
+            namespace=namespace,
+            flow_id=flow_id,
+            trigger_id=trigger_id,
+            paused=False,
+            actor_id=str(actor.principal_id),
+            reason=request.reason,
+        )
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+
+
+@app.post(
+    "/api/v1/trigger-occurrences/{occurrence_id}/replay",
+    response_model=TriggerOccurrence,
+    tags=["triggers"],
+)
+async def replay_trigger_occurrence(
+    occurrence_id: UUID,
+    request: TriggerActionRequest,
+    trigger_runtime: TriggerRuntimeRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> TriggerOccurrence:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="trigger",
+        action=PermissionAction.EXECUTE,
+        tenant_id=tenant_id,
+    )
+    try:
+        return await trigger_runtime.replay_occurrence(
+            occurrence_id,
+            tenant_id=tenant_id,
+            actor_id=str(actor.principal_id),
+            reason=request.reason,
+        )
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
 
 
 @app.get(
@@ -2511,6 +2709,7 @@ async def trigger_webhook(
     response: Response,
     repository: RepositoryDependency,
     task_cache: TaskCacheRepositoryDependency,
+    trigger_runtime: TriggerRuntimeRepositoryDependency,
     settings: SettingsDependency,
     actor: ActorDependency,
     authorization_service: AuthorizationServiceDependency,
@@ -2518,6 +2717,7 @@ async def trigger_webhook(
     runner: RunnerMode = RunnerMode.LOCAL,
     prefer: Annotated[str | None, Header(alias="Prefer")] = None,
     idempotency_key: Annotated[str | None, Header(alias="Idempotency-Key")] = None,
+    source_event_id: Annotated[str | None, Header(alias="X-Event-Id")] = None,
 ) -> ExecutionDetail:
     await authorize_request(
         authorization_service,
@@ -2550,6 +2750,62 @@ async def trigger_webhook(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail="webhook body must be an object",
         )
+    source_key = idempotency_key or source_event_id
+    if source_key is None:
+        encoded_payload = json.dumps(
+            payload,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=True,
+        ).encode("utf-8")
+        source_key = f"sha256:{hashlib.sha256(encoded_payload).hexdigest()}"
+    occurrence_key = f"webhook:{flow.namespace}:{flow.id}:{flow.revision}:{trigger.id}:{source_key}"
+    acceptance = await trigger_runtime.accept_occurrence(
+        tenant_id=tenant_id,
+        namespace=flow.namespace,
+        flow_id=flow.id,
+        flow_revision=flow.revision,
+        trigger_id=trigger.id,
+        occurrence_key=occurrence_key,
+        payload=payload,
+        metadata={"source": "webhook", "observedAt": datetime.now(UTC).isoformat()},
+        max_pending=trigger.max_pending,
+        max_attempts=trigger.max_attempts,
+        retry_delay=trigger.retry_delay,
+    )
+    if acceptance.duplicate and acceptance.occurrence.execution_id is not None:
+        existing = await repository.get_execution(
+            acceptance.occurrence.execution_id,
+            tenant_id=tenant_id,
+        )
+        return ExecutionDetail(
+            execution=existing,
+            taskRuns=await repository.list_task_runs(
+                existing.execution_id,
+                tenant_id=tenant_id,
+            ),
+        )
+    if acceptance.occurrence.state is not TriggerOccurrenceState.ACCEPTED:
+        raise HTTPException(
+            status_code=(
+                status.HTTP_429_TOO_MANY_REQUESTS
+                if acceptance.occurrence.state
+                in {TriggerOccurrenceState.DEFERRED, TriggerOccurrenceState.RETRY_WAIT}
+                else status.HTTP_409_CONFLICT
+            ),
+            detail=acceptance.reason,
+            headers={"Retry-After": str(max(int(trigger.retry_delay.total_seconds()), 1))},
+        )
+    occurrence_owner = new_runtime_id()
+    try:
+        claimed_occurrence = await trigger_runtime.claim_occurrence(
+            acceptance.occurrence.occurrence_id,
+            tenant_id=tenant_id,
+            owner_id=occurrence_owner,
+            lease_duration=timedelta(seconds=30),
+        )
+    except RuntimeError as exc:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
     execution_request = CreateExecutionRequest(
         namespace=namespace,
         flowId=flow_id,
@@ -2557,24 +2813,51 @@ async def trigger_webhook(
         runner=runner,
     )
     respond_async = _prefers_async_response(prefer)
-    detail = await _execute_flow(
-        repository,
-        task_cache,
-        flow,
-        execution_request,
-        settings,
+    try:
+        detail = await _execute_flow(
+            repository,
+            task_cache,
+            flow,
+            execution_request,
+            settings,
+            tenant_id=tenant_id,
+            actor_id=str(actor.principal_id),
+            actor=actor,
+            authorization_service=authorization_service,
+            background_tasks=background_tasks,
+            launch_source=ExecutionLaunchSource.EVENT,
+            idempotency_key=(
+                f"trigger:{claimed_occurrence.trigger_definition_id}:"
+                f"{claimed_occurrence.occurrence_key}"
+            ),
+            respond_async=respond_async,
+            trigger_context={
+                "id": trigger.id,
+                "type": trigger.type,
+                "body": payload,
+                "occurrenceId": str(claimed_occurrence.occurrence_id),
+                "occurrenceKey": claimed_occurrence.occurrence_key,
+            },
+        )
+    except Exception as exc:
+        await trigger_runtime.fail_occurrence(
+            claimed_occurrence.occurrence_id,
+            tenant_id=tenant_id,
+            owner_id=occurrence_owner,
+            fencing_token=claimed_occurrence.fencing_token,
+            error=str(exc),
+            retry_delay=trigger.retry_delay,
+        )
+        raise
+    await trigger_runtime.complete_occurrence(
+        claimed_occurrence.occurrence_id,
         tenant_id=tenant_id,
-        actor_id=str(actor.principal_id),
-        actor=actor,
-        authorization_service=authorization_service,
-        background_tasks=background_tasks,
-        launch_source=ExecutionLaunchSource.EVENT,
-        idempotency_key=idempotency_key,
-        respond_async=respond_async,
-        trigger_context={
-            "id": trigger.id,
-            "type": trigger.type,
-            "body": payload,
+        owner_id=occurrence_owner,
+        fencing_token=claimed_occurrence.fencing_token,
+        execution_id=detail.execution.execution_id,
+        evidence={
+            "decision": "launched",
+            "reason": "webhook occurrence created an execution",
         },
     )
     if respond_async and detail.execution.state is ExecutionState.RUNNING:

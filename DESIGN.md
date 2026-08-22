@@ -20,3 +20,5 @@ monospaced context and clear separation between state, logs, metrics, outputs an
 - Evidence timelines use a narrow type marker, monospaced timestamp/context and readable body text.
 - Empty, loading and error states use the shared asynchronous-state components.
 - Interactive controls keep a 44px minimum target and the global visible focus treatment.
+- Trigger monitoring pairs a compact health table with an occurrence ledger; decision evidence is
+  readable inline and pause/replay actions stay adjacent to the affected resource.

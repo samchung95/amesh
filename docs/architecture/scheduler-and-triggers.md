@@ -48,9 +48,26 @@ The scheduler:
 4. advances the cursor only while the same fenced ownership remains live;
 5. persists an explanation and missed-occurrence count for operators.
 
+Non-temporal triggers use the same durable identity rule through `trigger_runtime_states` and
+`trigger_occurrences`. Polling adapters commit a checkpoint before source acknowledgement; realtime
+adapters durably accept an occurrence before acknowledgement. Connector-provided keys are preferred,
+with canonical source-data hashes used when a source has no identity. A per-trigger pending limit
+provides backpressure, while retry, dead-letter and immutable replay lineage preserve recovery
+evidence. Fenced claims prevent an expired scheduler from completing an occurrence after ownership
+has moved.
+
+When an execution enters a terminal state, its transaction inserts occurrences for matching active
+`core.flow` trigger revisions. The scheduler role consumes those rows directly, so dependent flows do
+not poll the source flow. A configurable maximum depth bounds completion chains.
+
 `GET /api/v1/flows/{namespace}/{flow_id}/schedules/{trigger_id}/preview` returns the next 1–100
 occurrences plus an eligibility explanation. It requires the same tenant and flow-view authorization as
 other flow reads and never mutates schedule state.
 
 Webhook triggers use signed or authenticated endpoints, request size limits, replay protection and
 idempotency keys. Realtime trigger connectors apply backpressure and cannot retain unbounded memory.
+
+The control room's **Triggers** view and `GET /api/v1/triggers` expose active/paused state, latest and
+next evaluation, lag, pending/dead counts and recent decisions. `GET /api/v1/trigger-occurrences`
+exposes state, attempts, evidence and linked executions. Operator pause, resume and replay endpoints
+are documented in the [trigger runbook](../operations/triggers.md).

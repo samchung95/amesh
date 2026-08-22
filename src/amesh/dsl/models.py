@@ -6,7 +6,7 @@ from typing import Any, Literal, cast
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from croniter import croniter
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, model_validator
 
 from amesh.domain.admission import ConcurrencyLimit
 from amesh.domain.identity import NamespaceId, NaturalId
@@ -42,9 +42,27 @@ class TriggerDefinition(BaseModel):
     )
     misfire_grace_seconds: int = Field(default=60, ge=0, alias="misfireGraceSeconds")
     max_catch_up: int = Field(default=1000, ge=1, le=10_000, alias="maxCatchUp")
+    max_pending: int = Field(default=1000, ge=1, le=100_000, alias="maxPending")
+    max_attempts: int = Field(default=3, ge=1, le=100, alias="maxAttempts")
+    retry_delay: timedelta = Field(default=timedelta(seconds=30), alias="retryDelay")
+    flow_namespace: NamespaceId | None = Field(default=None, alias="namespace")
+    flow_id: NaturalId | None = Field(default=None, alias="flowId")
+    states: tuple[Literal["CANCELLED", "SUCCESS", "FAILED", "WARNING"], ...] = ("SUCCESS",)
+    inputs: dict[str, Any] = Field(default_factory=dict)
+    max_depth: int = Field(default=16, ge=1, le=100, alias="maxDepth")
 
     @model_validator(mode="after")
     def validate_cron(self) -> TriggerDefinition:
+        if self.retry_delay.total_seconds() <= 0:
+            raise ValueError("trigger retryDelay must be positive")
+        if self.type == "core.flow":
+            if self.flow_id is None:
+                raise ValueError("core.flow trigger requires flowId")
+            if not self.states:
+                raise ValueError("core.flow trigger requires at least one terminal state")
+            if len(set(self.states)) != len(self.states):
+                raise ValueError("core.flow trigger states must be unique")
+            return self
         if self.type not in {"core.cron", "core.interval"}:
             return self
         if self.type == "core.cron":
@@ -217,6 +235,9 @@ class TaskDefinition(BaseModel):
 
 class FlowDefinition(BaseModel):
     model_config = ConfigDict(extra="allow", populate_by_name=True)
+
+    _persisted_canonical_definition: str | None = PrivateAttr(default=None)
+    _persisted_semantic_hash: str | None = PrivateAttr(default=None)
 
     api_version: Literal["amesh.flow/v1"] = Field(default="amesh.flow/v1", alias="apiVersion")
     id: NaturalId

@@ -559,10 +559,55 @@ def _core_descriptors() -> tuple[ResourceSchemaDescriptor, ...]:
         _descriptor(
             "core.webhook",
             ResourceKind.TRIGGER,
-            _object_schema({}),
+            _object_schema(
+                {
+                    "maxPending": {"type": "integer", "minimum": 1, "maximum": 100000},
+                    "maxAttempts": {"type": "integer", "minimum": 1, "maximum": 100},
+                    "retryDelay": {"type": "string", "format": "duration"},
+                }
+            ),
             title="Webhook",
             description="Start a flow from its authenticated webhook endpoint.",
             category="Core",
+            property_order=("maxPending", "maxAttempts", "retryDelay"),
+        ),
+        _descriptor(
+            "core.flow",
+            ResourceKind.TRIGGER,
+            _object_schema(
+                {
+                    "namespace": {"type": "string", "minLength": 1},
+                    "flowId": {"type": "string", "minLength": 1},
+                    "states": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "enum": ["CANCELLED", "SUCCESS", "FAILED", "WARNING"],
+                        },
+                        "minItems": 1,
+                        "uniqueItems": True,
+                    },
+                    "inputs": {"type": "object"},
+                    "maxPending": {"type": "integer", "minimum": 1, "maximum": 100000},
+                    "maxAttempts": {"type": "integer", "minimum": 1, "maximum": 100},
+                    "retryDelay": {"type": "string", "format": "duration"},
+                    "maxDepth": {"type": "integer", "minimum": 1, "maximum": 100},
+                },
+                required=("flowId",),
+            ),
+            title="Flow completion",
+            description="Start a flow from a matching terminal event emitted by another flow.",
+            category="Core",
+            property_order=(
+                "namespace",
+                "flowId",
+                "states",
+                "inputs",
+                "maxPending",
+                "maxAttempts",
+                "retryDelay",
+                "maxDepth",
+            ),
         ),
         *(
             _descriptor(

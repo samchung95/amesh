@@ -7,6 +7,8 @@ import type {
   LoginResponse,
   PersistedExecution,
   PersistedFlow,
+  TriggerOccurrence,
+  TriggerRuntimeState,
   UiSession,
 } from './types'
 
@@ -81,6 +83,27 @@ export function createApiClient(connection: ApiConnection) {
     flowGraph: async (namespace: string, flowId: string) =>
       request<FlowGraph>(`/api/v1/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/graph`),
     executions: async () => request<PersistedExecution[]>('/api/v1/executions?limit=200'),
+    triggers: async (namespace?: string) => {
+      const suffix = namespace ? `?namespace=${encodeURIComponent(namespace)}` : ''
+      return request<TriggerRuntimeState[]>(`/api/v1/triggers${suffix}`)
+    },
+    triggerOccurrences: async (namespace?: string) => {
+      const params = new URLSearchParams({ limit: '200' })
+      if (namespace) params.set('namespace', namespace)
+      return request<TriggerOccurrence[]>(`/api/v1/trigger-occurrences?${params.toString()}`)
+    },
+    setTriggerPaused: async (namespace: string, flowId: string, triggerId: string, paused: boolean, reason: string) =>
+      request<TriggerRuntimeState>(`/api/v1/triggers/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/${encodeURIComponent(triggerId)}/${paused ? 'pause' : 'resume'}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason }),
+      }),
+    replayTriggerOccurrence: async (occurrenceId: string, reason: string) =>
+      request<TriggerOccurrence>(`/api/v1/trigger-occurrences/${encodeURIComponent(occurrenceId)}/replay`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason }),
+      }),
     execution: async (executionId: string) =>
       request<ExecutionDetail>(`/api/v1/executions/${encodeURIComponent(executionId)}`),
     executionGraph: async (executionId: string) =>

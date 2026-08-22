@@ -160,7 +160,7 @@ available through the UI's API-token mode. See the
 [frontend guide](frontend/README.md) for the Vite workflow, supported browsers and accessibility
 qualification boundary.
 
-The API also supports flow/execution lists, pre-execution and live execution graphs, execution details and logs, durable task-result caching, webhook triggers, PostgreSQL-backed users/groups/roles/scoped bindings, local browser sessions, authorization explanations, OpenRouter/OpenAI-compatible LLM tasks, MCP tool calls, local-process tasks and Kubernetes Job tasks. Prometheus metrics are exposed at `http://localhost:8000/metrics`. See the [task cache](docs/operations/task-cache.md), [authentication](docs/operations/authentication.md) and [authorization](docs/operations/authorization.md) runbooks.
+The API also supports flow/execution lists, pre-execution and live execution graphs, execution details and logs, durable task-result caching, durable webhook/flow-completion trigger occurrences, PostgreSQL-backed users/groups/roles/scoped bindings, local browser sessions, authorization explanations, OpenRouter/OpenAI-compatible LLM tasks, MCP tool calls, local-process tasks and Kubernetes Job tasks. Prometheus metrics are exposed at `http://localhost:8000/metrics`. See the [trigger lifecycle](docs/operations/triggers.md), [task cache](docs/operations/task-cache.md), [authentication](docs/operations/authentication.md) and [authorization](docs/operations/authorization.md) runbooks.
 
 For the reference Kubernetes path—external PostgreSQL, existing Secrets, Helm migration/server/worker roles, a real Luna → Job → HTTP run and cleanup—follow the [MVP Helm quickstart](charts/amesh/README.md).
 

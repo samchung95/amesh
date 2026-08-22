@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import asyncio
+import hashlib
+import json
 import os
 from datetime import UTC, datetime, timedelta
 from uuid import UUID, uuid4
@@ -9,7 +11,11 @@ import pytest
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 
-from amesh.adapters.postgres import PostgresExecutionRepository, PostgresSchedulerRepository
+from amesh.adapters.postgres import (
+    PostgresExecutionRepository,
+    PostgresSchedulerRepository,
+    PostgresTriggerRuntimeRepository,
+)
 from amesh.domain import ExecutionState
 from amesh.dsl.models import FlowDefinition, TaskDefinition, TriggerDefinition
 from amesh.executor import InProcessExecutor
@@ -42,6 +48,18 @@ class ScopedPostgresExecutionRepository(PostgresExecutionRepository):
 
 async def cleanup_execution(engine: AsyncEngine, execution_id: UUID) -> None:
     async with engine.begin() as connection:
+        await connection.execute(
+            text(
+                "DELETE FROM trigger_occurrence_events WHERE occurrence_id IN "
+                "(SELECT occurrence_id FROM trigger_occurrences "
+                "WHERE execution_id = :execution_id)"
+            ),
+            {"execution_id": execution_id},
+        )
+        await connection.execute(
+            text("DELETE FROM trigger_occurrences WHERE execution_id = :execution_id"),
+            {"execution_id": execution_id},
+        )
         await connection.execute(
             text("DELETE FROM messages_outbox WHERE partition_key = :partition_key"),
             {"partition_key": f"execution:{execution_id}"},
@@ -256,6 +274,7 @@ def test_worker_poll_fires_applied_cron_flow_once_per_minute() -> None:
         engine = create_async_engine(TEST_DATABASE_URL)
         repository = ScopedPostgresExecutionRepository(engine, flow.namespace, flow.id)
         scheduler_repository = PostgresSchedulerRepository(engine)
+        trigger_runtime = PostgresTriggerRuntimeRepository(engine)
         scheduler_id = uuid4()
         await repository.apply_flow(flow, tenant_id="default")
         first_poll = datetime(2026, 8, 21, 12, 0, 5, tzinfo=UTC)
@@ -269,6 +288,7 @@ def test_worker_poll_fires_applied_cron_flow_once_per_minute() -> None:
                     tenant_ids=("default",),
                     scheduler_id=scheduler_id,
                     now=first_poll,
+                    trigger_runtime=trigger_runtime,
                 )
                 == 1
             )
@@ -279,6 +299,7 @@ def test_worker_poll_fires_applied_cron_flow_once_per_minute() -> None:
                     tenant_ids=("default",),
                     scheduler_id=scheduler_id,
                     now=first_poll.replace(second=55),
+                    trigger_runtime=trigger_runtime,
                 )
                 == 0
             )
@@ -292,9 +313,100 @@ def test_worker_poll_fires_applied_cron_flow_once_per_minute() -> None:
             ]
             assert len(executions) == 1
             assert executions[0].state is ExecutionState.RUNNING
+            occurrences = await trigger_runtime.list_occurrences(
+                tenant_id="default",
+                namespace=flow.namespace,
+            )
+            assert len(occurrences) == 1
+            assert occurrences[0].state.value == "SUCCEEDED"
+            assert occurrences[0].execution_id == executions[0].execution_id
         finally:
             if executions:
                 await cleanup_execution(engine, executions[0].execution_id)
+            await engine.dispose()
+
+    asyncio.run(scenario())
+
+
+def test_persisted_flow_keeps_its_revision_hash_when_trigger_defaults_expand() -> None:
+    async def scenario() -> None:
+        if TEST_DATABASE_URL is None:
+            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
+        namespace = f"tests.scheduler.upgrade.{uuid4().hex}"
+        flow = FlowDefinition(
+            id="persisted_trigger_defaults",
+            namespace=namespace,
+            triggers=[
+                TriggerDefinition(
+                    id="every_minute",
+                    type="core.cron",
+                    cron="* * * * *",
+                    timezone="UTC",
+                )
+            ],
+            tasks=[TaskDefinition(id="done", type="core.return", value="done")],
+        )
+        engine = create_async_engine(TEST_DATABASE_URL)
+        repository = PostgresExecutionRepository(engine)
+        execution_id: UUID | None = None
+        try:
+            applied = await repository.apply_flow(flow, tenant_id="default")
+            async with engine.begin() as connection:
+                result = await connection.execute(
+                    text(
+                        "SELECT canonical_definition FROM flow_revisions "
+                        "WHERE revision = 1 AND flow_id = CAST(:flow_id AS uuid)"
+                    ),
+                    {"flow_id": applied.resource_id},
+                )
+                canonical = dict(result.scalar_one())
+                canonical["triggers"] = [
+                    {
+                        key: value
+                        for key, value in trigger.items()
+                        if key
+                        not in {
+                            "maxPending",
+                            "maxAttempts",
+                            "retryDelay",
+                            "states",
+                            "inputs",
+                            "maxDepth",
+                        }
+                    }
+                    for trigger in canonical["triggers"]
+                ]
+                encoded = json.dumps(
+                    canonical,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                    ensure_ascii=False,
+                )
+                await connection.execute(
+                    text(
+                        "UPDATE flow_revisions SET canonical_definition = CAST(:definition AS jsonb), "
+                        "semantic_hash = :semantic_hash WHERE flow_id = CAST(:flow_id AS uuid) "
+                        "AND revision = 1"
+                    ),
+                    {
+                        "definition": encoded,
+                        "semantic_hash": hashlib.sha256(encoded.encode("utf-8")).hexdigest(),
+                        "flow_id": applied.resource_id,
+                    },
+                )
+
+            persisted = await repository.get_flow(namespace, flow.id, tenant_id="default")
+            execution = await repository.create_execution(
+                persisted,
+                tenant_id="default",
+                inputs={},
+                idempotency_key=f"upgrade:{namespace}",
+            )
+            execution_id = execution.execution_id
+            assert execution.flow_id == flow.id
+        finally:
+            if execution_id is not None:
+                await cleanup_execution(engine, execution_id)
             await engine.dispose()
 
     asyncio.run(scenario())

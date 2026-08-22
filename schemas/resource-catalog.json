@@ -962,6 +962,79 @@
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "additionalProperties": false,
         "properties": {
+          "flowId": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "inputs": {
+            "type": "object"
+          },
+          "maxAttempts": {
+            "maximum": 100,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "maxDepth": {
+            "maximum": 100,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "maxPending": {
+            "maximum": 100000,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "namespace": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "retryDelay": {
+            "format": "duration",
+            "type": "string"
+          },
+          "states": {
+            "items": {
+              "enum": [
+                "CANCELLED",
+                "SUCCESS",
+                "FAILED",
+                "WARNING"
+              ],
+              "type": "string"
+            },
+            "minItems": 1,
+            "type": "array",
+            "uniqueItems": true
+          }
+        },
+        "required": [
+          "flowId"
+        ],
+        "type": "object"
+      },
+      "editor": {
+        "category": "Core",
+        "description": "Start a flow from a matching terminal event emitted by another flow.",
+        "propertyOrder": [
+          "namespace",
+          "flowId",
+          "states",
+          "inputs",
+          "maxPending",
+          "maxAttempts",
+          "retryDelay",
+          "maxDepth"
+        ],
+        "title": "Flow completion"
+      },
+      "kind": "trigger",
+      "type": "core.flow"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
           "condition": {
             "type": "string"
           },
@@ -1031,13 +1104,32 @@
       "configurationSchema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "additionalProperties": false,
-        "properties": {},
+        "properties": {
+          "maxAttempts": {
+            "maximum": 100,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "maxPending": {
+            "maximum": 100000,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "retryDelay": {
+            "format": "duration",
+            "type": "string"
+          }
+        },
         "type": "object"
       },
       "editor": {
         "category": "Core",
         "description": "Start a flow from its authenticated webhook endpoint.",
-        "propertyOrder": [],
+        "propertyOrder": [
+          "maxPending",
+          "maxAttempts",
+          "retryDelay"
+        ],
         "title": "Webhook"
       },
       "kind": "trigger",

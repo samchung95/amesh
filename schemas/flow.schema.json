@@ -569,12 +569,32 @@
           "default": null,
           "title": "End"
         },
+        "flowId": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Flowid"
+        },
         "id": {
           "maxLength": 128,
           "minLength": 1,
           "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
           "title": "Id",
           "type": "string"
+        },
+        "inputs": {
+          "additionalProperties": true,
+          "title": "Inputs",
+          "type": "object"
         },
         "interval": {
           "anyOf": [
@@ -589,11 +609,32 @@
           "default": null,
           "title": "Interval"
         },
+        "maxAttempts": {
+          "default": 3,
+          "maximum": 100,
+          "minimum": 1,
+          "title": "Maxattempts",
+          "type": "integer"
+        },
         "maxCatchUp": {
           "default": 1000,
           "maximum": 10000,
           "minimum": 1,
           "title": "Maxcatchup",
+          "type": "integer"
+        },
+        "maxDepth": {
+          "default": 16,
+          "maximum": 100,
+          "minimum": 1,
+          "title": "Maxdepth",
+          "type": "integer"
+        },
+        "maxPending": {
+          "default": 1000,
+          "maximum": 100000,
+          "minimum": 1,
+          "title": "Maxpending",
           "type": "integer"
         },
         "misfireGraceSeconds": {
@@ -613,10 +654,30 @@
           "title": "Misfirepolicy",
           "type": "string"
         },
+        "namespace": {
+          "anyOf": [
+            {
+              "maxLength": 255,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Namespace"
+        },
         "paused": {
           "default": false,
           "title": "Paused",
           "type": "boolean"
+        },
+        "retryDelay": {
+          "default": "PT30S",
+          "format": "duration",
+          "title": "Retrydelay",
+          "type": "string"
         },
         "start": {
           "anyOf": [
@@ -630,6 +691,22 @@
           ],
           "default": null,
           "title": "Start"
+        },
+        "states": {
+          "default": [
+            "SUCCESS"
+          ],
+          "items": {
+            "enum": [
+              "CANCELLED",
+              "SUCCESS",
+              "FAILED",
+              "WARNING"
+            ],
+            "type": "string"
+          },
+          "title": "States",
+          "type": "array"
         },
         "timezone": {
           "default": "UTC",

@@ -12,18 +12,22 @@ Unify schedule, polling, webhook, realtime, flow and programmatic triggers under
 
 ## In scope
 
-- [ ] **URS-F-0108** — The system shall define trigger identities, revisions, state, conditions, inputs and occurrence metadata.
-- [ ] **URS-F-0109** — The system shall activate and deactivate trigger instances when flow revisions change.
-- [ ] **URS-F-0110** — The system shall persist trigger checkpoints and cursors before acknowledging external events where possible.
-- [ ] **URS-F-0111** — The system shall deduplicate repeated source events using connector-provided or derived occurrence keys.
-- [ ] **URS-F-0112** — The system shall support trigger backpressure, pause, retry, dead-letter and manual replay.
-- [ ] **URS-F-0113** — The system shall expose trigger health, last evaluation, next evaluation, lag and recent occurrences.
-- [ ] **URS-F-0114** — The system shall route flow-completion events to dependent flows without relying on polling.
-- [ ] **URS-F-0115** — The system shall allow plugins to implement polling and realtime trigger adapters through stable interfaces.
+- [x] **URS-F-0108** — The system shall define trigger identities, revisions, state, conditions, inputs and occurrence metadata.
+- [x] **URS-F-0109** — The system shall activate and deactivate trigger instances when flow revisions change.
+- [x] **URS-F-0110** — The system shall persist trigger checkpoints and cursors before acknowledging external events where possible.
+- [x] **URS-F-0111** — The system shall deduplicate repeated source events using connector-provided or derived occurrence keys.
+- [x] **URS-F-0112** — The system shall support trigger backpressure, pause, retry, dead-letter and manual replay.
+- [x] **URS-F-0113** — The system shall expose trigger health, last evaluation, next evaluation, lag and recent occurrences.
+- [x] **URS-F-0114** — The system shall route flow-completion events to dependent flows without relying on polling.
+- [x] **URS-F-0115** — The system shall allow plugins to implement polling and realtime trigger adapters through stable interfaces.
 
 ## MVP implementation progress
 
 - 2026-08-21 — W6 verified the accepted webhook slice: a static-token-protected endpoint resolves a stored flow, derives an idempotency key from the supplied or generated occurrence identity, and returns the completed execution. Evidence: [`TESTLOG.md`](../../TESTLOG.md) and [`test_mvp_api.py`](../../tests/api/test_mvp_api.py). The broader trigger occurrence lifecycle remains open.
+
+## Implementation completion evidence
+
+- 2026-08-22 — EPIC-103 is complete. Schedule, webhook, polling, realtime and flow-completion triggers now share tenant-isolated PostgreSQL revision state, checkpoints, stable occurrence identities, backpressure and a fenced occurrence ledger. Flow revisions transactionally activate/deactivate trigger instances; duplicate source events converge, retry exhaustion dead-letters, operator pause/resume and immutable replay are audited, and health/recent occurrences are exposed through authorized APIs and the React control room. Polling and realtime plugin ports enforce durable accept/checkpoint-before-ack ordering. Terminal source executions transactionally route `core.flow` occurrences to dependent executions without source polling, and Compose runs a dedicated scheduler service. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`triggers.md`](../../docs/operations/triggers.md), [`028-durable-trigger-occurrence-runtime.md`](../../docs/adr/028-durable-trigger-occurrence-runtime.md), [`0030_trigger_occurrence_runtime.sql`](../../migrations/0030_trigger_occurrence_runtime.sql), [`test_trigger_runtime_repository.py`](../../tests/adapters/postgres/test_trigger_runtime_repository.py), [`test_trigger_runtime_api.py`](../../tests/api/test_trigger_runtime_api.py), [`test_trigger_runtime.py`](../../tests/test_trigger_runtime.py) and [`shell.spec.ts`](../../frontend/e2e/shell.spec.ts). Shared product-wide duplicate-injection qualification remains In Progress under URS-NFR-RELIABILITY-002.
 
 ## Non-functional requirements
 
@@ -50,13 +54,13 @@ Unify schedule, polling, webhook, realtime, flow and programmatic triggers under
 
 ## Definition of done
 
-- [ ] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
-- [ ] Public API, DSL, event and plugin contract changes pass compatibility checks.
-- [ ] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
-- [ ] Security, tenant isolation, redaction and audit behavior are reviewed.
-- [ ] Documentation, examples, migration notes and operational runbooks are updated.
-- [ ] Performance and recovery budgets are measured when this epic is on a critical path.
-- [ ] `python scripts/validate_backlog.py` passes.
+- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
+- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.
+- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
+- [x] Security, tenant isolation, redaction and audit behavior are reviewed.
+- [x] Documentation, examples, migration notes and operational runbooks are updated.
+- [x] Performance and recovery budgets are measured when this epic is on a critical path.
+- [x] `python scripts/validate_backlog.py` passes.
 
 ## Risks and unknowns
 

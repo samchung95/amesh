@@ -143,6 +143,10 @@ class TaskCachePurgeRequest(BaseModel):
         return self
 
 
+class TriggerActionRequest(BaseModel):
+    reason: str = Field(min_length=1, max_length=4096)
+
+
 class ExecutionDetail(BaseModel):
     execution: PersistedExecution
     task_runs: list[PersistedTaskRun] = Field(alias="taskRuns")

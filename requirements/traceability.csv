@@ -106,14 +106,14 @@ URS-F-0104,Functional,Must,EPIC-102,Scheduler and temporal correctness,M1,1,"Aut
 URS-F-0105,Functional,Must,EPIC-102,Scheduler and temporal correctness,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
 URS-F-0106,Functional,Must,EPIC-102,Scheduler and temporal correctness,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
 URS-F-0107,Functional,Must,EPIC-102,Scheduler and temporal correctness,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
-URS-F-0108,Functional,Must,EPIC-103,Trigger runtime and occurrence lifecycle,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0109,Functional,Must,EPIC-103,Trigger runtime and occurrence lifecycle,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0110,Functional,Must,EPIC-103,Trigger runtime and occurrence lifecycle,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0111,Functional,Must,EPIC-103,Trigger runtime and occurrence lifecycle,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0112,Functional,Must,EPIC-103,Trigger runtime and occurrence lifecycle,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0113,Functional,Must,EPIC-103,Trigger runtime and occurrence lifecycle,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0114,Functional,Must,EPIC-103,Trigger runtime and occurrence lifecycle,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0115,Functional,Must,EPIC-103,Trigger runtime and occurrence lifecycle,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0108,Functional,Must,EPIC-103,Trigger runtime and occurrence lifecycle,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0109,Functional,Must,EPIC-103,Trigger runtime and occurrence lifecycle,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0110,Functional,Must,EPIC-103,Trigger runtime and occurrence lifecycle,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0111,Functional,Must,EPIC-103,Trigger runtime and occurrence lifecycle,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0112,Functional,Must,EPIC-103,Trigger runtime and occurrence lifecycle,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0113,Functional,Must,EPIC-103,Trigger runtime and occurrence lifecycle,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0114,Functional,Must,EPIC-103,Trigger runtime and occurrence lifecycle,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0115,Functional,Must,EPIC-103,Trigger runtime and occurrence lifecycle,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
 URS-F-0116,Functional,Must,EPIC-104,"Retries, timeout, pause, cancellation, kill and restart",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
 URS-F-0117,Functional,Must,EPIC-104,"Retries, timeout, pause, cancellation, kill and restart",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
 URS-F-0118,Functional,Must,EPIC-104,"Retries, timeout, pause, cancellation, kill and restart",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified

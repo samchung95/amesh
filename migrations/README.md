@@ -95,6 +95,12 @@ Migration `0029_task_cache.sql` adds tenant-isolated task-result entries and an 
 decision ledger. Leased population ownership, expiry, soft invalidation and provenance survive
 executor restarts without making cached state authoritative over ordinary task and execution events.
 
+Migration `0030_trigger_occurrence_runtime.sql` adds tenant-isolated trigger revision state, durable
+checkpoints, a deduplicated occurrence queue and immutable occurrence events. Database-time leased
+claims, retry/dead-letter state, replay lineage and flow-revision activation survive scheduler or
+connector restart. It is additive; pause trigger consumers and forward-fix on failure while retaining
+occurrence evidence.
+
 ## Migration modes
 
 - `bootstrap` creates the initial schema and is only safe for an empty database.

@@ -1,0 +1,15 @@
+id: source
+namespace: demo.triggers
+inputs:
+  - id: message
+    type: STRING
+triggers:
+  - id: incoming
+    type: core.webhook
+    maxPending: 100
+    maxAttempts: 3
+    retryDelay: PT5S
+tasks:
+  - id: accept
+    type: core.return
+    value: "{{ inputs.message }}"

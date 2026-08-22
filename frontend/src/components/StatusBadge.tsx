@@ -6,6 +6,13 @@ const definitions = {
   FAILED: { icon: CircleX, label: 'Failed', tone: 'failed' },
   WAITING: { icon: TimerReset, label: 'Waiting', tone: 'waiting' },
   RETRY_DELAY: { icon: TimerReset, label: 'Retry delay', tone: 'warning' },
+  ACCEPTED: { icon: TimerReset, label: 'Accepted', tone: 'waiting' },
+  DEFERRED: { icon: TimerReset, label: 'Deferred', tone: 'warning' },
+  PROCESSING: { icon: LoaderCircle, label: 'Processing', tone: 'running' },
+  RETRY_WAIT: { icon: TimerReset, label: 'Retry wait', tone: 'warning' },
+  SUCCEEDED: { icon: CircleCheck, label: 'Succeeded', tone: 'success' },
+  DEAD_LETTERED: { icon: CircleX, label: 'Dead letter', tone: 'failed' },
+  PAUSED: { icon: TimerReset, label: 'Paused', tone: 'warning' },
 } as const
 
 export function StatusBadge({ state }: { state: string }) {

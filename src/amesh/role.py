@@ -16,6 +16,7 @@ from amesh.adapters.postgres import (
     PostgresServiceRegistryRepository,
     PostgresTaskCacheRepository,
     PostgresTenantRepository,
+    PostgresTriggerRuntimeRepository,
     PostgresWorkerRepository,
 )
 from amesh.config import Settings, get_settings
@@ -24,7 +25,13 @@ from amesh.domain import ServiceLiveness, ServiceRole, ServiceState
 from amesh.observability import configure_structured_logging
 from amesh.ports import ServiceFenceError, WorkerLossPolicy
 from amesh.service_runtime import RegisteredService, service_instance_name
-from amesh.worker import backfill_once, reconcile_once, recover_once, schedule_once
+from amesh.worker import (
+    backfill_once,
+    process_trigger_occurrences_once,
+    reconcile_once,
+    recover_once,
+    schedule_once,
+)
 
 LOGGER = logging.getLogger("amesh.role")
 
@@ -42,6 +49,7 @@ async def _run_cycle(
     workers: PostgresWorkerRepository,
     transport: PostgresDurableTransport,
     task_cache: PostgresTaskCacheRepository | None = None,
+    trigger_runtime: PostgresTriggerRuntimeRepository | None = None,
 ) -> int:
     if role is ServiceRole.SCHEDULER:
         scheduled = await schedule_once(
@@ -49,11 +57,26 @@ async def _run_cycle(
             scheduler,
             tenant_ids=tenant_ids,
             scheduler_id=service.instance.instance_id,
+            trigger_runtime=trigger_runtime,
         )
-        return scheduled + await backfill_once(
-            executions,
-            backfills,
-            tenant_ids=tenant_ids,
+        triggered = (
+            await process_trigger_occurrences_once(
+                executions,
+                trigger_runtime,
+                tenant_ids=tenant_ids,
+                worker_id=service.instance.instance_id,
+            )
+            if trigger_runtime is not None
+            else 0
+        )
+        return (
+            scheduled
+            + triggered
+            + await backfill_once(
+                executions,
+                backfills,
+                tenant_ids=tenant_ids,
+            )
         )
     if role is ServiceRole.EXECUTOR:
         return await recover_once(
@@ -103,6 +126,7 @@ async def run_role(settings: Settings) -> None:
     workers = PostgresWorkerRepository(engine)
     transport = PostgresDurableTransport(engine)
     task_cache = PostgresTaskCacheRepository(engine)
+    trigger_runtime = PostgresTriggerRuntimeRepository(engine)
     work_count = 0
     try:
         await service.register()
@@ -131,6 +155,7 @@ async def run_role(settings: Settings) -> None:
                     workers=workers,
                     transport=transport,
                     task_cache=task_cache,
+                    trigger_runtime=trigger_runtime,
                 )
             except (DBAPIError, OSError):
                 LOGGER.exception("service role cycle interrupted; retrying")

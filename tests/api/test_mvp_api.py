@@ -15,6 +15,7 @@ from amesh.adapters.postgres import (
     PostgresExecutionRepository,
     PostgresMetadataRepository,
     PostgresTenantRepository,
+    PostgresTriggerRuntimeRepository,
 )
 from amesh.app import (
     app,
@@ -22,6 +23,7 @@ from amesh.app import (
     get_metadata_repository,
     get_repository,
     get_tenant_service,
+    get_trigger_runtime_repository,
 )
 from amesh.authorization import AuthorizationService
 from amesh.config import Settings, get_settings
@@ -37,6 +39,18 @@ pytestmark = pytest.mark.skipif(
 
 async def cleanup_execution(engine: AsyncEngine, execution_id: UUID) -> None:
     async with engine.begin() as connection:
+        await connection.execute(
+            text(
+                "DELETE FROM trigger_occurrence_events WHERE occurrence_id IN "
+                "(SELECT occurrence_id FROM trigger_occurrences "
+                "WHERE execution_id = :execution_id)"
+            ),
+            {"execution_id": execution_id},
+        )
+        await connection.execute(
+            text("DELETE FROM trigger_occurrences WHERE execution_id = :execution_id"),
+            {"execution_id": execution_id},
+        )
         await connection.execute(
             text("DELETE FROM messages_outbox WHERE partition_key = :partition_key"),
             {"partition_key": f"execution:{execution_id}"},
@@ -92,6 +106,9 @@ def test_authenticated_flow_execution_and_webhook_api() -> None:
         app.dependency_overrides[get_metadata_repository] = lambda: metadata
         app.dependency_overrides[get_authorization_service] = lambda: authorization_service
         app.dependency_overrides[get_tenant_service] = lambda: tenant_service
+        app.dependency_overrides[get_trigger_runtime_repository] = lambda: (
+            PostgresTriggerRuntimeRepository(engine)
+        )
         app.dependency_overrides[get_settings] = lambda: settings
         namespace = f"tests.api.{uuid4().hex}"
         flow_id = "api_flow"
@@ -402,17 +419,16 @@ tasks:
                 assert webhook.status_code == 200
                 webhook_payload = webhook.json()
                 execution_ids.append(UUID(webhook_payload["execution"]["execution_id"]))
-                assert webhook_payload["taskRuns"][0]["result"] == {
-                    "value": {
-                        "message": "webhook",
-                        "trigger": {
-                            "source": "event",
-                            "id": "incoming",
-                            "type": "core.webhook",
-                            "body": {"message": "webhook"},
-                        },
-                    },
-                }
+                webhook_value = webhook_payload["taskRuns"][0]["result"]["value"]
+                assert webhook_value["message"] == "webhook"
+                assert webhook_value["trigger"]["source"] == "event"
+                assert webhook_value["trigger"]["id"] == "incoming"
+                assert webhook_value["trigger"]["type"] == "core.webhook"
+                assert webhook_value["trigger"]["body"] == {"message": "webhook"}
+                UUID(webhook_value["trigger"]["occurrenceId"])
+                assert webhook_value["trigger"]["occurrenceKey"].startswith(
+                    f"webhook:{namespace}:{flow_id}:1:incoming:sha256:"
+                )
 
                 executions = await client.get(
                     "/api/v1/executions",

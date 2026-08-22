@@ -83,6 +83,22 @@ async def _cleanup(
         )
         await connection.execute(
             text(
+                "DELETE FROM trigger_occurrence_events WHERE occurrence_id IN "
+                "(SELECT occurrence_id FROM trigger_occurrences "
+                "WHERE namespace_name = :namespace)"
+            ),
+            {"namespace": namespace},
+        )
+        await connection.execute(
+            text("DELETE FROM trigger_occurrences WHERE namespace_name = :namespace"),
+            {"namespace": namespace},
+        )
+        await connection.execute(
+            text("DELETE FROM trigger_runtime_states WHERE namespace_name = :namespace"),
+            {"namespace": namespace},
+        )
+        await connection.execute(
+            text(
                 "DELETE FROM trigger_definitions WHERE flow_revision_id IN ("
                 "SELECT flow_revisions.id FROM flow_revisions "
                 "JOIN flows ON flows.id = flow_revisions.flow_id "

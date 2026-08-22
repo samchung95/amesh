@@ -76,6 +76,8 @@ def test_ui_session_returns_server_authoritative_capabilities_and_privacy_policy
             "flows.view": True,
             "namespaces.view": False,
             "plugins.view": False,
+            "triggers.manage": False,
+            "triggers.view": False,
         }
 
     try:

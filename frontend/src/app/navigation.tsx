@@ -6,6 +6,7 @@ import {
   CircleGauge,
   DatabaseZap,
   LayoutGrid,
+  RadioTower,
   Settings2,
   Workflow,
   type LucideIcon,
@@ -41,6 +42,14 @@ export const navigationItems: NavigationItem[] = [
     group: 'operate',
     icon: ChartNoAxesCombined,
     capability: 'executions.view',
+  },
+  {
+    id: 'triggers',
+    labelKey: 'triggers',
+    path: '/triggers',
+    group: 'operate',
+    icon: RadioTower,
+    capability: 'triggers.view',
   },
   {
     id: 'namespaces',

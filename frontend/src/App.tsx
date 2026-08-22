@@ -13,6 +13,7 @@ import { ExecutionsPage } from './pages/ExecutionsPage'
 import { FlowDetailPage } from './pages/FlowDetailPage'
 import { FlowsPage } from './pages/FlowsPage'
 import { PlaceholderPage } from './pages/PlaceholderPage'
+import { TriggersPage } from './pages/TriggersPage'
 
 export function App() {
   const { connected } = useAppSettings()
@@ -64,6 +65,7 @@ function WorkspaceRoutes({ session }: { session: UiSession }) {
         <Route path="flows/:namespace/:flowId" element={<CapabilityRoute session={session} capability="flows.view" title="Flow"><FlowDetailPage /></CapabilityRoute>} />
         <Route path="executions" element={<CapabilityRoute session={session} capability="executions.view" title="Executions"><ExecutionsPage session={session} /></CapabilityRoute>} />
         <Route path="executions/:executionId" element={<CapabilityRoute session={session} capability="executions.view" title="Execution"><ExecutionDetailPage /></CapabilityRoute>} />
+        <Route path="triggers" element={<CapabilityRoute session={session} capability="triggers.view" title="Triggers"><TriggersPage session={session} /></CapabilityRoute>} />
         <Route path="namespaces" element={<CapabilityRoute session={session} capability="namespaces.view" title="Namespaces"><PlaceholderPage title="Namespaces" /></CapabilityRoute>} />
         <Route path="assets" element={<PlaceholderPage title="Assets" />} />
         <Route path="apps" element={<PlaceholderPage title="Apps" />} />
