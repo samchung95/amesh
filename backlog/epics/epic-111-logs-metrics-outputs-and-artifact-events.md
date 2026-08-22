@@ -12,18 +12,22 @@ Capture task-produced evidence as structured, searchable and streamable executio
 
 ## In scope
 
-- [ ] **URS-F-0172** — The system shall ingest structured and unstructured logs with execution, task-run, worker, tenant and trace context.
-- [ ] **URS-F-0173** — The system shall preserve event time, ingest time, severity, logger, attempt and source stream.
-- [ ] **URS-F-0174** — The system shall accept typed counters, gauges, timers and custom metrics from tasks and plugins.
-- [ ] **URS-F-0175** — The system shall persist task and flow outputs separately from logs with size and sensitivity controls.
-- [ ] **URS-F-0176** — The system shall link artifact metadata to internal storage without embedding large payloads in metadata records.
-- [ ] **URS-F-0177** — The system shall stream new logs and state updates to authorized clients with reconnect cursors.
-- [ ] **URS-F-0178** — The system shall apply redaction, retention, sampling and export policies before external shipment.
-- [ ] **URS-F-0179** — The system shall continue execution when optional telemetry sinks are temporarily unavailable.
+- [x] **URS-F-0172** — The system shall ingest structured and unstructured logs with execution, task-run, worker, tenant and trace context.
+- [x] **URS-F-0173** — The system shall preserve event time, ingest time, severity, logger, attempt and source stream.
+- [x] **URS-F-0174** — The system shall accept typed counters, gauges, timers and custom metrics from tasks and plugins.
+- [x] **URS-F-0175** — The system shall persist task and flow outputs separately from logs with size and sensitivity controls.
+- [x] **URS-F-0176** — The system shall link artifact metadata to internal storage without embedding large payloads in metadata records.
+- [x] **URS-F-0177** — The system shall stream new logs and state updates to authorized clients with reconnect cursors.
+- [x] **URS-F-0178** — The system shall apply redaction, retention, sampling and export policies before external shipment.
+- [x] **URS-F-0179** — The system shall continue execution when optional telemetry sinks are temporarily unavailable.
 
 ## MVP implementation progress
 
 - 2026-08-21 — W6–W7 verified the accepted MVP evidence slice: task results are persisted and queryable through execution/log APIs, while server and worker processes emit structured JSON records carrying HTTP, execution or worker context. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`test_mvp_api.py`](../../tests/api/test_mvp_api.py), and [`test_observability.py`](../../tests/test_observability.py). Streaming, artifacts and the broader observability epic remain open.
+
+## Implementation completion evidence
+
+- 2026-08-22 — EPIC-111 is functionally complete. Task completions now project redacted structured/task and stdout/stderr logs, typed metrics, bounded outputs and internal-storage artifact references into tenant-isolated PostgreSQL tables and one monotonic reconnect stream. Authorized JSON paging, NDJSON streaming and the React execution timeline expose state and evidence after restart; duplicate completion does not duplicate projections. Optional export applies retention, deterministic sampling and a second redaction pass, while sink outage leaves orchestration unaffected. Canary persistence/export scans, cursor/API authorization, migration repeatability, frontend build and clean-database tests passed. The local 50,000-record burst persisted all records and cursor events at 12,242 records/second; the shared provisional 50,000 records/second standard-cluster target remains In Progress for EPIC-607. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`observability.md`](../../docs/architecture/observability.md), [`026-durable-execution-evidence-projection.md`](../../docs/adr/026-durable-execution-evidence-projection.md), [`test_postgres_executor.py`](../../tests/executor/test_postgres_executor.py), [`test_task_deferral.py`](../../tests/executor/test_task_deferral.py), [`test_mvp_api.py`](../../tests/api/test_mvp_api.py), and [`test_evidence_export.py`](../../tests/test_evidence_export.py).
 
 ## Non-functional requirements
 
@@ -52,13 +56,13 @@ Capture task-produced evidence as structured, searchable and streamable executio
 
 ## Definition of done
 
-- [ ] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
-- [ ] Public API, DSL, event and plugin contract changes pass compatibility checks.
-- [ ] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
-- [ ] Security, tenant isolation, redaction and audit behavior are reviewed.
-- [ ] Documentation, examples, migration notes and operational runbooks are updated.
-- [ ] Performance and recovery budgets are measured when this epic is on a critical path.
-- [ ] `python scripts/validate_backlog.py` passes.
+- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
+- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.
+- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
+- [x] Security, tenant isolation, redaction and audit behavior are reviewed.
+- [x] Documentation, examples, migration notes and operational runbooks are updated.
+- [x] Performance and recovery budgets are measured when this epic is on a critical path.
+- [x] `python scripts/validate_backlog.py` passes.
 
 ## Risks and unknowns
 

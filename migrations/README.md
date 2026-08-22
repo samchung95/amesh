@@ -86,6 +86,11 @@ Migration `0027_interactive_authentication.sql` adds local Argon2id credential s
 session digests, CSRF digests, inactivity and absolute deadlines, rotation overlap, revocation evidence
 and source-fingerprint rate windows. Passwords, session tokens and CSRF tokens are never schema fields.
 
+Migration `0028_execution_evidence.sql` adds contextual log and metric fields, separate output and
+artifact-reference projections, and one tenant-isolated monotonic evidence stream. State and task
+evidence triggers write reconnectable events in the originating transaction; task-attempt evidence
+remains the immutable recovery source.
+
 ## Migration modes
 
 - `bootstrap` creates the initial schema and is only safe for an empty database.

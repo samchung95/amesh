@@ -170,14 +170,14 @@ URS-F-0168,Functional,Must,EPIC-110,"SLA, checks and execution policy evaluation
 URS-F-0169,Functional,Must,EPIC-110,"SLA, checks and execution policy evaluation",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
 URS-F-0170,Functional,Must,EPIC-110,"SLA, checks and execution policy evaluation",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
 URS-F-0171,Functional,Must,EPIC-110,"SLA, checks and execution policy evaluation",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0172,Functional,Must,EPIC-111,"Logs, metrics, outputs and artifact events",M1,1,Telemetry contract and outage tests,Proposed
-URS-F-0173,Functional,Must,EPIC-111,"Logs, metrics, outputs and artifact events",M1,1,Telemetry contract and outage tests,Proposed
-URS-F-0174,Functional,Must,EPIC-111,"Logs, metrics, outputs and artifact events",M1,1,Telemetry contract and outage tests,Proposed
-URS-F-0175,Functional,Must,EPIC-111,"Logs, metrics, outputs and artifact events",M1,1,Telemetry contract and outage tests,Proposed
-URS-F-0176,Functional,Must,EPIC-111,"Logs, metrics, outputs and artifact events",M1,1,Telemetry contract and outage tests,Proposed
-URS-F-0177,Functional,Must,EPIC-111,"Logs, metrics, outputs and artifact events",M1,1,Telemetry contract and outage tests,Proposed
-URS-F-0178,Functional,Must,EPIC-111,"Logs, metrics, outputs and artifact events",M1,1,Telemetry contract and outage tests,Proposed
-URS-F-0179,Functional,Must,EPIC-111,"Logs, metrics, outputs and artifact events",M1,1,Telemetry contract and outage tests,Proposed
+URS-F-0172,Functional,Must,EPIC-111,"Logs, metrics, outputs and artifact events",M1,1,Telemetry contract and outage tests,Verified
+URS-F-0173,Functional,Must,EPIC-111,"Logs, metrics, outputs and artifact events",M1,1,Telemetry contract and outage tests,Verified
+URS-F-0174,Functional,Must,EPIC-111,"Logs, metrics, outputs and artifact events",M1,1,Telemetry contract and outage tests,Verified
+URS-F-0175,Functional,Must,EPIC-111,"Logs, metrics, outputs and artifact events",M1,1,Telemetry contract and outage tests,Verified
+URS-F-0176,Functional,Must,EPIC-111,"Logs, metrics, outputs and artifact events",M1,1,Telemetry contract and outage tests,Verified
+URS-F-0177,Functional,Must,EPIC-111,"Logs, metrics, outputs and artifact events",M1,1,Telemetry contract and outage tests,Verified
+URS-F-0178,Functional,Must,EPIC-111,"Logs, metrics, outputs and artifact events",M1,1,Telemetry contract and outage tests,Verified
+URS-F-0179,Functional,Must,EPIC-111,"Logs, metrics, outputs and artifact events",M1,1,Telemetry contract and outage tests,Verified
 URS-F-0180,Functional,Must,EPIC-200,Runnable task contract,M2,2,DSL validation plus end-to-end workflow conformance tests,Verified
 URS-F-0181,Functional,Must,EPIC-200,Runnable task contract,M2,2,DSL validation plus end-to-end workflow conformance tests,Verified
 URS-F-0182,Functional,Must,EPIC-200,Runnable task contract,M2,2,DSL validation plus end-to-end workflow conformance tests,Verified
@@ -899,8 +899,8 @@ URS-NFR-PERFORMANCE-005,Non-functional,Must,EPIC-601,Distributed services and hi
 URS-NFR-PERFORMANCE-005,Non-functional,Must,EPIC-611,"Performance, scale and chaos qualification",M6,6,Soak test with mixed short and long tasks.,In Progress
 URS-NFR-PERFORMANCE-006,Non-functional,Must,EPIC-203,"Loops, foreach, while and until",M2,2,Synthetic large-DAG and loop benchmark.,In Progress
 URS-NFR-PERFORMANCE-006,Non-functional,Must,EPIC-407,"Execution details, Gantt, logs and debugging UI",M4,4,Synthetic large-DAG and loop benchmark.,In Progress
-URS-NFR-PERFORMANCE-007,Non-functional,Must,EPIC-111,"Logs, metrics, outputs and artifact events",M1,1,Burst and sustained log-load test with exporter outage.,Proposed
-URS-NFR-PERFORMANCE-007,Non-functional,Must,EPIC-607,"OpenTelemetry, Prometheus and log shipping",M6,6,Burst and sustained log-load test with exporter outage.,Proposed
+URS-NFR-PERFORMANCE-007,Non-functional,Must,EPIC-111,"Logs, metrics, outputs and artifact events",M1,1,Burst and sustained log-load test with exporter outage.,In Progress
+URS-NFR-PERFORMANCE-007,Non-functional,Must,EPIC-607,"OpenTelemetry, Prometheus and log shipping",M6,6,Burst and sustained log-load test with exporter outage.,In Progress
 URS-NFR-PERFORMANCE-008,Non-functional,Must,EPIC-010,Internal object storage and artifact addressing,M0,0,Storage adapter performance and memory profiling.,Verified
 URS-NFR-PERFORMANCE-008,Non-functional,Must,EPIC-605,Object storage backends and lifecycle,M6,6,Storage adapter performance and memory profiling.,Verified
 URS-NFR-PERFORMANCE-009,Non-functional,Must,EPIC-601,Distributed services and high availability,M6,6,Comparative scale-out benchmark.,In Progress
@@ -952,10 +952,10 @@ URS-NFR-SECURITY-001,Non-functional,Must,EPIC-605,Object storage backends and li
 URS-NFR-SECURITY-002,Non-functional,Must,EPIC-303,Isolated language-neutral plugin runtime,M3,3,Threat-model review and deployment policy tests.,In Progress
 URS-NFR-SECURITY-002,Non-functional,Must,EPIC-501,"Service accounts, API tokens and credentials",M5,5,Threat-model review and deployment policy tests.,In Progress
 URS-NFR-SECURITY-002,Non-functional,Must,EPIC-612,Security hardening and software supply chain,M6,6,Threat-model review and deployment policy tests.,In Progress
-URS-NFR-SECURITY-003,Non-functional,Must,EPIC-111,"Logs, metrics, outputs and artifact events",M1,1,Canary-secret scanning and redaction tests.,Proposed
-URS-NFR-SECURITY-003,Non-functional,Must,EPIC-205,"Inputs, outputs and variables",M2,2,Canary-secret scanning and redaction tests.,Proposed
-URS-NFR-SECURITY-003,Non-functional,Must,EPIC-506,External secrets managers and secret lifecycle,M5,5,Canary-secret scanning and redaction tests.,Proposed
-URS-NFR-SECURITY-003,Non-functional,Must,EPIC-607,"OpenTelemetry, Prometheus and log shipping",M6,6,Canary-secret scanning and redaction tests.,Proposed
+URS-NFR-SECURITY-003,Non-functional,Must,EPIC-111,"Logs, metrics, outputs and artifact events",M1,1,Canary-secret scanning and redaction tests.,In Progress
+URS-NFR-SECURITY-003,Non-functional,Must,EPIC-205,"Inputs, outputs and variables",M2,2,Canary-secret scanning and redaction tests.,In Progress
+URS-NFR-SECURITY-003,Non-functional,Must,EPIC-506,External secrets managers and secret lifecycle,M5,5,Canary-secret scanning and redaction tests.,In Progress
+URS-NFR-SECURITY-003,Non-functional,Must,EPIC-607,"OpenTelemetry, Prometheus and log shipping",M6,6,Canary-secret scanning and redaction tests.,In Progress
 URS-NFR-SECURITY-004,Non-functional,Must,EPIC-613,"TLS, networking, proxy and private connectivity",M6,6,Automated protocol scan and reference deployment test.,Proposed
 URS-NFR-SECURITY-005,Non-functional,Must,EPIC-506,External secrets managers and secret lifecycle,M5,5,Configuration audit and restore test.,In Progress
 URS-NFR-SECURITY-005,Non-functional,Must,EPIC-602,PostgreSQL transactional backend,M6,6,Configuration audit and restore test.,In Progress

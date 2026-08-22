@@ -14,8 +14,9 @@ by generated OpenAPI. Common conventions include:
 - explicit tenant context;
 - authorization before existence disclosure.
 
-Realtime state and logs use server-sent events first because reconnect cursors are simple and proxy
-compatibility is strong. WebSockets may be added for interactive bidirectional features.
+Execution evidence uses an authorized JSON page plus newline-delimited JSON stream. Both accept an
+opaque reconnect cursor over the durable state/log/metric/output/artifact event sequence. WebSockets
+may be added for interactive bidirectional features without changing that cursor contract.
 
 ## UI
 

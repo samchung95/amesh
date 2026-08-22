@@ -1,5 +1,6 @@
 import type {
   ExecutionDetail,
+  ExecutionEvidencePage,
   AuthenticationProvider,
   FlowGraph,
   HealthResponse,
@@ -84,5 +85,9 @@ export function createApiClient(connection: ApiConnection) {
       request<ExecutionDetail>(`/api/v1/executions/${encodeURIComponent(executionId)}`),
     executionGraph: async (executionId: string) =>
       request<FlowGraph>(`/api/v1/executions/${encodeURIComponent(executionId)}/graph`),
+    executionEvidence: async (executionId: string, cursor?: string) => {
+      const suffix = cursor ? `?cursor=${encodeURIComponent(cursor)}` : ''
+      return request<ExecutionEvidencePage>(`/api/v1/executions/${encodeURIComponent(executionId)}/evidence${suffix}`)
+    },
   }
 }

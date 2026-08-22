@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from datetime import datetime
+from typing import cast
 from uuid import UUID
 
 from sqlalchemy import text
@@ -11,8 +12,11 @@ from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine
 from amesh.domain import TenantPolicy, new_runtime_id
 from amesh.ports.metadata_repository import (
     AssetMetadata,
+    ExecutionArtifact,
+    ExecutionEvidenceEvent,
     ExecutionLogEntry,
     ExecutionMetric,
+    ExecutionOutput,
     MetadataRepository,
     MetadataVersionConflict,
     PersistedAsset,
@@ -141,11 +145,12 @@ _LIST_WORKERS = text(
 _INSERT_LOG = text(
     """
     INSERT INTO execution_logs (
-        id, tenant_id, execution_id, task_run_id, level, logger,
-        message, fields, redacted, occurred_at
+        id, tenant_id, execution_id, task_run_id, attempt, worker_id,
+        trace_id, source_stream, level, logger, message, fields, redacted, occurred_at
     ) VALUES (
-        :id, :tenant_id, :execution_id, :task_run_id, :level, :logger,
-        :message, CAST(:fields AS jsonb), :redacted, :occurred_at
+        :id, :tenant_id, :execution_id, :task_run_id, :attempt, :worker_id,
+        :trace_id, :source_stream, :level, :logger, :message,
+        CAST(:fields AS jsonb), :redacted, :occurred_at
     )
     RETURNING *
     """
@@ -160,13 +165,38 @@ _LIST_LOGS = text(
     """
 )
 
+_INSERT_TASK_LOGS_BATCH = text(
+    """
+    INSERT INTO execution_logs (
+        id, tenant_id, execution_id, task_run_id, attempt, worker_id,
+        trace_id, source_stream, level, logger, message, fields, redacted, occurred_at
+    )
+    SELECT
+        gen_random_uuid(), :tenant_id, :execution_id, :task_run_id, :attempt, :worker_id,
+        item."traceId", COALESCE(item."sourceStream", 'TASK'),
+        COALESCE(item.level, 'INFO'), COALESCE(item.logger, 'task'),
+        COALESCE(item.message, ''), COALESCE(item.fields, '{}'::jsonb),
+        COALESCE(item.redacted, false), COALESCE(item."occurredAt", :occurred_at)
+    FROM jsonb_to_recordset(CAST(:items AS jsonb)) AS item(
+        level text,
+        logger text,
+        message text,
+        fields jsonb,
+        redacted boolean,
+        "sourceStream" text,
+        "traceId" text,
+        "occurredAt" timestamptz
+    )
+    """
+)
+
 _INSERT_METRIC = text(
     """
     INSERT INTO execution_metrics (
-        id, tenant_id, execution_id, task_run_id, metric_name, metric_kind,
+        id, tenant_id, execution_id, task_run_id, attempt, metric_name, metric_kind,
         metric_value, unit, labels, occurred_at
     ) VALUES (
-        :id, :tenant_id, :execution_id, :task_run_id, :metric_name, :metric_kind,
+        :id, :tenant_id, :execution_id, :task_run_id, :attempt, :metric_name, :metric_kind,
         :metric_value, :unit, CAST(:labels AS jsonb), :occurred_at
     )
     RETURNING *
@@ -179,6 +209,74 @@ _LIST_METRICS = text(
     FROM execution_metrics
     WHERE tenant_id = :tenant_id AND execution_id = :execution_id
     ORDER BY occurred_at, id
+    """
+)
+
+_INSERT_TASK_METRICS_BATCH = text(
+    """
+    INSERT INTO execution_metrics (
+        id, tenant_id, execution_id, task_run_id, attempt, metric_name, metric_kind,
+        metric_value, unit, labels, occurred_at
+    )
+    SELECT
+        gen_random_uuid(), :tenant_id, :execution_id, :task_run_id, :attempt,
+        item.name, COALESCE(item.kind, 'GAUGE'), item.value, item.unit,
+        COALESCE(item.labels, '{}'::jsonb), :occurred_at
+    FROM jsonb_to_recordset(CAST(:items AS jsonb)) AS item(
+        name text,
+        kind text,
+        value numeric,
+        unit text,
+        labels jsonb
+    )
+    """
+)
+
+_INSERT_TASK_ARTIFACTS_BATCH = text(
+    """
+    INSERT INTO execution_artifacts (
+        id, tenant_id, execution_id, task_run_id, attempt, uri,
+        size_bytes, media_type, checksum_sha256, occurred_at
+    )
+    SELECT
+        gen_random_uuid(), :tenant_id, :execution_id, :task_run_id, :attempt,
+        item.uri, item."sizeBytes", item."mediaType", item."checksumSha256", :occurred_at
+    FROM jsonb_to_recordset(CAST(:items AS jsonb)) AS item(
+        uri text,
+        "sizeBytes" bigint,
+        "mediaType" text,
+        "checksumSha256" text
+    )
+    """
+)
+
+_LIST_OUTPUTS = text(
+    """
+    SELECT *
+    FROM execution_outputs
+    WHERE tenant_id = :tenant_id AND execution_id = :execution_id
+    ORDER BY occurred_at, id
+    """
+)
+
+_LIST_ARTIFACTS = text(
+    """
+    SELECT *
+    FROM execution_artifacts
+    WHERE tenant_id = :tenant_id AND execution_id = :execution_id
+    ORDER BY occurred_at, id
+    """
+)
+
+_LIST_EVIDENCE_EVENTS = text(
+    """
+    SELECT *
+    FROM execution_evidence_events
+    WHERE tenant_id = :tenant_id
+      AND execution_id = :execution_id
+      AND cursor > :after_cursor
+    ORDER BY cursor
+    LIMIT :limit
     """
 )
 
@@ -239,6 +337,96 @@ async def store_flow_triggers(
     ]
     if parameters:
         await connection.execute(_INSERT_TRIGGER, parameters)
+
+
+async def store_task_evidence(
+    connection: AsyncConnection,
+    tenant_id: UUID,
+    *,
+    execution_id: UUID,
+    task_run_id: UUID,
+    attempt: int,
+    worker_id: UUID | None,
+    output: dict[str, object],
+    evidence: dict[str, object],
+) -> None:
+    """Project one normalized completion into queryable evidence in the same transaction."""
+
+    occurred_at = await connection.scalar(text("SELECT clock_timestamp()"))
+    logs = cast(list[dict[str, object]], evidence.get("logs", []))
+    metrics = cast(list[dict[str, object]], evidence.get("metrics", []))
+    artifacts = cast(list[dict[str, object]], evidence.get("artifacts", []))
+    sizes = cast(dict[str, object], evidence.get("sizes", {}))
+
+    if logs:
+        await connection.execute(
+            _INSERT_TASK_LOGS_BATCH,
+            {
+                "tenant_id": tenant_id,
+                "execution_id": execution_id,
+                "task_run_id": task_run_id,
+                "attempt": attempt,
+                "worker_id": worker_id,
+                "occurred_at": occurred_at,
+                "items": json.dumps(logs),
+            },
+        )
+    if metrics:
+        await connection.execute(
+            _INSERT_TASK_METRICS_BATCH,
+            {
+                "tenant_id": tenant_id,
+                "execution_id": execution_id,
+                "task_run_id": task_run_id,
+                "attempt": attempt,
+                "occurred_at": occurred_at,
+                "items": json.dumps(metrics),
+            },
+        )
+    await connection.execute(
+        text(
+            """
+            INSERT INTO execution_outputs (
+                id, tenant_id, execution_id, task_run_id, attempt,
+                value, size_bytes, sensitive, occurred_at
+            ) VALUES (
+                :id, :tenant_id, :execution_id, :task_run_id, :attempt,
+                CAST(:value AS jsonb), :size_bytes, :sensitive, :occurred_at
+            )
+            """
+        ),
+        {
+            "id": new_runtime_id(),
+            "tenant_id": tenant_id,
+            "execution_id": execution_id,
+            "task_run_id": task_run_id,
+            "attempt": attempt,
+            "value": json.dumps(output),
+            "size_bytes": int(
+                cast(
+                    int,
+                    sizes.get(
+                        "outputBytes",
+                        len(json.dumps(output, separators=(",", ":")).encode("utf-8")),
+                    ),
+                )
+            ),
+            "sensitive": bool(evidence.get("outputSensitive", False)),
+            "occurred_at": occurred_at,
+        },
+    )
+    if artifacts:
+        await connection.execute(
+            _INSERT_TASK_ARTIFACTS_BATCH,
+            {
+                "tenant_id": tenant_id,
+                "execution_id": execution_id,
+                "task_run_id": task_run_id,
+                "attempt": attempt,
+                "occurred_at": occurred_at,
+                "items": json.dumps(artifacts),
+            },
+        )
 
 
 class PostgresMetadataRepository(MetadataRepository):
@@ -402,6 +590,10 @@ class PostgresMetadataRepository(MetadataRepository):
                             "tenant_id": tenant_uuid,
                             "execution_id": entry.execution_id,
                             "task_run_id": entry.task_run_id,
+                            "attempt": entry.attempt,
+                            "worker_id": entry.worker_id,
+                            "trace_id": entry.trace_id,
+                            "source_stream": entry.source_stream.value,
                             "level": entry.level.value,
                             "logger": entry.logger,
                             "message": entry.message,
@@ -451,6 +643,7 @@ class PostgresMetadataRepository(MetadataRepository):
                             "tenant_id": tenant_uuid,
                             "execution_id": metric.execution_id,
                             "task_run_id": metric.task_run_id,
+                            "attempt": metric.attempt,
                             "metric_name": metric.metric_name,
                             "metric_kind": metric.metric_kind.value,
                             "metric_value": metric.metric_value,
@@ -483,6 +676,74 @@ class PostgresMetadataRepository(MetadataRepository):
                 .all()
             )
         return [_to_metric(row) for row in rows]
+
+    async def list_outputs(
+        self,
+        execution_id: UUID,
+        *,
+        tenant_id: str,
+    ) -> list[ExecutionOutput]:
+        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+            rows = (
+                (
+                    await connection.execute(
+                        _LIST_OUTPUTS,
+                        {"tenant_id": tenant_uuid, "execution_id": execution_id},
+                    )
+                )
+                .mappings()
+                .all()
+            )
+        return [_to_output(row) for row in rows]
+
+    async def list_artifacts(
+        self,
+        execution_id: UUID,
+        *,
+        tenant_id: str,
+    ) -> list[ExecutionArtifact]:
+        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+            rows = (
+                (
+                    await connection.execute(
+                        _LIST_ARTIFACTS,
+                        {"tenant_id": tenant_uuid, "execution_id": execution_id},
+                    )
+                )
+                .mappings()
+                .all()
+            )
+        return [_to_artifact(row) for row in rows]
+
+    async def list_evidence_events(
+        self,
+        execution_id: UUID,
+        *,
+        tenant_id: str,
+        after_cursor: int = 0,
+        limit: int = 500,
+    ) -> list[ExecutionEvidenceEvent]:
+        if not 1 <= limit <= 1000:
+            raise ValueError("evidence event limit must be between 1 and 1000")
+        if after_cursor < 0:
+            raise ValueError("evidence event cursor cannot be negative")
+        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+            rows = (
+                (
+                    await connection.execute(
+                        _LIST_EVIDENCE_EVENTS,
+                        {
+                            "tenant_id": tenant_uuid,
+                            "execution_id": execution_id,
+                            "after_cursor": after_cursor,
+                            "limit": limit,
+                        },
+                    )
+                )
+                .mappings()
+                .all()
+            )
+        return [_to_evidence_event(row) for row in rows]
 
     async def upsert_asset(
         self,
@@ -569,12 +830,17 @@ def _to_log(row: RowMapping) -> ExecutionLogEntry:
         log_id=row["id"],
         execution_id=row["execution_id"],
         task_run_id=row["task_run_id"],
+        attempt=row["attempt"],
+        worker_id=row["worker_id"],
+        trace_id=row["trace_id"],
+        source_stream=row["source_stream"],
         level=row["level"],
         logger=row["logger"],
         message=row["message"],
         fields=row["fields"],
         redacted=row["redacted"],
         occurred_at=row["occurred_at"],
+        ingested_at=row["ingested_at"],
     )
 
 
@@ -583,12 +849,57 @@ def _to_metric(row: RowMapping) -> ExecutionMetric:
         metric_id=row["id"],
         execution_id=row["execution_id"],
         task_run_id=row["task_run_id"],
+        attempt=row["attempt"],
         metric_name=row["metric_name"],
         metric_kind=row["metric_kind"],
         metric_value=row["metric_value"],
         unit=row["unit"],
         labels=row["labels"],
         occurred_at=row["occurred_at"],
+        ingested_at=row["ingested_at"],
+    )
+
+
+def _to_output(row: RowMapping) -> ExecutionOutput:
+    return ExecutionOutput(
+        output_id=row["id"],
+        execution_id=row["execution_id"],
+        task_run_id=row["task_run_id"],
+        attempt=row["attempt"],
+        value=row["value"],
+        size_bytes=row["size_bytes"],
+        sensitive=row["sensitive"],
+        occurred_at=row["occurred_at"],
+        ingested_at=row["ingested_at"],
+    )
+
+
+def _to_artifact(row: RowMapping) -> ExecutionArtifact:
+    return ExecutionArtifact(
+        artifact_id=row["id"],
+        execution_id=row["execution_id"],
+        task_run_id=row["task_run_id"],
+        attempt=row["attempt"],
+        uri=row["uri"],
+        size_bytes=row["size_bytes"],
+        media_type=row["media_type"],
+        checksum_sha256=row["checksum_sha256"],
+        occurred_at=row["occurred_at"],
+        ingested_at=row["ingested_at"],
+    )
+
+
+def _to_evidence_event(row: RowMapping) -> ExecutionEvidenceEvent:
+    return ExecutionEvidenceEvent(
+        cursor=row["cursor"],
+        event_id=row["event_id"],
+        execution_id=row["execution_id"],
+        task_run_id=row["task_run_id"],
+        kind=row["kind"],
+        event_type=row["event_type"],
+        payload=row["payload"],
+        occurred_at=row["occurred_at"],
+        ingested_at=row["ingested_at"],
     )
 
 

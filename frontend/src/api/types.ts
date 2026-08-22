@@ -61,6 +61,25 @@ export interface ExecutionDetail {
   taskRuns: PersistedTaskRun[]
 }
 
+export type ExecutionEvidenceKind = 'STATE' | 'LOG' | 'METRIC' | 'OUTPUT' | 'ARTIFACT'
+
+export interface ExecutionEvidenceEvent {
+  cursor: number
+  event_id: string
+  execution_id: string
+  task_run_id: string | null
+  kind: ExecutionEvidenceKind
+  event_type: string
+  payload: Record<string, unknown>
+  occurred_at: string
+  ingested_at: string
+}
+
+export interface ExecutionEvidencePage {
+  items: ExecutionEvidenceEvent[]
+  nextCursor: string | null
+}
+
 export interface FlowGraphNode {
   taskId: string
   label: string

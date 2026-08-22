@@ -1,18 +1,25 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import UTC, datetime
 from decimal import Decimal
 from typing import Any, Protocol
+from urllib.parse import urlsplit
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
+
+from amesh.ports import LogLevel, LogSourceStream, MetricKind
 
 
 class TaskLogRecord(BaseModel):
-    model_config = ConfigDict(frozen=True)
+    model_config = ConfigDict(frozen=True, populate_by_name=True)
 
-    level: str = Field(default="INFO", min_length=1, max_length=32)
+    level: LogLevel = LogLevel.INFO
+    logger: str = Field(default="task", min_length=1, max_length=256)
     message: str
     fields: dict[str, Any] = Field(default_factory=dict)
+    source_stream: LogSourceStream = Field(default=LogSourceStream.TASK, alias="sourceStream")
+    trace_id: str | None = Field(default=None, alias="traceId", max_length=256)
+    occurred_at: datetime = Field(default_factory=lambda: datetime.now(UTC), alias="occurredAt")
     redacted: bool = False
 
 
@@ -20,6 +27,7 @@ class TaskMetricRecord(BaseModel):
     model_config = ConfigDict(frozen=True)
 
     name: str = Field(min_length=1, max_length=256)
+    kind: MetricKind = MetricKind.GAUGE
     value: Decimal
     unit: str | None = Field(default=None, max_length=64)
     labels: dict[str, str] = Field(default_factory=dict)
@@ -31,6 +39,24 @@ class TaskArtifactRecord(BaseModel):
     uri: str = Field(min_length=1, max_length=4096)
     size_bytes: int = Field(alias="sizeBytes", ge=0)
     media_type: str | None = Field(default=None, alias="mediaType", max_length=255)
+    checksum_sha256: str | None = Field(
+        default=None,
+        alias="checksumSha256",
+        pattern=r"^[0-9a-f]{64}$",
+    )
+
+    @field_validator("uri")
+    @classmethod
+    def require_internal_storage_uri(cls, value: str) -> str:
+        parsed = urlsplit(value)
+        if (
+            parsed.scheme not in {"s3", "azure", "gs"}
+            or not parsed.netloc
+            or parsed.query
+            or parsed.fragment
+        ):
+            raise ValueError("artifact URI must use internal object storage")
+        return value
 
 
 class TaskExitMetadata(BaseModel):
@@ -43,9 +69,10 @@ class TaskExitMetadata(BaseModel):
 
 
 class TaskCompletion(BaseModel):
-    model_config = ConfigDict(frozen=True)
+    model_config = ConfigDict(frozen=True, populate_by_name=True)
 
     output: dict[str, Any] = Field(default_factory=dict)
+    sensitive_output_keys: tuple[str, ...] = Field(default=(), alias="sensitiveOutputKeys")
     logs: tuple[TaskLogRecord, ...] = ()
     metrics: tuple[TaskMetricRecord, ...] = ()
     artifacts: tuple[TaskArtifactRecord, ...] = ()

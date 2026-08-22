@@ -38,6 +38,11 @@ async def _cleanup_execution(engine: AsyncEngine, execution_id: UUID) -> None:
             text("DELETE FROM task_run_events WHERE execution_id = :execution_id"),
             {"execution_id": execution_id},
         )
+        for table in ("execution_logs", "execution_metrics"):
+            await connection.execute(
+                text(f"DELETE FROM {table} WHERE execution_id = :execution_id"),
+                {"execution_id": execution_id},
+            )
         await connection.execute(
             text(
                 "DELETE FROM task_attempts WHERE task_run_id IN "

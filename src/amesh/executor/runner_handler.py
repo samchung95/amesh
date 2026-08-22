@@ -4,8 +4,9 @@ from typing import Any
 
 from amesh.domain import FailureCategory
 from amesh.dsl.models import TaskDefinition
-from amesh.ports import RunnerRequest, RunnerStatus, TaskRunner
+from amesh.ports import LogSourceStream, RunnerRequest, RunnerStatus, TaskRunner
 
+from .contracts import TaskCompletion, TaskLogRecord
 from .service import TaskExecutionContext, TaskExecutionFailure, TaskHandler
 
 _RUNNER_FAILURE_CATEGORIES = {
@@ -16,7 +17,7 @@ _RUNNER_FAILURE_CATEGORIES = {
 
 
 def local_process_handler(runner: TaskRunner) -> TaskHandler:
-    async def run(task: TaskDefinition, context: TaskExecutionContext) -> dict[str, Any]:
+    async def run(task: TaskDefinition, context: TaskExecutionContext) -> TaskCompletion:
         if task.command is None or not task.command:
             raise ValueError(f"task {task.id!r} requires a non-empty command")
         result = await runner.run(
@@ -38,7 +39,22 @@ def local_process_handler(runner: TaskRunner) -> TaskHandler:
                 f"local process ended as {result.status.value}{detail}",
                 _RUNNER_FAILURE_CATEGORIES[result.status],
             )
-        return {"exitCode": result.exit_code, **result.outputs}
+        logs = tuple(
+            TaskLogRecord(
+                logger="amesh.task.core.shell",
+                message=str(result.outputs[stream]),
+                sourceStream=source,
+            )
+            for stream, source in (
+                ("stdout", LogSourceStream.STDOUT),
+                ("stderr", LogSourceStream.STDERR),
+            )
+            if result.outputs.get(stream)
+        )
+        return TaskCompletion(
+            output={"exitCode": result.exit_code, **result.outputs},
+            logs=logs,
+        )
 
     return run
 

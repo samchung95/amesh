@@ -19,7 +19,12 @@ from amesh.domain import (
     TenantSlug,
 )
 from amesh.executor import TaskCompletion
-from amesh.ports import ExecutionInterventionAction, PersistedExecution, PersistedTaskRun
+from amesh.ports import (
+    ExecutionEvidenceEvent,
+    ExecutionInterventionAction,
+    PersistedExecution,
+    PersistedTaskRun,
+)
 
 
 class HealthResponse(BaseModel):
@@ -123,6 +128,13 @@ class CreateExecutionRequest(BaseModel):
 class ExecutionDetail(BaseModel):
     execution: PersistedExecution
     task_runs: list[PersistedTaskRun] = Field(alias="taskRuns")
+
+
+class ExecutionEvidencePage(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    items: list[ExecutionEvidenceEvent]
+    next_cursor: str | None = Field(default=None, alias="nextCursor")
 
 
 class BulkExecutionRequest(BaseModel):

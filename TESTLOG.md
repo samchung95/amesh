@@ -1205,3 +1205,48 @@ Shared maintainability and portability NFRs remain In Progress for their other o
 checked-in OpenRouter default remains `openai/gpt-5.6-luna`; object storage does not invoke an LLM.
 
 Verdict: PASS — EPIC-010 closed.
+
+## EPIC-111: Logs, metrics, outputs and artifact events — 2026-08-22
+
+Spec source: board card `c33` and
+`backlog/epics/epic-111-logs-metrics-outputs-and-artifact-events.md`.
+
+Verified with `uv`, Python 3.13.12, PostgreSQL 17, FastAPI 0.141.1, React/Vite and
+Docker Compose:
+
+- [x] Task completion projects structured task logs and shell stdout/stderr, counters/gauges/timers/
+  custom metrics, bounded output documents and internal-storage artifact references into separate
+  tenant-isolated tables. Event/ingest time, attempt, worker, trace, logger, severity and source stream
+  fields survive the projection.
+- [x] Execution/task transitions and task evidence append to one monotonic cursor stream. Authorized
+  JSON paging and reconnectable NDJSON return only events after the supplied opaque cursor; the React
+  execution detail page polls the API and renders a filterable live evidence timeline.
+- [x] Task-attempt evidence remains the immutable restart source. Projection occurs only after a fenced
+  completion wins, and a duplicate deferred completion created exactly one log, metric, output and
+  artifact projection.
+- [x] Declared sensitive keys, known sensitive field names and resolved secret values are redacted
+  before persistence. A seeded `secret-value` canary was absent from attempt result/evidence and all
+  evidence event payloads; the optional exporter applied a second redaction pass.
+- [x] Export policy enforces a retention cutoff, deterministic sampling and batches of at most 1,000.
+  A forced sink outage returned without raising and retained the prior cursor for retry; execution
+  never calls the optional sink.
+- [x] A 50,000-record local Docker PostgreSQL burst persisted 50,000 log rows and 50,000 matching cursor
+  events in 4.084 seconds (12,241.8 records/second) using the set-based projection. No loss occurred.
+  This is a bounded single-node measurement, not qualification of the provisional 50,000 records/
+  second standard-cluster target, which remains In Progress with EPIC-607.
+- [x] The clean 28-migration suite passed with the known EPIC-104 50 ms deadline assertion deselected:
+  245 tests collected, six environment-gated tests skipped, and one board-tracked test deselected.
+  Running the complete suite reproduced only card `c15`: the task expired before dispatch and was
+  `CANCELLED` rather than the assertion's expected `FAILED`. It was not changed under the scope lock.
+- [x] Ruff formatting/lint, strict mypy, `uv lock --check`, frontend ten-test coverage run, production
+  frontend build, generated OpenAPI, migration repeatability, backlog validation and Compose config
+  passed. Both 28-migration disposable databases were force-dropped after the verification runs.
+- [x] The rebuilt live stack reported 28/28 migrations ready. Flow `demo.evidence/live_evidence`
+  completed both tasks successfully; execution `01a0282f-4fd8-79fc-b5bb-c94e386ea2bd` exposed 14
+  events spanning `STATE`, `LOG` and `OUTPUT`, including the durable core log and shell stdout.
+
+Qualification boundary: the single-node functional evidence contract is complete. The shared
+standard-cluster ingestion rate and broader telemetry shipping/collector qualification remain
+EPIC-607; shared cross-product secret non-disclosure remains In Progress for EPIC-205/506/607.
+
+Verdict: PASS — EPIC-111 closed.

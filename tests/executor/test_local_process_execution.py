@@ -12,7 +12,7 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 
 from amesh.adapters.local import LocalProcessRunner
-from amesh.adapters.postgres import PostgresExecutionRepository
+from amesh.adapters.postgres import PostgresExecutionRepository, PostgresMetadataRepository
 from amesh.domain import ExecutionState
 from amesh.dsl.models import FlowDefinition, RetryPolicy, TaskDefinition
 from amesh.executor import InProcessExecutor, local_process_handler
@@ -45,6 +45,11 @@ async def cleanup_execution(engine: AsyncEngine, execution_id: UUID) -> None:
             text("DELETE FROM task_run_events WHERE execution_id = :execution_id"),
             {"execution_id": execution_id},
         )
+        for table in ("execution_logs", "execution_metrics"):
+            await connection.execute(
+                text(f"DELETE FROM {table} WHERE execution_id = :execution_id"),
+                {"execution_id": execution_id},
+            )
         await connection.execute(
             text(
                 "DELETE FROM task_attempts WHERE task_run_id IN "
@@ -74,6 +79,7 @@ def test_local_process_task_retries_then_succeeds(tmp_path: Path) -> None:
         script = (
             "from pathlib import Path; import sys; "
             "p=Path(sys.argv[1]); existed=p.exists(); p.write_text('attempted'); "
+            "print('attempt complete'); "
             "raise SystemExit(0 if existed else 7)"
         )
         flow = FlowDefinition(
@@ -91,6 +97,7 @@ def test_local_process_task_retries_then_succeeds(tmp_path: Path) -> None:
         )
         engine = create_async_engine(TEST_DATABASE_URL)
         repository = PostgresExecutionRepository(engine)
+        metadata = PostgresMetadataRepository(engine)
         executor = InProcessExecutor(
             repository,
             handlers={"core.shell": local_process_handler(LocalProcessRunner())},
@@ -106,6 +113,9 @@ def test_local_process_task_retries_then_succeeds(tmp_path: Path) -> None:
             assert completed.task_runs[0].current_attempt == 2
             assert completed.task_runs[0].result is not None
             assert completed.task_runs[0].result["exitCode"] == 0
+            logs = await metadata.list_logs(execution_id, tenant_id="default")
+            assert [(item.source_stream.value, item.attempt) for item in logs] == [("STDOUT", 2)]
+            assert "attempt complete" in logs[0].message
         finally:
             await cleanup_execution(engine, execution_id)
             await engine.dispose()

@@ -1187,6 +1187,109 @@
         "title": "ExecutionEventType",
         "type": "string"
       },
+      "ExecutionEvidenceEvent": {
+        "properties": {
+          "cursor": {
+            "minimum": 1.0,
+            "title": "Cursor",
+            "type": "integer"
+          },
+          "event_id": {
+            "format": "uuid",
+            "title": "Event Id",
+            "type": "string"
+          },
+          "event_type": {
+            "title": "Event Type",
+            "type": "string"
+          },
+          "execution_id": {
+            "format": "uuid",
+            "title": "Execution Id",
+            "type": "string"
+          },
+          "ingested_at": {
+            "format": "date-time",
+            "title": "Ingested At",
+            "type": "string"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/ExecutionEvidenceKind"
+          },
+          "occurred_at": {
+            "format": "date-time",
+            "title": "Occurred At",
+            "type": "string"
+          },
+          "payload": {
+            "additionalProperties": true,
+            "title": "Payload",
+            "type": "object"
+          },
+          "task_run_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Task Run Id"
+          }
+        },
+        "required": [
+          "cursor",
+          "event_id",
+          "execution_id",
+          "kind",
+          "event_type",
+          "payload",
+          "occurred_at",
+          "ingested_at"
+        ],
+        "title": "ExecutionEvidenceEvent",
+        "type": "object"
+      },
+      "ExecutionEvidenceKind": {
+        "enum": [
+          "STATE",
+          "LOG",
+          "METRIC",
+          "OUTPUT",
+          "ARTIFACT"
+        ],
+        "title": "ExecutionEvidenceKind",
+        "type": "string"
+      },
+      "ExecutionEvidencePage": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ExecutionEvidenceEvent"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "nextCursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nextcursor"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "title": "ExecutionEvidencePage",
+        "type": "object"
+      },
       "ExecutionInterventionAction": {
         "enum": [
           "PAUSE",
@@ -1881,6 +1984,28 @@
         "title": "IssuedCredentialResponse",
         "type": "object"
       },
+      "LogLevel": {
+        "enum": [
+          "TRACE",
+          "DEBUG",
+          "INFO",
+          "WARNING",
+          "ERROR"
+        ],
+        "title": "LogLevel",
+        "type": "string"
+      },
+      "LogSourceStream": {
+        "enum": [
+          "TASK",
+          "STDOUT",
+          "STDERR",
+          "PLUGIN",
+          "SYSTEM"
+        ],
+        "title": "LogSourceStream",
+        "type": "string"
+      },
       "LoginRequest": {
         "properties": {
           "identifier": {
@@ -1942,6 +2067,16 @@
         ],
         "title": "LoginResponse",
         "type": "object"
+      },
+      "MetricKind": {
+        "enum": [
+          "COUNTER",
+          "GAUGE",
+          "TIMER",
+          "CUSTOM"
+        ],
+        "title": "MetricKind",
+        "type": "string"
       },
       "NamespaceAuthorizationBoundary": {
         "properties": {
@@ -3634,6 +3769,18 @@
       },
       "TaskArtifactRecord": {
         "properties": {
+          "checksumSha256": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Checksumsha256"
+          },
           "mediaType": {
             "anyOf": [
               {
@@ -3698,6 +3845,14 @@
             "additionalProperties": true,
             "title": "Output",
             "type": "object"
+          },
+          "sensitiveOutputKeys": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Sensitiveoutputkeys",
+            "type": "array"
           }
         },
         "title": "TaskCompletion",
@@ -3794,20 +3949,45 @@
             "type": "object"
           },
           "level": {
-            "default": "INFO",
-            "maxLength": 32,
+            "$ref": "#/components/schemas/LogLevel",
+            "default": "INFO"
+          },
+          "logger": {
+            "default": "task",
+            "maxLength": 256,
             "minLength": 1,
-            "title": "Level",
+            "title": "Logger",
             "type": "string"
           },
           "message": {
             "title": "Message",
             "type": "string"
           },
+          "occurredAt": {
+            "format": "date-time",
+            "title": "Occurredat",
+            "type": "string"
+          },
           "redacted": {
             "default": false,
             "title": "Redacted",
             "type": "boolean"
+          },
+          "sourceStream": {
+            "$ref": "#/components/schemas/LogSourceStream",
+            "default": "TASK"
+          },
+          "traceId": {
+            "anyOf": [
+              {
+                "maxLength": 256,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Traceid"
           }
         },
         "required": [
@@ -3818,6 +3998,10 @@
       },
       "TaskMetricRecord": {
         "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/MetricKind",
+            "default": "GAUGE"
+          },
           "labels": {
             "additionalProperties": {
               "type": "string"
@@ -8803,6 +8987,232 @@
           }
         },
         "summary": "Get Execution Admission",
+        "tags": [
+          "executions"
+        ]
+      }
+    },
+    "/api/v1/executions/{execution_id}/evidence": {
+      "get": {
+        "operationId": "get_execution_evidence_api_v1_executions__execution_id__evidence_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "execution_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Execution Id",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Opaque reconnect cursor",
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Opaque reconnect cursor",
+              "title": "Cursor"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 500,
+              "maximum": 1000,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExecutionEvidencePage"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Execution Evidence",
+        "tags": [
+          "executions"
+        ]
+      }
+    },
+    "/api/v1/executions/{execution_id}/evidence/stream": {
+      "get": {
+        "operationId": "stream_execution_evidence_api_v1_executions__execution_id__evidence_stream_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "execution_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Execution Id",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Opaque reconnect cursor",
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Opaque reconnect cursor",
+              "title": "Cursor"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/x-ndjson": {}
+            },
+            "description": "Evidence events streamed as newline-delimited JSON"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Stream Execution Evidence",
         "tags": [
           "executions"
         ]

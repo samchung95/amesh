@@ -10,7 +10,7 @@ import pytest
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 
-from amesh.adapters.postgres import PostgresExecutionRepository
+from amesh.adapters.postgres import PostgresExecutionRepository, PostgresMetadataRepository
 from amesh.domain import ExecutionState
 from amesh.dsl import FlowDefinition, TaskDefinition, validate_flow_document
 from amesh.executor import InProcessExecutor, TaskExecutionContext, TaskExecutionError
@@ -57,6 +57,11 @@ async def cleanup_execution(engine: AsyncEngine, execution_id: UUID) -> None:
             text("DELETE FROM task_run_events WHERE execution_id = :execution_id"),
             {"execution_id": execution_id},
         )
+        for table in ("execution_logs", "execution_metrics"):
+            await connection.execute(
+                text(f"DELETE FROM {table} WHERE execution_id = :execution_id"),
+                {"execution_id": execution_id},
+            )
         await connection.execute(
             text(
                 "DELETE FROM task_attempts WHERE task_run_id IN "
@@ -732,6 +737,7 @@ def test_core_log_emits_execution_context(
         repository = PostgresExecutionRepository(engine)
         executor = InProcessExecutor(repository)
         execution_id = await executor.create_execution(flow, tenant_id="default")
+        metadata = PostgresMetadataRepository(engine)
 
         try:
             with caplog.at_level("INFO", logger="amesh.task.core.log"):
@@ -748,6 +754,16 @@ def test_core_log_emits_execution_context(
             assert record.tenant_id == "default"
             assert record.execution_id == str(execution_id)
             assert record.task_id == "announce"
+            logs = await metadata.list_logs(execution_id, tenant_id="default")
+            outputs = await metadata.list_outputs(execution_id, tenant_id="default")
+            evidence = await metadata.list_evidence_events(execution_id, tenant_id="default")
+            assert [(item.logger, item.message, item.attempt) for item in logs] == [
+                ("amesh.task.core.log", "durable message", 1)
+            ]
+            assert logs[0].ingested_at is not None
+            assert outputs[0].value == {"message": "durable message"}
+            assert {item.kind.value for item in evidence} >= {"STATE", "LOG", "OUTPUT"}
+            assert [item.cursor for item in evidence] == sorted(item.cursor for item in evidence)
         finally:
             await cleanup_execution(engine, execution_id)
             await engine.dispose()

@@ -29,6 +29,23 @@ class MetricKind(StrEnum):
     COUNTER = "COUNTER"
     GAUGE = "GAUGE"
     TIMER = "TIMER"
+    CUSTOM = "CUSTOM"
+
+
+class LogSourceStream(StrEnum):
+    TASK = "TASK"
+    STDOUT = "STDOUT"
+    STDERR = "STDERR"
+    PLUGIN = "PLUGIN"
+    SYSTEM = "SYSTEM"
+
+
+class ExecutionEvidenceKind(StrEnum):
+    STATE = "STATE"
+    LOG = "LOG"
+    METRIC = "METRIC"
+    OUTPUT = "OUTPUT"
+    ARTIFACT = "ARTIFACT"
 
 
 class MetadataVersionConflict(RuntimeError):
@@ -79,12 +96,17 @@ class ExecutionLogEntry(BaseModel):
     log_id: UUID
     execution_id: UUID
     task_run_id: UUID | None = None
+    attempt: int = Field(default=1, ge=1)
+    worker_id: UUID | None = None
+    trace_id: str | None = Field(default=None, max_length=256)
+    source_stream: LogSourceStream = LogSourceStream.TASK
     level: LogLevel
     logger: str = Field(min_length=1, max_length=256)
     message: str
     fields: dict[str, Any] = Field(default_factory=dict)
     redacted: bool = False
     occurred_at: datetime
+    ingested_at: datetime | None = None
 
 
 class ExecutionMetric(BaseModel):
@@ -93,12 +115,57 @@ class ExecutionMetric(BaseModel):
     metric_id: UUID
     execution_id: UUID
     task_run_id: UUID | None = None
+    attempt: int = Field(default=1, ge=1)
     metric_name: str = Field(min_length=1, max_length=256)
     metric_kind: MetricKind
     metric_value: Decimal
     unit: str | None = Field(default=None, max_length=64)
     labels: dict[str, str] = Field(default_factory=dict)
     occurred_at: datetime
+    ingested_at: datetime | None = None
+
+
+class ExecutionOutput(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    output_id: UUID
+    execution_id: UUID
+    task_run_id: UUID
+    attempt: int = Field(ge=1)
+    value: dict[str, Any]
+    size_bytes: int = Field(ge=0)
+    sensitive: bool = False
+    occurred_at: datetime
+    ingested_at: datetime
+
+
+class ExecutionArtifact(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    artifact_id: UUID
+    execution_id: UUID
+    task_run_id: UUID
+    attempt: int = Field(ge=1)
+    uri: str
+    size_bytes: int = Field(ge=0)
+    media_type: str | None = None
+    checksum_sha256: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
+    occurred_at: datetime
+    ingested_at: datetime
+
+
+class ExecutionEvidenceEvent(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    cursor: int = Field(ge=1)
+    event_id: UUID
+    execution_id: UUID
+    task_run_id: UUID | None = None
+    kind: ExecutionEvidenceKind
+    event_type: str
+    payload: dict[str, Any]
+    occurred_at: datetime
+    ingested_at: datetime
 
 
 class AssetMetadata(BaseModel):
@@ -187,6 +254,29 @@ class MetadataRepository(Protocol):
         *,
         tenant_id: str,
     ) -> list[ExecutionMetric]: ...
+
+    async def list_outputs(
+        self,
+        execution_id: UUID,
+        *,
+        tenant_id: str,
+    ) -> list[ExecutionOutput]: ...
+
+    async def list_artifacts(
+        self,
+        execution_id: UUID,
+        *,
+        tenant_id: str,
+    ) -> list[ExecutionArtifact]: ...
+
+    async def list_evidence_events(
+        self,
+        execution_id: UUID,
+        *,
+        tenant_id: str,
+        after_cursor: int = 0,
+        limit: int = 500,
+    ) -> list[ExecutionEvidenceEvent]: ...
 
     async def upsert_asset(
         self,

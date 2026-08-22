@@ -190,6 +190,7 @@ def test_secret_values_are_redacted_from_previews_errors_and_core_logs(
     )
     with caplog.at_level("INFO", logger="amesh.task.core.log"):
         result = asyncio.run(_run_core_log(rendered_task, task_context))
-    assert result == {"message": "[REDACTED]"}
+    assert result.output == {"message": "[REDACTED]"}
+    assert result.logs[0].redacted is True
     assert "vault-token" not in caplog.text
     assert "[REDACTED]" in caplog.text

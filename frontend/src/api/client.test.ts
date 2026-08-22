@@ -44,6 +44,7 @@ describe('API client', () => {
     await api.flowGraph('team/data', 'daily flow')
     await api.execution('run/one')
     await api.executionGraph('run/one')
+    await api.executionEvidence('run/one', 'cursor/value')
 
     expect(fetchMock.mock.calls.map((call) => call[0] as string)).toEqual([
       '/health',
@@ -51,6 +52,7 @@ describe('API client', () => {
       '/api/v1/flows/team%2Fdata/daily%20flow/graph',
       '/api/v1/executions/run%2Fone',
       '/api/v1/executions/run%2Fone/graph',
+      '/api/v1/executions/run%2Fone/evidence?cursor=cursor%2Fvalue',
     ])
   })
 

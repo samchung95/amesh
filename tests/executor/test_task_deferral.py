@@ -9,7 +9,7 @@ import pytest
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 
-from amesh.adapters.postgres import PostgresExecutionRepository
+from amesh.adapters.postgres import PostgresExecutionRepository, PostgresMetadataRepository
 from amesh.domain import ExecutionState
 from amesh.dsl import FlowDefinition, TaskDefinition
 from amesh.executor import (
@@ -54,6 +54,11 @@ async def _cleanup_execution(engine: AsyncEngine, execution_id: UUID) -> None:
             text("DELETE FROM task_run_events WHERE execution_id = :execution_id"),
             {"execution_id": execution_id},
         )
+        for table in ("execution_logs", "execution_metrics"):
+            await connection.execute(
+                text(f"DELETE FROM {table} WHERE execution_id = :execution_id"),
+                {"execution_id": execution_id},
+            )
         await connection.execute(
             text(
                 "DELETE FROM task_attempts WHERE task_run_id IN "
@@ -151,6 +156,7 @@ def test_durable_deferral_context_resume_evidence_and_restart() -> None:
 
             resumed_engine = create_async_engine(TEST_DATABASE_URL)
             resumed_repository = PostgresExecutionRepository(resumed_engine)
+            metadata = PostgresMetadataRepository(resumed_engine)
             try:
                 restarted = await InProcessExecutor(resumed_repository).run_to_completion(
                     flow,
@@ -178,15 +184,22 @@ def test_durable_deferral_context_resume_evidence_and_restart() -> None:
 
                 output, evidence = normalize_task_completion(
                     TaskCompletion(
-                        output={"answer": 42},
-                        logs=(TaskLogRecord(message="callback accepted"),),
-                        metrics=(TaskMetricRecord(name="callbacks", value=1),),
+                        output={"answer": 42, "callbackKey": "secret-value"},
+                        logs=(TaskLogRecord(message="callback accepted with secret-value"),),
+                        metrics=(
+                            TaskMetricRecord(
+                                name="callbacks",
+                                value=1,
+                                labels={"credential": "secret-value"},
+                            ),
+                        ),
                         artifacts=(
                             TaskArtifactRecord(uri="s3://bucket/result.json", sizeBytes=64),
                         ),
                         exit=TaskExitMetadata(code=0),
                     ),
                     flow.tasks[0].contract.resource_limits,
+                    secret_values=("secret-value",),
                 )
                 completed = await resumed_repository.resume_deferred_task(
                     task_run.task_run_id,
@@ -203,9 +216,15 @@ def test_durable_deferral_context_resume_evidence_and_restart() -> None:
                     evidence={"ignored": True},
                 )
                 assert completed.state is TaskRunState.SUCCESS
-                assert completed.result == {"answer": 42}
+                assert completed.result == {"answer": 42, "callbackKey": "[REDACTED]"}
                 assert duplicate == completed
-                assert completed.evidence["logs"][0]["message"] == "callback accepted"
+                assert completed.evidence["logs"][0]["message"] == (
+                    "callback accepted with [REDACTED]"
+                )
+                assert len(await metadata.list_logs(execution_id, tenant_id="default")) == 1
+                assert len(await metadata.list_metrics(execution_id, tenant_id="default")) == 1
+                assert len(await metadata.list_outputs(execution_id, tenant_id="default")) == 1
+                assert len(await metadata.list_artifacts(execution_id, tenant_id="default")) == 1
 
                 with pytest.raises(TaskStateConflictError, match="attempt 0 is not running"):
                     await resumed_repository.complete_task(
@@ -227,7 +246,7 @@ def test_durable_deferral_context_resume_evidence_and_restart() -> None:
                         (
                             await connection.execute(
                                 text(
-                                    "SELECT id, attempt, evidence FROM task_attempts "
+                                    "SELECT id, attempt, evidence, result FROM task_attempts "
                                     "WHERE task_run_id = :task_run_id"
                                 ),
                                 {"task_run_id": task_run.task_run_id},
@@ -256,9 +275,19 @@ def test_durable_deferral_context_resume_evidence_and_restart() -> None:
                         .scalars()
                         .all()
                     )
+                    canary_count = await connection.scalar(
+                        text(
+                            "SELECT count(*) FROM execution_evidence_events "
+                            "WHERE execution_id = :execution_id "
+                            "AND payload::text LIKE '%secret-value%'"
+                        ),
+                        {"execution_id": execution_id},
+                    )
                 assert attempt["id"] is not None
                 assert attempt["attempt"] == 1
                 assert attempt["evidence"]["artifacts"][0]["sizeBytes"] == 64
+                assert "secret-value" not in repr((attempt["evidence"], attempt["result"]))
+                assert canary_count == 0
                 assert stored_token != token
                 assert len(stored_token) == 64
                 assert event_types == [

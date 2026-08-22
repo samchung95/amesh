@@ -53,6 +53,26 @@ def test_structured_completion_is_normalized_and_bounded() -> None:
     assert evidence["sizes"]["artifactBytes"] == 128
 
 
+def test_completion_redacts_declared_outputs_and_secret_canaries() -> None:
+    canary = "evidence-canary-never-persist"
+    output, evidence = normalize_task_completion(
+        TaskCompletion(
+            output={"accessToken": canary, "nested": {"message": f"seen {canary}"}},
+            sensitiveOutputKeys=("accessToken",),
+            logs=(TaskLogRecord(message=f"received {canary}", fields={"password": canary}),),
+            metrics=(TaskMetricRecord(name="requests", value=1, labels={"token": canary}),),
+        ),
+        TaskResourceLimits(),
+        secret_values=(canary,),
+    )
+
+    serialized = repr((output, evidence))
+    assert canary not in serialized
+    assert output["accessToken"] == "[REDACTED]"
+    assert evidence["logs"][0]["redacted"] is True
+    assert evidence["outputSensitive"] is True
+
+
 @pytest.mark.parametrize(
     ("completion", "limits", "kind"),
     [

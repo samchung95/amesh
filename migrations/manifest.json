@@ -162,6 +162,12 @@
       "mode": "expand",
       "onlineCompatible": true,
       "rollbackGuidance": "Disable local browser login and forward-fix the additive credential/session tables; retain password hashes, revocation state and secret-free authentication audit evidence."
+    },
+    {
+      "file": "0028_execution_evidence.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Keep task-attempt evidence authoritative, stop optional evidence exporters and forward-fix the additive projections or triggers; do not discard committed logs, metrics, outputs, artifact references or cursor history."
     }
   ]
 }

@@ -4,7 +4,7 @@ import asyncio
 import hashlib
 import json
 import logging
-from collections.abc import Awaitable, Callable, Mapping
+from collections.abc import Awaitable, Callable, Iterable, Mapping
 from contextlib import suppress
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
@@ -55,6 +55,7 @@ from .contracts import (
     TaskContextResources,
     TaskDeferral,
     TaskHandlerResult,
+    TaskLogRecord,
 )
 from .loops import (
     LOOP_TASK_TYPES,
@@ -722,6 +723,7 @@ class InProcessExecutor:
             output, evidence = normalize_task_completion(
                 result,
                 rendered_task.contract.resource_limits,
+                secret_values=context.secrets.values(),
             )
             await self._repository.complete_task(
                 running.task_run_id,
@@ -1495,12 +1497,51 @@ def _is_ready(task_run: PersistedTaskRun, now: datetime) -> bool:
 def normalize_task_completion(
     result: dict[str, Any] | TaskCompletion,
     limits: TaskResourceLimits,
+    *,
+    secret_values: Iterable[str] = (),
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     completion = result if isinstance(result, TaskCompletion) else TaskCompletion(output=result)
     serialized = completion.model_dump(mode="json", by_alias=True)
-    output = serialized["output"]
+    sensitive_keys = {
+        key.casefold().replace("-", "_") for key in serialized.pop("sensitiveOutputKeys")
+    }
+    secrets = tuple(value for value in secret_values if value)
+    output, output_redacted = _redact_task_evidence(
+        serialized["output"],
+        sensitive_keys=sensitive_keys,
+        secret_values=secrets,
+    )
     logs = serialized["logs"]
+    for log in logs:
+        if log["redacted"]:
+            log["message"] = "[REDACTED]"
+            log["fields"] = {}
+            continue
+        message, message_redacted = _redact_task_evidence(
+            log["message"], sensitive_keys=sensitive_keys, secret_values=secrets
+        )
+        fields, fields_redacted = _redact_task_evidence(
+            log["fields"], sensitive_keys=sensitive_keys, secret_values=secrets
+        )
+        log["message"] = message
+        log["fields"] = fields
+        log["redacted"] = message_redacted or fields_redacted
+    for metric in serialized["metrics"]:
+        labels, _ = _redact_task_evidence(
+            metric["labels"], sensitive_keys=sensitive_keys, secret_values=secrets
+        )
+        metric["labels"] = labels
     artifacts = serialized["artifacts"]
+    for artifact in artifacts:
+        uri, uri_redacted = _redact_task_evidence(
+            artifact["uri"], sensitive_keys=sensitive_keys, secret_values=secrets
+        )
+        if uri_redacted:
+            raise TaskResourceLimitError("artifact URI contains secret material")
+        artifact["uri"] = uri
+    exit_metadata, _ = _redact_task_evidence(
+        serialized["exit"], sensitive_keys=sensitive_keys, secret_values=secrets
+    )
     output_bytes = _json_size(output)
     log_bytes = _json_size(logs)
     artifact_bytes = sum(int(artifact["sizeBytes"]) for artifact in artifacts)
@@ -1511,13 +1552,69 @@ def normalize_task_completion(
         "logs": logs,
         "metrics": serialized["metrics"],
         "artifacts": artifacts,
-        "exit": serialized["exit"],
+        "exit": exit_metadata,
+        "outputSensitive": bool(sensitive_keys or output_redacted),
         "sizes": {
             "outputBytes": output_bytes,
             "logBytes": log_bytes,
             "artifactBytes": artifact_bytes,
         },
     }
+
+
+_SENSITIVE_FIELD_NAMES = frozenset(
+    {
+        "api_key",
+        "apikey",
+        "authorization",
+        "credential",
+        "password",
+        "secret",
+        "token",
+    }
+)
+
+
+def _redact_task_evidence(
+    value: Any,
+    *,
+    sensitive_keys: set[str],
+    secret_values: tuple[str, ...],
+) -> tuple[Any, bool]:
+    if isinstance(value, dict):
+        redacted: dict[str, Any] = {}
+        changed = False
+        for key, item in value.items():
+            normalized = str(key).casefold().replace("-", "_")
+            if normalized in sensitive_keys or normalized in _SENSITIVE_FIELD_NAMES:
+                redacted[key] = "[REDACTED]"
+                changed = True
+                continue
+            redacted[key], item_changed = _redact_task_evidence(
+                item,
+                sensitive_keys=sensitive_keys,
+                secret_values=secret_values,
+            )
+            changed = changed or item_changed
+        return redacted, changed
+    if isinstance(value, list):
+        redacted_items: list[Any] = []
+        changed = False
+        for item in value:
+            redacted, item_changed = _redact_task_evidence(
+                item,
+                sensitive_keys=sensitive_keys,
+                secret_values=secret_values,
+            )
+            redacted_items.append(redacted)
+            changed = changed or item_changed
+        return redacted_items, changed
+    if isinstance(value, str):
+        redacted_text = value
+        for secret in sorted(set(secret_values), key=len, reverse=True):
+            redacted_text = redacted_text.replace(secret, "[REDACTED]")
+        return redacted_text, redacted_text != value
+    return value, False
 
 
 def _json_size(value: object) -> int:
@@ -1580,7 +1677,7 @@ def _core_handlers() -> dict[str, TaskHandler]:
 async def _run_core_log(
     task: TaskDefinition,
     context: TaskExecutionContext,
-) -> dict[str, Any]:
+) -> TaskCompletion:
     extra = task.model_extra or {}
     message = str(redact_secret_values(extra.get("message", "")))
     LOGGER.info(
@@ -1592,7 +1689,17 @@ async def _run_core_log(
             "task_id": task.id,
         },
     )
-    return {"message": message}
+    return TaskCompletion(
+        output={"message": message},
+        logs=(
+            TaskLogRecord(
+                logger="amesh.task.core.log",
+                message=message,
+                fields={"taskId": task.id},
+                redacted=message == "[REDACTED]",
+            ),
+        ),
+    )
 
 
 async def _run_core_return(

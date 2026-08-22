@@ -52,7 +52,7 @@ from amesh.ports.execution_repository import (
 )
 from amesh.ports.tenant_repository import TenantQuotaExceeded, TenantUnavailableError
 
-from .metadata_repository import store_flow_triggers
+from .metadata_repository import store_flow_triggers, store_task_evidence
 from .tenant_context import tenant_transaction
 
 _DATABASE_TIME = text("SELECT clock_timestamp()")
@@ -3279,6 +3279,16 @@ class PostgresExecutionRepository(ExecutionRepository):
             )
             row = result.mappings().one_or_none()
             if row is not None:
+                await store_task_evidence(
+                    connection,
+                    tenant_uuid,
+                    execution_id=row["execution_id"],
+                    task_run_id=task_run_id,
+                    attempt=attempt,
+                    worker_id=worker_id,
+                    output=result_payload,
+                    evidence=evidence or {},
+                )
                 await connection.execute(
                     text(
                         """

@@ -13,9 +13,16 @@ from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 from amesh.adapters.postgres import (
     PostgresAuthorizationRepository,
     PostgresExecutionRepository,
+    PostgresMetadataRepository,
     PostgresTenantRepository,
 )
-from amesh.app import app, get_authorization_service, get_repository, get_tenant_service
+from amesh.app import (
+    app,
+    get_authorization_service,
+    get_metadata_repository,
+    get_repository,
+    get_tenant_service,
+)
 from amesh.authorization import AuthorizationService
 from amesh.config import Settings, get_settings
 from amesh.tenancy import TenantService
@@ -74,6 +81,7 @@ def test_authenticated_flow_execution_and_webhook_api() -> None:
             raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
         engine = create_async_engine(TEST_DATABASE_URL)
         repository = PostgresExecutionRepository(engine)
+        metadata = PostgresMetadataRepository(engine)
         authorization_service = AuthorizationService(PostgresAuthorizationRepository(engine))
         tenant_service = TenantService(PostgresTenantRepository(engine))
         settings = Settings(
@@ -81,6 +89,7 @@ def test_authenticated_flow_execution_and_webhook_api() -> None:
             amesh_admin_token="test-token",
         )
         app.dependency_overrides[get_repository] = lambda: repository
+        app.dependency_overrides[get_metadata_repository] = lambda: metadata
         app.dependency_overrides[get_authorization_service] = lambda: authorization_service
         app.dependency_overrides[get_tenant_service] = lambda: tenant_service
         app.dependency_overrides[get_settings] = lambda: settings
@@ -336,6 +345,39 @@ tasks:
                 )
                 assert execution_graph.status_code == 200
                 assert execution_graph.json()["nodes"][0]["state"] == "SUCCESS"
+                evidence_page = await client.get(
+                    f"/api/v1/executions/{execution_id}/evidence",
+                    headers={"authorization": "Bearer test-token"},
+                    params={"limit": 2},
+                )
+                assert evidence_page.status_code == 200
+                assert len(evidence_page.json()["items"]) == 2
+                assert evidence_page.json()["nextCursor"]
+                next_evidence_page = await client.get(
+                    f"/api/v1/executions/{execution_id}/evidence",
+                    headers={"authorization": "Bearer test-token"},
+                    params={"cursor": evidence_page.json()["nextCursor"]},
+                )
+                assert next_evidence_page.status_code == 200
+                evidence_items = evidence_page.json()["items"] + next_evidence_page.json()["items"]
+                assert {item["kind"] for item in evidence_items} >= {"STATE", "OUTPUT"}
+                assert [item["cursor"] for item in evidence_items] == sorted(
+                    item["cursor"] for item in evidence_items
+                )
+                streamed_evidence = await client.get(
+                    f"/api/v1/executions/{execution_id}/evidence/stream",
+                    headers={"authorization": "Bearer test-token"},
+                    params={"cursor": evidence_page.json()["nextCursor"]},
+                )
+                assert streamed_evidence.status_code == 200
+                assert streamed_evidence.headers["content-type"].startswith("application/x-ndjson")
+                streamed_evidence_items = [
+                    json.loads(line) for line in streamed_evidence.text.splitlines()
+                ]
+                assert [item["cursor"] for item in streamed_evidence_items] == [
+                    item["cursor"] for item in next_evidence_page.json()["items"]
+                ]
+                assert all(item["nextCursor"] for item in streamed_evidence_items)
                 logs = await client.get(
                     f"/api/v1/executions/{execution_id}/logs",
                     headers={"authorization": "Bearer test-token"},

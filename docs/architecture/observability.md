@@ -8,6 +8,17 @@
 - Logs: structured component diagnostics and user task logs with separate retention and access.
 - Events: durable execution and audit evidence.
 
+Task handlers return a bounded `TaskCompletion` envelope. The executor redacts declared sensitive
+output keys and resolved secret values, then commits the attempt and its query projection together.
+`execution_logs`, `execution_metrics`, `execution_outputs` and `execution_artifacts` remain separate
+typed projections; artifact records contain only an internal `s3://`, `azure://` or `gs://` reference
+and metadata, never the artifact payload.
+
+Execution and task transitions plus projected task evidence feed `execution_evidence_events`. Its
+monotonic cursor is exposed by `GET /api/v1/executions/{execution_id}/evidence` and the reconnectable
+NDJSON `/evidence/stream` endpoint after normal execution authorization. The execution detail UI
+polls this contract and presents state, logs, metrics, outputs and artifacts as one live timeline.
+
 ## Cardinality
 
 Tenant, flow, execution and task-run IDs are trace/log fields, not unbounded default metric labels.
@@ -20,8 +31,15 @@ executions, queue lag, projection lag and recovery convergence. Alert rules link
 
 ## Degraded telemetry
 
-Exporters use bounded buffers and circuit breakers. Failure to export telemetry cannot block state
-commit or task completion. The platform exposes dropped/sampled telemetry counts.
+External evidence export reads batches of at most 1,000 committed events. The policy applies a
+retention cutoff, deterministic sampling and a second sensitive-field redaction pass before calling
+an optional sink. Sink failures keep the prior cursor for retry and cannot roll back or otherwise
+participate in execution completion. Task completion envelopes have explicit output, log and artifact
+byte limits; evidence outside those bounds is rejected before persistence.
+
+The PostgreSQL projection uses batched inserts rather than a row-by-row application loop. The
+published qualification result must state the database profile, batch shape and measured rate; the
+50,000-record/second cluster target remains provisional until its shared EPIC-607 qualification.
 
 ## Support bundle
 

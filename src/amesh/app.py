@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import json
 import logging
 import secrets
 from collections.abc import AsyncIterator, Awaitable, Callable, Mapping
@@ -38,6 +39,7 @@ from amesh.adapters.postgres import (
     PostgresBackfillRepository,
     PostgresCredentialRepository,
     PostgresExecutionRepository,
+    PostgresMetadataRepository,
     PostgresReconciliationRepository,
     PostgresServiceRegistryRepository,
     PostgresTenantRepository,
@@ -45,6 +47,8 @@ from amesh.adapters.postgres import (
 )
 from amesh.api.contracts import (
     CollectionQuery,
+    _decode_cursor,
+    _encode_cursor,
     collection_response,
     default_limited_collection_query,
 )
@@ -58,6 +62,7 @@ from amesh.api.models import (
     CreateTenantRequest,
     ExchangeCredentialRequest,
     ExecutionDetail,
+    ExecutionEvidencePage,
     ExecutionInterventionPreviewRequest,
     ExecutionInterventionRequest,
     FlowGraph,
@@ -316,6 +321,17 @@ def get_repository() -> PostgresExecutionRepository:
 RepositoryDependency = Annotated[
     PostgresExecutionRepository,
     Depends(get_repository),
+]
+
+
+@lru_cache
+def get_metadata_repository() -> PostgresMetadataRepository:
+    return PostgresMetadataRepository(database_engine())
+
+
+MetadataRepositoryDependency = Annotated[
+    PostgresMetadataRepository,
+    Depends(get_metadata_repository),
 ]
 
 
@@ -1925,6 +1941,113 @@ async def get_execution_graph(
         tenant_id=tenant_id,
     )
     return _build_flow_graph(flow, task_runs, iteration_summaries)
+
+
+@app.get(
+    "/api/v1/executions/{execution_id}/evidence",
+    response_model=ExecutionEvidencePage,
+    tags=["executions"],
+)
+async def get_execution_evidence(
+    execution_id: UUID,
+    repository: RepositoryDependency,
+    metadata: MetadataRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    cursor: Annotated[str | None, Query(description="Opaque reconnect cursor")] = None,
+    limit: Annotated[int, Query(ge=1, le=1000)] = 500,
+) -> ExecutionEvidencePage:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="execution",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+    )
+    try:
+        await repository.get_execution(execution_id, tenant_id=tenant_id)
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    events = await metadata.list_evidence_events(
+        execution_id,
+        tenant_id=tenant_id,
+        after_cursor=_decode_cursor(cursor),
+        limit=limit,
+    )
+    return ExecutionEvidencePage(
+        items=events,
+        nextCursor=_encode_cursor(events[-1].cursor) if events else cursor,
+    )
+
+
+@app.get(
+    "/api/v1/executions/{execution_id}/evidence/stream",
+    response_class=StreamingResponse,
+    responses={
+        status.HTTP_200_OK: {
+            "content": {"application/x-ndjson": {}},
+            "description": "Evidence events streamed as newline-delimited JSON",
+        }
+    },
+    tags=["executions"],
+)
+async def stream_execution_evidence(
+    execution_id: UUID,
+    repository: RepositoryDependency,
+    metadata: MetadataRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    cursor: Annotated[str | None, Query(description="Opaque reconnect cursor")] = None,
+) -> StreamingResponse:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="execution",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+    )
+    try:
+        execution = await repository.get_execution(execution_id, tenant_id=tenant_id)
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    after_cursor = _decode_cursor(cursor)
+
+    async def lines() -> AsyncIterator[str]:
+        nonlocal after_cursor, execution
+        deadline = asyncio.get_running_loop().time() + 15
+        while asyncio.get_running_loop().time() < deadline:
+            events = await metadata.list_evidence_events(
+                execution_id,
+                tenant_id=tenant_id,
+                after_cursor=after_cursor,
+                limit=500,
+            )
+            for event in events:
+                after_cursor = event.cursor
+                yield (
+                    json.dumps(
+                        {
+                            **event.model_dump(mode="json"),
+                            "nextCursor": _encode_cursor(after_cursor),
+                        },
+                        separators=(",", ":"),
+                    )
+                    + "\n"
+                )
+            if events:
+                continue
+            if execution.state in {
+                ExecutionState.SUCCESS,
+                ExecutionState.FAILED,
+                ExecutionState.CANCELLED,
+            }:
+                break
+            await asyncio.sleep(0.25)
+            execution = await repository.get_execution(execution_id, tenant_id=tenant_id)
+
+    return StreamingResponse(lines(), media_type="application/x-ndjson")
 
 
 @app.post(

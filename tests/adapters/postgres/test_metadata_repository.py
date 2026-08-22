@@ -198,13 +198,15 @@ def test_metadata_repository_round_trip_constraints_and_rls() -> None:
                 execution_id=execution.execution_id,
                 task_run_id=task.task_run_id,
                 metric_name="task.duration",
-                metric_kind=MetricKind.TIMER,
+                metric_kind=MetricKind.CUSTOM,
                 metric_value=Decimal("1.25"),
                 unit="seconds",
                 labels={"task": task.task_id},
                 occurred_at=now,
             )
-            assert await metadata.append_log(log, tenant_id="default") == log
+            stored_log = await metadata.append_log(log, tenant_id="default")
+            assert stored_log.model_copy(update={"ingested_at": None}) == log
+            assert stored_log.ingested_at is not None
             async with engine.connect() as connection:
                 assert (
                     int(
@@ -219,10 +221,14 @@ def test_metadata_repository_round_trip_constraints_and_rls() -> None:
                     )
                     > 0
                 )
-            assert await metadata.append_metric(metric, tenant_id="default") == metric
-            assert await metadata.list_logs(execution.execution_id, tenant_id="default") == [log]
+            stored_metric = await metadata.append_metric(metric, tenant_id="default")
+            assert stored_metric.model_copy(update={"ingested_at": None}) == metric
+            assert stored_metric.ingested_at is not None
+            assert await metadata.list_logs(execution.execution_id, tenant_id="default") == [
+                stored_log
+            ]
             assert await metadata.list_metrics(execution.execution_id, tenant_id="default") == [
-                metric
+                stored_metric
             ]
 
             asset = AssetMetadata(
@@ -274,6 +280,9 @@ def test_metadata_repository_round_trip_constraints_and_rls() -> None:
                 "assets",
                 "execution_logs",
                 "execution_metrics",
+                "execution_outputs",
+                "execution_artifacts",
+                "execution_evidence_events",
                 "trigger_definitions",
             } <= policies
         finally:
