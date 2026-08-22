@@ -21,6 +21,7 @@ from amesh.ports import (
     TaskRunState,
     TaskStateConflictError,
 )
+from amesh.tasks import core_control_handlers, core_data_handlers
 
 TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
 ROOT = Path(__file__).resolve().parents[2]
@@ -81,6 +82,78 @@ async def cleanup_execution(engine: AsyncEngine, execution_id: UUID) -> None:
             text("DELETE FROM executions WHERE id = :execution_id"),
             {"execution_id": execution_id},
         )
+
+
+def test_core_utility_pack_persists_deterministic_outputs() -> None:
+    async def scenario() -> None:
+        if TEST_DATABASE_URL is None:
+            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
+        engine = create_async_engine(TEST_DATABASE_URL)
+        repository = PostgresExecutionRepository(engine)
+        flow = FlowDefinition.model_validate(
+            {
+                "id": "core_utilities",
+                "namespace": f"tests.utilities.{uuid4().hex}",
+                "tasks": [
+                    {
+                        "id": "parse",
+                        "type": "core.data.json",
+                        "operation": "parse",
+                        "input": '{"ready":true,"name":"amesh"}',
+                    },
+                    {
+                        "id": "normalize",
+                        "type": "core.data.text",
+                        "dependsOn": ["parse"],
+                        "operation": "upper",
+                        "input": "{{ outputs.parse.value.name }}",
+                    },
+                    {
+                        "id": "assert_ready",
+                        "type": "core.assert",
+                        "dependsOn": ["parse"],
+                        "value": "{{ outputs.parse.value.ready }}",
+                    },
+                    {
+                        "id": "debug",
+                        "type": "core.debug",
+                        "dependsOn": ["normalize", "assert_ready"],
+                        "include": ["outputs"],
+                    },
+                ],
+            }
+        )
+        executor = InProcessExecutor(
+            repository,
+            handlers={**core_data_handlers(), **core_control_handlers()},
+        )
+        execution_id = await executor.create_execution(flow, tenant_id="default")
+        try:
+            completed = await executor.run_to_completion(
+                flow,
+                execution_id,
+                tenant_id="default",
+            )
+            assert completed.state is ExecutionState.SUCCESS
+            results = {item.task_id: item.result for item in completed.task_runs}
+            assert results["parse"] == {
+                "format": "json",
+                "operation": "parse",
+                "value": {"ready": True, "name": "amesh"},
+            }
+            assert results["normalize"] == {
+                "format": "text",
+                "operation": "upper",
+                "value": "AMESH",
+            }
+            assert results["assert_ready"] == {"asserted": True}
+            assert results["debug"]["secretsRedacted"] is False
+            assert "parse" in results["debug"]["context"]["outputs"]
+        finally:
+            await cleanup_execution(engine, execution_id)
+            await engine.dispose()
+
+    asyncio.run(scenario())
 
 
 def test_parallel_dag_resumes_from_persisted_task_state_after_restart() -> None:

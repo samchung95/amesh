@@ -1379,6 +1379,34 @@
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "additionalProperties": false,
         "properties": {
+          "message": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "value": {}
+        },
+        "required": [
+          "value"
+        ],
+        "type": "object"
+      },
+      "editor": {
+        "category": "Core",
+        "description": "Fail unless a rendered boolean value is true.",
+        "propertyOrder": [
+          "value",
+          "message"
+        ],
+        "title": "Assert"
+      },
+      "kind": "task",
+      "type": "core.assert"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
           "failurePolicy": {
             "enum": [
               "FAIL_FAST",
@@ -1411,6 +1439,991 @@
       },
       "kind": "task",
       "type": "core.dag"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "anyOf": [
+          {
+            "required": [
+              "input"
+            ]
+          },
+          {
+            "required": [
+              "value"
+            ]
+          }
+        ],
+        "properties": {
+          "delimiter": {
+            "maxLength": 1,
+            "minLength": 1,
+            "type": "string"
+          },
+          "input": {},
+          "maxPayloadBytes": {
+            "maximum": 10485760,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "operation": {
+            "enum": [
+              "parse",
+              "serialize"
+            ],
+            "type": "string"
+          },
+          "replacement": {
+            "type": "string"
+          },
+          "search": {
+            "type": "string"
+          },
+          "separator": {
+            "type": "string"
+          },
+          "timeoutSeconds": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          },
+          "value": {}
+        },
+        "type": "object"
+      },
+      "editor": {
+        "category": "Data",
+        "description": "Parse or deterministically transform CSV data.",
+        "propertyOrder": [
+          "operation",
+          "input",
+          "value",
+          "delimiter",
+          "search",
+          "replacement",
+          "separator",
+          "maxPayloadBytes"
+        ],
+        "title": "CSV transform"
+      },
+      "kind": "task",
+      "type": "core.data.csv"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "anyOf": [
+          {
+            "required": [
+              "input"
+            ]
+          },
+          {
+            "required": [
+              "value"
+            ]
+          }
+        ],
+        "properties": {
+          "delimiter": {
+            "maxLength": 1,
+            "minLength": 1,
+            "type": "string"
+          },
+          "input": {},
+          "maxPayloadBytes": {
+            "maximum": 10485760,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "operation": {
+            "enum": [
+              "parse",
+              "serialize"
+            ],
+            "type": "string"
+          },
+          "replacement": {
+            "type": "string"
+          },
+          "search": {
+            "type": "string"
+          },
+          "separator": {
+            "type": "string"
+          },
+          "timeoutSeconds": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          },
+          "value": {}
+        },
+        "type": "object"
+      },
+      "editor": {
+        "category": "Data",
+        "description": "Parse or deterministically transform JSON data.",
+        "propertyOrder": [
+          "operation",
+          "input",
+          "value",
+          "delimiter",
+          "search",
+          "replacement",
+          "separator",
+          "maxPayloadBytes"
+        ],
+        "title": "JSON transform"
+      },
+      "kind": "task",
+      "type": "core.data.json"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "anyOf": [
+          {
+            "required": [
+              "input"
+            ]
+          },
+          {
+            "required": [
+              "value"
+            ]
+          }
+        ],
+        "properties": {
+          "delimiter": {
+            "maxLength": 1,
+            "minLength": 1,
+            "type": "string"
+          },
+          "input": {},
+          "maxPayloadBytes": {
+            "maximum": 10485760,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "operation": {
+            "enum": [
+              "trim",
+              "upper",
+              "lower",
+              "replace",
+              "split",
+              "join"
+            ],
+            "type": "string"
+          },
+          "replacement": {
+            "type": "string"
+          },
+          "search": {
+            "type": "string"
+          },
+          "separator": {
+            "type": "string"
+          },
+          "timeoutSeconds": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          },
+          "value": {}
+        },
+        "type": "object"
+      },
+      "editor": {
+        "category": "Data",
+        "description": "Parse or deterministically transform TEXT data.",
+        "propertyOrder": [
+          "operation",
+          "input",
+          "value",
+          "delimiter",
+          "search",
+          "replacement",
+          "separator",
+          "maxPayloadBytes"
+        ],
+        "title": "TEXT transform"
+      },
+      "kind": "task",
+      "type": "core.data.text"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "anyOf": [
+          {
+            "required": [
+              "input"
+            ]
+          },
+          {
+            "required": [
+              "value"
+            ]
+          }
+        ],
+        "properties": {
+          "delimiter": {
+            "maxLength": 1,
+            "minLength": 1,
+            "type": "string"
+          },
+          "input": {},
+          "maxPayloadBytes": {
+            "maximum": 10485760,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "operation": {
+            "enum": [
+              "parse",
+              "serialize"
+            ],
+            "type": "string"
+          },
+          "replacement": {
+            "type": "string"
+          },
+          "search": {
+            "type": "string"
+          },
+          "separator": {
+            "type": "string"
+          },
+          "timeoutSeconds": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          },
+          "value": {}
+        },
+        "type": "object"
+      },
+      "editor": {
+        "category": "Data",
+        "description": "Parse or deterministically transform XML data.",
+        "propertyOrder": [
+          "operation",
+          "input",
+          "value",
+          "delimiter",
+          "search",
+          "replacement",
+          "separator",
+          "maxPayloadBytes"
+        ],
+        "title": "XML transform"
+      },
+      "kind": "task",
+      "type": "core.data.xml"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "anyOf": [
+          {
+            "required": [
+              "input"
+            ]
+          },
+          {
+            "required": [
+              "value"
+            ]
+          }
+        ],
+        "properties": {
+          "delimiter": {
+            "maxLength": 1,
+            "minLength": 1,
+            "type": "string"
+          },
+          "input": {},
+          "maxPayloadBytes": {
+            "maximum": 10485760,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "operation": {
+            "enum": [
+              "parse",
+              "serialize"
+            ],
+            "type": "string"
+          },
+          "replacement": {
+            "type": "string"
+          },
+          "search": {
+            "type": "string"
+          },
+          "separator": {
+            "type": "string"
+          },
+          "timeoutSeconds": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          },
+          "value": {}
+        },
+        "type": "object"
+      },
+      "editor": {
+        "category": "Data",
+        "description": "Parse or deterministically transform YAML data.",
+        "propertyOrder": [
+          "operation",
+          "input",
+          "value",
+          "delimiter",
+          "search",
+          "replacement",
+          "separator",
+          "maxPayloadBytes"
+        ],
+        "title": "YAML transform"
+      },
+      "kind": "task",
+      "type": "core.data.yaml"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "include": {
+            "items": {
+              "enum": [
+                "inputs",
+                "outputs",
+                "variables",
+                "labels",
+                "trigger",
+                "iteration",
+                "files"
+              ],
+              "type": "string"
+            },
+            "type": "array",
+            "uniqueItems": true
+          }
+        },
+        "type": "object"
+      },
+      "editor": {
+        "category": "Core",
+        "description": "Return selected non-secret execution context sections.",
+        "propertyOrder": [
+          "include"
+        ],
+        "title": "Debug context"
+      },
+      "kind": "task",
+      "type": "core.debug"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "auth": {
+            "additionalProperties": false,
+            "properties": {
+              "in": {
+                "enum": [
+                  "header",
+                  "query"
+                ],
+                "type": "string"
+              },
+              "name": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "password": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "token": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "type": {
+                "enum": [
+                  "bearer",
+                  "basic",
+                  "apiKey"
+                ],
+                "type": "string"
+              },
+              "username": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "value": {
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "type"
+            ],
+            "type": "object"
+          },
+          "body": {},
+          "destination": {
+            "maxLength": 4096,
+            "minLength": 1,
+            "type": "string"
+          },
+          "headers": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "inputFiles": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "maxResponseBytes": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "method": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "outputFiles": {
+            "items": {
+              "maxLength": 4096,
+              "minLength": 1,
+              "type": "string"
+            },
+            "type": "array",
+            "uniqueItems": true
+          },
+          "outputManifest": {
+            "maxLength": 4096,
+            "minLength": 1,
+            "type": "string"
+          },
+          "pagination": {
+            "additionalProperties": false,
+            "properties": {
+              "itemsPath": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "maxPages": {
+                "minimum": 1,
+                "type": "integer"
+              },
+              "nextUrlPath": {
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "nextUrlPath"
+            ],
+            "type": "object"
+          },
+          "query": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "retainDiagnosticsOnFailure": {
+            "type": "boolean"
+          },
+          "timeoutSeconds": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          },
+          "url": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "workspaceQuotaBytes": {
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "url",
+          "destination"
+        ],
+        "type": "object"
+      },
+      "editor": {
+        "category": "Core",
+        "description": "Download a bounded response into the isolated task workspace.",
+        "propertyOrder": [
+          "url",
+          "destination",
+          "headers",
+          "auth",
+          "maxResponseBytes",
+          "outputFiles",
+          "timeoutSeconds"
+        ],
+        "title": "HTTP download"
+      },
+      "kind": "task",
+      "type": "core.download"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "message": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "editor": {
+        "category": "Core",
+        "description": "Fail the task with a workflow-authored message.",
+        "propertyOrder": [
+          "message"
+        ],
+        "title": "Fail"
+      },
+      "kind": "task",
+      "type": "core.fail"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "algorithm": {
+            "enum": [
+              "sha256",
+              "sha512"
+            ],
+            "type": "string"
+          },
+          "inputFiles": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "outputFiles": {
+            "items": {
+              "maxLength": 4096,
+              "minLength": 1,
+              "type": "string"
+            },
+            "type": "array",
+            "uniqueItems": true
+          },
+          "outputManifest": {
+            "maxLength": 4096,
+            "minLength": 1,
+            "type": "string"
+          },
+          "retainDiagnosticsOnFailure": {
+            "type": "boolean"
+          },
+          "source": {
+            "maxLength": 4096,
+            "minLength": 1,
+            "type": "string"
+          },
+          "timeoutSeconds": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          },
+          "workspaceQuotaBytes": {
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "source"
+        ],
+        "type": "object"
+      },
+      "editor": {
+        "category": "Files",
+        "description": "Compute a SHA-256 or SHA-512 workspace checksum.",
+        "propertyOrder": [
+          "source",
+          "destination",
+          "algorithm",
+          "inputFiles",
+          "outputFiles"
+        ],
+        "title": "Checksum file"
+      },
+      "kind": "task",
+      "type": "core.files.checksum"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "destination": {
+            "maxLength": 4096,
+            "minLength": 1,
+            "type": "string"
+          },
+          "inputFiles": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "outputFiles": {
+            "items": {
+              "maxLength": 4096,
+              "minLength": 1,
+              "type": "string"
+            },
+            "type": "array",
+            "uniqueItems": true
+          },
+          "outputManifest": {
+            "maxLength": 4096,
+            "minLength": 1,
+            "type": "string"
+          },
+          "retainDiagnosticsOnFailure": {
+            "type": "boolean"
+          },
+          "sources": {
+            "items": {
+              "maxLength": 4096,
+              "minLength": 1,
+              "type": "string"
+            },
+            "minItems": 1,
+            "type": "array",
+            "uniqueItems": true
+          },
+          "timeoutSeconds": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          },
+          "workspaceQuotaBytes": {
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "sources",
+          "destination"
+        ],
+        "type": "object"
+      },
+      "editor": {
+        "category": "Files",
+        "description": "Create a ZIP archive from workspace files.",
+        "propertyOrder": [
+          "sources",
+          "destination",
+          "inputFiles",
+          "outputFiles"
+        ],
+        "title": "Compress files"
+      },
+      "kind": "task",
+      "type": "core.files.compress"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "destination": {
+            "maxLength": 4096,
+            "minLength": 1,
+            "type": "string"
+          },
+          "inputFiles": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "outputFiles": {
+            "items": {
+              "maxLength": 4096,
+              "minLength": 1,
+              "type": "string"
+            },
+            "type": "array",
+            "uniqueItems": true
+          },
+          "outputManifest": {
+            "maxLength": 4096,
+            "minLength": 1,
+            "type": "string"
+          },
+          "retainDiagnosticsOnFailure": {
+            "type": "boolean"
+          },
+          "source": {
+            "maxLength": 4096,
+            "minLength": 1,
+            "type": "string"
+          },
+          "timeoutSeconds": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          },
+          "workspaceQuotaBytes": {
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "source",
+          "destination"
+        ],
+        "type": "object"
+      },
+      "editor": {
+        "category": "Files",
+        "description": "Copy a file within the isolated workspace.",
+        "propertyOrder": [
+          "source",
+          "destination",
+          "algorithm",
+          "inputFiles",
+          "outputFiles"
+        ],
+        "title": "Copy file"
+      },
+      "kind": "task",
+      "type": "core.files.copy"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "inputFiles": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "outputFiles": {
+            "items": {
+              "maxLength": 4096,
+              "minLength": 1,
+              "type": "string"
+            },
+            "type": "array",
+            "uniqueItems": true
+          },
+          "outputManifest": {
+            "maxLength": 4096,
+            "minLength": 1,
+            "type": "string"
+          },
+          "retainDiagnosticsOnFailure": {
+            "type": "boolean"
+          },
+          "source": {
+            "maxLength": 4096,
+            "minLength": 1,
+            "type": "string"
+          },
+          "timeoutSeconds": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          },
+          "workspaceQuotaBytes": {
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "source"
+        ],
+        "type": "object"
+      },
+      "editor": {
+        "category": "Files",
+        "description": "Delete a file within the isolated workspace.",
+        "propertyOrder": [
+          "source",
+          "destination",
+          "algorithm",
+          "inputFiles",
+          "outputFiles"
+        ],
+        "title": "Delete file"
+      },
+      "kind": "task",
+      "type": "core.files.delete"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "destination": {
+            "maxLength": 4096,
+            "minLength": 1,
+            "type": "string"
+          },
+          "inputFiles": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "maxEntries": {
+            "maximum": 10000,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "maxUncompressedBytes": {
+            "maximum": 104857600,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "outputFiles": {
+            "items": {
+              "maxLength": 4096,
+              "minLength": 1,
+              "type": "string"
+            },
+            "type": "array",
+            "uniqueItems": true
+          },
+          "outputManifest": {
+            "maxLength": 4096,
+            "minLength": 1,
+            "type": "string"
+          },
+          "retainDiagnosticsOnFailure": {
+            "type": "boolean"
+          },
+          "source": {
+            "maxLength": 4096,
+            "minLength": 1,
+            "type": "string"
+          },
+          "timeoutSeconds": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          },
+          "workspaceQuotaBytes": {
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "source",
+          "destination"
+        ],
+        "type": "object"
+      },
+      "editor": {
+        "category": "Files",
+        "description": "Extract a bounded ZIP archive without path traversal or symlinks.",
+        "propertyOrder": [
+          "source",
+          "destination",
+          "maxEntries",
+          "maxUncompressedBytes",
+          "inputFiles",
+          "outputFiles"
+        ],
+        "title": "Extract archive"
+      },
+      "kind": "task",
+      "type": "core.files.extract"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "destination": {
+            "maxLength": 4096,
+            "minLength": 1,
+            "type": "string"
+          },
+          "inputFiles": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "outputFiles": {
+            "items": {
+              "maxLength": 4096,
+              "minLength": 1,
+              "type": "string"
+            },
+            "type": "array",
+            "uniqueItems": true
+          },
+          "outputManifest": {
+            "maxLength": 4096,
+            "minLength": 1,
+            "type": "string"
+          },
+          "retainDiagnosticsOnFailure": {
+            "type": "boolean"
+          },
+          "source": {
+            "maxLength": 4096,
+            "minLength": 1,
+            "type": "string"
+          },
+          "timeoutSeconds": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          },
+          "workspaceQuotaBytes": {
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "source",
+          "destination"
+        ],
+        "type": "object"
+      },
+      "editor": {
+        "category": "Files",
+        "description": "Move a file within the isolated workspace.",
+        "propertyOrder": [
+          "source",
+          "destination",
+          "algorithm",
+          "inputFiles",
+          "outputFiles"
+        ],
+        "title": "Move file"
+      },
+      "kind": "task",
+      "type": "core.files.move"
     },
     {
       "configurationSchema": {
@@ -1540,6 +2553,50 @@
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "additionalProperties": false,
         "properties": {
+          "auth": {
+            "additionalProperties": false,
+            "properties": {
+              "in": {
+                "enum": [
+                  "header",
+                  "query"
+                ],
+                "type": "string"
+              },
+              "name": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "password": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "token": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "type": {
+                "enum": [
+                  "bearer",
+                  "basic",
+                  "apiKey"
+                ],
+                "type": "string"
+              },
+              "username": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "value": {
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "type"
+            ],
+            "type": "object"
+          },
           "body": {},
           "headers": {
             "additionalProperties": {
@@ -1547,9 +2604,40 @@
             },
             "type": "object"
           },
+          "maxResponseBytes": {
+            "minimum": 1,
+            "type": "integer"
+          },
           "method": {
             "minLength": 1,
             "type": "string"
+          },
+          "pagination": {
+            "additionalProperties": false,
+            "properties": {
+              "itemsPath": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "maxPages": {
+                "minimum": 1,
+                "type": "integer"
+              },
+              "nextUrlPath": {
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "nextUrlPath"
+            ],
+            "type": "object"
+          },
+          "query": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
           },
           "timeoutSeconds": {
             "exclusiveMinimum": 0,
@@ -1567,12 +2655,16 @@
       },
       "editor": {
         "category": "Core",
-        "description": "Call an HTTP endpoint and expose its response.",
+        "description": "Call a protected HTTP endpoint with auth, pagination and response limits.",
         "propertyOrder": [
           "method",
           "url",
+          "query",
           "headers",
+          "auth",
           "body",
+          "pagination",
+          "maxResponseBytes",
           "timeoutSeconds"
         ],
         "title": "HTTP request"
@@ -1646,6 +2738,215 @@
       },
       "kind": "task",
       "type": "core.log"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "auth": {
+            "additionalProperties": false,
+            "properties": {
+              "password": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "username": {
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "username",
+              "password"
+            ],
+            "type": "object"
+          },
+          "recipients": {
+            "items": {
+              "minLength": 3,
+              "type": "string"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "sender": {
+            "minLength": 3,
+            "type": "string"
+          },
+          "smtpHost": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "smtpPort": {
+            "maximum": 65535,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "startTls": {
+            "type": "boolean"
+          },
+          "subject": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "text": {
+            "maxLength": 1048576,
+            "minLength": 1,
+            "type": "string"
+          },
+          "timeoutSeconds": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "smtpHost",
+          "sender",
+          "recipients",
+          "subject",
+          "text"
+        ],
+        "type": "object"
+      },
+      "editor": {
+        "category": "Notifications",
+        "description": "Deliver a bounded text email through an SMTP relay.",
+        "propertyOrder": [
+          "smtpHost",
+          "smtpPort",
+          "startTls",
+          "auth",
+          "sender",
+          "recipients",
+          "subject",
+          "text"
+        ],
+        "title": "Email notification"
+      },
+      "kind": "task",
+      "type": "core.notify.email"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "auth": {
+            "additionalProperties": false,
+            "properties": {
+              "in": {
+                "enum": [
+                  "header",
+                  "query"
+                ],
+                "type": "string"
+              },
+              "name": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "password": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "token": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "type": {
+                "enum": [
+                  "bearer",
+                  "basic",
+                  "apiKey"
+                ],
+                "type": "string"
+              },
+              "username": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "value": {
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "type"
+            ],
+            "type": "object"
+          },
+          "body": {},
+          "headers": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "maxResponseBytes": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "method": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "pagination": {
+            "additionalProperties": false,
+            "properties": {
+              "itemsPath": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "maxPages": {
+                "minimum": 1,
+                "type": "integer"
+              },
+              "nextUrlPath": {
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "nextUrlPath"
+            ],
+            "type": "object"
+          },
+          "query": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "timeoutSeconds": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          },
+          "url": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "url"
+        ],
+        "type": "object"
+      },
+      "editor": {
+        "category": "Notifications",
+        "description": "Deliver a protected generic webhook notification.",
+        "propertyOrder": [
+          "method",
+          "url",
+          "headers",
+          "auth",
+          "body",
+          "maxResponseBytes"
+        ],
+        "title": "Webhook notification"
+      },
+      "kind": "task",
+      "type": "core.notify.webhook"
     },
     {
       "configurationSchema": {
@@ -1993,6 +3294,33 @@
       },
       "kind": "task",
       "type": "core.shell"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "seconds": {
+            "maximum": 86400,
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "seconds"
+        ],
+        "type": "object"
+      },
+      "editor": {
+        "category": "Core",
+        "description": "Wait for a bounded duration while honoring cancellation.",
+        "propertyOrder": [
+          "seconds"
+        ],
+        "title": "Sleep"
+      },
+      "kind": "task",
+      "type": "core.sleep"
     },
     {
       "configurationSchema": {
@@ -2568,6 +3896,22 @@
       },
       "kind": "trigger",
       "type": "core.interval"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {},
+        "type": "object"
+      },
+      "editor": {
+        "category": "Core",
+        "description": "Declare the built-in authorized API and UI manual execution entry point.",
+        "propertyOrder": [],
+        "title": "Manual execution"
+      },
+      "kind": "trigger",
+      "type": "core.manual"
     },
     {
       "configurationSchema": {

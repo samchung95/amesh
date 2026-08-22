@@ -85,6 +85,12 @@ JSON key/value object in `PLUGIN_REGISTRY_VERIFICATION_KEYS`. Network clients ac
 `PLUGIN_REGISTRY_PROXY_URL` route allowed traffic, while `PLUGIN_REGISTRY_OFFLINE=true` disables it.
 See the [self-hosted registry guide](../plugin-sdk/registry.md).
 
+Core HTTP, download and webhook tasks deny private destinations by default.
+`CORE_HTTP_ALLOWED_PRIVATE_HOSTS` is a restart-required JSON array for explicitly trusted internal
+hosts. `CORE_HTTP_MAX_RESPONSE_BYTES` (10 MiB), `CORE_HTTP_MAX_PAGES` (100) and
+`CORE_HTTP_MAX_REDIRECTS` (5) define operator ceilings that workflow task configuration can only
+lower. See the [core utility pack guide](../plugin-sdk/core-utilities.md).
+
 ## Feature flags
 
 Boolean flags are versioned and audited in PostgreSQL. Resolution order is namespace, tenant,

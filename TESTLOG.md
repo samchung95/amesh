@@ -2048,3 +2048,34 @@ URS-NFR-SECURITY-007 under EPIC-001/612. Full air-gapped core/governance qualifi
 URS-NFR-PORTABILITY-001 under EPIC-804.
 
 Verdict: PASS — EPIC-305 functional scope closed.
+
+## EPIC-306: Core utility plugin pack — 2026-08-23
+
+Spec source: board card `c56` and
+`backlog/epics/epic-306-core-utility-plugin-pack.md`.
+
+Verified with `uv`, Python 3.13.12, PostgreSQL 17 and Docker Compose:
+
+- [x] Protected HTTP fixtures covered bearer authentication, bounded JSON pagination, response-byte
+  rejection and private-address SSRF denial. Download wrote only to the assigned workspace.
+- [x] Workspace fixtures covered ZIP compression/extraction, SHA checksums, copy, move and delete;
+  traversal and compression-ratio bomb inputs failed deterministically without escaping the workspace.
+- [x] JSON, YAML, CSV, XML and text transformations produced deterministic native values. XML document
+  type/entity declarations and oversized payloads are rejected before transformation.
+- [x] Sleep, fail, log, return, debug and assertion tasks are present in the versioned catalog. Debug
+  exposes selected context and secret-scope names without secret values; sleep honors cancellation.
+- [x] Manual, webhook, cron/interval and flow triggers are present in the core distribution and retain
+  their existing authorized execution and durable occurrence implementations. Injected SMTP and HTTP
+  fixtures verified email and generic-webhook notification primitives without external services.
+- [x] A fresh 40-migration PostgreSQL execution rendered utility dependencies and persisted outputs.
+  The full isolated collection contained 407 tests: 395 passed, ten environment/profile tests skipped
+  and the two authoritative `c15`/`c29` tests were explicitly deselected. The disposable databases
+  were force-dropped after their runs.
+- [x] Ruff, strict mypy over 155 source files, generated resource/OpenAPI/schema contracts, example
+  validation, configuration tests and diff checks passed.
+- [x] The rebuilt API, executor and scheduler were healthy. Live flow `examples.plugins.core_utilities`
+  revision 1 completed execution `01a02b05-4373-7c55-8801-dc553791df17` as `SUCCESS`; all five task
+  runs persisted, normalization and return produced `AMESH`, the assertion was true and the frontend
+  execution deep link returned HTTP 200.
+
+Verdict: PASS — EPIC-306 closed.

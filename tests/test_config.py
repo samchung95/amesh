@@ -31,6 +31,8 @@ def test_reference_configuration_is_postgresql_only() -> None:
     assert settings.object_storage_gc_safety_window_seconds == 86_400
     assert settings.database_pool_size == 10
     assert settings.database_prepared_statement_cache_size == 100
+    assert settings.core_http_allowed_private_hosts == ()
+    assert settings.core_http_max_response_bytes == 10 * 1024 * 1024
 
 
 def test_database_urls_require_the_async_postgresql_driver() -> None:
@@ -225,6 +227,25 @@ def test_plugin_discovery_sources_are_typed_json_configuration(tmp_path: Path) -
         "https://registry.example": "https://mirror.internal"
     }
     assert loaded.settings.plugin_registry_proxy_url == "http://proxy.internal:8080"
+
+
+def test_core_http_policy_is_typed_and_operator_bounded() -> None:
+    loaded = load_configuration(
+        environment={
+            "CORE_HTTP_ALLOWED_PRIVATE_HOSTS": '["hooks.internal","127.0.0.1"]',
+            "CORE_HTTP_MAX_RESPONSE_BYTES": "2097152",
+            "CORE_HTTP_MAX_PAGES": "20",
+            "CORE_HTTP_MAX_REDIRECTS": "2",
+        }
+    )
+
+    assert loaded.settings.core_http_allowed_private_hosts == (
+        "hooks.internal",
+        "127.0.0.1",
+    )
+    assert loaded.settings.core_http_max_response_bytes == 2_097_152
+    assert loaded.settings.core_http_max_pages == 20
+    assert loaded.settings.core_http_max_redirects == 2
 
 
 def test_renamed_settings_are_migrated_with_a_safe_warning(tmp_path: Path) -> None:

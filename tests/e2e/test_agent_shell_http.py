@@ -107,6 +107,7 @@ def test_api_runs_openrouter_shell_http_demo_on_kind() -> None:
             amesh_admin_token="test-token",
             kubernetes_context=KIND_CONTEXT,
             kubernetes_task_namespace=task_namespace,
+            core_http_allowed_private_hosts=("127.0.0.1",),
         )
         app.dependency_overrides[get_repository] = lambda: repository
         app.dependency_overrides[get_settings] = lambda: settings

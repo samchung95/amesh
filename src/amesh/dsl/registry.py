@@ -291,6 +291,40 @@ def _core_descriptors() -> tuple[ResourceSchemaDescriptor, ...]:
             "additionalProperties": False,
         },
     }
+    http_auth = {
+        "type": "object",
+        "properties": {
+            "type": {"type": "string", "enum": ["bearer", "basic", "apiKey"]},
+            "token": {"type": "string", "minLength": 1},
+            "username": {"type": "string", "minLength": 1},
+            "password": {"type": "string", "minLength": 1},
+            "name": {"type": "string", "minLength": 1},
+            "value": {"type": "string", "minLength": 1},
+            "in": {"type": "string", "enum": ["header", "query"]},
+        },
+        "required": ["type"],
+        "additionalProperties": False,
+    }
+    http_properties = {
+        "url": {"type": "string", "minLength": 1},
+        "method": {"type": "string", "minLength": 1},
+        "headers": string_map,
+        "query": string_map,
+        "auth": http_auth,
+        "body": {},
+        "maxResponseBytes": {"type": "integer", "minimum": 1},
+        "pagination": {
+            "type": "object",
+            "properties": {
+                "nextUrlPath": {"type": "string", "minLength": 1},
+                "itemsPath": {"type": "string", "minLength": 1},
+                "maxPages": {"type": "integer", "minimum": 1},
+            },
+            "required": ["nextUrlPath"],
+            "additionalProperties": False,
+        },
+        "timeoutSeconds": timeout,
+    }
     return (
         _descriptor(
             "core.return",
@@ -316,20 +350,297 @@ def _core_descriptors() -> tuple[ResourceSchemaDescriptor, ...]:
         _descriptor(
             "core.http",
             ResourceKind.TASK,
+            _object_schema(http_properties, required=("url",)),
+            title="HTTP request",
+            description="Call a protected HTTP endpoint with auth, pagination and response limits.",
+            category="Core",
+            property_order=(
+                "method",
+                "url",
+                "query",
+                "headers",
+                "auth",
+                "body",
+                "pagination",
+                "maxResponseBytes",
+                "timeoutSeconds",
+            ),
+        ),
+        _descriptor(
+            "core.download",
+            ResourceKind.TASK,
             _object_schema(
                 {
-                    "url": {"type": "string", "minLength": 1},
-                    "method": {"type": "string", "minLength": 1},
-                    "headers": string_map,
-                    "body": {},
+                    **http_properties,
+                    "destination": {"type": "string", "minLength": 1, "maxLength": 4096},
+                    **workspace_properties,
+                },
+                required=("url", "destination"),
+            ),
+            title="HTTP download",
+            description="Download a bounded response into the isolated task workspace.",
+            category="Core",
+            property_order=(
+                "url",
+                "destination",
+                "headers",
+                "auth",
+                "maxResponseBytes",
+                "outputFiles",
+                "timeoutSeconds",
+            ),
+        ),
+        _descriptor(
+            "core.files.compress",
+            ResourceKind.TASK,
+            _object_schema(
+                {
+                    "sources": {
+                        "type": "array",
+                        "minItems": 1,
+                        "uniqueItems": True,
+                        "items": {"type": "string", "minLength": 1, "maxLength": 4096},
+                    },
+                    "destination": {"type": "string", "minLength": 1, "maxLength": 4096},
+                    **workspace_properties,
                     "timeoutSeconds": timeout,
                 },
-                required=("url",),
+                required=("sources", "destination"),
             ),
-            title="HTTP request",
-            description="Call an HTTP endpoint and expose its response.",
+            title="Compress files",
+            description="Create a ZIP archive from workspace files.",
+            category="Files",
+            property_order=("sources", "destination", "inputFiles", "outputFiles"),
+        ),
+        _descriptor(
+            "core.files.extract",
+            ResourceKind.TASK,
+            _object_schema(
+                {
+                    "source": {"type": "string", "minLength": 1, "maxLength": 4096},
+                    "destination": {"type": "string", "minLength": 1, "maxLength": 4096},
+                    "maxEntries": {"type": "integer", "minimum": 1, "maximum": 10_000},
+                    "maxUncompressedBytes": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 104_857_600,
+                    },
+                    **workspace_properties,
+                    "timeoutSeconds": timeout,
+                },
+                required=("source", "destination"),
+            ),
+            title="Extract archive",
+            description="Extract a bounded ZIP archive without path traversal or symlinks.",
+            category="Files",
+            property_order=(
+                "source",
+                "destination",
+                "maxEntries",
+                "maxUncompressedBytes",
+                "inputFiles",
+                "outputFiles",
+            ),
+        ),
+        *(
+            _descriptor(
+                f"core.files.{operation}",
+                ResourceKind.TASK,
+                _object_schema(
+                    {
+                        "source": {"type": "string", "minLength": 1, "maxLength": 4096},
+                        **(
+                            {
+                                "destination": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "maxLength": 4096,
+                                }
+                            }
+                            if operation in {"copy", "move"}
+                            else {}
+                        ),
+                        **(
+                            {"algorithm": {"type": "string", "enum": ["sha256", "sha512"]}}
+                            if operation == "checksum"
+                            else {}
+                        ),
+                        **workspace_properties,
+                        "timeoutSeconds": timeout,
+                    },
+                    required=(
+                        ("source", "destination") if operation in {"copy", "move"} else ("source",)
+                    ),
+                ),
+                title=title,
+                description=description,
+                category="Files",
+                property_order=("source", "destination", "algorithm", "inputFiles", "outputFiles"),
+            )
+            for operation, title, description in (
+                ("checksum", "Checksum file", "Compute a SHA-256 or SHA-512 workspace checksum."),
+                ("copy", "Copy file", "Copy a file within the isolated workspace."),
+                ("move", "Move file", "Move a file within the isolated workspace."),
+                ("delete", "Delete file", "Delete a file within the isolated workspace."),
+            )
+        ),
+        *(
+            _descriptor(
+                f"core.data.{format_name}",
+                ResourceKind.TASK,
+                _object_schema(
+                    {
+                        "operation": {
+                            "type": "string",
+                            "enum": (
+                                ["trim", "upper", "lower", "replace", "split", "join"]
+                                if format_name == "text"
+                                else ["parse", "serialize"]
+                            ),
+                        },
+                        "input": {},
+                        "value": {},
+                        "delimiter": {"type": "string", "minLength": 1, "maxLength": 1},
+                        "search": {"type": "string"},
+                        "replacement": {"type": "string"},
+                        "separator": {"type": "string"},
+                        "maxPayloadBytes": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 10_485_760,
+                        },
+                        "timeoutSeconds": timeout,
+                    },
+                    any_of=({"required": ["input"]}, {"required": ["value"]}),
+                ),
+                title=f"{format_name.upper()} transform",
+                description=f"Parse or deterministically transform {format_name.upper()} data.",
+                category="Data",
+                property_order=(
+                    "operation",
+                    "input",
+                    "value",
+                    "delimiter",
+                    "search",
+                    "replacement",
+                    "separator",
+                    "maxPayloadBytes",
+                ),
+            )
+            for format_name in ("json", "yaml", "csv", "xml", "text")
+        ),
+        _descriptor(
+            "core.sleep",
+            ResourceKind.TASK,
+            _object_schema(
+                {"seconds": {"type": "number", "minimum": 0, "maximum": 86_400}},
+                required=("seconds",),
+            ),
+            title="Sleep",
+            description="Wait for a bounded duration while honoring cancellation.",
             category="Core",
-            property_order=("method", "url", "headers", "body", "timeoutSeconds"),
+            property_order=("seconds",),
+        ),
+        _descriptor(
+            "core.fail",
+            ResourceKind.TASK,
+            _object_schema({"message": {"type": "string", "minLength": 1}}),
+            title="Fail",
+            description="Fail the task with a workflow-authored message.",
+            category="Core",
+            property_order=("message",),
+        ),
+        _descriptor(
+            "core.debug",
+            ResourceKind.TASK,
+            _object_schema(
+                {
+                    "include": {
+                        "type": "array",
+                        "uniqueItems": True,
+                        "items": {
+                            "type": "string",
+                            "enum": [
+                                "inputs",
+                                "outputs",
+                                "variables",
+                                "labels",
+                                "trigger",
+                                "iteration",
+                                "files",
+                            ],
+                        },
+                    }
+                }
+            ),
+            title="Debug context",
+            description="Return selected non-secret execution context sections.",
+            category="Core",
+            property_order=("include",),
+        ),
+        _descriptor(
+            "core.assert",
+            ResourceKind.TASK,
+            _object_schema(
+                {"value": {}, "message": {"type": "string", "minLength": 1}},
+                required=("value",),
+            ),
+            title="Assert",
+            description="Fail unless a rendered boolean value is true.",
+            category="Core",
+            property_order=("value", "message"),
+        ),
+        _descriptor(
+            "core.notify.webhook",
+            ResourceKind.TASK,
+            _object_schema(http_properties, required=("url",)),
+            title="Webhook notification",
+            description="Deliver a protected generic webhook notification.",
+            category="Notifications",
+            property_order=("method", "url", "headers", "auth", "body", "maxResponseBytes"),
+        ),
+        _descriptor(
+            "core.notify.email",
+            ResourceKind.TASK,
+            _object_schema(
+                {
+                    "smtpHost": {"type": "string", "minLength": 1},
+                    "smtpPort": {"type": "integer", "minimum": 1, "maximum": 65_535},
+                    "startTls": {"type": "boolean"},
+                    "auth": {
+                        "type": "object",
+                        "properties": {
+                            "username": {"type": "string", "minLength": 1},
+                            "password": {"type": "string", "minLength": 1},
+                        },
+                        "required": ["username", "password"],
+                        "additionalProperties": False,
+                    },
+                    "sender": {"type": "string", "minLength": 3},
+                    "recipients": {
+                        "type": "array",
+                        "minItems": 1,
+                        "items": {"type": "string", "minLength": 3},
+                    },
+                    "subject": {"type": "string", "minLength": 1},
+                    "text": {"type": "string", "minLength": 1, "maxLength": 1_048_576},
+                    "timeoutSeconds": timeout,
+                },
+                required=("smtpHost", "sender", "recipients", "subject", "text"),
+            ),
+            title="Email notification",
+            description="Deliver a bounded text email through an SMTP relay.",
+            category="Notifications",
+            property_order=(
+                "smtpHost",
+                "smtpPort",
+                "startTls",
+                "auth",
+                "sender",
+                "recipients",
+                "subject",
+                "text",
+            ),
         ),
         _descriptor(
             "core.shell",
@@ -750,6 +1061,14 @@ def _core_descriptors() -> tuple[ResourceSchemaDescriptor, ...]:
             description="Start a flow from its authenticated webhook endpoint.",
             category="Core",
             property_order=("maxPending", "maxAttempts", "retryDelay"),
+        ),
+        _descriptor(
+            "core.manual",
+            ResourceKind.TRIGGER,
+            _object_schema({}),
+            title="Manual execution",
+            description="Declare the built-in authorized API and UI manual execution entry point.",
+            category="Core",
         ),
         _descriptor(
             "core.flow",

@@ -180,6 +180,10 @@ class Settings(BaseSettings):
     worker_reconciliation_interval_seconds: float = Field(default=60.0, ge=5)
     worker_reconciliation_max_repairs: int = Field(default=10, ge=1, le=100)
     worker_reconciliation_stuck_after_seconds: int = Field(default=300, ge=30, le=86_400)
+    core_http_allowed_private_hosts: tuple[str, ...] = ()
+    core_http_max_response_bytes: int = Field(default=10 * 1024 * 1024, ge=1, le=128 * 1024 * 1024)
+    core_http_max_pages: int = Field(default=100, ge=1, le=10_000)
+    core_http_max_redirects: int = Field(default=5, ge=0, le=20)
     service_role: str = Field(default="webserver", min_length=1, max_length=32)
     service_instance_name: str | None = Field(default=None, min_length=1, max_length=256)
     service_failure_zone: str | None = Field(default=None, min_length=1, max_length=256)
@@ -249,6 +253,7 @@ class Settings(BaseSettings):
     @field_validator(
         "plugin_directories",
         "plugin_registries",
+        "core_http_allowed_private_hosts",
         "plugin_registry_allowed_origins",
         "plugin_registry_mirrors",
         "plugin_registry_verification_keys",

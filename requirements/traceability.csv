@@ -334,14 +334,14 @@ URS-F-0332,Functional,Must,EPIC-305,"Plugin registry, signing, SBOM and marketpl
 URS-F-0333,Functional,Must,EPIC-305,"Plugin registry, signing, SBOM and marketplace metadata",M3,3,"Plugin SDK contract, sandbox and integration tests",Verified
 URS-F-0334,Functional,Must,EPIC-305,"Plugin registry, signing, SBOM and marketplace metadata",M3,3,"Plugin SDK contract, sandbox and integration tests",Verified
 URS-F-0335,Functional,Must,EPIC-305,"Plugin registry, signing, SBOM and marketplace metadata",M3,3,"Plugin SDK contract, sandbox and integration tests",Verified
-URS-F-0336,Functional,Must,EPIC-306,Core utility plugin pack,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
-URS-F-0337,Functional,Must,EPIC-306,Core utility plugin pack,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
-URS-F-0338,Functional,Must,EPIC-306,Core utility plugin pack,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
-URS-F-0339,Functional,Must,EPIC-306,Core utility plugin pack,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
-URS-F-0340,Functional,Must,EPIC-306,Core utility plugin pack,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
-URS-F-0341,Functional,Must,EPIC-306,Core utility plugin pack,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
-URS-F-0342,Functional,Must,EPIC-306,Core utility plugin pack,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
-URS-F-0343,Functional,Must,EPIC-306,Core utility plugin pack,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0336,Functional,Must,EPIC-306,Core utility plugin pack,M3,3,"Plugin SDK contract, sandbox and integration tests",Verified
+URS-F-0337,Functional,Must,EPIC-306,Core utility plugin pack,M3,3,"Plugin SDK contract, sandbox and integration tests",Verified
+URS-F-0338,Functional,Must,EPIC-306,Core utility plugin pack,M3,3,"Plugin SDK contract, sandbox and integration tests",Verified
+URS-F-0339,Functional,Must,EPIC-306,Core utility plugin pack,M3,3,"Plugin SDK contract, sandbox and integration tests",Verified
+URS-F-0340,Functional,Must,EPIC-306,Core utility plugin pack,M3,3,"Plugin SDK contract, sandbox and integration tests",Verified
+URS-F-0341,Functional,Must,EPIC-306,Core utility plugin pack,M3,3,"Plugin SDK contract, sandbox and integration tests",Verified
+URS-F-0342,Functional,Must,EPIC-306,Core utility plugin pack,M3,3,"Plugin SDK contract, sandbox and integration tests",Verified
+URS-F-0343,Functional,Must,EPIC-306,Core utility plugin pack,M3,3,"Plugin SDK contract, sandbox and integration tests",Verified
 URS-F-0344,Functional,Must,EPIC-307,Multi-language script plugin pack,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
 URS-F-0345,Functional,Must,EPIC-307,Multi-language script plugin pack,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
 URS-F-0346,Functional,Must,EPIC-307,Multi-language script plugin pack,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed

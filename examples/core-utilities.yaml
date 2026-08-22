@@ -1,0 +1,27 @@
+id: core_utilities
+namespace: examples.plugins
+description: Deterministic core data, assertion and diagnostic utility flow.
+labels:
+  team: platform
+tasks:
+  - id: parse
+    type: core.data.json
+    operation: parse
+    input: '{"ready":true,"name":"amesh"}'
+  - id: normalize
+    type: core.data.text
+    dependsOn: [parse]
+    operation: upper
+    input: "{{ outputs.parse.value.name }}"
+  - id: assert_ready
+    type: core.assert
+    dependsOn: [parse]
+    value: "{{ outputs.parse.value.ready }}"
+  - id: debug
+    type: core.debug
+    dependsOn: [normalize, assert_ready]
+    include: [outputs]
+  - id: done
+    type: core.return
+    dependsOn: [normalize, assert_ready]
+    value: "{{ outputs.normalize.value }}"
