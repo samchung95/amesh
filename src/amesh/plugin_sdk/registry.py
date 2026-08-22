@@ -26,6 +26,7 @@ class PluginRegistryAttachmentKind(StrEnum):
 class PluginCertificationStatus(StrEnum):
     UNVERIFIED = "unverified"
     COMMUNITY = "community"
+    VERIFIED = "verified"
     CERTIFIED = "certified"
 
 

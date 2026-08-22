@@ -1,4 +1,4 @@
-import { Ban, Download, FileCheck2, PackageCheck, RefreshCw, ShieldCheck } from 'lucide-react'
+import { BadgeCheck, Ban, Code2, Download, FileCheck2, FlaskConical, PackageCheck, RefreshCw, ShieldCheck } from 'lucide-react'
 
 import { formatDate } from '../app/format'
 import { usePluginRegistry } from '../app/queries'
@@ -42,6 +42,22 @@ export function PluginsPage() {
       </section>
 
       <p className="registry-disclaimer"><ShieldCheck size={17} aria-hidden="true" />Popularity, maintenance, certification and security labels are informational signals—not trust guarantees. Verify signed evidence before adoption.</p>
+
+      <section className="developer-portal" aria-labelledby="developer-portal-heading">
+        <div className="section-heading">
+          <div><p className="eyebrow">BUILD / VERIFY / PUBLISH</p><h2 id="developer-portal-heading">Plugin developer portal</h2></div>
+          <Code2 size={22} aria-hidden="true" />
+        </div>
+        <p>Start with a uv-managed template, test configuration in the local sandbox, then reproduce every quality check with one command.</p>
+        <div className="quality-levels" aria-label="Plugin quality levels">
+          <article><PackageCheck size={18} aria-hidden="true" /><h3>Community</h3><p>Valid manifest, schemas and repository license.</p></article>
+          <article><FlaskConical size={18} aria-hidden="true" /><h3>Verified</h3><p>All six checks pass with resilience, restart and redaction fixture evidence.</p></article>
+          <article><BadgeCheck size={18} aria-hidden="true" /><h3>Certified</h3><p>Verified results reproduce from an immutable commit and public HTTPS CI run.</p></article>
+        </div>
+        <pre className="developer-command"><code>{`uv run amesh plugins scaffold ./my-plugin --name example.my-plugin
+uv run amesh plugins sandbox ./my-plugin task.echo --configuration sample.yaml
+uv run amesh plugins certify ./my-plugin --output certification-report.json`}</code></pre>
+      </section>
 
       {registry.isPending ? <LoadingState label="Loading plugin registry" /> : null}
       {registry.error ? <ErrorState message={registry.error.message} retry={() => void registry.refetch()} /> : null}

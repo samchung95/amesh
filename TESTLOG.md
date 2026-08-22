@@ -2113,3 +2113,37 @@ Verified with `uv`, Python 3.13.12, PostgreSQL 17 and Docker Compose:
   result included the runner metrics and immutable runtime metadata.
 
 Verdict: PASS — EPIC-307 closed.
+
+## EPIC-313: Plugin developer portal and certification suite — 2026-08-23
+
+Spec source: board card `c58` and
+`backlog/epics/epic-313-plugin-developer-portal-and-certification-suite.md`.
+
+Verified with `uv`, Python 3.13.12, PostgreSQL 17 and Docker Compose:
+
+- [x] `amesh plugins scaffold` generated a versioned Python starter, `uv` project, manifest,
+  license placeholder, supported-release matrix and five certification fixture/evidence pairs.
+  The local sandbox accepted a valid manifest-driven configuration and returned deterministic
+  diagnostics for an invalid one.
+- [x] One `amesh plugins certify` invocation reported manifest, schema, contract, security,
+  license and compatibility outcomes. Pending fixture evidence produced Community status; passing
+  evidence produced Verified status; immutable source/public CI evidence produced Certified status.
+- [x] Retry, cancellation, large-file, secret-redaction and worker-restart reference fixtures are
+  published in the starter and portable example catalog. Missing or non-passing evidence failed the
+  contract category deterministically.
+- [x] Metadata generated human-readable Markdown and sample YAML. The checked-in certification
+  JSON Schema matched the runtime model.
+- [x] Release matrices accepted compatible `0.2.x` versions and rejected an incompatible `0.3.0`.
+  Repeated certification of identical public-CI inputs produced the same SHA-256 input digest.
+- [x] The fresh 40-migration backend collection contained 426 tests. With the four authoritative
+  c15/c29/c89 timing or ordering checks explicitly deselected, 422 tests ran: 412 passed and ten
+  environment/profile tests skipped. The disposable PostgreSQL database was force-dropped.
+- [x] Ruff, strict mypy over 158 source files, generated contract parity, 21 focused backend checks,
+  all 12 frontend tests and the production frontend build passed. The unrelated pre-existing
+  frontend lint findings remain deferred on board card `c88`.
+- [x] A live `uv` smoke generated `example.live`, produced its documentation, accepted its starter
+  sample in the local sandbox and emitted a six-check Community report with a deterministic digest.
+  Rebuilt API, executor and scheduler containers reached healthy state, and the frontend root
+  returned HTTP 200.
+
+Verdict: PASS — EPIC-313 closed.

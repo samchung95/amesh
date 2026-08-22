@@ -1,0 +1,172 @@
+{
+  "$defs": {
+    "CertificationCheck": {
+      "properties": {
+        "category": {
+          "enum": [
+            "manifest",
+            "schema",
+            "contract",
+            "security",
+            "license",
+            "compatibility"
+          ],
+          "title": "Category",
+          "type": "string"
+        },
+        "evidence": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence",
+          "type": "array"
+        },
+        "passed": {
+          "title": "Passed",
+          "type": "boolean"
+        },
+        "summary": {
+          "title": "Summary",
+          "type": "string"
+        }
+      },
+      "required": [
+        "category",
+        "passed",
+        "summary"
+      ],
+      "title": "CertificationCheck",
+      "type": "object"
+    },
+    "CompatibilityResult": {
+      "properties": {
+        "compatible": {
+          "title": "Compatible",
+          "type": "boolean"
+        },
+        "declaredRange": {
+          "title": "Declaredrange",
+          "type": "string"
+        },
+        "platformVersion": {
+          "title": "Platformversion",
+          "type": "string"
+        }
+      },
+      "required": [
+        "platformVersion",
+        "compatible",
+        "declaredRange"
+      ],
+      "title": "CompatibilityResult",
+      "type": "object"
+    },
+    "PluginQualityLevel": {
+      "enum": [
+        "unverified",
+        "community",
+        "verified",
+        "certified"
+      ],
+      "title": "PluginQualityLevel",
+      "type": "string"
+    },
+    "PublicCiEvidence": {
+      "additionalProperties": false,
+      "properties": {
+        "runUrl": {
+          "maxLength": 2048,
+          "minLength": 9,
+          "title": "Runurl",
+          "type": "string"
+        },
+        "sourceCommit": {
+          "pattern": "^[0-9a-f]{40,64}$",
+          "title": "Sourcecommit",
+          "type": "string"
+        },
+        "workflow": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Workflow",
+          "type": "string"
+        }
+      },
+      "required": [
+        "sourceCommit",
+        "runUrl",
+        "workflow"
+      ],
+      "title": "PublicCiEvidence",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "checks": {
+      "items": {
+        "$ref": "#/$defs/CertificationCheck"
+      },
+      "title": "Checks",
+      "type": "array"
+    },
+    "compatibility": {
+      "items": {
+        "$ref": "#/$defs/CompatibilityResult"
+      },
+      "title": "Compatibility",
+      "type": "array"
+    },
+    "fixtures": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Fixtures",
+      "type": "array"
+    },
+    "inputDigest": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "title": "Inputdigest",
+      "type": "string"
+    },
+    "plugin": {
+      "title": "Plugin",
+      "type": "string"
+    },
+    "publicCi": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/PublicCiEvidence"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "qualityLevel": {
+      "$ref": "#/$defs/PluginQualityLevel"
+    },
+    "schemaVersion": {
+      "const": "amesh.plugin-certification/v1",
+      "default": "amesh.plugin-certification/v1",
+      "title": "Schemaversion",
+      "type": "string"
+    },
+    "version": {
+      "title": "Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "plugin",
+    "version",
+    "inputDigest",
+    "qualityLevel",
+    "checks",
+    "compatibility",
+    "fixtures"
+  ],
+  "title": "CertificationReport",
+  "type": "object"
+}

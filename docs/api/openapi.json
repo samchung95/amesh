@@ -4526,6 +4526,7 @@
         "enum": [
           "unverified",
           "community",
+          "verified",
           "certified"
         ],
         "title": "PluginCertificationStatus",

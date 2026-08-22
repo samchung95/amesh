@@ -217,6 +217,14 @@ tbody tr:hover { background: var(--paper); }
 .resource-notice, .resource-failure { padding: 11px 14px; margin: 0; border: 1px solid var(--success); border-radius: var(--radius-control); background: var(--success-soft); }
 .resource-failure { color: var(--danger); border-color: var(--danger); background: var(--danger-soft); }
 .registry-disclaimer { display: flex; align-items: center; gap: 9px; padding: 11px 14px; margin: 0; color: var(--muted); background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius-control); }
+.developer-portal { display: grid; gap: 14px; padding: 20px; background: linear-gradient(135deg, var(--surface-raised), var(--paper)); border: 1px solid var(--line); border-radius: var(--radius-panel); box-shadow: var(--shadow-low); }
+.developer-portal > p { margin: 0; color: var(--muted); }
+.quality-levels { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.quality-levels article { display: grid; grid-template-columns: auto 1fr; gap: 6px 9px; align-items: center; padding: 13px; background: var(--surface-raised); border: 1px solid var(--line); border-radius: var(--radius-control); }
+.quality-levels svg { color: var(--accent); }
+.quality-levels h3 { margin: 0; font-size: .9rem; }
+.quality-levels p { grid-column: 1 / -1; margin: 0; color: var(--muted); font-size: .78rem; line-height: 1.45; }
+.developer-command { margin: 0; padding: 13px 15px; overflow: auto; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-control); font-size: .75rem; line-height: 1.65; }
 .registry-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); gap: 14px; }
 .registry-card { display: grid; gap: 14px; min-width: 0; padding: 18px; background: var(--surface-raised); border: 1px solid var(--line); border-radius: var(--radius-panel); box-shadow: var(--shadow-low); }
 .registry-card-yanked { border-color: var(--warning); }
@@ -368,6 +376,7 @@ details pre { max-width: 480px; overflow: auto; padding: 10px; background: var(-
   .resource-kv-form { display: flex; }
   .resource-value { min-width: 0; }
   .registry-grid { grid-template-columns: 1fr; }
+  .quality-levels { grid-template-columns: 1fr; }
   .registry-card > footer { align-items: flex-start; flex-direction: column; }
   .context-popover { top: 65px; left: 12px; width: min(310px, calc(100vw - 24px)); }
   .notification-popover { right: 12px; width: min(330px, calc(100vw - 24px)); }

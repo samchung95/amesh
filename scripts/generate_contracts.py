@@ -24,6 +24,7 @@ from amesh.domain.execution import (  # noqa: E402
 from amesh.dsl.models import FlowDefinition  # noqa: E402
 from amesh.dsl.registry import default_resource_registry  # noqa: E402
 from amesh.plugin_sdk import (  # noqa: E402
+    CertificationReport,
     PluginCatalogSnapshot,
     PluginExtensionContract,
     PluginManifest,
@@ -68,6 +69,10 @@ def main() -> int:
     dump(
         ROOT / "schemas" / "plugin-resolution.schema.json",
         PluginResolution.model_json_schema(),
+    )
+    dump(
+        ROOT / "schemas" / "plugin-certification.schema.json",
+        CertificationReport.model_json_schema(),
     )
     dump(ROOT / "schemas" / "execution-command.schema.json", ExecutionCommand.model_json_schema())
     dump(ROOT / "schemas" / "execution-event.schema.json", ExecutionEvent.model_json_schema())

@@ -25,6 +25,13 @@ from amesh.authentication import AuthenticationService
 from amesh.config import Settings
 from amesh.database import create_database_engine
 from amesh.dsl import FlowDocumentError, validate_flow_document
+from amesh.plugin_sdk import (
+    certify_plugin,
+    generate_plugin_documentation,
+    quality_level_criteria,
+    sandbox_configuration,
+    scaffold_plugin,
+)
 from amesh.ports import StorageMigrationCheckpoint
 from amesh.recovery import RecoveryService
 from amesh.storage.factory import build_object_store
@@ -84,6 +91,29 @@ def build_parser() -> argparse.ArgumentParser:
     )
     plugin_install.add_argument("path", type=Path)
     plugin_install.add_argument("--sha256", required=True)
+    plugin_scaffold = plugin_commands.add_parser(
+        "scaffold", help="Create a uv-managed plugin starter"
+    )
+    plugin_scaffold.add_argument("path", type=Path)
+    plugin_scaffold.add_argument("--name", required=True)
+    plugin_certify = plugin_commands.add_parser(
+        "certify", help="Run all plugin certification checks"
+    )
+    plugin_certify.add_argument("path", type=Path)
+    plugin_certify.add_argument("--platform-version", action="append", default=[])
+    plugin_certify.add_argument("--output", type=Path)
+    plugin_docs = plugin_commands.add_parser(
+        "docs", help="Generate plugin reference and sample configuration"
+    )
+    plugin_docs.add_argument("path", type=Path)
+    plugin_docs.add_argument("--output-dir", type=Path, required=True)
+    plugin_sandbox = plugin_commands.add_parser(
+        "sandbox", help="Validate one entry-point configuration locally"
+    )
+    plugin_sandbox.add_argument("path", type=Path)
+    plugin_sandbox.add_argument("entry_point")
+    plugin_sandbox.add_argument("--configuration", type=Path, required=True)
+    plugin_commands.add_parser("criteria", help="Print objective plugin quality-level criteria")
 
     namespace = subcommands.add_parser("namespace", help="Manage namespace resources")
     namespace_commands = namespace.add_subparsers(dest="namespace_command", required=True)
@@ -231,6 +261,59 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main(argv: Sequence[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
+    if args.command == "plugins" and args.plugin_command in {
+        "scaffold",
+        "certify",
+        "docs",
+        "sandbox",
+        "criteria",
+    }:
+        try:
+            if args.plugin_command == "scaffold":
+                created = scaffold_plugin(args.path, name=args.name)
+                print(json.dumps({"created": [str(path) for path in created]}, indent=2))
+                return 0
+            if args.plugin_command == "certify":
+                certification_report = certify_plugin(
+                    args.path,
+                    platform_versions=tuple(args.platform_version),
+                )
+                encoded = certification_report.model_dump_json(
+                    indent=2, by_alias=True, exclude_none=True
+                )
+                if args.output is not None:
+                    args.output.parent.mkdir(parents=True, exist_ok=True)
+                    args.output.write_text(encoded + "\n", encoding="utf-8")
+                print(encoded)
+                return 0 if certification_report.passed else 1
+            if args.plugin_command == "docs":
+                documentation, sample = generate_plugin_documentation(args.path, args.output_dir)
+                print(
+                    json.dumps(
+                        {"documentation": str(documentation), "sampleConfiguration": str(sample)},
+                        indent=2,
+                    )
+                )
+                return 0
+            if args.plugin_command == "sandbox":
+                configuration = _load_mapping(args.configuration)
+                sandbox_result = sandbox_configuration(args.path, args.entry_point, configuration)
+                print(json.dumps(sandbox_result, indent=2, sort_keys=True))
+                return 0 if sandbox_result["valid"] else 1
+            print(
+                json.dumps(
+                    {
+                        level.value: list(criteria)
+                        for level, criteria in quality_level_criteria().items()
+                    },
+                    indent=2,
+                    sort_keys=True,
+                )
+            )
+            return 0
+        except (OSError, ValueError, RuntimeError) as exc:
+            print(str(exc), file=sys.stderr)
+            return 2
     if args.command == "validate":
         path: Path = args.path
         try:
@@ -416,6 +499,16 @@ def _parse_inputs(values: Sequence[str]) -> dict[str, Any]:
             raise ValueError(f"input {value!r} must use key=value")
         inputs[key] = yaml.safe_load(encoded)
     return inputs
+
+
+def _load_mapping(path: Path) -> dict[str, Any]:
+    content = path.read_text(encoding="utf-8")
+    payload: object = (
+        json.loads(content) if path.suffix.lower() == ".json" else yaml.safe_load(content)
+    )
+    if not isinstance(payload, dict):
+        raise ValueError("configuration file root must be an object")
+    return payload
 
 
 def _resource_path(namespace: str, resource: str) -> str:

@@ -56,3 +56,6 @@ uv run pytest tests/plugin_sdk/test_contract.py -q
 Polling/realtime lifecycle, explainable condition results, notification delivery policies and the
 connector fault emulators are covered by the
 [extension contract guide](extension-contracts.md).
+
+For the one-command release checks, resilience fixtures, quality levels, compatibility matrix and
+public CI evidence format, use the [plugin certification guide](certification.md).

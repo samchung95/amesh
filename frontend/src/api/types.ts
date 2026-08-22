@@ -403,7 +403,7 @@ export interface PluginRegistryPackage {
   signals: {
     downloads: number
     lastMaintainedAt: string | null
-    certification: 'unverified' | 'community' | 'certified'
+    certification: 'unverified' | 'community' | 'verified' | 'certified'
     security: 'unknown' | 'current' | 'advisory' | 'critical'
     trustDisclaimer: string
   }
