@@ -180,6 +180,7 @@ from amesh.domain import (
 from amesh.domain import (
     AuthenticationRequest as ProviderAuthenticationRequest,
 )
+from amesh.domain.runner import RunnerId, RunnerPolicySet, RunnerPolicyViolation
 from amesh.dsl import (
     FlowDefinition,
     FlowDocumentError,
@@ -190,11 +191,14 @@ from amesh.dsl import (
 from amesh.executor import (
     InProcessExecutor,
     SubflowCoordinator,
+    TaskHandler,
     TaskResourceLimitError,
     kubernetes_job_handler,
     local_process_handler,
     normalize_task_completion,
     preview_execution_intervention,
+    required_runner_ids,
+    selecting_runner_handler,
     subflow_task_handler,
 )
 from amesh.frontend import SpaStaticFiles, find_frontend_dist
@@ -226,6 +230,7 @@ from amesh.ports import (
     PersistedSubflow,
     PersistedTaskRun,
     ReconciliationAlreadyRunningError,
+    RunnerCapabilities,
     ServiceFenceError,
     TaskCacheEntry,
     TaskCachePurgeResult,
@@ -1702,9 +1707,13 @@ async def upload_namespace_file(
             expected_version=expected_version,
         )
     except ResourceVersionConflict as exc:
-        raise HTTPException(status_code=status.HTTP_412_PRECONDITION_FAILED, detail=str(exc)) from exc
+        raise HTTPException(
+            status_code=status.HTTP_412_PRECONDITION_FAILED, detail=str(exc)
+        ) from exc
     except ValueError as exc:
-        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)) from exc
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)
+        ) from exc
 
 
 @app.get(
@@ -1768,11 +1777,15 @@ async def move_namespace_file(
             expected_version=request.expected_version,
         )
     except ResourceVersionConflict as exc:
-        raise HTTPException(status_code=status.HTTP_412_PRECONDITION_FAILED, detail=str(exc)) from exc
+        raise HTTPException(
+            status_code=status.HTTP_412_PRECONDITION_FAILED, detail=str(exc)
+        ) from exc
     except LookupError as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
     except ValueError as exc:
-        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)) from exc
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)
+        ) from exc
 
 
 @app.get(
@@ -1852,7 +1865,9 @@ async def delete_namespace_file(
             expected_version=expected_version,
         )
     except ResourceVersionConflict as exc:
-        raise HTTPException(status_code=status.HTTP_412_PRECONDITION_FAILED, detail=str(exc)) from exc
+        raise HTTPException(
+            status_code=status.HTTP_412_PRECONDITION_FAILED, detail=str(exc)
+        ) from exc
     return {"resourceVersion": version}
 
 
@@ -1943,7 +1958,9 @@ async def put_namespace_key_value(
             actor_id=str(actor.principal_id),
         )
     except ResourceVersionConflict as exc:
-        raise HTTPException(status_code=status.HTTP_412_PRECONDITION_FAILED, detail=str(exc)) from exc
+        raise HTTPException(
+            status_code=status.HTTP_412_PRECONDITION_FAILED, detail=str(exc)
+        ) from exc
 
 
 @app.get(
@@ -2005,7 +2022,9 @@ async def delete_namespace_key_value(
             expected_version=expected_version,
         )
     except ResourceVersionConflict as exc:
-        raise HTTPException(status_code=status.HTTP_412_PRECONDITION_FAILED, detail=str(exc)) from exc
+        raise HTTPException(
+            status_code=status.HTTP_412_PRECONDITION_FAILED, detail=str(exc)
+        ) from exc
     return {"deleted": deleted}
 
 
@@ -2069,7 +2088,9 @@ async def put_namespace_secret_binding(
             actor_id=str(actor.principal_id),
         )
     except ResourceVersionConflict as exc:
-        raise HTTPException(status_code=status.HTTP_412_PRECONDITION_FAILED, detail=str(exc)) from exc
+        raise HTTPException(
+            status_code=status.HTTP_412_PRECONDITION_FAILED, detail=str(exc)
+        ) from exc
 
 
 @app.delete(
@@ -2102,7 +2123,9 @@ async def delete_namespace_secret_binding(
             expected_version=expected_version,
         )
     except ResourceVersionConflict as exc:
-        raise HTTPException(status_code=status.HTTP_412_PRECONDITION_FAILED, detail=str(exc)) from exc
+        raise HTTPException(
+            status_code=status.HTTP_412_PRECONDITION_FAILED, detail=str(exc)
+        ) from exc
     return {"deleted": deleted}
 
 
@@ -2166,7 +2189,9 @@ async def import_namespace_resource_bundle(
             actor_id=str(actor.principal_id),
         )
     except ValueError as exc:
-        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)) from exc
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)
+        ) from exc
     return NamespaceResourceImportResult.model_validate(result)
 
 
@@ -3486,6 +3511,29 @@ async def list_workers(
     return collection_response(inventory, query)
 
 
+@app.get(
+    "/api/v1/runners/capabilities",
+    response_model=list[RunnerCapabilities],
+    tags=["workers"],
+)
+async def list_runner_capabilities(
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> list[RunnerCapabilities]:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="worker",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+    )
+    return [
+        LocalProcessRunner.CAPABILITIES,
+        KubernetesJobRunner.CAPABILITIES,
+    ]
+
+
 @app.post(
     "/api/v1/workers/{worker_id}/drain",
     response_model=WorkerInventory,
@@ -3610,7 +3658,9 @@ async def download_execution_file(
     artifacts = await metadata.list_artifacts(execution_id, tenant_id=tenant_id)
     selected = next((item for item in artifacts if item.artifact_id == artifact_id), None)
     if selected is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="execution file not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="execution file not found"
+        )
     filename = Path(selected.logical_path or "execution-file").name
     return StreamingResponse(
         build_object_store(settings).get(tenant_id, selected.uri),
@@ -4500,8 +4550,29 @@ async def _execute_flow(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail=str(exc),
         ) from exc
+    runner_policy = RunnerPolicySet(settings.runner_policies)
+    fallback_runner = RunnerId(request.runner.value)
+    try:
+        selected_runners = required_runner_ids(
+            (node.task for node in planned_tasks),
+            runner_policy,
+            namespace=flow.namespace,
+            fallback=fallback_runner,
+        )
+    except RunnerPolicyViolation as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=str(exc),
+        ) from exc
+    runner_handlers: dict[RunnerId, TaskHandler] = {}
+    if RunnerId.LOCAL in selected_runners:
+        runner_handlers[RunnerId.LOCAL] = local_process_handler(
+            LocalProcessRunner(),
+            workspace_manager,
+            namespace=flow.namespace,
+        )
     kubernetes_runner: KubernetesJobRunner | None = None
-    if request.runner is RunnerMode.KUBERNETES:
+    if RunnerId.KUBERNETES in selected_runners:
         if settings.kubernetes_context is None:
             kubernetes_runner = KubernetesJobRunner.from_in_cluster(
                 namespace=settings.kubernetes_task_namespace
@@ -4511,9 +4582,16 @@ async def _execute_flow(
                 namespace=settings.kubernetes_task_namespace,
                 context=settings.kubernetes_context,
             )
-        shell_handler = kubernetes_job_handler(kubernetes_runner)
-    else:
-        shell_handler = local_process_handler(LocalProcessRunner(), workspace_manager)
+        runner_handlers[RunnerId.KUBERNETES] = kubernetes_job_handler(
+            kubernetes_runner,
+            namespace=flow.namespace,
+        )
+    shell_handler = selecting_runner_handler(
+        runner_handlers,
+        runner_policy,
+        namespace=flow.namespace,
+        fallback=fallback_runner,
+    )
 
     handlers = {
         "core.shell": shell_handler,
@@ -4521,6 +4599,7 @@ async def _execute_flow(
         "agent.llm": agent_llm_handler(),
         "agent.mcp": agent_mcp_handler(),
     }
+
     async def authorize_subflow(child_flow: FlowDefinition) -> None:
         await authorize_request(
             authorization_service,

@@ -35,6 +35,26 @@ Renamed settings are migrated before validation. `ADMIN_TOKEN` migrates to `AMES
 `TELEMETRY_ENABLED` migrates to `PRODUCT_TELEMETRY_ENABLED`; both produce deprecation warnings without
 logging their values.
 
+## Runner policy
+
+`runner_policies` is a restart-required ordered set of typed namespace/worker-group rules. The most
+specific worker-group and namespace-prefix match wins. For example:
+
+```yaml
+runner_policies:
+  - namespacePrefix: company
+    defaultRunner: kubernetes
+    allowedRunners: [local, kubernetes]
+  - namespacePrefix: company.regulated
+    workerGroup: secure
+    defaultRunner: kubernetes
+    allowedRunners: [kubernetes]
+```
+
+The equivalent environment value is JSON in `RUNNER_POLICIES`. Invalid duplicate scopes, duplicate
+runner names, or a default runner outside `allowedRunners` stop startup. Policy is evaluated before
+runner dispatch; it may select a default or reject an explicit task/API runner request.
+
 ## Feature flags
 
 Boolean flags are versioned and audited in PostgreSQL. Resolution order is namespace, tenant,

@@ -2,12 +2,19 @@
 
 ## Current state
 
-- What works: the original post-MVP foundation plus the first nine cards of the 50-epic local program are implemented, evidence-linked and deployed through migration 0040, including isolated and shared task workspaces, streamed verified file transfer, quotas, failure diagnostics and durable execution-file lineage.
-- What's in flight: the 50-epic local completion program is tracked on Agent Hotel cards `c37`–`c86`; cards `c37`–`c45` are complete and EPIC-209 on card `c46` is next. The local Docker Compose deployment is healthy at migration 40/40 on `http://localhost:8000`.
+- What works: the original post-MVP foundation plus the first ten cards of the 50-epic local program are implemented, evidence-linked and deployed through migration 0040, including isolated/shared task workspaces and a versioned runner-neutral contract with local and Kubernetes capability negotiation.
+- What's in flight: the 50-epic local completion program is tracked on Agent Hotel cards `c37`–`c86`; cards `c37`–`c46` are complete and EPIC-220 on card `c47` is next. The local Docker Compose deployment is healthy at migration 40/40 on `http://localhost:8000`.
 - Known broken / TODO: 20 external-cloud, SaaS, hosted-release, independent-certification, multi-region or long-duration epics are deferred. Cards `c15` and `c29` preserve unrelated backend test failures; `c87` records missing fresh-Compose mounts for migrations 0033–0036; and `c88` records seven pre-existing frontend lint errors. None blocks the current local program path.
 - How to run/test: use `uv run --extra runtime --extra dev pytest`; set `AMESH_TEST_DATABASE_URL` for PostgreSQL integration tests and `OPENROUTER_API_KEY` for live LLM tests.
 
 ## Session log
+
+### 2026-08-22 (50-epic local completion program, EPIC-209 completion)
+
+- Did: completed EPIC-209 with a versioned runner-neutral request/result contract; advertised local and Kubernetes capabilities; typed local/Kubernetes extensions; scoped credential, network and security policies; namespace/worker-group runner selection; pre-dispatch compatibility validation; normalized logs, metrics and diagnostics; cancellation/timeout escalation; and idempotent orphan reconciliation. Added the authorized runner-capability API and linked URS-F-0250 through URS-F-0257 to automated evidence.
+- Verification: a fresh PostgreSQL database applied all 40 migrations and the isolated complete backend suite collected 327 tests: 321 passed, six environment/profile tests skipped and cards `c15`/`c29` were explicitly deselected. Ruff and strict mypy passed for 128 source files; focused runner/API tests, generated contracts/planning, backlog, clean-room, REUSE 6.2.0, uv lock, compilation, Compose and diff gates passed. The rebuilt API/executor/scheduler are healthy at 40/40. Live capability discovery returned both runners, and deployed execution `01a02a08-f238-70f1-972d-59f4a2f5cd53` proved task-level local selection over a Kubernetes execution fallback and completed with `RUNNER_LIVE_OK:66`.
+- Deviations from plan: no dependency or LLM call was required. The first live flow exposed that the generated resource catalog did not yet admit the new task-runner fields; the catalog registry was minimally extended and the live rerun passed. Shared security/portability NFRs remain In Progress for their other owning epics, and deferred cards `c15`, `c29`, `c87` and `c88` remain untouched.
+- Next step when resuming: close and commit card `c46`, then select EPIC-220 on card `c47` for the local process task runner.
 
 ### 2026-08-22 (50-epic local completion program, EPIC-208 completion)
 

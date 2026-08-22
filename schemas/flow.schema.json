@@ -501,6 +501,75 @@
       "title": "InputDefinition",
       "type": "object"
     },
+    "KubernetesJobRunnerExtension": {
+      "properties": {
+        "labels": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Labels",
+          "type": "object"
+        },
+        "nodeSelector": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Nodeselector",
+          "type": "object"
+        },
+        "serviceAccountName": {
+          "anyOf": [
+            {
+              "maxLength": 253,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Serviceaccountname"
+        },
+        "type": {
+          "const": "kubernetes",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "title": "KubernetesJobRunnerExtension",
+      "type": "object"
+    },
+    "LocalProcessRunnerExtension": {
+      "properties": {
+        "allowedHostEnvironment": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Allowedhostenvironment",
+          "type": "array"
+        },
+        "inheritHostEnvironment": {
+          "default": false,
+          "title": "Inherithostenvironment",
+          "type": "boolean"
+        },
+        "type": {
+          "const": "local",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "title": "LocalProcessRunnerExtension",
+      "type": "object"
+    },
     "PluginDefaultDefinition": {
       "additionalProperties": false,
       "properties": {
@@ -614,6 +683,62 @@
         }
       },
       "title": "RunnableTaskContract",
+      "type": "object"
+    },
+    "RunnerNetworkAccess": {
+      "enum": [
+        "inherit",
+        "none",
+        "restricted"
+      ],
+      "title": "RunnerNetworkAccess",
+      "type": "string"
+    },
+    "RunnerNetworkPolicy": {
+      "properties": {
+        "access": {
+          "$ref": "#/$defs/RunnerNetworkAccess",
+          "default": "inherit"
+        },
+        "allowedEgress": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Allowedegress",
+          "type": "array"
+        }
+      },
+      "title": "RunnerNetworkPolicy",
+      "type": "object"
+    },
+    "RunnerSecurityPolicy": {
+      "properties": {
+        "privileged": {
+          "default": false,
+          "title": "Privileged",
+          "type": "boolean"
+        },
+        "readOnlyRootFilesystem": {
+          "default": false,
+          "title": "Readonlyrootfilesystem",
+          "type": "boolean"
+        },
+        "runAsUser": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Runasuser"
+        }
+      },
+      "title": "RunnerSecurityPolicy",
       "type": "object"
     },
     "TaskCacheInvalidationPolicy": {
@@ -875,6 +1000,9 @@
           "default": null,
           "title": "Maxconcurrency"
         },
+        "networkPolicy": {
+          "$ref": "#/$defs/RunnerNetworkPolicy"
+        },
         "outputFiles": {
           "default": [],
           "items": {
@@ -941,8 +1069,47 @@
           "title": "Runlabels",
           "type": "object"
         },
+        "runnerCredentials": {
+          "additionalProperties": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+            "type": "string"
+          },
+          "title": "Runnercredentials",
+          "type": "object"
+        },
+        "securityPolicy": {
+          "$ref": "#/$defs/RunnerSecurityPolicy"
+        },
         "taskCache": {
           "$ref": "#/$defs/TaskCachePolicy"
+        },
+        "taskRunner": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "kubernetes": "#/$defs/KubernetesJobRunnerExtension",
+                  "local": "#/$defs/LocalProcessRunnerExtension"
+                },
+                "propertyName": "type"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/LocalProcessRunnerExtension"
+                },
+                {
+                  "$ref": "#/$defs/KubernetesJobRunnerExtension"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Taskrunner"
         },
         "tasks": {
           "items": {

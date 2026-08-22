@@ -7341,7 +7341,10 @@
       "id": "URS-F-0250",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/test_runner_contract.py::test_urs_f_0250_0251_local_capabilities_reject_before_dispatch"
+      ],
       "milestone": "M2",
       "wave": 2,
       "epic_id": "EPIC-209",
@@ -7368,7 +7371,11 @@
       "id": "URS-F-0251",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/test_runner_contract.py::test_urs_f_0250_0251_local_capabilities_reject_before_dispatch",
+        "tests/api/test_worker_api.py::test_worker_inventory_and_fenced_drain_api"
+      ],
       "milestone": "M2",
       "wave": 2,
       "epic_id": "EPIC-209",
@@ -7395,7 +7402,10 @@
       "id": "URS-F-0252",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/test_runner_contract.py::test_urs_f_0252_result_is_normalized"
+      ],
       "milestone": "M2",
       "wave": 2,
       "epic_id": "EPIC-209",
@@ -7422,7 +7432,12 @@
       "id": "URS-F-0253",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/test_runner_contract.py::test_urs_f_0253_handler_propagates_cancellation_to_runner",
+        "tests/adapters/local/test_process_runner.py::test_local_process_timeout_terminates_attempt",
+        "tests/adapters/local/test_process_runner.py::test_local_process_cancel_requires_current_fencing_token"
+      ],
       "milestone": "M2",
       "wave": 2,
       "epic_id": "EPIC-209",
@@ -7449,7 +7464,11 @@
       "id": "URS-F-0254",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/test_runner_contract.py::test_urs_f_0254_0255_typed_extension_and_attempt_scoped_credentials",
+        "tests/test_runner_contract.py::test_kubernetes_typed_security_and_credentials_map_to_job"
+      ],
       "milestone": "M2",
       "wave": 2,
       "epic_id": "EPIC-209",
@@ -7476,7 +7495,11 @@
       "id": "URS-F-0255",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/test_runner_contract.py::test_urs_f_0254_0255_typed_extension_and_attempt_scoped_credentials",
+        "tests/test_runner_contract.py::test_kubernetes_typed_security_and_credentials_map_to_job"
+      ],
       "milestone": "M2",
       "wave": 2,
       "epic_id": "EPIC-209",
@@ -7503,7 +7526,11 @@
       "id": "URS-F-0256",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/test_runner_contract.py::test_urs_f_0256_local_orphan_reconciliation_is_idempotent",
+        "tests/adapters/kubernetes/test_job_runner.py::test_fresh_executor_reconciles_running_job_after_control_plane_loss"
+      ],
       "milestone": "M2",
       "wave": 2,
       "epic_id": "EPIC-209",
@@ -7530,7 +7557,10 @@
       "id": "URS-F-0257",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/test_runner_contract.py::test_urs_f_0257_namespace_and_worker_group_policy_selects_and_prohibits"
+      ],
       "milestone": "M2",
       "wave": 2,
       "epic_id": "EPIC-209",

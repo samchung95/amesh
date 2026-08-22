@@ -11,7 +11,12 @@ from .contracts import (
     TaskMetricRecord,
 )
 from .control import preview_execution_intervention
-from .runner_handler import kubernetes_job_handler, local_process_handler
+from .runner_handler import (
+    kubernetes_job_handler,
+    local_process_handler,
+    required_runner_ids,
+    selecting_runner_handler,
+)
 from .service import (
     ExecutionBlockedError,
     ExecutionProgress,
@@ -66,5 +71,7 @@ __all__ = [
     "normalize_task_completion",
     "preview_execution_intervention",
     "reduce_orchestration",
+    "required_runner_ids",
+    "selecting_runner_handler",
     "subflow_task_handler",
 ]

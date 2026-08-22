@@ -1775,6 +1775,27 @@
             },
             "type": "object"
           },
+          "networkPolicy": {
+            "additionalProperties": false,
+            "properties": {
+              "access": {
+                "enum": [
+                  "inherit",
+                  "none",
+                  "restricted"
+                ],
+                "type": "string"
+              },
+              "allowedEgress": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array",
+                "uniqueItems": true
+              }
+            },
+            "type": "object"
+          },
           "outputFiles": {
             "items": {
               "maxLength": 4096,
@@ -1794,6 +1815,82 @@
           },
           "retainDiagnosticsOnFailure": {
             "type": "boolean"
+          },
+          "runnerCredentials": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "securityPolicy": {
+            "additionalProperties": false,
+            "properties": {
+              "privileged": {
+                "type": "boolean"
+              },
+              "readOnlyRootFilesystem": {
+                "type": "boolean"
+              },
+              "runAsUser": {
+                "minimum": 0,
+                "type": "integer"
+              }
+            },
+            "type": "object"
+          },
+          "taskRunner": {
+            "oneOf": [
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "allowedHostEnvironment": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array",
+                    "uniqueItems": true
+                  },
+                  "inheritHostEnvironment": {
+                    "type": "boolean"
+                  },
+                  "type": {
+                    "const": "local"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "labels": {
+                    "additionalProperties": {
+                      "type": "string"
+                    },
+                    "type": "object"
+                  },
+                  "nodeSelector": {
+                    "additionalProperties": {
+                      "type": "string"
+                    },
+                    "type": "object"
+                  },
+                  "serviceAccountName": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "type": {
+                    "const": "kubernetes"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "type": "object"
+              }
+            ]
           },
           "timeoutSeconds": {
             "exclusiveMinimum": 0,
@@ -1821,6 +1918,10 @@
           "outputManifest",
           "workspaceQuotaBytes",
           "retainDiagnosticsOnFailure",
+          "taskRunner",
+          "runnerCredentials",
+          "networkPolicy",
+          "securityPolicy",
           "resources",
           "timeoutSeconds"
         ],

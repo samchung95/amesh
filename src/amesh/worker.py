@@ -30,11 +30,16 @@ from amesh.domain import (
     ReconciliationRequest,
     new_runtime_id,
 )
+from amesh.domain.runner import RunnerId, RunnerPolicySet
+from amesh.dsl import compile_execution_tasks
 from amesh.executor import (
     InProcessExecutor,
+    TaskHandler,
     execution_lifecycle_pending,
     kubernetes_job_handler,
     local_process_handler,
+    required_runner_ids,
+    selecting_runner_handler,
 )
 from amesh.observability import configure_structured_logging
 from amesh.ports import (
@@ -280,13 +285,35 @@ async def recover_once(
             kubernetes_runner: KubernetesJobRunner | None = None
             object_store = build_object_store(settings)
             workspace_manager = WorkingDirectoryManager(object_store)
-            if settings.execution_runner_mode == "local":
-                shell_handler = local_process_handler(LocalProcessRunner(), workspace_manager)
-            else:
+            runner_policy = RunnerPolicySet(settings.runner_policies)
+            fallback_runner = RunnerId(settings.execution_runner_mode)
+            selected_runners = required_runner_ids(
+                (node.task for node in compile_execution_tasks(flow)),
+                runner_policy,
+                namespace=flow.namespace,
+                fallback=fallback_runner,
+            )
+            runner_handlers: dict[RunnerId, TaskHandler] = {}
+            if RunnerId.LOCAL in selected_runners:
+                runner_handlers[RunnerId.LOCAL] = local_process_handler(
+                    LocalProcessRunner(),
+                    workspace_manager,
+                    namespace=flow.namespace,
+                )
+            if RunnerId.KUBERNETES in selected_runners:
                 kubernetes_runner = KubernetesJobRunner.from_in_cluster(
                     namespace=settings.kubernetes_task_namespace
                 )
-                shell_handler = kubernetes_job_handler(kubernetes_runner)
+                runner_handlers[RunnerId.KUBERNETES] = kubernetes_job_handler(
+                    kubernetes_runner,
+                    namespace=flow.namespace,
+                )
+            shell_handler = selecting_runner_handler(
+                runner_handlers,
+                runner_policy,
+                namespace=flow.namespace,
+                fallback=fallback_runner,
+            )
             executor = InProcessExecutor(
                 repository,
                 handlers={

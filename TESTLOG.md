@@ -1,5 +1,36 @@
 # Test Log
 
+## EPIC-209: Task runner interface and capability model — 2026-08-22
+
+Spec source: Agent Hotel card `c46` and canonical `backlog/epics.json` EPIC-209 DoD.
+
+Verified with `uv`, Python 3.13, PostgreSQL 17 and the deployed Compose control plane:
+
+- [x] Contract 1.0 defines runner-neutral identity, command, image, environment, workspace, files,
+  resources, timeout, cancellation, network, security and scoped-credential inputs.
+- [x] Local and Kubernetes adapters advertise typed capabilities. Unsupported combinations are
+  rejected before subprocess spawn or Kubernetes Job creation with actionable diagnostics.
+- [x] Results normalize terminal state, exit code, timestamps, logs, output metadata, diagnostics
+  and metrics while preserving typed adapter extensions outside the neutral core.
+- [x] Cancellation and timeout escalation are bounded and observable. Idempotent reconciliation
+  cleans owned orphan local processes and Kubernetes Jobs without affecting foreign work.
+- [x] Task-level selection overrides namespace/worker-group policy and execution fallback; allowed
+  runner lists gate dispatch. Credential scopes must be declared by the task contract.
+- [x] The authorized capability API exposes contract version, constraints and escalation behavior.
+  Generated OpenAPI, flow schema and resource catalog artifacts match the checked-in contract.
+- [x] A fresh database applied all 40 migrations. The isolated complete suite collected 327 tests:
+  321 passed, six environment/profile tests skipped and only cards `c15`/`c29` were deselected.
+- [x] Ruff and strict mypy passed for 128 source files. Focused runner/API tests, generated planning,
+  backlog, clean-room, REUSE 6.2.0, uv lock, compilation, Compose and diff gates passed.
+- [x] The rebuilt API, executor and scheduler are healthy at 40/40. Live capability discovery
+  returned both adapters, and execution `01a02a08-f238-70f1-972d-59f4a2f5cd53` completed through
+  the task-selected local runner with `RUNNER_LIVE_OK:66` despite a Kubernetes execution fallback.
+
+No LLM invocation was required for deterministic runner-contract behavior; the configured
+OpenRouter `openai/gpt-5.6-luna` default is unchanged.
+
+Verdict: PASS — EPIC-209 functional requirements URS-F-0250 through URS-F-0257 are verified.
+
 ## EPIC-208: Working directories and execution files — 2026-08-22
 
 Spec source: Agent Hotel card `c45` and canonical `backlog/epics.json` EPIC-208 DoD.

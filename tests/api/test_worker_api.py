@@ -75,6 +75,20 @@ def test_worker_inventory_and_fenced_drain_api() -> None:
                 transport=transport,
                 base_url="http://amesh.test",
             ) as client:
+                capabilities_response = await client.get("/api/v1/runners/capabilities")
+                assert capabilities_response.status_code == 200
+                capabilities = {
+                    item["runner"]: item for item in capabilities_response.json()
+                }
+                assert set(capabilities) == {"local", "kubernetes"}
+                assert capabilities["local"]["requiresCommand"] is True
+                assert capabilities["kubernetes"]["requiresImage"] is True
+                assert capabilities["local"]["cancellationEscalation"] == [
+                    "terminate",
+                    "wait-grace",
+                    "kill",
+                ]
+
                 inventory_response = await client.get("/api/v1/workers")
                 assert inventory_response.status_code == 200
                 listed = {item["worker_id"]: item for item in inventory_response.json()}

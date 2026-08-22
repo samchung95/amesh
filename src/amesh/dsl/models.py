@@ -11,6 +11,7 @@ from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, field_validator,
 
 from amesh.domain.admission import ConcurrencyLimit
 from amesh.domain.identity import NamespaceId, NaturalId
+from amesh.domain.runner import RunnerExtension, RunnerNetworkPolicy, RunnerSecurityPolicy
 
 
 def _validate_user_label_map(value: dict[str, str]) -> dict[str, str]:
@@ -294,6 +295,19 @@ class TaskDefinition(BaseModel):
     image: str | None = None
     environment: dict[str, str] = Field(default_factory=dict)
     resources: dict[str, Any] = Field(default_factory=dict)
+    task_runner: RunnerExtension | None = Field(default=None, alias="taskRunner")
+    runner_credentials: dict[str, NaturalId] = Field(
+        default_factory=dict,
+        alias="runnerCredentials",
+    )
+    network_policy: RunnerNetworkPolicy = Field(
+        default_factory=RunnerNetworkPolicy,
+        alias="networkPolicy",
+    )
+    security_policy: RunnerSecurityPolicy = Field(
+        default_factory=RunnerSecurityPolicy,
+        alias="securityPolicy",
+    )
     input_files: dict[str, str] = Field(default_factory=dict, alias="inputFiles")
     output_files: tuple[str, ...] = Field(default=(), alias="outputFiles")
     output_manifest: str | None = Field(default=None, alias="outputManifest")
@@ -350,6 +364,10 @@ class TaskDefinition(BaseModel):
                 ("output_manifest", "outputManifest"),
                 ("workspace_quota_bytes", "workspaceQuotaBytes"),
                 ("retain_diagnostics_on_failure", "retainDiagnosticsOnFailure"),
+                ("task_runner", "taskRunner"),
+                ("runner_credentials", "runnerCredentials"),
+                ("network_policy", "networkPolicy"),
+                ("security_policy", "securityPolicy"),
             ):
                 if name in data and alias in data:
                     raise ValueError(f"task cannot set both {alias!r} and {name!r}")
@@ -359,6 +377,24 @@ class TaskDefinition(BaseModel):
     def validate_self_dependency(self) -> TaskDefinition:
         if self.id in self.depends_on:
             raise ValueError(f"task {self.id!r} cannot depend on itself")
+        invalid_environment_variables = [
+            name
+            for name in self.runner_credentials
+            if not name.replace("_", "a").isalnum() or name[0].isdigit()
+        ]
+        if invalid_environment_variables:
+            raise ValueError(
+                "runnerCredentials keys must be environment-variable names: "
+                + ", ".join(sorted(invalid_environment_variables))
+            )
+        undeclared_scopes = set(self.runner_credentials.values()).difference(
+            self.contract.secret_scopes
+        )
+        if undeclared_scopes:
+            raise ValueError(
+                "runnerCredentials reference undeclared contract secretScopes: "
+                + ", ".join(sorted(undeclared_scopes))
+            )
         conditional_children = any(
             (
                 self.then_tasks,
@@ -427,7 +463,9 @@ class TaskDefinition(BaseModel):
         }:
             raise ValueError("local errors require a flowable task")
         if self.type == "core.workingDirectory" and self.max_concurrency not in {None, 1}:
-            raise ValueError("core.workingDirectory children are sequential; maxConcurrency must be 1")
+            raise ValueError(
+                "core.workingDirectory children are sequential; maxConcurrency must be 1"
+            )
         return self
 
     @field_validator("input_files")
@@ -556,7 +594,9 @@ class PluginDefaultDefinition(BaseModel):
         }
         invalid = sorted(structural.intersection(value))
         if invalid:
-            raise ValueError("plugin defaults cannot set structural properties: " + ", ".join(invalid))
+            raise ValueError(
+                "plugin defaults cannot set structural properties: " + ", ".join(invalid)
+            )
         if any(not key or len(key) > 128 for key in value):
             raise ValueError("plugin default property names must contain 1-128 characters")
         return value

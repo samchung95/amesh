@@ -41,9 +41,42 @@ with `POST /api/v1/workers/{worker_id}/drain?expectedVersion=N`.
 
 ## Runner boundary
 
-The runner request is declarative. It includes immutable task identity, image/command, environment
-references, files, resource limits, network policy and security context. The worker never passes
-long-lived control-plane credentials into the workload.
+Runner contract `1.0` is declarative and immutable. `RunnerRequest` carries tenant, namespace,
+worker-group, execution/task/attempt identity and fencing token plus image or argv, environment,
+input-file references, working directory, resource limits, network policy, security policy, deadline,
+cancellation grace and one typed runner extension. `RunnerResult` normalizes runner identity, terminal
+status, exit code, ordered logs, metrics, outputs, artifact references and infrastructure diagnostics.
+
+Each adapter publishes `RunnerCapabilities`, including accepted request features, contract versions,
+network/security support, reconciliation support, extension type and its cancellation escalation. An
+unsupported request fails capability validation before a subprocess or external Job is created.
+Authorized operators can inspect the built-in descriptors at `GET /api/v1/runners/capabilities`.
+
+Tasks may select a typed runner:
+
+```yaml
+tasks:
+  - id: isolated
+    type: core.shell
+    image: busybox:1.37
+    command: [sh, -c, echo ok]
+    taskRunner:
+      type: kubernetes
+      serviceAccountName: amesh-task
+      nodeSelector: {pool: jobs}
+```
+
+`runnerCredentials` explicitly maps environment-variable names to scopes declared in
+`contract.secretScopes`. Resolution happens for one attempt; only those values enter the runner
+request, Pydantic redacts them, and they are never added to durable task output or runner diagnostics.
+The local adapter inherits only a bounded non-secret host environment unless its typed trusted-process
+extension explicitly enables broader inheritance.
+
+Runner selection evaluates the most-specific configured namespace-prefix and worker-group rule. A
+task-level `taskRunner.type` is the requested runner, then the matching rule's `defaultRunner`, then the
+execution fallback. `allowedRunners` always gates the result, so an explicit task request cannot bypass
+policy. This follows the separation between task runners and worker groups in the pinned Kestra parity
+baseline while allowing both constraints to be combined.
 
 ## Isolation levels
 
@@ -58,3 +91,13 @@ long-lived control-plane credentials into the workload.
 Runtime resources carry owner labels and deterministic external identifiers. Cleanup can be repeated.
 A reconciler compares platform attempts with runner resources and quarantines ambiguous active work
 rather than deleting it blindly.
+
+The contract reconciler receives the current `{attempt_id: fencing_token}` set. The local adapter
+terminates tracked processes whose fence is absent or superseded; the Kubernetes adapter deletes only
+owned Jobs with a mismatched or absent active fence. Repeating reconciliation returns no additional
+cleanup after the resource is gone.
+
+Cancellation is fenced and reaches the runner through the task cancellation channel. The local
+sequence is `terminate` → wait for `cancelGraceSeconds` → `kill`; Kubernetes uses an owned Job delete
+with foreground propagation and bounded API retry. Timeout uses the same runner-owned cleanup path and
+normalizes to `TIMED_OUT`.

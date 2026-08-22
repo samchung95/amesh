@@ -19,6 +19,8 @@ import yaml
 from pydantic import BaseModel, ConfigDict, Field, SecretStr, ValidationError, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from amesh.domain.runner import RunnerPolicy
+
 _REDACTED = "[REDACTED]"
 _SECRET_REFERENCE = re.compile(r"^secret://([A-Za-z0-9][A-Za-z0-9_.-]{0,127})$")
 _RENAMED_SETTINGS = {
@@ -97,6 +99,7 @@ class Settings(BaseSettings):
     kubernetes_context: str | None = None
     kubernetes_task_namespace: str = "amesh-tasks"
     execution_runner_mode: Literal["local", "kubernetes"] = "kubernetes"
+    runner_policies: tuple[RunnerPolicy, ...] = ()
     worker_poll_seconds: float = Field(default=5.0, gt=0)
     worker_recovery_grace_seconds: float = Field(default=120.0, ge=0)
     worker_reconciliation_interval_seconds: float = Field(default=60.0, ge=5)

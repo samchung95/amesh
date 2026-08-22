@@ -248,14 +248,14 @@ URS-F-0246,Functional,Must,EPIC-208,Working directories and execution files,M2,2
 URS-F-0247,Functional,Must,EPIC-208,Working directories and execution files,M2,2,DSL validation plus end-to-end workflow conformance tests,Verified
 URS-F-0248,Functional,Must,EPIC-208,Working directories and execution files,M2,2,DSL validation plus end-to-end workflow conformance tests,Verified
 URS-F-0249,Functional,Must,EPIC-208,Working directories and execution files,M2,2,DSL validation plus end-to-end workflow conformance tests,Verified
-URS-F-0250,Functional,Must,EPIC-209,Task runner interface and capability model,M2,2,Runner contract tests against disposable execution environments,Proposed
-URS-F-0251,Functional,Must,EPIC-209,Task runner interface and capability model,M2,2,Runner contract tests against disposable execution environments,Proposed
-URS-F-0252,Functional,Must,EPIC-209,Task runner interface and capability model,M2,2,Runner contract tests against disposable execution environments,Proposed
-URS-F-0253,Functional,Must,EPIC-209,Task runner interface and capability model,M2,2,Runner contract tests against disposable execution environments,Proposed
-URS-F-0254,Functional,Must,EPIC-209,Task runner interface and capability model,M2,2,Runner contract tests against disposable execution environments,Proposed
-URS-F-0255,Functional,Must,EPIC-209,Task runner interface and capability model,M2,2,Runner contract tests against disposable execution environments,Proposed
-URS-F-0256,Functional,Must,EPIC-209,Task runner interface and capability model,M2,2,Runner contract tests against disposable execution environments,Proposed
-URS-F-0257,Functional,Must,EPIC-209,Task runner interface and capability model,M2,2,Runner contract tests against disposable execution environments,Proposed
+URS-F-0250,Functional,Must,EPIC-209,Task runner interface and capability model,M2,2,Runner contract tests against disposable execution environments,Verified
+URS-F-0251,Functional,Must,EPIC-209,Task runner interface and capability model,M2,2,Runner contract tests against disposable execution environments,Verified
+URS-F-0252,Functional,Must,EPIC-209,Task runner interface and capability model,M2,2,Runner contract tests against disposable execution environments,Verified
+URS-F-0253,Functional,Must,EPIC-209,Task runner interface and capability model,M2,2,Runner contract tests against disposable execution environments,Verified
+URS-F-0254,Functional,Must,EPIC-209,Task runner interface and capability model,M2,2,Runner contract tests against disposable execution environments,Verified
+URS-F-0255,Functional,Must,EPIC-209,Task runner interface and capability model,M2,2,Runner contract tests against disposable execution environments,Verified
+URS-F-0256,Functional,Must,EPIC-209,Task runner interface and capability model,M2,2,Runner contract tests against disposable execution environments,Verified
+URS-F-0257,Functional,Must,EPIC-209,Task runner interface and capability model,M2,2,Runner contract tests against disposable execution environments,Verified
 URS-F-0258,Functional,Must,EPIC-220,Local process task runner,M2,2,Runner contract tests against disposable execution environments,Proposed
 URS-F-0259,Functional,Must,EPIC-220,Local process task runner,M2,2,Runner contract tests against disposable execution environments,Proposed
 URS-F-0260,Functional,Must,EPIC-220,Local process task runner,M2,2,Runner contract tests against disposable execution environments,Proposed

@@ -3,18 +3,45 @@ from __future__ import annotations
 import asyncio
 import hashlib
 import math
+from collections.abc import Mapping
 from dataclasses import dataclass
+from time import perf_counter
 from typing import Any
 
 from kubernetes.aio import client, config  # type: ignore[import-untyped]
 from kubernetes.aio.client.exceptions import ApiException  # type: ignore[import-untyped]
 
 from amesh.ports import (
+    KubernetesJobRunnerExtension,
+    RunnerCapabilities,
+    RunnerDiagnostics,
+    RunnerId,
+    RunnerLog,
+    RunnerLogStream,
+    RunnerMetrics,
+    RunnerReconciliationResult,
     RunnerRequest,
     RunnerResult,
     RunnerStatus,
     StaleRunnerAttemptError,
     TaskRunner,
+    validate_runner_request,
+)
+
+_CAPABILITIES = RunnerCapabilities(
+    runner=RunnerId.KUBERNETES,
+    acceptsCommand=True,
+    requiresCommand=True,
+    acceptsImage=True,
+    requiresImage=True,
+    supportsFiles=False,
+    supportsWorkingDirectory=False,
+    supportsResources=True,
+    supportsSecurityPolicy=True,
+    supportsScopedCredentials=True,
+    supportsReconciliation=True,
+    extensionType=RunnerId.KUBERNETES,
+    cancellationEscalation=("delete", "foreground-propagation", "api-retry"),
 )
 
 
@@ -27,6 +54,8 @@ class _ActiveJob:
 
 class KubernetesJobRunner(TaskRunner):
     """Runs one fenced task attempt as one deterministic Kubernetes Job."""
+
+    CAPABILITIES = _CAPABILITIES
 
     def __init__(
         self,
@@ -44,6 +73,10 @@ class KubernetesJobRunner(TaskRunner):
         self._cleanup_finished_jobs = cleanup_finished_jobs
         self._active: dict[str, _ActiveJob] = {}
         self._lock = asyncio.Lock()
+
+    @property
+    def capabilities(self) -> RunnerCapabilities:
+        return self.CAPABILITIES
 
     @classmethod
     async def from_kube_config(
@@ -77,10 +110,8 @@ class KubernetesJobRunner(TaskRunner):
         )
 
     async def run(self, request: RunnerRequest) -> RunnerResult:
-        if request.image is None:
-            raise ValueError("Kubernetes Job runner requires a container image")
-        if not request.command:
-            raise ValueError("Kubernetes Job command must not be empty")
+        validate_runner_request(self.capabilities, request)
+        started_at = perf_counter()
 
         active = _ActiveJob(
             name=_job_name(request.attempt_id),
@@ -95,7 +126,12 @@ class KubernetesJobRunner(TaskRunner):
             while True:
                 try:
                     await self._create_or_reconcile_job(active.name, request)
-                    return await self._wait_for_result(active, request)
+                    result = await self._wait_for_result(active, request)
+                    return result.model_copy(
+                        update={
+                            "metrics": RunnerMetrics(duration_seconds=perf_counter() - started_at)
+                        }
+                    )
                 except ApiException as exc:
                     if exc.status != 401:
                         raise
@@ -117,6 +153,33 @@ class KubernetesJobRunner(TaskRunner):
                 )
             active.cancel_requested = True
         await self._delete_job(active.name)
+
+    async def reconcile(
+        self,
+        active_attempts: Mapping[str, int],
+    ) -> RunnerReconciliationResult:
+        jobs = await self._batch.list_namespaced_job(
+            self._namespace,
+            label_selector="app.kubernetes.io/name=amesh-task",
+        )
+        cleaned: list[str] = []
+        retained: list[str] = []
+        for job in jobs.items or []:
+            labels = job.metadata.labels or {}
+            attempt_id = labels.get("amesh.io/attempt")
+            fence = labels.get("amesh.io/fence")
+            if attempt_id is None or fence is None:
+                continue
+            if active_attempts.get(attempt_id) == int(fence):
+                retained.append(attempt_id)
+                continue
+            await self._delete_job(str(job.metadata.name))
+            cleaned.append(attempt_id)
+        return RunnerReconciliationResult(
+            runner=RunnerId.KUBERNETES,
+            cleanedAttempts=tuple(sorted(cleaned)),
+            retainedAttempts=tuple(sorted(retained)),
+        )
 
     async def close(self) -> None:
         await self._api_client.close()
@@ -147,9 +210,13 @@ class KubernetesJobRunner(TaskRunner):
         while True:
             if active.cancel_requested:
                 return RunnerResult(
+                    runner=RunnerId.KUBERNETES,
                     exit_code=None,
                     status=RunnerStatus.CANCELLED,
-                    diagnostics={"jobName": active.name},
+                    diagnostics=RunnerDiagnostics(
+                        runner=RunnerId.KUBERNETES,
+                        externalId=active.name,
+                    ),
                 )
             try:
                 job = await self._batch.read_namespaced_job(active.name, self._namespace)
@@ -194,13 +261,15 @@ class KubernetesJobRunner(TaskRunner):
         )
         if pod is None:
             return RunnerResult(
+                runner=RunnerId.KUBERNETES,
                 exit_code=None,
                 status=status,
-                diagnostics={
-                    "jobName": job_name,
-                    "reason": reason,
-                    "message": message,
-                },
+                diagnostics=RunnerDiagnostics(
+                    runner=RunnerId.KUBERNETES,
+                    externalId=job_name,
+                    reason=reason,
+                    message=message,
+                ),
             )
 
         pod_name = str(pod.metadata.name)
@@ -211,15 +280,18 @@ class KubernetesJobRunner(TaskRunner):
         )
         exit_code = _pod_exit_code(pod)
         return RunnerResult(
+            runner=RunnerId.KUBERNETES,
             exit_code=exit_code,
             status=status,
+            logs=(RunnerLog(sequence=0, stream=RunnerLogStream.STDOUT, message=log),),
             outputs={"stdout": log, "stderr": ""},
-            diagnostics={
-                "jobName": job_name,
-                "podName": pod_name,
-                "reason": reason,
-                "message": message,
-            },
+            diagnostics=RunnerDiagnostics(
+                runner=RunnerId.KUBERNETES,
+                externalId=job_name,
+                reason=reason,
+                message=message,
+                details={"podName": pod_name},
+            ),
         )
 
     async def _delete_job(self, name: str) -> None:
@@ -240,34 +312,58 @@ def _job_name(attempt_id: str) -> str:
 
 
 def _job_body(name: str, request: RunnerRequest) -> dict[str, Any]:
+    extension = (
+        request.extension
+        if isinstance(request.extension, KubernetesJobRunnerExtension)
+        else KubernetesJobRunnerExtension(type=RunnerId.KUBERNETES)
+    )
     labels = {
         "app.kubernetes.io/name": "amesh-task",
         "amesh.io/attempt": request.attempt_id,
         "amesh.io/fence": str(request.fencing_token),
+        **extension.labels,
     }
+    environment = dict(request.environment)
+    environment.update(
+        {
+            credential.environment_variable: credential.value.get_secret_value()
+            for credential in request.credentials
+        }
+    )
+    container: dict[str, Any] = {
+        "name": "task",
+        "image": request.image,
+        "command": request.command,
+        "env": [{"name": key, "value": value} for key, value in sorted(environment.items())],
+        "resources": {
+            "requests": request.resource_limits,
+            "limits": request.resource_limits,
+        },
+    }
+    if not request.security_policy.is_default:
+        container["securityContext"] = {
+            "privileged": request.security_policy.privileged,
+            "readOnlyRootFilesystem": request.security_policy.read_only_root_filesystem,
+            **(
+                {"runAsUser": request.security_policy.run_as_user}
+                if request.security_policy.run_as_user is not None
+                else {}
+            ),
+        }
+    pod_spec: dict[str, Any] = {
+        "restartPolicy": "Never",
+        "terminationGracePeriodSeconds": math.ceil(request.cancel_grace_seconds),
+        "containers": [container],
+    }
+    if extension.service_account_name is not None:
+        pod_spec["serviceAccountName"] = extension.service_account_name
+    if extension.node_selector:
+        pod_spec["nodeSelector"] = extension.node_selector
     job_spec: dict[str, Any] = {
         "backoffLimit": 1,
         "template": {
             "metadata": {"labels": labels},
-            "spec": {
-                "restartPolicy": "Never",
-                "terminationGracePeriodSeconds": math.ceil(request.cancel_grace_seconds),
-                "containers": [
-                    {
-                        "name": "task",
-                        "image": request.image,
-                        "command": request.command,
-                        "env": [
-                            {"name": key, "value": value}
-                            for key, value in sorted(request.environment.items())
-                        ],
-                        "resources": {
-                            "requests": request.resource_limits,
-                            "limits": request.resource_limits,
-                        },
-                    }
-                ],
-            },
+            "spec": pod_spec,
         },
     }
     if request.timeout_seconds is not None:

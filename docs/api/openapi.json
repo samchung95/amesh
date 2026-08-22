@@ -5174,12 +5174,124 @@
         "title": "RotateCredentialRequest",
         "type": "object"
       },
+      "RunnerCapabilities": {
+        "properties": {
+          "acceptsCommand": {
+            "default": true,
+            "title": "Acceptscommand",
+            "type": "boolean"
+          },
+          "acceptsImage": {
+            "default": false,
+            "title": "Acceptsimage",
+            "type": "boolean"
+          },
+          "cancellationEscalation": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Cancellationescalation",
+            "type": "array"
+          },
+          "contractVersions": {
+            "default": [
+              "1.0"
+            ],
+            "items": {
+              "const": "1.0",
+              "type": "string"
+            },
+            "title": "Contractversions",
+            "type": "array"
+          },
+          "extensionType": {
+            "$ref": "#/components/schemas/RunnerId"
+          },
+          "networkAccess": {
+            "default": [
+              "inherit"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/RunnerNetworkAccess"
+            },
+            "title": "Networkaccess",
+            "type": "array"
+          },
+          "requiresCommand": {
+            "default": false,
+            "title": "Requirescommand",
+            "type": "boolean"
+          },
+          "requiresImage": {
+            "default": false,
+            "title": "Requiresimage",
+            "type": "boolean"
+          },
+          "runner": {
+            "$ref": "#/components/schemas/RunnerId"
+          },
+          "supportsFiles": {
+            "default": false,
+            "title": "Supportsfiles",
+            "type": "boolean"
+          },
+          "supportsReconciliation": {
+            "default": true,
+            "title": "Supportsreconciliation",
+            "type": "boolean"
+          },
+          "supportsResources": {
+            "default": false,
+            "title": "Supportsresources",
+            "type": "boolean"
+          },
+          "supportsScopedCredentials": {
+            "default": true,
+            "title": "Supportsscopedcredentials",
+            "type": "boolean"
+          },
+          "supportsSecurityPolicy": {
+            "default": false,
+            "title": "Supportssecuritypolicy",
+            "type": "boolean"
+          },
+          "supportsWorkingDirectory": {
+            "default": false,
+            "title": "Supportsworkingdirectory",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "runner",
+          "extensionType",
+          "cancellationEscalation"
+        ],
+        "title": "RunnerCapabilities",
+        "type": "object"
+      },
+      "RunnerId": {
+        "enum": [
+          "local",
+          "kubernetes"
+        ],
+        "title": "RunnerId",
+        "type": "string"
+      },
       "RunnerMode": {
         "enum": [
           "local",
           "kubernetes"
         ],
         "title": "RunnerMode",
+        "type": "string"
+      },
+      "RunnerNetworkAccess": {
+        "enum": [
+          "inherit",
+          "none",
+          "restricted"
+        ],
+        "title": "RunnerNetworkAccess",
         "type": "string"
       },
       "SchedulePreview": {
@@ -17738,6 +17850,91 @@
         "summary": "Get Reconciliation",
         "tags": [
           "operations"
+        ]
+      }
+    },
+    "/api/v1/runners/capabilities": {
+      "get": {
+        "operationId": "list_runner_capabilities_api_v1_runners_capabilities_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/RunnerCapabilities"
+                  },
+                  "title": "Response List Runner Capabilities Api V1 Runners Capabilities Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Runner Capabilities",
+        "tags": [
+          "workers"
         ]
       }
     },

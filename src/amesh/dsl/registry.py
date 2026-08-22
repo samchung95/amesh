@@ -209,6 +209,59 @@ def _core_descriptors() -> tuple[ResourceSchemaDescriptor, ...]:
         "workspaceQuotaBytes": {"type": "integer", "minimum": 1},
         "retainDiagnosticsOnFailure": {"type": "boolean"},
     }
+    runner_properties = {
+        "taskRunner": {
+            "oneOf": [
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {"const": "local"},
+                        "inheritHostEnvironment": {"type": "boolean"},
+                        "allowedHostEnvironment": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "uniqueItems": True,
+                        },
+                    },
+                    "required": ["type"],
+                    "additionalProperties": False,
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {"const": "kubernetes"},
+                        "serviceAccountName": {"type": "string", "minLength": 1},
+                        "labels": string_map,
+                        "nodeSelector": string_map,
+                    },
+                    "required": ["type"],
+                    "additionalProperties": False,
+                },
+            ]
+        },
+        "runnerCredentials": string_map,
+        "networkPolicy": {
+            "type": "object",
+            "properties": {
+                "access": {"type": "string", "enum": ["inherit", "none", "restricted"]},
+                "allowedEgress": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "uniqueItems": True,
+                },
+            },
+            "additionalProperties": False,
+        },
+        "securityPolicy": {
+            "type": "object",
+            "properties": {
+                "privileged": {"type": "boolean"},
+                "readOnlyRootFilesystem": {"type": "boolean"},
+                "runAsUser": {"type": "integer", "minimum": 0},
+            },
+            "additionalProperties": False,
+        },
+    }
     return (
         _descriptor(
             "core.return",
@@ -264,6 +317,7 @@ def _core_descriptors() -> tuple[ResourceSchemaDescriptor, ...]:
                     "resources": {"type": "object"},
                     "timeoutSeconds": timeout,
                     **workspace_properties,
+                    **runner_properties,
                 },
                 required=("command",),
             ),
@@ -279,6 +333,10 @@ def _core_descriptors() -> tuple[ResourceSchemaDescriptor, ...]:
                 "outputManifest",
                 "workspaceQuotaBytes",
                 "retainDiagnosticsOnFailure",
+                "taskRunner",
+                "runnerCredentials",
+                "networkPolicy",
+                "securityPolicy",
                 "resources",
                 "timeoutSeconds",
             ),
