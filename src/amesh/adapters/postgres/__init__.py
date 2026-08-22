@@ -7,6 +7,7 @@ from .metadata_repository import PostgresMetadataRepository
 from .operations_repository import (
     BackupCheckpoint,
     PostgresOperationsRepository,
+    RecoveryExercise,
     TableMaintenanceStatus,
 )
 from .reconciliation_repository import PostgresReconciliationRepository
@@ -29,5 +30,6 @@ __all__ = [
     "PostgresServiceRegistryRepository",
     "PostgresTenantRepository",
     "PostgresWorkerRepository",
+    "RecoveryExercise",
     "TableMaintenanceStatus",
 ]

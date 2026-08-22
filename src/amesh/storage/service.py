@@ -147,6 +147,59 @@ class VerifiedObjectStore:
             self._request("head", "error", started)
             raise
 
+    def get_version(self, tenant_id: str, metadata: ObjectMetadata) -> AsyncIterator[bytes]:
+        if metadata.tenant_id != tenant_id:
+            raise ValueError("object metadata belongs to another tenant")
+        version_id = metadata.version_id
+        if version_id is None:
+            return self.get(tenant_id, metadata.uri)
+
+        async def verified_chunks() -> AsyncIterator[bytes]:
+            started = perf_counter()
+            size = 0
+            try:
+                selected = await self._backend.head_version(
+                    tenant_id,
+                    metadata.uri,
+                    version_id,
+                )
+                if (
+                    selected.version_id != version_id
+                    or selected.size != metadata.size
+                    or selected.checksum_sha256 != metadata.checksum_sha256
+                ):
+                    self._corrupt()
+                    raise ObjectIntegrityError(
+                        f"version metadata mismatch for {metadata.uri}@{version_id}"
+                    )
+                digest = hashlib.sha256()
+                with SpooledTemporaryFile(max_size=self._spool_memory_bytes, mode="w+b") as spool:
+                    async for chunk in self._backend.get_version(
+                        tenant_id,
+                        metadata.uri,
+                        version_id,
+                    ):
+                        if not chunk:
+                            continue
+                        size += len(chunk)
+                        digest.update(chunk)
+                        spool.write(chunk)
+                    if size != metadata.size or digest.hexdigest() != metadata.checksum_sha256:
+                        self._corrupt()
+                        raise ObjectIntegrityError(
+                            f"version checksum verification failed for {metadata.uri}"
+                        )
+                    STORAGE_TRANSFER_BYTES.labels(self.backend.value, "read").inc(size)
+                    spool.seek(0)
+                    while chunk := spool.read(64 * 1024):
+                        yield chunk
+                self._request("get_version", "success", started)
+            except Exception:
+                self._request("get_version", "error", started)
+                raise
+
+        return verified_chunks()
+
     def iter_objects(self, tenant_id: str) -> AsyncIterator[ObjectMetadata]:
         return self._backend.iter_objects(tenant_id)
 

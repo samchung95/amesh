@@ -181,13 +181,17 @@ async def apply_migrations(
     return applied
 
 
-async def create_ephemeral_database(database_url: str) -> EphemeralDatabase:
+async def create_ephemeral_database(
+    database_url: str,
+    *,
+    ssl_argument: ssl.SSLContext | bool | None = None,
+) -> EphemeralDatabase:
     """Create one exact, isolated PostgreSQL database for migration/repository tests."""
 
     parts = _split_database_url(database_url)
     name = f"amesh_test_{uuid4().hex[:16]}"
     admin_url = _replace_database(parts, "postgres")
-    connection = await asyncpg.connect(admin_url)
+    connection = await asyncpg.connect(admin_url, ssl=ssl_argument)
     try:
         await connection.execute(f'CREATE DATABASE "{name}" TEMPLATE template0')
     finally:
@@ -195,13 +199,21 @@ async def create_ephemeral_database(database_url: str) -> EphemeralDatabase:
     return EphemeralDatabase(name=name, database_url=_replace_database(parts, name, asyncpg=False))
 
 
-async def drop_ephemeral_database(database_url: str, name: str) -> None:
+async def drop_ephemeral_database(
+    database_url: str,
+    name: str,
+    *,
+    ssl_argument: ssl.SSLContext | bool | None = None,
+) -> None:
     """Drop only databases created by :func:`create_ephemeral_database`."""
 
     if _EPHEMERAL_NAME.fullmatch(name) is None:
         raise ValueError(f"refusing to drop non-ephemeral database {name!r}")
     parts = _split_database_url(database_url)
-    connection = await asyncpg.connect(_replace_database(parts, "postgres"))
+    connection = await asyncpg.connect(
+        _replace_database(parts, "postgres"),
+        ssl=ssl_argument,
+    )
     try:
         await connection.execute(
             "SELECT pg_terminate_backend(pid) FROM pg_stat_activity "

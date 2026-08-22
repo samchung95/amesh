@@ -104,6 +104,17 @@ objectStorage:
   secretKeyKey: secret-key
   azureAccountKeyKey: azure-account-key
 
+recovery:
+  enabled: false
+  schedule: "0 3 * * *"
+  profile: v1
+  actor: system:scheduled-recovery
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  backoffLimit: 0
+  resources: {}
+
 adminToken:
   existingSecret: amesh-admin
   key: token

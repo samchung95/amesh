@@ -150,6 +150,12 @@
       "mode": "expand",
       "onlineCompatible": true,
       "rollbackGuidance": "Stop independent service-role deployments and forward-fix the additive registry; retain drain audit evidence and let compact deployments continue using PostgreSQL runtime truth."
+    },
+    {
+      "file": "0026_disaster_recovery.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Stop scheduled recovery exercises and forward-fix the additive evidence ledger or projection rebuild function; retain all checkpoint and exercise evidence."
     }
   ]
 }

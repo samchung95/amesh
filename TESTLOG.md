@@ -1004,3 +1004,50 @@ exercise passes. The checked-in OpenRouter default remains `openai/gpt-5.6-luna`
 does not invoke an LLM.
 
 Verdict: PASS — EPIC-605 portable storage scope closed.
+
+## EPIC-609: Backup, restore and disaster recovery — 2026-08-22
+
+Spec source: `backlog/epics/epic-609-backup-restore-and-disaster-recovery.md` and
+`docs/operations/disaster-recovery.md`.
+
+Verified with `uv`, PostgreSQL 17.11, the production runtime image, versioned MinIO and Helm 4.0.0:
+
+- [x] Migration 0026 persists recovery-exercise state, RPO/RTO, native client/schema versions,
+  object totals, reconciliation/projection/readiness reports and unresolved gaps. It also provides a
+  bounded rebuild function for `amesh_search_*` and `amesh_analytics_*` materialized views.
+- [x] Backup creation held an exported repeatable-read PostgreSQL snapshot while inventorying exact
+  object versions, produced a custom-format dump, uploaded a canonical SHA-256 manifest, and recorded
+  the snapshot WAL LSN only after durable object writes completed.
+- [x] The runtime image's PostgreSQL 17 tools performed a real `pg_restore` into a guarded disposable
+  database. Restored service and worker identities were stopped, queue/task/generic leases expired,
+  scheduler ownership fenced, projections rebuilt and tenant reconciliation executed before readiness.
+- [x] S3, Azure and GCS provider fakes read explicit object versions. The end-to-end recovery test
+  overwrote an object after backup and proved verification still consumed the manifest's earlier
+  version and checksum.
+- [x] Tenant transfer exports policy, active flows and exact object versions in a canonical
+  checksum-protected bundle; import creates a new tenant and streams verified flows/objects. A mutated
+  bundle was rejected before import.
+- [x] `amesh recovery create`, `verify-latest` and `exercise`, plus tenant-transfer export/import, are
+  available through the uv-managed CLI. The opt-in Helm CronJob runs the same exercise path with
+  overlap forbidden and durable failed-gap evidence.
+- [x] A clean reference exercise applied all 26 migrations and passed with 0.553 seconds RPO, 1.017
+  seconds RTO, one of one objects verified, zero reconciliation gaps and zero restored ownership.
+  A separate restored database containing pre-existing invariant violations correctly recorded a
+  `FAILED` exercise and its 49 unresolved findings instead of producing a false pass.
+- [x] The real isolated restore integration test passed inside the production image. Focused storage,
+  tenant-transfer, migration and recovery tests passed; frontend 8/8 tests and build passed. Docker
+  image build, Helm lint/template, Compose config, Ruff formatting/lint, strict mypy, uv lock and
+  planning regeneration/validation passed.
+
+Full-suite audit on a clean 26-migration database: 224 passed and six environment gates skipped; one
+pre-existing timing-sensitive executor deadline test failed with inconsistent timeout outcomes both in
+the suite and alone. No recovery, storage, tenancy, migration, Helm or frontend test failed, and the
+executor path was not changed by EPIC-609.
+
+Qualification boundary: the measured values qualify the small functional PostgreSQL 17 + MinIO
+reference exercise against the v1 RPO <= 48 hours and RTO <= 8 hours gate. They are not scale,
+multi-zone or regional-failover evidence. The post-GA 4-hour profile still needs an appropriately
+sized WAL archive, schedule and qualification environment. The checked-in OpenRouter default remains
+`openai/gpt-5.6-luna`; recovery does not invoke an LLM.
+
+Verdict: PASS — EPIC-609 closed.

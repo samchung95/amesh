@@ -84,9 +84,26 @@ class GoogleCloudStorageObjectStore:
         return self._metadata(tenant_id, object_key, blob)
 
     def get(self, tenant_id: str, uri: str) -> AsyncIterator[bytes]:
+        return self._get(tenant_id, uri, version_id=None)
+
+    def get_version(
+        self,
+        tenant_id: str,
+        uri: str,
+        version_id: str,
+    ) -> AsyncIterator[bytes]:
+        return self._get(tenant_id, uri, version_id=version_id)
+
+    def _get(
+        self,
+        tenant_id: str,
+        uri: str,
+        *,
+        version_id: str | None,
+    ) -> AsyncIterator[bytes]:
         async def chunks() -> AsyncIterator[bytes]:
             object_key = self._uri_key(tenant_id, uri)
-            blob = self._blob(object_key)
+            blob = self._blob(object_key, generation=version_id)
             reader = await asyncio.to_thread(blob.open, "rb", chunk_size=_READ_BYTES)
             try:
                 while chunk := await asyncio.to_thread(reader.read, _READ_BYTES):
@@ -103,8 +120,25 @@ class GoogleCloudStorageObjectStore:
         await asyncio.to_thread(blob.delete, if_generation_match=blob.generation)
 
     async def head(self, tenant_id: str, uri: str) -> ObjectMetadata:
+        return await self._head(tenant_id, uri, version_id=None)
+
+    async def head_version(
+        self,
+        tenant_id: str,
+        uri: str,
+        version_id: str,
+    ) -> ObjectMetadata:
+        return await self._head(tenant_id, uri, version_id=version_id)
+
+    async def _head(
+        self,
+        tenant_id: str,
+        uri: str,
+        *,
+        version_id: str | None,
+    ) -> ObjectMetadata:
         object_key = self._uri_key(tenant_id, uri)
-        blob = self._blob(object_key)
+        blob = self._blob(object_key, generation=version_id)
         await asyncio.to_thread(blob.reload)
         return self._metadata(tenant_id, object_key, blob)
 
@@ -172,9 +206,15 @@ class GoogleCloudStorageObjectStore:
         )
         return self._injected_client
 
-    def _blob(self, object_key: str) -> Any:
+    def _blob(self, object_key: str, *, generation: str | None = None) -> Any:
         bucket = self._client().bucket(self._bucket)
-        return bucket.blob(object_key, kms_key_name=self._encryption_key_id)
+        if generation is None:
+            return bucket.blob(object_key, kms_key_name=self._encryption_key_id)
+        return bucket.blob(
+            object_key,
+            generation=int(generation),
+            kms_key_name=self._encryption_key_id,
+        )
 
     def _uri_key(self, tenant_id: str, uri: str) -> str:
         return parse_tenant_uri(tenant_id, uri, scheme="gs", container=self._bucket)

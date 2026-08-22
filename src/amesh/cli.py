@@ -13,10 +13,15 @@ import httpx
 import yaml
 
 from amesh import __version__
+from amesh.adapters.postgres import PostgresExecutionRepository, PostgresTenantRepository
 from amesh.config import Settings
+from amesh.database import create_database_engine
 from amesh.dsl import FlowDocumentError, validate_flow_document
 from amesh.ports import StorageMigrationCheckpoint
+from amesh.recovery import RecoveryService
 from amesh.storage.factory import build_object_store
+from amesh.tenancy import TenantService
+from amesh.tenant_transfer import TenantTransferBundle, TenantTransferService
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -73,6 +78,38 @@ def build_parser() -> argparse.ArgumentParser:
     )
     storage_migrate.add_argument("destination_config", type=Path)
     storage_migrate.add_argument("--checkpoint", type=Path, required=True)
+
+    recovery = subcommands.add_parser(
+        "recovery", help="Create and qualify coordinated recovery points"
+    )
+    recovery_commands = recovery.add_subparsers(dest="recovery_command", required=True)
+    recovery_create = recovery_commands.add_parser("create", help="Create a coordinated backup")
+    recovery_create.add_argument("--actor", default="operator:recovery-cli")
+    recovery_verify = recovery_commands.add_parser(
+        "verify-latest", help="Restore and verify the latest backup in an isolated database"
+    )
+    recovery_verify.add_argument("--actor", default="operator:recovery-cli")
+    recovery_verify.add_argument("--profile", default="v1")
+    recovery_verify.add_argument("--scheduled", action="store_true")
+    recovery_exercise = recovery_commands.add_parser(
+        "exercise", help="Create a backup and immediately run an isolated restore exercise"
+    )
+    recovery_exercise.add_argument("--actor", default="operator:recovery-cli")
+    recovery_exercise.add_argument("--profile", default="v1")
+    recovery_exercise.add_argument("--scheduled", action="store_true")
+
+    transfer = subcommands.add_parser(
+        "tenant-transfer", help="Export or import a checksum-protected tenant bundle"
+    )
+    transfer_commands = transfer.add_subparsers(dest="transfer_command", required=True)
+    transfer_export = transfer_commands.add_parser("export", help="Export one tenant")
+    transfer_export.add_argument("tenant_slug")
+    transfer_export.add_argument("path", type=Path)
+    transfer_export.add_argument("--actor", default="operator:tenant-transfer")
+    transfer_import = transfer_commands.add_parser("import", help="Import into a new tenant slug")
+    transfer_import.add_argument("path", type=Path)
+    transfer_import.add_argument("target_slug")
+    transfer_import.add_argument("--actor", default="operator:tenant-transfer")
     return parser
 
 
@@ -121,6 +158,23 @@ def main(argv: Sequence[str] | None = None) -> int:
             print(migration_checkpoint.model_dump_json(indent=2))
             return 0
         except (OSError, ValueError, RuntimeError) as exc:
+            print(str(exc), file=sys.stderr)
+            return 2
+    if args.command == "recovery":
+        try:
+            result = asyncio.run(_run_recovery(args, Settings()))
+            print(result.model_dump_json(indent=2))
+            state = getattr(result, "state", "PASSED")
+            return 0 if state == "PASSED" else 1
+        except (OSError, LookupError, ValueError, RuntimeError) as exc:
+            print(str(exc), file=sys.stderr)
+            return 2
+    if args.command == "tenant-transfer":
+        try:
+            result = asyncio.run(_run_tenant_transfer(args, Settings()))
+            print(result.model_dump_json(indent=2))
+            return 0
+        except (OSError, LookupError, ValueError, RuntimeError) as exc:
             print(str(exc), file=sys.stderr)
             return 2
     try:
@@ -203,6 +257,47 @@ async def _write_storage_checkpoint(
     temporary = path.with_suffix(f"{path.suffix}.tmp")
     temporary.write_text(checkpoint.model_dump_json(indent=2), encoding="utf-8")
     temporary.replace(path)
+
+
+async def _run_recovery(args: argparse.Namespace, settings: Settings) -> Any:
+    service = RecoveryService(settings, build_object_store(settings))
+    if args.recovery_command == "create":
+        return await service.create_backup(actor_id=args.actor)
+    if args.recovery_command == "verify-latest":
+        return await service.verify_latest(
+            actor_id=args.actor,
+            profile=args.profile,
+            scheduled=args.scheduled,
+        )
+    return await service.exercise(
+        actor_id=args.actor,
+        profile=args.profile,
+        scheduled=args.scheduled,
+    )
+
+
+async def _run_tenant_transfer(args: argparse.Namespace, settings: Settings) -> Any:
+    engine = create_database_engine(settings)
+    try:
+        service = TenantTransferService(
+            TenantService(PostgresTenantRepository(engine)),
+            PostgresExecutionRepository(engine),
+            build_object_store(settings),
+        )
+        if args.transfer_command == "export":
+            bundle = await service.export(args.tenant_slug, actor_id=args.actor)
+            temporary = args.path.with_suffix(f"{args.path.suffix}.tmp")
+            temporary.write_text(bundle.model_dump_json(indent=2), encoding="utf-8")
+            temporary.replace(args.path)
+            return bundle
+        bundle = TenantTransferBundle.model_validate_json(args.path.read_text(encoding="utf-8"))
+        return await service.import_bundle(
+            bundle,
+            target_slug=args.target_slug,
+            actor_id=args.actor,
+        )
+    finally:
+        await engine.dispose()
 
 
 if __name__ == "__main__":

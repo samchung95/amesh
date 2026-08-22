@@ -71,6 +71,20 @@ class ObjectStorageBackend(ObjectStore, Protocol):
 
     async def head(self, tenant_id: str, uri: str) -> ObjectMetadata: ...
 
+    def get_version(
+        self,
+        tenant_id: str,
+        uri: str,
+        version_id: str,
+    ) -> AsyncIterator[bytes]: ...
+
+    async def head_version(
+        self,
+        tenant_id: str,
+        uri: str,
+        version_id: str,
+    ) -> ObjectMetadata: ...
+
     def iter_objects(self, tenant_id: str) -> AsyncIterator[ObjectMetadata]: ...
 
     async def set_lifecycle(

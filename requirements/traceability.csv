@@ -627,7 +627,7 @@ URS-F-0625,Functional,Must,EPIC-605,Object storage backends and lifecycle,M6,6,R
 URS-F-0626,Functional,Must,EPIC-605,Object storage backends and lifecycle,M6,6,Repository or storage adapter contract and fault-injection tests,Verified
 URS-F-0627,Functional,Must,EPIC-605,Object storage backends and lifecycle,M6,6,Repository or storage adapter contract and fault-injection tests,Verified
 URS-F-0628,Functional,Must,EPIC-605,Object storage backends and lifecycle,M6,6,Repository or storage adapter contract and fault-injection tests,Verified
-URS-F-0629,Functional,Must,EPIC-605,Object storage backends and lifecycle,M6,6,Repository or storage adapter contract and fault-injection tests,In Progress
+URS-F-0629,Functional,Must,EPIC-605,Object storage backends and lifecycle,M6,6,Repository or storage adapter contract and fault-injection tests,Verified
 URS-F-0630,Functional,Must,EPIC-606,"Containers, Kubernetes and Helm deployment",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
 URS-F-0631,Functional,Must,EPIC-606,"Containers, Kubernetes and Helm deployment",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
 URS-F-0632,Functional,Must,EPIC-606,"Containers, Kubernetes and Helm deployment",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
@@ -652,14 +652,14 @@ URS-F-0650,Functional,Must,EPIC-608,"Retention, purge and data lifecycle",M6,6,"
 URS-F-0651,Functional,Must,EPIC-608,"Retention, purge and data lifecycle",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
 URS-F-0652,Functional,Must,EPIC-608,"Retention, purge and data lifecycle",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
 URS-F-0653,Functional,Must,EPIC-608,"Retention, purge and data lifecycle",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
-URS-F-0654,Functional,Must,EPIC-609,"Backup, restore and disaster recovery",M6,6,"Fault-injection, replay and invariant tests",Proposed
-URS-F-0655,Functional,Must,EPIC-609,"Backup, restore and disaster recovery",M6,6,"Fault-injection, replay and invariant tests",Proposed
-URS-F-0656,Functional,Must,EPIC-609,"Backup, restore and disaster recovery",M6,6,"Fault-injection, replay and invariant tests",Proposed
-URS-F-0657,Functional,Must,EPIC-609,"Backup, restore and disaster recovery",M6,6,"Fault-injection, replay and invariant tests",Proposed
-URS-F-0658,Functional,Must,EPIC-609,"Backup, restore and disaster recovery",M6,6,"Fault-injection, replay and invariant tests",Proposed
-URS-F-0659,Functional,Must,EPIC-609,"Backup, restore and disaster recovery",M6,6,"Fault-injection, replay and invariant tests",Proposed
-URS-F-0660,Functional,Must,EPIC-609,"Backup, restore and disaster recovery",M6,6,"Fault-injection, replay and invariant tests",Proposed
-URS-F-0661,Functional,Must,EPIC-609,"Backup, restore and disaster recovery",M6,6,"Fault-injection, replay and invariant tests",Proposed
+URS-F-0654,Functional,Must,EPIC-609,"Backup, restore and disaster recovery",M6,6,"Fault-injection, replay and invariant tests",Verified
+URS-F-0655,Functional,Must,EPIC-609,"Backup, restore and disaster recovery",M6,6,"Fault-injection, replay and invariant tests",Verified
+URS-F-0656,Functional,Must,EPIC-609,"Backup, restore and disaster recovery",M6,6,"Fault-injection, replay and invariant tests",Verified
+URS-F-0657,Functional,Must,EPIC-609,"Backup, restore and disaster recovery",M6,6,"Fault-injection, replay and invariant tests",Verified
+URS-F-0658,Functional,Must,EPIC-609,"Backup, restore and disaster recovery",M6,6,"Fault-injection, replay and invariant tests",Verified
+URS-F-0659,Functional,Must,EPIC-609,"Backup, restore and disaster recovery",M6,6,"Fault-injection, replay and invariant tests",Verified
+URS-F-0660,Functional,Must,EPIC-609,"Backup, restore and disaster recovery",M6,6,"Fault-injection, replay and invariant tests",Verified
+URS-F-0661,Functional,Must,EPIC-609,"Backup, restore and disaster recovery",M6,6,"Fault-injection, replay and invariant tests",Verified
 URS-F-0662,Functional,Must,EPIC-610,"Upgrades, migrations and LTS policy",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
 URS-F-0663,Functional,Must,EPIC-610,"Upgrades, migrations and LTS policy",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
 URS-F-0664,Functional,Must,EPIC-610,"Upgrades, migrations and LTS policy",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
@@ -848,8 +848,8 @@ URS-NFR-AVAILABILITY-001,Non-functional,Must,EPIC-600,Standalone server and comp
 URS-NFR-AVAILABILITY-001,Non-functional,Must,EPIC-602,PostgreSQL transactional backend,M6,6,Reference topology soak test and SLO calculation.,In Progress
 URS-NFR-AVAILABILITY-002,Non-functional,Must,EPIC-601,Distributed services and high availability,M6,6,Multi-replica chaos and zone-spread tests.,In Progress
 URS-NFR-AVAILABILITY-002,Non-functional,Must,EPIC-603,PostgreSQL distributed work queue and notifications,M6,6,Multi-replica chaos and zone-spread tests.,In Progress
-URS-NFR-AVAILABILITY-003,Non-functional,Must,EPIC-609,"Backup, restore and disaster recovery",M6,6,"Isolated restore exercise on the on-premises Kubernetes reference topology, with measured data-loss window and service-restoration time.",Proposed
-URS-NFR-AVAILABILITY-003,Non-functional,Must,EPIC-805,General availability quality and launch readiness,M8,8,"Isolated restore exercise on the on-premises Kubernetes reference topology, with measured data-loss window and service-restoration time.",Proposed
+URS-NFR-AVAILABILITY-003,Non-functional,Must,EPIC-609,"Backup, restore and disaster recovery",M6,6,"Isolated restore exercise on the on-premises Kubernetes reference topology, with measured data-loss window and service-restoration time.",Verified
+URS-NFR-AVAILABILITY-003,Non-functional,Must,EPIC-805,General availability quality and launch readiness,M8,8,"Isolated restore exercise on the on-premises Kubernetes reference topology, with measured data-loss window and service-restoration time.",Verified
 URS-NFR-AVAILABILITY-004,Non-functional,Must,EPIC-509,"Announcements, maintenance mode and kill switch",M5,5,Upgrade and drain conformance suite.,In Progress
 URS-NFR-AVAILABILITY-004,Non-functional,Must,EPIC-601,Distributed services and high availability,M6,6,Upgrade and drain conformance suite.,In Progress
 URS-NFR-AVAILABILITY-004,Non-functional,Must,EPIC-610,"Upgrades, migrations and LTS policy",M6,6,Upgrade and drain conformance suite.,In Progress

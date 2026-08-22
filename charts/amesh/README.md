@@ -27,6 +27,11 @@ can instead come from `objectStorage.existingSecret`. See the
 [object-storage runbook](../../docs/operations/object-storage.md) for the provider matrix, secret keys,
 integrity checks and migration procedure.
 
+Set `recovery.enabled=true` to schedule a coordinated backup followed by an isolated restore exercise.
+The job records exact object versions, reconciliation results and measured RPO/RTO in PostgreSQL. Its
+database credential must be able to create and drop a disposable database on the recovery target;
+see the [disaster-recovery runbook](../../docs/operations/disaster-recovery.md).
+
 ## Requirements
 
 - Docker, kind, kubectl and Helm 4

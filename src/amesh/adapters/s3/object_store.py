@@ -133,6 +133,23 @@ class S3ObjectStore:
         )
 
     def get(self, tenant_id: str, uri: str) -> AsyncIterator[bytes]:
+        return self._get(tenant_id, uri, version_id=None)
+
+    def get_version(
+        self,
+        tenant_id: str,
+        uri: str,
+        version_id: str,
+    ) -> AsyncIterator[bytes]:
+        return self._get(tenant_id, uri, version_id=version_id)
+
+    def _get(
+        self,
+        tenant_id: str,
+        uri: str,
+        *,
+        version_id: str | None,
+    ) -> AsyncIterator[bytes]:
         async def chunks() -> AsyncIterator[bytes]:
             object_key = self._uri_key(tenant_id, uri)
             async with self._session.client(
@@ -142,7 +159,11 @@ class S3ObjectStore:
                 verify=self._verify,
                 config=self._config,
             ) as client:
-                response = await client.get_object(Bucket=self._bucket, Key=object_key)
+                response = await client.get_object(
+                    Bucket=self._bucket,
+                    Key=object_key,
+                    **({"VersionId": version_id} if version_id is not None else {}),
+                )
                 body = response["Body"]
                 try:
                     while chunk := await body.read(64 * 1024):
@@ -164,6 +185,23 @@ class S3ObjectStore:
             await client.delete_object(Bucket=self._bucket, Key=object_key)
 
     async def head(self, tenant_id: str, uri: str) -> ObjectMetadata:
+        return await self._head(tenant_id, uri, version_id=None)
+
+    async def head_version(
+        self,
+        tenant_id: str,
+        uri: str,
+        version_id: str,
+    ) -> ObjectMetadata:
+        return await self._head(tenant_id, uri, version_id=version_id)
+
+    async def _head(
+        self,
+        tenant_id: str,
+        uri: str,
+        *,
+        version_id: str | None,
+    ) -> ObjectMetadata:
         object_key = self._uri_key(tenant_id, uri)
         async with self._session.client(
             "s3",
@@ -172,8 +210,13 @@ class S3ObjectStore:
             verify=self._verify,
             config=self._config,
         ) as client:
-            response = await client.head_object(Bucket=self._bucket, Key=object_key)
-            tags = await client.get_object_tagging(Bucket=self._bucket, Key=object_key)
+            version = {"VersionId": version_id} if version_id is not None else {}
+            response = await client.head_object(Bucket=self._bucket, Key=object_key, **version)
+            tags = await client.get_object_tagging(
+                Bucket=self._bucket,
+                Key=object_key,
+                **version,
+            )
         values = {item["Key"]: item["Value"] for item in tags.get("TagSet", [])}
         return self._metadata(tenant_id, object_key, response, values)
 

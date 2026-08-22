@@ -89,10 +89,32 @@ class AzureBlobObjectStore:
         )
 
     def get(self, tenant_id: str, uri: str) -> AsyncIterator[bytes]:
+        return self._get(tenant_id, uri, version_id=None)
+
+    def get_version(
+        self,
+        tenant_id: str,
+        uri: str,
+        version_id: str,
+    ) -> AsyncIterator[bytes]:
+        return self._get(tenant_id, uri, version_id=version_id)
+
+    def _get(
+        self,
+        tenant_id: str,
+        uri: str,
+        *,
+        version_id: str | None,
+    ) -> AsyncIterator[bytes]:
         async def chunks() -> AsyncIterator[bytes]:
             object_key = self._uri_key(tenant_id, uri)
             async with self._service() as service:
-                blob = service.get_blob_client(container=self._container, blob=object_key)
+                options = {"version_id": version_id} if version_id is not None else {}
+                blob = service.get_blob_client(
+                    container=self._container,
+                    blob=object_key,
+                    **options,
+                )
                 downloader = await blob.download_blob()
                 async for chunk in downloader.chunks():
                     if chunk:
@@ -107,9 +129,31 @@ class AzureBlobObjectStore:
             await blob.delete_blob(delete_snapshots="include")
 
     async def head(self, tenant_id: str, uri: str) -> ObjectMetadata:
+        return await self._head(tenant_id, uri, version_id=None)
+
+    async def head_version(
+        self,
+        tenant_id: str,
+        uri: str,
+        version_id: str,
+    ) -> ObjectMetadata:
+        return await self._head(tenant_id, uri, version_id=version_id)
+
+    async def _head(
+        self,
+        tenant_id: str,
+        uri: str,
+        *,
+        version_id: str | None,
+    ) -> ObjectMetadata:
         object_key = self._uri_key(tenant_id, uri)
         async with self._service() as service:
-            blob = service.get_blob_client(container=self._container, blob=object_key)
+            options = {"version_id": version_id} if version_id is not None else {}
+            blob = service.get_blob_client(
+                container=self._container,
+                blob=object_key,
+                **options,
+            )
             properties = await blob.get_blob_properties()
         return self._metadata(tenant_id, object_key, properties)
 

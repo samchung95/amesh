@@ -51,3 +51,23 @@ def test_small_medium_and_large_profiles_have_monotonic_replica_capacity() -> No
     assert profiles["large"]["server"]["replicas"] >= 4
     assert profiles["medium"]["highAvailability"]["whenUnsatisfiable"] == "DoNotSchedule"
     assert profiles["large"]["highAvailability"]["whenUnsatisfiable"] == "DoNotSchedule"
+
+
+def test_recovery_cronjob_is_opt_in_and_runs_the_qualified_cli() -> None:
+    values = _yaml(CHART / "values.yaml")
+    recovery = values["recovery"]
+    assert recovery["enabled"] is False
+    assert recovery["concurrencyPolicy"] == "Forbid"
+    assert recovery["schedule"] == "0 3 * * *"
+
+    template = (CHART / "templates" / "recovery-cronjob.yaml").read_text(encoding="utf-8")
+    for required in (
+        "kind: CronJob",
+        ".Values.recovery.enabled",
+        "concurrencyPolicy:",
+        "- recovery",
+        "- exercise",
+        "- --scheduled",
+        "emptyDir: {}",
+    ):
+        assert required in template

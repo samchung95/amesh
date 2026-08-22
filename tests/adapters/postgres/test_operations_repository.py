@@ -41,8 +41,30 @@ def test_backup_checkpoint_and_maintenance_inventory_are_durable() -> None:
             )
 
             assert created.database_lsn
-            assert created.schema_version == "0025_service_registry.sql"
+            assert created.schema_version == "0026_disaster_recovery.sql"
             assert await repository.latest_backup_checkpoint() == created
+            exercise = await repository.start_recovery_exercise(
+                created.checkpoint_id,
+                profile="v1",
+                scheduled=True,
+                actor_id="test:recovery",
+            )
+            completed = await repository.complete_recovery_exercise(
+                exercise.exercise_id,
+                passed=True,
+                rpo_seconds=1.0,
+                rto_seconds=2.0,
+                postgres_client_version="pg_restore 17",
+                restored_schema_version="0026_disaster_recovery.sql",
+                objects_total=2,
+                objects_verified=2,
+                reconciliation={"unresolved": 0},
+                projections={"count": 0},
+                readiness={"ready": True},
+                unresolved_gaps=[],
+            )
+            assert completed.state == "PASSED"
+            assert await repository.get_recovery_exercise(exercise.exercise_id) == completed
             maintenance = await repository.inspect_table_maintenance()
             backup_table = next(
                 item for item in maintenance if item.table_name == "backup_checkpoints"

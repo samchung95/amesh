@@ -17,7 +17,11 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     UV_COMPILE_BYTECODE=1 \
     PATH="/app/.venv/bin:$PATH"
 
-RUN addgroup --system amesh && adduser --system --ingroup amesh amesh
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends postgresql-client \
+    && rm -rf /var/lib/apt/lists/* \
+    && addgroup --system amesh \
+    && adduser --system --ingroup amesh amesh
 
 WORKDIR /app
 COPY --from=uv /uv /uvx /bin/

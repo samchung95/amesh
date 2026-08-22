@@ -100,12 +100,16 @@ class FakeS3Client:
         del Bucket
         self.tags[Key] = list(Tagging["TagSet"])  # type: ignore[arg-type]
 
-    async def get_object_tagging(self, *, Bucket: str, Key: str) -> dict[str, object]:
-        del Bucket
+    async def get_object_tagging(
+        self, *, Bucket: str, Key: str, VersionId: str | None = None
+    ) -> dict[str, object]:
+        del Bucket, VersionId
         return {"TagSet": self.tags.get(Key, [])}
 
-    async def head_object(self, *, Bucket: str, Key: str) -> dict[str, object]:
-        del Bucket
+    async def head_object(
+        self, *, Bucket: str, Key: str, VersionId: str | None = None
+    ) -> dict[str, object]:
+        del Bucket, VersionId
         options = self.upload_options[Key]
         return {
             "ContentLength": len(self.objects[Key]),
@@ -114,8 +118,10 @@ class FakeS3Client:
             "VersionId": "v1",
         }
 
-    async def get_object(self, *, Bucket: str, Key: str) -> dict[str, object]:
-        del Bucket
+    async def get_object(
+        self, *, Bucket: str, Key: str, VersionId: str | None = None
+    ) -> dict[str, object]:
+        del Bucket, VersionId
         return {"Body": FakeBody(self.objects[Key])}
 
     async def delete_object(self, *, Bucket: str, Key: str) -> None:
@@ -153,6 +159,18 @@ def test_s3_adapter_conformance() -> None:
         written = await store.put("tenant-a", "report.bin", chunks(b"abc", b"def"))
         assert written.size == 6 and written.encryption_key_id == "kms-key"
         assert b"".join([part async for part in store.get("tenant-a", written.uri)]) == b"abcdef"
+        versioned = await store.head("tenant-a", written.uri)
+        assert (
+            b"".join(
+                [
+                    part
+                    async for part in store.get_version(
+                        "tenant-a", written.uri, versioned.version_id or ""
+                    )
+                ]
+            )
+            == b"abcdef"
+        )
         updated = await store.set_lifecycle(
             "tenant-a", written.uri, retention_until=None, legal_hold=True
         )
@@ -232,8 +250,10 @@ class FakeAzureService:
     def __init__(self) -> None:
         self.blobs: dict[str, FakeAzureBlob] = {}
 
-    def get_blob_client(self, *, container: str, blob: str) -> FakeAzureBlob:
-        del container
+    def get_blob_client(
+        self, *, container: str, blob: str, version_id: str | None = None
+    ) -> FakeAzureBlob:
+        del container, version_id
         return self.blobs.setdefault(blob, FakeAzureBlob(blob))
 
     def get_container_client(self, container: str) -> FakeAzureContainer:
@@ -253,6 +273,18 @@ def test_azure_adapter_conformance() -> None:
         written = await store.put("tenant-a", "report.bin", chunks(b"azure"))
         assert written.size == 5 and written.encryption_key_id == "scope-a"
         assert b"".join([part async for part in store.get("tenant-a", written.uri)]) == b"azure"
+        versioned = await store.head("tenant-a", written.uri)
+        assert (
+            b"".join(
+                [
+                    part
+                    async for part in store.get_version(
+                        "tenant-a", written.uri, versioned.version_id or ""
+                    )
+                ]
+            )
+            == b"azure"
+        )
         updated = await store.set_lifecycle(
             "tenant-a", written.uri, retention_until=None, legal_hold=True
         )
@@ -318,7 +350,14 @@ class FakeGCSBucket:
     def __init__(self) -> None:
         self.blobs: dict[str, FakeGCSBlob] = {}
 
-    def blob(self, name: str, *, kms_key_name: str | None = None) -> FakeGCSBlob:
+    def blob(
+        self,
+        name: str,
+        *,
+        generation: int | None = None,
+        kms_key_name: str | None = None,
+    ) -> FakeGCSBlob:
+        del generation
         return self.blobs.setdefault(name, FakeGCSBlob(name, kms_key_name=kms_key_name))
 
 
@@ -350,6 +389,17 @@ def test_gcs_adapter_conformance() -> None:
         written = await store.put("tenant-a", "report.bin", chunks(b"gcs"))
         assert written.size == 3 and written.version_id == "1"
         assert b"".join([part async for part in store.get("tenant-a", written.uri)]) == b"gcs"
+        assert (
+            b"".join(
+                [
+                    part
+                    async for part in store.get_version(
+                        "tenant-a", written.uri, written.version_id or ""
+                    )
+                ]
+            )
+            == b"gcs"
+        )
         updated = await store.set_lifecycle(
             "tenant-a", written.uri, retention_until=None, legal_hold=True
         )

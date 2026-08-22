@@ -12,14 +12,18 @@ Restore a consistent platform state after data loss or regional failure.
 
 ## In scope
 
-- [ ] **URS-F-0654** — The system shall document coordinated backup points for PostgreSQL metadata, queues and projections, object storage and configuration.
-- [ ] **URS-F-0655** — The system shall automate backup verification through isolated restore tests.
-- [ ] **URS-F-0656** — The system shall support PostgreSQL point-in-time recovery and object-version-aware restoration.
-- [ ] **URS-F-0657** — The system shall rebuild disposable search and analytics projections from authoritative sources.
-- [ ] **URS-F-0658** — The system shall detect and reconcile messages, leases and worker state after restoration.
-- [ ] **URS-F-0659** — The system shall provide tenant-scoped export and import where isolation permits.
-- [ ] **URS-F-0660** — The system shall publish reference recovery time and recovery point procedures with measured evidence.
-- [ ] **URS-F-0661** — The system shall run scheduled disaster-recovery exercises and record unresolved gaps.
+- [x] **URS-F-0654** — The system shall document coordinated backup points for PostgreSQL metadata, queues and projections, object storage and configuration.
+- [x] **URS-F-0655** — The system shall automate backup verification through isolated restore tests.
+- [x] **URS-F-0656** — The system shall support PostgreSQL point-in-time recovery and object-version-aware restoration.
+- [x] **URS-F-0657** — The system shall rebuild disposable search and analytics projections from authoritative sources.
+- [x] **URS-F-0658** — The system shall detect and reconcile messages, leases and worker state after restoration.
+- [x] **URS-F-0659** — The system shall provide tenant-scoped export and import where isolation permits.
+- [x] **URS-F-0660** — The system shall publish reference recovery time and recovery point procedures with measured evidence.
+- [x] **URS-F-0661** — The system shall run scheduled disaster-recovery exercises and record unresolved gaps.
+
+## Implementation completion evidence
+
+- 2026-08-22 — EPIC-609 is complete. Recovery creation holds an exported PostgreSQL snapshot while producing a custom archive and exact versioned object inventory, uploads a canonical checksum-protected manifest, and records its snapshot WAL LSN. Verification downloads exact object versions, performs an isolated `pg_restore`, fences restored services/workers/claims/leases/schedulers, rebuilds disposable projections, runs tenant reconciliation and persists RPO, RTO, readiness and unresolved gaps. Checksum-protected tenant flow/object export-import, native CLI commands and an opt-in Helm CronJob use the same implementation. A fresh PostgreSQL 17 + versioned-MinIO exercise applied 26 migrations and passed in 1.017 seconds RTO with 0.553 seconds RPO, one of one objects verified and no gaps. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`disaster-recovery.md`](../../docs/operations/disaster-recovery.md), [`recovery.py`](../../src/amesh/recovery.py), [`0026_disaster_recovery.sql`](../../migrations/0026_disaster_recovery.sql), and [`test_disaster_recovery.py`](../../tests/adapters/postgres/test_disaster_recovery.py).
 
 ## Non-functional requirements
 
@@ -49,13 +53,13 @@ Restore a consistent platform state after data loss or regional failure.
 
 ## Definition of done
 
-- [ ] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
-- [ ] Public API, DSL, event and plugin contract changes pass compatibility checks.
-- [ ] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
-- [ ] Security, tenant isolation, redaction and audit behavior are reviewed.
-- [ ] Documentation, examples, migration notes and operational runbooks are updated.
-- [ ] Performance and recovery budgets are measured when this epic is on a critical path.
-- [ ] `python scripts/validate_backlog.py` passes.
+- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
+- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.
+- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
+- [x] Security, tenant isolation, redaction and audit behavior are reviewed.
+- [x] Documentation, examples, migration notes and operational runbooks are updated.
+- [x] Performance and recovery budgets are measured when this epic is on a critical path.
+- [x] `python scripts/validate_backlog.py` passes.
 
 ## Risks and unknowns
 

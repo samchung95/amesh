@@ -72,6 +72,7 @@ services:
       - ./migrations/0023_distributed_queue_profile.sql:/docker-entrypoint-initdb.d/0023_distributed_queue_profile.sql:ro
       - ./migrations/0024_reconciliation_runs.sql:/docker-entrypoint-initdb.d/0024_reconciliation_runs.sql:ro
       - ./migrations/0025_service_registry.sql:/docker-entrypoint-initdb.d/0025_service_registry.sql:ro
+      - ./migrations/0026_disaster_recovery.sql:/docker-entrypoint-initdb.d/0026_disaster_recovery.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U amesh -d amesh"]
       interval: 5s

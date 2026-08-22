@@ -17470,7 +17470,9 @@
       ],
       "evidence": [
         "tests/storage/test_service.py::test_verified_storage_retries_visibility_and_detects_corruption_before_yield",
-        "tests/storage/test_minio_integration.py"
+        "tests/storage/test_minio_integration.py",
+        "tests/test_tenant_transfer.py::test_checksum_protected_tenant_export_import",
+        "tests/adapters/postgres/test_disaster_recovery.py::test_backup_is_restored_reconciled_and_version_verified"
       ]
     },
     {
@@ -17567,7 +17569,7 @@
       "id": "URS-F-0629",
       "type": "Functional",
       "priority": "Must",
-      "status": "In Progress",
+      "status": "Verified",
       "milestone": "M6",
       "wave": 6,
       "epic_id": "EPIC-605",
@@ -17589,8 +17591,9 @@
         "EPIC-010"
       ],
       "evidence": [
-        "src/amesh/storage/service.py::VerifiedObjectStore.validate_inventory",
-        "docs/operations/object-storage.md"
+        "src/amesh/storage/service.py::VerifiedObjectStore.get_version",
+        "tests/adapters/postgres/test_disaster_recovery.py::test_backup_is_restored_reconciled_and_version_verified",
+        "docs/operations/disaster-recovery.md"
       ]
     },
     {
@@ -18261,7 +18264,7 @@
       "id": "URS-F-0654",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M6",
       "wave": 6,
       "epic_id": "EPIC-609",
@@ -18284,13 +18287,17 @@
         "EPIC-602",
         "EPIC-603",
         "EPIC-605"
+      ],
+      "evidence": [
+        "src/amesh/recovery.py::RecoveryService.create_backup",
+        "docs/operations/disaster-recovery.md"
       ]
     },
     {
       "id": "URS-F-0655",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M6",
       "wave": 6,
       "epic_id": "EPIC-609",
@@ -18313,13 +18320,17 @@
         "EPIC-602",
         "EPIC-603",
         "EPIC-605"
+      ],
+      "evidence": [
+        "src/amesh/recovery.py::RecoveryService.verify_latest",
+        "tests/adapters/postgres/test_disaster_recovery.py::test_backup_is_restored_reconciled_and_version_verified"
       ]
     },
     {
       "id": "URS-F-0656",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M6",
       "wave": 6,
       "epic_id": "EPIC-609",
@@ -18342,13 +18353,17 @@
         "EPIC-602",
         "EPIC-603",
         "EPIC-605"
+      ],
+      "evidence": [
+        "src/amesh/storage/service.py::VerifiedObjectStore.get_version",
+        "docs/operations/disaster-recovery.md"
       ]
     },
     {
       "id": "URS-F-0657",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M6",
       "wave": 6,
       "epic_id": "EPIC-609",
@@ -18371,13 +18386,17 @@
         "EPIC-602",
         "EPIC-603",
         "EPIC-605"
+      ],
+      "evidence": [
+        "migrations/0026_disaster_recovery.sql",
+        "tests/adapters/postgres/test_disaster_recovery.py::test_backup_is_restored_reconciled_and_version_verified"
       ]
     },
     {
       "id": "URS-F-0658",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M6",
       "wave": 6,
       "epic_id": "EPIC-609",
@@ -18400,13 +18419,17 @@
         "EPIC-602",
         "EPIC-603",
         "EPIC-605"
+      ],
+      "evidence": [
+        "src/amesh/adapters/postgres/operations_repository.py::PostgresOperationsRepository.prepare_restored_state",
+        "tests/adapters/postgres/test_disaster_recovery.py::test_backup_is_restored_reconciled_and_version_verified"
       ]
     },
     {
       "id": "URS-F-0659",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M6",
       "wave": 6,
       "epic_id": "EPIC-609",
@@ -18429,13 +18452,17 @@
         "EPIC-602",
         "EPIC-603",
         "EPIC-605"
+      ],
+      "evidence": [
+        "src/amesh/tenant_transfer.py::TenantTransferService",
+        "tests/test_tenant_transfer.py::test_checksum_protected_tenant_export_import"
       ]
     },
     {
       "id": "URS-F-0660",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M6",
       "wave": 6,
       "epic_id": "EPIC-609",
@@ -18458,13 +18485,17 @@
         "EPIC-602",
         "EPIC-603",
         "EPIC-605"
+      ],
+      "evidence": [
+        "docs/operations/disaster-recovery.md",
+        "TESTLOG.md"
       ]
     },
     {
       "id": "URS-F-0661",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M6",
       "wave": 6,
       "epic_id": "EPIC-609",
@@ -18487,6 +18518,10 @@
         "EPIC-602",
         "EPIC-603",
         "EPIC-605"
+      ],
+      "evidence": [
+        "charts/amesh/templates/recovery-cronjob.yaml",
+        "src/amesh/adapters/postgres/operations_repository.py::PostgresOperationsRepository.complete_recovery_exercise"
       ]
     },
     {
@@ -23549,7 +23584,12 @@
         "EPIC-805"
       ],
       "priority": "Must",
-      "status": "Proposed"
+      "status": "Verified",
+      "evidence": [
+        "tests/adapters/postgres/test_disaster_recovery.py::test_backup_is_restored_reconciled_and_version_verified",
+        "docs/operations/disaster-recovery.md",
+        "TESTLOG.md"
+      ]
     },
     {
       "id": "URS-NFR-AVAILABILITY-004",
