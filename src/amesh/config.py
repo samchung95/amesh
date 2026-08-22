@@ -73,6 +73,7 @@ class Settings(BaseSettings):
     worker_group: str = "default"
     kubernetes_context: str | None = None
     kubernetes_task_namespace: str = "amesh-tasks"
+    execution_runner_mode: Literal["local", "kubernetes"] = "kubernetes"
     worker_poll_seconds: float = Field(default=5.0, gt=0)
     worker_recovery_grace_seconds: float = Field(default=120.0, ge=0)
     worker_reconciliation_interval_seconds: float = Field(default=60.0, ge=5)

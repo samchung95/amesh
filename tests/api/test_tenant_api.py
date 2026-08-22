@@ -135,7 +135,7 @@ def test_multi_tenant_api_lifecycle_and_resource_isolation() -> None:
 
                 missing_context = await client.get("/api/v1/flows")
                 assert missing_context.status_code == 400
-                assert missing_context.json() == {"detail": "X-Amesh-Tenant header required"}
+                assert missing_context.json()["detail"] == "X-Amesh-Tenant header required"
 
                 flow_yaml = (
                     "id: shared-flow\n"
@@ -196,7 +196,7 @@ def test_multi_tenant_api_lifecycle_and_resource_isolation() -> None:
                     headers={"X-Amesh-Tenant": first_slug},
                 )
                 assert unavailable.status_code == 404
-                assert unavailable.json() == {"detail": "tenant unavailable"}
+                assert unavailable.json()["detail"] == "tenant unavailable"
                 assert (
                     await client.post(f"/api/v1/admin/tenants/{first_slug}/restore")
                 ).status_code == 200

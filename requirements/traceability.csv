@@ -396,14 +396,14 @@ URS-F-0394,Functional,Must,EPIC-313,Plugin developer portal and certification su
 URS-F-0395,Functional,Must,EPIC-313,Plugin developer portal and certification suite,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
 URS-F-0396,Functional,Must,EPIC-313,Plugin developer portal and certification suite,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
 URS-F-0397,Functional,Must,EPIC-313,Plugin developer portal and certification suite,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
-URS-F-0398,Functional,Must,EPIC-400,Versioned REST API and OpenAPI contract,M4,4,OpenAPI contract and authenticated end-to-end API tests,Proposed
-URS-F-0399,Functional,Must,EPIC-400,Versioned REST API and OpenAPI contract,M4,4,OpenAPI contract and authenticated end-to-end API tests,Proposed
-URS-F-0400,Functional,Must,EPIC-400,Versioned REST API and OpenAPI contract,M4,4,OpenAPI contract and authenticated end-to-end API tests,Proposed
-URS-F-0401,Functional,Must,EPIC-400,Versioned REST API and OpenAPI contract,M4,4,OpenAPI contract and authenticated end-to-end API tests,Proposed
-URS-F-0402,Functional,Must,EPIC-400,Versioned REST API and OpenAPI contract,M4,4,OpenAPI contract and authenticated end-to-end API tests,Proposed
-URS-F-0403,Functional,Must,EPIC-400,Versioned REST API and OpenAPI contract,M4,4,OpenAPI contract and authenticated end-to-end API tests,Proposed
-URS-F-0404,Functional,Must,EPIC-400,Versioned REST API and OpenAPI contract,M4,4,OpenAPI contract and authenticated end-to-end API tests,Proposed
-URS-F-0405,Functional,Must,EPIC-400,Versioned REST API and OpenAPI contract,M4,4,OpenAPI contract and authenticated end-to-end API tests,Proposed
+URS-F-0398,Functional,Must,EPIC-400,Versioned REST API and OpenAPI contract,M4,4,OpenAPI contract and authenticated end-to-end API tests,Verified
+URS-F-0399,Functional,Must,EPIC-400,Versioned REST API and OpenAPI contract,M4,4,OpenAPI contract and authenticated end-to-end API tests,Verified
+URS-F-0400,Functional,Must,EPIC-400,Versioned REST API and OpenAPI contract,M4,4,OpenAPI contract and authenticated end-to-end API tests,Verified
+URS-F-0401,Functional,Must,EPIC-400,Versioned REST API and OpenAPI contract,M4,4,OpenAPI contract and authenticated end-to-end API tests,Verified
+URS-F-0402,Functional,Must,EPIC-400,Versioned REST API and OpenAPI contract,M4,4,OpenAPI contract and authenticated end-to-end API tests,Verified
+URS-F-0403,Functional,Must,EPIC-400,Versioned REST API and OpenAPI contract,M4,4,OpenAPI contract and authenticated end-to-end API tests,Verified
+URS-F-0404,Functional,Must,EPIC-400,Versioned REST API and OpenAPI contract,M4,4,OpenAPI contract and authenticated end-to-end API tests,Verified
+URS-F-0405,Functional,Must,EPIC-400,Versioned REST API and OpenAPI contract,M4,4,OpenAPI contract and authenticated end-to-end API tests,Verified
 URS-F-0406,Functional,Must,EPIC-401,"Realtime API, webhooks and event subscriptions",M4,4,OpenAPI contract and authenticated end-to-end API tests,Proposed
 URS-F-0407,Functional,Must,EPIC-401,"Realtime API, webhooks and event subscriptions",M4,4,OpenAPI contract and authenticated end-to-end API tests,Proposed
 URS-F-0408,Functional,Must,EPIC-401,"Realtime API, webhooks and event subscriptions",M4,4,OpenAPI contract and authenticated end-to-end API tests,Proposed
@@ -888,8 +888,8 @@ URS-NFR-OPERABILITY-005,Non-functional,Must,EPIC-607,"OpenTelemetry, Prometheus 
 URS-NFR-OPERABILITY-006,Non-functional,Must,EPIC-610,"Upgrades, migrations and LTS policy",M6,6,Release metadata validation.,Proposed
 URS-NFR-PERFORMANCE-001,Non-functional,Must,EPIC-400,Versioned REST API and OpenAPI contract,M4,4,Repeatable load test with 10 million retained execution records and realistic filters.,Proposed
 URS-NFR-PERFORMANCE-001,Non-functional,Must,EPIC-409,"Search, indexing and retrieval projections",M4,4,Repeatable load test with 10 million retained execution records and realistic filters.,Proposed
-URS-NFR-PERFORMANCE-002,Non-functional,Must,EPIC-100,Executor and orchestration reducer,M1,1,End-to-end launch benchmark under mixed workload.,Proposed
-URS-NFR-PERFORMANCE-002,Non-functional,Must,EPIC-400,Versioned REST API and OpenAPI contract,M4,4,End-to-end launch benchmark under mixed workload.,Proposed
+URS-NFR-PERFORMANCE-002,Non-functional,Must,EPIC-100,Executor and orchestration reducer,M1,1,End-to-end launch benchmark under mixed workload.,Verified
+URS-NFR-PERFORMANCE-002,Non-functional,Must,EPIC-400,Versioned REST API and OpenAPI contract,M4,4,End-to-end launch benchmark under mixed workload.,Verified
 URS-NFR-PERFORMANCE-003,Non-functional,Must,EPIC-102,Scheduler and temporal correctness,M1,1,Virtual-clock and real-time scheduler benchmark.,Proposed
 URS-NFR-PERFORMANCE-004,Non-functional,Must,EPIC-100,Executor and orchestration reducer,M1,1,Published benchmark on a fixed reference topology.,In Progress
 URS-NFR-PERFORMANCE-004,Non-functional,Must,EPIC-101,"Worker protocol, leases and heartbeats",M1,1,Published benchmark on a fixed reference topology.,In Progress

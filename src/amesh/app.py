@@ -3,9 +3,10 @@ from __future__ import annotations
 import asyncio
 import logging
 import secrets
-from collections.abc import Awaitable, Callable
+from collections.abc import AsyncIterator, Awaitable, Callable, Mapping
 from datetime import UTC, datetime, timedelta
 from functools import lru_cache
+from http import HTTPStatus
 from time import perf_counter
 from typing import Annotated
 from uuid import UUID
@@ -21,10 +22,12 @@ from fastapi import (
     Response,
     status,
 )
+from fastapi.exceptions import RequestValidationError
 from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 from pydantic import TypeAdapter, ValidationError
 from sqlalchemy.ext.asyncio import AsyncEngine
-from starlette.responses import JSONResponse
+from starlette.exceptions import HTTPException as StarletteHTTPException
+from starlette.responses import JSONResponse, StreamingResponse
 
 from amesh import __version__
 from amesh.adapters.kubernetes import KubernetesJobRunner
@@ -40,9 +43,16 @@ from amesh.adapters.postgres import (
     PostgresTenantRepository,
     PostgresWorkerRepository,
 )
+from amesh.api.contracts import (
+    CollectionQuery,
+    collection_response,
+    default_limited_collection_query,
+)
 from amesh.api.models import (
     AuthorizationExplanationRequest,
     BackfillActionRequest,
+    BulkExecutionItemResult,
+    BulkExecutionRequest,
     ChangeLocalPasswordRequest,
     CreateExecutionRequest,
     CreateTenantRequest,
@@ -58,6 +68,7 @@ from amesh.api.models import (
     IssuedCredentialResponse,
     LoginRequest,
     LoginResponse,
+    ProblemDetail,
     ReadinessResponse,
     ReduceExecutionRequest,
     ReduceExecutionResponse,
@@ -186,15 +197,73 @@ app = FastAPI(
 )
 
 
+def _problem_response(
+    request: Request,
+    *,
+    status_code: int,
+    detail: str | list[dict[str, object]],
+    code: str | None = None,
+    headers: Mapping[str, str] | None = None,
+    errors: object | None = None,
+) -> JSONResponse:
+    title = HTTPStatus(status_code).phrase
+    problem_code = code or f"HTTP_{status_code}"
+    content: dict[str, object] = {
+        "type": f"urn:amesh:problem:{problem_code.lower()}",
+        "title": title,
+        "status": status_code,
+        "detail": detail,
+        "code": problem_code,
+        "instance": request.url.path,
+    }
+    if errors is not None:
+        content["errors"] = errors
+    return JSONResponse(
+        status_code=status_code,
+        content=content,
+        headers=headers,
+        media_type="application/problem+json",
+    )
+
+
+@app.exception_handler(StarletteHTTPException)
+async def http_exception_handler(
+    request: Request,
+    exc: StarletteHTTPException,
+) -> JSONResponse:
+    detail = exc.detail if isinstance(exc.detail, (str, list)) else str(exc.detail)
+    return _problem_response(
+        request,
+        status_code=exc.status_code,
+        detail=detail,
+        headers=exc.headers,
+    )
+
+
+@app.exception_handler(RequestValidationError)
+async def request_validation_handler(
+    request: Request,
+    exc: RequestValidationError,
+) -> JSONResponse:
+    return _problem_response(
+        request,
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        detail="Request validation failed",
+        code="REQUEST_VALIDATION_FAILED",
+        errors=exc.errors(),
+    )
+
+
 @app.exception_handler(TenantUnavailableError)
 async def tenant_unavailable_handler(
     request: Request,
     exc: TenantUnavailableError,
 ) -> JSONResponse:
-    del request, exc
-    return JSONResponse(
+    del exc
+    return _problem_response(
+        request,
         status_code=status.HTTP_404_NOT_FOUND,
-        content={"detail": "tenant unavailable"},
+        detail="tenant unavailable",
     )
 
 
@@ -1040,7 +1109,8 @@ async def list_flows(
     actor: ActorDependency,
     authorization_service: AuthorizationServiceDependency,
     tenant_id: TenantDependency,
-) -> list[PersistedFlow]:
+    query: Annotated[CollectionQuery, Depends()],
+) -> Response:
     await authorize_request(
         authorization_service,
         actor,
@@ -1048,7 +1118,7 @@ async def list_flows(
         action=PermissionAction.VIEW,
         tenant_id=tenant_id,
     )
-    return await repository.list_flows(tenant_id=tenant_id)
+    return collection_response(await repository.list_flows(tenant_id=tenant_id), query)
 
 
 @app.get(
@@ -1125,16 +1195,25 @@ async def preview_schedule(
 @app.post(
     "/api/v1/executions",
     response_model=ExecutionDetail,
+    responses={
+        status.HTTP_202_ACCEPTED: {
+            "model": ExecutionDetail,
+            "description": "Execution persisted and accepted for asynchronous processing",
+        }
+    },
     tags=["executions"],
 )
 async def create_execution(
     request: CreateExecutionRequest,
     background_tasks: BackgroundTasks,
+    response: Response,
     repository: RepositoryDependency,
     settings: SettingsDependency,
     actor: ActorDependency,
     authorization_service: AuthorizationServiceDependency,
     tenant_id: TenantDependency,
+    prefer: Annotated[str | None, Header(alias="Prefer")] = None,
+    idempotency_key: Annotated[str | None, Header(alias="Idempotency-Key")] = None,
 ) -> ExecutionDetail:
     await authorize_request(
         authorization_service,
@@ -1152,7 +1231,12 @@ async def create_execution(
         )
     except LookupError as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
-    return await _execute_flow(
+    effective_idempotency_key = _resolve_idempotency_key(
+        request.idempotency_key,
+        idempotency_key,
+    )
+    respond_async = _prefers_async_response(prefer)
+    detail = await _execute_flow(
         repository,
         flow,
         request,
@@ -1163,7 +1247,89 @@ async def create_execution(
         authorization_service=authorization_service,
         background_tasks=background_tasks,
         launch_source=ExecutionLaunchSource.API,
+        idempotency_key=effective_idempotency_key,
+        respond_async=respond_async,
     )
+    if respond_async and detail.execution.state is ExecutionState.RUNNING:
+        response.status_code = status.HTTP_202_ACCEPTED
+        response.headers["Preference-Applied"] = "respond-async"
+        response.headers["Location"] = f"/api/v1/executions/{detail.execution.execution_id}"
+    return detail
+
+
+@app.post(
+    "/api/v1/executions/bulk",
+    response_model=list[BulkExecutionItemResult],
+    status_code=status.HTTP_207_MULTI_STATUS,
+    tags=["executions"],
+)
+async def create_executions_bulk(
+    request: BulkExecutionRequest,
+    background_tasks: BackgroundTasks,
+    repository: RepositoryDependency,
+    settings: SettingsDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    prefer: Annotated[str | None, Header(alias="Prefer")] = None,
+) -> list[BulkExecutionItemResult]:
+    respond_async = _prefers_async_response(prefer)
+    results: list[BulkExecutionItemResult] = []
+    for index, item in enumerate(request.items):
+        try:
+            await authorize_request(
+                authorization_service,
+                actor,
+                resource_type="execution",
+                action=PermissionAction.EXECUTE,
+                tenant_id=tenant_id,
+                namespace=item.namespace,
+            )
+            flow = await repository.get_flow(
+                item.namespace,
+                item.flow_id,
+                tenant_id=tenant_id,
+            )
+            detail = await _execute_flow(
+                repository,
+                flow,
+                item,
+                settings,
+                tenant_id=tenant_id,
+                actor_id=str(actor.principal_id),
+                actor=actor,
+                authorization_service=authorization_service,
+                background_tasks=background_tasks,
+                launch_source=ExecutionLaunchSource.API,
+                idempotency_key=item.idempotency_key,
+                respond_async=respond_async,
+            )
+        except (HTTPException, LookupError) as exc:
+            item_status = exc.status_code if isinstance(exc, HTTPException) else 404
+            item_detail = exc.detail if isinstance(exc, HTTPException) else str(exc)
+            problem_code = f"HTTP_{item_status}"
+            results.append(
+                BulkExecutionItemResult(
+                    index=index,
+                    status=item_status,
+                    error=ProblemDetail(
+                        type=f"urn:amesh:problem:{problem_code.lower()}",
+                        title=HTTPStatus(item_status).phrase,
+                        status=item_status,
+                        detail=item_detail if isinstance(item_detail, str) else str(item_detail),
+                        code=problem_code,
+                        instance=f"/api/v1/executions/bulk#item-{index}",
+                    ),
+                )
+            )
+            continue
+        item_status = (
+            status.HTTP_202_ACCEPTED
+            if respond_async and detail.execution.state is ExecutionState.RUNNING
+            else status.HTTP_200_OK
+        )
+        results.append(BulkExecutionItemResult(index=index, status=item_status, execution=detail))
+    return results
 
 
 @app.get(
@@ -1176,8 +1342,8 @@ async def list_executions(
     actor: ActorDependency,
     authorization_service: AuthorizationServiceDependency,
     tenant_id: TenantDependency,
-    limit: int = 100,
-) -> list[PersistedExecution]:
+    query: Annotated[CollectionQuery, Depends(default_limited_collection_query)],
+) -> Response:
     await authorize_request(
         authorization_service,
         actor,
@@ -1185,12 +1351,8 @@ async def list_executions(
         action=PermissionAction.VIEW,
         tenant_id=tenant_id,
     )
-    if limit < 1 or limit > 1000:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="limit must be between 1 and 1000",
-        )
-    return await repository.list_executions(tenant_id=tenant_id, limit=limit)
+    executions = await repository.list_executions(tenant_id=tenant_id, limit=1000)
+    return collection_response(executions, query, default_limit=100)
 
 
 @app.get(
@@ -1499,8 +1661,8 @@ async def list_backfills(
     actor: ActorDependency,
     authorization_service: AuthorizationServiceDependency,
     tenant_id: TenantDependency,
-    limit: int = Query(default=100, ge=1, le=1000),
-) -> list[BackfillRecord]:
+    query: Annotated[CollectionQuery, Depends(default_limited_collection_query)],
+) -> Response:
     await authorize_request(
         authorization_service,
         actor,
@@ -1508,7 +1670,8 @@ async def list_backfills(
         action=PermissionAction.VIEW,
         tenant_id=tenant_id,
     )
-    return await repository.list_backfills(tenant_id=tenant_id, limit=limit)
+    backfills = await repository.list_backfills(tenant_id=tenant_id, limit=1000)
+    return collection_response(backfills, query, default_limit=100)
 
 
 @app.get(
@@ -1648,7 +1811,8 @@ async def list_workers(
     actor: ActorDependency,
     authorization_service: AuthorizationServiceDependency,
     tenant_id: TenantDependency,
-) -> list[WorkerInventory]:
+    query: Annotated[CollectionQuery, Depends()],
+) -> Response:
     await authorize_request(
         authorization_service,
         actor,
@@ -1656,7 +1820,8 @@ async def list_workers(
         action=PermissionAction.VIEW,
         tenant_id=tenant_id,
     )
-    return await workers.list_worker_inventory(tenant_id=tenant_id)
+    inventory = await workers.list_worker_inventory(tenant_id=tenant_id)
+    return collection_response(inventory, query)
 
 
 @app.post(
@@ -1831,6 +1996,13 @@ async def list_execution_subflows(
     authorization_service: AuthorizationServiceDependency,
     tenant_id: TenantDependency,
 ) -> list[PersistedSubflow]:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="execution",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+    )
     try:
         parent = await repository.get_execution(execution_id, tenant_id=tenant_id)
     except LookupError as exc:
@@ -1868,6 +2040,13 @@ async def get_execution_parent_subflow(
     authorization_service: AuthorizationServiceDependency,
     tenant_id: TenantDependency,
 ) -> PersistedSubflow | None:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="execution",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+    )
     try:
         child = await repository.get_execution(execution_id, tenant_id=tenant_id)
     except LookupError as exc:
@@ -2059,9 +2238,61 @@ async def get_execution_logs(
     ]
 
 
+@app.get(
+    "/api/v1/executions/{execution_id}/logs/stream",
+    response_class=StreamingResponse,
+    responses={
+        status.HTTP_200_OK: {
+            "content": {"application/x-ndjson": {}},
+            "description": "Task logs streamed as newline-delimited JSON",
+        }
+    },
+    tags=["executions"],
+)
+async def stream_execution_logs(
+    execution_id: UUID,
+    repository: RepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> StreamingResponse:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="execution",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+    )
+    try:
+        await repository.get_execution(execution_id, tenant_id=tenant_id)
+        task_runs = await repository.list_task_runs(execution_id, tenant_id=tenant_id)
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+
+    async def lines() -> AsyncIterator[str]:
+        for task_run in task_runs:
+            yield (
+                TaskLog(
+                    taskId=task_run.task_id,
+                    attempt=task_run.current_attempt,
+                    state=task_run.state.value,
+                    output=task_run.result,
+                ).model_dump_json(by_alias=True)
+                + "\n"
+            )
+
+    return StreamingResponse(lines(), media_type="application/x-ndjson")
+
+
 @app.post(
     "/api/v1/webhooks/{namespace}/{flow_id}/{trigger_id}",
     response_model=ExecutionDetail,
+    responses={
+        status.HTTP_202_ACCEPTED: {
+            "model": ExecutionDetail,
+            "description": "Webhook execution persisted and accepted for asynchronous processing",
+        }
+    },
     tags=["triggers"],
 )
 async def trigger_webhook(
@@ -2070,12 +2301,15 @@ async def trigger_webhook(
     trigger_id: str,
     request: Request,
     background_tasks: BackgroundTasks,
+    response: Response,
     repository: RepositoryDependency,
     settings: SettingsDependency,
     actor: ActorDependency,
     authorization_service: AuthorizationServiceDependency,
     tenant_id: TenantDependency,
     runner: RunnerMode = RunnerMode.LOCAL,
+    prefer: Annotated[str | None, Header(alias="Prefer")] = None,
+    idempotency_key: Annotated[str | None, Header(alias="Idempotency-Key")] = None,
 ) -> ExecutionDetail:
     await authorize_request(
         authorization_service,
@@ -2114,7 +2348,8 @@ async def trigger_webhook(
         inputs=payload,
         runner=runner,
     )
-    return await _execute_flow(
+    respond_async = _prefers_async_response(prefer)
+    detail = await _execute_flow(
         repository,
         flow,
         execution_request,
@@ -2125,12 +2360,34 @@ async def trigger_webhook(
         authorization_service=authorization_service,
         background_tasks=background_tasks,
         launch_source=ExecutionLaunchSource.EVENT,
+        idempotency_key=idempotency_key,
+        respond_async=respond_async,
         trigger_context={
             "id": trigger.id,
             "type": trigger.type,
             "body": payload,
         },
     )
+    if respond_async and detail.execution.state is ExecutionState.RUNNING:
+        response.status_code = status.HTTP_202_ACCEPTED
+        response.headers["Preference-Applied"] = "respond-async"
+        response.headers["Location"] = f"/api/v1/executions/{detail.execution.execution_id}"
+    return detail
+
+
+def _prefers_async_response(prefer: str | None) -> bool:
+    if prefer is None:
+        return False
+    return any(item.strip().lower() == "respond-async" for item in prefer.split(","))
+
+
+def _resolve_idempotency_key(body_value: str | None, header_value: str | None) -> str | None:
+    if body_value is not None and header_value is not None and body_value != header_value:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Idempotency-Key header does not match idempotencyKey body field",
+        )
+    return header_value or body_value
 
 
 async def _execute_flow(
@@ -2145,6 +2402,8 @@ async def _execute_flow(
     authorization_service: AuthorizationService,
     background_tasks: BackgroundTasks,
     launch_source: ExecutionLaunchSource,
+    idempotency_key: str | None = None,
+    respond_async: bool = False,
     trigger_context: dict[str, object] | None = None,
 ) -> ExecutionDetail:
     if flow.disabled:
@@ -2241,6 +2500,28 @@ async def _execute_flow(
             if kubernetes_runner is not None:
                 await kubernetes_runner.close()
 
+    async def run_async_execution(execution_id: UUID) -> None:
+        try:
+            await executor.run_to_completion(
+                flow,
+                execution_id,
+                tenant_id=tenant_id,
+            )
+            completed = await repository.get_execution(execution_id, tenant_id=tenant_id)
+            if completed.state is ExecutionState.SUCCESS:
+                await SubflowCoordinator(repository, executor_factory).run_pending(
+                    execution_id,
+                    tenant_id=tenant_id,
+                )
+        except Exception:
+            LOGGER.exception(
+                "asynchronous execution failed",
+                extra={"execution_id": str(execution_id), "tenant_id": tenant_id},
+            )
+        finally:
+            if kubernetes_runner is not None:
+                await kubernetes_runner.close()
+
     try:
         try:
             execution = await repository.create_execution(
@@ -2249,12 +2530,15 @@ async def _execute_flow(
                 inputs=request.inputs,
                 trigger=trigger_context,
                 launch_source=launch_source,
-                idempotency_key=request.idempotency_key,
+                idempotency_key=idempotency_key,
                 actor_id=actor_id,
             )
         except (TenantQuotaExceeded, ValueError) as exc:
             raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
-        if execution.state is ExecutionState.RUNNING:
+        if execution.state is ExecutionState.RUNNING and respond_async:
+            background_tasks.add_task(run_async_execution, execution.execution_id)
+            background_scheduled = True
+        elif execution.state is ExecutionState.RUNNING:
             await executor.run_to_completion(
                 flow,
                 execution.execution_id,
@@ -2433,9 +2717,10 @@ async def list_tenants(
     tenants: TenantServiceDependency,
     actor: ActorDependency,
     authorization_service: AuthorizationServiceDependency,
-) -> list[TenantDefinition]:
+    query: Annotated[CollectionQuery, Depends()],
+) -> Response:
     await _authorize_tenant_administration(authorization_service, actor)
-    return await tenants.list()
+    return collection_response(await tenants.list(), query)
 
 
 @app.get(
@@ -2588,14 +2873,15 @@ async def list_principals(
     repository: AuthorizationRepositoryDependency,
     actor: ActorDependency,
     authorization_service: AuthorizationServiceDependency,
-) -> list[PrincipalDefinition]:
+    query: Annotated[CollectionQuery, Depends()],
+) -> Response:
     await authorize_request(
         authorization_service,
         actor,
         resource_type="principal",
         action=PermissionAction.VIEW,
     )
-    return await repository.list_principals()
+    return collection_response(await repository.list_principals(), query)
 
 
 @app.put(
@@ -2696,14 +2982,15 @@ async def list_roles(
     repository: AuthorizationRepositoryDependency,
     actor: ActorDependency,
     authorization_service: AuthorizationServiceDependency,
-) -> list[RoleDefinition]:
+    query: Annotated[CollectionQuery, Depends()],
+) -> Response:
     await authorize_request(
         authorization_service,
         actor,
         resource_type="role",
         action=PermissionAction.VIEW,
     )
-    return await repository.list_roles()
+    return collection_response(await repository.list_roles(), query)
 
 
 @app.post(
@@ -2741,14 +3028,15 @@ async def list_role_bindings(
     repository: AuthorizationRepositoryDependency,
     actor: ActorDependency,
     authorization_service: AuthorizationServiceDependency,
-) -> list[RoleBinding]:
+    query: Annotated[CollectionQuery, Depends()],
+) -> Response:
     await authorize_request(
         authorization_service,
         actor,
         resource_type="authorization",
         action=PermissionAction.VIEW,
     )
-    return await repository.list_bindings()
+    return collection_response(await repository.list_bindings(), query)
 
 
 @app.delete(
@@ -2870,14 +3158,15 @@ async def list_credentials(
     credentials: CredentialServiceDependency,
     actor: ActorDependency,
     authorization_service: AuthorizationServiceDependency,
-) -> list[CredentialMetadata]:
+    query: Annotated[CollectionQuery, Depends()],
+) -> Response:
     await authorize_request(
         authorization_service,
         actor,
         resource_type="credential",
         action=PermissionAction.VIEW,
     )
-    return await credentials.list(principal_id)
+    return collection_response(await credentials.list(principal_id), query)
 
 
 @app.post(

@@ -12,18 +12,24 @@ Expose the complete supported control plane through a stable, documented and aut
 
 ## In scope
 
-- [ ] **URS-F-0398** — The system shall provide CRUD and lifecycle endpoints for flows, revisions, executions, task runs, triggers, backfills, namespaces, files, key-values, plugins and governance resources.
-- [ ] **URS-F-0399** — The system shall use consistent pagination, filtering, sorting, field selection, error envelopes and idempotency headers.
-- [ ] **URS-F-0400** — The system shall generate an OpenAPI document from implementation types and validate backward compatibility in CI.
-- [ ] **URS-F-0401** — The system shall support optimistic concurrency and conditional requests for mutable resources.
-- [ ] **URS-F-0402** — The system shall accept bulk operations with per-item results and bounded transactional scope.
-- [ ] **URS-F-0403** — The system shall stream large imports, exports, logs and artifacts rather than buffering them.
-- [ ] **URS-F-0404** — The system shall version incompatible contracts and publish a deprecation schedule.
-- [ ] **URS-F-0405** — The system shall enforce authorization and tenant scope before resource existence is disclosed.
+- [x] **URS-F-0398** — The system shall provide CRUD and lifecycle endpoints for flows, revisions, executions, task runs, triggers, backfills, namespaces, files, key-values, plugins and governance resources.
+- [x] **URS-F-0399** — The system shall use consistent pagination, filtering, sorting, field selection, error envelopes and idempotency headers.
+- [x] **URS-F-0400** — The system shall generate an OpenAPI document from implementation types and validate backward compatibility in CI.
+- [x] **URS-F-0401** — The system shall support optimistic concurrency and conditional requests for mutable resources.
+- [x] **URS-F-0402** — The system shall accept bulk operations with per-item results and bounded transactional scope.
+- [x] **URS-F-0403** — The system shall stream large imports, exports, logs and artifacts rather than buffering them.
+- [x] **URS-F-0404** — The system shall version incompatible contracts and publish a deprecation schedule.
+- [x] **URS-F-0405** — The system shall enforce authorization and tenant scope before resource existence is disclosed.
 
 ## MVP implementation progress
 
 - 2026-08-21 — W6 verified the accepted `/api/v1` slice for flow validation/apply/list, execution create/get/list, task logs and webhooks, and regenerated the OpenAPI contract. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`test_mvp_api.py`](../../tests/api/test_mvp_api.py), and [`openapi.json`](../../api/openapi.json). Pagination, asynchronous commands and the broader API remain open.
+- 2026-08-22 — ADR-025 completed the authoritative v0.2 API profile: shared opt-in collection controls and problem details; synchronous-compatible and asynchronous idempotent launch; bounded bulk results; streaming logs; generated OpenAPI compatibility CI; and a Compose recovery executor. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`test_mvp_api.py`](../../tests/api/test_mvp_api.py), [`test_contracts.py`](../../tests/api/test_contracts.py), and [`openapi.json`](../../docs/api/openapi.json).
+
+## Explicit non-goals
+
+- Namespace files, key-values, secret providers and installable plugin lifecycles remain owned by EPIC-207, EPIC-506 and EPIC-300/301; EPIC-400 does not create placeholder persistence.
+- The 10-million-record filter and index qualification remains EPIC-409; EPIC-400 qualifies the launch critical path.
 
 ## Non-functional requirements
 
@@ -54,13 +60,13 @@ Expose the complete supported control plane through a stable, documented and aut
 
 ## Definition of done
 
-- [ ] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
-- [ ] Public API, DSL, event and plugin contract changes pass compatibility checks.
-- [ ] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
-- [ ] Security, tenant isolation, redaction and audit behavior are reviewed.
-- [ ] Documentation, examples, migration notes and operational runbooks are updated.
-- [ ] Performance and recovery budgets are measured when this epic is on a critical path.
-- [ ] `python scripts/validate_backlog.py` passes.
+- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
+- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.
+- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
+- [x] Security, tenant isolation, redaction and audit behavior are reviewed.
+- [x] Documentation, examples, migration notes and operational runbooks are updated.
+- [x] Performance and recovery budgets are measured when this epic is on a critical path.
+- [x] `python scripts/validate_backlog.py` passes.
 
 ## Risks and unknowns
 

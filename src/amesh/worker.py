@@ -10,6 +10,7 @@ from uuid import UUID
 from sqlalchemy.exc import DBAPIError
 
 from amesh.adapters.kubernetes import KubernetesJobRunner
+from amesh.adapters.local import LocalProcessRunner
 from amesh.adapters.postgres import (
     PostgresBackfillRepository,
     PostgresExecutionRepository,
@@ -26,7 +27,11 @@ from amesh.domain import (
     ReconciliationRequest,
     new_runtime_id,
 )
-from amesh.executor import InProcessExecutor, kubernetes_job_handler
+from amesh.executor import (
+    InProcessExecutor,
+    kubernetes_job_handler,
+    local_process_handler,
+)
 from amesh.observability import configure_structured_logging
 from amesh.ports import ReconciliationAlreadyRunningError
 from amesh.reconciliation import ReconciliationService
@@ -89,13 +94,18 @@ async def recover_once(
                 execution.flow_id,
                 tenant_id=tenant_id,
             )
-            runner = KubernetesJobRunner.from_in_cluster(
-                namespace=settings.kubernetes_task_namespace
-            )
+            kubernetes_runner: KubernetesJobRunner | None = None
+            if settings.execution_runner_mode == "local":
+                shell_handler = local_process_handler(LocalProcessRunner())
+            else:
+                kubernetes_runner = KubernetesJobRunner.from_in_cluster(
+                    namespace=settings.kubernetes_task_namespace
+                )
+                shell_handler = kubernetes_job_handler(kubernetes_runner)
             executor = InProcessExecutor(
                 repository,
                 handlers={
-                    "core.shell": kubernetes_job_handler(runner),
+                    "core.shell": shell_handler,
                     "core.http": core_http_handler(),
                     "agent.llm": agent_llm_handler(),
                     "agent.mcp": agent_mcp_handler(),
@@ -125,7 +135,8 @@ async def recover_once(
                     },
                 )
             finally:
-                await runner.close()
+                if kubernetes_runner is not None:
+                    await kubernetes_runner.close()
     return recovered
 
 

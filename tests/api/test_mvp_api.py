@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import json
 import os
 from uuid import UUID, uuid4
 
@@ -148,6 +149,25 @@ tasks:
                     item["namespace"] == namespace and item["flow_id"] == flow_id
                     for item in listed_flows.json()
                 )
+                selected_flows = await client.get(
+                    "/api/v1/flows",
+                    headers={"authorization": "Bearer test-token"},
+                    params={
+                        "filter": f"namespace={namespace}",
+                        "sort": "-revision",
+                        "fields": "namespace,flow_id,revision",
+                        "limit": 1,
+                    },
+                )
+                assert selected_flows.status_code == 200
+                assert selected_flows.headers["x-total-count"] == "1"
+                assert selected_flows.json() == [
+                    {
+                        "namespace": namespace,
+                        "flow_id": flow_id,
+                        "revision": conditional_update.json()["revision"],
+                    }
+                ]
                 flow_graph = await client.get(
                     f"/api/v1/flows/{namespace}/{flow_id}/graph",
                     headers={"authorization": "Bearer test-token"},
@@ -198,6 +218,94 @@ tasks:
                     "value": {"message": "manual", "trigger": {"source": "api"}},
                 }
 
+                async_key = f"api-async-{uuid4().hex}"
+                accepted = await client.post(
+                    "/api/v1/executions",
+                    headers={
+                        "authorization": "Bearer test-token",
+                        "Prefer": "respond-async",
+                        "Idempotency-Key": async_key,
+                    },
+                    json={
+                        "namespace": namespace,
+                        "flowId": flow_id,
+                        "inputs": {"message": "async"},
+                        "runner": "local",
+                    },
+                )
+                assert accepted.status_code == 202
+                assert accepted.headers["preference-applied"] == "respond-async"
+                accepted_payload = accepted.json()
+                accepted_execution_id = UUID(accepted_payload["execution"]["execution_id"])
+                execution_ids.append(accepted_execution_id)
+                assert accepted.headers["location"] == (
+                    f"/api/v1/executions/{accepted_execution_id}"
+                )
+                assert accepted_payload["execution"]["state"] == "RUNNING"
+
+                completed_async = await client.get(
+                    f"/api/v1/executions/{accepted_execution_id}",
+                    headers={"authorization": "Bearer test-token"},
+                )
+                assert completed_async.status_code == 200
+                assert completed_async.json()["execution"]["state"] == "SUCCESS"
+
+                replayed = await client.post(
+                    "/api/v1/executions",
+                    headers={
+                        "authorization": "Bearer test-token",
+                        "Prefer": "respond-async",
+                        "Idempotency-Key": async_key,
+                    },
+                    json={
+                        "namespace": namespace,
+                        "flowId": flow_id,
+                        "inputs": {"message": "async"},
+                        "runner": "local",
+                    },
+                )
+                assert replayed.status_code == 200
+                assert replayed.json()["execution"]["execution_id"] == str(accepted_execution_id)
+
+                conflicting_key = await client.post(
+                    "/api/v1/executions",
+                    headers={
+                        "authorization": "Bearer test-token",
+                        "Idempotency-Key": "header-key",
+                    },
+                    json={
+                        "namespace": namespace,
+                        "flowId": flow_id,
+                        "idempotencyKey": "body-key",
+                    },
+                )
+                assert conflicting_key.status_code == 400
+
+                bulk = await client.post(
+                    "/api/v1/executions/bulk",
+                    headers={
+                        "authorization": "Bearer test-token",
+                        "Prefer": "respond-async",
+                    },
+                    json={
+                        "items": [
+                            {
+                                "namespace": namespace,
+                                "flowId": flow_id,
+                                "inputs": {"message": "bulk"},
+                                "idempotencyKey": f"bulk-{uuid4().hex}",
+                            },
+                            {"namespace": namespace, "flowId": "missing-flow"},
+                        ]
+                    },
+                )
+                assert bulk.status_code == 207
+                bulk_payload = bulk.json()
+                assert [item["status"] for item in bulk_payload] == [202, 404]
+                bulk_execution_id = UUID(bulk_payload[0]["execution"]["execution"]["execution_id"])
+                execution_ids.append(bulk_execution_id)
+                assert bulk_payload[1]["error"]["detail"].endswith("does not exist")
+
                 admission = await client.get(
                     f"/api/v1/executions/{execution_id}/admission",
                     headers={"authorization": "Bearer test-token"},
@@ -235,6 +343,14 @@ tasks:
                 assert logs.json()[0]["output"] == {
                     "value": {"message": "manual", "trigger": {"source": "api"}},
                 }
+                streamed_logs = await client.get(
+                    f"/api/v1/executions/{execution_id}/logs/stream",
+                    headers={"authorization": "Bearer test-token"},
+                )
+                assert streamed_logs.status_code == 200
+                assert streamed_logs.headers["content-type"].startswith("application/x-ndjson")
+                streamed_entries = [json.loads(line) for line in streamed_logs.text.splitlines()]
+                assert streamed_entries == logs.json()
 
                 webhook = await client.post(
                     f"/api/v1/webhooks/{namespace}/{flow_id}/incoming",

@@ -11066,7 +11066,7 @@
       "id": "URS-F-0398",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M4",
       "wave": 4,
       "epic_id": "EPIC-400",
@@ -11093,7 +11093,7 @@
       "id": "URS-F-0399",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M4",
       "wave": 4,
       "epic_id": "EPIC-400",
@@ -11120,7 +11120,7 @@
       "id": "URS-F-0400",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M4",
       "wave": 4,
       "epic_id": "EPIC-400",
@@ -11147,7 +11147,7 @@
       "id": "URS-F-0401",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M4",
       "wave": 4,
       "epic_id": "EPIC-400",
@@ -11174,7 +11174,7 @@
       "id": "URS-F-0402",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M4",
       "wave": 4,
       "epic_id": "EPIC-400",
@@ -11201,7 +11201,7 @@
       "id": "URS-F-0403",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M4",
       "wave": 4,
       "epic_id": "EPIC-400",
@@ -11228,7 +11228,7 @@
       "id": "URS-F-0404",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M4",
       "wave": 4,
       "epic_id": "EPIC-400",
@@ -11255,7 +11255,7 @@
       "id": "URS-F-0405",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M4",
       "wave": 4,
       "epic_id": "EPIC-400",
@@ -23680,6 +23680,8 @@
       "status": "In Progress",
       "evidence": [
         "docs/adr/021-round-trip-yaml-and-resource-schema-registry.md",
+        "docs/adr/025-incremental-versioned-api-contract.md",
+        ".github/workflows/ci.yml",
         "tests/test_generated_contracts.py::test_generated_json_schemas_are_current",
         "schemas/flow.schema.json",
         "schemas/resource-catalog.json"
@@ -23857,7 +23859,11 @@
         "EPIC-400"
       ],
       "priority": "Must",
-      "status": "Proposed"
+      "status": "Verified",
+      "evidence": [
+        "TESTLOG.md#epic-400-versioned-rest-api-and-openapi-contract--2026-08-22",
+        "tests/api/test_mvp_api.py::test_authenticated_flow_execution_and_webhook_api"
+      ]
     },
     {
       "id": "URS-NFR-PERFORMANCE-003",

@@ -1,6 +1,7 @@
 from fastapi.testclient import TestClient
+from starlette.requests import Request
 
-from amesh.app import _build_flow_graph, app, get_read_repository
+from amesh.app import _build_flow_graph, _problem_response, app, get_read_repository
 from amesh.config import Settings
 from amesh.dsl import FlowDefinition
 from amesh.ports import PersistedIterationSummary
@@ -12,6 +13,45 @@ def test_health() -> None:
     response = client.get("/health")
     assert response.status_code == 200
     assert response.json()["status"] == "ok"
+
+
+def test_http_errors_use_problem_details() -> None:
+    response = client.get("/api/v1/not-a-resource")
+
+    assert response.status_code == 404
+    assert response.headers["content-type"] == "application/problem+json"
+    assert response.json() == {
+        "type": "urn:amesh:problem:http_404",
+        "title": "Not Found",
+        "status": 404,
+        "detail": "Not Found",
+        "code": "HTTP_404",
+        "instance": "/api/v1/not-a-resource",
+    }
+
+
+def test_problem_details_preserve_structured_validation_detail() -> None:
+    detail = [{"code": "MISSING_FIELD", "path": ["namespace"]}]
+    request = Request(
+        {
+            "type": "http",
+            "method": "PUT",
+            "scheme": "http",
+            "server": ("amesh.test", 80),
+            "path": "/api/v1/flows",
+            "query_string": b"",
+            "headers": [],
+        }
+    )
+    response = _problem_response(
+        request,
+        status_code=422,
+        detail=detail,
+    )
+
+    assert response.status_code == 422
+    assert response.media_type == "application/problem+json"
+    assert detail[0]["code"].encode() in response.body
 
 
 def test_validate_endpoint() -> None:

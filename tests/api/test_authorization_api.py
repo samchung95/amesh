@@ -125,7 +125,7 @@ def test_every_protected_rest_surface_enforces_tenant_and_permission_policy() ->
                     headers={"X-Amesh-Tenant": cross_tenant_slug},
                 )
                 assert cross_tenant_response.status_code == 404
-                assert cross_tenant_response.json() == {"detail": "tenant unavailable"}
+                assert cross_tenant_response.json()["detail"] == "tenant unavailable"
                 missing_tenant = await client.get(
                     "/api/v1/flows",
                     headers={"X-Amesh-Tenant": f"missing-{suffix}"},
@@ -257,9 +257,7 @@ def test_every_protected_rest_surface_enforces_tenant_and_permission_policy() ->
                 ]
                 responses = await asyncio.gather(*denied_requests)
                 assert all(response.status_code == 403 for response in responses)
-                assert all(
-                    response.json() == {"detail": "not authorized"} for response in responses
-                )
+                assert all(response.json()["detail"] == "not authorized" for response in responses)
 
                 assert (await client.get("/api/v1/executions")).status_code == 200
                 assert (await client.get(f"/api/v1/executions/{missing_id}")).status_code == 404

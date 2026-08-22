@@ -38,6 +38,49 @@ services:
     security_opt:
       - no-new-privileges:true
 
+  executor:
+    build:
+      context: .
+    command: ["python", "-m", "amesh.role"]
+    environment:
+      APP_ENV: development
+      DATABASE_URL: postgresql+asyncpg://amesh:amesh@postgres:5432/amesh
+      DATABASE_POOL_SIZE: "5"
+      DATABASE_MAX_OVERFLOW: "5"
+      DATABASE_TLS_MODE: disable
+      OBJECT_STORAGE_BACKEND: s3
+      OBJECT_STORAGE_ENDPOINT: http://minio:9000
+      OBJECT_STORAGE_REGION: us-east-1
+      OBJECT_STORAGE_BUCKET: amesh
+      OBJECT_STORAGE_ACCESS_KEY: minio
+      OBJECT_STORAGE_SECRET_KEY: minio-development-only
+      OBJECT_STORAGE_WORKLOAD_IDENTITY: "false"
+      AUTH_MODE: development
+      PRODUCT_TELEMETRY_ENABLED: "false"
+      SERVICE_ROLE: executor
+      SERVICE_INSTANCE_NAME: compose-executor
+      SERVICE_CYCLE_SECONDS: "1"
+      EXECUTION_RUNNER_MODE: local
+      WORKER_RECOVERY_GRACE_SECONDS: "5"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_started
+      minio-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "python", "-m", "amesh.role", "--check", "readiness"]
+      interval: 10s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+
   postgres:
     image: postgres:17-alpine
     environment:

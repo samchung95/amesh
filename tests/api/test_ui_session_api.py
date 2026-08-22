@@ -102,7 +102,7 @@ def test_ui_session_conceals_tenant_when_no_capability_is_granted() -> None:
                 headers={"X-Amesh-Tenant": "private-tenant"},
             )
         assert response.status_code == 404
-        assert response.json() == {"detail": "tenant unavailable"}
+        assert response.json()["detail"] == "tenant unavailable"
 
     try:
         asyncio.run(scenario())

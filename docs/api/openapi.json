@@ -702,6 +702,63 @@
         "title": "BackfillState",
         "type": "string"
       },
+      "BulkExecutionItemResult": {
+        "properties": {
+          "error": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ProblemDetail"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "execution": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ExecutionDetail"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "index": {
+            "minimum": 0.0,
+            "title": "Index",
+            "type": "integer"
+          },
+          "status": {
+            "title": "Status",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "index",
+          "status"
+        ],
+        "title": "BulkExecutionItemResult",
+        "type": "object"
+      },
+      "BulkExecutionRequest": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/CreateExecutionRequest"
+            },
+            "maxItems": 100,
+            "minItems": 1,
+            "title": "Items",
+            "type": "array"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "title": "BulkExecutionRequest",
+        "type": "object"
+      },
       "ChangeLocalPasswordRequest": {
         "properties": {
           "currentPassword": {
@@ -2372,6 +2429,70 @@
         ],
         "title": "PrincipalType",
         "type": "string"
+      },
+      "ProblemDetail": {
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "detail": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              }
+            ],
+            "title": "Detail"
+          },
+          "errors": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Errors"
+          },
+          "instance": {
+            "title": "Instance",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "integer"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "type": {
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "title",
+          "status",
+          "detail",
+          "code",
+          "instance"
+        ],
+        "title": "ProblemDetail",
+        "type": "object"
       },
       "ReadinessResponse": {
         "properties": {
@@ -4281,6 +4402,99 @@
         "operationId": "list_role_bindings_api_v1_admin_bindings_get",
         "parameters": [
           {
+            "description": "Opaque cursor from the prior page",
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Opaque cursor from the prior page",
+              "title": "Cursor"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 1000,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Limit"
+            }
+          },
+          {
+            "description": "Repeatable top-level equality filter in field=value form",
+            "in": "query",
+            "name": "filter",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Repeatable top-level equality filter in field=value form",
+              "title": "Filter"
+            }
+          },
+          {
+            "description": "Comma-separated top-level fields; prefix descending fields with -",
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Comma-separated top-level fields; prefix descending fields with -",
+              "title": "Sort"
+            }
+          },
+          {
+            "description": "Comma-separated top-level response fields",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Comma-separated top-level response fields",
+              "title": "Fields"
+            }
+          },
+          {
             "in": "header",
             "name": "authorization",
             "required": false,
@@ -4837,6 +5051,99 @@
         "operationId": "list_principals_api_v1_admin_principals_get",
         "parameters": [
           {
+            "description": "Opaque cursor from the prior page",
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Opaque cursor from the prior page",
+              "title": "Cursor"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 1000,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Limit"
+            }
+          },
+          {
+            "description": "Repeatable top-level equality filter in field=value form",
+            "in": "query",
+            "name": "filter",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Repeatable top-level equality filter in field=value form",
+              "title": "Filter"
+            }
+          },
+          {
+            "description": "Comma-separated top-level fields; prefix descending fields with -",
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Comma-separated top-level fields; prefix descending fields with -",
+              "title": "Sort"
+            }
+          },
+          {
+            "description": "Comma-separated top-level response fields",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Comma-separated top-level response fields",
+              "title": "Fields"
+            }
+          },
+          {
             "in": "header",
             "name": "authorization",
             "required": false,
@@ -5059,6 +5366,99 @@
               "format": "uuid",
               "title": "Principal Id",
               "type": "string"
+            }
+          },
+          {
+            "description": "Opaque cursor from the prior page",
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Opaque cursor from the prior page",
+              "title": "Cursor"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 1000,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Limit"
+            }
+          },
+          {
+            "description": "Repeatable top-level equality filter in field=value form",
+            "in": "query",
+            "name": "filter",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Repeatable top-level equality filter in field=value form",
+              "title": "Filter"
+            }
+          },
+          {
+            "description": "Comma-separated top-level fields; prefix descending fields with -",
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Comma-separated top-level fields; prefix descending fields with -",
+              "title": "Sort"
+            }
+          },
+          {
+            "description": "Comma-separated top-level response fields",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Comma-separated top-level response fields",
+              "title": "Fields"
             }
           },
           {
@@ -5374,6 +5774,99 @@
         "operationId": "list_roles_api_v1_admin_roles_get",
         "parameters": [
           {
+            "description": "Opaque cursor from the prior page",
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Opaque cursor from the prior page",
+              "title": "Cursor"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 1000,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Limit"
+            }
+          },
+          {
+            "description": "Repeatable top-level equality filter in field=value form",
+            "in": "query",
+            "name": "filter",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Repeatable top-level equality filter in field=value form",
+              "title": "Filter"
+            }
+          },
+          {
+            "description": "Comma-separated top-level fields; prefix descending fields with -",
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Comma-separated top-level fields; prefix descending fields with -",
+              "title": "Sort"
+            }
+          },
+          {
+            "description": "Comma-separated top-level response fields",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Comma-separated top-level response fields",
+              "title": "Fields"
+            }
+          },
+          {
             "in": "header",
             "name": "authorization",
             "required": false,
@@ -5526,6 +6019,99 @@
       "get": {
         "operationId": "list_tenants_api_v1_admin_tenants_get",
         "parameters": [
+          {
+            "description": "Opaque cursor from the prior page",
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Opaque cursor from the prior page",
+              "title": "Cursor"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 1000,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Limit"
+            }
+          },
+          {
+            "description": "Repeatable top-level equality filter in field=value form",
+            "in": "query",
+            "name": "filter",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Repeatable top-level equality filter in field=value form",
+              "title": "Filter"
+            }
+          },
+          {
+            "description": "Comma-separated top-level fields; prefix descending fields with -",
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Comma-separated top-level fields; prefix descending fields with -",
+              "title": "Sort"
+            }
+          },
+          {
+            "description": "Comma-separated top-level response fields",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Comma-separated top-level response fields",
+              "title": "Fields"
+            }
+          },
           {
             "in": "header",
             "name": "authorization",
@@ -6719,6 +7305,24 @@
         "operationId": "list_backfills_api_v1_backfills_get",
         "parameters": [
           {
+            "description": "Opaque cursor from the prior page",
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Opaque cursor from the prior page",
+              "title": "Cursor"
+            }
+          },
+          {
             "in": "query",
             "name": "limit",
             "required": false,
@@ -6728,6 +7332,63 @@
               "minimum": 1,
               "title": "Limit",
               "type": "integer"
+            }
+          },
+          {
+            "description": "Repeatable top-level equality filter in field=value form",
+            "in": "query",
+            "name": "filter",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Repeatable top-level equality filter in field=value form",
+              "title": "Filter"
+            }
+          },
+          {
+            "description": "Comma-separated top-level fields; prefix descending fields with -",
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Comma-separated top-level fields; prefix descending fields with -",
+              "title": "Sort"
+            }
+          },
+          {
+            "description": "Comma-separated top-level response fields",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Comma-separated top-level response fields",
+              "title": "Fields"
             }
           },
           {
@@ -7465,13 +8126,90 @@
         "operationId": "list_executions_api_v1_executions_get",
         "parameters": [
           {
+            "description": "Opaque cursor from the prior page",
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Opaque cursor from the prior page",
+              "title": "Cursor"
+            }
+          },
+          {
             "in": "query",
             "name": "limit",
             "required": false,
             "schema": {
               "default": 100,
+              "maximum": 1000,
+              "minimum": 1,
               "title": "Limit",
               "type": "integer"
+            }
+          },
+          {
+            "description": "Repeatable top-level equality filter in field=value form",
+            "in": "query",
+            "name": "filter",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Repeatable top-level equality filter in field=value form",
+              "title": "Filter"
+            }
+          },
+          {
+            "description": "Comma-separated top-level fields; prefix descending fields with -",
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Comma-separated top-level fields; prefix descending fields with -",
+              "title": "Sort"
+            }
+          },
+          {
+            "description": "Comma-separated top-level response fields",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Comma-separated top-level response fields",
+              "title": "Fields"
             }
           },
           {
@@ -7559,6 +8297,38 @@
         "parameters": [
           {
             "in": "header",
+            "name": "Prefer",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Prefer"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
+            }
+          },
+          {
+            "in": "header",
             "name": "authorization",
             "required": false,
             "schema": {
@@ -7627,6 +8397,16 @@
             },
             "description": "Successful Response"
           },
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExecutionDetail"
+                }
+              }
+            },
+            "description": "Execution persisted and accepted for asynchronous processing"
+          },
           "422": {
             "content": {
               "application/json": {
@@ -7639,6 +8419,117 @@
           }
         },
         "summary": "Create Execution",
+        "tags": [
+          "executions"
+        ]
+      }
+    },
+    "/api/v1/executions/bulk": {
+      "post": {
+        "operationId": "create_executions_bulk_api_v1_executions_bulk_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Prefer",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Prefer"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkExecutionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "207": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/BulkExecutionItemResult"
+                  },
+                  "title": "Response Create Executions Bulk Api V1 Executions Bulk Post",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Executions Bulk",
         "tags": [
           "executions"
         ]
@@ -8398,6 +9289,93 @@
         ]
       }
     },
+    "/api/v1/executions/{execution_id}/logs/stream": {
+      "get": {
+        "operationId": "stream_execution_logs_api_v1_executions__execution_id__logs_stream_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "execution_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Execution Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/x-ndjson": {}
+            },
+            "description": "Task logs streamed as newline-delimited JSON"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Stream Execution Logs",
+        "tags": [
+          "executions"
+        ]
+      }
+    },
     "/api/v1/executions/{execution_id}/parent-subflow": {
       "get": {
         "operationId": "get_execution_parent_subflow_api_v1_executions__execution_id__parent_subflow_get",
@@ -8707,6 +9685,99 @@
       "get": {
         "operationId": "list_flows_api_v1_flows_get",
         "parameters": [
+          {
+            "description": "Opaque cursor from the prior page",
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Opaque cursor from the prior page",
+              "title": "Cursor"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 1000,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Limit"
+            }
+          },
+          {
+            "description": "Repeatable top-level equality filter in field=value form",
+            "in": "query",
+            "name": "filter",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Repeatable top-level equality filter in field=value form",
+              "title": "Filter"
+            }
+          },
+          {
+            "description": "Comma-separated top-level fields; prefix descending fields with -",
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Comma-separated top-level fields; prefix descending fields with -",
+              "title": "Sort"
+            }
+          },
+          {
+            "description": "Comma-separated top-level response fields",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Comma-separated top-level response fields",
+              "title": "Fields"
+            }
+          },
           {
             "in": "header",
             "name": "authorization",
@@ -9795,6 +10866,38 @@
           },
           {
             "in": "header",
+            "name": "Prefer",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Prefer"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
+            }
+          },
+          {
+            "in": "header",
             "name": "authorization",
             "required": false,
             "schema": {
@@ -9853,6 +10956,16 @@
             },
             "description": "Successful Response"
           },
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExecutionDetail"
+                }
+              }
+            },
+            "description": "Webhook execution persisted and accepted for asynchronous processing"
+          },
           "422": {
             "content": {
               "application/json": {
@@ -9874,6 +10987,99 @@
       "get": {
         "operationId": "list_workers_api_v1_workers_get",
         "parameters": [
+          {
+            "description": "Opaque cursor from the prior page",
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Opaque cursor from the prior page",
+              "title": "Cursor"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 1000,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Limit"
+            }
+          },
+          {
+            "description": "Repeatable top-level equality filter in field=value form",
+            "in": "query",
+            "name": "filter",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Repeatable top-level equality filter in field=value form",
+              "title": "Filter"
+            }
+          },
+          {
+            "description": "Comma-separated top-level fields; prefix descending fields with -",
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Comma-separated top-level fields; prefix descending fields with -",
+              "title": "Sort"
+            }
+          },
+          {
+            "description": "Comma-separated top-level response fields",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Comma-separated top-level response fields",
+              "title": "Fields"
+            }
+          },
           {
             "in": "header",
             "name": "authorization",

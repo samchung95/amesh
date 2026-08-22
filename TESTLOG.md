@@ -1130,3 +1130,38 @@ that the built assets existed under `/app/src` but were absent from the installe
 HTML and asset directories as `amesh` package data fixed the installed runtime path.
 
 Verdict: PASS — local stack left running for user testing.
+
+## EPIC-400: Versioned REST API and OpenAPI contract — 2026-08-22
+
+Spec source: board card `c7` DoD and
+`backlog/epics/epic-400-versioned-rest-api-and-openapi-contract.md`.
+
+Verified with `uv`, Python 3.13.12, PostgreSQL 17, FastAPI 0.141.1, Docker Compose and
+`oasdiff`:
+
+- [x] Authenticated PostgreSQL integration covered synchronous compatibility, `202` asynchronous
+  launch, durable initial `RUNNING`, polling to `SUCCESS`, header/body idempotency replay and conflict,
+  bounded mixed-result bulk launch, collection filtering/sorting/selection and streamed NDJSON logs.
+- [x] Problem-details unit and authorization integration checks covered media type, stable fields,
+  invalid cursors, missing bulk items and indistinguishable missing/unauthorized tenant responses.
+- [x] Generated OpenAPI passed the repository contract test. `oasdiff breaking --fail-on ERR` against
+  the prior checked-in contract reported no errors; two warnings document pre-existing runtime
+  bounds that are now represented on the execution `limit` parameter.
+- [x] The full suite passed on an isolated database with all 27 migrations: 233 passed and 6
+  environment-gated tests skipped. The disposable database was then force-dropped and its absence
+  verified. Focused service-role/configuration tests passed after the Compose recovery wiring.
+- [x] The rebuilt live stack launched 20 local shell executions through `Prefer: respond-async`:
+  p95 response 87.1 ms, maximum 96.0 ms, all 20 completed `SUCCESS`, and logs streamed successfully.
+- [x] A forced zero-grace API container restart interrupted execution
+  `01a027f9-4d0f-7edf-8048-84081140ae8c`; the independent Compose executor logged recovery and the
+  durable execution completed `SUCCESS` with its expected output.
+
+Adversarial pass: malformed cursors return 400, conflicting idempotency representations return 400,
+bulk failure does not roll back successful items, tenant concealment does not vary its problem code,
+and an API process loss after acceptance is recovered by the independent executor.
+
+Qualification boundary: ADR-025 limits EPIC-400 to authoritative v0.2 resources. Namespace files,
+key-values, secret providers and installable plugins remain EPIC-207/506/300/301. Ten-million-record
+filter/index qualification remains EPIC-409; this epic measured the launch critical path only.
+
+Verdict: PASS — EPIC-400 closed.

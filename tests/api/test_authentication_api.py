@@ -354,7 +354,7 @@ def test_local_multi_user_browser_sessions_are_cookie_csrf_and_policy_bound() ->
                         },
                     )
                     assert rejected.status_code == 401
-                    assert rejected.json() == {"detail": "authentication failed"}
+                    assert rejected.json()["detail"] == "authentication failed"
                 locked = await client.post(
                     "/api/v1/auth/login",
                     json={
@@ -364,7 +364,7 @@ def test_local_multi_user_browser_sessions_are_cookie_csrf_and_policy_bound() ->
                     },
                 )
                 assert locked.status_code == 401
-                assert locked.json() == {"detail": "authentication failed"}
+                assert locked.json()["detail"] == "authentication failed"
 
                 rate_limited_settings = settings.model_copy(
                     update={"auth_login_rate_limit_per_minute": 2}

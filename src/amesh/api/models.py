@@ -35,6 +35,16 @@ class ReadinessResponse(HealthResponse):
     error: str | None = None
 
 
+class ProblemDetail(BaseModel):
+    type: str
+    title: str
+    status: int
+    detail: str | list[dict[str, Any]]
+    code: str
+    instance: str
+    errors: list[dict[str, Any]] | None = None
+
+
 class UiSessionResponse(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
@@ -113,6 +123,17 @@ class CreateExecutionRequest(BaseModel):
 class ExecutionDetail(BaseModel):
     execution: PersistedExecution
     task_runs: list[PersistedTaskRun] = Field(alias="taskRuns")
+
+
+class BulkExecutionRequest(BaseModel):
+    items: list[CreateExecutionRequest] = Field(min_length=1, max_length=100)
+
+
+class BulkExecutionItemResult(BaseModel):
+    index: int = Field(ge=0)
+    status: int
+    execution: ExecutionDetail | None = None
+    error: ProblemDetail | None = None
 
 
 class FlowGraphNode(BaseModel):
