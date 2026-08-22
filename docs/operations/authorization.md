@@ -42,5 +42,6 @@ leave zero enabled effective instance administrators returns `409` and rolls bac
 
 Principal, group, role, binding and boundary mutations append an `audit_events` row with the actor,
 action and affected authorization resource. Credential issuance, use, failure, rotation and
-revocation use the same audit store without token plaintext. Interactive user login and external
-identity providers remain EPIC-403 and EPIC-502 work.
+revocation use the same audit store without token plaintext. Interactive user login uses the separate
+provider-neutral authentication service documented in the [authentication runbook](authentication.md);
+external identity-provider protocols remain EPIC-502 work.

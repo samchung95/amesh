@@ -82,6 +82,10 @@ policy, output mapping and actor evidence. Unique tenant-scoped invocation and c
 recovery idempotent. It is additive; pause subflow launchers and forward-fix on failure while retaining
 both executions and their task/event history.
 
+Migration `0027_interactive_authentication.sql` adds local Argon2id credential state, opaque browser
+session digests, CSRF digests, inactivity and absolute deadlines, rotation overlap, revocation evidence
+and source-fingerprint rate windows. Passwords, session tokens and CSRF tokens are never schema fields.
+
 ## Migration modes
 
 - `bootstrap` creates the initial schema and is only safe for an empty database.

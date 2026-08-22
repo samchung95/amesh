@@ -1,7 +1,9 @@
 import type {
   ExecutionDetail,
+  AuthenticationProvider,
   FlowGraph,
   HealthResponse,
+  LoginResponse,
   PersistedExecution,
   PersistedFlow,
   UiSession,
@@ -33,19 +35,41 @@ async function readError(response: Response): Promise<string> {
   return response.statusText || `Request failed with status ${String(response.status)}`
 }
 
+function csrfToken(): string | null {
+  const cookie = document.cookie
+    .split(';')
+    .map((value) => value.trim())
+    .find((value) => value.startsWith('amesh_csrf=') || value.startsWith('__Host-amesh_csrf='))
+  return cookie ? decodeURIComponent(cookie.slice(cookie.indexOf('=') + 1)) : null
+}
+
 export function createApiClient(connection: ApiConnection) {
   async function request<T>(path: string, init?: RequestInit): Promise<T> {
     const headers = new Headers(init?.headers)
-    headers.set('Authorization', `Bearer ${connection.token}`)
+    if (connection.token) headers.set('Authorization', `Bearer ${connection.token}`)
     headers.set('X-Amesh-Tenant', connection.tenant)
     headers.set('Accept', 'application/json')
-    const response = await fetch(path, { ...init, headers })
+    const method = (init?.method || 'GET').toUpperCase()
+    if (!['GET', 'HEAD', 'OPTIONS', 'TRACE'].includes(method)) {
+      const csrf = csrfToken()
+      if (csrf) headers.set('X-Amesh-CSRF', csrf)
+    }
+    const response = await fetch(path, { ...init, credentials: 'same-origin', headers })
     if (!response.ok) throw new ApiError(response.status, await readError(response))
+    if (response.status === 204) return undefined as T
     return (await response.json()) as T
   }
 
   return {
     health: async () => request<HealthResponse>('/health'),
+    providers: async () => request<AuthenticationProvider[]>('/api/v1/auth/providers'),
+    login: async (identifier: string, password: string, provider = 'local') =>
+      request<LoginResponse>('/api/v1/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ provider, identifier, password }),
+      }),
+    logout: async () => request<void>('/api/v1/auth/logout', { method: 'POST' }),
     session: async () => {
       const params = new URLSearchParams()
       if (connection.namespace) params.set('namespace', connection.namespace)

@@ -1,6 +1,7 @@
 import { LoaderCircle, LogOut, RotateCcw } from 'lucide-react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 
+import { ApiError } from './api/client'
 import type { Capability, UiSession } from './api/types'
 import { useSession } from './app/queries'
 import { useAppSettings } from './app/settings'
@@ -32,6 +33,9 @@ function AuthenticatedApp() {
     )
   }
   if (session.error) {
+    if (session.error instanceof ApiError && session.error.status === 401) {
+      return <ConnectionGate onConnected={() => void session.refetch()} />
+    }
     return (
       <main className="bootstrap-state bootstrap-error" role="alert">
         <h1>Connection refused</h1>

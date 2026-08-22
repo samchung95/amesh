@@ -56,8 +56,8 @@ def test_database_readiness_pool_slow_query_and_migration_metrics() -> None:
         try:
             readiness = await database_readiness(engine, MIGRATIONS)
             assert readiness.ready
-            assert readiness.applied == readiness.expected == 26
-            assert readiness.latest_migration == "0026_disaster_recovery.sql"
+            assert readiness.applied == readiness.expected == 27
+            assert readiness.latest_migration == "0027_interactive_authentication.sql"
             async with engine.connect() as connection:
                 await connection.execute(text("SELECT pg_sleep(0.005)"))
         finally:

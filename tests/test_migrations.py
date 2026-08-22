@@ -46,6 +46,7 @@ def test_checked_in_migration_manifest_is_complete_and_ordered() -> None:
             (24, "reconciliation_runs"),
             (25, "service_registry"),
             (26, "disaster_recovery"),
+            (27, "interactive_authentication"),
         )
     ]
     assert all(item.rollback_guidance for item in plan)

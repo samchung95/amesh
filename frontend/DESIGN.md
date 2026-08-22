@@ -40,6 +40,11 @@ grid.
   keyboard hints and a designed no-results state.
 - Focus: all interactive elements receive a 3 px focus ring with a 2 px surface offset. A skip link is
   the first tab stop.
+- Authentication gate: local user login is the primary entry path and uses the same split graphite/paper
+  composition as the existing connection gate. User handle and password remain ordinary labelled fields;
+  tenant context is visually secondary. API-token entry is an explicit alternate mode for service and
+  operator workflows, never a second competing primary form. Busy, rejected, locked and federated-only
+  states keep the panel dimensions stable and announce their result.
 
 ## Responsive and accessibility contract
 

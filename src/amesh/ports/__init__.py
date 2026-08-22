@@ -1,5 +1,6 @@
 from amesh.domain import TaskRunState
 
+from .authentication_repository import AuthenticationProvider, AuthenticationRepository
 from .authorization_repository import (
     AuthorizationRepository,
     LastAdministratorError,
@@ -99,6 +100,8 @@ from .worker_repository import (
 __all__ = [
     "WORKER_PROTOCOL_VERSION",
     "AssetMetadata",
+    "AuthenticationProvider",
+    "AuthenticationRepository",
     "AuthorizationRepository",
     "BackfillItemDefinition",
     "BackfillRepository",

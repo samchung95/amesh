@@ -1051,3 +1051,44 @@ sized WAL archive, schedule and qualification environment. The checked-in OpenRo
 `openai/gpt-5.6-luna`; recovery does not invoke an LLM.
 
 Verdict: PASS — EPIC-609 closed.
+
+## EPIC-403: Authentication session and credential entry points — 2026-08-22
+
+Spec source: `backlog/epics/epic-403-authentication-session-and-credential-entry-points.md`
+and `docs/operations/authentication.md`.
+
+Verified with `uv`, Python 3.13.12, PostgreSQL 17, Chromium, React/Vite and Helm 4.0.0:
+
+- [x] One guarded CLI operation creates the first local user, Argon2id credential and instance-admin
+  binding without a default password; a repeated bootstrap is rejected and password material is
+  absent from stdout, stderr and durable audit evidence.
+- [x] Multiple local users can receive separately administered passwords and log into the graphical
+  frontend. Their existing tenant/namespace role bindings are enforced by the same server-side RBAC
+  and PostgreSQL RLS paths used by durable bearer credentials.
+- [x] Browser sessions store only keyed opaque-token and CSRF digests in PostgreSQL. Production
+  cookies use `__Host-` names, Secure, HttpOnly and SameSite=Lax where applicable; unsafe cookie
+  requests require the matching CSRF header.
+- [x] Rotation overlap, idle expiry, absolute expiry, logout, administrator/session-wide revocation
+  and password rotation were exercised. Principal credential epochs fence previously issued sessions.
+- [x] Unknown identities and invalid secrets return the same public failure; account lockout and
+  source-window rate limits are deterministic, and bounded Prometheus outcomes expose no identity or
+  secret labels.
+- [x] The authentication service consumes a provider-neutral adapter protocol and delegates a fake
+  OIDC assertion through it. Federated-only policy removes local login while retaining registered
+  federated providers. Concrete OIDC/SAML/LDAP/SCIM adapters remain EPIC-502.
+- [x] A live AMESH server backed by an isolated 27-migration PostgreSQL database served the compiled
+  React application. Headless Chromium signed in as the bootstrapped administrator, reached the
+  Dashboard and observed the expected HttpOnly session and readable CSRF cookie policy.
+- [x] Four focused API/CLI tests passed. Frontend ESLint, ten unit tests, the production build and five
+  applicable Playwright shell cases passed. All non-deferred backend tests passed on a clean database;
+  card `c15` preserves the unrelated EPIC-104 timing assertion and card `c29` preserves the unrelated
+  order-dependent metric assertion.
+- [x] Ruff formatting/lint, strict mypy, `uv lock --check`, generated OpenAPI/planning artifacts,
+  backlog validation, Compose config, Helm production/development lint and the production Docker
+  image all passed.
+
+Qualification boundary: this closes local multi-user login and the provider-neutral boundary. It does
+not claim concrete enterprise federation, which remains EPIC-502, or broader production qualification
+beyond the already published EPIC-601/609 profiles.
+
+Verdict: PASS — EPIC-403 closed.

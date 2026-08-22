@@ -13,8 +13,10 @@ The container build compiles and serves the UI and API on one origin:
 docker compose up --build api postgres minio
 ```
 
-Open `http://localhost:8000`, then use `development-token` and tenant `default` for the development
-configuration. The token is retained only in session storage; locale, time zone, context and saved
+Open `http://localhost:8000`, then sign in with a bootstrapped local user and tenant `default`. The
+server keeps the opaque browser session in an HTTP-only same-origin cookie; the browser supplies the
+separate CSRF cookie on state-changing requests. API-token mode remains available for development and
+operator workflows and retains its token only in session storage. Locale, time zone, context and saved
 views use local storage.
 
 For frontend development, start the API from the repository root and Vite in a second terminal:

@@ -15,9 +15,11 @@ Traffic crossing a zone is authenticated, authorized, bounded and observable.
 
 ## Authentication
 
-Local bootstrap is limited to initial administration. Production supports OIDC, SAML and LDAP, with SCIM
-for lifecycle management. API tokens are hashed or asymmetric, scoped, expiring and visible only once.
-Service-to-service identity uses short-lived workload credentials where possible.
+Local bootstrap is a one-time PostgreSQL transaction with no default credential. Local passwords use
+Argon2id, and random browser sessions remain server-side, revocable, CSRF-bound and subject to inactivity
+plus absolute expiry. The provider-neutral boundary is ready for OIDC, SAML and LDAP adapters; those
+protocols and SCIM lifecycle management remain EPIC-502. API tokens are hashed, scoped, expiring and
+visible only once. Service-to-service identity uses short-lived workload credentials where possible.
 
 ## Authorization
 
@@ -67,6 +69,7 @@ have reason, actor, scope and optional expiry. Audit access is itself audited.
 
 The development bootstrap bearer token is accepted only when both `APP_ENV=development` and
 `AUTH_MODE=development`. Every mode accepts PostgreSQL-authoritative service/workload credentials
-whose token scopes narrow the principal's current policy grants. Interactive user authentication
-remains EPIC-403 work. See the [authorization runbook](../operations/authorization.md) and
-[credential runbook](../operations/credentials.md).
+whose token scopes narrow the principal's current policy grants. Interactive users authenticate through
+the provider-neutral EPIC-403 service and the same RBAC evaluator. See the
+[authentication runbook](../operations/authentication.md),
+[authorization runbook](../operations/authorization.md) and [credential runbook](../operations/credentials.md).

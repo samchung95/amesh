@@ -3,6 +3,19 @@ image:
   tag: mvp
   pullPolicy: IfNotPresent
 
+appEnv: production
+
+auth:
+  mode: credentials
+  policy: local
+  sessionIdleSeconds: 1800
+  sessionAbsoluteSeconds: 43200
+  sessionRotationSeconds: 900
+  sessionOverlapSeconds: 30
+  loginRateLimitPerMinute: 30
+  loginMaxFailures: 5
+  loginLockSeconds: 900
+
 server:
   replicas: 2
   resources: {}

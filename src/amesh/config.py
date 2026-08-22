@@ -57,9 +57,17 @@ class Settings(BaseSettings):
         le=128 * 1024 * 1024,
     )
     auth_mode: str = "development"
+    auth_policy: Literal["local", "hybrid", "federated-only"] = "local"
     amesh_admin_token: SecretStr = SecretStr("development-token")
     amesh_token_pepper: SecretStr = SecretStr("development-token-pepper")
     amesh_previous_token_pepper: SecretStr | None = None
+    auth_session_idle_seconds: int = Field(default=1_800, ge=60, le=86_400)
+    auth_session_absolute_seconds: int = Field(default=43_200, ge=300, le=2_592_000)
+    auth_session_rotation_seconds: int = Field(default=900, ge=30, le=86_400)
+    auth_session_overlap_seconds: int = Field(default=30, ge=0, le=300)
+    auth_login_rate_limit_per_minute: int = Field(default=30, ge=1, le=10_000)
+    auth_login_max_failures: int = Field(default=5, ge=2, le=100)
+    auth_login_lock_seconds: int = Field(default=900, ge=30, le=86_400)
     tenancy_mode: Literal["single", "multi"] = "single"
     single_tenant_slug: str = "default"
     worker_group: str = "default"
@@ -86,6 +94,14 @@ class Settings(BaseSettings):
             raise ValueError("AMESH_TOKEN_PEPPER cannot be empty")
         if self.app_env != "development" and pepper == "development-token-pepper":
             raise ValueError("production requires an externally supplied AMESH_TOKEN_PEPPER")
+        if self.auth_session_idle_seconds > self.auth_session_absolute_seconds:
+            raise ValueError(
+                "AUTH_SESSION_IDLE_SECONDS cannot exceed the absolute session lifetime"
+            )
+        if self.auth_session_rotation_seconds > self.auth_session_absolute_seconds:
+            raise ValueError(
+                "AUTH_SESSION_ROTATION_SECONDS cannot exceed the absolute session lifetime"
+            )
         if not self.database_url.startswith("postgresql+asyncpg://"):
             raise ValueError("DATABASE_URL must use postgresql+asyncpg")
         if self.database_read_replica_url is not None and not (

@@ -11714,7 +11714,7 @@
       "id": "URS-F-0422",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M4",
       "wave": 4,
       "epic_id": "EPIC-403",
@@ -11735,15 +11735,18 @@
       "local_sequence": 1,
       "dependencies": [
         "EPIC-500",
-        "EPIC-501",
-        "EPIC-502"
+        "EPIC-501"
+      ],
+      "evidence": [
+        "tests/test_authentication_cli.py::test_bootstrap_admin_cli_reads_stdin_once_and_creates_no_default_credential",
+        "tests/api/test_authentication_api.py::test_local_multi_user_browser_sessions_are_cookie_csrf_and_policy_bound"
       ]
     },
     {
       "id": "URS-F-0423",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M4",
       "wave": 4,
       "epic_id": "EPIC-403",
@@ -11764,15 +11767,19 @@
       "local_sequence": 2,
       "dependencies": [
         "EPIC-500",
-        "EPIC-501",
-        "EPIC-502"
+        "EPIC-501"
+      ],
+      "evidence": [
+        "tests/api/test_authentication_api.py::test_local_multi_user_browser_sessions_are_cookie_csrf_and_policy_bound",
+        "frontend/src/api/client.test.ts",
+        "TESTLOG.md#epic-403-authentication-session-and-credential-entry-points--2026-08-22"
       ]
     },
     {
       "id": "URS-F-0424",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M4",
       "wave": 4,
       "epic_id": "EPIC-403",
@@ -11793,15 +11800,18 @@
       "local_sequence": 3,
       "dependencies": [
         "EPIC-500",
-        "EPIC-501",
-        "EPIC-502"
+        "EPIC-501"
+      ],
+      "evidence": [
+        "tests/api/test_credential_api.py::test_api_token_is_shown_once_and_authenticates_outside_development",
+        "tests/adapters/postgres/test_credential_repository.py::test_postgres_service_tokens_rotation_exchange_quota_and_revocation"
       ]
     },
     {
       "id": "URS-F-0425",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M4",
       "wave": 4,
       "epic_id": "EPIC-403",
@@ -11822,15 +11832,17 @@
       "local_sequence": 4,
       "dependencies": [
         "EPIC-500",
-        "EPIC-501",
-        "EPIC-502"
+        "EPIC-501"
+      ],
+      "evidence": [
+        "tests/api/test_authentication_api.py::test_local_multi_user_browser_sessions_are_cookie_csrf_and_policy_bound"
       ]
     },
     {
       "id": "URS-F-0426",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M4",
       "wave": 4,
       "epic_id": "EPIC-403",
@@ -11851,15 +11863,17 @@
       "local_sequence": 5,
       "dependencies": [
         "EPIC-500",
-        "EPIC-501",
-        "EPIC-502"
+        "EPIC-501"
+      ],
+      "evidence": [
+        "tests/api/test_authentication_api.py::test_local_multi_user_browser_sessions_are_cookie_csrf_and_policy_bound"
       ]
     },
     {
       "id": "URS-F-0427",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M4",
       "wave": 4,
       "epic_id": "EPIC-403",
@@ -11880,15 +11894,17 @@
       "local_sequence": 6,
       "dependencies": [
         "EPIC-500",
-        "EPIC-501",
-        "EPIC-502"
+        "EPIC-501"
+      ],
+      "evidence": [
+        "tests/api/test_authentication_api.py::test_local_multi_user_browser_sessions_are_cookie_csrf_and_policy_bound"
       ]
     },
     {
       "id": "URS-F-0428",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M4",
       "wave": 4,
       "epic_id": "EPIC-403",
@@ -11909,15 +11925,18 @@
       "local_sequence": 7,
       "dependencies": [
         "EPIC-500",
-        "EPIC-501",
-        "EPIC-502"
+        "EPIC-501"
+      ],
+      "evidence": [
+        "tests/api/test_authentication_api.py::test_provider_neutral_registry_delegates_federated_authentication",
+        "src/amesh/ports/authentication_repository.py"
       ]
     },
     {
       "id": "URS-F-0429",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M4",
       "wave": 4,
       "epic_id": "EPIC-403",
@@ -11938,8 +11957,11 @@
       "local_sequence": 8,
       "dependencies": [
         "EPIC-500",
-        "EPIC-501",
-        "EPIC-502"
+        "EPIC-501"
+      ],
+      "evidence": [
+        "tests/api/test_authentication_api.py::test_federated_only_policy_disables_local_provider_and_password_login",
+        "tests/api/test_authentication_api.py::test_provider_neutral_registry_delegates_federated_authentication"
       ]
     },
     {

@@ -40,6 +40,26 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{- define "amesh.runtimeEnv" -}}
+- name: APP_ENV
+  value: {{ .Values.appEnv | quote }}
+- name: AUTH_MODE
+  value: {{ .Values.auth.mode | quote }}
+- name: AUTH_POLICY
+  value: {{ .Values.auth.policy | quote }}
+- name: AUTH_SESSION_IDLE_SECONDS
+  value: {{ .Values.auth.sessionIdleSeconds | quote }}
+- name: AUTH_SESSION_ABSOLUTE_SECONDS
+  value: {{ .Values.auth.sessionAbsoluteSeconds | quote }}
+- name: AUTH_SESSION_ROTATION_SECONDS
+  value: {{ .Values.auth.sessionRotationSeconds | quote }}
+- name: AUTH_SESSION_OVERLAP_SECONDS
+  value: {{ .Values.auth.sessionOverlapSeconds | quote }}
+- name: AUTH_LOGIN_RATE_LIMIT_PER_MINUTE
+  value: {{ .Values.auth.loginRateLimitPerMinute | quote }}
+- name: AUTH_LOGIN_MAX_FAILURES
+  value: {{ .Values.auth.loginMaxFailures | quote }}
+- name: AUTH_LOGIN_LOCK_SECONDS
+  value: {{ .Values.auth.loginLockSeconds | quote }}
 - name: DATABASE_URL
   valueFrom:
     secretKeyRef:

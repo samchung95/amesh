@@ -30,6 +30,7 @@ from amesh import __version__
 from amesh.adapters.kubernetes import KubernetesJobRunner
 from amesh.adapters.local import LocalProcessRunner
 from amesh.adapters.postgres import (
+    PostgresAuthenticationRepository,
     PostgresAuthorizationRepository,
     PostgresBackfillRepository,
     PostgresCredentialRepository,
@@ -42,6 +43,7 @@ from amesh.adapters.postgres import (
 from amesh.api.models import (
     AuthorizationExplanationRequest,
     BackfillActionRequest,
+    ChangeLocalPasswordRequest,
     CreateExecutionRequest,
     CreateTenantRequest,
     ExchangeCredentialRequest,
@@ -54,15 +56,27 @@ from amesh.api.models import (
     HealthResponse,
     IssueCredentialRequest,
     IssuedCredentialResponse,
+    LoginRequest,
+    LoginResponse,
     ReadinessResponse,
     ReduceExecutionRequest,
     ReduceExecutionResponse,
     ResumeTaskRequest,
     RevokedCredentialsResponse,
+    RevokedSessionsResponse,
     RotateCredentialRequest,
     RunnerMode,
+    SetLocalPasswordRequest,
     TaskLog,
     UiSessionResponse,
+)
+from amesh.authentication import (
+    AuthenticationRateLimited,
+    AuthenticationService,
+    InvalidAuthentication,
+    InvalidCsrf,
+    LocalAuthenticationDisabled,
+    PasswordPolicyError,
 )
 from amesh.authorization import AuthorizationDenied, AuthorizationService
 from amesh.backfills import BackfillService
@@ -74,6 +88,7 @@ from amesh.domain import (
     AdmissionDecision,
     AdmissionDiagnostics,
     AdmissionResourceType,
+    AuthenticationProviderDescriptor,
     AuthorizationDecision,
     AuthorizationRequest,
     BackfillPreview,
@@ -104,6 +119,9 @@ from amesh.domain import (
     TenantPolicy,
     TenantSlug,
     reduce_execution,
+)
+from amesh.domain import (
+    AuthenticationRequest as ProviderAuthenticationRequest,
 )
 from amesh.dsl import (
     FlowDefinition,
@@ -313,6 +331,34 @@ CredentialServiceDependency = Annotated[CredentialService, Depends(get_credentia
 
 
 @lru_cache
+def get_authentication_repository() -> PostgresAuthenticationRepository:
+    return PostgresAuthenticationRepository(database_engine())
+
+
+@lru_cache
+def get_authentication_service() -> AuthenticationService:
+    settings = get_settings()
+    return AuthenticationService(
+        get_authentication_repository(),
+        token_pepper=settings.amesh_token_pepper,
+        policy=settings.auth_policy,
+        session_idle_seconds=settings.auth_session_idle_seconds,
+        session_absolute_seconds=settings.auth_session_absolute_seconds,
+        session_rotation_seconds=settings.auth_session_rotation_seconds,
+        session_overlap_seconds=settings.auth_session_overlap_seconds,
+        login_rate_limit_per_minute=settings.auth_login_rate_limit_per_minute,
+        login_max_failures=settings.auth_login_max_failures,
+        login_lock_seconds=settings.auth_login_lock_seconds,
+    )
+
+
+AuthenticationServiceDependency = Annotated[
+    AuthenticationService,
+    Depends(get_authentication_service),
+]
+
+
+@lru_cache
 def get_tenant_repository() -> PostgresTenantRepository:
     return PostgresTenantRepository(database_engine())
 
@@ -366,10 +412,10 @@ _TENANT_SLUG_ADAPTER = TypeAdapter(TenantSlug)
 _BOOTSTRAP_PRINCIPAL_ID = UUID("00000000-0000-7000-8000-000000000001")
 
 
-async def authenticate_actor(
+async def authenticate_bearer_actor(
     settings: SettingsDependency,
-    credential_service: CredentialServiceDependency,
-    authorization: Annotated[str | None, Header()] = None,
+    credential_service: CredentialService | None,
+    authorization: str | None,
 ) -> ActorContext:
     if authorization is None:
         raise HTTPException(
@@ -410,6 +456,123 @@ async def authenticate_actor(
             detail="valid bearer token required",
             headers={"WWW-Authenticate": "Bearer"},
         ) from exc
+
+
+async def authenticate_actor(
+    request: Request,
+    response: Response,
+    settings: SettingsDependency,
+    credential_service: CredentialServiceDependency,
+    authentication_service: AuthenticationServiceDependency,
+    authorization: Annotated[str | None, Header()] = None,
+    csrf_header: Annotated[str | None, Header(alias="X-Amesh-CSRF")] = None,
+) -> ActorContext:
+    if authorization is not None:
+        return await authenticate_bearer_actor(settings, credential_service, authorization)
+    session_cookie = request.cookies.get(_session_cookie_name(settings))
+    if session_cookie is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="authentication required",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    require_csrf = request.method not in {"GET", "HEAD", "OPTIONS", "TRACE"}
+    try:
+        authenticated = await authentication_service.authenticate_session(
+            session_cookie,
+            csrf_cookie=request.cookies.get(_csrf_cookie_name(settings)),
+            csrf_header=csrf_header,
+            require_csrf=require_csrf,
+        )
+    except InvalidCsrf as exc:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="CSRF validation failed",
+        ) from exc
+    except InvalidAuthentication as exc:
+        _clear_session_cookies(response, settings)
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="authentication required",
+            headers={"WWW-Authenticate": "Bearer"},
+        ) from exc
+    if authenticated.rotated_token is not None:
+        remaining = max(
+            0,
+            int((authenticated.absolute_expires_at - datetime.now(UTC)).total_seconds()),
+        )
+        _set_session_cookie(
+            response,
+            settings,
+            authenticated.rotated_token.get_secret_value(),
+            max_age=remaining,
+        )
+    request.state.browser_session_id = authenticated.session_id
+    return authenticated.actor
+
+
+def _session_cookie_name(settings: Settings) -> str:
+    return "amesh_session" if settings.app_env == "development" else "__Host-amesh_session"
+
+
+def _csrf_cookie_name(settings: Settings) -> str:
+    return "amesh_csrf" if settings.app_env == "development" else "__Host-amesh_csrf"
+
+
+def _set_session_cookie(
+    response: Response,
+    settings: Settings,
+    value: str,
+    *,
+    max_age: int,
+) -> None:
+    response.set_cookie(
+        _session_cookie_name(settings),
+        value,
+        max_age=max_age,
+        path="/",
+        secure=settings.app_env != "development",
+        httponly=True,
+        samesite="lax",
+    )
+
+
+def _set_authentication_cookies(
+    response: Response,
+    settings: Settings,
+    *,
+    session_token: str,
+    csrf_token: str,
+    max_age: int,
+) -> None:
+    _set_session_cookie(response, settings, session_token, max_age=max_age)
+    response.set_cookie(
+        _csrf_cookie_name(settings),
+        csrf_token,
+        max_age=max_age,
+        path="/",
+        secure=settings.app_env != "development",
+        httponly=False,
+        samesite="lax",
+    )
+
+
+def _clear_session_cookies(response: Response, settings: Settings) -> None:
+    secure = settings.app_env != "development"
+    response.delete_cookie(
+        _session_cookie_name(settings),
+        path="/",
+        secure=secure,
+        httponly=True,
+        samesite="lax",
+    )
+    response.delete_cookie(
+        _csrf_cookie_name(settings),
+        path="/",
+        secure=secure,
+        httponly=False,
+        samesite="lax",
+    )
 
 
 ActorDependency = Annotated[ActorContext, Depends(authenticate_actor)]
@@ -574,6 +737,210 @@ async def get_ui_session(
         telemetryEnabled=settings.product_telemetry_enabled,
         serverVersion=__version__,
     )
+
+
+@app.get(
+    "/api/v1/auth/providers",
+    response_model=tuple[AuthenticationProviderDescriptor, ...],
+    tags=["authentication"],
+)
+async def list_authentication_providers(
+    authentication_service: AuthenticationServiceDependency,
+) -> tuple[AuthenticationProviderDescriptor, ...]:
+    return authentication_service.providers()
+
+
+@app.post(
+    "/api/v1/auth/login",
+    response_model=LoginResponse,
+    tags=["authentication"],
+)
+async def login(
+    login_request: LoginRequest,
+    request: Request,
+    response: Response,
+    authentication_service: AuthenticationServiceDependency,
+    settings: SettingsDependency,
+) -> LoginResponse:
+    source = "|".join(
+        (
+            request.client.host if request.client is not None else "unknown",
+            request.headers.get("user-agent", "unknown")[:512],
+        )
+    )
+    try:
+        issued = await authentication_service.login(
+            ProviderAuthenticationRequest(
+                provider=login_request.provider,
+                identifier=login_request.identifier,
+                secret=login_request.password,
+            ),
+            source=source,
+        )
+    except AuthenticationRateLimited as exc:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="authentication rate limit exceeded",
+            headers={"Retry-After": "60"},
+        ) from exc
+    except LocalAuthenticationDisabled as exc:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="local authentication is disabled by policy",
+        ) from exc
+    except InvalidAuthentication as exc:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="authentication failed",
+        ) from exc
+    max_age = max(
+        0,
+        int((issued.absolute_expires_at - datetime.now(UTC)).total_seconds()),
+    )
+    _set_authentication_cookies(
+        response,
+        settings,
+        session_token=issued.session_token.get_secret_value(),
+        csrf_token=issued.csrf_token.get_secret_value(),
+        max_age=max_age,
+    )
+    return LoginResponse(
+        principalId=issued.actor.principal_id,
+        display=issued.actor.display,
+        idleExpiresAt=issued.idle_expires_at,
+        absoluteExpiresAt=issued.absolute_expires_at,
+    )
+
+
+@app.post(
+    "/api/v1/auth/logout",
+    status_code=status.HTTP_204_NO_CONTENT,
+    tags=["authentication"],
+)
+async def logout(
+    request: Request,
+    response: Response,
+    actor: ActorDependency,
+    authentication_service: AuthenticationServiceDependency,
+    settings: SettingsDependency,
+) -> None:
+    session_id = getattr(request.state, "browser_session_id", None)
+    if session_id is None:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="logout requires a browser session",
+        )
+    await authentication_service.logout(session_id, actor_id=str(actor.principal_id))
+    _clear_session_cookies(response, settings)
+
+
+@app.post(
+    "/api/v1/auth/logout-all",
+    response_model=RevokedSessionsResponse,
+    tags=["authentication"],
+)
+async def logout_all(
+    response: Response,
+    actor: ActorDependency,
+    authentication_service: AuthenticationServiceDependency,
+    settings: SettingsDependency,
+) -> RevokedSessionsResponse:
+    count = await authentication_service.revoke_all(
+        actor.principal_id,
+        actor_id=str(actor.principal_id),
+    )
+    _clear_session_cookies(response, settings)
+    return RevokedSessionsResponse(revokedCount=count)
+
+
+@app.post(
+    "/api/v1/auth/password",
+    response_model=RevokedSessionsResponse,
+    tags=["authentication"],
+)
+async def change_local_password(
+    password_request: ChangeLocalPasswordRequest,
+    response: Response,
+    actor: ActorDependency,
+    authentication_service: AuthenticationServiceDependency,
+    settings: SettingsDependency,
+) -> RevokedSessionsResponse:
+    if actor.principal_type is not PrincipalType.USER:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="local password rotation requires a user session",
+        )
+    try:
+        count = await authentication_service.change_local_password(
+            actor.principal_id,
+            identifier=password_request.identifier,
+            current_password=password_request.current_password,
+            new_password=password_request.new_password,
+        )
+    except InvalidAuthentication as exc:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="authentication failed",
+        ) from exc
+    except (LocalAuthenticationDisabled, PasswordPolicyError) as exc:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
+    _clear_session_cookies(response, settings)
+    return RevokedSessionsResponse(revokedCount=count)
+
+
+@app.put(
+    "/api/v1/admin/principals/{principal_id}/local-password",
+    response_model=RevokedSessionsResponse,
+    tags=["authentication"],
+)
+async def set_local_password(
+    principal_id: UUID,
+    password_request: SetLocalPasswordRequest,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    authentication_service: AuthenticationServiceDependency,
+) -> RevokedSessionsResponse:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="principal",
+        action=PermissionAction.MANAGE,
+    )
+    try:
+        count = await authentication_service.set_local_password(
+            principal_id,
+            password_request.new_password,
+            actor_id=str(actor.principal_id),
+        )
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    except (ValueError, LocalAuthenticationDisabled, PasswordPolicyError) as exc:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
+    return RevokedSessionsResponse(revokedCount=count)
+
+
+@app.delete(
+    "/api/v1/admin/principals/{principal_id}/sessions",
+    response_model=RevokedSessionsResponse,
+    tags=["authentication"],
+)
+async def revoke_principal_sessions(
+    principal_id: UUID,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    authentication_service: AuthenticationServiceDependency,
+) -> RevokedSessionsResponse:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="principal",
+        action=PermissionAction.MANAGE,
+    )
+    count = await authentication_service.revoke_all(
+        principal_id,
+        actor_id=str(actor.principal_id),
+    )
+    return RevokedSessionsResponse(revokedCount=count)
 
 
 @app.get("/metrics", include_in_schema=False)

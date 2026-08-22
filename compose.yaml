@@ -21,6 +21,7 @@ services:
       OBJECT_STORAGE_SECRET_KEY: minio-development-only
       OBJECT_STORAGE_WORKLOAD_IDENTITY: "false"
       AUTH_MODE: development
+      AUTH_POLICY: local
       PRODUCT_TELEMETRY_ENABLED: "false"
     ports:
       - "8000:8000"
@@ -73,6 +74,7 @@ services:
       - ./migrations/0024_reconciliation_runs.sql:/docker-entrypoint-initdb.d/0024_reconciliation_runs.sql:ro
       - ./migrations/0025_service_registry.sql:/docker-entrypoint-initdb.d/0025_service_registry.sql:ro
       - ./migrations/0026_disaster_recovery.sql:/docker-entrypoint-initdb.d/0026_disaster_recovery.sql:ro
+      - ./migrations/0027_interactive_authentication.sql:/docker-entrypoint-initdb.d/0027_interactive_authentication.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U amesh -d amesh"]
       interval: 5s

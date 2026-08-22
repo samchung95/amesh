@@ -156,6 +156,12 @@
       "mode": "expand",
       "onlineCompatible": true,
       "rollbackGuidance": "Stop scheduled recovery exercises and forward-fix the additive evidence ledger or projection rebuild function; retain all checkpoint and exercise evidence."
+    },
+    {
+      "file": "0027_interactive_authentication.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Disable local browser login and forward-fix the additive credential/session tables; retain password hashes, revocation state and secret-free authentication audit evidence."
     }
   ]
 }

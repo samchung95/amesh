@@ -198,6 +198,11 @@ details pre { max-width: 480px; overflow: auto; padding: 10px; background: var(-
 .connection-panel { display: grid; align-content: center; padding: clamp(30px, 7vw, 100px); background: var(--surface); }
 .connection-panel-heading { display: flex; gap: 12px; margin-bottom: 24px; }
 .connection-panel-heading h2 { font-size: 1.25rem; }
+.authentication-modes { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-bottom: 14px; padding: 4px; background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius-control); }
+.authentication-modes button { min-height: 40px; color: var(--muted); background: transparent; border: 1px solid transparent; border-radius: 4px; font-weight: 600; cursor: pointer; }
+.authentication-modes button:hover { color: var(--ink); }
+.authentication-modes button.active { color: var(--ink); background: var(--surface); border-color: var(--line-strong); }
+.authentication-modes button:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 .connection-panel form { display: grid; gap: 7px; }
 .connection-panel form label { margin-top: 8px; color: var(--muted); font-weight: 600; }
 .connection-panel input { width: 100%; height: 46px; padding: 0 12px; color: var(--ink); background: var(--paper); border: 1px solid var(--line-strong); border-radius: var(--radius-control); }

@@ -74,6 +74,8 @@ kubectl --context kind-amesh-mvp -n amesh-system create secret generic amesh-ope
 ```bash
 helm --kube-context kind-amesh-mvp install amesh charts/amesh \
   --namespace amesh-system \
+  --set appEnv=development \
+  --set auth.mode=development \
   --set openRouter.existingSecret=amesh-openrouter \
   --set openRouter.key=api-key \
   --wait --timeout 5m
@@ -103,6 +105,11 @@ uv run --extra runtime python -m amesh \
 ```
 
 The execution and all three task runs must report `SUCCESS`. The callback deliberately targets the public validation endpoint; its JSON response proves the final HTTP step without adding another service.
+
+The two authentication overrides are limited to this disposable kind exercise. The chart defaults to
+`appEnv=production`; operated installs bootstrap a local administrator once and use HTTPS browser
+sessions or durable API credentials as described in the
+[authentication runbook](../../docs/operations/authentication.md).
 
 ## Cleanup
 

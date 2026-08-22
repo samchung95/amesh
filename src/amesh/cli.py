@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import getpass
 import json
 import os
 import sys
@@ -11,9 +12,15 @@ from typing import Any
 
 import httpx
 import yaml
+from pydantic import SecretStr
 
 from amesh import __version__
-from amesh.adapters.postgres import PostgresExecutionRepository, PostgresTenantRepository
+from amesh.adapters.postgres import (
+    PostgresAuthenticationRepository,
+    PostgresExecutionRepository,
+    PostgresTenantRepository,
+)
+from amesh.authentication import AuthenticationService
 from amesh.config import Settings
 from amesh.database import create_database_engine
 from amesh.dsl import FlowDocumentError, validate_flow_document
@@ -66,6 +73,20 @@ def build_parser() -> argparse.ArgumentParser:
     webhook.add_argument("trigger_id")
     webhook.add_argument("--runner", choices=("local", "kubernetes"), default="local")
     webhook.add_argument("--input", action="append", default=[])
+
+    auth = subcommands.add_parser("auth", help="Manage interactive authentication")
+    auth_commands = auth.add_subparsers(dest="auth_command", required=True)
+    bootstrap_admin = auth_commands.add_parser(
+        "bootstrap-admin",
+        help="Create the first local administrator without a default credential",
+    )
+    bootstrap_admin.add_argument("--handle", required=True)
+    bootstrap_admin.add_argument("--display-name", required=True)
+    bootstrap_admin.add_argument(
+        "--password-stdin",
+        action="store_true",
+        help="Read the password from one stdin line instead of an interactive prompt",
+    )
 
     storage = subcommands.add_parser("storage", help="Validate or migrate object storage")
     storage_commands = storage.add_subparsers(dest="storage_command", required=True)
@@ -160,6 +181,32 @@ def main(argv: Sequence[str] | None = None) -> int:
         except (OSError, ValueError, RuntimeError) as exc:
             print(str(exc), file=sys.stderr)
             return 2
+    if args.command == "auth":
+        try:
+            password = _read_bootstrap_password(args.password_stdin)
+            principal = asyncio.run(
+                _bootstrap_local_admin(
+                    Settings(),
+                    handle=args.handle,
+                    display_name=args.display_name,
+                    password=password,
+                )
+            )
+            print(
+                json.dumps(
+                    {
+                        "principalId": str(principal.id),
+                        "handle": principal.handle,
+                        "displayName": principal.display_name,
+                    },
+                    indent=2,
+                    sort_keys=True,
+                )
+            )
+            return 0
+        except (EOFError, LookupError, ValueError, RuntimeError) as exc:
+            print(str(exc), file=sys.stderr)
+            return 2
     if args.command == "recovery":
         try:
             result = asyncio.run(_run_recovery(args, Settings()))
@@ -234,6 +281,19 @@ def _request_headers(token: str | None, tenant: str) -> dict[str, str]:
     return headers
 
 
+def _read_bootstrap_password(from_stdin: bool) -> SecretStr:
+    if from_stdin:
+        value = sys.stdin.readline().rstrip("\r\n")
+        if not value:
+            raise ValueError("bootstrap password stdin was empty")
+        return SecretStr(value)
+    value = getpass.getpass("New local administrator password: ")
+    repeated = getpass.getpass("Repeat password: ")
+    if value != repeated:
+        raise ValueError("passwords do not match")
+    return SecretStr(value)
+
+
 def _parse_inputs(values: Sequence[str]) -> dict[str, Any]:
     inputs: dict[str, Any] = {}
     for value in values:
@@ -295,6 +355,36 @@ async def _run_tenant_transfer(args: argparse.Namespace, settings: Settings) -> 
             bundle,
             target_slug=args.target_slug,
             actor_id=args.actor,
+        )
+    finally:
+        await engine.dispose()
+
+
+async def _bootstrap_local_admin(
+    settings: Settings,
+    *,
+    handle: str,
+    display_name: str,
+    password: SecretStr,
+) -> Any:
+    engine = create_database_engine(settings)
+    try:
+        service = AuthenticationService(
+            PostgresAuthenticationRepository(engine),
+            token_pepper=settings.amesh_token_pepper,
+            policy=settings.auth_policy,
+            session_idle_seconds=settings.auth_session_idle_seconds,
+            session_absolute_seconds=settings.auth_session_absolute_seconds,
+            session_rotation_seconds=settings.auth_session_rotation_seconds,
+            session_overlap_seconds=settings.auth_session_overlap_seconds,
+            login_rate_limit_per_minute=settings.auth_login_rate_limit_per_minute,
+            login_max_failures=settings.auth_login_max_failures,
+            login_lock_seconds=settings.auth_login_lock_seconds,
+        )
+        return await service.bootstrap_local_admin(
+            handle=handle,
+            display_name=display_name,
+            password=password,
         )
     finally:
         await engine.dispose()

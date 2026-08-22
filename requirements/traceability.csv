@@ -420,14 +420,14 @@ URS-F-0418,Functional,Must,EPIC-402,CLI and generated client SDKs,M4,4,OpenAPI c
 URS-F-0419,Functional,Must,EPIC-402,CLI and generated client SDKs,M4,4,OpenAPI contract and authenticated end-to-end API tests,Proposed
 URS-F-0420,Functional,Must,EPIC-402,CLI and generated client SDKs,M4,4,OpenAPI contract and authenticated end-to-end API tests,Proposed
 URS-F-0421,Functional,Must,EPIC-402,CLI and generated client SDKs,M4,4,OpenAPI contract and authenticated end-to-end API tests,Proposed
-URS-F-0422,Functional,Must,EPIC-403,Authentication session and credential entry points,M4,4,Security integration tests and threat-model review,Proposed
-URS-F-0423,Functional,Must,EPIC-403,Authentication session and credential entry points,M4,4,Security integration tests and threat-model review,Proposed
-URS-F-0424,Functional,Must,EPIC-403,Authentication session and credential entry points,M4,4,Security integration tests and threat-model review,Proposed
-URS-F-0425,Functional,Must,EPIC-403,Authentication session and credential entry points,M4,4,Security integration tests and threat-model review,Proposed
-URS-F-0426,Functional,Must,EPIC-403,Authentication session and credential entry points,M4,4,Security integration tests and threat-model review,Proposed
-URS-F-0427,Functional,Must,EPIC-403,Authentication session and credential entry points,M4,4,Security integration tests and threat-model review,Proposed
-URS-F-0428,Functional,Must,EPIC-403,Authentication session and credential entry points,M4,4,Security integration tests and threat-model review,Proposed
-URS-F-0429,Functional,Must,EPIC-403,Authentication session and credential entry points,M4,4,Security integration tests and threat-model review,Proposed
+URS-F-0422,Functional,Must,EPIC-403,Authentication session and credential entry points,M4,4,Security integration tests and threat-model review,Verified
+URS-F-0423,Functional,Must,EPIC-403,Authentication session and credential entry points,M4,4,Security integration tests and threat-model review,Verified
+URS-F-0424,Functional,Must,EPIC-403,Authentication session and credential entry points,M4,4,Security integration tests and threat-model review,Verified
+URS-F-0425,Functional,Must,EPIC-403,Authentication session and credential entry points,M4,4,Security integration tests and threat-model review,Verified
+URS-F-0426,Functional,Must,EPIC-403,Authentication session and credential entry points,M4,4,Security integration tests and threat-model review,Verified
+URS-F-0427,Functional,Must,EPIC-403,Authentication session and credential entry points,M4,4,Security integration tests and threat-model review,Verified
+URS-F-0428,Functional,Must,EPIC-403,Authentication session and credential entry points,M4,4,Security integration tests and threat-model review,Verified
+URS-F-0429,Functional,Must,EPIC-403,Authentication session and credential entry points,M4,4,Security integration tests and threat-model review,Verified
 URS-F-0430,Functional,Must,EPIC-404,"Web UI shell, navigation and accessibility",M4,4,"Automated browser, accessibility and manual usability tests",Verified
 URS-F-0431,Functional,Must,EPIC-404,"Web UI shell, navigation and accessibility",M4,4,"Automated browser, accessibility and manual usability tests",Verified
 URS-F-0432,Functional,Must,EPIC-404,"Web UI shell, navigation and accessibility",M4,4,"Automated browser, accessibility and manual usability tests",Verified

@@ -3,7 +3,7 @@ import asyncio
 import pytest
 from fastapi import HTTPException
 
-from amesh.app import authenticate_actor
+from amesh.app import authenticate_bearer_actor
 from amesh.config import Settings
 from amesh.ports import StorageBackend
 from amesh.storage.factory import build_object_store
@@ -39,7 +39,7 @@ def test_development_bootstrap_token_fails_closed_outside_development() -> None:
     )
 
     with pytest.raises(HTTPException) as caught:
-        asyncio.run(authenticate_actor(settings, None, "Bearer test-token"))
+        asyncio.run(authenticate_bearer_actor(settings, None, "Bearer test-token"))
 
     assert caught.value.status_code == 401
 

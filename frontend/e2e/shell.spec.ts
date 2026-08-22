@@ -39,6 +39,7 @@ async function mockApi(page: Page, overrides = session) {
 
 async function connect(page: Page) {
   await page.goto('/')
+  await page.getByRole('button', { name: 'API token' }).click()
   await page.getByLabel('API token').fill('test-token')
   await page.getByRole('button', { name: 'Open control room' }).click()
   await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible()

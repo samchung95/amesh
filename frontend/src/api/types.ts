@@ -96,3 +96,17 @@ export interface HealthResponse {
   status: string
   version: string
 }
+
+export interface AuthenticationProvider {
+  id: string
+  kind: string
+  display_name: string
+  interactive: boolean
+}
+
+export interface LoginResponse {
+  principalId: string
+  display: string
+  idleExpiresAt: string
+  absoluteExpiresAt: string
+}

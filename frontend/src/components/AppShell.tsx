@@ -17,6 +17,7 @@ import { NavLink, Outlet } from 'react-router-dom'
 
 import type { UiSession } from '../api/types'
 import { groupIcons, navigationItems, type NavigationGroup } from '../app/navigation'
+import { useApiClient } from '../app/queries'
 import { useAppSettings } from '../app/settings'
 import { CommandPalette } from './CommandPalette'
 
@@ -25,6 +26,7 @@ const groups: NavigationGroup[] = ['build', 'operate', 'govern']
 export function AppShell({ session }: { session: UiSession }) {
   const { t, i18n } = useTranslation()
   const { settings, disconnect, updateContext, updateLocale, updateTimezone } = useAppSettings()
+  const api = useApiClient()
   const [commandOpen, setCommandOpen] = useState(false)
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const [notificationsOpen, setNotificationsOpen] = useState(false)
@@ -46,6 +48,14 @@ export function AppShell({ session }: { session: UiSession }) {
     document.addEventListener('keydown', handleShortcut)
     return () => document.removeEventListener('keydown', handleShortcut)
   }, [])
+
+  const signOut = async () => {
+    try {
+      if (settings.authenticationMode === 'session') await api.logout()
+    } finally {
+      disconnect()
+    }
+  }
 
   return (
     <div className="app-layout">
@@ -137,7 +147,7 @@ export function AppShell({ session }: { session: UiSession }) {
             <button className="icon-button notification-button" type="button" onClick={() => setNotificationsOpen((value) => !value)} aria-expanded={notificationsOpen} aria-controls={notificationId} aria-label={t('notifications')}>
               <Bell size={19} aria-hidden="true" /><i aria-hidden="true" />
             </button>
-            <button className="avatar-button" type="button" onClick={disconnect} title={t('disconnect')} aria-label={`${session.display}. ${t('disconnect')}`}>
+            <button className="avatar-button" type="button" onClick={() => void signOut()} title={t('disconnect')} aria-label={`${session.display}. ${t('disconnect')}`}>
               {session.display.slice(0, 2).toUpperCase()}
             </button>
           </div>

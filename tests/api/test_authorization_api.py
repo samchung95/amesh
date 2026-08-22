@@ -222,6 +222,11 @@ def test_every_protected_rest_surface_enforces_tenant_and_permission_policy() ->
                     ),
                     client.delete(f"/api/v1/admin/credentials/{uuid4()}"),
                     client.delete(f"/api/v1/admin/principals/{uuid4()}/credentials"),
+                    client.put(
+                        f"/api/v1/admin/principals/{uuid4()}/local-password",
+                        json={"newPassword": "denied password material"},
+                    ),
+                    client.delete(f"/api/v1/admin/principals/{uuid4()}/sessions"),
                     client.post(
                         "/api/v1/credentials/exchange",
                         json={

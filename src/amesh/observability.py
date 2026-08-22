@@ -102,6 +102,15 @@ STORAGE_CORRUPTION = Counter(
     "AMESH object checksum mismatches by backend.",
     ("backend",),
 )
+AUTHENTICATION_ATTEMPTS = Counter(
+    "amesh_authentication_attempts",
+    "AMESH interactive authentication attempts by provider and bounded outcome.",
+    ("provider", "outcome"),
+)
+AUTHENTICATION_LOCKOUTS = Counter(
+    "amesh_authentication_lockouts",
+    "AMESH local account lockouts.",
+)
 
 _INSTRUMENTED_ENGINES: WeakSet[AsyncEngine] = WeakSet()
 

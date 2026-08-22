@@ -3,5 +3,5 @@ AMESH {{ .Chart.AppVersion }} is installed.
 Port-forward the API:
   kubectl -n {{ .Release.Namespace }} port-forward service/{{ include "amesh.fullname" . }} {{ .Values.service.port }}:{{ .Values.service.port }}
 
-The API requires the bearer token stored in Secret {{ .Values.adminToken.existingSecret }}.
+Bootstrap the first local administrator once with `amesh auth bootstrap-admin`, then sign in through the web UI. API and CLI automation may continue to use a durable bearer token.
 Prometheus metrics are served at /metrics on the same service.

@@ -5,7 +5,7 @@ from enum import StrEnum
 from typing import Any, Literal
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, SecretStr
 
 from amesh.domain import (
     CredentialMetadata,
@@ -46,6 +46,43 @@ class UiSessionResponse(BaseModel):
     capabilities: dict[str, bool]
     telemetry_enabled: bool = Field(alias="telemetryEnabled")
     server_version: str = Field(alias="serverVersion")
+
+
+class LoginRequest(BaseModel):
+    provider: str = Field(default="local", min_length=1, max_length=128)
+    identifier: str = Field(min_length=1, max_length=255)
+    password: SecretStr = Field(min_length=1, max_length=1024, repr=False)
+
+
+class LoginResponse(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    principal_id: UUID = Field(alias="principalId")
+    display: str
+    idle_expires_at: datetime = Field(alias="idleExpiresAt")
+    absolute_expires_at: datetime = Field(alias="absoluteExpiresAt")
+
+
+class SetLocalPasswordRequest(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    new_password: SecretStr = Field(alias="newPassword", min_length=12, max_length=1024, repr=False)
+
+
+class ChangeLocalPasswordRequest(SetLocalPasswordRequest):
+    identifier: str = Field(min_length=1, max_length=255)
+    current_password: SecretStr = Field(
+        alias="currentPassword",
+        min_length=1,
+        max_length=1024,
+        repr=False,
+    )
+
+
+class RevokedSessionsResponse(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    revoked_count: int = Field(alias="revokedCount", ge=0)
 
 
 class ReduceExecutionRequest(BaseModel):

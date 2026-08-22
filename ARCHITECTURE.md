@@ -28,6 +28,7 @@ YAML / CLI / REST / webhooks
 - `domain` contains immutable execution and task state plus pure transition functions; it has no framework or database imports.
 - `domain.identity` and `domain.resources` own canonical natural-key validation, UUIDv7 runtime identity, managed-resource metadata, lifecycle transitions, concurrency tags and canonical hashing. Every API, repository and future UI/auth module consumes these contracts rather than defining local variants.
 - `domain.authorization` owns actors, permissions, roles, scoped bindings, namespace boundaries and deterministic deny-overrides evaluation. PostgreSQL policy rows and a monotonic policy version are authoritative; REST, CLI and non-human callers consume one authorization service rather than embedding local permission checks.
+- `domain.authentication` owns local credential and browser-session contracts without making authorization decisions. A provider-neutral authentication port resolves an external identity to an existing user principal; the local adapter verifies Argon2id password hashes, while later OIDC, SAML and LDAP adapters remain replaceable edges.
 - `dsl` parses and validates the MVP YAML model and native expression references.
 - `ports` defines transport, runner and plugin contracts.
 - `adapters` implements PostgreSQL, process, Kubernetes and external-provider boundaries.
@@ -37,6 +38,8 @@ YAML / CLI / REST / webhooks
 ## Data and failure flow
 
 Execution transitions append their events in the same database transaction. The transport adapter provides separately verified transactional outbox publication, durable inbox deduplication and fenced queue claims. The MVP recovery worker scans persisted running executions and reconciles their deterministic Kubernetes Jobs; task and execution results commit only while the persisted attempt and execution epoch still match. Duplicate commands and messages return the previously persisted logical result. When PostgreSQL is unavailable, AMESH acknowledges no state-changing request. OpenRouter and MCP failures remain task failures or retries and never mutate orchestration state directly.
+
+Interactive login follows the same PostgreSQL-authoritative boundary. The browser submits a provider, user handle and secret to the authentication service; successful local verification returns a random opaque session whose keyed digest, CSRF digest, principal credential epoch, idle deadline, absolute deadline and revocation state are stored in PostgreSQL. The browser receives only a same-site HTTP-only session cookie and a separate CSRF value. Every authenticated unsafe request must match the CSRF cookie and header before authorization runs. Password rotation, user disablement, logout and global revocation fence existing sessions through the persisted principal epoch or session state. Invalid, locked, expired and unknown identities return the same public failure while bounded metrics and secret-free audit evidence retain the internal reason.
 
 ## MVP executor boundary
 

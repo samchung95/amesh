@@ -60,4 +60,39 @@ describe('API client', () => {
 
     await expect(api.flows()).rejects.toMatchObject({ message: 'Request failed with status 500' })
   })
+
+  it('creates a browser session without a bearer token', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ principalId: 'user-1', display: 'User' }), { status: 200 }),
+    )
+    vi.stubGlobal('fetch', fetchMock)
+    const api = createApiClient({ token: '', tenant: 'default', namespace: '' })
+
+    await api.login('operator', 'correct horse battery staple')
+
+    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit]
+    const headers = new Headers(init.headers)
+    expect(url).toBe('/api/v1/auth/login')
+    expect(init.credentials).toBe('same-origin')
+    expect(headers.has('authorization')).toBe(false)
+    expect(headers.get('content-type')).toBe('application/json')
+    expect(JSON.parse(init.body as string)).toEqual({
+      provider: 'local',
+      identifier: 'operator',
+      password: 'correct horse battery staple',
+    })
+  })
+
+  it('sends the same-origin CSRF cookie on logout', async () => {
+    document.cookie = 'amesh_csrf=csrf-proof; path=/'
+    const fetchMock = vi.fn().mockResolvedValue(new Response(null, { status: 204 }))
+    vi.stubGlobal('fetch', fetchMock)
+    const api = createApiClient({ token: '', tenant: 'default', namespace: '' })
+
+    await api.logout()
+
+    const [, init] = fetchMock.mock.calls[0] as [string, RequestInit]
+    expect(new Headers(init.headers).get('x-amesh-csrf')).toBe('csrf-proof')
+    expect(init.method).toBe('POST')
+  })
 })

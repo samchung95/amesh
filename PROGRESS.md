@@ -2,9 +2,9 @@
 
 ## Current state
 
-- What works: the tagged `v0.2.0-mvp` foundation plus EPIC-002, EPIC-004, EPIC-005, EPIC-007, EPIC-404, EPIC-500, EPIC-501 and EPIC-503 are implemented; AMESH now includes a deterministic execution/task event model and a container-served graphical control room over its tenant-aware API.
-- What's in flight: EPIC-007 has passed its implementation, PostgreSQL, replay, rollback and traceability gates and is ready for card closure/commit; the next dependency-ready epic will be selected immediately afterward.
-- Known broken / TODO: the five requested post-MVP product areas remain open. The uninterrupted 86,400-second qualification remains under EPIC-611 and still gates production-readiness claims.
+- What works: all five requested post-MVP areas are implemented and evidence-linked: the graphical control room; versioned Kestra YAML and Pebble-subset compatibility; local multi-user browser login, RBAC and PostgreSQL RLS multi-tenancy; loops, subflows, backfills and replay; and the qualified functional HA/backup/restore reference profile.
+- What's in flight: no work remains in the requested five-area scope. Concrete OIDC/SAML/LDAP/SCIM adapters remain EPIC-502 rather than part of the requested local multi-user login boundary.
+- Known broken / TODO: card `c15` preserves the deferred EPIC-104 timing-sensitive deadline assertion and card `c29` preserves an unrelated order-dependent observability assertion. The uninterrupted 86,400-second qualification remains under EPIC-611 and still gates broader production-readiness claims.
 - How to run/test: use `uv run --extra runtime --extra dev pytest`; set `AMESH_TEST_DATABASE_URL` for PostgreSQL integration tests and `OPENROUTER_API_KEY` for live LLM tests.
 
 ## Session log
@@ -107,3 +107,10 @@
 - Verified: 118 Python/PostgreSQL tests pass with four environment-gated skips at 80.89% branch coverage; a fresh database applies all 11 migrations and exposes forced RLS plus both outbox triggers; 100 repeated replays are byte-equivalent; duplicate task results have one logical effect; stale execution/task transitions preserve state and record evidence; forced rollback leaves neither event nor outbox row. Ruff, strict mypy, uv lock, planning/contracts, backlog, clean-room, compile, Compose and diff gates pass.
 - Deviations from plan: the live OpenRouter smoke remains environment-gated because `OPENROUTER_API_KEY` is absent; its checked-in default remains `openai/gpt-5.6-luna`. Helm was not rerun because the Helm executable is absent and EPIC-007 changes no chart template; the fresh migration and Compose configuration were verified directly. Shared reliability and maintainability NFRs remain In Progress for EPIC-008/009/100/103/108 and distributed failover qualification.
 - Next step when resuming: close EPIC-007 and select the next dependency-ready backlog epic in the loops/subflows/backfill/recovery chain.
+
+### 2026-08-22 (post-MVP requested-area completion, EPIC-403)
+
+- Did: completed the last uncovered requested capability with one-time local administrator bootstrap, Argon2id local passwords, a provider-neutral authentication registry, opaque PostgreSQL-authoritative browser sessions, production secure-cookie/CSRF policy, expiry and rotation, lockout/rate limiting, logout/global revocation/password rotation, secret-free audit/metrics, RBAC-protected multi-user administration, federated-only policy and the graphical local-account login gate. Applied migration 0027 to the development database and linked URS-F-0422 through URS-F-0429 to evidence.
+- Verification: four authentication API/CLI tests passed against disposable PostgreSQL databases; the compiled React UI completed a real headless-browser login through a live AMESH server; frontend lint, ten unit tests, production build and five applicable Playwright shell cases passed; all non-deferred backend tests passed on a clean 27-migration database; Ruff formatting/lint, strict mypy, uv lock, generated OpenAPI/planning, backlog validation, Compose, Helm production/development profiles and the production Docker image passed.
+- Deviations from plan: the EPIC-403/EPIC-502 cycle was corrected so EPIC-403 owns local login plus the provider boundary and EPIC-502 owns concrete federation. The unrelated EPIC-104 deadline timing assertion and metric-registration test-order dependency were not changed and remain recorded on cards `c15` and `c29`.
+- Next step when resuming: select a new explicitly requested backlog item; the five areas in this execution goal are complete within their published qualification boundaries.

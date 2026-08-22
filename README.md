@@ -128,6 +128,7 @@ Requirements: Python 3.12+, [uv](https://docs.astral.sh/uv/), Docker with Compos
 cp .env.example .env
 docker compose up -d postgres minio minio-init
 uv sync --extra runtime --extra dev
+uv run --extra runtime amesh auth bootstrap-admin --handle root-admin --display-name "Root administrator"
 uv run --extra runtime --extra dev pytest
 uv run --extra runtime python -m amesh.server
 ```
@@ -153,12 +154,13 @@ Apply `examples/loops.yaml` to try bounded foreach, while and until execution. T
 aggregated node per loop child and its completed iteration count instead of rendering every generated
 task run.
 
-The production container also serves the graphical control room at `http://localhost:8000`. In the
-development configuration, connect with token `development-token` and tenant `default`. See the
+The production container also serves the graphical control room at `http://localhost:8000`. Sign in
+with the bootstrapped local user and tenant `default`; the development-only `development-token` remains
+available through the UI's API-token mode. See the
 [frontend guide](frontend/README.md) for the Vite workflow, supported browsers and accessibility
 qualification boundary.
 
-The API also supports flow/execution lists, pre-execution and live execution graphs, execution details and logs, webhook triggers, PostgreSQL-backed users/groups/roles/scoped bindings, authorization explanations, OpenRouter/OpenAI-compatible LLM tasks, MCP tool calls, local-process tasks and Kubernetes Job tasks. Prometheus metrics are exposed at `http://localhost:8000/metrics`. The shared token is development-only; see the [authorization runbook](docs/operations/authorization.md).
+The API also supports flow/execution lists, pre-execution and live execution graphs, execution details and logs, webhook triggers, PostgreSQL-backed users/groups/roles/scoped bindings, local browser sessions, authorization explanations, OpenRouter/OpenAI-compatible LLM tasks, MCP tool calls, local-process tasks and Kubernetes Job tasks. Prometheus metrics are exposed at `http://localhost:8000/metrics`. See the [authentication](docs/operations/authentication.md) and [authorization](docs/operations/authorization.md) runbooks.
 
 For the reference Kubernetes path—external PostgreSQL, existing Secrets, Helm migration/server/worker roles, a real Luna → Job → HTTP run and cleanup—follow the [MVP Helm quickstart](charts/amesh/README.md).
 

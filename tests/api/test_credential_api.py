@@ -136,7 +136,7 @@ def test_api_token_is_shown_once_and_authenticates_outside_development() -> None
                 assert (
                     await client.get("/api/v1/admin/roles", headers=bootstrap_headers)
                 ).status_code == 401
-                assert all("login" not in path for path in app.openapi()["paths"])
+                assert "/api/v1/auth/login" in app.openapi()["paths"]
 
                 rotated = await client.post(
                     f"/api/v1/admin/credentials/{first_token_id}/rotate",
