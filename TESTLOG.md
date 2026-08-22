@@ -1,5 +1,36 @@
 # Test Log
 
+## EPIC-207: Namespace files, key-value data and secrets — 2026-08-22
+
+Spec source: Agent Hotel card `c44` and canonical `backlog/epics.json` EPIC-207 DoD.
+
+Verified with `uv`, Python 3.13, PostgreSQL 17, MinIO and the deployed Compose control plane:
+
+- [x] Namespace files retain immutable versions in object storage with hierarchical inheritance,
+  nearest-child override, explicit tombstones, move, version history and bounded path validation.
+- [x] Namespace key-value data supports string, number, boolean, datetime, date, duration and JSON
+  values, expiration, metadata, compare-and-set versions and monotonic value-free change records.
+- [x] Secret bindings persist only provider references. The environment provider resolves values at
+  task runtime, while revisions, APIs, audits, bundles and execution outputs do not expose plaintext.
+- [x] List, read, write, delete and runtime-use permissions are independently evaluated. Mutations
+  create tenant-bounded, value-free audit records.
+- [x] Versioned API, CLI and React control-room surfaces cover files, values, secret references and
+  checksum-protected namespace resource bundle import/export.
+- [x] A fresh database applied all 39 migrations. The isolated complete suite collected 313 tests:
+  305 passed, six environment/profile tests skipped and only cards `c15`/`c29` were deselected.
+- [x] Ruff passed and strict mypy passed for 126 source files. Twelve frontend unit tests, eight
+  applicable Playwright tests and the production build passed; eight profile-specific browser cases
+  skipped. The seven pre-existing lint findings remain isolated on card `c88`.
+- [x] The rebuilt API, executor and scheduler are healthy at 39/39. Live acceptance uploaded
+  `config/rules.json`, read `release.channel=stable`, used a provider reference, exported a bundle
+  without resolved plaintext and completed execution `01a029c2-458f-787f-a865-982c4fac3c07` with
+  `authorization: [REDACTED]` and `releaseChannel: stable`.
+
+No LLM invocation was required for deterministic shared-resource storage and resolution; the
+configured OpenRouter `openai/gpt-5.6-luna` default is unchanged.
+
+Verdict: PASS — EPIC-207 functional requirements URS-F-0234 through URS-F-0241 are verified.
+
 ## EPIC-205: Inputs, outputs and variables — 2026-08-22
 
 Spec source: Agent Hotel card `c42` and canonical `backlog/epics.json` EPIC-205 DoD.

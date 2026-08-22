@@ -211,6 +211,19 @@ tbody tr:hover { background: var(--paper); }
 .metadata-labels { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
 .metadata-labels span { display: inline-flex; gap: 7px; align-items: center; padding: 6px 9px; background: var(--paper); border: 1px solid var(--line); border-radius: 999px; font: .72rem "IBM Plex Mono", monospace; }
 .metadata-labels b { color: var(--muted); font-weight: 500; }
+.resource-heading-actions, .resource-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.file-button { position: relative; overflow: hidden; cursor: pointer; }
+.file-button input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.resource-notice, .resource-failure { padding: 11px 14px; margin: 0; border: 1px solid var(--success); border-radius: var(--radius-control); background: var(--success-soft); }
+.resource-failure { color: var(--danger); border-color: var(--danger); background: var(--danger-soft); }
+.section-heading h2 { display: flex; align-items: center; gap: 7px; }
+.resource-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+.resource-form-row form, .resource-form { display: flex; align-items: end; gap: 10px; padding: 12px; background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius-control); }
+.resource-form-row label, .resource-form label { display: grid; flex: 1; gap: 4px; color: var(--muted); font-size: .72rem; }
+.resource-form input, .resource-form select, .resource-form-row input, .resource-form-row select { width: 100%; min-height: 44px; padding: 8px 10px; color: var(--ink); background: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--radius-control); }
+.resource-kv-form { display: grid; grid-template-columns: 1fr 150px minmax(220px, 2fr) minmax(190px, 1fr) auto; margin-bottom: 16px; }
+.resource-value { min-width: 220px; }
+.resource-delete { color: var(--danger); }
 .metadata-defaults { display: grid; gap: 10px; }
 .metadata-defaults details { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius-control); }
 .metadata-defaults summary { display: flex; justify-content: space-between; gap: 16px; padding: 12px; cursor: pointer; }
@@ -332,6 +345,13 @@ details pre { max-width: 480px; overflow: auto; padding: 10px; background: var(-
   .flow-input-grid { grid-template-columns: 1fr; }
   .metadata-defaults details > div { grid-template-columns: 1fr; }
   .execution-contract > div:last-child { grid-template-columns: 1fr; }
+  .resource-heading { flex-direction: column; }
+  .resource-heading-actions { width: 100%; }
+  .resource-heading-actions .button { flex: 1; }
+  .resource-form-row { grid-template-columns: 1fr; }
+  .resource-form-row form, .resource-form { align-items: stretch; flex-direction: column; }
+  .resource-kv-form { display: flex; }
+  .resource-value { min-width: 0; }
   .context-popover { top: 65px; left: 12px; width: min(310px, calc(100vw - 24px)); }
   .notification-popover { right: 12px; width: min(330px, calc(100vw - 24px)); }
   .connection-page { grid-template-columns: 1fr; }

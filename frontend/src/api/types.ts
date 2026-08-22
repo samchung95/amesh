@@ -8,6 +8,9 @@ export type Capability =
   | 'checks.view'
   | 'checks.manage'
   | 'namespaces.view'
+  | 'namespaceResources.read'
+  | 'namespaceResources.write'
+  | 'secretBindings.write'
   | 'plugins.view'
   | 'administration.manage'
 
@@ -316,4 +319,57 @@ export interface LoginResponse {
   display: string
   idleExpiresAt: string
   absoluteExpiresAt: string
+}
+
+export interface NamespaceFile {
+  namespace: string
+  path: string
+  version: number
+  resourceVersion: number
+  sizeBytes: number
+  checksumSha256: string
+  contentType: string | null
+  metadata: Record<string, unknown>
+  originNamespace: string
+  inherited: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+export interface NamespaceFileVersion {
+  namespace: string
+  path: string
+  version: number
+  sizeBytes: number
+  checksumSha256: string
+  contentType: string | null
+  createdBy: string
+  createdAt: string
+}
+
+export type KeyValueType = 'STRING' | 'NUMBER' | 'BOOLEAN' | 'DATETIME' | 'DATE' | 'DURATION' | 'JSON'
+
+export interface KeyValueEntry {
+  namespace: string
+  key: string
+  type: KeyValueType
+  value: unknown
+  expiresAt: string | null
+  metadata: Record<string, unknown>
+  resourceVersion: number
+  createdAt: string
+  updatedAt: string
+}
+
+export interface SecretBinding {
+  namespace: string
+  key: string
+  provider: 'env'
+  providerReference: string
+  metadata: Record<string, unknown>
+  resourceVersion: number
+  inherited: boolean
+  originNamespace: string
+  createdAt: string
+  updatedAt: string
 }

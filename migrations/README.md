@@ -133,6 +133,11 @@ Migration `0038_workflow_metadata.sql` adds tenant-isolated namespace plugin def
 policy, task-run and asset labels, and JSONB label indexes across flows, executions, task runs, assets
 and backfills. Effective defaults remain pinned in immutable flow revisions.
 
+Migration `0039_namespace_shared_resources.sql` adds tenant-isolated versioned namespace files,
+strongly typed key-values with TTL/CAS/change cursors, and environment-provider secret references.
+It also separates list, read, write and use authorization actions; secret values remain outside the
+database, resource bundles and audit events.
+
 ## Migration modes
 
 - `bootstrap` creates the initial schema and is only safe for an empty database.

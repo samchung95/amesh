@@ -16,6 +16,7 @@ from .operations_repository import (
 from .reconciliation_repository import PostgresReconciliationRepository
 from .scheduler_repository import PostgresSchedulerRepository
 from .service_registry import PostgresServiceRegistryRepository
+from .shared_resources import PostgresSharedResourceRepository
 from .task_cache_repository import PostgresTaskCacheRepository
 from .tenant_repository import PostgresTenantRepository
 from .trigger_runtime_repository import PostgresTriggerRuntimeRepository
@@ -36,6 +37,7 @@ __all__ = [
     "PostgresReconciliationRepository",
     "PostgresSchedulerRepository",
     "PostgresServiceRegistryRepository",
+    "PostgresSharedResourceRepository",
     "PostgresTaskCacheRepository",
     "PostgresTenantRepository",
     "PostgresTriggerRuntimeRepository",

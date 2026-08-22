@@ -17,6 +17,7 @@ from amesh.adapters.postgres import (
     PostgresExecutionRepository,
     PostgresReconciliationRepository,
     PostgresSchedulerRepository,
+    PostgresSharedResourceRepository,
     PostgresTenantRepository,
     PostgresTriggerRuntimeRepository,
 )
@@ -45,7 +46,9 @@ from amesh.ports import (
 )
 from amesh.reconciliation import ReconciliationService
 from amesh.scheduler import CronScheduler
+from amesh.storage.factory import build_object_store
 from amesh.tasks import agent_llm_handler, agent_mcp_handler, core_http_handler
+from amesh.workflow.shared_resources import SharedResourceContextProvider
 
 LOGGER = logging.getLogger("amesh.worker")
 
@@ -252,6 +255,7 @@ async def recover_once(
     *,
     tenant_ids: Sequence[str],
     task_cache: TaskCacheRepository | None = None,
+    shared_resources: PostgresSharedResourceRepository | None = None,
 ) -> int:
     now = datetime.now(UTC)
     recovered = 0
@@ -289,6 +293,12 @@ async def recover_once(
                     "agent.mcp": agent_mcp_handler(),
                 },
                 recover_running_types=frozenset({"core.shell"}),
+                context_provider=(
+                    SharedResourceContextProvider(shared_resources)
+                    if shared_resources is not None
+                    else None
+                ),
+                object_store=build_object_store(settings),
                 task_cache=task_cache,
             )
             try:
@@ -371,6 +381,7 @@ async def run_worker(settings: Settings) -> None:
     checks = PostgresCheckRepository(engine)
     backfill_repository = PostgresBackfillRepository(engine)
     reconciliation_repository = PostgresReconciliationRepository(engine)
+    shared_resources = PostgresSharedResourceRepository(engine)
     tenant_repository = PostgresTenantRepository(engine)
     next_reconciliation_at = 0.0
     LOGGER.info("worker started", extra={"worker_id": worker_id})
@@ -404,7 +415,12 @@ async def run_worker(settings: Settings) -> None:
                     backfill_repository,
                     tenant_ids=tenant_ids,
                 )
-                await recover_once(repository, settings, tenant_ids=tenant_ids)
+                await recover_once(
+                    repository,
+                    settings,
+                    tenant_ids=tenant_ids,
+                    shared_resources=shared_resources,
+                )
                 current_time = monotonic()
                 if current_time >= next_reconciliation_at:
                     await reconcile_once(

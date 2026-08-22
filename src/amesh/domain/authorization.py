@@ -27,6 +27,9 @@ class PermissionAction(StrEnum):
     EXECUTE = "execute"
     MANAGE = "manage"
     USE = "use"
+    LIST = "list"
+    READ = "read"
+    WRITE = "write"
 
 
 class PermissionEffect(StrEnum):
@@ -220,6 +223,33 @@ BUILT_IN_ROLES: tuple[RoleDefinition, ...] = (
                 PermissionAction.CREATE,
                 PermissionAction.EXECUTE,
             )
+        )
+        + tuple(
+            Permission(resource_type=resource_type, action=action)
+            for resource_type, actions in (
+                (
+                    "namespace_file",
+                    (
+                        PermissionAction.LIST,
+                        PermissionAction.READ,
+                        PermissionAction.WRITE,
+                        PermissionAction.DELETE,
+                        PermissionAction.USE,
+                    ),
+                ),
+                (
+                    "key_value",
+                    (
+                        PermissionAction.LIST,
+                        PermissionAction.READ,
+                        PermissionAction.WRITE,
+                        PermissionAction.DELETE,
+                        PermissionAction.USE,
+                    ),
+                ),
+                ("secret", (PermissionAction.LIST, PermissionAction.USE)),
+            )
+            for action in actions
         ),
     ),
     RoleDefinition(
@@ -241,7 +271,18 @@ BUILT_IN_ROLES: tuple[RoleDefinition, ...] = (
         display_name="Viewer",
         description="Read-only access inside the binding scope.",
         built_in=True,
-        permissions=(Permission(resource_type="*", action=PermissionAction.VIEW),),
+        permissions=(
+            Permission(resource_type="*", action=PermissionAction.VIEW),
+            *(
+                Permission(resource_type=resource_type, action=action)
+                for resource_type, actions in (
+                    ("namespace_file", (PermissionAction.LIST, PermissionAction.READ)),
+                    ("key_value", (PermissionAction.LIST, PermissionAction.READ)),
+                    ("secret", (PermissionAction.LIST,)),
+                )
+                for action in actions
+            ),
+        ),
     ),
 )
 

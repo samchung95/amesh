@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any
+from typing import Any, ClassVar
 
 import httpx
 
@@ -99,6 +99,85 @@ def test_executions_command_lists_executions(monkeypatch: Any, capsys: Any) -> N
     assert exit_code == 0
     assert FakeClient.last_params == {"limit": 25}
     assert capsys.readouterr().out.strip() == "[]"
+
+
+class FakeNamespaceClient:
+    calls: ClassVar[list[tuple[str, str, dict[str, Any]]]] = []
+
+    def __init__(self, **kwargs: Any) -> None:
+        del kwargs
+
+    def __enter__(self) -> FakeNamespaceClient:
+        return self
+
+    def __exit__(self, *args: object) -> None:
+        return None
+
+    def put(self, path: str, **kwargs: Any) -> httpx.Response:
+        self.calls.append(("PUT", path, kwargs))
+        return httpx.Response(200, request=httpx.Request("PUT", path), json={"version": 1})
+
+    def get(self, path: str, **kwargs: Any) -> httpx.Response:
+        self.calls.append(("GET", path, kwargs))
+        return httpx.Response(200, request=httpx.Request("GET", path), content=b"rules")
+
+
+def test_namespace_file_cli_uploads_and_downloads(
+    monkeypatch: Any,
+    tmp_path: Path,
+) -> None:
+    FakeNamespaceClient.calls.clear()
+    monkeypatch.setattr(httpx, "Client", FakeNamespaceClient)
+    source = tmp_path / "rules.txt"
+    source.write_bytes(b"rules")
+    destination = tmp_path / "downloaded.txt"
+
+    assert (
+        main(
+            [
+                "namespace",
+                "files",
+                "upload",
+                "team/data",
+                "config/rules.txt",
+                str(source),
+                "--content-type",
+                "text/plain",
+            ]
+        )
+        == 0
+    )
+    assert (
+        main(
+            [
+                "namespace",
+                "files",
+                "download",
+                "team/data",
+                "config/rules.txt",
+                str(destination),
+                "--version",
+                "1",
+            ]
+        )
+        == 0
+    )
+
+    assert destination.read_bytes() == b"rules"
+    assert FakeNamespaceClient.calls[0] == (
+        "PUT",
+        "/api/v1/namespaces/team%2Fdata/files/config/rules.txt",
+        {
+            "params": None,
+            "content": b"rules",
+            "headers": {"content-type": "text/plain"},
+        },
+    )
+    assert FakeNamespaceClient.calls[1] == (
+        "GET",
+        "/api/v1/namespaces/team%2Fdata/files/config/rules.txt",
+        {"params": {"version": 1}},
+    )
 
 
 class FakeStorage:

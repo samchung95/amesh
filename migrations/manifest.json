@@ -228,6 +228,12 @@
       "mode": "expand",
       "onlineCompatible": true,
       "rollbackGuidance": "Pause namespace workflow-metadata updates and forward-fix the additive metadata table, label columns and indexes; preserve immutable flow revisions and existing resource labels."
+    },
+    {
+      "file": "0039_namespace_shared_resources.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Pause namespace resource writes and runtime resolution, then forward-fix the additive file, key-value, secret-binding and permission records; retain immutable object versions and audit evidence."
     }
   ]
 }

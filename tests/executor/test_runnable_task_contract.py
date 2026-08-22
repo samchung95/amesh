@@ -163,7 +163,11 @@ def test_declared_secret_scope_requires_a_context_provider() -> None:
         }
     )
     executor = InProcessExecutor(cast(ExecutionRepository, object()))
-    execution = SimpleNamespace(tenant_id="default", execution_id=uuid4())
+    execution = SimpleNamespace(
+        tenant_id="default",
+        namespace="tests.contract",
+        execution_id=uuid4(),
+    )
     task_run = SimpleNamespace(task_run_id=uuid4(), current_attempt=1)
 
     with pytest.raises(TaskConfigurationError, match="no context provider"):
@@ -199,7 +203,11 @@ def test_context_provider_cannot_add_undeclared_files() -> None:
         cast(ExecutionRepository, object()),
         context_provider=ContextProvider(),
     )
-    execution = SimpleNamespace(tenant_id="default", execution_id=uuid4())
+    execution = SimpleNamespace(
+        tenant_id="default",
+        namespace="tests.contract",
+        execution_id=uuid4(),
+    )
     task_run = SimpleNamespace(task_run_id=uuid4(), current_attempt=1)
 
     with pytest.raises(TaskConfigurationError, match="undeclared files: extra"):

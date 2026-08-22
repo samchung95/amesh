@@ -15,6 +15,7 @@ from amesh.adapters.postgres import (
     PostgresReconciliationRepository,
     PostgresSchedulerRepository,
     PostgresServiceRegistryRepository,
+    PostgresSharedResourceRepository,
     PostgresTaskCacheRepository,
     PostgresTenantRepository,
     PostgresTriggerRuntimeRepository,
@@ -51,6 +52,7 @@ async def _run_cycle(
     workers: PostgresWorkerRepository,
     transport: PostgresDurableTransport,
     task_cache: PostgresTaskCacheRepository | None = None,
+    shared_resources: PostgresSharedResourceRepository | None = None,
     trigger_runtime: PostgresTriggerRuntimeRepository | None = None,
     checks: PostgresCheckRepository | None = None,
 ) -> int:
@@ -98,6 +100,7 @@ async def _run_cycle(
             settings,
             tenant_ids=tenant_ids,
             task_cache=task_cache,
+            shared_resources=shared_resources,
         )
     if role is ServiceRole.WORKER:
         return sum(
@@ -140,6 +143,7 @@ async def run_role(settings: Settings) -> None:
     workers = PostgresWorkerRepository(engine)
     transport = PostgresDurableTransport(engine)
     task_cache = PostgresTaskCacheRepository(engine)
+    shared_resources = PostgresSharedResourceRepository(engine)
     trigger_runtime = PostgresTriggerRuntimeRepository(engine)
     checks = PostgresCheckRepository(engine)
     work_count = 0
@@ -170,6 +174,7 @@ async def run_role(settings: Settings) -> None:
                     workers=workers,
                     transport=transport,
                     task_cache=task_cache,
+                    shared_resources=shared_resources,
                     trigger_runtime=trigger_runtime,
                     checks=checks,
                 )

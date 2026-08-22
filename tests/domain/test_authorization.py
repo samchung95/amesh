@@ -54,6 +54,11 @@ def test_builtin_roles_are_explicit_and_viewer_is_read_only() -> None:
     }
     assert roles["viewer"].permissions == (
         Permission(resource_type="*", action=PermissionAction.VIEW),
+        Permission(resource_type="namespace_file", action=PermissionAction.LIST),
+        Permission(resource_type="namespace_file", action=PermissionAction.READ),
+        Permission(resource_type="key_value", action=PermissionAction.LIST),
+        Permission(resource_type="key_value", action=PermissionAction.READ),
+        Permission(resource_type="secret", action=PermissionAction.LIST),
     )
 
 

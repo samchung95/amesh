@@ -91,19 +91,22 @@ class TaskContextRequest(BaseModel):
     model_config = ConfigDict(frozen=True, populate_by_name=True)
 
     tenant_id: str = Field(alias="tenantId")
+    namespace: str
     execution_id: str = Field(alias="executionId")
     task_run_id: str = Field(alias="taskRunId")
     attempt: int = Field(ge=1)
     task_type: str = Field(alias="taskType")
     secret_scopes: tuple[str, ...] = Field(alias="secretScopes")
     declared_files: dict[str, str] = Field(alias="declaredFiles")
+    key_values_required: bool = Field(default=False, alias="keyValuesRequired")
 
 
 class TaskContextResources(BaseModel):
-    model_config = ConfigDict(frozen=True)
+    model_config = ConfigDict(frozen=True, populate_by_name=True)
 
     secrets: dict[str, str] = Field(default_factory=dict)
     files: dict[str, str] = Field(default_factory=dict)
+    key_values: dict[str, Any] = Field(default_factory=dict, alias="keyValues")
 
 
 class TaskContextProvider(Protocol):

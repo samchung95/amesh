@@ -7,7 +7,7 @@ import logging
 from collections.abc import Awaitable, Callable, Iterable, Mapping
 from contextlib import suppress
 from copy import deepcopy
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import UTC, datetime, timedelta
 from typing import Any
 from uuid import UUID, uuid5
@@ -126,6 +126,7 @@ class TaskExecutionContext:
     secret_scopes: tuple[str, ...] = ()
     secrets: Mapping[str, str] = field(default_factory=dict)
     files: Mapping[str, str] = field(default_factory=dict)
+    key_values: Mapping[str, Any] = field(default_factory=dict)
     cancellation: TaskCancellationChannel = field(default_factory=TaskCancellationChannel)
 
 
@@ -1639,15 +1640,20 @@ class InProcessExecutor:
             )
             return _TaskRunOutcome(claimed=True, failure=reason)
         try:
+            resources = await self._resolve_context_resources(
+                task,
+                execution,
+                running,
+            )
+            runtime_expression_context = replace(
+                expression_context,
+                secrets=resources.secrets,
+                key_values=resources.key_values,
+            )
             rendered_task = _render_task_for_execution(
                 self._expressions,
                 task,
-                expression_context,
-            )
-            resources = await self._resolve_context_resources(
-                rendered_task,
-                execution,
-                running,
+                runtime_expression_context,
             )
             context = TaskExecutionContext(
                 tenant_id=tenant_id,
@@ -1664,6 +1670,7 @@ class InProcessExecutor:
                 secret_scopes=rendered_task.contract.secret_scopes,
                 secrets=resources.secrets,
                 files=resources.files,
+                key_values=resources.key_values,
                 cancellation=TaskCancellationChannel(
                     self._repository,
                     tenant_id=tenant_id,
@@ -2342,12 +2349,14 @@ class InProcessExecutor:
             resources = await self._context_provider.resolve(
                 TaskContextRequest(
                     tenantId=execution.tenant_id,
+                    namespace=execution.namespace,
                     executionId=str(execution.execution_id),
                     taskRunId=str(task_run.task_run_id),
                     attempt=task_run.current_attempt,
                     taskType=task.type,
                     secretScopes=contract.secret_scopes,
                     declaredFiles=contract.files,
+                    keyValuesRequired=_contains_kv_expression(task.model_dump(mode="json")),
                 )
             )
         except TaskExecutionFailure:
@@ -3112,6 +3121,16 @@ def _canonical_json_default(value: object) -> str:
     if isinstance(value, UUID):
         return str(value)
     return str(value)
+
+
+def _contains_kv_expression(value: object) -> bool:
+    if isinstance(value, str):
+        return "kv(" in value
+    if isinstance(value, Mapping):
+        return any(_contains_kv_expression(item) for item in value.values())
+    if isinstance(value, list | tuple):
+        return any(_contains_kv_expression(item) for item in value)
+    return False
 
 
 def _execution_cache_mode(execution: PersistedExecution) -> TaskCacheMode:

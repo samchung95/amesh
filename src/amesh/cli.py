@@ -9,6 +9,7 @@ import sys
 from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
+from urllib.parse import quote
 
 import httpx
 import yaml
@@ -73,6 +74,90 @@ def build_parser() -> argparse.ArgumentParser:
     webhook.add_argument("trigger_id")
     webhook.add_argument("--runner", choices=("local", "kubernetes"), default="local")
     webhook.add_argument("--input", action="append", default=[])
+
+    namespace = subcommands.add_parser("namespace", help="Manage namespace resources")
+    namespace_commands = namespace.add_subparsers(dest="namespace_command", required=True)
+    files = namespace_commands.add_parser("files", help="Manage namespace files")
+    file_commands = files.add_subparsers(dest="file_command", required=True)
+    files_list = file_commands.add_parser("list", help="List namespace files")
+    files_list.add_argument("namespace")
+    files_list.add_argument("--local-only", action="store_true")
+    files_upload = file_commands.add_parser("upload", help="Upload a namespace file")
+    files_upload.add_argument("namespace")
+    files_upload.add_argument("remote_path")
+    files_upload.add_argument("local_path", type=Path)
+    files_upload.add_argument("--content-type", default="application/octet-stream")
+    files_upload.add_argument("--expected-version", type=int)
+    files_download = file_commands.add_parser("download", help="Download a namespace file")
+    files_download.add_argument("namespace")
+    files_download.add_argument("remote_path")
+    files_download.add_argument("local_path", type=Path)
+    files_download.add_argument("--version", type=int)
+    files_move = file_commands.add_parser("move", help="Move a namespace file")
+    files_move.add_argument("namespace")
+    files_move.add_argument("remote_path")
+    files_move.add_argument("destination_path")
+    files_move.add_argument("--expected-version", type=int)
+    files_versions = file_commands.add_parser("versions", help="List file versions")
+    files_versions.add_argument("namespace")
+    files_versions.add_argument("remote_path")
+    files_delete = file_commands.add_parser("delete", help="Delete a namespace file")
+    files_delete.add_argument("namespace")
+    files_delete.add_argument("remote_path")
+    files_delete.add_argument("--expected-version", type=int)
+
+    key_values = namespace_commands.add_parser("kv", help="Manage typed key-values")
+    key_value_commands = key_values.add_subparsers(dest="kv_command", required=True)
+    kv_list = key_value_commands.add_parser("list", help="List key-values")
+    kv_list.add_argument("namespace")
+    kv_get = key_value_commands.add_parser("get", help="Read one key-value")
+    kv_get.add_argument("namespace")
+    kv_get.add_argument("key")
+    kv_set = key_value_commands.add_parser("set", help="Set one typed key-value")
+    kv_set.add_argument("namespace")
+    kv_set.add_argument("key")
+    kv_set.add_argument(
+        "--type",
+        required=True,
+        choices=("STRING", "NUMBER", "BOOLEAN", "DATETIME", "DATE", "DURATION", "JSON"),
+    )
+    kv_set.add_argument("--value", required=True)
+    kv_set.add_argument("--expires-at")
+    kv_set.add_argument("--expected-version", type=int)
+    kv_delete = key_value_commands.add_parser("delete", help="Delete one key-value")
+    kv_delete.add_argument("namespace")
+    kv_delete.add_argument("key")
+    kv_delete.add_argument("--expected-version", type=int)
+    kv_changes = key_value_commands.add_parser("changes", help="Poll key-value changes")
+    kv_changes.add_argument("namespace")
+    kv_changes.add_argument("--after", type=int, default=0)
+    kv_changes.add_argument("--limit", type=int, default=100)
+
+    secret_bindings = namespace_commands.add_parser(
+        "secrets", help="Manage runtime secret references"
+    )
+    secret_commands = secret_bindings.add_subparsers(dest="secret_command", required=True)
+    secrets_list = secret_commands.add_parser("list", help="List secret references")
+    secrets_list.add_argument("namespace")
+    secrets_list.add_argument("--local-only", action="store_true")
+    secrets_bind = secret_commands.add_parser("bind", help="Bind a key to an environment name")
+    secrets_bind.add_argument("namespace")
+    secrets_bind.add_argument("key")
+    secrets_bind.add_argument("environment_name")
+    secrets_bind.add_argument("--expected-version", type=int)
+    secrets_delete = secret_commands.add_parser("delete", help="Delete a secret reference")
+    secrets_delete.add_argument("namespace")
+    secrets_delete.add_argument("key")
+    secrets_delete.add_argument("--expected-version", type=int)
+
+    resources = namespace_commands.add_parser("resources", help="Promote namespace resources")
+    resource_commands = resources.add_subparsers(dest="resource_command", required=True)
+    resources_export = resource_commands.add_parser("export", help="Export a resource bundle")
+    resources_export.add_argument("namespace")
+    resources_export.add_argument("path", type=Path)
+    resources_import = resource_commands.add_parser("import", help="Import a resource bundle")
+    resources_import.add_argument("namespace")
+    resources_import.add_argument("path", type=Path)
 
     auth = subcommands.add_parser("auth", help="Manage interactive authentication")
     auth_commands = auth.add_subparsers(dest="auth_command", required=True)
@@ -261,11 +346,15 @@ def main(argv: Sequence[str] | None = None) -> int:
                     params={"runner": args.runner},
                     json=_parse_inputs(args.input),
                 )
+            elif args.command == "namespace":
+                response = _namespace_request(client, args)
             else:
                 return 2
         if response.is_error:
             print(f"API error {response.status_code}: {response.text}", file=sys.stderr)
             return 2
+        if args.command == "namespace" and _write_namespace_response(response, args):
+            return 0
         print(json.dumps(response.json(), indent=2, sort_keys=True))
         return 0
     except (OSError, ValueError, httpx.HTTPError) as exc:
@@ -302,6 +391,112 @@ def _parse_inputs(values: Sequence[str]) -> dict[str, Any]:
             raise ValueError(f"input {value!r} must use key=value")
         inputs[key] = yaml.safe_load(encoded)
     return inputs
+
+
+def _resource_path(namespace: str, resource: str) -> str:
+    return f"/api/v1/namespaces/{quote(namespace, safe='')}/{resource}"
+
+
+def _namespace_request(client: httpx.Client, args: argparse.Namespace) -> httpx.Response:
+    if args.namespace_command == "files":
+        root = _resource_path(args.namespace, "files")
+        if args.file_command == "list":
+            return client.get(root, params={"inherited": not args.local_only})
+        path = f"{root}/{quote(args.remote_path, safe='/')}"
+        if args.file_command == "upload":
+            params = (
+                {"expectedVersion": args.expected_version}
+                if args.expected_version is not None
+                else None
+            )
+            return client.put(
+                path,
+                params=params,
+                content=args.local_path.read_bytes(),
+                headers={"content-type": args.content_type},
+            )
+        if args.file_command == "download":
+            params = {"version": args.version} if args.version is not None else None
+            return client.get(path, params=params)
+        if args.file_command == "versions":
+            return client.get(f"{path}/versions")
+        if args.file_command == "move":
+            return client.post(
+                f"{path}/move",
+                json={
+                    "destinationPath": args.destination_path,
+                    "expectedVersion": args.expected_version,
+                },
+            )
+        params = (
+            {"expectedVersion": args.expected_version}
+            if args.expected_version is not None
+            else None
+        )
+        return client.delete(path, params=params)
+    if args.namespace_command == "kv":
+        root = _resource_path(args.namespace, "key-values")
+        if args.kv_command == "list":
+            return client.get(root)
+        if args.kv_command == "changes":
+            return client.get(
+                f"{root}/changes", params={"after": args.after, "limit": args.limit}
+            )
+        path = f"{root}/{quote(args.key, safe='')}"
+        if args.kv_command == "get":
+            return client.get(path)
+        if args.kv_command == "set":
+            return client.put(
+                path,
+                json={
+                    "type": args.type,
+                    "value": yaml.safe_load(args.value),
+                    "expiresAt": args.expires_at,
+                    "expectedVersion": args.expected_version,
+                },
+            )
+        params = (
+            {"expectedVersion": args.expected_version}
+            if args.expected_version is not None
+            else None
+        )
+        return client.delete(path, params=params)
+    if args.namespace_command == "secrets":
+        root = _resource_path(args.namespace, "secret-bindings")
+        if args.secret_command == "list":
+            return client.get(root, params={"inherited": not args.local_only})
+        path = f"{root}/{quote(args.key, safe='')}"
+        if args.secret_command == "bind":
+            return client.put(
+                path,
+                json={
+                    "provider": "env",
+                    "providerReference": args.environment_name,
+                    "expectedVersion": args.expected_version,
+                },
+            )
+        params = (
+            {"expectedVersion": args.expected_version}
+            if args.expected_version is not None
+            else None
+        )
+        return client.delete(path, params=params)
+    root = _resource_path(args.namespace, "resource-bundle")
+    if args.resource_command == "export":
+        return client.get(root)
+    return client.post(root, json=json.loads(args.path.read_text(encoding="utf-8")))
+
+
+def _write_namespace_response(response: httpx.Response, args: argparse.Namespace) -> bool:
+    if args.namespace_command == "files" and args.file_command == "download":
+        args.local_path.write_bytes(response.content)
+        print(f"downloaded {len(response.content)} bytes to {args.local_path}")
+        return True
+    if args.namespace_command == "resources" and args.resource_command == "export":
+        args.path.write_text(json.dumps(response.json(), indent=2), encoding="utf-8")
+        print(f"exported namespace resources to {args.path}")
+        return True
+    return False
 
 
 def _load_storage_checkpoint(path: Path) -> StorageMigrationCheckpoint | None:

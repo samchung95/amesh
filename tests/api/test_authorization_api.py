@@ -145,6 +145,18 @@ def test_every_protected_rest_surface_enforces_tenant_and_permission_policy() ->
                         "/api/v1/namespaces/tests.authorization/workflow-metadata",
                         json={},
                     ),
+                    client.put(
+                        "/api/v1/namespaces/tests.authorization/files/denied.txt",
+                        content=b"denied",
+                    ),
+                    client.put(
+                        "/api/v1/namespaces/tests.authorization/key-values/denied",
+                        json={"type": "STRING", "value": "denied"},
+                    ),
+                    client.put(
+                        "/api/v1/namespaces/tests.authorization/secret-bindings/DENIED",
+                        json={"provider": "env", "providerReference": "DENIED"},
+                    ),
                     client.post(
                         "/api/v1/executions",
                         json={

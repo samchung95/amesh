@@ -17,6 +17,9 @@ const session = {
     'checks.view': true,
     'checks.manage': true,
     'namespaces.view': true,
+    'namespaceResources.read': true,
+    'namespaceResources.write': true,
+    'secretBindings.write': true,
     'plugins.view': true,
     'administration.manage': false,
   },
@@ -56,6 +59,18 @@ const checkPolicies = [
   { policy_id: '00000000-0000-7000-8000-000000000405', tenant_id: 'default', namespace: 'examples.engine', policy_key: 'interactive-start', source: 'NAMESPACE', task_type: null, definition: { id: 'start-latency', type: 'START_DELAY', severity: 'WARN', threshold: 'PT10S', enabled: true, actions: [] }, enabled: true, created_at: '2026-08-21T10:00:00Z', updated_at: '2026-08-21T10:00:00Z' },
 ]
 
+const namespaceFiles = [
+  { namespace: 'team.data', path: 'config/rules.json', version: 2, resourceVersion: 2, sizeBytes: 128, checksumSha256: 'a'.repeat(64), contentType: 'application/json', metadata: {}, originNamespace: 'team.data', inherited: false, createdAt: '2026-08-21T10:00:00Z', updatedAt: '2026-08-21T11:00:00Z' },
+]
+
+const namespaceKeyValues = [
+  { namespace: 'team.data', key: 'release.channel', type: 'STRING', value: 'stable', expiresAt: null, metadata: {}, resourceVersion: 1, createdAt: '2026-08-21T10:00:00Z', updatedAt: '2026-08-21T10:00:00Z' },
+]
+
+const namespaceSecrets = [
+  { namespace: 'team.data', key: 'API_KEY', provider: 'env', providerReference: 'PRODUCTION_API_KEY', metadata: {}, resourceVersion: 1, inherited: false, originNamespace: 'team.data', createdAt: '2026-08-21T10:00:00Z', updatedAt: '2026-08-21T10:00:00Z' },
+]
+
 async function mockApi(page: Page, overrides = session) {
   await page.route('**/api/v1/ui/session**', (route) => route.fulfill({ json: overrides }))
   await page.route('**/api/v1/flows', (route) => route.fulfill({ json: flows }))
@@ -65,6 +80,9 @@ async function mockApi(page: Page, overrides = session) {
   await page.route('**/api/v1/check-evaluations?*', (route) => route.fulfill({ json: checkEvaluations }))
   await page.route('**/api/v1/check-compliance?*', (route) => route.fulfill({ json: checkCompliance }))
   await page.route('**/api/v1/check-policies?*', (route) => route.fulfill({ json: checkPolicies }))
+  await page.route('**/api/v1/namespaces/team.data/files', (route) => route.fulfill({ json: namespaceFiles }))
+  await page.route('**/api/v1/namespaces/team.data/key-values', (route) => route.fulfill({ json: namespaceKeyValues }))
+  await page.route('**/api/v1/namespaces/team.data/secret-bindings', (route) => route.fulfill({ json: namespaceSecrets }))
   await page.route('**/api/v1/executions/*', (route) => route.fulfill({ json: { execution: executions[0], taskRuns: [{ task_run_id: '00000000-0000-7000-8000-000000000201', execution_id: executions[0].execution_id, task_id: 'return', state: 'SUCCESS', current_attempt: 1, version: 2, retry_at: null, result: { value: 'cached' }, evidence: { cache: { decision: 'HIT', reason: 'reused a matching result', keyHash: 'abc123', sourceExecutionId: executions[1].execution_id, sourceTaskRunId: '00000000-0000-7000-8000-000000000202', sourceAttempt: 1, expiresAt: '2026-08-21T13:00:00Z' } } }] } }))
 }
 
@@ -132,6 +150,18 @@ test('shows check compliance, evaluation evidence and reusable policies', async 
   await expect(page.getByText('research-output')).toBeVisible()
   await expect(page.getByText('expression evaluated true')).toBeVisible()
   await expect(page.getByText('interactive-start')).toBeVisible()
+})
+
+test('renders namespace files, typed values and secret references', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name === 'tablet', 'desktop namespace-resource acceptance')
+  await page.addInitScript(() => localStorage.setItem('amesh.ui.settings.v1', JSON.stringify({ tenant: 'default', namespace: 'team.data', locale: 'en', timezone: 'UTC', savedViews: [], authenticationMode: 'token' })))
+  await connect(page)
+  await page.getByRole('link', { name: 'Namespaces' }).click()
+  await expect(page.getByRole('heading', { name: 'team.data' })).toBeVisible()
+  await expect(page.getByRole('row', { name: 'config/rules.json' })).toBeVisible()
+  await expect(page.getByText('release.channel')).toBeVisible()
+  await expect(page.getByText('PRODUCTION_API_KEY')).toBeVisible()
+  await expect(page.getByText('References only')).toBeVisible()
 })
 
 test('switches locale and has no critical or serious automated accessibility findings', async ({ page }, testInfo) => {

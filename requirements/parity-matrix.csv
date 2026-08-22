@@ -30,7 +30,7 @@ EPIC-203,"Loops, foreach, while and until",M2,Kestra v1.3.30 public behavior and
 EPIC-204,"Errors, finally and after-execution hooks",M2,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,8,
 EPIC-205,"Inputs, outputs and variables",M2,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,9,
 EPIC-206,"Labels, metadata and plugin defaults",M2,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,7,
-EPIC-207,"Namespace files, key-value store and secrets",M2,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,8,
+EPIC-207,"Namespace files, key-value store and secrets",M2,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Verified,8,TESTLOG.md; backlog/epics/epic-207-namespace-files-key-value-store-and-secrets.md
 EPIC-208,Working directories and execution files,M2,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,8,
 EPIC-209,Task runner interface and capability model,M2,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,10,
 EPIC-220,Local process task runner,M2,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,7,

@@ -2,12 +2,19 @@
 
 ## Current state
 
-- What works: the original post-MVP foundation plus the first seven cards of the 50-epic local program are implemented, evidence-linked and deployed through migration 0038, including protected searchable labels, namespace policy, exact plugin defaults, deterministic inheritance and pinned per-property provenance in the control room.
-- What's in flight: the 50-epic local completion program is tracked on Agent Hotel cards `c37`–`c86`; cards `c37`–`c43` are complete and EPIC-207 on card `c44` is next. The local Docker Compose deployment is healthy at migration 38/38 on `http://localhost:8000`.
+- What works: the original post-MVP foundation plus the first eight cards of the 50-epic local program are implemented, evidence-linked and deployed through migration 0039, including inherited versioned namespace files, typed key-value data, provider-backed secret references and checksum-protected resource bundles across API, CLI and control room.
+- What's in flight: the 50-epic local completion program is tracked on Agent Hotel cards `c37`–`c86`; cards `c37`–`c44` are complete and EPIC-208 on card `c45` is next. The local Docker Compose deployment is healthy at migration 39/39 on `http://localhost:8000`.
 - Known broken / TODO: 20 external-cloud, SaaS, hosted-release, independent-certification, multi-region or long-duration epics are deferred. Cards `c15` and `c29` preserve unrelated backend test failures; `c87` records missing fresh-Compose mounts for migrations 0033–0036; and `c88` records seven pre-existing frontend lint errors. None blocks the current local program path.
 - How to run/test: use `uv run --extra runtime --extra dev pytest`; set `AMESH_TEST_DATABASE_URL` for PostgreSQL integration tests and `OPENROUTER_API_KEY` for live LLM tests.
 
 ## Session log
+
+### 2026-08-22 (50-epic local completion program, EPIC-207 completion)
+
+- Did: completed EPIC-207 with inherited and versioned namespace files backed by object storage; child override and tombstone semantics; typed, expiring and compare-and-set key-value data; monotonic value-free change evidence; provider-reference-only secret bindings resolved at task runtime; independent list/read/write/delete/use authorization; value-free audits; checksum-protected import/export bundles; and matching API, CLI and control-room surfaces. Linked URS-F-0234 through URS-F-0241 to automated evidence.
+- Verification: a fresh PostgreSQL database applied all 39 migrations and the isolated complete backend suite collected 313 tests: 305 passed, six environment/profile tests skipped and cards `c15`/`c29` were explicitly deselected. Ruff and strict mypy passed for 126 source files; 12 frontend unit tests, all eight applicable Playwright cases and the production build passed. The rebuilt API/executor/scheduler are healthy at 39/39. Live acceptance uploaded a file, stored a typed value and secret provider reference, exported a plaintext-free bundle and completed execution `01a029c2-458f-787f-a865-982c4fac3c07` with the value resolved and secret output redacted.
+- Deviations from plan: no dependency or LLM call was required. A broad first suite run against the active Compose database was invalid because deployed services consumed shared state; the guarded disposable-database rerun passed without product changes. The existing seven frontend lint findings remain deferred on `c88`.
+- Next step when resuming: close and commit card `c44`, then select EPIC-208 on card `c45`.
 
 ### 2026-08-22 (50-epic local completion program, EPIC-206 completion)
 

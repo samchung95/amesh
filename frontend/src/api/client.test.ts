@@ -141,4 +141,36 @@ describe('API client', () => {
     expect(new Headers(init.headers).get('x-amesh-csrf')).toBe('csrf-proof')
     expect(init.method).toBe('POST')
   })
+
+  it('builds encoded namespace resource requests without sending secret values', async () => {
+    const fetchMock = vi.fn().mockImplementation((path: string, init?: RequestInit) => Promise.resolve(
+      path.includes('/files/config/rules.txt') && (!init?.method || init.method === 'GET') && !path.endsWith('/versions')
+        ? new Response('rules', { status: 200, headers: { 'Content-Type': 'text/plain' } })
+        : new Response('{}', { status: 200 }),
+    ))
+    vi.stubGlobal('fetch', fetchMock)
+    const api = createApiClient({ token: 'token', tenant: 'default', namespace: 'team/data' })
+    const file = new File(['rules'], 'rules.txt', { type: 'text/plain' })
+
+    await api.namespaceFiles('team/data')
+    await api.uploadNamespaceFile('team/data', 'config/rules.txt', file)
+    await api.downloadNamespaceFile('team/data', 'config/rules.txt', 2)
+    await api.namespaceFileVersions('team/data', 'config/rules.txt')
+    await api.moveNamespaceFile('team/data', 'config/rules.txt', 'archive/rules.txt', 2)
+    await api.putNamespaceKeyValue('team/data', 'release channel', 'STRING', 'stable')
+    await api.putNamespaceSecretBinding('team/data', 'API/KEY', 'PRODUCTION_API_KEY')
+
+    expect(fetchMock.mock.calls.map((call) => call[0] as string)).toEqual([
+      '/api/v1/namespaces/team%2Fdata/files',
+      '/api/v1/namespaces/team%2Fdata/files/config/rules.txt',
+      '/api/v1/namespaces/team%2Fdata/files/config/rules.txt?version=2',
+      '/api/v1/namespaces/team%2Fdata/files/config/rules.txt/versions',
+      '/api/v1/namespaces/team%2Fdata/files/config/rules.txt/move',
+      '/api/v1/namespaces/team%2Fdata/key-values/release%20channel',
+      '/api/v1/namespaces/team%2Fdata/secret-bindings/API%2FKEY',
+    ])
+    const secretBody = JSON.parse(fetchMock.mock.calls[6]?.[1]?.body as string)
+    expect(secretBody).toEqual({ provider: 'env', providerReference: 'PRODUCTION_API_KEY' })
+    expect(JSON.stringify(secretBody)).not.toContain('secretValue')
+  })
 })

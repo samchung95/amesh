@@ -210,6 +210,21 @@ class FlowMetadataResponse(BaseModel):
     plugin_resolution: dict[str, Any] = Field(alias="pluginResolution")
 
 
+class NamespaceFileMoveRequest(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    destination_path: str = Field(alias="destinationPath", min_length=1, max_length=1024)
+    expected_version: int | None = Field(default=None, alias="expectedVersion", ge=0)
+
+
+class NamespaceResourceImportResult(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    files: int = Field(ge=0)
+    key_values: int = Field(alias="keyValues", ge=0)
+    secret_bindings: int = Field(alias="secretBindings", ge=0)
+
+
 class ExecutionEvidencePage(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 

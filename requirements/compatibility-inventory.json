@@ -3489,97 +3489,121 @@
       "requirement_id": "URS-F-0234",
       "epic_id": "EPIC-207",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-207-namespace-files-key-value-store-and-secrets.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0235",
       "epic_id": "EPIC-207",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-207-namespace-files-key-value-store-and-secrets.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0236",
       "epic_id": "EPIC-207",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-207-namespace-files-key-value-store-and-secrets.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0237",
       "epic_id": "EPIC-207",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-207-namespace-files-key-value-store-and-secrets.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0238",
       "epic_id": "EPIC-207",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-207-namespace-files-key-value-store-and-secrets.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0239",
       "epic_id": "EPIC-207",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-207-namespace-files-key-value-store-and-secrets.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0240",
       "epic_id": "EPIC-207",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-207-namespace-files-key-value-store-and-secrets.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0241",
       "epic_id": "EPIC-207",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-207-namespace-files-key-value-store-and-secrets.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0242",

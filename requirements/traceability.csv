@@ -232,14 +232,14 @@ URS-F-0230,Functional,Must,EPIC-206,"Labels, metadata and plugin defaults",M2,2,
 URS-F-0231,Functional,Must,EPIC-206,"Labels, metadata and plugin defaults",M2,2,DSL validation plus end-to-end workflow conformance tests,Verified
 URS-F-0232,Functional,Must,EPIC-206,"Labels, metadata and plugin defaults",M2,2,DSL validation plus end-to-end workflow conformance tests,Verified
 URS-F-0233,Functional,Must,EPIC-206,"Labels, metadata and plugin defaults",M2,2,DSL validation plus end-to-end workflow conformance tests,Verified
-URS-F-0234,Functional,Must,EPIC-207,"Namespace files, key-value store and secrets",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
-URS-F-0235,Functional,Must,EPIC-207,"Namespace files, key-value store and secrets",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
-URS-F-0236,Functional,Must,EPIC-207,"Namespace files, key-value store and secrets",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
-URS-F-0237,Functional,Must,EPIC-207,"Namespace files, key-value store and secrets",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
-URS-F-0238,Functional,Must,EPIC-207,"Namespace files, key-value store and secrets",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
-URS-F-0239,Functional,Must,EPIC-207,"Namespace files, key-value store and secrets",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
-URS-F-0240,Functional,Must,EPIC-207,"Namespace files, key-value store and secrets",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
-URS-F-0241,Functional,Must,EPIC-207,"Namespace files, key-value store and secrets",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0234,Functional,Must,EPIC-207,"Namespace files, key-value store and secrets",M2,2,DSL validation plus end-to-end workflow conformance tests,Verified
+URS-F-0235,Functional,Must,EPIC-207,"Namespace files, key-value store and secrets",M2,2,DSL validation plus end-to-end workflow conformance tests,Verified
+URS-F-0236,Functional,Must,EPIC-207,"Namespace files, key-value store and secrets",M2,2,DSL validation plus end-to-end workflow conformance tests,Verified
+URS-F-0237,Functional,Must,EPIC-207,"Namespace files, key-value store and secrets",M2,2,DSL validation plus end-to-end workflow conformance tests,Verified
+URS-F-0238,Functional,Must,EPIC-207,"Namespace files, key-value store and secrets",M2,2,DSL validation plus end-to-end workflow conformance tests,Verified
+URS-F-0239,Functional,Must,EPIC-207,"Namespace files, key-value store and secrets",M2,2,DSL validation plus end-to-end workflow conformance tests,Verified
+URS-F-0240,Functional,Must,EPIC-207,"Namespace files, key-value store and secrets",M2,2,DSL validation plus end-to-end workflow conformance tests,Verified
+URS-F-0241,Functional,Must,EPIC-207,"Namespace files, key-value store and secrets",M2,2,DSL validation plus end-to-end workflow conformance tests,Verified
 URS-F-0242,Functional,Must,EPIC-208,Working directories and execution files,M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
 URS-F-0243,Functional,Must,EPIC-208,Working directories and execution files,M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
 URS-F-0244,Functional,Must,EPIC-208,Working directories and execution files,M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed

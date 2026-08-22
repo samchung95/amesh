@@ -10,8 +10,13 @@ import type {
   HealthResponse,
   LoginResponse,
   NamespaceCheckPolicy,
+  NamespaceFile,
+  NamespaceFileVersion,
+  KeyValueEntry,
+  KeyValueType,
   PersistedExecution,
   PersistedFlow,
+  SecretBinding,
   TriggerOccurrence,
   TriggerRuntimeState,
   UiSession,
@@ -68,6 +73,20 @@ export function createApiClient(connection: ApiConnection) {
     return (await response.json()) as T
   }
 
+  async function requestBlob(path: string): Promise<Blob> {
+    const headers = new Headers()
+    if (connection.token) headers.set('Authorization', `Bearer ${connection.token}`)
+    headers.set('X-Amesh-Tenant', connection.tenant)
+    const response = await fetch(path, { credentials: 'same-origin', headers })
+    if (!response.ok) throw new ApiError(response.status, await readError(response))
+    return response.blob()
+  }
+
+  const namespaceRoot = (namespace: string) =>
+    `/api/v1/namespaces/${encodeURIComponent(namespace)}`
+  const filePath = (namespace: string, path: string) =>
+    `${namespaceRoot(namespace)}/files/${path.split('/').map(encodeURIComponent).join('/')}`
+
   return {
     health: async () => request<HealthResponse>('/health'),
     providers: async () => request<AuthenticationProvider[]>('/api/v1/auth/providers'),
@@ -122,6 +141,54 @@ export function createApiClient(connection: ApiConnection) {
       if (namespace) params.set('namespace', namespace)
       return request<CheckComplianceSummary[]>(`/api/v1/check-compliance?${params.toString()}`)
     },
+    namespaceFiles: async (namespace: string) =>
+      request<NamespaceFile[]>(`${namespaceRoot(namespace)}/files`),
+    uploadNamespaceFile: async (namespace: string, path: string, file: File) =>
+      request<NamespaceFile>(filePath(namespace, path), {
+        method: 'PUT',
+        headers: { 'Content-Type': file.type || 'application/octet-stream' },
+        body: file,
+      }),
+    downloadNamespaceFile: async (namespace: string, path: string, version?: number) =>
+      requestBlob(`${filePath(namespace, path)}${version ? `?version=${String(version)}` : ''}`),
+    namespaceFileVersions: async (namespace: string, path: string) =>
+      request<NamespaceFileVersion[]>(`${filePath(namespace, path)}/versions`),
+    moveNamespaceFile: async (namespace: string, path: string, destinationPath: string, expectedVersion: number) =>
+      request<NamespaceFile>(`${filePath(namespace, path)}/move`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ destinationPath, expectedVersion }),
+      }),
+    deleteNamespaceFile: async (namespace: string, path: string, expectedVersion: number) =>
+      request<void>(`${filePath(namespace, path)}?expectedVersion=${String(expectedVersion)}`, { method: 'DELETE' }),
+    namespaceKeyValues: async (namespace: string) =>
+      request<KeyValueEntry[]>(`${namespaceRoot(namespace)}/key-values`),
+    putNamespaceKeyValue: async (namespace: string, key: string, type: KeyValueType, value: unknown, expiresAt?: string) =>
+      request<KeyValueEntry>(`${namespaceRoot(namespace)}/key-values/${encodeURIComponent(key)}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type, value, expiresAt: expiresAt || null }),
+      }),
+    deleteNamespaceKeyValue: async (namespace: string, key: string, expectedVersion: number) =>
+      request<void>(`${namespaceRoot(namespace)}/key-values/${encodeURIComponent(key)}?expectedVersion=${String(expectedVersion)}`, { method: 'DELETE' }),
+    namespaceSecretBindings: async (namespace: string) =>
+      request<SecretBinding[]>(`${namespaceRoot(namespace)}/secret-bindings`),
+    putNamespaceSecretBinding: async (namespace: string, key: string, providerReference: string) =>
+      request<SecretBinding>(`${namespaceRoot(namespace)}/secret-bindings/${encodeURIComponent(key)}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ provider: 'env', providerReference }),
+      }),
+    deleteNamespaceSecretBinding: async (namespace: string, key: string, expectedVersion: number) =>
+      request<void>(`${namespaceRoot(namespace)}/secret-bindings/${encodeURIComponent(key)}?expectedVersion=${String(expectedVersion)}`, { method: 'DELETE' }),
+    exportNamespaceResources: async (namespace: string) =>
+      request<Record<string, unknown>>(`${namespaceRoot(namespace)}/resource-bundle`),
+    importNamespaceResources: async (namespace: string, bundle: Record<string, unknown>) =>
+      request<Record<string, number>>(`${namespaceRoot(namespace)}/resource-bundle`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(bundle),
+      }),
     setTriggerPaused: async (namespace: string, flowId: string, triggerId: string, paused: boolean, reason: string) =>
       request<TriggerRuntimeState>(`/api/v1/triggers/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/${encodeURIComponent(triggerId)}/${paused ? 'pause' : 'resume'}`, {
         method: 'POST',

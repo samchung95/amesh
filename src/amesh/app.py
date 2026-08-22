@@ -45,6 +45,7 @@ from amesh.adapters.postgres import (
     PostgresMetadataRepository,
     PostgresReconciliationRepository,
     PostgresServiceRegistryRepository,
+    PostgresSharedResourceRepository,
     PostgresTaskCacheRepository,
     PostgresTenantRepository,
     PostgresTriggerRuntimeRepository,
@@ -85,6 +86,8 @@ from amesh.api.models import (
     IssuedCredentialResponse,
     LoginRequest,
     LoginResponse,
+    NamespaceFileMoveRequest,
+    NamespaceResourceImportResult,
     ProblemDetail,
     ReadinessResponse,
     ReduceExecutionRequest,
@@ -143,7 +146,13 @@ from amesh.domain import (
     FlowRevisionSource,
     InvalidTransition,
     IssuedCredential,
+    KeyValueChange,
+    KeyValueEntry,
+    KeyValueWrite,
     NamespaceAuthorizationBoundary,
+    NamespaceFile,
+    NamespaceFileVersion,
+    NamespaceResourceBundle,
     PermissionAction,
     PrincipalDefinition,
     PrincipalType,
@@ -152,6 +161,8 @@ from amesh.domain import (
     ResourceVersionConflict,
     RoleBinding,
     RoleDefinition,
+    SecretBinding,
+    SecretBindingWrite,
     ServiceDrainRequest,
     ServiceInstance,
     ServiceLiveness,
@@ -244,6 +255,10 @@ from amesh.workflow.metadata import (
     NamespaceWorkflowMetadata,
     NamespaceWorkflowMetadataUpdate,
     NamespaceWorkflowMetadataView,
+)
+from amesh.workflow.shared_resources import (
+    NamespaceResourceService,
+    SharedResourceContextProvider,
 )
 
 LOGGER = logging.getLogger("amesh.api")
@@ -421,6 +436,31 @@ def get_metadata_repository() -> PostgresMetadataRepository:
 MetadataRepositoryDependency = Annotated[
     PostgresMetadataRepository,
     Depends(get_metadata_repository),
+]
+
+
+@lru_cache
+def get_shared_resource_repository() -> PostgresSharedResourceRepository:
+    return PostgresSharedResourceRepository(database_engine())
+
+
+SharedResourceRepositoryDependency = Annotated[
+    PostgresSharedResourceRepository,
+    Depends(get_shared_resource_repository),
+]
+
+
+@lru_cache
+def get_namespace_resource_service() -> NamespaceResourceService:
+    return NamespaceResourceService(
+        get_shared_resource_repository(),
+        build_object_store(get_settings()),
+    )
+
+
+NamespaceResourceServiceDependency = Annotated[
+    NamespaceResourceService,
+    Depends(get_namespace_resource_service),
 ]
 
 
@@ -894,6 +934,9 @@ async def get_ui_session(
         "checks.view": ("check", PermissionAction.VIEW),
         "checks.manage": ("check", PermissionAction.MANAGE),
         "namespaces.view": ("namespace", PermissionAction.VIEW),
+        "namespaceResources.read": ("namespace_file", PermissionAction.LIST),
+        "namespaceResources.write": ("namespace_file", PermissionAction.WRITE),
+        "secretBindings.write": ("secret", PermissionAction.WRITE),
         "plugins.view": ("plugin", PermissionAction.VIEW),
         "administration.manage": ("tenant", PermissionAction.MANAGE),
     }
@@ -1594,6 +1637,537 @@ async def get_flow_metadata(
 
 
 @app.get(
+    "/api/v1/namespaces/{namespace}/files",
+    response_model=list[NamespaceFile],
+    tags=["namespace-resources"],
+)
+async def list_namespace_files(
+    namespace: str,
+    repository: SharedResourceRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    inherited: bool = True,
+) -> list[NamespaceFile]:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="namespace_file",
+        action=PermissionAction.LIST,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    return await repository.list_files(
+        namespace,
+        tenant_id=tenant_id,
+        actor_id=str(actor.principal_id),
+        inherited=inherited,
+    )
+
+
+@app.put(
+    "/api/v1/namespaces/{namespace}/files/{path:path}",
+    response_model=NamespaceFile,
+    tags=["namespace-resources"],
+)
+async def upload_namespace_file(
+    namespace: str,
+    path: str,
+    request: Request,
+    service: NamespaceResourceServiceDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    expected_version: Annotated[int | None, Query(alias="expectedVersion", ge=0)] = None,
+) -> NamespaceFile:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="namespace_file",
+        action=PermissionAction.WRITE,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    try:
+        return await service.upload_file(
+            namespace,
+            path,
+            await request.body(),
+            tenant_id=tenant_id,
+            actor_id=str(actor.principal_id),
+            content_type=request.headers.get("content-type"),
+            expected_version=expected_version,
+        )
+    except ResourceVersionConflict as exc:
+        raise HTTPException(status_code=status.HTTP_412_PRECONDITION_FAILED, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)) from exc
+
+
+@app.get(
+    "/api/v1/namespaces/{namespace}/files/{path:path}/versions",
+    response_model=list[NamespaceFileVersion],
+    tags=["namespace-resources"],
+)
+async def list_namespace_file_versions(
+    namespace: str,
+    path: str,
+    repository: SharedResourceRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> list[NamespaceFileVersion]:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="namespace_file",
+        action=PermissionAction.LIST,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    return await repository.list_file_versions(
+        namespace,
+        path,
+        tenant_id=tenant_id,
+        actor_id=str(actor.principal_id),
+    )
+
+
+@app.post(
+    "/api/v1/namespaces/{namespace}/files/{path:path}/move",
+    response_model=NamespaceFile,
+    tags=["namespace-resources"],
+)
+async def move_namespace_file(
+    namespace: str,
+    path: str,
+    request: NamespaceFileMoveRequest,
+    repository: SharedResourceRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> NamespaceFile:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="namespace_file",
+        action=PermissionAction.WRITE,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    try:
+        return await repository.move_file(
+            namespace,
+            path,
+            request.destination_path,
+            tenant_id=tenant_id,
+            actor_id=str(actor.principal_id),
+            expected_version=request.expected_version,
+        )
+    except ResourceVersionConflict as exc:
+        raise HTTPException(status_code=status.HTTP_412_PRECONDITION_FAILED, detail=str(exc)) from exc
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)) from exc
+
+
+@app.get(
+    "/api/v1/namespaces/{namespace}/files/{path:path}",
+    response_class=StreamingResponse,
+    tags=["namespace-resources"],
+)
+async def download_namespace_file(
+    namespace: str,
+    path: str,
+    service: NamespaceResourceServiceDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    version: Annotated[int | None, Query(ge=1)] = None,
+) -> StreamingResponse:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="namespace_file",
+        action=PermissionAction.READ,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    try:
+        selected, content = await service.download_file(
+            namespace,
+            path,
+            tenant_id=tenant_id,
+            actor_id=str(actor.principal_id),
+            version=version,
+        )
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+
+    async def chunks() -> AsyncIterator[bytes]:
+        yield content
+
+    return StreamingResponse(
+        chunks(),
+        media_type=selected.content_type or "application/octet-stream",
+        headers={
+            "ETag": f'"sha256:{selected.checksum_sha256}"',
+            "X-Amesh-File-Version": str(selected.version),
+            "X-Content-Type-Options": "nosniff",
+        },
+    )
+
+
+@app.delete(
+    "/api/v1/namespaces/{namespace}/files/{path:path}",
+    tags=["namespace-resources"],
+)
+async def delete_namespace_file(
+    namespace: str,
+    path: str,
+    repository: SharedResourceRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    expected_version: Annotated[int | None, Query(alias="expectedVersion", ge=0)] = None,
+) -> dict[str, int]:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="namespace_file",
+        action=PermissionAction.DELETE,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    try:
+        version = await repository.delete_file(
+            namespace,
+            path,
+            tenant_id=tenant_id,
+            actor_id=str(actor.principal_id),
+            expected_version=expected_version,
+        )
+    except ResourceVersionConflict as exc:
+        raise HTTPException(status_code=status.HTTP_412_PRECONDITION_FAILED, detail=str(exc)) from exc
+    return {"resourceVersion": version}
+
+
+@app.get(
+    "/api/v1/namespaces/{namespace}/key-values",
+    response_model=list[KeyValueEntry],
+    tags=["namespace-resources"],
+)
+async def list_namespace_key_values(
+    namespace: str,
+    repository: SharedResourceRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> list[KeyValueEntry]:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="key_value",
+        action=PermissionAction.LIST,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    return await repository.list_key_values(
+        namespace, tenant_id=tenant_id, actor_id=str(actor.principal_id)
+    )
+
+
+@app.get(
+    "/api/v1/namespaces/{namespace}/key-values/changes",
+    response_model=list[KeyValueChange],
+    tags=["namespace-resources"],
+)
+async def list_namespace_key_value_changes(
+    namespace: str,
+    repository: SharedResourceRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    after: Annotated[int, Query(ge=0)] = 0,
+    limit: Annotated[int, Query(ge=1, le=1000)] = 100,
+) -> list[KeyValueChange]:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="key_value",
+        action=PermissionAction.LIST,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    return await repository.list_key_value_changes(
+        namespace,
+        tenant_id=tenant_id,
+        actor_id=str(actor.principal_id),
+        after=after,
+        limit=limit,
+    )
+
+
+@app.put(
+    "/api/v1/namespaces/{namespace}/key-values/{key}",
+    response_model=KeyValueEntry,
+    tags=["namespace-resources"],
+)
+async def put_namespace_key_value(
+    namespace: str,
+    key: str,
+    write: KeyValueWrite,
+    repository: SharedResourceRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> KeyValueEntry:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="key_value",
+        action=PermissionAction.WRITE,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    try:
+        return await repository.put_key_value(
+            namespace,
+            key,
+            write,
+            tenant_id=tenant_id,
+            actor_id=str(actor.principal_id),
+        )
+    except ResourceVersionConflict as exc:
+        raise HTTPException(status_code=status.HTTP_412_PRECONDITION_FAILED, detail=str(exc)) from exc
+
+
+@app.get(
+    "/api/v1/namespaces/{namespace}/key-values/{key}",
+    response_model=KeyValueEntry,
+    tags=["namespace-resources"],
+)
+async def get_namespace_key_value(
+    namespace: str,
+    key: str,
+    repository: SharedResourceRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> KeyValueEntry:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="key_value",
+        action=PermissionAction.READ,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    try:
+        return await repository.get_key_value(
+            namespace, key, tenant_id=tenant_id, actor_id=str(actor.principal_id)
+        )
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+
+
+@app.delete(
+    "/api/v1/namespaces/{namespace}/key-values/{key}",
+    tags=["namespace-resources"],
+)
+async def delete_namespace_key_value(
+    namespace: str,
+    key: str,
+    repository: SharedResourceRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    expected_version: Annotated[int | None, Query(alias="expectedVersion", ge=1)] = None,
+) -> dict[str, bool]:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="key_value",
+        action=PermissionAction.DELETE,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    try:
+        deleted = await repository.delete_key_value(
+            namespace,
+            key,
+            tenant_id=tenant_id,
+            actor_id=str(actor.principal_id),
+            expected_version=expected_version,
+        )
+    except ResourceVersionConflict as exc:
+        raise HTTPException(status_code=status.HTTP_412_PRECONDITION_FAILED, detail=str(exc)) from exc
+    return {"deleted": deleted}
+
+
+@app.get(
+    "/api/v1/namespaces/{namespace}/secret-bindings",
+    response_model=list[SecretBinding],
+    tags=["namespace-resources"],
+)
+async def list_namespace_secret_bindings(
+    namespace: str,
+    repository: SharedResourceRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    inherited: bool = True,
+) -> list[SecretBinding]:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="secret",
+        action=PermissionAction.LIST,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    return await repository.list_secret_bindings(
+        namespace,
+        tenant_id=tenant_id,
+        actor_id=str(actor.principal_id),
+        inherited=inherited,
+    )
+
+
+@app.put(
+    "/api/v1/namespaces/{namespace}/secret-bindings/{key}",
+    response_model=SecretBinding,
+    tags=["namespace-resources"],
+)
+async def put_namespace_secret_binding(
+    namespace: str,
+    key: str,
+    write: SecretBindingWrite,
+    repository: SharedResourceRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> SecretBinding:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="secret",
+        action=PermissionAction.WRITE,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    try:
+        return await repository.put_secret_binding(
+            namespace,
+            key,
+            write,
+            tenant_id=tenant_id,
+            actor_id=str(actor.principal_id),
+        )
+    except ResourceVersionConflict as exc:
+        raise HTTPException(status_code=status.HTTP_412_PRECONDITION_FAILED, detail=str(exc)) from exc
+
+
+@app.delete(
+    "/api/v1/namespaces/{namespace}/secret-bindings/{key}",
+    tags=["namespace-resources"],
+)
+async def delete_namespace_secret_binding(
+    namespace: str,
+    key: str,
+    repository: SharedResourceRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    expected_version: Annotated[int | None, Query(alias="expectedVersion", ge=1)] = None,
+) -> dict[str, bool]:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="secret",
+        action=PermissionAction.WRITE,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    try:
+        deleted = await repository.delete_secret_binding(
+            namespace,
+            key,
+            tenant_id=tenant_id,
+            actor_id=str(actor.principal_id),
+            expected_version=expected_version,
+        )
+    except ResourceVersionConflict as exc:
+        raise HTTPException(status_code=status.HTTP_412_PRECONDITION_FAILED, detail=str(exc)) from exc
+    return {"deleted": deleted}
+
+
+@app.get(
+    "/api/v1/namespaces/{namespace}/resource-bundle",
+    response_model=NamespaceResourceBundle,
+    tags=["namespace-resources"],
+)
+async def export_namespace_resource_bundle(
+    namespace: str,
+    service: NamespaceResourceServiceDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> NamespaceResourceBundle:
+    for resource_type, action in (
+        ("namespace_file", PermissionAction.READ),
+        ("key_value", PermissionAction.READ),
+        ("secret", PermissionAction.LIST),
+    ):
+        await authorize_request(
+            authorization_service,
+            actor,
+            resource_type=resource_type,
+            action=action,
+            tenant_id=tenant_id,
+            namespace=namespace,
+        )
+    return await service.export_bundle(
+        namespace, tenant_id=tenant_id, actor_id=str(actor.principal_id)
+    )
+
+
+@app.post(
+    "/api/v1/namespaces/{namespace}/resource-bundle",
+    response_model=NamespaceResourceImportResult,
+    tags=["namespace-resources"],
+)
+async def import_namespace_resource_bundle(
+    namespace: str,
+    bundle: NamespaceResourceBundle,
+    service: NamespaceResourceServiceDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> NamespaceResourceImportResult:
+    for resource_type in ("namespace_file", "key_value", "secret"):
+        await authorize_request(
+            authorization_service,
+            actor,
+            resource_type=resource_type,
+            action=PermissionAction.WRITE,
+            tenant_id=tenant_id,
+            namespace=namespace,
+        )
+    try:
+        result = await service.import_bundle(
+            namespace,
+            bundle,
+            tenant_id=tenant_id,
+            actor_id=str(actor.principal_id),
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)) from exc
+    return NamespaceResourceImportResult.model_validate(result)
+
+
+@app.get(
     "/api/v1/flows/{namespace}/{flow_id}/revisions",
     response_model=list[FlowRevisionRecord],
     tags=["flows"],
@@ -1890,6 +2464,7 @@ async def create_execution(
     response: Response,
     repository: RepositoryDependency,
     task_cache: TaskCacheRepositoryDependency,
+    shared_resources: SharedResourceRepositoryDependency,
     settings: SettingsDependency,
     actor: ActorDependency,
     authorization_service: AuthorizationServiceDependency,
@@ -1924,6 +2499,7 @@ async def create_execution(
         flow,
         request,
         settings,
+        shared_resources=shared_resources,
         tenant_id=tenant_id,
         actor_id=str(actor.principal_id),
         actor=actor,
@@ -1951,6 +2527,7 @@ async def create_executions_bulk(
     background_tasks: BackgroundTasks,
     repository: RepositoryDependency,
     task_cache: TaskCacheRepositoryDependency,
+    shared_resources: SharedResourceRepositoryDependency,
     settings: SettingsDependency,
     actor: ActorDependency,
     authorization_service: AuthorizationServiceDependency,
@@ -1980,6 +2557,7 @@ async def create_executions_bulk(
                 flow,
                 item,
                 settings,
+                shared_resources=shared_resources,
                 tenant_id=tenant_id,
                 actor_id=str(actor.principal_id),
                 actor=actor,
@@ -3545,6 +4123,7 @@ async def trigger_webhook(
     response: Response,
     repository: RepositoryDependency,
     task_cache: TaskCacheRepositoryDependency,
+    shared_resources: SharedResourceRepositoryDependency,
     trigger_runtime: TriggerRuntimeRepositoryDependency,
     settings: SettingsDependency,
     actor: ActorDependency,
@@ -3671,6 +4250,7 @@ async def trigger_webhook(
             flow,
             execution_request,
             settings,
+            shared_resources=shared_resources,
             tenant_id=tenant_id,
             actor_id=str(actor.principal_id),
             actor=actor,
@@ -3790,6 +4370,7 @@ async def _execute_flow(
     request: CreateExecutionRequest,
     settings: Settings,
     *,
+    shared_resources: PostgresSharedResourceRepository,
     tenant_id: str,
     actor_id: str,
     actor: ActorContext,
@@ -3805,7 +4386,28 @@ async def _execute_flow(
             status_code=status.HTTP_409_CONFLICT,
             detail=f"flow {flow.namespace}.{flow.id} is disabled",
         )
+    planned_tasks = compile_execution_tasks(flow)
+    resource_usage = {
+        "secret": any(node.task.contract.secret_scopes for node in planned_tasks),
+        "namespace_file": any(
+            any(reference.startswith("nsfile:///") for reference in node.task.contract.files.values())
+            for node in planned_tasks
+        ),
+        "key_value": "kv("
+        in json.dumps(flow.model_dump(mode="json", by_alias=True), separators=(",", ":")),
+    }
+    for resource_type, used in resource_usage.items():
+        if used:
+            await authorize_request(
+                authorization_service,
+                actor,
+                resource_type=resource_type,
+                action=PermissionAction.USE,
+                tenant_id=tenant_id,
+                namespace=flow.namespace,
+            )
     object_store = build_object_store(settings)
+    context_provider = SharedResourceContextProvider(shared_resources)
     try:
         validated_inputs = validate_flow_inputs(flow, request.inputs)
         validated_inputs = await stage_file_inputs(
@@ -3886,6 +4488,7 @@ async def _execute_flow(
             repository,
             handlers=handlers,
             recover_running_types=frozenset({"core.subflow"}),
+            context_provider=context_provider,
             object_store=object_store,
             task_cache=task_cache,
         )
