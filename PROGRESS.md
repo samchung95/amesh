@@ -2,12 +2,19 @@
 
 ## Current state
 
-- What works: the original five requested post-MVP areas plus durable cache, triggers, execution evidence and SLA/check policies are implemented, evidence-linked and deployed through migration 0031.
-- What's in flight: the 50-epic local completion program is tracked on Agent Hotel cards `c37`–`c86`; EPIC-003 on card `c38` has passed its deployment gate and EPIC-006 on card `c39` is next. The local Docker Compose deployment is healthy at migration 32/32 on `http://localhost:8000`.
+- What works: the original post-MVP foundation plus the first three cards of the 50-epic local program are implemented, evidence-linked and deployed through migration 0034, including typed configuration and immutable flow revision history/promotion.
+- What's in flight: the 50-epic local completion program is tracked on Agent Hotel cards `c37`–`c86`; cards `c37`–`c39` are complete and EPIC-202 on card `c40` is active. The local Docker Compose deployment is healthy at migration 34/34 on `http://localhost:8000`.
 - Known broken / TODO: 20 external-cloud, SaaS, hosted-release, independent-certification, multi-region or long-duration epics are deferred. Cards `c15` and `c29` preserve unrelated test failures and are not blockers for the local program.
 - How to run/test: use `uv run --extra runtime --extra dev pytest`; set `AMESH_TEST_DATABASE_URL` for PostgreSQL integration tests and `OPENROUTER_API_KEY` for live LLM tests.
 
 ## Session log
+
+### 2026-08-22 (50-epic local completion program, EPIC-006 completion)
+
+- Did: completed EPIC-006 with immutable semantic revision allocation that preserves explicit forward revisions and auto-advances conflicting changes; authorized history, unified/RFC 6902-compatible diff, lifecycle and restore APIs; actor/source/commit/environment/deployment provenance; pinned resource-catalog resolution; execution foreign-key pinning; reference-aware deletion; and tenant-isolated audit/event/outbox evidence through migrations 0033–0034. Linked URS-F-0045 through URS-F-0051 to automated evidence.
+- Verification: a fresh PostgreSQL database applied all 34 migrations and the complete suite collected 282 tests: 274 passed, six environment/profile tests skipped and cards `c15`/`c29` were explicitly deselected. Ruff passed for 637 files, strict mypy passed for 120 source files, and generated contract/planning, backlog, clean-room, REUSE 6.2.0, lock, Compose and diff gates passed. The rebuilt Compose API/executor/scheduler are healthy at migration 34/34; live acceptance created revisions 100/101, returned two diff operations, disabled revision 101 and restored revision 100.
+- Deviations from plan: no package or LLM call was required. Compatibility tests established that an unused explicit forward revision must be retained, while changed content colliding with existing history receives `max + 1`. Revision-event outbox records now follow explicit flow purge through migration 0034.
+- Next step when resuming: EPIC-202 is selected on card `c40`; implement conditional branching and switch semantics against URS-F-0196 through URS-F-0202.
 
 ### 2026-08-22 (50-epic local completion program, EPIC-003 start)
 

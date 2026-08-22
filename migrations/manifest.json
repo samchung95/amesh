@@ -192,6 +192,18 @@
       "mode": "expand",
       "onlineCompatible": true,
       "rollbackGuidance": "Keep process configuration at its last accepted snapshot, stop feature-flag administration and forward-fix the additive flag table; retain flag and configuration audit evidence."
+    },
+    {
+      "file": "0033_flow_revisions.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Stop flow revision promotion and forward-fix the additive revision metadata and event ledger; retain immutable definitions, execution references and audit evidence."
+    },
+    {
+      "file": "0034_flow_revision_event_retention.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Keep flow revision history enabled and forward-fix the event-to-flow retention constraint; preserve events until their owning flow is explicitly purged."
     }
   ]
 }

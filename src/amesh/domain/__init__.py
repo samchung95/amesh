@@ -92,6 +92,13 @@ from .feature_flags import (
     FeatureFlagScope,
     resolve_feature_flag,
 )
+from .flow_revisions import (
+    FlowLifecycle,
+    FlowRevisionDiff,
+    FlowRevisionRecord,
+    FlowRevisionSource,
+    compare_flow_revisions,
+)
 from .identity import (
     AssetKey,
     FlowKey,
@@ -213,7 +220,11 @@ __all__ = [
     "FeatureFlagDecision",
     "FeatureFlagScope",
     "FlowKey",
+    "FlowLifecycle",
+    "FlowRevisionDiff",
     "FlowRevisionKey",
+    "FlowRevisionRecord",
+    "FlowRevisionSource",
     "InvalidIdentifier",
     "InvalidLifecycleTransition",
     "InvalidTransition",
@@ -279,6 +290,7 @@ __all__ = [
     "WorkerKey",
     "canonical_hash",
     "canonical_json",
+    "compare_flow_revisions",
     "credential_scope_allows",
     "credential_scope_covers",
     "decide_execution",

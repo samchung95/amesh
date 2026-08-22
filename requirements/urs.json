@@ -1269,7 +1269,7 @@
       "id": "URS-F-0045",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-006",
@@ -1289,13 +1289,17 @@
       "local_sequence": 1,
       "dependencies": [
         "EPIC-004"
+      ],
+      "evidence": [
+        "tests/api/test_flow_revision_api.py::test_flow_revision_history_diff_lifecycle_restore_and_reference_protection",
+        "docs/operations/flow-revisions.md"
       ]
     },
     {
       "id": "URS-F-0046",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-006",
@@ -1315,13 +1319,17 @@
       "local_sequence": 2,
       "dependencies": [
         "EPIC-004"
+      ],
+      "evidence": [
+        "tests/api/test_flow_revision_api.py::test_flow_revision_history_diff_lifecycle_restore_and_reference_protection",
+        "docs/operations/flow-revisions.md"
       ]
     },
     {
       "id": "URS-F-0047",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-006",
@@ -1341,13 +1349,17 @@
       "local_sequence": 3,
       "dependencies": [
         "EPIC-004"
+      ],
+      "evidence": [
+        "tests/api/test_flow_revision_api.py::test_flow_revision_history_diff_lifecycle_restore_and_reference_protection",
+        "migrations/0033_flow_revisions.sql"
       ]
     },
     {
       "id": "URS-F-0048",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-006",
@@ -1367,13 +1379,17 @@
       "local_sequence": 4,
       "dependencies": [
         "EPIC-004"
+      ],
+      "evidence": [
+        "tests/api/test_flow_revision_api.py::test_flow_revision_history_diff_lifecycle_restore_and_reference_protection",
+        "docs/adr/032-content-addressed-flow-revisions.md"
       ]
     },
     {
       "id": "URS-F-0049",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-006",
@@ -1393,13 +1409,17 @@
       "local_sequence": 5,
       "dependencies": [
         "EPIC-004"
+      ],
+      "evidence": [
+        "tests/api/test_flow_revision_api.py::test_flow_revision_history_diff_lifecycle_restore_and_reference_protection",
+        "docs/operations/flow-revisions.md"
       ]
     },
     {
       "id": "URS-F-0050",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-006",
@@ -1419,13 +1439,17 @@
       "local_sequence": 6,
       "dependencies": [
         "EPIC-004"
+      ],
+      "evidence": [
+        "tests/api/test_flow_revision_api.py::test_flow_revision_history_diff_lifecycle_restore_and_reference_protection",
+        "migrations/0033_flow_revisions.sql"
       ]
     },
     {
       "id": "URS-F-0051",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-006",
@@ -1445,6 +1469,10 @@
       "local_sequence": 7,
       "dependencies": [
         "EPIC-004"
+      ],
+      "evidence": [
+        "tests/api/test_flow_revision_api.py::test_flow_revision_history_diff_lifecycle_restore_and_reference_protection",
+        "migrations/0033_flow_revisions.sql"
       ]
     },
     {

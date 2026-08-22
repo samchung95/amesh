@@ -52,6 +52,8 @@ def test_checked_in_migration_manifest_is_complete_and_ordered() -> None:
             (30, "trigger_occurrence_runtime"),
             (31, "execution_checks"),
             (32, "configuration_feature_flags"),
+            (33, "flow_revisions"),
+            (34, "flow_revision_event_retention"),
         )
     ]
     assert all(item.rollback_guidance for item in plan)

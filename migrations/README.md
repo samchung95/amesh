@@ -110,6 +110,13 @@ Migration `0032_configuration_feature_flags.sql` adds versioned instance, tenant
 boolean flags. The scope shape is constrained in PostgreSQL, tenant runtime reads are RLS-filtered and
 all administrative writes use the existing tenant-administration boundary and audit ledger.
 
+Migration `0033_flow_revisions.sql` adds immutable revision provenance, lifecycle constraints and a
+tenant-isolated flow revision event ledger with transactional outbox publication. A database trigger
+protects selected revisions and revisions referenced by executions or direct audit evidence.
+
+Migration `0034_flow_revision_event_retention.sql` makes revision events subordinate to explicit flow
+purge while preserving them for the entire lifetime of their owning flow.
+
 ## Migration modes
 
 - `bootstrap` creates the initial schema and is only safe for an empty database.

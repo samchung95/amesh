@@ -43,13 +43,13 @@ URS-F-0041,Functional,Must,EPIC-005,Expression and templating engine,M0,0,"Parse
 URS-F-0042,Functional,Must,EPIC-005,Expression and templating engine,M0,0,"Parser, schema, rendering and compatibility tests",Verified
 URS-F-0043,Functional,Must,EPIC-005,Expression and templating engine,M0,0,"Parser, schema, rendering and compatibility tests",Verified
 URS-F-0044,Functional,Must,EPIC-005,Expression and templating engine,M0,0,"Parser, schema, rendering and compatibility tests",Verified
-URS-F-0045,Functional,Must,EPIC-006,"Flow revisions, change history and promotion",M0,0,Domain model unit and serialization compatibility tests,Proposed
-URS-F-0046,Functional,Must,EPIC-006,"Flow revisions, change history and promotion",M0,0,Domain model unit and serialization compatibility tests,Proposed
-URS-F-0047,Functional,Must,EPIC-006,"Flow revisions, change history and promotion",M0,0,Domain model unit and serialization compatibility tests,Proposed
-URS-F-0048,Functional,Must,EPIC-006,"Flow revisions, change history and promotion",M0,0,Domain model unit and serialization compatibility tests,Proposed
-URS-F-0049,Functional,Must,EPIC-006,"Flow revisions, change history and promotion",M0,0,Domain model unit and serialization compatibility tests,Proposed
-URS-F-0050,Functional,Must,EPIC-006,"Flow revisions, change history and promotion",M0,0,Domain model unit and serialization compatibility tests,Proposed
-URS-F-0051,Functional,Must,EPIC-006,"Flow revisions, change history and promotion",M0,0,Domain model unit and serialization compatibility tests,Proposed
+URS-F-0045,Functional,Must,EPIC-006,"Flow revisions, change history and promotion",M0,0,Domain model unit and serialization compatibility tests,Verified
+URS-F-0046,Functional,Must,EPIC-006,"Flow revisions, change history and promotion",M0,0,Domain model unit and serialization compatibility tests,Verified
+URS-F-0047,Functional,Must,EPIC-006,"Flow revisions, change history and promotion",M0,0,Domain model unit and serialization compatibility tests,Verified
+URS-F-0048,Functional,Must,EPIC-006,"Flow revisions, change history and promotion",M0,0,Domain model unit and serialization compatibility tests,Verified
+URS-F-0049,Functional,Must,EPIC-006,"Flow revisions, change history and promotion",M0,0,Domain model unit and serialization compatibility tests,Verified
+URS-F-0050,Functional,Must,EPIC-006,"Flow revisions, change history and promotion",M0,0,Domain model unit and serialization compatibility tests,Verified
+URS-F-0051,Functional,Must,EPIC-006,"Flow revisions, change history and promotion",M0,0,Domain model unit and serialization compatibility tests,Verified
 URS-F-0052,Functional,Must,EPIC-007,Execution event model and state machine,M0,0,"Automated unit, integration, crash-recovery and conformance tests",Verified
 URS-F-0053,Functional,Must,EPIC-007,Execution event model and state machine,M0,0,"Automated unit, integration, crash-recovery and conformance tests",Verified
 URS-F-0054,Functional,Must,EPIC-007,Execution event model and state machine,M0,0,"Automated unit, integration, crash-recovery and conformance tests",Verified

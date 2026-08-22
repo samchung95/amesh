@@ -1,5 +1,39 @@
 # Test Log
 
+## EPIC-006: Flow revisions, change history and promotion — 2026-08-22
+
+Spec source: Agent Hotel card `c39` and canonical `backlog/epics.json` EPIC-006 DoD.
+
+Verified with `uv`, Python 3.13, PostgreSQL 17 and the deployed Compose control plane:
+
+- [x] Same-revision semantic reapply is idempotent; an unused explicit forward revision is preserved;
+  and changed content colliding with existing history receives the next revision without mutating old
+  canonical definitions.
+- [x] Authorized history exposes actor, source, commit, environment, deployment and exact versioned
+  resource-catalog resolution metadata. Diff responses include a unified human diff and deterministic
+  RFC 6902-compatible machine operations.
+- [x] Draft, active, disabled and archived promotion is durable and audited. Non-active flows reject
+  execution, and restore selects an earlier row without changing its definition, hash or history.
+- [x] Executions retain their exact revision foreign key and thereby the associated resource-resolution
+  set. Selected revisions and revisions referenced by executions or direct audit evidence reject
+  deletion with deterministic conflict responses.
+- [x] Flow revision mutations create tenant-isolated event, audit and transactional outbox evidence;
+  event/outbox retention follows explicit owning-flow purge.
+- [x] A fresh database applied all 34 migrations. The complete suite collected 282 tests: 274 passed,
+  six environment/profile tests skipped and the pre-existing card `c15`/`c29` assertions were
+  explicitly deselected.
+- [x] Ruff formatting and lint passed for 637 files, strict mypy passed for 120 source files, and
+  generated OpenAPI/planning artifacts, backlog, clean-room, uv lock, REUSE 6.2.0, Compose and diff
+  gates passed.
+- [x] The rebuilt local API, executor, scheduler and PostgreSQL services are healthy at migration
+  34/34. Deployed HTTP acceptance created revisions 100/101, returned two machine diff operations,
+  disabled revision 101 and restored revision 100 as active.
+
+No LLM invocation was required for deterministic revision storage or comparison; the configured
+OpenRouter `openai/gpt-5.6-luna` default is unchanged.
+
+Verdict: PASS — EPIC-006 functional requirements URS-F-0045 through URS-F-0051 are verified.
+
 ## EPIC-003: Configuration and feature flag system — 2026-08-22
 
 Spec source: Agent Hotel card `c38` and canonical `backlog/epics.json` EPIC-003 DoD.

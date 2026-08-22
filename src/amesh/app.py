@@ -76,6 +76,8 @@ from amesh.api.models import (
     FlowGraph,
     FlowGraphEdge,
     FlowGraphNode,
+    FlowRevisionLifecycleRequest,
+    FlowRevisionRestoreRequest,
     HealthResponse,
     IssueCredentialRequest,
     IssuedCredentialResponse,
@@ -134,6 +136,9 @@ from amesh.domain import (
     FeatureFlag,
     FeatureFlagDecision,
     FeatureFlagScope,
+    FlowRevisionDiff,
+    FlowRevisionRecord,
+    FlowRevisionSource,
     InvalidTransition,
     IssuedCredential,
     NamespaceAuthorizationBoundary,
@@ -1383,6 +1388,10 @@ async def apply_flow(
     authorization_service: AuthorizationServiceDependency,
     tenant_id: TenantDependency,
     if_match: Annotated[str | None, Header(alias="If-Match")] = None,
+    revision_source: Annotated[str | None, Header(alias="X-AMESH-Source")] = None,
+    source_commit: Annotated[str | None, Header(alias="X-AMESH-Commit")] = None,
+    environment: Annotated[str | None, Header(alias="X-AMESH-Environment")] = None,
+    deployment: Annotated[str | None, Header(alias="X-AMESH-Deployment")] = None,
 ) -> PersistedFlow:
     try:
         result = validate_flow_document(await request.body())
@@ -1419,6 +1428,12 @@ async def apply_flow(
             tenant_id=tenant_id,
             expected_etag=if_match,
             actor_id=str(actor.principal_id),
+            revision_source=FlowRevisionSource(
+                source=revision_source,
+                source_commit=source_commit,
+                environment=environment,
+                deployment={"reference": deployment} if deployment is not None else {},
+            ),
         )
     except ResourceVersionConflict as exc:
         raise HTTPException(
@@ -1451,6 +1466,175 @@ async def list_flows(
         tenant_id=tenant_id,
     )
     return collection_response(await repository.list_flows(tenant_id=tenant_id), query)
+
+
+@app.get(
+    "/api/v1/flows/{namespace}/{flow_id}/revisions",
+    response_model=list[FlowRevisionRecord],
+    tags=["flows"],
+)
+async def list_flow_revisions(
+    namespace: str,
+    flow_id: str,
+    repository: ReadRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> list[FlowRevisionRecord]:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="flow",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    return await repository.list_flow_revisions(namespace, flow_id, tenant_id=tenant_id)
+
+
+@app.get(
+    "/api/v1/flows/{namespace}/{flow_id}/revisions/diff",
+    response_model=FlowRevisionDiff,
+    tags=["flows"],
+)
+async def diff_flow_revisions(
+    namespace: str,
+    flow_id: str,
+    repository: ReadRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    from_revision: Annotated[int, Query(alias="from", ge=1)],
+    to_revision: Annotated[int, Query(alias="to", ge=1)],
+) -> FlowRevisionDiff:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="flow",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    try:
+        return await repository.diff_flow_revisions(
+            namespace,
+            flow_id,
+            from_revision,
+            to_revision,
+            tenant_id=tenant_id,
+        )
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+
+
+@app.put(
+    "/api/v1/flows/{namespace}/{flow_id}/revisions/{revision}/lifecycle",
+    response_model=PersistedFlow,
+    tags=["flows"],
+)
+async def promote_flow_revision(
+    namespace: str,
+    flow_id: str,
+    revision: int,
+    request: FlowRevisionLifecycleRequest,
+    repository: RepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> PersistedFlow:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="flow",
+        action=PermissionAction.UPDATE,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    try:
+        return await repository.promote_flow_revision(
+            namespace,
+            flow_id,
+            revision,
+            request.lifecycle,
+            tenant_id=tenant_id,
+            actor_id=str(actor.principal_id),
+            reason=request.reason,
+        )
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+
+
+@app.post(
+    "/api/v1/flows/{namespace}/{flow_id}/revisions/{revision}/restore",
+    response_model=PersistedFlow,
+    tags=["flows"],
+)
+async def restore_flow_revision(
+    namespace: str,
+    flow_id: str,
+    revision: int,
+    request: FlowRevisionRestoreRequest,
+    repository: RepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> PersistedFlow:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="flow",
+        action=PermissionAction.UPDATE,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    try:
+        return await repository.restore_flow_revision(
+            namespace,
+            flow_id,
+            revision,
+            tenant_id=tenant_id,
+            actor_id=str(actor.principal_id),
+            reason=request.reason,
+        )
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+
+
+@app.delete(
+    "/api/v1/flows/{namespace}/{flow_id}/revisions/{revision}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    tags=["flows"],
+)
+async def delete_flow_revision(
+    namespace: str,
+    flow_id: str,
+    revision: int,
+    repository: RepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> Response:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="flow",
+        action=PermissionAction.UPDATE,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    try:
+        await repository.delete_flow_revision(
+            namespace,
+            flow_id,
+            revision,
+            tenant_id=tenant_id,
+            actor_id=str(actor.principal_id),
+        )
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @app.get(

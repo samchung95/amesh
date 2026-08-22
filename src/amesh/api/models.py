@@ -15,6 +15,7 @@ from amesh.domain import (
     ExecutionSnapshot,
     FeatureFlag,
     FeatureFlagScope,
+    FlowLifecycle,
     NamespaceId,
     PermissionAction,
     PrincipalType,
@@ -78,6 +79,15 @@ class FeatureFlagUpsertRequest(BaseModel):
     namespace: str | None = None
     description: str = Field(default="", max_length=4096)
     expected_version: int | None = Field(default=None, alias="expectedVersion", ge=1)
+
+
+class FlowRevisionLifecycleRequest(BaseModel):
+    lifecycle: FlowLifecycle
+    reason: str | None = Field(default=None, max_length=4096)
+
+
+class FlowRevisionRestoreRequest(BaseModel):
+    reason: str | None = Field(default=None, max_length=4096)
 
 
 class ConfigurationDiagnosticBundle(BaseModel):

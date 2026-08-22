@@ -21,6 +21,10 @@ from amesh.domain import (
     ExecutionEventType,
     ExecutionState,
     FailureCategory,
+    FlowLifecycle,
+    FlowRevisionDiff,
+    FlowRevisionRecord,
+    FlowRevisionSource,
     ResolvedAdmissionPolicy,
     ResourceMetadata,
     ResourceVersionConflict,
@@ -28,11 +32,13 @@ from amesh.domain import (
     TaskRunState,
     TenantPolicy,
     TransitionRejectionCode,
+    compare_flow_revisions,
     new_runtime_id,
     resolve_admission_policies,
     resource_etag,
 )
 from amesh.dsl import FlowDefinition, compile_flow_tasks
+from amesh.dsl.registry import RESOURCE_CATALOG_VERSION
 from amesh.expressions import ExpressionContext, NativeExpressionEngine
 from amesh.ports.execution_repository import (
     ExecutionInterventionAction,
@@ -262,6 +268,11 @@ _INSERT_FLOW_REVISION = text(
         revision,
         semantic_hash,
         canonical_definition,
+        plugin_resolution,
+        source,
+        source_commit,
+        environment,
+        deployment_metadata,
         created_by
     )
     VALUES (
@@ -271,16 +282,21 @@ _INSERT_FLOW_REVISION = text(
         :revision,
         :semantic_hash,
         CAST(:canonical_definition AS jsonb),
+        CAST(:plugin_resolution AS jsonb),
+        :source,
+        :source_commit,
+        :environment,
+        CAST(:deployment_metadata AS jsonb),
         :actor_id
     )
-    ON CONFLICT (tenant_id, flow_id, revision) DO NOTHING
+    ON CONFLICT DO NOTHING
     RETURNING id
     """
 )
 
 _SELECT_FLOW_REVISION = text(
     """
-    SELECT id, semantic_hash
+    SELECT id, revision, semantic_hash, canonical_definition
     FROM flow_revisions
     WHERE tenant_id = :tenant_id
       AND flow_id = :flow_id
@@ -288,11 +304,21 @@ _SELECT_FLOW_REVISION = text(
     """
 )
 
+_NEXT_FLOW_REVISION = text(
+    """
+    SELECT COALESCE(MAX(revision), 0) + 1
+    FROM flow_revisions
+    WHERE tenant_id = :tenant_id AND flow_id = :flow_id
+    """
+)
+
 _ACTIVATE_FLOW_REVISION = text(
     """
     UPDATE flows
     SET active_revision = :revision,
-        status = 'ACTIVE',
+        status = :status,
+        lifecycle = CASE WHEN :status = 'ARCHIVED' THEN 'ARCHIVED' ELSE 'ACTIVE' END,
+        archived_at = CASE WHEN :status = 'ARCHIVED' THEN clock_timestamp() ELSE NULL END,
         labels = CAST(:labels AS jsonb),
         annotations = CAST(:annotations AS jsonb),
         updated_by = :actor_id,
@@ -305,6 +331,109 @@ _ACTIVATE_FLOW_REVISION = text(
           OR version = CAST(:expected_version AS bigint)
       )
     RETURNING version
+    """
+)
+
+_SELECT_FLOW_RESOURCE = text(
+    """
+    SELECT flows.id, flows.active_revision, flows.status
+    FROM flows
+    JOIN namespaces ON namespaces.id = flows.namespace_id
+    WHERE flows.tenant_id = :tenant_id
+      AND namespaces.name = :namespace
+      AND flows.flow_key = :flow_key
+    """
+)
+
+_LIST_FLOW_REVISIONS = text(
+    """
+    SELECT
+        revisions.id,
+        tenants.slug AS tenant_slug,
+        namespaces.name AS namespace,
+        flows.flow_key,
+        revisions.revision,
+        revisions.semantic_hash,
+        revisions.plugin_resolution,
+        revisions.source,
+        revisions.source_commit,
+        revisions.environment,
+        revisions.deployment_metadata,
+        revisions.created_by,
+        revisions.created_at
+    FROM flow_revisions AS revisions
+    JOIN flows ON flows.id = revisions.flow_id
+    JOIN namespaces ON namespaces.id = flows.namespace_id
+    JOIN tenants ON tenants.id = revisions.tenant_id
+    WHERE revisions.tenant_id = :tenant_id
+      AND namespaces.name = :namespace
+      AND flows.flow_key = :flow_key
+    ORDER BY revisions.revision
+    """
+)
+
+_GET_FLOW_REVISION_DOCUMENT = text(
+    """
+    SELECT revisions.canonical_definition
+    FROM flow_revisions AS revisions
+    JOIN flows ON flows.id = revisions.flow_id
+    JOIN namespaces ON namespaces.id = flows.namespace_id
+    WHERE revisions.tenant_id = :tenant_id
+      AND namespaces.name = :namespace
+      AND flows.flow_key = :flow_key
+      AND revisions.revision = :revision
+    """
+)
+
+_INSERT_FLOW_REVISION_EVENT = text(
+    """
+    INSERT INTO flow_revision_events (
+        event_id, tenant_id, flow_id, revision, event_type, actor_id, reason, payload
+    ) VALUES (
+        :event_id, :tenant_id, :flow_id, :revision, :event_type, :actor_id, :reason,
+        CAST(:payload AS jsonb)
+    )
+    """
+)
+
+_INSERT_FLOW_AUDIT = text(
+    """
+    INSERT INTO audit_events (
+        event_id, tenant_id, actor_id, action, resource_type, resource_id,
+        outcome, reason, source, evidence, occurred_at
+    ) VALUES (
+        :event_id, :tenant_id, :actor_id, :action, 'flow', :resource_id,
+        'SUCCESS', :reason, CAST(:source AS jsonb), CAST(:evidence AS jsonb), clock_timestamp()
+    )
+    """
+)
+
+_FLOW_REVISION_REFERENCES = text(
+    """
+    SELECT
+        revisions.id,
+        EXISTS (
+            SELECT 1 FROM executions
+            WHERE executions.tenant_id = revisions.tenant_id
+              AND executions.flow_revision_id = revisions.id
+        ) AS execution_reference,
+        EXISTS (
+            SELECT 1 FROM audit_events
+            WHERE audit_events.tenant_id = revisions.tenant_id
+              AND audit_events.resource_type = 'flow_revision'
+              AND audit_events.resource_id = revisions.id::text
+        ) AS audit_reference
+    FROM flow_revisions AS revisions
+    WHERE revisions.tenant_id = :tenant_id
+      AND revisions.flow_id = :flow_id
+      AND revisions.revision = :revision
+    """
+)
+
+_DELETE_FLOW_REVISION = text(
+    """
+    DELETE FROM flow_revisions
+    WHERE tenant_id = :tenant_id AND flow_id = :flow_id AND revision = :revision
     """
 )
 
@@ -719,6 +848,7 @@ _LIST_FLOWS = text(
         flows.created_by,
         flows.updated_by,
         flows.version,
+        flows.status,
         flows.lifecycle,
         flows.archived_at,
         flows.deleted_at,
@@ -749,6 +879,7 @@ _GET_PERSISTED_FLOW = text(
         flows.created_by,
         flows.updated_by,
         flows.version,
+        flows.status,
         flows.lifecycle,
         flows.archived_at,
         flows.deleted_at,
@@ -1341,8 +1472,8 @@ class PostgresExecutionRepository(ExecutionRepository):
         tenant_id: str,
         expected_etag: str | None = None,
         actor_id: str = "system:flow-manager",
+        revision_source: FlowRevisionSource | None = None,
     ) -> PersistedFlow:
-        encoded, semantic_hash = _canonical_flow(flow)
         async with tenant_transaction(self._engine, tenant_id) as (connection, scoped_tenant_id):
             policy = await _load_tenant_policy(connection)
             _require_allowed_plugins(policy, flow)
@@ -1361,14 +1492,13 @@ class PostgresExecutionRepository(ExecutionRepository):
                 flow.id,
                 actor_id,
             )
-            await self._ensure_flow_revision(
+            _revision_id, stored_flow, created = await self._ensure_flow_revision(
                 connection,
                 tenant_uuid,
                 flow_uuid,
                 flow,
-                semantic_hash,
-                encoded,
                 actor_id,
+                revision_source=revision_source,
             )
             expected_version: int | None = None
             if expected_etag is not None:
@@ -1387,9 +1517,14 @@ class PostgresExecutionRepository(ExecutionRepository):
                 {
                     "tenant_id": tenant_uuid,
                     "flow_id": flow_uuid,
-                    "revision": flow.revision,
-                    "labels": json.dumps(flow.labels),
-                    "annotations": json.dumps(flow.annotations),
+                    "revision": stored_flow.revision,
+                    "status": (
+                        FlowLifecycle.DISABLED.value
+                        if stored_flow.disabled
+                        else FlowLifecycle.ACTIVE.value
+                    ),
+                    "labels": json.dumps(stored_flow.labels),
+                    "annotations": json.dumps(stored_flow.annotations),
                     "actor_id": actor_id,
                     "expected_version": expected_version,
                 },
@@ -1402,15 +1537,24 @@ class PostgresExecutionRepository(ExecutionRepository):
                 connection,
                 tenant_uuid,
                 flow_uuid,
-                active_revision=flow.revision,
-                flow_disabled=flow.disabled,
+                active_revision=stored_flow.revision,
+                flow_disabled=stored_flow.disabled,
             )
             await synchronize_active_flow_checks(
                 connection,
                 tenant_uuid,
                 flow_uuid,
-                active_revision=flow.revision,
-                flow_disabled=flow.disabled,
+                active_revision=stored_flow.revision,
+                flow_disabled=stored_flow.disabled,
+            )
+            await self._record_flow_revision_event(
+                connection,
+                tenant_uuid,
+                flow_uuid,
+                stored_flow.revision,
+                event_type="FLOW_REVISION_CREATED" if created else "FLOW_REVISION_SELECTED",
+                actor_id=actor_id,
+                source=revision_source,
             )
             result = await connection.execute(
                 _GET_PERSISTED_FLOW,
@@ -1460,6 +1604,139 @@ class PostgresExecutionRepository(ExecutionRepository):
             rows = result.mappings().all()
         return [_to_flow(row) for row in rows]
 
+    async def list_flow_revisions(
+        self,
+        namespace: str,
+        flow_id: str,
+        *,
+        tenant_id: str,
+    ) -> list[FlowRevisionRecord]:
+        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+            result = await connection.execute(
+                _LIST_FLOW_REVISIONS,
+                {"tenant_id": tenant_uuid, "namespace": namespace, "flow_key": flow_id},
+            )
+            rows = result.mappings().all()
+        return [_to_flow_revision(row) for row in rows]
+
+    async def diff_flow_revisions(
+        self,
+        namespace: str,
+        flow_id: str,
+        from_revision: int,
+        to_revision: int,
+        *,
+        tenant_id: str,
+    ) -> FlowRevisionDiff:
+        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+            documents: list[dict[str, object]] = []
+            for revision in (from_revision, to_revision):
+                document = await connection.scalar(
+                    _GET_FLOW_REVISION_DOCUMENT,
+                    {
+                        "tenant_id": tenant_uuid,
+                        "namespace": namespace,
+                        "flow_key": flow_id,
+                        "revision": revision,
+                    },
+                )
+                if not isinstance(document, dict):
+                    raise LookupError(
+                        f"flow {namespace}.{flow_id} revision {revision} does not exist"
+                    )
+                documents.append(document)
+        return compare_flow_revisions(
+            documents[0],
+            documents[1],
+            from_revision=from_revision,
+            to_revision=to_revision,
+        )
+
+    async def promote_flow_revision(
+        self,
+        namespace: str,
+        flow_id: str,
+        revision: int,
+        lifecycle: FlowLifecycle,
+        *,
+        tenant_id: str,
+        actor_id: str = "system:flow-manager",
+        reason: str | None = None,
+    ) -> PersistedFlow:
+        return await self._select_flow_revision(
+            namespace,
+            flow_id,
+            revision,
+            lifecycle,
+            tenant_id=tenant_id,
+            actor_id=actor_id,
+            reason=reason,
+            event_type="FLOW_REVISION_PROMOTED",
+        )
+
+    async def restore_flow_revision(
+        self,
+        namespace: str,
+        flow_id: str,
+        revision: int,
+        *,
+        tenant_id: str,
+        actor_id: str = "system:flow-manager",
+        reason: str | None = None,
+    ) -> PersistedFlow:
+        return await self._select_flow_revision(
+            namespace,
+            flow_id,
+            revision,
+            FlowLifecycle.ACTIVE,
+            tenant_id=tenant_id,
+            actor_id=actor_id,
+            reason=reason,
+            event_type="FLOW_REVISION_RESTORED",
+        )
+
+    async def delete_flow_revision(
+        self,
+        namespace: str,
+        flow_id: str,
+        revision: int,
+        *,
+        tenant_id: str,
+        actor_id: str = "system:flow-manager",
+    ) -> None:
+        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+            flow_row = await self._flow_resource_row(
+                connection,
+                tenant_uuid,
+                namespace,
+                flow_id,
+            )
+            if int(flow_row["active_revision"]) == revision:
+                raise ValueError("the selected flow revision cannot be deleted")
+            reference_result = await connection.execute(
+                _FLOW_REVISION_REFERENCES,
+                {"tenant_id": tenant_uuid, "flow_id": flow_row["id"], "revision": revision},
+            )
+            references = reference_result.mappings().one_or_none()
+            if references is None:
+                raise LookupError(f"flow {namespace}.{flow_id} revision {revision} does not exist")
+            if references["execution_reference"]:
+                raise ValueError("flow revision is referenced by an execution")
+            if references["audit_reference"]:
+                raise ValueError("flow revision is referenced by audit evidence")
+            await connection.execute(
+                _DELETE_FLOW_REVISION,
+                {"tenant_id": tenant_uuid, "flow_id": flow_row["id"], "revision": revision},
+            )
+            await self._record_flow_revision_event(
+                connection,
+                tenant_uuid,
+                UUID(str(flow_row["id"])),
+                revision,
+                event_type="FLOW_REVISION_DELETED",
+                actor_id=actor_id,
+            )
+
     async def create_execution(
         self,
         flow: FlowDefinition,
@@ -1477,7 +1754,6 @@ class PostgresExecutionRepository(ExecutionRepository):
         if subflow is not None and flow.revision != subflow.target_revision:
             raise ValueError("subflow target revision does not match the loaded flow revision")
         execution_id = new_runtime_id()
-        encoded, semantic_hash = _canonical_flow(flow)
 
         async with tenant_transaction(self._engine, tenant_id) as (connection, scoped_tenant_id):
             created_at = await connection.scalar(_DATABASE_TIME)
@@ -1510,24 +1786,40 @@ class PostgresExecutionRepository(ExecutionRepository):
                 flow.id,
                 actor_id,
             )
-            flow_revision_id = await self._ensure_flow_revision(
+            flow_resource = await self._flow_resource_row(
+                connection,
+                tenant_uuid,
+                flow.namespace,
+                flow.id,
+            )
+            if flow_resource["active_revision"] is not None and (
+                flow_resource["status"] != FlowLifecycle.ACTIVE.value
+            ):
+                raise ValueError(
+                    f"flow {flow.namespace}.{flow.id} lifecycle "
+                    f"{flow_resource['status']} does not permit execution"
+                )
+            flow_revision_id, stored_flow, _created = await self._ensure_flow_revision(
                 connection,
                 tenant_uuid,
                 flow_id,
                 flow,
-                semantic_hash,
-                encoded,
                 actor_id,
             )
-            if subflow is None:
+            if stored_flow.disabled:
+                raise ValueError(
+                    f"flow {flow.namespace}.{flow.id} is disabled and cannot be executed"
+                )
+            if subflow is None and flow_resource["active_revision"] is None:
                 await connection.execute(
                     _ACTIVATE_FLOW_REVISION,
                     {
                         "tenant_id": tenant_uuid,
                         "flow_id": flow_id,
-                        "revision": flow.revision,
-                        "labels": json.dumps(flow.labels),
-                        "annotations": json.dumps(flow.annotations),
+                        "revision": stored_flow.revision,
+                        "status": (FlowLifecycle.ACTIVE.value),
+                        "labels": json.dumps(stored_flow.labels),
+                        "annotations": json.dumps(stored_flow.annotations),
                         "actor_id": actor_id,
                         "expected_version": None,
                     },
@@ -1536,16 +1828,17 @@ class PostgresExecutionRepository(ExecutionRepository):
                     connection,
                     tenant_uuid,
                     flow_id,
-                    active_revision=flow.revision,
-                    flow_disabled=flow.disabled,
+                    active_revision=stored_flow.revision,
+                    flow_disabled=stored_flow.disabled,
                 )
                 await synchronize_active_flow_checks(
                     connection,
                     tenant_uuid,
                     flow_id,
-                    active_revision=flow.revision,
-                    flow_disabled=flow.disabled,
+                    active_revision=stored_flow.revision,
+                    flow_disabled=stored_flow.disabled,
                 )
+            flow = stored_flow
             launch_context = dict(trigger or {})
             launch_context["source"] = launch_source.value
             merged_labels = {**flow.labels, **(labels or {})}
@@ -3263,50 +3556,211 @@ class PostgresExecutionRepository(ExecutionRepository):
         tenant_id: UUID,
         flow_id: UUID,
         flow: FlowDefinition,
-        semantic_hash: str,
-        canonical_definition: str,
         actor_id: str,
-    ) -> UUID:
+        *,
+        revision_source: FlowRevisionSource | None = None,
+    ) -> tuple[UUID, FlowDefinition, bool]:
+        _encoded, semantic_hash = _canonical_flow(flow)
+        requested_result = await connection.execute(
+            _SELECT_FLOW_REVISION,
+            {"tenant_id": tenant_id, "flow_id": flow_id, "revision": flow.revision},
+        )
+        requested = requested_result.mappings().one_or_none()
+        if requested is not None and _same_flow_semantics(requested["canonical_definition"], flow):
+            stored_flow = _flow_with_revision(flow, flow.revision)
+            return UUID(str(requested["id"])), stored_flow, False
+
+        next_revision = int(
+            await connection.scalar(
+                _NEXT_FLOW_REVISION,
+                {"tenant_id": tenant_id, "flow_id": flow_id},
+            )
+            or 1
+        )
+        revision = max(flow.revision, next_revision)
+        stored_flow = _flow_with_revision(flow, revision)
+        canonical_definition = _encode_flow(stored_flow)
+        source = revision_source or FlowRevisionSource()
         inserted_revision_id = await connection.scalar(
             _INSERT_FLOW_REVISION,
             {
                 "revision_id": new_runtime_id(),
                 "tenant_id": tenant_id,
                 "flow_id": flow_id,
-                "revision": flow.revision,
+                "revision": revision,
                 "semantic_hash": semantic_hash,
                 "canonical_definition": canonical_definition,
+                "plugin_resolution": json.dumps(_plugin_resolution(stored_flow)),
+                "source": source.source,
+                "source_commit": source.source_commit,
+                "environment": source.environment,
+                "deployment_metadata": json.dumps(source.deployment),
                 "actor_id": actor_id,
             },
         )
         result = await connection.execute(
             _SELECT_FLOW_REVISION,
-            {"tenant_id": tenant_id, "flow_id": flow_id, "revision": flow.revision},
+            {"tenant_id": tenant_id, "flow_id": flow_id, "revision": revision},
         )
         row = result.mappings().one()
-        if row["semantic_hash"] != semantic_hash:
-            raise ValueError(
-                f"flow {flow.namespace}.{flow.id} revision {flow.revision} already has different content"
-            )
         revision_id = UUID(str(row["id"]))
-        await store_flow_triggers(
-            connection,
-            tenant_id,
-            revision_id,
-            tuple(
-                trigger.model_dump(mode="json", by_alias=True, exclude_none=True)
-                for trigger in flow.triggers
-            ),
-            actor_id,
-        )
         if inserted_revision_id is not None:
+            await store_flow_triggers(
+                connection,
+                tenant_id,
+                revision_id,
+                tuple(
+                    trigger.model_dump(mode="json", by_alias=True, exclude_none=True)
+                    for trigger in stored_flow.triggers
+                ),
+                actor_id,
+            )
             await store_flow_check_definitions(
                 connection,
                 tenant_id,
                 revision_id,
-                flow,
+                stored_flow,
             )
-        return revision_id
+        return revision_id, stored_flow, inserted_revision_id is not None
+
+    async def _flow_resource_row(
+        self,
+        connection: AsyncConnection,
+        tenant_id: UUID,
+        namespace: str,
+        flow_id: str,
+    ) -> RowMapping:
+        result = await connection.execute(
+            _SELECT_FLOW_RESOURCE,
+            {"tenant_id": tenant_id, "namespace": namespace, "flow_key": flow_id},
+        )
+        row = result.mappings().one_or_none()
+        if row is None:
+            raise LookupError(f"flow {namespace}.{flow_id} does not exist")
+        return row
+
+    async def _select_flow_revision(
+        self,
+        namespace: str,
+        flow_id: str,
+        revision: int,
+        lifecycle: FlowLifecycle,
+        *,
+        tenant_id: str,
+        actor_id: str,
+        reason: str | None,
+        event_type: str,
+    ) -> PersistedFlow:
+        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+            flow_row = await self._flow_resource_row(
+                connection,
+                tenant_uuid,
+                namespace,
+                flow_id,
+            )
+            definition = await connection.scalar(
+                _GET_FLOW_REVISION_DOCUMENT,
+                {
+                    "tenant_id": tenant_uuid,
+                    "namespace": namespace,
+                    "flow_key": flow_id,
+                    "revision": revision,
+                },
+            )
+            if not isinstance(definition, dict):
+                raise LookupError(f"flow {namespace}.{flow_id} revision {revision} does not exist")
+            flow = FlowDefinition.model_validate(definition)
+            activation = await connection.execute(
+                _ACTIVATE_FLOW_REVISION,
+                {
+                    "tenant_id": tenant_uuid,
+                    "flow_id": flow_row["id"],
+                    "revision": revision,
+                    "status": lifecycle.value,
+                    "labels": json.dumps(flow.labels),
+                    "annotations": json.dumps(flow.annotations),
+                    "actor_id": actor_id,
+                    "expected_version": None,
+                },
+            )
+            if activation.scalar_one_or_none() is None:
+                raise ResourceVersionConflict(
+                    f"flow {namespace}.{flow_id} changed during revision promotion"
+                )
+            flow_disabled = lifecycle is not FlowLifecycle.ACTIVE or flow.disabled
+            await synchronize_flow_trigger_runtime(
+                connection,
+                tenant_uuid,
+                UUID(str(flow_row["id"])),
+                active_revision=revision,
+                flow_disabled=flow_disabled,
+            )
+            await synchronize_active_flow_checks(
+                connection,
+                tenant_uuid,
+                UUID(str(flow_row["id"])),
+                active_revision=revision,
+                flow_disabled=flow_disabled,
+            )
+            await self._record_flow_revision_event(
+                connection,
+                tenant_uuid,
+                UUID(str(flow_row["id"])),
+                revision,
+                event_type=event_type,
+                actor_id=actor_id,
+                reason=reason,
+                payload={"lifecycle": lifecycle.value},
+            )
+            result = await connection.execute(
+                _GET_PERSISTED_FLOW,
+                {"tenant_id": tenant_uuid, "flow_id": flow_row["id"]},
+            )
+            row = result.mappings().one()
+        return _to_flow(row)
+
+    async def _record_flow_revision_event(
+        self,
+        connection: AsyncConnection,
+        tenant_id: UUID,
+        flow_id: UUID,
+        revision: int,
+        *,
+        event_type: str,
+        actor_id: str,
+        reason: str | None = None,
+        source: FlowRevisionSource | None = None,
+        payload: dict[str, object] | None = None,
+    ) -> None:
+        event_id = new_runtime_id()
+        event_payload = {"revision": revision, **(payload or {})}
+        await connection.execute(
+            _INSERT_FLOW_REVISION_EVENT,
+            {
+                "event_id": event_id,
+                "tenant_id": tenant_id,
+                "flow_id": flow_id,
+                "revision": revision,
+                "event_type": event_type,
+                "actor_id": actor_id,
+                "reason": reason,
+                "payload": json.dumps(event_payload),
+            },
+        )
+        source_payload = (source or FlowRevisionSource()).model_dump(mode="json", exclude_none=True)
+        await connection.execute(
+            _INSERT_FLOW_AUDIT,
+            {
+                "event_id": new_runtime_id(),
+                "tenant_id": tenant_id,
+                "actor_id": actor_id,
+                "action": event_type.lower(),
+                "resource_id": str(flow_id),
+                "reason": reason,
+                "source": json.dumps(source_payload),
+                "evidence": json.dumps(event_payload),
+            },
+        )
 
     async def _insert_initial_events(
         self,
@@ -4296,8 +4750,27 @@ def _to_flow(row: RowMapping) -> PersistedFlow:
         flow_id=row["flow_key"],
         revision=row["revision"],
         semantic_hash=row["semantic_hash"],
+        lifecycle=row["status"],
         metadata=metadata,
         etag=resource_etag(representation),
+    )
+
+
+def _to_flow_revision(row: RowMapping) -> FlowRevisionRecord:
+    return FlowRevisionRecord(
+        resource_id=row["id"],
+        tenant_id=row["tenant_slug"],
+        namespace=row["namespace"],
+        flow_id=row["flow_key"],
+        revision=row["revision"],
+        semantic_hash=row["semantic_hash"],
+        plugin_resolution=row["plugin_resolution"],
+        source=row["source"],
+        source_commit=row["source_commit"],
+        environment=row["environment"],
+        deployment=row["deployment_metadata"],
+        created_by=row["created_by"],
+        created_at=row["created_at"],
     )
 
 
@@ -4385,7 +4858,52 @@ def _canonical_flow(flow: FlowDefinition) -> tuple[str, str]:
         return flow._persisted_canonical_definition, flow._persisted_semantic_hash
     canonical = flow.model_dump(mode="json", by_alias=True, exclude_none=True)
     encoded = json.dumps(canonical, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
-    return encoded, hashlib.sha256(encoded.encode("utf-8")).hexdigest()
+    semantic = dict(canonical)
+    semantic.pop("revision", None)
+    semantic_encoded = json.dumps(
+        semantic,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+    )
+    return encoded, hashlib.sha256(semantic_encoded.encode("utf-8")).hexdigest()
+
+
+def _encode_flow(flow: FlowDefinition) -> str:
+    return json.dumps(
+        flow.model_dump(mode="json", by_alias=True, exclude_none=True),
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+    )
+
+
+def _flow_with_revision(flow: FlowDefinition, revision: int) -> FlowDefinition:
+    definition = flow.model_dump(mode="json", by_alias=True, exclude_none=True)
+    definition["revision"] = revision
+    return FlowDefinition.model_validate(definition)
+
+
+def _same_flow_semantics(definition: object, flow: FlowDefinition) -> bool:
+    if not isinstance(definition, dict):
+        return False
+    stored = dict(definition)
+    candidate = flow.model_dump(mode="json", by_alias=True, exclude_none=True)
+    stored.pop("revision", None)
+    candidate.pop("revision", None)
+    return stored == candidate
+
+
+def _plugin_resolution(flow: FlowDefinition) -> dict[str, object]:
+    resources = {("task", node.task.type) for node in compile_flow_tasks(flow)} | {
+        ("trigger", trigger.type) for trigger in flow.triggers
+    }
+    return {
+        "catalogVersion": RESOURCE_CATALOG_VERSION,
+        "resources": [
+            {"kind": kind, "type": resource_type} for kind, resource_type in sorted(resources)
+        ],
+    }
 
 
 async def _load_tenant_policy(connection: AsyncConnection) -> TenantPolicy:

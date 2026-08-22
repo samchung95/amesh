@@ -13,6 +13,10 @@ from amesh.domain import (
     AdmissionResourceType,
     ExecutionState,
     FailureCategory,
+    FlowLifecycle,
+    FlowRevisionDiff,
+    FlowRevisionRecord,
+    FlowRevisionSource,
     ResolvedAdmissionPolicy,
     ResourceMetadata,
     TaskRunState,
@@ -109,6 +113,7 @@ class PersistedFlow(BaseModel):
     flow_id: str
     revision: int = Field(ge=1)
     semantic_hash: str
+    lifecycle: FlowLifecycle = FlowLifecycle.ACTIVE
     metadata: ResourceMetadata
     etag: str
 
@@ -216,6 +221,7 @@ class ExecutionRepository(Protocol):
         tenant_id: str,
         expected_etag: str | None = None,
         actor_id: str = "system:flow-manager",
+        revision_source: FlowRevisionSource | None = None,
     ) -> PersistedFlow: ...
 
     async def get_flow(
@@ -228,6 +234,57 @@ class ExecutionRepository(Protocol):
     ) -> FlowDefinition: ...
 
     async def list_flows(self, *, tenant_id: str) -> list[PersistedFlow]: ...
+
+    async def list_flow_revisions(
+        self,
+        namespace: str,
+        flow_id: str,
+        *,
+        tenant_id: str,
+    ) -> list[FlowRevisionRecord]: ...
+
+    async def diff_flow_revisions(
+        self,
+        namespace: str,
+        flow_id: str,
+        from_revision: int,
+        to_revision: int,
+        *,
+        tenant_id: str,
+    ) -> FlowRevisionDiff: ...
+
+    async def promote_flow_revision(
+        self,
+        namespace: str,
+        flow_id: str,
+        revision: int,
+        lifecycle: FlowLifecycle,
+        *,
+        tenant_id: str,
+        actor_id: str = "system:flow-manager",
+        reason: str | None = None,
+    ) -> PersistedFlow: ...
+
+    async def restore_flow_revision(
+        self,
+        namespace: str,
+        flow_id: str,
+        revision: int,
+        *,
+        tenant_id: str,
+        actor_id: str = "system:flow-manager",
+        reason: str | None = None,
+    ) -> PersistedFlow: ...
+
+    async def delete_flow_revision(
+        self,
+        namespace: str,
+        flow_id: str,
+        revision: int,
+        *,
+        tenant_id: str,
+        actor_id: str = "system:flow-manager",
+    ) -> None: ...
 
     async def create_execution(
         self,
