@@ -164,6 +164,19 @@ tasks:
                     "/revision",
                 }
 
+                draft_diff = await client.post(
+                    f"/api/v1/flows/{namespace}/{flow_id}/revisions/1/diff-draft",
+                    headers={**auth, "content-type": "application/yaml"},
+                    content=flow_document("unsaved editor draft"),
+                )
+                assert draft_diff.status_code == 200
+                assert "revision-1" in draft_diff.json()["human"]
+                assert any(
+                    operation["path"] == "/description"
+                    and operation["value"] == "unsaved editor draft"
+                    for operation in draft_diff.json()["operations"]
+                )
+
                 for lifecycle in ("DRAFT", "DISABLED", "ARCHIVED"):
                     promoted = await client.put(
                         f"/api/v1/flows/{namespace}/{flow_id}/revisions/2/lifecycle",

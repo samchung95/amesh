@@ -4,11 +4,18 @@ import type {
   ExecutionDetail,
   ExecutionEvidencePage,
   FlowDataContract,
+  FlowDocumentExport,
+  FlowEditorSchema,
+  FlowFormatResponse,
   FlowMetadata,
   AuthenticationProvider,
   FlowGraph,
+  FlowRevisionDiff,
+  FlowRevisionRecord,
+  FlowValidationResult,
   HealthResponse,
   LoginResponse,
+  ExpressionPreviewResponse,
   NamespaceCheckPolicy,
   NamespaceFile,
   NamespaceFileVersion,
@@ -105,6 +112,56 @@ export function createApiClient(connection: ApiConnection) {
       return request<UiSession>(`/api/v1/ui/session${suffix}`)
     },
     flows: async () => request<PersistedFlow[]>('/api/v1/flows'),
+    flowEditorSchema: async () => request<FlowEditorSchema>('/api/v1/flows/editor/schema'),
+    validateFlow: async (document: string) =>
+      request<FlowValidationResult>('/api/v1/flows/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/yaml' },
+        body: document,
+      }),
+    formatFlow: async (document: string) =>
+      request<FlowFormatResponse>('/api/v1/flows/format', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/yaml' },
+        body: document,
+      }),
+    saveFlow: async (document: string, etag?: string) =>
+      request<PersistedFlow>('/api/v1/flows', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/yaml',
+          ...(etag ? { 'If-Match': etag } : {}),
+        },
+        body: document,
+      }),
+    flowDocument: async (namespace: string, flowId: string, revision?: number) =>
+      request<FlowDocumentExport>(`/api/v1/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/document${revision ? `?revision=${String(revision)}` : ''}`),
+    flowRevisions: async (namespace: string, flowId: string) =>
+      request<FlowRevisionRecord[]>(`/api/v1/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/revisions`),
+    diffFlowDraft: async (namespace: string, flowId: string, revision: number, document: string) =>
+      request<FlowRevisionDiff>(`/api/v1/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/revisions/${String(revision)}/diff-draft`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/yaml' },
+        body: document,
+      }),
+    setFlowLifecycle: async (namespace: string, flowId: string, revision: number, lifecycle: 'DRAFT' | 'ACTIVE' | 'DISABLED' | 'ARCHIVED', reason: string) =>
+      request<PersistedFlow>(`/api/v1/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/revisions/${String(revision)}/lifecycle`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lifecycle, reason }),
+      }),
+    restoreFlowRevision: async (namespace: string, flowId: string, revision: number, reason: string) =>
+      request<PersistedFlow>(`/api/v1/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/revisions/${String(revision)}/restore`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason }),
+      }),
+    previewExpression: async (expression: string, context: Record<string, unknown>) =>
+      request<ExpressionPreviewResponse>('/api/v1/flows/expressions/preview', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ expression, context }),
+      }),
     pluginRegistry: async () => request<PluginRegistryIndex>('/api/v1/plugin-registry/index'),
     flowGraph: async (namespace: string, flowId: string) =>
       request<FlowGraph>(`/api/v1/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/graph`),

@@ -23,6 +23,8 @@ button:disabled { cursor: not-allowed; opacity: .55; }
 .button-secondary { color: var(--ink); background: var(--surface); border-color: var(--line-strong); }
 .button-secondary:hover:not(:disabled), .button-quiet:hover:not(:disabled) { border-color: var(--accent); }
 .button-quiet { min-height: 36px; padding: 5px 10px; color: var(--accent); background: transparent; border-color: var(--line); }
+.button-danger { color: var(--danger); background: var(--danger-soft); border-color: var(--danger); }
+.button-danger:hover:not(:disabled) { color: var(--surface); background: var(--danger); }
 .button-wide { width: 100%; }
 .icon-button, .avatar-button { display: inline-grid; width: 44px; height: 44px; place-items: center; border: 1px solid transparent; border-radius: var(--radius-control); cursor: pointer; color: var(--ink); background: transparent; }
 .icon-button:hover { background: var(--paper); border-color: var(--line); }
@@ -211,6 +213,35 @@ tbody tr:hover { background: var(--paper); }
 .metadata-labels { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
 .metadata-labels span { display: inline-flex; gap: 7px; align-items: center; padding: 6px 9px; background: var(--paper); border: 1px solid var(--line); border-radius: 999px; font: .72rem "IBM Plex Mono", monospace; }
 .metadata-labels b { color: var(--muted); font-weight: 500; }
+.flow-editor-page { max-width: 1680px; }
+.flow-editor-heading { align-items: center; }
+.flow-editor-actions, .revision-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.editor-notice { display: flex; align-items: center; gap: 8px; padding: 11px 14px; margin: 0; color: var(--success); background: var(--success-soft); border: 1px solid var(--success); border-radius: var(--radius-control); }
+.flow-editor-workspace { display: grid; grid-template-columns: minmax(0, 1.75fr) minmax(320px, .75fr); gap: 18px; align-items: start; }
+.editor-source-panel, .editor-inspector > section { min-width: 0; padding: 17px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-panel); box-shadow: var(--shadow-low); }
+.editor-inspector { display: grid; gap: 14px; }
+.editor-valid, .editor-invalid { padding: 4px 8px; border-radius: 999px; font: 600 .68rem "IBM Plex Mono", monospace; }
+.editor-valid { color: var(--success); background: var(--success-soft); }
+.editor-invalid { color: var(--danger); background: var(--danger-soft); }
+.flow-code-editor { overflow: hidden; border: 1px solid var(--line-strong); border-radius: var(--radius-control); }
+.flow-code-editor .cm-editor { min-height: 660px; color: var(--ink); background: #fbfaf4; font: 13px/1.55 "IBM Plex Mono", monospace; }
+.flow-code-editor .cm-scroller { min-height: 660px; max-height: 74vh; overflow: auto; }
+.flow-code-editor .cm-gutters { color: var(--muted); background: var(--paper); border-right-color: var(--line); }
+.flow-code-editor .cm-activeLine, .flow-code-editor .cm-activeLineGutter { background: var(--success-soft); }
+.flow-code-editor .cm-selectionBackground, .flow-code-editor .cm-content ::selection { background: #b9d9ff !important; }
+.flow-code-editor .cm-focused { outline: 3px solid var(--focus); outline-offset: -3px; }
+.editor-issues { display: grid; gap: 7px; padding: 0; margin: 0; list-style: none; }
+.editor-issues button { display: grid; width: 100%; gap: 3px; padding: 10px; color: var(--ink); background: var(--danger-soft); border: 1px solid transparent; border-left: 3px solid var(--danger); border-radius: var(--radius-control); cursor: pointer; text-align: left; }
+.editor-issues button:hover { border-color: var(--danger); }
+.editor-issues strong, .editor-issues span, .editor-issues small { overflow-wrap: anywhere; }
+.editor-issues span { color: var(--danger); font: .67rem "IBM Plex Mono", monospace; }
+.editor-issues small { color: var(--muted); }
+.editor-empty { display: flex; align-items: center; gap: 7px; margin: 0; color: var(--success); }
+.editor-field { display: grid; gap: 5px; margin-bottom: 10px; color: var(--muted); font-size: .75rem; font-weight: 600; }
+.editor-field textarea, .editor-field select { width: 100%; min-height: 44px; padding: 9px 10px; color: var(--ink); background: var(--paper); border: 1px solid var(--line-strong); border-radius: var(--radius-control); }
+.editor-field textarea { min-height: 88px; resize: vertical; font: .72rem/1.5 "IBM Plex Mono", monospace; }
+.editor-preview, .editor-diff { max-height: 280px; padding: 11px; overflow: auto; color: var(--ink); background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius-control); font: .69rem/1.55 "IBM Plex Mono", monospace; white-space: pre-wrap; overflow-wrap: anywhere; }
+.editor-diff { max-height: 380px; color: var(--muted); }
 .resource-heading-actions, .resource-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .file-button { position: relative; overflow: hidden; cursor: pointer; }
 .file-button input { position: absolute; width: 1px; height: 1px; opacity: 0; }
@@ -326,6 +357,9 @@ details pre { max-width: 480px; overflow: auto; padding: 10px; background: var(-
   .command-trigger { width: auto; flex: 1; }
   .command-trigger span { display: none; }
   .dashboard-grid { grid-template-columns: 1fr; }
+  .flow-editor-workspace { grid-template-columns: 1fr; }
+  .editor-inspector { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .editor-inspector > section:last-child { grid-column: 1 / -1; }
 }
 @media (max-width: 760px) {
   :root { --rail-width: 264px; }
@@ -353,6 +387,11 @@ details pre { max-width: 480px; overflow: auto; padding: 10px; background: var(-
   .activity-row { grid-template-columns: auto 1fr auto; }
   .activity-row time { display: none; }
   .page-heading { align-items: flex-start; }
+  .flow-editor-heading { flex-direction: column; }
+  .flow-editor-actions { width: 100%; }
+  .flow-editor-actions .button { flex: 1; }
+  .editor-inspector { grid-template-columns: 1fr; }
+  .editor-inspector > section:last-child { grid-column: auto; }
   .toolbar { align-items: stretch; flex-direction: column; }
   .result-count { margin-left: 0; padding: 0; }
   .detail-facts { grid-template-columns: 1fr; }

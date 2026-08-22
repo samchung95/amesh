@@ -2216,3 +2216,44 @@ Qualification boundary: the EPIC-402 slices of `URS-NFR-USABILITY-005` and
 epics complete their destructive-action and generated-artifact qualification slices.
 
 Verdict: PASS — EPIC-402 closed.
+
+## EPIC-405: Flow code editor and validation experience — 2026-08-23
+
+Spec source: board card `c61` and
+`backlog/epics/epic-405-flow-code-editor-and-validation-experience.md`.
+
+Verified with `uv`, Python 3.13.12, PostgreSQL 17, React 19, CodeMirror 6 and Docker Compose:
+
+- [x] The graphical workbench provides YAML syntax highlighting, folding, search, multi-selection,
+  server formatting and accessible keyboard editing. Completion combines the canonical flow schema
+  with core and active installed-plugin resource properties and documentation.
+- [x] The browser continuously invokes the same plugin-aware validation contract used by save and
+  maps server codes, hints and exact source offsets into CodeMirror diagnostics and focusable issue
+  controls. The isolated five-run 5,000-line validation gate passed below its one-second p95 target.
+- [x] Bounded expression preview accepts only public sample-context roots, strips resolver roots,
+  redacts sensitive nested keys before evaluation and never returns the supplied sensitive value.
+- [x] Drafts are isolated by tenant, principal and flow in local storage. Browser unload and in-app
+  navigation warn on unsaved changes; Chromium acceptance verified draft persistence and dismissal.
+- [x] Authorized editor APIs publish the versioned schema, canonical document, historical revision
+  list and draft-to-revision diff. Existing audited save, disable and restore commands power the UI;
+  local import/export and clone preserve a YAML-first workflow.
+- [x] Frontend production build, 17 unit/coverage checks and the complete Playwright matrix passed:
+  nine Chromium workflows passed, nine tablet-inapplicable workflows skipped, and the workbench had
+  no critical or serious WCAG 2.2 AA axe findings.
+- [x] Ruff, strict mypy over 161 source files, generated schema/OpenAPI parity, backlog validation and
+  deterministic SDK regeneration passed. Python compiled, TypeScript typechecked, Java packaged and
+  Go tested; SDK freshness covered 1,160 files.
+- [x] A fresh 41-migration backend collection contained 435 tests. With the four authoritative
+  c15/c29/c89 timing or ordering checks explicitly deselected, 431 ran: 421 passed and ten
+  environment/profile tests skipped. The exact disposable database was force-dropped.
+- [x] Rebuilt API, executor, scheduler and indexer containers reached healthy state. Live readiness
+  reported 41/41 migrations; the authorized editor schema exposed 67 resources, server formatting
+  accepted a core flow, the frontend returned HTTP 200 and headless Chromium opened `/flows/new`
+  with a valid editable workbench.
+
+Qualification boundary: EPIC-405 completes its slices of `URS-NFR-USABILITY-001` and
+`URS-NFR-USABILITY-004`. Both shared requirements remain Proposed until all owning epics and the
+pre-GA assistive-technology matrix complete. Repository-wide frontend lint and Python formatting
+baselines remain deferred on board cards `c88` and `c90`.
+
+Verdict: PASS — EPIC-405 closed.

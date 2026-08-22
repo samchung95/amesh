@@ -18,8 +18,12 @@ import io.amesh.client.ApiResponse;
 import io.amesh.client.Configuration;
 import io.amesh.client.Pair;
 
+import io.amesh.client.model.ExpressionPreviewRequest;
+import io.amesh.client.model.ExpressionPreviewResponse;
 import io.amesh.client.model.FlowDataContract;
 import io.amesh.client.model.FlowDocumentExport;
+import io.amesh.client.model.FlowEditorSchemaResponse;
+import io.amesh.client.model.FlowFormatResponse;
 import io.amesh.client.model.FlowGraph;
 import io.amesh.client.model.FlowMetadataResponse;
 import io.amesh.client.model.FlowRevisionDiff;
@@ -481,6 +485,163 @@ public class FlowsApi {
   }
 
   /**
+   * Diff Flow Draft
+   *
+   * @param namespace  (required)
+   * @param flowId  (required)
+   * @param revision  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return FlowRevisionDiff
+   * @throws ApiException if fails to make API call
+   */
+  public FlowRevisionDiff diffFlowDraftApiV1FlowsNamespaceFlowIdRevisionsRevisionDiffDraftPost(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull String flowId, @javax.annotation.Nonnull Integer revision, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return diffFlowDraftApiV1FlowsNamespaceFlowIdRevisionsRevisionDiffDraftPost(namespace, flowId, revision, authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * Diff Flow Draft
+   *
+   * @param namespace  (required)
+   * @param flowId  (required)
+   * @param revision  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return FlowRevisionDiff
+   * @throws ApiException if fails to make API call
+   */
+  public FlowRevisionDiff diffFlowDraftApiV1FlowsNamespaceFlowIdRevisionsRevisionDiffDraftPost(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull String flowId, @javax.annotation.Nonnull Integer revision, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    ApiResponse<FlowRevisionDiff> localVarResponse = diffFlowDraftApiV1FlowsNamespaceFlowIdRevisionsRevisionDiffDraftPostWithHttpInfo(namespace, flowId, revision, authorization, xAmeshCSRF, xAmeshTenant, headers);
+    return localVarResponse.getData();
+  }
+
+  /**
+   * Diff Flow Draft
+   *
+   * @param namespace  (required)
+   * @param flowId  (required)
+   * @param revision  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return ApiResponse&lt;FlowRevisionDiff&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<FlowRevisionDiff> diffFlowDraftApiV1FlowsNamespaceFlowIdRevisionsRevisionDiffDraftPostWithHttpInfo(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull String flowId, @javax.annotation.Nonnull Integer revision, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return diffFlowDraftApiV1FlowsNamespaceFlowIdRevisionsRevisionDiffDraftPostWithHttpInfo(namespace, flowId, revision, authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * Diff Flow Draft
+   *
+   * @param namespace  (required)
+   * @param flowId  (required)
+   * @param revision  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return ApiResponse&lt;FlowRevisionDiff&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<FlowRevisionDiff> diffFlowDraftApiV1FlowsNamespaceFlowIdRevisionsRevisionDiffDraftPostWithHttpInfo(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull String flowId, @javax.annotation.Nonnull Integer revision, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = diffFlowDraftApiV1FlowsNamespaceFlowIdRevisionsRevisionDiffDraftPostRequestBuilder(namespace, flowId, revision, authorization, xAmeshCSRF, xAmeshTenant, headers);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      InputStream localVarResponseBody = null;
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("diffFlowDraftApiV1FlowsNamespaceFlowIdRevisionsRevisionDiffDraftPost", localVarResponse);
+        }
+        localVarResponseBody = ApiClient.getResponseBody(localVarResponse);
+        if (localVarResponseBody == null) {
+          return new ApiResponse<FlowRevisionDiff>(
+              localVarResponse.statusCode(),
+              localVarResponse.headers().map(),
+              null
+          );
+        }
+
+
+
+        String responseBody = new String(localVarResponseBody.readAllBytes());
+        FlowRevisionDiff responseValue = responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<FlowRevisionDiff>() {});
+
+
+        return new ApiResponse<FlowRevisionDiff>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            responseValue
+        );
+      } finally {
+        if (localVarResponseBody != null) {
+          localVarResponseBody.close();
+        }
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder diffFlowDraftApiV1FlowsNamespaceFlowIdRevisionsRevisionDiffDraftPostRequestBuilder(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull String flowId, @javax.annotation.Nonnull Integer revision, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    // verify the required parameter 'namespace' is set
+    if (namespace == null) {
+      throw new ApiException(400, "Missing the required parameter 'namespace' when calling diffFlowDraftApiV1FlowsNamespaceFlowIdRevisionsRevisionDiffDraftPost");
+    }
+    // verify the required parameter 'flowId' is set
+    if (flowId == null) {
+      throw new ApiException(400, "Missing the required parameter 'flowId' when calling diffFlowDraftApiV1FlowsNamespaceFlowIdRevisionsRevisionDiffDraftPost");
+    }
+    // verify the required parameter 'revision' is set
+    if (revision == null) {
+      throw new ApiException(400, "Missing the required parameter 'revision' when calling diffFlowDraftApiV1FlowsNamespaceFlowIdRevisionsRevisionDiffDraftPost");
+    }
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/api/v1/flows/{namespace}/{flow_id}/revisions/{revision}/diff-draft"
+        .replace("{namespace}", ApiClient.urlEncode(namespace.toString()))
+        .replace("{flow_id}", ApiClient.urlEncode(flowId.toString()))
+        .replace("{revision}", ApiClient.urlEncode(revision.toString()));
+
+    localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+
+    if (authorization != null) {
+      localVarRequestBuilder.header("authorization", authorization.toString());
+    }
+    if (xAmeshCSRF != null) {
+      localVarRequestBuilder.header("X-Amesh-CSRF", xAmeshCSRF.toString());
+    }
+    if (xAmeshTenant != null) {
+      localVarRequestBuilder.header("X-Amesh-Tenant", xAmeshTenant.toString());
+    }
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    localVarRequestBuilder.method("POST", HttpRequest.BodyPublishers.noBody());
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    // Add custom headers if provided
+    localVarRequestBuilder = HttpRequestBuilderExtensions.withAdditionalHeaders(localVarRequestBuilder, headers);
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
+  }
+
+  /**
    * Diff Flow Revisions
    *
    * @param namespace  (required)
@@ -829,6 +990,115 @@ public class FlowsApi {
   }
 
   /**
+   * Format Flow
+   *
+   * @return FlowFormatResponse
+   * @throws ApiException if fails to make API call
+   */
+  public FlowFormatResponse formatFlowApiV1FlowsFormatPost() throws ApiException {
+    return formatFlowApiV1FlowsFormatPost(null);
+  }
+
+  /**
+   * Format Flow
+   *
+   * @param headers Optional headers to include in the request
+   * @return FlowFormatResponse
+   * @throws ApiException if fails to make API call
+   */
+  public FlowFormatResponse formatFlowApiV1FlowsFormatPost(Map<String, String> headers) throws ApiException {
+    ApiResponse<FlowFormatResponse> localVarResponse = formatFlowApiV1FlowsFormatPostWithHttpInfo(headers);
+    return localVarResponse.getData();
+  }
+
+  /**
+   * Format Flow
+   *
+   * @return ApiResponse&lt;FlowFormatResponse&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<FlowFormatResponse> formatFlowApiV1FlowsFormatPostWithHttpInfo() throws ApiException {
+    return formatFlowApiV1FlowsFormatPostWithHttpInfo(null);
+  }
+
+  /**
+   * Format Flow
+   *
+   * @param headers Optional headers to include in the request
+   * @return ApiResponse&lt;FlowFormatResponse&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<FlowFormatResponse> formatFlowApiV1FlowsFormatPostWithHttpInfo(Map<String, String> headers) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = formatFlowApiV1FlowsFormatPostRequestBuilder(headers);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      InputStream localVarResponseBody = null;
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("formatFlowApiV1FlowsFormatPost", localVarResponse);
+        }
+        localVarResponseBody = ApiClient.getResponseBody(localVarResponse);
+        if (localVarResponseBody == null) {
+          return new ApiResponse<FlowFormatResponse>(
+              localVarResponse.statusCode(),
+              localVarResponse.headers().map(),
+              null
+          );
+        }
+
+
+
+        String responseBody = new String(localVarResponseBody.readAllBytes());
+        FlowFormatResponse responseValue = responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<FlowFormatResponse>() {});
+
+
+        return new ApiResponse<FlowFormatResponse>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            responseValue
+        );
+      } finally {
+        if (localVarResponseBody != null) {
+          localVarResponseBody.close();
+        }
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder formatFlowApiV1FlowsFormatPostRequestBuilder(Map<String, String> headers) throws ApiException {
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/api/v1/flows/format";
+
+    localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    localVarRequestBuilder.method("POST", HttpRequest.BodyPublishers.noBody());
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    // Add custom headers if provided
+    localVarRequestBuilder = HttpRequestBuilderExtensions.withAdditionalHeaders(localVarRequestBuilder, headers);
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
+  }
+
+  /**
    * Get Flow Data Contract
    *
    * @param namespace  (required)
@@ -950,6 +1220,136 @@ public class FlowsApi {
     String localVarPath = "/api/v1/flows/{namespace}/{flow_id}/data-contract"
         .replace("{namespace}", ApiClient.urlEncode(namespace.toString()))
         .replace("{flow_id}", ApiClient.urlEncode(flowId.toString()));
+
+    localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+
+    if (authorization != null) {
+      localVarRequestBuilder.header("authorization", authorization.toString());
+    }
+    if (xAmeshCSRF != null) {
+      localVarRequestBuilder.header("X-Amesh-CSRF", xAmeshCSRF.toString());
+    }
+    if (xAmeshTenant != null) {
+      localVarRequestBuilder.header("X-Amesh-Tenant", xAmeshTenant.toString());
+    }
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    localVarRequestBuilder.method("GET", HttpRequest.BodyPublishers.noBody());
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    // Add custom headers if provided
+    localVarRequestBuilder = HttpRequestBuilderExtensions.withAdditionalHeaders(localVarRequestBuilder, headers);
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
+  }
+
+  /**
+   * Get Flow Editor Schema
+   *
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return FlowEditorSchemaResponse
+   * @throws ApiException if fails to make API call
+   */
+  public FlowEditorSchemaResponse getFlowEditorSchemaApiV1FlowsEditorSchemaGet(@javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return getFlowEditorSchemaApiV1FlowsEditorSchemaGet(authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * Get Flow Editor Schema
+   *
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return FlowEditorSchemaResponse
+   * @throws ApiException if fails to make API call
+   */
+  public FlowEditorSchemaResponse getFlowEditorSchemaApiV1FlowsEditorSchemaGet(@javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    ApiResponse<FlowEditorSchemaResponse> localVarResponse = getFlowEditorSchemaApiV1FlowsEditorSchemaGetWithHttpInfo(authorization, xAmeshCSRF, xAmeshTenant, headers);
+    return localVarResponse.getData();
+  }
+
+  /**
+   * Get Flow Editor Schema
+   *
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return ApiResponse&lt;FlowEditorSchemaResponse&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<FlowEditorSchemaResponse> getFlowEditorSchemaApiV1FlowsEditorSchemaGetWithHttpInfo(@javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return getFlowEditorSchemaApiV1FlowsEditorSchemaGetWithHttpInfo(authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * Get Flow Editor Schema
+   *
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return ApiResponse&lt;FlowEditorSchemaResponse&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<FlowEditorSchemaResponse> getFlowEditorSchemaApiV1FlowsEditorSchemaGetWithHttpInfo(@javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = getFlowEditorSchemaApiV1FlowsEditorSchemaGetRequestBuilder(authorization, xAmeshCSRF, xAmeshTenant, headers);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      InputStream localVarResponseBody = null;
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("getFlowEditorSchemaApiV1FlowsEditorSchemaGet", localVarResponse);
+        }
+        localVarResponseBody = ApiClient.getResponseBody(localVarResponse);
+        if (localVarResponseBody == null) {
+          return new ApiResponse<FlowEditorSchemaResponse>(
+              localVarResponse.statusCode(),
+              localVarResponse.headers().map(),
+              null
+          );
+        }
+
+
+
+        String responseBody = new String(localVarResponseBody.readAllBytes());
+        FlowEditorSchemaResponse responseValue = responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<FlowEditorSchemaResponse>() {});
+
+
+        return new ApiResponse<FlowEditorSchemaResponse>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            responseValue
+        );
+      } finally {
+        if (localVarResponseBody != null) {
+          localVarResponseBody.close();
+        }
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder getFlowEditorSchemaApiV1FlowsEditorSchemaGetRequestBuilder(@javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/api/v1/flows/editor/schema";
 
     localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
 
@@ -1582,6 +1982,150 @@ public class FlowsApi {
     localVarRequestBuilder.header("Accept", "application/json");
 
     localVarRequestBuilder.method("GET", HttpRequest.BodyPublishers.noBody());
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    // Add custom headers if provided
+    localVarRequestBuilder = HttpRequestBuilderExtensions.withAdditionalHeaders(localVarRequestBuilder, headers);
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
+  }
+
+  /**
+   * Preview Flow Expression
+   *
+   * @param expressionPreviewRequest  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return ExpressionPreviewResponse
+   * @throws ApiException if fails to make API call
+   */
+  public ExpressionPreviewResponse previewFlowExpressionApiV1FlowsExpressionsPreviewPost(@javax.annotation.Nonnull ExpressionPreviewRequest expressionPreviewRequest, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return previewFlowExpressionApiV1FlowsExpressionsPreviewPost(expressionPreviewRequest, authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * Preview Flow Expression
+   *
+   * @param expressionPreviewRequest  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return ExpressionPreviewResponse
+   * @throws ApiException if fails to make API call
+   */
+  public ExpressionPreviewResponse previewFlowExpressionApiV1FlowsExpressionsPreviewPost(@javax.annotation.Nonnull ExpressionPreviewRequest expressionPreviewRequest, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    ApiResponse<ExpressionPreviewResponse> localVarResponse = previewFlowExpressionApiV1FlowsExpressionsPreviewPostWithHttpInfo(expressionPreviewRequest, authorization, xAmeshCSRF, xAmeshTenant, headers);
+    return localVarResponse.getData();
+  }
+
+  /**
+   * Preview Flow Expression
+   *
+   * @param expressionPreviewRequest  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return ApiResponse&lt;ExpressionPreviewResponse&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<ExpressionPreviewResponse> previewFlowExpressionApiV1FlowsExpressionsPreviewPostWithHttpInfo(@javax.annotation.Nonnull ExpressionPreviewRequest expressionPreviewRequest, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return previewFlowExpressionApiV1FlowsExpressionsPreviewPostWithHttpInfo(expressionPreviewRequest, authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * Preview Flow Expression
+   *
+   * @param expressionPreviewRequest  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return ApiResponse&lt;ExpressionPreviewResponse&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<ExpressionPreviewResponse> previewFlowExpressionApiV1FlowsExpressionsPreviewPostWithHttpInfo(@javax.annotation.Nonnull ExpressionPreviewRequest expressionPreviewRequest, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = previewFlowExpressionApiV1FlowsExpressionsPreviewPostRequestBuilder(expressionPreviewRequest, authorization, xAmeshCSRF, xAmeshTenant, headers);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      InputStream localVarResponseBody = null;
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("previewFlowExpressionApiV1FlowsExpressionsPreviewPost", localVarResponse);
+        }
+        localVarResponseBody = ApiClient.getResponseBody(localVarResponse);
+        if (localVarResponseBody == null) {
+          return new ApiResponse<ExpressionPreviewResponse>(
+              localVarResponse.statusCode(),
+              localVarResponse.headers().map(),
+              null
+          );
+        }
+
+
+
+        String responseBody = new String(localVarResponseBody.readAllBytes());
+        ExpressionPreviewResponse responseValue = responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<ExpressionPreviewResponse>() {});
+
+
+        return new ApiResponse<ExpressionPreviewResponse>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            responseValue
+        );
+      } finally {
+        if (localVarResponseBody != null) {
+          localVarResponseBody.close();
+        }
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder previewFlowExpressionApiV1FlowsExpressionsPreviewPostRequestBuilder(@javax.annotation.Nonnull ExpressionPreviewRequest expressionPreviewRequest, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    // verify the required parameter 'expressionPreviewRequest' is set
+    if (expressionPreviewRequest == null) {
+      throw new ApiException(400, "Missing the required parameter 'expressionPreviewRequest' when calling previewFlowExpressionApiV1FlowsExpressionsPreviewPost");
+    }
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/api/v1/flows/expressions/preview";
+
+    localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+
+    if (authorization != null) {
+      localVarRequestBuilder.header("authorization", authorization.toString());
+    }
+    if (xAmeshCSRF != null) {
+      localVarRequestBuilder.header("X-Amesh-CSRF", xAmeshCSRF.toString());
+    }
+    if (xAmeshTenant != null) {
+      localVarRequestBuilder.header("X-Amesh-Tenant", xAmeshTenant.toString());
+    }
+    localVarRequestBuilder.header("Content-Type", "application/json");
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    try {
+      byte[] localVarPostBody = memberVarObjectMapper.writeValueAsBytes(expressionPreviewRequest);
+      localVarRequestBuilder.method("POST", HttpRequest.BodyPublishers.ofByteArray(localVarPostBody));
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
     if (memberVarReadTimeout != null) {
       localVarRequestBuilder.timeout(memberVarReadTimeout);
     }

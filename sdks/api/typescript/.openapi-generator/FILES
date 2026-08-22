@@ -96,6 +96,8 @@ src/models/ExecutionInterventionRecord.ts
 src/models/ExecutionInterventionRequest.ts
 src/models/ExecutionSnapshot.ts
 src/models/ExecutionState.ts
+src/models/ExpressionPreviewRequest.ts
+src/models/ExpressionPreviewResponse.ts
 src/models/ExtensionType.ts
 src/models/FailoverStatus.ts
 src/models/FailureCategory.ts
@@ -105,6 +107,8 @@ src/models/FeatureFlagScope.ts
 src/models/FeatureFlagUpsertRequest.ts
 src/models/FlowDataContract.ts
 src/models/FlowDocumentExport.ts
+src/models/FlowEditorSchemaResponse.ts
+src/models/FlowFormatResponse.ts
 src/models/FlowGraph.ts
 src/models/FlowGraphEdge.ts
 src/models/FlowGraphNode.ts

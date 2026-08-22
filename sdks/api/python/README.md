@@ -150,13 +150,17 @@ Class | Method | HTTP request | Description
 *ExecutionsApi* | [**stream_execution_logs_api_v1_executions_execution_id_logs_stream_get**](docs/ExecutionsApi.md#stream_execution_logs_api_v1_executions_execution_id_logs_stream_get) | **GET** /api/v1/executions/{execution_id}/logs/stream | Stream Execution Logs
 *FlowsApi* | [**apply_flow_api_v1_flows_put**](docs/FlowsApi.md#apply_flow_api_v1_flows_put) | **PUT** /api/v1/flows | Apply Flow
 *FlowsApi* | [**delete_flow_revision_api_v1_flows_namespace_flow_id_revisions_revision_delete**](docs/FlowsApi.md#delete_flow_revision_api_v1_flows_namespace_flow_id_revisions_revision_delete) | **DELETE** /api/v1/flows/{namespace}/{flow_id}/revisions/{revision} | Delete Flow Revision
+*FlowsApi* | [**diff_flow_draft_api_v1_flows_namespace_flow_id_revisions_revision_diff_draft_post**](docs/FlowsApi.md#diff_flow_draft_api_v1_flows_namespace_flow_id_revisions_revision_diff_draft_post) | **POST** /api/v1/flows/{namespace}/{flow_id}/revisions/{revision}/diff-draft | Diff Flow Draft
 *FlowsApi* | [**diff_flow_revisions_api_v1_flows_namespace_flow_id_revisions_diff_get**](docs/FlowsApi.md#diff_flow_revisions_api_v1_flows_namespace_flow_id_revisions_diff_get) | **GET** /api/v1/flows/{namespace}/{flow_id}/revisions/diff | Diff Flow Revisions
 *FlowsApi* | [**export_flow_document_api_v1_flows_namespace_flow_id_document_get**](docs/FlowsApi.md#export_flow_document_api_v1_flows_namespace_flow_id_document_get) | **GET** /api/v1/flows/{namespace}/{flow_id}/document | Export Flow Document
+*FlowsApi* | [**format_flow_api_v1_flows_format_post**](docs/FlowsApi.md#format_flow_api_v1_flows_format_post) | **POST** /api/v1/flows/format | Format Flow
 *FlowsApi* | [**get_flow_data_contract_api_v1_flows_namespace_flow_id_data_contract_get**](docs/FlowsApi.md#get_flow_data_contract_api_v1_flows_namespace_flow_id_data_contract_get) | **GET** /api/v1/flows/{namespace}/{flow_id}/data-contract | Get Flow Data Contract
+*FlowsApi* | [**get_flow_editor_schema_api_v1_flows_editor_schema_get**](docs/FlowsApi.md#get_flow_editor_schema_api_v1_flows_editor_schema_get) | **GET** /api/v1/flows/editor/schema | Get Flow Editor Schema
 *FlowsApi* | [**get_flow_graph_api_v1_flows_namespace_flow_id_graph_get**](docs/FlowsApi.md#get_flow_graph_api_v1_flows_namespace_flow_id_graph_get) | **GET** /api/v1/flows/{namespace}/{flow_id}/graph | Get Flow Graph
 *FlowsApi* | [**get_flow_metadata_api_v1_flows_namespace_flow_id_metadata_get**](docs/FlowsApi.md#get_flow_metadata_api_v1_flows_namespace_flow_id_metadata_get) | **GET** /api/v1/flows/{namespace}/{flow_id}/metadata | Get Flow Metadata
 *FlowsApi* | [**list_flow_revisions_api_v1_flows_namespace_flow_id_revisions_get**](docs/FlowsApi.md#list_flow_revisions_api_v1_flows_namespace_flow_id_revisions_get) | **GET** /api/v1/flows/{namespace}/{flow_id}/revisions | List Flow Revisions
 *FlowsApi* | [**list_flows_api_v1_flows_get**](docs/FlowsApi.md#list_flows_api_v1_flows_get) | **GET** /api/v1/flows | List Flows
+*FlowsApi* | [**preview_flow_expression_api_v1_flows_expressions_preview_post**](docs/FlowsApi.md#preview_flow_expression_api_v1_flows_expressions_preview_post) | **POST** /api/v1/flows/expressions/preview | Preview Flow Expression
 *FlowsApi* | [**promote_flow_revision_api_v1_flows_namespace_flow_id_revisions_revision_lifecycle_put**](docs/FlowsApi.md#promote_flow_revision_api_v1_flows_namespace_flow_id_revisions_revision_lifecycle_put) | **PUT** /api/v1/flows/{namespace}/{flow_id}/revisions/{revision}/lifecycle | Promote Flow Revision
 *FlowsApi* | [**restore_flow_revision_api_v1_flows_namespace_flow_id_revisions_revision_restore_post**](docs/FlowsApi.md#restore_flow_revision_api_v1_flows_namespace_flow_id_revisions_revision_restore_post) | **POST** /api/v1/flows/{namespace}/{flow_id}/revisions/{revision}/restore | Restore Flow Revision
 *FlowsApi* | [**validate_flow_api_v1_flows_validate_post**](docs/FlowsApi.md#validate_flow_api_v1_flows_validate_post) | **POST** /api/v1/flows/validate | Validate Flow
@@ -285,6 +289,8 @@ Class | Method | HTTP request | Description
  - [ExecutionInterventionRequest](docs/ExecutionInterventionRequest.md)
  - [ExecutionSnapshot](docs/ExecutionSnapshot.md)
  - [ExecutionState](docs/ExecutionState.md)
+ - [ExpressionPreviewRequest](docs/ExpressionPreviewRequest.md)
+ - [ExpressionPreviewResponse](docs/ExpressionPreviewResponse.md)
  - [ExtensionType](docs/ExtensionType.md)
  - [FailoverStatus](docs/FailoverStatus.md)
  - [FailureCategory](docs/FailureCategory.md)
@@ -294,6 +300,8 @@ Class | Method | HTTP request | Description
  - [FeatureFlagUpsertRequest](docs/FeatureFlagUpsertRequest.md)
  - [FlowDataContract](docs/FlowDataContract.md)
  - [FlowDocumentExport](docs/FlowDocumentExport.md)
+ - [FlowEditorSchemaResponse](docs/FlowEditorSchemaResponse.md)
+ - [FlowFormatResponse](docs/FlowFormatResponse.md)
  - [FlowGraph](docs/FlowGraph.md)
  - [FlowGraphEdge](docs/FlowGraphEdge.md)
  - [FlowGraphNode](docs/FlowGraphNode.md)

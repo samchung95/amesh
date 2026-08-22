@@ -2237,6 +2237,49 @@
         "title": "ExecutionState",
         "type": "string"
       },
+      "ExpressionPreviewRequest": {
+        "properties": {
+          "context": {
+            "additionalProperties": true,
+            "title": "Context",
+            "type": "object"
+          },
+          "expression": {
+            "maxLength": 65536,
+            "minLength": 1,
+            "title": "Expression",
+            "type": "string"
+          }
+        },
+        "required": [
+          "expression"
+        ],
+        "title": "ExpressionPreviewRequest",
+        "type": "object"
+      },
+      "ExpressionPreviewResponse": {
+        "properties": {
+          "compatibilityVersion": {
+            "title": "Compatibilityversion",
+            "type": "string"
+          },
+          "redactedContext": {
+            "additionalProperties": true,
+            "title": "Redactedcontext",
+            "type": "object"
+          },
+          "result": {
+            "title": "Result"
+          }
+        },
+        "required": [
+          "result",
+          "redactedContext",
+          "compatibilityVersion"
+        ],
+        "title": "ExpressionPreviewResponse",
+        "type": "object"
+      },
       "ExtensionType": {
         "enum": [
           "task",
@@ -2548,6 +2591,63 @@
           "document"
         ],
         "title": "FlowDocumentExport",
+        "type": "object"
+      },
+      "FlowEditorSchemaResponse": {
+        "properties": {
+          "expressionContext": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Expressioncontext",
+            "type": "object"
+          },
+          "flowSchema": {
+            "additionalProperties": true,
+            "title": "Flowschema",
+            "type": "object"
+          },
+          "resourceCatalog": {
+            "additionalProperties": true,
+            "title": "Resourcecatalog",
+            "type": "object"
+          },
+          "schemaVersion": {
+            "const": "amesh.flow-editor/v1",
+            "title": "Schemaversion",
+            "type": "string"
+          }
+        },
+        "required": [
+          "schemaVersion",
+          "flowSchema",
+          "resourceCatalog",
+          "expressionContext"
+        ],
+        "title": "FlowEditorSchemaResponse",
+        "type": "object"
+      },
+      "FlowFormatResponse": {
+        "properties": {
+          "document": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Document"
+          },
+          "validation": {
+            "$ref": "#/components/schemas/FlowValidationResult"
+          }
+        },
+        "required": [
+          "validation"
+        ],
+        "title": "FlowFormatResponse",
         "type": "object"
       },
       "FlowGraph": {
@@ -16393,6 +16493,199 @@
         ]
       }
     },
+    "/api/v1/flows/editor/schema": {
+      "get": {
+        "operationId": "get_flow_editor_schema_api_v1_flows_editor_schema_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FlowEditorSchemaResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Flow Editor Schema",
+        "tags": [
+          "flows"
+        ]
+      }
+    },
+    "/api/v1/flows/expressions/preview": {
+      "post": {
+        "operationId": "preview_flow_expression_api_v1_flows_expressions_preview_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExpressionPreviewRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExpressionPreviewResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Preview Flow Expression",
+        "tags": [
+          "flows"
+        ]
+      }
+    },
+    "/api/v1/flows/format": {
+      "post": {
+        "operationId": "format_flow_api_v1_flows_format_post",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FlowFormatResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Format Flow",
+        "tags": [
+          "flows"
+        ]
+      }
+    },
     "/api/v1/flows/validate": {
       "post": {
         "operationId": "validate_flow_api_v1_flows_validate_post",
@@ -17145,6 +17438,114 @@
           }
         },
         "summary": "Delete Flow Revision",
+        "tags": [
+          "flows"
+        ]
+      }
+    },
+    "/api/v1/flows/{namespace}/{flow_id}/revisions/{revision}/diff-draft": {
+      "post": {
+        "operationId": "diff_flow_draft_api_v1_flows__namespace___flow_id__revisions__revision__diff_draft_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "namespace",
+            "required": true,
+            "schema": {
+              "title": "Namespace",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "flow_id",
+            "required": true,
+            "schema": {
+              "title": "Flow Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "revision",
+            "required": true,
+            "schema": {
+              "title": "Revision",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FlowRevisionDiff"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Diff Flow Draft",
         "tags": [
           "flows"
         ]

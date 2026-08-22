@@ -99,6 +99,8 @@ model_execution_intervention_record.go
 model_execution_intervention_request.go
 model_execution_snapshot.go
 model_execution_state.go
+model_expression_preview_request.go
+model_expression_preview_response.go
 model_extension_type.go
 model_failover_status.go
 model_failure_category.go
@@ -108,6 +110,8 @@ model_feature_flag_scope.go
 model_feature_flag_upsert_request.go
 model_flow_data_contract.go
 model_flow_document_export.go
+model_flow_editor_schema_response.go
+model_flow_format_response.go
 model_flow_graph.go
 model_flow_graph_edge.go
 model_flow_graph_node.go

@@ -83,6 +83,8 @@ amesh_client/models/execution_intervention_record.py
 amesh_client/models/execution_intervention_request.py
 amesh_client/models/execution_snapshot.py
 amesh_client/models/execution_state.py
+amesh_client/models/expression_preview_request.py
+amesh_client/models/expression_preview_response.py
 amesh_client/models/extension_type.py
 amesh_client/models/failover_status.py
 amesh_client/models/failure_category.py
@@ -92,6 +94,8 @@ amesh_client/models/feature_flag_scope.py
 amesh_client/models/feature_flag_upsert_request.py
 amesh_client/models/flow_data_contract.py
 amesh_client/models/flow_document_export.py
+amesh_client/models/flow_editor_schema_response.py
+amesh_client/models/flow_format_response.py
 amesh_client/models/flow_graph.py
 amesh_client/models/flow_graph_edge.py
 amesh_client/models/flow_graph_node.py

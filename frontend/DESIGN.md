@@ -36,6 +36,10 @@ grid.
   failure red and unknown gray.
 - Flow graph: lifecycle nodes retain the primary graph geometry while showing `ERROR`, `FINALLY` or
   `AFTER_EXECUTION` phase metadata; local handlers also show the task or flowable they handle.
+- Flow workbench: the warm source surface remains dominant beside a compact diagnostics and revision
+  inspector. CodeMirror provides native YAML, search, folding and multi-selection behavior; server
+  issues remain actionable buttons that focus their exact source range. Validity always has text in
+  addition to color, and destructive lifecycle actions retain explicit confirmation.
 - Empty/error/loading: every data region owns a purposeful empty instruction, retryable error panel and
   skeleton that preserves layout.
 - Command palette: high-shadow dialog with an explicit title, labelled search, grouped results,

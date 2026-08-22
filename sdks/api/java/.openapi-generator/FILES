@@ -118,6 +118,8 @@ src/main/java/io/amesh/client/model/ExecutionInterventionRecord.java
 src/main/java/io/amesh/client/model/ExecutionInterventionRequest.java
 src/main/java/io/amesh/client/model/ExecutionSnapshot.java
 src/main/java/io/amesh/client/model/ExecutionState.java
+src/main/java/io/amesh/client/model/ExpressionPreviewRequest.java
+src/main/java/io/amesh/client/model/ExpressionPreviewResponse.java
 src/main/java/io/amesh/client/model/ExtensionType.java
 src/main/java/io/amesh/client/model/FailoverStatus.java
 src/main/java/io/amesh/client/model/FailureCategory.java
@@ -127,6 +129,8 @@ src/main/java/io/amesh/client/model/FeatureFlagScope.java
 src/main/java/io/amesh/client/model/FeatureFlagUpsertRequest.java
 src/main/java/io/amesh/client/model/FlowDataContract.java
 src/main/java/io/amesh/client/model/FlowDocumentExport.java
+src/main/java/io/amesh/client/model/FlowEditorSchemaResponse.java
+src/main/java/io/amesh/client/model/FlowFormatResponse.java
 src/main/java/io/amesh/client/model/FlowGraph.java
 src/main/java/io/amesh/client/model/FlowGraphEdge.java
 src/main/java/io/amesh/client/model/FlowGraphNode.java

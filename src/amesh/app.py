@@ -14,6 +14,7 @@ from time import perf_counter
 from typing import Annotated
 from uuid import UUID
 
+import yaml
 from fastapi import (
     BackgroundTasks,
     Depends,
@@ -79,9 +80,13 @@ from amesh.api.models import (
     ExecutionEvidencePage,
     ExecutionInterventionPreviewRequest,
     ExecutionInterventionRequest,
+    ExpressionPreviewRequest,
+    ExpressionPreviewResponse,
     FeatureFlagUpsertRequest,
     FlowDataContract,
     FlowDocumentExport,
+    FlowEditorSchemaResponse,
+    FlowFormatResponse,
     FlowGraph,
     FlowGraphEdge,
     FlowGraphNode,
@@ -187,6 +192,7 @@ from amesh.domain import (
 from amesh.domain import (
     AuthenticationRequest as ProviderAuthenticationRequest,
 )
+from amesh.domain.flow_revisions import compare_flow_revisions
 from amesh.domain.runner import RunnerId, RunnerPolicySet, RunnerPolicyViolation
 from amesh.dsl import (
     FlowDefinition,
@@ -209,6 +215,8 @@ from amesh.executor import (
     selecting_runner_handler,
     subflow_task_handler,
 )
+from amesh.expressions import NativeExpressionEngine
+from amesh.expressions.contracts import ExpressionError
 from amesh.frontend import SpaStaticFiles, find_frontend_dist
 from amesh.migrations import migration_directory
 from amesh.observability import (
@@ -318,6 +326,48 @@ from amesh.workflow.shared_resources import (
 from amesh.workflow.working_directory import WorkingDirectoryManager
 
 LOGGER = logging.getLogger("amesh.api")
+
+_EDITOR_CONTEXT_KEYS = frozenset(
+    {
+        "flow",
+        "execution",
+        "task",
+        "taskrun",
+        "trigger",
+        "inputs",
+        "outputs",
+        "vars",
+        "labels",
+        "namespace",
+        "iteration",
+        "error",
+    }
+)
+_SENSITIVE_EDITOR_KEY_PARTS = frozenset(
+    {"password", "secret", "token", "credential", "api_key", "apikey"}
+)
+
+
+def _redact_editor_context(context: Mapping[str, object]) -> dict[str, object]:
+    def sanitize(value: object) -> object:
+        if isinstance(value, Mapping):
+            return {
+                str(key): (
+                    "[REDACTED]"
+                    if any(
+                        part in str(key).lower().replace("-", "_")
+                        for part in _SENSITIVE_EDITOR_KEY_PARTS
+                    )
+                    else sanitize(item)
+                )
+                for key, item in value.items()
+            }
+        if isinstance(value, list | tuple):
+            return [sanitize(item) for item in value]
+        return value
+
+    return {key: sanitize(value) for key, value in context.items() if key in _EDITOR_CONTEXT_KEYS}
+
 
 app = FastAPI(
     title="AMESH",
@@ -1054,6 +1104,7 @@ async def get_ui_session(
     requested_capabilities = {
         "flows.view": ("flow", PermissionAction.VIEW),
         "flows.create": ("flow", PermissionAction.CREATE),
+        "flows.update": ("flow", PermissionAction.UPDATE),
         "executions.view": ("execution", PermissionAction.VIEW),
         "executions.execute": ("execution", PermissionAction.EXECUTE),
         "triggers.view": ("trigger", PermissionAction.VIEW),
@@ -1878,6 +1929,114 @@ async def validate_flow(
         ) from exc
 
 
+@app.get(
+    "/api/v1/flows/editor/schema",
+    response_model=FlowEditorSchemaResponse,
+    tags=["flows"],
+)
+async def get_flow_editor_schema(
+    plugin_catalog: PluginCatalogDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> FlowEditorSchemaResponse:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="flow",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+    )
+    return FlowEditorSchemaResponse(
+        schemaVersion="amesh.flow-editor/v1",
+        flowSchema=FlowDefinition.model_json_schema(by_alias=True),
+        resourceCatalog=plugin_catalog.resource_registry().catalog(),
+        expressionContext={
+            "flow": "Current flow metadata.",
+            "execution": "Execution identity, state and timing.",
+            "task": "Current task definition.",
+            "taskrun": "Current task-run state and attempt.",
+            "trigger": "Trigger payload and metadata.",
+            "inputs": "Validated flow inputs.",
+            "outputs": "Completed task outputs by task ID.",
+            "vars": "Flow variables.",
+            "labels": "Execution and flow labels.",
+            "namespace": "Namespace-scoped public context.",
+            "iteration": "Loop iteration context.",
+            "error": "Current failure context.",
+        },
+    )
+
+
+@app.post(
+    "/api/v1/flows/format",
+    response_model=FlowFormatResponse,
+    tags=["flows"],
+)
+async def format_flow(
+    request: Request,
+    plugin_catalog: PluginCatalogDependency,
+) -> FlowFormatResponse:
+    body = await request.body()
+    if len(body) > 2 * 1024 * 1024:
+        raise HTTPException(
+            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            detail="flow document exceeds the 2 MiB foundation limit",
+        )
+    try:
+        validation = validate_flow_document(
+            body,
+            registry=plugin_catalog.resource_registry(),
+        )
+    except FlowDocumentError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=str(exc),
+        ) from exc
+    document = None
+    if validation.valid and validation.canonical is not None:
+        document = yaml.safe_dump(
+            validation.canonical,
+            allow_unicode=True,
+            sort_keys=False,
+        )
+    return FlowFormatResponse(document=document, validation=validation)
+
+
+@app.post(
+    "/api/v1/flows/expressions/preview",
+    response_model=ExpressionPreviewResponse,
+    tags=["flows"],
+)
+async def preview_flow_expression(
+    request: ExpressionPreviewRequest,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> ExpressionPreviewResponse:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="flow",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+    )
+    context = _redact_editor_context(request.context)
+    engine = NativeExpressionEngine()
+    try:
+        result = engine.preview_value(request.expression, context)
+    except ExpressionError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail={"code": exc.code, "message": str(exc)},
+        ) from exc
+    return ExpressionPreviewResponse(
+        result=result,
+        redactedContext=context,
+        compatibilityVersion=engine.compatibility_version,
+    )
+
+
 @app.put(
     "/api/v1/flows",
     response_model=PersistedFlow,
@@ -1913,11 +2072,17 @@ async def apply_flow(
             detail=[issue.model_dump(mode="json", by_alias=True) for issue in result.issues],
         )
     flow = FlowDefinition.model_validate(result.canonical)
+    try:
+        await repository.get_flow(flow.namespace, flow.id, tenant_id=tenant_id)
+    except LookupError:
+        write_action = PermissionAction.CREATE
+    else:
+        write_action = PermissionAction.UPDATE
     await authorize_request(
         authorization_service,
         actor,
         resource_type="flow",
-        action=PermissionAction.UPDATE,
+        action=write_action,
         tenant_id=tenant_id,
         namespace=flow.namespace,
     )
@@ -2740,6 +2905,76 @@ async def diff_flow_revisions(
         )
     except LookupError as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+
+
+@app.post(
+    "/api/v1/flows/{namespace}/{flow_id}/revisions/{revision}/diff-draft",
+    response_model=FlowRevisionDiff,
+    tags=["flows"],
+)
+async def diff_flow_draft(
+    namespace: str,
+    flow_id: str,
+    revision: int,
+    request: Request,
+    repository: ReadRepositoryDependency,
+    plugin_catalog: PluginCatalogDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> FlowRevisionDiff:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="flow",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    body = await request.body()
+    if len(body) > 2 * 1024 * 1024:
+        raise HTTPException(
+            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            detail="flow document exceeds the 2 MiB foundation limit",
+        )
+    try:
+        validation = validate_flow_document(
+            body,
+            registry=plugin_catalog.resource_registry(),
+        )
+    except FlowDocumentError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=str(exc),
+        ) from exc
+    if not validation.valid or validation.canonical is None:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=[issue.model_dump(mode="json", by_alias=True) for issue in validation.issues],
+        )
+    try:
+        stored = await repository.get_flow(
+            namespace,
+            flow_id,
+            tenant_id=tenant_id,
+            revision=revision,
+        )
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    before = (
+        json.loads(stored._persisted_canonical_definition)
+        if stored._persisted_canonical_definition is not None
+        else stored.model_dump(mode="json", by_alias=True, exclude_none=True)
+    )
+    draft_revision = validation.canonical.get("revision", revision)
+    return compare_flow_revisions(
+        before,
+        validation.canonical,
+        from_revision=revision,
+        to_revision=(
+            draft_revision if isinstance(draft_revision, int) and draft_revision >= 1 else revision
+        ),
+    )
 
 
 @app.put(

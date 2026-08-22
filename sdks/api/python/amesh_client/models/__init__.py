@@ -66,6 +66,8 @@ from amesh_client.models.execution_intervention_record import ExecutionIntervent
 from amesh_client.models.execution_intervention_request import ExecutionInterventionRequest
 from amesh_client.models.execution_snapshot import ExecutionSnapshot
 from amesh_client.models.execution_state import ExecutionState
+from amesh_client.models.expression_preview_request import ExpressionPreviewRequest
+from amesh_client.models.expression_preview_response import ExpressionPreviewResponse
 from amesh_client.models.extension_type import ExtensionType
 from amesh_client.models.failover_status import FailoverStatus
 from amesh_client.models.failure_category import FailureCategory
@@ -75,6 +77,8 @@ from amesh_client.models.feature_flag_scope import FeatureFlagScope
 from amesh_client.models.feature_flag_upsert_request import FeatureFlagUpsertRequest
 from amesh_client.models.flow_data_contract import FlowDataContract
 from amesh_client.models.flow_document_export import FlowDocumentExport
+from amesh_client.models.flow_editor_schema_response import FlowEditorSchemaResponse
+from amesh_client.models.flow_format_response import FlowFormatResponse
 from amesh_client.models.flow_graph import FlowGraph
 from amesh_client.models.flow_graph_edge import FlowGraphEdge
 from amesh_client.models.flow_graph_node import FlowGraphNode

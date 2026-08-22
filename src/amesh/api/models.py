@@ -22,7 +22,7 @@ from amesh.domain import (
     TenantPolicy,
     TenantSlug,
 )
-from amesh.dsl import CheckDefinition
+from amesh.dsl import CheckDefinition, FlowValidationResult
 from amesh.executor import TaskCompletion
 from amesh.ports import (
     CheckPolicySource,
@@ -98,6 +98,33 @@ class FlowDocumentExport(BaseModel):
     revision: int = Field(ge=1)
     semantic_hash: str = Field(alias="semanticHash")
     document: dict[str, Any]
+
+
+class FlowEditorSchemaResponse(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    schema_version: Literal["amesh.flow-editor/v1"] = Field(alias="schemaVersion")
+    flow_schema: dict[str, Any] = Field(alias="flowSchema")
+    resource_catalog: dict[str, Any] = Field(alias="resourceCatalog")
+    expression_context: dict[str, str] = Field(alias="expressionContext")
+
+
+class FlowFormatResponse(BaseModel):
+    document: str | None = None
+    validation: FlowValidationResult
+
+
+class ExpressionPreviewRequest(BaseModel):
+    expression: str = Field(min_length=1, max_length=65_536)
+    context: dict[str, Any] = Field(default_factory=dict)
+
+
+class ExpressionPreviewResponse(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    result: Any
+    redacted_context: dict[str, Any] = Field(alias="redactedContext")
+    compatibility_version: str = Field(alias="compatibilityVersion")
 
 
 class ConfigurationDiagnosticBundle(BaseModel):

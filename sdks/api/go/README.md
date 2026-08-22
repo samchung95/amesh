@@ -134,13 +134,17 @@ Class | Method | HTTP request | Description
 *ExecutionsAPI* | [**StreamExecutionLogsApiV1ExecutionsExecutionIdLogsStreamGet**](docs/ExecutionsAPI.md#streamexecutionlogsapiv1executionsexecutionidlogsstreamget) | **Get** /api/v1/executions/{execution_id}/logs/stream | Stream Execution Logs
 *FlowsAPI* | [**ApplyFlowApiV1FlowsPut**](docs/FlowsAPI.md#applyflowapiv1flowsput) | **Put** /api/v1/flows | Apply Flow
 *FlowsAPI* | [**DeleteFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionDelete**](docs/FlowsAPI.md#deleteflowrevisionapiv1flowsnamespaceflowidrevisionsrevisiondelete) | **Delete** /api/v1/flows/{namespace}/{flow_id}/revisions/{revision} | Delete Flow Revision
+*FlowsAPI* | [**DiffFlowDraftApiV1FlowsNamespaceFlowIdRevisionsRevisionDiffDraftPost**](docs/FlowsAPI.md#diffflowdraftapiv1flowsnamespaceflowidrevisionsrevisiondiffdraftpost) | **Post** /api/v1/flows/{namespace}/{flow_id}/revisions/{revision}/diff-draft | Diff Flow Draft
 *FlowsAPI* | [**DiffFlowRevisionsApiV1FlowsNamespaceFlowIdRevisionsDiffGet**](docs/FlowsAPI.md#diffflowrevisionsapiv1flowsnamespaceflowidrevisionsdiffget) | **Get** /api/v1/flows/{namespace}/{flow_id}/revisions/diff | Diff Flow Revisions
 *FlowsAPI* | [**ExportFlowDocumentApiV1FlowsNamespaceFlowIdDocumentGet**](docs/FlowsAPI.md#exportflowdocumentapiv1flowsnamespaceflowiddocumentget) | **Get** /api/v1/flows/{namespace}/{flow_id}/document | Export Flow Document
+*FlowsAPI* | [**FormatFlowApiV1FlowsFormatPost**](docs/FlowsAPI.md#formatflowapiv1flowsformatpost) | **Post** /api/v1/flows/format | Format Flow
 *FlowsAPI* | [**GetFlowDataContractApiV1FlowsNamespaceFlowIdDataContractGet**](docs/FlowsAPI.md#getflowdatacontractapiv1flowsnamespaceflowiddatacontractget) | **Get** /api/v1/flows/{namespace}/{flow_id}/data-contract | Get Flow Data Contract
+*FlowsAPI* | [**GetFlowEditorSchemaApiV1FlowsEditorSchemaGet**](docs/FlowsAPI.md#getfloweditorschemaapiv1flowseditorschemaget) | **Get** /api/v1/flows/editor/schema | Get Flow Editor Schema
 *FlowsAPI* | [**GetFlowGraphApiV1FlowsNamespaceFlowIdGraphGet**](docs/FlowsAPI.md#getflowgraphapiv1flowsnamespaceflowidgraphget) | **Get** /api/v1/flows/{namespace}/{flow_id}/graph | Get Flow Graph
 *FlowsAPI* | [**GetFlowMetadataApiV1FlowsNamespaceFlowIdMetadataGet**](docs/FlowsAPI.md#getflowmetadataapiv1flowsnamespaceflowidmetadataget) | **Get** /api/v1/flows/{namespace}/{flow_id}/metadata | Get Flow Metadata
 *FlowsAPI* | [**ListFlowRevisionsApiV1FlowsNamespaceFlowIdRevisionsGet**](docs/FlowsAPI.md#listflowrevisionsapiv1flowsnamespaceflowidrevisionsget) | **Get** /api/v1/flows/{namespace}/{flow_id}/revisions | List Flow Revisions
 *FlowsAPI* | [**ListFlowsApiV1FlowsGet**](docs/FlowsAPI.md#listflowsapiv1flowsget) | **Get** /api/v1/flows | List Flows
+*FlowsAPI* | [**PreviewFlowExpressionApiV1FlowsExpressionsPreviewPost**](docs/FlowsAPI.md#previewflowexpressionapiv1flowsexpressionspreviewpost) | **Post** /api/v1/flows/expressions/preview | Preview Flow Expression
 *FlowsAPI* | [**PromoteFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionLifecyclePut**](docs/FlowsAPI.md#promoteflowrevisionapiv1flowsnamespaceflowidrevisionsrevisionlifecycleput) | **Put** /api/v1/flows/{namespace}/{flow_id}/revisions/{revision}/lifecycle | Promote Flow Revision
 *FlowsAPI* | [**RestoreFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionRestorePost**](docs/FlowsAPI.md#restoreflowrevisionapiv1flowsnamespaceflowidrevisionsrevisionrestorepost) | **Post** /api/v1/flows/{namespace}/{flow_id}/revisions/{revision}/restore | Restore Flow Revision
 *FlowsAPI* | [**ValidateFlowApiV1FlowsValidatePost**](docs/FlowsAPI.md#validateflowapiv1flowsvalidatepost) | **Post** /api/v1/flows/validate | Validate Flow
@@ -269,6 +273,8 @@ Class | Method | HTTP request | Description
  - [ExecutionInterventionRequest](docs/ExecutionInterventionRequest.md)
  - [ExecutionSnapshot](docs/ExecutionSnapshot.md)
  - [ExecutionState](docs/ExecutionState.md)
+ - [ExpressionPreviewRequest](docs/ExpressionPreviewRequest.md)
+ - [ExpressionPreviewResponse](docs/ExpressionPreviewResponse.md)
  - [ExtensionType](docs/ExtensionType.md)
  - [FailoverStatus](docs/FailoverStatus.md)
  - [FailureCategory](docs/FailureCategory.md)
@@ -278,6 +284,8 @@ Class | Method | HTTP request | Description
  - [FeatureFlagUpsertRequest](docs/FeatureFlagUpsertRequest.md)
  - [FlowDataContract](docs/FlowDataContract.md)
  - [FlowDocumentExport](docs/FlowDocumentExport.md)
+ - [FlowEditorSchemaResponse](docs/FlowEditorSchemaResponse.md)
+ - [FlowFormatResponse](docs/FlowFormatResponse.md)
  - [FlowGraph](docs/FlowGraph.md)
  - [FlowGraphEdge](docs/FlowGraphEdge.md)
  - [FlowGraphNode](docs/FlowGraphNode.md)

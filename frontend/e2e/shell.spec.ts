@@ -10,6 +10,7 @@ const session = {
   capabilities: {
     'flows.view': true,
     'flows.create': true,
+    'flows.update': true,
     'executions.view': true,
     'executions.execute': true,
     'triggers.view': true,
@@ -74,6 +75,13 @@ const namespaceSecrets = [
 async function mockApi(page: Page, overrides = session) {
   await page.route('**/api/v1/ui/session**', (route) => route.fulfill({ json: overrides }))
   await page.route('**/api/v1/flows', (route) => route.fulfill({ json: flows }))
+  await page.route('**/api/v1/flows/editor/schema', (route) => route.fulfill({ json: {
+    schemaVersion: 'amesh.flow-editor/v1',
+    flowSchema: { type: 'object', properties: { id: { type: 'string' }, namespace: { type: 'string' }, tasks: { type: 'array' } } },
+    resourceCatalog: { schemaVersion: 'amesh.resource-catalog/v1', resources: [{ type: 'core.return', kind: 'task', configurationSchema: { type: 'object', properties: { value: {} } }, editor: { title: 'Return', description: 'Return a value.', category: 'Core', propertyOrder: ['value'] } }] },
+    expressionContext: { inputs: 'Validated flow inputs.' },
+  } }))
+  await page.route('**/api/v1/flows/validate', (route) => route.fulfill({ json: { valid: true, irVersion: 'amesh.flow/v1', semantic_hash: 'editor-hash', canonical: {}, issues: [] } }))
   await page.route('**/api/v1/executions?limit=200', (route) => route.fulfill({ json: executions }))
   await page.route('**/api/v1/triggers', (route) => route.fulfill({ json: triggers }))
   await page.route('**/api/v1/trigger-occurrences?limit=200', (route) => route.fulfill({ json: triggerOccurrences }))
@@ -209,4 +217,30 @@ test('uses the accessible compact navigation rail on tablet', async ({ page }, t
   expect((await rail.boundingBox())?.width).toBe(76)
   await page.getByRole('link', { name: 'Flows' }).click()
   await expect(page).toHaveURL(/\/flows$/)
+})
+
+test('opens the schema-aware flow editor with an accessible YAML workbench', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name === 'tablet', 'desktop editor acceptance')
+  await connect(page)
+  await page.getByRole('link', { name: 'Flows' }).click()
+  await page.getByRole('link', { name: 'Create flow' }).click()
+  await expect(page.getByRole('heading', { name: 'Create flow' })).toBeVisible()
+  const source = page.getByLabel('Flow YAML source')
+  await expect(source).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Format' })).toBeEnabled()
+  await source.click()
+  await page.keyboard.press('Control+End')
+  await page.keyboard.type('\ndescription: browser acceptance')
+  await expect(page.getByRole('button', { name: 'Save' })).toBeEnabled()
+  await expect.poll(() => page.evaluate(() => Object.keys(localStorage).some((key) => key.startsWith('amesh.flow-draft.v1:')))).toBe(true)
+  page.once('dialog', async (dialog) => {
+    expect(dialog.message()).toContain('Discard unsaved changes')
+    await dialog.dismiss()
+  })
+  await page.locator('.back-link').click()
+  await expect(page.getByRole('heading', { name: 'Create flow' })).toBeVisible()
+  const results = await new AxeBuilder({ page })
+    .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'])
+    .analyze()
+  expect(results.violations.filter((violation) => ['critical', 'serious'].includes(violation.impact || ''))).toEqual([])
 })

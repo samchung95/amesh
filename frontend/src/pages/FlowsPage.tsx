@@ -20,7 +20,7 @@ export function FlowsPage({ session }: { session: UiSession }) {
 
   return (
     <div className="page-stack">
-      <header className="page-heading"><div><p className="eyebrow">BUILD / CATALOG</p><h1>{t('flows')}</h1><p>Canonical definitions available to this tenant and namespace scope.</p></div>{session.capabilities['flows.create'] ? <button className="button button-primary" type="button" disabled title="Flow editor is delivered by EPIC-405"><Plus size={17} aria-hidden="true" />Create flow</button> : null}</header>
+      <header className="page-heading"><div><p className="eyebrow">BUILD / CATALOG</p><h1>{t('flows')}</h1><p>Canonical definitions available to this tenant and namespace scope.</p></div>{session.capabilities['flows.create'] ? <Link className="button button-primary" to="/flows/new"><Plus size={17} aria-hidden="true" />Create flow</Link> : null}</header>
       <section className="toolbar" aria-label="Flow filters">
         <label className="search-field"><Search size={17} aria-hidden="true" /><span className="sr-only">Search flows</span><input value={query} onChange={(event) => { const next = new URLSearchParams(params); if (event.target.value) next.set('q', event.target.value); else next.delete('q'); setParams(next) }} placeholder="Search namespace or flow ID" /></label>
         <span className="result-count">{visible.length} / {flows.data?.length || 0} flows</span>

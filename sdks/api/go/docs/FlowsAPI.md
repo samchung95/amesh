@@ -6,13 +6,17 @@ Method | HTTP request | Description
 ------------- | ------------- | -------------
 [**ApplyFlowApiV1FlowsPut**](FlowsAPI.md#ApplyFlowApiV1FlowsPut) | **Put** /api/v1/flows | Apply Flow
 [**DeleteFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionDelete**](FlowsAPI.md#DeleteFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionDelete) | **Delete** /api/v1/flows/{namespace}/{flow_id}/revisions/{revision} | Delete Flow Revision
+[**DiffFlowDraftApiV1FlowsNamespaceFlowIdRevisionsRevisionDiffDraftPost**](FlowsAPI.md#DiffFlowDraftApiV1FlowsNamespaceFlowIdRevisionsRevisionDiffDraftPost) | **Post** /api/v1/flows/{namespace}/{flow_id}/revisions/{revision}/diff-draft | Diff Flow Draft
 [**DiffFlowRevisionsApiV1FlowsNamespaceFlowIdRevisionsDiffGet**](FlowsAPI.md#DiffFlowRevisionsApiV1FlowsNamespaceFlowIdRevisionsDiffGet) | **Get** /api/v1/flows/{namespace}/{flow_id}/revisions/diff | Diff Flow Revisions
 [**ExportFlowDocumentApiV1FlowsNamespaceFlowIdDocumentGet**](FlowsAPI.md#ExportFlowDocumentApiV1FlowsNamespaceFlowIdDocumentGet) | **Get** /api/v1/flows/{namespace}/{flow_id}/document | Export Flow Document
+[**FormatFlowApiV1FlowsFormatPost**](FlowsAPI.md#FormatFlowApiV1FlowsFormatPost) | **Post** /api/v1/flows/format | Format Flow
 [**GetFlowDataContractApiV1FlowsNamespaceFlowIdDataContractGet**](FlowsAPI.md#GetFlowDataContractApiV1FlowsNamespaceFlowIdDataContractGet) | **Get** /api/v1/flows/{namespace}/{flow_id}/data-contract | Get Flow Data Contract
+[**GetFlowEditorSchemaApiV1FlowsEditorSchemaGet**](FlowsAPI.md#GetFlowEditorSchemaApiV1FlowsEditorSchemaGet) | **Get** /api/v1/flows/editor/schema | Get Flow Editor Schema
 [**GetFlowGraphApiV1FlowsNamespaceFlowIdGraphGet**](FlowsAPI.md#GetFlowGraphApiV1FlowsNamespaceFlowIdGraphGet) | **Get** /api/v1/flows/{namespace}/{flow_id}/graph | Get Flow Graph
 [**GetFlowMetadataApiV1FlowsNamespaceFlowIdMetadataGet**](FlowsAPI.md#GetFlowMetadataApiV1FlowsNamespaceFlowIdMetadataGet) | **Get** /api/v1/flows/{namespace}/{flow_id}/metadata | Get Flow Metadata
 [**ListFlowRevisionsApiV1FlowsNamespaceFlowIdRevisionsGet**](FlowsAPI.md#ListFlowRevisionsApiV1FlowsNamespaceFlowIdRevisionsGet) | **Get** /api/v1/flows/{namespace}/{flow_id}/revisions | List Flow Revisions
 [**ListFlowsApiV1FlowsGet**](FlowsAPI.md#ListFlowsApiV1FlowsGet) | **Get** /api/v1/flows | List Flows
+[**PreviewFlowExpressionApiV1FlowsExpressionsPreviewPost**](FlowsAPI.md#PreviewFlowExpressionApiV1FlowsExpressionsPreviewPost) | **Post** /api/v1/flows/expressions/preview | Preview Flow Expression
 [**PromoteFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionLifecyclePut**](FlowsAPI.md#PromoteFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionLifecyclePut) | **Put** /api/v1/flows/{namespace}/{flow_id}/revisions/{revision}/lifecycle | Promote Flow Revision
 [**RestoreFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionRestorePost**](FlowsAPI.md#RestoreFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionRestorePost) | **Post** /api/v1/flows/{namespace}/{flow_id}/revisions/{revision}/restore | Restore Flow Revision
 [**ValidateFlowApiV1FlowsValidatePost**](FlowsAPI.md#ValidateFlowApiV1FlowsValidatePost) | **Post** /api/v1/flows/validate | Validate Flow
@@ -160,6 +164,86 @@ Name | Type | Description  | Notes
 ### Return type
 
  (empty response body)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
+[[Back to Model list]](../README.md#documentation-for-models)
+[[Back to README]](../README.md)
+
+
+## DiffFlowDraftApiV1FlowsNamespaceFlowIdRevisionsRevisionDiffDraftPost
+
+> FlowRevisionDiff DiffFlowDraftApiV1FlowsNamespaceFlowIdRevisionsRevisionDiffDraftPost(ctx, namespace, flowId, revision).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
+
+Diff Flow Draft
+
+### Example
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"os"
+	openapiclient "github.com/amesh/amesh-client-go"
+)
+
+func main() {
+	namespace := "namespace_example" // string |
+	flowId := "flowId_example" // string |
+	revision := int32(56) // int32 |
+	authorization := "authorization_example" // string |  (optional)
+	xAmeshCSRF := "xAmeshCSRF_example" // string |  (optional)
+	xAmeshTenant := "xAmeshTenant_example" // string |  (optional)
+
+	configuration := openapiclient.NewConfiguration()
+	apiClient := openapiclient.NewAPIClient(configuration)
+	resp, r, err := apiClient.FlowsAPI.DiffFlowDraftApiV1FlowsNamespaceFlowIdRevisionsRevisionDiffDraftPost(context.Background(), namespace, flowId, revision).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error when calling `FlowsAPI.DiffFlowDraftApiV1FlowsNamespaceFlowIdRevisionsRevisionDiffDraftPost``: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+	}
+	// response from `DiffFlowDraftApiV1FlowsNamespaceFlowIdRevisionsRevisionDiffDraftPost`: FlowRevisionDiff
+	fmt.Fprintf(os.Stdout, "Response from `FlowsAPI.DiffFlowDraftApiV1FlowsNamespaceFlowIdRevisionsRevisionDiffDraftPost`: %v\n", resp)
+}
+```
+
+### Path Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+**ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
+**namespace** | **string** |  |
+**flowId** | **string** |  |
+**revision** | **int32** |  |
+
+### Other Parameters
+
+Other parameters are passed through a pointer to a apiDiffFlowDraftApiV1FlowsNamespaceFlowIdRevisionsRevisionDiffDraftPostRequest struct via the builder pattern
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+
+
+
+ **authorization** | **string** |  |
+ **xAmeshCSRF** | **string** |  |
+ **xAmeshTenant** | **string** |  |
+
+### Return type
+
+[**FlowRevisionDiff**](FlowRevisionDiff.md)
 
 ### Authorization
 
@@ -335,6 +419,65 @@ No authorization required
 [[Back to README]](../README.md)
 
 
+## FormatFlowApiV1FlowsFormatPost
+
+> FlowFormatResponse FormatFlowApiV1FlowsFormatPost(ctx).Execute()
+
+Format Flow
+
+### Example
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"os"
+	openapiclient "github.com/amesh/amesh-client-go"
+)
+
+func main() {
+
+	configuration := openapiclient.NewConfiguration()
+	apiClient := openapiclient.NewAPIClient(configuration)
+	resp, r, err := apiClient.FlowsAPI.FormatFlowApiV1FlowsFormatPost(context.Background()).Execute()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error when calling `FlowsAPI.FormatFlowApiV1FlowsFormatPost``: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+	}
+	// response from `FormatFlowApiV1FlowsFormatPost`: FlowFormatResponse
+	fmt.Fprintf(os.Stdout, "Response from `FlowsAPI.FormatFlowApiV1FlowsFormatPost`: %v\n", resp)
+}
+```
+
+### Path Parameters
+
+This endpoint does not need any parameter.
+
+### Other Parameters
+
+Other parameters are passed through a pointer to a apiFormatFlowApiV1FlowsFormatPostRequest struct via the builder pattern
+
+
+### Return type
+
+[**FlowFormatResponse**](FlowFormatResponse.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
+[[Back to Model list]](../README.md#documentation-for-models)
+[[Back to README]](../README.md)
+
+
 ## GetFlowDataContractApiV1FlowsNamespaceFlowIdDataContractGet
 
 > FlowDataContract GetFlowDataContractApiV1FlowsNamespaceFlowIdDataContractGet(ctx, namespace, flowId).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
@@ -397,6 +540,74 @@ Name | Type | Description  | Notes
 ### Return type
 
 [**FlowDataContract**](FlowDataContract.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
+[[Back to Model list]](../README.md#documentation-for-models)
+[[Back to README]](../README.md)
+
+
+## GetFlowEditorSchemaApiV1FlowsEditorSchemaGet
+
+> FlowEditorSchemaResponse GetFlowEditorSchemaApiV1FlowsEditorSchemaGet(ctx).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
+
+Get Flow Editor Schema
+
+### Example
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"os"
+	openapiclient "github.com/amesh/amesh-client-go"
+)
+
+func main() {
+	authorization := "authorization_example" // string |  (optional)
+	xAmeshCSRF := "xAmeshCSRF_example" // string |  (optional)
+	xAmeshTenant := "xAmeshTenant_example" // string |  (optional)
+
+	configuration := openapiclient.NewConfiguration()
+	apiClient := openapiclient.NewAPIClient(configuration)
+	resp, r, err := apiClient.FlowsAPI.GetFlowEditorSchemaApiV1FlowsEditorSchemaGet(context.Background()).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error when calling `FlowsAPI.GetFlowEditorSchemaApiV1FlowsEditorSchemaGet``: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+	}
+	// response from `GetFlowEditorSchemaApiV1FlowsEditorSchemaGet`: FlowEditorSchemaResponse
+	fmt.Fprintf(os.Stdout, "Response from `FlowsAPI.GetFlowEditorSchemaApiV1FlowsEditorSchemaGet`: %v\n", resp)
+}
+```
+
+### Path Parameters
+
+
+
+### Other Parameters
+
+Other parameters are passed through a pointer to a apiGetFlowEditorSchemaApiV1FlowsEditorSchemaGetRequest struct via the builder pattern
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **authorization** | **string** |  |
+ **xAmeshCSRF** | **string** |  |
+ **xAmeshTenant** | **string** |  |
+
+### Return type
+
+[**FlowEditorSchemaResponse**](FlowEditorSchemaResponse.md)
 
 ### Authorization
 
@@ -714,6 +925,76 @@ No authorization required
 ### HTTP request headers
 
 - **Content-Type**: Not defined
+- **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
+[[Back to Model list]](../README.md#documentation-for-models)
+[[Back to README]](../README.md)
+
+
+## PreviewFlowExpressionApiV1FlowsExpressionsPreviewPost
+
+> ExpressionPreviewResponse PreviewFlowExpressionApiV1FlowsExpressionsPreviewPost(ctx).ExpressionPreviewRequest(expressionPreviewRequest).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
+
+Preview Flow Expression
+
+### Example
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"os"
+	openapiclient "github.com/amesh/amesh-client-go"
+)
+
+func main() {
+	expressionPreviewRequest := *openapiclient.NewExpressionPreviewRequest("Expression_example") // ExpressionPreviewRequest |
+	authorization := "authorization_example" // string |  (optional)
+	xAmeshCSRF := "xAmeshCSRF_example" // string |  (optional)
+	xAmeshTenant := "xAmeshTenant_example" // string |  (optional)
+
+	configuration := openapiclient.NewConfiguration()
+	apiClient := openapiclient.NewAPIClient(configuration)
+	resp, r, err := apiClient.FlowsAPI.PreviewFlowExpressionApiV1FlowsExpressionsPreviewPost(context.Background()).ExpressionPreviewRequest(expressionPreviewRequest).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error when calling `FlowsAPI.PreviewFlowExpressionApiV1FlowsExpressionsPreviewPost``: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+	}
+	// response from `PreviewFlowExpressionApiV1FlowsExpressionsPreviewPost`: ExpressionPreviewResponse
+	fmt.Fprintf(os.Stdout, "Response from `FlowsAPI.PreviewFlowExpressionApiV1FlowsExpressionsPreviewPost`: %v\n", resp)
+}
+```
+
+### Path Parameters
+
+
+
+### Other Parameters
+
+Other parameters are passed through a pointer to a apiPreviewFlowExpressionApiV1FlowsExpressionsPreviewPostRequest struct via the builder pattern
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **expressionPreviewRequest** | [**ExpressionPreviewRequest**](ExpressionPreviewRequest.md) |  |
+ **authorization** | **string** |  |
+ **xAmeshCSRF** | **string** |  |
+ **xAmeshTenant** | **string** |  |
+
+### Return type
+
+[**ExpressionPreviewResponse**](ExpressionPreviewResponse.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: application/json
 - **Accept**: application/json
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)

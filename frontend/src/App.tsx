@@ -11,6 +11,7 @@ import { DashboardPage } from './pages/DashboardPage'
 import { ExecutionDetailPage } from './pages/ExecutionDetailPage'
 import { ExecutionsPage } from './pages/ExecutionsPage'
 import { FlowDetailPage } from './pages/FlowDetailPage'
+import { FlowEditorPage } from './pages/FlowEditorPage'
 import { FlowsPage } from './pages/FlowsPage'
 import { PlaceholderPage } from './pages/PlaceholderPage'
 import { NamespaceResourcesPage } from './pages/NamespaceResourcesPage'
@@ -65,6 +66,8 @@ function WorkspaceRoutes({ session }: { session: UiSession }) {
       <Route element={<AppShell session={session} />}>
         <Route index element={<DashboardPage session={session} />} />
         <Route path="flows" element={<CapabilityRoute session={session} capability="flows.view" title="Flows"><FlowsPage session={session} /></CapabilityRoute>} />
+        <Route path="flows/new" element={<CapabilityRoute session={session} capability="flows.create" title="Create flow"><FlowEditorPage session={session} /></CapabilityRoute>} />
+        <Route path="flows/:namespace/:flowId/edit" element={<CapabilityRoute session={session} capability="flows.update" title="Edit flow"><FlowEditorPage session={session} /></CapabilityRoute>} />
         <Route path="flows/:namespace/:flowId" element={<CapabilityRoute session={session} capability="flows.view" title="Flow"><FlowDetailPage session={session} /></CapabilityRoute>} />
         <Route path="executions" element={<CapabilityRoute session={session} capability="executions.view" title="Executions"><ExecutionsPage session={session} /></CapabilityRoute>} />
         <Route path="executions/:executionId" element={<CapabilityRoute session={session} capability="executions.view" title="Execution"><ExecutionDetailPage /></CapabilityRoute>} />

@@ -173,4 +173,39 @@ describe('API client', () => {
     expect(secretBody).toEqual({ provider: 'env', providerReference: 'PRODUCTION_API_KEY' })
     expect(JSON.stringify(secretBody)).not.toContain('secretValue')
   })
+
+  it('uses the server-authoritative flow editor and revision endpoints', async () => {
+    const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(
+      new Response('{}', { status: 200 }),
+    ))
+    vi.stubGlobal('fetch', fetchMock)
+    const api = createApiClient({ token: 'token', tenant: 'default', namespace: '' })
+
+    await api.flowEditorSchema()
+    await api.validateFlow('id: daily')
+    await api.formatFlow('id: daily')
+    await api.saveFlow('id: daily', 'etag-7')
+    await api.flowDocument('team/data', 'daily flow', 3)
+    await api.flowRevisions('team/data', 'daily flow')
+    await api.diffFlowDraft('team/data', 'daily flow', 2, 'id: daily')
+    await api.setFlowLifecycle('team/data', 'daily flow', 3, 'DISABLED', 'maintenance')
+    await api.restoreFlowRevision('team/data', 'daily flow', 2, 'rollback')
+    await api.previewExpression('{{ inputs.name }}', { inputs: { name: 'Ada' } })
+
+    expect(fetchMock.mock.calls.map((call) => call[0] as string)).toEqual([
+      '/api/v1/flows/editor/schema',
+      '/api/v1/flows/validate',
+      '/api/v1/flows/format',
+      '/api/v1/flows',
+      '/api/v1/flows/team%2Fdata/daily%20flow/document?revision=3',
+      '/api/v1/flows/team%2Fdata/daily%20flow/revisions',
+      '/api/v1/flows/team%2Fdata/daily%20flow/revisions/2/diff-draft',
+      '/api/v1/flows/team%2Fdata/daily%20flow/revisions/3/lifecycle',
+      '/api/v1/flows/team%2Fdata/daily%20flow/revisions/2/restore',
+      '/api/v1/flows/expressions/preview',
+    ])
+    const saveInit = fetchMock.mock.calls[3]?.[1] as RequestInit
+    expect(new Headers(saveInit.headers).get('if-match')).toBe('etag-7')
+    expect(saveInit.body).toBe('id: daily')
+  })
 })

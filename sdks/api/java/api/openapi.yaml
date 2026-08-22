@@ -4375,6 +4375,120 @@ paths:
       - flows
       x-accepts:
       - application/json
+  /api/v1/flows/editor/schema:
+    get:
+      operationId: get_flow_editor_schema_api_v1_flows_editor_schema_get
+      parameters:
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FlowEditorSchemaResponse"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Get Flow Editor Schema
+      tags:
+      - flows
+      x-accepts:
+      - application/json
+  /api/v1/flows/expressions/preview:
+    post:
+      operationId: preview_flow_expression_api_v1_flows_expressions_preview_post
+      parameters:
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExpressionPreviewRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExpressionPreviewResponse"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Preview Flow Expression
+      tags:
+      - flows
+      x-content-type: application/json
+      x-accepts:
+      - application/json
+  /api/v1/flows/format:
+    post:
+      operationId: format_flow_api_v1_flows_format_post
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FlowFormatResponse"
+          description: Successful Response
+      summary: Format Flow
+      tags:
+      - flows
+      x-accepts:
+      - application/json
   /api/v1/flows/validate:
     post:
       operationId: validate_flow_api_v1_flows_validate_post
@@ -4856,6 +4970,76 @@ paths:
                 $ref: "#/components/schemas/HTTPValidationError"
           description: Validation Error
       summary: Delete Flow Revision
+      tags:
+      - flows
+      x-accepts:
+      - application/json
+  /api/v1/flows/{namespace}/{flow_id}/revisions/{revision}/diff-draft:
+    post:
+      operationId: diff_flow_draft_api_v1_flows__namespace___flow_id__revisions__revision__diff_draft_post
+      parameters:
+      - explode: false
+        in: path
+        name: namespace
+        required: true
+        schema:
+          title: Namespace
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: flow_id
+        required: true
+        schema:
+          title: Flow Id
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: revision
+        required: true
+        schema:
+          title: Revision
+          type: integer
+        style: simple
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FlowRevisionDiff"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Diff Flow Draft
       tags:
       - flows
       x-accepts:
@@ -10942,6 +11126,45 @@ components:
       - RESTARTING
       title: ExecutionState
       type: string
+    ExpressionPreviewRequest:
+      example:
+        context:
+          key: ""
+        expression: expression
+      properties:
+        context:
+          additionalProperties: true
+          title: Context
+          type: object
+        expression:
+          maxLength: 65536
+          minLength: 1
+          title: Expression
+          type: string
+      required:
+      - expression
+      title: ExpressionPreviewRequest
+    ExpressionPreviewResponse:
+      example:
+        compatibilityVersion: compatibilityVersion
+        redactedContext:
+          key: ""
+        result: ""
+      properties:
+        compatibilityVersion:
+          title: Compatibilityversion
+          type: string
+        redactedContext:
+          additionalProperties: true
+          title: Redactedcontext
+          type: object
+        result:
+          title: Result
+      required:
+      - compatibilityVersion
+      - redactedContext
+      - result
+      title: ExpressionPreviewResponse
     ExtensionType:
       enum:
       - task
@@ -11189,6 +11412,70 @@ components:
       - revision
       - semanticHash
       title: FlowDocumentExport
+    FlowEditorSchemaResponse:
+      example:
+        expressionContext:
+          key: expressionContext
+        flowSchema:
+          key: ""
+        resourceCatalog:
+          key: ""
+        schemaVersion: amesh.flow-editor/v1
+      properties:
+        expressionContext:
+          additionalProperties:
+            type: string
+          title: Expressioncontext
+        flowSchema:
+          additionalProperties: true
+          title: Flowschema
+          type: object
+        resourceCatalog:
+          additionalProperties: true
+          title: Resourcecatalog
+          type: object
+        schemaVersion:
+          enum:
+          - amesh.flow-editor/v1
+          title: Schemaversion
+          type: string
+      required:
+      - expressionContext
+      - flowSchema
+      - resourceCatalog
+      - schemaVersion
+      title: FlowEditorSchemaResponse
+    FlowFormatResponse:
+      example:
+        document: document
+        validation:
+          canonical:
+            key: ""
+          irVersion: amesh.flow/v1
+          issues:
+          - code: code
+            hint: hint
+            message: message
+            path: path
+            severity: error
+            sourceRange: ""
+          - code: code
+            hint: hint
+            message: message
+            path: path
+            severity: error
+            sourceRange: ""
+          semantic_hash: semantic_hash
+          valid: true
+      properties:
+        document:
+          nullable: true
+          type: string
+        validation:
+          $ref: "#/components/schemas/FlowValidationResult"
+      required:
+      - validation
+      title: FlowFormatResponse
     FlowGraph:
       example:
         edges:

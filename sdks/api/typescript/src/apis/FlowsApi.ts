@@ -14,6 +14,16 @@
 
 import * as runtime from '../runtime';
 import {
+    type ExpressionPreviewRequest,
+    ExpressionPreviewRequestFromJSON,
+    ExpressionPreviewRequestToJSON,
+} from '../models/ExpressionPreviewRequest';
+import {
+    type ExpressionPreviewResponse,
+    ExpressionPreviewResponseFromJSON,
+    ExpressionPreviewResponseToJSON,
+} from '../models/ExpressionPreviewResponse';
+import {
     type FlowDataContract,
     FlowDataContractFromJSON,
     FlowDataContractToJSON,
@@ -23,6 +33,16 @@ import {
     FlowDocumentExportFromJSON,
     FlowDocumentExportToJSON,
 } from '../models/FlowDocumentExport';
+import {
+    type FlowEditorSchemaResponse,
+    FlowEditorSchemaResponseFromJSON,
+    FlowEditorSchemaResponseToJSON,
+} from '../models/FlowEditorSchemaResponse';
+import {
+    type FlowFormatResponse,
+    FlowFormatResponseFromJSON,
+    FlowFormatResponseToJSON,
+} from '../models/FlowFormatResponse';
 import {
     type FlowGraph,
     FlowGraphFromJSON,
@@ -89,6 +109,15 @@ export interface DeleteFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionDel
     xAmeshTenant?: string | null;
 }
 
+export interface DiffFlowDraftApiV1FlowsNamespaceFlowIdRevisionsRevisionDiffDraftPostRequest {
+    namespace: string;
+    flowId: string;
+    revision: number;
+    authorization?: string | null;
+    xAmeshCSRF?: string | null;
+    xAmeshTenant?: string | null;
+}
+
 export interface DiffFlowRevisionsApiV1FlowsNamespaceFlowIdRevisionsDiffGetRequest {
     namespace: string;
     flowId: string;
@@ -111,6 +140,12 @@ export interface ExportFlowDocumentApiV1FlowsNamespaceFlowIdDocumentGetRequest {
 export interface GetFlowDataContractApiV1FlowsNamespaceFlowIdDataContractGetRequest {
     namespace: string;
     flowId: string;
+    authorization?: string | null;
+    xAmeshCSRF?: string | null;
+    xAmeshTenant?: string | null;
+}
+
+export interface GetFlowEditorSchemaApiV1FlowsEditorSchemaGetRequest {
     authorization?: string | null;
     xAmeshCSRF?: string | null;
     xAmeshTenant?: string | null;
@@ -146,6 +181,13 @@ export interface ListFlowsApiV1FlowsGetRequest {
     filter?: Array<string> | null;
     sort?: string | null;
     fields?: string | null;
+    authorization?: string | null;
+    xAmeshCSRF?: string | null;
+    xAmeshTenant?: string | null;
+}
+
+export interface PreviewFlowExpressionApiV1FlowsExpressionsPreviewPostRequest {
+    expressionPreviewRequest: ExpressionPreviewRequest;
     authorization?: string | null;
     xAmeshCSRF?: string | null;
     xAmeshTenant?: string | null;
@@ -318,6 +360,79 @@ export class FlowsApi extends runtime.BaseAPI {
     }
 
     /**
+     * Creates request options for diffFlowDraftApiV1FlowsNamespaceFlowIdRevisionsRevisionDiffDraftPost without sending the request
+     */
+    async diffFlowDraftApiV1FlowsNamespaceFlowIdRevisionsRevisionDiffDraftPostRequestOpts(requestParameters: DiffFlowDraftApiV1FlowsNamespaceFlowIdRevisionsRevisionDiffDraftPostRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['namespace'] == null) {
+            throw new runtime.RequiredError(
+                'namespace',
+                'Required parameter "namespace" was null or undefined when calling diffFlowDraftApiV1FlowsNamespaceFlowIdRevisionsRevisionDiffDraftPost().'
+            );
+        }
+
+        if (requestParameters['flowId'] == null) {
+            throw new runtime.RequiredError(
+                'flowId',
+                'Required parameter "flowId" was null or undefined when calling diffFlowDraftApiV1FlowsNamespaceFlowIdRevisionsRevisionDiffDraftPost().'
+            );
+        }
+
+        if (requestParameters['revision'] == null) {
+            throw new runtime.RequiredError(
+                'revision',
+                'Required parameter "revision" was null or undefined when calling diffFlowDraftApiV1FlowsNamespaceFlowIdRevisionsRevisionDiffDraftPost().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (requestParameters['authorization'] != null) {
+            headerParameters['authorization'] = String(requestParameters['authorization']);
+        }
+
+        if (requestParameters['xAmeshCSRF'] != null) {
+            headerParameters['X-Amesh-CSRF'] = String(requestParameters['xAmeshCSRF']);
+        }
+
+        if (requestParameters['xAmeshTenant'] != null) {
+            headerParameters['X-Amesh-Tenant'] = String(requestParameters['xAmeshTenant']);
+        }
+
+
+        let urlPath = `/api/v1/flows/{namespace}/{flow_id}/revisions/{revision}/diff-draft`;
+        urlPath = urlPath.replace('{namespace}', encodeURIComponent(String(requestParameters['namespace'])));
+        urlPath = urlPath.replace('{flow_id}', encodeURIComponent(String(requestParameters['flowId'])));
+        urlPath = urlPath.replace('{revision}', encodeURIComponent(String(requestParameters['revision'])));
+
+        return {
+            path: urlPath,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     * Diff Flow Draft
+     */
+    async diffFlowDraftApiV1FlowsNamespaceFlowIdRevisionsRevisionDiffDraftPostRaw(requestParameters: DiffFlowDraftApiV1FlowsNamespaceFlowIdRevisionsRevisionDiffDraftPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<FlowRevisionDiff>> {
+        const requestOptions = await this.diffFlowDraftApiV1FlowsNamespaceFlowIdRevisionsRevisionDiffDraftPostRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => FlowRevisionDiffFromJSON(jsonValue));
+    }
+
+    /**
+     * Diff Flow Draft
+     */
+    async diffFlowDraftApiV1FlowsNamespaceFlowIdRevisionsRevisionDiffDraftPost(requestParameters: DiffFlowDraftApiV1FlowsNamespaceFlowIdRevisionsRevisionDiffDraftPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<FlowRevisionDiff> {
+        const response = await this.diffFlowDraftApiV1FlowsNamespaceFlowIdRevisionsRevisionDiffDraftPostRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
      * Creates request options for diffFlowRevisionsApiV1FlowsNamespaceFlowIdRevisionsDiffGet without sending the request
      */
     async diffFlowRevisionsApiV1FlowsNamespaceFlowIdRevisionsDiffGetRequestOpts(requestParameters: DiffFlowRevisionsApiV1FlowsNamespaceFlowIdRevisionsDiffGetRequest): Promise<runtime.RequestOpts> {
@@ -474,6 +589,43 @@ export class FlowsApi extends runtime.BaseAPI {
     }
 
     /**
+     * Creates request options for formatFlowApiV1FlowsFormatPost without sending the request
+     */
+    async formatFlowApiV1FlowsFormatPostRequestOpts(): Promise<runtime.RequestOpts> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+
+        let urlPath = `/api/v1/flows/format`;
+
+        return {
+            path: urlPath,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     * Format Flow
+     */
+    async formatFlowApiV1FlowsFormatPostRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<FlowFormatResponse>> {
+        const requestOptions = await this.formatFlowApiV1FlowsFormatPostRequestOpts();
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => FlowFormatResponseFromJSON(jsonValue));
+    }
+
+    /**
+     * Format Flow
+     */
+    async formatFlowApiV1FlowsFormatPost(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<FlowFormatResponse> {
+        const response = await this.formatFlowApiV1FlowsFormatPostRaw(initOverrides);
+        return await response.value();
+    }
+
+    /**
      * Creates request options for getFlowDataContractApiV1FlowsNamespaceFlowIdDataContractGet without sending the request
      */
     async getFlowDataContractApiV1FlowsNamespaceFlowIdDataContractGetRequestOpts(requestParameters: GetFlowDataContractApiV1FlowsNamespaceFlowIdDataContractGetRequest): Promise<runtime.RequestOpts> {
@@ -535,6 +687,55 @@ export class FlowsApi extends runtime.BaseAPI {
      */
     async getFlowDataContractApiV1FlowsNamespaceFlowIdDataContractGet(requestParameters: GetFlowDataContractApiV1FlowsNamespaceFlowIdDataContractGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<FlowDataContract> {
         const response = await this.getFlowDataContractApiV1FlowsNamespaceFlowIdDataContractGetRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Creates request options for getFlowEditorSchemaApiV1FlowsEditorSchemaGet without sending the request
+     */
+    async getFlowEditorSchemaApiV1FlowsEditorSchemaGetRequestOpts(requestParameters: GetFlowEditorSchemaApiV1FlowsEditorSchemaGetRequest): Promise<runtime.RequestOpts> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (requestParameters['authorization'] != null) {
+            headerParameters['authorization'] = String(requestParameters['authorization']);
+        }
+
+        if (requestParameters['xAmeshCSRF'] != null) {
+            headerParameters['X-Amesh-CSRF'] = String(requestParameters['xAmeshCSRF']);
+        }
+
+        if (requestParameters['xAmeshTenant'] != null) {
+            headerParameters['X-Amesh-Tenant'] = String(requestParameters['xAmeshTenant']);
+        }
+
+
+        let urlPath = `/api/v1/flows/editor/schema`;
+
+        return {
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     * Get Flow Editor Schema
+     */
+    async getFlowEditorSchemaApiV1FlowsEditorSchemaGetRaw(requestParameters: GetFlowEditorSchemaApiV1FlowsEditorSchemaGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<FlowEditorSchemaResponse>> {
+        const requestOptions = await this.getFlowEditorSchemaApiV1FlowsEditorSchemaGetRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => FlowEditorSchemaResponseFromJSON(jsonValue));
+    }
+
+    /**
+     * Get Flow Editor Schema
+     */
+    async getFlowEditorSchemaApiV1FlowsEditorSchemaGet(requestParameters: GetFlowEditorSchemaApiV1FlowsEditorSchemaGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<FlowEditorSchemaResponse> {
+        const response = await this.getFlowEditorSchemaApiV1FlowsEditorSchemaGetRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
@@ -799,6 +1000,65 @@ export class FlowsApi extends runtime.BaseAPI {
      */
     async listFlowsApiV1FlowsGet(requestParameters: ListFlowsApiV1FlowsGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<PersistedFlow>> {
         const response = await this.listFlowsApiV1FlowsGetRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Creates request options for previewFlowExpressionApiV1FlowsExpressionsPreviewPost without sending the request
+     */
+    async previewFlowExpressionApiV1FlowsExpressionsPreviewPostRequestOpts(requestParameters: PreviewFlowExpressionApiV1FlowsExpressionsPreviewPostRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['expressionPreviewRequest'] == null) {
+            throw new runtime.RequiredError(
+                'expressionPreviewRequest',
+                'Required parameter "expressionPreviewRequest" was null or undefined when calling previewFlowExpressionApiV1FlowsExpressionsPreviewPost().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        if (requestParameters['authorization'] != null) {
+            headerParameters['authorization'] = String(requestParameters['authorization']);
+        }
+
+        if (requestParameters['xAmeshCSRF'] != null) {
+            headerParameters['X-Amesh-CSRF'] = String(requestParameters['xAmeshCSRF']);
+        }
+
+        if (requestParameters['xAmeshTenant'] != null) {
+            headerParameters['X-Amesh-Tenant'] = String(requestParameters['xAmeshTenant']);
+        }
+
+
+        let urlPath = `/api/v1/flows/expressions/preview`;
+
+        return {
+            path: urlPath,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: ExpressionPreviewRequestToJSON(requestParameters['expressionPreviewRequest']),
+        };
+    }
+
+    /**
+     * Preview Flow Expression
+     */
+    async previewFlowExpressionApiV1FlowsExpressionsPreviewPostRaw(requestParameters: PreviewFlowExpressionApiV1FlowsExpressionsPreviewPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ExpressionPreviewResponse>> {
+        const requestOptions = await this.previewFlowExpressionApiV1FlowsExpressionsPreviewPostRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => ExpressionPreviewResponseFromJSON(jsonValue));
+    }
+
+    /**
+     * Preview Flow Expression
+     */
+    async previewFlowExpressionApiV1FlowsExpressionsPreviewPost(requestParameters: PreviewFlowExpressionApiV1FlowsExpressionsPreviewPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ExpressionPreviewResponse> {
+        const response = await this.previewFlowExpressionApiV1FlowsExpressionsPreviewPostRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

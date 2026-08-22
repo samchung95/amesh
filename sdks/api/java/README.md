@@ -235,12 +235,18 @@ Class | Method | HTTP request | Description
 *FlowsApi* | [**applyFlowApiV1FlowsPutWithHttpInfo**](docs/FlowsApi.md#applyFlowApiV1FlowsPutWithHttpInfo) | **PUT** /api/v1/flows | Apply Flow
 *FlowsApi* | [**deleteFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionDelete**](docs/FlowsApi.md#deleteFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionDelete) | **DELETE** /api/v1/flows/{namespace}/{flow_id}/revisions/{revision} | Delete Flow Revision
 *FlowsApi* | [**deleteFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionDeleteWithHttpInfo**](docs/FlowsApi.md#deleteFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionDeleteWithHttpInfo) | **DELETE** /api/v1/flows/{namespace}/{flow_id}/revisions/{revision} | Delete Flow Revision
+*FlowsApi* | [**diffFlowDraftApiV1FlowsNamespaceFlowIdRevisionsRevisionDiffDraftPost**](docs/FlowsApi.md#diffFlowDraftApiV1FlowsNamespaceFlowIdRevisionsRevisionDiffDraftPost) | **POST** /api/v1/flows/{namespace}/{flow_id}/revisions/{revision}/diff-draft | Diff Flow Draft
+*FlowsApi* | [**diffFlowDraftApiV1FlowsNamespaceFlowIdRevisionsRevisionDiffDraftPostWithHttpInfo**](docs/FlowsApi.md#diffFlowDraftApiV1FlowsNamespaceFlowIdRevisionsRevisionDiffDraftPostWithHttpInfo) | **POST** /api/v1/flows/{namespace}/{flow_id}/revisions/{revision}/diff-draft | Diff Flow Draft
 *FlowsApi* | [**diffFlowRevisionsApiV1FlowsNamespaceFlowIdRevisionsDiffGet**](docs/FlowsApi.md#diffFlowRevisionsApiV1FlowsNamespaceFlowIdRevisionsDiffGet) | **GET** /api/v1/flows/{namespace}/{flow_id}/revisions/diff | Diff Flow Revisions
 *FlowsApi* | [**diffFlowRevisionsApiV1FlowsNamespaceFlowIdRevisionsDiffGetWithHttpInfo**](docs/FlowsApi.md#diffFlowRevisionsApiV1FlowsNamespaceFlowIdRevisionsDiffGetWithHttpInfo) | **GET** /api/v1/flows/{namespace}/{flow_id}/revisions/diff | Diff Flow Revisions
 *FlowsApi* | [**exportFlowDocumentApiV1FlowsNamespaceFlowIdDocumentGet**](docs/FlowsApi.md#exportFlowDocumentApiV1FlowsNamespaceFlowIdDocumentGet) | **GET** /api/v1/flows/{namespace}/{flow_id}/document | Export Flow Document
 *FlowsApi* | [**exportFlowDocumentApiV1FlowsNamespaceFlowIdDocumentGetWithHttpInfo**](docs/FlowsApi.md#exportFlowDocumentApiV1FlowsNamespaceFlowIdDocumentGetWithHttpInfo) | **GET** /api/v1/flows/{namespace}/{flow_id}/document | Export Flow Document
+*FlowsApi* | [**formatFlowApiV1FlowsFormatPost**](docs/FlowsApi.md#formatFlowApiV1FlowsFormatPost) | **POST** /api/v1/flows/format | Format Flow
+*FlowsApi* | [**formatFlowApiV1FlowsFormatPostWithHttpInfo**](docs/FlowsApi.md#formatFlowApiV1FlowsFormatPostWithHttpInfo) | **POST** /api/v1/flows/format | Format Flow
 *FlowsApi* | [**getFlowDataContractApiV1FlowsNamespaceFlowIdDataContractGet**](docs/FlowsApi.md#getFlowDataContractApiV1FlowsNamespaceFlowIdDataContractGet) | **GET** /api/v1/flows/{namespace}/{flow_id}/data-contract | Get Flow Data Contract
 *FlowsApi* | [**getFlowDataContractApiV1FlowsNamespaceFlowIdDataContractGetWithHttpInfo**](docs/FlowsApi.md#getFlowDataContractApiV1FlowsNamespaceFlowIdDataContractGetWithHttpInfo) | **GET** /api/v1/flows/{namespace}/{flow_id}/data-contract | Get Flow Data Contract
+*FlowsApi* | [**getFlowEditorSchemaApiV1FlowsEditorSchemaGet**](docs/FlowsApi.md#getFlowEditorSchemaApiV1FlowsEditorSchemaGet) | **GET** /api/v1/flows/editor/schema | Get Flow Editor Schema
+*FlowsApi* | [**getFlowEditorSchemaApiV1FlowsEditorSchemaGetWithHttpInfo**](docs/FlowsApi.md#getFlowEditorSchemaApiV1FlowsEditorSchemaGetWithHttpInfo) | **GET** /api/v1/flows/editor/schema | Get Flow Editor Schema
 *FlowsApi* | [**getFlowGraphApiV1FlowsNamespaceFlowIdGraphGet**](docs/FlowsApi.md#getFlowGraphApiV1FlowsNamespaceFlowIdGraphGet) | **GET** /api/v1/flows/{namespace}/{flow_id}/graph | Get Flow Graph
 *FlowsApi* | [**getFlowGraphApiV1FlowsNamespaceFlowIdGraphGetWithHttpInfo**](docs/FlowsApi.md#getFlowGraphApiV1FlowsNamespaceFlowIdGraphGetWithHttpInfo) | **GET** /api/v1/flows/{namespace}/{flow_id}/graph | Get Flow Graph
 *FlowsApi* | [**getFlowMetadataApiV1FlowsNamespaceFlowIdMetadataGet**](docs/FlowsApi.md#getFlowMetadataApiV1FlowsNamespaceFlowIdMetadataGet) | **GET** /api/v1/flows/{namespace}/{flow_id}/metadata | Get Flow Metadata
@@ -249,6 +255,8 @@ Class | Method | HTTP request | Description
 *FlowsApi* | [**listFlowRevisionsApiV1FlowsNamespaceFlowIdRevisionsGetWithHttpInfo**](docs/FlowsApi.md#listFlowRevisionsApiV1FlowsNamespaceFlowIdRevisionsGetWithHttpInfo) | **GET** /api/v1/flows/{namespace}/{flow_id}/revisions | List Flow Revisions
 *FlowsApi* | [**listFlowsApiV1FlowsGet**](docs/FlowsApi.md#listFlowsApiV1FlowsGet) | **GET** /api/v1/flows | List Flows
 *FlowsApi* | [**listFlowsApiV1FlowsGetWithHttpInfo**](docs/FlowsApi.md#listFlowsApiV1FlowsGetWithHttpInfo) | **GET** /api/v1/flows | List Flows
+*FlowsApi* | [**previewFlowExpressionApiV1FlowsExpressionsPreviewPost**](docs/FlowsApi.md#previewFlowExpressionApiV1FlowsExpressionsPreviewPost) | **POST** /api/v1/flows/expressions/preview | Preview Flow Expression
+*FlowsApi* | [**previewFlowExpressionApiV1FlowsExpressionsPreviewPostWithHttpInfo**](docs/FlowsApi.md#previewFlowExpressionApiV1FlowsExpressionsPreviewPostWithHttpInfo) | **POST** /api/v1/flows/expressions/preview | Preview Flow Expression
 *FlowsApi* | [**promoteFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionLifecyclePut**](docs/FlowsApi.md#promoteFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionLifecyclePut) | **PUT** /api/v1/flows/{namespace}/{flow_id}/revisions/{revision}/lifecycle | Promote Flow Revision
 *FlowsApi* | [**promoteFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionLifecyclePutWithHttpInfo**](docs/FlowsApi.md#promoteFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionLifecyclePutWithHttpInfo) | **PUT** /api/v1/flows/{namespace}/{flow_id}/revisions/{revision}/lifecycle | Promote Flow Revision
 *FlowsApi* | [**restoreFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionRestorePost**](docs/FlowsApi.md#restoreFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionRestorePost) | **POST** /api/v1/flows/{namespace}/{flow_id}/revisions/{revision}/restore | Restore Flow Revision
@@ -448,6 +456,8 @@ Class | Method | HTTP request | Description
  - [ExecutionInterventionRequest](docs/ExecutionInterventionRequest.md)
  - [ExecutionSnapshot](docs/ExecutionSnapshot.md)
  - [ExecutionState](docs/ExecutionState.md)
+ - [ExpressionPreviewRequest](docs/ExpressionPreviewRequest.md)
+ - [ExpressionPreviewResponse](docs/ExpressionPreviewResponse.md)
  - [ExtensionType](docs/ExtensionType.md)
  - [FailoverStatus](docs/FailoverStatus.md)
  - [FailureCategory](docs/FailureCategory.md)
@@ -457,6 +467,8 @@ Class | Method | HTTP request | Description
  - [FeatureFlagUpsertRequest](docs/FeatureFlagUpsertRequest.md)
  - [FlowDataContract](docs/FlowDataContract.md)
  - [FlowDocumentExport](docs/FlowDocumentExport.md)
+ - [FlowEditorSchemaResponse](docs/FlowEditorSchemaResponse.md)
+ - [FlowFormatResponse](docs/FlowFormatResponse.md)
  - [FlowGraph](docs/FlowGraph.md)
  - [FlowGraphEdge](docs/FlowGraphEdge.md)
  - [FlowGraphNode](docs/FlowGraphNode.md)

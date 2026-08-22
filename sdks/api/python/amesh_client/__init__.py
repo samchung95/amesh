@@ -99,6 +99,8 @@ __all__ = [
     "ExecutionInterventionRequest",
     "ExecutionSnapshot",
     "ExecutionState",
+    "ExpressionPreviewRequest",
+    "ExpressionPreviewResponse",
     "ExtensionType",
     "FailoverStatus",
     "FailureCategory",
@@ -108,6 +110,8 @@ __all__ = [
     "FeatureFlagUpsertRequest",
     "FlowDataContract",
     "FlowDocumentExport",
+    "FlowEditorSchemaResponse",
+    "FlowFormatResponse",
     "FlowGraph",
     "FlowGraphEdge",
     "FlowGraphNode",
@@ -359,6 +363,8 @@ from amesh_client.models.execution_intervention_record import ExecutionIntervent
 from amesh_client.models.execution_intervention_request import ExecutionInterventionRequest as ExecutionInterventionRequest
 from amesh_client.models.execution_snapshot import ExecutionSnapshot as ExecutionSnapshot
 from amesh_client.models.execution_state import ExecutionState as ExecutionState
+from amesh_client.models.expression_preview_request import ExpressionPreviewRequest as ExpressionPreviewRequest
+from amesh_client.models.expression_preview_response import ExpressionPreviewResponse as ExpressionPreviewResponse
 from amesh_client.models.extension_type import ExtensionType as ExtensionType
 from amesh_client.models.failover_status import FailoverStatus as FailoverStatus
 from amesh_client.models.failure_category import FailureCategory as FailureCategory
@@ -368,6 +374,8 @@ from amesh_client.models.feature_flag_scope import FeatureFlagScope as FeatureFl
 from amesh_client.models.feature_flag_upsert_request import FeatureFlagUpsertRequest as FeatureFlagUpsertRequest
 from amesh_client.models.flow_data_contract import FlowDataContract as FlowDataContract
 from amesh_client.models.flow_document_export import FlowDocumentExport as FlowDocumentExport
+from amesh_client.models.flow_editor_schema_response import FlowEditorSchemaResponse as FlowEditorSchemaResponse
+from amesh_client.models.flow_format_response import FlowFormatResponse as FlowFormatResponse
 from amesh_client.models.flow_graph import FlowGraph as FlowGraph
 from amesh_client.models.flow_graph_edge import FlowGraphEdge as FlowGraphEdge
 from amesh_client.models.flow_graph_node import FlowGraphNode as FlowGraphNode

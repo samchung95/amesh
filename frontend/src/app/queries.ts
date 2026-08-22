@@ -1,15 +1,16 @@
 import { useQuery } from '@tanstack/react-query'
+import { useMemo } from 'react'
 
 import { createApiClient } from '../api/client'
 import { useAppSettings } from './settings'
 
 export function useApiClient() {
   const { settings } = useAppSettings()
-  return createApiClient({
+  return useMemo(() => createApiClient({
     token: settings.token,
     tenant: settings.tenant,
     namespace: settings.namespace,
-  })
+  }), [settings.namespace, settings.tenant, settings.token])
 }
 
 export function useSession() {

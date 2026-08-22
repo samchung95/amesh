@@ -6,13 +6,17 @@ Method | HTTP request | Description
 ------------- | ------------- | -------------
 [**apply_flow_api_v1_flows_put**](FlowsApi.md#apply_flow_api_v1_flows_put) | **PUT** /api/v1/flows | Apply Flow
 [**delete_flow_revision_api_v1_flows_namespace_flow_id_revisions_revision_delete**](FlowsApi.md#delete_flow_revision_api_v1_flows_namespace_flow_id_revisions_revision_delete) | **DELETE** /api/v1/flows/{namespace}/{flow_id}/revisions/{revision} | Delete Flow Revision
+[**diff_flow_draft_api_v1_flows_namespace_flow_id_revisions_revision_diff_draft_post**](FlowsApi.md#diff_flow_draft_api_v1_flows_namespace_flow_id_revisions_revision_diff_draft_post) | **POST** /api/v1/flows/{namespace}/{flow_id}/revisions/{revision}/diff-draft | Diff Flow Draft
 [**diff_flow_revisions_api_v1_flows_namespace_flow_id_revisions_diff_get**](FlowsApi.md#diff_flow_revisions_api_v1_flows_namespace_flow_id_revisions_diff_get) | **GET** /api/v1/flows/{namespace}/{flow_id}/revisions/diff | Diff Flow Revisions
 [**export_flow_document_api_v1_flows_namespace_flow_id_document_get**](FlowsApi.md#export_flow_document_api_v1_flows_namespace_flow_id_document_get) | **GET** /api/v1/flows/{namespace}/{flow_id}/document | Export Flow Document
+[**format_flow_api_v1_flows_format_post**](FlowsApi.md#format_flow_api_v1_flows_format_post) | **POST** /api/v1/flows/format | Format Flow
 [**get_flow_data_contract_api_v1_flows_namespace_flow_id_data_contract_get**](FlowsApi.md#get_flow_data_contract_api_v1_flows_namespace_flow_id_data_contract_get) | **GET** /api/v1/flows/{namespace}/{flow_id}/data-contract | Get Flow Data Contract
+[**get_flow_editor_schema_api_v1_flows_editor_schema_get**](FlowsApi.md#get_flow_editor_schema_api_v1_flows_editor_schema_get) | **GET** /api/v1/flows/editor/schema | Get Flow Editor Schema
 [**get_flow_graph_api_v1_flows_namespace_flow_id_graph_get**](FlowsApi.md#get_flow_graph_api_v1_flows_namespace_flow_id_graph_get) | **GET** /api/v1/flows/{namespace}/{flow_id}/graph | Get Flow Graph
 [**get_flow_metadata_api_v1_flows_namespace_flow_id_metadata_get**](FlowsApi.md#get_flow_metadata_api_v1_flows_namespace_flow_id_metadata_get) | **GET** /api/v1/flows/{namespace}/{flow_id}/metadata | Get Flow Metadata
 [**list_flow_revisions_api_v1_flows_namespace_flow_id_revisions_get**](FlowsApi.md#list_flow_revisions_api_v1_flows_namespace_flow_id_revisions_get) | **GET** /api/v1/flows/{namespace}/{flow_id}/revisions | List Flow Revisions
 [**list_flows_api_v1_flows_get**](FlowsApi.md#list_flows_api_v1_flows_get) | **GET** /api/v1/flows | List Flows
+[**preview_flow_expression_api_v1_flows_expressions_preview_post**](FlowsApi.md#preview_flow_expression_api_v1_flows_expressions_preview_post) | **POST** /api/v1/flows/expressions/preview | Preview Flow Expression
 [**promote_flow_revision_api_v1_flows_namespace_flow_id_revisions_revision_lifecycle_put**](FlowsApi.md#promote_flow_revision_api_v1_flows_namespace_flow_id_revisions_revision_lifecycle_put) | **PUT** /api/v1/flows/{namespace}/{flow_id}/revisions/{revision}/lifecycle | Promote Flow Revision
 [**restore_flow_revision_api_v1_flows_namespace_flow_id_revisions_revision_restore_post**](FlowsApi.md#restore_flow_revision_api_v1_flows_namespace_flow_id_revisions_revision_restore_post) | **POST** /api/v1/flows/{namespace}/{flow_id}/revisions/{revision}/restore | Restore Flow Revision
 [**validate_flow_api_v1_flows_validate_post**](FlowsApi.md#validate_flow_api_v1_flows_validate_post) | **POST** /api/v1/flows/validate | Validate Flow
@@ -173,6 +177,83 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **diff_flow_draft_api_v1_flows_namespace_flow_id_revisions_revision_diff_draft_post**
+> FlowRevisionDiff diff_flow_draft_api_v1_flows_namespace_flow_id_revisions_revision_diff_draft_post(namespace, flow_id, revision, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
+
+Diff Flow Draft
+
+### Example
+
+
+```python
+import amesh_client
+from amesh_client.models.flow_revision_diff import FlowRevisionDiff
+from amesh_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to http://localhost
+# See configuration.py for a list of all supported configuration parameters.
+configuration = amesh_client.Configuration(
+    host = "http://localhost"
+)
+
+
+# Enter a context with an instance of the API client
+with amesh_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = amesh_client.FlowsApi(api_client)
+    namespace = 'namespace_example' # str |
+    flow_id = 'flow_id_example' # str |
+    revision = 56 # int |
+    authorization = 'authorization_example' # str |  (optional)
+    x_amesh_csrf = 'x_amesh_csrf_example' # str |  (optional)
+    x_amesh_tenant = 'x_amesh_tenant_example' # str |  (optional)
+
+    try:
+        # Diff Flow Draft
+        api_response = api_instance.diff_flow_draft_api_v1_flows_namespace_flow_id_revisions_revision_diff_draft_post(namespace, flow_id, revision, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
+        print("The response of FlowsApi->diff_flow_draft_api_v1_flows_namespace_flow_id_revisions_revision_diff_draft_post:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling FlowsApi->diff_flow_draft_api_v1_flows_namespace_flow_id_revisions_revision_diff_draft_post: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **namespace** | **str**|  |
+ **flow_id** | **str**|  |
+ **revision** | **int**|  |
+ **authorization** | **str**|  | [optional]
+ **x_amesh_csrf** | **str**|  | [optional]
+ **x_amesh_tenant** | **str**|  | [optional]
+
+### Return type
+
+[**FlowRevisionDiff**](FlowRevisionDiff.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Successful Response |  -  |
+**422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **diff_flow_revisions_api_v1_flows_namespace_flow_id_revisions_diff_get**
 > FlowRevisionDiff diff_flow_revisions_api_v1_flows_namespace_flow_id_revisions_diff_get(namespace, flow_id, var_from, to, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
 
@@ -329,6 +410,68 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **format_flow_api_v1_flows_format_post**
+> FlowFormatResponse format_flow_api_v1_flows_format_post()
+
+Format Flow
+
+### Example
+
+
+```python
+import amesh_client
+from amesh_client.models.flow_format_response import FlowFormatResponse
+from amesh_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to http://localhost
+# See configuration.py for a list of all supported configuration parameters.
+configuration = amesh_client.Configuration(
+    host = "http://localhost"
+)
+
+
+# Enter a context with an instance of the API client
+with amesh_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = amesh_client.FlowsApi(api_client)
+
+    try:
+        # Format Flow
+        api_response = api_instance.format_flow_api_v1_flows_format_post()
+        print("The response of FlowsApi->format_flow_api_v1_flows_format_post:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling FlowsApi->format_flow_api_v1_flows_format_post: %s\n" % e)
+```
+
+
+
+### Parameters
+
+This endpoint does not need any parameter.
+
+### Return type
+
+[**FlowFormatResponse**](FlowFormatResponse.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Successful Response |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **get_flow_data_contract_api_v1_flows_namespace_flow_id_data_contract_get**
 > FlowDataContract get_flow_data_contract_api_v1_flows_namespace_flow_id_data_contract_get(namespace, flow_id, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
 
@@ -385,6 +528,77 @@ Name | Type | Description  | Notes
 ### Return type
 
 [**FlowDataContract**](FlowDataContract.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Successful Response |  -  |
+**422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **get_flow_editor_schema_api_v1_flows_editor_schema_get**
+> FlowEditorSchemaResponse get_flow_editor_schema_api_v1_flows_editor_schema_get(authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
+
+Get Flow Editor Schema
+
+### Example
+
+
+```python
+import amesh_client
+from amesh_client.models.flow_editor_schema_response import FlowEditorSchemaResponse
+from amesh_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to http://localhost
+# See configuration.py for a list of all supported configuration parameters.
+configuration = amesh_client.Configuration(
+    host = "http://localhost"
+)
+
+
+# Enter a context with an instance of the API client
+with amesh_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = amesh_client.FlowsApi(api_client)
+    authorization = 'authorization_example' # str |  (optional)
+    x_amesh_csrf = 'x_amesh_csrf_example' # str |  (optional)
+    x_amesh_tenant = 'x_amesh_tenant_example' # str |  (optional)
+
+    try:
+        # Get Flow Editor Schema
+        api_response = api_instance.get_flow_editor_schema_api_v1_flows_editor_schema_get(authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
+        print("The response of FlowsApi->get_flow_editor_schema_api_v1_flows_editor_schema_get:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling FlowsApi->get_flow_editor_schema_api_v1_flows_editor_schema_get: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **authorization** | **str**|  | [optional]
+ **x_amesh_csrf** | **str**|  | [optional]
+ **x_amesh_tenant** | **str**|  | [optional]
+
+### Return type
+
+[**FlowEditorSchemaResponse**](FlowEditorSchemaResponse.md)
 
 ### Authorization
 
@@ -699,6 +913,80 @@ No authorization required
 ### HTTP request headers
 
  - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Successful Response |  -  |
+**422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **preview_flow_expression_api_v1_flows_expressions_preview_post**
+> ExpressionPreviewResponse preview_flow_expression_api_v1_flows_expressions_preview_post(expression_preview_request, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
+
+Preview Flow Expression
+
+### Example
+
+
+```python
+import amesh_client
+from amesh_client.models.expression_preview_request import ExpressionPreviewRequest
+from amesh_client.models.expression_preview_response import ExpressionPreviewResponse
+from amesh_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to http://localhost
+# See configuration.py for a list of all supported configuration parameters.
+configuration = amesh_client.Configuration(
+    host = "http://localhost"
+)
+
+
+# Enter a context with an instance of the API client
+with amesh_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = amesh_client.FlowsApi(api_client)
+    expression_preview_request = amesh_client.ExpressionPreviewRequest() # ExpressionPreviewRequest |
+    authorization = 'authorization_example' # str |  (optional)
+    x_amesh_csrf = 'x_amesh_csrf_example' # str |  (optional)
+    x_amesh_tenant = 'x_amesh_tenant_example' # str |  (optional)
+
+    try:
+        # Preview Flow Expression
+        api_response = api_instance.preview_flow_expression_api_v1_flows_expressions_preview_post(expression_preview_request, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
+        print("The response of FlowsApi->preview_flow_expression_api_v1_flows_expressions_preview_post:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling FlowsApi->preview_flow_expression_api_v1_flows_expressions_preview_post: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **expression_preview_request** | [**ExpressionPreviewRequest**](ExpressionPreviewRequest.md)|  |
+ **authorization** | **str**|  | [optional]
+ **x_amesh_csrf** | **str**|  | [optional]
+ **x_amesh_tenant** | **str**|  | [optional]
+
+### Return type
+
+[**ExpressionPreviewResponse**](ExpressionPreviewResponse.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
  - **Accept**: application/json
 
 ### HTTP response details

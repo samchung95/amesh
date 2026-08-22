@@ -31,6 +31,19 @@ npm run dev
 
 Vite proxies `/api`, `/health` and `/ready` to `http://127.0.0.1:8000`.
 
+## Author flows
+
+Open **Flows**, then choose **Create flow** or **Edit YAML** on an existing flow. The workbench uses
+the server's versioned flow and installed-plugin schemas for completion, validates after edits, maps
+diagnostics to their source ranges and only enables save for a valid changed document. `Ctrl+F` opens
+search; CodeMirror's standard folding and multi-selection shortcuts are available. **Format** applies
+the canonical server representation.
+
+The inspector previews expressions against user-supplied sample JSON after sensitive keys are
+redacted. Existing flows can be compared with a selected revision, cloned, disabled or restored.
+Import and export operate on local YAML files. Unsaved source is isolated by tenant, user and flow in
+local storage; navigation warns before leaving it behind.
+
 ## Verification
 
 ```powershell
@@ -44,7 +57,9 @@ npm run test:e2e
 The browser suite covers connection, API-backed navigation, direct/reloaded deep links, the keyboard
 command menu, server-authoritative denied routes, Simplified Chinese switching, locale formatting,
 retry recovery, same-origin/offline privacy, a 768 px compact tablet layout and WCAG 2.2 AA axe rules.
-Trigger and check monitor fixtures cover durable occurrence and policy-evaluation evidence.
+Trigger and check monitor fixtures cover durable occurrence and policy-evaluation evidence. The flow
+editor fixture covers keyboard editing, live server validation, local draft persistence, navigation
+warning and automated WCAG checks.
 
 ## Browser support policy
 

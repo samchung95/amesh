@@ -117,13 +117,17 @@ All URIs are relative to *http://localhost*
 *ExecutionsApi* | [**streamExecutionLogsApiV1ExecutionsExecutionIdLogsStreamGet**](docs/ExecutionsApi.md#streamexecutionlogsapiv1executionsexecutionidlogsstreamget) | **GET** /api/v1/executions/{execution_id}/logs/stream | Stream Execution Logs
 *FlowsApi* | [**applyFlowApiV1FlowsPut**](docs/FlowsApi.md#applyflowapiv1flowsput) | **PUT** /api/v1/flows | Apply Flow
 *FlowsApi* | [**deleteFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionDelete**](docs/FlowsApi.md#deleteflowrevisionapiv1flowsnamespaceflowidrevisionsrevisiondelete) | **DELETE** /api/v1/flows/{namespace}/{flow_id}/revisions/{revision} | Delete Flow Revision
+*FlowsApi* | [**diffFlowDraftApiV1FlowsNamespaceFlowIdRevisionsRevisionDiffDraftPost**](docs/FlowsApi.md#diffflowdraftapiv1flowsnamespaceflowidrevisionsrevisiondiffdraftpost) | **POST** /api/v1/flows/{namespace}/{flow_id}/revisions/{revision}/diff-draft | Diff Flow Draft
 *FlowsApi* | [**diffFlowRevisionsApiV1FlowsNamespaceFlowIdRevisionsDiffGet**](docs/FlowsApi.md#diffflowrevisionsapiv1flowsnamespaceflowidrevisionsdiffget) | **GET** /api/v1/flows/{namespace}/{flow_id}/revisions/diff | Diff Flow Revisions
 *FlowsApi* | [**exportFlowDocumentApiV1FlowsNamespaceFlowIdDocumentGet**](docs/FlowsApi.md#exportflowdocumentapiv1flowsnamespaceflowiddocumentget) | **GET** /api/v1/flows/{namespace}/{flow_id}/document | Export Flow Document
+*FlowsApi* | [**formatFlowApiV1FlowsFormatPost**](docs/FlowsApi.md#formatflowapiv1flowsformatpost) | **POST** /api/v1/flows/format | Format Flow
 *FlowsApi* | [**getFlowDataContractApiV1FlowsNamespaceFlowIdDataContractGet**](docs/FlowsApi.md#getflowdatacontractapiv1flowsnamespaceflowiddatacontractget) | **GET** /api/v1/flows/{namespace}/{flow_id}/data-contract | Get Flow Data Contract
+*FlowsApi* | [**getFlowEditorSchemaApiV1FlowsEditorSchemaGet**](docs/FlowsApi.md#getfloweditorschemaapiv1flowseditorschemaget) | **GET** /api/v1/flows/editor/schema | Get Flow Editor Schema
 *FlowsApi* | [**getFlowGraphApiV1FlowsNamespaceFlowIdGraphGet**](docs/FlowsApi.md#getflowgraphapiv1flowsnamespaceflowidgraphget) | **GET** /api/v1/flows/{namespace}/{flow_id}/graph | Get Flow Graph
 *FlowsApi* | [**getFlowMetadataApiV1FlowsNamespaceFlowIdMetadataGet**](docs/FlowsApi.md#getflowmetadataapiv1flowsnamespaceflowidmetadataget) | **GET** /api/v1/flows/{namespace}/{flow_id}/metadata | Get Flow Metadata
 *FlowsApi* | [**listFlowRevisionsApiV1FlowsNamespaceFlowIdRevisionsGet**](docs/FlowsApi.md#listflowrevisionsapiv1flowsnamespaceflowidrevisionsget) | **GET** /api/v1/flows/{namespace}/{flow_id}/revisions | List Flow Revisions
 *FlowsApi* | [**listFlowsApiV1FlowsGet**](docs/FlowsApi.md#listflowsapiv1flowsget) | **GET** /api/v1/flows | List Flows
+*FlowsApi* | [**previewFlowExpressionApiV1FlowsExpressionsPreviewPost**](docs/FlowsApi.md#previewflowexpressionapiv1flowsexpressionspreviewpost) | **POST** /api/v1/flows/expressions/preview | Preview Flow Expression
 *FlowsApi* | [**promoteFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionLifecyclePut**](docs/FlowsApi.md#promoteflowrevisionapiv1flowsnamespaceflowidrevisionsrevisionlifecycleput) | **PUT** /api/v1/flows/{namespace}/{flow_id}/revisions/{revision}/lifecycle | Promote Flow Revision
 *FlowsApi* | [**restoreFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionRestorePost**](docs/FlowsApi.md#restoreflowrevisionapiv1flowsnamespaceflowidrevisionsrevisionrestorepost) | **POST** /api/v1/flows/{namespace}/{flow_id}/revisions/{revision}/restore | Restore Flow Revision
 *FlowsApi* | [**validateFlowApiV1FlowsValidatePost**](docs/FlowsApi.md#validateflowapiv1flowsvalidatepost) | **POST** /api/v1/flows/validate | Validate Flow
@@ -252,6 +256,8 @@ All URIs are relative to *http://localhost*
 - [ExecutionInterventionRequest](docs/ExecutionInterventionRequest.md)
 - [ExecutionSnapshot](docs/ExecutionSnapshot.md)
 - [ExecutionState](docs/ExecutionState.md)
+- [ExpressionPreviewRequest](docs/ExpressionPreviewRequest.md)
+- [ExpressionPreviewResponse](docs/ExpressionPreviewResponse.md)
 - [ExtensionType](docs/ExtensionType.md)
 - [FailoverStatus](docs/FailoverStatus.md)
 - [FailureCategory](docs/FailureCategory.md)
@@ -261,6 +267,8 @@ All URIs are relative to *http://localhost*
 - [FeatureFlagUpsertRequest](docs/FeatureFlagUpsertRequest.md)
 - [FlowDataContract](docs/FlowDataContract.md)
 - [FlowDocumentExport](docs/FlowDocumentExport.md)
+- [FlowEditorSchemaResponse](docs/FlowEditorSchemaResponse.md)
+- [FlowFormatResponse](docs/FlowFormatResponse.md)
 - [FlowGraph](docs/FlowGraph.md)
 - [FlowGraphEdge](docs/FlowGraphEdge.md)
 - [FlowGraphNode](docs/FlowGraphNode.md)

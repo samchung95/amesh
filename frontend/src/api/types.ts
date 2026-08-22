@@ -1,6 +1,7 @@
 export type Capability =
   | 'flows.view'
   | 'flows.create'
+  | 'flows.update'
   | 'executions.view'
   | 'executions.execute'
   | 'triggers.view'
@@ -33,9 +34,109 @@ export interface PersistedFlow {
   revision: number
   semantic_hash: string
   etag: string
+  lifecycle?: 'DRAFT' | 'ACTIVE' | 'DISABLED' | 'ARCHIVED'
   metadata: {
     labels: Record<string, string>
   }
+}
+
+export interface SourcePosition {
+  line: number
+  column: number
+  offset: number
+}
+
+export interface FlowValidationIssue {
+  code: string
+  message: string
+  path: string
+  hint: string
+  sourceRange: { start: SourcePosition; end: SourcePosition } | null
+  severity: string
+}
+
+export interface FlowValidationResult {
+  valid: boolean
+  irVersion: 'amesh.flow/v1' | null
+  semantic_hash: string | null
+  canonical: Record<string, unknown> | null
+  issues: FlowValidationIssue[]
+}
+
+export interface JsonSchema {
+  type?: string | string[]
+  title?: string
+  description?: string
+  default?: unknown
+  enum?: unknown[]
+  properties?: Record<string, JsonSchema>
+  required?: string[]
+  items?: JsonSchema
+  $defs?: Record<string, JsonSchema>
+  [key: string]: unknown
+}
+
+export interface FlowResourceSchema {
+  type: string
+  kind: 'task' | 'trigger' | 'input'
+  configurationSchema: JsonSchema
+  editor: {
+    title: string
+    description: string
+    category: string
+    propertyOrder: string[]
+  }
+}
+
+export interface FlowEditorSchema {
+  schemaVersion: 'amesh.flow-editor/v1'
+  flowSchema: JsonSchema
+  resourceCatalog: {
+    schemaVersion: 'amesh.resource-catalog/v1'
+    resources: FlowResourceSchema[]
+  }
+  expressionContext: Record<string, string>
+}
+
+export interface FlowDocumentExport {
+  namespace: string
+  flowId: string
+  revision: number
+  semanticHash: string
+  document: Record<string, unknown>
+}
+
+export interface FlowRevisionRecord {
+  resource_id: string
+  tenant_id: string
+  namespace: string
+  flow_id: string
+  revision: number
+  semantic_hash: string
+  source: string | null
+  source_commit: string | null
+  environment: string | null
+  deployment: Record<string, unknown>
+  created_by: string
+  created_at: string
+}
+
+export interface FlowRevisionDiff {
+  from_revision: number
+  to_revision: number
+  human: string
+  operations: Array<Record<string, unknown>>
+}
+
+export interface FlowFormatResponse {
+  document: string | null
+  validation: FlowValidationResult
+}
+
+export interface ExpressionPreviewResponse {
+  result: unknown
+  redactedContext: Record<string, unknown>
+  compatibilityVersion: string
 }
 
 export type ExecutionState = 'RUNNING' | 'SUCCESS' | 'FAILED'

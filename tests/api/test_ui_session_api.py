@@ -75,6 +75,7 @@ def test_ui_session_returns_server_authoritative_capabilities_and_privacy_policy
             "executions.execute": False,
             "executions.view": True,
             "flows.create": False,
+            "flows.update": False,
             "flows.view": True,
             "namespaces.view": False,
             "namespaceResources.read": False,

@@ -6,13 +6,17 @@ All URIs are relative to *http://localhost*
 |------------- | ------------- | -------------|
 | [**applyFlowApiV1FlowsPut**](FlowsApi.md#applyflowapiv1flowsput) | **PUT** /api/v1/flows | Apply Flow |
 | [**deleteFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionDelete**](FlowsApi.md#deleteflowrevisionapiv1flowsnamespaceflowidrevisionsrevisiondelete) | **DELETE** /api/v1/flows/{namespace}/{flow_id}/revisions/{revision} | Delete Flow Revision |
+| [**diffFlowDraftApiV1FlowsNamespaceFlowIdRevisionsRevisionDiffDraftPost**](FlowsApi.md#diffflowdraftapiv1flowsnamespaceflowidrevisionsrevisiondiffdraftpost) | **POST** /api/v1/flows/{namespace}/{flow_id}/revisions/{revision}/diff-draft | Diff Flow Draft |
 | [**diffFlowRevisionsApiV1FlowsNamespaceFlowIdRevisionsDiffGet**](FlowsApi.md#diffflowrevisionsapiv1flowsnamespaceflowidrevisionsdiffget) | **GET** /api/v1/flows/{namespace}/{flow_id}/revisions/diff | Diff Flow Revisions |
 | [**exportFlowDocumentApiV1FlowsNamespaceFlowIdDocumentGet**](FlowsApi.md#exportflowdocumentapiv1flowsnamespaceflowiddocumentget) | **GET** /api/v1/flows/{namespace}/{flow_id}/document | Export Flow Document |
+| [**formatFlowApiV1FlowsFormatPost**](FlowsApi.md#formatflowapiv1flowsformatpost) | **POST** /api/v1/flows/format | Format Flow |
 | [**getFlowDataContractApiV1FlowsNamespaceFlowIdDataContractGet**](FlowsApi.md#getflowdatacontractapiv1flowsnamespaceflowiddatacontractget) | **GET** /api/v1/flows/{namespace}/{flow_id}/data-contract | Get Flow Data Contract |
+| [**getFlowEditorSchemaApiV1FlowsEditorSchemaGet**](FlowsApi.md#getfloweditorschemaapiv1flowseditorschemaget) | **GET** /api/v1/flows/editor/schema | Get Flow Editor Schema |
 | [**getFlowGraphApiV1FlowsNamespaceFlowIdGraphGet**](FlowsApi.md#getflowgraphapiv1flowsnamespaceflowidgraphget) | **GET** /api/v1/flows/{namespace}/{flow_id}/graph | Get Flow Graph |
 | [**getFlowMetadataApiV1FlowsNamespaceFlowIdMetadataGet**](FlowsApi.md#getflowmetadataapiv1flowsnamespaceflowidmetadataget) | **GET** /api/v1/flows/{namespace}/{flow_id}/metadata | Get Flow Metadata |
 | [**listFlowRevisionsApiV1FlowsNamespaceFlowIdRevisionsGet**](FlowsApi.md#listflowrevisionsapiv1flowsnamespaceflowidrevisionsget) | **GET** /api/v1/flows/{namespace}/{flow_id}/revisions | List Flow Revisions |
 | [**listFlowsApiV1FlowsGet**](FlowsApi.md#listflowsapiv1flowsget) | **GET** /api/v1/flows | List Flows |
+| [**previewFlowExpressionApiV1FlowsExpressionsPreviewPost**](FlowsApi.md#previewflowexpressionapiv1flowsexpressionspreviewpost) | **POST** /api/v1/flows/expressions/preview | Preview Flow Expression |
 | [**promoteFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionLifecyclePut**](FlowsApi.md#promoteflowrevisionapiv1flowsnamespaceflowidrevisionsrevisionlifecycleput) | **PUT** /api/v1/flows/{namespace}/{flow_id}/revisions/{revision}/lifecycle | Promote Flow Revision |
 | [**restoreFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionRestorePost**](FlowsApi.md#restoreflowrevisionapiv1flowsnamespaceflowidrevisionsrevisionrestorepost) | **POST** /api/v1/flows/{namespace}/{flow_id}/revisions/{revision}/restore | Restore Flow Revision |
 | [**validateFlowApiV1FlowsValidatePost**](FlowsApi.md#validateflowapiv1flowsvalidatepost) | **POST** /api/v1/flows/validate | Validate Flow |
@@ -187,6 +191,87 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 
 
+## diffFlowDraftApiV1FlowsNamespaceFlowIdRevisionsRevisionDiffDraftPost
+
+> FlowRevisionDiff diffFlowDraftApiV1FlowsNamespaceFlowIdRevisionsRevisionDiffDraftPost(namespace, flowId, revision, authorization, xAmeshCSRF, xAmeshTenant)
+
+Diff Flow Draft
+
+### Example
+
+```ts
+import {
+  Configuration,
+  FlowsApi,
+} from '@amesh/client';
+import type { DiffFlowDraftApiV1FlowsNamespaceFlowIdRevisionsRevisionDiffDraftPostRequest } from '@amesh/client';
+
+async function example() {
+  console.log("🚀 Testing @amesh/client SDK...");
+  const api = new FlowsApi();
+
+  const body = {
+    // string
+    namespace: namespace_example,
+    // string
+    flowId: flowId_example,
+    // number
+    revision: 56,
+    // string (optional)
+    authorization: authorization_example,
+    // string (optional)
+    xAmeshCSRF: xAmeshCSRF_example,
+    // string (optional)
+    xAmeshTenant: xAmeshTenant_example,
+  } satisfies DiffFlowDraftApiV1FlowsNamespaceFlowIdRevisionsRevisionDiffDraftPostRequest;
+
+  try {
+    const data = await api.diffFlowDraftApiV1FlowsNamespaceFlowIdRevisionsRevisionDiffDraftPost(body);
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// Run the test
+example().catch(console.error);
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **namespace** | `string` |  | [Defaults to `undefined`] |
+| **flowId** | `string` |  | [Defaults to `undefined`] |
+| **revision** | `number` |  | [Defaults to `undefined`] |
+| **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
+
+### Return type
+
+[**FlowRevisionDiff**](FlowRevisionDiff.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: `application/json`
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful Response |  -  |
+| **422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
+
+
 ## diffFlowRevisionsApiV1FlowsNamespaceFlowIdRevisionsDiffGet
 
 > FlowRevisionDiff diffFlowRevisionsApiV1FlowsNamespaceFlowIdRevisionsDiffGet(namespace, flowId, from, to, authorization, xAmeshCSRF, xAmeshTenant)
@@ -352,6 +437,63 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 
 
+## formatFlowApiV1FlowsFormatPost
+
+> FlowFormatResponse formatFlowApiV1FlowsFormatPost()
+
+Format Flow
+
+### Example
+
+```ts
+import {
+  Configuration,
+  FlowsApi,
+} from '@amesh/client';
+import type { FormatFlowApiV1FlowsFormatPostRequest } from '@amesh/client';
+
+async function example() {
+  console.log("🚀 Testing @amesh/client SDK...");
+  const api = new FlowsApi();
+
+  try {
+    const data = await api.formatFlowApiV1FlowsFormatPost();
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// Run the test
+example().catch(console.error);
+```
+
+### Parameters
+
+This endpoint does not need any parameter.
+
+### Return type
+
+[**FlowFormatResponse**](FlowFormatResponse.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: `application/json`
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful Response |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
+
+
 ## getFlowDataContractApiV1FlowsNamespaceFlowIdDataContractGet
 
 > FlowDataContract getFlowDataContractApiV1FlowsNamespaceFlowIdDataContractGet(namespace, flowId, authorization, xAmeshCSRF, xAmeshTenant)
@@ -410,6 +552,78 @@ example().catch(console.error);
 ### Return type
 
 [**FlowDataContract**](FlowDataContract.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: `application/json`
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful Response |  -  |
+| **422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
+
+
+## getFlowEditorSchemaApiV1FlowsEditorSchemaGet
+
+> FlowEditorSchemaResponse getFlowEditorSchemaApiV1FlowsEditorSchemaGet(authorization, xAmeshCSRF, xAmeshTenant)
+
+Get Flow Editor Schema
+
+### Example
+
+```ts
+import {
+  Configuration,
+  FlowsApi,
+} from '@amesh/client';
+import type { GetFlowEditorSchemaApiV1FlowsEditorSchemaGetRequest } from '@amesh/client';
+
+async function example() {
+  console.log("🚀 Testing @amesh/client SDK...");
+  const api = new FlowsApi();
+
+  const body = {
+    // string (optional)
+    authorization: authorization_example,
+    // string (optional)
+    xAmeshCSRF: xAmeshCSRF_example,
+    // string (optional)
+    xAmeshTenant: xAmeshTenant_example,
+  } satisfies GetFlowEditorSchemaApiV1FlowsEditorSchemaGetRequest;
+
+  try {
+    const data = await api.getFlowEditorSchemaApiV1FlowsEditorSchemaGet(body);
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// Run the test
+example().catch(console.error);
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
+
+### Return type
+
+[**FlowEditorSchemaResponse**](FlowEditorSchemaResponse.md)
 
 ### Authorization
 
@@ -739,6 +953,81 @@ No authorization required
 ### HTTP request headers
 
 - **Content-Type**: Not defined
+- **Accept**: `application/json`
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful Response |  -  |
+| **422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
+
+
+## previewFlowExpressionApiV1FlowsExpressionsPreviewPost
+
+> ExpressionPreviewResponse previewFlowExpressionApiV1FlowsExpressionsPreviewPost(expressionPreviewRequest, authorization, xAmeshCSRF, xAmeshTenant)
+
+Preview Flow Expression
+
+### Example
+
+```ts
+import {
+  Configuration,
+  FlowsApi,
+} from '@amesh/client';
+import type { PreviewFlowExpressionApiV1FlowsExpressionsPreviewPostRequest } from '@amesh/client';
+
+async function example() {
+  console.log("🚀 Testing @amesh/client SDK...");
+  const api = new FlowsApi();
+
+  const body = {
+    // ExpressionPreviewRequest
+    expressionPreviewRequest: ...,
+    // string (optional)
+    authorization: authorization_example,
+    // string (optional)
+    xAmeshCSRF: xAmeshCSRF_example,
+    // string (optional)
+    xAmeshTenant: xAmeshTenant_example,
+  } satisfies PreviewFlowExpressionApiV1FlowsExpressionsPreviewPostRequest;
+
+  try {
+    const data = await api.previewFlowExpressionApiV1FlowsExpressionsPreviewPost(body);
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// Run the test
+example().catch(console.error);
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **expressionPreviewRequest** | [ExpressionPreviewRequest](ExpressionPreviewRequest.md) |  | |
+| **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
+
+### Return type
+
+[**ExpressionPreviewResponse**](ExpressionPreviewResponse.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: `application/json`
 - **Accept**: `application/json`
 
 
