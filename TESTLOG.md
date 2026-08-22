@@ -1981,3 +1981,32 @@ duplicate-injection qualification remains In Progress under URS-NFR-RELIABILITY-
 emulators and fault injection remain EPIC-304.
 
 Verdict: PASS — EPIC-103 closed.
+
+## EPIC-304: Trigger, condition and notification extension contracts — 2026-08-23
+
+Spec source: board card `c54` and
+`backlog/epics/epic-304-trigger-condition-and-notification-extension-contracts.md`.
+
+Verified with `uv`, Python 3.13.12, PostgreSQL 17 and Docker Compose:
+
+- [x] Polling adapters normalized source and partition identities, converged duplicate deliveries,
+  persisted checkpoints before source acknowledgement and exposed only manifest-declared secrets.
+- [x] Realtime adapters enforced bounded in-flight delivery, accepted occurrences before source
+  acknowledgement, closed streams after bounded consumption and closed faulted connections.
+- [x] Conditions returned boolean decisions, reasons and structured evidence. Invalid configuration
+  returned stable local schema errors without opening the connector.
+- [x] Notifications received typed execution/task lifecycle events and delivery policy; retry,
+  timeout, cancellation and secret-scope behavior used the shared extension call contract.
+- [x] Polling, realtime, condition and notification emulators injected duplicates, retryable failures,
+  delays and disconnects. Focused contract/runtime/generated-schema coverage passed: 23 tests passed
+  and one environment-gated plugin test skipped.
+- [x] The clean 40-migration backend suite passed: 392 tests collected, 380 passed, 10
+  environment-gated tests skipped and the two board-tracked EPIC-104/observability tests deselected.
+  The exact disposable PostgreSQL database was force-dropped after the run.
+- [x] Ruff, strict mypy and generated contract checks passed. The normative
+  `amesh.plugin.extension/v1` schema and connector-development guide were generated and linked.
+
+Qualification boundary: the language-neutral schema and Python reference adapters/emulators are
+complete. Connector-specific external-service certification belongs to the integration-pack epics.
+
+Verdict: PASS — EPIC-304 closed.

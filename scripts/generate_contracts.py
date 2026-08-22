@@ -25,6 +25,7 @@ from amesh.dsl.models import FlowDefinition  # noqa: E402
 from amesh.dsl.registry import default_resource_registry  # noqa: E402
 from amesh.plugin_sdk import (  # noqa: E402
     PluginCatalogSnapshot,
+    PluginExtensionContract,
     PluginManifest,
     PluginRegistryIndex,
     PluginRequest,
@@ -52,6 +53,10 @@ def main() -> int:
     dump(ROOT / "schemas" / "plugin-request.schema.json", PluginRequest.model_json_schema())
     dump(ROOT / "schemas" / "plugin-response.schema.json", PluginResponse.model_json_schema())
     dump(ROOT / "schemas" / "plugin-wire.schema.json", PluginWireContract.model_json_schema())
+    dump(
+        ROOT / "schemas" / "plugin-extensions.schema.json",
+        PluginExtensionContract.model_json_schema(),
+    )
     dump(
         ROOT / "schemas" / "plugin-catalog.schema.json",
         PluginCatalogSnapshot.model_json_schema(),

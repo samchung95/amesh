@@ -52,3 +52,7 @@ expression and notification entry points:
 ```powershell
 uv run pytest tests/plugin_sdk/test_contract.py -q
 ```
+
+Polling/realtime lifecycle, explainable condition results, notification delivery policies and the
+connector fault emulators are covered by the
+[extension contract guide](extension-contracts.md).

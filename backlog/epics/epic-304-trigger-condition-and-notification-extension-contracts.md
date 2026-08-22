@@ -12,13 +12,17 @@ Make non-task workflow extensions first-class and durable.
 
 ## In scope
 
-- [ ] **URS-F-0321** — The system shall support polling triggers with durable checkpoints and normalized occurrence identities.
-- [ ] **URS-F-0322** — The system shall support realtime triggers with connection lifecycle, backpressure and acknowledgement hooks.
-- [ ] **URS-F-0323** — The system shall support conditions that return boolean results and explainable evaluation evidence.
-- [ ] **URS-F-0324** — The system shall support notification plugins that receive typed lifecycle events and delivery policy.
-- [ ] **URS-F-0325** — The system shall apply retry, timeout, cancellation and secret-scope behavior consistently across extension types.
-- [ ] **URS-F-0326** — The system shall validate trigger and condition configuration without opening external connections.
-- [ ] **URS-F-0327** — The system shall provide emulator and fault-injection fixtures for connector developers.
+- [x] **URS-F-0321** — The system shall support polling triggers with durable checkpoints and normalized occurrence identities.
+- [x] **URS-F-0322** — The system shall support realtime triggers with connection lifecycle, backpressure and acknowledgement hooks.
+- [x] **URS-F-0323** — The system shall support conditions that return boolean results and explainable evaluation evidence.
+- [x] **URS-F-0324** — The system shall support notification plugins that receive typed lifecycle events and delivery policy.
+- [x] **URS-F-0325** — The system shall apply retry, timeout, cancellation and secret-scope behavior consistently across extension types.
+- [x] **URS-F-0326** — The system shall validate trigger and condition configuration without opening external connections.
+- [x] **URS-F-0327** — The system shall provide emulator and fault-injection fixtures for connector developers.
+
+## Implementation completion evidence
+
+- 2026-08-23 — EPIC-304 is complete. Versioned Python SDK contracts and a generated language-neutral schema now cover durable polling checkpoints and normalized identities, lifecycle-aware realtime streams with bounded in-flight acknowledgement, explainable condition results, and typed notification lifecycle events with delivery policies. All four extension paths share bounded retry, timeout, cancellation and manifest-declared secret scoping; trigger and condition configuration validates offline; connector emulators inject duplicates, delays, retryable failures and disconnects. The existing trigger runtime persists polling checkpoints before source acknowledgement and accepts realtime occurrences before acknowledgement, and now closes bounded streams deterministically. Evidence: [`test_extension_contracts.py`](../../tests/plugins/test_extension_contracts.py), [`test_trigger_runtime.py`](../../tests/test_trigger_runtime.py), [`plugin-extensions.schema.json`](../../schemas/plugin-extensions.schema.json), [`extension-contracts.md`](../../docs/plugin-sdk/extension-contracts.md) and [`TESTLOG.md`](../../TESTLOG.md).
 
 ## Non-functional requirements
 
@@ -44,13 +48,13 @@ Make non-task workflow extensions first-class and durable.
 
 ## Definition of done
 
-- [ ] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
-- [ ] Public API, DSL, event and plugin contract changes pass compatibility checks.
-- [ ] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
-- [ ] Security, tenant isolation, redaction and audit behavior are reviewed.
-- [ ] Documentation, examples, migration notes and operational runbooks are updated.
-- [ ] Performance and recovery budgets are measured when this epic is on a critical path.
-- [ ] `python scripts/validate_backlog.py` passes.
+- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
+- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.
+- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
+- [x] Security, tenant isolation, redaction and audit behavior are reviewed.
+- [x] Documentation, examples, migration notes and operational runbooks are updated.
+- [x] Performance and recovery budgets are measured when this epic is on a critical path.
+- [x] `python scripts/validate_backlog.py` passes.
 
 ## Risks and unknowns
 

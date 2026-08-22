@@ -20,6 +20,10 @@ __all__ = [
     "IsolatedPluginRuntimeSnapshot",
     "IsolatedPluginRuntimeStatus",
     "IsolatedPluginState",
+    "PluginConditionEvaluator",
+    "PluginNotificationDispatcher",
+    "PluginPollingTriggerAdapter",
+    "PluginRealtimeTriggerAdapter",
     "TrustedCircuitState",
     "TrustedPluginRuntime",
     "TrustedPluginRuntimeSnapshot",
@@ -29,3 +33,9 @@ __all__ = [
     "build_plugin_catalog",
     "build_trusted_runtime",
 ]
+from .extensions import (
+    PluginConditionEvaluator,
+    PluginNotificationDispatcher,
+    PluginPollingTriggerAdapter,
+    PluginRealtimeTriggerAdapter,
+)

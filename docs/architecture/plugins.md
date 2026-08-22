@@ -71,7 +71,9 @@ Polling trigger adapters return normalized occurrences plus their next checkpoin
 persists both before calling the adapter's acknowledgement hook. Realtime trigger adapters expose an
 async occurrence stream and are acknowledged only after durable acceptance. Both contracts carry a
 source occurrence key and observed timestamp; pause, backpressure, retry, claims and replay remain
-platform responsibilities rather than connector-specific behavior.
+platform responsibilities rather than connector-specific behavior. Typed condition evidence,
+notification delivery policy, shared timeout/retry/cancellation/secret scoping and connector fault
+fixtures are defined in the [extension contract guide](../plugin-sdk/extension-contracts.md).
 
 ## Kestra migration path
 

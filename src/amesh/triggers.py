@@ -81,30 +81,36 @@ class TriggerRuntimeService:
             raise ValueError(f"adapter does not support trigger type {definition.type!r}")
         accepted: list[TriggerOccurrenceAcceptance] = []
         bound = min(limit or definition.max_pending, definition.max_pending)
-        async for candidate in adapter.subscribe(
+        stream = adapter.subscribe(
             definition.model_dump(mode="json", by_alias=True, exclude_none=True),
             checkpoint=state.checkpoint,
             cursor=state.cursor,
-        ):
-            result = await self._repository.accept_occurrence(
-                tenant_id=state.tenant_id,
-                namespace=state.namespace,
-                flow_id=state.flow_id,
-                flow_revision=state.flow_revision,
-                trigger_id=state.trigger_id,
-                occurrence_key=candidate.occurrence_key,
-                payload=candidate.payload,
-                metadata={
-                    **candidate.metadata,
-                    "source": "realtime-adapter",
-                    "observedAt": candidate.observed_at.isoformat(),
-                },
-                max_pending=definition.max_pending,
-                max_attempts=definition.max_attempts,
-                retry_delay=definition.retry_delay,
-            )
-            accepted.append(result)
-            await adapter.acknowledge(candidate.occurrence_key)
-            if len(accepted) >= bound:
-                break
+        )
+        try:
+            async for candidate in stream:
+                result = await self._repository.accept_occurrence(
+                    tenant_id=state.tenant_id,
+                    namespace=state.namespace,
+                    flow_id=state.flow_id,
+                    flow_revision=state.flow_revision,
+                    trigger_id=state.trigger_id,
+                    occurrence_key=candidate.occurrence_key,
+                    payload=candidate.payload,
+                    metadata={
+                        **candidate.metadata,
+                        "source": "realtime-adapter",
+                        "observedAt": candidate.observed_at.isoformat(),
+                    },
+                    max_pending=definition.max_pending,
+                    max_attempts=definition.max_attempts,
+                    retry_delay=definition.retry_delay,
+                )
+                accepted.append(result)
+                await adapter.acknowledge(candidate.occurrence_key)
+                if len(accepted) >= bound:
+                    break
+        finally:
+            close = getattr(stream, "aclose", None)
+            if close is not None:
+                await close()
         return accepted

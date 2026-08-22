@@ -4790,85 +4790,106 @@
       "requirement_id": "URS-F-0321",
       "epic_id": "EPIC-304",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-304-trigger-condition-and-notification-extension-contracts.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0322",
       "epic_id": "EPIC-304",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-304-trigger-condition-and-notification-extension-contracts.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0323",
       "epic_id": "EPIC-304",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-304-trigger-condition-and-notification-extension-contracts.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0324",
       "epic_id": "EPIC-304",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-304-trigger-condition-and-notification-extension-contracts.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0325",
       "epic_id": "EPIC-304",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-304-trigger-condition-and-notification-extension-contracts.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0326",
       "epic_id": "EPIC-304",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-304-trigger-condition-and-notification-extension-contracts.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0327",
       "epic_id": "EPIC-304",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-304-trigger-condition-and-notification-extension-contracts.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0328",

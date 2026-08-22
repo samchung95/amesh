@@ -319,13 +319,13 @@ URS-F-0317,Functional,Must,EPIC-303,Isolated language-neutral plugin runtime,M3,
 URS-F-0318,Functional,Must,EPIC-303,Isolated language-neutral plugin runtime,M3,3,"Plugin SDK contract, sandbox and integration tests",Verified
 URS-F-0319,Functional,Must,EPIC-303,Isolated language-neutral plugin runtime,M3,3,"Plugin SDK contract, sandbox and integration tests",Verified
 URS-F-0320,Functional,Must,EPIC-303,Isolated language-neutral plugin runtime,M3,3,"Plugin SDK contract, sandbox and integration tests",Verified
-URS-F-0321,Functional,Must,EPIC-304,"Trigger, condition and notification extension contracts",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
-URS-F-0322,Functional,Must,EPIC-304,"Trigger, condition and notification extension contracts",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
-URS-F-0323,Functional,Must,EPIC-304,"Trigger, condition and notification extension contracts",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
-URS-F-0324,Functional,Must,EPIC-304,"Trigger, condition and notification extension contracts",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
-URS-F-0325,Functional,Must,EPIC-304,"Trigger, condition and notification extension contracts",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
-URS-F-0326,Functional,Must,EPIC-304,"Trigger, condition and notification extension contracts",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
-URS-F-0327,Functional,Must,EPIC-304,"Trigger, condition and notification extension contracts",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0321,Functional,Must,EPIC-304,"Trigger, condition and notification extension contracts",M3,3,"Plugin SDK contract, sandbox and integration tests",Verified
+URS-F-0322,Functional,Must,EPIC-304,"Trigger, condition and notification extension contracts",M3,3,"Plugin SDK contract, sandbox and integration tests",Verified
+URS-F-0323,Functional,Must,EPIC-304,"Trigger, condition and notification extension contracts",M3,3,"Plugin SDK contract, sandbox and integration tests",Verified
+URS-F-0324,Functional,Must,EPIC-304,"Trigger, condition and notification extension contracts",M3,3,"Plugin SDK contract, sandbox and integration tests",Verified
+URS-F-0325,Functional,Must,EPIC-304,"Trigger, condition and notification extension contracts",M3,3,"Plugin SDK contract, sandbox and integration tests",Verified
+URS-F-0326,Functional,Must,EPIC-304,"Trigger, condition and notification extension contracts",M3,3,"Plugin SDK contract, sandbox and integration tests",Verified
+URS-F-0327,Functional,Must,EPIC-304,"Trigger, condition and notification extension contracts",M3,3,"Plugin SDK contract, sandbox and integration tests",Verified
 URS-F-0328,Functional,Must,EPIC-305,"Plugin registry, signing, SBOM and marketplace metadata",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
 URS-F-0329,Functional,Must,EPIC-305,"Plugin registry, signing, SBOM and marketplace metadata",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
 URS-F-0330,Functional,Must,EPIC-305,"Plugin registry, signing, SBOM and marketplace metadata",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed

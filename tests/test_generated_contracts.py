@@ -18,6 +18,7 @@ from amesh.dsl.models import FlowDefinition
 from amesh.dsl.registry import default_resource_registry
 from amesh.plugin_sdk import (
     PluginCatalogSnapshot,
+    PluginExtensionContract,
     PluginManifest,
     PluginRegistryIndex,
     PluginRequest,
@@ -40,6 +41,9 @@ def test_checked_in_contracts_are_current() -> None:
     assert load("schemas/plugin-request.schema.json") == PluginRequest.model_json_schema()
     assert load("schemas/plugin-response.schema.json") == PluginResponse.model_json_schema()
     assert load("schemas/plugin-wire.schema.json") == PluginWireContract.model_json_schema()
+    assert (
+        load("schemas/plugin-extensions.schema.json") == PluginExtensionContract.model_json_schema()
+    )
     assert load("schemas/plugin-catalog.schema.json") == PluginCatalogSnapshot.model_json_schema()
     assert load("schemas/plugin-registry.schema.json") == PluginRegistryIndex.model_json_schema()
     assert load("schemas/plugin-resolution.schema.json") == PluginResolution.model_json_schema()
