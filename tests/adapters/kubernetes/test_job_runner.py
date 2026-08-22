@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import os
 from contextlib import suppress
+from pathlib import Path
 from uuid import UUID, uuid4, uuid5
 
 import pytest
@@ -14,8 +15,10 @@ from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 from amesh.adapters.kubernetes import KubernetesJobRunner
 from amesh.adapters.postgres import PostgresExecutionRepository
 from amesh.domain import ExecutionState
+from amesh.domain.runner import KubernetesJobTemplate, KubernetesRunnerProfile
 from amesh.dsl.models import FlowDefinition, TaskDefinition
 from amesh.executor import InProcessExecutor, TaskExecutionContext, kubernetes_job_handler
+from amesh.ports import RunnerNetworkAccess, RunnerNetworkPolicy, RunnerRequest, RunnerStatus
 
 TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
 KIND_CONTEXT = os.getenv("AMESH_KIND_CONTEXT")
@@ -43,6 +46,10 @@ async def cleanup_execution(engine: AsyncEngine, execution_id: UUID) -> None:
         )
         await connection.execute(
             text("DELETE FROM task_run_events WHERE execution_id = :execution_id"),
+            {"execution_id": execution_id},
+        )
+        await connection.execute(
+            text("DELETE FROM execution_logs WHERE execution_id = :execution_id"),
             {"execution_id": execution_id},
         )
         await connection.execute(
@@ -251,6 +258,116 @@ def test_fresh_executor_reconciles_running_job_after_control_plane_loss() -> Non
                 await resumed_runner.close()
             try:
                 await observer.delete_namespace(namespace)
+            except ApiException as exc:
+                if exc.status != 404:
+                    raise
+            await observer_client.close()
+
+    asyncio.run(scenario())
+
+
+def test_profiled_job_transfers_workspace_and_applies_network_policy_on_kind(
+    tmp_path: Path,
+) -> None:
+    async def scenario() -> None:
+        if KIND_CONTEXT is None:
+            raise RuntimeError("kind settings are required")
+        namespace = f"amesh-profile-{uuid4().hex[:10]}"
+        await config.load_kube_config(context=KIND_CONTEXT)
+        observer_client = client.ApiClient()
+        core = client.CoreV1Api(observer_client)
+        batch = client.BatchV1Api(observer_client)
+        networking = client.NetworkingV1Api(observer_client)
+        await core.create_namespace({"metadata": {"name": namespace}})
+        await core.create_namespaced_service_account(
+            namespace,
+            {"metadata": {"name": "amesh-workload"}},
+        )
+        profile = KubernetesRunnerProfile(
+            name="kind-profile",
+            context=KIND_CONTEXT,
+            namespace=namespace,
+            serviceAccountName="amesh-workload",
+            nodeSelector={"kubernetes.io/hostname": "amesh-w7-control-plane"},
+            workloadIdentity=True,
+            template=KubernetesJobTemplate(
+                labels={"qualification": "epic-222"},
+                annotations={"amesh.io/qualification": "epic-222"},
+            ),
+        )
+        runner = await KubernetesJobRunner.from_kube_config(
+            namespace=namespace,
+            context=KIND_CONTEXT,
+            profile=profile,
+            poll_interval_seconds=0.2,
+        )
+        (tmp_path / "input.txt").write_text("portable", encoding="utf-8")
+        task = asyncio.create_task(
+            runner.run(
+                RunnerRequest(
+                    tenant_id="default",
+                    namespace="tests.kubernetes.profile",
+                    execution_id="execution-profile",
+                    task_run_id="task-profile",
+                    attempt_id=f"profile-{uuid4()}",
+                    fencing_token=1,
+                    command=[
+                        "sh",
+                        "-c",
+                        "cat input.txt > output.txt; echo profile-ready; sleep 2",
+                    ],
+                    image="busybox:1.37.0",
+                    working_directory=str(tmp_path),
+                    resource_limits={
+                        "requests": {"cpu": "10m", "memory": "16Mi"},
+                        "limits": {
+                            "cpu": "50m",
+                            "memory": "32Mi",
+                            "ephemeralStorage": "64Mi",
+                        },
+                    },
+                    network_policy=RunnerNetworkPolicy(access=RunnerNetworkAccess.NONE),
+                    timeout_seconds=60,
+                )
+            )
+        )
+        try:
+            for _ in range(120):
+                jobs = await batch.list_namespaced_job(
+                    namespace,
+                    label_selector="amesh.io/profile=kind-profile",
+                )
+                policies = await networking.list_namespaced_network_policy(
+                    namespace,
+                    label_selector="amesh.io/profile=kind-profile",
+                )
+                if jobs.items and policies.items:
+                    break
+                await asyncio.sleep(0.1)
+            else:
+                raise TimeoutError("profiled Job and NetworkPolicy were not created")
+            job = jobs.items[0]
+            pod_spec = job.spec.template.spec
+            assert job.metadata.finalizers == ["amesh.io/task-cleanup"]
+            assert job.metadata.annotations["amesh.io/qualification"] == "epic-222"
+            assert pod_spec.service_account_name == "amesh-workload"
+            assert pod_spec.automount_service_account_token is True
+            assert pod_spec.node_selector == {"kubernetes.io/hostname": "amesh-w7-control-plane"}
+            assert pod_spec.containers[0].resources.limits["ephemeral-storage"] == "64Mi"
+            assert policies.items[0].spec.egress is None
+
+            result = await asyncio.wait_for(task, timeout=90)
+            assert result.status is RunnerStatus.SUCCESS
+            assert "profile-ready" in result.outputs["stdout"]
+            assert (tmp_path / "output.txt").read_text(encoding="utf-8") == "portable"
+        finally:
+            if not task.done():
+                task.cancel()
+                with suppress(asyncio.CancelledError):
+                    await task
+            await runner.close()
+            try:
+                await core.delete_namespace(namespace)
             except ApiException as exc:
                 if exc.status != 404:
                     raise

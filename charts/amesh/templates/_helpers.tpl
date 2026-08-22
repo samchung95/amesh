@@ -171,6 +171,10 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 - name: KUBERNETES_TASK_NAMESPACE
   value: {{ include "amesh.taskNamespace" . | quote }}
+{{- with .Values.taskRunner.profiles }}
+- name: KUBERNETES_RUNNER_PROFILES
+  value: {{ toJson . | quote }}
+{{- end }}
 - name: TENANCY_MODE
   value: {{ .Values.tenancy.mode | quote }}
 - name: SINGLE_TENANT_SLUG

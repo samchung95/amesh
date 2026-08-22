@@ -196,53 +196,17 @@ def docker_container_handler(
 
 def kubernetes_job_handler(
     runner: TaskRunner,
+    workspace_manager: WorkingDirectoryManager | None = None,
     *,
     namespace: str = "default",
 ) -> TaskHandler:
-    async def run(task: TaskDefinition, context: TaskExecutionContext) -> dict[str, Any]:
-        if task.command is None or not task.command:
-            raise ValueError(f"task {task.id!r} requires a non-empty command")
-        if task.image is None:
-            raise ValueError(f"task {task.id!r} requires a container image")
-        if task.input_files or task.output_files or task.output_manifest is not None:
-            raise ValueError("Kubernetes workspace transfer is owned by the Kubernetes runner epic")
-        result = await _dispatch_runner(
-            runner,
-            RunnerRequest(
-                tenant_id=context.tenant_id,
-                namespace=namespace,
-                worker_group=task.worker_group,
-                execution_id=str(context.execution_id),
-                task_run_id=str(context.task_run_id),
-                attempt_id=str(context.attempt_id),
-                fencing_token=context.attempt,
-                command=task.command,
-                image=task.image,
-                environment=task.environment,
-                credentials=_runner_credentials(task, context),
-                resource_limits=task.resources,
-                network_policy=task.network_policy,
-                security_policy=task.security_policy,
-                extension=task.task_runner,
-                timeout_seconds=task.timeout_seconds,
-            ),
-            context,
-        )
-        if result.status is not RunnerStatus.SUCCESS:
-            detail = str(result.diagnostics.message or "").strip()
-            suffix = f": {detail}" if detail else ""
-            raise TaskExecutionFailure(
-                f"Kubernetes Job ended as {result.status.value}{suffix}",
-                _RUNNER_FAILURE_CATEGORIES[result.status],
-            )
-        return {
-            "exitCode": result.exit_code,
-            **result.outputs,
-            "diagnostics": _public_runner_diagnostics(result.diagnostics),
-            "metrics": result.metrics.model_dump(mode="json", by_alias=True, exclude_none=True),
-        }
-
-    return run
+    return local_process_handler(
+        runner,
+        workspace_manager,
+        namespace=namespace,
+        requires_image=True,
+        runner_label="Kubernetes Job",
+    )
 
 
 def selecting_runner_handler(

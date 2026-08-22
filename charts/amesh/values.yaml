@@ -143,6 +143,8 @@ openRouter:
   model: openai/gpt-5.6-luna
 
 taskNamespace: ""
+taskRunner:
+  profiles: []
 logLevel: INFO
 serviceHeartbeatSeconds: 5
 serviceStaleAfterSeconds: 20

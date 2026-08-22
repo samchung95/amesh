@@ -1,5 +1,48 @@
 # Test Log
 
+## EPIC-222: Kubernetes task runner — 2026-08-23
+
+Spec source: Agent Hotel card `c49` and canonical `backlog/epics.json` EPIC-222 DoD.
+
+Verified with `uv`, Python 3.13, PostgreSQL 17, Kubernetes client 35.0.0 and the existing
+kind/Kubernetes v1.36.1 cluster:
+
+- [x] Operator-owned profiles select kubeconfig context, namespace, service account, node selector,
+  runtime class, workload identity and typed Job template fields by most-specific namespace/worker
+  scope. Task-level placement and identity cannot escape the selected profile.
+- [x] Job construction applies independent requests/limits, ephemeral-storage and `emptyDir` limits,
+  runtime-default seccomp, task security policy, hardened transfer containers and deny/restricted
+  egress NetworkPolicies. Restricted egress rejects non-CIDR policy values deterministically.
+- [x] Workspaces cross the Kubernetes exec API through a gated init container and controlled sidecar;
+  a real kind task read `input.txt`, wrote `output.txt`, returned logs and restored the output locally.
+  Escaping and prohibited archive members are rejected before restoration.
+- [x] API log polling retries transient failures and emits only unseen per-Pod suffixes. A deleted task
+  Pod was replaced inside the same Job and attempt; a fresh runner reconnected to the original Job and
+  completed the persisted attempt without incrementing it.
+- [x] Scheduling, image, infrastructure, eviction and user-process paths produce distinct diagnostic
+  reasons. Fenced cancellation/reconciliation delete owned NetworkPolicies, remove the cleanup
+  finalizer and delete Jobs with foreground propagation; repeated cleanup tolerates absent resources.
+- [x] Live profile inspection verified service-account token automount only for workload identity,
+  operator node placement, profile labels/annotations, ephemeral resource limits, finalizer ownership
+  and deny-egress NetworkPolicy creation. No long-lived cloud credential was injected.
+- [x] Eighteen focused runner/contract tests and three live kind tests passed. A freshly migrated
+  40-migration database ran the final 355-test non-deferred collection: 348 passed, seven
+  environment/profile tests skipped and two authoritative tests on cards `c15`/`c29` deselected.
+- [x] Ruff, strict mypy for 133 source files, uv lock, generated contracts and planning artifacts,
+  clean-room policy, backlog validation, Helm/RBAC coverage, Compose configuration and diff-scope
+  gates passed. Every disposable database was dropped after its run.
+- [x] The rebuilt API, executor and scheduler are healthy. The live capability API advertises
+  Kubernetes files/working-directory support; inherit/none/restricted networking; finalizer cleanup;
+  and typed templates, profile policy, reconnect, sidecar transfer, workload identity and failure
+  classification features.
+
+No LLM invocation was required for deterministic runner behavior. The checked-in and deployed
+OpenRouter model remains `openai/gpt-5.6-luna`.
+
+Verdict: PASS — EPIC-222 functional requirements URS-F-0273 through URS-F-0280 are verified. The
+Kubernetes-runner slice of shared URS-NFR-SECURITY-008 is complete; isolated third-party plugin
+execution remains In Progress under its owning epics.
+
 ## EPIC-221: Docker and OCI task runner — 2026-08-23
 
 Spec source: Agent Hotel card `c48` and canonical `backlog/epics.json` EPIC-221 DoD.

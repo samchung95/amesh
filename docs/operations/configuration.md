@@ -66,6 +66,13 @@ a local, rootless or remote Engine; when omitted, the standard Docker client env
 vulnerability verification. The two verifier command settings are JSON argv arrays and fail closed
 when their corresponding policy switch is enabled. See [the Docker runner guide](docker-oci-runner.md).
 
+`KUBERNETES_RUNNER_PROFILES` is a restart-required JSON array of operator-owned cluster profiles.
+Each profile can select a kubeconfig context, namespace, service account, node selector, runtime class,
+workload identity and typed Job template. The most-specific namespace-prefix and worker-group match
+wins; task settings cannot override profile-owned placement or identity. When omitted, the existing
+`KUBERNETES_CONTEXT` and `KUBERNETES_TASK_NAMESPACE` settings provide one default profile. See the
+[Kubernetes runner guide](kubernetes-runner.md).
+
 ## Feature flags
 
 Boolean flags are versioned and audited in PostgreSQL. Resolution order is namespace, tenant,

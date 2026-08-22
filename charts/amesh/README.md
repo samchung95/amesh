@@ -32,6 +32,12 @@ The job records exact object versions, reconciliation results and measured RPO/R
 database credential must be able to create and drop a disposable database on the recovery target;
 see the [disaster-recovery runbook](../../docs/operations/disaster-recovery.md).
 
+Kubernetes task runner profiles can be supplied at `taskRunner.profiles`. The chart serializes the
+typed list into `KUBERNETES_RUNNER_PROFILES`; each target namespace or cluster must contain the named
+service account and equivalent Job, Pod/log/exec and NetworkPolicy RBAC. The release namespace Role
+contains the required permissions. See the
+[Kubernetes runner guide](../../docs/operations/kubernetes-runner.md).
+
 ## Requirements
 
 - Docker, kind, kubectl and Helm 4

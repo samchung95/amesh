@@ -27,7 +27,7 @@ from pydantic import (
 )
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from amesh.domain.runner import DockerImagePolicy, RunnerPolicy
+from amesh.domain.runner import DockerImagePolicy, KubernetesRunnerProfile, RunnerPolicy
 
 _REDACTED = "[REDACTED]"
 _SECRET_REFERENCE = re.compile(r"^secret://([A-Za-z0-9][A-Za-z0-9_.-]{0,127})$")
@@ -106,6 +106,7 @@ class Settings(BaseSettings):
     worker_group: str = "default"
     kubernetes_context: str | None = None
     kubernetes_task_namespace: str = "amesh-tasks"
+    kubernetes_runner_profiles: tuple[KubernetesRunnerProfile, ...] = ()
     execution_runner_mode: Literal["local", "docker", "kubernetes"] = "kubernetes"
     local_process_runner_enabled: bool | None = None
     docker_runner_enabled: bool = False
@@ -141,6 +142,11 @@ class Settings(BaseSettings):
     @field_validator("docker_image_policy", mode="before")
     @classmethod
     def parse_docker_image_policy(cls, value: object) -> object:
+        return json.loads(value) if isinstance(value, str) else value
+
+    @field_validator("kubernetes_runner_profiles", mode="before")
+    @classmethod
+    def parse_kubernetes_runner_profiles(cls, value: object) -> object:
         return json.loads(value) if isinstance(value, str) else value
 
     @field_validator(
@@ -207,6 +213,18 @@ class Settings(BaseSettings):
         if self.local_process_runner_enabled is not None:
             return self.local_process_runner_enabled
         return self.tenancy_mode == "single"
+
+    @property
+    def effective_kubernetes_runner_profiles(self) -> tuple[KubernetesRunnerProfile, ...]:
+        if self.kubernetes_runner_profiles:
+            return self.kubernetes_runner_profiles
+        return (
+            KubernetesRunnerProfile(
+                name="default",
+                context=self.kubernetes_context,
+                namespace=self.kubernetes_task_namespace,
+            ),
+        )
 
 
 class ConfigurationLoadError(ValueError):

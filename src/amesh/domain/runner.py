@@ -145,6 +145,12 @@ class KubernetesJobRunnerExtension(BaseModel):
     )
     labels: dict[str, str] = Field(default_factory=dict)
     node_selector: dict[str, str] = Field(default_factory=dict, alias="nodeSelector")
+    runtime_class_name: str | None = Field(
+        default=None,
+        alias="runtimeClassName",
+        min_length=1,
+        max_length=253,
+    )
 
     @field_validator("labels")
     @classmethod
@@ -155,6 +161,114 @@ class KubernetesJobRunnerExtension(BaseModel):
         if protected:
             raise ValueError(f"runner labels are platform-owned: {', '.join(sorted(protected))}")
         return value
+
+
+class KubernetesJobTemplate(BaseModel):
+    model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
+
+    labels: dict[str, str] = Field(default_factory=dict)
+    annotations: dict[str, str] = Field(default_factory=dict)
+    image_pull_secrets: tuple[str, ...] = Field(default=(), alias="imagePullSecrets")
+    priority_class_name: str | None = Field(default=None, alias="priorityClassName")
+    scheduler_name: str | None = Field(default=None, alias="schedulerName")
+    tolerations: tuple[dict[str, object], ...] = ()
+    affinity: dict[str, object] = Field(default_factory=dict)
+    backoff_limit: int = Field(default=1, alias="backoffLimit", ge=0, le=100)
+    ttl_seconds_after_finished: int | None = Field(
+        default=None,
+        alias="ttlSecondsAfterFinished",
+        ge=0,
+    )
+    transfer_image: str = Field(
+        default="busybox:1.37.0",
+        alias="transferImage",
+        min_length=1,
+    )
+
+    @field_validator("labels")
+    @classmethod
+    def protect_owner_labels(cls, value: dict[str, str]) -> dict[str, str]:
+        return KubernetesJobRunnerExtension.protect_owner_labels(value)
+
+
+class KubernetesRunnerProfile(BaseModel):
+    model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
+
+    name: str = Field(
+        min_length=1,
+        max_length=63,
+        pattern=r"^[A-Za-z0-9]([A-Za-z0-9_.-]*[A-Za-z0-9])?$",
+    )
+    namespace_prefix: str = Field(default="", alias="namespacePrefix", max_length=255)
+    worker_group: str | None = Field(
+        default=None,
+        alias="workerGroup",
+        min_length=1,
+        max_length=128,
+    )
+    context: str | None = Field(default=None, min_length=1, max_length=253)
+    namespace: str = Field(default="amesh-tasks", min_length=1, max_length=63)
+    service_account_name: str | None = Field(
+        default=None,
+        alias="serviceAccountName",
+        min_length=1,
+        max_length=253,
+    )
+    node_selector: dict[str, str] = Field(default_factory=dict, alias="nodeSelector")
+    runtime_class_name: str | None = Field(
+        default=None,
+        alias="runtimeClassName",
+        min_length=1,
+        max_length=253,
+    )
+    workload_identity: bool = Field(default=False, alias="workloadIdentity")
+    template: KubernetesJobTemplate = Field(default_factory=KubernetesJobTemplate)
+
+    @model_validator(mode="after")
+    def validate_workload_identity(self) -> KubernetesRunnerProfile:
+        if self.workload_identity and self.service_account_name is None:
+            raise ValueError("workloadIdentity requires serviceAccountName")
+        return self
+
+    def matches(self, namespace: str, worker_group: str | None) -> bool:
+        namespace_match = not self.namespace_prefix or (
+            namespace == self.namespace_prefix or namespace.startswith(f"{self.namespace_prefix}.")
+        )
+        worker_match = self.worker_group is None or self.worker_group == worker_group
+        return namespace_match and worker_match
+
+
+class KubernetesRunnerProfileSet:
+    def __init__(self, profiles: tuple[KubernetesRunnerProfile, ...]) -> None:
+        if not profiles:
+            raise ValueError("at least one Kubernetes runner profile is required")
+        names = [item.name for item in profiles]
+        if len(names) != len(set(names)):
+            raise ValueError("Kubernetes runner profile names must be unique")
+        scopes = [(item.namespace_prefix, item.worker_group) for item in profiles]
+        if len(scopes) != len(set(scopes)):
+            raise ValueError("Kubernetes runner profile scopes must be unique")
+        self._profiles = profiles
+
+    @property
+    def profiles(self) -> tuple[KubernetesRunnerProfile, ...]:
+        return self._profiles
+
+    def select(self, namespace: str, worker_group: str | None) -> KubernetesRunnerProfile:
+        matching = [item for item in self._profiles if item.matches(namespace, worker_group)]
+        matching.sort(
+            key=lambda item: (
+                item.worker_group is not None,
+                len(item.namespace_prefix.split(".")) if item.namespace_prefix else 0,
+            ),
+            reverse=True,
+        )
+        if not matching:
+            raise RunnerPolicyViolation(
+                f"no Kubernetes runner profile matches namespace {namespace!r} "
+                f"and worker group {worker_group or '*'}"
+            )
+        return matching[0]
 
 
 RunnerExtension = Annotated[

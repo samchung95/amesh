@@ -598,6 +598,20 @@
           "title": "Nodeselector",
           "type": "object"
         },
+        "runtimeClassName": {
+          "anyOf": [
+            {
+              "maxLength": 253,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Runtimeclassname"
+        },
         "serviceAccountName": {
           "anyOf": [
             {

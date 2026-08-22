@@ -10,7 +10,7 @@ from uuid import UUID
 from sqlalchemy.exc import DBAPIError
 
 from amesh.adapters.docker import DockerContainerRunner
-from amesh.adapters.kubernetes import KubernetesJobRunner
+from amesh.adapters.kubernetes import ProfiledKubernetesJobRunner
 from amesh.adapters.local import LocalProcessRunner
 from amesh.adapters.postgres import (
     PostgresBackfillRepository,
@@ -284,7 +284,7 @@ async def recover_once(
                 )
                 if not execution_lifecycle_pending(flow, execution, task_runs):
                     continue
-            kubernetes_runner: KubernetesJobRunner | None = None
+            kubernetes_runner: ProfiledKubernetesJobRunner | None = None
             object_store = build_object_store(settings)
             workspace_manager = WorkingDirectoryManager(object_store)
             runner_policy = RunnerPolicySet(settings.runner_policies)
@@ -322,11 +322,12 @@ async def recover_once(
                     namespace=flow.namespace,
                 )
             if RunnerId.KUBERNETES in selected_runners:
-                kubernetes_runner = KubernetesJobRunner.from_in_cluster(
-                    namespace=settings.kubernetes_task_namespace
+                kubernetes_runner = ProfiledKubernetesJobRunner(
+                    settings.effective_kubernetes_runner_profiles
                 )
                 runner_handlers[RunnerId.KUBERNETES] = kubernetes_job_handler(
                     kubernetes_runner,
+                    workspace_manager,
                     namespace=flow.namespace,
                 )
             shell_handler = selecting_runner_handler(

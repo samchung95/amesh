@@ -1936,6 +1936,10 @@
                     },
                     "type": "object"
                   },
+                  "runtimeClassName": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
                   "serviceAccountName": {
                     "minLength": 1,
                     "type": "string"

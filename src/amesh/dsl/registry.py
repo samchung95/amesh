@@ -250,6 +250,7 @@ def _core_descriptors() -> tuple[ResourceSchemaDescriptor, ...]:
                         "serviceAccountName": {"type": "string", "minLength": 1},
                         "labels": string_map,
                         "nodeSelector": string_map,
+                        "runtimeClassName": {"type": "string", "minLength": 1},
                     },
                     "required": ["type"],
                     "additionalProperties": False,

@@ -12,18 +12,22 @@ Run task attempts as isolated Kubernetes resources across configured clusters.
 
 ## In scope
 
-- [ ] **URS-F-0273** — The system shall create Jobs or Pods from a typed runner request and configurable templates.
-- [ ] **URS-F-0274** — The system shall select cluster, namespace, service account, node placement and runtime class through policy.
-- [ ] **URS-F-0275** — The system shall apply resource requests, limits, security context, network policy and ephemeral storage limits.
-- [ ] **URS-F-0276** — The system shall stream logs and status despite API reconnects or worker restarts.
-- [ ] **URS-F-0277** — The system shall collect outputs through object storage or a controlled sidecar mechanism.
-- [ ] **URS-F-0278** — The system shall propagate cancellation and delete owned resources using finalizers and idempotent cleanup.
-- [ ] **URS-F-0279** — The system shall distinguish scheduling, image, infrastructure, eviction and user-process failures.
-- [ ] **URS-F-0280** — The system shall support workload identity without long-lived cloud credentials.
+- [x] **URS-F-0273** — The system shall create Jobs or Pods from a typed runner request and configurable templates.
+- [x] **URS-F-0274** — The system shall select cluster, namespace, service account, node placement and runtime class through policy.
+- [x] **URS-F-0275** — The system shall apply resource requests, limits, security context, network policy and ephemeral storage limits.
+- [x] **URS-F-0276** — The system shall stream logs and status despite API reconnects or worker restarts.
+- [x] **URS-F-0277** — The system shall collect outputs through object storage or a controlled sidecar mechanism.
+- [x] **URS-F-0278** — The system shall propagate cancellation and delete owned resources using finalizers and idempotent cleanup.
+- [x] **URS-F-0279** — The system shall distinguish scheduling, image, infrastructure, eviction and user-process failures.
+- [x] **URS-F-0280** — The system shall support workload identity without long-lived cloud credentials.
 
 ## MVP implementation progress
 
 - 2026-08-21 — W5 verified the accepted Kubernetes slice on kind v0.32.0 / Kubernetes v1.36.1: AMESH creates one deterministic Job for a persisted attempt, captures the replacement pod's log and exit code, and cleans up the owned Job after the original pod is deleted mid-task. Evidence: [`TESTLOG.md`](../../TESTLOG.md) and [`test_job_runner.py`](../../tests/adapters/kubernetes/test_job_runner.py). Multi-cluster policy, identity, streaming and the broader epic remain open.
+
+## Implementation completion evidence
+
+- 2026-08-23 — EPIC-222 is complete. Operator-owned profiles select kubeconfig context, namespace, service account, node placement, runtime class, workload identity and typed Job templates. The adapter enforces requests/limits, task security, NetworkPolicy and ephemeral workspace limits; reconnects API status/log polling; transfers files through a gated init container and hardened sidecar; classifies scheduling, image, infrastructure, eviction and user-process failures; and performs fenced finalizer-based Job/NetworkPolicy cleanup. Unit evidence is in [`test_job_runner_epic222.py`](../../tests/adapters/kubernetes/test_job_runner_epic222.py). Live kind evidence covers Pod replacement, fresh-worker recovery, workspace round-trip, profile placement, workload identity and NetworkPolicy creation in [`test_job_runner.py`](../../tests/adapters/kubernetes/test_job_runner.py) and [`TESTLOG.md`](../../TESTLOG.md). The Kubernetes-runner contribution to shared URS-NFR-SECURITY-008 is verified; isolated third-party plugin execution remains In Progress with its owning epics.
 
 ## Non-functional requirements
 
@@ -50,13 +54,13 @@ Run task attempts as isolated Kubernetes resources across configured clusters.
 
 ## Definition of done
 
-- [ ] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
-- [ ] Public API, DSL, event and plugin contract changes pass compatibility checks.
-- [ ] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
-- [ ] Security, tenant isolation, redaction and audit behavior are reviewed.
-- [ ] Documentation, examples, migration notes and operational runbooks are updated.
-- [ ] Performance and recovery budgets are measured when this epic is on a critical path.
-- [ ] `python scripts/validate_backlog.py` passes.
+- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
+- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.
+- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
+- [x] Security, tenant isolation, redaction and audit behavior are reviewed.
+- [x] Documentation, examples, migration notes and operational runbooks are updated.
+- [x] Performance and recovery budgets are measured when this epic is on a critical path.
+- [x] `python scripts/validate_backlog.py` passes.
 
 ## Risks and unknowns
 

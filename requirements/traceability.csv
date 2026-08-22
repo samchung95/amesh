@@ -271,14 +271,14 @@ URS-F-0269,Functional,Must,EPIC-221,Docker and OCI task runner,M2,2,Runner contr
 URS-F-0270,Functional,Must,EPIC-221,Docker and OCI task runner,M2,2,Runner contract tests against disposable execution environments,Verified
 URS-F-0271,Functional,Must,EPIC-221,Docker and OCI task runner,M2,2,Runner contract tests against disposable execution environments,Verified
 URS-F-0272,Functional,Must,EPIC-221,Docker and OCI task runner,M2,2,Runner contract tests against disposable execution environments,Verified
-URS-F-0273,Functional,Must,EPIC-222,Kubernetes task runner,M2,2,Runner contract tests against disposable execution environments,Proposed
-URS-F-0274,Functional,Must,EPIC-222,Kubernetes task runner,M2,2,Runner contract tests against disposable execution environments,Proposed
-URS-F-0275,Functional,Must,EPIC-222,Kubernetes task runner,M2,2,Runner contract tests against disposable execution environments,Proposed
-URS-F-0276,Functional,Must,EPIC-222,Kubernetes task runner,M2,2,Runner contract tests against disposable execution environments,Proposed
-URS-F-0277,Functional,Must,EPIC-222,Kubernetes task runner,M2,2,Runner contract tests against disposable execution environments,Proposed
-URS-F-0278,Functional,Must,EPIC-222,Kubernetes task runner,M2,2,Runner contract tests against disposable execution environments,Proposed
-URS-F-0279,Functional,Must,EPIC-222,Kubernetes task runner,M2,2,Runner contract tests against disposable execution environments,Proposed
-URS-F-0280,Functional,Must,EPIC-222,Kubernetes task runner,M2,2,Runner contract tests against disposable execution environments,Proposed
+URS-F-0273,Functional,Must,EPIC-222,Kubernetes task runner,M2,2,Runner contract tests against disposable execution environments,Verified
+URS-F-0274,Functional,Must,EPIC-222,Kubernetes task runner,M2,2,Runner contract tests against disposable execution environments,Verified
+URS-F-0275,Functional,Must,EPIC-222,Kubernetes task runner,M2,2,Runner contract tests against disposable execution environments,Verified
+URS-F-0276,Functional,Must,EPIC-222,Kubernetes task runner,M2,2,Runner contract tests against disposable execution environments,Verified
+URS-F-0277,Functional,Must,EPIC-222,Kubernetes task runner,M2,2,Runner contract tests against disposable execution environments,Verified
+URS-F-0278,Functional,Must,EPIC-222,Kubernetes task runner,M2,2,Runner contract tests against disposable execution environments,Verified
+URS-F-0279,Functional,Must,EPIC-222,Kubernetes task runner,M2,2,Runner contract tests against disposable execution environments,Verified
+URS-F-0280,Functional,Must,EPIC-222,Kubernetes task runner,M2,2,Runner contract tests against disposable execution environments,Verified
 URS-F-0281,Functional,Should,EPIC-223,"Cloud batch, VM and serverless runners",M2,2,Runner contract tests against disposable execution environments,Proposed
 URS-F-0282,Functional,Should,EPIC-223,"Cloud batch, VM and serverless runners",M2,2,Runner contract tests against disposable execution environments,Proposed
 URS-F-0283,Functional,Should,EPIC-223,"Cloud batch, VM and serverless runners",M2,2,Runner contract tests against disposable execution environments,Proposed

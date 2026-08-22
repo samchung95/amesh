@@ -34,7 +34,7 @@ from starlette.responses import JSONResponse, StreamingResponse
 
 from amesh import __version__
 from amesh.adapters.docker import DockerContainerRunner
-from amesh.adapters.kubernetes import KubernetesJobRunner
+from amesh.adapters.kubernetes import KubernetesJobRunner, ProfiledKubernetesJobRunner
 from amesh.adapters.local import LocalProcessRunner
 from amesh.adapters.postgres import (
     PostgresAuthenticationRepository,
@@ -4595,19 +4595,14 @@ async def _execute_flow(
             workspace_manager,
             namespace=flow.namespace,
         )
-    kubernetes_runner: KubernetesJobRunner | None = None
+    kubernetes_runner: ProfiledKubernetesJobRunner | None = None
     if RunnerId.KUBERNETES in selected_runners:
-        if settings.kubernetes_context is None:
-            kubernetes_runner = KubernetesJobRunner.from_in_cluster(
-                namespace=settings.kubernetes_task_namespace
-            )
-        else:
-            kubernetes_runner = await KubernetesJobRunner.from_kube_config(
-                namespace=settings.kubernetes_task_namespace,
-                context=settings.kubernetes_context,
-            )
+        kubernetes_runner = ProfiledKubernetesJobRunner(
+            settings.effective_kubernetes_runner_profiles
+        )
         runner_handlers[RunnerId.KUBERNETES] = kubernetes_job_handler(
             kubernetes_runner,
+            workspace_manager,
             namespace=flow.namespace,
         )
     shell_handler = selecting_runner_handler(

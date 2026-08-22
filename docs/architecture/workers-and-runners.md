@@ -87,6 +87,13 @@ logs; reports exit/OOM/runtime diagnostics; and removes fenced containers and vo
 Registry credentials are used only for image resolution, and neither the host workspace nor Docker
 socket is mounted into the untrusted task. See [the Docker and OCI runner guide](../operations/docker-oci-runner.md).
 
+The Kubernetes adapter selects an operator-owned cluster profile by namespace and worker group, then
+creates a deterministic fenced Job with typed placement, identity, resource, security and network
+controls. A gated init container and hardened transfer sidecar move the attempt workspace without
+changing the task image. Pod status and logs are recovered through the API after transient disconnects
+or worker replacement; finalizers keep Job and NetworkPolicy cleanup idempotent. See
+[the Kubernetes runner guide](../operations/kubernetes-runner.md).
+
 Runner selection evaluates the most-specific configured namespace-prefix and worker-group rule. A
 task-level `taskRunner.type` is the requested runner, then the matching rule's `defaultRunner`, then the
 execution fallback. `allowedRunners` always gates the result, so an explicit task request cannot bypass
@@ -115,5 +122,6 @@ after the resource is gone.
 
 Cancellation is fenced and reaches the runner through the task cancellation channel. The local
 sequence is process-group/tree `terminate` → wait for `cancelGraceSeconds` → process-group/tree `kill`;
-Kubernetes uses an owned Job delete with foreground propagation and bounded API retry. Timeout uses the
-same runner-owned cleanup path and normalizes to `TIMED_OUT`.
+Kubernetes first deletes its owned NetworkPolicy, removes the cleanup finalizer, then deletes the Job
+with foreground propagation. Timeout uses the same runner-owned cleanup path and normalizes to
+`TIMED_OUT`.
