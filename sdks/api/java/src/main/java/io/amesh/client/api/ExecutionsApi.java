@@ -921,20 +921,24 @@ public class ExecutionsApi {
    * Get Execution
    *
    * @param executionId  (required)
+   * @param taskOffset  (optional, default to 0)
+   * @param taskLimit  (optional)
    * @param authorization  (optional)
    * @param xAmeshCSRF  (optional)
    * @param xAmeshTenant  (optional)
    * @return ExecutionDetail
    * @throws ApiException if fails to make API call
    */
-  public ExecutionDetail getExecutionApiV1ExecutionsExecutionIdGet(@javax.annotation.Nonnull UUID executionId, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
-    return getExecutionApiV1ExecutionsExecutionIdGet(executionId, authorization, xAmeshCSRF, xAmeshTenant, null);
+  public ExecutionDetail getExecutionApiV1ExecutionsExecutionIdGet(@javax.annotation.Nonnull UUID executionId, @javax.annotation.Nullable Integer taskOffset, @javax.annotation.Nullable Integer taskLimit, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return getExecutionApiV1ExecutionsExecutionIdGet(executionId, taskOffset, taskLimit, authorization, xAmeshCSRF, xAmeshTenant, null);
   }
 
   /**
    * Get Execution
    *
    * @param executionId  (required)
+   * @param taskOffset  (optional, default to 0)
+   * @param taskLimit  (optional)
    * @param authorization  (optional)
    * @param xAmeshCSRF  (optional)
    * @param xAmeshTenant  (optional)
@@ -942,8 +946,8 @@ public class ExecutionsApi {
    * @return ExecutionDetail
    * @throws ApiException if fails to make API call
    */
-  public ExecutionDetail getExecutionApiV1ExecutionsExecutionIdGet(@javax.annotation.Nonnull UUID executionId, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
-    ApiResponse<ExecutionDetail> localVarResponse = getExecutionApiV1ExecutionsExecutionIdGetWithHttpInfo(executionId, authorization, xAmeshCSRF, xAmeshTenant, headers);
+  public ExecutionDetail getExecutionApiV1ExecutionsExecutionIdGet(@javax.annotation.Nonnull UUID executionId, @javax.annotation.Nullable Integer taskOffset, @javax.annotation.Nullable Integer taskLimit, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    ApiResponse<ExecutionDetail> localVarResponse = getExecutionApiV1ExecutionsExecutionIdGetWithHttpInfo(executionId, taskOffset, taskLimit, authorization, xAmeshCSRF, xAmeshTenant, headers);
     return localVarResponse.getData();
   }
 
@@ -951,20 +955,24 @@ public class ExecutionsApi {
    * Get Execution
    *
    * @param executionId  (required)
+   * @param taskOffset  (optional, default to 0)
+   * @param taskLimit  (optional)
    * @param authorization  (optional)
    * @param xAmeshCSRF  (optional)
    * @param xAmeshTenant  (optional)
    * @return ApiResponse&lt;ExecutionDetail&gt;
    * @throws ApiException if fails to make API call
    */
-  public ApiResponse<ExecutionDetail> getExecutionApiV1ExecutionsExecutionIdGetWithHttpInfo(@javax.annotation.Nonnull UUID executionId, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
-    return getExecutionApiV1ExecutionsExecutionIdGetWithHttpInfo(executionId, authorization, xAmeshCSRF, xAmeshTenant, null);
+  public ApiResponse<ExecutionDetail> getExecutionApiV1ExecutionsExecutionIdGetWithHttpInfo(@javax.annotation.Nonnull UUID executionId, @javax.annotation.Nullable Integer taskOffset, @javax.annotation.Nullable Integer taskLimit, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return getExecutionApiV1ExecutionsExecutionIdGetWithHttpInfo(executionId, taskOffset, taskLimit, authorization, xAmeshCSRF, xAmeshTenant, null);
   }
 
   /**
    * Get Execution
    *
    * @param executionId  (required)
+   * @param taskOffset  (optional, default to 0)
+   * @param taskLimit  (optional)
    * @param authorization  (optional)
    * @param xAmeshCSRF  (optional)
    * @param xAmeshTenant  (optional)
@@ -972,8 +980,8 @@ public class ExecutionsApi {
    * @return ApiResponse&lt;ExecutionDetail&gt;
    * @throws ApiException if fails to make API call
    */
-  public ApiResponse<ExecutionDetail> getExecutionApiV1ExecutionsExecutionIdGetWithHttpInfo(@javax.annotation.Nonnull UUID executionId, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
-    HttpRequest.Builder localVarRequestBuilder = getExecutionApiV1ExecutionsExecutionIdGetRequestBuilder(executionId, authorization, xAmeshCSRF, xAmeshTenant, headers);
+  public ApiResponse<ExecutionDetail> getExecutionApiV1ExecutionsExecutionIdGetWithHttpInfo(@javax.annotation.Nonnull UUID executionId, @javax.annotation.Nullable Integer taskOffset, @javax.annotation.Nullable Integer taskLimit, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = getExecutionApiV1ExecutionsExecutionIdGetRequestBuilder(executionId, taskOffset, taskLimit, authorization, xAmeshCSRF, xAmeshTenant, headers);
     try {
       HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
           localVarRequestBuilder.build(),
@@ -1020,7 +1028,7 @@ public class ExecutionsApi {
     }
   }
 
-  private HttpRequest.Builder getExecutionApiV1ExecutionsExecutionIdGetRequestBuilder(@javax.annotation.Nonnull UUID executionId, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+  private HttpRequest.Builder getExecutionApiV1ExecutionsExecutionIdGetRequestBuilder(@javax.annotation.Nonnull UUID executionId, @javax.annotation.Nullable Integer taskOffset, @javax.annotation.Nullable Integer taskLimit, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
     // verify the required parameter 'executionId' is set
     if (executionId == null) {
       throw new ApiException(400, "Missing the required parameter 'executionId' when calling getExecutionApiV1ExecutionsExecutionIdGet");
@@ -1031,7 +1039,24 @@ public class ExecutionsApi {
     String localVarPath = "/api/v1/executions/{execution_id}"
         .replace("{execution_id}", ApiClient.urlEncode(executionId.toString()));
 
-    localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+    List<Pair> localVarQueryParams = new ArrayList<>();
+    StringJoiner localVarQueryStringJoiner = new StringJoiner("&");
+    String localVarQueryParameterBaseName;
+    localVarQueryParameterBaseName = "taskOffset";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("taskOffset", taskOffset));
+    localVarQueryParameterBaseName = "taskLimit";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("taskLimit", taskLimit));
+
+    if (!localVarQueryParams.isEmpty() || localVarQueryStringJoiner.length() != 0) {
+      StringJoiner queryJoiner = new StringJoiner("&");
+      localVarQueryParams.forEach(p -> queryJoiner.add(p.getName() + '=' + p.getValue()));
+      if (localVarQueryStringJoiner.length() != 0) {
+        queryJoiner.add(localVarQueryStringJoiner.toString());
+      }
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath + '?' + queryJoiner.toString()));
+    } else {
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+    }
 
     if (authorization != null) {
       localVarRequestBuilder.header("authorization", authorization.toString());

@@ -56,6 +56,24 @@ redacted. Existing flows can be compared with a selected revision, cloned, disab
 Import and export operate on local YAML files. Unsaved source is isolated by tenant, user and flow in
 local storage; navigation warns before leaving it behind.
 
+## Debug executions
+
+Open an execution to inspect its identity, revision, inputs, labels, trigger, duration and related
+parent or child executions. The debugger keeps topology, Gantt, logs, data and history in one
+shareable route. The selected task, active tab, log filters and task-page offset are URL parameters,
+so reloading or sharing the link preserves the investigation context.
+
+Task runs are fetched in pages of 100 with a server-computed state summary. Topology renders directly
+up to 1,000 task runs and switches to the paged aggregate view above that threshold. The reconnectable
+evidence stream retains the newest 5,000 events in browser memory; log rows are further bounded before
+rendering and can be filtered by task, attempt, level, worker, time and text. The Gantt separates queue,
+wait and runner time for each attempt.
+
+Authorized operators can preview the impact of pause, resume, cancel, kill and restart before
+submitting a reason. Replay and backfill use the same preview-and-confirm workflow. Data panels expose
+authorized inputs, outputs, metrics, cache decisions, artifacts and errors, while history links state
+changes to the recorded actor and causative event.
+
 ## Verification
 
 ```powershell
@@ -73,7 +91,9 @@ Trigger and check monitor fixtures cover durable occurrence and policy-evaluatio
 editor fixture covers visual add/configure, generated and lossy review, YAML fallback, keyboard editing,
 live server validation, local draft persistence, navigation warning and automated WCAG checks. Pure
 model tests cover connect, disconnect, reorder, grouping, removal, comment-preserving round trips,
-invalid graph rejection and a 500-task local performance budget.
+invalid graph rejection and a 500-task local performance budget. Execution-debugger coverage includes
+deep-linked filters, task selection, Gantt timing, live log filtering, data/history panels, intervention
+impact confirmation, a 100,000-event bounded-memory model and 100,000 durable task-run paging.
 
 ## Browser support policy
 

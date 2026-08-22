@@ -126,6 +126,7 @@ from amesh_client.models.persisted_execution import PersistedExecution
 from amesh_client.models.persisted_flow import PersistedFlow
 from amesh_client.models.persisted_subflow import PersistedSubflow
 from amesh_client.models.persisted_task_run import PersistedTaskRun
+from amesh_client.models.persisted_task_run_summary import PersistedTaskRunSummary
 from amesh_client.models.plugin_capabilities import PluginCapabilities
 from amesh_client.models.plugin_catalog_snapshot import PluginCatalogSnapshot
 from amesh_client.models.plugin_certification_status import PluginCertificationStatus

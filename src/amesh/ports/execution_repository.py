@@ -159,6 +159,18 @@ class PersistedIterationSummary(BaseModel):
     cancelled: int = Field(ge=0)
 
 
+class PersistedTaskRunSummary(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
+    total: int = Field(ge=0)
+    waiting: int = Field(ge=0)
+    running: int = Field(ge=0)
+    retry_delay: int = Field(ge=0)
+    succeeded: int = Field(ge=0)
+    failed: int = Field(ge=0)
+    cancelled: int = Field(ge=0)
+
+
 class PersistedTaskDeferral(BaseModel):
     model_config = ConfigDict(frozen=True)
 
@@ -375,7 +387,17 @@ class ExecutionRepository(Protocol):
         *,
         tenant_id: str,
         include_iterations: bool = True,
+        limit: int | None = None,
+        offset: int = 0,
     ) -> list[PersistedTaskRun]: ...
+
+    async def summarize_task_runs(
+        self,
+        execution_id: UUID,
+        *,
+        tenant_id: str,
+        include_iterations: bool = True,
+    ) -> PersistedTaskRunSummary: ...
 
     async def list_iteration_summaries(
         self,

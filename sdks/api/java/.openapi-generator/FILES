@@ -178,6 +178,7 @@ src/main/java/io/amesh/client/model/PersistedExecution.java
 src/main/java/io/amesh/client/model/PersistedFlow.java
 src/main/java/io/amesh/client/model/PersistedSubflow.java
 src/main/java/io/amesh/client/model/PersistedTaskRun.java
+src/main/java/io/amesh/client/model/PersistedTaskRunSummary.java
 src/main/java/io/amesh/client/model/PluginCapabilities.java
 src/main/java/io/amesh/client/model/PluginCatalogSnapshot.java
 src/main/java/io/amesh/client/model/PluginCertificationStatus.java

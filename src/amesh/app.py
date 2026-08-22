@@ -265,6 +265,7 @@ from amesh.ports import (
     PersistedIterationSummary,
     PersistedSubflow,
     PersistedTaskRun,
+    PersistedTaskRunSummary,
     ReconciliationAlreadyRunningError,
     RunnerCapabilities,
     ServiceFenceError,
@@ -1107,6 +1108,7 @@ async def get_ui_session(
         "flows.update": ("flow", PermissionAction.UPDATE),
         "executions.view": ("execution", PermissionAction.VIEW),
         "executions.execute": ("execution", PermissionAction.EXECUTE),
+        "executions.manage": ("execution", PermissionAction.MANAGE),
         "triggers.view": ("trigger", PermissionAction.VIEW),
         "triggers.manage": ("trigger", PermissionAction.MANAGE),
         "checks.view": ("check", PermissionAction.VIEW),
@@ -4302,6 +4304,8 @@ async def get_execution(
     actor: ActorDependency,
     authorization_service: AuthorizationServiceDependency,
     tenant_id: TenantDependency,
+    task_offset: Annotated[int, Query(alias="taskOffset", ge=0)] = 0,
+    task_limit: Annotated[int | None, Query(alias="taskLimit", ge=1, le=1000)] = None,
 ) -> ExecutionDetail:
     await authorize_request(
         authorization_service,
@@ -4318,6 +4322,13 @@ async def get_execution(
         execution_id,
         tenant_id=tenant_id,
         include_iterations=False,
+        limit=task_limit,
+        offset=task_offset,
+    )
+    task_run_summary = await repository.summarize_task_runs(
+        execution_id,
+        tenant_id=tenant_id,
+        include_iterations=False,
     )
     flow = await repository.get_flow(
         execution.namespace,
@@ -4325,7 +4336,13 @@ async def get_execution(
         tenant_id=tenant_id,
         revision=execution.flow_revision,
     )
-    return _public_execution_detail(flow, execution, task_runs)
+    return _public_execution_detail(
+        flow,
+        execution,
+        task_runs,
+        task_run_summary=task_run_summary,
+        task_run_offset=task_offset,
+    )
 
 
 @app.get(
@@ -5597,6 +5614,9 @@ def _public_execution_detail(
     flow: FlowDefinition,
     execution: PersistedExecution,
     task_runs: list[PersistedTaskRun],
+    *,
+    task_run_summary: PersistedTaskRunSummary | None = None,
+    task_run_offset: int = 0,
 ) -> ExecutionDetail:
     sensitive_values = sensitive_execution_values(flow, execution.inputs, execution.outputs)
     public_runs = [
@@ -5612,7 +5632,12 @@ def _public_execution_detail(
         )
         for task_run in task_runs
     ]
-    return ExecutionDetail(execution=_public_execution(flow, execution), taskRuns=public_runs)
+    return ExecutionDetail(
+        execution=_public_execution(flow, execution),
+        taskRuns=public_runs,
+        taskRunSummary=task_run_summary,
+        taskRunOffset=task_run_offset,
+    )
 
 
 def _public_evidence(

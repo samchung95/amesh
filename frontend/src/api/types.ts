@@ -4,6 +4,7 @@ export type Capability =
   | 'flows.update'
   | 'executions.view'
   | 'executions.execute'
+  | 'executions.manage'
   | 'triggers.view'
   | 'triggers.manage'
   | 'checks.view'
@@ -139,7 +140,17 @@ export interface ExpressionPreviewResponse {
   compatibilityVersion: string
 }
 
-export type ExecutionState = 'RUNNING' | 'SUCCESS' | 'FAILED'
+export type ExecutionState =
+  | 'CREATED'
+  | 'QUEUED'
+  | 'RUNNING'
+  | 'PAUSED'
+  | 'CANCELLING'
+  | 'CANCELLED'
+  | 'SUCCESS'
+  | 'FAILED'
+  | 'WARNING'
+  | 'RESTARTING'
 
 export interface PersistedExecution {
   execution_id: string
@@ -149,12 +160,17 @@ export interface PersistedExecution {
   version: number
   namespace: string
   flow_id: string
+  flow_revision: number
   inputs: Record<string, unknown>
   outputs: Record<string, unknown>
   labels: Record<string, string>
   trigger: Record<string, unknown>
+  created_by: string
   created_at: string
   updated_at: string
+  timeout_at: string | null
+  cancel_deadline_at: string | null
+  lifecycle_evidence: Record<string, unknown>
 }
 
 export interface FlowInputSchemaProperty {
@@ -214,13 +230,15 @@ export interface PersistedTaskRun {
   task_run_id: string
   execution_id: string
   task_id: string
-  state: 'WAITING' | 'RUNNING' | 'RETRY_DELAY' | 'SUCCESS' | 'FAILED'
+  state: 'WAITING' | 'RUNNING' | 'RETRY_DELAY' | 'SUCCESS' | 'FAILED' | 'CANCELLED'
   current_attempt: number
   version: number
   retry_at: string | null
   result: Record<string, unknown> | null
   iteration_key: string | null
   labels: Record<string, string>
+  failure_category: string | null
+  lifecycle_phase: 'MAIN' | 'ERROR' | 'FINALLY' | 'AFTER_EXECUTION'
   evidence: {
     cache?: {
       decision: 'HIT' | 'MISS' | 'MISS_EXPIRED' | 'MISS_INVALIDATED' | 'MISS_CONCURRENT' | 'REFRESH' | 'BYPASS'
@@ -238,6 +256,18 @@ export interface PersistedTaskRun {
 export interface ExecutionDetail {
   execution: PersistedExecution
   taskRuns: PersistedTaskRun[]
+  taskRunSummary: TaskRunSummary | null
+  taskRunOffset: number
+}
+
+export interface TaskRunSummary {
+  total: number
+  waiting: number
+  running: number
+  retry_delay: number
+  succeeded: number
+  failed: number
+  cancelled: number
 }
 
 export type ExecutionEvidenceKind = 'STATE' | 'LOG' | 'METRIC' | 'OUTPUT' | 'ARTIFACT'
@@ -257,6 +287,103 @@ export interface ExecutionEvidenceEvent {
 export interface ExecutionEvidencePage {
   items: ExecutionEvidenceEvent[]
   nextCursor: string | null
+}
+
+export interface ExecutionEvidenceStreamEvent extends ExecutionEvidenceEvent {
+  nextCursor: string
+}
+
+export type ExecutionInterventionAction = 'PAUSE' | 'RESUME' | 'REQUEST_CANCEL' | 'CONFIRM_CANCEL' | 'FORCE_CANCEL' | 'RESTART'
+
+export interface ExecutionInterventionPreview {
+  execution_id: string
+  action: ExecutionInterventionAction
+  current_state: ExecutionState
+  predicted_state: ExecutionState
+  current_version: number
+  current_epoch: number
+  checkpoint_task_id: string | null
+  impacted_task_ids: string[]
+  preserved_task_ids: string[]
+  invalidates_active_claims: boolean
+  destructive: boolean
+  force_available_at: string | null
+  consequences: string[]
+}
+
+export interface ExecutionInterventionRecord {
+  sequence: number
+  action: ExecutionInterventionAction
+  event_type: string
+  actor_id: string
+  reason: string | null
+  occurred_at: string
+  payload: Record<string, unknown>
+}
+
+export interface PersistedSubflow {
+  relationship_id: string
+  parent_execution_id: string
+  parent_task_run_id: string
+  parent_attempt: number
+  child_execution_id: string
+  invocation_key: string
+  mode: 'SYNC' | 'ASYNC' | 'DETACHED'
+  depth: number
+  target_revision: number
+  parent_namespace: string
+  parent_flow_id: string
+  parent_flow_revision: number
+  child_namespace: string
+  child_flow_id: string
+  child_state: ExecutionState
+  created_by: string
+  created_at: string
+}
+
+export interface ExecutionArtifact {
+  artifact_id: string
+  execution_id: string
+  task_run_id: string
+  attempt: number
+  uri: string
+  size_bytes: number
+  media_type: string | null
+  checksum_sha256: string | null
+  logical_path: string | null
+  lineage: string[]
+  occurred_at: string
+  ingested_at: string
+}
+
+export interface BackfillSpec {
+  namespace: string
+  flowId: string
+  flowRevision: number
+  selection: {
+    sourceExecutionIds?: string[]
+    timeRange?: { start: string; end: string; intervalSeconds: number }
+  }
+  inputs: Record<string, unknown>
+  labels: Record<string, string>
+  maxConcurrency: number
+  ratePerMinute: number
+  priority: number
+}
+
+export interface BackfillPreview {
+  selectionKind: 'TIME_RANGE' | 'PARTITIONS' | 'OCCURRENCES' | 'REPLAY'
+  executionCount: number
+  estimatedTaskRuns: number
+  estimatedCostUnits: number
+  idempotencyKeyTemplate: string
+  warnings: string[]
+}
+
+export interface BackfillRecord {
+  backfillId: string
+  state: 'RUNNING' | 'PAUSED' | 'CANCELLED' | 'COMPLETED'
+  total: number
 }
 
 export type TriggerOccurrenceState =

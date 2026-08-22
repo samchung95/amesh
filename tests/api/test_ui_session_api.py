@@ -73,6 +73,7 @@ def test_ui_session_returns_server_authoritative_capabilities_and_privacy_policy
             "checks.manage": False,
             "checks.view": False,
             "executions.execute": False,
+            "executions.manage": False,
             "executions.view": True,
             "flows.create": False,
             "flows.update": False,

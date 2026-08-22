@@ -26,9 +26,14 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import io.amesh.client.model.PersistedExecution;
 import io.amesh.client.model.PersistedTaskRun;
+import io.amesh.client.model.PersistedTaskRunSummary;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.openapitools.jackson.nullable.JsonNullable;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.openapitools.jackson.nullable.JsonNullable;
+import java.util.NoSuchElementException;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
@@ -38,6 +43,8 @@ import io.amesh.client.ApiClient;
  */
 @JsonPropertyOrder({
   ExecutionDetail.JSON_PROPERTY_EXECUTION,
+  ExecutionDetail.JSON_PROPERTY_TASK_RUN_OFFSET,
+  ExecutionDetail.JSON_PROPERTY_TASK_RUN_SUMMARY,
   ExecutionDetail.JSON_PROPERTY_TASK_RUNS
 })
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.24.0")
@@ -45,6 +52,13 @@ public class ExecutionDetail {
   public static final String JSON_PROPERTY_EXECUTION = "execution";
   @javax.annotation.Nonnull
   private PersistedExecution execution;
+
+  public static final String JSON_PROPERTY_TASK_RUN_OFFSET = "taskRunOffset";
+  @javax.annotation.Nullable
+  private Integer taskRunOffset = 0;
+
+  public static final String JSON_PROPERTY_TASK_RUN_SUMMARY = "taskRunSummary";
+  private JsonNullable<PersistedTaskRunSummary> taskRunSummary = JsonNullable.<PersistedTaskRunSummary>undefined();
 
   public static final String JSON_PROPERTY_TASK_RUNS = "taskRuns";
   @javax.annotation.Nonnull
@@ -74,6 +88,63 @@ public class ExecutionDetail {
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public void setExecution(@javax.annotation.Nonnull PersistedExecution execution) {
     this.execution = execution;
+  }
+
+
+  public ExecutionDetail taskRunOffset(@javax.annotation.Nullable Integer taskRunOffset) {
+    this.taskRunOffset = taskRunOffset;
+    return this;
+  }
+
+  /**
+   * Get taskRunOffset
+   * minimum: 0
+   * @return taskRunOffset
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_TASK_RUN_OFFSET, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public Integer getTaskRunOffset() {
+    return taskRunOffset;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_TASK_RUN_OFFSET, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setTaskRunOffset(@javax.annotation.Nullable Integer taskRunOffset) {
+    this.taskRunOffset = taskRunOffset;
+  }
+
+
+  public ExecutionDetail taskRunSummary(@javax.annotation.Nullable PersistedTaskRunSummary taskRunSummary) {
+    this.taskRunSummary = JsonNullable.<PersistedTaskRunSummary>of(taskRunSummary);
+    return this;
+  }
+
+  /**
+   * Get taskRunSummary
+   * @return taskRunSummary
+   */
+  @javax.annotation.Nullable
+  @JsonIgnore
+  public PersistedTaskRunSummary getTaskRunSummary() {
+        return taskRunSummary.orElse(null);
+  }
+
+  @JsonProperty(value = JSON_PROPERTY_TASK_RUN_SUMMARY, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public JsonNullable<PersistedTaskRunSummary> getTaskRunSummary_JsonNullable() {
+    return taskRunSummary;
+  }
+
+  @JsonProperty(JSON_PROPERTY_TASK_RUN_SUMMARY)
+  public void setTaskRunSummary_JsonNullable(JsonNullable<PersistedTaskRunSummary> taskRunSummary) {
+    this.taskRunSummary = taskRunSummary;
+  }
+
+  public void setTaskRunSummary(@javax.annotation.Nullable PersistedTaskRunSummary taskRunSummary) {
+    this.taskRunSummary = JsonNullable.<PersistedTaskRunSummary>of(taskRunSummary);
   }
 
 
@@ -122,12 +193,25 @@ public class ExecutionDetail {
     }
     ExecutionDetail executionDetail = (ExecutionDetail) o;
     return Objects.equals(this.execution, executionDetail.execution) &&
+        Objects.equals(this.taskRunOffset, executionDetail.taskRunOffset) &&
+        equalsNullable(this.taskRunSummary, executionDetail.taskRunSummary) &&
         Objects.equals(this.taskRuns, executionDetail.taskRuns);
+  }
+
+  private static <T> boolean equalsNullable(JsonNullable<T> a, JsonNullable<T> b) {
+    return a == b || (a != null && b != null && a.isPresent() && b.isPresent() && Objects.deepEquals(a.get(), b.get()));
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(execution, taskRuns);
+    return Objects.hash(execution, taskRunOffset, hashCodeNullable(taskRunSummary), taskRuns);
+  }
+
+  private static <T> int hashCodeNullable(JsonNullable<T> a) {
+    if (a == null) {
+      return 1;
+    }
+    return a.isPresent() ? Arrays.deepHashCode(new Object[]{a.get()}) : 31;
   }
 
   @Override
@@ -135,6 +219,8 @@ public class ExecutionDetail {
     StringBuilder sb = new StringBuilder();
     sb.append("class ExecutionDetail {\n");
     sb.append("    execution: ").append(toIndentedString(execution)).append("\n");
+    sb.append("    taskRunOffset: ").append(toIndentedString(taskRunOffset)).append("\n");
+    sb.append("    taskRunSummary: ").append(toIndentedString(taskRunSummary)).append("\n");
     sb.append("    taskRuns: ").append(toIndentedString(taskRuns)).append("\n");
     sb.append("}");
     return sb.toString();
@@ -183,6 +269,16 @@ public class ExecutionDetail {
     // add `execution` to the URL query string
     if (getExecution() != null) {
       joiner.add(getExecution().toUrlQueryString(prefix + "execution" + suffix));
+    }
+
+    // add `taskRunOffset` to the URL query string
+    if (getTaskRunOffset() != null) {
+      joiner.add(String.format(java.util.Locale.ROOT, "%staskRunOffset%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getTaskRunOffset()))));
+    }
+
+    // add `taskRunSummary` to the URL query string
+    if (getTaskRunSummary() != null) {
+      joiner.add(getTaskRunSummary().toUrlQueryString(prefix + "taskRunSummary" + suffix));
     }
 
     // add `taskRuns` to the URL query string

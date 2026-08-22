@@ -452,14 +452,14 @@ URS-F-0450,Functional,Must,EPIC-406,Visual no-code editor and topology model,M4,
 URS-F-0451,Functional,Must,EPIC-406,Visual no-code editor and topology model,M4,4,"Automated browser, accessibility and manual usability tests",Verified
 URS-F-0452,Functional,Must,EPIC-406,Visual no-code editor and topology model,M4,4,"Automated browser, accessibility and manual usability tests",Verified
 URS-F-0453,Functional,Must,EPIC-406,Visual no-code editor and topology model,M4,4,"Automated browser, accessibility and manual usability tests",Verified
-URS-F-0454,Functional,Must,EPIC-407,"Execution details, Gantt, logs and debugging UI",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
-URS-F-0455,Functional,Must,EPIC-407,"Execution details, Gantt, logs and debugging UI",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
-URS-F-0456,Functional,Must,EPIC-407,"Execution details, Gantt, logs and debugging UI",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
-URS-F-0457,Functional,Must,EPIC-407,"Execution details, Gantt, logs and debugging UI",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
-URS-F-0458,Functional,Must,EPIC-407,"Execution details, Gantt, logs and debugging UI",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
-URS-F-0459,Functional,Must,EPIC-407,"Execution details, Gantt, logs and debugging UI",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
-URS-F-0460,Functional,Must,EPIC-407,"Execution details, Gantt, logs and debugging UI",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
-URS-F-0461,Functional,Must,EPIC-407,"Execution details, Gantt, logs and debugging UI",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
+URS-F-0454,Functional,Must,EPIC-407,"Execution details, Gantt, logs and debugging UI",M4,4,"Automated browser, accessibility and manual usability tests",Verified
+URS-F-0455,Functional,Must,EPIC-407,"Execution details, Gantt, logs and debugging UI",M4,4,"Automated browser, accessibility and manual usability tests",Verified
+URS-F-0456,Functional,Must,EPIC-407,"Execution details, Gantt, logs and debugging UI",M4,4,"Automated browser, accessibility and manual usability tests",Verified
+URS-F-0457,Functional,Must,EPIC-407,"Execution details, Gantt, logs and debugging UI",M4,4,"Automated browser, accessibility and manual usability tests",Verified
+URS-F-0458,Functional,Must,EPIC-407,"Execution details, Gantt, logs and debugging UI",M4,4,"Automated browser, accessibility and manual usability tests",Verified
+URS-F-0459,Functional,Must,EPIC-407,"Execution details, Gantt, logs and debugging UI",M4,4,"Automated browser, accessibility and manual usability tests",Verified
+URS-F-0460,Functional,Must,EPIC-407,"Execution details, Gantt, logs and debugging UI",M4,4,"Automated browser, accessibility and manual usability tests",Verified
+URS-F-0461,Functional,Must,EPIC-407,"Execution details, Gantt, logs and debugging UI",M4,4,"Automated browser, accessibility and manual usability tests",Verified
 URS-F-0462,Functional,Must,EPIC-408,"Dashboards, query language and saved views",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
 URS-F-0463,Functional,Must,EPIC-408,"Dashboards, query language and saved views",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
 URS-F-0464,Functional,Must,EPIC-408,"Dashboards, query language and saved views",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
@@ -897,8 +897,8 @@ URS-NFR-PERFORMANCE-004,Non-functional,Must,EPIC-603,PostgreSQL distributed work
 URS-NFR-PERFORMANCE-005,Non-functional,Must,EPIC-105,"Concurrency, admission control and fairness",M1,1,Soak test with mixed short and long tasks.,In Progress
 URS-NFR-PERFORMANCE-005,Non-functional,Must,EPIC-601,Distributed services and high availability,M6,6,Soak test with mixed short and long tasks.,In Progress
 URS-NFR-PERFORMANCE-005,Non-functional,Must,EPIC-611,"Performance, scale and chaos qualification",M6,6,Soak test with mixed short and long tasks.,In Progress
-URS-NFR-PERFORMANCE-006,Non-functional,Must,EPIC-203,"Loops, foreach, while and until",M2,2,Synthetic large-DAG and loop benchmark.,In Progress
-URS-NFR-PERFORMANCE-006,Non-functional,Must,EPIC-407,"Execution details, Gantt, logs and debugging UI",M4,4,Synthetic large-DAG and loop benchmark.,In Progress
+URS-NFR-PERFORMANCE-006,Non-functional,Must,EPIC-203,"Loops, foreach, while and until",M2,2,Synthetic large-DAG and loop benchmark.,Verified
+URS-NFR-PERFORMANCE-006,Non-functional,Must,EPIC-407,"Execution details, Gantt, logs and debugging UI",M4,4,Synthetic large-DAG and loop benchmark.,Verified
 URS-NFR-PERFORMANCE-007,Non-functional,Must,EPIC-111,"Logs, metrics, outputs and artifact events",M1,1,Burst and sustained log-load test with exporter outage.,In Progress
 URS-NFR-PERFORMANCE-007,Non-functional,Must,EPIC-607,"OpenTelemetry, Prometheus and log shipping",M6,6,Burst and sustained log-load test with exporter outage.,In Progress
 URS-NFR-PERFORMANCE-008,Non-functional,Must,EPIC-010,Internal object storage and artifact addressing,M0,0,Storage adapter performance and memory profiling.,Verified

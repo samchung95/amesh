@@ -159,6 +159,7 @@ __all__ = [
     "PersistedFlow",
     "PersistedSubflow",
     "PersistedTaskRun",
+    "PersistedTaskRunSummary",
     "PluginCapabilities",
     "PluginCatalogSnapshot",
     "PluginCertificationStatus",
@@ -423,6 +424,7 @@ from amesh_client.models.persisted_execution import PersistedExecution as Persis
 from amesh_client.models.persisted_flow import PersistedFlow as PersistedFlow
 from amesh_client.models.persisted_subflow import PersistedSubflow as PersistedSubflow
 from amesh_client.models.persisted_task_run import PersistedTaskRun as PersistedTaskRun
+from amesh_client.models.persisted_task_run_summary import PersistedTaskRunSummary as PersistedTaskRunSummary
 from amesh_client.models.plugin_capabilities import PluginCapabilities as PluginCapabilities
 from amesh_client.models.plugin_catalog_snapshot import PluginCatalogSnapshot as PluginCatalogSnapshot
 from amesh_client.models.plugin_certification_status import PluginCertificationStatus as PluginCertificationStatus

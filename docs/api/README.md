@@ -21,6 +21,10 @@
   result for each item.
 - Errors use `application/problem+json`. Execution logs are also available as streaming NDJSON at
   `/api/v1/executions/{execution_id}/logs/stream`.
+- Execution detail accepts `taskOffset` and `taskLimit` (maximum 1,000) and returns only that task-run
+  window plus `taskRunSummary`, whose state totals cover the complete execution. Reconnect debugging
+  evidence with `/api/v1/executions/{execution_id}/evidence/stream`; each NDJSON record carries the
+  next opaque cursor.
 - Reconnect state, log and authorized audit changes with `GET /api/v1/realtime/stream`; use the
   returned SSE `id` as `Last-Event-ID`. Signed outbound subscriptions, retries, endpoint tests and
   selected replay are documented in the [realtime API guide](realtime.md).

@@ -13,6 +13,7 @@ const session = {
     'flows.update': true,
     'executions.view': true,
     'executions.execute': true,
+    'executions.manage': true,
     'triggers.view': true,
     'triggers.manage': true,
     'checks.view': true,
@@ -34,8 +35,8 @@ const flows = [
 ]
 
 const executions = [
-  { execution_id: '00000000-0000-7000-8000-000000000101', tenant_id: 'default', state: 'RUNNING', epoch: 1, version: 2, namespace: 'examples.engine', flow_id: 'hello_world', inputs: {}, trigger: { type: 'manual' }, created_at: '2026-08-21T12:00:00Z', updated_at: '2026-08-21T12:01:00Z' },
-  { execution_id: '00000000-0000-7000-8000-000000000102', tenant_id: 'default', state: 'SUCCESS', epoch: 1, version: 4, namespace: 'examples.agent', flow_id: 'luna_research', inputs: {}, trigger: { type: 'cron' }, created_at: '2026-08-21T11:00:00Z', updated_at: '2026-08-21T11:02:00Z' },
+  { execution_id: '00000000-0000-7000-8000-000000000101', tenant_id: 'default', state: 'RUNNING', epoch: 1, version: 2, namespace: 'examples.engine', flow_id: 'hello_world', flow_revision: 3, inputs: { message: 'hello' }, outputs: {}, labels: { environment: 'test' }, trigger: { type: 'manual' }, created_by: 'operator', created_at: '2026-08-21T12:00:00Z', updated_at: '2026-08-21T12:01:00Z', timeout_at: null, cancel_deadline_at: null, lifecycle_evidence: {} },
+  { execution_id: '00000000-0000-7000-8000-000000000102', tenant_id: 'default', state: 'SUCCESS', epoch: 1, version: 4, namespace: 'examples.agent', flow_id: 'luna_research', flow_revision: 1, inputs: {}, outputs: {}, labels: {}, trigger: { type: 'cron' }, created_by: 'scheduler', created_at: '2026-08-21T11:00:00Z', updated_at: '2026-08-21T11:02:00Z', timeout_at: null, cancel_deadline_at: null, lifecycle_evidence: {} },
 ]
 
 const triggers = [
@@ -91,7 +92,29 @@ async function mockApi(page: Page, overrides = session) {
   await page.route('**/api/v1/namespaces/team.data/files', (route) => route.fulfill({ json: namespaceFiles }))
   await page.route('**/api/v1/namespaces/team.data/key-values', (route) => route.fulfill({ json: namespaceKeyValues }))
   await page.route('**/api/v1/namespaces/team.data/secret-bindings', (route) => route.fulfill({ json: namespaceSecrets }))
-  await page.route('**/api/v1/executions/*', (route) => route.fulfill({ json: { execution: executions[0], taskRuns: [{ task_run_id: '00000000-0000-7000-8000-000000000201', execution_id: executions[0].execution_id, task_id: 'return', state: 'SUCCESS', current_attempt: 1, version: 2, retry_at: null, result: { value: 'cached' }, evidence: { cache: { decision: 'HIT', reason: 'reused a matching result', keyHash: 'abc123', sourceExecutionId: executions[1].execution_id, sourceTaskRunId: '00000000-0000-7000-8000-000000000202', sourceAttempt: 1, expiresAt: '2026-08-21T13:00:00Z' } } }] } }))
+  const taskRun = { task_run_id: '00000000-0000-7000-8000-000000000201', execution_id: executions[0].execution_id, task_id: 'return', state: 'SUCCESS', current_attempt: 1, version: 2, retry_at: null, result: { value: 'cached' }, iteration_key: null, labels: {}, failure_category: null, lifecycle_phase: 'MAIN', evidence: { cache: { decision: 'HIT', reason: 'reused a matching result', keyHash: 'abc123', sourceExecutionId: executions[1].execution_id, sourceTaskRunId: '00000000-0000-7000-8000-000000000202', sourceAttempt: 1, expiresAt: '2026-08-21T13:00:00Z' } } }
+  const evidence = [
+    { cursor: 1, event_id: 'evidence-1', execution_id: executions[0].execution_id, task_run_id: null, kind: 'STATE', event_type: 'execution.executioncreated', payload: { entity: 'execution', eventType: 'ExecutionCreated', actorId: 'operator', reason: 'manual launch' }, occurred_at: '2026-08-21T12:00:00Z', ingested_at: '2026-08-21T12:00:00Z' },
+    { cursor: 2, event_id: 'evidence-2', execution_id: executions[0].execution_id, task_run_id: taskRun.task_run_id, kind: 'STATE', event_type: 'task.taskruncreated', payload: { entity: 'task', eventType: 'TaskRunCreated', actorId: 'executor', payload: {} }, occurred_at: '2026-08-21T12:00:01Z', ingested_at: '2026-08-21T12:00:01Z' },
+    { cursor: 3, event_id: 'evidence-3', execution_id: executions[0].execution_id, task_run_id: taskRun.task_run_id, kind: 'STATE', event_type: 'task.taskrunstarted', payload: { entity: 'task', eventType: 'TaskRunStarted', actorId: 'executor', payload: { workerGroup: 'local' } }, occurred_at: '2026-08-21T12:00:02Z', ingested_at: '2026-08-21T12:00:02Z' },
+    { cursor: 4, event_id: 'evidence-4', execution_id: executions[0].execution_id, task_run_id: taskRun.task_run_id, kind: 'LOG', event_type: 'log.info', payload: { level: 'INFO', attempt: 1, workerId: 'worker-local', message: 'returned cached value', fields: { cache: 'hit' } }, occurred_at: '2026-08-21T12:00:03Z', ingested_at: '2026-08-21T12:00:03Z' },
+    { cursor: 5, event_id: 'evidence-5', execution_id: executions[0].execution_id, task_run_id: taskRun.task_run_id, kind: 'STATE', event_type: 'task.taskrunsucceeded', payload: { entity: 'task', eventType: 'TaskRunSucceeded', actorId: 'executor', payload: {} }, occurred_at: '2026-08-21T12:00:04Z', ingested_at: '2026-08-21T12:00:04Z' },
+  ]
+  await page.route('**/api/v1/executions/**', (route) => {
+    const request = route.request()
+    const path = new URL(request.url()).pathname
+    if (path.endsWith('/graph')) return route.fulfill({ json: { namespace: 'examples.engine', flowId: 'hello_world', revision: 3, nodes: [{ taskId: 'return', label: 'return', taskType: 'core.return', order: 0, depth: 0, parentId: null, dependencies: [], children: [], mode: null, failurePolicy: 'FAIL_FAST', maxConcurrency: null, state: 'SUCCESS', result: { value: 'cached' }, iterationCount: null, lifecyclePhase: 'MAIN', handlerOwnerId: null }], edges: [] } })
+    if (path.endsWith('/evidence')) return route.fulfill({ json: { items: evidence, nextCursor: 'cursor-5' } })
+    if (path.endsWith('/evidence/stream')) return route.fulfill({ body: '', contentType: 'application/x-ndjson' })
+    if (path.endsWith('/files')) return route.fulfill({ json: [] })
+    if (path.endsWith('/subflows')) return route.fulfill({ json: [] })
+    if (path.endsWith('/parent-subflow')) return route.fulfill({ json: null })
+    if (path.endsWith('/interventions/preview')) return route.fulfill({ json: { execution_id: executions[0].execution_id, action: 'PAUSE', current_state: 'RUNNING', predicted_state: 'PAUSED', current_version: 2, current_epoch: 1, checkpoint_task_id: null, impacted_task_ids: ['return'], preserved_task_ids: [], invalidates_active_claims: false, destructive: false, force_available_at: null, consequences: ['new task claims stop'] } })
+    if (path.endsWith('/interventions')) return route.fulfill({ json: request.method() === 'GET' ? [] : { execution: executions[0], taskRuns: [taskRun], taskRunSummary: { total: 1, waiting: 0, running: 0, retry_delay: 0, succeeded: 1, failed: 0, cancelled: 0 }, taskRunOffset: 0 } })
+    return route.fulfill({ json: { execution: executions[0], taskRuns: [taskRun], taskRunSummary: { total: 1, waiting: 0, running: 0, retry_delay: 0, succeeded: 1, failed: 0, cancelled: 0 }, taskRunOffset: 0 } })
+  })
+  await page.route('**/api/v1/backfills/preview', (route) => route.fulfill({ json: { selectionKind: 'REPLAY', executionCount: 1, estimatedTaskRuns: 1, estimatedCostUnits: 1, idempotencyKeyTemplate: 'replay:{sourceExecutionId}', warnings: [] } }))
+  await page.route('**/api/v1/backfills', (route) => route.fulfill({ json: { backfillId: 'backfill-1', state: 'RUNNING', total: 1 } }))
 }
 
 async function connect(page: Page) {
@@ -116,8 +139,23 @@ test('connects, navigates resources, preserves deep links and opens the command 
   await expect(page.getByRole('heading', { name: 'hello_world' })).toBeVisible()
 
   await page.reload()
-  await expect(page.getByText('Task runs')).toBeVisible()
-  await expect(page.getByText(/Cache hit · reused a matching result/)).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Task runs' })).toBeVisible()
+  await page.getByRole('button', { name: 'Data' }).click()
+  await expect(page.getByText('Selected results and cache')).toBeVisible()
+  await page.getByText('return · attempt 1').click()
+  await expect(page.getByText('reused a matching result')).toBeVisible()
+  await page.getByRole('button', { name: 'Logs' }).click()
+  await expect(page.getByText('returned cached value')).toBeVisible()
+  await page.getByLabel('Level').selectOption('INFO')
+  await expect(page).toHaveURL(/view=logs.*level=INFO|level=INFO.*view=logs/)
+  await page.getByRole('button', { name: 'Gantt' }).click()
+  await expect(page.getByRole('heading', { name: 'Queue, wait and runner Gantt' })).toBeVisible()
+  await page.getByRole('button', { name: 'History' }).click()
+  await expect(page.getByText('ExecutionCreated')).toBeVisible()
+  await page.getByRole('button', { name: 'Pause' }).click()
+  await expect(page.getByRole('dialog', { name: /Confirm pause/ })).toBeVisible()
+  await expect(page.getByText('new task claims stop')).toBeVisible()
+  await page.getByRole('dialog', { name: /Confirm pause/ }).getByRole('button', { name: 'Cancel' }).click()
   await page.keyboard.press('Control+K')
   await expect(page.getByRole('dialog', { name: 'Global command menu' })).toBeVisible()
   await page.locator('[cmdk-input]').fill('Flows')

@@ -1,8 +1,16 @@
 import type {
   CheckComplianceSummary,
   CheckEvaluation,
+  BackfillPreview,
+  BackfillRecord,
+  BackfillSpec,
+  ExecutionArtifact,
   ExecutionDetail,
   ExecutionEvidencePage,
+  ExecutionEvidenceStreamEvent,
+  ExecutionInterventionAction,
+  ExecutionInterventionPreview,
+  ExecutionInterventionRecord,
   FlowDataContract,
   FlowDocumentExport,
   FlowEditorSchema,
@@ -24,6 +32,7 @@ import type {
   KeyValueType,
   PersistedExecution,
   PersistedFlow,
+  PersistedSubflow,
   SecretBinding,
   TriggerOccurrence,
   TriggerRuntimeState,
@@ -88,6 +97,31 @@ export function createApiClient(connection: ApiConnection) {
     const response = await fetch(path, { credentials: 'same-origin', headers })
     if (!response.ok) throw new ApiError(response.status, await readError(response))
     return response.blob()
+  }
+
+  async function streamNdjson<T>(
+    path: string,
+    onItem: (item: T) => void,
+    signal: AbortSignal,
+  ): Promise<void> {
+    const headers = new Headers({ Accept: 'application/x-ndjson' })
+    if (connection.token) headers.set('Authorization', `Bearer ${connection.token}`)
+    headers.set('X-Amesh-Tenant', connection.tenant)
+    const response = await fetch(path, { credentials: 'same-origin', headers, signal })
+    if (!response.ok) throw new ApiError(response.status, await readError(response))
+    if (!response.body) throw new ApiError(502, 'Streaming response body is unavailable')
+    const reader = response.body.getReader()
+    const decoder = new TextDecoder()
+    let pending = ''
+    while (true) {
+      const { done, value } = await reader.read()
+      pending += decoder.decode(value, { stream: !done })
+      const lines = pending.split('\n')
+      pending = lines.pop() || ''
+      lines.filter(Boolean).forEach((line) => onItem(JSON.parse(line) as T))
+      if (done) break
+    }
+    if (pending.trim()) onItem(JSON.parse(pending) as T)
   }
 
   const namespaceRoot = (namespace: string) =>
@@ -260,13 +294,70 @@ export function createApiClient(connection: ApiConnection) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ reason }),
       }),
-    execution: async (executionId: string) =>
-      request<ExecutionDetail>(`/api/v1/executions/${encodeURIComponent(executionId)}`),
+    execution: async (executionId: string, taskOffset = 0, taskLimit = 250) =>
+      request<ExecutionDetail>(`/api/v1/executions/${encodeURIComponent(executionId)}?taskOffset=${String(taskOffset)}&taskLimit=${String(taskLimit)}`),
     executionGraph: async (executionId: string) =>
       request<FlowGraph>(`/api/v1/executions/${encodeURIComponent(executionId)}/graph`),
     executionEvidence: async (executionId: string, cursor?: string) => {
       const suffix = cursor ? `?cursor=${encodeURIComponent(cursor)}` : ''
       return request<ExecutionEvidencePage>(`/api/v1/executions/${encodeURIComponent(executionId)}/evidence${suffix}`)
     },
+    streamExecutionEvidence: async (
+      executionId: string,
+      cursor: string | null,
+      onEvent: (event: ExecutionEvidenceStreamEvent) => void,
+      signal: AbortSignal,
+    ) => {
+      const suffix = cursor ? `?cursor=${encodeURIComponent(cursor)}` : ''
+      await streamNdjson<ExecutionEvidenceStreamEvent>(
+        `/api/v1/executions/${encodeURIComponent(executionId)}/evidence/stream${suffix}`,
+        onEvent,
+        signal,
+      )
+    },
+    executionSubflows: async (executionId: string) =>
+      request<PersistedSubflow[]>(`/api/v1/executions/${encodeURIComponent(executionId)}/subflows`),
+    executionParentSubflow: async (executionId: string) =>
+      request<PersistedSubflow | null>(`/api/v1/executions/${encodeURIComponent(executionId)}/parent-subflow`),
+    executionInterventions: async (executionId: string) =>
+      request<ExecutionInterventionRecord[]>(`/api/v1/executions/${encodeURIComponent(executionId)}/interventions`),
+    executionFiles: async (executionId: string) =>
+      request<ExecutionArtifact[]>(`/api/v1/executions/${encodeURIComponent(executionId)}/files`),
+    downloadExecutionFile: async (executionId: string, artifactId: string) =>
+      requestBlob(`/api/v1/executions/${encodeURIComponent(executionId)}/files/${encodeURIComponent(artifactId)}`),
+    previewExecutionIntervention: async (
+      executionId: string,
+      action: ExecutionInterventionAction,
+      checkpointTaskId?: string,
+    ) => request<ExecutionInterventionPreview>(`/api/v1/executions/${encodeURIComponent(executionId)}/interventions/preview`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action, ...(checkpointTaskId ? { checkpointTaskId } : {}) }),
+    }),
+    applyExecutionIntervention: async (
+      executionId: string,
+      preview: ExecutionInterventionPreview,
+      reason: string,
+    ) => request<ExecutionDetail>(`/api/v1/executions/${encodeURIComponent(executionId)}/interventions`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: preview.action,
+        checkpointTaskId: preview.checkpoint_task_id,
+        expectedVersion: preview.current_version,
+        expectedEpoch: preview.current_epoch,
+        reason,
+      }),
+    }),
+    previewBackfill: async (spec: BackfillSpec) => request<BackfillPreview>('/api/v1/backfills/preview', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(spec),
+    }),
+    createBackfill: async (spec: BackfillSpec) => request<BackfillRecord>('/api/v1/backfills', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(spec),
+    }),
   }
 }

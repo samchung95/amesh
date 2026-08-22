@@ -22,6 +22,8 @@ var _ MappedNullable = &ExecutionDetail{}
 // ExecutionDetail struct for ExecutionDetail
 type ExecutionDetail struct {
 	Execution PersistedExecution `json:"execution"`
+	TaskRunOffset *int32 `json:"taskRunOffset,omitempty"`
+	TaskRunSummary NullablePersistedTaskRunSummary `json:"taskRunSummary,omitempty"`
 	TaskRuns []PersistedTaskRun `json:"taskRuns"`
 }
 
@@ -34,6 +36,8 @@ type _ExecutionDetail ExecutionDetail
 func NewExecutionDetail(execution PersistedExecution, taskRuns []PersistedTaskRun) *ExecutionDetail {
 	this := ExecutionDetail{}
 	this.Execution = execution
+	var taskRunOffset int32 = 0
+	this.TaskRunOffset = &taskRunOffset
 	this.TaskRuns = taskRuns
 	return &this
 }
@@ -43,6 +47,8 @@ func NewExecutionDetail(execution PersistedExecution, taskRuns []PersistedTaskRu
 // but it doesn't guarantee that properties required by API are set
 func NewExecutionDetailWithDefaults() *ExecutionDetail {
 	this := ExecutionDetail{}
+	var taskRunOffset int32 = 0
+	this.TaskRunOffset = &taskRunOffset
 	return &this
 }
 
@@ -68,6 +74,80 @@ func (o *ExecutionDetail) GetExecutionOk() (*PersistedExecution, bool) {
 // SetExecution sets field value
 func (o *ExecutionDetail) SetExecution(v PersistedExecution) {
 	o.Execution = v
+}
+
+// GetTaskRunOffset returns the TaskRunOffset field value if set, zero value otherwise.
+func (o *ExecutionDetail) GetTaskRunOffset() int32 {
+	if o == nil || IsNil(o.TaskRunOffset) {
+		var ret int32
+		return ret
+	}
+	return *o.TaskRunOffset
+}
+
+// GetTaskRunOffsetOk returns a tuple with the TaskRunOffset field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *ExecutionDetail) GetTaskRunOffsetOk() (*int32, bool) {
+	if o == nil || IsNil(o.TaskRunOffset) {
+		return nil, false
+	}
+	return o.TaskRunOffset, true
+}
+
+// HasTaskRunOffset returns a boolean if a field has been set.
+func (o *ExecutionDetail) HasTaskRunOffset() bool {
+	if o != nil && !IsNil(o.TaskRunOffset) {
+		return true
+	}
+
+	return false
+}
+
+// SetTaskRunOffset gets a reference to the given int32 and assigns it to the TaskRunOffset field.
+func (o *ExecutionDetail) SetTaskRunOffset(v int32) {
+	o.TaskRunOffset = &v
+}
+
+// GetTaskRunSummary returns the TaskRunSummary field value if set, zero value otherwise (both if not set or set to explicit null).
+func (o *ExecutionDetail) GetTaskRunSummary() PersistedTaskRunSummary {
+	if o == nil || IsNil(o.TaskRunSummary.Get()) {
+		var ret PersistedTaskRunSummary
+		return ret
+	}
+	return *o.TaskRunSummary.Get()
+}
+
+// GetTaskRunSummaryOk returns a tuple with the TaskRunSummary field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
+func (o *ExecutionDetail) GetTaskRunSummaryOk() (*PersistedTaskRunSummary, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return o.TaskRunSummary.Get(), o.TaskRunSummary.IsSet()
+}
+
+// HasTaskRunSummary returns a boolean if a field has been set.
+func (o *ExecutionDetail) HasTaskRunSummary() bool {
+	if o != nil && o.TaskRunSummary.IsSet() {
+		return true
+	}
+
+	return false
+}
+
+// SetTaskRunSummary gets a reference to the given NullablePersistedTaskRunSummary and assigns it to the TaskRunSummary field.
+func (o *ExecutionDetail) SetTaskRunSummary(v PersistedTaskRunSummary) {
+	o.TaskRunSummary.Set(&v)
+}
+// SetTaskRunSummaryNil sets the value for TaskRunSummary to be an explicit nil
+func (o *ExecutionDetail) SetTaskRunSummaryNil() {
+	o.TaskRunSummary.Set(nil)
+}
+
+// UnsetTaskRunSummary ensures that no value is present for TaskRunSummary, not even an explicit nil
+func (o *ExecutionDetail) UnsetTaskRunSummary() {
+	o.TaskRunSummary.Unset()
 }
 
 // GetTaskRuns returns the TaskRuns field value
@@ -105,6 +185,12 @@ func (o ExecutionDetail) MarshalJSON() ([]byte, error) {
 func (o ExecutionDetail) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
 	toSerialize["execution"] = o.Execution
+	if !IsNil(o.TaskRunOffset) {
+		toSerialize["taskRunOffset"] = o.TaskRunOffset
+	}
+	if o.TaskRunSummary.IsSet() {
+		toSerialize["taskRunSummary"] = o.TaskRunSummary.Get()
+	}
 	toSerialize["taskRuns"] = o.TaskRuns
 	return toSerialize, nil
 }

@@ -17,7 +17,14 @@ and metadata, never the artifact payload.
 Execution and task transitions plus projected task evidence feed `execution_evidence_events`. Its
 monotonic cursor is exposed by `GET /api/v1/executions/{execution_id}/evidence` and the reconnectable
 NDJSON `/evidence/stream` endpoint after normal execution authorization. The execution detail UI
-polls this contract and presents state, logs, metrics, outputs and artifacts as one live timeline.
+opens that stream from the last received cursor and presents state, logs, metrics, outputs and
+artifacts as one live timeline. Browser retention is bounded to the newest 5,000 events. Task runs are
+requested in pages of 100 with a database-computed state summary, and graphs above 1,000 task runs use
+the aggregate view instead of materializing the full topology.
+
+Migration `0042_execution_debug_evidence.sql` enriches newly projected execution and task state
+evidence with actor, causation, correlation and transition-reason fields. Existing evidence remains
+immutable; the UI displays those fields when available and never invents missing historical context.
 
 ## Cardinality
 

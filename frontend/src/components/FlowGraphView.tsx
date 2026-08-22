@@ -12,7 +12,7 @@ import {
 import type { FlowGraph } from '../api/types'
 import { StatusBadge } from './StatusBadge'
 
-function graphElements(graph: FlowGraph): { nodes: Node[]; edges: Edge[] } {
+function graphElements(graph: FlowGraph, selectedTaskId = ''): { nodes: Node[]; edges: Edge[] } {
   const ranks = new Map<string, number>()
   const byId = new Map(graph.nodes.map((node) => [node.taskId, node]))
   const visiting = new Set<string>()
@@ -45,6 +45,7 @@ function graphElements(graph: FlowGraph): { nodes: Node[]; edges: Edge[] } {
         ),
       },
       ariaLabel: `${node.label}, ${node.taskType}, ${node.lifecyclePhase.toLowerCase().replaceAll('_', ' ')}`,
+      className: selectedTaskId === node.taskId ? 'selected' : undefined,
     })),
     edges: graph.edges.map((edge, index) => ({
       id: `${edge.kind}:${edge.source}:${edge.target}:${String(index)}`,
@@ -58,8 +59,12 @@ function graphElements(graph: FlowGraph): { nodes: Node[]; edges: Edge[] } {
   }
 }
 
-export function FlowGraphView({ graph }: { graph: FlowGraph }) {
-  const elements = graphElements(graph)
+export function FlowGraphView({ graph, selectedTaskId = '', onSelectTask }: {
+  graph: FlowGraph
+  selectedTaskId?: string
+  onSelectTask?: (taskId: string) => void
+}) {
+  const elements = graphElements(graph, selectedTaskId)
   return (
     <section className="data-section graph-section" aria-labelledby="flow-graph-title">
       <div className="section-heading">
@@ -76,6 +81,7 @@ export function FlowGraphView({ graph }: { graph: FlowGraph }) {
           nodesConnectable={false}
           nodesFocusable
           edgesFocusable
+          onNodeClick={(_, node) => onSelectTask?.(selectedTaskId === node.id ? '' : node.id)}
           minZoom={0.15}
           maxZoom={2}
           aria-label={`${graph.flowId} task and dependency graph`}

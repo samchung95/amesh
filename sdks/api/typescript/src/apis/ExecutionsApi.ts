@@ -156,6 +156,8 @@ export interface GetExecutionAdmissionApiV1ExecutionsExecutionIdAdmissionGetRequ
 
 export interface GetExecutionApiV1ExecutionsExecutionIdGetRequest {
     executionId: string;
+    taskOffset?: number;
+    taskLimit?: number | null;
     authorization?: string | null;
     xAmeshCSRF?: string | null;
     xAmeshTenant?: string | null;
@@ -604,6 +606,14 @@ export class ExecutionsApi extends runtime.BaseAPI {
         }
 
         const queryParameters: any = {};
+
+        if (requestParameters['taskOffset'] != null) {
+            queryParameters['taskOffset'] = requestParameters['taskOffset'];
+        }
+
+        if (requestParameters['taskLimit'] != null) {
+            queryParameters['taskLimit'] = requestParameters['taskLimit'];
+        }
 
         const headerParameters: runtime.HTTPHeaders = {};
 

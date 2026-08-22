@@ -1703,6 +1703,8 @@ class ExecutionsApi:
     def get_execution_api_v1_executions_execution_id_get(
         self,
         execution_id: UUID,
+        task_offset: Optional[Annotated[int, Field(strict=True, ge=0)]] = None,
+        task_limit: Optional[Annotated[int, Field(le=1000, strict=True, ge=1)]] = None,
         authorization: Optional[StrictStr] = None,
         x_amesh_csrf: Optional[StrictStr] = None,
         x_amesh_tenant: Optional[StrictStr] = None,
@@ -1724,6 +1726,10 @@ class ExecutionsApi:
 
         :param execution_id: (required)
         :type execution_id: UUID
+        :param task_offset:
+        :type task_offset: int
+        :param task_limit:
+        :type task_limit: int
         :param authorization:
         :type authorization: str
         :param x_amesh_csrf:
@@ -1754,6 +1760,8 @@ class ExecutionsApi:
 
         _param = self._get_execution_api_v1_executions_execution_id_get_serialize(
             execution_id=execution_id,
+            task_offset=task_offset,
+            task_limit=task_limit,
             authorization=authorization,
             x_amesh_csrf=x_amesh_csrf,
             x_amesh_tenant=x_amesh_tenant,
@@ -1782,6 +1790,8 @@ class ExecutionsApi:
     def get_execution_api_v1_executions_execution_id_get_with_http_info(
         self,
         execution_id: UUID,
+        task_offset: Optional[Annotated[int, Field(strict=True, ge=0)]] = None,
+        task_limit: Optional[Annotated[int, Field(le=1000, strict=True, ge=1)]] = None,
         authorization: Optional[StrictStr] = None,
         x_amesh_csrf: Optional[StrictStr] = None,
         x_amesh_tenant: Optional[StrictStr] = None,
@@ -1803,6 +1813,10 @@ class ExecutionsApi:
 
         :param execution_id: (required)
         :type execution_id: UUID
+        :param task_offset:
+        :type task_offset: int
+        :param task_limit:
+        :type task_limit: int
         :param authorization:
         :type authorization: str
         :param x_amesh_csrf:
@@ -1833,6 +1847,8 @@ class ExecutionsApi:
 
         _param = self._get_execution_api_v1_executions_execution_id_get_serialize(
             execution_id=execution_id,
+            task_offset=task_offset,
+            task_limit=task_limit,
             authorization=authorization,
             x_amesh_csrf=x_amesh_csrf,
             x_amesh_tenant=x_amesh_tenant,
@@ -1861,6 +1877,8 @@ class ExecutionsApi:
     def get_execution_api_v1_executions_execution_id_get_without_preload_content(
         self,
         execution_id: UUID,
+        task_offset: Optional[Annotated[int, Field(strict=True, ge=0)]] = None,
+        task_limit: Optional[Annotated[int, Field(le=1000, strict=True, ge=1)]] = None,
         authorization: Optional[StrictStr] = None,
         x_amesh_csrf: Optional[StrictStr] = None,
         x_amesh_tenant: Optional[StrictStr] = None,
@@ -1882,6 +1900,10 @@ class ExecutionsApi:
 
         :param execution_id: (required)
         :type execution_id: UUID
+        :param task_offset:
+        :type task_offset: int
+        :param task_limit:
+        :type task_limit: int
         :param authorization:
         :type authorization: str
         :param x_amesh_csrf:
@@ -1912,6 +1934,8 @@ class ExecutionsApi:
 
         _param = self._get_execution_api_v1_executions_execution_id_get_serialize(
             execution_id=execution_id,
+            task_offset=task_offset,
+            task_limit=task_limit,
             authorization=authorization,
             x_amesh_csrf=x_amesh_csrf,
             x_amesh_tenant=x_amesh_tenant,
@@ -1935,6 +1959,8 @@ class ExecutionsApi:
     def _get_execution_api_v1_executions_execution_id_get_serialize(
         self,
         execution_id,
+        task_offset,
+        task_limit,
         authorization,
         x_amesh_csrf,
         x_amesh_tenant,
@@ -1962,6 +1988,14 @@ class ExecutionsApi:
         if execution_id is not None:
             _path_params['execution_id'] = execution_id
         # process the query parameters
+        if task_offset is not None:
+
+            _query_params.append(('taskOffset', task_offset))
+
+        if task_limit is not None:
+
+            _query_params.append(('taskLimit', task_limit))
+
         # process the header parameters
         if authorization is not None:
             _header_params['authorization'] = authorization

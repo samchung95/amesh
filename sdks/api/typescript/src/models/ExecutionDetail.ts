@@ -20,6 +20,13 @@ import {
     PersistedTaskRunToJSON,
     PersistedTaskRunToJSONTyped,
 } from './PersistedTaskRun';
+import type { PersistedTaskRunSummary } from './PersistedTaskRunSummary';
+import {
+    PersistedTaskRunSummaryFromJSON,
+    PersistedTaskRunSummaryFromJSONTyped,
+    PersistedTaskRunSummaryToJSON,
+    PersistedTaskRunSummaryToJSONTyped,
+} from './PersistedTaskRunSummary';
 import type { PersistedExecution } from './PersistedExecution';
 import {
     PersistedExecutionFromJSON,
@@ -40,6 +47,18 @@ export interface ExecutionDetail {
      * @memberof ExecutionDetail
      */
     execution: PersistedExecution;
+    /**
+     *
+     * @type {number}
+     * @memberof ExecutionDetail
+     */
+    taskRunOffset?: number;
+    /**
+     *
+     * @type {PersistedTaskRunSummary}
+     * @memberof ExecutionDetail
+     */
+    taskRunSummary?: PersistedTaskRunSummary | null;
     /**
      *
      * @type {Array<PersistedTaskRun>}
@@ -68,6 +87,8 @@ export function ExecutionDetailFromJSONTyped(json: any, ignoreDiscriminator: boo
     return {
 
         'execution': PersistedExecutionFromJSON(json['execution']),
+        'taskRunOffset': json['taskRunOffset'] == null ? undefined : json['taskRunOffset'],
+        'taskRunSummary': json['taskRunSummary'] === undefined ? undefined : json['taskRunSummary'] === null ? null : PersistedTaskRunSummaryFromJSON(json['taskRunSummary']),
         'taskRuns': ((json['taskRuns'] as Array<any>).map(PersistedTaskRunFromJSON)),
     };
 }
@@ -84,6 +105,8 @@ export function ExecutionDetailToJSONTyped(value?: ExecutionDetail | null, ignor
     return {
 
         'execution': PersistedExecutionToJSON(value['execution']),
+        'taskRunOffset': value['taskRunOffset'],
+        'taskRunSummary': PersistedTaskRunSummaryToJSON(value['taskRunSummary']),
         'taskRuns': ((value['taskRuns'] as Array<any>).map(PersistedTaskRunToJSON)),
     };
 }

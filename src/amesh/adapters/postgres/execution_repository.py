@@ -53,6 +53,7 @@ from amesh.ports.execution_repository import (
     PersistedSubflow,
     PersistedTaskDeferral,
     PersistedTaskRun,
+    PersistedTaskRunSummary,
     SubflowLaunchContext,
     SubflowPropagation,
     TaskStateConflictError,
@@ -982,6 +983,25 @@ _LIST_TASK_RUNS = text(
       AND tenants.slug = :tenant_slug
       AND (:include_iterations OR task_runs.iteration_key IS NULL)
     ORDER BY task_runs.created_at, task_runs.task_path, task_runs.iteration_key
+    LIMIT :limit OFFSET :offset
+    """
+)
+
+_SUMMARIZE_TASK_RUNS = text(
+    """
+    SELECT
+        count(*) AS total,
+        count(*) FILTER (WHERE task_runs.state = 'WAITING') AS waiting,
+        count(*) FILTER (WHERE task_runs.state = 'RUNNING') AS running,
+        count(*) FILTER (WHERE task_runs.state = 'RETRY_DELAY') AS retry_delay,
+        count(*) FILTER (WHERE task_runs.state = 'SUCCESS') AS succeeded,
+        count(*) FILTER (WHERE task_runs.state = 'FAILED') AS failed,
+        count(*) FILTER (WHERE task_runs.state = 'CANCELLED') AS cancelled
+    FROM task_runs
+    JOIN tenants ON tenants.id = task_runs.tenant_id
+    WHERE task_runs.execution_id = :execution_id
+      AND tenants.slug = :tenant_slug
+      AND (:include_iterations OR task_runs.iteration_key IS NULL)
     """
 )
 
@@ -2521,7 +2541,13 @@ class PostgresExecutionRepository(ExecutionRepository):
         *,
         tenant_id: str,
         include_iterations: bool = True,
+        limit: int | None = None,
+        offset: int = 0,
     ) -> list[PersistedTaskRun]:
+        if limit is not None and limit < 1:
+            raise ValueError("task run limit must be positive")
+        if offset < 0:
+            raise ValueError("task run offset cannot be negative")
         async with tenant_transaction(self._engine, tenant_id) as (connection, _tenant_uuid):
             result = await connection.execute(
                 _LIST_TASK_RUNS,
@@ -2529,10 +2555,36 @@ class PostgresExecutionRepository(ExecutionRepository):
                     "execution_id": execution_id,
                     "tenant_slug": tenant_id,
                     "include_iterations": include_iterations,
+                    "limit": limit,
+                    "offset": offset,
                 },
             )
             rows = result.mappings().all()
         return [_to_task_run(row) for row in rows]
+
+    async def summarize_task_runs(
+        self,
+        execution_id: UUID,
+        *,
+        tenant_id: str,
+        include_iterations: bool = True,
+    ) -> PersistedTaskRunSummary:
+        async with tenant_transaction(self._engine, tenant_id) as (connection, _tenant_uuid):
+            row = (
+                (
+                    await connection.execute(
+                        _SUMMARIZE_TASK_RUNS,
+                        {
+                            "execution_id": execution_id,
+                            "tenant_slug": tenant_id,
+                            "include_iterations": include_iterations,
+                        },
+                    )
+                )
+                .mappings()
+                .one()
+            )
+        return PersistedTaskRunSummary.model_validate(row)
 
     async def list_iteration_summaries(
         self,

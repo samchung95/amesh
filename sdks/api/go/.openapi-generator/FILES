@@ -159,6 +159,7 @@ model_persisted_execution.go
 model_persisted_flow.go
 model_persisted_subflow.go
 model_persisted_task_run.go
+model_persisted_task_run_summary.go
 model_plugin_capabilities.go
 model_plugin_catalog_snapshot.go
 model_plugin_certification_status.go

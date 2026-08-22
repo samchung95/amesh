@@ -420,7 +420,7 @@ No authorization required
 
 ## getExecutionApiV1ExecutionsExecutionIdGet
 
-> ExecutionDetail getExecutionApiV1ExecutionsExecutionIdGet(executionId, authorization, xAmeshCSRF, xAmeshTenant)
+> ExecutionDetail getExecutionApiV1ExecutionsExecutionIdGet(executionId, taskOffset, taskLimit, authorization, xAmeshCSRF, xAmeshTenant)
 
 Get Execution
 
@@ -440,6 +440,10 @@ async function example() {
   const body = {
     // string
     executionId: 38400000-8cf0-11bd-b23e-10b96e4ef00d,
+    // number (optional)
+    taskOffset: 56,
+    // number (optional)
+    taskLimit: 56,
     // string (optional)
     authorization: authorization_example,
     // string (optional)
@@ -466,6 +470,8 @@ example().catch(console.error);
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **executionId** | `string` |  | [Defaults to `undefined`] |
+| **taskOffset** | `number` |  | [Optional] [Defaults to `0`] |
+| **taskLimit** | `number` |  | [Optional] [Defaults to `undefined`] |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |

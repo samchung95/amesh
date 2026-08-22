@@ -243,6 +243,23 @@ tasks:
                 assert created_payload["taskRuns"][0]["result"] == {
                     "value": {"message": "manual", "trigger": {"source": "api"}},
                 }
+                bounded_detail = await client.get(
+                    f"/api/v1/executions/{execution_id}",
+                    headers={"authorization": "Bearer test-token"},
+                    params={"taskOffset": 0, "taskLimit": 1},
+                )
+                assert bounded_detail.status_code == 200
+                assert len(bounded_detail.json()["taskRuns"]) == 1
+                assert bounded_detail.json()["taskRunOffset"] == 0
+                assert bounded_detail.json()["taskRunSummary"] == {
+                    "total": 1,
+                    "waiting": 0,
+                    "running": 0,
+                    "retry_delay": 0,
+                    "succeeded": 1,
+                    "failed": 0,
+                    "cancelled": 0,
+                }
 
                 async_key = f"api-async-{uuid4().hex}"
                 accepted = await client.post(
@@ -378,6 +395,10 @@ tasks:
                 assert next_evidence_page.status_code == 200
                 evidence_items = evidence_page.json()["items"] + next_evidence_page.json()["items"]
                 assert {item["kind"] for item in evidence_items} >= {"STATE", "OUTPUT"}
+                state_evidence = [item for item in evidence_items if item["kind"] == "STATE"]
+                assert state_evidence
+                assert all("actorId" in item["payload"] for item in state_evidence)
+                assert all("causationId" in item["payload"] for item in state_evidence)
                 assert [item["cursor"] for item in evidence_items] == sorted(
                     item["cursor"] for item in evidence_items
                 )

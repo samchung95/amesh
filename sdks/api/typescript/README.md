@@ -316,6 +316,7 @@ All URIs are relative to *http://localhost*
 - [PersistedFlow](docs/PersistedFlow.md)
 - [PersistedSubflow](docs/PersistedSubflow.md)
 - [PersistedTaskRun](docs/PersistedTaskRun.md)
+- [PersistedTaskRunSummary](docs/PersistedTaskRunSummary.md)
 - [PluginCapabilities](docs/PluginCapabilities.md)
 - [PluginCatalogSnapshot](docs/PluginCatalogSnapshot.md)
 - [PluginCertificationStatus](docs/PluginCertificationStatus.md)

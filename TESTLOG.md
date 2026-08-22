@@ -2298,3 +2298,44 @@ The repository-wide chunk-size and frontend lint baselines remain deferred on th
 cards; neither blocks the verified EPIC-406 workflow.
 
 Verdict: PASS — EPIC-406 closed.
+
+## 2026-08-23 — EPIC-407 execution details, Gantt, logs and debugging UI
+
+Scope: `URS-F-0454` through `URS-F-0461` and `URS-NFR-PERFORMANCE-006`.
+
+- [x] The execution workbench exposes identity, immutable revision, creator, trigger, labels, inputs,
+  duration, parent/child links and actor/causation-linked state history in a single permission-aware
+  view. Inputs, outputs and evidence retain the existing authorization and redaction boundary.
+- [x] Topology and Gantt views share task selection. Durable state evidence derives queue, wait and
+  runner spans for every attempt; executions above 1,000 task runs use a paged aggregate presentation.
+- [x] The reconnectable NDJSON evidence stream resumes from its opaque cursor. Logs filter by task,
+  attempt, level, worker, time and text; browser retention is capped at 5,000 evidence events and only
+  the latest 300 matching logs render.
+- [x] Data panels display authorized execution/task inputs and outputs, metrics, cache decisions,
+  artifact references, download actions and errors. History correlates future state evidence with the
+  actor, causative event, correlation ID and intervention history introduced by migration 0042.
+- [x] Pause, resume, cancel, kill and restart expose only state-valid actions and require an impact
+  preview plus operator reason. Replay and backfill use the existing preview/create contract and the
+  same confirmation boundary.
+- [x] Tab, selected-task, filter and task-offset URL parameters survived direct Chromium navigation.
+  The browser workflow crossed Data, Logs, Gantt and History and confirmed a pause impact preview.
+- [x] A fresh PostgreSQL database applied all 42 migrations, inserted exactly 100,000 task runs, then
+  returned a complete aggregate and a 100-row page in under five seconds with less than 16 MiB traced
+  Python peak memory. The 100,000-event frontend model retained exactly the newest 5,000 events in
+  under one second.
+- [x] The production frontend build, 27 unit/coverage checks, targeted ESLint and the Chromium
+  Playwright suite passed. The debugger workflow reported no critical or serious WCAG 2.2 AA axe
+  findings.
+- [x] Focused Ruff, strict mypy over 161 source files, migration ordering, fresh-database API and
+  PostgreSQL performance checks passed. OpenAPI and all four SDKs were regenerated from the versioned
+  bounded-detail contract.
+- [x] API, executor, scheduler and indexer images rebuilt successfully. All six local services are
+  healthy; readiness reports 42/42 migrations, the frontend returns HTTP 200 and a live authorized
+  bounded detail call returned its page and complete task summary.
+
+Qualification boundary: `URS-NFR-USABILITY-004` remains In Progress until the shared manual
+NVDA/VoiceOver and Firefox/Safari/iPadOS pre-GA release matrix is recorded. That manual qualification
+does not block the verified EPIC-407 workflow. Repository-wide lint, formatting and unrelated timing
+baselines remain deferred on their existing board cards.
+
+Verdict: PASS — EPIC-407 closed.

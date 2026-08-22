@@ -12,14 +12,18 @@ Help users diagnose execution behavior from one coherent timeline.
 
 ## In scope
 
-- [ ] **URS-F-0454** — The system shall show execution identity, revision, inputs, labels, state history, duration, trigger and parent-child relationships.
-- [ ] **URS-F-0455** — The system shall render task runs as topology and Gantt views with attempts, queues, waits and runner duration.
-- [ ] **URS-F-0456** — The system shall stream and filter logs by task, attempt, level, worker, time and text.
-- [ ] **URS-F-0457** — The system shall show rendered inputs, outputs, metrics, artifacts, errors and cache decisions subject to authorization.
-- [ ] **URS-F-0458** — The system shall offer pause, resume, cancel, kill, restart, replay and backfill actions with impact confirmation.
-- [ ] **URS-F-0459** — The system shall link each state transition to its causative event and actor where available.
-- [ ] **URS-F-0460** — The system shall retain the user's filters and selected task in shareable deep links.
-- [ ] **URS-F-0461** — The system shall remain usable for executions with tens of thousands of task runs through virtualization and aggregation.
+- [x] **URS-F-0454** — The system shall show execution identity, revision, inputs, labels, state history, duration, trigger and parent-child relationships.
+- [x] **URS-F-0455** — The system shall render task runs as topology and Gantt views with attempts, queues, waits and runner duration.
+- [x] **URS-F-0456** — The system shall stream and filter logs by task, attempt, level, worker, time and text.
+- [x] **URS-F-0457** — The system shall show rendered inputs, outputs, metrics, artifacts, errors and cache decisions subject to authorization.
+- [x] **URS-F-0458** — The system shall offer pause, resume, cancel, kill, restart, replay and backfill actions with impact confirmation.
+- [x] **URS-F-0459** — The system shall link each state transition to its causative event and actor where available.
+- [x] **URS-F-0460** — The system shall retain the user's filters and selected task in shareable deep links.
+- [x] **URS-F-0461** — The system shall remain usable for executions with tens of thousands of task runs through virtualization and aggregation.
+
+## Implementation completion evidence
+
+- 2026-08-23 — EPIC-407 is complete. The execution debugger unifies identity, revision, trigger, relationships, topology, Gantt, reconnectable logs, authorized data and actor-linked state history in one deep-linkable workbench. Operators receive impact previews before pause, resume, cancel, kill, restart, replay or backfill commands. Server-side task-run summaries and 100-row paging avoid full execution materialization; topology aggregates above 1,000 nodes and browser evidence is capped at 5,000 events. A fresh PostgreSQL run proved 100,000 task-run summary and paging below five seconds and 16 MiB traced Python memory. Focused backend, generated-contract, unit, Chromium, automated WCAG, deployment and live API checks passed. The shared manual NVDA/VoiceOver and cross-browser release matrix remains deferred and does not block this functional slice. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`ExecutionDebugger.tsx`](../../frontend/src/components/ExecutionDebugger.tsx), [`executionDebugModel.test.ts`](../../frontend/src/components/executionDebugModel.test.ts), [`test_execution_debug_paging.py`](../../tests/adapters/postgres/test_execution_debug_paging.py), and [`0042_execution_debug_evidence.sql`](../../migrations/0042_execution_debug_evidence.sql).
 
 ## Non-functional requirements
 
@@ -49,13 +53,13 @@ Help users diagnose execution behavior from one coherent timeline.
 
 ## Definition of done
 
-- [ ] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
-- [ ] Public API, DSL, event and plugin contract changes pass compatibility checks.
-- [ ] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
-- [ ] Security, tenant isolation, redaction and audit behavior are reviewed.
-- [ ] Documentation, examples, migration notes and operational runbooks are updated.
-- [ ] Performance and recovery budgets are measured when this epic is on a critical path.
-- [ ] `python scripts/validate_backlog.py` passes.
+- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
+- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.
+- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
+- [x] Security, tenant isolation, redaction and audit behavior are reviewed.
+- [x] Documentation, examples, migration notes and operational runbooks are updated.
+- [x] Performance and recovery budgets are measured when this epic is on a critical path.
+- [x] `python scripts/validate_backlog.py` passes.
 
 ## Risks and unknowns
 

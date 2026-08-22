@@ -143,6 +143,7 @@ amesh_client/models/persisted_execution.py
 amesh_client/models/persisted_flow.py
 amesh_client/models/persisted_subflow.py
 amesh_client/models/persisted_task_run.py
+amesh_client/models/persisted_task_run_summary.py
 amesh_client/models/plugin_capabilities.py
 amesh_client/models/plugin_catalog_snapshot.py
 amesh_client/models/plugin_certification_status.py

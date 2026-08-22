@@ -30,6 +30,7 @@ from amesh.ports import (
     ExecutionInterventionAction,
     PersistedExecution,
     PersistedTaskRun,
+    PersistedTaskRunSummary,
     TaskCacheMode,
 )
 
@@ -225,6 +226,11 @@ class TriggerActionRequest(BaseModel):
 class ExecutionDetail(BaseModel):
     execution: PersistedExecution
     task_runs: list[PersistedTaskRun] = Field(alias="taskRuns")
+    task_run_summary: PersistedTaskRunSummary | None = Field(
+        default=None,
+        alias="taskRunSummary",
+    )
+    task_run_offset: int = Field(default=0, alias="taskRunOffset", ge=0)
 
 
 class FlowDataContract(BaseModel):

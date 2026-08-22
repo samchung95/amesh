@@ -18,9 +18,11 @@ import re  # noqa: F401
 import json
 
 from pydantic import BaseModel, ConfigDict, Field
-from typing import Any, ClassVar, Dict, List
+from typing import Any, ClassVar, Dict, List, Optional
+from typing_extensions import Annotated
 from amesh_client.models.persisted_execution import PersistedExecution
 from amesh_client.models.persisted_task_run import PersistedTaskRun
+from amesh_client.models.persisted_task_run_summary import PersistedTaskRunSummary
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
@@ -30,8 +32,10 @@ class ExecutionDetail(BaseModel):
     ExecutionDetail
     """ # noqa: E501
     execution: PersistedExecution
+    task_run_offset: Optional[Annotated[int, Field(strict=True, ge=0)]] = Field(default=0, alias="taskRunOffset")
+    task_run_summary: Optional[PersistedTaskRunSummary] = Field(default=None, alias="taskRunSummary")
     task_runs: List[PersistedTaskRun] = Field(alias="taskRuns")
-    __properties: ClassVar[List[str]] = ["execution", "taskRuns"]
+    __properties: ClassVar[List[str]] = ["execution", "taskRunOffset", "taskRunSummary", "taskRuns"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -75,6 +79,9 @@ class ExecutionDetail(BaseModel):
         # override the default output from pydantic by calling `to_dict()` of execution
         if self.execution:
             _dict['execution'] = self.execution.to_dict()
+        # override the default output from pydantic by calling `to_dict()` of task_run_summary
+        if self.task_run_summary:
+            _dict['taskRunSummary'] = self.task_run_summary.to_dict()
         # override the default output from pydantic by calling `to_dict()` of each item in task_runs (list)
         _items = []
         if self.task_runs:
@@ -82,6 +89,11 @@ class ExecutionDetail(BaseModel):
                 if _item_task_runs:
                     _items.append(_item_task_runs.to_dict())
             _dict['taskRuns'] = _items
+        # set to None if task_run_summary (nullable) is None
+        # and model_fields_set contains the field
+        if self.task_run_summary is None and "task_run_summary" in self.model_fields_set:
+            _dict['taskRunSummary'] = None
+
         return _dict
 
     @classmethod
@@ -95,6 +107,8 @@ class ExecutionDetail(BaseModel):
 
         _obj = cls.model_validate({
             "execution": PersistedExecution.from_dict(obj["execution"]) if obj.get("execution") is not None else None,
+            "taskRunOffset": obj.get("taskRunOffset") if obj.get("taskRunOffset") is not None else 0,
+            "taskRunSummary": PersistedTaskRunSummary.from_dict(obj["taskRunSummary"]) if obj.get("taskRunSummary") is not None else None,
             "taskRuns": [PersistedTaskRun.from_dict(_item) for _item in obj["taskRuns"]] if obj.get("taskRuns") is not None else None
         })
         return _obj

@@ -789,7 +789,7 @@ No authorization required
 
 ## getExecutionApiV1ExecutionsExecutionIdGet
 
-> ExecutionDetail getExecutionApiV1ExecutionsExecutionIdGet(executionId, authorization, xAmeshCSRF, xAmeshTenant)
+> ExecutionDetail getExecutionApiV1ExecutionsExecutionIdGet(executionId, taskOffset, taskLimit, authorization, xAmeshCSRF, xAmeshTenant)
 
 Get Execution
 
@@ -810,11 +810,13 @@ public class Example {
 
         ExecutionsApi apiInstance = new ExecutionsApi(defaultClient);
         UUID executionId = UUID.randomUUID(); // UUID |
+        Integer taskOffset = 0; // Integer |
+        Integer taskLimit = 56; // Integer |
         String authorization = "authorization_example"; // String |
         String xAmeshCSRF = "xAmeshCSRF_example"; // String |
         String xAmeshTenant = "xAmeshTenant_example"; // String |
         try {
-            ExecutionDetail result = apiInstance.getExecutionApiV1ExecutionsExecutionIdGet(executionId, authorization, xAmeshCSRF, xAmeshTenant);
+            ExecutionDetail result = apiInstance.getExecutionApiV1ExecutionsExecutionIdGet(executionId, taskOffset, taskLimit, authorization, xAmeshCSRF, xAmeshTenant);
             System.out.println(result);
         } catch (ApiException e) {
             System.err.println("Exception when calling ExecutionsApi#getExecutionApiV1ExecutionsExecutionIdGet");
@@ -833,6 +835,8 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **executionId** | **UUID**|  | |
+| **taskOffset** | **Integer**|  | [optional] [default to 0] |
+| **taskLimit** | **Integer**|  | [optional] |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
@@ -859,7 +863,7 @@ No authorization required
 
 ## getExecutionApiV1ExecutionsExecutionIdGetWithHttpInfo
 
-> ApiResponse<ExecutionDetail> getExecutionApiV1ExecutionsExecutionIdGetWithHttpInfo(executionId, authorization, xAmeshCSRF, xAmeshTenant)
+> ApiResponse<ExecutionDetail> getExecutionApiV1ExecutionsExecutionIdGetWithHttpInfo(executionId, taskOffset, taskLimit, authorization, xAmeshCSRF, xAmeshTenant)
 
 Get Execution
 
@@ -881,11 +885,13 @@ public class Example {
 
         ExecutionsApi apiInstance = new ExecutionsApi(defaultClient);
         UUID executionId = UUID.randomUUID(); // UUID |
+        Integer taskOffset = 0; // Integer |
+        Integer taskLimit = 56; // Integer |
         String authorization = "authorization_example"; // String |
         String xAmeshCSRF = "xAmeshCSRF_example"; // String |
         String xAmeshTenant = "xAmeshTenant_example"; // String |
         try {
-            ApiResponse<ExecutionDetail> response = apiInstance.getExecutionApiV1ExecutionsExecutionIdGetWithHttpInfo(executionId, authorization, xAmeshCSRF, xAmeshTenant);
+            ApiResponse<ExecutionDetail> response = apiInstance.getExecutionApiV1ExecutionsExecutionIdGetWithHttpInfo(executionId, taskOffset, taskLimit, authorization, xAmeshCSRF, xAmeshTenant);
             System.out.println("Status code: " + response.getStatusCode());
             System.out.println("Response headers: " + response.getHeaders());
             System.out.println("Response body: " + response.getData());
@@ -906,6 +912,8 @@ public class Example {
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **executionId** | **UUID**|  | |
+| **taskOffset** | **Integer**|  | [optional] [default to 0] |
+| **taskLimit** | **Integer**|  | [optional] |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |

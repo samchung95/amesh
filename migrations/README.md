@@ -142,6 +142,12 @@ Migration `0040_execution_file_lineage.sql` adds the bounded logical workspace p
 source/transformation lineage to each execution artifact. Existing artifact references remain valid
 with an empty lineage array.
 
+Migration `0042_execution_debug_evidence.sql` replaces the state-evidence projection triggers so
+future execution and task transitions include actor, causation, correlation and reason context in
+their immutable evidence payload. It does not rewrite historical evidence. The migration is additive;
+pause evidence consumers and forward-fix on failure while retaining the authoritative execution and
+task event streams.
+
 ## Migration modes
 
 - `bootstrap` creates the initial schema and is only safe for an empty database.

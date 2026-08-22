@@ -246,6 +246,12 @@
       "mode": "expand",
       "onlineCompatible": true,
       "rollbackGuidance": "Stop indexer-owned webhook delivery and forward-fix the additive realtime projection and subscription ledgers; retain cursor, delivery, retry and audit evidence."
+    },
+    {
+      "file": "0042_execution_debug_evidence.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Forward-fix the state-evidence capture functions; existing evidence remains valid and newly captured actor and causation fields are additive."
     }
   ]
 }

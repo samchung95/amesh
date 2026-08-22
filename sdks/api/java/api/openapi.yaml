@@ -3093,6 +3093,26 @@ paths:
           title: Execution Id
           type: string
         style: simple
+      - explode: true
+        in: query
+        name: taskOffset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          title: Taskoffset
+          type: integer
+        style: form
+      - explode: true
+        in: query
+        name: taskLimit
+        required: false
+        schema:
+          maximum: 1000
+          minimum: 1
+          nullable: true
+          type: integer
+        style: form
       - explode: false
         in: header
         name: authorization
@@ -10629,6 +10649,8 @@ components:
             key: ""
           updated_at: 2000-01-23T04:56:07.000+00:00
           version: 0
+        taskRunOffset: 0
+        taskRunSummary: ""
         taskRuns:
         - current_attempt: 0
           evidence:
@@ -10665,6 +10687,15 @@ components:
       properties:
         execution:
           $ref: "#/components/schemas/PersistedExecution"
+        taskRunOffset:
+          default: 0
+          minimum: 0.0
+          title: Taskrunoffset
+          type: integer
+        taskRunSummary:
+          allOf:
+          - $ref: "#/components/schemas/PersistedTaskRunSummary"
+          nullable: true
         taskRuns:
           items:
             $ref: "#/components/schemas/PersistedTaskRun"
@@ -13390,6 +13421,45 @@ components:
       - task_run_id
       - version
       title: PersistedTaskRun
+    PersistedTaskRunSummary:
+      properties:
+        cancelled:
+          minimum: 0.0
+          title: Cancelled
+          type: integer
+        failed:
+          minimum: 0.0
+          title: Failed
+          type: integer
+        retry_delay:
+          minimum: 0.0
+          title: Retry Delay
+          type: integer
+        running:
+          minimum: 0.0
+          title: Running
+          type: integer
+        succeeded:
+          minimum: 0.0
+          title: Succeeded
+          type: integer
+        total:
+          minimum: 0.0
+          title: Total
+          type: integer
+        waiting:
+          minimum: 0.0
+          title: Waiting
+          type: integer
+      required:
+      - cancelled
+      - failed
+      - retry_delay
+      - running
+      - succeeded
+      - total
+      - waiting
+      title: PersistedTaskRunSummary
     PluginCapabilities:
       additionalProperties: false
       properties:

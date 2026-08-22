@@ -400,7 +400,7 @@ No authorization required
 
 ## GetExecutionApiV1ExecutionsExecutionIdGet
 
-> ExecutionDetail GetExecutionApiV1ExecutionsExecutionIdGet(ctx, executionId).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
+> ExecutionDetail GetExecutionApiV1ExecutionsExecutionIdGet(ctx, executionId).TaskOffset(taskOffset).TaskLimit(taskLimit).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
 
 Get Execution
 
@@ -418,13 +418,15 @@ import (
 
 func main() {
 	executionId := "38400000-8cf0-11bd-b23e-10b96e4ef00d" // string |
+	taskOffset := int32(56) // int32 |  (optional) (default to 0)
+	taskLimit := int32(56) // int32 |  (optional)
 	authorization := "authorization_example" // string |  (optional)
 	xAmeshCSRF := "xAmeshCSRF_example" // string |  (optional)
 	xAmeshTenant := "xAmeshTenant_example" // string |  (optional)
 
 	configuration := openapiclient.NewConfiguration()
 	apiClient := openapiclient.NewAPIClient(configuration)
-	resp, r, err := apiClient.ExecutionsAPI.GetExecutionApiV1ExecutionsExecutionIdGet(context.Background(), executionId).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
+	resp, r, err := apiClient.ExecutionsAPI.GetExecutionApiV1ExecutionsExecutionIdGet(context.Background(), executionId).TaskOffset(taskOffset).TaskLimit(taskLimit).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error when calling `ExecutionsAPI.GetExecutionApiV1ExecutionsExecutionIdGet``: %v\n", err)
 		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
@@ -450,6 +452,8 @@ Other parameters are passed through a pointer to a apiGetExecutionApiV1Execution
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 
+ **taskOffset** | **int32** |  | [default to 0]
+ **taskLimit** | **int32** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |

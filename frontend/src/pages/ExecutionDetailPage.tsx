@@ -1,41 +1,168 @@
-import { ArrowLeft, Braces, Clock3, Workflow } from 'lucide-react'
-import { useQuery } from '@tanstack/react-query'
-import { Link, useParams } from 'react-router-dom'
+import { ArrowLeft } from 'lucide-react'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useEffect, useRef, useState } from 'react'
+import { Link, useParams, useSearchParams } from 'react-router-dom'
 
-import { compactId, formatDate } from '../app/format'
+import type {
+  BackfillSpec,
+  ExecutionEvidenceEvent,
+  ExecutionInterventionAction,
+  ExecutionInterventionPreview,
+  UiSession,
+} from '../api/types'
+import { compactId } from '../app/format'
 import { useApiClient } from '../app/queries'
 import { useAppSettings } from '../app/settings'
 import { ErrorState, LoadingState } from '../components/AsyncState'
-import { FlowGraphView } from '../components/FlowGraphView'
-import { ExecutionEvidenceTimeline } from '../components/ExecutionEvidenceTimeline'
+import { ExecutionDebugger } from '../components/ExecutionDebugger'
+import {
+  LARGE_GRAPH_THRESHOLD,
+  mergeEvidence,
+  TASK_RUN_PAGE_SIZE,
+} from '../components/executionDebugModel'
 import { StatusBadge } from '../components/StatusBadge'
 
-export function ExecutionDetailPage() {
+const terminalStates = new Set(['SUCCESS', 'FAILED', 'WARNING', 'CANCELLED'])
+
+export function ExecutionDetailPage({ session }: { session: UiSession }) {
   const { executionId = '' } = useParams()
+  const [searchParams] = useSearchParams()
   const api = useApiClient()
+  const queryClient = useQueryClient()
   const { settings } = useAppSettings()
-  const detail = useQuery({ queryKey: ['execution', executionId, settings.tenant], queryFn: () => api.execution(executionId), enabled: Boolean(executionId), refetchInterval: 2_000 })
-  const graph = useQuery({ queryKey: ['execution-graph', executionId, settings.tenant], queryFn: () => api.executionGraph(executionId), enabled: Boolean(executionId), refetchInterval: 2_000 })
-  const evidence = useQuery({ queryKey: ['execution-evidence', executionId, settings.tenant], queryFn: () => api.executionEvidence(executionId), enabled: Boolean(executionId), refetchInterval: 1_000 })
+  const offset = Math.max(0, Number(searchParams.get('offset') || 0))
+  const detail = useQuery({
+    queryKey: ['execution', executionId, settings.tenant, offset],
+    queryFn: () => api.execution(executionId, offset, TASK_RUN_PAGE_SIZE),
+    enabled: Boolean(executionId),
+    refetchInterval: 2_000,
+  })
+  const totalTasks = detail.data?.taskRunSummary?.total ?? detail.data?.taskRuns.length ?? 0
+  const executionState = detail.data?.execution.state
+  const graph = useQuery({
+    queryKey: ['execution-graph', executionId, settings.tenant],
+    queryFn: () => api.executionGraph(executionId),
+    enabled: Boolean(executionId) && detail.isSuccess && totalTasks <= LARGE_GRAPH_THRESHOLD,
+    refetchInterval: 2_000,
+  })
+  const initialEvidence = useQuery({
+    queryKey: ['execution-evidence-initial', executionId, settings.tenant],
+    queryFn: () => api.executionEvidence(executionId),
+    enabled: Boolean(executionId),
+    staleTime: Number.POSITIVE_INFINITY,
+  })
+  const artifacts = useQuery({ queryKey: ['execution-files', executionId, settings.tenant], queryFn: () => api.executionFiles(executionId), enabled: Boolean(executionId), refetchInterval: 5_000 })
+  const subflows = useQuery({ queryKey: ['execution-subflows', executionId, settings.tenant], queryFn: () => api.executionSubflows(executionId), enabled: Boolean(executionId), refetchInterval: 5_000 })
+  const parent = useQuery({ queryKey: ['execution-parent', executionId, settings.tenant], queryFn: () => api.executionParentSubflow(executionId), enabled: Boolean(executionId), staleTime: 10_000 })
+  const interventions = useQuery({ queryKey: ['execution-interventions', executionId, settings.tenant], queryFn: () => api.executionInterventions(executionId), enabled: Boolean(executionId), refetchInterval: 5_000 })
+  const [streamedEvidence, setStreamedEvidence] = useState<ExecutionEvidenceEvent[]>([])
+  const [streamState, setStreamState] = useState<'connecting' | 'live' | 'reconnecting' | 'complete'>('connecting')
+  const seededCursor = useRef<{ executionId: string; cursor: string | null } | null>(null)
+  const evidence = mergeEvidence(initialEvidence.data?.items ?? [], streamedEvidence)
+
+  useEffect(() => {
+    if (!initialEvidence.data || !executionState) return
+    const controller = new AbortController()
+    let cursor = seededCursor.current?.executionId === executionId
+      ? seededCursor.current.cursor
+      : initialEvidence.data.nextCursor
+    let retrying = false
+    let pending: ExecutionEvidenceEvent[] = []
+    let flushTimer: number | null = null
+    const flush = () => {
+      if (pending.length) {
+        const batch = pending
+        pending = []
+        setStreamedEvidence((current) => mergeEvidence(current, batch))
+      }
+      flushTimer = null
+    }
+    const receive = (event: ExecutionEvidenceEvent & { nextCursor: string }) => {
+      cursor = event.nextCursor
+      seededCursor.current = { executionId, cursor: event.nextCursor }
+      pending.push(event)
+      setStreamState('live')
+      if (flushTimer === null) flushTimer = window.setTimeout(flush, 40)
+    }
+    const run = async () => {
+      while (!controller.signal.aborted) {
+        try {
+          setStreamState(retrying ? 'reconnecting' : 'connecting')
+          await api.streamExecutionEvidence(executionId, cursor, receive, controller.signal)
+          flush()
+          if (terminalStates.has(executionState)) {
+            setStreamState('complete')
+            break
+          }
+          retrying = true
+        } catch {
+          if (controller.signal.aborted) break
+          retrying = true
+          setStreamState('reconnecting')
+          await new Promise((resolve) => window.setTimeout(resolve, 1_000))
+        }
+      }
+    }
+    void run()
+    return () => {
+      controller.abort()
+      if (flushTimer !== null) window.clearTimeout(flushTimer)
+    }
+  }, [api, executionId, executionState, initialEvidence.data])
+
+  const refreshExecution = async () => {
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['execution', executionId] }),
+      queryClient.invalidateQueries({ queryKey: ['execution-graph', executionId] }),
+      queryClient.invalidateQueries({ queryKey: ['execution-interventions', executionId] }),
+    ])
+  }
+  const interventionMutation = useMutation({
+    mutationFn: ({ preview, reason }: { preview: ExecutionInterventionPreview; reason: string }) => api.applyExecutionIntervention(executionId, preview, reason),
+    onSuccess: refreshExecution,
+  })
+  const backfillMutation = useMutation({ mutationFn: (spec: BackfillSpec) => api.createBackfill(spec) })
+
   if (detail.isPending) return <LoadingState label="Loading execution detail" />
   if (detail.error) return <ErrorState message={detail.error.message} retry={() => void detail.refetch()} />
-  const { execution, taskRuns } = detail.data
+  const { execution } = detail.data
   return (
     <div className="page-stack">
       <Link className="back-link" to="/executions"><ArrowLeft size={16} aria-hidden="true" />Executions</Link>
-      <header className="page-heading detail-heading"><div><p className="eyebrow">EXECUTION / {compactId(execution.execution_id)}</p><h1>{execution.flow_id}</h1><p>{execution.namespace}</p></div><StatusBadge state={execution.state} /></header>
-      <section className="detail-facts" aria-label="Execution facts"><div><Workflow size={17} aria-hidden="true" /><span><small>Flow</small><strong>{execution.flow_id}</strong></span></div><div><Clock3 size={17} aria-hidden="true" /><span><small>Created</small><strong>{formatDate(execution.created_at, settings.locale, settings.timezone)}</strong></span></div><div><Braces size={17} aria-hidden="true" /><span><small>Epoch / version</small><strong>{execution.epoch} / {execution.version}</strong></span></div></section>
-      <section className="data-section execution-contract"><div className="section-heading"><div><p className="eyebrow">DATA CONTRACT</p><h2>Inputs and outputs</h2></div><span>Sensitive values redacted</span></div><div><article><h3>Inputs</h3><pre>{JSON.stringify(execution.inputs, null, 2)}</pre></article><article><h3>Flow outputs</h3><pre>{JSON.stringify(execution.outputs, null, 2)}</pre></article></div></section>
-      {graph.isPending ? <LoadingState label="Loading live workflow graph" /> : null}
-      {graph.error ? <ErrorState message={graph.error.message} retry={() => void graph.refetch()} /> : null}
-      {graph.data ? <FlowGraphView graph={graph.data} /> : null}
-      {evidence.isPending ? <LoadingState label="Loading durable execution evidence" /> : null}
-      {evidence.error ? <ErrorState message={evidence.error.message} retry={() => void evidence.refetch()} /> : null}
-      {evidence.data ? <ExecutionEvidenceTimeline events={evidence.data.items} locale={settings.locale} timezone={settings.timezone} /> : null}
-      <section className="data-section"><div className="section-heading"><div><p className="eyebrow">TASK PLAN</p><h2>Task runs</h2></div><span>{taskRuns.length} tasks</span></div><div className="task-run-list">{taskRuns.map((task, index) => {
-        const cache = task.evidence?.cache
-        return <article key={task.task_run_id}><span className="task-index">{String(index + 1).padStart(2, '0')}</span><div><strong>{task.task_id}</strong><small>{compactId(task.task_run_id)} · attempt {task.current_attempt}</small>{cache ? <small className={`cache-decision cache-${cache.decision.toLowerCase()}`} title={cache.reason}>Cache {cache.decision.replaceAll('_', ' ').toLowerCase()} · {cache.reason}</small> : null}</div><StatusBadge state={task.state} /><details><summary>Result</summary><pre>{JSON.stringify(task.result, null, 2)}</pre>{cache ? <><h4 className="cache-summary">Cache provenance</h4><pre>{JSON.stringify(cache, null, 2)}</pre></> : null}</details></article>
-      })}</div></section>
+      <header className="page-heading detail-heading">
+        <div><p className="eyebrow">EXECUTION / {compactId(execution.execution_id)}</p><h1>{execution.flow_id}</h1><p>{execution.namespace}</p></div>
+        <StatusBadge state={execution.state} />
+      </header>
+      {initialEvidence.error ? <p className="form-error" role="alert">Evidence stream unavailable: {initialEvidence.error.message}</p> : null}
+      <ExecutionDebugger
+        detail={detail.data}
+        graph={graph.data}
+        graphLoading={graph.isPending && graph.fetchStatus !== 'idle'}
+        evidence={evidence}
+        streamState={streamState}
+        artifacts={artifacts.data ?? []}
+        subflows={subflows.data ?? []}
+        parent={parent.data ?? null}
+        interventions={interventions.data ?? []}
+        locale={settings.locale}
+        timezone={settings.timezone}
+        canManage={session.capabilities['executions.manage']}
+        canExecute={session.capabilities['executions.execute']}
+        busy={interventionMutation.isPending || backfillMutation.isPending}
+        onPreviewIntervention={(action: ExecutionInterventionAction, checkpoint?: string) => api.previewExecutionIntervention(executionId, action, checkpoint)}
+        onApplyIntervention={async (preview, reason) => { await interventionMutation.mutateAsync({ preview, reason }) }}
+        onPreviewBackfill={(spec) => api.previewBackfill(spec)}
+        onCreateBackfill={(spec) => backfillMutation.mutateAsync(spec)}
+        onDownloadArtifact={async (artifact) => {
+          const blob = await api.downloadExecutionFile(executionId, artifact.artifact_id)
+          const url = URL.createObjectURL(blob)
+          const anchor = document.createElement('a')
+          anchor.href = url
+          anchor.download = artifact.logical_path?.split('/').at(-1) || 'execution-artifact'
+          anchor.click()
+          URL.revokeObjectURL(url)
+        }}
+      />
     </div>
   )
 }

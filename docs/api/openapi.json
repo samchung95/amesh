@@ -1692,6 +1692,22 @@
           "execution": {
             "$ref": "#/components/schemas/PersistedExecution"
           },
+          "taskRunOffset": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Taskrunoffset",
+            "type": "integer"
+          },
+          "taskRunSummary": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PersistedTaskRunSummary"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "taskRuns": {
             "items": {
               "$ref": "#/components/schemas/PersistedTaskRun"
@@ -4576,6 +4592,56 @@
           "version"
         ],
         "title": "PersistedTaskRun",
+        "type": "object"
+      },
+      "PersistedTaskRunSummary": {
+        "properties": {
+          "cancelled": {
+            "minimum": 0.0,
+            "title": "Cancelled",
+            "type": "integer"
+          },
+          "failed": {
+            "minimum": 0.0,
+            "title": "Failed",
+            "type": "integer"
+          },
+          "retry_delay": {
+            "minimum": 0.0,
+            "title": "Retry Delay",
+            "type": "integer"
+          },
+          "running": {
+            "minimum": 0.0,
+            "title": "Running",
+            "type": "integer"
+          },
+          "succeeded": {
+            "minimum": 0.0,
+            "title": "Succeeded",
+            "type": "integer"
+          },
+          "total": {
+            "minimum": 0.0,
+            "title": "Total",
+            "type": "integer"
+          },
+          "waiting": {
+            "minimum": 0.0,
+            "title": "Waiting",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "total",
+          "waiting",
+          "running",
+          "retry_delay",
+          "succeeded",
+          "failed",
+          "cancelled"
+        ],
+        "title": "PersistedTaskRunSummary",
         "type": "object"
       },
       "PluginCapabilities": {
@@ -14381,6 +14447,35 @@
               "format": "uuid",
               "title": "Execution Id",
               "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "taskOffset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Taskoffset",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "taskLimit",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 1000,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Tasklimit"
             }
           },
           {

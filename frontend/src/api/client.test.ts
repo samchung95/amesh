@@ -35,7 +35,10 @@ describe('API client', () => {
   })
 
   it('uses stable health, session and encoded execution paths', async () => {
-    const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(new Response('{}', { status: 200 })))
+    const fetchMock = vi.fn().mockImplementation((path: string) => Promise.resolve(new Response(
+      path.includes('/evidence/stream') ? '{"event_id":"one","nextCursor":"cursor-2"}\n' : '{}',
+      { status: 200 },
+    )))
     vi.stubGlobal('fetch', fetchMock)
     const api = createApiClient({ token: 'token', tenant: 'default', namespace: '' })
 
@@ -48,6 +51,8 @@ describe('API client', () => {
     await api.execution('run/one')
     await api.executionGraph('run/one')
     await api.executionEvidence('run/one', 'cursor/value')
+    const streamed: unknown[] = []
+    await api.streamExecutionEvidence('run/one', 'cursor/value', (event) => streamed.push(event), new AbortController().signal)
 
     expect(fetchMock.mock.calls.map((call) => call[0] as string)).toEqual([
       '/health',
@@ -56,10 +61,12 @@ describe('API client', () => {
       '/api/v1/flows/team%2Fdata/daily%20flow/metadata',
       '/api/v1/flows/team%2Fdata/daily%20flow/data-contract',
       '/api/v1/executions',
-      '/api/v1/executions/run%2Fone',
+      '/api/v1/executions/run%2Fone?taskOffset=0&taskLimit=250',
       '/api/v1/executions/run%2Fone/graph',
       '/api/v1/executions/run%2Fone/evidence?cursor=cursor%2Fvalue',
+      '/api/v1/executions/run%2Fone/evidence/stream?cursor=cursor%2Fvalue',
     ])
+    expect(streamed).toEqual([{ event_id: 'one', nextCursor: 'cursor-2' }])
     const executeInit = fetchMock.mock.calls[5]?.[1] as RequestInit
     expect(executeInit.method).toBe('POST')
     expect(JSON.parse(executeInit.body as string)).toEqual({
@@ -68,6 +75,48 @@ describe('API client', () => {
       inputs: { message: 'hello' },
       runner: 'local',
     })
+  })
+
+  it('builds execution debugging, intervention and backfill requests', async () => {
+    const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(new Response('{}', { status: 200 })))
+    vi.stubGlobal('fetch', fetchMock)
+    const api = createApiClient({ token: 'token', tenant: 'default', namespace: '' })
+    const preview = {
+      execution_id: 'run/one', action: 'PAUSE' as const, current_state: 'RUNNING' as const,
+      predicted_state: 'PAUSED' as const, current_version: 4, current_epoch: 2,
+      checkpoint_task_id: null, impacted_task_ids: [], preserved_task_ids: [],
+      invalidates_active_claims: false, destructive: false, force_available_at: null,
+      consequences: [],
+    }
+    const spec = {
+      namespace: 'team/data', flowId: 'daily flow', flowRevision: 3,
+      selection: { sourceExecutionIds: ['run/one'] }, inputs: {}, labels: {},
+      maxConcurrency: 1, ratePerMinute: 60, priority: 0,
+    }
+
+    await api.executionSubflows('run/one')
+    await api.executionParentSubflow('run/one')
+    await api.executionInterventions('run/one')
+    await api.executionFiles('run/one')
+    await api.downloadExecutionFile('run/one', 'file/one')
+    await api.previewExecutionIntervention('run/one', 'PAUSE')
+    await api.applyExecutionIntervention('run/one', preview, 'maintenance')
+    await api.previewBackfill(spec)
+    await api.createBackfill(spec)
+
+    expect(fetchMock.mock.calls.map((call) => call[0] as string)).toEqual([
+      '/api/v1/executions/run%2Fone/subflows',
+      '/api/v1/executions/run%2Fone/parent-subflow',
+      '/api/v1/executions/run%2Fone/interventions',
+      '/api/v1/executions/run%2Fone/files',
+      '/api/v1/executions/run%2Fone/files/file%2Fone',
+      '/api/v1/executions/run%2Fone/interventions/preview',
+      '/api/v1/executions/run%2Fone/interventions',
+      '/api/v1/backfills/preview',
+      '/api/v1/backfills',
+    ])
+    const applyInit = fetchMock.mock.calls[6]?.[1] as RequestInit
+    expect(JSON.parse(applyInit.body as string)).toMatchObject({ action: 'PAUSE', expectedVersion: 4, expectedEpoch: 2, reason: 'maintenance' })
   })
 
   it('uses a deterministic fallback when JSON detail is not text', async () => {
@@ -169,7 +218,8 @@ describe('API client', () => {
       '/api/v1/namespaces/team%2Fdata/key-values/release%20channel',
       '/api/v1/namespaces/team%2Fdata/secret-bindings/API%2FKEY',
     ])
-    const secretBody = JSON.parse(fetchMock.mock.calls[6]?.[1]?.body as string)
+    const secretInit = fetchMock.mock.calls[6]?.[1] as RequestInit
+    const secretBody = JSON.parse(secretInit.body as string) as Record<string, unknown>
     expect(secretBody).toEqual({ provider: 'env', providerReference: 'PRODUCTION_API_KEY' })
     expect(JSON.stringify(secretBody)).not.toContain('secretValue')
   })

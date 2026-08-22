@@ -113,6 +113,7 @@ export * from './PersistedExecution';
 export * from './PersistedFlow';
 export * from './PersistedSubflow';
 export * from './PersistedTaskRun';
+export * from './PersistedTaskRunSummary';
 export * from './PluginCapabilities';
 export * from './PluginCatalogSnapshot';
 export * from './PluginCertificationStatus';

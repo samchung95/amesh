@@ -403,7 +403,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **get_execution_api_v1_executions_execution_id_get**
-> ExecutionDetail get_execution_api_v1_executions_execution_id_get(execution_id, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
+> ExecutionDetail get_execution_api_v1_executions_execution_id_get(execution_id, task_offset=task_offset, task_limit=task_limit, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
 
 Get Execution
 
@@ -428,13 +428,15 @@ with amesh_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = amesh_client.ExecutionsApi(api_client)
     execution_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID |
+    task_offset = 0 # int |  (optional) (default to 0)
+    task_limit = 56 # int |  (optional)
     authorization = 'authorization_example' # str |  (optional)
     x_amesh_csrf = 'x_amesh_csrf_example' # str |  (optional)
     x_amesh_tenant = 'x_amesh_tenant_example' # str |  (optional)
 
     try:
         # Get Execution
-        api_response = api_instance.get_execution_api_v1_executions_execution_id_get(execution_id, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
+        api_response = api_instance.get_execution_api_v1_executions_execution_id_get(execution_id, task_offset=task_offset, task_limit=task_limit, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
         print("The response of ExecutionsApi->get_execution_api_v1_executions_execution_id_get:\n")
         pprint(api_response)
     except Exception as e:
@@ -449,6 +451,8 @@ with amesh_client.ApiClient(configuration) as api_client:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **execution_id** | **UUID**|  |
+ **task_offset** | **int**|  | [optional] [default to 0]
+ **task_limit** | **int**|  | [optional]
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]

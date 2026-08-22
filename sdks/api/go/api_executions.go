@@ -763,9 +763,21 @@ type ApiGetExecutionApiV1ExecutionsExecutionIdGetRequest struct {
 	ctx context.Context
 	ApiService *ExecutionsAPIService
 	executionId string
+	taskOffset *int32
+	taskLimit *int32
 	authorization *string
 	xAmeshCSRF *string
 	xAmeshTenant *string
+}
+
+func (r ApiGetExecutionApiV1ExecutionsExecutionIdGetRequest) TaskOffset(taskOffset int32) ApiGetExecutionApiV1ExecutionsExecutionIdGetRequest {
+	r.taskOffset = &taskOffset
+	return r
+}
+
+func (r ApiGetExecutionApiV1ExecutionsExecutionIdGetRequest) TaskLimit(taskLimit int32) ApiGetExecutionApiV1ExecutionsExecutionIdGetRequest {
+	r.taskLimit = &taskLimit
+	return r
 }
 
 func (r ApiGetExecutionApiV1ExecutionsExecutionIdGetRequest) Authorization(authorization string) ApiGetExecutionApiV1ExecutionsExecutionIdGetRequest {
@@ -824,6 +836,16 @@ func (a *ExecutionsAPIService) GetExecutionApiV1ExecutionsExecutionIdGetExecute(
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
+	if r.taskOffset != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "taskOffset", r.taskOffset, "form", "")
+	} else {
+		var defaultValue int32 = 0
+		parameterAddToHeaderOrQuery(localVarQueryParams, "taskOffset", defaultValue, "form", "")
+		r.taskOffset = &defaultValue
+	}
+	if r.taskLimit != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "taskLimit", r.taskLimit, "form", "")
+	}
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
 
