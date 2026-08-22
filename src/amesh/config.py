@@ -40,6 +40,23 @@ _SECRET_LOCK = RLock()
 _RUNTIME_SECRET_VALUES: tuple[str, ...] = ()
 
 
+class TrustedPluginApproval(BaseModel):
+    model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
+
+    name: str = Field(pattern=r"^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$", max_length=255)
+    version: str = Field(
+        pattern=(
+            r"^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)"
+            r"(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?"
+            r"(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$"
+        )
+    )
+    content_digest: str = Field(
+        alias="contentDigest",
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+
+
 class Settings(BaseSettings):
     """Process configuration.
 
@@ -136,6 +153,12 @@ class Settings(BaseSettings):
         max_length=4096,
     )
     plugin_registry_timeout_seconds: float = Field(default=10.0, gt=0, le=300)
+    trusted_plugin_approvals: tuple[TrustedPluginApproval, ...] = ()
+    trusted_plugin_callback_timeout_seconds: float = Field(default=30.0, gt=0, le=3600)
+    trusted_plugin_lifecycle_timeout_seconds: float = Field(default=10.0, gt=0, le=300)
+    trusted_plugin_failure_threshold: int = Field(default=5, ge=1, le=100)
+    trusted_plugin_reset_seconds: float = Field(default=30.0, gt=0, le=3600)
+    trusted_plugin_quarantine_threshold: int = Field(default=10, ge=1, le=1000)
     network_public_exposure: bool = False
     network_tls_terminated: bool = False
     product_telemetry_enabled: bool = Field(
@@ -167,7 +190,12 @@ class Settings(BaseSettings):
     def parse_docker_verifier_command(cls, value: object) -> object:
         return json.loads(value) if isinstance(value, str) else value
 
-    @field_validator("plugin_directories", "plugin_registries", mode="before")
+    @field_validator(
+        "plugin_directories",
+        "plugin_registries",
+        "trusted_plugin_approvals",
+        mode="before",
+    )
     @classmethod
     def parse_plugin_sources(cls, value: object) -> object:
         return json.loads(value) if isinstance(value, str) else value
@@ -188,6 +216,11 @@ class Settings(BaseSettings):
             and self.object_storage_secret_key.get_secret_value() == "minio-development-only"
         ):
             raise ValueError("production requires external object-storage credentials or identity")
+        approval_identities = [
+            (item.name, item.version, item.content_digest) for item in self.trusted_plugin_approvals
+        ]
+        if len(approval_identities) != len(set(approval_identities)):
+            raise ValueError("TRUSTED_PLUGIN_APPROVALS must contain unique exact identities")
         if (
             self.app_env != "development"
             and self.network_public_exposure

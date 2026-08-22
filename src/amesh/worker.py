@@ -44,6 +44,7 @@ from amesh.executor import (
     selecting_runner_handler,
 )
 from amesh.observability import configure_structured_logging
+from amesh.plugins import TrustedPluginRuntime, build_plugin_catalog, build_trusted_runtime
 from amesh.ports import (
     CheckRepository,
     ExecutionLaunchSource,
@@ -264,6 +265,7 @@ async def recover_once(
     tenant_ids: Sequence[str],
     task_cache: TaskCacheRepository | None = None,
     shared_resources: PostgresSharedResourceRepository | None = None,
+    trusted_runtime: TrustedPluginRuntime | None = None,
 ) -> int:
     now = datetime.now(UTC)
     recovered = 0
@@ -276,6 +278,7 @@ async def recover_once(
                 execution.namespace,
                 execution.flow_id,
                 tenant_id=tenant_id,
+                revision=execution.flow_revision,
             )
             if execution.state is not ExecutionState.RUNNING:
                 task_runs = await repository.list_task_runs(
@@ -336,14 +339,33 @@ async def recover_once(
                 namespace=flow.namespace,
                 fallback=fallback_runner,
             )
+            handlers = {
+                "core.shell": shell_handler,
+                "core.http": core_http_handler(),
+                "agent.llm": agent_llm_handler(),
+                "agent.mcp": agent_mcp_handler(),
+            }
+            if settings.trusted_plugin_approvals:
+                if trusted_runtime is None:
+                    raise RuntimeError("trusted plugin approvals require a configured runtime")
+                await trusted_runtime.ensure_started()
+                revisions = await repository.list_flow_revisions(
+                    execution.namespace,
+                    execution.flow_id,
+                    tenant_id=tenant_id,
+                )
+                revision = next(
+                    (item for item in revisions if item.revision == execution.flow_revision),
+                    None,
+                )
+                if revision is None:
+                    raise RuntimeError(
+                        f"flow revision {execution.flow_revision} plugin resolution is unavailable"
+                    )
+                handlers.update(trusted_runtime.task_handlers(revision.plugin_resolution))
             executor = InProcessExecutor(
                 repository,
-                handlers={
-                    "core.shell": shell_handler,
-                    "core.http": core_http_handler(),
-                    "agent.llm": agent_llm_handler(),
-                    "agent.mcp": agent_mcp_handler(),
-                },
+                handlers=handlers,
                 recover_running_types=frozenset({"core.shell"}),
                 context_provider=(
                     SharedResourceContextProvider(
@@ -442,6 +464,7 @@ async def run_worker(settings: Settings) -> None:
     shared_resources = PostgresSharedResourceRepository(engine)
     tenant_repository = PostgresTenantRepository(engine)
     next_reconciliation_at = 0.0
+    trusted_runtime = build_trusted_runtime(settings, build_plugin_catalog(settings))
     LOGGER.info("worker started", extra={"worker_id": worker_id})
     try:
         while True:
@@ -478,6 +501,7 @@ async def run_worker(settings: Settings) -> None:
                     settings,
                     tenant_ids=tenant_ids,
                     shared_resources=shared_resources,
+                    trusted_runtime=trusted_runtime,
                 )
                 current_time = monotonic()
                 if current_time >= next_reconciliation_at:
@@ -496,6 +520,7 @@ async def run_worker(settings: Settings) -> None:
                 )
             await asyncio.sleep(settings.worker_poll_seconds)
     finally:
+        await trusted_runtime.stop()
         await engine.dispose()
 
 

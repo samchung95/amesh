@@ -216,9 +216,13 @@ from amesh.plugin_sdk import (
     PluginCatalogManager,
     PluginCatalogSnapshot,
     PluginContractError,
-    PluginDiscoverySource,
     PluginResolver,
-    PluginSourceKind,
+)
+from amesh.plugins import (
+    TrustedPluginRuntime,
+    TrustedPluginRuntimeSnapshot,
+    build_plugin_catalog,
+    build_trusted_runtime,
 )
 from amesh.ports import (
     CheckComplianceSummary,
@@ -404,22 +408,7 @@ def read_database_engine() -> AsyncEngine:
 
 @lru_cache
 def get_plugin_catalog_manager() -> PluginCatalogManager:
-    settings = get_settings()
-    sources = (
-        *(
-            PluginDiscoverySource(kind=PluginSourceKind.DIRECTORY, location=location)
-            for location in settings.plugin_directories
-        ),
-        *(
-            PluginDiscoverySource(kind=PluginSourceKind.REGISTRY, location=location)
-            for location in settings.plugin_registries
-        ),
-    )
-    return PluginCatalogManager(
-        sources=sources,
-        install_root=settings.plugin_install_root,
-        registry_timeout_seconds=settings.plugin_registry_timeout_seconds,
-    )
+    return build_plugin_catalog(get_settings())
 
 
 PluginCatalogDependency = Annotated[
@@ -429,13 +418,24 @@ PluginCatalogDependency = Annotated[
 
 
 @lru_cache
+def get_trusted_plugin_runtime() -> TrustedPluginRuntime:
+    return build_trusted_runtime(get_settings(), get_plugin_catalog_manager())
+
+
+TrustedPluginRuntimeDependency = Annotated[
+    TrustedPluginRuntime,
+    Depends(get_trusted_plugin_runtime),
+]
+
+
+@lru_cache
 def get_repository() -> PostgresExecutionRepository:
     catalog = get_plugin_catalog_manager()
     return PostgresExecutionRepository(
         database_engine(),
-        plugin_resolution_provider=lambda flow: PluginResolver(catalog.snapshot)
-        .resolve_flow(flow)
-        .revision_payload(),
+        plugin_resolution_provider=lambda flow: (
+            PluginResolver(catalog.snapshot).resolve_flow(flow).revision_payload()
+        ),
     )
 
 
@@ -1044,6 +1044,28 @@ async def list_plugins(
         tenant_id=tenant_id,
     )
     return catalog.snapshot
+
+
+@app.get(
+    "/api/v1/plugins/trusted-runtime",
+    response_model=TrustedPluginRuntimeSnapshot,
+    tags=["plugins"],
+)
+async def trusted_plugin_runtime_status(
+    runtime: TrustedPluginRuntimeDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> TrustedPluginRuntimeSnapshot:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="plugin",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+    )
+    await runtime.ensure_started()
+    return runtime.snapshot()
 
 
 @app.post(
@@ -4751,6 +4773,21 @@ async def _execute_flow(
         "agent.llm": agent_llm_handler(),
         "agent.mcp": agent_mcp_handler(),
     }
+    if settings.trusted_plugin_approvals:
+        runtime = get_trusted_plugin_runtime()
+        await runtime.ensure_started()
+        revisions = await repository.list_flow_revisions(
+            flow.namespace,
+            flow.id,
+            tenant_id=tenant_id,
+        )
+        revision = next((item for item in revisions if item.revision == flow.revision), None)
+        if revision is None:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=f"flow revision {flow.revision} plugin resolution is unavailable",
+            )
+        handlers.update(runtime.task_handlers(revision.plugin_resolution))
 
     async def authorize_subflow(child_flow: FlowDefinition) -> None:
         await authorize_request(

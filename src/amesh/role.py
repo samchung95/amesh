@@ -25,6 +25,7 @@ from amesh.config import Settings, get_settings
 from amesh.database import create_database_engine
 from amesh.domain import ServiceLiveness, ServiceRole, ServiceState
 from amesh.observability import configure_structured_logging
+from amesh.plugins import TrustedPluginRuntime, build_plugin_catalog, build_trusted_runtime
 from amesh.ports import ServiceFenceError, WorkerLossPolicy
 from amesh.service_runtime import RegisteredService, service_instance_name
 from amesh.worker import (
@@ -55,6 +56,7 @@ async def _run_cycle(
     shared_resources: PostgresSharedResourceRepository | None = None,
     trigger_runtime: PostgresTriggerRuntimeRepository | None = None,
     checks: PostgresCheckRepository | None = None,
+    trusted_runtime: TrustedPluginRuntime | None = None,
 ) -> int:
     if role is ServiceRole.SCHEDULER:
         scheduled = await schedule_once(
@@ -101,6 +103,7 @@ async def _run_cycle(
             tenant_ids=tenant_ids,
             task_cache=task_cache,
             shared_resources=shared_resources,
+            trusted_runtime=trusted_runtime,
         )
     if role is ServiceRole.WORKER:
         return sum(
@@ -146,6 +149,7 @@ async def run_role(settings: Settings) -> None:
     shared_resources = PostgresSharedResourceRepository(engine)
     trigger_runtime = PostgresTriggerRuntimeRepository(engine)
     checks = PostgresCheckRepository(engine)
+    trusted_runtime = build_trusted_runtime(settings, build_plugin_catalog(settings))
     work_count = 0
     try:
         await service.register()
@@ -177,11 +181,13 @@ async def run_role(settings: Settings) -> None:
                     shared_resources=shared_resources,
                     trigger_runtime=trigger_runtime,
                     checks=checks,
+                    trusted_runtime=trusted_runtime,
                 )
             except (DBAPIError, OSError):
                 LOGGER.exception("service role cycle interrupted; retrying")
             await asyncio.sleep(settings.service_cycle_seconds)
     finally:
+        await trusted_runtime.stop()
         await service.stop()
         await engine.dispose()
 

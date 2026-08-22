@@ -7557,6 +7557,149 @@
         "title": "TriggerRuntimeState",
         "type": "object"
       },
+      "TrustedCircuitState": {
+        "enum": [
+          "closed",
+          "open",
+          "half-open"
+        ],
+        "title": "TrustedCircuitState",
+        "type": "string"
+      },
+      "TrustedPluginRuntimeSnapshot": {
+        "properties": {
+          "catalogGeneration": {
+            "minimum": 1.0,
+            "title": "Cataloggeneration",
+            "type": "integer"
+          },
+          "plugins": {
+            "items": {
+              "$ref": "#/components/schemas/TrustedPluginRuntimeStatus"
+            },
+            "title": "Plugins",
+            "type": "array"
+          }
+        },
+        "required": [
+          "catalogGeneration",
+          "plugins"
+        ],
+        "title": "TrustedPluginRuntimeSnapshot",
+        "type": "object"
+      },
+      "TrustedPluginRuntimeStatus": {
+        "properties": {
+          "averageLatencyMs": {
+            "default": 0,
+            "title": "Averagelatencyms",
+            "type": "number"
+          },
+          "callbacks": {
+            "default": 0,
+            "title": "Callbacks",
+            "type": "integer"
+          },
+          "circuit": {
+            "$ref": "#/components/schemas/TrustedCircuitState"
+          },
+          "consecutiveFailures": {
+            "default": 0,
+            "title": "Consecutivefailures",
+            "type": "integer"
+          },
+          "contentDigest": {
+            "title": "Contentdigest",
+            "type": "string"
+          },
+          "errors": {
+            "default": 0,
+            "title": "Errors",
+            "type": "integer"
+          },
+          "invariantViolations": {
+            "default": 0,
+            "title": "Invariantviolations",
+            "type": "integer"
+          },
+          "lastErrorCode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lasterrorcode"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Namespace"
+          },
+          "ownedMemoryBytes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ownedmemorybytes"
+          },
+          "processMemoryBytes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Processmemorybytes"
+          },
+          "state": {
+            "$ref": "#/components/schemas/TrustedPluginState"
+          },
+          "version": {
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "version",
+          "contentDigest",
+          "state",
+          "circuit"
+        ],
+        "title": "TrustedPluginRuntimeStatus",
+        "type": "object"
+      },
+      "TrustedPluginState": {
+        "enum": [
+          "registered",
+          "starting",
+          "active",
+          "stopping",
+          "stopped",
+          "quarantined"
+        ],
+        "title": "TrustedPluginState",
+        "type": "string"
+      },
       "UiSessionResponse": {
         "properties": {
           "capabilities": {
@@ -18374,6 +18517,87 @@
           }
         },
         "summary": "Refresh Plugins",
+        "tags": [
+          "plugins"
+        ]
+      }
+    },
+    "/api/v1/plugins/trusted-runtime": {
+      "get": {
+        "operationId": "trusted_plugin_runtime_status_api_v1_plugins_trusted_runtime_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TrustedPluginRuntimeSnapshot"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Trusted Plugin Runtime Status",
         "tags": [
           "plugins"
         ]

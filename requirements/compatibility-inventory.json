@@ -4550,97 +4550,121 @@
       "requirement_id": "URS-F-0305",
       "epic_id": "EPIC-302",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-302-trusted-in-process-plugin-runtime.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0306",
       "epic_id": "EPIC-302",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-302-trusted-in-process-plugin-runtime.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0307",
       "epic_id": "EPIC-302",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-302-trusted-in-process-plugin-runtime.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0308",
       "epic_id": "EPIC-302",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-302-trusted-in-process-plugin-runtime.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0309",
       "epic_id": "EPIC-302",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-302-trusted-in-process-plugin-runtime.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0310",
       "epic_id": "EPIC-302",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-302-trusted-in-process-plugin-runtime.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0311",
       "epic_id": "EPIC-302",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-302-trusted-in-process-plugin-runtime.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0312",
       "epic_id": "EPIC-302",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-302-trusted-in-process-plugin-runtime.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0313",

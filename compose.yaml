@@ -65,6 +65,7 @@ services:
       OBJECT_STORAGE_WORKLOAD_IDENTITY: "false"
       AUTH_MODE: development
       PRODUCT_TELEMETRY_ENABLED: "false"
+      PLUGIN_INSTALL_ROOT: /var/lib/amesh/plugins
       SERVICE_ROLE: executor
       SERVICE_INSTANCE_NAME: compose-executor
       SERVICE_CYCLE_SECONDS: "1"
@@ -90,6 +91,7 @@ services:
       - "${DOCKER_GID:-0}"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - plugin-data:/var/lib/amesh/plugins
     tmpfs:
       - /tmp
     security_opt:

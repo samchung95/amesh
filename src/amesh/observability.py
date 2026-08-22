@@ -111,6 +111,36 @@ AUTHENTICATION_LOCKOUTS = Counter(
     "amesh_authentication_lockouts",
     "AMESH local account lockouts.",
 )
+PLUGIN_CALLBACKS = Counter(
+    "amesh_plugin_callbacks",
+    "Trusted in-process plugin callbacks by package, entry point, operation and outcome.",
+    ("plugin", "version", "entry_point", "operation", "outcome"),
+)
+PLUGIN_CALLBACK_DURATION = Histogram(
+    "amesh_plugin_callback_duration_seconds",
+    "Trusted in-process plugin callback duration.",
+    ("plugin", "version", "entry_point", "operation"),
+)
+PLUGIN_CALLBACK_ERRORS = Counter(
+    "amesh_plugin_callback_errors",
+    "Trusted in-process plugin callback errors by stable code.",
+    ("plugin", "version", "code"),
+)
+PLUGIN_MEMORY_BYTES = Gauge(
+    "amesh_plugin_memory_bytes",
+    "Trusted plugin-reported owned memory and observed host process memory.",
+    ("plugin", "version", "measurement"),
+)
+PLUGIN_CIRCUIT_OPEN = Gauge(
+    "amesh_plugin_circuit_open",
+    "Whether a trusted in-process plugin circuit is open.",
+    ("plugin", "version"),
+)
+PLUGIN_QUARANTINES = Counter(
+    "amesh_plugin_quarantines",
+    "Trusted in-process plugin quarantines by invariant reason.",
+    ("plugin", "version", "reason"),
+)
 
 _INSTRUMENTED_ENGINES: WeakSet[AsyncEngine] = WeakSet()
 

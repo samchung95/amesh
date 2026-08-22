@@ -54,6 +54,11 @@ protocol bindings and local conformance harness are documented in the
 installation, dependency resolution, revision pins and content-root isolation are described in the
 [discovery and resolution guide](../plugin-sdk/discovery-and-resolution.md). Trusted/isolated process
 supervision and signing remain separate lifecycle layers and do not alter these public documents.
+The [trusted in-process runtime](../plugin-sdk/trusted-in-process-runtime.md) loads only exact
+administrator-approved Python package digests, dispatches through revision pins and contains callback
+failures with bounded lifecycle hooks, timeouts, circuit breakers, quarantine and telemetry. Its
+private import namespace is not a security sandbox: trusted plugins share the host process and all
+permissions available to it.
 
 Polling trigger adapters return normalized occurrences plus their next checkpoint. The runtime
 persists both before calling the adapter's acknowledgement hook. Realtime trigger adapters expose an

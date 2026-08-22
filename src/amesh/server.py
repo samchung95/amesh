@@ -6,6 +6,7 @@ from contextlib import suppress
 import uvicorn
 
 from amesh.adapters.postgres import PostgresServiceRegistryRepository
+from amesh.app import get_trusted_plugin_runtime
 from amesh.config import get_settings
 from amesh.database import create_database_engine
 from amesh.domain import ServiceRole
@@ -51,6 +52,7 @@ async def run_server() -> None:
         stop.set()
         if heartbeat_task is not None:
             await heartbeat_task
+        await get_trusted_plugin_runtime().stop()
         await service.stop()
         await engine.dispose()
 

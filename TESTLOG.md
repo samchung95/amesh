@@ -1,5 +1,50 @@
 # Test Log
 
+## EPIC-302: Trusted in-process plugin runtime — 2026-08-23
+
+Spec source: Agent Hotel card `c52` and canonical `backlog/epics.json` EPIC-302 DoD.
+
+Verified with `uv`, Python 3.13, PostgreSQL 17 and Docker Compose:
+
+- [x] Only configured exact package name/version/SHA-256 digest approvals are imported. Unapproved
+  package code was never imported, duplicate approvals failed configuration and missing or invalid
+  approvals remained quarantined without preventing the service from starting.
+- [x] Approved Python modules load beneath digest-derived private namespaces without changing
+  `sys.path`; normal and timeout paths proved bounded async start/stop lifecycle hooks and namespace
+  unload. Registration ownership prevents a different package from overriding a task identity.
+- [x] Task callbacks dispatch through the exact package version and digest stored in
+  `amesh.plugin-resolution/v1`. Both 1.0.0 and 2.0.0 were loaded concurrently and the selected pin
+  invoked the correct version; a real PostgreSQL-backed `InProcessExecutor` completed a pinned
+  plugin task and persisted its result.
+- [x] Callback timeouts open a per-package circuit, reject calls while open and admit a bounded
+  half-open probe after reset. Repeated timeout/unhandled/invocation-fence violations quarantine the
+  exact version; configuration, compatibility and capability errors do not trip the circuit.
+- [x] Authorized `GET /api/v1/plugins/trusted-runtime` status and Prometheus counters, histograms and
+  gauges report lifecycle/circuit state, calls, errors, invariant violations, latency, quarantines,
+  plugin-owned memory and observed host-process RSS.
+- [x] The operator guide explicitly states that private Python namespaces are dependency and
+  registration containment, not a security sandbox: trusted code shares the host process, memory,
+  interpreter, environment, filesystem, network and credentials. Untrusted code remains EPIC-303.
+- [x] Nine focused trusted-runtime tests passed, including approval denial, lifecycle failure,
+  authorization, exact-version dispatch and PostgreSQL-backed execution. Generated settings and
+  OpenAPI contracts match the checked-in files.
+- [x] A freshly migrated disposable database ran the 382-test collection with the two authoritative
+  `c15`/`c29` tests deselected: 370 passed, ten environment/profile tests skipped, two deselected and
+  no failures. The disposable database was dropped after the run.
+- [x] Ruff, strict mypy for 143 source files, clean-room policy, planning regeneration, backlog,
+  Compose and generated-contract gates passed. Compose shares persistent `plugin-data` with both API
+  and executor services. Rebuilt API, executor and scheduler services were healthy; the live
+  authorized runtime endpoint returned generation one with no approvals configured and `/metrics`
+  exposed the trusted-plugin series.
+
+The circuit breaker uses small runtime-owned state because the reviewed general-purpose packages do
+not integrate AMESH's exact package identity, structured errors, lifecycle, telemetry and quarantine
+rules. No dependency or LLM invocation was required; OpenRouter remains configured for
+`openai/gpt-5.6-luna` when a later behavior test needs an LLM.
+
+Verdict: PASS — EPIC-302 functional requirements URS-F-0305 through URS-F-0312 are verified.
+Language-neutral supervised process/OCI isolation remains explicitly with EPIC-303.
+
 ## EPIC-301: Plugin discovery, resolution and dependency isolation — 2026-08-23
 
 Spec source: Agent Hotel card `c51` and canonical `backlog/epics.json` EPIC-301 DoD.
