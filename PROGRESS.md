@@ -3,7 +3,7 @@
 ## Current state
 
 - What works: all five requested post-MVP areas are implemented and evidence-linked: the graphical control room; versioned Kestra YAML and Pebble-subset compatibility; local multi-user browser login, RBAC and PostgreSQL RLS multi-tenancy; loops, subflows, backfills and replay; and the qualified functional HA/backup/restore reference profile.
-- What's in flight: no work remains in the requested five-area scope. Concrete OIDC/SAML/LDAP/SCIM adapters remain EPIC-502 rather than part of the requested local multi-user login boundary.
+- What's in flight: the local Docker Compose test deployment is running at `http://localhost:8000` with migration 0027 and a local administrator. No implementation work remains in the requested five-area scope.
 - Known broken / TODO: card `c15` preserves the deferred EPIC-104 timing-sensitive deadline assertion and card `c29` preserves an unrelated order-dependent observability assertion. The uninterrupted 86,400-second qualification remains under EPIC-611 and still gates broader production-readiness claims.
 - How to run/test: use `uv run --extra runtime --extra dev pytest`; set `AMESH_TEST_DATABASE_URL` for PostgreSQL integration tests and `OPENROUTER_API_KEY` for live LLM tests.
 
@@ -114,3 +114,9 @@
 - Verification: four authentication API/CLI tests passed against disposable PostgreSQL databases; the compiled React UI completed a real headless-browser login through a live AMESH server; frontend lint, ten unit tests, production build and five applicable Playwright shell cases passed; all non-deferred backend tests passed on a clean 27-migration database; Ruff formatting/lint, strict mypy, uv lock, generated OpenAPI/planning, backlog validation, Compose, Helm production/development profiles and the production Docker image passed.
 - Deviations from plan: the EPIC-403/EPIC-502 cycle was corrected so EPIC-403 owns local login plus the provider boundary and EPIC-502 owns concrete federation. The unrelated EPIC-104 deadline timing assertion and metric-registration test-order dependency were not changed and remain recorded on cards `c15` and `c29`.
 - Next step when resuming: select a new explicitly requested backlog item; the five areas in this execution goal are complete within their published qualification boundaries.
+
+### 2026-08-22 (local deployment handoff)
+
+- Did: deployed the committed API and compiled control-room frontend through Docker Compose without replacing the PostgreSQL or MinIO volumes; bootstrapped the first local administrator; and fixed the runtime wheel package-data declaration that had omitted `amesh/web` from `site-packages`.
+- Verification: Compose reported healthy API/PostgreSQL services; `/ready` reported 27 of 27 migrations; `/` returned the compiled HTML; API and headless-Chromium login reached the expected administrator session and Dashboard; HttpOnly session, CSRF and logout checks passed.
+- Next step when resuming: leave the local stack running for user testing at `http://localhost:8000`.

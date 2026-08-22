@@ -1092,3 +1092,23 @@ not claim concrete enterprise federation, which remains EPIC-502, or broader pro
 beyond the already published EPIC-601/609 profiles.
 
 Verdict: PASS — EPIC-403 closed.
+
+## Local Docker deployment handoff — 2026-08-22
+
+Spec source: board card `c30`.
+
+- [x] `docker compose up -d --build api` built and started the current AMESH API/frontend image
+  while preserving the named PostgreSQL and MinIO volumes.
+- [x] `/ready` returned HTTP 200 with 27 applied and expected migrations; PostgreSQL retained the
+  bootstrapped `admin` user through container recreation.
+- [x] The installed runtime package resolved `amesh/web`, and `/` served the compiled React HTML.
+- [x] A real local-account API session returned the administrator identity, an HttpOnly session
+  cookie and a CSRF cookie; CSRF-authenticated logout returned 204.
+- [x] Headless Chromium signed in through the rendered form, reached Dashboard, checked the cookie
+  policy and logged out.
+
+Adversarial pass: the initial image was healthy but returned 404 for `/`; container inspection showed
+that the built assets existed under `/app/src` but were absent from the installed wheel. Declaring the
+HTML and asset directories as `amesh` package data fixed the installed runtime path.
+
+Verdict: PASS — local stack left running for user testing.

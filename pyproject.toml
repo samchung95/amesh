@@ -66,6 +66,9 @@ amesh = "amesh.cli:main"
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[tool.setuptools.package-data]
+amesh = ["web/*.html", "web/assets/*"]
+
 [tool.pytest.ini_options]
 addopts = "-q --strict-markers"
 testpaths = ["tests"]
