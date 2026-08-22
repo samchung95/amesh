@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "apiVersion": "0.2.0",
+  "compatibleApiVersions": ">=0.2.0,<0.3.0",
+  "openapiSha256": "e2da5743758e73f088d990b87135cf2fd6f2afc95c5a858dbb69ce6b96d3d858",
+  "generatorImage": "openapitools/openapi-generator-cli@sha256:5bf3dc75f764c584da8e3344c51b2f3f1e74703461d46a035b5ac1d31515cc88",
+  "clients": [
+    {
+      "language": "python",
+      "package": "amesh-client",
+      "path": "python",
+      "paginationHelper": true
+    },
+    {
+      "language": "typescript",
+      "package": "@amesh/client",
+      "path": "typescript",
+      "paginationHelper": true
+    },
+    {
+      "language": "java",
+      "package": "io.amesh:amesh-client",
+      "path": "java",
+      "paginationHelper": true
+    },
+    {
+      "language": "go",
+      "package": "github.com/amesh/amesh-client-go",
+      "path": "go",
+      "paginationHelper": true
+    }
+  ]
+}

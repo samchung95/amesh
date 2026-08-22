@@ -35,8 +35,16 @@ class TenantPolicy(BaseModel):
     retention_days: int = Field(default=30, ge=1, le=36_500)
     max_concurrent_executions: int = Field(default=100, ge=1, le=1_000_000)
     max_queued_executions: int = Field(default=10_000, ge=1, le=10_000_000)
-    max_storage_bytes: int = Field(default=10_737_418_240, ge=1)
-    max_log_bytes: int = Field(default=1_073_741_824, ge=1)
+    max_storage_bytes: int = Field(
+        default=10_737_418_240,
+        ge=1,
+        json_schema_extra={"format": "int64"},
+    )
+    max_log_bytes: int = Field(
+        default=1_073_741_824,
+        ge=1,
+        json_schema_extra={"format": "int64"},
+    )
     max_api_requests_per_minute: int = Field(default=100_000, ge=1, le=10_000_000)
     encryption_key_ref: PolicyReference | None = None
     identity_provider_refs: tuple[PolicyReference, ...] = ()

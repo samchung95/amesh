@@ -412,14 +412,14 @@ URS-F-0410,Functional,Must,EPIC-401,"Realtime API, webhooks and event subscripti
 URS-F-0411,Functional,Must,EPIC-401,"Realtime API, webhooks and event subscriptions",M4,4,OpenAPI contract and authenticated end-to-end API tests,Verified
 URS-F-0412,Functional,Must,EPIC-401,"Realtime API, webhooks and event subscriptions",M4,4,OpenAPI contract and authenticated end-to-end API tests,Verified
 URS-F-0413,Functional,Must,EPIC-401,"Realtime API, webhooks and event subscriptions",M4,4,OpenAPI contract and authenticated end-to-end API tests,Verified
-URS-F-0414,Functional,Must,EPIC-402,CLI and generated client SDKs,M4,4,OpenAPI contract and authenticated end-to-end API tests,Proposed
-URS-F-0415,Functional,Must,EPIC-402,CLI and generated client SDKs,M4,4,OpenAPI contract and authenticated end-to-end API tests,Proposed
-URS-F-0416,Functional,Must,EPIC-402,CLI and generated client SDKs,M4,4,OpenAPI contract and authenticated end-to-end API tests,Proposed
-URS-F-0417,Functional,Must,EPIC-402,CLI and generated client SDKs,M4,4,OpenAPI contract and authenticated end-to-end API tests,Proposed
-URS-F-0418,Functional,Must,EPIC-402,CLI and generated client SDKs,M4,4,OpenAPI contract and authenticated end-to-end API tests,Proposed
-URS-F-0419,Functional,Must,EPIC-402,CLI and generated client SDKs,M4,4,OpenAPI contract and authenticated end-to-end API tests,Proposed
-URS-F-0420,Functional,Must,EPIC-402,CLI and generated client SDKs,M4,4,OpenAPI contract and authenticated end-to-end API tests,Proposed
-URS-F-0421,Functional,Must,EPIC-402,CLI and generated client SDKs,M4,4,OpenAPI contract and authenticated end-to-end API tests,Proposed
+URS-F-0414,Functional,Must,EPIC-402,CLI and generated client SDKs,M4,4,tests/test_cli.py and tests/test_cli_epic402.py::test_urs_f_0414_0415_0419_0420_profiles_secure_tokens_and_output_modes plus test_urs_f_0414_0416_declarative_stdin_diff_export_delete_and_admin,Verified
+URS-F-0415,Functional,Must,EPIC-402,CLI and generated client SDKs,M4,4,tests/test_cli_epic402.py::test_urs_f_0414_0415_0419_0420_profiles_secure_tokens_and_output_modes,Verified
+URS-F-0416,Functional,Must,EPIC-402,CLI and generated client SDKs,M4,4,tests/test_cli_epic402.py::test_urs_f_0414_0416_declarative_stdin_diff_export_delete_and_admin,Verified
+URS-F-0417,Functional,Must,EPIC-402,CLI and generated client SDKs,M4,4,"tests/test_sdk_contracts.py::test_urs_f_0417_0418_generated_sdk_manifest_matches_supported_contract and generated Python, TypeScript, Java and Go build checks",Verified
+URS-F-0418,Functional,Must,EPIC-402,CLI and generated client SDKs,M4,4,tests/test_sdk_contracts.py::test_urs_f_0417_0418_generated_sdk_manifest_matches_supported_contract and test_urs_f_0418_sdk_release_archives_are_reproducible,Verified
+URS-F-0419,Functional,Must,EPIC-402,CLI and generated client SDKs,M4,4,tests/test_cli_epic402.py::test_urs_f_0414_0415_0419_0420_profiles_secure_tokens_and_output_modes,Verified
+URS-F-0420,Functional,Must,EPIC-402,CLI and generated client SDKs,M4,4,tests/test_cli_epic402.py::test_urs_f_0414_0415_0419_0420_profiles_secure_tokens_and_output_modes and deployed AMESH_SERVICE_ACCOUNT_TOKEN CLI smoke,Verified
+URS-F-0421,Functional,Must,EPIC-402,CLI and generated client SDKs,M4,4,tests/test_cli_epic402.py::test_urs_f_0421_completion_and_docs_are_generated_from_parser and docs/cli/reference.md freshness check,Verified
 URS-F-0422,Functional,Must,EPIC-403,Authentication session and credential entry points,M4,4,Security integration tests and threat-model review,Verified
 URS-F-0423,Functional,Must,EPIC-403,Authentication session and credential entry points,M4,4,Security integration tests and threat-model review,Verified
 URS-F-0424,Functional,Must,EPIC-403,Authentication session and credential entry points,M4,4,Security integration tests and threat-model review,Verified

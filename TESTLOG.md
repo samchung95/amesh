@@ -2180,3 +2180,39 @@ Qualification boundary: EPIC-401 completes the outbound-webhook outage slice. Th
 analytics and telemetry outage slices.
 
 Verdict: PASS — EPIC-401 closed.
+
+## EPIC-402: CLI and generated client SDKs — 2026-08-23
+
+Spec source: board card `c60` and
+`backlog/epics/epic-402-cli-and-generated-client-sdks.md`.
+
+Verified with `uv`, Python 3.13.12, PostgreSQL 17 and Docker Compose:
+
+- [x] The CLI preserves the existing flow, execution, namespace, file and plugin commands and adds
+  named configuration profiles, authentication token lifecycle, declarative flow operations and
+  administration commands. Human, JSON and quiet modes return stable documented exit codes.
+- [x] Credentials are delegated to the operating-system keyring and never written to profile JSON.
+  `AMESH_SERVICE_ACCOUNT_TOKEN` provides a non-interactive CI path with deterministic precedence.
+- [x] Declarative flow apply and diff accept files or standard input; export returns canonical stored
+  revisions; flow-revision and tenant deletion present impact, scope and recovery information and
+  require an explicit `--force`.
+- [x] OpenAPI Generator 7.24.0, pinned by container digest, produced typed Python, TypeScript Fetch,
+  Java and Go clients for API version 0.2.0. All four expose the flow-document operation, compatibility
+  metadata and pagination helpers; Python compiled, TypeScript typechecked, Java packaged and Go tested.
+- [x] Deterministic ZIP packaging, SHA-256 manifests, release attestations and CI freshness checks cover
+  the four client artifacts. Shell completion and command reference output are generated from the
+  argparse command model.
+- [x] The focused CLI, SDK, flow-document and generated-contract suite passed. SDK regeneration checked
+  1,144 files byte-for-byte and deterministic package tests passed.
+- [x] The fresh 41-migration backend collection contained 434 tests. With the four authoritative
+  c15/c29/c89 timing or ordering checks explicitly deselected, 430 tests ran: 420 passed and ten
+  environment/profile tests skipped. The disposable PostgreSQL database was force-dropped.
+- [x] Ruff lint, strict mypy, focused Ruff formatting, generated OpenAPI/schema contracts and diff
+  checks passed. The unrelated repository-wide Python formatting baseline remains deferred on board
+  card `c90`.
+
+Qualification boundary: the EPIC-402 slices of `URS-NFR-USABILITY-005` and
+`URS-NFR-MAINTAINABILITY-005` are complete. Both shared NFRs remain Proposed until their other owning
+epics complete their destructive-action and generated-artifact qualification slices.
+
+Verdict: PASS — EPIC-402 closed.

@@ -81,6 +81,7 @@ from amesh.api.models import (
     ExecutionInterventionRequest,
     FeatureFlagUpsertRequest,
     FlowDataContract,
+    FlowDocumentExport,
     FlowGraph,
     FlowGraphEdge,
     FlowGraphNode,
@@ -179,6 +180,7 @@ from amesh.domain import (
     TenantExport,
     TenantPolicy,
     TenantSlug,
+    canonical_hash,
     new_runtime_id,
     reduce_execution,
 )
@@ -1976,6 +1978,51 @@ async def list_flows(
         tenant_id=tenant_id,
     )
     return collection_response(await repository.list_flows(tenant_id=tenant_id), query)
+
+
+@app.get(
+    "/api/v1/flows/{namespace}/{flow_id}/document",
+    response_model=FlowDocumentExport,
+    tags=["flows"],
+)
+async def export_flow_document(
+    namespace: str,
+    flow_id: str,
+    repository: ReadRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    revision: Annotated[int | None, Query(ge=1)] = None,
+) -> FlowDocumentExport:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="flow",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    try:
+        flow = await repository.get_flow(
+            namespace,
+            flow_id,
+            tenant_id=tenant_id,
+            revision=revision,
+        )
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    document = (
+        json.loads(flow._persisted_canonical_definition)
+        if flow._persisted_canonical_definition is not None
+        else flow.model_dump(mode="json", by_alias=True, exclude_none=True)
+    )
+    return FlowDocumentExport(
+        namespace=flow.namespace,
+        flowId=flow.id,
+        revision=flow.revision,
+        semanticHash=flow._persisted_semantic_hash or canonical_hash(document),
+        document=document,
+    )
 
 
 @app.put(

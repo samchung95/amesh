@@ -53,15 +53,19 @@ jobs:
           uv sync --extra runtime --extra dev --locked
       - run: make validate
       - run: bash scripts/package_repo.sh
+      - run: uv run python scripts/package_sdks.py --output-dir dist/sdk
       - uses: actions/attest-build-provenance@v2
         with:
           subject-path: |
             ../amesh.zip
             ../amesh.tar.gz
+            dist/sdk/*.zip
       - uses: softprops/action-gh-release@v2
         with:
           files: |
             ../amesh.zip
             ../amesh.tar.gz
             ../amesh.sha256
+            dist/sdk/*.zip
+            dist/sdk/amesh-clients.sha256
           generate_release_notes: true

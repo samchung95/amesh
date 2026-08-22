@@ -51,7 +51,7 @@ class ProblemDetail(BaseModel):
     type: str
     title: str
     status: int
-    detail: str | list[dict[str, Any]]
+    detail: Any
     code: str
     instance: str
     errors: list[dict[str, Any]] | None = None
@@ -88,6 +88,16 @@ class FlowRevisionLifecycleRequest(BaseModel):
 
 class FlowRevisionRestoreRequest(BaseModel):
     reason: str | None = Field(default=None, max_length=4096)
+
+
+class FlowDocumentExport(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    namespace: str
+    flow_id: str = Field(alias="flowId")
+    revision: int = Field(ge=1)
+    semantic_hash: str = Field(alias="semanticHash")
+    document: dict[str, Any]
 
 
 class ConfigurationDiagnosticBundle(BaseModel):

@@ -41,7 +41,7 @@ The product target is broader than OSS feature parity. AMESH also independently 
 - Architecture for deterministic execution, PostgreSQL queues, leases, fencing, scheduling, plugins, tenancy, security, HA and disaster recovery.
 - Full compatibility workstreams for Kestra YAML, Pebble, REST, CLI, execution behavior and import/export.
 - AMESH-specific workstreams for agent meshes, deterministic simulation, policy-as-code and evidence-backed AI assistance.
-- A running Python/FastAPI MVP control plane with durable PostgreSQL execution, cron/manual/webhook triggers, local and Kubernetes Job runners, agent tasks, recovery worker, REST/CLI access, metrics and structured logs.
+- A running Python/FastAPI MVP control plane with durable PostgreSQL execution, cron/manual/webhook triggers, local and Kubernetes Job runners, agent tasks, recovery worker, REST/CLI access, typed Python/TypeScript/Java/Go clients, metrics and structured logs.
 - A PostgreSQL + MinIO Docker Compose development topology.
 - Reproducible planning, contract, validation and packaging scripts.
 
@@ -91,6 +91,9 @@ Core correctness rules:
 10. Compatibility claims require version-pinned differential evidence.
 
 Start with the [architecture overview](docs/architecture/README.md), [on-premises Kubernetes reference](docs/architecture/on-premises-kubernetes.md), [execution semantics](docs/architecture/execution-semantics.md), [PostgreSQL transport design](docs/architecture/postgresql-transport.md), [configuration and feature flags](docs/operations/configuration.md), [distributed queue operations](docs/operations/distributed-queue.md), [PostgreSQL operations guide](docs/operations/postgresql.md), [object-storage operations](docs/operations/object-storage.md), [full migration architecture](docs/architecture/migration.md) and [compatibility architecture](docs/architecture/compatibility.md).
+
+CLI profiles, secure token storage, output modes, declarative workflows, completion and generated
+client usage are documented in the [CLI and generated clients guide](docs/cli/README.md).
 
 ## Repository map
 

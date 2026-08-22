@@ -22,8 +22,18 @@ from amesh.adapters.postgres import (
     PostgresTenantRepository,
 )
 from amesh.authentication import AuthenticationService
+from amesh.cli_config import (
+    CliProfile,
+    KeyringCredentialStore,
+    default_cli_config_path,
+    load_cli_configuration,
+    public_configuration,
+    save_cli_configuration,
+    validate_profile_name,
+)
 from amesh.config import Settings
 from amesh.database import create_database_engine
+from amesh.domain import compare_flow_revisions
 from amesh.dsl import FlowDocumentError, validate_flow_document
 from amesh.plugin_sdk import (
     certify_plugin,
@@ -38,16 +48,30 @@ from amesh.storage.factory import build_object_store
 from amesh.tenancy import TenantService
 from amesh.tenant_transfer import TenantTransferBundle, TenantTransferService
 
+EXIT_SUCCESS = 0
+EXIT_DIFFERENCE = 1
+EXIT_ERROR = 2
+EXIT_CONFIRMATION_REQUIRED = 3
+
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="amesh")
     parser.add_argument("--version", action="version", version=__version__)
     parser.add_argument(
         "--api-url",
-        default=os.getenv("AMESH_API_URL", "http://127.0.0.1:8000"),
+        default=None,
     )
-    parser.add_argument("--token", default=os.getenv("AMESH_ADMIN_TOKEN"))
-    parser.add_argument("--tenant", default=os.getenv("AMESH_TENANT", "default"))
+    parser.add_argument("--token", default=None)
+    parser.add_argument("--tenant", default=None)
+    parser.add_argument("--profile", default=None)
+    parser.add_argument("--config-path", type=Path, default=None)
+    parser.add_argument(
+        "--output",
+        dest="output_mode",
+        choices=("human", "json", "quiet"),
+        default=os.getenv("AMESH_OUTPUT", "json"),
+    )
+    parser.add_argument("--quiet", action="store_true", help="Alias for --output quiet")
     subcommands = parser.add_subparsers(dest="command", required=True)
 
     validate = subcommands.add_parser("validate", help="Validate a flow YAML or JSON file")
@@ -212,6 +236,81 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Read the password from one stdin line instead of an interactive prompt",
     )
+    auth_token = auth_commands.add_parser(
+        "token", help="Store service-account or API credentials in OS secure storage"
+    )
+    auth_token_commands = auth_token.add_subparsers(dest="auth_token_command", required=True)
+    token_store = auth_token_commands.add_parser("store", help="Store a token for the profile")
+    token_store.add_argument(
+        "--stdin",
+        action="store_true",
+        help="Read one token line from stdin instead of a hidden prompt",
+    )
+    auth_token_commands.add_parser("status", help="Report whether a token is stored")
+    auth_token_commands.add_parser("delete", help="Delete the stored token")
+
+    config = subcommands.add_parser("config", help="Manage local CLI profiles")
+    config_commands = config.add_subparsers(dest="config_command", required=True)
+    config_commands.add_parser("show", help="Show non-secret profile configuration")
+    config_set = config_commands.add_parser("set", help="Create or update one profile")
+    config_set.add_argument("name")
+    config_set.add_argument("--api-url", dest="profile_api_url")
+    config_set.add_argument("--tenant", dest="profile_tenant")
+    config_use = config_commands.add_parser("use", help="Select the active profile")
+    config_use.add_argument("name")
+    config_commands.add_parser("profiles", help="List configured profiles")
+
+    flow = subcommands.add_parser("flow", help="Manage declarative flow documents")
+    flow_commands = flow.add_subparsers(dest="flow_command", required=True)
+    flow_apply = flow_commands.add_parser("apply", help="Apply a file or standard input")
+    flow_apply.add_argument("path", nargs="?", default="-")
+    flow_diff = flow_commands.add_parser("diff", help="Diff a file or stdin against the server")
+    flow_diff.add_argument("path", nargs="?", default="-")
+    flow_export = flow_commands.add_parser("export", help="Export one flow document")
+    flow_export.add_argument("namespace")
+    flow_export.add_argument("flow_id")
+    flow_export.add_argument("path", nargs="?", default="-")
+    flow_export.add_argument("--revision", type=int)
+    flow_delete = flow_commands.add_parser("delete", help="Delete one inactive flow revision")
+    flow_delete.add_argument("namespace")
+    flow_delete.add_argument("flow_id")
+    flow_delete.add_argument("revision", type=int)
+    flow_delete.add_argument("--force", action="store_true")
+
+    admin = subcommands.add_parser("admin", help="Perform instance administration")
+    admin_commands = admin.add_subparsers(dest="admin_command", required=True)
+    admin_configuration = admin_commands.add_parser(
+        "configuration", help="Inspect or reload server configuration"
+    )
+    admin_configuration_commands = admin_configuration.add_subparsers(
+        dest="admin_configuration_command", required=True
+    )
+    admin_configuration_commands.add_parser("show")
+    admin_configuration_commands.add_parser("diagnostics")
+    admin_configuration_commands.add_parser("reload")
+    admin_tenants = admin_commands.add_parser("tenants", help="Manage tenants")
+    admin_tenant_commands = admin_tenants.add_subparsers(dest="admin_tenant_command", required=True)
+    admin_tenant_commands.add_parser("list")
+    admin_tenant_get = admin_tenant_commands.add_parser("get")
+    admin_tenant_get.add_argument("slug")
+    admin_tenant_create = admin_tenant_commands.add_parser("create")
+    admin_tenant_create.add_argument("slug")
+    admin_tenant_create.add_argument("--display-name", required=True)
+    for action in ("suspend", "restore", "export"):
+        action_parser = admin_tenant_commands.add_parser(action)
+        action_parser.add_argument("slug")
+    admin_tenant_delete = admin_tenant_commands.add_parser("delete")
+    admin_tenant_delete.add_argument("slug")
+    admin_tenant_delete.add_argument("--force", action="store_true")
+
+    completion = subcommands.add_parser(
+        "completion", help="Generate shell completion from the command model"
+    )
+    completion.add_argument("shell", choices=("bash", "zsh", "fish", "powershell"))
+    command_docs = subcommands.add_parser(
+        "command-docs", help="Generate Markdown command documentation"
+    )
+    command_docs.add_argument("path", nargs="?", type=Path)
 
     storage = subcommands.add_parser("storage", help="Validate or migrate object storage")
     storage_commands = storage.add_subparsers(dest="storage_command", required=True)
@@ -260,7 +359,30 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: Sequence[str] | None = None) -> int:
-    args = build_parser().parse_args(argv)
+    parser = build_parser()
+    args = parser.parse_args(argv)
+    output_mode = "quiet" if args.quiet else args.output_mode
+    if args.command == "completion":
+        _emit(shell_completion(parser, args.shell), "quiet" if output_mode == "quiet" else "human")
+        return EXIT_SUCCESS
+    if args.command == "command-docs":
+        command_reference = command_markdown(parser)
+        if args.path is None:
+            _emit(command_reference, "quiet" if output_mode == "quiet" else "human")
+        else:
+            args.path.parent.mkdir(parents=True, exist_ok=True)
+            args.path.write_text(command_reference, encoding="utf-8", newline="\n")
+            _emit({"documentation": str(args.path)}, output_mode)
+        return EXIT_SUCCESS
+    try:
+        if args.command == "config":
+            return _run_config_command(args, output_mode)
+        if args.command == "auth" and args.auth_command == "token":
+            return _run_token_command(args, output_mode)
+        _resolve_cli_context(args, include_token=_uses_api(args))
+    except (OSError, ValueError, RuntimeError) as exc:
+        print(str(exc), file=sys.stderr)
+        return EXIT_ERROR
     if args.command == "plugins" and args.plugin_command in {
         "scaffold",
         "certify",
@@ -271,8 +393,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         try:
             if args.plugin_command == "scaffold":
                 created = scaffold_plugin(args.path, name=args.name)
-                print(json.dumps({"created": [str(path) for path in created]}, indent=2))
-                return 0
+                _emit({"created": [str(path) for path in created]}, output_mode)
+                return EXIT_SUCCESS
             if args.plugin_command == "certify":
                 certification_report = certify_plugin(
                     args.path,
@@ -284,36 +406,36 @@ def main(argv: Sequence[str] | None = None) -> int:
                 if args.output is not None:
                     args.output.parent.mkdir(parents=True, exist_ok=True)
                     args.output.write_text(encoded + "\n", encoding="utf-8")
-                print(encoded)
-                return 0 if certification_report.passed else 1
+                _emit(json.loads(encoded), output_mode)
+                return EXIT_SUCCESS if certification_report.passed else EXIT_DIFFERENCE
             if args.plugin_command == "docs":
-                documentation, sample = generate_plugin_documentation(args.path, args.output_dir)
-                print(
-                    json.dumps(
-                        {"documentation": str(documentation), "sampleConfiguration": str(sample)},
-                        indent=2,
-                    )
+                documentation_path, sample = generate_plugin_documentation(
+                    args.path, args.output_dir
                 )
-                return 0
+                _emit(
+                    {
+                        "documentation": str(documentation_path),
+                        "sampleConfiguration": str(sample),
+                    },
+                    output_mode,
+                )
+                return EXIT_SUCCESS
             if args.plugin_command == "sandbox":
                 configuration = _load_mapping(args.configuration)
                 sandbox_result = sandbox_configuration(args.path, args.entry_point, configuration)
-                print(json.dumps(sandbox_result, indent=2, sort_keys=True))
-                return 0 if sandbox_result["valid"] else 1
-            print(
-                json.dumps(
-                    {
-                        level.value: list(criteria)
-                        for level, criteria in quality_level_criteria().items()
-                    },
-                    indent=2,
-                    sort_keys=True,
-                )
+                _emit(sandbox_result, output_mode)
+                return EXIT_SUCCESS if sandbox_result["valid"] else EXIT_DIFFERENCE
+            _emit(
+                {
+                    level.value: list(criteria)
+                    for level, criteria in quality_level_criteria().items()
+                },
+                output_mode,
             )
-            return 0
+            return EXIT_SUCCESS
         except (OSError, ValueError, RuntimeError) as exc:
             print(str(exc), file=sys.stderr)
-            return 2
+            return EXIT_ERROR
     if args.command == "validate":
         path: Path = args.path
         try:
@@ -321,14 +443,19 @@ def main(argv: Sequence[str] | None = None) -> int:
         except (OSError, FlowDocumentError) as exc:
             print(str(exc), file=sys.stderr)
             return 2
-        if args.as_json:
-            print(result.model_dump_json(indent=2, by_alias=True))
+        if args.as_json or output_mode == "json":
+            _emit(result.model_dump(mode="json", by_alias=True), output_mode)
         elif result.valid:
-            print(f"valid: {path} ({result.semantic_hash})")
+            _emit(f"valid: {path} ({result.semantic_hash})", output_mode)
         else:
-            for issue in result.issues:
-                print(f"{issue.severity}: {issue.path}: {issue.code}: {issue.message}")
-        return 0 if result.valid else 1
+            _emit(
+                "\n".join(
+                    f"{issue.severity}: {issue.path}: {issue.code}: {issue.message}"
+                    for issue in result.issues
+                ),
+                output_mode,
+            )
+        return EXIT_SUCCESS if result.valid else EXIT_DIFFERENCE
     if args.command == "storage":
         try:
             if args.storage_command == "validate":
@@ -338,8 +465,8 @@ def main(argv: Sequence[str] | None = None) -> int:
                         verify_content=not args.metadata_only,
                     )
                 )
-                print(report.model_dump_json(indent=2))
-                return 0 if not report.corrupt else 1
+                _emit(report.model_dump(mode="json"), output_mode)
+                return EXIT_SUCCESS if not report.corrupt else EXIT_DIFFERENCE
             destination_settings = Settings.model_validate(
                 json.loads(args.destination_config.read_text(encoding="utf-8"))
             )
@@ -354,12 +481,12 @@ def main(argv: Sequence[str] | None = None) -> int:
                     ),
                 )
             )
-            print(migration_checkpoint.model_dump_json(indent=2))
-            return 0
+            _emit(migration_checkpoint.model_dump(mode="json"), output_mode)
+            return EXIT_SUCCESS
         except (OSError, ValueError, RuntimeError) as exc:
             print(str(exc), file=sys.stderr)
-            return 2
-    if args.command == "auth":
+            return EXIT_ERROR
+    if args.command == "auth" and args.auth_command == "bootstrap-admin":
         try:
             password = _read_bootstrap_password(args.password_stdin)
             principal = asyncio.run(
@@ -370,38 +497,35 @@ def main(argv: Sequence[str] | None = None) -> int:
                     password=password,
                 )
             )
-            print(
-                json.dumps(
-                    {
-                        "principalId": str(principal.id),
-                        "handle": principal.handle,
-                        "displayName": principal.display_name,
-                    },
-                    indent=2,
-                    sort_keys=True,
-                )
+            _emit(
+                {
+                    "principalId": str(principal.id),
+                    "handle": principal.handle,
+                    "displayName": principal.display_name,
+                },
+                output_mode,
             )
-            return 0
+            return EXIT_SUCCESS
         except (EOFError, LookupError, ValueError, RuntimeError) as exc:
             print(str(exc), file=sys.stderr)
-            return 2
+            return EXIT_ERROR
     if args.command == "recovery":
         try:
             result = asyncio.run(_run_recovery(args, Settings()))
-            print(result.model_dump_json(indent=2))
+            _emit(result.model_dump(mode="json"), output_mode)
             state = getattr(result, "state", "PASSED")
-            return 0 if state == "PASSED" else 1
+            return EXIT_SUCCESS if state == "PASSED" else EXIT_DIFFERENCE
         except (OSError, LookupError, ValueError, RuntimeError) as exc:
             print(str(exc), file=sys.stderr)
-            return 2
+            return EXIT_ERROR
     if args.command == "tenant-transfer":
         try:
             result = asyncio.run(_run_tenant_transfer(args, Settings()))
-            print(result.model_dump_json(indent=2))
-            return 0
+            _emit(result.model_dump(mode="json"), output_mode)
+            return EXIT_SUCCESS
         except (OSError, LookupError, ValueError, RuntimeError) as exc:
             print(str(exc), file=sys.stderr)
-            return 2
+            return EXIT_ERROR
     try:
         with httpx.Client(
             base_url=args.api_url,
@@ -456,19 +580,359 @@ def main(argv: Sequence[str] | None = None) -> int:
                     )
             elif args.command == "namespace":
                 response = _namespace_request(client, args)
+            elif args.command == "flow":
+                flow_result = _flow_request(client, args, output_mode)
+                if isinstance(flow_result, int):
+                    return flow_result
+                response = flow_result
+            elif args.command == "admin":
+                admin_result = _admin_request(client, args, output_mode)
+                if isinstance(admin_result, int):
+                    return admin_result
+                response = admin_result
             else:
-                return 2
+                return EXIT_ERROR
         if response.is_error:
             print(f"API error {response.status_code}: {response.text}", file=sys.stderr)
-            return 2
-        if args.command == "namespace" and _write_namespace_response(response, args):
-            return 0
-        print(json.dumps(response.json(), indent=2, sort_keys=True))
-        return 0
+            return EXIT_ERROR
+        if args.command == "namespace" and _write_namespace_response(response, args, output_mode):
+            return EXIT_SUCCESS
+        if args.command == "flow":
+            flow_exit = _write_flow_response(response, args, output_mode)
+            if flow_exit is not None:
+                return flow_exit
+        if response.status_code == 204 or not response.content:
+            _emit({"status": "ok"}, output_mode)
+        else:
+            _emit(response.json(), output_mode)
+        return EXIT_SUCCESS
     except (OSError, ValueError, httpx.HTTPError) as exc:
         print(str(exc), file=sys.stderr)
-        return 2
-    return 2
+        return EXIT_ERROR
+    return EXIT_ERROR
+
+
+def _emit(value: Any, mode: str, *, human: str | None = None) -> None:
+    if mode == "quiet":
+        return
+    if mode == "json":
+        print(json.dumps(value, indent=2, sort_keys=True, default=str))
+        return
+    if human is not None:
+        print(human)
+        return
+    if isinstance(value, str):
+        print(value)
+        return
+    if isinstance(value, dict):
+        print(
+            "\n".join(
+                f"{key}: "
+                + (
+                    json.dumps(item, sort_keys=True, default=str)
+                    if isinstance(item, (dict, list, tuple))
+                    else str(item)
+                )
+                for key, item in value.items()
+            )
+        )
+        return
+    if isinstance(value, list):
+        print("\n".join(json.dumps(item, sort_keys=True, default=str) for item in value))
+        return
+    print(value)
+
+
+def _config_path(args: argparse.Namespace) -> Path:
+    return args.config_path or default_cli_config_path()
+
+
+def _run_config_command(args: argparse.Namespace, output_mode: str) -> int:
+    path = _config_path(args)
+    configuration = load_cli_configuration(path)
+    if args.config_command == "show":
+        _emit(public_configuration(configuration), output_mode)
+        return EXIT_SUCCESS
+    if args.config_command == "profiles":
+        _emit(
+            {
+                "activeProfile": configuration.active_profile,
+                "profiles": sorted(configuration.profiles),
+            },
+            output_mode,
+        )
+        return EXIT_SUCCESS
+    name = validate_profile_name(args.name)
+    if args.config_command == "use":
+        if name != "default" and name not in configuration.profiles:
+            raise ValueError(f"CLI profile {name!r} does not exist")
+        configuration.active_profile = name
+    else:
+        current = configuration.profiles.get(name, CliProfile())
+        configuration.profiles[name] = CliProfile(
+            apiUrl=args.profile_api_url or current.api_url,
+            tenant=args.profile_tenant or current.tenant,
+        )
+    save_cli_configuration(path, configuration)
+    _emit(
+        {
+            "activeProfile": configuration.active_profile,
+            "profile": name,
+            "configurationPath": str(path),
+        },
+        output_mode,
+    )
+    return EXIT_SUCCESS
+
+
+def _run_token_command(args: argparse.Namespace, output_mode: str) -> int:
+    configuration = load_cli_configuration(_config_path(args))
+    profile_name, _profile = configuration.profile(args.profile)
+    store = KeyringCredentialStore()
+    if args.auth_token_command == "status":
+        _emit(
+            {"profile": profile_name, "stored": store.get(profile_name) is not None},
+            output_mode,
+        )
+        return EXIT_SUCCESS
+    if args.auth_token_command == "delete":
+        store.delete(profile_name)
+        _emit({"profile": profile_name, "stored": False}, output_mode)
+        return EXIT_SUCCESS
+    token = (
+        sys.stdin.readline().rstrip("\r\n")
+        if args.stdin
+        else getpass.getpass(f"Token for AMESH profile {profile_name}: ")
+    )
+    store.set(profile_name, token)
+    _emit({"profile": profile_name, "stored": True}, output_mode)
+    return EXIT_SUCCESS
+
+
+def _resolve_cli_context(args: argparse.Namespace, *, include_token: bool) -> str:
+    configuration = load_cli_configuration(_config_path(args))
+    profile_name, profile = configuration.profile(args.profile)
+    args.api_url = args.api_url or os.getenv("AMESH_API_URL") or profile.api_url
+    args.tenant = args.tenant or os.getenv("AMESH_TENANT") or profile.tenant
+    if include_token:
+        args.token = (
+            args.token
+            or os.getenv("AMESH_SERVICE_ACCOUNT_TOKEN")
+            or os.getenv("AMESH_ADMIN_TOKEN")
+            or KeyringCredentialStore().get(profile_name)
+        )
+    return profile_name
+
+
+def _uses_api(args: argparse.Namespace) -> bool:
+    if args.command in {
+        "apply",
+        "flows",
+        "executions",
+        "run",
+        "execution",
+        "logs",
+        "webhook",
+        "namespace",
+        "flow",
+        "admin",
+    }:
+        return True
+    return args.command == "plugins" and args.plugin_command in {"list", "refresh", "install"}
+
+
+def _read_document(path: str) -> bytes:
+    if path != "-":
+        return Path(path).read_bytes()
+    reader = getattr(sys.stdin, "buffer", sys.stdin)
+    value = reader.read()
+    return value if isinstance(value, bytes) else value.encode()
+
+
+def _flow_request(
+    client: httpx.Client,
+    args: argparse.Namespace,
+    output_mode: str,
+) -> httpx.Response | int:
+    if args.flow_command == "apply":
+        return client.put(
+            "/api/v1/flows",
+            content=_read_document(args.path),
+            headers={"content-type": "application/yaml"},
+        )
+    if args.flow_command == "diff":
+        validation = validate_flow_document(_read_document(args.path))
+        if not validation.valid or validation.canonical is None:
+            raise ValueError("local flow document is invalid and cannot be diffed")
+        args.local_flow_document = validation.canonical
+        return client.get(
+            "/api/v1/flows/"
+            f"{quote(str(validation.canonical['namespace']), safe='')}/"
+            f"{quote(str(validation.canonical['id']), safe='')}/document"
+        )
+    root = f"/api/v1/flows/{quote(args.namespace, safe='')}/{quote(args.flow_id, safe='')}"
+    if args.flow_command == "export":
+        params = {"revision": args.revision} if args.revision is not None else None
+        return client.get(f"{root}/document", params=params)
+    if not args.force:
+        _emit(
+            {
+                "action": "delete flow revision",
+                "scope": f"{args.namespace}.{args.flow_id}@{args.revision}",
+                "recovery": "restore from a prior export or source-control copy",
+                "requiredFlag": "--force",
+            },
+            output_mode,
+            human=(
+                f"Would delete {args.namespace}.{args.flow_id}@{args.revision}. "
+                "Recovery requires a prior export or source-control copy; rerun with --force."
+            ),
+        )
+        return EXIT_CONFIRMATION_REQUIRED
+    return client.delete(f"{root}/revisions/{args.revision}")
+
+
+def _write_flow_response(
+    response: httpx.Response,
+    args: argparse.Namespace,
+    output_mode: str,
+) -> int | None:
+    if args.flow_command == "diff":
+        remote = response.json()
+        difference = compare_flow_revisions(
+            remote["document"],
+            args.local_flow_document,
+            from_revision=remote["revision"],
+            to_revision=remote["revision"] + 1,
+        )
+        _emit(
+            {
+                "fromRevision": difference.from_revision,
+                "toRevision": difference.to_revision,
+                "changed": bool(difference.operations),
+                "operations": list(difference.operations),
+                "human": difference.human,
+            },
+            output_mode,
+            human=difference.human or "No changes.",
+        )
+        return EXIT_DIFFERENCE if difference.operations else EXIT_SUCCESS
+    if args.flow_command != "export":
+        return None
+    payload = response.json()
+    document = payload["document"]
+    if args.path == "-":
+        if output_mode == "json":
+            _emit(document, output_mode)
+        elif output_mode == "human":
+            print(yaml.safe_dump(document, sort_keys=False), end="")
+        return EXIT_SUCCESS
+    target = Path(args.path)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    if target.suffix.lower() == ".json":
+        target.write_text(json.dumps(document, indent=2) + "\n", encoding="utf-8")
+    else:
+        target.write_text(yaml.safe_dump(document, sort_keys=False), encoding="utf-8")
+    _emit(
+        {"exported": str(target), "semanticHash": payload["semanticHash"]},
+        output_mode,
+    )
+    return EXIT_SUCCESS
+
+
+def _admin_request(
+    client: httpx.Client,
+    args: argparse.Namespace,
+    output_mode: str,
+) -> httpx.Response | int:
+    if args.admin_command == "configuration":
+        action = args.admin_configuration_command
+        if action == "show":
+            return client.get("/api/v1/configuration")
+        if action == "diagnostics":
+            return client.get("/api/v1/configuration/diagnostics")
+        return client.post("/api/v1/configuration/reload")
+    action = args.admin_tenant_command
+    root = "/api/v1/admin/tenants"
+    if action == "list":
+        return client.get(root)
+    if action == "create":
+        return client.post(root, json={"slug": args.slug, "displayName": args.display_name})
+    path = f"{root}/{quote(args.slug, safe='')}"
+    if action == "get":
+        return client.get(path)
+    if action == "delete":
+        if not args.force:
+            _emit(
+                {
+                    "action": "delete tenant",
+                    "scope": args.slug,
+                    "recovery": "restore the soft-deleted tenant before its retention window closes",
+                    "requiredFlag": "--force",
+                },
+                output_mode,
+                human=(
+                    f"Would soft-delete tenant {args.slug}. It remains recoverable during the "
+                    "retention window; rerun with --force."
+                ),
+            )
+            return EXIT_CONFIRMATION_REQUIRED
+        return client.delete(path)
+    return client.post(f"{path}/{action}s" if action == "export" else f"{path}/{action}")
+
+
+def _command_paths(parser: argparse.ArgumentParser) -> tuple[str, ...]:
+    paths: list[str] = []
+
+    def visit(current: argparse.ArgumentParser, prefix: tuple[str, ...]) -> None:
+        for action in current._actions:
+            if not isinstance(action, argparse._SubParsersAction):
+                continue
+            for name, child in sorted(action.choices.items()):
+                path = (*prefix, name)
+                paths.append(" ".join(path))
+                visit(child, path)
+
+    visit(parser, ())
+    return tuple(paths)
+
+
+def shell_completion(parser: argparse.ArgumentParser, shell: str) -> str:
+    words = sorted({word for path in _command_paths(parser) for word in path.split()})
+    candidates = " ".join(words)
+    if shell == "bash":
+        return (
+            "_amesh_complete() {\n"
+            f"  COMPREPLY=( $(compgen -W '{candidates}' -- \"${{COMP_WORDS[COMP_CWORD]}}\") )\n"
+            "}\ncomplete -F _amesh_complete amesh\n"
+        )
+    if shell == "zsh":
+        return f"#compdef amesh\n_arguments '*:command:(({candidates}))'\n"
+    if shell == "fish":
+        return f"complete -c amesh -f -a '{candidates}'\n"
+    return (
+        "Register-ArgumentCompleter -Native -CommandName amesh -ScriptBlock {\n"
+        "  param($wordToComplete)\n"
+        f"  '{candidates}'.Split(' ') | Where-Object {{ $_ -like \"$wordToComplete*\" }}\n"
+        "}\n"
+    )
+
+
+def command_markdown(parser: argparse.ArgumentParser) -> str:
+    lines = ["# AMESH CLI command reference", "", "Generated from `build_parser()`.", ""]
+
+    def visit(current: argparse.ArgumentParser, prefix: tuple[str, ...]) -> None:
+        heading = "amesh" + (" " + " ".join(prefix) if prefix else "")
+        lines.extend([f"## `{heading}`", "", f"```text\n{current.format_usage().strip()}\n```", ""])
+        if current.description:
+            lines.extend([current.description, ""])
+        for action in current._actions:
+            if isinstance(action, argparse._SubParsersAction):
+                for name, child in sorted(action.choices.items()):
+                    visit(child, (*prefix, name))
+
+    visit(parser, ())
+    return "\n".join(lines).rstrip() + "\n"
 
 
 def _request_headers(token: str | None, tenant: str) -> dict[str, str]:
@@ -557,9 +1021,7 @@ def _namespace_request(client: httpx.Client, args: argparse.Namespace) -> httpx.
         if args.kv_command == "list":
             return client.get(root)
         if args.kv_command == "changes":
-            return client.get(
-                f"{root}/changes", params={"after": args.after, "limit": args.limit}
-            )
+            return client.get(f"{root}/changes", params={"after": args.after, "limit": args.limit})
         path = f"{root}/{quote(args.key, safe='')}"
         if args.kv_command == "get":
             return client.get(path)
@@ -605,14 +1067,26 @@ def _namespace_request(client: httpx.Client, args: argparse.Namespace) -> httpx.
     return client.post(root, json=json.loads(args.path.read_text(encoding="utf-8")))
 
 
-def _write_namespace_response(response: httpx.Response, args: argparse.Namespace) -> bool:
+def _write_namespace_response(
+    response: httpx.Response,
+    args: argparse.Namespace,
+    output_mode: str,
+) -> bool:
     if args.namespace_command == "files" and args.file_command == "download":
         args.local_path.write_bytes(response.content)
-        print(f"downloaded {len(response.content)} bytes to {args.local_path}")
+        _emit(
+            {"downloadedBytes": len(response.content), "path": str(args.local_path)},
+            output_mode,
+            human=f"downloaded {len(response.content)} bytes to {args.local_path}",
+        )
         return True
     if args.namespace_command == "resources" and args.resource_command == "export":
         args.path.write_text(json.dumps(response.json(), indent=2), encoding="utf-8")
-        print(f"exported namespace resources to {args.path}")
+        _emit(
+            {"exported": str(args.path)},
+            output_mode,
+            human=f"exported namespace resources to {args.path}",
+        )
         return True
     return False
 

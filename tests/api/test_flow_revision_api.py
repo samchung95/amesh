@@ -114,6 +114,26 @@ tasks:
                 assert second.status_code == 200
                 assert second.json()["revision"] == 2
 
+                unauthorized_document = await client.get(
+                    f"/api/v1/flows/{namespace}/{flow_id}/document"
+                )
+                assert unauthorized_document.status_code == 401
+                exported_document = await client.get(
+                    f"/api/v1/flows/{namespace}/{flow_id}/document",
+                    headers=auth,
+                )
+                assert exported_document.status_code == 200
+                assert exported_document.json()["revision"] == 2
+                assert exported_document.json()["document"]["description"] == "second"
+                first_document = await client.get(
+                    f"/api/v1/flows/{namespace}/{flow_id}/document",
+                    headers=auth,
+                    params={"revision": 1},
+                )
+                assert first_document.status_code == 200
+                assert first_document.json()["document"]["description"] == "first"
+                assert len(first_document.json()["semanticHash"]) == 64
+
                 unauthorized = await client.get(f"/api/v1/flows/{namespace}/{flow_id}/revisions")
                 assert unauthorized.status_code == 401
                 history = await client.get(

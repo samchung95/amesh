@@ -44,6 +44,11 @@ jobs:
         run: |
           python scripts/generate_contracts.py
           git diff --exit-code -- schemas docs/api/openapi.json
+      - name: Regenerate CLI documentation and client SDKs
+        run: |
+          uv run amesh --output quiet command-docs docs/cli/reference.md
+          uv run python scripts/generate_sdks.py --check
+          git diff --exit-code -- docs/cli/reference.md sdks/api
       - name: Reject breaking OpenAPI changes
         if: github.event_name == 'pull_request'
         uses: oasdiff/oasdiff-action/breaking@v0

@@ -11861,7 +11861,7 @@
       "id": "URS-F-0414",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M4",
       "wave": 4,
       "epic_id": "EPIC-402",
@@ -11876,7 +11876,7 @@
         "At least one invalid, denied, unavailable or recovery path is tested and yields a documented deterministic outcome.",
         "The resulting state, error or decision is observable through an authorized API, audit event or operational signal where applicable."
       ],
-      "verification": "OpenAPI contract and authenticated end-to-end API tests",
+      "verification": "tests/test_cli.py and tests/test_cli_epic402.py::test_urs_f_0414_0415_0419_0420_profiles_secure_tokens_and_output_modes plus test_urs_f_0414_0416_declarative_stdin_diff_export_delete_and_admin",
       "source_scope": "Kestra v1.3.30 public behavior and architecture parity baseline",
       "local_sequence": 1,
       "dependencies": [
@@ -11887,7 +11887,7 @@
       "id": "URS-F-0415",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M4",
       "wave": 4,
       "epic_id": "EPIC-402",
@@ -11902,7 +11902,7 @@
         "At least one invalid, denied, unavailable or recovery path is tested and yields a documented deterministic outcome.",
         "The resulting state, error or decision is observable through an authorized API, audit event or operational signal where applicable."
       ],
-      "verification": "OpenAPI contract and authenticated end-to-end API tests",
+      "verification": "tests/test_cli_epic402.py::test_urs_f_0414_0415_0419_0420_profiles_secure_tokens_and_output_modes",
       "source_scope": "Kestra v1.3.30 public behavior and architecture parity baseline",
       "local_sequence": 2,
       "dependencies": [
@@ -11913,7 +11913,7 @@
       "id": "URS-F-0416",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M4",
       "wave": 4,
       "epic_id": "EPIC-402",
@@ -11928,7 +11928,7 @@
         "At least one invalid, denied, unavailable or recovery path is tested and yields a documented deterministic outcome.",
         "The resulting state, error or decision is observable through an authorized API, audit event or operational signal where applicable."
       ],
-      "verification": "OpenAPI contract and authenticated end-to-end API tests",
+      "verification": "tests/test_cli_epic402.py::test_urs_f_0414_0416_declarative_stdin_diff_export_delete_and_admin",
       "source_scope": "Kestra v1.3.30 public behavior and architecture parity baseline",
       "local_sequence": 3,
       "dependencies": [
@@ -11939,7 +11939,7 @@
       "id": "URS-F-0417",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M4",
       "wave": 4,
       "epic_id": "EPIC-402",
@@ -11954,7 +11954,7 @@
         "At least one invalid, denied, unavailable or recovery path is tested and yields a documented deterministic outcome.",
         "The resulting state, error or decision is observable through an authorized API, audit event or operational signal where applicable."
       ],
-      "verification": "OpenAPI contract and authenticated end-to-end API tests",
+      "verification": "tests/test_sdk_contracts.py::test_urs_f_0417_0418_generated_sdk_manifest_matches_supported_contract and generated Python, TypeScript, Java and Go build checks",
       "source_scope": "Kestra v1.3.30 public behavior and architecture parity baseline",
       "local_sequence": 4,
       "dependencies": [
@@ -11965,7 +11965,7 @@
       "id": "URS-F-0418",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M4",
       "wave": 4,
       "epic_id": "EPIC-402",
@@ -11980,7 +11980,7 @@
         "At least one invalid, denied, unavailable or recovery path is tested and yields a documented deterministic outcome.",
         "The resulting state, error or decision is observable through an authorized API, audit event or operational signal where applicable."
       ],
-      "verification": "OpenAPI contract and authenticated end-to-end API tests",
+      "verification": "tests/test_sdk_contracts.py::test_urs_f_0417_0418_generated_sdk_manifest_matches_supported_contract and test_urs_f_0418_sdk_release_archives_are_reproducible",
       "source_scope": "Kestra v1.3.30 public behavior and architecture parity baseline",
       "local_sequence": 5,
       "dependencies": [
@@ -11991,7 +11991,7 @@
       "id": "URS-F-0419",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M4",
       "wave": 4,
       "epic_id": "EPIC-402",
@@ -12006,7 +12006,7 @@
         "At least one invalid, denied, unavailable or recovery path is tested and yields a documented deterministic outcome.",
         "The resulting state, error or decision is observable through an authorized API, audit event or operational signal where applicable."
       ],
-      "verification": "OpenAPI contract and authenticated end-to-end API tests",
+      "verification": "tests/test_cli_epic402.py::test_urs_f_0414_0415_0419_0420_profiles_secure_tokens_and_output_modes",
       "source_scope": "Kestra v1.3.30 public behavior and architecture parity baseline",
       "local_sequence": 6,
       "dependencies": [
@@ -12017,7 +12017,7 @@
       "id": "URS-F-0420",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M4",
       "wave": 4,
       "epic_id": "EPIC-402",
@@ -12032,7 +12032,7 @@
         "At least one invalid, denied, unavailable or recovery path is tested and yields a documented deterministic outcome.",
         "The resulting state, error or decision is observable through an authorized API, audit event or operational signal where applicable."
       ],
-      "verification": "OpenAPI contract and authenticated end-to-end API tests",
+      "verification": "tests/test_cli_epic402.py::test_urs_f_0414_0415_0419_0420_profiles_secure_tokens_and_output_modes and deployed AMESH_SERVICE_ACCOUNT_TOKEN CLI smoke",
       "source_scope": "Kestra v1.3.30 public behavior and architecture parity baseline",
       "local_sequence": 7,
       "dependencies": [
@@ -12043,7 +12043,7 @@
       "id": "URS-F-0421",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M4",
       "wave": 4,
       "epic_id": "EPIC-402",
@@ -12058,7 +12058,7 @@
         "At least one invalid, denied, unavailable or recovery path is tested and yields a documented deterministic outcome.",
         "The resulting state, error or decision is observable through an authorized API, audit event or operational signal where applicable."
       ],
-      "verification": "OpenAPI contract and authenticated end-to-end API tests",
+      "verification": "tests/test_cli_epic402.py::test_urs_f_0421_completion_and_docs_are_generated_from_parser and docs/cli/reference.md freshness check",
       "source_scope": "Kestra v1.3.30 public behavior and architecture parity baseline",
       "local_sequence": 8,
       "dependencies": [

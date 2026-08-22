@@ -2515,6 +2515,41 @@
         "title": "FlowDataContract",
         "type": "object"
       },
+      "FlowDocumentExport": {
+        "properties": {
+          "document": {
+            "additionalProperties": true,
+            "title": "Document",
+            "type": "object"
+          },
+          "flowId": {
+            "title": "Flowid",
+            "type": "string"
+          },
+          "namespace": {
+            "title": "Namespace",
+            "type": "string"
+          },
+          "revision": {
+            "minimum": 1.0,
+            "title": "Revision",
+            "type": "integer"
+          },
+          "semanticHash": {
+            "title": "Semantichash",
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "flowId",
+          "revision",
+          "semanticHash",
+          "document"
+        ],
+        "title": "FlowDocumentExport",
+        "type": "object"
+      },
       "FlowGraph": {
         "properties": {
           "edges": {
@@ -5502,18 +5537,6 @@
             "type": "string"
           },
           "detail": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "items": {
-                  "additionalProperties": true,
-                  "type": "object"
-                },
-                "type": "array"
-              }
-            ],
             "title": "Detail"
           },
           "errors": {
@@ -7919,6 +7942,7 @@
           },
           "max_log_bytes": {
             "default": 1073741824,
+            "format": "int64",
             "minimum": 1.0,
             "title": "Max Log Bytes",
             "type": "integer"
@@ -7932,6 +7956,7 @@
           },
           "max_storage_bytes": {
             "default": 10737418240,
+            "format": "int64",
             "minimum": 1.0,
             "title": "Max Storage Bytes",
             "type": "integer"
@@ -16483,6 +16508,122 @@
           }
         },
         "summary": "Get Flow Data Contract",
+        "tags": [
+          "flows"
+        ]
+      }
+    },
+    "/api/v1/flows/{namespace}/{flow_id}/document": {
+      "get": {
+        "operationId": "export_flow_document_api_v1_flows__namespace___flow_id__document_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "namespace",
+            "required": true,
+            "schema": {
+              "title": "Namespace",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "flow_id",
+            "required": true,
+            "schema": {
+              "title": "Flow Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "revision",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Revision"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FlowDocumentExport"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Export Flow Document",
         "tags": [
           "flows"
         ]
