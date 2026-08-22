@@ -1769,12 +1769,39 @@
             "minLength": 1,
             "type": "string"
           },
+          "inputFiles": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "outputFiles": {
+            "items": {
+              "maxLength": 4096,
+              "minLength": 1,
+              "type": "string"
+            },
+            "type": "array",
+            "uniqueItems": true
+          },
+          "outputManifest": {
+            "maxLength": 4096,
+            "minLength": 1,
+            "type": "string"
+          },
           "resources": {
             "type": "object"
+          },
+          "retainDiagnosticsOnFailure": {
+            "type": "boolean"
           },
           "timeoutSeconds": {
             "exclusiveMinimum": 0,
             "type": "number"
+          },
+          "workspaceQuotaBytes": {
+            "minimum": 1,
+            "type": "integer"
           }
         },
         "required": [
@@ -1789,6 +1816,11 @@
           "image",
           "command",
           "environment",
+          "inputFiles",
+          "outputFiles",
+          "outputManifest",
+          "workspaceQuotaBytes",
+          "retainDiagnosticsOnFailure",
           "resources",
           "timeoutSeconds"
         ],
@@ -2089,6 +2121,75 @@
       },
       "kind": "task",
       "type": "core.while"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "failurePolicy": {
+            "enum": [
+              "FAIL_FAST",
+              "CONTINUE_ON_ERROR",
+              "COLLECT_ALL"
+            ],
+            "type": "string"
+          },
+          "inputFiles": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "maxConcurrency": {
+            "const": 1,
+            "type": "integer"
+          },
+          "outputFiles": {
+            "items": {
+              "maxLength": 4096,
+              "minLength": 1,
+              "type": "string"
+            },
+            "type": "array",
+            "uniqueItems": true
+          },
+          "outputManifest": {
+            "maxLength": 4096,
+            "minLength": 1,
+            "type": "string"
+          },
+          "retainDiagnosticsOnFailure": {
+            "type": "boolean"
+          },
+          "timeoutSeconds": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          },
+          "workspaceQuotaBytes": {
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "editor": {
+        "category": "Flow control",
+        "description": "Run child tasks sequentially in one bounded execution workspace.",
+        "propertyOrder": [
+          "inputFiles",
+          "outputFiles",
+          "outputManifest",
+          "workspaceQuotaBytes",
+          "retainDiagnosticsOnFailure",
+          "failurePolicy",
+          "maxConcurrency",
+          "timeoutSeconds"
+        ],
+        "title": "Shared working directory"
+      },
+      "kind": "task",
+      "type": "core.workingDirectory"
     },
     {
       "configurationSchema": {

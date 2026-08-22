@@ -9,6 +9,7 @@ from collections.abc import AsyncIterator, Awaitable, Callable, Mapping
 from datetime import UTC, datetime, timedelta
 from functools import lru_cache
 from http import HTTPStatus
+from pathlib import Path
 from time import perf_counter
 from typing import Annotated
 from uuid import UUID
@@ -210,6 +211,7 @@ from amesh.ports import (
     CheckEvaluation,
     CheckOutcome,
     CredentialRateLimitExceeded,
+    ExecutionArtifact,
     ExecutionEvidenceEvent,
     ExecutionInterventionPreview,
     ExecutionInterventionRecord,
@@ -260,6 +262,7 @@ from amesh.workflow.shared_resources import (
     NamespaceResourceService,
     SharedResourceContextProvider,
 )
+from amesh.workflow.working_directory import WorkingDirectoryManager
 
 LOGGER = logging.getLogger("amesh.api")
 
@@ -3552,6 +3555,71 @@ async def get_execution(
 
 
 @app.get(
+    "/api/v1/executions/{execution_id}/files",
+    response_model=list[ExecutionArtifact],
+    tags=["executions"],
+)
+async def list_execution_files(
+    execution_id: UUID,
+    repository: RepositoryDependency,
+    metadata: MetadataRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> list[ExecutionArtifact]:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="execution",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+    )
+    try:
+        await repository.get_execution(execution_id, tenant_id=tenant_id)
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    return await metadata.list_artifacts(execution_id, tenant_id=tenant_id)
+
+
+@app.get(
+    "/api/v1/executions/{execution_id}/files/{artifact_id}",
+    response_class=StreamingResponse,
+    tags=["executions"],
+)
+async def download_execution_file(
+    execution_id: UUID,
+    artifact_id: UUID,
+    repository: RepositoryDependency,
+    metadata: MetadataRepositoryDependency,
+    settings: SettingsDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> StreamingResponse:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="execution",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+    )
+    try:
+        await repository.get_execution(execution_id, tenant_id=tenant_id)
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    artifacts = await metadata.list_artifacts(execution_id, tenant_id=tenant_id)
+    selected = next((item for item in artifacts if item.artifact_id == artifact_id), None)
+    if selected is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="execution file not found")
+    filename = Path(selected.logical_path or "execution-file").name
+    return StreamingResponse(
+        build_object_store(settings).get(tenant_id, selected.uri),
+        media_type=selected.media_type or "application/octet-stream",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
+
+
+@app.get(
     "/api/v1/executions/{execution_id}/graph",
     response_model=FlowGraph,
     tags=["executions"],
@@ -4390,7 +4458,13 @@ async def _execute_flow(
     resource_usage = {
         "secret": any(node.task.contract.secret_scopes for node in planned_tasks),
         "namespace_file": any(
-            any(reference.startswith("nsfile:///") for reference in node.task.contract.files.values())
+            any(
+                reference.startswith("nsfile:///")
+                for reference in (
+                    *node.task.contract.files.values(),
+                    *node.task.input_files.values(),
+                )
+            )
             for node in planned_tasks
         ),
         "key_value": "kv("
@@ -4407,7 +4481,11 @@ async def _execute_flow(
                 namespace=flow.namespace,
             )
     object_store = build_object_store(settings)
-    context_provider = SharedResourceContextProvider(shared_resources)
+    workspace_manager = WorkingDirectoryManager(object_store)
+    context_provider = SharedResourceContextProvider(
+        shared_resources,
+        object_store=object_store,
+    )
     try:
         validated_inputs = validate_flow_inputs(flow, request.inputs)
         validated_inputs = await stage_file_inputs(
@@ -4435,7 +4513,7 @@ async def _execute_flow(
             )
         shell_handler = kubernetes_job_handler(kubernetes_runner)
     else:
-        shell_handler = local_process_handler(LocalProcessRunner())
+        shell_handler = local_process_handler(LocalProcessRunner(), workspace_manager)
 
     handlers = {
         "core.shell": shell_handler,
@@ -4491,6 +4569,7 @@ async def _execute_flow(
             context_provider=context_provider,
             object_store=object_store,
             task_cache=task_cache,
+            workspace_manager=workspace_manager,
         )
 
     handlers["core.subflow"] = subflow_task_handler(

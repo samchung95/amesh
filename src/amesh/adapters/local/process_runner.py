@@ -36,11 +36,15 @@ class LocalProcessRunner(TaskRunner):
 
         environment = os.environ.copy()
         environment.update(request.environment)
+        if request.working_directory is not None:
+            environment.setdefault("WORKING_DIR", request.working_directory)
+            environment.setdefault("OUTPUT_DIR", request.working_directory)
         process = await asyncio.create_subprocess_exec(
             *request.command,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
             env=environment,
+            cwd=request.working_directory,
         )
         active = _ActiveProcess(
             process=process,

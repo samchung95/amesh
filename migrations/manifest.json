@@ -234,6 +234,12 @@
       "mode": "expand",
       "onlineCompatible": true,
       "rollbackGuidance": "Pause namespace resource writes and runtime resolution, then forward-fix the additive file, key-value, secret-binding and permission records; retain immutable object versions and audit evidence."
+    },
+    {
+      "file": "0040_execution_file_lineage.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Pause working-directory output collection and forward-fix the additive artifact path and lineage columns; retain object payloads and existing execution evidence."
     }
   ]
 }

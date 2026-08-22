@@ -6,6 +6,7 @@ from .contracts import (
     TaskContextResources,
     TaskDeferral,
     TaskExitMetadata,
+    TaskFileReference,
     TaskLogRecord,
     TaskMetricRecord,
 )
@@ -52,6 +53,7 @@ __all__ = [
     "TaskExecutionFailure",
     "TaskExecutionPaused",
     "TaskExitMetadata",
+    "TaskFileReference",
     "TaskHandler",
     "TaskLogRecord",
     "TaskMetricRecord",

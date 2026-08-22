@@ -854,6 +854,13 @@
           "default": null,
           "title": "Image"
         },
+        "inputFiles": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Inputfiles",
+          "type": "object"
+        },
         "maxConcurrency": {
           "anyOf": [
             {
@@ -867,6 +874,26 @@
           ],
           "default": null,
           "title": "Maxconcurrency"
+        },
+        "outputFiles": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Outputfiles",
+          "type": "array"
+        },
+        "outputManifest": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Outputmanifest"
         },
         "predicateCases": {
           "items": {
@@ -886,6 +913,11 @@
           "additionalProperties": true,
           "title": "Resources",
           "type": "object"
+        },
+        "retainDiagnosticsOnFailure": {
+          "default": false,
+          "title": "Retaindiagnosticsonfailure",
+          "type": "boolean"
         },
         "retry": {
           "$ref": "#/$defs/RetryPolicy"
@@ -959,6 +991,12 @@
           ],
           "default": null,
           "title": "Workergroup"
+        },
+        "workspaceQuotaBytes": {
+          "default": 104857600,
+          "minimum": 1,
+          "title": "Workspacequotabytes",
+          "type": "integer"
         }
       },
       "required": [

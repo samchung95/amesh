@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import os
+import sys
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from uuid import uuid4
@@ -234,6 +235,54 @@ tasks:
                 result = executed.json()["taskRuns"][0]["result"]["value"]
                 assert result == {"secret": "[REDACTED]", "channel": "stable"}
                 assert secret_value not in executed.text
+
+                workspace_definition = f"""
+id: workspace-context
+namespace: {child}
+tasks:
+  - id: workspace
+    type: core.workingDirectory
+    inputFiles:
+      rules.txt: nsfile:///runtime/rules.txt
+    outputFiles: [result.txt]
+    maxConcurrency: 1
+    tasks:
+      - id: transform
+        type: core.shell
+        command:
+          - {sys.executable!r}
+          - -c
+          - "from pathlib import Path; Path('result.txt').write_text(Path('rules.txt').read_text().upper())"
+"""
+                workspace_applied = await client.put(
+                    "/api/v1/flows",
+                    content=workspace_definition,
+                    headers={**headers, "content-type": "application/yaml"},
+                )
+                assert workspace_applied.status_code == 200, workspace_applied.text
+                workspace_execution = await client.post(
+                    "/api/v1/executions",
+                    json={"namespace": child, "flowId": "workspace-context"},
+                    headers=headers,
+                )
+                assert workspace_execution.status_code == 200, workspace_execution.text
+                workspace_execution_id = workspace_execution.json()["execution"]["execution_id"]
+                files = await client.get(
+                    f"/api/v1/executions/{workspace_execution_id}/files",
+                    headers=headers,
+                )
+                assert files.status_code == 200, files.text
+                assert files.json()[0]["logical_path"] == "result.txt"
+                assert "workspace-path:result.txt" in files.json()[0]["lineage"]
+                downloaded = await client.get(
+                    (
+                        f"/api/v1/executions/{workspace_execution_id}/files/"
+                        f"{files.json()[0]['artifact_id']}"
+                    ),
+                    headers=headers,
+                )
+                assert downloaded.status_code == 200, downloaded.text
+                assert downloaded.content == b"CHILD RULES V2"
 
                 exported = await client.get(
                     f"/api/v1/namespaces/{child}/resource-bundle",

@@ -225,6 +225,17 @@ class NativeExpressionEngine:
             key: _string_value(self.render_value(value, context))
             for key, value in task.environment.items()
         }
+        payload["inputFiles"] = {
+            key: _string_value(self.render_value(value, context))
+            for key, value in task.input_files.items()
+        }
+        payload["outputFiles"] = [
+            _string_value(self.render_value(value, context)) for value in task.output_files
+        ]
+        if task.output_manifest is not None:
+            payload["outputManifest"] = _string_value(
+                self.render_value(task.output_manifest, context)
+            )
         payload["resources"] = self.render_value(task.resources, context)
         return TaskDefinition.model_validate(payload)
 

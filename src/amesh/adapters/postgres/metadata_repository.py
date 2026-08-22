@@ -237,16 +237,19 @@ _INSERT_TASK_ARTIFACTS_BATCH = text(
     """
     INSERT INTO execution_artifacts (
         id, tenant_id, execution_id, task_run_id, attempt, uri,
-        size_bytes, media_type, checksum_sha256, occurred_at
+        size_bytes, media_type, checksum_sha256, logical_path, lineage, occurred_at
     )
     SELECT
         gen_random_uuid(), :tenant_id, :execution_id, :task_run_id, :attempt,
-        item.uri, item."sizeBytes", item."mediaType", item."checksumSha256", :occurred_at
+        item.uri, item."sizeBytes", item."mediaType", item."checksumSha256",
+        item."logicalPath", COALESCE(item.lineage, '[]'::jsonb), :occurred_at
     FROM jsonb_to_recordset(CAST(:items AS jsonb)) AS item(
         uri text,
         "sizeBytes" bigint,
         "mediaType" text,
-        "checksumSha256" text
+        "checksumSha256" text,
+        "logicalPath" text,
+        lineage jsonb
     )
     """
 )
@@ -894,6 +897,8 @@ def _to_artifact(row: RowMapping) -> ExecutionArtifact:
         size_bytes=row["size_bytes"],
         media_type=row["media_type"],
         checksum_sha256=row["checksum_sha256"],
+        logical_path=row["logical_path"],
+        lineage=tuple(row["lineage"]),
         occurred_at=row["occurred_at"],
         ingested_at=row["ingested_at"],
     )

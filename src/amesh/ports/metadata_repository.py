@@ -150,6 +150,8 @@ class ExecutionArtifact(BaseModel):
     size_bytes: int = Field(ge=0)
     media_type: str | None = None
     checksum_sha256: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
+    logical_path: str | None = Field(default=None, max_length=4096)
+    lineage: tuple[str, ...] = ()
     occurred_at: datetime
     ingested_at: datetime
 

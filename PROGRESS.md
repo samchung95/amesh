@@ -2,12 +2,19 @@
 
 ## Current state
 
-- What works: the original post-MVP foundation plus the first eight cards of the 50-epic local program are implemented, evidence-linked and deployed through migration 0039, including inherited versioned namespace files, typed key-value data, provider-backed secret references and checksum-protected resource bundles across API, CLI and control room.
-- What's in flight: the 50-epic local completion program is tracked on Agent Hotel cards `c37`–`c86`; cards `c37`–`c44` are complete and EPIC-208 on card `c45` is next. The local Docker Compose deployment is healthy at migration 39/39 on `http://localhost:8000`.
+- What works: the original post-MVP foundation plus the first nine cards of the 50-epic local program are implemented, evidence-linked and deployed through migration 0040, including isolated and shared task workspaces, streamed verified file transfer, quotas, failure diagnostics and durable execution-file lineage.
+- What's in flight: the 50-epic local completion program is tracked on Agent Hotel cards `c37`–`c86`; cards `c37`–`c45` are complete and EPIC-209 on card `c46` is next. The local Docker Compose deployment is healthy at migration 40/40 on `http://localhost:8000`.
 - Known broken / TODO: 20 external-cloud, SaaS, hosted-release, independent-certification, multi-region or long-duration epics are deferred. Cards `c15` and `c29` preserve unrelated backend test failures; `c87` records missing fresh-Compose mounts for migrations 0033–0036; and `c88` records seven pre-existing frontend lint errors. None blocks the current local program path.
 - How to run/test: use `uv run --extra runtime --extra dev pytest`; set `AMESH_TEST_DATABASE_URL` for PostgreSQL integration tests and `OPENROUTER_API_KEY` for live LLM tests.
 
 ## Session log
+
+### 2026-08-22 (50-epic local completion program, EPIC-208 completion)
+
+- Did: completed EPIC-208 with unique disposable local directories per task attempt; post-expression internal input resolution with streamed checksum verification; atomic path/glob/JSON-manifest output collection; traversal, drive, symlink and cross-root confinement; a sequential `core.workingDirectory` flowable; guaranteed local cleanup with configured failure-diagnostic retention; total workspace quotas; logical path and ordered transformation lineage; and authorized execution-file list/download APIs. Linked URS-F-0242 through URS-F-0249 to automated evidence.
+- Verification: a fresh PostgreSQL database applied all 40 migrations and the isolated complete backend suite collected 320 tests: 312 passed, six environment/profile tests skipped and cards `c15`/`c29` were explicitly deselected. Ruff and strict mypy passed for 127 source files; generated API/DSL/planning, backlog, clean-room, lock and diff gates passed. Real MinIO/API acceptance exercised namespace-file materialization, shared child execution, lineage listing and payload download. The rebuilt API/executor/scheduler are healthy at 40/40, and deployed execution `01a029e5-3d9b-75ca-a603-d664617e00a7` completed all three task runs successfully and streamed `result.txt` through the new API.
+- Deviations from plan: no dependency or LLM call was required. Docker/OCI and Kubernetes workspace transfer remain with their already selected EPIC-221/222 runner owners; those modes reject this surface explicitly until implemented. The existing deferred cards `c15`, `c29`, `c87` and `c88` remain untouched.
+- Next step when resuming: close and commit card `c45`, then select EPIC-209 on card `c46`.
 
 ### 2026-08-22 (50-epic local completion program, EPIC-207 completion)
 

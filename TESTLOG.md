@@ -1,5 +1,38 @@
 # Test Log
 
+## EPIC-208: Working directories and execution files — 2026-08-22
+
+Spec source: Agent Hotel card `c45` and canonical `backlog/epics.json` EPIC-208 DoD.
+
+Verified with `uv`, Python 3.13, PostgreSQL 17, MinIO and the deployed Compose control plane:
+
+- [x] Every local task attempt receives a distinct opaque directory as its process `cwd`,
+  `WORKING_DIR` and `OUTPUT_DIR`; successful and failed attempts remove it after collection.
+- [x] Declared internal inputs resolve after expressions, stream in bounded chunks and match stored
+  size/SHA-256 metadata before their atomic local rename.
+- [x] Exact output paths, globs and JSON manifests stream to object storage. A multi-file failure
+  deletes already uploaded members so no partial artifact batch is committed.
+- [x] Static and runtime checks reject absolute paths, drives, parent traversal and symlinks. Hashed
+  tenant/execution/task roots prevent caller-selected paths from crossing attempt boundaries.
+- [x] `core.workingDirectory` runs children sequentially in one execution-scoped directory, collects
+  parent outputs at terminalization and then cleans the shared root.
+- [x] `workspaceQuotaBytes` covers all user files. `retainDiagnosticsOnFailure` uploads a bounded
+  inventory/runner diagnostic before cleanup.
+- [x] Migration 0040 stores logical paths and ordered source/execution/attempt/path lineage on ordinary
+  artifact evidence. Authorized list/download endpoints preserve execution and tenant permissions.
+- [x] A fresh database applied all 40 migrations. The isolated complete suite collected 320 tests:
+  312 passed, six environment/profile tests skipped and only cards `c15`/`c29` were deselected.
+- [x] Ruff and strict mypy passed for 127 source files. Generated API/DSL/planning artifacts, backlog,
+  clean-room, uv lock and diff checks passed.
+- [x] The rebuilt API, executor and scheduler are healthy at 40/40. Deployed execution
+  `01a029e5-3d9b-75ca-a603-d664617e00a7` completed its shared parent and both children, returned
+  lineage for `result.txt`, and streamed the expected transformed content from MinIO.
+
+No LLM invocation was required for deterministic filesystem and object-transfer behavior; the
+configured OpenRouter `openai/gpt-5.6-luna` default is unchanged.
+
+Verdict: PASS — EPIC-208 functional requirements URS-F-0242 through URS-F-0249 are verified.
+
 ## EPIC-207: Namespace files, key-value data and secrets — 2026-08-22
 
 Spec source: Agent Hotel card `c44` and canonical `backlog/epics.json` EPIC-207 DoD.

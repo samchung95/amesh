@@ -196,6 +196,19 @@ def _descriptor(
 def _core_descriptors() -> tuple[ResourceSchemaDescriptor, ...]:
     timeout = {"type": "number", "exclusiveMinimum": 0}
     string_map = {"type": "object", "additionalProperties": {"type": "string"}}
+    input_files = {"type": "object", "additionalProperties": {"type": "string"}}
+    output_files = {
+        "type": "array",
+        "uniqueItems": True,
+        "items": {"type": "string", "minLength": 1, "maxLength": 4096},
+    }
+    workspace_properties = {
+        "inputFiles": input_files,
+        "outputFiles": output_files,
+        "outputManifest": {"type": "string", "minLength": 1, "maxLength": 4096},
+        "workspaceQuotaBytes": {"type": "integer", "minimum": 1},
+        "retainDiagnosticsOnFailure": {"type": "boolean"},
+    }
     return (
         _descriptor(
             "core.return",
@@ -250,13 +263,53 @@ def _core_descriptors() -> tuple[ResourceSchemaDescriptor, ...]:
                     "environment": string_map,
                     "resources": {"type": "object"},
                     "timeoutSeconds": timeout,
+                    **workspace_properties,
                 },
                 required=("command",),
             ),
             title="Shell command",
             description="Run a command through the selected task runner.",
             category="Core",
-            property_order=("image", "command", "environment", "resources", "timeoutSeconds"),
+            property_order=(
+                "image",
+                "command",
+                "environment",
+                "inputFiles",
+                "outputFiles",
+                "outputManifest",
+                "workspaceQuotaBytes",
+                "retainDiagnosticsOnFailure",
+                "resources",
+                "timeoutSeconds",
+            ),
+        ),
+        _descriptor(
+            "core.workingDirectory",
+            ResourceKind.TASK,
+            _object_schema(
+                {
+                    **workspace_properties,
+                    "failurePolicy": {
+                        "type": "string",
+                        "enum": ["FAIL_FAST", "CONTINUE_ON_ERROR", "COLLECT_ALL"],
+                    },
+                    "maxConcurrency": {"type": "integer", "const": 1},
+                    "timeoutSeconds": timeout,
+                }
+            ),
+            title="Shared working directory",
+            description="Run child tasks sequentially in one bounded execution workspace.",
+            category="Flow control",
+            property_order=(
+                "inputFiles",
+                "outputFiles",
+                "outputManifest",
+                "workspaceQuotaBytes",
+                "retainDiagnosticsOnFailure",
+                "failurePolicy",
+                "maxConcurrency",
+                "timeoutSeconds",
+            ),
         ),
         _descriptor(
             "core.subflow",

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta
 from enum import StrEnum
+from pathlib import PurePosixPath
 from typing import Any, Literal, cast
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
@@ -18,6 +19,21 @@ def _validate_user_label_map(value: dict[str, str]) -> dict[str, str]:
             raise ValueError("label keys must be 1-128 characters and values at most 256")
         if key.startswith(("amesh.", "system.")):
             raise ValueError(f"label {key!r} uses a protected system prefix")
+    return value
+
+
+def _validate_workspace_path(value: str, *, allow_glob: bool) -> str:
+    if not value or len(value) > 4096:
+        raise ValueError("workspace paths must contain 1-4096 characters")
+    if "\\" in value or value.startswith("/"):
+        raise ValueError("workspace paths must use relative POSIX syntax")
+    parts = PurePosixPath(value).parts
+    if not parts or any(part in {"", ".", ".."} for part in parts):
+        raise ValueError("workspace paths cannot contain empty, current or parent segments")
+    if ":" in parts[0]:
+        raise ValueError("workspace paths cannot contain a drive or URI scheme")
+    if not allow_glob and any(character in value for character in "*?[]"):
+        raise ValueError("workspace input paths cannot contain glob syntax")
     return value
 
 
@@ -278,6 +294,18 @@ class TaskDefinition(BaseModel):
     image: str | None = None
     environment: dict[str, str] = Field(default_factory=dict)
     resources: dict[str, Any] = Field(default_factory=dict)
+    input_files: dict[str, str] = Field(default_factory=dict, alias="inputFiles")
+    output_files: tuple[str, ...] = Field(default=(), alias="outputFiles")
+    output_manifest: str | None = Field(default=None, alias="outputManifest")
+    workspace_quota_bytes: int = Field(
+        default=104_857_600,
+        alias="workspaceQuotaBytes",
+        ge=1,
+    )
+    retain_diagnostics_on_failure: bool = Field(
+        default=False,
+        alias="retainDiagnosticsOnFailure",
+    )
     concurrency: list[ConcurrencyLimit] = Field(default_factory=list)
     priority: int = Field(default=0, ge=-1000, le=1000)
     worker_group: NaturalId | None = Field(default=None, alias="workerGroup")
@@ -317,6 +345,11 @@ class TaskDefinition(BaseModel):
                 ("else_tasks", "else"),
                 ("predicate_cases", "predicateCases"),
                 ("error_selector", "errorSelector"),
+                ("input_files", "inputFiles"),
+                ("output_files", "outputFiles"),
+                ("output_manifest", "outputManifest"),
+                ("workspace_quota_bytes", "workspaceQuotaBytes"),
+                ("retain_diagnostics_on_failure", "retainDiagnosticsOnFailure"),
             ):
                 if name in data and alias in data:
                     raise ValueError(f"task cannot set both {alias!r} and {name!r}")
@@ -344,6 +377,7 @@ class TaskDefinition(BaseModel):
                 "core.foreach",
                 "core.while",
                 "core.until",
+                "core.workingDirectory",
             }
             and not self.tasks
         ):
@@ -389,9 +423,37 @@ class TaskDefinition(BaseModel):
             "core.until",
             "core.if",
             "core.switch",
+            "core.workingDirectory",
         }:
             raise ValueError("local errors require a flowable task")
+        if self.type == "core.workingDirectory" and self.max_concurrency not in {None, 1}:
+            raise ValueError("core.workingDirectory children are sequential; maxConcurrency must be 1")
         return self
+
+    @field_validator("input_files")
+    @classmethod
+    def validate_input_file_paths(cls, value: dict[str, str]) -> dict[str, str]:
+        for path, reference in value.items():
+            _validate_workspace_path(path, allow_glob=False)
+            if not reference:
+                raise ValueError("inputFiles references must not be empty")
+        return value
+
+    @field_validator("output_files")
+    @classmethod
+    def validate_output_file_paths(cls, value: tuple[str, ...]) -> tuple[str, ...]:
+        if len(set(value)) != len(value):
+            raise ValueError("outputFiles patterns must be unique")
+        for pattern in value:
+            _validate_workspace_path(pattern, allow_glob=True)
+        return value
+
+    @field_validator("output_manifest")
+    @classmethod
+    def validate_output_manifest_path(cls, value: str | None) -> str | None:
+        if value is not None:
+            _validate_workspace_path(value, allow_glob=False)
+        return value
 
     def child_task_groups(self) -> tuple[tuple[str, list[TaskDefinition]], ...]:
         if self.type == "core.if":

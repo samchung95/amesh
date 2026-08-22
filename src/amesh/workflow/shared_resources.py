@@ -21,7 +21,7 @@ from amesh.domain import (
     new_runtime_id,
     normalize_resource_path,
 )
-from amesh.executor.contracts import TaskContextRequest, TaskContextResources
+from amesh.executor.contracts import TaskContextRequest, TaskContextResources, TaskFileReference
 from amesh.storage import VerifiedObjectStore
 
 
@@ -225,9 +225,11 @@ class SharedResourceContextProvider:
         self,
         repository: PostgresSharedResourceRepository,
         *,
+        object_store: VerifiedObjectStore | None = None,
         environment: Mapping[str, str] | None = None,
     ) -> None:
         self._repository = repository
+        self._object_store = object_store
         self._environment = os.environ if environment is None else environment
 
     async def resolve(self, request: TaskContextRequest) -> TaskContextResources:
@@ -259,10 +261,18 @@ class SharedResourceContextProvider:
             else {}
         )
         files: dict[str, str] = {}
+        file_references: dict[str, TaskFileReference] = {}
         for name, reference in request.declared_files.items():
             prefix = "nsfile:///"
             if not reference.startswith(prefix):
                 files[name] = reference
+                if self._object_store is not None:
+                    selected_object = await self._object_store.head(request.tenant_id, reference)
+                    file_references[name] = TaskFileReference(
+                        uri=selected_object.uri,
+                        sizeBytes=selected_object.size,
+                        checksumSha256=selected_object.checksum_sha256,
+                    )
                 continue
             selected = await self._repository.get_file_version(
                 request.namespace,
@@ -271,7 +281,17 @@ class SharedResourceContextProvider:
                 actor_id=actor_id,
             )
             files[name] = selected.object_uri
-        return TaskContextResources(secrets=secrets, files=files, keyValues=key_values)
+            file_references[name] = TaskFileReference(
+                uri=selected.object_uri,
+                sizeBytes=selected.size_bytes,
+                checksumSha256=selected.checksum_sha256,
+            )
+        return TaskContextResources(
+            secrets=secrets,
+            files=files,
+            keyValues=key_values,
+            fileReferences=file_references,
+        )
 
 
 def _bundle_checksum(bundle: NamespaceResourceBundle) -> str:

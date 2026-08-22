@@ -1,6 +1,9 @@
 from pathlib import Path
 
+import pytest
+
 from amesh.dsl import FlowDefinition, compile_flow_tasks, validate_flow_document, visible_output_ids
+from amesh.dsl.models import TaskDefinition
 
 
 def test_example_flow_is_valid() -> None:
@@ -76,6 +79,42 @@ def test_nested_flowables_compile_to_a_deterministic_plan() -> None:
     assert plan[0].children == ("first", "second")
     assert visible_output_ids("second", plan) == frozenset({"first"})
     assert visible_output_ids("after", plan) == frozenset({"sequence"})
+
+
+def test_working_directory_flowable_is_sequential_and_paths_are_bounded() -> None:
+    flow = FlowDefinition.model_validate(
+        {
+            "id": "workspace",
+            "namespace": "tests",
+            "tasks": [
+                {
+                    "id": "shared",
+                    "type": "core.workingDirectory",
+                    "inputFiles": {"input/data.txt": "s3://bucket/input"},
+                    "outputFiles": ["*.txt"],
+                    "maxConcurrency": 1,
+                    "tasks": [
+                        {"id": "first", "type": "core.shell", "command": ["one"]},
+                        {"id": "second", "type": "core.shell", "command": ["two"]},
+                    ],
+                }
+            ],
+        }
+    )
+
+    plan = compile_flow_tasks(flow)
+    assert [node.mode for node in plan] == ["WORKING_DIRECTORY", None, None]
+    assert plan[2].dependencies == ("first",)
+
+    for field, value in (
+        ("inputFiles", {"../escape": "s3://bucket/input"}),
+        ("outputFiles", ["/absolute.txt"]),
+        ("outputManifest", "../manifest.json"),
+    ):
+        payload = flow.tasks[0].model_dump(mode="python", by_alias=True)
+        payload[field] = value
+        with pytest.raises(ValueError, match="workspace paths"):
+            TaskDefinition.model_validate(payload)
 
 
 def test_nested_flowable_dependencies_are_validated_within_their_sibling_scope() -> None:

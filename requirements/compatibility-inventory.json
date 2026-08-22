@@ -3609,97 +3609,145 @@
       "requirement_id": "URS-F-0242",
       "epic_id": "EPIC-208",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/workflow/test_working_directory.py",
+        "tests/executor/test_working_directories.py",
+        "tests/api/test_namespace_resources_api.py",
+        "docs/operations/execution-files.md",
+        "docs/adr/038-bounded-streaming-task-workspaces.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0243",
       "epic_id": "EPIC-208",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/workflow/test_working_directory.py",
+        "tests/executor/test_working_directories.py",
+        "tests/api/test_namespace_resources_api.py",
+        "docs/operations/execution-files.md",
+        "docs/adr/038-bounded-streaming-task-workspaces.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0244",
       "epic_id": "EPIC-208",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/workflow/test_working_directory.py",
+        "tests/executor/test_working_directories.py",
+        "tests/api/test_namespace_resources_api.py",
+        "docs/operations/execution-files.md",
+        "docs/adr/038-bounded-streaming-task-workspaces.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0245",
       "epic_id": "EPIC-208",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/workflow/test_working_directory.py",
+        "tests/executor/test_working_directories.py",
+        "tests/api/test_namespace_resources_api.py",
+        "docs/operations/execution-files.md",
+        "docs/adr/038-bounded-streaming-task-workspaces.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0246",
       "epic_id": "EPIC-208",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/workflow/test_working_directory.py",
+        "tests/executor/test_working_directories.py",
+        "tests/api/test_namespace_resources_api.py",
+        "docs/operations/execution-files.md",
+        "docs/adr/038-bounded-streaming-task-workspaces.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0247",
       "epic_id": "EPIC-208",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/workflow/test_working_directory.py",
+        "tests/executor/test_working_directories.py",
+        "tests/api/test_namespace_resources_api.py",
+        "docs/operations/execution-files.md",
+        "docs/adr/038-bounded-streaming-task-workspaces.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0248",
       "epic_id": "EPIC-208",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/workflow/test_working_directory.py",
+        "tests/executor/test_working_directories.py",
+        "tests/api/test_namespace_resources_api.py",
+        "docs/operations/execution-files.md",
+        "docs/adr/038-bounded-streaming-task-workspaces.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0249",
       "epic_id": "EPIC-208",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/workflow/test_working_directory.py",
+        "tests/executor/test_working_directories.py",
+        "tests/api/test_namespace_resources_api.py",
+        "docs/operations/execution-files.md",
+        "docs/adr/038-bounded-streaming-task-workspaces.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0250",

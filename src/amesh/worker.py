@@ -49,6 +49,7 @@ from amesh.scheduler import CronScheduler
 from amesh.storage.factory import build_object_store
 from amesh.tasks import agent_llm_handler, agent_mcp_handler, core_http_handler
 from amesh.workflow.shared_resources import SharedResourceContextProvider
+from amesh.workflow.working_directory import WorkingDirectoryManager
 
 LOGGER = logging.getLogger("amesh.worker")
 
@@ -277,8 +278,10 @@ async def recover_once(
                 if not execution_lifecycle_pending(flow, execution, task_runs):
                     continue
             kubernetes_runner: KubernetesJobRunner | None = None
+            object_store = build_object_store(settings)
+            workspace_manager = WorkingDirectoryManager(object_store)
             if settings.execution_runner_mode == "local":
-                shell_handler = local_process_handler(LocalProcessRunner())
+                shell_handler = local_process_handler(LocalProcessRunner(), workspace_manager)
             else:
                 kubernetes_runner = KubernetesJobRunner.from_in_cluster(
                     namespace=settings.kubernetes_task_namespace
@@ -294,12 +297,16 @@ async def recover_once(
                 },
                 recover_running_types=frozenset({"core.shell"}),
                 context_provider=(
-                    SharedResourceContextProvider(shared_resources)
+                    SharedResourceContextProvider(
+                        shared_resources,
+                        object_store=object_store,
+                    )
                     if shared_resources is not None
                     else None
                 ),
-                object_store=build_object_store(settings),
+                object_store=object_store,
                 task_cache=task_cache,
+                workspace_manager=workspace_manager,
             )
             try:
                 await executor.run_to_completion(

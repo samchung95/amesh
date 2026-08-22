@@ -14,6 +14,7 @@ FLOWABLE_MODES = {
     "core.until": "UNTIL",
     "core.if": "IF",
     "core.switch": "SWITCH",
+    "core.workingDirectory": "WORKING_DIRECTORY",
 }
 
 DYNAMIC_FLOWABLE_MODES = frozenset({"FOREACH", "WHILE", "UNTIL"})
@@ -99,7 +100,11 @@ def _compile_task_group(
                         children,
                         parent_id=task.id,
                         entry_dependencies=unique_dependencies,
-                        parent_mode=("SEQUENTIAL" if mode in {"IF", "SWITCH"} else mode),
+                        parent_mode=(
+                            "SEQUENTIAL"
+                            if mode in {"IF", "SWITCH", "WORKING_DIRECTORY"}
+                            else mode
+                        ),
                         branch_id=(
                             (
                                 f"{branch_id}/{child_branch_id}"

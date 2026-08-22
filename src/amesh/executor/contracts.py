@@ -44,6 +44,8 @@ class TaskArtifactRecord(BaseModel):
         alias="checksumSha256",
         pattern=r"^[0-9a-f]{64}$",
     )
+    logical_path: str | None = Field(default=None, alias="logicalPath", max_length=4096)
+    lineage: tuple[str, ...] = ()
 
     @field_validator("uri")
     @classmethod
@@ -101,12 +103,27 @@ class TaskContextRequest(BaseModel):
     key_values_required: bool = Field(default=False, alias="keyValuesRequired")
 
 
+class TaskFileReference(BaseModel):
+    model_config = ConfigDict(frozen=True, populate_by_name=True)
+
+    uri: str = Field(min_length=1, max_length=4096)
+    size_bytes: int = Field(alias="sizeBytes", ge=0)
+    checksum_sha256: str = Field(
+        alias="checksumSha256",
+        pattern=r"^[0-9a-f]{64}$",
+    )
+
+
 class TaskContextResources(BaseModel):
     model_config = ConfigDict(frozen=True, populate_by_name=True)
 
     secrets: dict[str, str] = Field(default_factory=dict)
     files: dict[str, str] = Field(default_factory=dict)
     key_values: dict[str, Any] = Field(default_factory=dict, alias="keyValues")
+    file_references: dict[str, TaskFileReference] = Field(
+        default_factory=dict,
+        alias="fileReferences",
+    )
 
 
 class TaskContextProvider(Protocol):

@@ -368,6 +368,19 @@ projections redact schema-marked inputs and outputs, including task results, log
 repeat those values. See [ADR-035](../adr/035-canonical-flow-data-contracts.md) and the
 [typed data guide](../how-to/typed-flow-data.md).
 
+## Working directories and execution files
+
+Local runnable attempts receive one opaque disposable directory as their current working directory
+and through `WORKING_DIR`/`OUTPUT_DIR`. `inputFiles` references resolve after task expressions, stream
+from tenant object storage and must match stored size/SHA-256 metadata. Exact `outputFiles`, globs and
+JSON `outputManifest` entries stream back as ordinary artifact evidence before local cleanup.
+
+`core.workingDirectory` adds a durable parent task around sequential children. The children share one
+execution-scoped directory; the parent owns input materialization, final output collection, optional
+failure diagnostics and cleanup. Every artifact records logical path and ordered source/transformation
+lineage. See [ADR-038](../adr/038-bounded-streaming-task-workspaces.md) and the
+[execution-file operations guide](../operations/execution-files.md).
+
 ## External side effects
 
 Plugin and task authors must choose one:

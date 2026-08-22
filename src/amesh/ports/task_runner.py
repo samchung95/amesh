@@ -18,6 +18,7 @@ class RunnerRequest(BaseModel):
     image: str | None = None
     environment: dict[str, str] = Field(default_factory=dict)
     input_files: dict[str, str] = Field(default_factory=dict)
+    working_directory: str | None = None
     resource_limits: dict[str, Any] = Field(default_factory=dict)
     timeout_seconds: float | None = Field(default=None, gt=0)
     cancel_grace_seconds: float = Field(default=1, ge=0)

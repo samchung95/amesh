@@ -240,14 +240,14 @@ URS-F-0238,Functional,Must,EPIC-207,"Namespace files, key-value store and secret
 URS-F-0239,Functional,Must,EPIC-207,"Namespace files, key-value store and secrets",M2,2,DSL validation plus end-to-end workflow conformance tests,Verified
 URS-F-0240,Functional,Must,EPIC-207,"Namespace files, key-value store and secrets",M2,2,DSL validation plus end-to-end workflow conformance tests,Verified
 URS-F-0241,Functional,Must,EPIC-207,"Namespace files, key-value store and secrets",M2,2,DSL validation plus end-to-end workflow conformance tests,Verified
-URS-F-0242,Functional,Must,EPIC-208,Working directories and execution files,M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
-URS-F-0243,Functional,Must,EPIC-208,Working directories and execution files,M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
-URS-F-0244,Functional,Must,EPIC-208,Working directories and execution files,M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
-URS-F-0245,Functional,Must,EPIC-208,Working directories and execution files,M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
-URS-F-0246,Functional,Must,EPIC-208,Working directories and execution files,M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
-URS-F-0247,Functional,Must,EPIC-208,Working directories and execution files,M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
-URS-F-0248,Functional,Must,EPIC-208,Working directories and execution files,M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
-URS-F-0249,Functional,Must,EPIC-208,Working directories and execution files,M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0242,Functional,Must,EPIC-208,Working directories and execution files,M2,2,DSL validation plus end-to-end workflow conformance tests,Verified
+URS-F-0243,Functional,Must,EPIC-208,Working directories and execution files,M2,2,DSL validation plus end-to-end workflow conformance tests,Verified
+URS-F-0244,Functional,Must,EPIC-208,Working directories and execution files,M2,2,DSL validation plus end-to-end workflow conformance tests,Verified
+URS-F-0245,Functional,Must,EPIC-208,Working directories and execution files,M2,2,DSL validation plus end-to-end workflow conformance tests,Verified
+URS-F-0246,Functional,Must,EPIC-208,Working directories and execution files,M2,2,DSL validation plus end-to-end workflow conformance tests,Verified
+URS-F-0247,Functional,Must,EPIC-208,Working directories and execution files,M2,2,DSL validation plus end-to-end workflow conformance tests,Verified
+URS-F-0248,Functional,Must,EPIC-208,Working directories and execution files,M2,2,DSL validation plus end-to-end workflow conformance tests,Verified
+URS-F-0249,Functional,Must,EPIC-208,Working directories and execution files,M2,2,DSL validation plus end-to-end workflow conformance tests,Verified
 URS-F-0250,Functional,Must,EPIC-209,Task runner interface and capability model,M2,2,Runner contract tests against disposable execution environments,Proposed
 URS-F-0251,Functional,Must,EPIC-209,Task runner interface and capability model,M2,2,Runner contract tests against disposable execution environments,Proposed
 URS-F-0252,Functional,Must,EPIC-209,Task runner interface and capability model,M2,2,Runner contract tests against disposable execution environments,Proposed

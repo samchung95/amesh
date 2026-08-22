@@ -60,13 +60,16 @@ from amesh.ports import (
     TaskStateConflictError,
 )
 from amesh.workflow.data_contracts import render_flow_outputs, validate_flow_inputs
+from amesh.workflow.working_directory import WorkingDirectoryManager
 
 from .contracts import (
+    TaskArtifactRecord,
     TaskCompletion,
     TaskContextProvider,
     TaskContextRequest,
     TaskContextResources,
     TaskDeferral,
+    TaskFileReference,
     TaskHandlerResult,
     TaskLogRecord,
 )
@@ -126,7 +129,10 @@ class TaskExecutionContext:
     secret_scopes: tuple[str, ...] = ()
     secrets: Mapping[str, str] = field(default_factory=dict)
     files: Mapping[str, str] = field(default_factory=dict)
+    file_references: Mapping[str, TaskFileReference] = field(default_factory=dict)
     key_values: Mapping[str, Any] = field(default_factory=dict)
+    workspace_scope_id: str | None = None
+    workspace_quota_bytes: int | None = None
     cancellation: TaskCancellationChannel = field(default_factory=TaskCancellationChannel)
 
 
@@ -144,9 +150,18 @@ class TaskExecutionError(RuntimeError):
 class TaskExecutionFailure(RuntimeError):
     """Handler failure carrying the normalized task failure category."""
 
-    def __init__(self, message: str, category: FailureCategory) -> None:
+    def __init__(
+        self,
+        message: str,
+        category: FailureCategory,
+        *,
+        result: dict[str, object] | None = None,
+        evidence: dict[str, object] | None = None,
+    ) -> None:
         super().__init__(message)
         self.category = category
+        self.result = result
+        self.evidence = evidence
 
 
 class TaskConfigurationError(TaskExecutionFailure):
@@ -262,6 +277,7 @@ class InProcessExecutor:
         resource_registry: ResourceSchemaRegistry | None = None,
         object_store: ObjectStore | None = None,
         task_cache: TaskCacheRepository | None = None,
+        workspace_manager: WorkingDirectoryManager | None = None,
     ) -> None:
         self._repository = repository
         self._handlers = _core_handlers()
@@ -272,6 +288,7 @@ class InProcessExecutor:
         self._resource_registry = resource_registry or default_resource_registry()
         self._object_store = object_store
         self._task_cache = task_cache
+        self._workspace_manager = workspace_manager
 
     async def create_execution(
         self,
@@ -426,6 +443,7 @@ class InProcessExecutor:
             for task_id, task_run in task_runs_by_id.items()
             if task_run.state is TaskRunState.SUCCESS
         }
+        plan_by_id = {node.task.id: node for node in plan}
         task_coroutines = tuple(
             self._run_task(
                 flow,
@@ -437,6 +455,7 @@ class InProcessExecutor:
                     for task_id, output in outputs.items()
                     if task_id in visible_output_ids(node.task.id, plan)
                 },
+                workspace_parent=_working_directory_ancestor(node, plan_by_id),
             )
             for node in ready
         )
@@ -805,6 +824,10 @@ class InProcessExecutor:
                     by_task_id[node.task.id],
                     node.task,
                     outputs,
+                    workspace_parent=_working_directory_ancestor(
+                        node,
+                        {candidate.task.id: candidate for candidate in plan},
+                    ),
                     handler_error=handler_errors.get(node.task.id),
                 )
                 for node in ready
@@ -1019,6 +1042,34 @@ class InProcessExecutor:
                     if child.state in {TaskRunState.FAILED, TaskRunState.CANCELLED}
                 ]
                 terminal = all(_task_run_is_terminal(child) for child in children)
+                workspace_output: dict[str, object] = {}
+                workspace_evidence: dict[str, object] = {}
+                should_finalize_workspace = node.task.type == "core.workingDirectory" and (
+                    terminal
+                    or (failed and node.failure_policy is FlowableFailurePolicy.FAIL_FAST)
+                )
+                if should_finalize_workspace:
+                    try:
+                        workspace_output, workspace_evidence = (
+                            await self._finalize_working_directory(
+                                execution,
+                                node,
+                                task_run,
+                                failed=bool(failed),
+                            )
+                        )
+                    except Exception as exc:
+                        reason = f"working directory finalization failed: {exc}"
+                        by_task_id[node.task.id] = await self._repository.fail_task(
+                            task_run.task_run_id,
+                            task_run.current_attempt,
+                            reason,
+                            tenant_id=tenant_id,
+                            failure_category=classify_task_failure(exc),
+                            evidence=task_run.evidence,
+                        )
+                        changed = True
+                        continue
                 if failed and node.failure_policy is FlowableFailurePolicy.FAIL_FAST:
                     failed_ids = [child.task_id for child in failed]
                     reason = f"flowable child failure: {failed_ids}"
@@ -1027,8 +1078,15 @@ class InProcessExecutor:
                         task_run.current_attempt,
                         reason,
                         tenant_id=tenant_id,
-                        result={**_aggregate_flowable_result(node, children), "error": reason},
-                        evidence=task_run.evidence,
+                        result={
+                            **_aggregate_flowable_result(node, children),
+                            **workspace_output,
+                            "error": reason,
+                        },
+                        evidence=_merge_completion_evidence(
+                            workspace_evidence,
+                            task_run.evidence,
+                        ),
                     )
                     changed = True
                 elif terminal and (
@@ -1039,6 +1097,7 @@ class InProcessExecutor:
                         task_run.current_attempt,
                         {
                             **_aggregate_flowable_result(node, children),
+                            **workspace_output,
                             **(
                                 {"control": task_run.evidence["control"]}
                                 if task_run.evidence.get("control")
@@ -1046,7 +1105,10 @@ class InProcessExecutor:
                             ),
                         },
                         tenant_id=tenant_id,
-                        evidence=task_run.evidence,
+                        evidence=_merge_completion_evidence(
+                            workspace_evidence,
+                            task_run.evidence,
+                        ),
                     )
                     changed = True
                 elif terminal and node.failure_policy is FlowableFailurePolicy.COLLECT_ALL:
@@ -1057,11 +1119,78 @@ class InProcessExecutor:
                         task_run.current_attempt,
                         reason,
                         tenant_id=tenant_id,
-                        result={**_aggregate_flowable_result(node, children), "error": reason},
-                        evidence=task_run.evidence,
+                        result={
+                            **_aggregate_flowable_result(node, children),
+                            **workspace_output,
+                            "error": reason,
+                        },
+                        evidence=_merge_completion_evidence(
+                            workspace_evidence,
+                            task_run.evidence,
+                        ),
                     )
                     changed = True
         return list(by_task_id.values())
+
+    async def _finalize_working_directory(
+        self,
+        execution: PersistedExecution,
+        node: PlannedTask,
+        task_run: PersistedTaskRun,
+        *,
+        failed: bool,
+    ) -> tuple[dict[str, object], dict[str, object]]:
+        if self._workspace_manager is None:
+            raise TaskConfigurationError("core.workingDirectory requires a workspace manager")
+        workspace = await self._workspace_manager.prepare(
+            tenant_id=execution.tenant_id,
+            execution_id=str(execution.execution_id),
+            task_run_id=str(task_run.task_run_id),
+            attempt_id=str(uuid5(task_run.task_run_id, f"attempt:{task_run.current_attempt}")),
+            scope_id=node.task.id,
+            input_files={},
+            file_references={},
+            quota_bytes=node.task.workspace_quota_bytes,
+        )
+        try:
+            if failed:
+                artifacts: tuple[TaskArtifactRecord, ...] = ()
+                if node.task.retain_diagnostics_on_failure:
+                    artifacts = (
+                        await self._workspace_manager.retain_failure_diagnostics(
+                            workspace,
+                            tenant_id=execution.tenant_id,
+                            execution_id=str(execution.execution_id),
+                            task_run_id=str(task_run.task_run_id),
+                            attempt=task_run.current_attempt,
+                            details={"flowable": node.task.id, "state": "FAILED"},
+                            quota_bytes=node.task.workspace_quota_bytes,
+                        ),
+                    )
+                output_files: Mapping[str, str] = {}
+            else:
+                collected = await self._workspace_manager.collect(
+                    workspace,
+                    tenant_id=execution.tenant_id,
+                    execution_id=str(execution.execution_id),
+                    task_run_id=str(task_run.task_run_id),
+                    attempt=task_run.current_attempt,
+                    patterns=node.task.output_files,
+                    manifest_path=node.task.output_manifest,
+                    quota_bytes=node.task.workspace_quota_bytes,
+                )
+                artifacts = collected.artifacts
+                output_files = collected.output_files
+            output, evidence = normalize_task_completion(
+                TaskCompletion(
+                    output={"outputFiles": dict(output_files)},
+                    artifacts=artifacts,
+                ),
+                node.task.contract.resource_limits,
+            )
+            return output, evidence
+        finally:
+            self._workspace_manager.cleanup(workspace.path)
 
     async def _skip_flowable_subtree(
         self,
@@ -1520,6 +1649,7 @@ class InProcessExecutor:
         task_run: PersistedTaskRun,
         task: TaskDefinition,
         outputs: Mapping[str, dict[str, Any]],
+        workspace_parent: TaskDefinition | None = None,
         iteration: LoopIterationContext | None = None,
         handler_error: Mapping[str, Any] | None = None,
     ) -> _TaskRunOutcome:
@@ -1644,6 +1774,8 @@ class InProcessExecutor:
                 task,
                 execution,
                 running,
+                declared_files={},
+                strict_files=False,
             )
             runtime_expression_context = replace(
                 expression_context,
@@ -1654,6 +1786,37 @@ class InProcessExecutor:
                 self._expressions,
                 task,
                 runtime_expression_context,
+            )
+            declared_files = _combine_declared_files(
+                (
+                    _render_declared_files(
+                        self._expressions,
+                        _combine_declared_files(
+                            workspace_parent.contract.files,
+                            workspace_parent.input_files,
+                        ),
+                        runtime_expression_context,
+                    )
+                    if workspace_parent is not None
+                    else {}
+                ),
+                _render_declared_files(
+                    self._expressions,
+                    _combine_declared_files(
+                        rendered_task.contract.files,
+                        rendered_task.input_files,
+                    ),
+                    runtime_expression_context,
+                ),
+            )
+            file_resources = await self._resolve_context_resources(
+                rendered_task.model_copy(
+                    update={"contract": rendered_task.contract.model_copy(update={"files": {}})}
+                ),
+                execution,
+                running,
+                declared_files=declared_files,
+                resolve_values=False,
             )
             context = TaskExecutionContext(
                 tenant_id=tenant_id,
@@ -1669,8 +1832,18 @@ class InProcessExecutor:
                 iteration=iteration,
                 secret_scopes=rendered_task.contract.secret_scopes,
                 secrets=resources.secrets,
-                files=resources.files,
+                files=file_resources.files,
+                file_references=file_resources.file_references,
                 key_values=resources.key_values,
+                workspace_scope_id=(workspace_parent.id if workspace_parent is not None else None),
+                workspace_quota_bytes=(
+                    min(
+                        rendered_task.workspace_quota_bytes,
+                        workspace_parent.workspace_quota_bytes,
+                    )
+                    if workspace_parent is not None
+                    else rendered_task.workspace_quota_bytes
+                ),
                 cancellation=TaskCancellationChannel(
                     self._repository,
                     tenant_id=tenant_id,
@@ -1842,7 +2015,14 @@ class InProcessExecutor:
                 )
             category = classify_task_failure(exc)
             reason = f"task {task.id!r} failed [{category.value}]: {exc}"
-            task_evidence = dict(condition.evidence)
+            task_evidence = _merge_completion_evidence(
+                (
+                    exc.evidence
+                    if isinstance(exc, TaskExecutionFailure) and exc.evidence is not None
+                    else {}
+                ),
+                condition.evidence,
+            )
             if category is FailureCategory.CANCELLED:
                 await self._repository.cancel_task(
                     running.task_run_id,
@@ -1935,7 +2115,11 @@ class InProcessExecutor:
                 running.current_attempt,
                 reason,
                 tenant_id=tenant_id,
-                result=(exc.result if isinstance(exc, LoopExecutionFailure) else None),
+                result=(
+                    exc.result
+                    if isinstance(exc, (LoopExecutionFailure, TaskExecutionFailure))
+                    else None
+                ),
                 failure_category=category,
                 evidence=task_evidence,
             )
@@ -2337,14 +2521,19 @@ class InProcessExecutor:
         task: TaskDefinition,
         execution: PersistedExecution,
         task_run: PersistedTaskRun,
+        *,
+        declared_files: Mapping[str, str] | None = None,
+        resolve_values: bool = True,
+        strict_files: bool = True,
     ) -> TaskContextResources:
         contract = task.contract
+        selected_files = contract.files if declared_files is None else declared_files
         if self._context_provider is None:
-            if contract.secret_scopes:
+            if resolve_values and contract.secret_scopes:
                 raise TaskConfigurationError(
                     f"task {task.id!r} declares secret scopes but no context provider is configured"
                 )
-            return TaskContextResources(files=contract.files)
+            return TaskContextResources(files=dict(selected_files))
         try:
             resources = await self._context_provider.resolve(
                 TaskContextRequest(
@@ -2354,19 +2543,33 @@ class InProcessExecutor:
                     taskRunId=str(task_run.task_run_id),
                     attempt=task_run.current_attempt,
                     taskType=task.type,
-                    secretScopes=contract.secret_scopes,
-                    declaredFiles=contract.files,
-                    keyValuesRequired=_contains_kv_expression(task.model_dump(mode="json")),
+                    secretScopes=(contract.secret_scopes if resolve_values else ()),
+                    declaredFiles=dict(selected_files),
+                    keyValuesRequired=(
+                        _contains_kv_expression(task.model_dump(mode="json"))
+                        if resolve_values
+                        else False
+                    ),
                 )
             )
         except TaskExecutionFailure:
             raise
         except Exception as exc:
             raise TaskPlatformError(f"task context provider failed: {exc}") from exc
-        unexpected_files = sorted(set(resources.files) - set(contract.files))
+        unexpected_files = (
+            sorted(set(resources.files) - set(selected_files)) if strict_files else []
+        )
         if unexpected_files:
             raise TaskConfigurationError(
                 "context provider returned undeclared files: " + ", ".join(unexpected_files)
+            )
+        unexpected_references = (
+            sorted(set(resources.file_references) - set(selected_files)) if strict_files else []
+        )
+        if unexpected_references:
+            raise TaskConfigurationError(
+                "context provider returned undeclared file metadata: "
+                + ", ".join(unexpected_references)
             )
         return resources
 
@@ -2756,6 +2959,20 @@ def _flowable_ancestors(
         ancestors.append(parent)
         parent_id = parent.parent_id
     return tuple(ancestors)
+
+
+def _working_directory_ancestor(
+    node: PlannedTask,
+    plan_by_id: Mapping[str, PlannedTask],
+) -> TaskDefinition | None:
+    return next(
+        (
+            ancestor.task
+            for ancestor in _flowable_ancestors(node, plan_by_id)
+            if ancestor.task.type == "core.workingDirectory"
+        ),
+        None,
+    )
 
 
 def _parent_is_running(
@@ -3477,3 +3694,32 @@ def _render_task_for_execution(
     rendered_payload = rendered.model_dump(mode="python", by_alias=True)
     rendered_payload.update(deferred)
     return TaskDefinition.model_validate(rendered_payload)
+
+
+def _combine_declared_files(*mappings: Mapping[str, str]) -> dict[str, str]:
+    combined: dict[str, str] = {}
+    for mapping in mappings:
+        for path, reference in mapping.items():
+            existing = combined.get(path)
+            if existing is not None and existing != reference:
+                raise TaskConfigurationError(
+                    f"workspace path {path!r} has conflicting input file references"
+                )
+            combined[path] = reference
+    return combined
+
+
+def _render_declared_files(
+    expressions: ExpressionEngine,
+    declared_files: Mapping[str, str],
+    context: ExpressionContext,
+) -> dict[str, str]:
+    rendered: dict[str, str] = {}
+    for path, reference in declared_files.items():
+        value = expressions.render_value(reference, context)
+        if not isinstance(value, str) or not value:
+            raise TaskConfigurationError(
+                f"inputFiles reference for {path!r} must render to a non-empty internal URI"
+            )
+        rendered[path] = str(value)
+    return rendered

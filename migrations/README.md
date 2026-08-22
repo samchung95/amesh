@@ -138,6 +138,10 @@ strongly typed key-values with TTL/CAS/change cursors, and environment-provider 
 It also separates list, read, write and use authorization actions; secret values remain outside the
 database, resource bundles and audit events.
 
+Migration `0040_execution_file_lineage.sql` adds the bounded logical workspace path and ordered
+source/transformation lineage to each execution artifact. Existing artifact references remain valid
+with an empty lineage array.
+
 ## Migration modes
 
 - `bootstrap` creates the initial schema and is only safe for an empty database.
