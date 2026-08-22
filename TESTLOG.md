@@ -2257,3 +2257,44 @@ pre-GA assistive-technology matrix complete. Repository-wide frontend lint and P
 baselines remain deferred on board cards `c88` and `c90`.
 
 Verdict: PASS — EPIC-405 closed.
+
+## 2026-08-23 — EPIC-406 visual no-code editor and topology model
+
+Scope: `URS-F-0446` through `URS-F-0453`.
+
+- [x] Build-versus-buy review selected exact-pinned `@xyflow/react` 12.11.2 (MIT) because its
+  maintained canvas supplies the required pan, zoom, mini map, connection and keyboard-accessibility
+  primitives. `npm install` and the container's clean `npm ci` reported zero vulnerabilities.
+- [x] The visual model derives nodes, nested groups, lifecycle handlers and explicit dependencies from
+  the current canonical YAML draft. Conditions, retries, timeouts, concurrency and subflow targets are
+  exposed as node metadata; flow and execution detail graphs now use the same interactive canvas
+  language.
+- [x] Installed-resource schemas drive the task palette and configuration inspector. Supported paths
+  add, configure, connect, disconnect, reorder, group and remove tasks; unknown types or fields are
+  labelled for direct YAML fallback.
+- [x] YAML AST transformations preserve comments, key order and unrelated extension content. Every
+  mutation is staged for review, generated changes are labelled, and task/dependency removal is marked
+  `LOSSY TRANSFORMATION` before acceptance.
+- [x] Five focused model tests passed. They cover topology expansion, cycles/missing/cross-group link
+  rejection, comment-preserving round trips and all visual mutations; the 500-task graph case completed
+  in 33 ms against the one-second local budget.
+- [x] The production frontend build and all 22 unit/coverage checks passed: 90.74% statements, 80%
+  branches, 86.44% functions and 91.66% lines for the governed modules. Targeted ESLint passed.
+- [x] The complete Playwright matrix passed: nine Chromium workflows passed and nine
+  tablet-inapplicable workflows skipped. The authoring workflow added and configured a task, accepted
+  generated YAML, reviewed/cancelled a lossy removal, fell back to YAML, retained its draft and had no
+  critical or serious WCAG 2.2 AA axe findings.
+- [x] Fourteen canonical DSL checks, strict mypy across 161 source files and Ruff checks passed. No
+  public API, DSL, event, persistence or plugin contract changed; accepted YAML continues through the
+  EPIC-405 authorized and audited server validation/save path.
+- [x] Planning artifacts regenerated and the canonical backlog validator passed with 103 epics, 837
+  functional requirements, 63 non-functional requirements and 992 trace links.
+- [x] API, executor, scheduler and indexer images rebuilt and the six-service local stack is running.
+  Live readiness reports 41/41 migrations, the frontend deep link returns HTTP 200, and headless
+  Chromium verified the deployed Create flow heading, interactive topology, mini map and starter task.
+
+Qualification boundary: React Flow's commercial attribution remains visible under its MIT license.
+The repository-wide chunk-size and frontend lint baselines remain deferred on their existing board
+cards; neither blocks the verified EPIC-406 workflow.
+
+Verdict: PASS — EPIC-406 closed.

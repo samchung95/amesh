@@ -35,11 +35,16 @@ grid.
 - Status: icon, label and shape accompany color. Running uses blue, success green, warning amber,
   failure red and unknown gray.
 - Flow graph: lifecycle nodes retain the primary graph geometry while showing `ERROR`, `FINALLY` or
-  `AFTER_EXECUTION` phase metadata; local handlers also show the task or flowable they handle.
-- Flow workbench: the warm source surface remains dominant beside a compact diagnostics and revision
-  inspector. CodeMirror provides native YAML, search, folding and multi-selection behavior; server
-  issues remain actionable buttons that focus their exact source range. Validity always has text in
-  addition to color, and destructive lifecycle actions retain explicit confirmation.
+  `AFTER_EXECUTION` phase metadata; local handlers also show the task or flowable they handle. The
+  topology canvas uses restrained paper/grid geometry, directional dependency edges, keyboard-focusable
+  nodes and edges, navigation controls and a labelled mini map.
+- Flow workbench: visual topology is the default authoring surface, with YAML remaining the canonical
+  representation and explicit fallback. Installed-resource schemas drive the task palette and inspector.
+  Every generated edit is reviewed before acceptance, and amber `LOSSY TRANSFORMATION` treatment is
+  reserved for changes that remove task content or dependency references. CodeMirror provides native
+  YAML, search, folding and multi-selection behavior; server issues remain actionable buttons that focus
+  their exact source range. Validity always has text in addition to color, and destructive lifecycle
+  actions retain explicit confirmation.
 - Empty/error/loading: every data region owns a purposeful empty instruction, retryable error panel and
   skeleton that preserves layout.
 - Command palette: high-shadow dialog with an explicit title, labelled search, grouped results,

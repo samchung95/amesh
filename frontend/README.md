@@ -33,11 +33,23 @@ Vite proxies `/api`, `/health` and `/ready` to `http://127.0.0.1:8000`.
 
 ## Author flows
 
-Open **Flows**, then choose **Create flow** or **Edit YAML** on an existing flow. The workbench uses
-the server's versioned flow and installed-plugin schemas for completion, validates after edits, maps
-diagnostics to their source ranges and only enables save for a valid changed document. `Ctrl+F` opens
-search; CodeMirror's standard folding and multi-selection shortcuts are available. **Format** applies
-the canonical server representation.
+Open **Flows**, then choose **Create flow** or **Edit YAML** on an existing flow. The workbench opens
+on an interactive visual topology backed by the same YAML draft. Add a task from the installed resource
+catalog, select a node to edit its schema-generated fields, drag from one handle to another to add a
+dependency, or use the structure controls to reorder, group and remove it. Zoom, pan, keyboard node and
+edge navigation, and the mini map remain available on large graphs. Conditions, retries, timeouts,
+concurrency controls, lifecycle handlers and subflow targets are visible on their nodes.
+
+Visual changes are staged first. The review identifies generated YAML and marks destructive or
+dependency-dropping changes as lossy before **Accept change** updates the draft. Comments, key order and
+unrelated extension fields are preserved. Unknown task types or properties are labelled **Code only**
+and link directly to the YAML view. The same pre-save validation rejects cycles, missing references and
+cross-group dependencies.
+
+The YAML view uses the server's versioned flow and installed-plugin schemas for completion, validates
+after edits, maps diagnostics to their source ranges and only enables save for a valid changed document.
+`Ctrl+F` opens search; CodeMirror's standard folding and multi-selection shortcuts are available.
+**Format** applies the canonical server representation.
 
 The inspector previews expressions against user-supplied sample JSON after sensitive keys are
 redacted. Existing flows can be compared with a selected revision, cloned, disabled or restored.
@@ -58,8 +70,10 @@ The browser suite covers connection, API-backed navigation, direct/reloaded deep
 command menu, server-authoritative denied routes, Simplified Chinese switching, locale formatting,
 retry recovery, same-origin/offline privacy, a 768 px compact tablet layout and WCAG 2.2 AA axe rules.
 Trigger and check monitor fixtures cover durable occurrence and policy-evaluation evidence. The flow
-editor fixture covers keyboard editing, live server validation, local draft persistence, navigation
-warning and automated WCAG checks.
+editor fixture covers visual add/configure, generated and lossy review, YAML fallback, keyboard editing,
+live server validation, local draft persistence, navigation warning and automated WCAG checks. Pure
+model tests cover connect, disconnect, reorder, grouping, removal, comment-preserving round trips,
+invalid graph rejection and a 500-task local performance budget.
 
 ## Browser support policy
 

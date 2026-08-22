@@ -12,14 +12,18 @@ Author and understand workflows visually without creating a second incompatible 
 
 ## In scope
 
-- [ ] **URS-F-0446** — The system shall render the canonical flow model as an interactive task and dependency graph.
-- [ ] **URS-F-0447** — The system shall add, configure, connect, reorder, group and remove supported tasks through schema-generated forms.
-- [ ] **URS-F-0448** — The system shall round-trip supported visual edits to YAML without changing unrelated semantic content.
-- [ ] **URS-F-0449** — The system shall fall back to code editing for constructs the visual editor cannot represent.
-- [ ] **URS-F-0450** — The system shall show conditions, retries, timeouts, concurrency, handlers and subflows in topology.
-- [ ] **URS-F-0451** — The system shall validate graph cycles, missing references and incompatible connections before save.
-- [ ] **URS-F-0452** — The system shall support zoom, pan, keyboard navigation, minimap and large-graph performance.
-- [ ] **URS-F-0453** — The system shall mark generated or lossy transformations before the user accepts them.
+- [x] **URS-F-0446** — The system shall render the canonical flow model as an interactive task and dependency graph.
+- [x] **URS-F-0447** — The system shall add, configure, connect, reorder, group and remove supported tasks through schema-generated forms.
+- [x] **URS-F-0448** — The system shall round-trip supported visual edits to YAML without changing unrelated semantic content.
+- [x] **URS-F-0449** — The system shall fall back to code editing for constructs the visual editor cannot represent.
+- [x] **URS-F-0450** — The system shall show conditions, retries, timeouts, concurrency, handlers and subflows in topology.
+- [x] **URS-F-0451** — The system shall validate graph cycles, missing references and incompatible connections before save.
+- [x] **URS-F-0452** — The system shall support zoom, pan, keyboard navigation, minimap and large-graph performance.
+- [x] **URS-F-0453** — The system shall mark generated or lossy transformations before the user accepts them.
+
+## Implementation completion evidence
+
+- 2026-08-23 — EPIC-406 is complete. React Flow now renders the canonical task/dependency model as an interactive canvas in authoring, flow detail and execution detail views, with zoom, pan, keyboard operation, controls and a labelled mini map. The authoring canvas derives from the current YAML draft; its installed-resource palette and inspector add and configure tasks, while connections and structure controls connect, disconnect, reorder, group and remove them. Conditions, retries, timeouts, concurrency, lifecycle handlers and subflow targets are visible as topology metadata. The YAML AST transformer preserves comments, order and unrelated fields, rejects missing/cross-group/cyclic links, labels unsupported fields for code fallback and requires review of generated or lossy changes before acceptance. Five focused model tests include all transformations and a 500-task sub-second gate; the production build, full browser matrix and editor WCAG 2.2 AA scan passed. Public API, DSL and durable state contracts are unchanged; accepted YAML still uses EPIC-405's authorized, audited server save. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`VisualFlowEditor.tsx`](../../frontend/src/components/VisualFlowEditor.tsx), [`visualFlowModel.ts`](../../frontend/src/components/visualFlowModel.ts), [`visualFlowModel.test.ts`](../../frontend/src/components/visualFlowModel.test.ts), [`FlowGraphView.tsx`](../../frontend/src/components/FlowGraphView.tsx) and [`shell.spec.ts`](../../frontend/e2e/shell.spec.ts).
 
 ## Non-functional requirements
 
@@ -45,13 +49,13 @@ Author and understand workflows visually without creating a second incompatible 
 
 ## Definition of done
 
-- [ ] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
-- [ ] Public API, DSL, event and plugin contract changes pass compatibility checks.
-- [ ] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
-- [ ] Security, tenant isolation, redaction and audit behavior are reviewed.
-- [ ] Documentation, examples, migration notes and operational runbooks are updated.
-- [ ] Performance and recovery budgets are measured when this epic is on a critical path.
-- [ ] `python scripts/validate_backlog.py` passes.
+- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
+- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.
+- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
+- [x] Security, tenant isolation, redaction and audit behavior are reviewed.
+- [x] Documentation, examples, migration notes and operational runbooks are updated.
+- [x] Performance and recovery budgets are measured when this epic is on a critical path.
+- [x] `python scripts/validate_backlog.py` passes.
 
 ## Risks and unknowns
 

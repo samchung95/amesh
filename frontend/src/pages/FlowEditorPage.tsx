@@ -7,6 +7,7 @@ import {
   Download,
   FileDiff,
   FileUp,
+  GitBranch,
   Save,
   ShieldOff,
   Sparkles,
@@ -27,6 +28,7 @@ import {
   FlowCodeEditor,
   type FlowCodeEditorHandle,
 } from '../components/FlowCodeEditor'
+import { VisualFlowEditor } from '../components/VisualFlowEditor'
 
 const EMPTY_VALIDATION: FlowValidationResult = {
   valid: false,
@@ -100,6 +102,7 @@ export function FlowEditorPage({ session }: { session: UiSession }) {
   const [sampleContext, setSampleContext] = useState('{\n  "inputs": { "name": "Ada" }\n}')
   const [preview, setPreview] = useState<unknown>(null)
   const [expressionError, setExpressionError] = useState<string | null>(null)
+  const [view, setView] = useState<'visual' | 'code'>('visual')
 
   const schema = useQuery({
     queryKey: ['flow-editor-schema', settings.tenant],
@@ -250,7 +253,7 @@ export function FlowEditorPage({ session }: { session: UiSession }) {
     <div className="page-stack flow-editor-page">
       <Link className="back-link" to={existing ? `/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}` : '/flows'} onClick={confirmLeave}><ArrowLeft size={16} aria-hidden="true" />{existing ? 'Flow details' : 'Flows'}</Link>
       <header className="page-heading flow-editor-heading">
-        <div><p className="eyebrow">BUILD / YAML WORKBENCH</p><h1>{existing ? flowId : cloneFlowId ? `Clone ${cloneFlowId}` : 'Create flow'}</h1><p>Server-validated source with installed plugin completion and revision controls.</p></div>
+        <div><p className="eyebrow">BUILD / VISUAL + YAML</p><h1>{existing ? flowId : cloneFlowId ? `Clone ${cloneFlowId}` : 'Create flow'}</h1><p>Visual topology and schema forms backed by one server-validated YAML definition.</p></div>
         <div className="flow-editor-actions">
           <button className="button button-secondary" type="button" onClick={() => importInput.current?.click()}><FileUp size={16} aria-hidden="true" />Import</button>
           <input ref={importInput} className="sr-only" type="file" accept=".yaml,.yml,application/yaml,text/yaml" aria-label="Import flow YAML" onChange={(event) => {
@@ -268,13 +271,13 @@ export function FlowEditorPage({ session }: { session: UiSession }) {
       {save.error || format.error ? <p className="resource-failure" role="alert">{(save.error || format.error)?.message}</p> : null}
       <div className="flow-editor-workspace">
         <section className="editor-source-panel" aria-labelledby="source-heading">
-          <div className="section-heading"><div><p className="eyebrow">SOURCE</p><h2 id="source-heading">Flow definition</h2></div><span className={validation.valid ? 'editor-valid' : 'editor-invalid'}>{validation.valid ? 'Valid' : `${String(validation.issues.length)} issues`}</span></div>
-          <FlowCodeEditor ref={editor} value={source} schema={schema.data} issues={validation.issues} onChange={setSource} />
+          <div className="section-heading"><div><p className="eyebrow">{view === 'visual' ? 'TOPOLOGY' : 'SOURCE'}</p><h2 id="source-heading">Flow definition</h2></div><div className="editor-heading-actions"><div className="editor-view-toggle" role="tablist" aria-label="Flow editing view"><button role="tab" aria-selected={view === 'visual'} type="button" onClick={() => setView('visual')}><GitBranch size={15} aria-hidden="true" />Visual</button><button role="tab" aria-selected={view === 'code'} type="button" onClick={() => setView('code')}><Braces size={15} aria-hidden="true" />YAML</button></div><span className={validation.valid ? 'editor-valid' : 'editor-invalid'}>{validation.valid ? 'Valid' : `${String(validation.issues.length)} issues`}</span></div></div>
+          {view === 'visual' ? <VisualFlowEditor source={source} schema={schema.data} onChange={setSource} onOpenCode={() => setView('code')} /> : <FlowCodeEditor ref={editor} value={source} schema={schema.data} issues={validation.issues} onChange={setSource} />}
         </section>
         <aside className="editor-inspector" aria-label="Flow editor inspector">
           <section aria-labelledby="validation-heading">
             <div className="section-heading"><div><p className="eyebrow">DIAGNOSTICS</p><h2 id="validation-heading">Validation</h2></div></div>
-            {validation.issues.length ? <ol className="editor-issues">{validation.issues.map((issue, index) => <li key={`${issue.code}-${String(index)}`}><button type="button" onClick={() => editor.current?.focusRange(issue.sourceRange?.start.offset || 0, issue.sourceRange?.end.offset || 0)}><strong>{issue.message}</strong><span>{issue.path || 'document'}{issue.sourceRange ? ` · ${String(issue.sourceRange.start.line)}:${String(issue.sourceRange.start.column)}` : ''}</span><small>{issue.hint}</small></button></li>)}</ol> : <p className="editor-empty"><CheckCircle2 size={16} aria-hidden="true" />No validation issues.</p>}
+            {validation.issues.length ? <ol className="editor-issues">{validation.issues.map((issue, index) => <li key={`${issue.code}-${String(index)}`}><button type="button" onClick={() => { setView('code'); window.requestAnimationFrame(() => editor.current?.focusRange(issue.sourceRange?.start.offset || 0, issue.sourceRange?.end.offset || 0)) }}><strong>{issue.message}</strong><span>{issue.path || 'document'}{issue.sourceRange ? ` · ${String(issue.sourceRange.start.line)}:${String(issue.sourceRange.start.column)}` : ''}</span><small>{issue.hint}</small></button></li>)}</ol> : <p className="editor-empty"><CheckCircle2 size={16} aria-hidden="true" />No validation issues.</p>}
           </section>
           <section aria-labelledby="expression-heading">
             <div className="section-heading"><div><p className="eyebrow">SAFE PREVIEW</p><h2 id="expression-heading">Expression</h2></div><Sparkles size={17} aria-hidden="true" /></div>
