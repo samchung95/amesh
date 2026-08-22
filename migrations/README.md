@@ -91,6 +91,10 @@ artifact-reference projections, and one tenant-isolated monotonic evidence strea
 evidence triggers write reconnectable events in the originating transaction; task-attempt evidence
 remains the immutable recovery source.
 
+Migration `0029_task_cache.sql` adds tenant-isolated task-result entries and an immutable cache
+decision ledger. Leased population ownership, expiry, soft invalidation and provenance survive
+executor restarts without making cached state authoritative over ordinary task and execution events.
+
 ## Migration modes
 
 - `bootstrap` creates the initial schema and is only safe for an empty database.

@@ -31,7 +31,10 @@ export function ExecutionDetailPage() {
       {evidence.isPending ? <LoadingState label="Loading durable execution evidence" /> : null}
       {evidence.error ? <ErrorState message={evidence.error.message} retry={() => void evidence.refetch()} /> : null}
       {evidence.data ? <ExecutionEvidenceTimeline events={evidence.data.items} locale={settings.locale} timezone={settings.timezone} /> : null}
-      <section className="data-section"><div className="section-heading"><div><p className="eyebrow">TASK PLAN</p><h2>Task runs</h2></div><span>{taskRuns.length} tasks</span></div><div className="task-run-list">{taskRuns.map((task, index) => <article key={task.task_run_id}><span className="task-index">{String(index + 1).padStart(2, '0')}</span><div><strong>{task.task_id}</strong><small>{compactId(task.task_run_id)} · attempt {task.current_attempt}</small></div><StatusBadge state={task.state} /><details><summary>Result</summary><pre>{JSON.stringify(task.result, null, 2)}</pre></details></article>)}</div></section>
+      <section className="data-section"><div className="section-heading"><div><p className="eyebrow">TASK PLAN</p><h2>Task runs</h2></div><span>{taskRuns.length} tasks</span></div><div className="task-run-list">{taskRuns.map((task, index) => {
+        const cache = task.evidence?.cache
+        return <article key={task.task_run_id}><span className="task-index">{String(index + 1).padStart(2, '0')}</span><div><strong>{task.task_id}</strong><small>{compactId(task.task_run_id)} · attempt {task.current_attempt}</small>{cache ? <small className={`cache-decision cache-${cache.decision.toLowerCase()}`} title={cache.reason}>Cache {cache.decision.replaceAll('_', ' ').toLowerCase()} · {cache.reason}</small> : null}</div><StatusBadge state={task.state} /><details><summary>Result</summary><pre>{JSON.stringify(task.result, null, 2)}</pre>{cache ? <><h4 className="cache-summary">Cache provenance</h4><pre>{JSON.stringify(cache, null, 2)}</pre></> : null}</details></article>
+      })}</div></section>
     </div>
   )
 }

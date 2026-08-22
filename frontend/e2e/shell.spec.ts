@@ -34,7 +34,7 @@ async function mockApi(page: Page, overrides = session) {
   await page.route('**/api/v1/ui/session**', (route) => route.fulfill({ json: overrides }))
   await page.route('**/api/v1/flows', (route) => route.fulfill({ json: flows }))
   await page.route('**/api/v1/executions?limit=200', (route) => route.fulfill({ json: executions }))
-  await page.route('**/api/v1/executions/*', (route) => route.fulfill({ json: { execution: executions[0], taskRuns: [{ task_run_id: '00000000-0000-7000-8000-000000000201', execution_id: executions[0].execution_id, task_id: 'return', state: 'RUNNING', current_attempt: 1, version: 2, retry_at: null, result: null }] } }))
+  await page.route('**/api/v1/executions/*', (route) => route.fulfill({ json: { execution: executions[0], taskRuns: [{ task_run_id: '00000000-0000-7000-8000-000000000201', execution_id: executions[0].execution_id, task_id: 'return', state: 'SUCCESS', current_attempt: 1, version: 2, retry_at: null, result: { value: 'cached' }, evidence: { cache: { decision: 'HIT', reason: 'reused a matching result', keyHash: 'abc123', sourceExecutionId: executions[1].execution_id, sourceTaskRunId: '00000000-0000-7000-8000-000000000202', sourceAttempt: 1, expiresAt: '2026-08-21T13:00:00Z' } } }] } }))
 }
 
 async function connect(page: Page) {
@@ -60,6 +60,7 @@ test('connects, navigates resources, preserves deep links and opens the command 
 
   await page.reload()
   await expect(page.getByText('Task runs')).toBeVisible()
+  await expect(page.getByText(/Cache hit · reused a matching result/)).toBeVisible()
   await page.keyboard.press('Control+K')
   await expect(page.getByRole('dialog', { name: 'Global command menu' })).toBeVisible()
   await page.locator('[cmdk-input]').fill('Flows')

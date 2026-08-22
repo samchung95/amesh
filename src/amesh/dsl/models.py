@@ -110,6 +110,49 @@ class RunnableTaskContract(BaseModel):
     )
 
 
+class TaskCacheScope(StrEnum):
+    TASK = "TASK"
+    FLOW = "FLOW"
+    NAMESPACE = "NAMESPACE"
+
+
+class TaskCacheInvalidationPolicy(StrEnum):
+    TTL_AND_REVISION = "TTL_AND_REVISION"
+    MANUAL = "MANUAL"
+
+
+class TaskCachePolicy(BaseModel):
+    """Kestra-compatible task cache controls plus AMESH scoping extensions."""
+
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
+    enabled: bool = False
+    ttl: timedelta | None = None
+    namespace: NaturalId | None = None
+    scope: TaskCacheScope = TaskCacheScope.TASK
+    invalidation_policy: TaskCacheInvalidationPolicy = Field(
+        default=TaskCacheInvalidationPolicy.TTL_AND_REVISION,
+        alias="invalidationPolicy",
+    )
+    key_context: tuple[Literal["inputs", "variables", "labels", "trigger", "iteration"], ...] = (
+        Field(
+            default=("inputs", "variables", "labels", "trigger", "iteration"),
+            alias="keyContext",
+        )
+    )
+    code_version: str | None = Field(
+        default=None, alias="codeVersion", min_length=1, max_length=256
+    )
+
+    @model_validator(mode="after")
+    def validate_enabled_policy(self) -> TaskCachePolicy:
+        if self.enabled and (self.ttl is None or self.ttl.total_seconds() <= 0):
+            raise ValueError("enabled taskCache requires a positive ttl")
+        if len(set(self.key_context)) != len(self.key_context):
+            raise ValueError("taskCache keyContext values must be unique")
+        return self
+
+
 class TaskDefinition(BaseModel):
     # populate_by_name keeps snake_case spellings of aliased fields (depends_on,
     # run_if) from being silently swallowed into `extra` as inert plugin fields.
@@ -135,6 +178,7 @@ class TaskDefinition(BaseModel):
     )
     max_concurrency: int | None = Field(default=None, alias="maxConcurrency", ge=1, le=10_000)
     contract: RunnableTaskContract = Field(default_factory=RunnableTaskContract)
+    task_cache: TaskCachePolicy = Field(default_factory=TaskCachePolicy, alias="taskCache")
     tasks: list[TaskDefinition] = Field(default_factory=list)
 
     @model_validator(mode="before")
@@ -166,6 +210,8 @@ class TaskDefinition(BaseModel):
             and not self.tasks
         ):
             raise ValueError(f"flowable task {self.id!r} requires at least one child task")
+        if self.tasks and self.task_cache.enabled:
+            raise ValueError("taskCache is supported only on runnable tasks")
         return self
 
 

@@ -14,6 +14,7 @@ from amesh.adapters.postgres import (
     PostgresReconciliationRepository,
     PostgresSchedulerRepository,
     PostgresServiceRegistryRepository,
+    PostgresTaskCacheRepository,
     PostgresTenantRepository,
     PostgresWorkerRepository,
 )
@@ -40,6 +41,7 @@ async def _run_cycle(
     reconciliations: PostgresReconciliationRepository,
     workers: PostgresWorkerRepository,
     transport: PostgresDurableTransport,
+    task_cache: PostgresTaskCacheRepository | None = None,
 ) -> int:
     if role is ServiceRole.SCHEDULER:
         scheduled = await schedule_once(
@@ -54,7 +56,12 @@ async def _run_cycle(
             tenant_ids=tenant_ids,
         )
     if role is ServiceRole.EXECUTOR:
-        return await recover_once(executions, settings, tenant_ids=tenant_ids)
+        return await recover_once(
+            executions,
+            settings,
+            tenant_ids=tenant_ids,
+            task_cache=task_cache,
+        )
     if role is ServiceRole.WORKER:
         return sum(
             [
@@ -95,6 +102,7 @@ async def run_role(settings: Settings) -> None:
     tenants = PostgresTenantRepository(engine)
     workers = PostgresWorkerRepository(engine)
     transport = PostgresDurableTransport(engine)
+    task_cache = PostgresTaskCacheRepository(engine)
     work_count = 0
     try:
         await service.register()
@@ -122,6 +130,7 @@ async def run_role(settings: Settings) -> None:
                     reconciliations=reconciliations,
                     workers=workers,
                     transport=transport,
+                    task_cache=task_cache,
                 )
             except (DBAPIError, OSError):
                 LOGGER.exception("service role cycle interrupted; retrying")

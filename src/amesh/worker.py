@@ -33,7 +33,7 @@ from amesh.executor import (
     local_process_handler,
 )
 from amesh.observability import configure_structured_logging
-from amesh.ports import ReconciliationAlreadyRunningError
+from amesh.ports import ReconciliationAlreadyRunningError, TaskCacheRepository
 from amesh.reconciliation import ReconciliationService
 from amesh.scheduler import CronScheduler
 from amesh.tasks import agent_llm_handler, agent_mcp_handler, core_http_handler
@@ -78,6 +78,7 @@ async def recover_once(
     settings: Settings,
     *,
     tenant_ids: Sequence[str],
+    task_cache: TaskCacheRepository | None = None,
 ) -> int:
     now = datetime.now(UTC)
     recovered = 0
@@ -111,6 +112,7 @@ async def recover_once(
                     "agent.mcp": agent_mcp_handler(),
                 },
                 recover_running_types=frozenset({"core.shell"}),
+                task_cache=task_cache,
             )
             try:
                 await executor.run_to_completion(

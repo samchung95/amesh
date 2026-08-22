@@ -168,6 +168,12 @@
       "mode": "expand",
       "onlineCompatible": true,
       "rollbackGuidance": "Keep task-attempt evidence authoritative, stop optional evidence exporters and forward-fix the additive projections or triggers; do not discard committed logs, metrics, outputs, artifact references or cursor history."
+    },
+    {
+      "file": "0029_task_cache.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Disable taskCache on flows and forward-fix the additive cache tables; retain decision and purge evidence, while normal uncached task execution remains authoritative."
     }
   ]
 }

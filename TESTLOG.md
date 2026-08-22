@@ -1,5 +1,44 @@
 # Test Log
 
+## EPIC-109: Task and execution cache — 2026-08-22
+
+Spec source: Agent Hotel card `c34` and canonical `backlog/epics.json` EPIC-109 DoD.
+
+Verified with `uv`, Python 3.13, PostgreSQL 17 and the deployed React control room:
+
+- [x] Kestra-style `taskCache.enabled` and positive ISO-8601 `ttl` survive YAML validation and the
+  generated public flow schema; AMESH extensions cover namespace, task/flow/namespace scope,
+  revision invalidation, selected context and explicit code/plugin version.
+- [x] Canonical keys change with declared inputs, flow revision, code version, tenant and resolved
+  security context. Raw secret values are not stored, and PostgreSQL forced RLS fences tenant rows.
+- [x] Cache entries retain redacted outputs, typed metrics and internal artifact references. A cache
+  hit creates normal current-execution task/output/evidence projections with source lineage.
+- [x] Durable decision evidence covers `MISS`, `HIT`, `MISS_EXPIRED`, `MISS_INVALIDATED`,
+  `MISS_CONCURRENT`, `BYPASS` and `REFRESH`. The execution-detail UI renders the human-readable
+  reason, key and source attempt; purge writes both cache-ledger and tenant audit records.
+- [x] Leased per-key population lets a concurrent non-owner compute a safe duplicate without
+  overwriting the owner's entry. Failure/deferral abandons ownership, and restart tests reuse the
+  PostgreSQL entry through a fresh engine/repository instance.
+- [x] Authorized API acceptance lists and purges by prefix/resource scope; the execution launch
+  contract supports `USE`, `BYPASS` and `REFRESH`.
+- [x] Fresh-database complete suite: 251 collected, 244 passed, six environment/profile skips and the
+  pre-existing Agent Hotel `c15` 50 ms deadline timing test explicitly deselected.
+- [x] Frontend: 10 unit tests passed; Chromium acceptance passed four desktop tests with one
+  tablet-only skip; modified-file ESLint and production build passed.
+- [x] Migration repeatability/idempotency, Ruff, formatting, strict mypy, generated contracts,
+  planning/backlog validation, clean-room, Compose and uv-lock gates passed.
+- [x] Deployed acceptance on migration 29 ran `demo.cache/cached-result` through
+  `MISS → HIT → purge → MISS_INVALIDATED`. Hit execution
+  `01a0284d-11d2-7a91-bde3-1aa2a77955c6` rendered its source execution in headless Chromium with
+  no HTTP 5xx responses.
+
+Qualification boundary: EPIC-109 has no standalone performance NFR and is not a profile-M critical
+path. Shared `URS-NFR-USABILITY-002` remains In Progress until admission and policy decision catalogs
+in EPIC-105 and EPIC-802 are also complete. No LLM invocation was needed for deterministic cache
+testing; the configured OpenRouter Luna default is unchanged.
+
+Verdict: PASS — EPIC-109 functional requirements URS-F-0156 through URS-F-0163 are verified.
+
 ## Deployed Dashboard and Flows recovery-state repair — 2026-08-22
 
 Spec source: Agent Hotel card `c31` and EPIC-404 deployment follow-up.

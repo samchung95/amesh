@@ -145,6 +145,10 @@ tbody tr:hover { background: var(--paper); }
 .detail-facts small { color: var(--muted); }
 .task-run-list article { display: grid; grid-template-columns: auto minmax(150px, 1fr) auto minmax(140px, .6fr); align-items: center; gap: 12px; padding: 13px 0; border-top: 1px solid var(--line); }
 .task-run-list small { display: block; color: var(--muted); }
+.task-run-list .cache-decision { max-width: 660px; margin-top: 5px; color: var(--warning); font: .68rem "IBM Plex Mono", monospace; overflow-wrap: anywhere; }
+.task-run-list .cache-hit { color: var(--success); }
+.task-run-list .cache-bypass { color: var(--muted); }
+.cache-summary { border-top: 1px solid var(--line); }
 .task-index { font: 500 1.1rem "IBM Plex Mono", monospace; color: var(--line-strong); }
 .evidence-heading { align-items: end; }
 .evidence-filter { margin-left: auto; }

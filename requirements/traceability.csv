@@ -154,14 +154,14 @@ URS-F-0152,Functional,Must,EPIC-108,"Recovery, reconciliation and invariant repa
 URS-F-0153,Functional,Must,EPIC-108,"Recovery, reconciliation and invariant repair",M1,1,"Fault-injection, replay and invariant tests",Verified
 URS-F-0154,Functional,Must,EPIC-108,"Recovery, reconciliation and invariant repair",M1,1,"Fault-injection, replay and invariant tests",Verified
 URS-F-0155,Functional,Must,EPIC-108,"Recovery, reconciliation and invariant repair",M1,1,"Fault-injection, replay and invariant tests",Verified
-URS-F-0156,Functional,Must,EPIC-109,Task and execution cache,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0157,Functional,Must,EPIC-109,Task and execution cache,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0158,Functional,Must,EPIC-109,Task and execution cache,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0159,Functional,Must,EPIC-109,Task and execution cache,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0160,Functional,Must,EPIC-109,Task and execution cache,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0161,Functional,Must,EPIC-109,Task and execution cache,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0162,Functional,Must,EPIC-109,Task and execution cache,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
-URS-F-0163,Functional,Must,EPIC-109,Task and execution cache,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
+URS-F-0156,Functional,Must,EPIC-109,Task and execution cache,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0157,Functional,Must,EPIC-109,Task and execution cache,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0158,Functional,Must,EPIC-109,Task and execution cache,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0159,Functional,Must,EPIC-109,Task and execution cache,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0160,Functional,Must,EPIC-109,Task and execution cache,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0161,Functional,Must,EPIC-109,Task and execution cache,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0162,Functional,Must,EPIC-109,Task and execution cache,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
+URS-F-0163,Functional,Must,EPIC-109,Task and execution cache,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
 URS-F-0164,Functional,Must,EPIC-110,"SLA, checks and execution policy evaluation",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
 URS-F-0165,Functional,Must,EPIC-110,"SLA, checks and execution policy evaluation",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed
 URS-F-0166,Functional,Must,EPIC-110,"SLA, checks and execution policy evaluation",M1,1,"Automated unit, integration, crash-recovery and conformance tests",Proposed

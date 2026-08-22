@@ -119,6 +119,7 @@ services:
       - ./migrations/0026_disaster_recovery.sql:/docker-entrypoint-initdb.d/0026_disaster_recovery.sql:ro
       - ./migrations/0027_interactive_authentication.sql:/docker-entrypoint-initdb.d/0027_interactive_authentication.sql:ro
       - ./migrations/0028_execution_evidence.sql:/docker-entrypoint-initdb.d/0028_execution_evidence.sql:ro
+      - ./migrations/0029_task_cache.sql:/docker-entrypoint-initdb.d/0029_task_cache.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U amesh -d amesh"]
       interval: 5s

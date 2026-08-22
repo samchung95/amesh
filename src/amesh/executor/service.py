@@ -6,13 +6,15 @@ import json
 import logging
 from collections.abc import Awaitable, Callable, Iterable, Mapping
 from contextlib import suppress
+from copy import deepcopy
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from typing import Any
 from uuid import UUID, uuid5
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from amesh import __version__
 from amesh.domain import (
     AdmissionOutcome,
     AdmissionResourceType,
@@ -41,9 +43,15 @@ from amesh.expressions import (
 from amesh.ports import (
     ExecutionLaunchSource,
     ExecutionRepository,
+    LogSourceStream,
     ObjectStore,
     PersistedExecution,
     PersistedTaskRun,
+    TaskCacheDecision,
+    TaskCacheKey,
+    TaskCacheLookup,
+    TaskCacheMode,
+    TaskCacheRepository,
     TaskRunState,
     TaskStateConflictError,
 )
@@ -233,6 +241,7 @@ class InProcessExecutor:
         context_provider: TaskContextProvider | None = None,
         resource_registry: ResourceSchemaRegistry | None = None,
         object_store: ObjectStore | None = None,
+        task_cache: TaskCacheRepository | None = None,
     ) -> None:
         self._repository = repository
         self._handlers = _core_handlers()
@@ -242,6 +251,7 @@ class InProcessExecutor:
         self._context_provider = context_provider
         self._resource_registry = resource_registry or default_resource_registry()
         self._object_store = object_store
+        self._task_cache = task_cache
 
     async def create_execution(
         self,
@@ -615,6 +625,8 @@ class InProcessExecutor:
                     ),
                 )
         condition_error: Exception | None = None
+        cache_key: TaskCacheKey | None = None
+        cache_lookup: TaskCacheLookup | None = None
         try:
             condition_matches = task.run_if is None or self._expressions.evaluate_condition(
                 task.run_if,
@@ -690,6 +702,53 @@ class InProcessExecutor:
                 ),
             )
 
+            if rendered_task.task_cache.enabled and self._task_cache is None:
+                raise TaskPlatformError("task cache repository is unavailable")
+            if rendered_task.task_cache.enabled and self._task_cache is not None:
+                cache_key = derive_task_cache_key(
+                    flow,
+                    execution,
+                    rendered_task,
+                    context,
+                )
+                cache_mode = _execution_cache_mode(execution)
+                if cache_mode is TaskCacheMode.BYPASS:
+                    reason = "execution requested cache bypass; task handler ran normally"
+                    await self._task_cache.record_bypass(
+                        cache_key,
+                        tenant_id=tenant_id,
+                        execution_id=execution_id,
+                        task_run_id=running.task_run_id,
+                        attempt=running.current_attempt,
+                        reason=reason,
+                    )
+                    cache_lookup = TaskCacheLookup(
+                        decision=TaskCacheDecision.BYPASS,
+                        reason=reason,
+                        key_hash=cache_key.key_hash,
+                    )
+                else:
+                    cache_lookup = await self._task_cache.lookup_or_reserve(
+                        cache_key,
+                        tenant_id=tenant_id,
+                        execution_id=execution_id,
+                        task_run_id=running.task_run_id,
+                        attempt=running.current_attempt,
+                        mode=cache_mode,
+                    )
+                    if cache_lookup.decision is TaskCacheDecision.HIT:
+                        await self._repository.complete_task(
+                            running.task_run_id,
+                            running.current_attempt,
+                            cache_lookup.output or {},
+                            tenant_id=tenant_id,
+                            evidence=_with_cache_evidence(
+                                cache_lookup.evidence or {},
+                                cache_lookup,
+                            ),
+                        )
+                        return _TaskRunOutcome(claimed=True)
+
             async def invoke() -> TaskHandlerResult:
                 if rendered_task.type in LOOP_TASK_TYPES:
                     return await self._run_loop(
@@ -711,6 +770,17 @@ class InProcessExecutor:
                 async with asyncio.timeout(task.timeout_seconds):
                     result = await invoke()
             if isinstance(result, TaskDeferral):
+                if cache_key is not None and cache_lookup is not None:
+                    await _abandon_cache_population(
+                        self._task_cache,
+                        cache_key,
+                        cache_lookup,
+                        tenant_id=tenant_id,
+                        execution_id=execution_id,
+                        task_run_id=running.task_run_id,
+                        attempt=running.current_attempt,
+                        reason="deferred task results cannot populate the cache",
+                    )
                 await self._repository.defer_task(
                     running.task_run_id,
                     running.current_attempt,
@@ -730,12 +800,64 @@ class InProcessExecutor:
                 running.current_attempt,
                 output,
                 tenant_id=tenant_id,
-                evidence=evidence,
+                evidence=(
+                    _with_cache_evidence(evidence, cache_lookup)
+                    if cache_lookup is not None
+                    else evidence
+                ),
             )
+            if (
+                self._task_cache is not None
+                and cache_key is not None
+                and cache_lookup is not None
+                and cache_lookup.owner_token is not None
+            ):
+                try:
+                    await self._task_cache.publish(
+                        cache_key.key_hash,
+                        cache_lookup.owner_token,
+                        output,
+                        evidence,
+                        tenant_id=tenant_id,
+                        execution_id=execution_id,
+                        task_run_id=running.task_run_id,
+                        attempt=running.current_attempt,
+                    )
+                except Exception:
+                    LOGGER.exception(
+                        "task result cache publication failed; execution result remains committed",
+                        extra={
+                            "tenant_id": tenant_id,
+                            "execution_id": str(execution_id),
+                            "task_run_id": str(running.task_run_id),
+                            "cache_key_hash": cache_key.key_hash,
+                        },
+                    )
+                    await _abandon_cache_population(
+                        self._task_cache,
+                        cache_key,
+                        cache_lookup,
+                        tenant_id=tenant_id,
+                        execution_id=execution_id,
+                        task_run_id=running.task_run_id,
+                        attempt=running.current_attempt,
+                        reason="cache publication failed after task completion",
+                    )
             return _TaskRunOutcome(claimed=True)
         except TaskExecutionPaused:
             return _TaskRunOutcome(claimed=True)
         except Exception as exc:
+            if cache_key is not None and cache_lookup is not None:
+                await _abandon_cache_population(
+                    self._task_cache,
+                    cache_key,
+                    cache_lookup,
+                    tenant_id=tenant_id,
+                    execution_id=execution_id,
+                    task_run_id=running.task_run_id,
+                    attempt=running.current_attempt,
+                    reason=f"cache population abandoned after task failure: {type(exc).__name__}",
+                )
             category = classify_task_failure(exc)
             reason = f"task {task.id!r} failed [{category.value}]: {exc}"
             if category is FailureCategory.CANCELLED:
@@ -1456,7 +1578,7 @@ def _expression_context(
             "startDate": execution.created_at,
             "tenantId": execution.tenant_id,
         },
-        task=task.model_dump(mode="python", by_alias=True),
+        task=task.model_dump(mode="json", by_alias=True),
         taskrun={
             "id": str(task_run.task_run_id),
             "attempt": task_run.current_attempt,
@@ -1470,6 +1592,167 @@ def _expression_context(
         namespace={"id": flow.namespace},
         iteration=iteration.as_mapping() if iteration is not None else {},
     )
+
+
+def derive_task_cache_key(
+    flow: FlowDefinition,
+    execution: PersistedExecution,
+    task: TaskDefinition,
+    context: TaskExecutionContext,
+) -> TaskCacheKey:
+    """Derive a stable key without persisting raw security-context material."""
+
+    policy = task.task_cache
+    if not policy.enabled or policy.ttl is None:
+        raise ValueError("task cache key requires an enabled policy with ttl")
+    declared_inputs = {
+        definition.id: execution.inputs.get(definition.id, definition.default)
+        for definition in flow.inputs
+    }
+    selectable_context: dict[str, object] = {
+        "inputs": declared_inputs,
+        "variables": flow.variables,
+        "labels": execution.labels,
+        "trigger": {
+            key: value for key, value in execution.trigger.items() if not key.startswith("_amesh")
+        },
+        "iteration": context.iteration.as_mapping() if context.iteration is not None else {},
+    }
+    security_payload = {
+        "tenant": execution.tenant_id,
+        "secretScopes": sorted(context.secret_scopes),
+        "secrets": sorted(context.secrets.items()),
+        "files": sorted(context.files.items()),
+    }
+    security_context_hash = hashlib.sha256(_canonical_json(security_payload)).hexdigest()
+    code_version = policy.code_version or f"amesh:{__version__}:{task.type}"
+    payload = {
+        "schema": "amesh.task-cache/v1",
+        "tenant": execution.tenant_id,
+        "flow": {
+            "namespace": flow.namespace,
+            "id": flow.id,
+            "revision": flow.revision,
+        },
+        "task": task.model_dump(
+            mode="json",
+            by_alias=True,
+            exclude={"task_cache"},
+            exclude_none=True,
+        ),
+        "policy": policy.model_dump(mode="json", by_alias=True, exclude_none=True),
+        "codeVersion": code_version,
+        "context": {name: selectable_context[name] for name in policy.key_context},
+        "securityContextHash": security_context_hash,
+    }
+    cache_namespace = policy.namespace or "default"
+    prefix_parts = [cache_namespace, flow.namespace]
+    if policy.scope.value in {"TASK", "FLOW"}:
+        prefix_parts.append(flow.id)
+    if policy.scope.value == "TASK":
+        prefix_parts.append(task.id)
+    key_prefix = "/".join(prefix_parts)
+    lease_seconds = max(task.timeout_seconds or 3600, 60)
+    return TaskCacheKey(
+        key_hash=hashlib.sha256(_canonical_json(payload)).hexdigest(),
+        key_prefix=key_prefix,
+        cache_namespace=cache_namespace,
+        scope=policy.scope.value,
+        namespace=flow.namespace,
+        flow_id=flow.id,
+        flow_revision=flow.revision,
+        task_id=task.id,
+        task_type=task.type,
+        security_context_hash=security_context_hash,
+        invalidation_policy=policy.invalidation_policy.value,
+        ttl=policy.ttl,
+        population_lease=timedelta(seconds=lease_seconds),
+    )
+
+
+def _canonical_json(value: object) -> bytes:
+    return json.dumps(
+        value,
+        ensure_ascii=False,
+        separators=(",", ":"),
+        sort_keys=True,
+        default=_canonical_json_default,
+    ).encode("utf-8")
+
+
+def _canonical_json_default(value: object) -> str:
+    if isinstance(value, datetime):
+        return value.isoformat()
+    if isinstance(value, UUID):
+        return str(value)
+    return str(value)
+
+
+def _execution_cache_mode(execution: PersistedExecution) -> TaskCacheMode:
+    raw = execution.trigger.get("_ameshCacheMode", TaskCacheMode.USE.value)
+    try:
+        return TaskCacheMode(str(raw))
+    except ValueError:
+        return TaskCacheMode.USE
+
+
+def _with_cache_evidence(
+    evidence: Mapping[str, object],
+    lookup: TaskCacheLookup,
+) -> dict[str, object]:
+    result = deepcopy(dict(evidence))
+    result["cache"] = {
+        "decision": lookup.decision.value,
+        "reason": lookup.reason,
+        "keyHash": lookup.key_hash,
+        "sourceExecutionId": (
+            str(lookup.source_execution_id) if lookup.source_execution_id is not None else None
+        ),
+        "sourceTaskRunId": (
+            str(lookup.source_task_run_id) if lookup.source_task_run_id is not None else None
+        ),
+        "sourceAttempt": lookup.source_attempt,
+        "expiresAt": lookup.expires_at.isoformat() if lookup.expires_at is not None else None,
+    }
+    stored_logs = result.get("logs", [])
+    logs = list(stored_logs) if isinstance(stored_logs, list) else []
+    logs.insert(
+        0,
+        TaskLogRecord(
+            logger="amesh.task.cache",
+            message=f"Cache {lookup.decision.value}: {lookup.reason}",
+            fields={"keyHash": lookup.key_hash},
+            sourceStream=LogSourceStream.SYSTEM,
+            occurredAt=datetime.now(UTC),
+        ).model_dump(mode="json", by_alias=True),
+    )
+    result["logs"] = logs
+    return result
+
+
+async def _abandon_cache_population(
+    repository: TaskCacheRepository | None,
+    key: TaskCacheKey,
+    lookup: TaskCacheLookup,
+    *,
+    tenant_id: str,
+    execution_id: UUID,
+    task_run_id: UUID,
+    attempt: int,
+    reason: str,
+) -> None:
+    if repository is None or lookup.owner_token is None:
+        return
+    with suppress(Exception):
+        await repository.abandon(
+            key.key_hash,
+            lookup.owner_token,
+            tenant_id=tenant_id,
+            execution_id=execution_id,
+            task_run_id=task_run_id,
+            attempt=attempt,
+            reason=reason,
+        )
 
 
 def _require_matching_plan(
@@ -1641,6 +1924,7 @@ def _validate_registered_task_schemas(
         "retry",
         "tasks",
         "contract",
+        "taskCache",
     }
     pending = list(flow.tasks)
     while pending:

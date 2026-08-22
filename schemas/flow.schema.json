@@ -228,6 +228,107 @@
       "title": "RunnableTaskContract",
       "type": "object"
     },
+    "TaskCacheInvalidationPolicy": {
+      "enum": [
+        "TTL_AND_REVISION",
+        "MANUAL"
+      ],
+      "title": "TaskCacheInvalidationPolicy",
+      "type": "string"
+    },
+    "TaskCachePolicy": {
+      "additionalProperties": false,
+      "description": "Kestra-compatible task cache controls plus AMESH scoping extensions.",
+      "properties": {
+        "codeVersion": {
+          "anyOf": [
+            {
+              "maxLength": 256,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Codeversion"
+        },
+        "enabled": {
+          "default": false,
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "invalidationPolicy": {
+          "$ref": "#/$defs/TaskCacheInvalidationPolicy",
+          "default": "TTL_AND_REVISION"
+        },
+        "keyContext": {
+          "default": [
+            "inputs",
+            "variables",
+            "labels",
+            "trigger",
+            "iteration"
+          ],
+          "items": {
+            "enum": [
+              "inputs",
+              "variables",
+              "labels",
+              "trigger",
+              "iteration"
+            ],
+            "type": "string"
+          },
+          "title": "Keycontext",
+          "type": "array"
+        },
+        "namespace": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Namespace"
+        },
+        "scope": {
+          "$ref": "#/$defs/TaskCacheScope",
+          "default": "TASK"
+        },
+        "ttl": {
+          "anyOf": [
+            {
+              "format": "duration",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ttl"
+        }
+      },
+      "title": "TaskCachePolicy",
+      "type": "object"
+    },
+    "TaskCacheScope": {
+      "enum": [
+        "TASK",
+        "FLOW",
+        "NAMESPACE"
+      ],
+      "title": "TaskCacheScope",
+      "type": "string"
+    },
     "TaskDefinition": {
       "additionalProperties": true,
       "properties": {
@@ -345,6 +446,9 @@
           ],
           "default": null,
           "title": "Runif"
+        },
+        "taskCache": {
+          "$ref": "#/$defs/TaskCachePolicy"
         },
         "tasks": {
           "items": {

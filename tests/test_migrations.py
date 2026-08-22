@@ -48,6 +48,7 @@ def test_checked_in_migration_manifest_is_complete_and_ordered() -> None:
             (26, "disaster_recovery"),
             (27, "interactive_authentication"),
             (28, "execution_evidence"),
+            (29, "task_cache"),
         )
     ]
     assert all(item.rollback_guidance for item in plan)

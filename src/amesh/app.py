@@ -42,6 +42,7 @@ from amesh.adapters.postgres import (
     PostgresMetadataRepository,
     PostgresReconciliationRepository,
     PostgresServiceRegistryRepository,
+    PostgresTaskCacheRepository,
     PostgresTenantRepository,
     PostgresWorkerRepository,
 )
@@ -83,6 +84,7 @@ from amesh.api.models import (
     RotateCredentialRequest,
     RunnerMode,
     SetLocalPasswordRequest,
+    TaskCachePurgeRequest,
     TaskLog,
     UiSessionResponse,
 )
@@ -178,6 +180,8 @@ from amesh.ports import (
     PersistedTaskRun,
     ReconciliationAlreadyRunningError,
     ServiceFenceError,
+    TaskCacheEntry,
+    TaskCachePurgeResult,
     TaskStateConflictError,
     TenantQuotaExceeded,
     TenantUnavailableError,
@@ -321,6 +325,17 @@ def get_repository() -> PostgresExecutionRepository:
 RepositoryDependency = Annotated[
     PostgresExecutionRepository,
     Depends(get_repository),
+]
+
+
+@lru_cache
+def get_task_cache_repository() -> PostgresTaskCacheRepository:
+    return PostgresTaskCacheRepository(database_engine())
+
+
+TaskCacheRepositoryDependency = Annotated[
+    PostgresTaskCacheRepository,
+    Depends(get_task_cache_repository),
 ]
 
 
@@ -1224,6 +1239,7 @@ async def create_execution(
     background_tasks: BackgroundTasks,
     response: Response,
     repository: RepositoryDependency,
+    task_cache: TaskCacheRepositoryDependency,
     settings: SettingsDependency,
     actor: ActorDependency,
     authorization_service: AuthorizationServiceDependency,
@@ -1254,6 +1270,7 @@ async def create_execution(
     respond_async = _prefers_async_response(prefer)
     detail = await _execute_flow(
         repository,
+        task_cache,
         flow,
         request,
         settings,
@@ -1283,6 +1300,7 @@ async def create_executions_bulk(
     request: BulkExecutionRequest,
     background_tasks: BackgroundTasks,
     repository: RepositoryDependency,
+    task_cache: TaskCacheRepositoryDependency,
     settings: SettingsDependency,
     actor: ActorDependency,
     authorization_service: AuthorizationServiceDependency,
@@ -1308,6 +1326,7 @@ async def create_executions_bulk(
             )
             detail = await _execute_flow(
                 repository,
+                task_cache,
                 flow,
                 item,
                 settings,
@@ -1346,6 +1365,71 @@ async def create_executions_bulk(
         )
         results.append(BulkExecutionItemResult(index=index, status=item_status, execution=detail))
     return results
+
+
+@app.get(
+    "/api/v1/task-cache",
+    response_model=list[TaskCacheEntry],
+    tags=["task-cache"],
+)
+async def list_task_cache_entries(
+    task_cache: TaskCacheRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    key_prefix: Annotated[str | None, Query(alias="keyPrefix", max_length=1024)] = None,
+    namespace: Annotated[str | None, Query(max_length=255)] = None,
+    flow_id: Annotated[str | None, Query(alias="flowId", max_length=128)] = None,
+    task_id: Annotated[str | None, Query(alias="taskId", max_length=128)] = None,
+    limit: Annotated[int, Query(ge=1, le=1000)] = 100,
+) -> list[TaskCacheEntry]:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="task_cache",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    return await task_cache.list_entries(
+        tenant_id=tenant_id,
+        key_prefix=key_prefix,
+        namespace=namespace,
+        flow_id=flow_id,
+        task_id=task_id,
+        limit=limit,
+    )
+
+
+@app.post(
+    "/api/v1/task-cache/purge",
+    response_model=TaskCachePurgeResult,
+    tags=["task-cache"],
+)
+async def purge_task_cache_entries(
+    request: TaskCachePurgeRequest,
+    task_cache: TaskCacheRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> TaskCachePurgeResult:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="task_cache",
+        action=PermissionAction.MANAGE,
+        tenant_id=tenant_id,
+        namespace=request.namespace,
+    )
+    return await task_cache.purge(
+        tenant_id=tenant_id,
+        actor_id=str(actor.principal_id),
+        reason=request.reason,
+        key_prefix=request.key_prefix,
+        namespace=request.namespace,
+        flow_id=request.flow_id,
+        task_id=request.task_id,
+    )
 
 
 @app.get(
@@ -2426,6 +2510,7 @@ async def trigger_webhook(
     background_tasks: BackgroundTasks,
     response: Response,
     repository: RepositoryDependency,
+    task_cache: TaskCacheRepositoryDependency,
     settings: SettingsDependency,
     actor: ActorDependency,
     authorization_service: AuthorizationServiceDependency,
@@ -2474,6 +2559,7 @@ async def trigger_webhook(
     respond_async = _prefers_async_response(prefer)
     detail = await _execute_flow(
         repository,
+        task_cache,
         flow,
         execution_request,
         settings,
@@ -2515,6 +2601,7 @@ def _resolve_idempotency_key(body_value: str | None, header_value: str | None) -
 
 async def _execute_flow(
     repository: PostgresExecutionRepository,
+    task_cache: PostgresTaskCacheRepository,
     flow: FlowDefinition,
     request: CreateExecutionRequest,
     settings: Settings,
@@ -2603,6 +2690,7 @@ async def _execute_flow(
             handlers=handlers,
             recover_running_types=frozenset({"core.subflow"}),
             object_store=object_store,
+            task_cache=task_cache,
         )
 
     handlers["core.subflow"] = subflow_task_handler(
@@ -2647,11 +2735,14 @@ async def _execute_flow(
 
     try:
         try:
+            execution_trigger = dict(trigger_context or {})
+            if request.cache_mode.value != "USE":
+                execution_trigger["_ameshCacheMode"] = request.cache_mode.value
             execution = await repository.create_execution(
                 flow,
                 tenant_id=tenant_id,
                 inputs=request.inputs,
-                trigger=trigger_context,
+                trigger=execution_trigger or None,
                 launch_source=launch_source,
                 idempotency_key=idempotency_key,
                 actor_id=actor_id,

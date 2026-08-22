@@ -21,5 +21,8 @@
   result for each item.
 - Errors use `application/problem+json`. Execution logs are also available as streaming NDJSON at
   `/api/v1/executions/{execution_id}/logs/stream`.
+- Cache-enabled flows accept execution `cacheMode` values `USE`, `BYPASS` and `REFRESH`. Inspect
+  tenant entries with `GET /api/v1/task-cache` and soft-purge a key prefix or resource scope with
+  `POST /api/v1/task-cache/purge`; see the [task cache runbook](../operations/task-cache.md).
 
 Future generated SDKs must consume the supported API contract, not internal Python classes.

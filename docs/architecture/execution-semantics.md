@@ -273,6 +273,21 @@ the same token then returns the original completion, while wrong, expired or sta
 fail without replacing committed evidence. An expired deferral is persisted as expired and fails its
 live attempt with the timed-out category instead of leaving an execution permanently running.
 
+## Task-result cache
+
+A runnable task may opt into `taskCache` with a positive ISO-8601 TTL. The executor derives a
+tenant-scoped key from the pinned flow revision, task configuration, code/plugin version, declared
+inputs, selected context and a one-way security-context fingerprint. The current execution always
+creates and completes an ordinary task attempt, including on a cache hit.
+
+PostgreSQL stores the reusable output plus metrics and artifact references. A per-key transaction
+lock and leased `POPULATING` owner prevent two computations from publishing over one another;
+concurrent non-owners may compute a safe duplicate. `BYPASS` runs without changing the entry,
+`REFRESH` replaces it, and prefix/resource purge soft-invalidates it. Task-run evidence and the UI
+explain every hit, miss, expiry, invalidation, concurrent fill, bypass and refresh with source lineage.
+See [ADR-027](../adr/027-postgresql-durable-task-cache.md) and the
+[operations guide](../operations/task-cache.md).
+
 ## Backfills and replay
 
 A backfill is a tenant-scoped durable resource pinned to one flow revision. Its selector expands to a

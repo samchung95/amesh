@@ -76,6 +76,15 @@ from .reconciliation_repository import (
 )
 from .scheduler_repository import SchedulerFenceError, SchedulerRepository, ScheduleState
 from .service_registry import ServiceFenceError, ServiceRegistryRepository
+from .task_cache import (
+    TaskCacheDecision,
+    TaskCacheEntry,
+    TaskCacheKey,
+    TaskCacheLookup,
+    TaskCacheMode,
+    TaskCachePurgeResult,
+    TaskCacheRepository,
+)
 from .task_runner import (
     RunnerRequest,
     RunnerResult,
@@ -170,6 +179,13 @@ __all__ = [
     "SubflowLaunchContext",
     "SubflowMode",
     "SubflowPropagation",
+    "TaskCacheDecision",
+    "TaskCacheEntry",
+    "TaskCacheKey",
+    "TaskCacheLookup",
+    "TaskCacheMode",
+    "TaskCachePurgeResult",
+    "TaskCacheRepository",
     "TaskRunState",
     "TaskRunner",
     "TaskStateConflictError",

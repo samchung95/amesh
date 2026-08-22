@@ -794,6 +794,10 @@
       },
       "CreateExecutionRequest": {
         "properties": {
+          "cacheMode": {
+            "$ref": "#/components/schemas/TaskCacheMode",
+            "default": "USE"
+          },
           "flowId": {
             "title": "Flowid",
             "type": "string"
@@ -3810,6 +3814,252 @@
           "sizeBytes"
         ],
         "title": "TaskArtifactRecord",
+        "type": "object"
+      },
+      "TaskCacheEntry": {
+        "properties": {
+          "cache_namespace": {
+            "title": "Cache Namespace",
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "entry_id": {
+            "format": "uuid",
+            "title": "Entry Id",
+            "type": "string"
+          },
+          "expires_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expires At"
+          },
+          "flow_id": {
+            "title": "Flow Id",
+            "type": "string"
+          },
+          "flow_revision": {
+            "title": "Flow Revision",
+            "type": "integer"
+          },
+          "hit_count": {
+            "default": 0,
+            "title": "Hit Count",
+            "type": "integer"
+          },
+          "invalidation_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Invalidation Reason"
+          },
+          "key_hash": {
+            "title": "Key Hash",
+            "type": "string"
+          },
+          "key_prefix": {
+            "title": "Key Prefix",
+            "type": "string"
+          },
+          "last_hit_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Hit At"
+          },
+          "namespace": {
+            "title": "Namespace",
+            "type": "string"
+          },
+          "scope": {
+            "title": "Scope",
+            "type": "string"
+          },
+          "source_attempt": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Attempt"
+          },
+          "source_execution_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Execution Id"
+          },
+          "source_task_run_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Task Run Id"
+          },
+          "state": {
+            "title": "State",
+            "type": "string"
+          },
+          "task_id": {
+            "title": "Task Id",
+            "type": "string"
+          },
+          "task_type": {
+            "title": "Task Type",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "entry_id",
+          "key_hash",
+          "key_prefix",
+          "cache_namespace",
+          "scope",
+          "namespace",
+          "flow_id",
+          "flow_revision",
+          "task_id",
+          "task_type",
+          "state",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "TaskCacheEntry",
+        "type": "object"
+      },
+      "TaskCacheMode": {
+        "enum": [
+          "USE",
+          "BYPASS",
+          "REFRESH"
+        ],
+        "title": "TaskCacheMode",
+        "type": "string"
+      },
+      "TaskCachePurgeRequest": {
+        "properties": {
+          "flowId": {
+            "anyOf": [
+              {
+                "maxLength": 128,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Flowid"
+          },
+          "keyPrefix": {
+            "anyOf": [
+              {
+                "maxLength": 1024,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Keyprefix"
+          },
+          "namespace": {
+            "anyOf": [
+              {
+                "maxLength": 255,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Namespace"
+          },
+          "reason": {
+            "maxLength": 4096,
+            "minLength": 1,
+            "title": "Reason",
+            "type": "string"
+          },
+          "taskId": {
+            "anyOf": [
+              {
+                "maxLength": 128,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Taskid"
+          }
+        },
+        "required": [
+          "reason"
+        ],
+        "title": "TaskCachePurgeRequest",
+        "type": "object"
+      },
+      "TaskCachePurgeResult": {
+        "properties": {
+          "invalidated_count": {
+            "minimum": 0.0,
+            "title": "Invalidated Count",
+            "type": "integer"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "invalidated_count",
+          "reason"
+        ],
+        "title": "TaskCachePurgeResult",
         "type": "object"
       },
       "TaskCompletion": {
@@ -11043,6 +11293,262 @@
         "summary": "Get Reconciliation",
         "tags": [
           "operations"
+        ]
+      }
+    },
+    "/api/v1/task-cache": {
+      "get": {
+        "operationId": "list_task_cache_entries_api_v1_task_cache_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "keyPrefix",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 1024,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Keyprefix"
+            }
+          },
+          {
+            "in": "query",
+            "name": "namespace",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 255,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Namespace"
+            }
+          },
+          {
+            "in": "query",
+            "name": "flowId",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 128,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Flowid"
+            }
+          },
+          {
+            "in": "query",
+            "name": "taskId",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 128,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Taskid"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "maximum": 1000,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/TaskCacheEntry"
+                  },
+                  "title": "Response List Task Cache Entries Api V1 Task Cache Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Task Cache Entries",
+        "tags": [
+          "task-cache"
+        ]
+      }
+    },
+    "/api/v1/task-cache/purge": {
+      "post": {
+        "operationId": "purge_task_cache_entries_api_v1_task_cache_purge_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaskCachePurgeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskCachePurgeResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Purge Task Cache Entries",
+        "tags": [
+          "task-cache"
         ]
       }
     },

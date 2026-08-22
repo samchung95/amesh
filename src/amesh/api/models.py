@@ -5,7 +5,7 @@ from enum import StrEnum
 from typing import Any, Literal
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field, SecretStr
+from pydantic import BaseModel, ConfigDict, Field, SecretStr, model_validator
 
 from amesh.domain import (
     CredentialMetadata,
@@ -24,6 +24,7 @@ from amesh.ports import (
     ExecutionInterventionAction,
     PersistedExecution,
     PersistedTaskRun,
+    TaskCacheMode,
 )
 
 
@@ -123,6 +124,23 @@ class CreateExecutionRequest(BaseModel):
     inputs: dict[str, Any] = Field(default_factory=dict)
     runner: RunnerMode = RunnerMode.LOCAL
     idempotency_key: str | None = Field(default=None, alias="idempotencyKey")
+    cache_mode: TaskCacheMode = Field(default=TaskCacheMode.USE, alias="cacheMode")
+
+
+class TaskCachePurgeRequest(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    key_prefix: str | None = Field(default=None, alias="keyPrefix", min_length=1, max_length=1024)
+    namespace: str | None = Field(default=None, min_length=1, max_length=255)
+    flow_id: str | None = Field(default=None, alias="flowId", min_length=1, max_length=128)
+    task_id: str | None = Field(default=None, alias="taskId", min_length=1, max_length=128)
+    reason: str = Field(min_length=1, max_length=4096)
+
+    @model_validator(mode="after")
+    def require_scope(self) -> TaskCachePurgeRequest:
+        if not any((self.key_prefix, self.namespace, self.flow_id, self.task_id)):
+            raise ValueError("cache purge requires keyPrefix or a resource scope")
+        return self
 
 
 class ExecutionDetail(BaseModel):

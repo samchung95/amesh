@@ -54,6 +54,18 @@ export interface PersistedTaskRun {
   retry_at: string | null
   result: Record<string, unknown> | null
   iteration_key: string | null
+  evidence: {
+    cache?: {
+      decision: 'HIT' | 'MISS' | 'MISS_EXPIRED' | 'MISS_INVALIDATED' | 'MISS_CONCURRENT' | 'REFRESH' | 'BYPASS'
+      reason: string
+      keyHash: string
+      sourceExecutionId: string | null
+      sourceTaskRunId: string | null
+      sourceAttempt: number | null
+      expiresAt: string | null
+    }
+    [key: string]: unknown
+  }
 }
 
 export interface ExecutionDetail {
