@@ -2010,3 +2010,41 @@ Qualification boundary: the language-neutral schema and Python reference adapter
 complete. Connector-specific external-service certification belongs to the integration-pack epics.
 
 Verdict: PASS — EPIC-304 closed.
+
+## EPIC-305: Plugin registry, signing, SBOM and marketplace metadata — 2026-08-23
+
+Spec source: board card `c55` and
+`backlog/epics/epic-305-plugin-registry-signing-sbom-and-marketplace-metadata.md`.
+
+Verified with `uv`, Python 3.13.12, PostgreSQL 17, React/Vite and Docker Compose:
+
+- [x] The self-hosted registry rejected a second digest for an existing plugin name/version and
+  retained content-addressed artifact and evidence blobs after a signed yank decision.
+- [x] Publication required license/source/documentation/platform/SDK/changelog metadata plus signed
+  SBOM, vulnerability and provenance attachments. Index, release metadata, artifact and attachment
+  tampering failed verification before catalog installation or offline import.
+- [x] Registry client policy allowed only configured HTTP(S) origins, rewrote configured mirrors,
+  carried proxy settings and rejected network access in offline mode. Signed offline export/import
+  reproduced the release without a proprietary service.
+- [x] Authorized publish, list, release, download, yank, offline-export and offline-import API routes
+  passed. Marketplace responses and the responsive Plugins view expose downloads, maintenance,
+  certification and security status with an explicit non-guarantee disclaimer.
+- [x] Focused registry/discovery/configuration/generated-contract coverage passed: 22 tests passed and
+  one PostgreSQL-gated discovery test skipped. Twelve frontend unit tests and the production Vite
+  build passed.
+- [x] The clean 40-migration backend suite passed: 395 tests collected, 383 passed, 10
+  environment-gated tests skipped and the two board-tracked EPIC-104/observability tests deselected.
+  The exact disposable PostgreSQL database was force-dropped after the run.
+- [x] Ruff, strict mypy over 151 source files, generated OpenAPI/schema, Compose and diff checks
+  passed. Frontend lint still reports the board-deferred evidence timeline findings plus two
+  test-typing findings; no production build or test is blocked.
+- [x] The rebuilt API, executor and scheduler were healthy. The non-root image now owns the persisted
+  plugin directory; the live signed index served a `compose-local` signature and one immutable demo
+  release with all three required attachments, while `/plugins` returned the production SPA.
+
+Qualification boundary: the functional self-hosted HMAC-SHA-256 reference profile is complete.
+Official public-key release-pipeline provenance/SBOM/signature qualification remains
+URS-NFR-SECURITY-007 under EPIC-001/612. Full air-gapped core/governance qualification remains
+URS-NFR-PORTABILITY-001 under EPIC-804.
+
+Verdict: PASS — EPIC-305 functional scope closed.

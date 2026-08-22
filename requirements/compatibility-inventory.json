@@ -4895,97 +4895,121 @@
       "requirement_id": "URS-F-0328",
       "epic_id": "EPIC-305",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-305-plugin-registry-signing-sbom-and-marketplace-metadata.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0329",
       "epic_id": "EPIC-305",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-305-plugin-registry-signing-sbom-and-marketplace-metadata.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0330",
       "epic_id": "EPIC-305",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-305-plugin-registry-signing-sbom-and-marketplace-metadata.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0331",
       "epic_id": "EPIC-305",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-305-plugin-registry-signing-sbom-and-marketplace-metadata.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0332",
       "epic_id": "EPIC-305",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-305-plugin-registry-signing-sbom-and-marketplace-metadata.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0333",
       "epic_id": "EPIC-305",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-305-plugin-registry-signing-sbom-and-marketplace-metadata.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0334",
       "epic_id": "EPIC-305",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-305-plugin-registry-signing-sbom-and-marketplace-metadata.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0335",
       "epic_id": "EPIC-305",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-305-plugin-registry-signing-sbom-and-marketplace-metadata.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0336",

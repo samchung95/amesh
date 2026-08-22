@@ -98,3 +98,14 @@ export function useCheckCompliance(enabled = true) {
     refetchInterval: 10_000,
   })
 }
+
+export function usePluginRegistry(enabled = true) {
+  const api = useApiClient()
+  const { settings } = useAppSettings()
+  return useQuery({
+    queryKey: ['plugin-registry', settings.tenant],
+    queryFn: api.pluginRegistry,
+    enabled,
+    staleTime: 15_000,
+  })
+}

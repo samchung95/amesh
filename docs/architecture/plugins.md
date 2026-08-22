@@ -67,6 +67,11 @@ concurrency limits, propagates cancellation and starts a fresh service after a c
 task ownership remains with the executor. Python, Java, TypeScript and Go share the generated wire
 schema and contract surfaces.
 
+The [self-hosted registry](../plugin-sdk/registry.md) publishes immutable name/version/digest
+releases with signed bundle and metadata records, required SBOM/vulnerability/provenance evidence,
+air-gapped transfer, allowlisted mirror/proxy policy and historical yanking. Marketplace adoption
+signals are deliberately separate from cryptographic verification and policy decisions.
+
 Polling trigger adapters return normalized occurrences plus their next checkpoint. The runtime
 persists both before calling the adapter's acknowledgement hook. Realtime trigger adapters expose an
 async occurrence stream and are acknowledged only after durable acceptance. Both contracts carry a

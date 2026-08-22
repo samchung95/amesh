@@ -39,6 +39,7 @@ from amesh.plugin_sdk import (
     PluginLifecycleStatus,
     PluginOperation,
     PluginPackageRecord,
+    PluginRegistryPolicy,
     PluginRequest,
     PluginResolution,
     PluginResponse,
@@ -634,10 +635,25 @@ def build_plugin_catalog(settings: Settings) -> PluginCatalogManager:
             for location in settings.plugin_registries
         ),
     )
+    verification_keys = {
+        key_id: secret.get_secret_value().encode("utf-8")
+        for key_id, secret in settings.plugin_registry_verification_keys.items()
+    }
+    verification_keys[settings.plugin_registry_signing_key_id] = (
+        settings.plugin_registry_signing_key.get_secret_value().encode("utf-8")
+    )
     return PluginCatalogManager(
         sources=sources,
         install_root=settings.plugin_install_root,
         registry_timeout_seconds=settings.plugin_registry_timeout_seconds,
+        registry_policy=PluginRegistryPolicy(
+            allowedOrigins=settings.plugin_registry_allowed_origins,
+            mirrors=settings.plugin_registry_mirrors,
+            proxyUrl=settings.plugin_registry_proxy_url,
+            offline=settings.plugin_registry_offline,
+        ),
+        registry_verification_keys=verification_keys,
+        require_registry_signatures=settings.plugin_trust_mode == "signed-only",
     )
 
 

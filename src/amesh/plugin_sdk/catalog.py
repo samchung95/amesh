@@ -33,9 +33,17 @@ from .manifest import (
     PluginManifest,
     PluginTransport,
 )
+from .registry import (
+    PluginMarketplaceSignals,
+    PluginRegistryAttachment,
+    PluginRegistryIndex,
+    PluginRegistryMetadata,
+    PluginRegistryPolicy,
+    verify_registry_artifact,
+    verify_registry_index,
+)
 
 PLUGIN_CATALOG_VERSION = "amesh.plugin-catalog/v1"
-PLUGIN_REGISTRY_VERSION = "amesh.plugin-registry/v1"
 PLUGIN_BUNDLE_MANIFESTS = (
     "amesh-plugin.json",
     "amesh-plugin.yaml",
@@ -58,6 +66,7 @@ class PluginLifecycleStatus(StrEnum):
     DEPRECATED = "deprecated"
     INCOMPATIBLE = "incompatible"
     QUARANTINED = "quarantined"
+    YANKED = "yanked"
 
 
 class PluginDiscoverySource(BaseModel):
@@ -74,23 +83,6 @@ class PluginDiscoverySource(BaseModel):
         return value
 
 
-class PluginRegistryPackage(BaseModel):
-    model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
-
-    bundle: str = Field(min_length=1, max_length=4096)
-    content_digest: str = Field(alias="contentDigest", pattern=_DIGEST_PATTERN)
-
-
-class PluginRegistryIndex(BaseModel):
-    model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
-
-    schema_version: Literal["amesh.plugin-registry/v1"] = Field(
-        default="amesh.plugin-registry/v1",
-        alias="schemaVersion",
-    )
-    packages: tuple[PluginRegistryPackage, ...] = ()
-
-
 class PluginPackageRecord(BaseModel):
     model_config = ConfigDict(frozen=True, populate_by_name=True)
 
@@ -101,6 +93,13 @@ class PluginPackageRecord(BaseModel):
     content_path: str | None = Field(default=None, alias="contentPath", exclude=True)
     status: PluginLifecycleStatus
     diagnostics: tuple[str, ...] = ()
+    registry_metadata: PluginRegistryMetadata | None = Field(default=None, alias="registryMetadata")
+    registry_attachments: tuple[PluginRegistryAttachment, ...] = Field(
+        default=(), alias="registryAttachments"
+    )
+    marketplace_signals: PluginMarketplaceSignals | None = Field(
+        default=None, alias="marketplaceSignals"
+    )
 
     @property
     def identity(self) -> tuple[str, str] | None:
@@ -207,10 +206,16 @@ class PluginCatalogManager:
         install_root: str | Path | None = None,
         platform_version: str = __version__,
         registry_timeout_seconds: float = 10.0,
+        registry_policy: PluginRegistryPolicy | None = None,
+        registry_verification_keys: Mapping[str, bytes] | None = None,
+        require_registry_signatures: bool = False,
     ) -> None:
         self._sources = tuple(sources)
         self._platform_version = platform_version
         self._registry_timeout_seconds = registry_timeout_seconds
+        self._registry_policy = registry_policy or PluginRegistryPolicy()
+        self._registry_verification_keys = dict(registry_verification_keys or {})
+        self._require_registry_signatures = require_registry_signatures
         self._installer = PluginBundleInstaller(
             install_root or Path(tempfile.gettempdir()) / "amesh-plugins"
         )
@@ -286,9 +291,7 @@ class PluginCatalogManager:
                 if entry.type not in {ExtensionType.TASK, ExtensionType.TRIGGER}:
                     continue
                 kind = (
-                    ResourceKind.TASK
-                    if entry.type is ExtensionType.TASK
-                    else ResourceKind.TRIGGER
+                    ResourceKind.TASK if entry.type is ExtensionType.TASK else ResourceKind.TRIGGER
                 )
                 from amesh.dsl import EditorMetadata, ResourceSchemaDescriptor
 
@@ -343,27 +346,59 @@ class PluginCatalogManager:
                     )
                 )
             except (OSError, ValueError, ValidationError, yaml.YAMLError) as exc:
-                records.append(
-                    _quarantined(source.kind, str(manifest_path), _safe_diagnostic(exc))
-                )
+                records.append(_quarantined(source.kind, str(manifest_path), _safe_diagnostic(exc)))
         return records
 
     def _discover_registry(self, source: PluginDiscoverySource) -> list[PluginPackageRecord]:
         try:
             payload = json.loads(self._read_location(source.location).decode("utf-8"))
             index = PluginRegistryIndex.model_validate(payload)
+            verify_registry_index(
+                index,
+                self._registry_verification_keys,
+                require_signatures=self._require_registry_signatures,
+            )
         except (OSError, ValueError, ValidationError, httpx.HTTPError) as exc:
             return [_quarantined(source.kind, source.location, _safe_diagnostic(exc))]
         records: list[PluginPackageRecord] = []
         for item in index.packages:
             try:
+                if item.yanked:
+                    if item.manifest is None:
+                        raise ValueError("yanked registry metadata must include its manifest")
+                    records.append(
+                        PluginPackageRecord(
+                            manifest=item.manifest,
+                            contentDigest=item.content_digest,
+                            sourceKind=PluginSourceKind.REGISTRY,
+                            sourceLocation=source.location,
+                            status=PluginLifecycleStatus.YANKED,
+                            diagnostics=(item.yank_reason or "registry version is yanked",),
+                            registryMetadata=item.metadata,
+                            registryAttachments=item.attachments,
+                            marketplaceSignals=item.signals,
+                        )
+                    )
+                    continue
                 installed = self._installer.installed(item.content_digest)
                 if installed is None:
                     bundle_location = _resolve_location(source.location, item.bundle)
+                    content = self._read_location(bundle_location)
+                    verify_registry_artifact(
+                        item,
+                        content,
+                        self._registry_verification_keys,
+                        require_signature=self._require_registry_signatures,
+                    )
                     installed = self._installer.install_bytes(
-                        self._read_location(bundle_location),
+                        content,
                         expected_digest=item.content_digest,
                     )
+                if item.name is not None and (
+                    installed.manifest.name != item.name
+                    or installed.manifest.version != item.version
+                ):
+                    raise ValueError("registry identity does not match the installed manifest")
                 records.append(
                     PluginPackageRecord(
                         manifest=installed.manifest,
@@ -372,28 +407,31 @@ class PluginCatalogManager:
                         sourceLocation=source.location,
                         contentPath=installed.content_path,
                         status=PluginLifecycleStatus.INSTALLED,
+                        registryMetadata=item.metadata,
+                        registryAttachments=item.attachments,
+                        marketplaceSignals=item.signals,
                     )
                 )
             except (OSError, ValueError, ValidationError, httpx.HTTPError) as exc:
-                records.append(
-                    _quarantined(source.kind, source.location, _safe_diagnostic(exc))
-                )
+                records.append(_quarantined(source.kind, source.location, _safe_diagnostic(exc)))
         return records
 
     def _read_location(self, location: str) -> bytes:
-        parsed = urlparse(location)
+        resolved = self._registry_policy.resolve(location)
+        parsed = urlparse(resolved)
         if parsed.scheme in {"http", "https"}:
             response = httpx.get(
-                location,
+                resolved,
                 timeout=self._registry_timeout_seconds,
                 follow_redirects=False,
+                proxy=self._registry_policy.proxy_url,
             )
             response.raise_for_status()
             return response.content
         if parsed.scheme == "file":
             path = Path(url2pathname(unquote(parsed.path)))
             return path.read_bytes()
-        return Path(location).read_bytes()
+        return Path(resolved).read_bytes()
 
     def _classify(
         self,
@@ -433,10 +471,7 @@ class PluginCatalogManager:
 
         eligible_by_name: dict[str, list[int]] = defaultdict(list)
         for index, record in enumerate(classified):
-            if (
-                record.manifest is not None
-                and record.status is PluginLifecycleStatus.INSTALLED
-            ):
+            if record.manifest is not None and record.status is PluginLifecycleStatus.INSTALLED:
                 eligible_by_name[record.manifest.name].append(index)
         for indexes in eligible_by_name.values():
             active_index = max(
@@ -518,12 +553,7 @@ def _load_manifest(path: Path) -> PluginManifest:
 
 def _single_manifest(root: Path) -> Path:
     manifests = sorted(
-        {
-            path
-            for name in PLUGIN_BUNDLE_MANIFESTS
-            for path in root.rglob(name)
-            if path.is_file()
-        }
+        {path for name in PLUGIN_BUNDLE_MANIFESTS for path in root.rglob(name) if path.is_file()}
     )
     if len(manifests) != 1:
         raise ValueError("plugin bundle must contain exactly one manifest")
@@ -583,9 +613,7 @@ def _compatibility_diagnostics(
 ) -> tuple[str, ...]:
     diagnostics: list[str] = []
     try:
-        if not SimpleSpec(manifest.compatibility.platform_version).match(
-            Version(platform_version)
-        ):
+        if not SimpleSpec(manifest.compatibility.platform_version).match(Version(platform_version)):
             diagnostics.append(
                 f"platform {platform_version} does not satisfy "
                 f"{manifest.compatibility.platform_version}"
@@ -612,9 +640,7 @@ def _dependency_range_diagnostics(manifest: PluginManifest) -> tuple[str, ...]:
 
 
 def _is_deprecated(manifest: PluginManifest) -> bool:
-    return any(
-        item.subject in {"*", "package", manifest.name} for item in manifest.deprecations
-    )
+    return any(item.subject in {"*", "package", manifest.name} for item in manifest.deprecations)
 
 
 def _deduplicate_records(
@@ -659,6 +685,7 @@ def _quarantine_type_conflicts(
         if record.manifest is None or record.status in {
             PluginLifecycleStatus.QUARANTINED,
             PluginLifecycleStatus.INCOMPATIBLE,
+            PluginLifecycleStatus.YANKED,
         }:
             continue
         for entry in record.manifest.entry_points:
@@ -674,8 +701,7 @@ def _quarantine_type_conflicts(
                 key
                 for key in conflicts
                 if any(
-                    entry.type is key[0]
-                    and entry.resolved_resource_type == key[1]
+                    entry.type is key[0] and entry.resolved_resource_type == key[1]
                     for entry in record.manifest.entry_points
                 )
             ),
@@ -702,6 +728,7 @@ def _mark_missing_dependencies(
         if record.manifest is not None and record.status not in {
             PluginLifecycleStatus.QUARANTINED,
             PluginLifecycleStatus.INCOMPATIBLE,
+            PluginLifecycleStatus.YANKED,
         }:
             candidates[record.manifest.name].append(record)
     classified: list[PluginPackageRecord] = []
@@ -709,6 +736,7 @@ def _mark_missing_dependencies(
         if record.manifest is None or record.status in {
             PluginLifecycleStatus.QUARANTINED,
             PluginLifecycleStatus.INCOMPATIBLE,
+            PluginLifecycleStatus.YANKED,
         }:
             classified.append(record)
             continue
@@ -718,8 +746,7 @@ def _mark_missing_dependencies(
                 continue
             spec = SimpleSpec(dependency.version_range)
             if not any(
-                item.manifest is not None
-                and spec.match(Version(item.manifest.version))
+                item.manifest is not None and spec.match(Version(item.manifest.version))
                 for item in candidates.get(dependency.name, ())
             ):
                 missing.append(
@@ -788,9 +815,7 @@ def _catalog_digest(records: Iterable[PluginPackageRecord]) -> str:
         }
         for record in records
     ]
-    return _bytes_digest(
-        json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
-    )
+    return _bytes_digest(json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8"))
 
 
 def _resolve_location(index_location: str, bundle_location: str) -> str:

@@ -326,14 +326,14 @@ URS-F-0324,Functional,Must,EPIC-304,"Trigger, condition and notification extensi
 URS-F-0325,Functional,Must,EPIC-304,"Trigger, condition and notification extension contracts",M3,3,"Plugin SDK contract, sandbox and integration tests",Verified
 URS-F-0326,Functional,Must,EPIC-304,"Trigger, condition and notification extension contracts",M3,3,"Plugin SDK contract, sandbox and integration tests",Verified
 URS-F-0327,Functional,Must,EPIC-304,"Trigger, condition and notification extension contracts",M3,3,"Plugin SDK contract, sandbox and integration tests",Verified
-URS-F-0328,Functional,Must,EPIC-305,"Plugin registry, signing, SBOM and marketplace metadata",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
-URS-F-0329,Functional,Must,EPIC-305,"Plugin registry, signing, SBOM and marketplace metadata",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
-URS-F-0330,Functional,Must,EPIC-305,"Plugin registry, signing, SBOM and marketplace metadata",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
-URS-F-0331,Functional,Must,EPIC-305,"Plugin registry, signing, SBOM and marketplace metadata",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
-URS-F-0332,Functional,Must,EPIC-305,"Plugin registry, signing, SBOM and marketplace metadata",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
-URS-F-0333,Functional,Must,EPIC-305,"Plugin registry, signing, SBOM and marketplace metadata",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
-URS-F-0334,Functional,Must,EPIC-305,"Plugin registry, signing, SBOM and marketplace metadata",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
-URS-F-0335,Functional,Must,EPIC-305,"Plugin registry, signing, SBOM and marketplace metadata",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0328,Functional,Must,EPIC-305,"Plugin registry, signing, SBOM and marketplace metadata",M3,3,"Plugin SDK contract, sandbox and integration tests",Verified
+URS-F-0329,Functional,Must,EPIC-305,"Plugin registry, signing, SBOM and marketplace metadata",M3,3,"Plugin SDK contract, sandbox and integration tests",Verified
+URS-F-0330,Functional,Must,EPIC-305,"Plugin registry, signing, SBOM and marketplace metadata",M3,3,"Plugin SDK contract, sandbox and integration tests",Verified
+URS-F-0331,Functional,Must,EPIC-305,"Plugin registry, signing, SBOM and marketplace metadata",M3,3,"Plugin SDK contract, sandbox and integration tests",Verified
+URS-F-0332,Functional,Must,EPIC-305,"Plugin registry, signing, SBOM and marketplace metadata",M3,3,"Plugin SDK contract, sandbox and integration tests",Verified
+URS-F-0333,Functional,Must,EPIC-305,"Plugin registry, signing, SBOM and marketplace metadata",M3,3,"Plugin SDK contract, sandbox and integration tests",Verified
+URS-F-0334,Functional,Must,EPIC-305,"Plugin registry, signing, SBOM and marketplace metadata",M3,3,"Plugin SDK contract, sandbox and integration tests",Verified
+URS-F-0335,Functional,Must,EPIC-305,"Plugin registry, signing, SBOM and marketplace metadata",M3,3,"Plugin SDK contract, sandbox and integration tests",Verified
 URS-F-0336,Functional,Must,EPIC-306,Core utility plugin pack,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
 URS-F-0337,Functional,Must,EPIC-306,Core utility plugin pack,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
 URS-F-0338,Functional,Must,EPIC-306,Core utility plugin pack,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
@@ -907,8 +907,8 @@ URS-NFR-PERFORMANCE-009,Non-functional,Must,EPIC-601,Distributed services and hi
 URS-NFR-PERFORMANCE-009,Non-functional,Must,EPIC-611,"Performance, scale and chaos qualification",M6,6,Comparative scale-out benchmark.,In Progress
 URS-NFR-PERFORMANCE-010,Non-functional,Must,EPIC-611,"Performance, scale and chaos qualification",M6,6,"Published 24-hour mixed-workload, retention-query and failure-recovery benchmark on a fixed bill of materials.",Proposed
 URS-NFR-PERFORMANCE-010,Non-functional,Must,EPIC-805,General availability quality and launch readiness,M8,8,"Published 24-hour mixed-workload, retention-query and failure-recovery benchmark on a fixed bill of materials.",Proposed
-URS-NFR-PORTABILITY-001,Non-functional,Must,EPIC-305,"Plugin registry, signing, SBOM and marketplace metadata",M3,3,Offline installation and test run.,Proposed
-URS-NFR-PORTABILITY-001,Non-functional,Must,EPIC-804,Open enterprise distribution and packaging,M8,8,Offline installation and test run.,Proposed
+URS-NFR-PORTABILITY-001,Non-functional,Must,EPIC-305,"Plugin registry, signing, SBOM and marketplace metadata",M3,3,Offline installation and test run.,In Progress
+URS-NFR-PORTABILITY-001,Non-functional,Must,EPIC-804,Open enterprise distribution and packaging,M8,8,Offline installation and test run.,In Progress
 URS-NFR-PORTABILITY-002,Non-functional,Must,EPIC-606,"Containers, Kubernetes and Helm deployment",M6,6,Multi-architecture release CI.,Proposed
 URS-NFR-PORTABILITY-003,Non-functional,Must,EPIC-009,"PostgreSQL transport, inbox and transactional outbox",M0,0,Static architecture checks plus adapter contract tests for each extensible backend category.,In Progress
 URS-NFR-PORTABILITY-003,Non-functional,Must,EPIC-010,Internal object storage and artifact addressing,M0,0,Static architecture checks plus adapter contract tests for each extensible backend category.,In Progress
@@ -964,9 +964,9 @@ URS-NFR-SECURITY-006,Non-functional,Must,EPIC-501,"Service accounts, API tokens 
 URS-NFR-SECURITY-006,Non-functional,Must,EPIC-502,"SSO, OIDC, SAML, LDAP and SCIM",M5,5,"Automated token, certificate and external-secret rotation tests.",In Progress
 URS-NFR-SECURITY-006,Non-functional,Must,EPIC-506,External secrets managers and secret lifecycle,M5,5,"Automated token, certificate and external-secret rotation tests.",In Progress
 URS-NFR-SECURITY-006,Non-functional,Must,EPIC-613,"TLS, networking, proxy and private connectivity",M6,6,"Automated token, certificate and external-secret rotation tests.",In Progress
-URS-NFR-SECURITY-007,Non-functional,Must,EPIC-001,"Repository engineering, CI and release foundation",M0,0,Release pipeline policy gate.,Proposed
-URS-NFR-SECURITY-007,Non-functional,Must,EPIC-305,"Plugin registry, signing, SBOM and marketplace metadata",M3,3,Release pipeline policy gate.,Proposed
-URS-NFR-SECURITY-007,Non-functional,Must,EPIC-612,Security hardening and software supply chain,M6,6,Release pipeline policy gate.,Proposed
+URS-NFR-SECURITY-007,Non-functional,Must,EPIC-001,"Repository engineering, CI and release foundation",M0,0,Release pipeline policy gate.,In Progress
+URS-NFR-SECURITY-007,Non-functional,Must,EPIC-305,"Plugin registry, signing, SBOM and marketplace metadata",M3,3,Release pipeline policy gate.,In Progress
+URS-NFR-SECURITY-007,Non-functional,Must,EPIC-612,Security hardening and software supply chain,M6,6,Release pipeline policy gate.,In Progress
 URS-NFR-SECURITY-008,Non-functional,Must,EPIC-209,Task runner interface and capability model,M2,2,Architecture test and runtime process inspection.,In Progress
 URS-NFR-SECURITY-008,Non-functional,Must,EPIC-221,Docker and OCI task runner,M2,2,Architecture test and runtime process inspection.,In Progress
 URS-NFR-SECURITY-008,Non-functional,Must,EPIC-222,Kubernetes task runner,M2,2,Architecture test and runtime process inspection.,In Progress

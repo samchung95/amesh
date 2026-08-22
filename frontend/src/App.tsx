@@ -14,6 +14,7 @@ import { FlowDetailPage } from './pages/FlowDetailPage'
 import { FlowsPage } from './pages/FlowsPage'
 import { PlaceholderPage } from './pages/PlaceholderPage'
 import { NamespaceResourcesPage } from './pages/NamespaceResourcesPage'
+import { PluginsPage } from './pages/PluginsPage'
 import { TriggersPage } from './pages/TriggersPage'
 import { ChecksPage } from './pages/ChecksPage'
 
@@ -72,7 +73,7 @@ function WorkspaceRoutes({ session }: { session: UiSession }) {
         <Route path="namespaces" element={<CapabilityRoute session={session} capability="namespaceResources.read" title="Namespaces"><NamespaceResourcesPage session={session} /></CapabilityRoute>} />
         <Route path="assets" element={<PlaceholderPage title="Assets" />} />
         <Route path="apps" element={<PlaceholderPage title="Apps" />} />
-        <Route path="plugins" element={<CapabilityRoute session={session} capability="plugins.view" title="Plugins"><PlaceholderPage title="Plugins" /></CapabilityRoute>} />
+        <Route path="plugins" element={<CapabilityRoute session={session} capability="plugins.view" title="Plugins"><PluginsPage /></CapabilityRoute>} />
         <Route path="administration" element={<CapabilityRoute session={session} capability="administration.manage" title="Administration"><PlaceholderPage title="Administration" /></CapabilityRoute>} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>

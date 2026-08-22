@@ -78,6 +78,13 @@ plugin catalog. `PLUGIN_INSTALL_ROOT` stores digest-verified registry and offlin
 `PLUGIN_REGISTRY_TIMEOUT_SECONDS` bounds registry reads. See the
 [plugin discovery and resolution guide](../plugin-sdk/discovery-and-resolution.md).
 
+`PLUGIN_REGISTRY_ROOT`, `PLUGIN_REGISTRY_SIGNING_KEY_ID` and the secret
+`PLUGIN_REGISTRY_SIGNING_KEY` configure the built-in self-hosted registry. Verification keys are a
+JSON key/value object in `PLUGIN_REGISTRY_VERIFICATION_KEYS`. Network clients accept only
+`PLUGIN_REGISTRY_ALLOWED_ORIGINS`; optional `PLUGIN_REGISTRY_MIRRORS` and
+`PLUGIN_REGISTRY_PROXY_URL` route allowed traffic, while `PLUGIN_REGISTRY_OFFLINE=true` disables it.
+See the [self-hosted registry guide](../plugin-sdk/registry.md).
+
 ## Feature flags
 
 Boolean flags are versioned and audited in PostgreSQL. Resolution order is namespace, tenant,

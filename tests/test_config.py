@@ -202,14 +202,29 @@ def test_plugin_discovery_sources_are_typed_json_configuration(tmp_path: Path) -
             "PLUGIN_DIRECTORIES": json.dumps([str(tmp_path / "plugins")]),
             "PLUGIN_REGISTRIES": json.dumps([str(tmp_path / "registry.json")]),
             "PLUGIN_INSTALL_ROOT": str(tmp_path / "installed"),
+            "PLUGIN_REGISTRY_ROOT": str(tmp_path / "self-hosted"),
             "PLUGIN_REGISTRY_TIMEOUT_SECONDS": "15",
+            "PLUGIN_REGISTRY_SIGNING_KEY_ID": "test-key",
+            "PLUGIN_REGISTRY_SIGNING_KEY": "test-registry-signing-key-at-least-32-bytes",
+            "PLUGIN_REGISTRY_ALLOWED_ORIGINS": '["https://registry.example"]',
+            "PLUGIN_REGISTRY_MIRRORS": (
+                '{"https://registry.example":"https://mirror.internal"}'
+            ),
+            "PLUGIN_REGISTRY_PROXY_URL": "http://proxy.internal:8080",
         }
     )
 
     assert loaded.settings.plugin_directories == (str(tmp_path / "plugins"),)
     assert loaded.settings.plugin_registries == (str(tmp_path / "registry.json"),)
     assert loaded.settings.plugin_install_root == str(tmp_path / "installed")
+    assert loaded.settings.plugin_registry_root == str(tmp_path / "self-hosted")
     assert loaded.settings.plugin_registry_timeout_seconds == 15
+    assert loaded.settings.plugin_registry_signing_key_id == "test-key"
+    assert loaded.settings.plugin_registry_allowed_origins == ("https://registry.example",)
+    assert loaded.settings.plugin_registry_mirrors == {
+        "https://registry.example": "https://mirror.internal"
+    }
+    assert loaded.settings.plugin_registry_proxy_url == "http://proxy.internal:8080"
 
 
 def test_renamed_settings_are_migrated_with_a_safe_warning(tmp_path: Path) -> None:
@@ -233,6 +248,7 @@ def test_production_security_baseline_and_offline_defaults(monkeypatch: pytest.M
         amesh_token_pepper="external-production-pepper",
         object_storage_workload_identity=True,
         plugin_trust_mode="signed-only",
+        plugin_registry_signing_key="external-registry-signing-key-at-least-32-bytes",
     )
     assert security_baseline_findings(secure) == ()
 

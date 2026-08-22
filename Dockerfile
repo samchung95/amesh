@@ -21,7 +21,8 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends postgresql-client \
     && rm -rf /var/lib/apt/lists/* \
     && addgroup --system amesh \
-    && adduser --system --ingroup amesh amesh
+    && adduser --system --ingroup amesh amesh \
+    && install -d -o amesh -g amesh /var/lib/amesh/plugins
 
 WORKDIR /app
 COPY --from=uv /uv /uvx /bin/

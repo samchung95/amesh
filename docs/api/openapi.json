@@ -4522,6 +4522,15 @@
         "title": "PluginCatalogSnapshot",
         "type": "object"
       },
+      "PluginCertificationStatus": {
+        "enum": [
+          "unverified",
+          "community",
+          "certified"
+        ],
+        "title": "PluginCertificationStatus",
+        "type": "string"
+      },
       "PluginCompatibility": {
         "additionalProperties": false,
         "properties": {
@@ -4814,7 +4823,8 @@
           "active",
           "deprecated",
           "incompatible",
-          "quarantined"
+          "quarantined",
+          "yanked"
         ],
         "title": "PluginLifecycleStatus",
         "type": "string"
@@ -4905,6 +4915,45 @@
         "title": "PluginManifest",
         "type": "object"
       },
+      "PluginMarketplaceSignals": {
+        "additionalProperties": false,
+        "properties": {
+          "certification": {
+            "$ref": "#/components/schemas/PluginCertificationStatus",
+            "default": "unverified"
+          },
+          "downloads": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Downloads",
+            "type": "integer"
+          },
+          "lastMaintainedAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lastmaintainedat"
+          },
+          "security": {
+            "$ref": "#/components/schemas/PluginSecurityStatus",
+            "default": "unknown"
+          },
+          "trustDisclaimer": {
+            "const": "Signals are informational and are not a trust guarantee.",
+            "default": "Signals are informational and are not a trust guarantee.",
+            "title": "Trustdisclaimer",
+            "type": "string"
+          }
+        },
+        "title": "PluginMarketplaceSignals",
+        "type": "object"
+      },
       "PluginNetworkAccess": {
         "enum": [
           "none",
@@ -4944,6 +4993,34 @@
               }
             ]
           },
+          "marketplaceSignals": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PluginMarketplaceSignals"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "registryAttachments": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/PluginRegistryAttachment"
+            },
+            "title": "Registryattachments",
+            "type": "array"
+          },
+          "registryMetadata": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PluginRegistryMetadata"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "sourceKind": {
             "$ref": "#/components/schemas/PluginSourceKind"
           },
@@ -4962,6 +5039,389 @@
         ],
         "title": "PluginPackageRecord",
         "type": "object"
+      },
+      "PluginRegistryAttachment": {
+        "additionalProperties": false,
+        "properties": {
+          "blob": {
+            "maxLength": 4096,
+            "minLength": 1,
+            "title": "Blob",
+            "type": "string"
+          },
+          "contentDigest": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Contentdigest",
+            "type": "string"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/PluginRegistryAttachmentKind"
+          },
+          "mediaType": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Mediatype",
+            "type": "string"
+          },
+          "signature": {
+            "$ref": "#/components/schemas/PluginRegistrySignature"
+          }
+        },
+        "required": [
+          "kind",
+          "mediaType",
+          "blob",
+          "contentDigest",
+          "signature"
+        ],
+        "title": "PluginRegistryAttachment",
+        "type": "object"
+      },
+      "PluginRegistryAttachmentKind": {
+        "enum": [
+          "sbom",
+          "vulnerability-report",
+          "provenance"
+        ],
+        "title": "PluginRegistryAttachmentKind",
+        "type": "string"
+      },
+      "PluginRegistryIndex": {
+        "additionalProperties": false,
+        "properties": {
+          "generatedAt": {
+            "format": "date-time",
+            "title": "Generatedat",
+            "type": "string"
+          },
+          "packages": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/PluginRegistryPackage"
+            },
+            "title": "Packages",
+            "type": "array"
+          },
+          "schemaVersion": {
+            "const": "amesh.plugin-registry/v1",
+            "default": "amesh.plugin-registry/v1",
+            "title": "Schemaversion",
+            "type": "string"
+          },
+          "signature": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PluginRegistrySignature"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "title": "PluginRegistryIndex",
+        "type": "object"
+      },
+      "PluginRegistryMetadata": {
+        "additionalProperties": false,
+        "properties": {
+          "changelogUrl": {
+            "maxLength": 2048,
+            "minLength": 1,
+            "title": "Changelogurl",
+            "type": "string"
+          },
+          "documentationUrl": {
+            "maxLength": 2048,
+            "minLength": 1,
+            "title": "Documentationurl",
+            "type": "string"
+          },
+          "license": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "License",
+            "type": "string"
+          },
+          "sdkRange": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Sdkrange",
+            "type": "string"
+          },
+          "sourceUrl": {
+            "maxLength": 2048,
+            "minLength": 1,
+            "title": "Sourceurl",
+            "type": "string"
+          },
+          "supportedPlatformRange": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Supportedplatformrange",
+            "type": "string"
+          }
+        },
+        "required": [
+          "license",
+          "sourceUrl",
+          "documentationUrl",
+          "supportedPlatformRange",
+          "sdkRange",
+          "changelogUrl"
+        ],
+        "title": "PluginRegistryMetadata",
+        "type": "object"
+      },
+      "PluginRegistryPackage": {
+        "additionalProperties": false,
+        "properties": {
+          "artifactSignature": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PluginRegistrySignature"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "attachments": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/PluginRegistryAttachment"
+            },
+            "title": "Attachments",
+            "type": "array"
+          },
+          "bundle": {
+            "maxLength": 4096,
+            "minLength": 1,
+            "title": "Bundle",
+            "type": "string"
+          },
+          "contentDigest": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Contentdigest",
+            "type": "string"
+          },
+          "manifest": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PluginManifest"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "metadata": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PluginRegistryMetadata"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "metadataSignature": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PluginRegistrySignature"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "name": {
+            "anyOf": [
+              {
+                "maxLength": 255,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "publishedAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Publishedat"
+          },
+          "signals": {
+            "$ref": "#/components/schemas/PluginMarketplaceSignals"
+          },
+          "version": {
+            "anyOf": [
+              {
+                "maxLength": 128,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Version"
+          },
+          "yankReason": {
+            "anyOf": [
+              {
+                "maxLength": 4096,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Yankreason"
+          },
+          "yanked": {
+            "default": false,
+            "title": "Yanked",
+            "type": "boolean"
+          },
+          "yankedAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Yankedat"
+          }
+        },
+        "required": [
+          "bundle",
+          "contentDigest"
+        ],
+        "title": "PluginRegistryPackage",
+        "type": "object"
+      },
+      "PluginRegistryPublishAttachment": {
+        "additionalProperties": false,
+        "properties": {
+          "contentBase64": {
+            "minLength": 1,
+            "title": "Contentbase64",
+            "type": "string"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/PluginRegistryAttachmentKind"
+          },
+          "mediaType": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Mediatype",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "mediaType",
+          "contentBase64"
+        ],
+        "title": "PluginRegistryPublishAttachment",
+        "type": "object"
+      },
+      "PluginRegistryPublishRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "attachments": {
+            "items": {
+              "$ref": "#/components/schemas/PluginRegistryPublishAttachment"
+            },
+            "title": "Attachments",
+            "type": "array"
+          },
+          "bundleBase64": {
+            "minLength": 1,
+            "title": "Bundlebase64",
+            "type": "string"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/PluginRegistryMetadata"
+          },
+          "signals": {
+            "$ref": "#/components/schemas/PluginMarketplaceSignals"
+          }
+        },
+        "required": [
+          "bundleBase64",
+          "metadata",
+          "attachments"
+        ],
+        "title": "PluginRegistryPublishRequest",
+        "type": "object"
+      },
+      "PluginRegistrySignature": {
+        "additionalProperties": false,
+        "properties": {
+          "algorithm": {
+            "const": "hmac-sha256",
+            "default": "hmac-sha256",
+            "title": "Algorithm",
+            "type": "string"
+          },
+          "keyId": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Keyid",
+            "type": "string"
+          },
+          "value": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Value",
+            "type": "string"
+          }
+        },
+        "required": [
+          "keyId",
+          "value"
+        ],
+        "title": "PluginRegistrySignature",
+        "type": "object"
+      },
+      "PluginRegistryYankRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "reason": {
+            "maxLength": 4096,
+            "minLength": 1,
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "reason"
+        ],
+        "title": "PluginRegistryYankRequest",
+        "type": "object"
+      },
+      "PluginSecurityStatus": {
+        "enum": [
+          "unknown",
+          "current",
+          "advisory",
+          "critical"
+        ],
+        "title": "PluginSecurityStatus",
+        "type": "string"
       },
       "PluginSourceKind": {
         "enum": [
@@ -18377,6 +18837,625 @@
         "summary": "Get Service Topology",
         "tags": [
           "operations"
+        ]
+      }
+    },
+    "/api/v1/plugin-registry/blobs/{digest}": {
+      "get": {
+        "operationId": "download_plugin_registry_bundle_api_v1_plugin_registry_blobs__digest__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "digest",
+            "required": true,
+            "schema": {
+              "pattern": "^[0-9a-f]{64}$",
+              "title": "Digest",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Download Plugin Registry Bundle",
+        "tags": [
+          "plugins"
+        ]
+      }
+    },
+    "/api/v1/plugin-registry/index": {
+      "get": {
+        "operationId": "get_plugin_registry_index_api_v1_plugin_registry_index_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PluginRegistryIndex"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Plugin Registry Index",
+        "tags": [
+          "plugins"
+        ]
+      }
+    },
+    "/api/v1/plugin-registry/offline-export": {
+      "get": {
+        "operationId": "export_plugin_registry_api_v1_plugin_registry_offline_export_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Export Plugin Registry",
+        "tags": [
+          "plugins"
+        ]
+      }
+    },
+    "/api/v1/plugin-registry/offline-import": {
+      "post": {
+        "operationId": "import_plugin_registry_api_v1_plugin_registry_offline_import_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PluginRegistryIndex"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Import Plugin Registry",
+        "tags": [
+          "plugins"
+        ]
+      }
+    },
+    "/api/v1/plugin-registry/packages": {
+      "post": {
+        "operationId": "publish_plugin_registry_package_api_v1_plugin_registry_packages_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PluginRegistryPublishRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PluginRegistryPackage"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Publish Plugin Registry Package",
+        "tags": [
+          "plugins"
+        ]
+      }
+    },
+    "/api/v1/plugin-registry/packages/{name}/{version}": {
+      "get": {
+        "operationId": "get_plugin_registry_package_api_v1_plugin_registry_packages__name___version__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "title": "Name",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "version",
+            "required": true,
+            "schema": {
+              "title": "Version",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PluginRegistryPackage"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Plugin Registry Package",
+        "tags": [
+          "plugins"
+        ]
+      }
+    },
+    "/api/v1/plugin-registry/packages/{name}/{version}/yank": {
+      "post": {
+        "operationId": "yank_plugin_registry_package_api_v1_plugin_registry_packages__name___version__yank_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "title": "Name",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "version",
+            "required": true,
+            "schema": {
+              "title": "Version",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PluginRegistryYankRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PluginRegistryPackage"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Yank Plugin Registry Package",
+        "tags": [
+          "plugins"
         ]
       }
     },

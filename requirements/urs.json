@@ -9512,7 +9512,7 @@
       "id": "URS-F-0328",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M3",
       "wave": 3,
       "epic_id": "EPIC-305",
@@ -9539,7 +9539,7 @@
       "id": "URS-F-0329",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M3",
       "wave": 3,
       "epic_id": "EPIC-305",
@@ -9566,7 +9566,7 @@
       "id": "URS-F-0330",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M3",
       "wave": 3,
       "epic_id": "EPIC-305",
@@ -9593,7 +9593,7 @@
       "id": "URS-F-0331",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M3",
       "wave": 3,
       "epic_id": "EPIC-305",
@@ -9620,7 +9620,7 @@
       "id": "URS-F-0332",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M3",
       "wave": 3,
       "epic_id": "EPIC-305",
@@ -9647,7 +9647,7 @@
       "id": "URS-F-0333",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M3",
       "wave": 3,
       "epic_id": "EPIC-305",
@@ -9674,7 +9674,7 @@
       "id": "URS-F-0334",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M3",
       "wave": 3,
       "epic_id": "EPIC-305",
@@ -9701,7 +9701,7 @@
       "id": "URS-F-0335",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M3",
       "wave": 3,
       "epic_id": "EPIC-305",
@@ -24326,7 +24326,12 @@
         "EPIC-804"
       ],
       "priority": "Must",
-      "status": "Proposed"
+      "status": "In Progress",
+      "evidence": [
+        "src/amesh/plugins/registry.py",
+        "tests/plugins/test_registry.py",
+        "docs/plugin-sdk/registry.md"
+      ]
     },
     {
       "id": "URS-NFR-PORTABILITY-002",
@@ -24689,7 +24694,13 @@
         "EPIC-612"
       ],
       "priority": "Must",
-      "status": "Proposed"
+      "status": "In Progress",
+      "evidence": [
+        "src/amesh/plugin_sdk/registry.py",
+        "tests/plugins/test_registry.py",
+        "schemas/plugin-registry.schema.json",
+        "docs/plugin-sdk/registry.md"
+      ]
     },
     {
       "id": "URS-NFR-SECURITY-008",

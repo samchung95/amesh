@@ -195,6 +195,18 @@ class Settings(BaseSettings):
         max_length=4096,
     )
     plugin_registry_timeout_seconds: float = Field(default=10.0, gt=0, le=300)
+    plugin_registry_root: str = Field(
+        default_factory=lambda: str(Path(tempfile.gettempdir()) / "amesh-plugin-registry"),
+        min_length=1,
+        max_length=4096,
+    )
+    plugin_registry_signing_key_id: str = Field(default="local", min_length=1, max_length=255)
+    plugin_registry_signing_key: SecretStr = SecretStr("amesh-registry-development-signing-key")
+    plugin_registry_verification_keys: dict[str, SecretStr] = Field(default_factory=dict)
+    plugin_registry_allowed_origins: tuple[str, ...] = ()
+    plugin_registry_mirrors: dict[str, str] = Field(default_factory=dict)
+    plugin_registry_proxy_url: str | None = Field(default=None, max_length=2048)
+    plugin_registry_offline: bool = False
     trusted_plugin_approvals: tuple[TrustedPluginApproval, ...] = ()
     trusted_plugin_callback_timeout_seconds: float = Field(default=30.0, gt=0, le=3600)
     trusted_plugin_lifecycle_timeout_seconds: float = Field(default=10.0, gt=0, le=300)
@@ -237,6 +249,9 @@ class Settings(BaseSettings):
     @field_validator(
         "plugin_directories",
         "plugin_registries",
+        "plugin_registry_allowed_origins",
+        "plugin_registry_mirrors",
+        "plugin_registry_verification_keys",
         "trusted_plugin_approvals",
         "isolated_plugin_services",
         mode="before",
@@ -480,6 +495,12 @@ def security_baseline_findings(settings: Settings) -> tuple[str, ...]:
         findings.append("CRITICAL: development token pepper is configured")
     if settings.app_env != "development" and settings.plugin_trust_mode != "signed-only":
         findings.append("CRITICAL: unsigned plugins are permitted")
+    if (
+        settings.app_env != "development"
+        and settings.plugin_registry_signing_key.get_secret_value()
+        == "amesh-registry-development-signing-key"
+    ):
+        findings.append("CRITICAL: development plugin registry signing key is configured")
     if (
         settings.app_env != "development"
         and settings.network_public_exposure

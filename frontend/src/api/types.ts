@@ -373,3 +373,51 @@ export interface SecretBinding {
   createdAt: string
   updatedAt: string
 }
+
+export type PluginRegistryAttachmentKind = 'sbom' | 'vulnerability-report' | 'provenance'
+
+export interface PluginRegistryPackage {
+  name: string | null
+  version: string | null
+  bundle: string
+  contentDigest: string
+  manifest: {
+    vendor: string
+    license: string
+    description: string | null
+  } | null
+  metadata: {
+    license: string
+    sourceUrl: string
+    documentationUrl: string
+    supportedPlatformRange: string
+    sdkRange: string
+    changelogUrl: string
+  } | null
+  attachments: Array<{
+    kind: PluginRegistryAttachmentKind
+    mediaType: string
+    contentDigest: string
+    signature: { keyId: string; algorithm: string; value: string }
+  }>
+  signals: {
+    downloads: number
+    lastMaintainedAt: string | null
+    certification: 'unverified' | 'community' | 'certified'
+    security: 'unknown' | 'current' | 'advisory' | 'critical'
+    trustDisclaimer: string
+  }
+  artifactSignature: { keyId: string; algorithm: string; value: string } | null
+  metadataSignature: { keyId: string; algorithm: string; value: string } | null
+  publishedAt: string | null
+  yanked: boolean
+  yankedAt: string | null
+  yankReason: string | null
+}
+
+export interface PluginRegistryIndex {
+  schemaVersion: 'amesh.plugin-registry/v1'
+  generatedAt: string
+  packages: PluginRegistryPackage[]
+  signature: { keyId: string; algorithm: string; value: string } | null
+}

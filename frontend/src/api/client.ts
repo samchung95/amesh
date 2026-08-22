@@ -12,6 +12,7 @@ import type {
   NamespaceCheckPolicy,
   NamespaceFile,
   NamespaceFileVersion,
+  PluginRegistryIndex,
   KeyValueEntry,
   KeyValueType,
   PersistedExecution,
@@ -104,6 +105,7 @@ export function createApiClient(connection: ApiConnection) {
       return request<UiSession>(`/api/v1/ui/session${suffix}`)
     },
     flows: async () => request<PersistedFlow[]>('/api/v1/flows'),
+    pluginRegistry: async () => request<PluginRegistryIndex>('/api/v1/plugin-registry/index'),
     flowGraph: async (namespace: string, flowId: string) =>
       request<FlowGraph>(`/api/v1/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/graph`),
     flowDataContract: async (namespace: string, flowId: string) =>

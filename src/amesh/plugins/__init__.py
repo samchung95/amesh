@@ -5,6 +5,7 @@ from .isolated import (
     IsolatedPluginState,
     build_isolated_runtime,
 )
+from .registry import SelfHostedPluginRegistry
 from .trusted import (
     TrustedCircuitState,
     TrustedPluginRuntime,
@@ -24,6 +25,7 @@ __all__ = [
     "PluginNotificationDispatcher",
     "PluginPollingTriggerAdapter",
     "PluginRealtimeTriggerAdapter",
+    "SelfHostedPluginRegistry",
     "TrustedCircuitState",
     "TrustedPluginRuntime",
     "TrustedPluginRuntimeSnapshot",

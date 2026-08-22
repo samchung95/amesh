@@ -53,6 +53,15 @@
       "title": "PluginCapabilities",
       "type": "object"
     },
+    "PluginCertificationStatus": {
+      "enum": [
+        "unverified",
+        "community",
+        "certified"
+      ],
+      "title": "PluginCertificationStatus",
+      "type": "string"
+    },
     "PluginCompatibility": {
       "additionalProperties": false,
       "properties": {
@@ -325,7 +334,8 @@
         "active",
         "deprecated",
         "incompatible",
-        "quarantined"
+        "quarantined",
+        "yanked"
       ],
       "title": "PluginLifecycleStatus",
       "type": "string"
@@ -417,6 +427,46 @@
       "title": "PluginManifest",
       "type": "object"
     },
+    "PluginMarketplaceSignals": {
+      "additionalProperties": false,
+      "properties": {
+        "certification": {
+          "$ref": "#/$defs/PluginCertificationStatus",
+          "default": "unverified"
+        },
+        "downloads": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Downloads",
+          "type": "integer"
+        },
+        "lastMaintainedAt": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Lastmaintainedat"
+        },
+        "security": {
+          "$ref": "#/$defs/PluginSecurityStatus",
+          "default": "unknown"
+        },
+        "trustDisclaimer": {
+          "const": "Signals are informational and are not a trust guarantee.",
+          "default": "Signals are informational and are not a trust guarantee.",
+          "title": "Trustdisclaimer",
+          "type": "string"
+        }
+      },
+      "title": "PluginMarketplaceSignals",
+      "type": "object"
+    },
     "PluginNetworkAccess": {
       "enum": [
         "none",
@@ -470,6 +520,36 @@
           ],
           "default": null
         },
+        "marketplaceSignals": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PluginMarketplaceSignals"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "registryAttachments": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/PluginRegistryAttachment"
+          },
+          "title": "Registryattachments",
+          "type": "array"
+        },
+        "registryMetadata": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PluginRegistryMetadata"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "sourceKind": {
           "$ref": "#/$defs/PluginSourceKind"
         },
@@ -488,6 +568,141 @@
       ],
       "title": "PluginPackageRecord",
       "type": "object"
+    },
+    "PluginRegistryAttachment": {
+      "additionalProperties": false,
+      "properties": {
+        "blob": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "title": "Blob",
+          "type": "string"
+        },
+        "contentDigest": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Contentdigest",
+          "type": "string"
+        },
+        "kind": {
+          "$ref": "#/$defs/PluginRegistryAttachmentKind"
+        },
+        "mediaType": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Mediatype",
+          "type": "string"
+        },
+        "signature": {
+          "$ref": "#/$defs/PluginRegistrySignature"
+        }
+      },
+      "required": [
+        "kind",
+        "mediaType",
+        "blob",
+        "contentDigest",
+        "signature"
+      ],
+      "title": "PluginRegistryAttachment",
+      "type": "object"
+    },
+    "PluginRegistryAttachmentKind": {
+      "enum": [
+        "sbom",
+        "vulnerability-report",
+        "provenance"
+      ],
+      "title": "PluginRegistryAttachmentKind",
+      "type": "string"
+    },
+    "PluginRegistryMetadata": {
+      "additionalProperties": false,
+      "properties": {
+        "changelogUrl": {
+          "maxLength": 2048,
+          "minLength": 1,
+          "title": "Changelogurl",
+          "type": "string"
+        },
+        "documentationUrl": {
+          "maxLength": 2048,
+          "minLength": 1,
+          "title": "Documentationurl",
+          "type": "string"
+        },
+        "license": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "License",
+          "type": "string"
+        },
+        "sdkRange": {
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Sdkrange",
+          "type": "string"
+        },
+        "sourceUrl": {
+          "maxLength": 2048,
+          "minLength": 1,
+          "title": "Sourceurl",
+          "type": "string"
+        },
+        "supportedPlatformRange": {
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Supportedplatformrange",
+          "type": "string"
+        }
+      },
+      "required": [
+        "license",
+        "sourceUrl",
+        "documentationUrl",
+        "supportedPlatformRange",
+        "sdkRange",
+        "changelogUrl"
+      ],
+      "title": "PluginRegistryMetadata",
+      "type": "object"
+    },
+    "PluginRegistrySignature": {
+      "additionalProperties": false,
+      "properties": {
+        "algorithm": {
+          "const": "hmac-sha256",
+          "default": "hmac-sha256",
+          "title": "Algorithm",
+          "type": "string"
+        },
+        "keyId": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Keyid",
+          "type": "string"
+        },
+        "value": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Value",
+          "type": "string"
+        }
+      },
+      "required": [
+        "keyId",
+        "value"
+      ],
+      "title": "PluginRegistrySignature",
+      "type": "object"
+    },
+    "PluginSecurityStatus": {
+      "enum": [
+        "unknown",
+        "current",
+        "advisory",
+        "critical"
+      ],
+      "title": "PluginSecurityStatus",
+      "type": "string"
     },
     "PluginSourceKind": {
       "enum": [

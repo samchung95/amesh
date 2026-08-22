@@ -25,6 +25,9 @@ from fastapi import (
     Response,
     status,
 )
+from fastapi import (
+    Path as PathParameter,
+)
 from fastapi.exceptions import RequestValidationError
 from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 from pydantic import TypeAdapter, ValidationError
@@ -216,11 +219,16 @@ from amesh.plugin_sdk import (
     PluginCatalogManager,
     PluginCatalogSnapshot,
     PluginContractError,
+    PluginRegistryIndex,
+    PluginRegistryPackage,
+    PluginRegistryPublishRequest,
+    PluginRegistryYankRequest,
     PluginResolver,
 )
 from amesh.plugins import (
     IsolatedPluginRuntime,
     IsolatedPluginRuntimeSnapshot,
+    SelfHostedPluginRegistry,
     TrustedPluginRuntime,
     TrustedPluginRuntimeSnapshot,
     build_isolated_runtime,
@@ -417,6 +425,27 @@ def get_plugin_catalog_manager() -> PluginCatalogManager:
 PluginCatalogDependency = Annotated[
     PluginCatalogManager,
     Depends(get_plugin_catalog_manager),
+]
+
+
+@lru_cache
+def get_self_hosted_plugin_registry() -> SelfHostedPluginRegistry:
+    settings = get_settings()
+    trusted_keys = {
+        key_id: secret.get_secret_value().encode("utf-8")
+        for key_id, secret in settings.plugin_registry_verification_keys.items()
+    }
+    return SelfHostedPluginRegistry(
+        settings.plugin_registry_root,
+        key_id=settings.plugin_registry_signing_key_id,
+        signing_key=settings.plugin_registry_signing_key.get_secret_value().encode("utf-8"),
+        trusted_keys=trusted_keys,
+    )
+
+
+SelfHostedPluginRegistryDependency = Annotated[
+    SelfHostedPluginRegistry,
+    Depends(get_self_hosted_plugin_registry),
 ]
 
 
@@ -1162,6 +1191,193 @@ async def install_plugin_bundle(
             detail=str(exc),
         ) from exc
     return catalog.snapshot
+
+
+@app.get(
+    "/api/v1/plugin-registry/index",
+    response_model=PluginRegistryIndex,
+    tags=["plugins"],
+)
+async def get_plugin_registry_index(
+    registry: SelfHostedPluginRegistryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> PluginRegistryIndex:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="plugin",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+    )
+    return registry.snapshot()
+
+
+@app.post(
+    "/api/v1/plugin-registry/packages",
+    response_model=PluginRegistryPackage,
+    tags=["plugins"],
+)
+async def publish_plugin_registry_package(
+    request: PluginRegistryPublishRequest,
+    registry: SelfHostedPluginRegistryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> PluginRegistryPackage:
+    del tenant_id
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="plugin",
+        action=PermissionAction.MANAGE,
+    )
+    try:
+        return registry.publish_request(request)
+    except (OSError, ValueError, ValidationError) as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=str(exc),
+        ) from exc
+
+
+@app.get(
+    "/api/v1/plugin-registry/packages/{name}/{version}",
+    response_model=PluginRegistryPackage,
+    tags=["plugins"],
+)
+async def get_plugin_registry_package(
+    name: str,
+    version: str,
+    registry: SelfHostedPluginRegistryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> PluginRegistryPackage:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="plugin",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+    )
+    try:
+        return registry.release(name, version)
+    except KeyError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+
+
+@app.post(
+    "/api/v1/plugin-registry/packages/{name}/{version}/yank",
+    response_model=PluginRegistryPackage,
+    tags=["plugins"],
+)
+async def yank_plugin_registry_package(
+    name: str,
+    version: str,
+    request: PluginRegistryYankRequest,
+    registry: SelfHostedPluginRegistryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> PluginRegistryPackage:
+    del tenant_id
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="plugin",
+        action=PermissionAction.MANAGE,
+    )
+    try:
+        return registry.yank(name, version, reason=request.reason)
+    except KeyError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+
+
+@app.get(
+    "/api/v1/plugin-registry/blobs/{digest}",
+    response_class=Response,
+    tags=["plugins"],
+)
+async def download_plugin_registry_bundle(
+    digest: Annotated[str, PathParameter(pattern=r"^[0-9a-f]{64}$")],
+    registry: SelfHostedPluginRegistryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> Response:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="plugin",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+    )
+    try:
+        content = registry.download(f"sha256:{digest}")
+    except KeyError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    return Response(content=content, media_type="application/vnd.amesh.plugin+zip")
+
+
+@app.get(
+    "/api/v1/plugin-registry/offline-export",
+    response_class=Response,
+    tags=["plugins"],
+)
+async def export_plugin_registry(
+    registry: SelfHostedPluginRegistryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> Response:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="plugin",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+    )
+    return Response(
+        content=registry.export_offline(),
+        media_type="application/vnd.amesh.plugin-registry+zip",
+        headers={"Content-Disposition": 'attachment; filename="amesh-plugin-registry.zip"'},
+    )
+
+
+@app.post(
+    "/api/v1/plugin-registry/offline-import",
+    response_model=PluginRegistryIndex,
+    tags=["plugins"],
+)
+async def import_plugin_registry(
+    request: Request,
+    registry: SelfHostedPluginRegistryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> PluginRegistryIndex:
+    del tenant_id
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="plugin",
+        action=PermissionAction.MANAGE,
+    )
+    content = await request.body()
+    if len(content) > 256 * 1024 * 1024:
+        raise HTTPException(
+            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            detail="offline plugin registry bundle exceeds 256 MiB",
+        )
+    try:
+        return registry.import_offline(content)
+    except (OSError, ValueError, ValidationError) as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=str(exc),
+        ) from exc
 
 
 @app.get(

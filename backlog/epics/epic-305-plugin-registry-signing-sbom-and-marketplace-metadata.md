@@ -12,14 +12,18 @@ Distribute plugins with verifiable provenance and enough metadata for safe adopt
 
 ## In scope
 
-- [ ] **URS-F-0328** — The system shall publish immutable plugin bundles by name, semantic version and digest.
-- [ ] **URS-F-0329** — The system shall store license, source, documentation, supported platform range, SDK range and changelog metadata.
-- [ ] **URS-F-0330** — The system shall attach software bills of materials, vulnerability reports and provenance attestations.
-- [ ] **URS-F-0331** — The system shall sign registry metadata and plugin artifacts and verify signatures before installation.
-- [ ] **URS-F-0332** — The system shall support allowlisted registries, mirrors, proxies and offline export or import.
-- [ ] **URS-F-0333** — The system shall display popularity, maintenance, certification and security status without treating them as trust guarantees.
-- [ ] **URS-F-0334** — The system shall yank compromised versions without deleting historical metadata needed by pinned executions.
-- [ ] **URS-F-0335** — The system shall provide an OSS registry API and a self-hosted registry implementation.
+- [x] **URS-F-0328** — The system shall publish immutable plugin bundles by name, semantic version and digest.
+- [x] **URS-F-0329** — The system shall store license, source, documentation, supported platform range, SDK range and changelog metadata.
+- [x] **URS-F-0330** — The system shall attach software bills of materials, vulnerability reports and provenance attestations.
+- [x] **URS-F-0331** — The system shall sign registry metadata and plugin artifacts and verify signatures before installation.
+- [x] **URS-F-0332** — The system shall support allowlisted registries, mirrors, proxies and offline export or import.
+- [x] **URS-F-0333** — The system shall display popularity, maintenance, certification and security status without treating them as trust guarantees.
+- [x] **URS-F-0334** — The system shall yank compromised versions without deleting historical metadata needed by pinned executions.
+- [x] **URS-F-0335** — The system shall provide an OSS registry API and a self-hosted registry implementation.
+
+## Implementation completion evidence
+
+- 2026-08-23 — EPIC-305 functional scope is complete. The open `amesh.plugin-registry/v1` contract and filesystem-backed service publish immutable name/version/digest releases with license, source, documentation, platform, SDK and changelog metadata; require signed SBOM, vulnerability and provenance attachments; sign artifacts, release metadata and indexes; verify signatures and digests before catalog installation or offline import; enforce allowlisted registry origins with mirror, proxy and offline policy; expose explicitly non-authoritative popularity, maintenance, certification and security signals in the Plugins UI; and retain signed metadata and blobs after yanking compromised versions. Authorized publish/list/download/yank/export/import endpoints provide the self-hosted OSS registry API. Evidence: [`test_registry.py`](../../tests/plugins/test_registry.py), [`plugin-registry.schema.json`](../../schemas/plugin-registry.schema.json), [`registry.md`](../../docs/plugin-sdk/registry.md), [`PluginsPage.tsx`](../../frontend/src/pages/PluginsPage.tsx) and [`TESTLOG.md`](../../TESTLOG.md). Shared URS-NFR-SECURITY-007 remains In Progress for official public-key release-pipeline qualification under EPIC-001/612; URS-NFR-PORTABILITY-001 remains In Progress for the full air-gapped core/governance suite under EPIC-804.
 
 ## Non-functional requirements
 
@@ -48,13 +52,13 @@ Distribute plugins with verifiable provenance and enough metadata for safe adopt
 
 ## Definition of done
 
-- [ ] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
-- [ ] Public API, DSL, event and plugin contract changes pass compatibility checks.
-- [ ] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
-- [ ] Security, tenant isolation, redaction and audit behavior are reviewed.
-- [ ] Documentation, examples, migration notes and operational runbooks are updated.
-- [ ] Performance and recovery budgets are measured when this epic is on a critical path.
-- [ ] `python scripts/validate_backlog.py` passes.
+- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
+- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.
+- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
+- [x] Security, tenant isolation, redaction and audit behavior are reviewed.
+- [x] Documentation, examples, migration notes and operational runbooks are updated.
+- [x] Performance and recovery budgets are measured when this epic is on a critical path.
+- [x] `python scripts/validate_backlog.py` passes.
 
 ## Risks and unknowns
 
