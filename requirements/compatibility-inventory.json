@@ -3974,97 +3974,121 @@
       "requirement_id": "URS-F-0265",
       "epic_id": "EPIC-221",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/adapters/docker/test_container_runner.py::test_urs_f_0265_0270_image_policy_and_immutable_resolution_fail_closed",
+        "tests/adapters/docker/test_container_runner.py::test_epic221_real_engine_archive_security_logs_cancellation_and_reconciliation"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0266",
       "epic_id": "EPIC-221",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/adapters/docker/test_container_runner.py::test_urs_f_0266_0267_0268_0271_0272_container_contract_and_cleanup",
+        "tests/adapters/docker/test_container_runner.py::test_epic221_real_engine_archive_security_logs_cancellation_and_reconciliation"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0267",
       "epic_id": "EPIC-221",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/adapters/docker/test_container_runner.py::test_urs_f_0266_0267_0268_0271_0272_container_contract_and_cleanup",
+        "tests/adapters/docker/test_container_runner.py::test_urs_f_0267_output_archive_rejects_links_before_replacing_workspace",
+        "tests/adapters/docker/test_container_runner.py::test_epic221_real_engine_archive_security_logs_cancellation_and_reconciliation"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0268",
       "epic_id": "EPIC-221",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/adapters/docker/test_container_runner.py::test_urs_f_0266_0267_0268_0271_0272_container_contract_and_cleanup",
+        "tests/adapters/docker/test_container_runner.py::test_epic221_real_engine_archive_security_logs_cancellation_and_reconciliation"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0269",
       "epic_id": "EPIC-221",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/adapters/docker/test_container_runner.py::test_urs_f_0269_remote_rootless_capability_and_registry_credentials_are_scoped"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0270",
       "epic_id": "EPIC-221",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/adapters/docker/test_container_runner.py::test_urs_f_0265_0270_image_policy_and_immutable_resolution_fail_closed",
+        "tests/adapters/docker/test_container_runner.py::test_urs_f_0270_command_verifier_is_argv_only_and_fails_closed"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0271",
       "epic_id": "EPIC-221",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/adapters/docker/test_container_runner.py::test_urs_f_0266_0267_0268_0271_0272_container_contract_and_cleanup",
+        "tests/adapters/docker/test_container_runner.py::test_epic221_real_engine_archive_security_logs_cancellation_and_reconciliation"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0272",
       "epic_id": "EPIC-221",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/adapters/docker/test_container_runner.py::test_urs_f_0266_0267_0268_0271_0272_container_contract_and_cleanup",
+        "tests/adapters/docker/test_container_runner.py::test_epic221_real_engine_archive_security_logs_cancellation_and_reconciliation"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0273",

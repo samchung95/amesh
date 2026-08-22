@@ -22,6 +22,8 @@ services:
       OBJECT_STORAGE_WORKLOAD_IDENTITY: "false"
       AUTH_MODE: development
       AUTH_POLICY: local
+      DOCKER_RUNNER_ENABLED: "true"
+      DOCKER_IMAGE_POLICY: '{"allowedRegistries":["docker.io"],"allowTags":true}'
       PRODUCT_TELEMETRY_ENABLED: "false"
     ports:
       - "8000:8000"
@@ -33,6 +35,10 @@ services:
       minio-init:
         condition: service_completed_successfully
     read_only: true
+    group_add:
+      - "${DOCKER_GID:-0}"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
     tmpfs:
       - /tmp
     security_opt:
@@ -61,6 +67,8 @@ services:
       SERVICE_INSTANCE_NAME: compose-executor
       SERVICE_CYCLE_SECONDS: "1"
       EXECUTION_RUNNER_MODE: local
+      DOCKER_RUNNER_ENABLED: "true"
+      DOCKER_IMAGE_POLICY: '{"allowedRegistries":["docker.io"],"allowTags":true}'
       WORKER_RECOVERY_GRACE_SECONDS: "5"
     depends_on:
       postgres:
@@ -76,6 +84,10 @@ services:
       start_period: 10s
       retries: 3
     read_only: true
+    group_add:
+      - "${DOCKER_GID:-0}"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
     tmpfs:
       - /tmp
     security_opt:

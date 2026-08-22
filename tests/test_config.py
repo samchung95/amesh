@@ -174,6 +174,27 @@ def test_reload_is_atomic_and_limited_to_explicit_reloadable_settings() -> None:
     assert manager.settings.app_port == 8000
 
 
+def test_docker_runner_complex_environment_settings_are_json() -> None:
+    loaded = load_configuration(
+        environment={
+            "DOCKER_IMAGE_POLICY": (
+                '{"allowedRegistries":["registry.example"],"allowTags":true,'
+                '"requireSignature":true}'
+            ),
+            "DOCKER_SIGNATURE_VERIFICATION_COMMAND": '["cosign","verify","{image}"]',
+        }
+    )
+
+    assert loaded.settings.docker_image_policy.allowed_registries == ("registry.example",)
+    assert loaded.settings.docker_image_policy.allow_tags
+    assert loaded.settings.docker_image_policy.require_signature
+    assert loaded.settings.docker_signature_verification_command == (
+        "cosign",
+        "verify",
+        "{image}",
+    )
+
+
 def test_renamed_settings_are_migrated_with_a_safe_warning(tmp_path: Path) -> None:
     legacy = tmp_path / "legacy.yaml"
     legacy.write_text("telemetry_enabled: true\n", encoding="utf-8")

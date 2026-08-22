@@ -24,6 +24,7 @@ dependencies = [
   # and OpenAPI output; a schema-emission change in either library would
   # otherwise break CI with no code change. Bump deliberately and
   # regenerate contracts (make contracts) in the same commit.
+  "docker==7.2.0",
   "fastapi==0.141.1",
   "httpx>=0.28,<1",
   "jinja2>=3.1.6,<4",
@@ -101,5 +102,6 @@ fail_under = 75
 
 [dependency-groups]
 dev = [
+    "types-docker==7.2.0.20260813",
     "types-psutil>=7.2.2.20260130,<8",
 ]

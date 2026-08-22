@@ -60,6 +60,12 @@ and disabled for `TENANCY_MODE=multi`. Setting it to `true` in a multi-tenant de
 operator assertion that every tenant allowed to select `local` is trusted to run directly on that
 worker. Keep `allowedRunners: [kubernetes]` on untrusted namespace and worker-group rules.
 
+`DOCKER_RUNNER_ENABLED` is restart-required and defaults to `false`. `DOCKER_RUNNER_ENDPOINT` selects
+a local, rootless or remote Engine; when omitted, the standard Docker client environment is used.
+`DOCKER_IMAGE_POLICY` configures registry allowlists, explicit tag use, signature verification and
+vulnerability verification. The two verifier command settings are JSON argv arrays and fail closed
+when their corresponding policy switch is enabled. See [the Docker runner guide](docker-oci-runner.md).
+
 ## Feature flags
 
 Boolean flags are versioned and audited in PostgreSQL. Resolution order is namespace, tenant,

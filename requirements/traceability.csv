@@ -263,14 +263,14 @@ URS-F-0261,Functional,Must,EPIC-220,Local process task runner,M2,2,Runner contra
 URS-F-0262,Functional,Must,EPIC-220,Local process task runner,M2,2,Runner contract tests against disposable execution environments,Verified
 URS-F-0263,Functional,Must,EPIC-220,Local process task runner,M2,2,Runner contract tests against disposable execution environments,Verified
 URS-F-0264,Functional,Must,EPIC-220,Local process task runner,M2,2,Runner contract tests against disposable execution environments,Verified
-URS-F-0265,Functional,Must,EPIC-221,Docker and OCI task runner,M2,2,Runner contract tests against disposable execution environments,Proposed
-URS-F-0266,Functional,Must,EPIC-221,Docker and OCI task runner,M2,2,Runner contract tests against disposable execution environments,Proposed
-URS-F-0267,Functional,Must,EPIC-221,Docker and OCI task runner,M2,2,Runner contract tests against disposable execution environments,Proposed
-URS-F-0268,Functional,Must,EPIC-221,Docker and OCI task runner,M2,2,Runner contract tests against disposable execution environments,Proposed
-URS-F-0269,Functional,Must,EPIC-221,Docker and OCI task runner,M2,2,Runner contract tests against disposable execution environments,Proposed
-URS-F-0270,Functional,Must,EPIC-221,Docker and OCI task runner,M2,2,Runner contract tests against disposable execution environments,Proposed
-URS-F-0271,Functional,Must,EPIC-221,Docker and OCI task runner,M2,2,Runner contract tests against disposable execution environments,Proposed
-URS-F-0272,Functional,Must,EPIC-221,Docker and OCI task runner,M2,2,Runner contract tests against disposable execution environments,Proposed
+URS-F-0265,Functional,Must,EPIC-221,Docker and OCI task runner,M2,2,Runner contract tests against disposable execution environments,Verified
+URS-F-0266,Functional,Must,EPIC-221,Docker and OCI task runner,M2,2,Runner contract tests against disposable execution environments,Verified
+URS-F-0267,Functional,Must,EPIC-221,Docker and OCI task runner,M2,2,Runner contract tests against disposable execution environments,Verified
+URS-F-0268,Functional,Must,EPIC-221,Docker and OCI task runner,M2,2,Runner contract tests against disposable execution environments,Verified
+URS-F-0269,Functional,Must,EPIC-221,Docker and OCI task runner,M2,2,Runner contract tests against disposable execution environments,Verified
+URS-F-0270,Functional,Must,EPIC-221,Docker and OCI task runner,M2,2,Runner contract tests against disposable execution environments,Verified
+URS-F-0271,Functional,Must,EPIC-221,Docker and OCI task runner,M2,2,Runner contract tests against disposable execution environments,Verified
+URS-F-0272,Functional,Must,EPIC-221,Docker and OCI task runner,M2,2,Runner contract tests against disposable execution environments,Verified
 URS-F-0273,Functional,Must,EPIC-222,Kubernetes task runner,M2,2,Runner contract tests against disposable execution environments,Proposed
 URS-F-0274,Functional,Must,EPIC-222,Kubernetes task runner,M2,2,Runner contract tests against disposable execution environments,Proposed
 URS-F-0275,Functional,Must,EPIC-222,Kubernetes task runner,M2,2,Runner contract tests against disposable execution environments,Proposed
@@ -967,10 +967,10 @@ URS-NFR-SECURITY-006,Non-functional,Must,EPIC-613,"TLS, networking, proxy and pr
 URS-NFR-SECURITY-007,Non-functional,Must,EPIC-001,"Repository engineering, CI and release foundation",M0,0,Release pipeline policy gate.,Proposed
 URS-NFR-SECURITY-007,Non-functional,Must,EPIC-305,"Plugin registry, signing, SBOM and marketplace metadata",M3,3,Release pipeline policy gate.,Proposed
 URS-NFR-SECURITY-007,Non-functional,Must,EPIC-612,Security hardening and software supply chain,M6,6,Release pipeline policy gate.,Proposed
-URS-NFR-SECURITY-008,Non-functional,Must,EPIC-209,Task runner interface and capability model,M2,2,Architecture test and runtime process inspection.,Proposed
-URS-NFR-SECURITY-008,Non-functional,Must,EPIC-221,Docker and OCI task runner,M2,2,Architecture test and runtime process inspection.,Proposed
-URS-NFR-SECURITY-008,Non-functional,Must,EPIC-222,Kubernetes task runner,M2,2,Architecture test and runtime process inspection.,Proposed
-URS-NFR-SECURITY-008,Non-functional,Must,EPIC-303,Isolated language-neutral plugin runtime,M3,3,Architecture test and runtime process inspection.,Proposed
+URS-NFR-SECURITY-008,Non-functional,Must,EPIC-209,Task runner interface and capability model,M2,2,Architecture test and runtime process inspection.,In Progress
+URS-NFR-SECURITY-008,Non-functional,Must,EPIC-221,Docker and OCI task runner,M2,2,Architecture test and runtime process inspection.,In Progress
+URS-NFR-SECURITY-008,Non-functional,Must,EPIC-222,Kubernetes task runner,M2,2,Architecture test and runtime process inspection.,In Progress
+URS-NFR-SECURITY-008,Non-functional,Must,EPIC-303,Isolated language-neutral plugin runtime,M3,3,Architecture test and runtime process inspection.,In Progress
 URS-NFR-SECURITY-009,Non-functional,Must,EPIC-504,Immutable audit log and evidence export,M5,5,Endpoint-to-audit traceability suite.,Proposed
 URS-NFR-SECURITY-010,Non-functional,Must,EPIC-003,Configuration and feature flag system,M0,0,Configuration conformance and container scan.,In Progress
 URS-NFR-SECURITY-010,Non-functional,Must,EPIC-403,Authentication session and credential entry points,M4,4,Configuration conformance and container scan.,In Progress

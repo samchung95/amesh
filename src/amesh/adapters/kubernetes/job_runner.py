@@ -340,16 +340,20 @@ def _job_body(name: str, request: RunnerRequest) -> dict[str, Any]:
             "limits": request.resource_limits,
         },
     }
-    if not request.security_policy.is_default:
-        container["securityContext"] = {
-            "privileged": request.security_policy.privileged,
-            "readOnlyRootFilesystem": request.security_policy.read_only_root_filesystem,
-            **(
-                {"runAsUser": request.security_policy.run_as_user}
-                if request.security_policy.run_as_user is not None
-                else {}
-            ),
-        }
+    container["securityContext"] = {
+        "privileged": request.security_policy.privileged,
+        "readOnlyRootFilesystem": request.security_policy.read_only_root_filesystem,
+        "allowPrivilegeEscalation": not request.security_policy.no_new_privileges,
+        "capabilities": {
+            "add": list(request.security_policy.capability_add),
+            "drop": list(request.security_policy.capability_drop),
+        },
+        **(
+            {"runAsUser": request.security_policy.run_as_user}
+            if request.security_policy.run_as_user is not None
+            else {}
+        ),
+    }
     pod_spec: dict[str, Any] = {
         "restartPolicy": "Never",
         "terminationGracePeriodSeconds": math.ceil(request.cancel_grace_seconds),

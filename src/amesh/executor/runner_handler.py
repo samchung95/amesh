@@ -38,12 +38,16 @@ def local_process_handler(
     workspace_manager: WorkingDirectoryManager | None = None,
     *,
     namespace: str = "default",
+    requires_image: bool = False,
+    runner_label: str = "local process",
 ) -> TaskHandler:
     workspaces = workspace_manager or WorkingDirectoryManager(None)
 
     async def run(task: TaskDefinition, context: TaskExecutionContext) -> TaskCompletion:
         if task.command is None or not task.command:
             raise ValueError(f"task {task.id!r} requires a non-empty command")
+        if requires_image and task.image is None:
+            raise ValueError(f"task {task.id!r} requires a container image")
         quota_bytes = context.workspace_quota_bytes or task.workspace_quota_bytes
         workspace = await workspaces.prepare(
             tenant_id=context.tenant_id,
@@ -67,6 +71,7 @@ def local_process_handler(
                     attempt_id=str(context.attempt_id),
                     fencing_token=context.attempt,
                     command=task.command,
+                    image=task.image if requires_image else None,
                     environment=task.environment,
                     credentials=_runner_credentials(task, context),
                     input_files={
@@ -105,13 +110,18 @@ def local_process_handler(
                     )
                     artifacts = (diagnostic,)
                 raise TaskExecutionFailure(
-                    f"local process ended as {result.status.value}{detail}",
+                    f"{runner_label} ended as {result.status.value}{detail}",
                     _RUNNER_FAILURE_CATEGORIES[result.status],
                     result={
                         "exitCode": result.exit_code,
                         "signal": result.signal,
                         "metrics": result.metrics.model_dump(
                             mode="json", by_alias=True, exclude_none=True
+                        ),
+                        **(
+                            {"diagnostics": _public_runner_diagnostics(result.diagnostics)}
+                            if requires_image
+                            else {}
                         ),
                         **result.outputs,
                     },
@@ -152,6 +162,11 @@ def local_process_handler(
                         mode="json", by_alias=True, exclude_none=True
                     ),
                     **result.outputs,
+                    **(
+                        {"diagnostics": _public_runner_diagnostics(result.diagnostics)}
+                        if requires_image
+                        else {}
+                    ),
                     "outputFiles": dict(collected.output_files),
                 },
                 logs=logs,
@@ -162,6 +177,21 @@ def local_process_handler(
                 workspaces.cleanup(workspace.path)
 
     return run
+
+
+def docker_container_handler(
+    runner: TaskRunner,
+    workspace_manager: WorkingDirectoryManager | None = None,
+    *,
+    namespace: str = "default",
+) -> TaskHandler:
+    return local_process_handler(
+        runner,
+        workspace_manager,
+        namespace=namespace,
+        requires_image=True,
+        runner_label="Docker container",
+    )
 
 
 def kubernetes_job_handler(

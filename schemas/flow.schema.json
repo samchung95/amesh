@@ -294,6 +294,87 @@
       "title": "ConditionalBranch",
       "type": "object"
     },
+    "DockerContainerRunnerExtension": {
+      "properties": {
+        "platform": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Platform"
+        },
+        "pullPolicy": {
+          "$ref": "#/$defs/DockerImagePullPolicy",
+          "default": "IF_NOT_PRESENT"
+        },
+        "registryPasswordVariable": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z_][A-Za-z0-9_]*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Registrypasswordvariable"
+        },
+        "registryUsernameVariable": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z_][A-Za-z0-9_]*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Registryusernamevariable"
+        },
+        "runtime": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Runtime"
+        },
+        "type": {
+          "const": "docker",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "title": "DockerContainerRunnerExtension",
+      "type": "object"
+    },
+    "DockerImagePullPolicy": {
+      "enum": [
+        "NEVER",
+        "IF_NOT_PRESENT",
+        "ALWAYS"
+      ],
+      "title": "DockerImagePullPolicy",
+      "type": "string"
+    },
     "ErrorSelector": {
       "additionalProperties": false,
       "description": "Typed selector applied to one task inside an errors block.",
@@ -719,6 +800,29 @@
     },
     "RunnerSecurityPolicy": {
       "properties": {
+        "capabilityAdd": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Capabilityadd",
+          "type": "array"
+        },
+        "capabilityDrop": {
+          "default": [
+            "ALL"
+          ],
+          "items": {
+            "type": "string"
+          },
+          "title": "Capabilitydrop",
+          "type": "array"
+        },
+        "noNewPrivileges": {
+          "default": true,
+          "title": "Nonewprivileges",
+          "type": "boolean"
+        },
         "privileged": {
           "default": false,
           "title": "Privileged",
@@ -1107,6 +1211,7 @@
             {
               "discriminator": {
                 "mapping": {
+                  "docker": "#/$defs/DockerContainerRunnerExtension",
                   "kubernetes": "#/$defs/KubernetesJobRunnerExtension",
                   "local": "#/$defs/LocalProcessRunnerExtension"
                 },
@@ -1115,6 +1220,9 @@
               "oneOf": [
                 {
                   "$ref": "#/$defs/LocalProcessRunnerExtension"
+                },
+                {
+                  "$ref": "#/$defs/DockerContainerRunnerExtension"
                 },
                 {
                   "$ref": "#/$defs/KubernetesJobRunnerExtension"

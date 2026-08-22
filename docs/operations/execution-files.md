@@ -52,5 +52,7 @@ GET /api/v1/executions/{executionId}/files/{artifactId}
 ```
 
 Both routes require execution view permission and preserve tenant isolation. Artifact rows expose
-metadata and lineage; payload bytes stream from object storage. The local profile is qualified here.
-Docker/OCI and Kubernetes workspace transfer are activated by their runner epics.
+metadata and lineage; payload bytes stream from object storage. The local and Docker/OCI profiles are
+qualified here. Docker transfers the bounded workspace through the Engine archive API and an owned
+named volume; it does not expose the control-plane host filesystem to the task. Kubernetes workspace
+transfer remains with its runner epic.

@@ -230,6 +230,22 @@ def _core_descriptors() -> tuple[ResourceSchemaDescriptor, ...]:
                 {
                     "type": "object",
                     "properties": {
+                        "type": {"const": "docker"},
+                        "pullPolicy": {
+                            "type": "string",
+                            "enum": ["NEVER", "IF_NOT_PRESENT", "ALWAYS"],
+                        },
+                        "platform": {"type": "string", "minLength": 1},
+                        "runtime": {"type": "string", "minLength": 1},
+                        "registryUsernameVariable": {"type": "string", "minLength": 1},
+                        "registryPasswordVariable": {"type": "string", "minLength": 1},
+                    },
+                    "required": ["type"],
+                    "additionalProperties": False,
+                },
+                {
+                    "type": "object",
+                    "properties": {
                         "type": {"const": "kubernetes"},
                         "serviceAccountName": {"type": "string", "minLength": 1},
                         "labels": string_map,
@@ -259,6 +275,17 @@ def _core_descriptors() -> tuple[ResourceSchemaDescriptor, ...]:
                 "privileged": {"type": "boolean"},
                 "readOnlyRootFilesystem": {"type": "boolean"},
                 "runAsUser": {"type": "integer", "minimum": 0},
+                "capabilityAdd": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "uniqueItems": True,
+                },
+                "capabilityDrop": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "uniqueItems": True,
+                },
+                "noNewPrivileges": {"type": "boolean"},
             },
             "additionalProperties": False,
         },

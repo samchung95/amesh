@@ -5293,6 +5293,7 @@
       "RunnerId": {
         "enum": [
           "local",
+          "docker",
           "kubernetes"
         ],
         "title": "RunnerId",
@@ -5301,6 +5302,7 @@
       "RunnerMode": {
         "enum": [
           "local",
+          "docker",
           "kubernetes"
         ],
         "title": "RunnerMode",

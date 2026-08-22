@@ -1,5 +1,47 @@
 # Test Log
 
+## EPIC-221: Docker and OCI task runner — 2026-08-23
+
+Spec source: Agent Hotel card `c48` and canonical `backlog/epics.json` EPIC-221 DoD.
+
+Verified with `uv`, Python 3.13, Docker SDK 7.2.0, Docker Desktop's Linux Engine, PostgreSQL 17,
+MinIO and the deployed Compose control plane:
+
+- [x] Docker tasks accept typed YAML/API configuration, resolve allowed tags to immutable repository
+  digests under explicit pull policy, and reject disallowed registries or tags before container
+  creation. Required argv-only signature and vulnerability verifiers fail closed.
+- [x] Disposable Engine qualification applied CPU, memory, process, open-file, user, dropped-
+  capability, no-new-privilege, read-only-root-filesystem and `none` network controls. Inspection
+  proved the untrusted container had no Docker socket mount.
+- [x] Input and output workspaces crossed the Engine archive API through an owned named volume.
+  Traversal-capable archive member types were rejected before the host workspace changed.
+- [x] Short-lived container stdout/stderr streamed separately after attachment-before-start. Results
+  included exit status, duration, CPU, peak memory, immutable image, OOM and runtime diagnostics.
+- [x] Fenced cancellation stopped a live container. Completion and repeated orphan reconciliation
+  removed owned containers and volumes idempotently; scoped registry credentials did not enter the
+  task environment.
+- [x] Rootless and remote Engine endpoints use the standard Docker SDK connection contract. The
+  development Compose profile mounts the socket only into trusted AMESH runner services, never into
+  task containers.
+- [x] The focused Docker suite produced six passes and one opt-in skip; its opt-in real-Engine test
+  passed separately. Runner/configuration/Kubernetes compatibility tests, Ruff, strict mypy for 131
+  source files, uv lock, generated contracts, clean-room, backlog, Compose and diff gates passed.
+- [x] A fresh database applied all 40 migrations. The final non-deferred suite produced 336 passes,
+  eight environment/profile skips and no failures. Three assertions owned by deferred cards `c15`
+  and `c29` were deselected; `c29` includes the stale migration-31 observability assertion found by
+  the first correctly wired full run.
+- [x] The rebuilt API, executor and scheduler are healthy and advertise local, Docker and Kubernetes
+  runners. Deployed execution `01a02a40-5c93-7ecb-a5e0-7693f281c8ed` completed `SUCCESS`, exposed
+  separate `docker-stdout-ok`/`docker-stderr-ok`, resolved `alpine:3.21` to SHA-256, uploaded
+  `result.txt` containing `docker-output-ok`, and left zero owned containers or volumes.
+
+No LLM invocation was required for deterministic runner behavior; the only live LLM test remained
+environment-gated and its configured OpenRouter default is `openai/gpt-5.6-luna`.
+
+Verdict: PASS — EPIC-221 functional requirements URS-F-0265 through URS-F-0272 are verified. The
+Docker-runner slice of shared URS-NFR-SECURITY-008 is complete; plugin and Kubernetes isolation remain
+In Progress under their owning epics.
+
 ## EPIC-220: Local process task runner — 2026-08-22
 
 Spec source: Agent Hotel card `c47` and canonical `backlog/epics.json` EPIC-220 DoD.

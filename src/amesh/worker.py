@@ -9,6 +9,7 @@ from uuid import UUID
 
 from sqlalchemy.exc import DBAPIError
 
+from amesh.adapters.docker import DockerContainerRunner
 from amesh.adapters.kubernetes import KubernetesJobRunner
 from amesh.adapters.local import LocalProcessRunner
 from amesh.adapters.postgres import (
@@ -35,6 +36,7 @@ from amesh.dsl import compile_execution_tasks
 from amesh.executor import (
     InProcessExecutor,
     TaskHandler,
+    docker_container_handler,
     execution_lifecycle_pending,
     kubernetes_job_handler,
     local_process_handler,
@@ -290,6 +292,8 @@ async def recover_once(
             available_runners = {RunnerId.KUBERNETES}
             if settings.is_local_process_runner_enabled:
                 available_runners.add(RunnerId.LOCAL)
+            if settings.docker_runner_enabled:
+                available_runners.add(RunnerId.DOCKER)
             selected_runners = required_runner_ids(
                 (node.task for node in compile_execution_tasks(flow)),
                 runner_policy,
@@ -298,9 +302,22 @@ async def recover_once(
                 available=frozenset(available_runners),
             )
             runner_handlers: dict[RunnerId, TaskHandler] = {}
+            docker_runner: DockerContainerRunner | None = None
             if RunnerId.LOCAL in selected_runners:
                 runner_handlers[RunnerId.LOCAL] = local_process_handler(
                     LocalProcessRunner(),
+                    workspace_manager,
+                    namespace=flow.namespace,
+                )
+            if RunnerId.DOCKER in selected_runners:
+                docker_runner = DockerContainerRunner(
+                    endpoint=settings.docker_runner_endpoint,
+                    image_policy=settings.docker_image_policy,
+                    signature_command=settings.docker_signature_verification_command,
+                    vulnerability_command=settings.docker_vulnerability_verification_command,
+                )
+                runner_handlers[RunnerId.DOCKER] = docker_container_handler(
+                    docker_runner,
                     workspace_manager,
                     namespace=flow.namespace,
                 )
@@ -362,6 +379,8 @@ async def recover_once(
                     },
                 )
             finally:
+                if docker_runner is not None:
+                    await asyncio.to_thread(docker_runner.close)
                 if kubernetes_runner is not None:
                     await kubernetes_runner.close()
     return recovered

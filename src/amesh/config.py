@@ -16,10 +16,18 @@ from threading import RLock
 from typing import Any, Literal, get_args, get_origin
 
 import yaml
-from pydantic import BaseModel, ConfigDict, Field, SecretStr, ValidationError, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    SecretStr,
+    ValidationError,
+    field_validator,
+    model_validator,
+)
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from amesh.domain.runner import RunnerPolicy
+from amesh.domain.runner import DockerImagePolicy, RunnerPolicy
 
 _REDACTED = "[REDACTED]"
 _SECRET_REFERENCE = re.compile(r"^secret://([A-Za-z0-9][A-Za-z0-9_.-]{0,127})$")
@@ -98,8 +106,13 @@ class Settings(BaseSettings):
     worker_group: str = "default"
     kubernetes_context: str | None = None
     kubernetes_task_namespace: str = "amesh-tasks"
-    execution_runner_mode: Literal["local", "kubernetes"] = "kubernetes"
+    execution_runner_mode: Literal["local", "docker", "kubernetes"] = "kubernetes"
     local_process_runner_enabled: bool | None = None
+    docker_runner_enabled: bool = False
+    docker_runner_endpoint: str | None = None
+    docker_image_policy: DockerImagePolicy = Field(default_factory=DockerImagePolicy)
+    docker_signature_verification_command: tuple[str, ...] = ()
+    docker_vulnerability_verification_command: tuple[str, ...] = ()
     runner_policies: tuple[RunnerPolicy, ...] = ()
     worker_poll_seconds: float = Field(default=5.0, gt=0)
     worker_recovery_grace_seconds: float = Field(default=120.0, ge=0)
@@ -124,6 +137,20 @@ class Settings(BaseSettings):
         json_schema_extra={"reloadable": True},
     )
     log_level: str = Field(default="INFO", json_schema_extra={"reloadable": True})
+
+    @field_validator("docker_image_policy", mode="before")
+    @classmethod
+    def parse_docker_image_policy(cls, value: object) -> object:
+        return json.loads(value) if isinstance(value, str) else value
+
+    @field_validator(
+        "docker_signature_verification_command",
+        "docker_vulnerability_verification_command",
+        mode="before",
+    )
+    @classmethod
+    def parse_docker_verifier_command(cls, value: object) -> object:
+        return json.loads(value) if isinstance(value, str) else value
 
     @model_validator(mode="after")
     def validate_token_pepper(self) -> Settings:

@@ -12,6 +12,7 @@ from .contracts import (
 )
 from .control import preview_execution_intervention
 from .runner_handler import (
+    docker_container_handler,
     kubernetes_job_handler,
     local_process_handler,
     required_runner_ids,
@@ -65,6 +66,7 @@ __all__ = [
     "TaskPlatformError",
     "TaskResourceLimitError",
     "TaskUserCodeError",
+    "docker_container_handler",
     "execution_lifecycle_pending",
     "kubernetes_job_handler",
     "local_process_handler",

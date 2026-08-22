@@ -247,6 +247,12 @@ def _validate_local_request(
         reasons.append("privileged security policy")
     if request.security_policy.read_only_root_filesystem:
         reasons.append("read-only root filesystem security policy")
+    if request.security_policy.capability_add:
+        reasons.append("capability-add security policy")
+    if request.security_policy.capability_drop != ("ALL",):
+        reasons.append("capability-drop security policy")
+    if not request.security_policy.no_new_privileges:
+        reasons.append("no-new-privileges security policy")
     try:
         limits = LocalProcessResourceLimits.model_validate(request.resource_limits)
     except ValidationError as exc:

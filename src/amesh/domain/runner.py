@@ -8,6 +8,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 
 class RunnerId(StrEnum):
     LOCAL = "local"
+    DOCKER = "docker"
     KUBERNETES = "kubernetes"
 
 
@@ -36,11 +37,19 @@ class RunnerSecurityPolicy(BaseModel):
     privileged: bool = False
     read_only_root_filesystem: bool = Field(default=False, alias="readOnlyRootFilesystem")
     run_as_user: int | None = Field(default=None, alias="runAsUser", ge=0)
+    capability_add: tuple[str, ...] = Field(default=(), alias="capabilityAdd")
+    capability_drop: tuple[str, ...] = Field(default=("ALL",), alias="capabilityDrop")
+    no_new_privileges: bool = Field(default=True, alias="noNewPrivileges")
 
     @property
     def is_default(self) -> bool:
         return (
-            not self.privileged and not self.read_only_root_filesystem and self.run_as_user is None
+            not self.privileged
+            and not self.read_only_root_filesystem
+            and self.run_as_user is None
+            and not self.capability_add
+            and self.capability_drop == ("ALL",)
+            and self.no_new_privileges
         )
 
 
@@ -61,6 +70,67 @@ class LocalProcessResourceLimits(BaseModel):
     file_size_bytes: int | None = Field(default=None, alias="fileSizeBytes", ge=1)
     open_files: int | None = Field(default=None, alias="openFiles", ge=1)
     processes: int | None = Field(default=None, ge=1)
+
+
+class DockerImagePullPolicy(StrEnum):
+    NEVER = "NEVER"
+    IF_NOT_PRESENT = "IF_NOT_PRESENT"
+    ALWAYS = "ALWAYS"
+
+
+class DockerContainerRunnerExtension(BaseModel):
+    model_config = ConfigDict(frozen=True, populate_by_name=True)
+
+    type: Literal[RunnerId.DOCKER]
+    pull_policy: DockerImagePullPolicy = Field(
+        default=DockerImagePullPolicy.IF_NOT_PRESENT,
+        alias="pullPolicy",
+    )
+    platform: str | None = Field(default=None, min_length=1, max_length=128)
+    runtime: str | None = Field(default=None, min_length=1, max_length=128)
+    registry_username_variable: str | None = Field(
+        default=None,
+        alias="registryUsernameVariable",
+        pattern=r"^[A-Za-z_][A-Za-z0-9_]*$",
+    )
+    registry_password_variable: str | None = Field(
+        default=None,
+        alias="registryPasswordVariable",
+        pattern=r"^[A-Za-z_][A-Za-z0-9_]*$",
+    )
+
+    @model_validator(mode="after")
+    def validate_registry_credentials(self) -> DockerContainerRunnerExtension:
+        if (self.registry_username_variable is None) != (self.registry_password_variable is None):
+            raise ValueError(
+                "registryUsernameVariable and registryPasswordVariable must be configured together"
+            )
+        return self
+
+
+class DockerContainerResourceLimits(BaseModel):
+    model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
+
+    cpus: float | None = Field(default=None, gt=0)
+    memory_bytes: int | None = Field(default=None, alias="memoryBytes", ge=4 * 1024 * 1024)
+    processes: int | None = Field(default=None, ge=1)
+    open_files: int | None = Field(default=None, alias="openFiles", ge=1)
+
+
+class DockerImagePolicy(BaseModel):
+    model_config = ConfigDict(frozen=True, populate_by_name=True)
+
+    allowed_registries: tuple[str, ...] = Field(
+        default=("docker.io",),
+        alias="allowedRegistries",
+        min_length=1,
+    )
+    allow_tags: bool = Field(default=False, alias="allowTags")
+    require_signature: bool = Field(default=False, alias="requireSignature")
+    require_vulnerability_scan: bool = Field(
+        default=False,
+        alias="requireVulnerabilityScan",
+    )
 
 
 class KubernetesJobRunnerExtension(BaseModel):
@@ -88,7 +158,7 @@ class KubernetesJobRunnerExtension(BaseModel):
 
 
 RunnerExtension = Annotated[
-    LocalProcessRunnerExtension | KubernetesJobRunnerExtension,
+    LocalProcessRunnerExtension | DockerContainerRunnerExtension | KubernetesJobRunnerExtension,
     Field(discriminator="type"),
 ]
 
@@ -106,7 +176,7 @@ class RunnerPolicy(BaseModel):
     )
     default_runner: RunnerId | None = Field(default=None, alias="defaultRunner")
     allowed_runners: tuple[RunnerId, ...] = Field(
-        default=(RunnerId.LOCAL, RunnerId.KUBERNETES),
+        default=(RunnerId.LOCAL, RunnerId.DOCKER, RunnerId.KUBERNETES),
         alias="allowedRunners",
         min_length=1,
     )

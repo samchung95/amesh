@@ -150,6 +150,7 @@ class ReduceExecutionResponse(BaseModel):
 
 class RunnerMode(StrEnum):
     LOCAL = "local"
+    DOCKER = "docker"
     KUBERNETES = "kubernetes"
 
 

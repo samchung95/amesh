@@ -7795,7 +7795,11 @@
       "id": "URS-F-0265",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/adapters/docker/test_container_runner.py::test_urs_f_0265_0270_image_policy_and_immutable_resolution_fail_closed",
+        "tests/adapters/docker/test_container_runner.py::test_epic221_real_engine_archive_security_logs_cancellation_and_reconciliation"
+      ],
       "milestone": "M2",
       "wave": 2,
       "epic_id": "EPIC-221",
@@ -7822,7 +7826,11 @@
       "id": "URS-F-0266",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/adapters/docker/test_container_runner.py::test_urs_f_0266_0267_0268_0271_0272_container_contract_and_cleanup",
+        "tests/adapters/docker/test_container_runner.py::test_epic221_real_engine_archive_security_logs_cancellation_and_reconciliation"
+      ],
       "milestone": "M2",
       "wave": 2,
       "epic_id": "EPIC-221",
@@ -7849,7 +7857,12 @@
       "id": "URS-F-0267",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/adapters/docker/test_container_runner.py::test_urs_f_0266_0267_0268_0271_0272_container_contract_and_cleanup",
+        "tests/adapters/docker/test_container_runner.py::test_urs_f_0267_output_archive_rejects_links_before_replacing_workspace",
+        "tests/adapters/docker/test_container_runner.py::test_epic221_real_engine_archive_security_logs_cancellation_and_reconciliation"
+      ],
       "milestone": "M2",
       "wave": 2,
       "epic_id": "EPIC-221",
@@ -7876,7 +7889,11 @@
       "id": "URS-F-0268",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/adapters/docker/test_container_runner.py::test_urs_f_0266_0267_0268_0271_0272_container_contract_and_cleanup",
+        "tests/adapters/docker/test_container_runner.py::test_epic221_real_engine_archive_security_logs_cancellation_and_reconciliation"
+      ],
       "milestone": "M2",
       "wave": 2,
       "epic_id": "EPIC-221",
@@ -7903,7 +7920,10 @@
       "id": "URS-F-0269",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/adapters/docker/test_container_runner.py::test_urs_f_0269_remote_rootless_capability_and_registry_credentials_are_scoped"
+      ],
       "milestone": "M2",
       "wave": 2,
       "epic_id": "EPIC-221",
@@ -7930,7 +7950,11 @@
       "id": "URS-F-0270",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/adapters/docker/test_container_runner.py::test_urs_f_0265_0270_image_policy_and_immutable_resolution_fail_closed",
+        "tests/adapters/docker/test_container_runner.py::test_urs_f_0270_command_verifier_is_argv_only_and_fails_closed"
+      ],
       "milestone": "M2",
       "wave": 2,
       "epic_id": "EPIC-221",
@@ -7957,7 +7981,11 @@
       "id": "URS-F-0271",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/adapters/docker/test_container_runner.py::test_urs_f_0266_0267_0268_0271_0272_container_contract_and_cleanup",
+        "tests/adapters/docker/test_container_runner.py::test_epic221_real_engine_archive_security_logs_cancellation_and_reconciliation"
+      ],
       "milestone": "M2",
       "wave": 2,
       "epic_id": "EPIC-221",
@@ -7984,7 +8012,11 @@
       "id": "URS-F-0272",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/adapters/docker/test_container_runner.py::test_urs_f_0266_0267_0268_0271_0272_container_contract_and_cleanup",
+        "tests/adapters/docker/test_container_runner.py::test_epic221_real_engine_archive_security_logs_cancellation_and_reconciliation"
+      ],
       "milestone": "M2",
       "wave": 2,
       "epic_id": "EPIC-221",
@@ -24673,7 +24705,13 @@
         "EPIC-222"
       ],
       "priority": "Must",
-      "status": "Proposed"
+      "status": "In Progress",
+      "evidence": [
+        "src/amesh/ports/task_runner.py",
+        "src/amesh/adapters/docker/container_runner.py",
+        "tests/adapters/docker/test_container_runner.py",
+        "docs/architecture/workers-and-runners.md"
+      ]
     },
     {
       "id": "URS-NFR-SECURITY-009",

@@ -1825,6 +1825,23 @@
           "securityPolicy": {
             "additionalProperties": false,
             "properties": {
+              "capabilityAdd": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array",
+                "uniqueItems": true
+              },
+              "capabilityDrop": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array",
+                "uniqueItems": true
+              },
+              "noNewPrivileges": {
+                "type": "boolean"
+              },
               "privileged": {
                 "type": "boolean"
               },
@@ -1861,6 +1878,42 @@
                   },
                   "type": {
                     "const": "local"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "platform": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "pullPolicy": {
+                    "enum": [
+                      "NEVER",
+                      "IF_NOT_PRESENT",
+                      "ALWAYS"
+                    ],
+                    "type": "string"
+                  },
+                  "registryPasswordVariable": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "registryUsernameVariable": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "runtime": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "type": {
+                    "const": "docker"
                   }
                 },
                 "required": [

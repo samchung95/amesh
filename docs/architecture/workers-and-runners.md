@@ -80,6 +80,13 @@ the same group/tree escalation for cancellation, timeout and reconciliation. POS
 apply numeric UID and `cpuSeconds`, `memoryBytes`, `fileSizeBytes`, `openFiles` and `processes` limits
 before user code starts. See [the local process runner guide](../operations/local-process-runner.md).
 
+The Docker adapter resolves an allowed image to an immutable repository digest, then transfers the
+attempt workspace through the Engine archive API into an owned named volume. It applies CPU, memory,
+process, open-file, user, capability, read-only-filesystem and network controls; streams demultiplexed
+logs; reports exit/OOM/runtime diagnostics; and removes fenced containers and volumes idempotently.
+Registry credentials are used only for image resolution, and neither the host workspace nor Docker
+socket is mounted into the untrusted task. See [the Docker and OCI runner guide](../operations/docker-oci-runner.md).
+
 Runner selection evaluates the most-specific configured namespace-prefix and worker-group rule. A
 task-level `taskRunner.type` is the requested runner, then the matching rule's `defaultRunner`, then the
 execution fallback. `allowedRunners` always gates the result, so an explicit task request cannot bypass
@@ -101,9 +108,10 @@ A reconciler compares platform attempts with runner resources and quarantines am
 rather than deleting it blindly.
 
 The contract reconciler receives the current `{attempt_id: fencing_token}` set. The local adapter
-terminates tracked processes whose fence is absent or superseded; the Kubernetes adapter deletes only
-owned Jobs with a mismatched or absent active fence. Repeating reconciliation returns no additional
-cleanup after the resource is gone.
+terminates tracked processes whose fence is absent or superseded; the Docker adapter deletes only
+owned containers and workspace volumes with a mismatched or absent active fence; and the Kubernetes
+adapter applies the same rule to owned Jobs. Repeating reconciliation returns no additional cleanup
+after the resource is gone.
 
 Cancellation is fenced and reaches the runner through the task cancellation channel. The local
 sequence is process-group/tree `terminate` → wait for `cancelGraceSeconds` → process-group/tree `kill`;

@@ -1,5 +1,9 @@
 from amesh.domain import TaskRunState
 from amesh.domain.runner import (
+    DockerContainerResourceLimits,
+    DockerContainerRunnerExtension,
+    DockerImagePolicy,
+    DockerImagePullPolicy,
     KubernetesJobRunnerExtension,
     LocalProcessResourceLimits,
     LocalProcessRunnerExtension,
@@ -177,6 +181,10 @@ __all__ = [
     "CredentialRepository",
     "DeadLetterRecord",
     "DeadLetterReplayError",
+    "DockerContainerResourceLimits",
+    "DockerContainerRunnerExtension",
+    "DockerImagePolicy",
+    "DockerImagePullPolicy",
     "DurableEnvelope",
     "DurableTransport",
     "ExecutionArtifact",

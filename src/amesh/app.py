@@ -33,6 +33,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.responses import JSONResponse, StreamingResponse
 
 from amesh import __version__
+from amesh.adapters.docker import DockerContainerRunner
 from amesh.adapters.kubernetes import KubernetesJobRunner
 from amesh.adapters.local import LocalProcessRunner
 from amesh.adapters.postgres import (
@@ -193,6 +194,7 @@ from amesh.executor import (
     SubflowCoordinator,
     TaskHandler,
     TaskResourceLimitError,
+    docker_container_handler,
     kubernetes_job_handler,
     local_process_handler,
     normalize_task_completion,
@@ -3530,6 +3532,8 @@ async def list_runner_capabilities(
         tenant_id=tenant_id,
     )
     capabilities = [KubernetesJobRunner.CAPABILITIES]
+    if settings.docker_runner_enabled:
+        capabilities.insert(0, DockerContainerRunner.CAPABILITIES)
     if settings.is_local_process_runner_enabled:
         capabilities.insert(0, LocalProcessRunner.CAPABILITIES)
     return capabilities
@@ -4556,6 +4560,8 @@ async def _execute_flow(
     available_runners = {RunnerId.KUBERNETES}
     if settings.is_local_process_runner_enabled:
         available_runners.add(RunnerId.LOCAL)
+    if settings.docker_runner_enabled:
+        available_runners.add(RunnerId.DOCKER)
     try:
         selected_runners = required_runner_ids(
             (node.task for node in planned_tasks),
@@ -4570,9 +4576,22 @@ async def _execute_flow(
             detail=str(exc),
         ) from exc
     runner_handlers: dict[RunnerId, TaskHandler] = {}
+    docker_runner: DockerContainerRunner | None = None
     if RunnerId.LOCAL in selected_runners:
         runner_handlers[RunnerId.LOCAL] = local_process_handler(
             LocalProcessRunner(),
+            workspace_manager,
+            namespace=flow.namespace,
+        )
+    if RunnerId.DOCKER in selected_runners:
+        docker_runner = DockerContainerRunner(
+            endpoint=settings.docker_runner_endpoint,
+            image_policy=settings.docker_image_policy,
+            signature_command=settings.docker_signature_verification_command,
+            vulnerability_command=settings.docker_vulnerability_verification_command,
+        )
+        runner_handlers[RunnerId.DOCKER] = docker_container_handler(
+            docker_runner,
             workspace_manager,
             namespace=flow.namespace,
         )
@@ -4671,6 +4690,8 @@ async def _execute_flow(
                 tenant_id=tenant_id,
             )
         finally:
+            if docker_runner is not None:
+                await asyncio.to_thread(docker_runner.close)
             if kubernetes_runner is not None:
                 await kubernetes_runner.close()
 
@@ -4693,6 +4714,8 @@ async def _execute_flow(
                 extra={"execution_id": str(execution_id), "tenant_id": tenant_id},
             )
         finally:
+            if docker_runner is not None:
+                await asyncio.to_thread(docker_runner.close)
             if kubernetes_runner is not None:
                 await kubernetes_runner.close()
 
@@ -4737,6 +4760,8 @@ async def _execute_flow(
             background_scheduled = True
         return detail
     finally:
+        if docker_runner is not None and not background_scheduled:
+            await asyncio.to_thread(docker_runner.close)
         if kubernetes_runner is not None and not background_scheduled:
             await kubernetes_runner.close()
 
