@@ -1,0 +1,113 @@
+{
+  "$defs": {
+    "PluginOperation": {
+      "enum": [
+        "validate",
+        "execute",
+        "poll",
+        "evaluate",
+        "run",
+        "cancel",
+        "get",
+        "put",
+        "delete",
+        "resolve",
+        "send"
+      ],
+      "title": "PluginOperation",
+      "type": "string"
+    },
+    "PluginSession": {
+      "properties": {
+        "capabilityTokens": {
+          "additionalProperties": {
+            "format": "password",
+            "type": "string",
+            "writeOnly": true
+          },
+          "title": "Capabilitytokens",
+          "type": "object"
+        },
+        "deadline": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Deadline"
+        },
+        "invocationId": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Invocationid",
+          "type": "string"
+        },
+        "tenantId": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Tenantid",
+          "type": "string"
+        }
+      },
+      "required": [
+        "tenantId",
+        "invocationId"
+      ],
+      "title": "PluginSession",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "configuration": {
+      "additionalProperties": true,
+      "title": "Configuration",
+      "type": "object"
+    },
+    "context": {
+      "additionalProperties": true,
+      "title": "Context",
+      "type": "object"
+    },
+    "entryPoint": {
+      "maxLength": 255,
+      "minLength": 1,
+      "title": "Entrypoint",
+      "type": "string"
+    },
+    "input": {
+      "additionalProperties": true,
+      "title": "Input",
+      "type": "object"
+    },
+    "operation": {
+      "$ref": "#/$defs/PluginOperation"
+    },
+    "plugin": {
+      "maxLength": 255,
+      "minLength": 1,
+      "title": "Plugin",
+      "type": "string"
+    },
+    "protocolVersion": {
+      "default": "amesh.plugin.rpc/v1",
+      "title": "Protocolversion",
+      "type": "string"
+    },
+    "session": {
+      "$ref": "#/$defs/PluginSession"
+    }
+  },
+  "required": [
+    "plugin",
+    "entryPoint",
+    "operation",
+    "session"
+  ],
+  "title": "PluginRequest",
+  "type": "object"
+}

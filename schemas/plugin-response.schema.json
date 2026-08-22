@@ -1,0 +1,160 @@
+{
+  "$defs": {
+    "PluginErrorDetail": {
+      "properties": {
+        "code": {
+          "pattern": "^[a-z][a-z0-9_.-]{1,127}$",
+          "title": "Code",
+          "type": "string"
+        },
+        "details": {
+          "additionalProperties": true,
+          "title": "Details",
+          "type": "object"
+        },
+        "hint": {
+          "anyOf": [
+            {
+              "maxLength": 4096,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Hint"
+        },
+        "message": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "title": "Message",
+          "type": "string"
+        },
+        "path": {
+          "default": [],
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              }
+            ]
+          },
+          "title": "Path",
+          "type": "array"
+        },
+        "phase": {
+          "$ref": "#/$defs/PluginErrorPhase"
+        },
+        "retryable": {
+          "default": false,
+          "title": "Retryable",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "code",
+        "message",
+        "phase"
+      ],
+      "title": "PluginErrorDetail",
+      "type": "object"
+    },
+    "PluginErrorPhase": {
+      "enum": [
+        "CONFIGURATION",
+        "COMPATIBILITY",
+        "CAPABILITY",
+        "RUNTIME"
+      ],
+      "title": "PluginErrorPhase",
+      "type": "string"
+    },
+    "PluginLog": {
+      "properties": {
+        "fields": {
+          "additionalProperties": true,
+          "title": "Fields",
+          "type": "object"
+        },
+        "level": {
+          "default": "INFO",
+          "pattern": "^(DEBUG|INFO|WARNING|ERROR)$",
+          "title": "Level",
+          "type": "string"
+        },
+        "message": {
+          "maxLength": 65536,
+          "minLength": 1,
+          "title": "Message",
+          "type": "string"
+        },
+        "occurredAt": {
+          "format": "date-time",
+          "title": "Occurredat",
+          "type": "string"
+        }
+      },
+      "required": [
+        "message"
+      ],
+      "title": "PluginLog",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "checkpoint": {
+      "anyOf": [
+        {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Checkpoint"
+    },
+    "errors": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/PluginErrorDetail"
+      },
+      "title": "Errors",
+      "type": "array"
+    },
+    "invocationId": {
+      "maxLength": 255,
+      "minLength": 1,
+      "title": "Invocationid",
+      "type": "string"
+    },
+    "logs": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/PluginLog"
+      },
+      "title": "Logs",
+      "type": "array"
+    },
+    "output": {
+      "additionalProperties": true,
+      "title": "Output",
+      "type": "object"
+    },
+    "protocolVersion": {
+      "default": "amesh.plugin.rpc/v1",
+      "title": "Protocolversion",
+      "type": "string"
+    }
+  },
+  "required": [
+    "invocationId"
+  ],
+  "title": "PluginResponse",
+  "type": "object"
+}

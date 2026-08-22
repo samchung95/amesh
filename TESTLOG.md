@@ -1,5 +1,46 @@
 # Test Log
 
+## EPIC-300: Plugin SDK and manifest contract — 2026-08-23
+
+Spec source: Agent Hotel card `c50` and canonical `backlog/epics.json` EPIC-300 DoD.
+
+Verified with `uv`, Python 3.13, Pydantic 2.13.4 and JSON Schema Draft 2020-12:
+
+- [x] `amesh.plugin/v1` validates dotted identity, SemVer version, vendor, license, platform/protocol
+  compatibility, unique dependencies, typed entry points and deprecation declarations. Malformed
+  versions, schemas and duplicate entry points fail before use.
+- [x] Task, trigger, condition, runner, storage, secret, expression and notification have typed Python
+  protocols and result models. All bindings consume the same `amesh.plugin.rpc/v1` JSON request/
+  response envelope, so implementation language and stdio/gRPC/HTTP transport remain outside the
+  stable platform semantics.
+- [x] Draft 2020-12 declarations generate configuration/output schemas, documentation metadata and
+  ordered UI controls. Enum, number, boolean, list, object and write-only/password fields map to
+  deterministic controls without replacing schema validation.
+- [x] One local `PluginFixture` contract ran successfully for every extension type. The harness checks
+  protocol/identity, capability grants and configuration before handler dispatch, preserves invocation
+  fencing and normalizes deliberate or unexpected runtime failures.
+- [x] Required capabilities, restricted egress destinations, workspace read/write access and secret
+  scopes are explicit and deny-first. Capability tokens use secret-typed fields; configuration and
+  runtime responses do not echo request secrets.
+- [x] Configuration, compatibility, capability and runtime errors expose stable code, phase, JSON
+  path, remediation hint, retryability and non-secret details. No raw unexpected exception message
+  crosses the contract boundary.
+- [x] The published compatibility policy prevents breaking plugin-contract changes in patch/minor
+  releases, separates manifest/extension/protocol versions and defines normal and emergency
+  deprecation/removal windows.
+- [x] Twenty-two focused SDK/generated-schema/DSL tests passed. A fresh 40-migration database ran the
+  364-test collection with the two authoritative `c15`/`c29` tests deselected: 355 passed, seven
+  environment/profile tests skipped and no failures.
+- [x] Ruff, strict mypy for 139 source files, generated manifest/request/response contracts, uv lock,
+  clean-room policy, planning regeneration, backlog validation and diff-scope gates passed.
+
+No dependency or LLM invocation was required. OpenRouter remains configured for
+`openai/gpt-5.6-luna` when a later plugin behavior test actually needs an LLM.
+
+Verdict: PASS — EPIC-300 functional requirements URS-F-0289 through URS-F-0296 are verified. The
+plugin-contract slice of shared URS-NFR-MAINTAINABILITY-002 is complete; shared DSL/API/event and
+upgrade surfaces remain In Progress under their owning epics.
+
 ## EPIC-222: Kubernetes task runner — 2026-08-23
 
 Spec source: Agent Hotel card `c49` and canonical `backlog/epics.json` EPIC-222 DoD.

@@ -23,6 +23,7 @@ from amesh.domain.execution import (  # noqa: E402
 )
 from amesh.dsl.models import FlowDefinition  # noqa: E402
 from amesh.dsl.registry import default_resource_registry  # noqa: E402
+from amesh.plugin_sdk import PluginManifest, PluginRequest, PluginResponse  # noqa: E402
 from amesh.ports.durable_transport import DurableEnvelope  # noqa: E402
 
 
@@ -39,6 +40,9 @@ def main() -> int:
     dump(ROOT / "schemas" / "flow.schema.json", FlowDefinition.model_json_schema())
     dump(ROOT / "schemas" / "message-envelope.schema.json", DurableEnvelope.model_json_schema())
     dump(ROOT / "schemas" / "resource-catalog.json", default_resource_registry().catalog())
+    dump(ROOT / "schemas" / "plugin-manifest.schema.json", PluginManifest.model_json_schema())
+    dump(ROOT / "schemas" / "plugin-request.schema.json", PluginRequest.model_json_schema())
+    dump(ROOT / "schemas" / "plugin-response.schema.json", PluginResponse.model_json_schema())
     dump(ROOT / "schemas" / "execution-command.schema.json", ExecutionCommand.model_json_schema())
     dump(ROOT / "schemas" / "execution-event.schema.json", ExecutionEvent.model_json_schema())
     dump(ROOT / "schemas" / "execution-snapshot.schema.json", ExecutionSnapshot.model_json_schema())

@@ -1,0 +1,411 @@
+{
+  "$defs": {
+    "ExtensionType": {
+      "enum": [
+        "task",
+        "trigger",
+        "condition",
+        "runner",
+        "storage",
+        "secret",
+        "expression",
+        "notification"
+      ],
+      "title": "ExtensionType",
+      "type": "string"
+    },
+    "PluginCapabilities": {
+      "additionalProperties": false,
+      "properties": {
+        "allowedEgress": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Allowedegress",
+          "type": "array"
+        },
+        "filesystemAccess": {
+          "$ref": "#/$defs/PluginFilesystemAccess",
+          "default": "none"
+        },
+        "networkAccess": {
+          "$ref": "#/$defs/PluginNetworkAccess",
+          "default": "none"
+        },
+        "required": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Required",
+          "type": "array"
+        },
+        "secretScopes": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Secretscopes",
+          "type": "array"
+        }
+      },
+      "title": "PluginCapabilities",
+      "type": "object"
+    },
+    "PluginCompatibility": {
+      "additionalProperties": false,
+      "properties": {
+        "platformVersion": {
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Platformversion",
+          "type": "string"
+        },
+        "protocolVersions": {
+          "default": [
+            "amesh.plugin.rpc/v1"
+          ],
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Protocolversions",
+          "type": "array"
+        }
+      },
+      "required": [
+        "platformVersion"
+      ],
+      "title": "PluginCompatibility",
+      "type": "object"
+    },
+    "PluginDependency": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "maxLength": 255,
+          "pattern": "^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$",
+          "title": "Name",
+          "type": "string"
+        },
+        "optional": {
+          "default": false,
+          "title": "Optional",
+          "type": "boolean"
+        },
+        "versionRange": {
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Versionrange",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "versionRange"
+      ],
+      "title": "PluginDependency",
+      "type": "object"
+    },
+    "PluginDeprecation": {
+      "additionalProperties": false,
+      "properties": {
+        "deprecatedIn": {
+          "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?(?:\\+[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?$",
+          "title": "Deprecatedin",
+          "type": "string"
+        },
+        "message": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "title": "Message",
+          "type": "string"
+        },
+        "removedIn": {
+          "anyOf": [
+            {
+              "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?(?:\\+[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Removedin"
+        },
+        "replacement": {
+          "anyOf": [
+            {
+              "maxLength": 255,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Replacement"
+        },
+        "subject": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Subject",
+          "type": "string"
+        }
+      },
+      "required": [
+        "subject",
+        "deprecatedIn",
+        "message"
+      ],
+      "title": "PluginDeprecation",
+      "type": "object"
+    },
+    "PluginDocumentation": {
+      "additionalProperties": false,
+      "properties": {
+        "category": {
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Category",
+          "type": "string"
+        },
+        "description": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "title": "Description",
+          "type": "string"
+        },
+        "documentationUrl": {
+          "anyOf": [
+            {
+              "maxLength": 2048,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Documentationurl"
+        },
+        "examples": {
+          "default": [],
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "title": "Examples",
+          "type": "array"
+        },
+        "icon": {
+          "anyOf": [
+            {
+              "maxLength": 512,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Icon"
+        },
+        "propertyOrder": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Propertyorder",
+          "type": "array"
+        },
+        "title": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "title",
+        "description",
+        "category"
+      ],
+      "title": "PluginDocumentation",
+      "type": "object"
+    },
+    "PluginEntryPoint": {
+      "additionalProperties": false,
+      "properties": {
+        "apiVersion": {
+          "const": "amesh.extension/v1",
+          "default": "amesh.extension/v1",
+          "title": "Apiversion",
+          "type": "string"
+        },
+        "configurationSchema": {
+          "additionalProperties": true,
+          "title": "Configurationschema",
+          "type": "object"
+        },
+        "documentation": {
+          "$ref": "#/$defs/PluginDocumentation"
+        },
+        "name": {
+          "maxLength": 255,
+          "pattern": "^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$",
+          "title": "Name",
+          "type": "string"
+        },
+        "outputSchema": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Outputschema"
+        },
+        "target": {
+          "maxLength": 2048,
+          "minLength": 1,
+          "title": "Target",
+          "type": "string"
+        },
+        "transport": {
+          "$ref": "#/$defs/PluginTransport"
+        },
+        "type": {
+          "$ref": "#/$defs/ExtensionType"
+        }
+      },
+      "required": [
+        "name",
+        "type",
+        "transport",
+        "target",
+        "configurationSchema",
+        "documentation"
+      ],
+      "title": "PluginEntryPoint",
+      "type": "object"
+    },
+    "PluginFilesystemAccess": {
+      "enum": [
+        "none",
+        "workspace-read",
+        "workspace-write"
+      ],
+      "title": "PluginFilesystemAccess",
+      "type": "string"
+    },
+    "PluginNetworkAccess": {
+      "enum": [
+        "none",
+        "restricted"
+      ],
+      "title": "PluginNetworkAccess",
+      "type": "string"
+    },
+    "PluginTransport": {
+      "enum": [
+        "stdio",
+        "grpc",
+        "http"
+      ],
+      "title": "PluginTransport",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "capabilities": {
+      "$ref": "#/$defs/PluginCapabilities"
+    },
+    "compatibility": {
+      "$ref": "#/$defs/PluginCompatibility"
+    },
+    "dependencies": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/PluginDependency"
+      },
+      "title": "Dependencies",
+      "type": "array"
+    },
+    "deprecations": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/PluginDeprecation"
+      },
+      "title": "Deprecations",
+      "type": "array"
+    },
+    "description": {
+      "anyOf": [
+        {
+          "maxLength": 4096,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Description"
+    },
+    "entryPoints": {
+      "items": {
+        "$ref": "#/$defs/PluginEntryPoint"
+      },
+      "minItems": 1,
+      "title": "Entrypoints",
+      "type": "array"
+    },
+    "license": {
+      "maxLength": 255,
+      "minLength": 1,
+      "title": "License",
+      "type": "string"
+    },
+    "name": {
+      "maxLength": 255,
+      "pattern": "^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$",
+      "title": "Name",
+      "type": "string"
+    },
+    "schemaVersion": {
+      "const": "amesh.plugin/v1",
+      "default": "amesh.plugin/v1",
+      "title": "Schemaversion",
+      "type": "string"
+    },
+    "vendor": {
+      "maxLength": 255,
+      "minLength": 1,
+      "title": "Vendor",
+      "type": "string"
+    },
+    "version": {
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?(?:\\+[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?$",
+      "title": "Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "name",
+    "version",
+    "vendor",
+    "license",
+    "compatibility",
+    "entryPoints"
+  ],
+  "title": "PluginManifest",
+  "type": "object"
+}

@@ -47,6 +47,12 @@ An optional isolated JVM bridge may host supported migrated Java plugins when di
 
 All SDKs generate or consume the same manifest, schemas and conformance contract. SDK convenience must not create different semantics between languages.
 
+The implemented `amesh.plugin/v1` manifest, `amesh.plugin.rpc/v1` request/response envelopes, Python
+protocol bindings and local conformance harness are documented in the
+[plugin manifest contract](../plugin-sdk/manifest.md), [testing guide](../plugin-sdk/testing.md) and
+[compatibility policy](../plugin-sdk/compatibility.md). Discovery, installation, process supervision
+and signing remain separate lifecycle layers and do not alter these public documents.
+
 Polling trigger adapters return normalized occurrences plus their next checkpoint. The runtime
 persists both before calling the adapter's acknowledgement hook. Realtime trigger adapters expose an
 async occurrence stream and are acknowledged only after durable acceptance. Both contracts carry a

@@ -16,6 +16,7 @@ from amesh.domain.execution import (
 )
 from amesh.dsl.models import FlowDefinition
 from amesh.dsl.registry import default_resource_registry
+from amesh.plugin_sdk import PluginManifest, PluginRequest, PluginResponse
 from amesh.ports import DurableEnvelope
 
 
@@ -27,6 +28,9 @@ def test_checked_in_contracts_are_current() -> None:
     assert load("schemas/flow.schema.json") == FlowDefinition.model_json_schema()
     assert load("schemas/message-envelope.schema.json") == DurableEnvelope.model_json_schema()
     assert load("schemas/resource-catalog.json") == default_resource_registry().catalog()
+    assert load("schemas/plugin-manifest.schema.json") == PluginManifest.model_json_schema()
+    assert load("schemas/plugin-request.schema.json") == PluginRequest.model_json_schema()
+    assert load("schemas/plugin-response.schema.json") == PluginResponse.model_json_schema()
     assert load("schemas/execution-command.schema.json") == ExecutionCommand.model_json_schema()
     assert load("schemas/execution-event.schema.json") == ExecutionEvent.model_json_schema()
     assert load("schemas/execution-snapshot.schema.json") == ExecutionSnapshot.model_json_schema()

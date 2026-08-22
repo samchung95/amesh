@@ -287,14 +287,14 @@ URS-F-0285,Functional,Should,EPIC-223,"Cloud batch, VM and serverless runners",M
 URS-F-0286,Functional,Should,EPIC-223,"Cloud batch, VM and serverless runners",M2,2,Runner contract tests against disposable execution environments,Proposed
 URS-F-0287,Functional,Should,EPIC-223,"Cloud batch, VM and serverless runners",M2,2,Runner contract tests against disposable execution environments,Proposed
 URS-F-0288,Functional,Should,EPIC-223,"Cloud batch, VM and serverless runners",M2,2,Runner contract tests against disposable execution environments,Proposed
-URS-F-0289,Functional,Must,EPIC-300,Plugin SDK and manifest contract,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
-URS-F-0290,Functional,Must,EPIC-300,Plugin SDK and manifest contract,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
-URS-F-0291,Functional,Must,EPIC-300,Plugin SDK and manifest contract,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
-URS-F-0292,Functional,Must,EPIC-300,Plugin SDK and manifest contract,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
-URS-F-0293,Functional,Must,EPIC-300,Plugin SDK and manifest contract,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
-URS-F-0294,Functional,Must,EPIC-300,Plugin SDK and manifest contract,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
-URS-F-0295,Functional,Must,EPIC-300,Plugin SDK and manifest contract,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
-URS-F-0296,Functional,Must,EPIC-300,Plugin SDK and manifest contract,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0289,Functional,Must,EPIC-300,Plugin SDK and manifest contract,M3,3,"Plugin SDK contract, sandbox and integration tests",Verified
+URS-F-0290,Functional,Must,EPIC-300,Plugin SDK and manifest contract,M3,3,"Plugin SDK contract, sandbox and integration tests",Verified
+URS-F-0291,Functional,Must,EPIC-300,Plugin SDK and manifest contract,M3,3,"Plugin SDK contract, sandbox and integration tests",Verified
+URS-F-0292,Functional,Must,EPIC-300,Plugin SDK and manifest contract,M3,3,"Plugin SDK contract, sandbox and integration tests",Verified
+URS-F-0293,Functional,Must,EPIC-300,Plugin SDK and manifest contract,M3,3,"Plugin SDK contract, sandbox and integration tests",Verified
+URS-F-0294,Functional,Must,EPIC-300,Plugin SDK and manifest contract,M3,3,"Plugin SDK contract, sandbox and integration tests",Verified
+URS-F-0295,Functional,Must,EPIC-300,Plugin SDK and manifest contract,M3,3,"Plugin SDK contract, sandbox and integration tests",Verified
+URS-F-0296,Functional,Must,EPIC-300,Plugin SDK and manifest contract,M3,3,"Plugin SDK contract, sandbox and integration tests",Verified
 URS-F-0297,Functional,Must,EPIC-301,"Plugin discovery, resolution and dependency isolation",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
 URS-F-0298,Functional,Must,EPIC-301,"Plugin discovery, resolution and dependency isolation",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
 URS-F-0299,Functional,Must,EPIC-301,"Plugin discovery, resolution and dependency isolation",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
