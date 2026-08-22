@@ -15,6 +15,7 @@ _SEMVER_PATTERN = (
     r"(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$"
 )
 _NAME_PATTERN = r"^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$"
+_RESOURCE_TYPE_PATTERN = r"^[A-Za-z][A-Za-z0-9]*(?:[.-][A-Za-z0-9]+)*$"
 
 
 class ExtensionType(StrEnum):
@@ -136,6 +137,12 @@ class PluginEntryPoint(BaseModel):
     model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
 
     name: str = Field(pattern=_NAME_PATTERN, max_length=255)
+    resource_type: str | None = Field(
+        default=None,
+        alias="resourceType",
+        pattern=_RESOURCE_TYPE_PATTERN,
+        max_length=255,
+    )
     type: ExtensionType
     api_version: Literal["amesh.extension/v1"] = Field(
         default="amesh.extension/v1",
@@ -146,6 +153,10 @@ class PluginEntryPoint(BaseModel):
     configuration_schema: dict[str, Any] = Field(alias="configurationSchema")
     output_schema: dict[str, Any] | None = Field(default=None, alias="outputSchema")
     documentation: PluginDocumentation
+
+    @property
+    def resolved_resource_type(self) -> str:
+        return self.resource_type or self.name
 
     @field_validator("configuration_schema", "output_schema")
     @classmethod
@@ -189,9 +200,12 @@ class PluginManifest(BaseModel):
 
     @model_validator(mode="after")
     def validate_unique_declarations(self) -> PluginManifest:
-        entry_keys = [(item.type, item.name) for item in self.entry_points]
+        entry_names = [item.name for item in self.entry_points]
+        if len(entry_names) != len(set(entry_names)):
+            raise ValueError("plugin entry point names must be unique")
+        entry_keys = [(item.type, item.resolved_resource_type) for item in self.entry_points]
         if len(entry_keys) != len(set(entry_keys)):
-            raise ValueError("plugin entry point type/name pairs must be unique")
+            raise ValueError("plugin entry point type/resourceType pairs must be unique")
         dependency_names = [item.name for item in self.dependencies]
         if len(dependency_names) != len(set(dependency_names)):
             raise ValueError("plugin dependency names must be unique")

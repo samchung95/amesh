@@ -16,6 +16,7 @@ compatibility:
   protocolVersions: [amesh.plugin.rpc/v1]
 entryPoints:
   - name: notification.main
+    resourceType: example.notifications.send
     type: notification
     apiVersion: amesh.extension/v1
     transport: stdio
@@ -47,8 +48,9 @@ deprecations: []
 
 Manifest identity uses a lowercase dotted name and a SemVer version. Every entry point declares one
 of `task`, `trigger`, `condition`, `runner`, `storage`, `secret`, `expression` or `notification`, a
-transport target, Draft 2020-12 configuration/output schemas and documentation metadata. Entry-point
-type/name pairs and dependency names are unique.
+transport target, Draft 2020-12 configuration/output schemas and documentation metadata. `name` is
+the package-local entry-point identifier; optional `resourceType` is the public DSL/catalog type and
+defaults to `name`. Entry-point names, type/resource-type pairs and dependency names are unique.
 
 The catalog generator copies configuration schemas and documentation, then derives ordered UI
 controls. JSON Schema type selects number, checkbox, list or object controls; `enum` selects a choice;

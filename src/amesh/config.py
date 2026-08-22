@@ -5,6 +5,7 @@ import json
 import os
 import re
 import sys
+import tempfile
 import warnings
 from collections.abc import Callable, Mapping, Sequence
 from copy import deepcopy
@@ -127,6 +128,14 @@ class Settings(BaseSettings):
     service_stale_after_seconds: float = Field(default=20.0, ge=2, le=300)
     service_cycle_seconds: float = Field(default=5.0, ge=0.1, le=300)
     plugin_trust_mode: Literal["development", "signed-only"] = "signed-only"
+    plugin_directories: tuple[str, ...] = ()
+    plugin_registries: tuple[str, ...] = ()
+    plugin_install_root: str = Field(
+        default_factory=lambda: str(Path(tempfile.gettempdir()) / "amesh-plugins"),
+        min_length=1,
+        max_length=4096,
+    )
+    plugin_registry_timeout_seconds: float = Field(default=10.0, gt=0, le=300)
     network_public_exposure: bool = False
     network_tls_terminated: bool = False
     product_telemetry_enabled: bool = Field(
@@ -156,6 +165,11 @@ class Settings(BaseSettings):
     )
     @classmethod
     def parse_docker_verifier_command(cls, value: object) -> object:
+        return json.loads(value) if isinstance(value, str) else value
+
+    @field_validator("plugin_directories", "plugin_registries", mode="before")
+    @classmethod
+    def parse_plugin_sources(cls, value: object) -> object:
         return json.loads(value) if isinstance(value, str) else value
 
     @model_validator(mode="after")

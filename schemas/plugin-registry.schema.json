@@ -1,0 +1,45 @@
+{
+  "$defs": {
+    "PluginRegistryPackage": {
+      "additionalProperties": false,
+      "properties": {
+        "bundle": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "title": "Bundle",
+          "type": "string"
+        },
+        "contentDigest": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Contentdigest",
+          "type": "string"
+        }
+      },
+      "required": [
+        "bundle",
+        "contentDigest"
+      ],
+      "title": "PluginRegistryPackage",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "packages": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/PluginRegistryPackage"
+      },
+      "title": "Packages",
+      "type": "array"
+    },
+    "schemaVersion": {
+      "const": "amesh.plugin-registry/v1",
+      "default": "amesh.plugin-registry/v1",
+      "title": "Schemaversion",
+      "type": "string"
+    }
+  },
+  "title": "PluginRegistryIndex",
+  "type": "object"
+}

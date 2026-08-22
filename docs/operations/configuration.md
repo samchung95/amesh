@@ -73,6 +73,11 @@ wins; task settings cannot override profile-owned placement or identity. When om
 `KUBERNETES_CONTEXT` and `KUBERNETES_TASK_NAMESPACE` settings provide one default profile. See the
 [Kubernetes runner guide](kubernetes-runner.md).
 
+`PLUGIN_DIRECTORIES` and `PLUGIN_REGISTRIES` are restart-required JSON arrays used to construct the
+plugin catalog. `PLUGIN_INSTALL_ROOT` stores digest-verified registry and offline bundles;
+`PLUGIN_REGISTRY_TIMEOUT_SECONDS` bounds registry reads. See the
+[plugin discovery and resolution guide](../plugin-sdk/discovery-and-resolution.md).
+
 ## Feature flags
 
 Boolean flags are versioned and audited in PostgreSQL. Resolution order is namespace, tenant,

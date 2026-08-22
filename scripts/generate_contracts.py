@@ -23,7 +23,14 @@ from amesh.domain.execution import (  # noqa: E402
 )
 from amesh.dsl.models import FlowDefinition  # noqa: E402
 from amesh.dsl.registry import default_resource_registry  # noqa: E402
-from amesh.plugin_sdk import PluginManifest, PluginRequest, PluginResponse  # noqa: E402
+from amesh.plugin_sdk import (  # noqa: E402
+    PluginCatalogSnapshot,
+    PluginManifest,
+    PluginRegistryIndex,
+    PluginRequest,
+    PluginResolution,
+    PluginResponse,
+)
 from amesh.ports.durable_transport import DurableEnvelope  # noqa: E402
 
 
@@ -43,6 +50,18 @@ def main() -> int:
     dump(ROOT / "schemas" / "plugin-manifest.schema.json", PluginManifest.model_json_schema())
     dump(ROOT / "schemas" / "plugin-request.schema.json", PluginRequest.model_json_schema())
     dump(ROOT / "schemas" / "plugin-response.schema.json", PluginResponse.model_json_schema())
+    dump(
+        ROOT / "schemas" / "plugin-catalog.schema.json",
+        PluginCatalogSnapshot.model_json_schema(),
+    )
+    dump(
+        ROOT / "schemas" / "plugin-registry.schema.json",
+        PluginRegistryIndex.model_json_schema(),
+    )
+    dump(
+        ROOT / "schemas" / "plugin-resolution.schema.json",
+        PluginResolution.model_json_schema(),
+    )
     dump(ROOT / "schemas" / "execution-command.schema.json", ExecutionCommand.model_json_schema())
     dump(ROOT / "schemas" / "execution-event.schema.json", ExecutionEvent.model_json_schema())
     dump(ROOT / "schemas" / "execution-snapshot.schema.json", ExecutionSnapshot.model_json_schema())

@@ -1,4 +1,5 @@
 import asyncio
+import json
 import logging
 import socket
 from pathlib import Path
@@ -193,6 +194,22 @@ def test_docker_runner_complex_environment_settings_are_json() -> None:
         "verify",
         "{image}",
     )
+
+
+def test_plugin_discovery_sources_are_typed_json_configuration(tmp_path: Path) -> None:
+    loaded = load_configuration(
+        environment={
+            "PLUGIN_DIRECTORIES": json.dumps([str(tmp_path / "plugins")]),
+            "PLUGIN_REGISTRIES": json.dumps([str(tmp_path / "registry.json")]),
+            "PLUGIN_INSTALL_ROOT": str(tmp_path / "installed"),
+            "PLUGIN_REGISTRY_TIMEOUT_SECONDS": "15",
+        }
+    )
+
+    assert loaded.settings.plugin_directories == (str(tmp_path / "plugins"),)
+    assert loaded.settings.plugin_registries == (str(tmp_path / "registry.json"),)
+    assert loaded.settings.plugin_install_root == str(tmp_path / "installed")
+    assert loaded.settings.plugin_registry_timeout_seconds == 15
 
 
 def test_renamed_settings_are_migrated_with_a_safe_warning(tmp_path: Path) -> None:

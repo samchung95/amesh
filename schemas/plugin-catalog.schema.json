@@ -319,12 +319,184 @@
       "title": "PluginFilesystemAccess",
       "type": "string"
     },
+    "PluginLifecycleStatus": {
+      "enum": [
+        "installed",
+        "active",
+        "deprecated",
+        "incompatible",
+        "quarantined"
+      ],
+      "title": "PluginLifecycleStatus",
+      "type": "string"
+    },
+    "PluginManifest": {
+      "additionalProperties": false,
+      "properties": {
+        "capabilities": {
+          "$ref": "#/$defs/PluginCapabilities"
+        },
+        "compatibility": {
+          "$ref": "#/$defs/PluginCompatibility"
+        },
+        "dependencies": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/PluginDependency"
+          },
+          "title": "Dependencies",
+          "type": "array"
+        },
+        "deprecations": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/PluginDeprecation"
+          },
+          "title": "Deprecations",
+          "type": "array"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "maxLength": 4096,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "entryPoints": {
+          "items": {
+            "$ref": "#/$defs/PluginEntryPoint"
+          },
+          "minItems": 1,
+          "title": "Entrypoints",
+          "type": "array"
+        },
+        "license": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "License",
+          "type": "string"
+        },
+        "name": {
+          "maxLength": 255,
+          "pattern": "^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$",
+          "title": "Name",
+          "type": "string"
+        },
+        "schemaVersion": {
+          "const": "amesh.plugin/v1",
+          "default": "amesh.plugin/v1",
+          "title": "Schemaversion",
+          "type": "string"
+        },
+        "vendor": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Vendor",
+          "type": "string"
+        },
+        "version": {
+          "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?(?:\\+[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?$",
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "version",
+        "vendor",
+        "license",
+        "compatibility",
+        "entryPoints"
+      ],
+      "title": "PluginManifest",
+      "type": "object"
+    },
     "PluginNetworkAccess": {
       "enum": [
         "none",
         "restricted"
       ],
       "title": "PluginNetworkAccess",
+      "type": "string"
+    },
+    "PluginPackageRecord": {
+      "properties": {
+        "contentDigest": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Contentdigest"
+        },
+        "contentPath": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Contentpath"
+        },
+        "diagnostics": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Diagnostics",
+          "type": "array"
+        },
+        "manifest": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PluginManifest"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "sourceKind": {
+          "$ref": "#/$defs/PluginSourceKind"
+        },
+        "sourceLocation": {
+          "title": "Sourcelocation",
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/$defs/PluginLifecycleStatus"
+        }
+      },
+      "required": [
+        "sourceKind",
+        "sourceLocation",
+        "status"
+      ],
+      "title": "PluginPackageRecord",
+      "type": "object"
+    },
+    "PluginSourceKind": {
+      "enum": [
+        "embedded",
+        "directory",
+        "registry",
+        "offline-bundle"
+      ],
+      "title": "PluginSourceKind",
       "type": "string"
     },
     "PluginTransport": {
@@ -337,89 +509,42 @@
       "type": "string"
     }
   },
-  "additionalProperties": false,
   "properties": {
-    "capabilities": {
-      "$ref": "#/$defs/PluginCapabilities"
-    },
-    "compatibility": {
-      "$ref": "#/$defs/PluginCompatibility"
-    },
-    "dependencies": {
-      "default": [],
-      "items": {
-        "$ref": "#/$defs/PluginDependency"
-      },
-      "title": "Dependencies",
-      "type": "array"
-    },
-    "deprecations": {
-      "default": [],
-      "items": {
-        "$ref": "#/$defs/PluginDeprecation"
-      },
-      "title": "Deprecations",
-      "type": "array"
-    },
-    "description": {
-      "anyOf": [
-        {
-          "maxLength": 4096,
-          "type": "string"
-        },
-        {
-          "type": "null"
-        }
-      ],
-      "default": null,
-      "title": "Description"
-    },
-    "entryPoints": {
-      "items": {
-        "$ref": "#/$defs/PluginEntryPoint"
-      },
-      "minItems": 1,
-      "title": "Entrypoints",
-      "type": "array"
-    },
-    "license": {
-      "maxLength": 255,
-      "minLength": 1,
-      "title": "License",
+    "catalogDigest": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "title": "Catalogdigest",
       "type": "string"
     },
-    "name": {
-      "maxLength": 255,
-      "pattern": "^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$",
-      "title": "Name",
+    "generatedAt": {
+      "format": "date-time",
+      "title": "Generatedat",
       "type": "string"
+    },
+    "generation": {
+      "minimum": 1,
+      "title": "Generation",
+      "type": "integer"
+    },
+    "packages": {
+      "items": {
+        "$ref": "#/$defs/PluginPackageRecord"
+      },
+      "title": "Packages",
+      "type": "array"
     },
     "schemaVersion": {
-      "const": "amesh.plugin/v1",
-      "default": "amesh.plugin/v1",
+      "const": "amesh.plugin-catalog/v1",
+      "default": "amesh.plugin-catalog/v1",
       "title": "Schemaversion",
-      "type": "string"
-    },
-    "vendor": {
-      "maxLength": 255,
-      "minLength": 1,
-      "title": "Vendor",
-      "type": "string"
-    },
-    "version": {
-      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?(?:\\+[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?$",
-      "title": "Version",
       "type": "string"
     }
   },
   "required": [
-    "name",
-    "version",
-    "vendor",
-    "license",
-    "compatibility",
-    "entryPoints"
+    "generation",
+    "catalogDigest",
+    "generatedAt",
+    "packages"
   ],
-  "title": "PluginManifest",
+  "title": "PluginCatalogSnapshot",
   "type": "object"
 }

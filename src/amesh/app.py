@@ -212,6 +212,14 @@ from amesh.observability import (
     database_readiness,
     instrument_database,
 )
+from amesh.plugin_sdk import (
+    PluginCatalogManager,
+    PluginCatalogSnapshot,
+    PluginContractError,
+    PluginDiscoverySource,
+    PluginResolver,
+    PluginSourceKind,
+)
 from amesh.ports import (
     CheckComplianceSummary,
     CheckEvaluation,
@@ -395,8 +403,40 @@ def read_database_engine() -> AsyncEngine:
 
 
 @lru_cache
+def get_plugin_catalog_manager() -> PluginCatalogManager:
+    settings = get_settings()
+    sources = (
+        *(
+            PluginDiscoverySource(kind=PluginSourceKind.DIRECTORY, location=location)
+            for location in settings.plugin_directories
+        ),
+        *(
+            PluginDiscoverySource(kind=PluginSourceKind.REGISTRY, location=location)
+            for location in settings.plugin_registries
+        ),
+    )
+    return PluginCatalogManager(
+        sources=sources,
+        install_root=settings.plugin_install_root,
+        registry_timeout_seconds=settings.plugin_registry_timeout_seconds,
+    )
+
+
+PluginCatalogDependency = Annotated[
+    PluginCatalogManager,
+    Depends(get_plugin_catalog_manager),
+]
+
+
+@lru_cache
 def get_repository() -> PostgresExecutionRepository:
-    return PostgresExecutionRepository(database_engine())
+    catalog = get_plugin_catalog_manager()
+    return PostgresExecutionRepository(
+        database_engine(),
+        plugin_resolution_provider=lambda flow: PluginResolver(catalog.snapshot)
+        .resolve_flow(flow)
+        .revision_payload(),
+    )
 
 
 RepositoryDependency = Annotated[
@@ -986,6 +1026,87 @@ async def get_ui_session(
 
 
 @app.get(
+    "/api/v1/plugins",
+    response_model=PluginCatalogSnapshot,
+    tags=["plugins"],
+)
+async def list_plugins(
+    catalog: PluginCatalogDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> PluginCatalogSnapshot:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="plugin",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+    )
+    return catalog.snapshot
+
+
+@app.post(
+    "/api/v1/plugins/refresh",
+    response_model=PluginCatalogSnapshot,
+    tags=["plugins"],
+)
+async def refresh_plugins(
+    catalog: PluginCatalogDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> PluginCatalogSnapshot:
+    del tenant_id
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="plugin",
+        action=PermissionAction.MANAGE,
+    )
+    return catalog.refresh()
+
+
+@app.post(
+    "/api/v1/plugins/install",
+    response_model=PluginCatalogSnapshot,
+    tags=["plugins"],
+)
+async def install_plugin_bundle(
+    request: Request,
+    catalog: PluginCatalogDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    content_digest: Annotated[
+        str,
+        Query(alias="contentDigest", pattern=r"^sha256:[0-9a-f]{64}$"),
+    ],
+) -> PluginCatalogSnapshot:
+    del tenant_id
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="plugin",
+        action=PermissionAction.MANAGE,
+    )
+    content = await request.body()
+    if len(content) > 64 * 1024 * 1024:
+        raise HTTPException(
+            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            detail="plugin bundle exceeds the 64 MiB installation limit",
+        )
+    try:
+        catalog.install_offline_bundle_bytes(content, expected_digest=content_digest)
+    except (OSError, ValueError) as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=str(exc),
+        ) from exc
+    return catalog.snapshot
+
+
+@app.get(
     "/api/v1/configuration",
     response_model=ConfigurationSnapshot,
     tags=["configuration"],
@@ -1430,7 +1551,10 @@ async def metrics() -> Response:
     response_model=FlowValidationResult,
     tags=["flows"],
 )
-async def validate_flow(request: Request) -> FlowValidationResult:
+async def validate_flow(
+    request: Request,
+    plugin_catalog: PluginCatalogDependency,
+) -> FlowValidationResult:
     body = await request.body()
     if len(body) > 2 * 1024 * 1024:
         raise HTTPException(
@@ -1438,7 +1562,7 @@ async def validate_flow(request: Request) -> FlowValidationResult:
             detail="flow document exceeds the 2 MiB foundation limit",
         )
     try:
-        return validate_flow_document(body)
+        return validate_flow_document(body, registry=plugin_catalog.resource_registry())
     except FlowDocumentError as exc:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
@@ -1455,6 +1579,7 @@ async def apply_flow(
     request: Request,
     response: Response,
     repository: RepositoryDependency,
+    plugin_catalog: PluginCatalogDependency,
     actor: ActorDependency,
     authorization_service: AuthorizationServiceDependency,
     tenant_id: TenantDependency,
@@ -1465,7 +1590,10 @@ async def apply_flow(
     deployment: Annotated[str | None, Header(alias="X-AMESH-Deployment")] = None,
 ) -> PersistedFlow:
     try:
-        result = validate_flow_document(await request.body())
+        result = validate_flow_document(
+            await request.body(),
+            registry=plugin_catalog.resource_registry(),
+        )
     except FlowDocumentError as exc:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
@@ -1510,6 +1638,11 @@ async def apply_flow(
         raise HTTPException(
             status_code=status.HTTP_412_PRECONDITION_FAILED,
             detail=str(exc),
+        ) from exc
+    except PluginContractError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=[error.model_dump(mode="json") for error in exc.errors],
         ) from exc
     except ValueError as exc:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc

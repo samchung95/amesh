@@ -2237,6 +2237,20 @@
         "title": "ExecutionState",
         "type": "string"
       },
+      "ExtensionType": {
+        "enum": [
+          "task",
+          "trigger",
+          "condition",
+          "runner",
+          "storage",
+          "secret",
+          "expression",
+          "notification"
+        ],
+        "title": "ExtensionType",
+        "type": "string"
+      },
       "FailoverStatus": {
         "enum": [
           "REDUNDANT",
@@ -4318,6 +4332,112 @@
         "title": "PersistedTaskRun",
         "type": "object"
       },
+      "PluginCapabilities": {
+        "additionalProperties": false,
+        "properties": {
+          "allowedEgress": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Allowedegress",
+            "type": "array"
+          },
+          "filesystemAccess": {
+            "$ref": "#/components/schemas/PluginFilesystemAccess",
+            "default": "none"
+          },
+          "networkAccess": {
+            "$ref": "#/components/schemas/PluginNetworkAccess",
+            "default": "none"
+          },
+          "required": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Required",
+            "type": "array"
+          },
+          "secretScopes": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Secretscopes",
+            "type": "array"
+          }
+        },
+        "title": "PluginCapabilities",
+        "type": "object"
+      },
+      "PluginCatalogSnapshot": {
+        "properties": {
+          "catalogDigest": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Catalogdigest",
+            "type": "string"
+          },
+          "generatedAt": {
+            "format": "date-time",
+            "title": "Generatedat",
+            "type": "string"
+          },
+          "generation": {
+            "minimum": 1.0,
+            "title": "Generation",
+            "type": "integer"
+          },
+          "packages": {
+            "items": {
+              "$ref": "#/components/schemas/PluginPackageRecord"
+            },
+            "title": "Packages",
+            "type": "array"
+          },
+          "schemaVersion": {
+            "const": "amesh.plugin-catalog/v1",
+            "default": "amesh.plugin-catalog/v1",
+            "title": "Schemaversion",
+            "type": "string"
+          }
+        },
+        "required": [
+          "generation",
+          "catalogDigest",
+          "generatedAt",
+          "packages"
+        ],
+        "title": "PluginCatalogSnapshot",
+        "type": "object"
+      },
+      "PluginCompatibility": {
+        "additionalProperties": false,
+        "properties": {
+          "platformVersion": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Platformversion",
+            "type": "string"
+          },
+          "protocolVersions": {
+            "default": [
+              "amesh.plugin.rpc/v1"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Protocolversions",
+            "type": "array"
+          }
+        },
+        "required": [
+          "platformVersion"
+        ],
+        "title": "PluginCompatibility",
+        "type": "object"
+      },
       "PluginDefaultDefinition": {
         "additionalProperties": false,
         "properties": {
@@ -4343,6 +4463,413 @@
         ],
         "title": "PluginDefaultDefinition",
         "type": "object"
+      },
+      "PluginDependency": {
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "maxLength": 255,
+            "pattern": "^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$",
+            "title": "Name",
+            "type": "string"
+          },
+          "optional": {
+            "default": false,
+            "title": "Optional",
+            "type": "boolean"
+          },
+          "versionRange": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Versionrange",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "versionRange"
+        ],
+        "title": "PluginDependency",
+        "type": "object"
+      },
+      "PluginDeprecation": {
+        "additionalProperties": false,
+        "properties": {
+          "deprecatedIn": {
+            "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?(?:\\+[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?$",
+            "title": "Deprecatedin",
+            "type": "string"
+          },
+          "message": {
+            "maxLength": 4096,
+            "minLength": 1,
+            "title": "Message",
+            "type": "string"
+          },
+          "removedIn": {
+            "anyOf": [
+              {
+                "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?(?:\\+[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Removedin"
+          },
+          "replacement": {
+            "anyOf": [
+              {
+                "maxLength": 255,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Replacement"
+          },
+          "subject": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Subject",
+            "type": "string"
+          }
+        },
+        "required": [
+          "subject",
+          "deprecatedIn",
+          "message"
+        ],
+        "title": "PluginDeprecation",
+        "type": "object"
+      },
+      "PluginDocumentation": {
+        "additionalProperties": false,
+        "properties": {
+          "category": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Category",
+            "type": "string"
+          },
+          "description": {
+            "maxLength": 4096,
+            "minLength": 1,
+            "title": "Description",
+            "type": "string"
+          },
+          "documentationUrl": {
+            "anyOf": [
+              {
+                "maxLength": 2048,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Documentationurl"
+          },
+          "examples": {
+            "default": [],
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Examples",
+            "type": "array"
+          },
+          "icon": {
+            "anyOf": [
+              {
+                "maxLength": 512,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Icon"
+          },
+          "propertyOrder": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Propertyorder",
+            "type": "array"
+          },
+          "title": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "title",
+          "description",
+          "category"
+        ],
+        "title": "PluginDocumentation",
+        "type": "object"
+      },
+      "PluginEntryPoint": {
+        "additionalProperties": false,
+        "properties": {
+          "apiVersion": {
+            "const": "amesh.extension/v1",
+            "default": "amesh.extension/v1",
+            "title": "Apiversion",
+            "type": "string"
+          },
+          "configurationSchema": {
+            "additionalProperties": true,
+            "title": "Configurationschema",
+            "type": "object"
+          },
+          "documentation": {
+            "$ref": "#/components/schemas/PluginDocumentation"
+          },
+          "name": {
+            "maxLength": 255,
+            "pattern": "^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$",
+            "title": "Name",
+            "type": "string"
+          },
+          "outputSchema": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Outputschema"
+          },
+          "resourceType": {
+            "anyOf": [
+              {
+                "maxLength": 255,
+                "pattern": "^[A-Za-z][A-Za-z0-9]*(?:[.-][A-Za-z0-9]+)*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resourcetype"
+          },
+          "target": {
+            "maxLength": 2048,
+            "minLength": 1,
+            "title": "Target",
+            "type": "string"
+          },
+          "transport": {
+            "$ref": "#/components/schemas/PluginTransport"
+          },
+          "type": {
+            "$ref": "#/components/schemas/ExtensionType"
+          }
+        },
+        "required": [
+          "name",
+          "type",
+          "transport",
+          "target",
+          "configurationSchema",
+          "documentation"
+        ],
+        "title": "PluginEntryPoint",
+        "type": "object"
+      },
+      "PluginFilesystemAccess": {
+        "enum": [
+          "none",
+          "workspace-read",
+          "workspace-write"
+        ],
+        "title": "PluginFilesystemAccess",
+        "type": "string"
+      },
+      "PluginLifecycleStatus": {
+        "enum": [
+          "installed",
+          "active",
+          "deprecated",
+          "incompatible",
+          "quarantined"
+        ],
+        "title": "PluginLifecycleStatus",
+        "type": "string"
+      },
+      "PluginManifest": {
+        "additionalProperties": false,
+        "properties": {
+          "capabilities": {
+            "$ref": "#/components/schemas/PluginCapabilities"
+          },
+          "compatibility": {
+            "$ref": "#/components/schemas/PluginCompatibility"
+          },
+          "dependencies": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/PluginDependency"
+            },
+            "title": "Dependencies",
+            "type": "array"
+          },
+          "deprecations": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/PluginDeprecation"
+            },
+            "title": "Deprecations",
+            "type": "array"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "maxLength": 4096,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "entryPoints": {
+            "items": {
+              "$ref": "#/components/schemas/PluginEntryPoint"
+            },
+            "minItems": 1,
+            "title": "Entrypoints",
+            "type": "array"
+          },
+          "license": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "License",
+            "type": "string"
+          },
+          "name": {
+            "maxLength": 255,
+            "pattern": "^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$",
+            "title": "Name",
+            "type": "string"
+          },
+          "schemaVersion": {
+            "const": "amesh.plugin/v1",
+            "default": "amesh.plugin/v1",
+            "title": "Schemaversion",
+            "type": "string"
+          },
+          "vendor": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Vendor",
+            "type": "string"
+          },
+          "version": {
+            "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?(?:\\+[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?$",
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "version",
+          "vendor",
+          "license",
+          "compatibility",
+          "entryPoints"
+        ],
+        "title": "PluginManifest",
+        "type": "object"
+      },
+      "PluginNetworkAccess": {
+        "enum": [
+          "none",
+          "restricted"
+        ],
+        "title": "PluginNetworkAccess",
+        "type": "string"
+      },
+      "PluginPackageRecord": {
+        "properties": {
+          "contentDigest": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Contentdigest"
+          },
+          "diagnostics": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Diagnostics",
+            "type": "array"
+          },
+          "manifest": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PluginManifest"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "sourceKind": {
+            "$ref": "#/components/schemas/PluginSourceKind"
+          },
+          "sourceLocation": {
+            "title": "Sourcelocation",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/PluginLifecycleStatus"
+          }
+        },
+        "required": [
+          "sourceKind",
+          "sourceLocation",
+          "status"
+        ],
+        "title": "PluginPackageRecord",
+        "type": "object"
+      },
+      "PluginSourceKind": {
+        "enum": [
+          "embedded",
+          "directory",
+          "registry",
+          "offline-bundle"
+        ],
+        "title": "PluginSourceKind",
+        "type": "string"
+      },
+      "PluginTransport": {
+        "enum": [
+          "stdio",
+          "grpc",
+          "http"
+        ],
+        "title": "PluginTransport",
+        "type": "string"
       },
       "PrincipalDefinition": {
         "properties": {
@@ -17596,6 +18123,259 @@
         "summary": "Get Service Topology",
         "tags": [
           "operations"
+        ]
+      }
+    },
+    "/api/v1/plugins": {
+      "get": {
+        "operationId": "list_plugins_api_v1_plugins_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PluginCatalogSnapshot"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Plugins",
+        "tags": [
+          "plugins"
+        ]
+      }
+    },
+    "/api/v1/plugins/install": {
+      "post": {
+        "operationId": "install_plugin_bundle_api_v1_plugins_install_post",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "contentDigest",
+            "required": true,
+            "schema": {
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "title": "Contentdigest",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PluginCatalogSnapshot"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Install Plugin Bundle",
+        "tags": [
+          "plugins"
+        ]
+      }
+    },
+    "/api/v1/plugins/refresh": {
+      "post": {
+        "operationId": "refresh_plugins_api_v1_plugins_refresh_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PluginCatalogSnapshot"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Refresh Plugins",
+        "tags": [
+          "plugins"
         ]
       }
     },

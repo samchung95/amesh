@@ -3,7 +3,7 @@ from __future__ import annotations
 import hashlib
 import hmac
 import json
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from datetime import datetime, timedelta
 from uuid import UUID
 
@@ -1656,8 +1656,14 @@ _LIST_EXECUTION_INTERVENTIONS = text(
 class PostgresExecutionRepository(ExecutionRepository):
     """Persists MVP executions, task runs, attempts and terminal events."""
 
-    def __init__(self, engine: AsyncEngine) -> None:
+    def __init__(
+        self,
+        engine: AsyncEngine,
+        *,
+        plugin_resolution_provider: Callable[[FlowDefinition], dict[str, object]] | None = None,
+    ) -> None:
         self._engine = engine
+        self._plugin_resolution_provider = plugin_resolution_provider
 
     async def apply_flow(
         self,
@@ -4059,6 +4065,13 @@ class PostgresExecutionRepository(ExecutionRepository):
         stored_flow = _flow_with_revision(flow, revision)
         canonical_definition = _encode_flow(stored_flow)
         source = revision_source or FlowRevisionSource()
+        plugin_resolution = (
+            self._plugin_resolution_provider(stored_flow)
+            if self._plugin_resolution_provider is not None
+            else _plugin_resolution(stored_flow)
+        )
+        if metadata_resolution:
+            plugin_resolution = {**plugin_resolution, "defaults": metadata_resolution}
         inserted_revision_id = await connection.scalar(
             _INSERT_FLOW_REVISION,
             {
@@ -4068,9 +4081,7 @@ class PostgresExecutionRepository(ExecutionRepository):
                 "revision": revision,
                 "semantic_hash": semantic_hash,
                 "canonical_definition": canonical_definition,
-                "plugin_resolution": json.dumps(
-                    _plugin_resolution(stored_flow, metadata_resolution)
-                ),
+                "plugin_resolution": json.dumps(plugin_resolution),
                 "source": source.source,
                 "source_commit": source.source_commit,
                 "environment": source.environment,

@@ -1,5 +1,48 @@
 # Test Log
 
+## EPIC-301: Plugin discovery, resolution and dependency isolation — 2026-08-23
+
+Spec source: Agent Hotel card `c51` and canonical `backlog/epics.json` EPIC-301 DoD.
+
+Verified with `uv`, Python 3.13, PostgreSQL 17, `semantic-version` 2.10.0 and Docker Compose:
+
+- [x] Immutable catalog snapshots discover the embedded core distribution, configured JSON/YAML
+  directories and SHA-256-verified local, file-URI or HTTP(S) registry bundles. Invalid sources and
+  manifests remain visible as secret-free quarantined records.
+- [x] Type references resolve through deterministic SemVer backtracking to exact package versions,
+  content digests and transitive dependencies. Duplicate identities/types, incompatible platform or
+  protocol ranges, missing dependencies and unsatisfiable combined constraints fail before flow
+  activation.
+- [x] The API flow path validates against active plugin schemas and persists
+  `amesh.plugin-resolution/v1` in each immutable flow revision. PostgreSQL integration evidence proved
+  that an execution created after a catalog refresh retained revision one's 1.0.0 pin while a changed
+  revision selected 2.0.0.
+- [x] Content-addressed installation roots, exact dependency-root maps and `PYTHONNOUSERSITE=1` launch
+  plans keep plugin versions outside the control-plane import path. Trusted and isolated callback
+  execution remain owned by EPIC-302/303.
+- [x] Refresh creates a new catalog generation without mutating returned resolutions. Status APIs
+  expose installed, active, deprecated, incompatible and quarantined versions under authorization;
+  refresh and installation require instance-level plugin management.
+- [x] API and CLI offline installation accept one bounded ZIP bundle plus its required SHA-256 digest,
+  reject mismatches, path traversal and symlinks, and install atomically/idempotently by digest.
+  Compose persists `/var/lib/amesh/plugins` in the `plugin-data` volume.
+- [x] Generated manifest, catalog, registry, resolution and OpenAPI contracts match the checked-in
+  files. Forty focused plugin/configuration/generated-contract/DSL tests passed.
+- [x] A freshly migrated disposable database ran the 373-test collection with the two authoritative
+  `c15`/`c29` tests deselected: 361 passed, ten environment/profile tests skipped, two deselected and
+  no failures. The disposable database was dropped after the run.
+- [x] Ruff, strict mypy for 141 source files, uv lock, clean-room policy, planning regeneration,
+  backlog validation, Compose validation and diff checks passed. The rebuilt API, executor and
+  scheduler are healthy; both REST and deployed CLI catalog reads returned active `amesh.core@0.2.0`.
+
+The dependency choice used the maintained `semantic-version` SemVer 2.0 range implementation rather
+than a local parser. No LLM invocation was required; OpenRouter remains configured for
+`openai/gpt-5.6-luna` when a later behavior test needs an LLM.
+
+Verdict: PASS — EPIC-301 functional requirements URS-F-0297 through URS-F-0304 are verified. Signing,
+SBOM/provenance policy and supervised callback execution remain explicitly with EPIC-305 and
+EPIC-302/303 respectively.
+
 ## EPIC-300: Plugin SDK and manifest contract — 2026-08-23
 
 Spec source: Agent Hotel card `c50` and canonical `backlog/epics.json` EPIC-300 DoD.

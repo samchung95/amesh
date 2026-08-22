@@ -75,6 +75,16 @@ def build_parser() -> argparse.ArgumentParser:
     webhook.add_argument("--runner", choices=("local", "kubernetes"), default="local")
     webhook.add_argument("--input", action="append", default=[])
 
+    plugins = subcommands.add_parser("plugins", help="Inspect and manage plugin packages")
+    plugin_commands = plugins.add_subparsers(dest="plugin_command", required=True)
+    plugin_commands.add_parser("list", help="List the active plugin catalog")
+    plugin_commands.add_parser("refresh", help="Refresh configured plugin sources")
+    plugin_install = plugin_commands.add_parser(
+        "install", help="Install a verified offline plugin bundle"
+    )
+    plugin_install.add_argument("path", type=Path)
+    plugin_install.add_argument("--sha256", required=True)
+
     namespace = subcommands.add_parser("namespace", help="Manage namespace resources")
     namespace_commands = namespace.add_subparsers(dest="namespace_command", required=True)
     files = namespace_commands.add_parser("files", help="Manage namespace files")
@@ -346,6 +356,21 @@ def main(argv: Sequence[str] | None = None) -> int:
                     params={"runner": args.runner},
                     json=_parse_inputs(args.input),
                 )
+            elif args.command == "plugins":
+                if args.plugin_command == "list":
+                    response = client.get("/api/v1/plugins")
+                elif args.plugin_command == "refresh":
+                    response = client.post("/api/v1/plugins/refresh")
+                else:
+                    digest = args.sha256
+                    if not digest.startswith("sha256:"):
+                        digest = f"sha256:{digest}"
+                    response = client.post(
+                        "/api/v1/plugins/install",
+                        params={"contentDigest": digest},
+                        content=args.path.read_bytes(),
+                        headers={"content-type": "application/vnd.amesh.plugin+zip"},
+                    )
             elif args.command == "namespace":
                 response = _namespace_request(client, args)
             else:

@@ -50,8 +50,10 @@ All SDKs generate or consume the same manifest, schemas and conformance contract
 The implemented `amesh.plugin/v1` manifest, `amesh.plugin.rpc/v1` request/response envelopes, Python
 protocol bindings and local conformance harness are documented in the
 [plugin manifest contract](../plugin-sdk/manifest.md), [testing guide](../plugin-sdk/testing.md) and
-[compatibility policy](../plugin-sdk/compatibility.md). Discovery, installation, process supervision
-and signing remain separate lifecycle layers and do not alter these public documents.
+[compatibility policy](../plugin-sdk/compatibility.md). Deterministic discovery, verified offline
+installation, dependency resolution, revision pins and content-root isolation are described in the
+[discovery and resolution guide](../plugin-sdk/discovery-and-resolution.md). Trusted/isolated process
+supervision and signing remain separate lifecycle layers and do not alter these public documents.
 
 Polling trigger adapters return normalized occurrences plus their next checkpoint. The runtime
 persists both before calling the adapter's acknowledgement hook. Realtime trigger adapters expose an
