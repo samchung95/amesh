@@ -3027,6 +3027,117 @@
         "title": "HealthResponse",
         "type": "object"
       },
+      "IsolatedPluginRuntimeSnapshot": {
+        "properties": {
+          "catalogGeneration": {
+            "minimum": 1.0,
+            "title": "Cataloggeneration",
+            "type": "integer"
+          },
+          "plugins": {
+            "items": {
+              "$ref": "#/components/schemas/IsolatedPluginRuntimeStatus"
+            },
+            "title": "Plugins",
+            "type": "array"
+          }
+        },
+        "required": [
+          "catalogGeneration",
+          "plugins"
+        ],
+        "title": "IsolatedPluginRuntimeSnapshot",
+        "type": "object"
+      },
+      "IsolatedPluginRuntimeStatus": {
+        "properties": {
+          "activeCalls": {
+            "default": 0,
+            "title": "Activecalls",
+            "type": "integer"
+          },
+          "completed": {
+            "default": 0,
+            "title": "Completed",
+            "type": "integer"
+          },
+          "contentDigest": {
+            "title": "Contentdigest",
+            "type": "string"
+          },
+          "crashes": {
+            "default": 0,
+            "title": "Crashes",
+            "type": "integer"
+          },
+          "lastErrorCode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lasterrorcode"
+          },
+          "lastPid": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lastpid"
+          },
+          "launcher": {
+            "title": "Launcher",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "restarts": {
+            "default": 0,
+            "title": "Restarts",
+            "type": "integer"
+          },
+          "starts": {
+            "default": 0,
+            "title": "Starts",
+            "type": "integer"
+          },
+          "state": {
+            "$ref": "#/components/schemas/IsolatedPluginState"
+          },
+          "version": {
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "version",
+          "contentDigest",
+          "launcher",
+          "state"
+        ],
+        "title": "IsolatedPluginRuntimeStatus",
+        "type": "object"
+      },
+      "IsolatedPluginState": {
+        "enum": [
+          "ready",
+          "running",
+          "degraded",
+          "unavailable"
+        ],
+        "title": "IsolatedPluginState",
+        "type": "string"
+      },
       "IssueCredentialRequest": {
         "properties": {
           "audience": {
@@ -18436,6 +18547,87 @@
           }
         },
         "summary": "Install Plugin Bundle",
+        "tags": [
+          "plugins"
+        ]
+      }
+    },
+    "/api/v1/plugins/isolated-runtime": {
+      "get": {
+        "operationId": "isolated_plugin_runtime_status_api_v1_plugins_isolated_runtime_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IsolatedPluginRuntimeSnapshot"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Isolated Plugin Runtime Status",
         "tags": [
           "plugins"
         ]

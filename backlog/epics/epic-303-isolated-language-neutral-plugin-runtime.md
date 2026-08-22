@@ -12,14 +12,18 @@ Execute third-party plugins out of process or in OCI sandboxes through a languag
 
 ## In scope
 
-- [ ] **URS-F-0313** — The system shall define an RPC protocol for schema discovery, validation, execution, cancellation, heartbeats, logs, metrics and artifacts.
-- [ ] **URS-F-0314** — The system shall launch plugin services as managed local processes, containers or remote endpoints.
-- [ ] **URS-F-0315** — The system shall authenticate every plugin session with short-lived workload identity.
-- [ ] **URS-F-0316** — The system shall grant per-call capabilities for secrets, files, network destinations and platform APIs.
-- [ ] **URS-F-0317** — The system shall enforce CPU, memory, wall-time, output and concurrency limits.
-- [ ] **URS-F-0318** — The system shall restart crashed plugin services without losing durable task ownership semantics.
-- [ ] **URS-F-0319** — The system shall support SDKs for at least Python, Java, JavaScript or TypeScript and Go before GA.
-- [ ] **URS-F-0320** — The system shall version the wire protocol and negotiate compatible features.
+- [x] **URS-F-0313** — The system shall define an RPC protocol for schema discovery, validation, execution, cancellation, heartbeats, logs, metrics and artifacts.
+- [x] **URS-F-0314** — The system shall launch plugin services as managed local processes, containers or remote endpoints.
+- [x] **URS-F-0315** — The system shall authenticate every plugin session with short-lived workload identity.
+- [x] **URS-F-0316** — The system shall grant per-call capabilities for secrets, files, network destinations and platform APIs.
+- [x] **URS-F-0317** — The system shall enforce CPU, memory, wall-time, output and concurrency limits.
+- [x] **URS-F-0318** — The system shall restart crashed plugin services without losing durable task ownership semantics.
+- [x] **URS-F-0319** — The system shall support SDKs for at least Python, Java, JavaScript or TypeScript and Go before GA.
+- [x] **URS-F-0320** — The system shall version the wire protocol and negotiate compatible features.
+
+## Implementation completion evidence
+
+- 2026-08-23 — EPIC-303 is complete for the managed local-process profile. AMESH supervises exact revision-pinned third-party packages outside platform processes through versioned JSON-RPC 2.0 newline frames covering manifest/schema discovery, validation, execution, cancellation, heartbeats, logs, metrics and artifacts. Every session negotiates required features and uses a short-lived workload token; every call receives only declared-and-resolved secrets/files, declared egress, fresh capability tokens and administrator-approved platform APIs. Per-package concurrency plus child-tree CPU, memory, wall-time and combined output/frame limits fail deterministically. Unexpected exits and heartbeat loss are retryable, and a PostgreSQL-backed executor test proved a crashed service restarts on attempt two while retaining the same durable task run. The generated wire schema and Python service SDK plus compile-verified Java, TypeScript and Go contracts are documented. Authorized runtime status exposes starts, restarts, crashes, active/completed calls, PID and stable error codes. Evidence: [`test_isolated_runtime.py`](../../tests/plugins/test_isolated_runtime.py), [`test_wire_sdks.py`](../../tests/plugins/test_wire_sdks.py), [`plugin-wire.schema.json`](../../schemas/plugin-wire.schema.json), [`isolated-runtime.md`](../../docs/plugin-sdk/isolated-runtime.md) and [`TESTLOG.md`](../../TESTLOG.md). Shared URS-NFR-SECURITY-002 and URS-NFR-SECURITY-008 remain In Progress for their other owning epics and deployment-level privilege/isolation qualification.
 
 ## Non-functional requirements
 
@@ -48,13 +52,13 @@ Execute third-party plugins out of process or in OCI sandboxes through a languag
 
 ## Definition of done
 
-- [ ] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
-- [ ] Public API, DSL, event and plugin contract changes pass compatibility checks.
-- [ ] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
-- [ ] Security, tenant isolation, redaction and audit behavior are reviewed.
-- [ ] Documentation, examples, migration notes and operational runbooks are updated.
-- [ ] Performance and recovery budgets are measured when this epic is on a critical path.
-- [ ] `python scripts/validate_backlog.py` passes.
+- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
+- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.
+- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
+- [x] Security, tenant isolation, redaction and audit behavior are reviewed.
+- [x] Documentation, examples, migration notes and operational runbooks are updated.
+- [x] Performance and recovery budgets are measured when this epic is on a critical path.
+- [x] `python scripts/validate_backlog.py` passes.
 
 ## Risks and unknowns
 

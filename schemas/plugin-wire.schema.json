@@ -1,0 +1,736 @@
+{
+  "$defs": {
+    "ExtensionType": {
+      "enum": [
+        "task",
+        "trigger",
+        "condition",
+        "runner",
+        "storage",
+        "secret",
+        "expression",
+        "notification"
+      ],
+      "title": "ExtensionType",
+      "type": "string"
+    },
+    "JsonRpcError": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "title": "Code",
+          "type": "integer"
+        },
+        "data": {
+          "additionalProperties": true,
+          "title": "Data",
+          "type": "object"
+        },
+        "message": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "title": "Message",
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "message"
+      ],
+      "title": "JsonRpcError",
+      "type": "object"
+    },
+    "JsonRpcNotification": {
+      "additionalProperties": false,
+      "properties": {
+        "jsonrpc": {
+          "const": "2.0",
+          "default": "2.0",
+          "title": "Jsonrpc",
+          "type": "string"
+        },
+        "method": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Method",
+          "type": "string"
+        },
+        "params": {
+          "additionalProperties": true,
+          "title": "Params",
+          "type": "object"
+        }
+      },
+      "required": [
+        "method"
+      ],
+      "title": "JsonRpcNotification",
+      "type": "object"
+    },
+    "JsonRpcRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "jsonrpc": {
+          "const": "2.0",
+          "default": "2.0",
+          "title": "Jsonrpc",
+          "type": "string"
+        },
+        "method": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Method",
+          "type": "string"
+        },
+        "params": {
+          "additionalProperties": true,
+          "title": "Params",
+          "type": "object"
+        }
+      },
+      "required": [
+        "id",
+        "method"
+      ],
+      "title": "JsonRpcRequest",
+      "type": "object"
+    },
+    "JsonRpcResponse": {
+      "additionalProperties": false,
+      "properties": {
+        "error": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/JsonRpcError"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "id": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "jsonrpc": {
+          "const": "2.0",
+          "default": "2.0",
+          "title": "Jsonrpc",
+          "type": "string"
+        },
+        "result": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Result"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "title": "JsonRpcResponse",
+      "type": "object"
+    },
+    "PluginArtifact": {
+      "additionalProperties": false,
+      "properties": {
+        "checksumSha256": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Checksumsha256"
+        },
+        "logicalPath": {
+          "anyOf": [
+            {
+              "maxLength": 4096,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Logicalpath"
+        },
+        "mediaType": {
+          "anyOf": [
+            {
+              "maxLength": 255,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Mediatype"
+        },
+        "sizeBytes": {
+          "minimum": 0,
+          "title": "Sizebytes",
+          "type": "integer"
+        },
+        "uri": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "title": "Uri",
+          "type": "string"
+        }
+      },
+      "required": [
+        "uri",
+        "sizeBytes"
+      ],
+      "title": "PluginArtifact",
+      "type": "object"
+    },
+    "PluginAuthenticatedParams": {
+      "additionalProperties": false,
+      "properties": {
+        "invocationId": {
+          "anyOf": [
+            {
+              "maxLength": 255,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Invocationid"
+        },
+        "sessionId": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Sessionid",
+          "type": "string"
+        },
+        "workloadToken": {
+          "format": "password",
+          "title": "Workloadtoken",
+          "type": "string",
+          "writeOnly": true
+        }
+      },
+      "required": [
+        "sessionId",
+        "workloadToken"
+      ],
+      "title": "PluginAuthenticatedParams",
+      "type": "object"
+    },
+    "PluginCapabilityEnvelope": {
+      "additionalProperties": false,
+      "properties": {
+        "allowedEgress": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Allowedegress",
+          "type": "array"
+        },
+        "capabilityTokens": {
+          "additionalProperties": {
+            "format": "password",
+            "type": "string",
+            "writeOnly": true
+          },
+          "title": "Capabilitytokens",
+          "type": "object"
+        },
+        "files": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Files",
+          "type": "object"
+        },
+        "platformApis": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Platformapis",
+          "type": "array"
+        },
+        "secrets": {
+          "additionalProperties": {
+            "format": "password",
+            "type": "string",
+            "writeOnly": true
+          },
+          "title": "Secrets",
+          "type": "object"
+        }
+      },
+      "title": "PluginCapabilityEnvelope",
+      "type": "object"
+    },
+    "PluginDiscoveryResult": {
+      "additionalProperties": false,
+      "properties": {
+        "entryPoints": {
+          "items": {
+            "$ref": "#/$defs/PluginWireEntryPoint"
+          },
+          "title": "Entrypoints",
+          "type": "array"
+        },
+        "sessionId": {
+          "title": "Sessionid",
+          "type": "string"
+        },
+        "workloadToken": {
+          "format": "password",
+          "title": "Workloadtoken",
+          "type": "string",
+          "writeOnly": true
+        }
+      },
+      "required": [
+        "sessionId",
+        "workloadToken",
+        "entryPoints"
+      ],
+      "title": "PluginDiscoveryResult",
+      "type": "object"
+    },
+    "PluginHandshakeParams": {
+      "additionalProperties": false,
+      "properties": {
+        "contentDigest": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Contentdigest",
+          "type": "string"
+        },
+        "expiresAt": {
+          "format": "date-time",
+          "title": "Expiresat",
+          "type": "string"
+        },
+        "plugin": {
+          "title": "Plugin",
+          "type": "string"
+        },
+        "protocolVersions": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Protocolversions",
+          "type": "array"
+        },
+        "requiredFeatures": {
+          "items": {
+            "$ref": "#/$defs/PluginWireFeature"
+          },
+          "minItems": 1,
+          "title": "Requiredfeatures",
+          "type": "array"
+        },
+        "sessionId": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Sessionid",
+          "type": "string"
+        },
+        "version": {
+          "title": "Version",
+          "type": "string"
+        },
+        "workloadToken": {
+          "format": "password",
+          "title": "Workloadtoken",
+          "type": "string",
+          "writeOnly": true
+        }
+      },
+      "required": [
+        "protocolVersions",
+        "requiredFeatures",
+        "plugin",
+        "version",
+        "contentDigest",
+        "sessionId",
+        "workloadToken",
+        "expiresAt"
+      ],
+      "title": "PluginHandshakeParams",
+      "type": "object"
+    },
+    "PluginHandshakeResult": {
+      "additionalProperties": false,
+      "properties": {
+        "contentDigest": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Contentdigest",
+          "type": "string"
+        },
+        "features": {
+          "items": {
+            "$ref": "#/$defs/PluginWireFeature"
+          },
+          "title": "Features",
+          "type": "array"
+        },
+        "plugin": {
+          "title": "Plugin",
+          "type": "string"
+        },
+        "protocolVersion": {
+          "const": "amesh.plugin.wire/v1",
+          "title": "Protocolversion",
+          "type": "string"
+        },
+        "sessionId": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Sessionid",
+          "type": "string"
+        },
+        "version": {
+          "title": "Version",
+          "type": "string"
+        },
+        "workloadToken": {
+          "format": "password",
+          "title": "Workloadtoken",
+          "type": "string",
+          "writeOnly": true
+        }
+      },
+      "required": [
+        "protocolVersion",
+        "features",
+        "plugin",
+        "version",
+        "contentDigest",
+        "sessionId",
+        "workloadToken"
+      ],
+      "title": "PluginHandshakeResult",
+      "type": "object"
+    },
+    "PluginInvocationParams": {
+      "additionalProperties": false,
+      "properties": {
+        "capabilities": {
+          "$ref": "#/$defs/PluginCapabilityEnvelope"
+        },
+        "request": {
+          "$ref": "#/$defs/PluginRequest"
+        },
+        "sessionId": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Sessionid",
+          "type": "string"
+        },
+        "workloadToken": {
+          "format": "password",
+          "title": "Workloadtoken",
+          "type": "string",
+          "writeOnly": true
+        }
+      },
+      "required": [
+        "sessionId",
+        "workloadToken",
+        "request"
+      ],
+      "title": "PluginInvocationParams",
+      "type": "object"
+    },
+    "PluginMetric": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "default": "gauge",
+          "enum": [
+            "counter",
+            "gauge",
+            "timer"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "labels": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Labels",
+          "type": "object"
+        },
+        "name": {
+          "maxLength": 256,
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "maxLength": 64,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unit"
+        },
+        "value": {
+          "title": "Value",
+          "type": "number"
+        }
+      },
+      "required": [
+        "name",
+        "value"
+      ],
+      "title": "PluginMetric",
+      "type": "object"
+    },
+    "PluginOperation": {
+      "enum": [
+        "validate",
+        "execute",
+        "poll",
+        "evaluate",
+        "run",
+        "cancel",
+        "get",
+        "put",
+        "delete",
+        "resolve",
+        "send"
+      ],
+      "title": "PluginOperation",
+      "type": "string"
+    },
+    "PluginRequest": {
+      "properties": {
+        "configuration": {
+          "additionalProperties": true,
+          "title": "Configuration",
+          "type": "object"
+        },
+        "context": {
+          "additionalProperties": true,
+          "title": "Context",
+          "type": "object"
+        },
+        "entryPoint": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Entrypoint",
+          "type": "string"
+        },
+        "input": {
+          "additionalProperties": true,
+          "title": "Input",
+          "type": "object"
+        },
+        "operation": {
+          "$ref": "#/$defs/PluginOperation"
+        },
+        "plugin": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Plugin",
+          "type": "string"
+        },
+        "protocolVersion": {
+          "default": "amesh.plugin.rpc/v1",
+          "title": "Protocolversion",
+          "type": "string"
+        },
+        "session": {
+          "$ref": "#/$defs/PluginSession"
+        }
+      },
+      "required": [
+        "plugin",
+        "entryPoint",
+        "operation",
+        "session"
+      ],
+      "title": "PluginRequest",
+      "type": "object"
+    },
+    "PluginSession": {
+      "properties": {
+        "capabilityTokens": {
+          "additionalProperties": {
+            "format": "password",
+            "type": "string",
+            "writeOnly": true
+          },
+          "title": "Capabilitytokens",
+          "type": "object"
+        },
+        "deadline": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Deadline"
+        },
+        "invocationId": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Invocationid",
+          "type": "string"
+        },
+        "tenantId": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Tenantid",
+          "type": "string"
+        }
+      },
+      "required": [
+        "tenantId",
+        "invocationId"
+      ],
+      "title": "PluginSession",
+      "type": "object"
+    },
+    "PluginWireEntryPoint": {
+      "additionalProperties": false,
+      "properties": {
+        "configurationSchema": {
+          "additionalProperties": true,
+          "title": "Configurationschema",
+          "type": "object"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "outputSchema": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Outputschema"
+        },
+        "resourceType": {
+          "title": "Resourcetype",
+          "type": "string"
+        },
+        "type": {
+          "$ref": "#/$defs/ExtensionType"
+        }
+      },
+      "required": [
+        "name",
+        "type",
+        "resourceType",
+        "configurationSchema"
+      ],
+      "title": "PluginWireEntryPoint",
+      "type": "object"
+    },
+    "PluginWireFeature": {
+      "enum": [
+        "schema-discovery",
+        "validation",
+        "execution",
+        "cancellation",
+        "heartbeats",
+        "logs",
+        "metrics",
+        "artifacts"
+      ],
+      "title": "PluginWireFeature",
+      "type": "string"
+    }
+  },
+  "description": "Schema bundle for language-neutral SDK generation and compatibility checks.",
+  "properties": {
+    "artifact": {
+      "$ref": "#/$defs/PluginArtifact"
+    },
+    "authenticated": {
+      "$ref": "#/$defs/PluginAuthenticatedParams"
+    },
+    "discovery": {
+      "$ref": "#/$defs/PluginDiscoveryResult"
+    },
+    "handshake": {
+      "$ref": "#/$defs/PluginHandshakeParams"
+    },
+    "invocation": {
+      "$ref": "#/$defs/PluginInvocationParams"
+    },
+    "metric": {
+      "$ref": "#/$defs/PluginMetric"
+    },
+    "notification": {
+      "$ref": "#/$defs/JsonRpcNotification"
+    },
+    "ready": {
+      "$ref": "#/$defs/PluginHandshakeResult"
+    },
+    "request": {
+      "$ref": "#/$defs/JsonRpcRequest"
+    },
+    "response": {
+      "$ref": "#/$defs/JsonRpcResponse"
+    }
+  },
+  "required": [
+    "request",
+    "notification",
+    "response",
+    "handshake",
+    "ready",
+    "invocation",
+    "discovery",
+    "authenticated",
+    "metric",
+    "artifact"
+  ],
+  "title": "PluginWireContract",
+  "type": "object"
+}

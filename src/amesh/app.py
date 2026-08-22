@@ -219,8 +219,11 @@ from amesh.plugin_sdk import (
     PluginResolver,
 )
 from amesh.plugins import (
+    IsolatedPluginRuntime,
+    IsolatedPluginRuntimeSnapshot,
     TrustedPluginRuntime,
     TrustedPluginRuntimeSnapshot,
+    build_isolated_runtime,
     build_plugin_catalog,
     build_trusted_runtime,
 )
@@ -425,6 +428,17 @@ def get_trusted_plugin_runtime() -> TrustedPluginRuntime:
 TrustedPluginRuntimeDependency = Annotated[
     TrustedPluginRuntime,
     Depends(get_trusted_plugin_runtime),
+]
+
+
+@lru_cache
+def get_isolated_plugin_runtime() -> IsolatedPluginRuntime:
+    return build_isolated_runtime(get_settings(), get_plugin_catalog_manager())
+
+
+IsolatedPluginRuntimeDependency = Annotated[
+    IsolatedPluginRuntime,
+    Depends(get_isolated_plugin_runtime),
 ]
 
 
@@ -1065,6 +1079,28 @@ async def trusted_plugin_runtime_status(
         tenant_id=tenant_id,
     )
     await runtime.ensure_started()
+    return runtime.snapshot()
+
+
+@app.get(
+    "/api/v1/plugins/isolated-runtime",
+    response_model=IsolatedPluginRuntimeSnapshot,
+    tags=["plugins"],
+)
+async def isolated_plugin_runtime_status(
+    runtime: IsolatedPluginRuntimeDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> IsolatedPluginRuntimeSnapshot:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="plugin",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+    )
+    await runtime.ensure_configured()
     return runtime.snapshot()
 
 
@@ -4773,9 +4809,7 @@ async def _execute_flow(
         "agent.llm": agent_llm_handler(),
         "agent.mcp": agent_mcp_handler(),
     }
-    if settings.trusted_plugin_approvals:
-        runtime = get_trusted_plugin_runtime()
-        await runtime.ensure_started()
+    if settings.trusted_plugin_approvals or settings.isolated_plugin_services:
         revisions = await repository.list_flow_revisions(
             flow.namespace,
             flow.id,
@@ -4787,7 +4821,30 @@ async def _execute_flow(
                 status_code=status.HTTP_409_CONFLICT,
                 detail=f"flow revision {flow.revision} plugin resolution is unavailable",
             )
-        handlers.update(runtime.task_handlers(revision.plugin_resolution))
+        plugin_handlers: dict[str, TaskHandler] = {}
+        if settings.trusted_plugin_approvals:
+            trusted_runtime = get_trusted_plugin_runtime()
+            await trusted_runtime.ensure_started()
+            plugin_handlers.update(trusted_runtime.task_handlers(revision.plugin_resolution))
+        if settings.isolated_plugin_services:
+            isolated_runtime = get_isolated_plugin_runtime()
+            await isolated_runtime.ensure_configured()
+            for task_type, handler in isolated_runtime.task_handlers(
+                revision.plugin_resolution
+            ).items():
+                if task_type in plugin_handlers:
+                    raise HTTPException(
+                        status_code=status.HTTP_409_CONFLICT,
+                        detail=f"plugin task identity {task_type!r} has multiple runtime owners",
+                    )
+                plugin_handlers[task_type] = handler
+        for task_type, handler in plugin_handlers.items():
+            if task_type in handlers:
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail=f"plugin task identity {task_type!r} conflicts with a core task",
+                )
+            handlers[task_type] = handler
 
     async def authorize_subflow(child_flow: FlowDefinition) -> None:
         await authorize_request(

@@ -44,7 +44,13 @@ from amesh.executor import (
     selecting_runner_handler,
 )
 from amesh.observability import configure_structured_logging
-from amesh.plugins import TrustedPluginRuntime, build_plugin_catalog, build_trusted_runtime
+from amesh.plugins import (
+    IsolatedPluginRuntime,
+    TrustedPluginRuntime,
+    build_isolated_runtime,
+    build_plugin_catalog,
+    build_trusted_runtime,
+)
 from amesh.ports import (
     CheckRepository,
     ExecutionLaunchSource,
@@ -266,6 +272,7 @@ async def recover_once(
     task_cache: TaskCacheRepository | None = None,
     shared_resources: PostgresSharedResourceRepository | None = None,
     trusted_runtime: TrustedPluginRuntime | None = None,
+    isolated_runtime: IsolatedPluginRuntime | None = None,
 ) -> int:
     now = datetime.now(UTC)
     recovered = 0
@@ -345,10 +352,7 @@ async def recover_once(
                 "agent.llm": agent_llm_handler(),
                 "agent.mcp": agent_mcp_handler(),
             }
-            if settings.trusted_plugin_approvals:
-                if trusted_runtime is None:
-                    raise RuntimeError("trusted plugin approvals require a configured runtime")
-                await trusted_runtime.ensure_started()
+            if settings.trusted_plugin_approvals or settings.isolated_plugin_services:
                 revisions = await repository.list_flow_revisions(
                     execution.namespace,
                     execution.flow_id,
@@ -362,7 +366,32 @@ async def recover_once(
                     raise RuntimeError(
                         f"flow revision {execution.flow_revision} plugin resolution is unavailable"
                     )
-                handlers.update(trusted_runtime.task_handlers(revision.plugin_resolution))
+                plugin_handlers: dict[str, TaskHandler] = {}
+                if settings.trusted_plugin_approvals:
+                    if trusted_runtime is None:
+                        raise RuntimeError("trusted plugin approvals require a configured runtime")
+                    await trusted_runtime.ensure_started()
+                    plugin_handlers.update(
+                        trusted_runtime.task_handlers(revision.plugin_resolution)
+                    )
+                if settings.isolated_plugin_services:
+                    if isolated_runtime is None:
+                        raise RuntimeError("isolated plugin services require a configured runtime")
+                    await isolated_runtime.ensure_configured()
+                    for task_type, handler in isolated_runtime.task_handlers(
+                        revision.plugin_resolution
+                    ).items():
+                        if task_type in plugin_handlers:
+                            raise RuntimeError(
+                                f"plugin task identity {task_type!r} has multiple runtime owners"
+                            )
+                        plugin_handlers[task_type] = handler
+                for task_type, handler in plugin_handlers.items():
+                    if task_type in handlers:
+                        raise RuntimeError(
+                            f"plugin task identity {task_type!r} conflicts with a core task"
+                        )
+                    handlers[task_type] = handler
             executor = InProcessExecutor(
                 repository,
                 handlers=handlers,
@@ -464,7 +493,9 @@ async def run_worker(settings: Settings) -> None:
     shared_resources = PostgresSharedResourceRepository(engine)
     tenant_repository = PostgresTenantRepository(engine)
     next_reconciliation_at = 0.0
-    trusted_runtime = build_trusted_runtime(settings, build_plugin_catalog(settings))
+    plugin_catalog = build_plugin_catalog(settings)
+    trusted_runtime = build_trusted_runtime(settings, plugin_catalog)
+    isolated_runtime = build_isolated_runtime(settings, plugin_catalog)
     LOGGER.info("worker started", extra={"worker_id": worker_id})
     try:
         while True:
@@ -502,6 +533,7 @@ async def run_worker(settings: Settings) -> None:
                     tenant_ids=tenant_ids,
                     shared_resources=shared_resources,
                     trusted_runtime=trusted_runtime,
+                    isolated_runtime=isolated_runtime,
                 )
                 current_time = monotonic()
                 if current_time >= next_reconciliation_at:

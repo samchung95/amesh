@@ -57,6 +57,48 @@ class TrustedPluginApproval(BaseModel):
     )
 
 
+class IsolatedPluginServiceConfig(BaseModel):
+    model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
+
+    name: str = Field(pattern=r"^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$", max_length=255)
+    version: str = Field(
+        pattern=(
+            r"^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)"
+            r"(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?"
+            r"(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$"
+        )
+    )
+    content_digest: str = Field(
+        alias="contentDigest",
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    launcher: Literal["local-process"] = "local-process"
+    command: tuple[str, ...] = Field(min_length=1)
+    environment: dict[str, str] = Field(default_factory=dict)
+    platform_apis: tuple[str, ...] = Field(default=(), alias="platformApis")
+    startup_timeout_seconds: float = Field(default=10, alias="startupTimeoutSeconds", gt=0)
+    heartbeat_timeout_seconds: float = Field(default=5, alias="heartbeatTimeoutSeconds", gt=0)
+    wall_time_seconds: float = Field(default=300, alias="wallTimeSeconds", gt=0)
+    cancel_grace_seconds: float = Field(default=1, alias="cancelGraceSeconds", ge=0)
+    token_ttl_seconds: int = Field(default=600, alias="tokenTtlSeconds", ge=30, le=3600)
+    max_output_bytes: int = Field(
+        default=8 * 1024 * 1024,
+        alias="maxOutputBytes",
+        ge=1024,
+        le=128 * 1024 * 1024,
+    )
+    memory_bytes: int | None = Field(default=None, alias="memoryBytes", ge=4 * 1024 * 1024)
+    cpu_seconds: float | None = Field(default=None, alias="cpuSeconds", gt=0)
+    max_concurrency: int = Field(default=1, alias="maxConcurrency", ge=1, le=128)
+
+    @field_validator("command")
+    @classmethod
+    def validate_command(cls, value: tuple[str, ...]) -> tuple[str, ...]:
+        if any(not item or "\x00" in item for item in value):
+            raise ValueError("isolated plugin command entries must be non-empty and NUL-free")
+        return value
+
+
 class Settings(BaseSettings):
     """Process configuration.
 
@@ -159,6 +201,8 @@ class Settings(BaseSettings):
     trusted_plugin_failure_threshold: int = Field(default=5, ge=1, le=100)
     trusted_plugin_reset_seconds: float = Field(default=30.0, gt=0, le=3600)
     trusted_plugin_quarantine_threshold: int = Field(default=10, ge=1, le=1000)
+    isolated_plugin_services: tuple[IsolatedPluginServiceConfig, ...] = ()
+    isolated_plugin_monitor_interval_seconds: float = Field(default=0.05, gt=0, le=5)
     network_public_exposure: bool = False
     network_tls_terminated: bool = False
     product_telemetry_enabled: bool = Field(
@@ -194,6 +238,7 @@ class Settings(BaseSettings):
         "plugin_directories",
         "plugin_registries",
         "trusted_plugin_approvals",
+        "isolated_plugin_services",
         mode="before",
     )
     @classmethod
@@ -221,6 +266,14 @@ class Settings(BaseSettings):
         ]
         if len(approval_identities) != len(set(approval_identities)):
             raise ValueError("TRUSTED_PLUGIN_APPROVALS must contain unique exact identities")
+        isolated_identities = [
+            (item.name, item.version, item.content_digest) for item in self.isolated_plugin_services
+        ]
+        if len(isolated_identities) != len(set(isolated_identities)):
+            raise ValueError("ISOLATED_PLUGIN_SERVICES must contain unique exact identities")
+        overlap = set(approval_identities).intersection(isolated_identities)
+        if overlap:
+            raise ValueError("a plugin identity cannot use both trusted and isolated runtime tiers")
         if (
             self.app_env != "development"
             and self.network_public_exposure

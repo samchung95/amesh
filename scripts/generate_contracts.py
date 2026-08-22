@@ -30,6 +30,7 @@ from amesh.plugin_sdk import (  # noqa: E402
     PluginRequest,
     PluginResolution,
     PluginResponse,
+    PluginWireContract,
 )
 from amesh.ports.durable_transport import DurableEnvelope  # noqa: E402
 
@@ -50,6 +51,7 @@ def main() -> int:
     dump(ROOT / "schemas" / "plugin-manifest.schema.json", PluginManifest.model_json_schema())
     dump(ROOT / "schemas" / "plugin-request.schema.json", PluginRequest.model_json_schema())
     dump(ROOT / "schemas" / "plugin-response.schema.json", PluginResponse.model_json_schema())
+    dump(ROOT / "schemas" / "plugin-wire.schema.json", PluginWireContract.model_json_schema())
     dump(
         ROOT / "schemas" / "plugin-catalog.schema.json",
         PluginCatalogSnapshot.model_json_schema(),

@@ -311,14 +311,14 @@ URS-F-0309,Functional,Must,EPIC-302,Trusted in-process plugin runtime,M3,3,"Plug
 URS-F-0310,Functional,Must,EPIC-302,Trusted in-process plugin runtime,M3,3,"Plugin SDK contract, sandbox and integration tests",Verified
 URS-F-0311,Functional,Must,EPIC-302,Trusted in-process plugin runtime,M3,3,"Plugin SDK contract, sandbox and integration tests",Verified
 URS-F-0312,Functional,Must,EPIC-302,Trusted in-process plugin runtime,M3,3,"Plugin SDK contract, sandbox and integration tests",Verified
-URS-F-0313,Functional,Must,EPIC-303,Isolated language-neutral plugin runtime,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
-URS-F-0314,Functional,Must,EPIC-303,Isolated language-neutral plugin runtime,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
-URS-F-0315,Functional,Must,EPIC-303,Isolated language-neutral plugin runtime,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
-URS-F-0316,Functional,Must,EPIC-303,Isolated language-neutral plugin runtime,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
-URS-F-0317,Functional,Must,EPIC-303,Isolated language-neutral plugin runtime,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
-URS-F-0318,Functional,Must,EPIC-303,Isolated language-neutral plugin runtime,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
-URS-F-0319,Functional,Must,EPIC-303,Isolated language-neutral plugin runtime,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
-URS-F-0320,Functional,Must,EPIC-303,Isolated language-neutral plugin runtime,M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
+URS-F-0313,Functional,Must,EPIC-303,Isolated language-neutral plugin runtime,M3,3,"Plugin SDK contract, sandbox and integration tests",Verified
+URS-F-0314,Functional,Must,EPIC-303,Isolated language-neutral plugin runtime,M3,3,"Plugin SDK contract, sandbox and integration tests",Verified
+URS-F-0315,Functional,Must,EPIC-303,Isolated language-neutral plugin runtime,M3,3,"Plugin SDK contract, sandbox and integration tests",Verified
+URS-F-0316,Functional,Must,EPIC-303,Isolated language-neutral plugin runtime,M3,3,"Plugin SDK contract, sandbox and integration tests",Verified
+URS-F-0317,Functional,Must,EPIC-303,Isolated language-neutral plugin runtime,M3,3,"Plugin SDK contract, sandbox and integration tests",Verified
+URS-F-0318,Functional,Must,EPIC-303,Isolated language-neutral plugin runtime,M3,3,"Plugin SDK contract, sandbox and integration tests",Verified
+URS-F-0319,Functional,Must,EPIC-303,Isolated language-neutral plugin runtime,M3,3,"Plugin SDK contract, sandbox and integration tests",Verified
+URS-F-0320,Functional,Must,EPIC-303,Isolated language-neutral plugin runtime,M3,3,"Plugin SDK contract, sandbox and integration tests",Verified
 URS-F-0321,Functional,Must,EPIC-304,"Trigger, condition and notification extension contracts",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
 URS-F-0322,Functional,Must,EPIC-304,"Trigger, condition and notification extension contracts",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed
 URS-F-0323,Functional,Must,EPIC-304,"Trigger, condition and notification extension contracts",M3,3,"Plugin SDK contract, sandbox and integration tests",Proposed

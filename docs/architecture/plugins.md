@@ -44,6 +44,7 @@ An optional isolated JVM bridge may host supported migrated Java plugins when di
 - **Java:** preferred for compatibility-heavy and high-throughput plugins.
 - **Python:** preferred for AI/ML, data science and scripting integrations.
 - **TypeScript:** preferred for SaaS APIs, web tooling and broad contributor access.
+- **Go:** preferred for small static service binaries and infrastructure integrations.
 
 All SDKs generate or consume the same manifest, schemas and conformance contract. SDK convenience must not create different semantics between languages.
 
@@ -52,13 +53,19 @@ protocol bindings and local conformance harness are documented in the
 [plugin manifest contract](../plugin-sdk/manifest.md), [testing guide](../plugin-sdk/testing.md) and
 [compatibility policy](../plugin-sdk/compatibility.md). Deterministic discovery, verified offline
 installation, dependency resolution, revision pins and content-root isolation are described in the
-[discovery and resolution guide](../plugin-sdk/discovery-and-resolution.md). Trusted/isolated process
-supervision and signing remain separate lifecycle layers and do not alter these public documents.
+[discovery and resolution guide](../plugin-sdk/discovery-and-resolution.md).
 The [trusted in-process runtime](../plugin-sdk/trusted-in-process-runtime.md) loads only exact
 administrator-approved Python package digests, dispatches through revision pins and contains callback
 failures with bounded lifecycle hooks, timeouts, circuit breakers, quarantine and telemetry. Its
 private import namespace is not a security sandbox: trusted plugins share the host process and all
 permissions available to it.
+
+The [isolated runtime](../plugin-sdk/isolated-runtime.md) supervises exact revision-pinned local
+processes over authenticated, version-negotiated JSON-RPC frames. It discovers and validates schemas,
+streams logs/metrics/artifacts and heartbeats, grants per-call capabilities, enforces resource and
+concurrency limits, propagates cancellation and starts a fresh service after a crash while durable
+task ownership remains with the executor. Python, Java, TypeScript and Go share the generated wire
+schema and contract surfaces.
 
 Polling trigger adapters return normalized occurrences plus their next checkpoint. The runtime
 persists both before calling the adapter's acknowledgement hook. Realtime trigger adapters expose an

@@ -1,5 +1,51 @@
 # Test Log
 
+## EPIC-303: Isolated language-neutral plugin runtime — 2026-08-23
+
+Spec source: Agent Hotel card `c53` and canonical `backlog/epics.json` EPIC-303 DoD.
+
+Verified with `uv`, Python 3.13, PostgreSQL 17, JDK 21, Dockerized Go 1.23 and
+TypeScript/Node 22, and Docker Compose:
+
+- [x] The generated `amesh.plugin.wire/v1` JSON-RPC 2.0 newline-frame contract covers exact
+  manifest/schema discovery, configuration validation, execution, cancellation, authenticated
+  heartbeats, logs, metrics, artifacts and structured request/response errors. Handshake tests
+  negotiate the version and complete required feature set before any plugin callback.
+- [x] Exact package name/version/SHA-256 revision pins select administrator-configured managed local
+  processes. Commands run without a shell from the package root in a minimal environment; stdio
+  entry points execute outside API/executor processes and runtime-owner collisions fail closed.
+- [x] Every process receives a random session ID and short-lived opaque workload token over stdin,
+  never through its environment. Every successful response and notification echoes and verifies the
+  identity. Per-call envelopes include fresh declared capability tokens, only declared-and-resolved
+  secret scopes/files, exact declared egress and administrator-approved platform APIs.
+- [x] Per-package semaphores enforce concurrency. Invocation wall time, heartbeat silence, combined
+  stdout/stderr and frame bytes, and process-tree CPU/RSS are bounded; typed cancellation and stable
+  retryable, timed-out, cancelled, configuration and user-code failures were verified.
+- [x] A child deliberately exited on attempt one. The next call started a fresh service and runtime
+  counters reported one crash/one restart. A real PostgreSQL-backed `InProcessExecutor` then proved
+  the same failure reached attempt two on the existing durable task run and completed successfully.
+- [x] Python's `serve_stdio_plugin` receives both the typed request and capability envelope and
+  streams typed evidence. The shared generated schema plus checked-in Java, strict TypeScript and Go
+  contract surfaces compiled successfully with JDK 21, TypeScript/Node 22 and Go 1.23.
+- [x] Authorized `GET /api/v1/plugins/isolated-runtime` exposes catalog generation, state, active and
+  completed calls, starts/restarts/crashes, last PID and stable last-error code. The rebuilt deployed
+  API returned `{"catalogGeneration":1,"plugins":[]}` with no services configured; API, executor
+  and scheduler were healthy and `/ready` reported all 40 migrations applied.
+- [x] Ten focused runtime/SDK checks passed with PostgreSQL enabled. A fresh migrated disposable
+  database ran the 392-test collection with only authoritative cards `c15`/`c29` deselected:
+  380 passed, ten environment/profile tests skipped, two deselected and no failures. The disposable
+  database was dropped afterward.
+- [x] Ruff, strict mypy for 146 source files, `uv lock --check`, generated OpenAPI/schema/planning,
+  clean-room, backlog, Compose and diff gates passed. No Python dependency or LLM call was needed;
+  OpenRouter remains configured for `openai/gpt-5.6-luna` when a later behavior test needs an LLM.
+
+The reference launcher satisfies the managed local-process branch of URS-F-0314. OCI and remote
+service deployment remain alternative administration profiles rather than a prerequisite for this
+locally verified runtime. Shared deployment-wide privilege and isolation qualification remains In
+Progress under URS-NFR-SECURITY-002 and URS-NFR-SECURITY-008's other owning epics.
+
+Verdict: PASS — EPIC-303 functional requirements URS-F-0313 through URS-F-0320 are verified.
+
 ## EPIC-302: Trusted in-process plugin runtime — 2026-08-23
 
 Spec source: Agent Hotel card `c52` and canonical `backlog/epics.json` EPIC-302 DoD.

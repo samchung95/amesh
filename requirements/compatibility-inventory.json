@@ -4670,97 +4670,121 @@
       "requirement_id": "URS-F-0313",
       "epic_id": "EPIC-303",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-303-isolated-language-neutral-plugin-runtime.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0314",
       "epic_id": "EPIC-303",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-303-isolated-language-neutral-plugin-runtime.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0315",
       "epic_id": "EPIC-303",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-303-isolated-language-neutral-plugin-runtime.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0316",
       "epic_id": "EPIC-303",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-303-isolated-language-neutral-plugin-runtime.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0317",
       "epic_id": "EPIC-303",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-303-isolated-language-neutral-plugin-runtime.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0318",
       "epic_id": "EPIC-303",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-303-isolated-language-neutral-plugin-runtime.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0319",
       "epic_id": "EPIC-303",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-303-isolated-language-neutral-plugin-runtime.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0320",
       "epic_id": "EPIC-303",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-303-isolated-language-neutral-plugin-runtime.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0321",
