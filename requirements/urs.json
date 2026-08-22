@@ -6214,7 +6214,7 @@
       "id": "URS-F-0211",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M2",
       "wave": 2,
       "epic_id": "EPIC-204",
@@ -6235,13 +6235,17 @@
       "dependencies": [
         "EPIC-104",
         "EPIC-201"
+      ],
+      "evidence": [
+        "tests/executor/test_lifecycle_hooks.py::test_error_finally_and_after_execution_hooks_are_durable_and_ordered",
+        "tests/test_flow_validation.py::test_lifecycle_handlers_validate_selectors_and_bounded_recursion"
       ]
     },
     {
       "id": "URS-F-0212",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M2",
       "wave": 2,
       "epic_id": "EPIC-204",
@@ -6262,13 +6266,16 @@
       "dependencies": [
         "EPIC-104",
         "EPIC-201"
+      ],
+      "evidence": [
+        "tests/executor/test_lifecycle_hooks.py::test_error_finally_and_after_execution_hooks_are_durable_and_ordered"
       ]
     },
     {
       "id": "URS-F-0213",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M2",
       "wave": 2,
       "epic_id": "EPIC-204",
@@ -6289,13 +6296,16 @@
       "dependencies": [
         "EPIC-104",
         "EPIC-201"
+      ],
+      "evidence": [
+        "tests/executor/test_lifecycle_hooks.py::test_error_finally_and_after_execution_hooks_are_durable_and_ordered"
       ]
     },
     {
       "id": "URS-F-0214",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M2",
       "wave": 2,
       "epic_id": "EPIC-204",
@@ -6316,13 +6326,16 @@
       "dependencies": [
         "EPIC-104",
         "EPIC-201"
+      ],
+      "evidence": [
+        "tests/executor/test_lifecycle_hooks.py::test_error_finally_and_after_execution_hooks_are_durable_and_ordered"
       ]
     },
     {
       "id": "URS-F-0215",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M2",
       "wave": 2,
       "epic_id": "EPIC-204",
@@ -6343,13 +6356,16 @@
       "dependencies": [
         "EPIC-104",
         "EPIC-201"
+      ],
+      "evidence": [
+        "tests/executor/test_lifecycle_hooks.py::test_error_finally_and_after_execution_hooks_are_durable_and_ordered"
       ]
     },
     {
       "id": "URS-F-0216",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M2",
       "wave": 2,
       "epic_id": "EPIC-204",
@@ -6370,13 +6386,17 @@
       "dependencies": [
         "EPIC-104",
         "EPIC-201"
+      ],
+      "evidence": [
+        "tests/test_flow_validation.py::test_lifecycle_handlers_validate_selectors_and_bounded_recursion",
+        "tests/executor/test_lifecycle_hooks.py::test_error_finally_and_after_execution_hooks_are_durable_and_ordered"
       ]
     },
     {
       "id": "URS-F-0217",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M2",
       "wave": 2,
       "epic_id": "EPIC-204",
@@ -6397,13 +6417,16 @@
       "dependencies": [
         "EPIC-104",
         "EPIC-201"
+      ],
+      "evidence": [
+        "tests/executor/test_lifecycle_hooks.py::test_error_finally_and_after_execution_hooks_are_durable_and_ordered"
       ]
     },
     {
       "id": "URS-F-0218",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M2",
       "wave": 2,
       "epic_id": "EPIC-204",
@@ -6424,6 +6447,9 @@
       "dependencies": [
         "EPIC-104",
         "EPIC-201"
+      ],
+      "evidence": [
+        "tests/test_lifecycle_graph.py::test_flow_graph_identifies_lifecycle_phase_and_handler_owner"
       ]
     },
     {

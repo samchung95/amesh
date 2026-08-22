@@ -209,14 +209,14 @@ URS-F-0207,Functional,Must,EPIC-203,"Loops, foreach, while and until",M2,2,DSL v
 URS-F-0208,Functional,Must,EPIC-203,"Loops, foreach, while and until",M2,2,DSL validation plus end-to-end workflow conformance tests,Verified
 URS-F-0209,Functional,Must,EPIC-203,"Loops, foreach, while and until",M2,2,DSL validation plus end-to-end workflow conformance tests,Verified
 URS-F-0210,Functional,Must,EPIC-203,"Loops, foreach, while and until",M2,2,DSL validation plus end-to-end workflow conformance tests,Verified
-URS-F-0211,Functional,Must,EPIC-204,"Errors, finally and after-execution hooks",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
-URS-F-0212,Functional,Must,EPIC-204,"Errors, finally and after-execution hooks",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
-URS-F-0213,Functional,Must,EPIC-204,"Errors, finally and after-execution hooks",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
-URS-F-0214,Functional,Must,EPIC-204,"Errors, finally and after-execution hooks",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
-URS-F-0215,Functional,Must,EPIC-204,"Errors, finally and after-execution hooks",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
-URS-F-0216,Functional,Must,EPIC-204,"Errors, finally and after-execution hooks",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
-URS-F-0217,Functional,Must,EPIC-204,"Errors, finally and after-execution hooks",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
-URS-F-0218,Functional,Must,EPIC-204,"Errors, finally and after-execution hooks",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
+URS-F-0211,Functional,Must,EPIC-204,"Errors, finally and after-execution hooks",M2,2,DSL validation plus end-to-end workflow conformance tests,Verified
+URS-F-0212,Functional,Must,EPIC-204,"Errors, finally and after-execution hooks",M2,2,DSL validation plus end-to-end workflow conformance tests,Verified
+URS-F-0213,Functional,Must,EPIC-204,"Errors, finally and after-execution hooks",M2,2,DSL validation plus end-to-end workflow conformance tests,Verified
+URS-F-0214,Functional,Must,EPIC-204,"Errors, finally and after-execution hooks",M2,2,DSL validation plus end-to-end workflow conformance tests,Verified
+URS-F-0215,Functional,Must,EPIC-204,"Errors, finally and after-execution hooks",M2,2,DSL validation plus end-to-end workflow conformance tests,Verified
+URS-F-0216,Functional,Must,EPIC-204,"Errors, finally and after-execution hooks",M2,2,DSL validation plus end-to-end workflow conformance tests,Verified
+URS-F-0217,Functional,Must,EPIC-204,"Errors, finally and after-execution hooks",M2,2,DSL validation plus end-to-end workflow conformance tests,Verified
+URS-F-0218,Functional,Must,EPIC-204,"Errors, finally and after-execution hooks",M2,2,DSL validation plus end-to-end workflow conformance tests,Verified
 URS-F-0219,Functional,Must,EPIC-205,"Inputs, outputs and variables",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
 URS-F-0220,Functional,Must,EPIC-205,"Inputs, outputs and variables",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed
 URS-F-0221,Functional,Must,EPIC-205,"Inputs, outputs and variables",M2,2,DSL validation plus end-to-end workflow conformance tests,Proposed

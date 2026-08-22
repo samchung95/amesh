@@ -141,6 +141,31 @@ selected runnable leaves use ordinary attempts. `FAIL` fails the conditional par
 error, `FALSE` continues selection as though that expression were false, and `FALLBACK` selects the
 declared `else` or `default` immediately.
 
+### Error, finally and after-execution lifecycle
+
+The executor materializes lifecycle tasks as ordinary durable task runs with one of four phases:
+`MAIN`, `ERROR`, `FINALLY` or `AFTER_EXECUTION`. Local error groups retain their flowable owner; the
+global error group is flow-owned. A selected handler can match the primary state, normalized category,
+failed task identity and safe `error` expression. Local matching sees only its owner's failed subtree;
+flow handlers see the complete primary failure set. Unselected handlers are skipped at attempt zero.
+
+Ordering is durable and restartable:
+
+1. Reduce and record the immutable primary outcome and its failures.
+2. Run applicable local and flow error groups. Cleanup failures are recorded in phase evidence and do
+   not replace the primary outcome.
+3. Run `finally`. During ordinary success or failure this occurs before terminal persistence and sees
+   `execution.state == RUNNING`; when cancellation was already committed by an intervention it sees
+   `CANCELLED`.
+4. Persist the primary terminal execution state.
+5. Run `afterExecution` with the terminal state visible, then record the lifecycle as `COMPLETE`.
+
+Cancellation terminates pending MAIN work but leaves pending lifecycle work available. A cleanup task
+may use ordinary bounded retries, but lifecycle tasks may not declare nested error handlers, preventing
+recursive cleanup expansion. Notification, compensation/subflow and diagnostic-artifact tasks use the
+normal handler and completion contracts. Execution graph nodes expose lifecycle phase and handler
+owner, and `handles` edges connect local error groups to their primary graph owner.
+
 `GET /api/v1/flows/{namespace}/{flow_id}/graph` returns the expanded revision before execution.
 `GET /api/v1/executions/{execution_id}/graph` returns the pinned revision with current durable task
 states and results. The control room renders both contracts on flow and execution detail pages.

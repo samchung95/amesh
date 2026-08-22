@@ -121,6 +121,10 @@ Migration `0035_conditional_task_control.sql` adds task-run-owned terminal resul
 evidence for durable conditional decisions and zero-attempt skips. Ordinary runnable results remain
 authoritative on immutable task attempts.
 
+Migration `0036_execution_lifecycle_hooks.sql` tags durable task runs as main, error, finally or
+after-execution work and adds structured execution lifecycle evidence. A partial index supports
+recovery of incomplete terminal hooks without changing primary execution-event authority.
+
 ## Migration modes
 
 - `bootstrap` creates the initial schema and is only safe for an empty database.

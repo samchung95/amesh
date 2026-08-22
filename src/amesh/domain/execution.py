@@ -34,6 +34,13 @@ class FailureCategory(StrEnum):
     PLATFORM = "PLATFORM"
 
 
+class TaskRunLifecyclePhase(StrEnum):
+    MAIN = "MAIN"
+    ERROR = "ERROR"
+    FINALLY = "FINALLY"
+    AFTER_EXECUTION = "AFTER_EXECUTION"
+
+
 class ExecutionEventType(StrEnum):
     CREATED = "ExecutionCreated"
     QUEUED = "ExecutionQueued"
@@ -46,6 +53,7 @@ class ExecutionEventType(StrEnum):
     FAILED = "ExecutionFailed"
     WARNED = "ExecutionWarned"
     RESTART_REQUESTED = "ExecutionRestartRequested"
+    LIFECYCLE_RECORDED = "ExecutionLifecycleRecorded"
 
 
 class ExecutionCommandType(StrEnum):
@@ -60,6 +68,7 @@ class ExecutionCommandType(StrEnum):
     FAIL = "FailExecution"
     WARN = "WarnExecution"
     REQUEST_RESTART = "RequestExecutionRestart"
+    RECORD_LIFECYCLE = "RecordExecutionLifecycle"
 
 
 class TaskRunState(StrEnum):

@@ -210,6 +210,12 @@
       "mode": "expand",
       "onlineCompatible": true,
       "rollbackGuidance": "Pause conditional-flow dispatch and forward-fix the additive terminal result and control-evidence columns; retain task-run events and ordinary task-attempt evidence."
+    },
+    {
+      "file": "0036_execution_lifecycle_hooks.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Pause lifecycle-hook dispatch and forward-fix the additive phase and execution-evidence columns; preserve primary execution events and all lifecycle task attempts."
     }
   ]
 }

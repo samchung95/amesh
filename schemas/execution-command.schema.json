@@ -12,7 +12,8 @@
         "SucceedExecution",
         "FailExecution",
         "WarnExecution",
-        "RequestExecutionRestart"
+        "RequestExecutionRestart",
+        "RecordExecutionLifecycle"
       ],
       "title": "ExecutionCommandType",
       "type": "string"

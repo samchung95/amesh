@@ -1700,7 +1700,8 @@
           "ExecutionSucceeded",
           "ExecutionFailed",
           "ExecutionWarned",
-          "ExecutionRestartRequested"
+          "ExecutionRestartRequested",
+          "ExecutionLifecycleRecorded"
         ],
         "title": "ExecutionEventType",
         "type": "string"
@@ -2407,7 +2408,8 @@
           "kind": {
             "enum": [
               "contains",
-              "dependsOn"
+              "dependsOn",
+              "handles"
             ],
             "title": "Kind",
             "type": "string"
@@ -2456,6 +2458,17 @@
             "title": "Failurepolicy",
             "type": "string"
           },
+          "handlerOwnerId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Handlerownerid"
+          },
           "iterationCount": {
             "anyOf": [
               {
@@ -2470,6 +2483,11 @@
           },
           "label": {
             "title": "Label",
+            "type": "string"
+          },
+          "lifecyclePhase": {
+            "default": "MAIN",
+            "title": "Lifecyclephase",
             "type": "string"
           },
           "maxConcurrency": {
@@ -3172,6 +3190,11 @@
             "title": "Labels",
             "type": "object"
           },
+          "lifecycle_evidence": {
+            "additionalProperties": true,
+            "title": "Lifecycle Evidence",
+            "type": "object"
+          },
           "namespace": {
             "title": "Namespace",
             "type": "string"
@@ -3426,6 +3449,10 @@
               }
             ],
             "title": "Iteration Key"
+          },
+          "lifecycle_phase": {
+            "$ref": "#/components/schemas/TaskRunLifecyclePhase",
+            "default": "MAIN"
           },
           "result": {
             "anyOf": [
@@ -5259,6 +5286,16 @@
         ],
         "title": "TaskMetricRecord",
         "type": "object"
+      },
+      "TaskRunLifecyclePhase": {
+        "enum": [
+          "MAIN",
+          "ERROR",
+          "FINALLY",
+          "AFTER_EXECUTION"
+        ],
+        "title": "TaskRunLifecyclePhase",
+        "type": "string"
       },
       "TaskRunState": {
         "enum": [

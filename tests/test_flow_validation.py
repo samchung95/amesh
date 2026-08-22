@@ -306,3 +306,67 @@ tasks:
 
     assert not result.valid
     assert {issue.path for issue in result.issues} >= {"id", "namespace", "tasks.0.id"}
+
+
+def test_lifecycle_handlers_validate_selectors_and_bounded_recursion() -> None:
+    valid = validate_flow_document(
+        """
+id: lifecycle
+namespace: tests
+tasks:
+  - id: group
+    type: core.sequential
+    tasks:
+      - id: work
+        type: core.return
+    errors:
+      - id: local_handler
+        type: core.return
+        errorSelector:
+          states: [FAILED]
+          categories: [USER_CODE]
+          taskIds: [work]
+          condition: "{{ error.taskId == 'work' }}"
+finally:
+  - id: cleanup
+    type: core.return
+afterExecution:
+  - id: publish
+    type: core.return
+"""
+    )
+    recursive = validate_flow_document(
+        """
+id: recursive
+namespace: tests
+tasks:
+  - id: work
+    type: core.return
+errors:
+  - id: handler
+    type: core.sequential
+    errors:
+      - id: nested_handler
+        type: core.return
+    tasks:
+      - id: cleanup
+        type: core.return
+"""
+    )
+    misplaced = validate_flow_document(
+        """
+id: misplaced
+namespace: tests
+tasks:
+  - id: work
+    type: core.return
+    errorSelector:
+      states: [FAILED]
+"""
+    )
+
+    assert valid.valid
+    assert not recursive.valid
+    assert any(issue.code == "recursive_error_handler" for issue in recursive.issues)
+    assert not misplaced.valid
+    assert any(issue.code == "misplaced_error_selector" for issue in misplaced.issues)

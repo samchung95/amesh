@@ -12,14 +12,18 @@ Run recovery and cleanup logic predictably for task, branch and execution outcom
 
 ## In scope
 
-- [ ] **URS-F-0211** — The system shall attach error handlers at task-group, flowable and flow scopes.
-- [ ] **URS-F-0212** — The system shall select handlers by state, error category, task identity or safe expression.
-- [ ] **URS-F-0213** — The system shall execute finally tasks after success, failure or cancellation under documented rules.
-- [ ] **URS-F-0214** — The system shall execute after-execution tasks after terminal state persistence and expose the terminal context.
-- [ ] **URS-F-0215** — The system shall preserve the primary failure while recording cleanup failures separately.
-- [ ] **URS-F-0216** — The system shall prevent cleanup retries or recursive handlers from creating unbounded loops.
-- [ ] **URS-F-0217** — The system shall allow handlers to emit notifications, compensation commands and diagnostic artifacts.
-- [ ] **URS-F-0218** — The system shall visualize handler execution and its relationship to the primary task graph.
+- [x] **URS-F-0211** — The system shall attach error handlers at task-group, flowable and flow scopes.
+- [x] **URS-F-0212** — The system shall select handlers by state, error category, task identity or safe expression.
+- [x] **URS-F-0213** — The system shall execute finally tasks after success, failure or cancellation under documented rules.
+- [x] **URS-F-0214** — The system shall execute after-execution tasks after terminal state persistence and expose the terminal context.
+- [x] **URS-F-0215** — The system shall preserve the primary failure while recording cleanup failures separately.
+- [x] **URS-F-0216** — The system shall prevent cleanup retries or recursive handlers from creating unbounded loops.
+- [x] **URS-F-0217** — The system shall allow handlers to emit notifications, compensation commands and diagnostic artifacts.
+- [x] **URS-F-0218** — The system shall visualize handler execution and its relationship to the primary task graph.
+
+## Implementation completion evidence
+
+- 2026-08-22 — EPIC-204 is complete. Error, finally and after-execution tasks are durable lifecycle task runs with local or flow ownership, bounded selectors, restart-safe phase evidence, primary-failure preservation, separate cleanup failures, cancellation handling and post-terminal context. Recursive lifecycle handlers are rejected, and the API graph plus control room expose lifecycle phases and local handler ownership. Evidence: [`test_lifecycle_hooks.py`](../../tests/executor/test_lifecycle_hooks.py), [`test_lifecycle_graph.py`](../../tests/test_lifecycle_graph.py), [`test_flow_validation.py`](../../tests/test_flow_validation.py), [`lifecycle-hooks.yaml`](../../examples/lifecycle-hooks.yaml), [`execution-semantics.md`](../../docs/architecture/execution-semantics.md) and [`034-durable-error-and-terminal-hooks.md`](../../docs/adr/034-durable-error-and-terminal-hooks.md).
 
 ## Non-functional requirements
 
@@ -45,13 +49,13 @@ Run recovery and cleanup logic predictably for task, branch and execution outcom
 
 ## Definition of done
 
-- [ ] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
-- [ ] Public API, DSL, event and plugin contract changes pass compatibility checks.
-- [ ] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
-- [ ] Security, tenant isolation, redaction and audit behavior are reviewed.
-- [ ] Documentation, examples, migration notes and operational runbooks are updated.
-- [ ] Performance and recovery budgets are measured when this epic is on a critical path.
-- [ ] `python scripts/validate_backlog.py` passes.
+- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
+- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.
+- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
+- [x] Security, tenant isolation, redaction and audit behavior are reviewed.
+- [x] Documentation, examples, migration notes and operational runbooks are updated.
+- [x] Performance and recovery budgets are measured when this epic is on a critical path.
+- [x] `python scripts/validate_backlog.py` passes.
 
 ## Risks and unknowns
 

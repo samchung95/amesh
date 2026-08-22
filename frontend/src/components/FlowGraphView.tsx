@@ -28,7 +28,7 @@ export function FlowGraphView({ graph }: { graph: FlowGraph }) {
                 <code>{node.taskType}</code>
               </div>
               <div className="flow-node-meta">
-                {node.parentId ? <span>inside {node.parentId}</span> : <span>root</span>}
+                {node.handlerOwnerId ? <span>{node.lifecyclePhase.toLowerCase().replaceAll('_', ' ')} · handles {node.handlerOwnerId}</span> : node.parentId ? <span>inside {node.parentId}</span> : <span>main graph · root</span>}
                 {node.mode ? <span>{node.mode.toLowerCase()} · {node.failurePolicy.toLowerCase().replaceAll('_', ' ')}</span> : null}
                 {node.maxConcurrency ? <span>limit {node.maxConcurrency}</span> : null}
                 {node.iterationCount !== null ? <span>{node.iterationCount} iterations</span> : null}

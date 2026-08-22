@@ -1,5 +1,36 @@
 # Test Log
 
+## EPIC-204: Errors, finally and after-execution hooks — 2026-08-22
+
+Spec source: Agent Hotel card `c41` and canonical `backlog/epics.json` EPIC-204 DoD.
+
+Verified with `uv`, Python 3.13, PostgreSQL 17 and the deployed Compose control plane:
+
+- [x] Local flowable and flow-owned error groups persist as ordinary durable ERROR-phase task runs;
+  state, category, task identity and safe-expression selectors use handler-scoped failure context.
+- [x] Nonmatching handlers are skipped at attempt zero. Selected handlers can emit ordinary
+  notification, compensation and diagnostic-artifact outputs through the runnable task contract.
+- [x] `finally` runs for success, primary failure and committed cancellation; `afterExecution` starts
+  only after the primary terminal state is persisted and observes that terminal context.
+- [x] A repository/executor restart at the after-execution boundary resumes exactly once. Primary
+  failure evidence remains authoritative while a failing cleanup task is recorded separately.
+- [x] Recursive lifecycle handlers are rejected. Graph responses and the control room expose each
+  node's lifecycle phase, local handler owner and `handles` relationship.
+- [x] A fresh database applied all 36 migrations. The complete suite collected 291 tests: 283 passed,
+  six environment/profile tests skipped and the pre-existing card `c15`/`c29` assertions were
+  explicitly deselected.
+- [x] Ruff and strict mypy passed for 120 source files. Generated contracts/planning, backlog,
+  clean-room, uv lock, REUSE 6.2.0, compilation, Compose and diff gates passed.
+- [x] Frontend unit tests (10) and the production build passed. Seven pre-existing lint errors in an
+  untouched component are deferred on `c88`; missing fresh-Compose mounts are deferred on `c87`.
+- [x] The rebuilt local API, executor and scheduler are healthy; `/ready` reports 36/36 with
+  `0036_execution_lifecycle_hooks.sql` latest.
+
+No LLM invocation was required for deterministic lifecycle reduction; the configured OpenRouter
+`openai/gpt-5.6-luna` default is unchanged.
+
+Verdict: PASS — EPIC-204 functional requirements URS-F-0211 through URS-F-0218 are verified.
+
 ## EPIC-202: Conditional branching and switch semantics — 2026-08-22
 
 Spec source: Agent Hotel card `c40` and canonical `backlog/epics.json` EPIC-202 DoD.

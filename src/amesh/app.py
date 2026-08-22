@@ -170,7 +170,7 @@ from amesh.dsl import (
     FlowDefinition,
     FlowDocumentError,
     FlowValidationResult,
-    compile_flow_tasks,
+    compile_execution_tasks,
     validate_flow_document,
 )
 from amesh.executor import (
@@ -3674,7 +3674,7 @@ def _build_flow_graph(
     task_runs: list[PersistedTaskRun] | None = None,
     iteration_summaries: list[PersistedIterationSummary] | None = None,
 ) -> FlowGraph:
-    plan = compile_flow_tasks(flow)
+    plan = compile_execution_tasks(flow)
     plan_by_id = {node.task.id: node for node in plan}
     runs_by_id = {task_run.task_id: task_run for task_run in task_runs or []}
 
@@ -3719,10 +3719,20 @@ def _build_flow_graph(
                     if node.dynamic and node.task.id in runs_by_id
                     else None
                 ),
+                lifecyclePhase=node.lifecycle_phase.value,
+                handlerOwnerId=node.handler_owner_id,
             )
         )
         if node.parent_id is not None:
             edges.append(FlowGraphEdge(source=node.parent_id, target=node.task.id, kind="contains"))
+        elif node.handler_owner_id not in {None, "flow"}:
+            edges.append(
+                FlowGraphEdge(
+                    source=str(node.handler_owner_id),
+                    target=node.task.id,
+                    kind="handles",
+                )
+            )
         edges.extend(
             FlowGraphEdge(source=dependency, target=node.task.id, kind="dependsOn")
             for dependency in node.dependencies
@@ -3746,6 +3756,8 @@ def _build_flow_graph(
                     failurePolicy=node.failure_policy.value,
                     state=_iteration_summary_state(summary),
                     iterationCount=summary.iteration_count if summary is not None else 0,
+                    lifecyclePhase=node.lifecycle_phase.value,
+                    handlerOwnerId=node.handler_owner_id,
                 )
             )
             edges.append(FlowGraphEdge(source=node.task.id, target=child_node_id, kind="contains"))

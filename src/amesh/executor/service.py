@@ -24,12 +24,15 @@ from amesh.domain import (
 )
 from amesh.dsl import (
     ConditionErrorPolicy,
+    ErrorSelector,
     FlowableFailurePolicy,
     FlowDefinition,
+    LifecyclePhase,
     PlannedTask,
     ResourceKind,
     ResourceSchemaRegistry,
     TaskResourceLimits,
+    compile_execution_tasks,
     compile_flow_tasks,
     default_resource_registry,
     visible_output_ids,
@@ -300,7 +303,17 @@ class InProcessExecutor:
 
         execution = await self._repository.get_execution(execution_id, tenant_id=tenant_id)
         task_runs = await self._repository.list_task_runs(execution_id, tenant_id=tenant_id)
+        execution_plan = compile_execution_tasks(flow)
         if execution.state is not ExecutionState.RUNNING:
+            if execution_lifecycle_pending(flow, execution, task_runs):
+                return await self._advance_execution_lifecycle(
+                    flow,
+                    execution,
+                    execution_plan,
+                    task_runs,
+                    primary_decision=None,
+                    max_tasks=max_tasks,
+                )
             return ExecutionProgress(
                 execution_id=execution_id,
                 state=execution.state,
@@ -315,13 +328,24 @@ class InProcessExecutor:
                 tenant_id=tenant_id,
                 expected_epoch=execution.epoch,
             )
+            timed_out_runs = await self._repository.list_task_runs(
+                execution_id,
+                tenant_id=tenant_id,
+            )
+            if execution_lifecycle_pending(flow, timed_out, timed_out_runs):
+                return await self._advance_execution_lifecycle(
+                    flow,
+                    timed_out,
+                    execution_plan,
+                    timed_out_runs,
+                    primary_decision=None,
+                    max_tasks=max_tasks,
+                )
             return ExecutionProgress(
                 execution_id=execution_id,
                 state=timed_out.state,
                 tasks_run=0,
-                task_runs=tuple(
-                    await self._repository.list_task_runs(execution_id, tenant_id=tenant_id)
-                ),
+                task_runs=tuple(timed_out_runs),
             )
         deferred_task_run_ids: set[UUID] = set()
         expired_deferral = False
@@ -364,8 +388,17 @@ class InProcessExecutor:
             task_runs,
             tenant_id=tenant_id,
         )
-        decision = reduce_orchestration(flow, task_runs, now=now)
+        decision = reduce_orchestration(flow, _main_task_runs(task_runs), now=now)
         if decision.terminal_state is not None:
+            if _lifecycle_plan(execution_plan):
+                return await self._advance_execution_lifecycle(
+                    flow,
+                    execution,
+                    execution_plan,
+                    task_runs,
+                    primary_decision=decision,
+                    max_tasks=max_tasks,
+                )
             execution = await self._finish_execution(execution, decision)
             return ExecutionProgress(
                 execution_id=execution_id,
@@ -432,10 +465,24 @@ class InProcessExecutor:
         )
         updated_decision = reduce_orchestration(
             flow,
-            updated_task_runs,
+            _main_task_runs(updated_task_runs),
             now=await self._repository.database_time(),
         )
         if updated_decision.terminal_state is not None:
+            if _lifecycle_plan(execution_plan):
+                return await self._advance_execution_lifecycle(
+                    flow,
+                    execution,
+                    execution_plan,
+                    updated_task_runs,
+                    primary_decision=updated_decision,
+                    max_tasks=max_tasks,
+                    claimed_tasks=sum(outcome.claimed for outcome in outcomes),
+                    primary_failure=next(
+                        (outcome.failure for outcome in outcomes if outcome.failure),
+                        None,
+                    ),
+                )
             execution = await self._finish_execution(execution, updated_decision)
         else:
             execution = await self._repository.get_execution(execution_id, tenant_id=tenant_id)
@@ -450,6 +497,351 @@ class InProcessExecutor:
             raise TaskExecutionError(updated_decision.diagnostic or failure)
         return progress
 
+    async def _advance_execution_lifecycle(
+        self,
+        flow: FlowDefinition,
+        execution: PersistedExecution,
+        execution_plan: tuple[PlannedTask, ...],
+        task_runs: list[PersistedTaskRun],
+        *,
+        primary_decision: OrchestrationDecision | None,
+        max_tasks: int | None,
+        claimed_tasks: int = 0,
+        primary_failure: str | None = None,
+    ) -> ExecutionProgress:
+        lifecycle_plan = _lifecycle_plan(execution_plan)
+        if not lifecycle_plan:
+            if primary_decision is None:
+                return ExecutionProgress(
+                    execution_id=execution.execution_id,
+                    state=execution.state,
+                    tasks_run=claimed_tasks,
+                    task_runs=tuple(task_runs),
+                )
+            finished = await self._finish_execution(execution, primary_decision)
+            if primary_failure is not None:
+                raise TaskExecutionError(primary_decision.diagnostic or primary_failure)
+            return ExecutionProgress(
+                execution_id=execution.execution_id,
+                state=finished.state,
+                tasks_run=claimed_tasks,
+                task_runs=tuple(task_runs),
+            )
+
+        evidence = deepcopy(execution.lifecycle_evidence)
+        primary = evidence.get("primary")
+        if not isinstance(primary, Mapping):
+            primary_state = (
+                primary_decision.terminal_state if primary_decision is not None else execution.state
+            )
+            if primary_state not in {
+                ExecutionState.SUCCESS,
+                ExecutionState.FAILED,
+                ExecutionState.CANCELLED,
+                ExecutionState.WARNING,
+            }:
+                raise ExecutionBlockedError(
+                    f"execution {execution.execution_id} has no terminal primary outcome"
+                )
+            errors = _main_error_items(execution_plan, task_runs)
+            diagnostic = (
+                primary_decision.diagnostic
+                if primary_decision is not None
+                else primary_failure or _primary_error_message(errors)
+            )
+            primary = {
+                "state": primary_state.value,
+                "diagnostic": diagnostic,
+                "errors": errors,
+            }
+            evidence = {
+                "schemaVersion": 1,
+                "status": LifecyclePhase.ERROR.value,
+                "primary": primary,
+                "phases": {},
+            }
+            execution = await self._repository.record_execution_lifecycle(
+                execution.execution_id,
+                evidence,
+                tenant_id=execution.tenant_id,
+                expected_epoch=execution.epoch,
+            )
+
+        primary_state = ExecutionState(str(primary["state"]))
+        phases = evidence.get("phases")
+        phase_evidence = dict(phases) if isinstance(phases, Mapping) else {}
+        handler_errors = _handler_error_contexts(execution_plan, task_runs, primary_state)
+
+        error_plan = _phase_plan(lifecycle_plan, LifecyclePhase.ERROR)
+        if not _phase_was_completed(phase_evidence, LifecyclePhase.ERROR):
+            skip_ids = {
+                node.task.id
+                for node in error_plan
+                if primary_state not in {ExecutionState.FAILED, ExecutionState.CANCELLED}
+                or not _error_handler_is_applicable(
+                    node,
+                    primary_state,
+                    handler_errors.get(node.task.id),
+                )
+            }
+            if skip_ids:
+                task_runs = await self._skip_lifecycle_tasks(
+                    task_runs,
+                    skip_ids,
+                    LifecyclePhase.ERROR,
+                    tenant_id=execution.tenant_id,
+                    reason=f"error handler not selected for {primary_state.value}",
+                )
+            phase_progress = await self._run_lifecycle_phase(
+                flow,
+                execution,
+                error_plan,
+                task_runs,
+                handler_errors=handler_errors,
+                max_tasks=max_tasks,
+            )
+            task_runs = list(phase_progress.task_runs)
+            claimed_tasks += phase_progress.tasks_run
+            if not _phase_is_complete(error_plan, task_runs):
+                return phase_progress.model_copy(update={"tasks_run": claimed_tasks})
+            phase_evidence[LifecyclePhase.ERROR.value] = _completed_phase_evidence(
+                error_plan,
+                task_runs,
+            )
+            evidence.update(
+                {
+                    "status": LifecyclePhase.FINALLY.value,
+                    "phases": phase_evidence,
+                }
+            )
+            execution = await self._repository.record_execution_lifecycle(
+                execution.execution_id,
+                evidence,
+                tenant_id=execution.tenant_id,
+                expected_epoch=execution.epoch,
+            )
+            return ExecutionProgress(
+                execution_id=execution.execution_id,
+                state=execution.state,
+                tasks_run=claimed_tasks,
+                task_runs=tuple(task_runs),
+            )
+
+        finally_plan = _phase_plan(lifecycle_plan, LifecyclePhase.FINALLY)
+        if not _phase_was_completed(phase_evidence, LifecyclePhase.FINALLY):
+            phase_progress = await self._run_lifecycle_phase(
+                flow,
+                execution,
+                finally_plan,
+                task_runs,
+                handler_errors={},
+                max_tasks=max_tasks,
+            )
+            task_runs = list(phase_progress.task_runs)
+            claimed_tasks += phase_progress.tasks_run
+            if not _phase_is_complete(finally_plan, task_runs):
+                return phase_progress.model_copy(update={"tasks_run": claimed_tasks})
+            phase_evidence[LifecyclePhase.FINALLY.value] = _completed_phase_evidence(
+                finally_plan,
+                task_runs,
+            )
+            evidence.update(
+                {
+                    "status": LifecyclePhase.AFTER_EXECUTION.value,
+                    "phases": phase_evidence,
+                }
+            )
+            execution = await self._repository.record_execution_lifecycle(
+                execution.execution_id,
+                evidence,
+                tenant_id=execution.tenant_id,
+                expected_epoch=execution.epoch,
+            )
+            return ExecutionProgress(
+                execution_id=execution.execution_id,
+                state=execution.state,
+                tasks_run=claimed_tasks,
+                task_runs=tuple(task_runs),
+            )
+
+        if execution.state is ExecutionState.RUNNING:
+            terminal_decision = OrchestrationDecision(
+                terminal_state=primary_state,
+                diagnostic=(str(primary.get("diagnostic")) if primary.get("diagnostic") else None),
+            )
+            execution = await self._finish_execution(execution, terminal_decision)
+            return ExecutionProgress(
+                execution_id=execution.execution_id,
+                state=execution.state,
+                tasks_run=claimed_tasks,
+                task_runs=tuple(task_runs),
+            )
+
+        after_plan = _phase_plan(lifecycle_plan, LifecyclePhase.AFTER_EXECUTION)
+        if not _phase_was_completed(phase_evidence, LifecyclePhase.AFTER_EXECUTION):
+            terminal_errors = _handler_error_contexts(
+                execution_plan,
+                task_runs,
+                primary_state,
+            )
+            phase_progress = await self._run_lifecycle_phase(
+                flow,
+                execution,
+                after_plan,
+                task_runs,
+                handler_errors=terminal_errors,
+                max_tasks=max_tasks,
+            )
+            task_runs = list(phase_progress.task_runs)
+            claimed_tasks += phase_progress.tasks_run
+            if not _phase_is_complete(after_plan, task_runs):
+                return phase_progress.model_copy(update={"tasks_run": claimed_tasks})
+            phase_evidence[LifecyclePhase.AFTER_EXECUTION.value] = _completed_phase_evidence(
+                after_plan,
+                task_runs,
+            )
+            evidence.update({"status": "COMPLETE", "phases": phase_evidence})
+            execution = await self._repository.record_execution_lifecycle(
+                execution.execution_id,
+                evidence,
+                tenant_id=execution.tenant_id,
+                expected_epoch=execution.epoch,
+            )
+        return ExecutionProgress(
+            execution_id=execution.execution_id,
+            state=execution.state,
+            tasks_run=claimed_tasks,
+            task_runs=tuple(task_runs),
+        )
+
+    async def _run_lifecycle_phase(
+        self,
+        flow: FlowDefinition,
+        execution: PersistedExecution,
+        plan: tuple[PlannedTask, ...],
+        task_runs: list[PersistedTaskRun],
+        *,
+        handler_errors: Mapping[str, Mapping[str, Any]],
+        max_tasks: int | None,
+    ) -> ExecutionProgress:
+        if not plan:
+            return ExecutionProgress(
+                execution_id=execution.execution_id,
+                state=execution.state,
+                tasks_run=0,
+                task_runs=tuple(task_runs),
+            )
+        task_runs = await self._advance_flowables(
+            flow,
+            execution,
+            plan,
+            task_runs,
+            tenant_id=execution.tenant_id,
+            handler_errors=handler_errors,
+        )
+        now = await self._repository.database_time()
+        decision = _reduce_lifecycle_phase(plan, task_runs, now=now)
+        if decision.terminal_state is not None:
+            waiting_ids = {
+                node.task.id
+                for node in plan
+                if next(
+                    (task_run.state for task_run in task_runs if task_run.task_id == node.task.id),
+                    None,
+                )
+                is TaskRunState.WAITING
+            }
+            if waiting_ids:
+                task_runs = await self._skip_lifecycle_tasks(
+                    task_runs,
+                    waiting_ids,
+                    plan[0].lifecycle_phase,
+                    tenant_id=execution.tenant_id,
+                    reason="lifecycle flowable reached a terminal state",
+                )
+            return ExecutionProgress(
+                execution_id=execution.execution_id,
+                state=execution.state,
+                tasks_run=0,
+                task_runs=tuple(task_runs),
+            )
+        by_task_id = {task_run.task_id: task_run for task_run in task_runs}
+        ready = _select_ready_tasks(
+            plan,
+            by_task_id,
+            set(decision.runnable_task_ids),
+            self._recover_running_types,
+            set(),
+            max_tasks=max_tasks,
+        )
+        outputs = {
+            task_id: task_run.result or {}
+            for task_id, task_run in by_task_id.items()
+            if task_run.state is TaskRunState.SUCCESS
+        }
+        outcomes = await asyncio.gather(
+            *(
+                self._run_task(
+                    flow,
+                    execution,
+                    by_task_id[node.task.id],
+                    node.task,
+                    outputs,
+                    handler_error=handler_errors.get(node.task.id),
+                )
+                for node in ready
+            )
+        )
+        refreshed = await self._repository.list_task_runs(
+            execution.execution_id,
+            tenant_id=execution.tenant_id,
+        )
+        refreshed = await self._advance_flowables(
+            flow,
+            execution,
+            plan,
+            refreshed,
+            tenant_id=execution.tenant_id,
+            handler_errors=handler_errors,
+        )
+        return ExecutionProgress(
+            execution_id=execution.execution_id,
+            state=execution.state,
+            tasks_run=sum(outcome.claimed for outcome in outcomes),
+            task_runs=tuple(refreshed),
+        )
+
+    async def _skip_lifecycle_tasks(
+        self,
+        task_runs: list[PersistedTaskRun],
+        task_ids: set[str],
+        phase: LifecyclePhase,
+        *,
+        tenant_id: str,
+        reason: str,
+    ) -> list[PersistedTaskRun]:
+        for task_run in task_runs:
+            if task_run.task_id not in task_ids or task_run.state is not TaskRunState.WAITING:
+                continue
+            with suppress(TaskStateConflictError):
+                await self._repository.skip_task(
+                    task_run.task_run_id,
+                    {"skipped": True, "reason": reason},
+                    tenant_id=tenant_id,
+                    evidence={
+                        "control": {
+                            "lifecycle": {
+                                "phase": phase.value,
+                                "reason": reason,
+                            }
+                        }
+                    },
+                )
+        return await self._repository.list_task_runs(
+            task_runs[0].execution_id,
+            tenant_id=tenant_id,
+        )
+
     async def _advance_flowables(
         self,
         flow: FlowDefinition,
@@ -458,6 +850,7 @@ class InProcessExecutor:
         task_runs: list[PersistedTaskRun],
         *,
         tenant_id: str,
+        handler_errors: Mapping[str, Mapping[str, Any]] | None = None,
     ) -> list[PersistedTaskRun]:
         """Start and reduce durable flowable parents without dispatching handlers."""
 
@@ -481,12 +874,14 @@ class InProcessExecutor:
                     task_run,
                     plan,
                     by_task_id,
+                    handler_error=(handler_errors or {}).get(node.task.id),
                 )
-                run_if = self._evaluate_run_if(
+                run_if = self._evaluate_task_condition(
                     flow,
                     execution,
                     node.task,
                     expression_context,
+                    (handler_errors or {}).get(node.task.id),
                 )
                 if run_if.error is not None:
                     running = await self._repository.start_task(
@@ -523,7 +918,7 @@ class InProcessExecutor:
                     tenant_id=tenant_id,
                     dispatch=False,
                 )
-                if node.task.run_if is not None:
+                if node.task.run_if is not None or node.task.error_selector is not None:
                     running = await self._repository.record_task_control(
                         running.task_run_id,
                         running.current_attempt,
@@ -546,6 +941,7 @@ class InProcessExecutor:
                         task_run,
                         plan,
                         by_task_id,
+                        handler_error=(handler_errors or {}).get(node.task.id),
                     )
                     decision = self._select_branch(
                         flow,
@@ -647,7 +1043,7 @@ class InProcessExecutor:
                         evidence=task_run.evidence,
                     )
                     changed = True
-        return [by_task_id[node.task.id] for node in plan]
+        return list(by_task_id.values())
 
     async def _skip_flowable_subtree(
         self,
@@ -777,6 +1173,77 @@ class InProcessExecutor:
         return _ConditionDecision(
             matched=matched,
             evidence=_merge_task_control({}, "runIf", record),
+        )
+
+    def _evaluate_error_selector(
+        self,
+        flow: FlowDefinition,
+        execution: PersistedExecution,
+        selector: ErrorSelector | None,
+        context: ExpressionContext,
+        handler_error: Mapping[str, Any] | None,
+    ) -> _ConditionDecision:
+        if selector is None:
+            return _ConditionDecision(matched=True, evidence={})
+        raw_items = (handler_error or {}).get("items", ())
+        items = [dict(item) for item in raw_items if isinstance(item, Mapping)]
+        matched_items = [
+            item
+            for item in items
+            if (not selector.states or item.get("state") in selector.states)
+            and (not selector.categories or item.get("category") in selector.categories)
+            and (not selector.task_ids or item.get("taskId") in selector.task_ids)
+        ]
+        record: dict[str, object] = {
+            "kind": "errorSelector",
+            "selector": selector.model_dump(mode="json", by_alias=True, exclude_none=True),
+            "matchedTaskIds": [str(item.get("taskId")) for item in matched_items],
+            "conditionInputs": _redacted_condition_inputs(flow, execution, context),
+        }
+        matched = bool(matched_items)
+        if matched and selector.condition is not None:
+            try:
+                matched = self._expressions.evaluate_condition(selector.condition, context)
+            except Exception as exc:
+                record.update(
+                    {
+                        "result": False,
+                        "error": {"type": type(exc).__name__, "message": str(exc)},
+                    }
+                )
+                return _ConditionDecision(
+                    matched=False,
+                    evidence=_merge_task_control({}, "errorSelector", record),
+                    error=exc,
+                )
+        record["result"] = matched
+        return _ConditionDecision(
+            matched=matched,
+            evidence=_merge_task_control({}, "errorSelector", record),
+        )
+
+    def _evaluate_task_condition(
+        self,
+        flow: FlowDefinition,
+        execution: PersistedExecution,
+        task: TaskDefinition,
+        context: ExpressionContext,
+        handler_error: Mapping[str, Any] | None,
+    ) -> _ConditionDecision:
+        selector = self._evaluate_error_selector(
+            flow,
+            execution,
+            task.error_selector,
+            context,
+            handler_error,
+        )
+        if not selector.matched or selector.error is not None:
+            return selector
+        run_if = self._evaluate_run_if(flow, execution, task, context)
+        return _ConditionDecision(
+            matched=run_if.matched,
+            evidence=_merge_control_evidence(selector.evidence, run_if.evidence),
+            error=run_if.error,
         )
 
     def _select_branch(
@@ -976,9 +1443,19 @@ class InProcessExecutor:
                 execution_id,
                 tenant_id=tenant_id,
             )
-            if progress.state is ExecutionState.SUCCESS:
-                return progress
             if progress.state is not ExecutionState.RUNNING:
+                execution = await self._repository.get_execution(
+                    execution_id,
+                    tenant_id=tenant_id,
+                )
+                if execution_lifecycle_pending(
+                    flow,
+                    execution,
+                    list(progress.task_runs),
+                ):
+                    continue
+                if progress.state is ExecutionState.SUCCESS:
+                    return progress
                 raise ExecutionBlockedError(
                     f"execution {execution_id} stopped in state {progress.state.value}"
                 )
@@ -1026,6 +1503,7 @@ class InProcessExecutor:
         task: TaskDefinition,
         outputs: Mapping[str, dict[str, Any]],
         iteration: LoopIterationContext | None = None,
+        handler_error: Mapping[str, Any] | None = None,
     ) -> _TaskRunOutcome:
         tenant_id = execution.tenant_id
         execution_id = execution.execution_id
@@ -1046,6 +1524,7 @@ class InProcessExecutor:
             task,
             outputs,
             iteration=iteration,
+            handler_error=handler_error,
         )
         if task.concurrency and task_run.state is not TaskRunState.RUNNING:
             admission = await self._repository.request_admission(
@@ -1087,7 +1566,13 @@ class InProcessExecutor:
         condition = (
             _ConditionDecision(matched=True, evidence=task_run.evidence)
             if task_run.state is TaskRunState.RUNNING
-            else self._evaluate_run_if(flow, execution, task, expression_context)
+            else self._evaluate_task_condition(
+                flow,
+                execution,
+                task,
+                expression_context,
+                handler_error,
+            )
         )
         if not condition.matched and condition.error is None:
             try:
@@ -1880,6 +2365,205 @@ class InProcessExecutor:
         raise ValueError("orchestration decision is not terminal")
 
 
+def _lifecycle_plan(plan: tuple[PlannedTask, ...]) -> tuple[PlannedTask, ...]:
+    return tuple(node for node in plan if node.lifecycle_phase is not LifecyclePhase.MAIN)
+
+
+def _phase_plan(
+    plan: tuple[PlannedTask, ...],
+    phase: LifecyclePhase,
+) -> tuple[PlannedTask, ...]:
+    return tuple(node for node in plan if node.lifecycle_phase is phase)
+
+
+def _main_task_runs(task_runs: list[PersistedTaskRun]) -> list[PersistedTaskRun]:
+    return [
+        task_run
+        for task_run in task_runs
+        if task_run.lifecycle_phase.value == LifecyclePhase.MAIN.value
+    ]
+
+
+def _phase_was_completed(
+    phases: Mapping[str, Any],
+    phase: LifecyclePhase,
+) -> bool:
+    record = phases.get(phase.value)
+    return isinstance(record, Mapping) and record.get("status") == "COMPLETED"
+
+
+def _phase_is_complete(
+    plan: tuple[PlannedTask, ...],
+    task_runs: list[PersistedTaskRun],
+) -> bool:
+    runs = {task_run.task_id: task_run for task_run in task_runs}
+    return all(node.task.id in runs and _task_run_is_terminal(runs[node.task.id]) for node in plan)
+
+
+def _completed_phase_evidence(
+    plan: tuple[PlannedTask, ...],
+    task_runs: list[PersistedTaskRun],
+) -> dict[str, object]:
+    runs = {task_run.task_id: task_run for task_run in task_runs}
+    failures = [
+        {
+            "taskId": node.task.id,
+            "handlerOwnerId": node.handler_owner_id,
+            "state": runs[node.task.id].state.value,
+            "category": _failure_category_value(runs[node.task.id]),
+            "error": (runs[node.task.id].result or {}).get("error"),
+        }
+        for node in plan
+        if node.task.id in runs
+        and runs[node.task.id].state in {TaskRunState.FAILED, TaskRunState.CANCELLED}
+    ]
+    return {"status": "COMPLETED", "failures": failures}
+
+
+def _main_error_items(
+    plan: tuple[PlannedTask, ...],
+    task_runs: list[PersistedTaskRun],
+) -> list[dict[str, object]]:
+    runs = {task_run.task_id: task_run for task_run in task_runs}
+    return [
+        {
+            "taskId": node.task.id,
+            "state": runs[node.task.id].state.value,
+            "category": _failure_category_value(runs[node.task.id]),
+            "error": (runs[node.task.id].result or {}).get("error"),
+        }
+        for node in plan
+        if node.lifecycle_phase is LifecyclePhase.MAIN
+        and node.task.id in runs
+        and runs[node.task.id].state in {TaskRunState.FAILED, TaskRunState.CANCELLED}
+    ]
+
+
+def _primary_error_message(errors: list[dict[str, object]]) -> str | None:
+    for error in errors:
+        message = error.get("error")
+        if message:
+            return str(message)
+    return None
+
+
+def _failure_category_value(task_run: PersistedTaskRun) -> str | None:
+    if task_run.failure_category is not None:
+        return task_run.failure_category.value
+    if task_run.state is TaskRunState.CANCELLED:
+        return FailureCategory.CANCELLED.value
+    return None
+
+
+def _handler_error_contexts(
+    plan: tuple[PlannedTask, ...],
+    task_runs: list[PersistedTaskRun],
+    primary_state: ExecutionState,
+) -> dict[str, Mapping[str, Any]]:
+    main_plan = tuple(node for node in plan if node.lifecycle_phase is LifecyclePhase.MAIN)
+    by_id = {node.task.id: node for node in main_plan}
+    errors = _main_error_items(plan, task_runs)
+    contexts: dict[str, Mapping[str, Any]] = {}
+    for node in plan:
+        if node.lifecycle_phase not in {LifecyclePhase.ERROR, LifecyclePhase.AFTER_EXECUTION}:
+            continue
+        owner_id = node.handler_owner_id or "flow"
+        owner = by_id.get(owner_id)
+        scoped = errors
+        if owner is not None:
+            scoped = [
+                error
+                for error in errors
+                if error.get("taskId") == owner_id
+                or (
+                    isinstance(error.get("taskId"), str)
+                    and error["taskId"] in by_id
+                    and _descends_from(by_id[str(error["taskId"])], owner, by_id)
+                )
+            ]
+        first = next(
+            (
+                error
+                for error in scoped
+                if isinstance(error.get("taskId"), str)
+                and error["taskId"] in by_id
+                and not by_id[str(error["taskId"])].flowable
+            ),
+            scoped[0] if scoped else {},
+        )
+        contexts[node.task.id] = {
+            "state": primary_state.value,
+            "taskId": first.get("taskId"),
+            "category": first.get("category"),
+            "message": first.get("error"),
+            "items": scoped,
+            "handlerOwnerId": owner_id,
+        }
+    return contexts
+
+
+def _error_handler_is_applicable(
+    node: PlannedTask,
+    primary_state: ExecutionState,
+    context: Mapping[str, Any] | None,
+) -> bool:
+    items = (context or {}).get("items")
+    if not isinstance(items, list) or not items:
+        return False
+    if primary_state is not ExecutionState.CANCELLED:
+        return True
+    selector = node.task.error_selector
+    if selector is None:
+        return False
+    return not selector.states or "CANCELLED" in selector.states
+
+
+def _reduce_lifecycle_phase(
+    plan: tuple[PlannedTask, ...],
+    task_runs: list[PersistedTaskRun],
+    *,
+    now: datetime,
+) -> OrchestrationDecision:
+    if not plan:
+        return OrchestrationDecision(terminal_state=ExecutionState.SUCCESS)
+    by_id = {task_run.task_id: task_run for task_run in task_runs}
+    top_level = [node for node in plan if node.parent_id is None]
+    if all(
+        node.task.id in by_id and _task_run_is_terminal(by_id[node.task.id]) for node in top_level
+    ):
+        return OrchestrationDecision(terminal_state=ExecutionState.SUCCESS)
+    plan_by_id = {node.task.id: node for node in plan}
+    runnable = tuple(
+        node.task.id
+        for node in plan
+        if (not node.flowable or node.dynamic)
+        and node.task.id in by_id
+        and _is_ready(by_id[node.task.id], now)
+        and _parent_is_running(node, by_id)
+        and _dependencies_satisfied(node, plan_by_id, by_id)
+    )
+    if runnable:
+        return OrchestrationDecision(runnable_task_ids=runnable)
+    retry_values = [
+        by_id[node.task.id].retry_at
+        for node in plan
+        if node.task.id in by_id and by_id[node.task.id].state is TaskRunState.RETRY_DELAY
+    ]
+    retry_at = min((value for value in retry_values if value is not None), default=None)
+    return OrchestrationDecision(retry_at=retry_at)
+
+
+def execution_lifecycle_pending(
+    flow: FlowDefinition,
+    execution: PersistedExecution,
+    task_runs: list[PersistedTaskRun],
+) -> bool:
+    del task_runs
+    if not _lifecycle_plan(compile_execution_tasks(flow)):
+        return False
+    return execution.lifecycle_evidence.get("status") != "COMPLETE"
+
+
 def reduce_orchestration(
     flow: FlowDefinition,
     task_runs: list[PersistedTaskRun],
@@ -2028,6 +2712,8 @@ def _dependencies_satisfied(
         dependency = task_runs_by_id[dependency_id]
         if dependency.state is TaskRunState.SUCCESS:
             continue
+        if node.lifecycle_phase is not LifecyclePhase.MAIN and _task_run_is_terminal(dependency):
+            continue
         if (
             dependency.state in {TaskRunState.FAILED, TaskRunState.CANCELLED}
             and node.parent_id is not None
@@ -2095,6 +2781,7 @@ def _expression_context(
     iteration: LoopIterationContext | None = None,
     failure_category: FailureCategory | None = None,
     error: str | None = None,
+    handler_error: Mapping[str, Any] | None = None,
 ) -> ExpressionContext:
     return ExpressionContext(
         flow={
@@ -2123,6 +2810,7 @@ def _expression_context(
         labels=flow.labels,
         namespace={"id": flow.namespace},
         iteration=iteration.as_mapping() if iteration is not None else {},
+        error=handler_error or {},
     )
 
 
@@ -2133,6 +2821,8 @@ def _flowable_expression_context(
     task_run: PersistedTaskRun,
     plan: tuple[PlannedTask, ...],
     by_task_id: Mapping[str, PersistedTaskRun],
+    *,
+    handler_error: Mapping[str, Any] | None = None,
 ) -> ExpressionContext:
     visible = visible_output_ids(node.task.id, plan)
     outputs = {
@@ -2146,6 +2836,7 @@ def _flowable_expression_context(
         task_run,
         node.task,
         outputs,
+        handler_error=handler_error,
     )
 
 
@@ -2181,6 +2872,22 @@ def _merge_task_control(
     control = dict(existing) if isinstance(existing, Mapping) else {}
     control[key] = dict(value)
     merged["control"] = control
+    return merged
+
+
+def _merge_control_evidence(
+    left: Mapping[str, Any],
+    right: Mapping[str, Any],
+) -> dict[str, object]:
+    merged = deepcopy(dict(left))
+    for source in (left, right):
+        control = source.get("control")
+        if not isinstance(control, Mapping):
+            continue
+        existing = merged.get("control")
+        combined = dict(existing) if isinstance(existing, Mapping) else {}
+        combined.update(dict(control))
+        merged["control"] = combined
     return merged
 
 
@@ -2592,13 +3299,18 @@ def _validate_registered_task_schemas(
         "else",
         "cases",
         "predicateCases",
+        "errors",
+        "errorSelector",
         "contract",
         "taskCache",
     }
-    pending = list(flow.tasks)
+    pending = [*flow.tasks, *flow.errors, *flow.finally_tasks, *flow.after_execution]
     while pending:
         task = pending.pop(0)
-        pending[0:0] = [child for _, children in task.child_task_groups() for child in children]
+        pending[0:0] = [
+            *[child for _, children in task.child_task_groups() for child in children],
+            *task.errors,
+        ]
         if registry.descriptor(ResourceKind.TASK, task.type) is None:
             continue
         payload = task.model_dump(

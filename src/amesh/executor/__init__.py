@@ -26,6 +26,7 @@ from .service import (
     TaskPlatformError,
     TaskResourceLimitError,
     TaskUserCodeError,
+    execution_lifecycle_pending,
     normalize_task_completion,
     reduce_orchestration,
 )
@@ -57,6 +58,7 @@ __all__ = [
     "TaskPlatformError",
     "TaskResourceLimitError",
     "TaskUserCodeError",
+    "execution_lifecycle_pending",
     "kubernetes_job_handler",
     "local_process_handler",
     "normalize_task_completion",

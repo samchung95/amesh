@@ -200,6 +200,40 @@ class ConditionalBranch(BaseModel):
     tasks: list[TaskDefinition] = Field(min_length=1)
 
 
+class ErrorSelector(BaseModel):
+    """Typed selector applied to one task inside an errors block."""
+
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
+    states: tuple[Literal["FAILED", "CANCELLED"], ...] = ()
+    categories: tuple[
+        Literal[
+            "RETRYABLE",
+            "NON_RETRYABLE",
+            "CANCELLED",
+            "TIMED_OUT",
+            "INFRASTRUCTURE",
+            "CONFIGURATION",
+            "USER_CODE",
+            "PLATFORM",
+        ],
+        ...,
+    ] = ()
+    task_ids: tuple[NaturalId, ...] = Field(default=(), alias="taskIds")
+    condition: str | None = Field(default=None, min_length=1, max_length=65_536)
+
+    @model_validator(mode="after")
+    def validate_unique_values(self) -> ErrorSelector:
+        for name, values in (
+            ("states", self.states),
+            ("categories", self.categories),
+            ("taskIds", self.task_ids),
+        ):
+            if len(set(values)) != len(values):
+                raise ValueError(f"errorSelector {name} values must be unique")
+        return self
+
+
 class TaskDefinition(BaseModel):
     # populate_by_name keeps snake_case spellings of aliased fields (depends_on,
     # run_if) from being silently swallowed into `extra` as inert plugin fields.
@@ -240,6 +274,8 @@ class TaskDefinition(BaseModel):
         default_factory=list,
         alias="predicateCases",
     )
+    errors: list[TaskDefinition] = Field(default_factory=list)
+    error_selector: ErrorSelector | None = Field(default=None, alias="errorSelector")
 
     @model_validator(mode="before")
     @classmethod
@@ -256,6 +292,7 @@ class TaskDefinition(BaseModel):
                 ("else_if", "elseIf"),
                 ("else_tasks", "else"),
                 ("predicate_cases", "predicateCases"),
+                ("error_selector", "errorSelector"),
             ):
                 if name in data and alias in data:
                     raise ValueError(f"task cannot set both {alias!r} and {name!r}")
@@ -319,6 +356,17 @@ class TaskDefinition(BaseModel):
             raise ValueError("runIf cannot share a FALLBACK conditionErrorPolicy")
         if (self.tasks or conditional_children) and self.task_cache.enabled:
             raise ValueError("taskCache is supported only on runnable tasks")
+        if self.errors and self.type not in {
+            "core.sequential",
+            "core.parallel",
+            "core.dag",
+            "core.foreach",
+            "core.while",
+            "core.until",
+            "core.if",
+            "core.switch",
+        }:
+            raise ValueError("local errors require a flowable task")
         return self
 
     def child_task_groups(self) -> tuple[tuple[str, list[TaskDefinition]], ...]:
@@ -426,6 +474,7 @@ class FlowDefinition(BaseModel):
     outputs: dict[str, Any] = Field(default_factory=dict)
     errors: list[TaskDefinition] = Field(default_factory=list)
     finally_tasks: list[TaskDefinition] = Field(default_factory=list, alias="finally")
+    after_execution: list[TaskDefinition] = Field(default_factory=list, alias="afterExecution")
 
     @model_validator(mode="after")
     def reject_unknown_core_fields(self) -> FlowDefinition:

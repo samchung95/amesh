@@ -29,6 +29,7 @@ from amesh.domain import (
     ResourceMetadata,
     ResourceVersionConflict,
     TaskRunEventType,
+    TaskRunLifecyclePhase,
     TaskRunState,
     TenantPolicy,
     TransitionRejectionCode,
@@ -37,7 +38,7 @@ from amesh.domain import (
     resolve_admission_policies,
     resource_etag,
 )
-from amesh.dsl import FlowDefinition, compile_flow_tasks
+from amesh.dsl import FlowDefinition, compile_execution_tasks
 from amesh.dsl.registry import RESOURCE_CATALOG_VERSION
 from amesh.expressions import ExpressionContext, NativeExpressionEngine
 from amesh.ports.execution_repository import (
@@ -632,6 +633,7 @@ _INSERT_TASK_RUN = text(
             execution_id,
             task_path,
             iteration_key,
+            lifecycle_phase,
             state,
             current_attempt,
             version
@@ -642,12 +644,13 @@ _INSERT_TASK_RUN = text(
             :execution_id,
             :task_id,
             :iteration_key,
+            :lifecycle_phase,
             'WAITING',
             0,
             1
         )
         ON CONFLICT (tenant_id, execution_id, task_path, iteration_key) DO NOTHING
-        RETURNING id, tenant_id, execution_id, task_path, iteration_key, version
+        RETURNING id, tenant_id, execution_id, task_path, iteration_key, lifecycle_phase, version
     )
     INSERT INTO task_run_events (
         tenant_id,
@@ -681,7 +684,8 @@ _INSERT_TASK_RUN = text(
         :occurred_at,
         jsonb_build_object(
             'task_id', inserted.task_path,
-            'iteration_key', inserted.iteration_key
+            'iteration_key', inserted.iteration_key,
+            'lifecycle_phase', inserted.lifecycle_phase
         )
     FROM inserted
     """
@@ -782,7 +786,8 @@ _GET_EXECUTION = text(
         executions.created_at,
         executions.updated_at,
         executions.timeout_at,
-        executions.cancel_deadline_at
+        executions.cancel_deadline_at,
+        executions.lifecycle_evidence
     FROM executions
     JOIN tenants ON tenants.id = executions.tenant_id
     JOIN flow_revisions ON flow_revisions.id = executions.flow_revision_id
@@ -809,7 +814,8 @@ _LIST_EXECUTIONS = text(
         executions.created_at,
         executions.updated_at,
         executions.timeout_at,
-        executions.cancel_deadline_at
+        executions.cancel_deadline_at,
+        executions.lifecycle_evidence
     FROM executions
     JOIN tenants ON tenants.id = executions.tenant_id
     JOIN flow_revisions ON flow_revisions.id = executions.flow_revision_id
@@ -903,6 +909,7 @@ _LIST_TASK_RUNS = text(
         task_runs.execution_id,
         task_runs.task_path,
         task_runs.iteration_key,
+        task_runs.lifecycle_phase,
         task_runs.state,
         task_runs.current_attempt,
         task_runs.version,
@@ -961,6 +968,7 @@ _LIST_ITERATION_TASK_RUNS = text(
         task_runs.execution_id,
         task_runs.task_path,
         task_runs.iteration_key,
+        task_runs.lifecycle_phase,
         task_runs.state,
         task_runs.current_attempt,
         task_runs.version,
@@ -985,6 +993,7 @@ _GET_TASK_RUN = text(
         task_runs.id,
         task_runs.execution_id,
         task_runs.task_path,
+        task_runs.lifecycle_phase,
         task_runs.state,
         task_runs.current_attempt,
         task_runs.version,
@@ -1336,7 +1345,8 @@ _FINISH_EXECUTION = text(
             created_at,
             updated_at,
             timeout_at,
-            cancel_deadline_at
+            cancel_deadline_at,
+            lifecycle_evidence
     ), event AS (
         INSERT INTO execution_events (
             tenant_id,
@@ -1387,11 +1397,58 @@ _FINISH_EXECUTION = text(
         finished.created_at,
         finished.updated_at,
         finished.timeout_at,
-        finished.cancel_deadline_at
+        finished.cancel_deadline_at,
+        finished.lifecycle_evidence
     FROM finished
     JOIN event ON event.execution_id = finished.id
     JOIN tenants ON tenants.id = finished.tenant_id
     JOIN flow_revisions ON flow_revisions.id = finished.flow_revision_id
+    """
+)
+
+_RECORD_EXECUTION_LIFECYCLE = text(
+    """
+    WITH updated AS (
+        UPDATE executions
+        SET lifecycle_evidence = CAST(:evidence AS jsonb),
+            version = version + 1,
+            updated_at = clock_timestamp()
+        WHERE id = :execution_id
+          AND tenant_id = :tenant_id
+          AND epoch = :expected_epoch
+        RETURNING id, tenant_id, version, state
+    )
+    INSERT INTO execution_events (
+        tenant_id,
+        execution_id,
+        sequence,
+        event_id,
+        event_type,
+        schema_version,
+        idempotency_key,
+        correlation_id,
+        causation_id,
+        actor_id,
+        reason,
+        occurred_at,
+        payload
+    )
+    SELECT
+        updated.tenant_id,
+        updated.id,
+        updated.version,
+        :event_id,
+        'ExecutionLifecycleRecorded',
+        2,
+        :idempotency_key,
+        :correlation_id,
+        NULL,
+        'system:executor',
+        'execution lifecycle evidence recorded',
+        clock_timestamp(),
+        CAST(:evidence AS jsonb)
+    FROM updated
+    RETURNING execution_id
     """
 )
 
@@ -1415,6 +1472,7 @@ _LOCK_TASK_RUNS_CONTROL = text(
         task_runs.id,
         task_runs.execution_id,
         task_runs.task_path,
+        task_runs.lifecycle_phase,
         task_runs.state,
         task_runs.current_attempt,
         task_runs.version,
@@ -1439,6 +1497,11 @@ _UPDATE_EXECUTION_CONTROL = text(
     SET state = :state,
         epoch = :epoch,
         version = :version,
+        lifecycle_evidence = CASE
+            WHEN :state = 'RUNNING' AND state IN ('FAILED', 'CANCELLED', 'WARNING')
+                THEN '{}'::jsonb
+            ELSE lifecycle_evidence
+        END,
         timeout_at = :timeout_at,
         cancel_deadline_at = :cancel_deadline_at,
         terminal_at = :terminal_at,
@@ -2041,15 +2104,20 @@ class PostgresExecutionRepository(ExecutionRepository):
                     admission.reason,
                 )
                 task_rows: list[dict[str, object]] = []
-                for task in (
-                    (node.task for node in compile_flow_tasks(flow))
+                execution_plan = compile_execution_tasks(flow)
+                for node in (
+                    execution_plan
                     if initial_state
                     not in {
                         ExecutionState.CANCELLED,
                         ExecutionState.FAILED,
                         ExecutionState.SUCCESS,
                     }
-                    else ()
+                    else tuple(
+                        item
+                        for item in execution_plan
+                        if item.lifecycle_phase.value != TaskRunLifecyclePhase.MAIN.value
+                    )
                 ):
                     task_event_id = new_runtime_id()
                     task_rows.append(
@@ -2057,8 +2125,9 @@ class PostgresExecutionRepository(ExecutionRepository):
                             "task_run_id": new_runtime_id(),
                             "tenant_id": tenant_uuid,
                             "execution_id": execution_id,
-                            "task_id": task.id,
+                            "task_id": node.task.id,
                             "iteration_key": None,
+                            "lifecycle_phase": node.lifecycle_phase.value,
                             "event_id": task_event_id,
                             "idempotency_key": str(task_event_id),
                             "correlation_id": new_runtime_id(),
@@ -2356,6 +2425,7 @@ class PostgresExecutionRepository(ExecutionRepository):
                         "execution_id": execution_id,
                         "task_id": task_id,
                         "iteration_key": iteration_key,
+                        "lifecycle_phase": TaskRunLifecyclePhase.MAIN.value,
                         "event_id": event_id,
                         "idempotency_key": str(event_id),
                         "correlation_id": new_runtime_id(),
@@ -2952,6 +3022,34 @@ class PostgresExecutionRepository(ExecutionRepository):
             expected_epoch=expected_epoch,
         )
 
+    async def record_execution_lifecycle(
+        self,
+        execution_id: UUID,
+        evidence: dict[str, object],
+        *,
+        tenant_id: str,
+        expected_epoch: int,
+    ) -> PersistedExecution:
+        event_id = new_runtime_id()
+        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+            recorded = await connection.scalar(
+                _RECORD_EXECUTION_LIFECYCLE,
+                {
+                    "execution_id": execution_id,
+                    "tenant_id": tenant_uuid,
+                    "expected_epoch": expected_epoch,
+                    "evidence": json.dumps(evidence),
+                    "event_id": event_id,
+                    "idempotency_key": str(event_id),
+                    "correlation_id": new_runtime_id(),
+                },
+            )
+        if recorded is None:
+            raise ExecutionStateConflictError(
+                f"execution {execution_id} lifecycle evidence was fenced at epoch {expected_epoch}"
+            )
+        return await self.get_execution(execution_id, tenant_id=tenant_id)
+
     async def database_time(self) -> datetime:
         async with self._engine.connect() as connection:
             value = await connection.scalar(_DATABASE_TIME)
@@ -3101,7 +3199,12 @@ class PostgresExecutionRepository(ExecutionRepository):
                 await self._terminate_tasks(
                     connection,
                     tenant_uuid,
-                    tasks,
+                    [
+                        task
+                        for task in tasks
+                        if task["lifecycle_phase"] == TaskRunLifecyclePhase.MAIN.value
+                        or task["state"] == TaskRunState.RUNNING.value
+                    ],
                     task_state=TaskRunState.CANCELLED,
                     attempt_state="CANCELLED",
                     category=FailureCategory.CANCELLED,
@@ -3163,11 +3266,21 @@ class PostgresExecutionRepository(ExecutionRepository):
                 unknown = sorted(set(reset_task_ids) - known_task_ids)
                 if unknown:
                     raise ValueError("restart reset tasks do not exist: " + ", ".join(unknown))
+                effective_reset_task_ids = frozenset(
+                    {
+                        *reset_task_ids,
+                        *(
+                            str(row["task_path"])
+                            for row in tasks
+                            if row["lifecycle_phase"] != TaskRunLifecyclePhase.MAIN.value
+                        ),
+                    }
+                )
                 await self._restart_tasks(
                     connection,
                     tenant_uuid,
                     tasks,
-                    reset_task_ids=frozenset(reset_task_ids),
+                    reset_task_ids=effective_reset_task_ids,
                     actor_id=actor_id,
                     reason=reason,
                     correlation_id=correlation_id,
@@ -3186,7 +3299,7 @@ class PostgresExecutionRepository(ExecutionRepository):
                 )
                 restart_payload: dict[str, object] = {
                     "checkpointTaskId": checkpoint_task_id,
-                    "resetTaskIds": list(reset_task_ids),
+                    "resetTaskIds": sorted(effective_reset_task_ids),
                     "nextEpoch": epoch + 1,
                 }
                 await self._insert_execution_intervention_event(
@@ -3445,7 +3558,10 @@ class PostgresExecutionRepository(ExecutionRepository):
     ) -> None:
         for task in tasks:
             state = TaskRunState(task["state"])
-            if state in {TaskRunState.WAITING, TaskRunState.RETRY_DELAY}:
+            if (
+                state in {TaskRunState.WAITING, TaskRunState.RETRY_DELAY}
+                and task["lifecycle_phase"] == TaskRunLifecyclePhase.MAIN.value
+            ):
                 changed = await self._update_task_control(
                     connection,
                     tenant_id,
@@ -4886,6 +5002,7 @@ def _to_execution(row: RowMapping) -> PersistedExecution:
         updated_at=row["updated_at"],
         timeout_at=row["timeout_at"],
         cancel_deadline_at=row["cancel_deadline_at"],
+        lifecycle_evidence=row.get("lifecycle_evidence") or {},
     )
 
 
@@ -4981,6 +5098,7 @@ def _to_task_run(row: RowMapping) -> PersistedTaskRun:
         result=row["result"],
         failure_category=row["failure_category"],
         evidence=row.get("evidence") or {},
+        lifecycle_phase=row.get("lifecycle_phase") or TaskRunLifecyclePhase.MAIN,
     )
 
 
@@ -5089,7 +5207,7 @@ def _same_flow_semantics(definition: object, flow: FlowDefinition) -> bool:
 
 
 def _plugin_resolution(flow: FlowDefinition) -> dict[str, object]:
-    resources = {("task", node.task.type) for node in compile_flow_tasks(flow)} | {
+    resources = {("task", node.task.type) for node in compile_execution_tasks(flow)} | {
         ("trigger", trigger.type) for trigger in flow.triggers
     }
     return {
@@ -5111,7 +5229,7 @@ def _require_allowed_plugins(policy: TenantPolicy, flow: FlowDefinition) -> None
     denied = sorted(
         {
             node.task.type
-            for node in compile_flow_tasks(flow)
+            for node in compile_execution_tasks(flow)
             if not policy.allows_plugin(node.task.type)
         }
     )

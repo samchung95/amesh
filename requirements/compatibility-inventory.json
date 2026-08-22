@@ -3150,97 +3150,115 @@
       "requirement_id": "URS-F-0211",
       "epic_id": "EPIC-204",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/executor/test_lifecycle_hooks.py::test_error_finally_and_after_execution_hooks_are_durable_and_ordered",
+        "tests/test_flow_validation.py::test_lifecycle_handlers_validate_selectors_and_bounded_recursion"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0212",
       "epic_id": "EPIC-204",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/executor/test_lifecycle_hooks.py::test_error_finally_and_after_execution_hooks_are_durable_and_ordered"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0213",
       "epic_id": "EPIC-204",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/executor/test_lifecycle_hooks.py::test_error_finally_and_after_execution_hooks_are_durable_and_ordered"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0214",
       "epic_id": "EPIC-204",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/executor/test_lifecycle_hooks.py::test_error_finally_and_after_execution_hooks_are_durable_and_ordered"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0215",
       "epic_id": "EPIC-204",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/executor/test_lifecycle_hooks.py::test_error_finally_and_after_execution_hooks_are_durable_and_ordered"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0216",
       "epic_id": "EPIC-204",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/test_flow_validation.py::test_lifecycle_handlers_validate_selectors_and_bounded_recursion",
+        "tests/executor/test_lifecycle_hooks.py::test_error_finally_and_after_execution_hooks_are_durable_and_ordered"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0217",
       "epic_id": "EPIC-204",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/executor/test_lifecycle_hooks.py::test_error_finally_and_after_execution_hooks_are_durable_and_ordered"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0218",
       "epic_id": "EPIC-204",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/test_lifecycle_graph.py::test_flow_graph_identifies_lifecycle_phase_and_handler_owner"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0219",

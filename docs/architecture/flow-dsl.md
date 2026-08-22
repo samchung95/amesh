@@ -8,7 +8,7 @@ The core flow shape contains:
 
 - `id`, `namespace`, `description`, `revision`, `disabled`, labels and annotations;
 - inputs, variables, tasks, triggers and outputs;
-- error tasks and `finally` tasks;
+- error tasks, `finally` tasks and post-terminal `afterExecution` tasks;
 - `x-` extension fields at flow and resource levels.
 
 Unknown unprefixed flow fields fail validation. Task, trigger and input configuration is checked against
@@ -43,6 +43,24 @@ optional `default` case. Every branch task ID remains unique across the complete
 branches following a condition that is literally unconditional.
 
 See [`conditional-flowables.yaml`](../../examples/conditional-flowables.yaml) for the complete shape.
+
+## Error and terminal hooks
+
+A flowable may own a local `errors` task list, and the flow may own global `errors`, `finally` and
+`afterExecution` lists. Each list is ordered. An error task may declare `errorSelector` with any
+combination of `states` (`FAILED` or `CANCELLED`), normalized failure `categories`, `taskIds` in its
+owner's scope and a safe boolean `condition`. The ordinary `runIf` condition may further restrict the
+handler.
+
+Lifecycle tasks use the same runnable task contract as primary tasks. They can therefore invoke
+notification or compensation task types and return structured diagnostic outputs or artifact
+references. Nested `errors` blocks inside any lifecycle block are rejected, and ordinary retry limits
+remain bounded. A handler that does not match is committed as a zero-attempt skipped task.
+
+`finally` runs after error handling on success, failure or cancellation. `afterExecution` starts only
+after the primary terminal state is durable. See
+[`lifecycle-hooks.yaml`](../../examples/lifecycle-hooks.yaml) for the complete shape and
+[execution semantics](execution-semantics.md#error-finally-and-after-execution-lifecycle) for ordering.
 
 ## Programmatic edits
 

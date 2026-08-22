@@ -224,12 +224,14 @@ class FlowGraphNode(BaseModel):
     state: str | None = None
     result: dict[str, Any] | None = None
     iteration_count: int | None = Field(default=None, alias="iterationCount", ge=0)
+    lifecycle_phase: str = Field(default="MAIN", alias="lifecyclePhase")
+    handler_owner_id: str | None = Field(default=None, alias="handlerOwnerId")
 
 
 class FlowGraphEdge(BaseModel):
     source: str
     target: str
-    kind: Literal["contains", "dependsOn"]
+    kind: Literal["contains", "dependsOn", "handles"]
 
 
 class FlowGraph(BaseModel):

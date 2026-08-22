@@ -42,6 +42,8 @@ _TRANSITIONS: dict[tuple[ExecutionState, ExecutionEventType], ExecutionState] = 
     (ExecutionState.WARNING, ExecutionEventType.RESTART_REQUESTED): ExecutionState.RESTARTING,
     (ExecutionState.RESTARTING, ExecutionEventType.STARTED): ExecutionState.RUNNING,
 }
+for _state in ExecutionState:
+    _TRANSITIONS[(_state, ExecutionEventType.LIFECYCLE_RECORDED)] = _state
 
 _COMMAND_EVENTS: dict[ExecutionCommandType, ExecutionEventType] = {
     ExecutionCommandType.CREATE: ExecutionEventType.CREATED,
@@ -55,6 +57,7 @@ _COMMAND_EVENTS: dict[ExecutionCommandType, ExecutionEventType] = {
     ExecutionCommandType.FAIL: ExecutionEventType.FAILED,
     ExecutionCommandType.WARN: ExecutionEventType.WARNED,
     ExecutionCommandType.REQUEST_RESTART: ExecutionEventType.RESTART_REQUESTED,
+    ExecutionCommandType.RECORD_LIFECYCLE: ExecutionEventType.LIFECYCLE_RECORDED,
 }
 
 _TASK_TRANSITIONS: dict[tuple[TaskRunState, TaskRunEventType], TaskRunState] = {

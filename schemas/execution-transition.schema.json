@@ -94,7 +94,8 @@
         "ExecutionSucceeded",
         "ExecutionFailed",
         "ExecutionWarned",
-        "ExecutionRestartRequested"
+        "ExecutionRestartRequested",
+        "ExecutionLifecycleRecorded"
       ],
       "title": "ExecutionEventType",
       "type": "string"

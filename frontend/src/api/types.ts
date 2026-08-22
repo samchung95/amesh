@@ -222,12 +222,14 @@ export interface FlowGraphNode {
   state: string | null
   result: Record<string, unknown> | null
   iterationCount: number | null
+  lifecyclePhase: 'MAIN' | 'ERROR' | 'FINALLY' | 'AFTER_EXECUTION'
+  handlerOwnerId: string | null
 }
 
 export interface FlowGraphEdge {
   source: string
   target: string
-  kind: 'contains' | 'dependsOn'
+  kind: 'contains' | 'dependsOn' | 'handles'
 }
 
 export interface FlowGraph {

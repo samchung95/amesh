@@ -19,6 +19,7 @@ from amesh.domain import (
     FlowRevisionSource,
     ResolvedAdmissionPolicy,
     ResourceMetadata,
+    TaskRunLifecyclePhase,
     TaskRunState,
 )
 from amesh.dsl import FlowDefinition
@@ -102,6 +103,7 @@ class PersistedExecution(BaseModel):
     updated_at: datetime
     timeout_at: datetime | None = None
     cancel_deadline_at: datetime | None = None
+    lifecycle_evidence: dict[str, Any] = Field(default_factory=dict)
 
 
 class PersistedFlow(BaseModel):
@@ -132,6 +134,7 @@ class PersistedTaskRun(BaseModel):
     result: dict[str, Any] | None = None
     failure_category: FailureCategory | None = None
     evidence: dict[str, Any] = Field(default_factory=dict)
+    lifecycle_phase: TaskRunLifecyclePhase = TaskRunLifecyclePhase.MAIN
 
 
 class PersistedIterationSummary(BaseModel):
@@ -491,6 +494,15 @@ class ExecutionRepository(Protocol):
         self,
         execution_id: UUID,
         reason: str,
+        *,
+        tenant_id: str,
+        expected_epoch: int,
+    ) -> PersistedExecution: ...
+
+    async def record_execution_lifecycle(
+        self,
+        execution_id: UUID,
+        evidence: dict[str, object],
         *,
         tenant_id: str,
         expected_epoch: int,

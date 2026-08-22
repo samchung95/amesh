@@ -34,6 +34,8 @@ grid.
   not every block. Tables remain the default for operational collections.
 - Status: icon, label and shape accompany color. Running uses blue, success green, warning amber,
   failure red and unknown gray.
+- Flow graph: lifecycle nodes retain the primary graph geometry while showing `ERROR`, `FINALLY` or
+  `AFTER_EXECUTION` phase metadata; local handlers also show the task or flowable they handle.
 - Empty/error/loading: every data region owns a purposeful empty instruction, retryable error panel and
   skeleton that preserves layout.
 - Command palette: high-shadow dialog with an explicit title, labelled search, grouped results,

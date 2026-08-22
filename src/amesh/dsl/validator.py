@@ -44,7 +44,9 @@ _ALIASES = {
     "else_if": "elseIf",
     "else_tasks": "else",
     "predicate_cases": "predicateCases",
+    "error_selector": "errorSelector",
     "finally_tasks": "finally",
+    "after_execution": "afterExecution",
 }
 _TASK_STRUCTURE_FIELDS = {
     "id",
@@ -61,6 +63,8 @@ _TASK_STRUCTURE_FIELDS = {
     "else",
     "cases",
     "predicateCases",
+    "errors",
+    "errorSelector",
     "contract",
     "taskCache",
 }
@@ -95,6 +99,8 @@ def _child_task_groups(
         yield (*path, "cases", case), tasks
     for index, branch in enumerate(task.predicate_cases):
         yield (*path, "predicateCases", index, "tasks"), branch.tasks
+    if task.errors:
+        yield (*path, "errors"), task.errors
 
 
 def _issue(
@@ -146,6 +152,7 @@ def _duplicate_issues(flow: FlowDefinition, source_map: SourceMap | None) -> lis
         _walk_tasks(flow.tasks),
         _walk_tasks(flow.errors, ("errors",)),
         _walk_tasks(flow.finally_tasks, ("finally",)),
+        _walk_tasks(flow.after_execution, ("afterExecution",)),
     )
     for group in groups:
         for path, task in group:
@@ -158,7 +165,7 @@ def _duplicate_issues(flow: FlowDefinition, source_map: SourceMap | None) -> lis
                             f"task id {task.id!r} is already used at {format_path(previous_path)}"
                         ),
                         path=(*path, "id"),
-                        hint="Give every task, error task and finally task a unique identifier.",
+                        hint="Give every primary or lifecycle task a unique identifier.",
                         source_map=source_map,
                     )
                 )
@@ -238,6 +245,7 @@ def _conditional_issues(
         _walk_tasks(flow.tasks),
         _walk_tasks(flow.errors, ("errors",)),
         _walk_tasks(flow.finally_tasks, ("finally",)),
+        _walk_tasks(flow.after_execution, ("afterExecution",)),
     )
     for group in groups:
         for path, task in group:
@@ -375,6 +383,7 @@ def _resource_issues(
         _walk_tasks(flow.tasks),
         _walk_tasks(flow.errors, ("errors",)),
         _walk_tasks(flow.finally_tasks, ("finally",)),
+        _walk_tasks(flow.after_execution, ("afterExecution",)),
     )
     for group in task_groups:
         for path, task in group:
@@ -414,6 +423,62 @@ def _resource_issues(
                 source_map,
             )
         )
+    return issues
+
+
+def _lifecycle_issues(
+    flow: FlowDefinition,
+    source_map: SourceMap | None,
+) -> list[ValidationIssue]:
+    issues: list[ValidationIssue] = []
+
+    def inspect(
+        tasks: list[TaskDefinition],
+        prefix: tuple[PathPart, ...],
+        *,
+        in_error_block: bool,
+        in_lifecycle_block: bool,
+    ) -> None:
+        for index, task in enumerate(tasks):
+            path = (*prefix, index)
+            if task.error_selector is not None and not in_error_block:
+                issues.append(
+                    _issue(
+                        code="misplaced_error_selector",
+                        message="errorSelector is valid only on a task inside an errors block",
+                        path=(*path, "errorSelector"),
+                        hint="Move the task into an errors block or remove errorSelector.",
+                        source_map=source_map,
+                    )
+                )
+            if in_lifecycle_block and task.errors:
+                issues.append(
+                    _issue(
+                        code="recursive_error_handler",
+                        message="lifecycle tasks cannot declare nested errors handlers",
+                        path=(*path, "errors"),
+                        hint="Move recursive recovery into a bounded subflow or ordinary task retry.",
+                        source_map=source_map,
+                    )
+                )
+            for child_prefix, children in _child_task_groups(task, path):
+                is_error_children = child_prefix[-1] == "errors"
+                inspect(
+                    children,
+                    child_prefix,
+                    in_error_block=is_error_children,
+                    in_lifecycle_block=in_lifecycle_block or is_error_children,
+                )
+
+    inspect(flow.tasks, ("tasks",), in_error_block=False, in_lifecycle_block=False)
+    inspect(flow.errors, ("errors",), in_error_block=True, in_lifecycle_block=True)
+    inspect(flow.finally_tasks, ("finally",), in_error_block=False, in_lifecycle_block=True)
+    inspect(
+        flow.after_execution,
+        ("afterExecution",),
+        in_error_block=False,
+        in_lifecycle_block=True,
+    )
     return issues
 
 
@@ -563,7 +628,9 @@ def validate_flow_document(
     issues.extend(_dependency_issues(flow.tasks, parsed.source_map))
     issues.extend(_dependency_issues(flow.errors, parsed.source_map, ("errors",)))
     issues.extend(_dependency_issues(flow.finally_tasks, parsed.source_map, ("finally",)))
+    issues.extend(_dependency_issues(flow.after_execution, parsed.source_map, ("afterExecution",)))
     issues.extend(_conditional_issues(flow, parsed.source_map))
+    issues.extend(_lifecycle_issues(flow, parsed.source_map))
     issues.extend(_resource_issues(flow, active_registry, parsed.source_map))
 
     if issues:

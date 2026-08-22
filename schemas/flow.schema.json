@@ -294,6 +294,69 @@
       "title": "ConditionalBranch",
       "type": "object"
     },
+    "ErrorSelector": {
+      "additionalProperties": false,
+      "description": "Typed selector applied to one task inside an errors block.",
+      "properties": {
+        "categories": {
+          "default": [],
+          "items": {
+            "enum": [
+              "RETRYABLE",
+              "NON_RETRYABLE",
+              "CANCELLED",
+              "TIMED_OUT",
+              "INFRASTRUCTURE",
+              "CONFIGURATION",
+              "USER_CODE",
+              "PLATFORM"
+            ],
+            "type": "string"
+          },
+          "title": "Categories",
+          "type": "array"
+        },
+        "condition": {
+          "anyOf": [
+            {
+              "maxLength": 65536,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Condition"
+        },
+        "states": {
+          "default": [],
+          "items": {
+            "enum": [
+              "FAILED",
+              "CANCELLED"
+            ],
+            "type": "string"
+          },
+          "title": "States",
+          "type": "array"
+        },
+        "taskIds": {
+          "default": [],
+          "items": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+            "type": "string"
+          },
+          "title": "Taskids",
+          "type": "array"
+        }
+      },
+      "title": "ErrorSelector",
+      "type": "object"
+    },
     "FlowableFailurePolicy": {
       "enum": [
         "FAIL_FAST",
@@ -644,6 +707,24 @@
           },
           "title": "Environment",
           "type": "object"
+        },
+        "errorSelector": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ErrorSelector"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "errors": {
+          "items": {
+            "$ref": "#/$defs/TaskDefinition"
+          },
+          "title": "Errors",
+          "type": "array"
         },
         "failurePolicy": {
           "$ref": "#/$defs/FlowableFailurePolicy",
@@ -1009,6 +1090,13 @@
     "^x-": {}
   },
   "properties": {
+    "afterExecution": {
+      "items": {
+        "$ref": "#/$defs/TaskDefinition"
+      },
+      "title": "Afterexecution",
+      "type": "array"
+    },
     "annotations": {
       "additionalProperties": {
         "type": "string"

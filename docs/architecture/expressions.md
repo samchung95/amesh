@@ -13,6 +13,7 @@ documents, so a future engine can replace it without a flow-storage migration.
 | `execution` | `id`, `state`, `startDate`, `tenantId` |
 | `task` | The current canonical task definition |
 | `taskrun` | `id`, `attempt`, `state` |
+| `error` | Handler-scoped `state`, primary failed `taskId`, `category`, `message`, all matching `items` and `handlerOwnerId`; otherwise an empty mapping |
 | `trigger` | Trigger metadata when an execution was triggered; otherwise an empty mapping |
 | `inputs` | Execution inputs |
 | `outputs` | Successful upstream task results keyed by task ID |

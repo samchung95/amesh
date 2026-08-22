@@ -31,6 +31,7 @@ from amesh.domain import (
 )
 from amesh.executor import (
     InProcessExecutor,
+    execution_lifecycle_pending,
     kubernetes_job_handler,
     local_process_handler,
 )
@@ -257,16 +258,20 @@ async def recover_once(
     for tenant_id in tenant_ids:
         for execution in await repository.list_executions(tenant_id=tenant_id, limit=1000):
             age = (now - execution.updated_at).total_seconds()
-            if (
-                execution.state is not ExecutionState.RUNNING
-                or age < settings.worker_recovery_grace_seconds
-            ):
+            if age < settings.worker_recovery_grace_seconds:
                 continue
             flow = await repository.get_flow(
                 execution.namespace,
                 execution.flow_id,
                 tenant_id=tenant_id,
             )
+            if execution.state is not ExecutionState.RUNNING:
+                task_runs = await repository.list_task_runs(
+                    execution.execution_id,
+                    tenant_id=tenant_id,
+                )
+                if not execution_lifecycle_pending(flow, execution, task_runs):
+                    continue
             kubernetes_runner: KubernetesJobRunner | None = None
             if settings.execution_runner_mode == "local":
                 shell_handler = local_process_handler(LocalProcessRunner())
