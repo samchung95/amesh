@@ -11,6 +11,7 @@ BUNDLE="$OUT_DIR/$NAME.bundle"
 
 python "$ROOT/scripts/validate_backlog.py"
 python "$ROOT/scripts/check_clean_room.py"
+uvx --from 'reuse[charset-normalizer]==6.2.0' reuse lint
 
 rm -f "$ZIP" "$TAR" "$BUNDLE" "$CHECKSUMS"
 

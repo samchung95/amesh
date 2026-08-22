@@ -37,6 +37,7 @@ The product target is broader than OSS feature parity. AMESH also independently 
 - **103 implementation epics** across nine milestone waves.
 - **992 requirement-to-epic traceability links**.
 - A machine-readable parity matrix and GitHub-ready issue bodies.
+- A requirement-level compatibility inventory with pinned source provenance, explicit gaps and evidence.
 - Architecture for deterministic execution, PostgreSQL queues, leases, fencing, scheduling, plugins, tenancy, security, HA and disaster recovery.
 - Full compatibility workstreams for Kestra YAML, Pebble, REST, CLI, execution behavior and import/export.
 - AMESH-specific workstreams for agent meshes, deterministic simulation, policy-as-code and evidence-backed AI assistance.
@@ -107,6 +108,8 @@ requirements/
   urs.csv                   Flat requirement export
   traceability.csv          Requirement-to-epic evidence map
   parity-matrix.csv         Parity and intentional-difference scope
+  compatibility-inventory.json  Requirement-level compatibility status, sources and evidence
+  source-provenance.json    Pinned public source catalog and strict-mode handoff rules
 docs/
   adr/                      Architecture decision records
   architecture/             Runtime, storage, security and compatibility design

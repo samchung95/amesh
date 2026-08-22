@@ -47,7 +47,7 @@
       "id": "URS-F-0001",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-000",
@@ -66,13 +66,17 @@
       "verification": "Authorization, audit and administrative end-to-end tests",
       "source_scope": "Kestra v1.3.30 public behavior and architecture parity baseline",
       "local_sequence": 1,
-      "dependencies": []
+      "dependencies": [],
+      "evidence": [
+        "requirements/compatibility-inventory.json",
+        "tests/test_clean_room.py::test_repository_governance_records_are_coherent"
+      ]
     },
     {
       "id": "URS-F-0002",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-000",
@@ -91,13 +95,18 @@
       "verification": "Authorization, audit and administrative end-to-end tests",
       "source_scope": "Kestra v1.3.30 public behavior and architecture parity baseline",
       "local_sequence": 2,
-      "dependencies": []
+      "dependencies": [],
+      "evidence": [
+        "requirements/source-provenance.json",
+        "scripts/validate_backlog.py",
+        "tests/test_clean_room.py::test_repository_governance_records_are_coherent"
+      ]
     },
     {
       "id": "URS-F-0003",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-000",
@@ -116,13 +125,18 @@
       "verification": "Authorization, audit and administrative end-to-end tests",
       "source_scope": "Kestra v1.3.30 public behavior and architecture parity baseline",
       "local_sequence": 3,
-      "dependencies": []
+      "dependencies": [],
+      "evidence": [
+        "requirements/source-provenance.json",
+        "docs/governance/clean-room-policy.md",
+        ".github/PULL_REQUEST_TEMPLATE.md"
+      ]
     },
     {
       "id": "URS-F-0004",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-000",
@@ -141,13 +155,19 @@
       "verification": "Authorization, audit and administrative end-to-end tests",
       "source_scope": "Kestra v1.3.30 public behavior and architecture parity baseline",
       "local_sequence": 4,
-      "dependencies": []
+      "dependencies": [],
+      "evidence": [
+        "scripts/check_clean_room.py",
+        ".github/workflows/release.yml",
+        "REUSE.toml",
+        "tests/test_clean_room.py"
+      ]
     },
     {
       "id": "URS-F-0005",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-000",
@@ -166,13 +186,18 @@
       "verification": "Authorization, audit and administrative end-to-end tests",
       "source_scope": "Kestra v1.3.30 public behavior and architecture parity baseline",
       "local_sequence": 5,
-      "dependencies": []
+      "dependencies": [],
+      "evidence": [
+        "NOTICE",
+        "docs/product/license-policy.md",
+        ".github/PULL_REQUEST_TEMPLATE.md"
+      ]
     },
     {
       "id": "URS-F-0006",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-000",
@@ -191,13 +216,18 @@
       "verification": "Authorization, audit and administrative end-to-end tests",
       "source_scope": "Kestra v1.3.30 public behavior and architecture parity baseline",
       "local_sequence": 6,
-      "dependencies": []
+      "dependencies": [],
+      "evidence": [
+        "requirements/compatibility-inventory.json",
+        "schemas/compatibility-inventory.schema.json",
+        "scripts/validate_backlog.py"
+      ]
     },
     {
       "id": "URS-F-0007",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-000",
@@ -216,7 +246,12 @@
       "verification": "Authorization, audit and administrative end-to-end tests",
       "source_scope": "Kestra v1.3.30 public behavior and architecture parity baseline",
       "local_sequence": 7,
-      "dependencies": []
+      "dependencies": [],
+      "evidence": [
+        "docs/how-to/rebase-compatibility-target.md",
+        "scripts/validate_backlog.py",
+        "tests/test_clean_room.py::test_repository_governance_records_are_coherent"
+      ]
     },
     {
       "id": "URS-F-0008",

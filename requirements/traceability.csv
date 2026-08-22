@@ -1,11 +1,11 @@
 requirement_id,requirement_type,priority,epic_id,epic_title,milestone,wave,verification,status
-URS-F-0001,Functional,Must,EPIC-000,Clean-room governance and parity baseline,M0,0,"Authorization, audit and administrative end-to-end tests",Proposed
-URS-F-0002,Functional,Must,EPIC-000,Clean-room governance and parity baseline,M0,0,"Authorization, audit and administrative end-to-end tests",Proposed
-URS-F-0003,Functional,Must,EPIC-000,Clean-room governance and parity baseline,M0,0,"Authorization, audit and administrative end-to-end tests",Proposed
-URS-F-0004,Functional,Must,EPIC-000,Clean-room governance and parity baseline,M0,0,"Authorization, audit and administrative end-to-end tests",Proposed
-URS-F-0005,Functional,Must,EPIC-000,Clean-room governance and parity baseline,M0,0,"Authorization, audit and administrative end-to-end tests",Proposed
-URS-F-0006,Functional,Must,EPIC-000,Clean-room governance and parity baseline,M0,0,"Authorization, audit and administrative end-to-end tests",Proposed
-URS-F-0007,Functional,Must,EPIC-000,Clean-room governance and parity baseline,M0,0,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0001,Functional,Must,EPIC-000,Clean-room governance and parity baseline,M0,0,"Authorization, audit and administrative end-to-end tests",Verified
+URS-F-0002,Functional,Must,EPIC-000,Clean-room governance and parity baseline,M0,0,"Authorization, audit and administrative end-to-end tests",Verified
+URS-F-0003,Functional,Must,EPIC-000,Clean-room governance and parity baseline,M0,0,"Authorization, audit and administrative end-to-end tests",Verified
+URS-F-0004,Functional,Must,EPIC-000,Clean-room governance and parity baseline,M0,0,"Authorization, audit and administrative end-to-end tests",Verified
+URS-F-0005,Functional,Must,EPIC-000,Clean-room governance and parity baseline,M0,0,"Authorization, audit and administrative end-to-end tests",Verified
+URS-F-0006,Functional,Must,EPIC-000,Clean-room governance and parity baseline,M0,0,"Authorization, audit and administrative end-to-end tests",Verified
+URS-F-0007,Functional,Must,EPIC-000,Clean-room governance and parity baseline,M0,0,"Authorization, audit and administrative end-to-end tests",Verified
 URS-F-0008,Functional,Must,EPIC-001,"Repository engineering, CI and release foundation",M0,0,Repository validation and CI tests,Proposed
 URS-F-0009,Functional,Must,EPIC-001,"Repository engineering, CI and release foundation",M0,0,Repository validation and CI tests,Proposed
 URS-F-0010,Functional,Must,EPIC-001,"Repository engineering, CI and release foundation",M0,0,Repository validation and CI tests,Proposed

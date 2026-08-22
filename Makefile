@@ -27,6 +27,7 @@ validate: lint typecheck test
 	uv run --extra runtime --extra dev python scripts/regenerate_planning_artifacts.py
 	uv run --extra runtime --extra dev python scripts/validate_backlog.py
 	uv run --extra runtime --extra dev python scripts/check_clean_room.py
+	uvx --from 'reuse[charset-normalizer]==6.2.0' reuse lint
 	uv run --extra runtime --extra dev python scripts/generate_contracts.py
 	git diff --exit-code -- backlog requirements docs/product/roadmap.md schemas docs/api/openapi.json
 
@@ -35,6 +36,7 @@ validate-core:
 	uv run --extra runtime --extra dev pytest
 	uv run --extra runtime --extra dev python scripts/validate_backlog.py
 	uv run --extra runtime --extra dev python scripts/check_clean_room.py
+	uvx --from 'reuse[charset-normalizer]==6.2.0' reuse lint
 	uv run --extra runtime --extra dev python -m compileall -q src tests scripts
 
 contracts:

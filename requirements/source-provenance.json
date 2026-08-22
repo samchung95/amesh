@@ -1,0 +1,106 @@
+{
+  "schema_version": "amesh.source-provenance/v1",
+  "target": {
+    "product": "Kestra",
+    "version": "1.3.30",
+    "tag": "v1.3.30",
+    "commit": "db49f3b2c2af60d61df10adb6f9fc34e4776b65b",
+    "release_date": "2026-07-28"
+  },
+  "sources": [
+    {
+      "id": "amesh-product-baseline",
+      "kind": "local-decision-record",
+      "location": "project-baseline.json",
+      "retrieved_on": "2026-08-16",
+      "permitted_use": "AMESH product direction and intentional differences"
+    },
+    {
+      "id": "kestra-release-v1.3.30",
+      "kind": "public-release-metadata",
+      "location": "https://api.github.com/repos/kestra-io/kestra/releases/tags/v1.3.30",
+      "retrieved_on": "2026-08-16",
+      "permitted_use": "Pinned target identity and public release metadata"
+    },
+    {
+      "id": "kestra-docs-index-v1.3.30",
+      "kind": "public-documentation-index",
+      "location": "https://kestra.io/llms.txt",
+      "retrieved_on": "2026-08-16",
+      "permitted_use": "Observable public behavior and interface research"
+    },
+    {
+      "id": "kestra-architecture-docs-v1.3.30",
+      "kind": "public-documentation",
+      "location": "https://kestra.io/docs/architecture",
+      "retrieved_on": "2026-08-16",
+      "permitted_use": "Public architecture and deployment behavior"
+    },
+    {
+      "id": "kestra-workflow-docs-v1.3.30",
+      "kind": "public-documentation",
+      "location": "https://kestra.io/docs/workflow-components",
+      "retrieved_on": "2026-08-16",
+      "permitted_use": "Public workflow, task and execution behavior"
+    },
+    {
+      "id": "kestra-ui-docs-v1.3.30",
+      "kind": "public-documentation",
+      "location": "https://kestra.io/docs/ui",
+      "retrieved_on": "2026-08-16",
+      "permitted_use": "Public user-interface behavior without copying presentation"
+    },
+    {
+      "id": "kestra-enterprise-docs-v1.3.30",
+      "kind": "public-documentation",
+      "location": "https://kestra.io/docs/enterprise",
+      "retrieved_on": "2026-08-16",
+      "permitted_use": "Publicly documented advanced capability outcomes"
+    }
+  ],
+  "domain_defaults": {
+    "api": ["kestra-docs-index-v1.3.30"],
+    "community": ["kestra-docs-index-v1.3.30"],
+    "compatibility": ["kestra-docs-index-v1.3.30", "kestra-workflow-docs-v1.3.30"],
+    "devops": ["kestra-architecture-docs-v1.3.30"],
+    "differentiation": ["amesh-product-baseline", "kestra-docs-index-v1.3.30"],
+    "domain": ["kestra-architecture-docs-v1.3.30"],
+    "dsl": ["kestra-workflow-docs-v1.3.30"],
+    "engineering": ["amesh-product-baseline", "kestra-docs-index-v1.3.30"],
+    "engine": ["kestra-workflow-docs-v1.3.30"],
+    "governance": ["kestra-enterprise-docs-v1.3.30", "kestra-docs-index-v1.3.30"],
+    "messaging": ["kestra-architecture-docs-v1.3.30"],
+    "observability": ["kestra-architecture-docs-v1.3.30"],
+    "operations": ["kestra-architecture-docs-v1.3.30"],
+    "platform": ["kestra-architecture-docs-v1.3.30"],
+    "plugins": ["kestra-workflow-docs-v1.3.30"],
+    "quality": ["amesh-product-baseline", "kestra-docs-index-v1.3.30"],
+    "reliability": ["kestra-architecture-docs-v1.3.30"],
+    "runner": ["kestra-architecture-docs-v1.3.30"],
+    "scheduler": ["kestra-workflow-docs-v1.3.30"],
+    "search": ["kestra-architecture-docs-v1.3.30"],
+    "security": ["kestra-enterprise-docs-v1.3.30"],
+    "storage": ["kestra-architecture-docs-v1.3.30"],
+    "tenancy": ["kestra-enterprise-docs-v1.3.30"],
+    "transport": ["kestra-architecture-docs-v1.3.30"],
+    "ui": ["kestra-ui-docs-v1.3.30"],
+    "workflow": ["kestra-workflow-docs-v1.3.30"]
+  },
+  "strict_mode": {
+    "required_roles": ["reference-researcher", "implementer", "reviewer", "verifier"],
+    "allowed_handoff_artifacts": [
+      "neutral observable specification",
+      "source identifiers and retrieval dates",
+      "independently authored black-box fixtures",
+      "expected outcomes and tolerances",
+      "one-way similarity fingerprints"
+    ],
+    "forbidden_handoff_artifacts": [
+      "upstream source code or translated source logic",
+      "upstream tests",
+      "documentation prose",
+      "UI assets or distinctive layouts",
+      "trademarks presented as AMESH branding"
+    ]
+  }
+}

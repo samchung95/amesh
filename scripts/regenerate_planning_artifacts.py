@@ -6,6 +6,7 @@ Canonical inputs:
 - backlog/milestones.json
 - backlog/epics.json
 - requirements/urs.json
+- requirements/source-provenance.json
 
 The script is intentionally deterministic. Run it after any requirement or epic change and
 check the generated files into the same pull request.
@@ -71,6 +72,17 @@ def parity_scope(epic: dict[str, Any], existing: dict[str, dict[str, str]]) -> t
             "P1 selected configuration",
         )
     return "Kestra v1.3.30 public behavior and architecture parity baseline", "P0 capability"
+
+
+def compatibility_disposition(epic: dict[str, Any], requirement: dict[str, Any]) -> str:
+    labels = set(epic.get("labels", []))
+    if "difference:intentional" in labels:
+        return "intentional-difference"
+    if requirement["status"] == "Verified":
+        return "verified"
+    if "parity:deferred" in labels:
+        return "deferred"
+    return "gap"
 
 
 def render_urs(
@@ -350,6 +362,7 @@ def main() -> int:
     milestones: list[dict[str, Any]] = load_json("backlog/milestones.json")
     backlog = load_json("backlog/epics.json")
     urs = load_json("requirements/urs.json")
+    source_provenance = load_json("requirements/source-provenance.json")
     epics: list[dict[str, Any]] = sorted_epics(backlog["epics"])
     functional: list[dict[str, Any]] = sorted(
         urs["functional_requirements"], key=lambda item: item["id"]
@@ -519,6 +532,63 @@ def main() -> int:
             ],
             parity_rows,
         ),
+    )
+
+    parity_by_epic = {row["epic_id"]: row for row in parity_rows}
+    source_ids = {item["id"] for item in source_provenance["sources"]}
+    compatibility_items: list[dict[str, Any]] = []
+    for requirement in functional:
+        epic = epic_by_id[requirement["epic_id"]]
+        default_sources = source_provenance["domain_defaults"].get(requirement["domain"])
+        if not default_sources:
+            raise ValueError(
+                f"no source-provenance default exists for domain {requirement['domain']!r}"
+            )
+        unknown_sources = set(default_sources) - source_ids
+        if unknown_sources:
+            raise ValueError(
+                f"{requirement['id']} maps to unknown source IDs: {sorted(unknown_sources)}"
+            )
+        evidence = list(requirement.get("evidence", []))
+        if not evidence:
+            evidence = [
+                item.strip()
+                for item in parity_by_epic[epic["id"]]["evidence"].split(";")
+                if item.strip()
+            ]
+        if requirement["status"] == "Verified" and not evidence:
+            evidence = ["TESTLOG.md", epic["body_file"]]
+        disposition = compatibility_disposition(epic, requirement)
+        if disposition == "intentional-difference":
+            notes = epic["goal"]
+        elif disposition == "deferred":
+            notes = "Explicitly deferred by the canonical epic labels."
+        elif disposition == "gap":
+            notes = "Direct implementation or compatibility evidence remains open."
+        else:
+            notes = ""
+        compatibility_items.append(
+            {
+                "requirement_id": requirement["id"],
+                "epic_id": epic["id"],
+                "compatibility_level": parity_by_epic[epic["id"]]["compatibility_level"],
+                "implementation_status": requirement["status"],
+                "disposition": disposition,
+                "source_ids": default_sources,
+                "evidence": evidence,
+                "notes": notes,
+            }
+        )
+    compatibility_inventory = {
+        "$schema": "../schemas/compatibility-inventory.schema.json",
+        "schema_version": "amesh.compatibility-inventory/v1",
+        "target": baseline["parity_target"],
+        "source_registry": "requirements/source-provenance.json",
+        "items": compatibility_items,
+    }
+    write_text(
+        "requirements/compatibility-inventory.json",
+        json.dumps(compatibility_inventory, indent=2, ensure_ascii=False),
     )
 
     backlog_lines = [

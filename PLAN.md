@@ -2,11 +2,11 @@
 
 ## Goal
 
-Clear the canonical backlog, one dependency-ready epic at a time, for the graphical frontend; Kestra YAML/Pebble compatibility; multi-user authentication, RBAC and multi-tenancy; loops, subflows, backfills and replay; and HA, backup and restore qualification. Each epic is complete only when its acceptance criteria and directly mapped requirements have verified evidence in the canonical backlog.
+Complete the 50 currently open epics whose implementation and directly relevant verification can run on the local development environment. Execute one dependency-ready epic at a time, keep the Compose product deployable at epic boundaries, and close an epic only when its acceptance criteria and mapped requirements have verified evidence in the canonical backlog.
 
 ## Out of scope
 
-Epics outside those five requested product areas are excluded unless the canonical dependency graph shows that they directly block a requested epic. Opportunistic refactors, adjacent backlog items and broader production claims remain excluded.
+External-cloud, external-SaaS, hosted-release, independent-certification, multi-region and long-duration qualification gates are deferred for EPIC-001, 011, 223, 308–312, 506, 606, 611–612, 700, 705–706, 801 and 803–806. Their smallest locally implementable contract may be added only when it directly blocks one of the 50 selected epics. Opportunistic refactors, adjacent defects, cards `c15`/`c29` and broader production claims remain excluded.
 
 ## Open questions
 
@@ -28,3 +28,4 @@ None currently. Expensive framework or identity-provider choices will be surface
 - 2026-08-21 — Start with EPIC-002 because it has no dependencies and its identity/resource contracts directly unlock RBAC, multi-tenancy and the REST/UI chain.
 - 2026-08-22 — Break the EPIC-403/EPIC-502 planning cycle: EPIC-403 owns local login, durable browser sessions and the provider-neutral authentication boundary; EPIC-502 consumes that boundary for concrete OIDC, SAML, LDAP and SCIM adapters. Federated providers do not block the requested local multi-user login.
 - 2026-08-22 — Complete EPIC-400 against the authoritative v0.2 resource profile and preserve `/api/v1`; add opt-in `Prefer: respond-async` execution launch plus common contract behavior. Per the product owner's prior “defer and move forward” direction, file/KV/secret/plugin lifecycle APIs stay with EPIC-207/506/300/301 instead of receiving placeholder persistence in the API layer.
+- 2026-08-22 — Register the 50 locally closeable open epics as Agent Hotel cards `c37`–`c86` and execute them dependency-first. Defer the 20 external qualification epics and unrelated failures; implement only a minimum local prerequisite contract when a selected epic cannot otherwise be completed or verified.

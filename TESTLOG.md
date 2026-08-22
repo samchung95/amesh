@@ -1,5 +1,33 @@
 # Test Log
 
+## EPIC-000: Clean-room governance and parity baseline — 2026-08-22
+
+Spec source: Agent Hotel card `c37` and canonical `backlog/epics.json` EPIC-000 DoD.
+
+Verified with `uv`, Python 3.13 and an isolated PostgreSQL 17 database:
+
+- [x] All 837 functional requirements have generated, schema-validated compatibility inventory
+  records pinned to Kestra 1.3.30, with source identifiers, explicit dispositions and evidence.
+- [x] Machine-readable provenance defines public reference sources, domain defaults and strict
+  researcher/implementer/reviewer/verifier handoffs that prohibit upstream source content.
+- [x] Clean-room tests reject target drift, forbidden lexical markers and reference trees inside the
+  implementation repository, and detect copied synthetic token sequences without emitting content.
+- [x] CI, release and packaging gates use pinned REUSE 6.2.0 license validation. The isolated release
+  job additionally checks the pinned upstream commit and one-way token-shingle similarity before build.
+- [x] REUSE 3.3 lint passed for all 4,074 files with zero missing, invalid, deprecated or unreadable
+  licenses; workflow YAML parsing and Git Bash package-script syntax checks passed.
+- [x] A fresh database applied all 31 migrations. The complete suite collected 272 tests: 264 passed,
+  six environment/profile tests skipped and two pre-existing assertions on cards `c15` and `c29`
+  were explicitly deselected as directed.
+- [x] Ruff formatting and lint passed for 210 files, strict mypy passed for 116 source files, planning
+  regeneration and backlog validation passed for 103 epics and 900 requirements, and diff whitespace
+  validation passed.
+
+No LLM invocation was required for deterministic governance validation; the configured OpenRouter
+`openai/gpt-5.6-luna` default is unchanged.
+
+Verdict: PASS — EPIC-000 functional requirements URS-F-0001 through URS-F-0007 are verified.
+
 ## EPIC-110: SLA, checks and execution policy evaluation — 2026-08-22
 
 Spec source: Agent Hotel card `c36` and canonical `backlog/epics.json` EPIC-110 DoD.

@@ -52,7 +52,9 @@ Pull requests include a clean-room declaration and affected requirement IDs.
 
 ## Automated gates
 
-The repository includes lexical and provenance checks. Release engineering must add code-similarity, dependency-licence, SBOM, secret and signed-provenance scans. Automated checks cannot replace independent review.
+Every local validation runs lexical and requirement-provenance checks. REUSE 6.2.0 validates SPDX file licensing. Every tagged release also compares AMESH against the pinned reference in an isolated reviewer job using one-way normalized token-shingle fingerprints; raw reference text is neither committed nor emitted in findings. SBOM, dependency-vulnerability and signed-provenance expansion remains owned by the release and supply-chain epics. Automated checks cannot replace independent review.
+
+`requirements/source-provenance.json` defines the pinned public sources and strict-mode role handoff. `requirements/compatibility-inventory.json` records one target, source identifiers, disposition and evidence list for every functional compatibility requirement.
 
 ## Names and claims
 

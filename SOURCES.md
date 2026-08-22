@@ -29,6 +29,8 @@ not a license to copy source or presentation.
 6. Do not use proprietary or leaked material.
 7. Update `project-baseline.json` and conformance fixtures together when rebasing.
 
+The machine-readable source catalog is `requirements/source-provenance.json`. Its source identifiers are referenced by every row in the generated `requirements/compatibility-inventory.json`; the target-rebase procedure lives in `docs/how-to/rebase-compatibility-target.md`.
+
 ## Architecture and licence references
 
 These sources support AMESH-specific architecture and governance decisions; they are not Kestra implementation inputs.

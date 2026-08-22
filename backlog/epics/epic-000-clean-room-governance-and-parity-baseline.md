@@ -12,13 +12,17 @@ Establish a defensible, repeatable method for reproducing observable capabilitie
 
 ## In scope
 
-- [ ] **URS-F-0001** — The system shall maintain a version-pinned parity inventory against Kestra v1.3.30 and its documented public behavior.
-- [ ] **URS-F-0002** — The system shall record source provenance for every compatibility requirement and prohibit copying source code, UI assets, trademarks, or documentation prose.
-- [ ] **URS-F-0003** — The system shall separate reference researchers from implementers when a strict clean-room mode is selected.
-- [ ] **URS-F-0004** — The system shall run automated similarity and license scans before every release.
-- [ ] **URS-F-0005** — The system shall document trademark-safe naming, attribution, notices, and contribution provenance.
-- [ ] **URS-F-0006** — The system shall track parity gaps, intentional differences, deferred features, and evidence in a machine-readable matrix.
-- [ ] **URS-F-0007** — The system shall provide a repeatable procedure for rebasing the parity target to a later upstream release.
+- [x] **URS-F-0001** — The system shall maintain a version-pinned parity inventory against Kestra v1.3.30 and its documented public behavior.
+- [x] **URS-F-0002** — The system shall record source provenance for every compatibility requirement and prohibit copying source code, UI assets, trademarks, or documentation prose.
+- [x] **URS-F-0003** — The system shall separate reference researchers from implementers when a strict clean-room mode is selected.
+- [x] **URS-F-0004** — The system shall run automated similarity and license scans before every release.
+- [x] **URS-F-0005** — The system shall document trademark-safe naming, attribution, notices, and contribution provenance.
+- [x] **URS-F-0006** — The system shall track parity gaps, intentional differences, deferred features, and evidence in a machine-readable matrix.
+- [x] **URS-F-0007** — The system shall provide a repeatable procedure for rebasing the parity target to a later upstream release.
+
+## Implementation completion evidence
+
+- 2026-08-22 — EPIC-000 is complete. A generated requirement-level compatibility inventory now pins every functional requirement to the Kestra 1.3.30 target, known public source identifiers, explicit compatible/gap/deferred/intentional-difference disposition and evidence. Strict-mode researcher/implementer/reviewer/verifier handoffs are machine-readable. Local and release gates validate lexical markers, target/provenance coherence, SPDX licensing through REUSE 6.2.0 and isolated one-way token-shingle similarity without emitting reference content. Trademark, attribution and contributor provenance policy remains explicit, and a checked target-rebase procedure preserves clean-room separation. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`compatibility-inventory.json`](../../requirements/compatibility-inventory.json), [`source-provenance.json`](../../requirements/source-provenance.json), [`check_clean_room.py`](../../scripts/check_clean_room.py), [`test_clean_room.py`](../../tests/test_clean_room.py), [`rebase-compatibility-target.md`](../../docs/how-to/rebase-compatibility-target.md) and [`030-versioned-clean-room-evidence-contract.md`](../../docs/adr/030-versioned-clean-room-evidence-contract.md).
 
 ## Non-functional requirements
 
@@ -43,13 +47,13 @@ Establish a defensible, repeatable method for reproducing observable capabilitie
 
 ## Definition of done
 
-- [ ] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
-- [ ] Public API, DSL, event and plugin contract changes pass compatibility checks.
-- [ ] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
-- [ ] Security, tenant isolation, redaction and audit behavior are reviewed.
-- [ ] Documentation, examples, migration notes and operational runbooks are updated.
-- [ ] Performance and recovery budgets are measured when this epic is on a critical path.
-- [ ] `python scripts/validate_backlog.py` passes.
+- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
+- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.
+- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
+- [x] Security, tenant isolation, redaction and audit behavior are reviewed.
+- [x] Documentation, examples, migration notes and operational runbooks are updated.
+- [x] Performance and recovery budgets are measured when this epic is on a critical path.
+- [x] `python scripts/validate_backlog.py` passes.
 
 ## Risks and unknowns
 

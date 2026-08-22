@@ -2,12 +2,19 @@
 
 ## Current state
 
-- What works: all five requested post-MVP areas are implemented and evidence-linked: the graphical control room; versioned Kestra YAML and Pebble-subset compatibility; local multi-user browser login, RBAC and PostgreSQL RLS multi-tenancy; loops, subflows, backfills and replay; and the qualified functional HA/backup/restore reference profile.
-- What's in flight: the local Docker Compose test deployment is running at `http://localhost:8000` with migration 0027 and a local administrator. The deployed Dashboard and Flows recovery-state defect is repaired and no implementation work remains in the requested five-area scope.
-- Known broken / TODO: card `c15` preserves the deferred EPIC-104 timing-sensitive deadline assertion and card `c29` preserves an unrelated order-dependent observability assertion. The uninterrupted 86,400-second qualification remains under EPIC-611 and still gates broader production-readiness claims.
+- What works: the original five requested post-MVP areas plus durable cache, triggers, execution evidence and SLA/check policies are implemented, evidence-linked and deployed through migration 0031.
+- What's in flight: the 50-epic local completion program is tracked on Agent Hotel cards `c37`–`c86`; EPIC-000 on card `c37` has passed its final gates and EPIC-003 on card `c38` is next. The local Docker Compose deployment remains available at `http://localhost:8000`.
+- Known broken / TODO: 20 external-cloud, SaaS, hosted-release, independent-certification, multi-region or long-duration epics are deferred. Cards `c15` and `c29` preserve unrelated test failures and are not blockers for the local program.
 - How to run/test: use `uv run --extra runtime --extra dev pytest`; set `AMESH_TEST_DATABASE_URL` for PostgreSQL integration tests and `OPENROUTER_API_KEY` for live LLM tests.
 
 ## Session log
+
+### 2026-08-22 (50-epic local completion program, EPIC-000 completion)
+
+- Did: completed EPIC-000 with a generated 837-item compatibility inventory, machine-readable public-source provenance and strict clean-room role handoffs, pinned-target validation, release-blocking REUSE 6.2.0 licensing, isolated one-way token-shingle similarity scanning, trademark/contribution policy and a repeatable target-rebase guide. Linked URS-F-0001 through URS-F-0007 to evidence.
+- Verification: 272 tests collected against an isolated PostgreSQL database; 264 passed, six environment/profile tests skipped and the two pre-existing card `c15`/`c29` assertions were explicitly deselected. A fresh database applied all 31 migrations. REUSE, Ruff, strict mypy, workflow YAML, package-script syntax, clean-room, planning regeneration, backlog and diff gates passed.
+- Deviations from plan: no runtime or LLM change was needed. The first shared-database run was invalid because deployed services consumed test work; the isolated rerun passed without code changes. The configured OpenRouter `openai/gpt-5.6-luna` default is unchanged.
+- Next step when resuming: close and commit card `c37`, then select EPIC-003 on card `c38` and implement the typed configuration/feature-flag system.
 
 ### 2026-08-21
 
@@ -126,3 +133,9 @@
 - Did: reproduced the reported recovery view as an HTTP 500 from `/api/v1/flows`; traced it to one valid persisted flow whose concurrent transaction timestamps differed by 536 microseconds; normalized the timestamp at the PostgreSQL adapter boundary without weakening the domain metadata invariant; added a regression test; and rebuilt the running API image.
 - Verification: the regression failed on the original Pydantic validation error and passed after the fix; Ruff and strict mypy passed; a fresh Chromium session against Compose signed in, rendered Dashboard metrics, opened the 863-flow catalog, and observed HTTP 200 from both flow and execution queries with no recovery view.
 - Next step when resuming: leave the repaired stack running for user testing at `http://localhost:8000`.
+
+### 2026-08-22 (50-epic local completion program start)
+
+- Did: classified all 70 open canonical epics by full Definition of Done; excluded 20 with non-local qualification gates; registered the remaining 50 as authoritative Agent Hotel cards `c37`–`c86`; and selected dependency-free EPIC-000 as the first milestone.
+- Deviations from plan: the prior five-area scope is superseded by the product owner's explicit 50-epic local completion goal. External prerequisite epics remain open; only their smallest locally testable contract may be implemented when it directly blocks a selected epic.
+- Next step when resuming: complete EPIC-000 requirements URS-F-0001 through URS-F-0007, verify its clean-room governance gates and evidence, deploy any affected service, update the canonical backlog and move card `c37` to Done.
