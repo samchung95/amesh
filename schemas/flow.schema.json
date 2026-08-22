@@ -252,6 +252,48 @@
       "title": "ConcurrencyLimit",
       "type": "object"
     },
+    "ConditionErrorPolicy": {
+      "enum": [
+        "FAIL",
+        "FALSE",
+        "FALLBACK"
+      ],
+      "title": "ConditionErrorPolicy",
+      "type": "string"
+    },
+    "ConditionalBranch": {
+      "additionalProperties": false,
+      "properties": {
+        "condition": {
+          "maxLength": 65536,
+          "minLength": 1,
+          "title": "Condition",
+          "type": "string"
+        },
+        "id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+          "title": "Id",
+          "type": "string"
+        },
+        "tasks": {
+          "items": {
+            "$ref": "#/$defs/TaskDefinition"
+          },
+          "minItems": 1,
+          "title": "Tasks",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "condition",
+        "tasks"
+      ],
+      "title": "ConditionalBranch",
+      "type": "object"
+    },
     "FlowableFailurePolicy": {
       "enum": [
         "FAIL_FAST",
@@ -325,6 +367,24 @@
           "minimum": 1,
           "title": "Backoffmultiplier",
           "type": "number"
+        },
+        "condition": {
+          "anyOf": [
+            {
+              "maxLength": 65536,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Condition"
+        },
+        "conditionErrorPolicy": {
+          "$ref": "#/$defs/ConditionErrorPolicy",
+          "default": "FAIL"
         },
         "delaySeconds": {
           "default": 0,
@@ -492,6 +552,16 @@
     "TaskDefinition": {
       "additionalProperties": true,
       "properties": {
+        "cases": {
+          "additionalProperties": {
+            "items": {
+              "$ref": "#/$defs/TaskDefinition"
+            },
+            "type": "array"
+          },
+          "title": "Cases",
+          "type": "object"
+        },
         "command": {
           "anyOf": [
             {
@@ -514,6 +584,24 @@
           "title": "Concurrency",
           "type": "array"
         },
+        "condition": {
+          "anyOf": [
+            {
+              "maxLength": 65536,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Condition"
+        },
+        "conditionErrorPolicy": {
+          "$ref": "#/$defs/ConditionErrorPolicy",
+          "default": "FAIL"
+        },
         "contract": {
           "$ref": "#/$defs/RunnableTaskContract"
         },
@@ -535,6 +623,20 @@
           ],
           "default": null,
           "title": "Description"
+        },
+        "else": {
+          "items": {
+            "$ref": "#/$defs/TaskDefinition"
+          },
+          "title": "Else",
+          "type": "array"
+        },
+        "elseIf": {
+          "items": {
+            "$ref": "#/$defs/ConditionalBranch"
+          },
+          "title": "Elseif",
+          "type": "array"
         },
         "environment": {
           "additionalProperties": {
@@ -580,6 +682,13 @@
           "default": null,
           "title": "Maxconcurrency"
         },
+        "predicateCases": {
+          "items": {
+            "$ref": "#/$defs/ConditionalBranch"
+          },
+          "title": "Predicatecases",
+          "type": "array"
+        },
         "priority": {
           "default": 0,
           "maximum": 1000,
@@ -615,6 +724,13 @@
             "$ref": "#/$defs/TaskDefinition"
           },
           "title": "Tasks",
+          "type": "array"
+        },
+        "then": {
+          "items": {
+            "$ref": "#/$defs/TaskDefinition"
+          },
+          "title": "Then",
           "type": "array"
         },
         "timeoutSeconds": {

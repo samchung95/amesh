@@ -117,6 +117,10 @@ protects selected revisions and revisions referenced by executions or direct aud
 Migration `0034_flow_revision_event_retention.sql` makes revision events subordinate to explicit flow
 purge while preserving them for the entire lifetime of their owning flow.
 
+Migration `0035_conditional_task_control.sql` adds task-run-owned terminal results and control
+evidence for durable conditional decisions and zero-attempt skips. Ordinary runnable results remain
+authoritative on immutable task attempts.
+
 ## Migration modes
 
 - `bootstrap` creates the initial schema and is only safe for an empty database.

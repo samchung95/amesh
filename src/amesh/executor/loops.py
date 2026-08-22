@@ -67,7 +67,9 @@ class LoopIterationContext:
 
 
 def parse_loop_spec(task: TaskDefinition) -> LoopSpec:
-    extra = task.model_extra or {}
+    extra = dict(task.model_extra or {})
+    if task.condition is not None:
+        extra["condition"] = task.condition
     spec = LoopSpec.model_validate(extra)
     if task.type == "core.foreach":
         sources = sum(value is not None for value in (spec.items, spec.range, spec.manifest_uri))

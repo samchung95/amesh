@@ -1,0 +1,51 @@
+apiVersion: amesh.flow/v1
+id: conditional_flowables
+namespace: examples.engine
+description: Durable if/else-if and exact/predicate/default switch routing.
+inputs:
+  - id: route
+    type: STRING
+    required: true
+  - id: score
+    type: integer
+    required: true
+tasks:
+  - id: choose_route
+    type: core.if
+    condition: "{{ inputs.route == 'primary' }}"
+    conditionErrorPolicy: FALSE
+    then:
+      - id: primary
+        type: core.return
+        value: primary
+    elseIf:
+      - id: secondary
+        condition: "{{ inputs.route == 'secondary' }}"
+        tasks:
+          - id: secondary_task
+            type: core.return
+            value: secondary
+    else:
+      - id: fallback
+        type: core.return
+        value: fallback
+  - id: choose_service_level
+    type: core.switch
+    dependsOn: [choose_route]
+    value: "{{ inputs.route }}"
+    cases:
+      primary:
+        - id: exact_primary
+          type: core.return
+          value: expedited
+      default:
+        - id: ordinary
+          type: core.return
+          value: ordinary
+    predicateCases:
+      - id: high_score
+        condition: "{{ inputs.score >= 90 }}"
+        tasks:
+          - id: high_score_task
+            type: core.return
+            value: reviewed

@@ -106,7 +106,7 @@ failure from the committed flow revision and task-run snapshot. The decision is 
 canonical flow order, so parallel executor instances reach the same branch decision. PostgreSQL then
 compare-and-swaps a task from `WAITING` or eligible `RETRY_DELAY` to `RUNNING`; a losing executor does
 not reuse the winner's running attempt. A false `runIf` condition is persisted as a skipped success
-without emitting a dispatch command.
+with `TaskRunSkipped`, no dispatch command and no task attempt; the task-run attempt remains zero.
 
 An eligible `TaskRunStarted` event produces a `DispatchTaskRun` envelope on `task-dispatch` in the same
 transaction as the task state and immutable event. Task completion and terminal execution envelopes
@@ -127,6 +127,19 @@ state, successful output and normalized error. `FAIL_FAST` fails the parent on t
 failure, `CONTINUE_ON_ERROR` waits for every child and succeeds with the complete aggregate, and
 `COLLECT_ALL` waits for every child before failing when any child failed. A child expression context
 contains outputs from transitive dependencies only; independent sibling output is not visible.
+
+### Conditional flowables
+
+`core.if` evaluates `then`, ordered `elseIf` conditions and optional `else`. `core.switch` checks a
+rendered value against exact cases, then ordered predicates, then optional `default`. The parent
+persists JSON-safe, sensitive-input-redacted condition context, each evaluation, the selected branch
+and the explicit error policy in its running attempt before any selected child becomes runnable.
+
+A restarted executor reads that committed decision instead of evaluating again. Every descendant of
+a non-selected branch receives `TaskRunSkipped` and a task-run-owned terminal result at attempt zero;
+selected runnable leaves use ordinary attempts. `FAIL` fails the conditional parent on expression
+error, `FALSE` continues selection as though that expression were false, and `FALLBACK` selects the
+declared `else` or `default` immediately.
 
 `GET /api/v1/flows/{namespace}/{flow_id}/graph` returns the expanded revision before execution.
 `GET /api/v1/executions/{execution_id}/graph` returns the pinned revision with current durable task
@@ -189,6 +202,11 @@ actual eligibility time and the triggering failure. Flow YAML accepts `maxAttemp
 and the final delay never exceeds the configured maximum interval. Failures persist as `RETRYABLE`,
 `NON_RETRYABLE`, `CANCELLED`, `TIMED_OUT` or `INFRASTRUCTURE`, and only the configured retryable
 categories consume another attempt.
+
+An optional retry `condition` evaluates after failure with `taskrun.attempt`,
+`taskrun.failureCategory` and `taskrun.error` in context. Its redacted decision is committed on the
+failed attempt before retry scheduling. `conditionErrorPolicy: FALSE` declines the retry; the default
+`FAIL` policy fails the task with a configuration-classified retry-condition error.
 
 Task handlers run inside `asyncio.timeout()`, whose local deadline is monotonic. An execution's
 optional `timeoutSeconds` becomes an absolute PostgreSQL-time deadline when the execution is created.

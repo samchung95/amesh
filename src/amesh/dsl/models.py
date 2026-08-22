@@ -89,6 +89,16 @@ class TriggerDefinition(BaseModel):
         return self
 
 
+class ConditionErrorPolicy(StrEnum):
+    FAIL = "FAIL"
+    FALSE = "FALSE"
+    FALLBACK = "FALLBACK"
+
+    @classmethod
+    def _missing_(cls, value: object) -> ConditionErrorPolicy | None:
+        return cls.FALSE if value is False else None
+
+
 class RetryPolicy(BaseModel):
     model_config = ConfigDict(extra="forbid", populate_by_name=True)
 
@@ -101,6 +111,17 @@ class RetryPolicy(BaseModel):
         alias="maxIntervalSeconds",
     )
     jitter_ratio: float = Field(default=0, ge=0, le=1, alias="jitterRatio")
+    condition: str | None = Field(default=None, min_length=1, max_length=65_536)
+    condition_error_policy: ConditionErrorPolicy = Field(
+        default=ConditionErrorPolicy.FAIL,
+        alias="conditionErrorPolicy",
+    )
+
+    @model_validator(mode="after")
+    def validate_condition_policy(self) -> RetryPolicy:
+        if self.condition_error_policy is ConditionErrorPolicy.FALLBACK:
+            raise ValueError("retry conditionErrorPolicy cannot be FALLBACK")
+        return self
 
 
 class TaskResourceLimits(BaseModel):
@@ -171,6 +192,14 @@ class TaskCachePolicy(BaseModel):
         return self
 
 
+class ConditionalBranch(BaseModel):
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
+    id: NaturalId
+    condition: str = Field(min_length=1, max_length=65_536)
+    tasks: list[TaskDefinition] = Field(min_length=1)
+
+
 class TaskDefinition(BaseModel):
     # populate_by_name keeps snake_case spellings of aliased fields (depends_on,
     # run_if) from being silently swallowed into `extra` as inert plugin fields.
@@ -181,6 +210,10 @@ class TaskDefinition(BaseModel):
     description: str | None = None
     depends_on: list[str] = Field(default_factory=list, alias="dependsOn")
     run_if: str | None = Field(default=None, alias="runIf")
+    condition_error_policy: ConditionErrorPolicy = Field(
+        default=ConditionErrorPolicy.FAIL,
+        alias="conditionErrorPolicy",
+    )
     retry: RetryPolicy = Field(default_factory=RetryPolicy)
     timeout_seconds: float | None = Field(default=None, gt=0, alias="timeoutSeconds")
     command: list[str] | None = None
@@ -198,6 +231,15 @@ class TaskDefinition(BaseModel):
     contract: RunnableTaskContract = Field(default_factory=RunnableTaskContract)
     task_cache: TaskCachePolicy = Field(default_factory=TaskCachePolicy, alias="taskCache")
     tasks: list[TaskDefinition] = Field(default_factory=list)
+    condition: str | None = Field(default=None, min_length=1, max_length=65_536)
+    then_tasks: list[TaskDefinition] = Field(default_factory=list, alias="then")
+    else_if: list[ConditionalBranch] = Field(default_factory=list, alias="elseIf")
+    else_tasks: list[TaskDefinition] = Field(default_factory=list, alias="else")
+    cases: dict[str, list[TaskDefinition]] = Field(default_factory=dict)
+    predicate_cases: list[ConditionalBranch] = Field(
+        default_factory=list,
+        alias="predicateCases",
+    )
 
     @model_validator(mode="before")
     @classmethod
@@ -206,7 +248,15 @@ class TaskDefinition(BaseModel):
         # both would let the alias win while the other rides along as an inert
         # extra field, so it is rejected outright.
         if isinstance(data, dict):
-            for name, alias in (("depends_on", "dependsOn"), ("run_if", "runIf")):
+            for name, alias in (
+                ("depends_on", "dependsOn"),
+                ("run_if", "runIf"),
+                ("condition_error_policy", "conditionErrorPolicy"),
+                ("then_tasks", "then"),
+                ("else_if", "elseIf"),
+                ("else_tasks", "else"),
+                ("predicate_cases", "predicateCases"),
+            ):
                 if name in data and alias in data:
                     raise ValueError(f"task cannot set both {alias!r} and {name!r}")
         return data
@@ -215,6 +265,15 @@ class TaskDefinition(BaseModel):
     def validate_self_dependency(self) -> TaskDefinition:
         if self.id in self.depends_on:
             raise ValueError(f"task {self.id!r} cannot depend on itself")
+        conditional_children = any(
+            (
+                self.then_tasks,
+                self.else_if,
+                self.else_tasks,
+                self.cases,
+                self.predicate_cases,
+            )
+        )
         if (
             self.type
             in {
@@ -228,9 +287,61 @@ class TaskDefinition(BaseModel):
             and not self.tasks
         ):
             raise ValueError(f"flowable task {self.id!r} requires at least one child task")
-        if self.tasks and self.task_cache.enabled:
+        if self.type == "core.if":
+            if self.condition is None or not self.then_tasks:
+                raise ValueError("core.if requires condition and at least one then task")
+            if self.tasks or self.cases or self.predicate_cases:
+                raise ValueError("core.if accepts then/elseIf/else branches, not tasks or cases")
+            if self.condition_error_policy is ConditionErrorPolicy.FALLBACK and not self.else_tasks:
+                raise ValueError("core.if FALLBACK policy requires an else branch")
+        elif self.type == "core.switch":
+            if "value" not in (self.model_extra or {}):
+                raise ValueError("core.switch requires value")
+            if not self.cases and not self.predicate_cases:
+                raise ValueError("core.switch requires cases or predicateCases")
+            if self.tasks or self.condition or self.then_tasks or self.else_if or self.else_tasks:
+                raise ValueError("core.switch accepts cases and predicateCases only")
+            empty_cases = [case for case, tasks in self.cases.items() if not tasks]
+            if empty_cases:
+                raise ValueError(f"core.switch cases require tasks: {empty_cases}")
+            if (
+                self.condition_error_policy is ConditionErrorPolicy.FALLBACK
+                and "default" not in self.cases
+            ):
+                raise ValueError("core.switch FALLBACK policy requires a default case")
+        elif conditional_children or (
+            self.condition is not None and self.type not in {"core.while", "core.until"}
+        ):
+            raise ValueError("conditional branch fields require core.if or core.switch")
+        elif self.condition_error_policy is ConditionErrorPolicy.FALLBACK:
+            raise ValueError("FALLBACK conditionErrorPolicy requires core.if or core.switch")
+        if self.run_if is not None and self.condition_error_policy is ConditionErrorPolicy.FALLBACK:
+            raise ValueError("runIf cannot share a FALLBACK conditionErrorPolicy")
+        if (self.tasks or conditional_children) and self.task_cache.enabled:
             raise ValueError("taskCache is supported only on runnable tasks")
         return self
+
+    def child_task_groups(self) -> tuple[tuple[str, list[TaskDefinition]], ...]:
+        if self.type == "core.if":
+            groups: list[tuple[str, list[TaskDefinition]]] = [("then", self.then_tasks)]
+            groups.extend((f"else-if:{branch.id}", branch.tasks) for branch in self.else_if)
+            if self.else_tasks:
+                groups.append(("else", self.else_tasks))
+            return tuple(groups)
+        if self.type == "core.switch":
+            groups = [
+                (f"case:{case}", tasks) for case, tasks in self.cases.items() if case != "default"
+            ]
+            groups.extend(
+                (f"predicate:{branch.id}", branch.tasks) for branch in self.predicate_cases
+            )
+            if "default" in self.cases:
+                groups.append(("default", self.cases["default"]))
+            return tuple(groups)
+        return (("tasks", self.tasks),) if self.tasks else ()
+
+
+ConditionalBranch.model_rebuild()
 
 
 class CheckActionDefinition(BaseModel):

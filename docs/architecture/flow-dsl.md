@@ -30,6 +30,20 @@ YAML keys and resource-specific properties all use this contract. The semantic h
 mapping keys and therefore ignores comments, key order and YAML layout while retaining semantic
 extensions.
 
+## Conditional flowables
+
+`core.if` requires a boolean `condition` and non-empty `then` tasks. Ordered `elseIf` entries each
+declare an `id`, boolean `condition` and tasks; `else` is optional. `core.switch` renders Kestra-shaped
+`value`, checks named `cases` for an exact match, checks ordered `predicateCases`, then uses the
+optional `default` case. Every branch task ID remains unique across the complete flow.
+
+`conditionErrorPolicy` is `FAIL` by default. `FALSE` treats a failing boolean expression as false;
+`FALLBACK` immediately selects an explicit `else` or `default` branch. Runnable `runIf` and retry
+`condition` fields support `FAIL` and `FALSE`. Static validation rejects repeated predicates and
+branches following a condition that is literally unconditional.
+
+See [`conditional-flowables.yaml`](../../examples/conditional-flowables.yaml) for the complete shape.
+
 ## Programmatic edits
 
 `parse_editable_flow_document` returns an `EditableFlowDocument` backed by the YAML round-trip tree.

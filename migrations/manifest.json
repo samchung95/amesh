@@ -204,6 +204,12 @@
       "mode": "expand",
       "onlineCompatible": true,
       "rollbackGuidance": "Keep flow revision history enabled and forward-fix the event-to-flow retention constraint; preserve events until their owning flow is explicitly purged."
+    },
+    {
+      "file": "0035_conditional_task_control.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Pause conditional-flow dispatch and forward-fix the additive terminal result and control-evidence columns; retain task-run events and ordinary task-attempt evidence."
     }
   ]
 }

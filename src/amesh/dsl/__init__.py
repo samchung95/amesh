@@ -8,6 +8,8 @@ from .flowables import (
 from .models import (
     CheckActionDefinition,
     CheckDefinition,
+    ConditionalBranch,
+    ConditionErrorPolicy,
     FlowableFailurePolicy,
     FlowDefinition,
     FlowValidationResult,
@@ -35,6 +37,8 @@ __all__ = [
     "FLOWABLE_MODES",
     "CheckActionDefinition",
     "CheckDefinition",
+    "ConditionErrorPolicy",
+    "ConditionalBranch",
     "EditableFlowDocument",
     "EditorMetadata",
     "FlowDefinition",

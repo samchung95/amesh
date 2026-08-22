@@ -2925,85 +2925,106 @@
       "requirement_id": "URS-F-0196",
       "epic_id": "EPIC-202",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/executor/test_conditionals.py::test_conditional_flowables_persist_decisions_and_skip_without_attempts",
+        "tests/test_flow_validation.py::test_conditional_flowables_compile_ordered_branch_paths"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0197",
       "epic_id": "EPIC-202",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/executor/test_conditionals.py::test_conditional_flowables_persist_decisions_and_skip_without_attempts",
+        "tests/test_flow_validation.py::test_conditional_flowables_compile_ordered_branch_paths"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0198",
       "epic_id": "EPIC-202",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/executor/test_conditionals.py::test_conditional_flowables_persist_decisions_and_skip_without_attempts",
+        "src/amesh/adapters/postgres/execution_repository.py"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0199",
       "epic_id": "EPIC-202",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/executor/test_conditionals.py::test_condition_error_policies_and_retry_conditions_are_evidenced",
+        "tests/test_flow_validation.py::test_condition_contract_composes_across_task_trigger_retry_error_and_output_contexts"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0200",
       "epic_id": "EPIC-202",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/executor/test_conditionals.py::test_conditional_flowables_persist_decisions_and_skip_without_attempts",
+        "tests/test_reducer.py::test_task_control_event_is_replayable_and_skip_keeps_attempt_zero"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0201",
       "epic_id": "EPIC-202",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/test_flow_validation.py::test_condition_contract_composes_across_task_trigger_retry_error_and_output_contexts",
+        "tests/executor/test_conditionals.py::test_condition_error_policies_and_retry_conditions_are_evidenced"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0202",
       "epic_id": "EPIC-202",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/test_flow_validation.py::test_static_conditional_duplicates_and_unreachable_branches_are_rejected",
+        "tests/test_flow_validation.py::test_conditional_flowables_compile_ordered_branch_paths"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0203",

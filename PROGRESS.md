@@ -2,12 +2,19 @@
 
 ## Current state
 
-- What works: the original post-MVP foundation plus the first three cards of the 50-epic local program are implemented, evidence-linked and deployed through migration 0034, including typed configuration and immutable flow revision history/promotion.
-- What's in flight: the 50-epic local completion program is tracked on Agent Hotel cards `c37`–`c86`; cards `c37`–`c39` are complete and EPIC-202 on card `c40` is active. The local Docker Compose deployment is healthy at migration 34/34 on `http://localhost:8000`.
+- What works: the original post-MVP foundation plus the first four cards of the 50-epic local program are implemented, evidence-linked and deployed through migration 0035, including typed configuration, immutable flow revisions and durable conditional branching/switch semantics.
+- What's in flight: the 50-epic local completion program is tracked on Agent Hotel cards `c37`–`c86`; cards `c37`–`c40` are complete and EPIC-204 on card `c41` is next. The local Docker Compose deployment is healthy at migration 35/35 on `http://localhost:8000`.
 - Known broken / TODO: 20 external-cloud, SaaS, hosted-release, independent-certification, multi-region or long-duration epics are deferred. Cards `c15` and `c29` preserve unrelated test failures and are not blockers for the local program.
 - How to run/test: use `uv run --extra runtime --extra dev pytest`; set `AMESH_TEST_DATABASE_URL` for PostgreSQL integration tests and `OPENROUTER_API_KEY` for live LLM tests.
 
 ## Session log
+
+### 2026-08-22 (50-epic local completion program, EPIC-202 completion)
+
+- Did: completed EPIC-202 with Kestra-shaped `core.if`/`core.switch` flowables; ordered else-if and predicate cases; explicit `FAIL`, `FALSE` and `FALLBACK` expression policies; restart-stable redacted decision evidence; attempt-zero non-selected skips; conditional retries; static duplicate/unreachable validation; additive migration 0035; ADR-033; example and operator documentation. Linked URS-F-0196 through URS-F-0202 to automated evidence.
+- Verification: a fresh PostgreSQL database applied all 35 migrations and the complete suite collected 288 tests: 280 passed, six environment/profile tests skipped and cards `c15`/`c29` were explicitly deselected. Ruff passed for 639 files, strict mypy passed for 120 source files, and generated contracts/planning, backlog, clean-room, REUSE 6.2.0, lock, Compose and diff gates passed. The rebuilt Compose services are healthy at migration 35/35; live HTTP acceptance selected the expected else-if and predicate branches while non-selected descendants remained at attempt zero.
+- Deviations from plan: no package or LLM call was required. Exact switch cases retain the Kestra-compatible `value`/`cases` surface; AMESH extensions add ordered `elseIf`/`predicateCases` and the explicit error policies. Error-hook execution and flow-output materialization remain with their queued EPIC-204/205 lifecycle owners.
+- Next step when resuming: close and commit card `c40`, move EPIC-204 on card `c41` to Doing and implement errors, finally and after-execution hooks against URS-F-0211 through URS-F-0218.
 
 ### 2026-08-22 (50-epic local completion program, EPIC-006 completion)
 

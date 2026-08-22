@@ -383,6 +383,24 @@ class ExecutionRepository(Protocol):
         worker_group: str | None = None,
     ) -> PersistedTaskRun: ...
 
+    async def record_task_control(
+        self,
+        task_run_id: UUID,
+        attempt: int,
+        evidence: dict[str, object],
+        *,
+        tenant_id: str,
+    ) -> PersistedTaskRun: ...
+
+    async def skip_task(
+        self,
+        task_run_id: UUID,
+        result: dict[str, Any],
+        *,
+        tenant_id: str,
+        evidence: dict[str, object] | None = None,
+    ) -> PersistedTaskRun: ...
+
     async def complete_task(
         self,
         task_run_id: UUID,
@@ -447,6 +465,7 @@ class ExecutionRepository(Protocol):
         worker_id: UUID | None = None,
         fencing_token: int | None = None,
         failure_category: FailureCategory = FailureCategory.NON_RETRYABLE,
+        evidence: dict[str, object] | None = None,
     ) -> PersistedTaskRun: ...
 
     async def cancel_task(

@@ -11,6 +11,8 @@ FLOWABLE_MODES = {
     "core.foreach": "FOREACH",
     "core.while": "WHILE",
     "core.until": "UNTIL",
+    "core.if": "IF",
+    "core.switch": "SWITCH",
 }
 
 DYNAMIC_FLOWABLE_MODES = frozenset({"FOREACH", "WHILE", "UNTIL"})
@@ -26,6 +28,7 @@ class PlannedTask:
     mode: str | None
     failure_policy: FlowableFailurePolicy
     max_concurrency: int | None
+    branch_id: str | None
 
     @property
     def flowable(self) -> bool:
@@ -48,6 +51,7 @@ def compile_flow_tasks(flow: FlowDefinition) -> tuple[PlannedTask, ...]:
         parent_id: str | None,
         entry_dependencies: tuple[str, ...],
         parent_mode: str | None,
+        branch_id: str | None,
     ) -> None:
         nonlocal next_order
         previous_id: str | None = None
@@ -59,24 +63,36 @@ def compile_flow_tasks(flow: FlowDefinition) -> tuple[PlannedTask, ...]:
                 dependencies.append(previous_id)
             unique_dependencies = tuple(dict.fromkeys(dependencies))
             mode = FLOWABLE_MODES.get(task.type)
+            child_groups = task.child_task_groups()
             node = PlannedTask(
                 task=task,
                 order=order,
                 parent_id=parent_id,
                 dependencies=unique_dependencies,
-                children=tuple(child.id for child in task.tasks),
+                children=tuple(child.id for _, children in child_groups for child in children),
                 mode=mode,
                 failure_policy=task.failure_policy,
                 max_concurrency=task.max_concurrency,
+                branch_id=branch_id,
             )
             planned.append(node)
             if mode is not None and mode not in DYNAMIC_FLOWABLE_MODES:
-                walk(
-                    task.tasks,
-                    parent_id=task.id,
-                    entry_dependencies=unique_dependencies,
-                    parent_mode=mode,
-                )
+                for child_branch_id, children in child_groups:
+                    walk(
+                        children,
+                        parent_id=task.id,
+                        entry_dependencies=unique_dependencies,
+                        parent_mode=("SEQUENTIAL" if mode in {"IF", "SWITCH"} else mode),
+                        branch_id=(
+                            (
+                                f"{branch_id}/{child_branch_id}"
+                                if branch_id is not None
+                                else child_branch_id
+                            )
+                            if mode in {"IF", "SWITCH"}
+                            else branch_id
+                        ),
+                    )
             previous_id = task.id
 
     walk(
@@ -84,6 +100,7 @@ def compile_flow_tasks(flow: FlowDefinition) -> tuple[PlannedTask, ...]:
         parent_id=None,
         entry_dependencies=(),
         parent_mode=None,
+        branch_id=None,
     )
     return tuple(sorted(planned, key=lambda node: node.order))
 

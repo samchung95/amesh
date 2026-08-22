@@ -4,7 +4,9 @@
       "enum": [
         "CreateTaskRun",
         "StartTaskRun",
+        "RecordTaskRunControl",
         "ScheduleTaskRunRetry",
+        "SkipTaskRun",
         "SucceedTaskRun",
         "FailTaskRun",
         "CancelTaskRun",

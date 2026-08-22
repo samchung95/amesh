@@ -106,6 +106,142 @@ tasks:
     }
 
 
+def test_conditional_flowables_compile_ordered_branch_paths() -> None:
+    flow = FlowDefinition.model_validate(
+        {
+            "id": "conditional",
+            "namespace": "tests",
+            "tasks": [
+                {
+                    "id": "choose",
+                    "type": "core.if",
+                    "condition": "{{ inputs.route == 'primary' }}",
+                    "then": [{"id": "primary", "type": "core.return"}],
+                    "elseIf": [
+                        {
+                            "id": "secondary",
+                            "condition": "{{ inputs.route == 'secondary' }}",
+                            "tasks": [{"id": "secondary_task", "type": "core.return"}],
+                        }
+                    ],
+                    "else": [{"id": "fallback", "type": "core.return"}],
+                },
+                {
+                    "id": "switch",
+                    "type": "core.switch",
+                    "value": "{{ inputs.tier }}",
+                    "cases": {
+                        "paid": [{"id": "paid", "type": "core.return"}],
+                        "default": [{"id": "free", "type": "core.return"}],
+                    },
+                    "predicateCases": [
+                        {
+                            "id": "priority",
+                            "condition": "{{ inputs.score > 90 }}",
+                            "tasks": [{"id": "priority", "type": "core.return"}],
+                        }
+                    ],
+                },
+            ],
+        }
+    )
+
+    plan = compile_flow_tasks(flow)
+
+    assert [node.task.id for node in plan] == [
+        "choose",
+        "primary",
+        "secondary_task",
+        "fallback",
+        "switch",
+        "paid",
+        "priority",
+        "free",
+    ]
+    assert [node.branch_id for node in plan] == [
+        None,
+        "then",
+        "else-if:secondary",
+        "else",
+        None,
+        "case:paid",
+        "predicate:priority",
+        "default",
+    ]
+
+
+def test_static_conditional_duplicates_and_unreachable_branches_are_rejected() -> None:
+    result = validate_flow_document(
+        """
+id: invalid_conditions
+namespace: tests
+tasks:
+  - id: choose
+    type: core.if
+    condition: "{{ inputs.enabled }}"
+    then:
+      - id: first
+        type: core.return
+    elseIf:
+      - id: always
+        condition: "{{ true }}"
+        tasks:
+          - id: always_task
+            type: core.return
+      - id: duplicate
+        condition: "{{ true }}"
+        tasks:
+          - id: duplicate_task
+            type: core.return
+    else:
+      - id: unreachable
+        type: core.return
+"""
+    )
+
+    assert not result.valid
+    assert {issue.code for issue in result.issues} >= {
+        "duplicate_condition",
+        "unreachable_branch",
+    }
+
+
+def test_condition_contract_composes_across_task_trigger_retry_error_and_output_contexts() -> None:
+    result = validate_flow_document(
+        """
+id: condition_composition
+namespace: tests
+tasks:
+  - id: optional
+    type: core.return
+    value: ready
+    runIf: "{{ inputs.enabled }}"
+    retry:
+      maxAttempts: 2
+      condition: "{{ taskrun.failureCategory == 'INFRASTRUCTURE' }}"
+triggers:
+  - id: schedule
+    type: core.cron
+    cron: "0 * * * *"
+    condition: "{{ trigger.source == 'SCHEDULE' }}"
+errors:
+  - id: notify
+    type: core.return
+    value: failed
+    runIf: "{{ execution.state == 'FAILED' }}"
+outputs:
+  selected: "{{ outputs.optional.value if inputs.enabled else 'skipped' }}"
+"""
+    )
+
+    assert result.valid
+    assert result.canonical is not None
+    assert result.canonical["tasks"][0]["retry"]["condition"]
+    assert result.canonical["triggers"][0]["condition"]
+    assert result.canonical["errors"][0]["runIf"]
+    assert result.canonical["outputs"]["selected"]
+
+
 def test_snake_case_depends_on_is_honoured() -> None:
     result = validate_flow_document(
         """

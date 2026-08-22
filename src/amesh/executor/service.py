@@ -23,6 +23,7 @@ from amesh.domain import (
     resolve_admission_policies,
 )
 from amesh.dsl import (
+    ConditionErrorPolicy,
     FlowableFailurePolicy,
     FlowDefinition,
     PlannedTask,
@@ -229,6 +230,20 @@ class _TaskRunOutcome:
     failure: str | None = None
 
 
+@dataclass(frozen=True)
+class _ConditionDecision:
+    matched: bool
+    evidence: dict[str, object]
+    error: Exception | None = None
+
+
+@dataclass(frozen=True)
+class _BranchDecision:
+    selected_branch: str | None
+    evidence: dict[str, object]
+    error: Exception | None = None
+
+
 class InProcessExecutor:
     """Runs the MVP top-level DAG while PostgreSQL remains authoritative for progress."""
 
@@ -343,6 +358,8 @@ class InProcessExecutor:
 
         plan = compile_flow_tasks(flow)
         task_runs = await self._advance_flowables(
+            flow,
+            execution,
             plan,
             task_runs,
             tenant_id=tenant_id,
@@ -407,6 +424,8 @@ class InProcessExecutor:
             tenant_id=tenant_id,
         )
         updated_task_runs = await self._advance_flowables(
+            flow,
+            execution,
             plan,
             updated_task_runs,
             tenant_id=tenant_id,
@@ -433,6 +452,8 @@ class InProcessExecutor:
 
     async def _advance_flowables(
         self,
+        flow: FlowDefinition,
+        execution: PersistedExecution,
         plan: tuple[PlannedTask, ...],
         task_runs: list[PersistedTaskRun],
         *,
@@ -453,12 +474,125 @@ class InProcessExecutor:
                     continue
                 if not _dependencies_satisfied(node, by_node_id, by_task_id):
                     continue
-                by_task_id[node.task.id] = await self._repository.start_task(
+                expression_context = _flowable_expression_context(
+                    flow,
+                    execution,
+                    node,
+                    task_run,
+                    plan,
+                    by_task_id,
+                )
+                run_if = self._evaluate_run_if(
+                    flow,
+                    execution,
+                    node.task,
+                    expression_context,
+                )
+                if run_if.error is not None:
+                    running = await self._repository.start_task(
+                        task_run.task_run_id,
+                        tenant_id=tenant_id,
+                        dispatch=False,
+                    )
+                    reason = f"flowable runIf failed: {run_if.error}"
+                    by_task_id[node.task.id] = await self._repository.fail_task(
+                        running.task_run_id,
+                        running.current_attempt,
+                        reason,
+                        tenant_id=tenant_id,
+                        failure_category=FailureCategory.CONFIGURATION,
+                        evidence=run_if.evidence,
+                    )
+                    changed = True
+                    continue
+                if not run_if.matched:
+                    changed = (
+                        await self._skip_flowable_subtree(
+                            node,
+                            plan,
+                            by_node_id,
+                            by_task_id,
+                            tenant_id=tenant_id,
+                            evidence=run_if.evidence,
+                        )
+                        or changed
+                    )
+                    continue
+                running = await self._repository.start_task(
                     task_run.task_run_id,
                     tenant_id=tenant_id,
                     dispatch=False,
                 )
+                if node.task.run_if is not None:
+                    running = await self._repository.record_task_control(
+                        running.task_run_id,
+                        running.current_attempt,
+                        run_if.evidence,
+                        tenant_id=tenant_id,
+                    )
+                by_task_id[node.task.id] = running
                 changed = True
+
+            for node in plan:
+                task_run = by_task_id[node.task.id]
+                if node.mode not in {"IF", "SWITCH"} or task_run.state is not TaskRunState.RUNNING:
+                    continue
+                branch_evidence = _branch_evidence(task_run.evidence)
+                if branch_evidence is None:
+                    expression_context = _flowable_expression_context(
+                        flow,
+                        execution,
+                        node,
+                        task_run,
+                        plan,
+                        by_task_id,
+                    )
+                    decision = self._select_branch(
+                        flow,
+                        execution,
+                        node.task,
+                        expression_context,
+                    )
+                    evidence = _merge_task_control(
+                        task_run.evidence,
+                        "branch",
+                        decision.evidence,
+                    )
+                    if decision.error is not None:
+                        reason = f"conditional branch evaluation failed: {decision.error}"
+                        by_task_id[node.task.id] = await self._repository.fail_task(
+                            task_run.task_run_id,
+                            task_run.current_attempt,
+                            reason,
+                            tenant_id=tenant_id,
+                            failure_category=FailureCategory.CONFIGURATION,
+                            evidence=evidence,
+                        )
+                        changed = True
+                        continue
+                    task_run = await self._repository.record_task_control(
+                        task_run.task_run_id,
+                        task_run.current_attempt,
+                        evidence,
+                        tenant_id=tenant_id,
+                    )
+                    by_task_id[node.task.id] = task_run
+                    branch_evidence = decision.evidence
+                    changed = True
+                selected_branch = branch_evidence.get("selectedBranch")
+                if selected_branch is not None and not isinstance(selected_branch, str):
+                    selected_branch = str(selected_branch)
+                changed = (
+                    await self._skip_nonselected_branches(
+                        node,
+                        plan,
+                        by_node_id,
+                        by_task_id,
+                        selected_branch=selected_branch,
+                        tenant_id=tenant_id,
+                    )
+                    or changed
+                )
 
             for node in reversed(plan):
                 task_run = by_task_id[node.task.id]
@@ -480,6 +614,7 @@ class InProcessExecutor:
                         reason,
                         tenant_id=tenant_id,
                         result={**_aggregate_flowable_result(node, children), "error": reason},
+                        evidence=task_run.evidence,
                     )
                     changed = True
                 elif terminal and (
@@ -488,8 +623,16 @@ class InProcessExecutor:
                     by_task_id[node.task.id] = await self._repository.complete_task(
                         task_run.task_run_id,
                         task_run.current_attempt,
-                        _aggregate_flowable_result(node, children),
+                        {
+                            **_aggregate_flowable_result(node, children),
+                            **(
+                                {"control": task_run.evidence["control"]}
+                                if task_run.evidence.get("control")
+                                else {}
+                            ),
+                        },
                         tenant_id=tenant_id,
+                        evidence=task_run.evidence,
                     )
                     changed = True
                 elif terminal and node.failure_policy is FlowableFailurePolicy.COLLECT_ALL:
@@ -501,9 +644,324 @@ class InProcessExecutor:
                         reason,
                         tenant_id=tenant_id,
                         result={**_aggregate_flowable_result(node, children), "error": reason},
+                        evidence=task_run.evidence,
                     )
                     changed = True
         return [by_task_id[node.task.id] for node in plan]
+
+    async def _skip_flowable_subtree(
+        self,
+        node: PlannedTask,
+        plan: tuple[PlannedTask, ...],
+        by_node_id: Mapping[str, PlannedTask],
+        by_task_id: dict[str, PersistedTaskRun],
+        *,
+        tenant_id: str,
+        evidence: dict[str, object],
+    ) -> bool:
+        changed = False
+        for candidate in reversed(plan):
+            if candidate.task.id != node.task.id and not _descends_from(
+                candidate,
+                node,
+                by_node_id,
+            ):
+                continue
+            task_run = by_task_id[candidate.task.id]
+            if task_run.state is not TaskRunState.WAITING:
+                continue
+            by_task_id[candidate.task.id] = await self._repository.skip_task(
+                task_run.task_run_id,
+                {
+                    "skipped": True,
+                    "reason": f"flowable {node.task.id!r} runIf evaluated false",
+                    "controlTask": node.task.id,
+                },
+                tenant_id=tenant_id,
+                evidence=evidence
+                if candidate.task.id == node.task.id
+                else {
+                    "control": {
+                        "parentTask": node.task.id,
+                        "reason": "parent flowable skipped",
+                    }
+                },
+            )
+            changed = True
+        return changed
+
+    async def _skip_nonselected_branches(
+        self,
+        node: PlannedTask,
+        plan: tuple[PlannedTask, ...],
+        by_node_id: Mapping[str, PlannedTask],
+        by_task_id: dict[str, PersistedTaskRun],
+        *,
+        selected_branch: str | None,
+        tenant_id: str,
+    ) -> bool:
+        selected_path = (
+            f"{node.branch_id}/{selected_branch}"
+            if node.branch_id is not None and selected_branch is not None
+            else selected_branch
+        )
+        changed = False
+        for candidate in reversed(plan):
+            if not _descends_from(candidate, node, by_node_id):
+                continue
+            if (
+                selected_path is not None
+                and candidate.branch_id is not None
+                and (
+                    candidate.branch_id == selected_path
+                    or candidate.branch_id.startswith(f"{selected_path}/")
+                )
+            ):
+                continue
+            task_run = by_task_id[candidate.task.id]
+            if task_run.state is not TaskRunState.WAITING:
+                continue
+            by_task_id[candidate.task.id] = await self._repository.skip_task(
+                task_run.task_run_id,
+                {
+                    "skipped": True,
+                    "reason": f"conditional branch {selected_branch!r} selected",
+                    "controlTask": node.task.id,
+                    "branch": candidate.branch_id,
+                    "selectedBranch": selected_branch,
+                },
+                tenant_id=tenant_id,
+                evidence={
+                    "control": {
+                        "parentTask": node.task.id,
+                        "branch": candidate.branch_id,
+                        "selectedBranch": selected_branch,
+                    }
+                },
+            )
+            changed = True
+        return changed
+
+    def _evaluate_run_if(
+        self,
+        flow: FlowDefinition,
+        execution: PersistedExecution,
+        task: TaskDefinition,
+        context: ExpressionContext,
+    ) -> _ConditionDecision:
+        if task.run_if is None:
+            return _ConditionDecision(matched=True, evidence={})
+        record: dict[str, object] = {
+            "kind": "runIf",
+            "expression": task.run_if,
+            "conditionInputs": _redacted_condition_inputs(flow, execution, context),
+            "policy": task.condition_error_policy.value,
+        }
+        try:
+            matched = self._expressions.evaluate_condition(task.run_if, context)
+        except Exception as exc:
+            record.update(
+                {
+                    "result": False,
+                    "error": {
+                        "type": type(exc).__name__,
+                        "message": str(exc),
+                    },
+                }
+            )
+            evidence = _merge_task_control({}, "runIf", record)
+            if task.condition_error_policy is ConditionErrorPolicy.FALSE:
+                return _ConditionDecision(matched=False, evidence=evidence)
+            return _ConditionDecision(matched=False, evidence=evidence, error=exc)
+        record["result"] = matched
+        return _ConditionDecision(
+            matched=matched,
+            evidence=_merge_task_control({}, "runIf", record),
+        )
+
+    def _select_branch(
+        self,
+        flow: FlowDefinition,
+        execution: PersistedExecution,
+        task: TaskDefinition,
+        context: ExpressionContext,
+    ) -> _BranchDecision:
+        inputs = _redacted_condition_inputs(flow, execution, context)
+        evaluations: list[dict[str, object]] = []
+        policy = task.condition_error_policy
+        if task.type == "core.if":
+            branches = [("then", task.condition or "")]
+            branches.extend((f"else-if:{branch.id}", branch.condition) for branch in task.else_if)
+            for branch_id, expression in branches:
+                try:
+                    result = self._expressions.evaluate_condition(expression, context)
+                except Exception as exc:
+                    evaluations.append(
+                        {
+                            "branch": branch_id,
+                            "expression": expression,
+                            "result": False,
+                            "error": {
+                                "type": type(exc).__name__,
+                                "message": str(exc),
+                            },
+                        }
+                    )
+                    branch_error_evidence: dict[str, object] = {
+                        "kind": "IF",
+                        "conditionInputs": inputs,
+                        "evaluations": evaluations,
+                        "policy": policy.value,
+                        "selectedBranch": "else"
+                        if policy is ConditionErrorPolicy.FALLBACK
+                        else None,
+                    }
+                    if policy is ConditionErrorPolicy.FAIL:
+                        return _BranchDecision(None, branch_error_evidence, error=exc)
+                    if policy is ConditionErrorPolicy.FALLBACK:
+                        return _BranchDecision("else", branch_error_evidence)
+                    continue
+                evaluations.append(
+                    {
+                        "branch": branch_id,
+                        "expression": expression,
+                        "result": result,
+                    }
+                )
+                if result:
+                    return _BranchDecision(
+                        branch_id,
+                        {
+                            "kind": "IF",
+                            "conditionInputs": inputs,
+                            "evaluations": evaluations,
+                            "policy": policy.value,
+                            "selectedBranch": branch_id,
+                        },
+                    )
+            selected = "else" if task.else_tasks else None
+            return _BranchDecision(
+                selected,
+                {
+                    "kind": "IF",
+                    "conditionInputs": inputs,
+                    "evaluations": evaluations,
+                    "policy": policy.value,
+                    "selectedBranch": selected,
+                },
+            )
+
+        try:
+            rendered_selector = self._expressions.render_value(
+                (task.model_extra or {})["value"],
+                context,
+            )
+        except Exception as exc:
+            selected = "default" if policy is ConditionErrorPolicy.FALLBACK else None
+            evaluations.append(
+                {
+                    "kind": "selector",
+                    "result": False,
+                    "error": {"type": type(exc).__name__, "message": str(exc)},
+                }
+            )
+            selector_error_evidence: dict[str, object] = {
+                "kind": "SWITCH",
+                "conditionInputs": inputs,
+                "policy": policy.value,
+                "selector": "[ERROR]",
+                "evaluations": evaluations,
+                "selectedBranch": selected,
+            }
+            if policy is ConditionErrorPolicy.FAIL:
+                return _BranchDecision(None, selector_error_evidence, error=exc)
+            if policy is ConditionErrorPolicy.FALLBACK:
+                return _BranchDecision("default", selector_error_evidence)
+            rendered_selector = None
+        selector_key = _switch_case_key(rendered_selector)
+        redacted_selector = _redact_condition_value(
+            rendered_selector,
+            _sensitive_input_values(flow, execution),
+        )
+        for case in task.cases:
+            if case == "default":
+                continue
+            matched = selector_key == _switch_case_key(case)
+            evaluations.append({"kind": "exact", "branch": f"case:{case}", "result": matched})
+            if matched:
+                selected = f"case:{case}"
+                return _BranchDecision(
+                    selected,
+                    {
+                        "kind": "SWITCH",
+                        "conditionInputs": inputs,
+                        "selector": redacted_selector,
+                        "evaluations": evaluations,
+                        "policy": policy.value,
+                        "selectedBranch": selected,
+                    },
+                )
+        for branch in task.predicate_cases:
+            branch_id = f"predicate:{branch.id}"
+            try:
+                result = self._expressions.evaluate_condition(branch.condition, context)
+            except Exception as exc:
+                evaluations.append(
+                    {
+                        "kind": "predicate",
+                        "branch": branch_id,
+                        "expression": branch.condition,
+                        "result": False,
+                        "error": {"type": type(exc).__name__, "message": str(exc)},
+                    }
+                )
+                predicate_error_evidence: dict[str, object] = {
+                    "kind": "SWITCH",
+                    "conditionInputs": inputs,
+                    "selector": redacted_selector,
+                    "evaluations": evaluations,
+                    "policy": policy.value,
+                    "selectedBranch": (
+                        "default" if policy is ConditionErrorPolicy.FALLBACK else None
+                    ),
+                }
+                if policy is ConditionErrorPolicy.FAIL:
+                    return _BranchDecision(None, predicate_error_evidence, error=exc)
+                if policy is ConditionErrorPolicy.FALLBACK:
+                    return _BranchDecision("default", predicate_error_evidence)
+                continue
+            evaluations.append(
+                {
+                    "kind": "predicate",
+                    "branch": branch_id,
+                    "expression": branch.condition,
+                    "result": result,
+                }
+            )
+            if result:
+                return _BranchDecision(
+                    branch_id,
+                    {
+                        "kind": "SWITCH",
+                        "conditionInputs": inputs,
+                        "selector": redacted_selector,
+                        "evaluations": evaluations,
+                        "policy": policy.value,
+                        "selectedBranch": branch_id,
+                    },
+                )
+        selected = "default" if "default" in task.cases else None
+        return _BranchDecision(
+            selected,
+            {
+                "kind": "SWITCH",
+                "conditionInputs": inputs,
+                "selector": redacted_selector,
+                "evaluations": evaluations,
+                "policy": policy.value,
+                "selectedBranch": selected,
+            },
+        )
 
     async def run_to_completion(
         self,
@@ -624,17 +1082,24 @@ class InProcessExecutor:
                         else None
                     ),
                 )
-        condition_error: Exception | None = None
         cache_key: TaskCacheKey | None = None
         cache_lookup: TaskCacheLookup | None = None
-        try:
-            condition_matches = task.run_if is None or self._expressions.evaluate_condition(
-                task.run_if,
-                expression_context,
-            )
-        except Exception as exc:
-            condition_matches = False
-            condition_error = exc
+        condition = (
+            _ConditionDecision(matched=True, evidence=task_run.evidence)
+            if task_run.state is TaskRunState.RUNNING
+            else self._evaluate_run_if(flow, execution, task, expression_context)
+        )
+        if not condition.matched and condition.error is None:
+            try:
+                await self._repository.skip_task(
+                    task_run.task_run_id,
+                    {"skipped": True},
+                    tenant_id=tenant_id,
+                    evidence=condition.evidence,
+                )
+            except TaskStateConflictError:
+                return _TaskRunOutcome(claimed=False)
+            return _TaskRunOutcome(claimed=True)
         try:
             running = (
                 task_run
@@ -642,21 +1107,24 @@ class InProcessExecutor:
                 else await self._repository.start_task(
                     task_run.task_run_id,
                     tenant_id=tenant_id,
-                    dispatch=condition_matches,
+                    dispatch=condition.matched,
                     priority=task.priority,
                     worker_group=task.worker_group,
                 )
             )
         except TaskStateConflictError:
             return _TaskRunOutcome(claimed=False)
-        if not condition_matches and condition_error is None:
-            await self._repository.complete_task(
+        if condition.error is not None:
+            reason = f"task {task.id!r} runIf failed: {condition.error}"
+            await self._repository.fail_task(
                 running.task_run_id,
                 running.current_attempt,
-                {"skipped": True},
+                reason,
                 tenant_id=tenant_id,
+                failure_category=FailureCategory.CONFIGURATION,
+                evidence=condition.evidence,
             )
-            return _TaskRunOutcome(claimed=True)
+            return _TaskRunOutcome(claimed=True, failure=reason)
         handler = self._handlers.get(task.type)
         if handler is None and task.type not in LOOP_TASK_TYPES:
             reason = f"no in-process handler registered for task type {task.type!r}"
@@ -665,11 +1133,10 @@ class InProcessExecutor:
                 running.current_attempt,
                 reason,
                 tenant_id=tenant_id,
+                evidence=condition.evidence,
             )
             return _TaskRunOutcome(claimed=True, failure=reason)
         try:
-            if condition_error is not None:
-                raise condition_error
             rendered_task = _render_task_for_execution(
                 self._expressions,
                 task,
@@ -743,7 +1210,10 @@ class InProcessExecutor:
                             cache_lookup.output or {},
                             tenant_id=tenant_id,
                             evidence=_with_cache_evidence(
-                                cache_lookup.evidence or {},
+                                _merge_completion_evidence(
+                                    cache_lookup.evidence or {},
+                                    condition.evidence,
+                                ),
                                 cache_lookup,
                             ),
                         )
@@ -800,10 +1270,13 @@ class InProcessExecutor:
                 running.current_attempt,
                 output,
                 tenant_id=tenant_id,
-                evidence=(
-                    _with_cache_evidence(evidence, cache_lookup)
-                    if cache_lookup is not None
-                    else evidence
+                evidence=_merge_completion_evidence(
+                    (
+                        _with_cache_evidence(evidence, cache_lookup)
+                        if cache_lookup is not None
+                        else evidence
+                    ),
+                    condition.evidence,
                 ),
             )
             if (
@@ -860,6 +1333,7 @@ class InProcessExecutor:
                 )
             category = classify_task_failure(exc)
             reason = f"task {task.id!r} failed [{category.value}]: {exc}"
+            task_evidence = dict(condition.evidence)
             if category is FailureCategory.CANCELLED:
                 await self._repository.cancel_task(
                     running.task_run_id,
@@ -868,7 +1342,7 @@ class InProcessExecutor:
                     tenant_id=tenant_id,
                 )
                 return _TaskRunOutcome(claimed=True, failure=reason)
-            if (
+            retry_eligible = (
                 category
                 in {
                     FailureCategory.RETRYABLE,
@@ -876,7 +1350,60 @@ class InProcessExecutor:
                     FailureCategory.INFRASTRUCTURE,
                 }
                 and running.current_attempt < task.retry.max_attempts
-            ):
+            )
+            if retry_eligible and task.retry.condition is not None:
+                retry_context = _expression_context(
+                    flow,
+                    execution,
+                    running,
+                    task,
+                    outputs,
+                    iteration=iteration,
+                    failure_category=category,
+                    error=reason,
+                )
+                retry_record: dict[str, object] = {
+                    "kind": "retry",
+                    "expression": task.retry.condition,
+                    "conditionInputs": _redacted_condition_inputs(
+                        flow,
+                        execution,
+                        retry_context,
+                    ),
+                    "policy": task.retry.condition_error_policy.value,
+                }
+                try:
+                    retry_eligible = self._expressions.evaluate_condition(
+                        task.retry.condition,
+                        retry_context,
+                    )
+                    retry_record["result"] = retry_eligible
+                except Exception as retry_exc:
+                    retry_eligible = False
+                    retry_record.update(
+                        {
+                            "result": False,
+                            "error": {
+                                "type": type(retry_exc).__name__,
+                                "message": str(retry_exc),
+                            },
+                        }
+                    )
+                    if task.retry.condition_error_policy is ConditionErrorPolicy.FAIL:
+                        category = FailureCategory.CONFIGURATION
+                        reason = f"{reason}; retry condition failed: {retry_exc}"
+                task_evidence = _merge_task_control(
+                    task_evidence,
+                    "retry",
+                    retry_record,
+                )
+                running = await self._repository.record_task_control(
+                    running.task_run_id,
+                    running.current_attempt,
+                    task_evidence,
+                    tenant_id=tenant_id,
+                )
+            if retry_eligible:
                 database_now = await self._repository.database_time()
                 retry_at = database_now + timedelta(
                     seconds=retry_delay_seconds(
@@ -901,6 +1428,7 @@ class InProcessExecutor:
                 tenant_id=tenant_id,
                 result=(exc.result if isinstance(exc, LoopExecutionFailure) else None),
                 failure_category=category,
+                evidence=task_evidence,
             )
             return _TaskRunOutcome(claimed=True, failure=reason)
 
@@ -1565,6 +2093,8 @@ def _expression_context(
     outputs: Mapping[str, dict[str, Any]],
     *,
     iteration: LoopIterationContext | None = None,
+    failure_category: FailureCategory | None = None,
+    error: str | None = None,
 ) -> ExpressionContext:
     return ExpressionContext(
         flow={
@@ -1583,6 +2113,8 @@ def _expression_context(
             "id": str(task_run.task_run_id),
             "attempt": task_run.current_attempt,
             "state": task_run.state.value,
+            "failureCategory": failure_category.value if failure_category is not None else None,
+            "error": error,
         },
         trigger=execution.trigger,
         inputs=execution.inputs,
@@ -1592,6 +2124,136 @@ def _expression_context(
         namespace={"id": flow.namespace},
         iteration=iteration.as_mapping() if iteration is not None else {},
     )
+
+
+def _flowable_expression_context(
+    flow: FlowDefinition,
+    execution: PersistedExecution,
+    node: PlannedTask,
+    task_run: PersistedTaskRun,
+    plan: tuple[PlannedTask, ...],
+    by_task_id: Mapping[str, PersistedTaskRun],
+) -> ExpressionContext:
+    visible = visible_output_ids(node.task.id, plan)
+    outputs = {
+        task_id: task_state.result or {}
+        for task_id, task_state in by_task_id.items()
+        if task_id in visible and task_state.state is TaskRunState.SUCCESS
+    }
+    return _expression_context(
+        flow,
+        execution,
+        task_run,
+        node.task,
+        outputs,
+    )
+
+
+def _descends_from(
+    candidate: PlannedTask,
+    ancestor: PlannedTask,
+    by_node_id: Mapping[str, PlannedTask],
+) -> bool:
+    parent_id = candidate.parent_id
+    while parent_id is not None:
+        if parent_id == ancestor.task.id:
+            return True
+        parent = by_node_id.get(parent_id)
+        parent_id = parent.parent_id if parent is not None else None
+    return False
+
+
+def _branch_evidence(evidence: Mapping[str, Any]) -> dict[str, object] | None:
+    control = evidence.get("control")
+    if not isinstance(control, Mapping):
+        return None
+    branch = control.get("branch")
+    return dict(branch) if isinstance(branch, Mapping) else None
+
+
+def _merge_task_control(
+    evidence: Mapping[str, Any],
+    key: str,
+    value: Mapping[str, object],
+) -> dict[str, object]:
+    merged = deepcopy(dict(evidence))
+    existing = merged.get("control")
+    control = dict(existing) if isinstance(existing, Mapping) else {}
+    control[key] = dict(value)
+    merged["control"] = control
+    return merged
+
+
+def _merge_completion_evidence(
+    completion: Mapping[str, object],
+    condition: Mapping[str, object],
+) -> dict[str, object]:
+    merged = dict(completion)
+    control = condition.get("control")
+    if isinstance(control, Mapping):
+        merged["control"] = dict(control)
+    return merged
+
+
+def _sensitive_input_values(
+    flow: FlowDefinition,
+    execution: PersistedExecution,
+) -> tuple[Any, ...]:
+    return tuple(
+        execution.inputs[definition.id]
+        for definition in flow.inputs
+        if definition.sensitive and definition.id in execution.inputs
+    )
+
+
+def _redact_condition_value(value: Any, sensitive_values: tuple[Any, ...]) -> Any:
+    for sensitive in sensitive_values:
+        try:
+            if value == sensitive:
+                return "[REDACTED]"
+        except (TypeError, ValueError):
+            pass
+    if isinstance(value, str):
+        redacted = value
+        for sensitive in sensitive_values:
+            if isinstance(sensitive, str) and sensitive:
+                redacted = redacted.replace(sensitive, "[REDACTED]")
+        return redacted
+    if isinstance(value, list):
+        return [_redact_condition_value(item, sensitive_values) for item in value]
+    if isinstance(value, tuple):
+        return tuple(_redact_condition_value(item, sensitive_values) for item in value)
+    if isinstance(value, Mapping):
+        return {key: _redact_condition_value(item, sensitive_values) for key, item in value.items()}
+    return redact_secret_values(value)
+
+
+def _redacted_condition_inputs(
+    flow: FlowDefinition,
+    execution: PersistedExecution,
+    context: ExpressionContext,
+) -> dict[str, object]:
+    values = context.public_values()
+    redacted = redact_secret_values(
+        _redact_condition_value(
+            values,
+            _sensitive_input_values(flow, execution),
+        )
+    )
+    return dict(json.loads(json.dumps(redacted, default=_canonical_json_default)))
+
+
+def _switch_case_key(value: Any) -> str:
+    if value is None:
+        return "null"
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    if isinstance(value, str):
+        normalized = value.strip()
+        if normalized.lower() in {"true", "false", "null"}:
+            return normalized.lower()
+        return normalized
+    return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
 
 
 def derive_task_cache_key(
@@ -1921,15 +2583,22 @@ def _validate_registered_task_schemas(
         "description",
         "dependsOn",
         "runIf",
+        "conditionErrorPolicy",
         "retry",
         "tasks",
+        "condition",
+        "then",
+        "elseIf",
+        "else",
+        "cases",
+        "predicateCases",
         "contract",
         "taskCache",
     }
     pending = list(flow.tasks)
     while pending:
         task = pending.pop(0)
-        pending[0:0] = task.tasks
+        pending[0:0] = [child for _, children in task.child_task_groups() for child in children]
         if registry.descriptor(ResourceKind.TASK, task.type) is None:
             continue
         payload = task.model_dump(
@@ -1938,10 +2607,13 @@ def _validate_registered_task_schemas(
             exclude_none=True,
             exclude_defaults=True,
         )
+        task_structural = structural
+        if task.type in {"core.while", "core.until"}:
+            task_structural = task_structural - {"condition"}
         configuration = {
             key: value
             for key, value in payload.items()
-            if key not in structural and not key.startswith("x-")
+            if key not in task_structural and not key.startswith("x-")
         }
         issues = registry.validate(ResourceKind.TASK, task.type, configuration)
         if issues:

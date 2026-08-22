@@ -907,9 +907,9 @@ _LIST_TASK_RUNS = text(
         task_runs.current_attempt,
         task_runs.version,
         task_runs.retry_at,
-        task_attempts.result
+        COALESCE(task_attempts.result, task_runs.terminal_result) AS result
         ,task_attempts.failure_category
-        ,task_attempts.evidence
+        ,COALESCE(task_attempts.evidence, task_runs.control_evidence, '{}'::jsonb) AS evidence
     FROM task_runs
     JOIN tenants ON tenants.id = task_runs.tenant_id
     LEFT JOIN task_attempts
@@ -965,9 +965,9 @@ _LIST_ITERATION_TASK_RUNS = text(
         task_runs.current_attempt,
         task_runs.version,
         task_runs.retry_at,
-        task_attempts.result,
+        COALESCE(task_attempts.result, task_runs.terminal_result) AS result,
         task_attempts.failure_category,
-        task_attempts.evidence
+        COALESCE(task_attempts.evidence, task_runs.control_evidence, '{}'::jsonb) AS evidence
     FROM task_runs
     LEFT JOIN task_attempts
       ON task_attempts.task_run_id = task_runs.id
@@ -989,9 +989,9 @@ _GET_TASK_RUN = text(
         task_runs.current_attempt,
         task_runs.version,
         task_runs.retry_at,
-        task_attempts.result
+        COALESCE(task_attempts.result, task_runs.terminal_result) AS result
         ,task_attempts.failure_category
-        ,task_attempts.evidence
+        ,COALESCE(task_attempts.evidence, task_runs.control_evidence, '{}'::jsonb) AS evidence
     FROM task_runs
     LEFT JOIN task_attempts
       ON task_attempts.task_run_id = task_runs.id
@@ -1058,6 +1058,72 @@ _START_TASK = text(
         NULL::text AS failure_category
     FROM updated
     JOIN inserted ON inserted.task_run_id = updated.id
+    """
+)
+
+_RECORD_TASK_CONTROL = text(
+    """
+    WITH updated_attempt AS (
+        UPDATE task_attempts AS attempts
+        SET evidence = CAST(:evidence AS jsonb)
+        FROM task_runs
+        WHERE attempts.task_run_id = task_runs.id
+          AND attempts.tenant_id = task_runs.tenant_id
+          AND attempts.task_run_id = :task_run_id
+          AND attempts.tenant_id = :tenant_id
+          AND attempts.attempt = :attempt
+          AND attempts.state = 'RUNNING'
+          AND task_runs.current_attempt = :attempt
+          AND task_runs.state = 'RUNNING'
+        RETURNING attempts.task_run_id, attempts.evidence
+    ), updated_run AS (
+        UPDATE task_runs
+        SET version = version + 1,
+            control_evidence = updated_attempt.evidence,
+            updated_at = clock_timestamp()
+        FROM updated_attempt
+        WHERE task_runs.id = updated_attempt.task_run_id
+          AND task_runs.tenant_id = :tenant_id
+        RETURNING
+            task_runs.id,
+            task_runs.execution_id,
+            task_runs.task_path,
+            task_runs.state,
+            task_runs.current_attempt,
+            task_runs.version,
+            task_runs.retry_at,
+            NULL::jsonb AS result,
+            NULL::text AS failure_category,
+            updated_attempt.evidence
+    )
+    SELECT * FROM updated_run
+    """
+)
+
+_SKIP_TASK = text(
+    """
+    UPDATE task_runs
+    SET state = 'SUCCESS',
+        version = version + 1,
+        terminal_result = CAST(:result AS jsonb),
+        control_evidence = CAST(:evidence AS jsonb),
+        retry_at = NULL,
+        updated_at = clock_timestamp()
+    WHERE id = :task_run_id
+      AND tenant_id = :tenant_id
+      AND state = 'WAITING'
+    RETURNING
+        id,
+        execution_id,
+        task_path,
+        iteration_key,
+        state,
+        current_attempt,
+        version,
+        retry_at,
+        terminal_result AS result,
+        NULL::text AS failure_category,
+        control_evidence AS evidence
     """
 )
 
@@ -1390,6 +1456,11 @@ _UPDATE_TASK_CONTROL = text(
     SET state = :state,
         version = version + 1,
         retry_at = NULL,
+        terminal_result = CASE WHEN :state = 'WAITING' THEN NULL ELSE terminal_result END,
+        control_evidence = CASE
+            WHEN :state = 'WAITING' THEN '{}'::jsonb
+            ELSE control_evidence
+        END,
         updated_at = clock_timestamp()
     WHERE id = :task_run_id
       AND tenant_id = :tenant_id
@@ -2384,6 +2455,127 @@ class PostgresExecutionRepository(ExecutionRepository):
             )
         return _to_task_run(row)
 
+    async def record_task_control(
+        self,
+        task_run_id: UUID,
+        attempt: int,
+        evidence: dict[str, object],
+        *,
+        tenant_id: str,
+    ) -> PersistedTaskRun:
+        command_id = new_runtime_id()
+        correlation_id = new_runtime_id()
+        conflict_message: str | None = None
+        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+            row = (
+                (
+                    await connection.execute(
+                        _RECORD_TASK_CONTROL,
+                        {
+                            "task_run_id": task_run_id,
+                            "tenant_id": tenant_uuid,
+                            "attempt": attempt,
+                            "evidence": json.dumps(evidence),
+                        },
+                    )
+                )
+                .mappings()
+                .one_or_none()
+            )
+            if row is not None:
+                await self._insert_task_event(
+                    connection,
+                    tenant_uuid,
+                    row,
+                    command_id,
+                    TaskRunEventType.CONTROL_RECORDED,
+                    correlation_id,
+                    payload={"attempt": attempt, "evidence": evidence},
+                    actor_id="system:flow-control",
+                )
+            else:
+                row = await self._get_task_run_row(connection, tenant_uuid, task_run_id)
+                is_duplicate = (
+                    row is not None
+                    and TaskRunState(row["state"]) is TaskRunState.RUNNING
+                    and int(row["current_attempt"]) == attempt
+                    and dict(row.get("evidence") or {}) == evidence
+                )
+                if not is_duplicate:
+                    conflict_message = (
+                        f"task run {task_run_id} attempt {attempt} cannot record control evidence"
+                    )
+        if conflict_message is not None or row is None:
+            raise TaskStateConflictError(
+                conflict_message or f"task run {task_run_id} does not exist"
+            )
+        return _to_task_run(row)
+
+    async def skip_task(
+        self,
+        task_run_id: UUID,
+        result: dict[str, object],
+        *,
+        tenant_id: str,
+        evidence: dict[str, object] | None = None,
+    ) -> PersistedTaskRun:
+        command_id = new_runtime_id()
+        correlation_id = new_runtime_id()
+        control_evidence = evidence or {}
+        conflict_message: str | None = None
+        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+            row = (
+                (
+                    await connection.execute(
+                        _SKIP_TASK,
+                        {
+                            "task_run_id": task_run_id,
+                            "tenant_id": tenant_uuid,
+                            "result": json.dumps(result),
+                            "evidence": json.dumps(control_evidence),
+                        },
+                    )
+                )
+                .mappings()
+                .one_or_none()
+            )
+            if row is not None:
+                await self._insert_task_event(
+                    connection,
+                    tenant_uuid,
+                    row,
+                    command_id,
+                    TaskRunEventType.SKIPPED,
+                    correlation_id,
+                    reason=str(result.get("reason") or "condition evaluated false"),
+                    payload={**result, "attempt": 0, "evidence": control_evidence},
+                    actor_id="system:flow-control",
+                )
+                await self._release_admission_tx(
+                    connection,
+                    tenant_uuid,
+                    AdmissionResourceType.TASK,
+                    task_run_id,
+                    "task skipped before dispatch",
+                )
+                await self._reconcile_admission_tx(connection, tenant_uuid, limit=100)
+            else:
+                row = await self._get_task_run_row(connection, tenant_uuid, task_run_id)
+                is_duplicate = (
+                    row is not None
+                    and TaskRunState(row["state"]) is TaskRunState.SUCCESS
+                    and int(row["current_attempt"]) == 0
+                    and dict(row.get("result") or {}) == result
+                    and dict(row.get("evidence") or {}) == control_evidence
+                )
+                if not is_duplicate:
+                    conflict_message = f"task run {task_run_id} is not waiting"
+        if conflict_message is not None or row is None:
+            raise TaskStateConflictError(
+                conflict_message or f"task run {task_run_id} does not exist"
+            )
+        return _to_task_run(row)
+
     async def complete_task(
         self,
         task_run_id: UUID,
@@ -2690,6 +2882,7 @@ class PostgresExecutionRepository(ExecutionRepository):
         worker_id: UUID | None = None,
         fencing_token: int | None = None,
         failure_category: FailureCategory = FailureCategory.NON_RETRYABLE,
+        evidence: dict[str, object] | None = None,
     ) -> PersistedTaskRun:
         _require_complete_claim(worker_id, fencing_token)
         return await self._finish_task(
@@ -2701,6 +2894,7 @@ class PostgresExecutionRepository(ExecutionRepository):
             worker_id=worker_id,
             fencing_token=fencing_token,
             failure_category=failure_category,
+            evidence=evidence,
         )
 
     async def cancel_task(

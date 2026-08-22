@@ -355,6 +355,44 @@ def _core_descriptors() -> tuple[ResourceSchemaDescriptor, ...]:
             )
         ),
         _descriptor(
+            "core.if",
+            ResourceKind.TASK,
+            _object_schema(
+                {
+                    "failurePolicy": {
+                        "type": "string",
+                        "enum": ["FAIL_FAST", "CONTINUE_ON_ERROR", "COLLECT_ALL"],
+                    },
+                    "maxConcurrency": {"type": "integer", "minimum": 1, "maximum": 10_000},
+                    "timeoutSeconds": timeout,
+                }
+            ),
+            title="If",
+            description="Select the first matching boolean branch.",
+            category="Flow control",
+            property_order=("failurePolicy", "maxConcurrency", "timeoutSeconds"),
+        ),
+        _descriptor(
+            "core.switch",
+            ResourceKind.TASK,
+            _object_schema(
+                {
+                    "value": {},
+                    "failurePolicy": {
+                        "type": "string",
+                        "enum": ["FAIL_FAST", "CONTINUE_ON_ERROR", "COLLECT_ALL"],
+                    },
+                    "maxConcurrency": {"type": "integer", "minimum": 1, "maximum": 10_000},
+                    "timeoutSeconds": timeout,
+                },
+                required=("value",),
+            ),
+            title="Switch",
+            description="Select an exact, ordered predicate or default branch.",
+            category="Flow control",
+            property_order=("value", "failurePolicy", "maxConcurrency", "timeoutSeconds"),
+        ),
+        _descriptor(
             "core.foreach",
             ResourceKind.TASK,
             _object_schema(

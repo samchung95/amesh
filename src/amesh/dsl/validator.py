@@ -39,6 +39,11 @@ _ALIASES = {
     "backoff_multiplier": "backoffMultiplier",
     "max_interval_seconds": "maxIntervalSeconds",
     "jitter_ratio": "jitterRatio",
+    "condition_error_policy": "conditionErrorPolicy",
+    "then_tasks": "then",
+    "else_if": "elseIf",
+    "else_tasks": "else",
+    "predicate_cases": "predicateCases",
     "finally_tasks": "finally",
 }
 _TASK_STRUCTURE_FIELDS = {
@@ -47,8 +52,15 @@ _TASK_STRUCTURE_FIELDS = {
     "description",
     "dependsOn",
     "runIf",
+    "conditionErrorPolicy",
     "retry",
     "tasks",
+    "condition",
+    "then",
+    "elseIf",
+    "else",
+    "cases",
+    "predicateCases",
     "contract",
     "taskCache",
 }
@@ -63,7 +75,26 @@ def _walk_tasks(
     for index, task in enumerate(tasks):
         path = (*prefix, index)
         yield path, task
-        yield from _walk_tasks(task.tasks, (*path, "tasks"))
+        for child_prefix, children in _child_task_groups(task, path):
+            yield from _walk_tasks(children, child_prefix)
+
+
+def _child_task_groups(
+    task: TaskDefinition,
+    path: tuple[PathPart, ...],
+) -> Iterable[tuple[tuple[PathPart, ...], list[TaskDefinition]]]:
+    if task.tasks:
+        yield (*path, "tasks"), task.tasks
+    if task.then_tasks:
+        yield (*path, "then"), task.then_tasks
+    for index, branch in enumerate(task.else_if):
+        yield (*path, "elseIf", index, "tasks"), branch.tasks
+    if task.else_tasks:
+        yield (*path, "else"), task.else_tasks
+    for case, tasks in task.cases.items():
+        yield (*path, "cases", case), tasks
+    for index, branch in enumerate(task.predicate_cases):
+        yield (*path, "predicateCases", index, "tasks"), branch.tasks
 
 
 def _issue(
@@ -157,7 +188,8 @@ def _dependency_issues(
                         source_map=source_map,
                     )
                 )
-        issues.extend(_dependency_issues(task.tasks, source_map, (*prefix, index, "tasks")))
+        for child_prefix, children in _child_task_groups(task, (*prefix, index)):
+            issues.extend(_dependency_issues(children, source_map, child_prefix))
 
     visiting: set[str] = set()
     visited: set[str] = set()
@@ -192,6 +224,147 @@ def _dependency_issues(
     return issues
 
 
+def _statically_true(expression: str) -> bool:
+    normalized = "".join(expression.lower().split())
+    return normalized in {"true", "{{true}}"}
+
+
+def _conditional_issues(
+    flow: FlowDefinition,
+    source_map: SourceMap | None,
+) -> list[ValidationIssue]:
+    issues: list[ValidationIssue] = []
+    groups = (
+        _walk_tasks(flow.tasks),
+        _walk_tasks(flow.errors, ("errors",)),
+        _walk_tasks(flow.finally_tasks, ("finally",)),
+    )
+    for group in groups:
+        for path, task in group:
+            if task.type == "core.if":
+                branches = [("then", task.condition or "")]
+                branches.extend((branch.id, branch.condition) for branch in task.else_if)
+                seen_ids: set[str] = set()
+                seen_conditions: dict[str, str] = {}
+                unconditional: str | None = None
+                for index, (branch_id, condition) in enumerate(branches):
+                    if index > 0 and branch_id in seen_ids:
+                        issues.append(
+                            _issue(
+                                code="duplicate_case",
+                                message=f"duplicate else-if branch id {branch_id!r}",
+                                path=(*path, "elseIf", index - 1, "id"),
+                                hint="Give every else-if branch a unique id.",
+                                source_map=source_map,
+                            )
+                        )
+                    seen_ids.add(branch_id)
+                    normalized = " ".join(condition.split())
+                    if normalized in seen_conditions:
+                        issues.append(
+                            _issue(
+                                code="duplicate_condition",
+                                message=(
+                                    f"conditional branch {branch_id!r} repeats condition from "
+                                    f"{seen_conditions[normalized]!r}"
+                                ),
+                                path=path,
+                                hint="Remove or change the duplicate condition.",
+                                source_map=source_map,
+                            )
+                        )
+                    else:
+                        seen_conditions[normalized] = branch_id
+                    if unconditional is not None:
+                        issues.append(
+                            _issue(
+                                code="unreachable_branch",
+                                message=(
+                                    f"conditional branch {branch_id!r} is unreachable after "
+                                    f"unconditional branch {unconditional!r}"
+                                ),
+                                path=path,
+                                hint="Move or remove the unconditional branch.",
+                                source_map=source_map,
+                            )
+                        )
+                    elif _statically_true(condition):
+                        unconditional = branch_id
+                    if index == 0 and unconditional is not None and task.else_tasks:
+                        continue
+                if unconditional is not None and task.else_tasks:
+                    issues.append(
+                        _issue(
+                            code="unreachable_branch",
+                            message=f"else branch is unreachable after {unconditional!r}",
+                            path=(*path, "else"),
+                            hint="Remove the else branch or make preceding conditions conditional.",
+                            source_map=source_map,
+                        )
+                    )
+            elif task.type == "core.switch":
+                switch_seen_ids: set[str] = set()
+                switch_seen_conditions: dict[str, str] = {}
+                switch_unconditional: str | None = None
+                for index, branch in enumerate(task.predicate_cases):
+                    if branch.id in switch_seen_ids:
+                        issues.append(
+                            _issue(
+                                code="duplicate_case",
+                                message=f"duplicate predicate case id {branch.id!r}",
+                                path=(*path, "predicateCases", index, "id"),
+                                hint="Give every predicate case a unique id.",
+                                source_map=source_map,
+                            )
+                        )
+                    switch_seen_ids.add(branch.id)
+                    normalized = " ".join(branch.condition.split())
+                    if normalized in switch_seen_conditions:
+                        issues.append(
+                            _issue(
+                                code="duplicate_condition",
+                                message=(
+                                    f"predicate case {branch.id!r} repeats condition from "
+                                    f"{switch_seen_conditions[normalized]!r}"
+                                ),
+                                path=(*path, "predicateCases", index, "condition"),
+                                hint="Remove or change the duplicate predicate.",
+                                source_map=source_map,
+                            )
+                        )
+                    else:
+                        switch_seen_conditions[normalized] = branch.id
+                    if switch_unconditional is not None:
+                        issues.append(
+                            _issue(
+                                code="unreachable_branch",
+                                message=(
+                                    f"predicate case {branch.id!r} is unreachable after "
+                                    f"unconditional predicate {switch_unconditional!r}"
+                                ),
+                                path=(*path, "predicateCases", index),
+                                hint="Move or remove the unconditional predicate.",
+                                source_map=source_map,
+                            )
+                        )
+                    elif _statically_true(branch.condition):
+                        switch_unconditional = branch.id
+                if switch_unconditional is not None and "default" in task.cases:
+                    issues.append(
+                        _issue(
+                            code="unreachable_branch",
+                            message=(
+                                f"default case is unreachable after unconditional predicate "
+                                f"{switch_unconditional!r}"
+                            ),
+                            path=(*path, "cases", "default"),
+                            hint="Remove the default case or make preceding predicates conditional.",
+                            source_map=source_map,
+                        )
+                    )
+    return issues
+
+
 def _resource_issues(
     flow: FlowDefinition,
     registry: ResourceSchemaRegistry,
@@ -205,7 +378,10 @@ def _resource_issues(
     )
     for group in task_groups:
         for path, task in group:
-            configuration = _configuration(task, _TASK_STRUCTURE_FIELDS)
+            structural_fields = _TASK_STRUCTURE_FIELDS
+            if task.type in {"core.while", "core.until"}:
+                structural_fields = structural_fields - {"condition"}
+            configuration = _configuration(task, structural_fields)
             issues.extend(
                 _registry_issues(
                     registry,
@@ -387,6 +563,7 @@ def validate_flow_document(
     issues.extend(_dependency_issues(flow.tasks, parsed.source_map))
     issues.extend(_dependency_issues(flow.errors, parsed.source_map, ("errors",)))
     issues.extend(_dependency_issues(flow.finally_tasks, parsed.source_map, ("finally",)))
+    issues.extend(_conditional_issues(flow, parsed.source_map))
     issues.extend(_resource_issues(flow, active_registry, parsed.source_map))
 
     if issues:

@@ -63,6 +63,8 @@ _TASK_TRANSITIONS: dict[tuple[TaskRunState, TaskRunEventType], TaskRunState] = {
     (TaskRunState.RETRY_DELAY, TaskRunEventType.STARTED): TaskRunState.RUNNING,
     (TaskRunState.RUNNING, TaskRunEventType.RETRY_SCHEDULED): TaskRunState.RETRY_DELAY,
     (TaskRunState.RUNNING, TaskRunEventType.DEFERRED): TaskRunState.RUNNING,
+    (TaskRunState.RUNNING, TaskRunEventType.CONTROL_RECORDED): TaskRunState.RUNNING,
+    (TaskRunState.WAITING, TaskRunEventType.SKIPPED): TaskRunState.SUCCESS,
     (TaskRunState.RUNNING, TaskRunEventType.SUCCEEDED): TaskRunState.SUCCESS,
     (TaskRunState.RUNNING, TaskRunEventType.FAILED): TaskRunState.FAILED,
     (TaskRunState.WAITING, TaskRunEventType.CANCELLED): TaskRunState.CANCELLED,
@@ -76,7 +78,9 @@ _TASK_TRANSITIONS: dict[tuple[TaskRunState, TaskRunEventType], TaskRunState] = {
 _TASK_COMMAND_EVENTS: dict[TaskRunCommandType, TaskRunEventType] = {
     TaskRunCommandType.CREATE: TaskRunEventType.CREATED,
     TaskRunCommandType.START: TaskRunEventType.STARTED,
+    TaskRunCommandType.RECORD_CONTROL: TaskRunEventType.CONTROL_RECORDED,
     TaskRunCommandType.SCHEDULE_RETRY: TaskRunEventType.RETRY_SCHEDULED,
+    TaskRunCommandType.SKIP: TaskRunEventType.SKIPPED,
     TaskRunCommandType.SUCCEED: TaskRunEventType.SUCCEEDED,
     TaskRunCommandType.FAIL: TaskRunEventType.FAILED,
     TaskRunCommandType.CANCEL: TaskRunEventType.CANCELLED,

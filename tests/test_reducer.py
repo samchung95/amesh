@@ -213,6 +213,38 @@ def test_task_run_reducer_replays_retry_history_and_deduplicates() -> None:
         reduce_task_run(current, TaskRunEvent(event_type=TaskRunEventType.STARTED))
 
 
+def test_task_control_event_is_replayable_and_skip_keeps_attempt_zero() -> None:
+    initial = TaskRunSnapshot(
+        task_run_id=uuid4(),
+        execution_id=uuid4(),
+        task_id="conditional-child",
+    )
+    skipped = replay_task_run(
+        initial,
+        [
+            TaskRunEvent(event_type=TaskRunEventType.CREATED, idempotency_key="created"),
+            TaskRunEvent(event_type=TaskRunEventType.SKIPPED, idempotency_key="skipped"),
+        ],
+    )
+    assert skipped.state is TaskRunState.SUCCESS
+    assert skipped.current_attempt == 0
+
+    parent = replay_task_run(
+        initial.model_copy(update={"task_id": "conditional-parent"}),
+        [
+            TaskRunEvent(event_type=TaskRunEventType.CREATED, idempotency_key="parent-created"),
+            TaskRunEvent(event_type=TaskRunEventType.STARTED, idempotency_key="parent-started"),
+            TaskRunEvent(
+                event_type=TaskRunEventType.CONTROL_RECORDED,
+                idempotency_key="parent-decision",
+            ),
+            TaskRunEvent(event_type=TaskRunEventType.SUCCEEDED, idempotency_key="parent-success"),
+        ],
+    )
+    assert parent.state is TaskRunState.SUCCESS
+    assert parent.current_attempt == 1
+
+
 def test_task_command_decision_is_typed_and_version_checked() -> None:
     current = TaskRunSnapshot(
         task_run_id=uuid4(),

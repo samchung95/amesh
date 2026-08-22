@@ -5781,7 +5781,7 @@
       "id": "URS-F-0196",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M2",
       "wave": 2,
       "epic_id": "EPIC-202",
@@ -5802,13 +5802,17 @@
       "dependencies": [
         "EPIC-005",
         "EPIC-201"
+      ],
+      "evidence": [
+        "tests/executor/test_conditionals.py::test_conditional_flowables_persist_decisions_and_skip_without_attempts",
+        "tests/test_flow_validation.py::test_conditional_flowables_compile_ordered_branch_paths"
       ]
     },
     {
       "id": "URS-F-0197",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M2",
       "wave": 2,
       "epic_id": "EPIC-202",
@@ -5829,13 +5833,17 @@
       "dependencies": [
         "EPIC-005",
         "EPIC-201"
+      ],
+      "evidence": [
+        "tests/executor/test_conditionals.py::test_conditional_flowables_persist_decisions_and_skip_without_attempts",
+        "tests/test_flow_validation.py::test_conditional_flowables_compile_ordered_branch_paths"
       ]
     },
     {
       "id": "URS-F-0198",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M2",
       "wave": 2,
       "epic_id": "EPIC-202",
@@ -5856,13 +5864,17 @@
       "dependencies": [
         "EPIC-005",
         "EPIC-201"
+      ],
+      "evidence": [
+        "tests/executor/test_conditionals.py::test_conditional_flowables_persist_decisions_and_skip_without_attempts",
+        "src/amesh/adapters/postgres/execution_repository.py"
       ]
     },
     {
       "id": "URS-F-0199",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M2",
       "wave": 2,
       "epic_id": "EPIC-202",
@@ -5883,13 +5895,17 @@
       "dependencies": [
         "EPIC-005",
         "EPIC-201"
+      ],
+      "evidence": [
+        "tests/executor/test_conditionals.py::test_condition_error_policies_and_retry_conditions_are_evidenced",
+        "tests/test_flow_validation.py::test_condition_contract_composes_across_task_trigger_retry_error_and_output_contexts"
       ]
     },
     {
       "id": "URS-F-0200",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M2",
       "wave": 2,
       "epic_id": "EPIC-202",
@@ -5910,13 +5926,17 @@
       "dependencies": [
         "EPIC-005",
         "EPIC-201"
+      ],
+      "evidence": [
+        "tests/executor/test_conditionals.py::test_conditional_flowables_persist_decisions_and_skip_without_attempts",
+        "tests/test_reducer.py::test_task_control_event_is_replayable_and_skip_keeps_attempt_zero"
       ]
     },
     {
       "id": "URS-F-0201",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M2",
       "wave": 2,
       "epic_id": "EPIC-202",
@@ -5937,13 +5957,17 @@
       "dependencies": [
         "EPIC-005",
         "EPIC-201"
+      ],
+      "evidence": [
+        "tests/test_flow_validation.py::test_condition_contract_composes_across_task_trigger_retry_error_and_output_contexts",
+        "tests/executor/test_conditionals.py::test_condition_error_policies_and_retry_conditions_are_evidenced"
       ]
     },
     {
       "id": "URS-F-0202",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M2",
       "wave": 2,
       "epic_id": "EPIC-202",
@@ -5964,6 +5988,10 @@
       "dependencies": [
         "EPIC-005",
         "EPIC-201"
+      ],
+      "evidence": [
+        "tests/test_flow_validation.py::test_static_conditional_duplicates_and_unreachable_branches_are_rejected",
+        "tests/test_flow_validation.py::test_conditional_flowables_compile_ordered_branch_paths"
       ]
     },
     {

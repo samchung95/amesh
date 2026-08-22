@@ -1,5 +1,37 @@
 # Test Log
 
+## EPIC-202: Conditional branching and switch semantics — 2026-08-22
+
+Spec source: Agent Hotel card `c40` and canonical `backlog/epics.json` EPIC-202 DoD.
+
+Verified with `uv`, Python 3.13, PostgreSQL 17 and the deployed Compose control plane:
+
+- [x] `core.if` selects ordered then, else-if or else branches and `core.switch` selects exact,
+  ordered predicate or default cases; nested branch paths retain deterministic task ordering.
+- [x] The selected branch, redacted rendered context, ordered evaluations and explicit `FAIL`,
+  `FALSE` or `FALLBACK` policy are committed before child eligibility and reused after restart.
+- [x] Non-selected branch descendants receive durable `TaskRunSkipped` events, terminal success and
+  control evidence at attempt zero without creating task attempts.
+- [x] Task `runIf`, trigger, retry, error and output condition contracts share the typed expression
+  policy; retry decisions include attempt and normalized failure context.
+- [x] Static validation rejects duplicate branch identifiers/conditions and branches following a
+  provably unconditional case. ADR-033, flow/execution documentation, migration notes and the
+  conditional-flowables example document the contract.
+- [x] A fresh database applied all 35 migrations. The complete suite collected 288 tests: 280
+  passed, six environment/profile tests skipped and the pre-existing card `c15`/`c29` assertions
+  were explicitly deselected.
+- [x] Ruff formatting and lint passed for 639 files, strict mypy passed for 120 source files, and
+  generated contract/planning, backlog, clean-room, uv lock, REUSE 6.2.0, Compose and diff gates
+  passed.
+- [x] The rebuilt local API, executor, scheduler and PostgreSQL services are healthy at migration
+  35/35. Deployed HTTP acceptance selected `else-if:secondary` and `predicate:high_score`, ran both
+  selected children once and persisted every non-selected child at attempt zero.
+
+No LLM invocation was required for deterministic branching or expression evaluation; the configured
+OpenRouter `openai/gpt-5.6-luna` default is unchanged.
+
+Verdict: PASS — EPIC-202 functional requirements URS-F-0196 through URS-F-0202 are verified.
+
 ## EPIC-006: Flow revisions, change history and promotion — 2026-08-22
 
 Spec source: Agent Hotel card `c39` and canonical `backlog/epics.json` EPIC-006 DoD.

@@ -463,6 +463,44 @@
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "additionalProperties": false,
         "properties": {
+          "failurePolicy": {
+            "enum": [
+              "FAIL_FAST",
+              "CONTINUE_ON_ERROR",
+              "COLLECT_ALL"
+            ],
+            "type": "string"
+          },
+          "maxConcurrency": {
+            "maximum": 10000,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "timeoutSeconds": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          }
+        },
+        "type": "object"
+      },
+      "editor": {
+        "category": "Flow control",
+        "description": "Select the first matching boolean branch.",
+        "propertyOrder": [
+          "failurePolicy",
+          "maxConcurrency",
+          "timeoutSeconds"
+        ],
+        "title": "If"
+      },
+      "kind": "task",
+      "type": "core.if"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
           "message": {
             "type": "string"
           },
@@ -748,6 +786,49 @@
       },
       "kind": "task",
       "type": "core.subflow"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "failurePolicy": {
+            "enum": [
+              "FAIL_FAST",
+              "CONTINUE_ON_ERROR",
+              "COLLECT_ALL"
+            ],
+            "type": "string"
+          },
+          "maxConcurrency": {
+            "maximum": 10000,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "timeoutSeconds": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          },
+          "value": {}
+        },
+        "required": [
+          "value"
+        ],
+        "type": "object"
+      },
+      "editor": {
+        "category": "Flow control",
+        "description": "Select an exact, ordered predicate or default branch.",
+        "propertyOrder": [
+          "value",
+          "failurePolicy",
+          "maxConcurrency",
+          "timeoutSeconds"
+        ],
+        "title": "Switch"
+      },
+      "kind": "task",
+      "type": "core.switch"
     },
     {
       "configurationSchema": {

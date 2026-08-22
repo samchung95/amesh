@@ -12,13 +12,13 @@ Choose workflow branches from safe expressions with explainable decisions.
 
 ## In scope
 
-- [ ] **URS-F-0196** — The system shall execute if, else-if and else branches from boolean conditions.
-- [ ] **URS-F-0197** — The system shall select switch cases by exact value, ordered predicate or default branch.
-- [ ] **URS-F-0198** — The system shall record rendered condition inputs, redacted evaluation result and selected branch.
-- [ ] **URS-F-0199** — The system shall treat expression errors according to explicit fail, false or fallback policy.
-- [ ] **URS-F-0200** — The system shall skip non-selected branches without creating misleading runnable attempts.
-- [ ] **URS-F-0201** — The system shall support conditions on tasks, triggers, retries, errors and outputs.
-- [ ] **URS-F-0202** — The system shall validate unreachable or duplicate cases where static analysis permits.
+- [x] **URS-F-0196** — The system shall execute if, else-if and else branches from boolean conditions.
+- [x] **URS-F-0197** — The system shall select switch cases by exact value, ordered predicate or default branch.
+- [x] **URS-F-0198** — The system shall record rendered condition inputs, redacted evaluation result and selected branch.
+- [x] **URS-F-0199** — The system shall treat expression errors according to explicit fail, false or fallback policy.
+- [x] **URS-F-0200** — The system shall skip non-selected branches without creating misleading runnable attempts.
+- [x] **URS-F-0201** — The system shall support conditions on tasks, triggers, retries, errors and outputs.
+- [x] **URS-F-0202** — The system shall validate unreachable or duplicate cases where static analysis permits.
 
 ## Non-functional requirements
 
