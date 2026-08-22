@@ -62,6 +62,7 @@ def test_development_bootstrap_token_fails_closed_outside_development() -> None:
         amesh_admin_token="test-token",
         amesh_token_pepper="test-production-pepper",
         object_storage_workload_identity=True,
+        webhook_signing_key="external-webhook-signing-key-at-least-32-bytes",
     )
     with pytest.raises(HTTPException) as caught:
         asyncio.run(authenticate_bearer_actor(settings, None, "Bearer test-token"))
@@ -270,6 +271,7 @@ def test_production_security_baseline_and_offline_defaults(monkeypatch: pytest.M
         object_storage_workload_identity=True,
         plugin_trust_mode="signed-only",
         plugin_registry_signing_key="external-registry-signing-key-at-least-32-bytes",
+        webhook_signing_key="external-webhook-signing-key-at-least-32-bytes",
     )
     assert security_baseline_findings(secure) == ()
 

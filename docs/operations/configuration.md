@@ -91,6 +91,12 @@ hosts. `CORE_HTTP_MAX_RESPONSE_BYTES` (10 MiB), `CORE_HTTP_MAX_PAGES` (100) and
 `CORE_HTTP_MAX_REDIRECTS` (5) define operator ceilings that workflow task configuration can only
 lower. See the [core utility pack guide](../plugin-sdk/core-utilities.md).
 
+Outbound event subscriptions use the same private-host allowlist. `WEBHOOK_SIGNING_KEY` is a
+restart-required secret with at least 32 bytes and must be externally supplied outside development.
+`WEBHOOK_DELIVERY_TIMEOUT_SECONDS` bounds one destination attempt, and
+`WEBHOOK_DELIVERY_BATCH_SIZE` bounds each isolated indexer cycle. See the
+[realtime API guide](../api/realtime.md).
+
 ## Feature flags
 
 Boolean flags are versioned and audited in PostgreSQL. Resolution order is namespace, tenant,
@@ -105,7 +111,8 @@ Use `expectedVersion` on updates when the caller must reject concurrent changes.
 
 ## Production baseline
 
-Production startup rejects development authentication, the development token pepper, development
-object-storage credentials without workload identity, and explicitly public exposure without trusted
-TLS termination. Plugin trust defaults to `signed-only`. Product telemetry and update checks are off
-by default and perform no outbound connection unless explicitly enabled by a later owning component.
+Production startup rejects development authentication, the development token pepper, the development
+webhook signing key, development object-storage credentials without workload identity, and explicitly
+public exposure without trusted TLS termination. Plugin trust defaults to `signed-only`. Product
+telemetry and update checks are off by default and perform no outbound connection unless explicitly
+enabled by a later owning component.

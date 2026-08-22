@@ -48,6 +48,18 @@ def test_independent_roles_route_only_their_owned_cycle(
             calls.append(("indexer", (tenant_id,)))
             return 2
 
+    class Webhooks:
+        async def run_once(
+            self,
+            tenant_ids: list[str],
+            *,
+            worker_id: str,
+            limit: int,
+        ) -> int:
+            del worker_id, limit
+            calls.append(("webhook", tuple(tenant_ids)))
+            return 3
+
     monkeypatch.setattr(role, "schedule_once", scheduled)
     monkeypatch.setattr(role, "backfill_once", backfilled)
     monkeypatch.setattr(role, "recover_once", recovered)
@@ -64,13 +76,14 @@ def test_independent_roles_route_only_their_owned_cycle(
         "reconciliations": object(),
         "workers": Workers(),
         "transport": Transport(),
+        "webhook_dispatcher": Webhooks(),
     }
 
     async def scenario() -> None:
         assert await role._run_cycle(ServiceRole.SCHEDULER, **common) == 5  # type: ignore[arg-type]
         assert await role._run_cycle(ServiceRole.EXECUTOR, **common) == 4  # type: ignore[arg-type]
         assert await role._run_cycle(ServiceRole.WORKER, **common) == 2  # type: ignore[arg-type]
-        assert await role._run_cycle(ServiceRole.INDEXER, **common) == 4  # type: ignore[arg-type]
+        assert await role._run_cycle(ServiceRole.INDEXER, **common) == 7  # type: ignore[arg-type]
         assert await role._run_cycle(ServiceRole.MAINTENANCE, **common) == 5  # type: ignore[arg-type]
 
     asyncio.run(scenario())
@@ -83,5 +96,6 @@ def test_independent_roles_route_only_their_owned_cycle(
         ("worker", ("second",)),
         ("indexer", ("first",)),
         ("indexer", ("second",)),
+        ("webhook", ("first", "second")),
         ("maintenance", ("first", "second")),
     ]

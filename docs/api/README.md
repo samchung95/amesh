@@ -3,7 +3,7 @@
 - `openapi.json` is generated from the foundation FastAPI application.
 - Pull-request CI regenerates the contract and uses `oasdiff` to reject error-level breaking changes
   against the target branch. Warning-level findings remain visible for review.
-- The current endpoints cover health, flow validation and management, execution control, webhook triggers, logs, authorization administration, decision explanation, service-account API tokens and workload credential exchange.
+- The current endpoints cover health, flow validation and management, execution control, webhook triggers, logs, reconnectable realtime events, signed outbound webhook subscriptions, authorization administration, decision explanation, service-account API tokens and workload credential exchange.
 - Flow validation accepts YAML or JSON and returns the versioned `amesh.flow/v1` canonical form. Blocking issues include stable codes, data paths, source ranges and remediation hints; see the [flow DSL contract](../architecture/flow-dsl.md).
 - Resource-bearing operations authenticate and authorize server-side. The development bootstrap token is unavailable outside development mode; durable service/workload credentials work in every mode, and interactive users use revocable PostgreSQL-backed browser sessions with CSRF protection.
 - They are not the complete compatibility API; gaps remain explicit until the version-pinned ADR-009 façade epics are verified.
@@ -21,6 +21,9 @@
   result for each item.
 - Errors use `application/problem+json`. Execution logs are also available as streaming NDJSON at
   `/api/v1/executions/{execution_id}/logs/stream`.
+- Reconnect state, log and authorized audit changes with `GET /api/v1/realtime/stream`; use the
+  returned SSE `id` as `Last-Event-ID`. Signed outbound subscriptions, retries, endpoint tests and
+  selected replay are documented in the [realtime API guide](realtime.md).
 - Cache-enabled flows accept execution `cacheMode` values `USE`, `BYPASS` and `REFRESH`. Inspect
   tenant entries with `GET /api/v1/task-cache` and soft-purge a key prefix or resource scope with
   `POST /api/v1/task-cache/purge`; see the [task cache runbook](../operations/task-cache.md).

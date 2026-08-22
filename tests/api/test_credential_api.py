@@ -129,6 +129,7 @@ def test_api_token_is_shown_once_and_authenticates_outside_development() -> None
                     amesh_admin_token="bootstrap-test-token",
                     amesh_token_pepper="api-integration-pepper",
                     object_storage_workload_identity=True,
+                    webhook_signing_key="external-webhook-signing-key-at-least-32-bytes",
                 )
                 durable_headers = {"authorization": f"Bearer {token}"}
                 assert (

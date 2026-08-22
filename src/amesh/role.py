@@ -12,6 +12,7 @@ from amesh.adapters.postgres import (
     PostgresCheckRepository,
     PostgresDurableTransport,
     PostgresExecutionRepository,
+    PostgresRealtimeRepository,
     PostgresReconciliationRepository,
     PostgresSchedulerRepository,
     PostgresServiceRegistryRepository,
@@ -27,7 +28,9 @@ from amesh.domain import ServiceLiveness, ServiceRole, ServiceState
 from amesh.observability import configure_structured_logging
 from amesh.plugins import TrustedPluginRuntime, build_plugin_catalog, build_trusted_runtime
 from amesh.ports import ServiceFenceError, WorkerLossPolicy
+from amesh.realtime import WebhookDispatcher
 from amesh.service_runtime import RegisteredService, service_instance_name
+from amesh.tasks import HttpTaskPolicy
 from amesh.worker import (
     backfill_once,
     process_execution_checks_once,
@@ -57,6 +60,7 @@ async def _run_cycle(
     trigger_runtime: PostgresTriggerRuntimeRepository | None = None,
     checks: PostgresCheckRepository | None = None,
     trusted_runtime: TrustedPluginRuntime | None = None,
+    webhook_dispatcher: WebhookDispatcher | None = None,
 ) -> int:
     if role is ServiceRole.SCHEDULER:
         scheduled = await schedule_once(
@@ -117,12 +121,22 @@ async def _run_cycle(
             ]
         )
     if role is ServiceRole.INDEXER:
-        return sum(
+        outbox_work = sum(
             [
                 await transport.publish_outbox(tenant_id=tenant_id, limit=500)
                 for tenant_id in tenant_ids
             ]
         )
+        webhook_work = (
+            await webhook_dispatcher.run_once(
+                tenant_ids,
+                worker_id=str(service.instance.instance_id),
+                limit=settings.webhook_delivery_batch_size,
+            )
+            if webhook_dispatcher is not None
+            else 0
+        )
+        return outbox_work + webhook_work
     if role is ServiceRole.MAINTENANCE:
         return await reconcile_once(reconciliations, settings, tenant_ids=tenant_ids)
     raise ValueError(f"role {role.value!r} must run through amesh.server")
@@ -150,6 +164,18 @@ async def run_role(settings: Settings) -> None:
     trigger_runtime = PostgresTriggerRuntimeRepository(engine)
     checks = PostgresCheckRepository(engine)
     trusted_runtime = build_trusted_runtime(settings, build_plugin_catalog(settings))
+    realtime = PostgresRealtimeRepository(engine)
+    webhook_dispatcher = WebhookDispatcher(
+        realtime,
+        signing_key=settings.webhook_signing_key.get_secret_value(),
+        policy=HttpTaskPolicy(
+            allowed_private_hosts=frozenset(settings.core_http_allowed_private_hosts),
+            maximum_response_bytes=settings.core_http_max_response_bytes,
+            maximum_pages=settings.core_http_max_pages,
+            maximum_redirects=0,
+        ),
+        timeout_seconds=settings.webhook_delivery_timeout_seconds,
+    )
     work_count = 0
     try:
         await service.register()
@@ -182,6 +208,7 @@ async def run_role(settings: Settings) -> None:
                     trigger_runtime=trigger_runtime,
                     checks=checks,
                     trusted_runtime=trusted_runtime,
+                    webhook_dispatcher=webhook_dispatcher,
                 )
             except (DBAPIError, OSError):
                 LOGGER.exception("service role cycle interrupted; retrying")

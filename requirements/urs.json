@@ -11610,7 +11610,7 @@
       "id": "URS-F-0406",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M4",
       "wave": 4,
       "epic_id": "EPIC-401",
@@ -11626,6 +11626,9 @@
         "The resulting state, error or decision is observable through an authorized API, audit event or operational signal where applicable."
       ],
       "verification": "OpenAPI contract and authenticated end-to-end API tests",
+      "evidence": [
+        "tests/api/test_realtime_api.py::test_urs_f_0406_0407_0408_0411_0412_reconnectable_filtered_sse"
+      ],
       "source_scope": "Kestra v1.3.30 public behavior and architecture parity baseline",
       "local_sequence": 1,
       "dependencies": [
@@ -11638,7 +11641,7 @@
       "id": "URS-F-0407",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M4",
       "wave": 4,
       "epic_id": "EPIC-401",
@@ -11654,6 +11657,9 @@
         "The resulting state, error or decision is observable through an authorized API, audit event or operational signal where applicable."
       ],
       "verification": "OpenAPI contract and authenticated end-to-end API tests",
+      "evidence": [
+        "tests/api/test_realtime_api.py::test_urs_f_0406_0407_0408_0411_0412_reconnectable_filtered_sse"
+      ],
       "source_scope": "Kestra v1.3.30 public behavior and architecture parity baseline",
       "local_sequence": 2,
       "dependencies": [
@@ -11666,7 +11672,7 @@
       "id": "URS-F-0408",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M4",
       "wave": 4,
       "epic_id": "EPIC-401",
@@ -11682,6 +11688,9 @@
         "The resulting state, error or decision is observable through an authorized API, audit event or operational signal where applicable."
       ],
       "verification": "OpenAPI contract and authenticated end-to-end API tests",
+      "evidence": [
+        "tests/api/test_realtime_api.py::test_urs_f_0406_0407_0408_0411_0412_reconnectable_filtered_sse"
+      ],
       "source_scope": "Kestra v1.3.30 public behavior and architecture parity baseline",
       "local_sequence": 3,
       "dependencies": [
@@ -11694,7 +11703,7 @@
       "id": "URS-F-0409",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M4",
       "wave": 4,
       "epic_id": "EPIC-401",
@@ -11710,6 +11719,9 @@
         "The resulting state, error or decision is observable through an authorized API, audit event or operational signal where applicable."
       ],
       "verification": "OpenAPI contract and authenticated end-to-end API tests",
+      "evidence": [
+        "tests/api/test_realtime_api.py::test_urs_f_0409_0410_0413_signed_retry_rotation_replay_and_outage_isolation"
+      ],
       "source_scope": "Kestra v1.3.30 public behavior and architecture parity baseline",
       "local_sequence": 4,
       "dependencies": [
@@ -11722,7 +11734,7 @@
       "id": "URS-F-0410",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M4",
       "wave": 4,
       "epic_id": "EPIC-401",
@@ -11738,6 +11750,9 @@
         "The resulting state, error or decision is observable through an authorized API, audit event or operational signal where applicable."
       ],
       "verification": "OpenAPI contract and authenticated end-to-end API tests",
+      "evidence": [
+        "tests/api/test_realtime_api.py::test_urs_f_0409_0410_0413_signed_retry_rotation_replay_and_outage_isolation"
+      ],
       "source_scope": "Kestra v1.3.30 public behavior and architecture parity baseline",
       "local_sequence": 5,
       "dependencies": [
@@ -11750,7 +11765,7 @@
       "id": "URS-F-0411",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M4",
       "wave": 4,
       "epic_id": "EPIC-401",
@@ -11766,6 +11781,10 @@
         "The resulting state, error or decision is observable through an authorized API, audit event or operational signal where applicable."
       ],
       "verification": "OpenAPI contract and authenticated end-to-end API tests",
+      "evidence": [
+        "tests/api/test_realtime_api.py::test_urs_f_0406_0407_0408_0411_0412_reconnectable_filtered_sse",
+        "tests/api/test_realtime_api.py::test_urs_f_0409_0410_0413_signed_retry_rotation_replay_and_outage_isolation"
+      ],
       "source_scope": "Kestra v1.3.30 public behavior and architecture parity baseline",
       "local_sequence": 6,
       "dependencies": [
@@ -11778,7 +11797,7 @@
       "id": "URS-F-0412",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M4",
       "wave": 4,
       "epic_id": "EPIC-401",
@@ -11794,6 +11813,10 @@
         "The resulting state, error or decision is observable through an authorized API, audit event or operational signal where applicable."
       ],
       "verification": "OpenAPI contract and authenticated end-to-end API tests",
+      "evidence": [
+        "tests/api/test_realtime_api.py::test_urs_f_0412_explicit_gap_signal_advances_to_oldest_retained_cursor",
+        "tests/api/test_realtime_api.py::test_urs_f_0406_0407_0408_0411_0412_reconnectable_filtered_sse"
+      ],
       "source_scope": "Kestra v1.3.30 public behavior and architecture parity baseline",
       "local_sequence": 7,
       "dependencies": [
@@ -11806,7 +11829,7 @@
       "id": "URS-F-0413",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M4",
       "wave": 4,
       "epic_id": "EPIC-401",
@@ -11822,6 +11845,10 @@
         "The resulting state, error or decision is observable through an authorized API, audit event or operational signal where applicable."
       ],
       "verification": "OpenAPI contract and authenticated end-to-end API tests",
+      "evidence": [
+        "tests/api/test_realtime_api.py::test_urs_f_0409_0410_0413_signed_retry_rotation_replay_and_outage_isolation",
+        "tests/test_service_roles.py::test_indexer_role_owns_optional_webhook_dispatch"
+      ],
       "source_scope": "Kestra v1.3.30 public behavior and architecture parity baseline",
       "local_sequence": 8,
       "dependencies": [

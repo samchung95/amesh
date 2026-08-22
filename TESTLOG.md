@@ -2147,3 +2147,36 @@ Verified with `uv`, Python 3.13.12, PostgreSQL 17 and Docker Compose:
   returned HTTP 200.
 
 Verdict: PASS — EPIC-313 closed.
+
+## EPIC-401: Realtime API, webhooks and event subscriptions — 2026-08-23
+
+Spec source: board card `c59` and
+`backlog/epics/epic-401-realtime-api-webhooks-and-event-subscriptions.md`.
+
+Verified with `uv`, Python 3.13.12, PostgreSQL 17 and Docker Compose:
+
+- [x] Tenant-scoped execution evidence and audit events project into a durable ordered cursor.
+  Authorized pages and SSE filter by namespace, flow, execution, event type and severity; reconnects
+  accept opaque cursors or `Last-Event-ID`.
+- [x] SSE clients receive bounded batches, a documented finite disconnect policy, heartbeats and an
+  explicit gap event when the requested cursor predates retained data.
+- [x] Outbound webhook subscriptions support private-destination denial, HMAC-SHA-256 signatures,
+  derived-secret rotation, endpoint tests, bounded retries, stable delivery identifiers, selected
+  replay and immutable delivery-attempt history.
+- [x] Stream and webhook payloads redact structural secrets and values identified by flow input or
+  output sensitivity metadata. Audit events require the audit permission in addition to stream
+  access.
+- [x] Webhook preparation and delivery run only in the optional indexer role. A simulated 503
+  destination produced a durable retry while a new execution was still created, then the same
+  delivery completed successfully when the destination recovered.
+- [x] The focused fresh-database suite passed 18 checks. The full fresh 41-migration regression
+  suite passed with the four authoritative c15/c29/c89 timing or ordering checks explicitly
+  deselected and the disposable PostgreSQL databases force-dropped.
+- [x] Ruff, strict mypy, generated OpenAPI/schema contracts, migration ordering, least-privilege
+  runtime-role behavior, tenant lifecycle cleanup and diff checks passed.
+
+Qualification boundary: EPIC-401 completes the outbound-webhook outage slice. The shared
+`URS-NFR-RELIABILITY-005` remains Proposed until EPIC-409, EPIC-604 and EPIC-607 qualify the search,
+analytics and telemetry outage slices.
+
+Verdict: PASS — EPIC-401 closed.

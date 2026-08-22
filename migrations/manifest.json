@@ -240,6 +240,12 @@
       "mode": "expand",
       "onlineCompatible": true,
       "rollbackGuidance": "Pause working-directory output collection and forward-fix the additive artifact path and lineage columns; retain object payloads and existing execution evidence."
+    },
+    {
+      "file": "0041_realtime_webhook_subscriptions.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Stop indexer-owned webhook delivery and forward-fix the additive realtime projection and subscription ledgers; retain cursor, delivery, retry and audit evidence."
     }
   ]
 }

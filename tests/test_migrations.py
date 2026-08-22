@@ -60,6 +60,7 @@ def test_checked_in_migration_manifest_is_complete_and_ordered() -> None:
             (38, "workflow_metadata"),
             (39, "namespace_shared_resources"),
             (40, "execution_file_lineage"),
+            (41, "realtime_webhook_subscriptions"),
         )
     ]
     assert all(item.rollback_guidance for item in plan)

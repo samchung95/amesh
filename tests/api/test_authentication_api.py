@@ -78,6 +78,7 @@ def test_local_multi_user_browser_sessions_are_cookie_csrf_and_policy_bound() ->
                 auth_policy="local",
                 amesh_token_pepper="interactive-auth-test-pepper",
                 object_storage_workload_identity=True,
+                webhook_signing_key="external-webhook-signing-key-at-least-32-bytes",
                 auth_login_max_failures=2,
                 auth_login_lock_seconds=60,
                 auth_session_idle_seconds=300,

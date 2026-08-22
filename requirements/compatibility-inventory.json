@@ -5948,97 +5948,116 @@
       "requirement_id": "URS-F-0406",
       "epic_id": "EPIC-401",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/api/test_realtime_api.py::test_urs_f_0406_0407_0408_0411_0412_reconnectable_filtered_sse"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0407",
       "epic_id": "EPIC-401",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/api/test_realtime_api.py::test_urs_f_0406_0407_0408_0411_0412_reconnectable_filtered_sse"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0408",
       "epic_id": "EPIC-401",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/api/test_realtime_api.py::test_urs_f_0406_0407_0408_0411_0412_reconnectable_filtered_sse"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0409",
       "epic_id": "EPIC-401",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/api/test_realtime_api.py::test_urs_f_0409_0410_0413_signed_retry_rotation_replay_and_outage_isolation"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0410",
       "epic_id": "EPIC-401",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/api/test_realtime_api.py::test_urs_f_0409_0410_0413_signed_retry_rotation_replay_and_outage_isolation"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0411",
       "epic_id": "EPIC-401",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/api/test_realtime_api.py::test_urs_f_0406_0407_0408_0411_0412_reconnectable_filtered_sse",
+        "tests/api/test_realtime_api.py::test_urs_f_0409_0410_0413_signed_retry_rotation_replay_and_outage_isolation"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0412",
       "epic_id": "EPIC-401",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/api/test_realtime_api.py::test_urs_f_0412_explicit_gap_signal_advances_to_oldest_retained_cursor",
+        "tests/api/test_realtime_api.py::test_urs_f_0406_0407_0408_0411_0412_reconnectable_filtered_sse"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0413",
       "epic_id": "EPIC-401",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/api/test_realtime_api.py::test_urs_f_0409_0410_0413_signed_retry_rotation_replay_and_outage_isolation",
+        "tests/test_service_roles.py::test_indexer_role_owns_optional_webhook_dispatch"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0414",

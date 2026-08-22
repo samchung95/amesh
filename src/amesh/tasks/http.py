@@ -204,7 +204,7 @@ async def _request(
     current_method = method
     current_body = body
     for redirect_count in range(policy.maximum_redirects + 1):
-        _validate_url(current, policy, resolve_dns=resolve_dns)
+        validate_http_destination(current, policy, resolve_dns=resolve_dns)
         async with client.stream(
             current_method,
             current,
@@ -283,7 +283,12 @@ def _request_credentials(extra: dict[str, Any]) -> tuple[dict[str, str], dict[st
     return headers, query
 
 
-def _validate_url(url: str, policy: HttpTaskPolicy, *, resolve_dns: bool) -> None:
+def validate_http_destination(
+    url: str,
+    policy: HttpTaskPolicy,
+    *,
+    resolve_dns: bool,
+) -> None:
     parsed = urlsplit(url)
     if parsed.scheme not in {"http", "https"} or not parsed.hostname or parsed.username:
         raise ValueError("HTTP URL must use http or https without embedded credentials")

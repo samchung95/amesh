@@ -404,14 +404,14 @@ URS-F-0402,Functional,Must,EPIC-400,Versioned REST API and OpenAPI contract,M4,4
 URS-F-0403,Functional,Must,EPIC-400,Versioned REST API and OpenAPI contract,M4,4,OpenAPI contract and authenticated end-to-end API tests,Verified
 URS-F-0404,Functional,Must,EPIC-400,Versioned REST API and OpenAPI contract,M4,4,OpenAPI contract and authenticated end-to-end API tests,Verified
 URS-F-0405,Functional,Must,EPIC-400,Versioned REST API and OpenAPI contract,M4,4,OpenAPI contract and authenticated end-to-end API tests,Verified
-URS-F-0406,Functional,Must,EPIC-401,"Realtime API, webhooks and event subscriptions",M4,4,OpenAPI contract and authenticated end-to-end API tests,Proposed
-URS-F-0407,Functional,Must,EPIC-401,"Realtime API, webhooks and event subscriptions",M4,4,OpenAPI contract and authenticated end-to-end API tests,Proposed
-URS-F-0408,Functional,Must,EPIC-401,"Realtime API, webhooks and event subscriptions",M4,4,OpenAPI contract and authenticated end-to-end API tests,Proposed
-URS-F-0409,Functional,Must,EPIC-401,"Realtime API, webhooks and event subscriptions",M4,4,OpenAPI contract and authenticated end-to-end API tests,Proposed
-URS-F-0410,Functional,Must,EPIC-401,"Realtime API, webhooks and event subscriptions",M4,4,OpenAPI contract and authenticated end-to-end API tests,Proposed
-URS-F-0411,Functional,Must,EPIC-401,"Realtime API, webhooks and event subscriptions",M4,4,OpenAPI contract and authenticated end-to-end API tests,Proposed
-URS-F-0412,Functional,Must,EPIC-401,"Realtime API, webhooks and event subscriptions",M4,4,OpenAPI contract and authenticated end-to-end API tests,Proposed
-URS-F-0413,Functional,Must,EPIC-401,"Realtime API, webhooks and event subscriptions",M4,4,OpenAPI contract and authenticated end-to-end API tests,Proposed
+URS-F-0406,Functional,Must,EPIC-401,"Realtime API, webhooks and event subscriptions",M4,4,OpenAPI contract and authenticated end-to-end API tests,Verified
+URS-F-0407,Functional,Must,EPIC-401,"Realtime API, webhooks and event subscriptions",M4,4,OpenAPI contract and authenticated end-to-end API tests,Verified
+URS-F-0408,Functional,Must,EPIC-401,"Realtime API, webhooks and event subscriptions",M4,4,OpenAPI contract and authenticated end-to-end API tests,Verified
+URS-F-0409,Functional,Must,EPIC-401,"Realtime API, webhooks and event subscriptions",M4,4,OpenAPI contract and authenticated end-to-end API tests,Verified
+URS-F-0410,Functional,Must,EPIC-401,"Realtime API, webhooks and event subscriptions",M4,4,OpenAPI contract and authenticated end-to-end API tests,Verified
+URS-F-0411,Functional,Must,EPIC-401,"Realtime API, webhooks and event subscriptions",M4,4,OpenAPI contract and authenticated end-to-end API tests,Verified
+URS-F-0412,Functional,Must,EPIC-401,"Realtime API, webhooks and event subscriptions",M4,4,OpenAPI contract and authenticated end-to-end API tests,Verified
+URS-F-0413,Functional,Must,EPIC-401,"Realtime API, webhooks and event subscriptions",M4,4,OpenAPI contract and authenticated end-to-end API tests,Verified
 URS-F-0414,Functional,Must,EPIC-402,CLI and generated client SDKs,M4,4,OpenAPI contract and authenticated end-to-end API tests,Proposed
 URS-F-0415,Functional,Must,EPIC-402,CLI and generated client SDKs,M4,4,OpenAPI contract and authenticated end-to-end API tests,Proposed
 URS-F-0416,Functional,Must,EPIC-402,CLI and generated client SDKs,M4,4,OpenAPI contract and authenticated end-to-end API tests,Proposed

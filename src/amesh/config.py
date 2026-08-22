@@ -186,6 +186,11 @@ class Settings(BaseSettings):
     core_http_max_response_bytes: int = Field(default=10 * 1024 * 1024, ge=1, le=128 * 1024 * 1024)
     core_http_max_pages: int = Field(default=100, ge=1, le=10_000)
     core_http_max_redirects: int = Field(default=5, ge=0, le=20)
+    webhook_signing_key: SecretStr = Field(
+        default=SecretStr("amesh-webhook-development-signing-key"), min_length=32
+    )
+    webhook_delivery_timeout_seconds: float = Field(default=10.0, gt=0, le=300)
+    webhook_delivery_batch_size: int = Field(default=100, ge=1, le=1_000)
     service_role: str = Field(default="webserver", min_length=1, max_length=32)
     service_instance_name: str | None = Field(default=None, min_length=1, max_length=256)
     service_failure_zone: str | None = Field(default=None, min_length=1, max_length=256)
@@ -281,6 +286,12 @@ class Settings(BaseSettings):
             raise ValueError("production requires an externally supplied AMESH_TOKEN_PEPPER")
         if self.app_env != "development" and self.auth_mode == "development":
             raise ValueError("production cannot use development authentication")
+        if (
+            self.app_env != "development"
+            and self.webhook_signing_key.get_secret_value()
+            == "amesh-webhook-development-signing-key"
+        ):
+            raise ValueError("production requires an externally supplied WEBHOOK_SIGNING_KEY")
         if (
             self.app_env != "development"
             and self.object_storage_backend == "s3"
@@ -513,6 +524,12 @@ def security_baseline_findings(settings: Settings) -> tuple[str, ...]:
         == "amesh-registry-development-signing-key"
     ):
         findings.append("CRITICAL: development plugin registry signing key is configured")
+    if (
+        settings.app_env != "development"
+        and settings.webhook_signing_key.get_secret_value()
+        == "amesh-webhook-development-signing-key"
+    ):
+        findings.append("CRITICAL: development webhook signing key is configured")
     if (
         settings.app_env != "development"
         and settings.network_public_exposure
