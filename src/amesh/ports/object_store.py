@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import AsyncIterator
-from datetime import datetime
+from datetime import UTC, datetime
 from enum import StrEnum
 from typing import Protocol
 
@@ -26,6 +26,9 @@ class ObjectMetadata(BaseModel):
     backend: StorageBackend = StorageBackend.S3
     version_id: str | None = None
     encryption_key_id: str | None = None
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    creator: str = "system"
+    lineage: tuple[str, ...] = ()
     retention_until: datetime | None = None
     legal_hold: bool = False
 
@@ -68,6 +71,25 @@ class ObjectStore(Protocol):
 class ObjectStorageBackend(ObjectStore, Protocol):
     @property
     def backend(self) -> StorageBackend: ...
+
+    async def put(
+        self,
+        tenant_id: str,
+        key: str,
+        chunks: AsyncIterator[bytes],
+        *,
+        content_type: str | None = None,
+        creator: str = "system",
+        lineage: tuple[str, ...] = (),
+    ) -> ObjectMetadata: ...
+
+    def get_range(
+        self,
+        tenant_id: str,
+        uri: str,
+        start: int,
+        end_exclusive: int,
+    ) -> AsyncIterator[bytes]: ...
 
     async def head(self, tenant_id: str, uri: str) -> ObjectMetadata: ...
 

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from datetime import timedelta
+
 from amesh.adapters.azure import AzureBlobObjectStore
 from amesh.adapters.gcs import GoogleCloudStorageObjectStore
 from amesh.adapters.s3 import S3ObjectStore
@@ -63,4 +65,5 @@ def build_object_store(settings: Settings) -> VerifiedObjectStore:
         consistency_attempts=settings.object_storage_consistency_attempts,
         consistency_delay_seconds=settings.object_storage_consistency_delay_seconds,
         spool_memory_bytes=settings.object_storage_spool_memory_bytes,
+        gc_safety_window=timedelta(seconds=settings.object_storage_gc_safety_window_seconds),
     )

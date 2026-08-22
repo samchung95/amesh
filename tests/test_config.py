@@ -15,6 +15,7 @@ def test_reference_configuration_is_postgresql_only() -> None:
     assert not hasattr(settings, "nats_url")
     assert settings.object_storage_bucket == "amesh"
     assert settings.object_storage_backend == "s3"
+    assert settings.object_storage_gc_safety_window_seconds == 86_400
     assert settings.database_pool_size == 10
     assert settings.database_prepared_statement_cache_size == 100
 

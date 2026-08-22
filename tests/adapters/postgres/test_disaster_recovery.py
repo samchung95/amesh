@@ -50,6 +50,8 @@ class MemoryVersionedBackend:
         chunks: AsyncIterator[bytes],
         *,
         content_type: str | None = None,
+        creator: str = "system",
+        lineage: tuple[str, ...] = (),
     ) -> ObjectMetadata:
         content = b"".join([part async for part in chunks])
         identity = (tenant_id, key)
@@ -62,6 +64,8 @@ class MemoryVersionedBackend:
             checksum_sha256=hashlib.sha256(content).hexdigest(),
             content_type=content_type,
             version_id=version,
+            creator=creator,
+            lineage=lineage,
         )
         self.current[identity] = version
         self.versions[(tenant_id, key, version)] = content
@@ -71,6 +75,20 @@ class MemoryVersionedBackend:
     def get(self, tenant_id: str, uri: str) -> AsyncIterator[bytes]:
         key = self._key(tenant_id, uri)
         return self.get_version(tenant_id, uri, self.current[(tenant_id, key)])
+
+    def get_range(
+        self,
+        tenant_id: str,
+        uri: str,
+        start: int,
+        end_exclusive: int,
+    ) -> AsyncIterator[bytes]:
+        async def chunks() -> AsyncIterator[bytes]:
+            key = self._key(tenant_id, uri)
+            version = self.current[(tenant_id, key)]
+            yield self.versions[(tenant_id, key, version)][start:end_exclusive]
+
+        return chunks()
 
     def get_version(
         self,

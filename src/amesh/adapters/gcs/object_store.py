@@ -3,7 +3,7 @@ from __future__ import annotations
 import asyncio
 import hashlib
 from collections.abc import AsyncIterator
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Any
 
 import google.auth
@@ -13,7 +13,14 @@ from google.cloud import storage  # type: ignore[import-untyped]
 from google.oauth2 import service_account
 
 from amesh.ports import ObjectMetadata, StorageBackend
-from amesh.storage.keys import parse_tenant_uri, relative_tenant_key, tenant_object_key
+from amesh.storage.keys import (
+    decode_lineage,
+    encode_lineage,
+    parse_tenant_uri,
+    relative_tenant_key,
+    tenant_object_key,
+    validate_byte_range,
+)
 
 _PART_BYTES = 8 * 1024 * 1024
 _READ_BYTES = 64 * 1024
@@ -52,8 +59,11 @@ class GoogleCloudStorageObjectStore:
         chunks: AsyncIterator[bytes],
         *,
         content_type: str | None = None,
+        creator: str = "system",
+        lineage: tuple[str, ...] = (),
     ) -> ObjectMetadata:
         object_key = tenant_object_key(tenant_id, key)
+        created_at = datetime.now(UTC)
         blob = self._blob(object_key)
         writer = await asyncio.to_thread(
             blob.open,
@@ -78,13 +88,32 @@ class GoogleCloudStorageObjectStore:
             raise
         else:
             await asyncio.to_thread(writer.close)
-        blob.metadata = {"amesh_sha256": digest.hexdigest()}
+        blob.metadata = {
+            "amesh_sha256": digest.hexdigest(),
+            "amesh_created_at": created_at.isoformat(),
+            "amesh_creator": creator,
+            "amesh_lineage": encode_lineage(lineage),
+        }
         await asyncio.to_thread(blob.patch)
         await asyncio.to_thread(blob.reload)
         return self._metadata(tenant_id, object_key, blob)
 
     def get(self, tenant_id: str, uri: str) -> AsyncIterator[bytes]:
-        return self._get(tenant_id, uri, version_id=None)
+        return self._get(tenant_id, uri, version_id=None, byte_range=None)
+
+    def get_range(
+        self,
+        tenant_id: str,
+        uri: str,
+        start: int,
+        end_exclusive: int,
+    ) -> AsyncIterator[bytes]:
+        return self._get(
+            tenant_id,
+            uri,
+            version_id=None,
+            byte_range=validate_byte_range(start, end_exclusive),
+        )
 
     def get_version(
         self,
@@ -92,7 +121,7 @@ class GoogleCloudStorageObjectStore:
         uri: str,
         version_id: str,
     ) -> AsyncIterator[bytes]:
-        return self._get(tenant_id, uri, version_id=version_id)
+        return self._get(tenant_id, uri, version_id=version_id, byte_range=None)
 
     def _get(
         self,
@@ -100,14 +129,25 @@ class GoogleCloudStorageObjectStore:
         uri: str,
         *,
         version_id: str | None,
+        byte_range: tuple[int, int] | None,
     ) -> AsyncIterator[bytes]:
         async def chunks() -> AsyncIterator[bytes]:
             object_key = self._uri_key(tenant_id, uri)
             blob = self._blob(object_key, generation=version_id)
             reader = await asyncio.to_thread(blob.open, "rb", chunk_size=_READ_BYTES)
             try:
-                while chunk := await asyncio.to_thread(reader.read, _READ_BYTES):
+                remaining = None
+                if byte_range is not None:
+                    await asyncio.to_thread(reader.seek, byte_range[0])
+                    remaining = byte_range[1] - byte_range[0]
+                while remaining is None or remaining > 0:
+                    read_size = _READ_BYTES if remaining is None else min(_READ_BYTES, remaining)
+                    chunk = await asyncio.to_thread(reader.read, read_size)
+                    if not chunk:
+                        break
                     yield bytes(chunk)
+                    if remaining is not None:
+                        remaining -= len(chunk)
             finally:
                 await asyncio.to_thread(reader.close)
 
@@ -225,6 +265,8 @@ class GoogleCloudStorageObjectStore:
         if checksum is None:
             raise ValueError(f"object gs://{self._bucket}/{object_key} has no SHA-256 metadata")
         retention = metadata.get("amesh_retention_until")
+        created_at = metadata.get("amesh_created_at")
+        provider_created_at = getattr(blob, "time_created", None)
         return ObjectMetadata(
             uri=f"gs://{self._bucket}/{object_key}",
             tenant_id=tenant_id,
@@ -235,6 +277,13 @@ class GoogleCloudStorageObjectStore:
             backend=self.backend,
             version_id=str(blob.generation) if blob.generation is not None else None,
             encryption_key_id=getattr(blob, "kms_key_name", None) or self._encryption_key_id,
+            created_at=(
+                datetime.fromisoformat(created_at)
+                if created_at
+                else provider_created_at or datetime.now(UTC)
+            ),
+            creator=metadata.get("amesh_creator", "system"),
+            lineage=decode_lineage(metadata.get("amesh_lineage")),
             retention_until=datetime.fromisoformat(retention) if retention else None,
             legal_hold=metadata.get("amesh_legal_hold") == "true",
         )

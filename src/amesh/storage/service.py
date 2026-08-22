@@ -3,7 +3,7 @@ from __future__ import annotations
 import asyncio
 import hashlib
 from collections.abc import AsyncIterator, Awaitable, Callable
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from tempfile import SpooledTemporaryFile
 from time import perf_counter
 
@@ -45,6 +45,7 @@ class StorageValidationReport(BaseModel):
 
 
 CheckpointWriter = Callable[[StorageMigrationCheckpoint], Awaitable[None]]
+ReferenceChecker = Callable[[ObjectMetadata], Awaitable[bool]]
 
 
 class VerifiedObjectStore:
@@ -57,6 +58,7 @@ class VerifiedObjectStore:
         consistency_attempts: int = 5,
         consistency_delay_seconds: float = 0.1,
         spool_memory_bytes: int = 8 * 1024 * 1024,
+        gc_safety_window: timedelta = timedelta(days=1),
     ) -> None:
         if consistency_attempts < 1:
             raise ValueError("consistency_attempts must be positive")
@@ -64,10 +66,13 @@ class VerifiedObjectStore:
             raise ValueError("consistency_delay_seconds cannot be negative")
         if spool_memory_bytes < 64 * 1024:
             raise ValueError("spool_memory_bytes must be at least 64 KiB")
+        if gc_safety_window < timedelta(0):
+            raise ValueError("gc_safety_window cannot be negative")
         self._backend = backend
         self._consistency_attempts = consistency_attempts
         self._consistency_delay_seconds = consistency_delay_seconds
         self._spool_memory_bytes = spool_memory_bytes
+        self._gc_safety_window = gc_safety_window
 
     @property
     def backend(self) -> StorageBackend:
@@ -80,6 +85,8 @@ class VerifiedObjectStore:
         chunks: AsyncIterator[bytes],
         *,
         content_type: str | None = None,
+        creator: str = "system",
+        lineage: tuple[str, ...] = (),
     ) -> ObjectMetadata:
         started = perf_counter()
         try:
@@ -88,6 +95,8 @@ class VerifiedObjectStore:
                 key,
                 chunks,
                 content_type=content_type,
+                creator=creator,
+                lineage=lineage,
             )
             visible = await self._wait_until_visible(tenant_id, metadata)
             if visible.size != metadata.size or visible.checksum_sha256 != metadata.checksum_sha256:
@@ -127,6 +136,36 @@ class VerifiedObjectStore:
                 raise
 
         return verified_chunks()
+
+    def get_range(
+        self,
+        tenant_id: str,
+        uri: str,
+        start: int,
+        end_exclusive: int,
+    ) -> AsyncIterator[bytes]:
+        async def ranged_chunks() -> AsyncIterator[bytes]:
+            started = perf_counter()
+            size = 0
+            try:
+                metadata = await self._backend.head(tenant_id, uri)
+                if start < 0 or end_exclusive <= start or end_exclusive > metadata.size:
+                    raise ValueError("byte range is outside the object")
+                expected = end_exclusive - start
+                async for chunk in self._backend.get_range(tenant_id, uri, start, end_exclusive):
+                    size += len(chunk)
+                    if size > expected:
+                        raise ObjectIntegrityError(f"range length mismatch for {uri}")
+                    yield chunk
+                if size != expected:
+                    raise ObjectIntegrityError(f"range length mismatch for {uri}")
+                STORAGE_TRANSFER_BYTES.labels(self.backend.value, "read").inc(size)
+                self._request("get_range", "success", started)
+            except Exception:
+                self._request("get_range", "error", started)
+                raise
+
+        return ranged_chunks()
 
     async def delete(self, tenant_id: str, uri: str) -> None:
         started = perf_counter()
@@ -235,6 +274,39 @@ class VerifiedObjectStore:
         await self.delete(tenant_id, uri)
         return ObjectLifecycleResult(metadata=metadata, deleted=True, deletion_marker=True)
 
+    async def collect_unreferenced(
+        self,
+        tenant_id: str,
+        is_referenced: ReferenceChecker,
+        *,
+        now: datetime | None = None,
+        limit: int = 100,
+    ) -> tuple[ObjectLifecycleResult, ...]:
+        if limit < 1:
+            raise ValueError("limit must be positive")
+        observed_at = now or datetime.now(UTC)
+        if observed_at.tzinfo is None:
+            raise ValueError("now must be timezone-aware")
+        cutoff = observed_at - self._gc_safety_window
+        results: list[ObjectLifecycleResult] = []
+        async for metadata in self.iter_objects(tenant_id):
+            if len(results) >= limit:
+                break
+            if metadata.created_at > cutoff:
+                results.append(ObjectLifecycleResult(metadata=metadata, blocked_by="safety_window"))
+                continue
+            results.append(
+                await self.apply_lifecycle(
+                    tenant_id,
+                    metadata.uri,
+                    retention_until=metadata.retention_until,
+                    legal_hold=metadata.legal_hold,
+                    referenced=await is_referenced(metadata),
+                    delete=True,
+                )
+            )
+        return tuple(results)
+
     async def migrate_to(
         self,
         destination: VerifiedObjectStore,
@@ -263,6 +335,8 @@ class VerifiedObjectStore:
                 metadata.key,
                 self.get(tenant_id, metadata.uri),
                 content_type=metadata.content_type,
+                creator=metadata.creator,
+                lineage=metadata.lineage,
             )
             if copied.checksum_sha256 != metadata.checksum_sha256:
                 destination._corrupt()

@@ -56,6 +56,7 @@ class Settings(BaseSettings):
         ge=64 * 1024,
         le=128 * 1024 * 1024,
     )
+    object_storage_gc_safety_window_seconds: int = Field(default=86_400, ge=0)
     auth_mode: str = "development"
     auth_policy: Literal["local", "hybrid", "federated-only"] = "local"
     amesh_admin_token: SecretStr = SecretStr("development-token")

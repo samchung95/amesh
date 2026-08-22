@@ -2,14 +2,21 @@ from __future__ import annotations
 
 import hashlib
 from collections.abc import AsyncIterator
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Any
 
 import aioboto3  # type: ignore[import-untyped]
 from botocore.config import Config  # type: ignore[import-untyped]
 
 from amesh.ports import ObjectMetadata, StorageBackend
-from amesh.storage.keys import parse_tenant_uri, relative_tenant_key, tenant_object_key
+from amesh.storage.keys import (
+    decode_lineage,
+    encode_lineage,
+    parse_tenant_uri,
+    relative_tenant_key,
+    tenant_object_key,
+    validate_byte_range,
+)
 
 _PART_BYTES = 5 * 1024 * 1024
 
@@ -53,8 +60,11 @@ class S3ObjectStore:
         chunks: AsyncIterator[bytes],
         *,
         content_type: str | None = None,
+        creator: str = "system",
+        lineage: tuple[str, ...] = (),
     ) -> ObjectMetadata:
         object_key = self._tenant_key(tenant_id, key)
+        created_at = datetime.now(UTC)
         digest = hashlib.sha256()
         size = 0
         parts: list[dict[str, object]] = []
@@ -70,6 +80,11 @@ class S3ObjectStore:
             upload = await client.create_multipart_upload(
                 Bucket=self._bucket,
                 Key=object_key,
+                Metadata={
+                    "amesh-created-at": created_at.isoformat(),
+                    "amesh-creator": creator,
+                    "amesh-lineage": encode_lineage(lineage),
+                },
                 **encryption,
                 **({"ContentType": content_type} if content_type else {}),
             )
@@ -130,10 +145,27 @@ class S3ObjectStore:
             key=key.strip("/"),
             backend=self.backend,
             encryption_key_id=self._encryption_key_id,
+            created_at=created_at,
+            creator=creator,
+            lineage=lineage,
         )
 
     def get(self, tenant_id: str, uri: str) -> AsyncIterator[bytes]:
-        return self._get(tenant_id, uri, version_id=None)
+        return self._get(tenant_id, uri, version_id=None, byte_range=None)
+
+    def get_range(
+        self,
+        tenant_id: str,
+        uri: str,
+        start: int,
+        end_exclusive: int,
+    ) -> AsyncIterator[bytes]:
+        return self._get(
+            tenant_id,
+            uri,
+            version_id=None,
+            byte_range=validate_byte_range(start, end_exclusive),
+        )
 
     def get_version(
         self,
@@ -141,7 +173,7 @@ class S3ObjectStore:
         uri: str,
         version_id: str,
     ) -> AsyncIterator[bytes]:
-        return self._get(tenant_id, uri, version_id=version_id)
+        return self._get(tenant_id, uri, version_id=version_id, byte_range=None)
 
     def _get(
         self,
@@ -149,6 +181,7 @@ class S3ObjectStore:
         uri: str,
         *,
         version_id: str | None,
+        byte_range: tuple[int, int] | None,
     ) -> AsyncIterator[bytes]:
         async def chunks() -> AsyncIterator[bytes]:
             object_key = self._uri_key(tenant_id, uri)
@@ -163,6 +196,11 @@ class S3ObjectStore:
                     Bucket=self._bucket,
                     Key=object_key,
                     **({"VersionId": version_id} if version_id is not None else {}),
+                    **(
+                        {"Range": f"bytes={byte_range[0]}-{byte_range[1] - 1}"}
+                        if byte_range is not None
+                        else {}
+                    ),
                 )
                 body = response["Body"]
                 try:
@@ -313,6 +351,10 @@ class S3ObjectStore:
         content_type = response.get("ContentType")
         version_id = response.get("VersionId")
         encryption_key_id = response.get("SSEKMSKeyId")
+        provider_metadata = response.get("Metadata")
+        custom = provider_metadata if isinstance(provider_metadata, dict) else {}
+        created_at = custom.get("amesh-created-at")
+        provider_created_at = response.get("LastModified")
         return ObjectMetadata(
             uri=f"s3://{self._bucket}/{object_key}",
             tenant_id=tenant_id,
@@ -324,6 +366,19 @@ class S3ObjectStore:
             version_id=version_id if isinstance(version_id, str) else None,
             encryption_key_id=(
                 encryption_key_id if isinstance(encryption_key_id, str) else self._encryption_key_id
+            ),
+            created_at=(
+                datetime.fromisoformat(created_at)
+                if isinstance(created_at, str)
+                else provider_created_at
+                if isinstance(provider_created_at, datetime)
+                else datetime.now(UTC)
+            ),
+            creator=str(custom.get("amesh-creator", "system")),
+            lineage=decode_lineage(
+                custom.get("amesh-lineage")
+                if isinstance(custom.get("amesh-lineage"), str)
+                else None
             ),
             retention_until=datetime.fromisoformat(retention) if retention else None,
             legal_hold=tags.get("amesh-legal-hold") == "true",

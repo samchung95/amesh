@@ -4,7 +4,7 @@ import base64
 import hashlib
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Any
 
 from azure.identity.aio import DefaultAzureCredential
@@ -12,7 +12,14 @@ from azure.storage.blob import ContentSettings
 from azure.storage.blob.aio import BlobServiceClient
 
 from amesh.ports import ObjectMetadata, StorageBackend
-from amesh.storage.keys import parse_tenant_uri, relative_tenant_key, tenant_object_key
+from amesh.storage.keys import (
+    decode_lineage,
+    encode_lineage,
+    parse_tenant_uri,
+    relative_tenant_key,
+    tenant_object_key,
+    validate_byte_range,
+)
 
 _PART_BYTES = 4 * 1024 * 1024
 
@@ -48,8 +55,11 @@ class AzureBlobObjectStore:
         chunks: AsyncIterator[bytes],
         *,
         content_type: str | None = None,
+        creator: str = "system",
+        lineage: tuple[str, ...] = (),
     ) -> ObjectMetadata:
         object_key = tenant_object_key(tenant_id, key)
+        created_at = datetime.now(UTC)
         digest = hashlib.sha256()
         size = 0
         block_ids: list[str] = []
@@ -74,7 +84,12 @@ class AzureBlobObjectStore:
             await blob.commit_block_list(
                 block_ids,
                 content_settings=ContentSettings(content_type=content_type),
-                metadata={"amesh_sha256": digest.hexdigest()},
+                metadata={
+                    "amesh_sha256": digest.hexdigest(),
+                    "amesh_created_at": created_at.isoformat(),
+                    "amesh_creator": creator,
+                    "amesh_lineage": encode_lineage(lineage),
+                },
                 **self._encryption_parameters(),
             )
         return ObjectMetadata(
@@ -86,10 +101,27 @@ class AzureBlobObjectStore:
             key=key.strip("/"),
             backend=self.backend,
             encryption_key_id=self._encryption_key_id,
+            created_at=created_at,
+            creator=creator,
+            lineage=lineage,
         )
 
     def get(self, tenant_id: str, uri: str) -> AsyncIterator[bytes]:
-        return self._get(tenant_id, uri, version_id=None)
+        return self._get(tenant_id, uri, version_id=None, byte_range=None)
+
+    def get_range(
+        self,
+        tenant_id: str,
+        uri: str,
+        start: int,
+        end_exclusive: int,
+    ) -> AsyncIterator[bytes]:
+        return self._get(
+            tenant_id,
+            uri,
+            version_id=None,
+            byte_range=validate_byte_range(start, end_exclusive),
+        )
 
     def get_version(
         self,
@@ -97,7 +129,7 @@ class AzureBlobObjectStore:
         uri: str,
         version_id: str,
     ) -> AsyncIterator[bytes]:
-        return self._get(tenant_id, uri, version_id=version_id)
+        return self._get(tenant_id, uri, version_id=version_id, byte_range=None)
 
     def _get(
         self,
@@ -105,6 +137,7 @@ class AzureBlobObjectStore:
         uri: str,
         *,
         version_id: str | None,
+        byte_range: tuple[int, int] | None,
     ) -> AsyncIterator[bytes]:
         async def chunks() -> AsyncIterator[bytes]:
             object_key = self._uri_key(tenant_id, uri)
@@ -115,7 +148,16 @@ class AzureBlobObjectStore:
                     blob=object_key,
                     **options,
                 )
-                downloader = await blob.download_blob()
+                downloader = await blob.download_blob(
+                    **(
+                        {
+                            "offset": byte_range[0],
+                            "length": byte_range[1] - byte_range[0],
+                        }
+                        if byte_range is not None
+                        else {}
+                    )
+                )
                 async for chunk in downloader.chunks():
                     if chunk:
                         yield bytes(chunk)
@@ -238,6 +280,8 @@ class AzureBlobObjectStore:
                 f"object azure://{self._container}/{object_key} has no SHA-256 metadata"
             )
         retention = metadata.get("amesh_retention_until")
+        created_at = metadata.get("amesh_created_at")
+        provider_created_at = getattr(properties, "creation_time", None)
         content_settings = getattr(properties, "content_settings", None)
         return ObjectMetadata(
             uri=f"azure://{self._container}/{object_key}",
@@ -251,6 +295,13 @@ class AzureBlobObjectStore:
             encryption_key_id=(
                 getattr(properties, "encryption_scope", None) or self._encryption_key_id
             ),
+            created_at=(
+                datetime.fromisoformat(created_at)
+                if created_at
+                else provider_created_at or datetime.now(UTC)
+            ),
+            creator=metadata.get("amesh_creator", "system"),
+            lineage=decode_lineage(metadata.get("amesh_lineage")),
             retention_until=datetime.fromisoformat(retention) if retention else None,
             legal_hold=metadata.get("amesh_legal_hold") == "true",
         )

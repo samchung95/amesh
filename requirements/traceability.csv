@@ -74,14 +74,14 @@ URS-F-0072,Functional,Must,EPIC-009,"PostgreSQL transport, inbox and transaction
 URS-F-0073,Functional,Must,EPIC-009,"PostgreSQL transport, inbox and transactional outbox",M0,0,"Delivery, ordering, duplicate and outage conformance tests",Verified
 URS-F-0074,Functional,Must,EPIC-009,"PostgreSQL transport, inbox and transactional outbox",M0,0,"Delivery, ordering, duplicate and outage conformance tests",Verified
 URS-F-0075,Functional,Must,EPIC-009,"PostgreSQL transport, inbox and transactional outbox",M0,0,"Delivery, ordering, duplicate and outage conformance tests",Verified
-URS-F-0076,Functional,Must,EPIC-010,Internal object storage and artifact addressing,M0,0,Repository or storage adapter contract and fault-injection tests,Proposed
-URS-F-0077,Functional,Must,EPIC-010,Internal object storage and artifact addressing,M0,0,Repository or storage adapter contract and fault-injection tests,Proposed
-URS-F-0078,Functional,Must,EPIC-010,Internal object storage and artifact addressing,M0,0,Repository or storage adapter contract and fault-injection tests,Proposed
-URS-F-0079,Functional,Must,EPIC-010,Internal object storage and artifact addressing,M0,0,Repository or storage adapter contract and fault-injection tests,Proposed
-URS-F-0080,Functional,Must,EPIC-010,Internal object storage and artifact addressing,M0,0,Repository or storage adapter contract and fault-injection tests,Proposed
-URS-F-0081,Functional,Must,EPIC-010,Internal object storage and artifact addressing,M0,0,Repository or storage adapter contract and fault-injection tests,Proposed
-URS-F-0082,Functional,Must,EPIC-010,Internal object storage and artifact addressing,M0,0,Repository or storage adapter contract and fault-injection tests,Proposed
-URS-F-0083,Functional,Must,EPIC-010,Internal object storage and artifact addressing,M0,0,Repository or storage adapter contract and fault-injection tests,Proposed
+URS-F-0076,Functional,Must,EPIC-010,Internal object storage and artifact addressing,M0,0,Repository or storage adapter contract and fault-injection tests,Verified
+URS-F-0077,Functional,Must,EPIC-010,Internal object storage and artifact addressing,M0,0,Repository or storage adapter contract and fault-injection tests,Verified
+URS-F-0078,Functional,Must,EPIC-010,Internal object storage and artifact addressing,M0,0,Repository or storage adapter contract and fault-injection tests,Verified
+URS-F-0079,Functional,Must,EPIC-010,Internal object storage and artifact addressing,M0,0,Repository or storage adapter contract and fault-injection tests,Verified
+URS-F-0080,Functional,Must,EPIC-010,Internal object storage and artifact addressing,M0,0,Repository or storage adapter contract and fault-injection tests,Verified
+URS-F-0081,Functional,Must,EPIC-010,Internal object storage and artifact addressing,M0,0,Repository or storage adapter contract and fault-injection tests,Verified
+URS-F-0082,Functional,Must,EPIC-010,Internal object storage and artifact addressing,M0,0,Repository or storage adapter contract and fault-injection tests,Verified
+URS-F-0083,Functional,Must,EPIC-010,Internal object storage and artifact addressing,M0,0,Repository or storage adapter contract and fault-injection tests,Verified
 URS-F-0084,Functional,Must,EPIC-100,Executor and orchestration reducer,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
 URS-F-0085,Functional,Must,EPIC-100,Executor and orchestration reducer,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified
 URS-F-0086,Functional,Must,EPIC-100,Executor and orchestration reducer,M1,1,"Automated unit, integration, crash-recovery and conformance tests",Verified

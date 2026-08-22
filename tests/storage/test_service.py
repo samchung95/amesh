@@ -26,6 +26,8 @@ class MemoryBackend:
         chunks: AsyncIterator[bytes],
         *,
         content_type: str | None = None,
+        creator: str = "system",
+        lineage: tuple[str, ...] = (),
     ) -> ObjectMetadata:
         content = b"".join([chunk async for chunk in chunks])
         scheme = {StorageBackend.S3: "s3", StorageBackend.AZURE: "azure", StorageBackend.GCS: "gs"}[
@@ -40,6 +42,8 @@ class MemoryBackend:
             content_type=content_type,
             key=key,
             backend=self.backend,
+            creator=creator,
+            lineage=lineage,
         )
         self.objects[uri] = (content, metadata)
         return metadata
@@ -51,6 +55,21 @@ class MemoryBackend:
                 raise ValueError("object URI is outside the tenant storage prefix")
             for offset in range(0, len(content), 3):
                 yield content[offset : offset + 3]
+
+        return chunks()
+
+    def get_range(
+        self,
+        tenant_id: str,
+        uri: str,
+        start: int,
+        end_exclusive: int,
+    ) -> AsyncIterator[bytes]:
+        async def chunks() -> AsyncIterator[bytes]:
+            content, metadata = self.objects[uri]
+            if metadata.tenant_id != tenant_id:
+                raise ValueError("object URI is outside the tenant storage prefix")
+            yield content[start:end_exclusive]
 
         return chunks()
 
@@ -119,6 +138,29 @@ def test_verified_storage_retries_visibility_and_detects_corruption_before_yield
     asyncio.run(scenario())
 
 
+def test_storage_records_creator_lineage_and_reads_bounded_ranges() -> None:
+    async def scenario() -> None:
+        store = VerifiedObjectStore(MemoryBackend(StorageBackend.S3))
+        metadata = await store.put(
+            "tenant-a",
+            "artifact.bin",
+            chunks(b"abcdefgh"),
+            creator="principal-a",
+            lineage=("execution:123", "task:transform"),
+        )
+
+        assert metadata.creator == "principal-a"
+        assert metadata.lineage == ("execution:123", "task:transform")
+        assert (
+            b"".join([part async for part in store.get_range("tenant-a", metadata.uri, 2, 6)])
+            == b"cdef"
+        )
+        with pytest.raises(ValueError, match="outside the object"):
+            await anext(store.get_range("tenant-a", metadata.uri, 4, 9))
+
+    asyncio.run(scenario())
+
+
 def test_lifecycle_never_deletes_referenced_held_or_retained_objects() -> None:
     async def scenario() -> None:
         backend = MemoryBackend(StorageBackend.S3)
@@ -166,6 +208,34 @@ def test_lifecycle_never_deletes_referenced_held_or_retained_objects() -> None:
         ]
         assert deleted.deleted and deleted.deletion_marker
         assert metadata.uri not in backend.objects
+
+    asyncio.run(scenario())
+
+
+def test_garbage_collection_honors_references_and_configured_safety_window() -> None:
+    async def scenario() -> None:
+        backend = MemoryBackend(StorageBackend.S3)
+        store = VerifiedObjectStore(backend, gc_safety_window=timedelta(hours=1))
+        now = datetime(2026, 8, 22, 12, tzinfo=UTC)
+        for key in ("old.bin", "referenced.bin", "young.bin"):
+            metadata = await store.put("tenant-a", key, chunks(key.encode()))
+            content, _ = backend.objects[metadata.uri]
+            created_at = now - timedelta(hours=2) if key != "young.bin" else now
+            backend.objects[metadata.uri] = (
+                content,
+                metadata.model_copy(update={"created_at": created_at}),
+            )
+
+        async def is_referenced(metadata: ObjectMetadata) -> bool:
+            return metadata.key == "referenced.bin"
+
+        results = await store.collect_unreferenced("tenant-a", is_referenced, now=now)
+
+        outcomes = {result.metadata.key: result for result in results}
+        assert outcomes["old.bin"].deleted
+        assert outcomes["referenced.bin"].blocked_by == "referenced"
+        assert outcomes["young.bin"].blocked_by == "safety_window"
+        assert len(backend.objects) == 2
 
     asyncio.run(scenario())
 
@@ -219,6 +289,8 @@ class StreamingSinkBackend(MemoryBackend):
         chunks: AsyncIterator[bytes],
         *,
         content_type: str | None = None,
+        creator: str = "system",
+        lineage: tuple[str, ...] = (),
     ) -> ObjectMetadata:
         size = 0
         async for chunk in chunks:
@@ -230,6 +302,8 @@ class StreamingSinkBackend(MemoryBackend):
             checksum_sha256="0" * 64,
             content_type=content_type,
             key=key,
+            creator=creator,
+            lineage=lineage,
         )
         return self.metadata
 

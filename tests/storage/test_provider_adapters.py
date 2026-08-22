@@ -114,15 +114,25 @@ class FakeS3Client:
         return {
             "ContentLength": len(self.objects[Key]),
             "ContentType": options.get("ContentType"),
+            "Metadata": options.get("Metadata", {}),
             "SSEKMSKeyId": options.get("SSEKMSKeyId"),
             "VersionId": "v1",
         }
 
     async def get_object(
-        self, *, Bucket: str, Key: str, VersionId: str | None = None
+        self,
+        *,
+        Bucket: str,
+        Key: str,
+        VersionId: str | None = None,
+        Range: str | None = None,
     ) -> dict[str, object]:
         del Bucket, VersionId
-        return {"Body": FakeBody(self.objects[Key])}
+        content = self.objects[Key]
+        if Range is not None:
+            start, end = (int(value) for value in Range.removeprefix("bytes=").split("-"))
+            content = content[start : end + 1]
+        return {"Body": FakeBody(content)}
 
     async def delete_object(self, *, Bucket: str, Key: str) -> None:
         del Bucket
@@ -156,9 +166,20 @@ def test_s3_adapter_conformance() -> None:
             ca_file="/ca.pem",
             session=FakeS3Session(client),
         )
-        written = await store.put("tenant-a", "report.bin", chunks(b"abc", b"def"))
+        written = await store.put(
+            "tenant-a",
+            "report.bin",
+            chunks(b"abc", b"def"),
+            creator="principal-a",
+            lineage=("execution:123",),
+        )
         assert written.size == 6 and written.encryption_key_id == "kms-key"
+        assert written.creator == "principal-a" and written.lineage == ("execution:123",)
         assert b"".join([part async for part in store.get("tenant-a", written.uri)]) == b"abcdef"
+        assert (
+            b"".join([part async for part in store.get_range("tenant-a", written.uri, 1, 5)])
+            == b"bcde"
+        )
         versioned = await store.head("tenant-a", written.uri)
         assert (
             b"".join(
@@ -211,8 +232,12 @@ class FakeAzureBlob:
         settings = kwargs["content_settings"]
         self.content_type = settings.content_type  # type: ignore[attr-defined]
 
-    async def download_blob(self) -> FakeAzureDownloader:
-        return FakeAzureDownloader(self.content)
+    async def download_blob(
+        self, *, offset: int | None = None, length: int | None = None
+    ) -> FakeAzureDownloader:
+        start = offset or 0
+        end = None if length is None else start + length
+        return FakeAzureDownloader(self.content[start:end])
 
     async def delete_blob(self, **kwargs: object) -> None:
         del kwargs
@@ -270,9 +295,20 @@ def test_azure_adapter_conformance() -> None:
             encryption_key_id="scope-a",
             service_client=client,
         )
-        written = await store.put("tenant-a", "report.bin", chunks(b"azure"))
+        written = await store.put(
+            "tenant-a",
+            "report.bin",
+            chunks(b"azure"),
+            creator="principal-a",
+            lineage=("execution:123",),
+        )
         assert written.size == 5 and written.encryption_key_id == "scope-a"
+        assert written.creator == "principal-a" and written.lineage == ("execution:123",)
         assert b"".join([part async for part in store.get("tenant-a", written.uri)]) == b"azure"
+        assert (
+            b"".join([part async for part in store.get_range("tenant-a", written.uri, 1, 4)])
+            == b"zur"
+        )
         versioned = await store.head("tenant-a", written.uri)
         assert (
             b"".join(
@@ -386,9 +422,20 @@ def test_gcs_adapter_conformance() -> None:
             encryption_key_id="projects/p/locations/l/keyRings/r/cryptoKeys/k",
             client=client,
         )
-        written = await store.put("tenant-a", "report.bin", chunks(b"gcs"))
+        written = await store.put(
+            "tenant-a",
+            "report.bin",
+            chunks(b"gcs"),
+            creator="principal-a",
+            lineage=("execution:123",),
+        )
         assert written.size == 3 and written.version_id == "1"
+        assert written.creator == "principal-a" and written.lineage == ("execution:123",)
         assert b"".join([part async for part in store.get("tenant-a", written.uri)]) == b"gcs"
+        assert (
+            b"".join([part async for part in store.get_range("tenant-a", written.uri, 1, 3)])
+            == b"cs"
+        )
         assert (
             b"".join(
                 [

@@ -43,9 +43,27 @@ def test_minio_stream_integrity_lifecycle_inventory_and_versioned_delete() -> No
             "integration/multipart.bin",
             upload(),
             content_type="application/octet-stream",
+            creator="integration-principal",
+            lineage=("execution:integration",),
         )
         assert metadata.size == len(content)
+        assert metadata.creator == "integration-principal"
+        assert metadata.lineage == ("execution:integration",)
         assert b"".join([chunk async for chunk in store.get(tenant_id, metadata.uri)]) == content
+        assert (
+            b"".join(
+                [
+                    chunk
+                    async for chunk in store.get_range(
+                        tenant_id,
+                        metadata.uri,
+                        len(content) - 4,
+                        len(content),
+                    )
+                ]
+            )
+            == b"tail"
+        )
         lifecycle = await store.apply_lifecycle(
             tenant_id,
             metadata.uri,

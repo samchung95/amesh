@@ -1165,3 +1165,43 @@ key-values, secret providers and installable plugins remain EPIC-207/506/300/301
 filter/index qualification remains EPIC-409; this epic measured the launch critical path only.
 
 Verdict: PASS — EPIC-400 closed.
+
+## EPIC-010: Internal object storage and artifact addressing — 2026-08-22
+
+Spec source: board card `c32` and
+`backlog/epics/epic-010-internal-object-storage-and-artifact-addressing.md`.
+
+Verified with `uv`, Python 3.13.12, PostgreSQL 17 and versioned MinIO:
+
+- [x] S3, Azure Blob and Google Cloud Storage adapters implement one tenant-scoped contract for
+  multipart/resumable upload, streaming full download, native ranged download, provider metadata,
+  lifecycle, inventory and deletion. Local development uses the same S3 path against MinIO.
+- [x] Object metadata persists size, content type, SHA-256, encryption key, provider version,
+  creation time, creator, lineage, retention and legal-hold state. Checksum-verified migration
+  preserves creator and lineage.
+- [x] Opaque provider URIs are rejected before provider access when the scheme, container, tenant
+  prefix or normalized path does not match the authorized tenant.
+- [x] `collect_unreferenced` runs in bounded passes, consults the caller's authoritative reference
+  checker and blocks objects within `OBJECT_STORAGE_GC_SAFETY_WINDOW_SECONDS`, as well as referenced,
+  retained and legally held objects.
+- [x] Corruption injection is rejected before a full download yields bytes. The logical 10 GiB upload
+  stayed below the 256 MiB memory target, and the architecture dependency test kept storage SDKs
+  outside the core domain boundary.
+- [x] Fourteen focused storage/configuration tests passed with the environment-gated MinIO case
+  skipped; the same MinIO case then passed live against `http://localhost:9000`, including multipart
+  upload, persisted provenance, native range retrieval, inventory, lifecycle and versioned deletion.
+- [x] The full suite passed on a clean database with all 27 migrations: 237 passed and five
+  environment-gated tests skipped. The disposable database was force-dropped and its absence
+  verified.
+- [x] Ruff formatting/lint, strict mypy, `uv lock --check`, generated contracts/planning artifacts,
+  backlog validation, clean-room policy, Compose configuration and diff hygiene passed.
+
+Adversarial pass: cross-tenant URIs, invalid and out-of-object ranges, delayed write visibility,
+checksum corruption, referenced objects, retention, legal holds and young unreferenced objects all
+produce deterministic non-consumption or non-deletion outcomes.
+
+Qualification boundary: managed Azure/GCP certification and provider-outage drills remain EPIC-706.
+Shared maintainability and portability NFRs remain In Progress for their other owning epics. The
+checked-in OpenRouter default remains `openai/gpt-5.6-luna`; object storage does not invoke an LLM.
+
+Verdict: PASS — EPIC-010 closed.

@@ -40,6 +40,16 @@ spooled temporary file, retaining at most `OBJECT_STORAGE_SPOOL_MEMORY_BYTES` in
 only yields the file after size and digest match. A mismatch raises `ObjectIntegrityError` and
 increments `amesh_storage_corruption_total`.
 
+`VerifiedObjectStore.get_range` maps an inclusive start/exclusive end byte interval to each
+provider's native range mechanism. The service rejects invalid or out-of-object intervals and checks
+the returned length. Use the normal `get` path when a full-object cryptographic verification is
+required; a partial range cannot independently reproduce the stored full-object SHA-256 digest.
+
+Object metadata records the provider URI and version, tenant-relative key, size, content type,
+SHA-256 digest, encryption key, creation time, creator, lineage references, retention timestamp and
+legal-hold state. Creator and lineage values are written with the object and survive verified backend
+migration.
+
 Use the configured backend and tenant to verify an inventory:
 
 ```powershell
@@ -60,6 +70,11 @@ must enable versioning or provider soft delete so EPIC-609 recovery can restore 
 
 Callers must use `VerifiedObjectStore.apply_lifecycle` and pass the result of their authoritative
 reference check; direct provider deletes bypass AMESH policy and are unsupported.
+
+Automated garbage collection uses `VerifiedObjectStore.collect_unreferenced`. It asks the caller's
+authoritative reference checker before deletion and blocks objects newer than
+`OBJECT_STORAGE_GC_SAFETY_WINDOW_SECONDS` (24 hours by default), as well as referenced, retained or
+held objects. The bounded `limit` controls work per pass.
 
 ## Backend migration
 

@@ -2141,7 +2141,11 @@
       "id": "URS-F-0076",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/storage/test_provider_adapters.py",
+        "tests/storage/test_minio_integration.py"
+      ],
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-010",
@@ -2167,7 +2171,11 @@
       "id": "URS-F-0077",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/storage/test_provider_adapters.py::test_s3_adapter_conformance",
+        "tests/storage/test_minio_integration.py"
+      ],
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-010",
@@ -2193,7 +2201,11 @@
       "id": "URS-F-0078",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/storage/test_service.py::test_ten_gibibyte_logical_upload_stays_below_memory_budget",
+        "tests/storage/test_minio_integration.py"
+      ],
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-010",
@@ -2219,7 +2231,11 @@
       "id": "URS-F-0079",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/storage/test_service.py::test_storage_records_creator_lineage_and_reads_bounded_ranges",
+        "tests/storage/test_provider_adapters.py"
+      ],
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-010",
@@ -2245,7 +2261,11 @@
       "id": "URS-F-0080",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/storage/test_provider_adapters.py",
+        "tests/storage/test_service.py::test_verified_storage_retries_visibility_and_detects_corruption_before_yield"
+      ],
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-010",
@@ -2271,7 +2291,12 @@
       "id": "URS-F-0081",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/storage/test_provider_adapters.py",
+        "tests/storage/test_minio_integration.py",
+        "tests/storage/test_service.py::test_checksum_verified_migration_resumes_from_durable_checkpoint"
+      ],
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-010",
@@ -2297,7 +2322,11 @@
       "id": "URS-F-0082",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/storage/test_service.py::test_garbage_collection_honors_references_and_configured_safety_window",
+        "tests/storage/test_service.py::test_lifecycle_never_deletes_referenced_held_or_retained_objects"
+      ],
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-010",
@@ -2323,7 +2352,11 @@
       "id": "URS-F-0083",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/storage/test_service.py::test_verified_storage_retries_visibility_and_detects_corruption_before_yield",
+        "tests/storage/test_minio_integration.py"
+      ],
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-010",
@@ -23660,7 +23693,8 @@
       "status": "In Progress",
       "evidence": [
         "tests/test_reducer.py::test_domain_modules_do_not_import_infrastructure_frameworks",
-        "src/amesh/ports/durable_transport.py"
+        "src/amesh/ports/durable_transport.py",
+        "src/amesh/ports/object_store.py"
       ]
     },
     {
@@ -24028,7 +24062,10 @@
       "evidence": [
         "src/amesh/ports/durable_transport.py",
         "src/amesh/adapters/postgres/durable_transport.py",
-        "tests/adapters/postgres/test_durable_transport.py"
+        "tests/adapters/postgres/test_durable_transport.py",
+        "src/amesh/ports/object_store.py",
+        "tests/storage/test_provider_adapters.py",
+        "docs/operations/object-storage.md"
       ]
     },
     {

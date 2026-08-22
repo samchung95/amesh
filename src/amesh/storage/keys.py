@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from urllib.parse import urlsplit
 
 
@@ -37,3 +38,22 @@ def relative_tenant_key(tenant_id: str, object_key: str) -> str:
     if not object_key.startswith(prefix):
         raise ValueError("object key is outside the tenant storage prefix")
     return object_key.removeprefix(prefix)
+
+
+def validate_byte_range(start: int, end_exclusive: int) -> tuple[int, int]:
+    if start < 0 or end_exclusive <= start:
+        raise ValueError("byte range must satisfy 0 <= start < end_exclusive")
+    return start, end_exclusive
+
+
+def encode_lineage(lineage: tuple[str, ...]) -> str:
+    return json.dumps(lineage, separators=(",", ":"))
+
+
+def decode_lineage(value: str | None) -> tuple[str, ...]:
+    if value is None:
+        return ()
+    decoded = json.loads(value)
+    if not isinstance(decoded, list) or not all(isinstance(item, str) for item in decoded):
+        raise ValueError("object lineage metadata is invalid")
+    return tuple(decoded)
