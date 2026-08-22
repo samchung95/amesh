@@ -86,6 +86,12 @@ from .execution import (
     TransitionRejectionCode,
     UnsupportedEventSchema,
 )
+from .feature_flags import (
+    FeatureFlag,
+    FeatureFlagDecision,
+    FeatureFlagScope,
+    resolve_feature_flag,
+)
 from .identity import (
     AssetKey,
     FlowKey,
@@ -203,6 +209,9 @@ __all__ = [
     "ExecutionTransition",
     "FailoverStatus",
     "FailureCategory",
+    "FeatureFlag",
+    "FeatureFlagDecision",
+    "FeatureFlagScope",
     "FlowKey",
     "FlowRevisionKey",
     "InvalidIdentifier",
@@ -286,6 +295,7 @@ __all__ = [
     "replay_execution",
     "replay_task_run",
     "resolve_admission_policies",
+    "resolve_feature_flag",
     "resource_etag",
     "revise_resource_metadata",
     "tenant_storage_key",

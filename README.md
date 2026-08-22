@@ -90,7 +90,7 @@ Core correctness rules:
 9. Tenant and authorization context is mandatory at API, persistence, queue, storage and plugin boundaries.
 10. Compatibility claims require version-pinned differential evidence.
 
-Start with the [architecture overview](docs/architecture/README.md), [on-premises Kubernetes reference](docs/architecture/on-premises-kubernetes.md), [execution semantics](docs/architecture/execution-semantics.md), [PostgreSQL transport design](docs/architecture/postgresql-transport.md), [distributed queue operations](docs/operations/distributed-queue.md), [PostgreSQL operations guide](docs/operations/postgresql.md), [object-storage operations](docs/operations/object-storage.md), [full migration architecture](docs/architecture/migration.md) and [compatibility architecture](docs/architecture/compatibility.md).
+Start with the [architecture overview](docs/architecture/README.md), [on-premises Kubernetes reference](docs/architecture/on-premises-kubernetes.md), [execution semantics](docs/architecture/execution-semantics.md), [PostgreSQL transport design](docs/architecture/postgresql-transport.md), [configuration and feature flags](docs/operations/configuration.md), [distributed queue operations](docs/operations/distributed-queue.md), [PostgreSQL operations guide](docs/operations/postgresql.md), [object-storage operations](docs/operations/object-storage.md), [full migration architecture](docs/architecture/migration.md) and [compatibility architecture](docs/architecture/compatibility.md).
 
 ## Repository map
 

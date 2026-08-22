@@ -186,6 +186,12 @@
       "mode": "expand",
       "onlineCompatible": true,
       "rollbackGuidance": "Pause deadline and check-action consumers and forward-fix the additive policy, definition, evaluation and action ledgers; retain all compliance evidence."
+    },
+    {
+      "file": "0032_configuration_feature_flags.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Keep process configuration at its last accepted snapshot, stop feature-flag administration and forward-fix the additive flag table; retain flag and configuration audit evidence."
     }
   ]
 }

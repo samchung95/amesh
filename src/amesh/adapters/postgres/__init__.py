@@ -5,6 +5,7 @@ from .check_repository import PostgresCheckRepository
 from .credential_repository import PostgresCredentialRepository
 from .durable_transport import PostgresDurableTransport
 from .execution_repository import PostgresExecutionRepository
+from .feature_flags import PostgresFeatureFlagRepository
 from .metadata_repository import PostgresMetadataRepository
 from .operations_repository import (
     BackupCheckpoint,
@@ -29,6 +30,7 @@ __all__ = [
     "PostgresCredentialRepository",
     "PostgresDurableTransport",
     "PostgresExecutionRepository",
+    "PostgresFeatureFlagRepository",
     "PostgresMetadataRepository",
     "PostgresOperationsRepository",
     "PostgresReconciliationRepository",

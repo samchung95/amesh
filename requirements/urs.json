@@ -623,7 +623,7 @@
       "id": "URS-F-0022",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-003",
@@ -641,13 +641,17 @@
       "verification": "Configuration and service integration tests",
       "source_scope": "Kestra v1.3.30 public behavior and architecture parity baseline",
       "local_sequence": 1,
-      "dependencies": []
+      "dependencies": [],
+      "evidence": [
+        "tests/test_config.py::test_layered_configuration_precedence_secret_references_and_redaction",
+        "docs/operations/configuration.md"
+      ]
     },
     {
       "id": "URS-F-0023",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-003",
@@ -665,13 +669,17 @@
       "verification": "Configuration and service integration tests",
       "source_scope": "Kestra v1.3.30 public behavior and architecture parity baseline",
       "local_sequence": 2,
-      "dependencies": []
+      "dependencies": [],
+      "evidence": [
+        "tests/test_config.py::test_configuration_rejects_unknown_missing_secret_and_unsafe_combinations",
+        "tests/test_config.py::test_production_security_baseline_and_offline_defaults"
+      ]
     },
     {
       "id": "URS-F-0024",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-003",
@@ -689,13 +697,17 @@
       "verification": "Configuration and service integration tests",
       "source_scope": "Kestra v1.3.30 public behavior and architecture parity baseline",
       "local_sequence": 3,
-      "dependencies": []
+      "dependencies": [],
+      "evidence": [
+        "tests/test_config.py::test_layered_configuration_precedence_secret_references_and_redaction",
+        "tests/api/test_configuration_api.py::test_administrator_configuration_reload_diagnostics_and_scoped_flags"
+      ]
     },
     {
       "id": "URS-F-0025",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-003",
@@ -713,13 +725,17 @@
       "verification": "Configuration and service integration tests",
       "source_scope": "Kestra v1.3.30 public behavior and architecture parity baseline",
       "local_sequence": 4,
-      "dependencies": []
+      "dependencies": [],
+      "evidence": [
+        "tests/test_config.py::test_reload_is_atomic_and_limited_to_explicit_reloadable_settings",
+        "tests/api/test_configuration_api.py::test_administrator_configuration_reload_diagnostics_and_scoped_flags"
+      ]
     },
     {
       "id": "URS-F-0026",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-003",
@@ -737,13 +753,17 @@
       "verification": "Configuration and service integration tests",
       "source_scope": "Kestra v1.3.30 public behavior and architecture parity baseline",
       "local_sequence": 5,
-      "dependencies": []
+      "dependencies": [],
+      "evidence": [
+        "tests/api/test_configuration_api.py::test_administrator_configuration_reload_diagnostics_and_scoped_flags",
+        "docs/api/openapi.json"
+      ]
     },
     {
       "id": "URS-F-0027",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-003",
@@ -761,13 +781,18 @@
       "verification": "Configuration and service integration tests",
       "source_scope": "Kestra v1.3.30 public behavior and architecture parity baseline",
       "local_sequence": 6,
-      "dependencies": []
+      "dependencies": [],
+      "evidence": [
+        "tests/domain/test_feature_flags.py::test_namespace_tenant_instance_and_default_precedence",
+        "tests/adapters/postgres/test_feature_flag_repository.py::test_scoped_feature_flags_are_versioned_audited_and_tenant_isolated",
+        "tests/api/test_configuration_api.py::test_administrator_configuration_reload_diagnostics_and_scoped_flags"
+      ]
     },
     {
       "id": "URS-F-0028",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M0",
       "wave": 0,
       "epic_id": "EPIC-003",
@@ -785,7 +810,11 @@
       "verification": "Configuration and service integration tests",
       "source_scope": "Kestra v1.3.30 public behavior and architecture parity baseline",
       "local_sequence": 7,
-      "dependencies": []
+      "dependencies": [],
+      "evidence": [
+        "tests/test_config.py::test_renamed_settings_are_migrated_with_a_safe_warning",
+        "docs/operations/configuration.md"
+      ]
     },
     {
       "id": "URS-F-0029",
@@ -23901,7 +23930,10 @@
         "EPIC-612"
       ],
       "priority": "Must",
-      "status": "Proposed"
+      "status": "In Progress",
+      "evidence": [
+        "tests/api/test_configuration_api.py::test_administrator_configuration_reload_diagnostics_and_scoped_flags"
+      ]
     },
     {
       "id": "URS-NFR-OPERABILITY-005",
@@ -24145,7 +24177,11 @@
         "EPIC-804"
       ],
       "priority": "Must",
-      "status": "In Progress"
+      "status": "In Progress",
+      "evidence": [
+        "tests/test_config.py::test_production_security_baseline_and_offline_defaults",
+        "tests/api/test_configuration_api.py::test_administrator_configuration_reload_diagnostics_and_scoped_flags"
+      ]
     },
     {
       "id": "URS-NFR-PRIVACY-002",
@@ -24492,7 +24528,12 @@
         "EPIC-612"
       ],
       "priority": "Must",
-      "status": "Proposed"
+      "status": "In Progress",
+      "evidence": [
+        "tests/test_config.py::test_configuration_rejects_unknown_missing_secret_and_unsafe_combinations",
+        "tests/test_config.py::test_production_security_baseline_and_offline_defaults",
+        "tests/adapters/postgres/test_feature_flag_repository.py::test_scoped_feature_flags_are_versioned_audited_and_tenant_isolated"
+      ]
     },
     {
       "id": "URS-NFR-USABILITY-001",

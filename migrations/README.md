@@ -106,6 +106,10 @@ flow-revision definitions, database-time deadlines, independent evaluation evide
 retry-bounded violation-action queue. It is additive; pause deadline/action consumers and forward-fix
 while retaining compliance evidence if application fails.
 
+Migration `0032_configuration_feature_flags.sql` adds versioned instance, tenant and namespace
+boolean flags. The scope shape is constrained in PostgreSQL, tenant runtime reads are RLS-filtered and
+all administrative writes use the existing tenant-administration boundary and audit ledger.
+
 ## Migration modes
 
 - `bootstrap` creates the initial schema and is only safe for an empty database.

@@ -7,11 +7,14 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, SecretStr, model_validator
 
+from amesh.config import ConfigurationSnapshot
 from amesh.domain import (
     CredentialMetadata,
     CredentialScope,
     ExecutionEvent,
     ExecutionSnapshot,
+    FeatureFlag,
+    FeatureFlagScope,
     NamespaceId,
     PermissionAction,
     PrincipalType,
@@ -64,6 +67,28 @@ class UiSessionResponse(BaseModel):
     capabilities: dict[str, bool]
     telemetry_enabled: bool = Field(alias="telemetryEnabled")
     server_version: str = Field(alias="serverVersion")
+
+
+class FeatureFlagUpsertRequest(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    scope: FeatureFlagScope
+    enabled: bool
+    tenant_id: str | None = Field(default=None, alias="tenantId")
+    namespace: str | None = None
+    description: str = Field(default="", max_length=4096)
+    expected_version: int | None = Field(default=None, alias="expectedVersion", ge=1)
+
+
+class ConfigurationDiagnosticBundle(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    schema_version: int = Field(default=1, alias="schemaVersion")
+    generated_at: datetime = Field(alias="generatedAt")
+    tenant_id: str = Field(alias="tenantId")
+    namespace: str | None = None
+    configuration: ConfigurationSnapshot
+    feature_flags: tuple[FeatureFlag, ...] = Field(alias="featureFlags")
 
 
 class LoginRequest(BaseModel):

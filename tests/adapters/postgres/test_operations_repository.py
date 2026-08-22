@@ -41,7 +41,7 @@ def test_backup_checkpoint_and_maintenance_inventory_are_durable() -> None:
             )
 
             assert created.database_lsn
-            assert created.schema_version == "0031_execution_checks.sql"
+            assert created.schema_version == "0032_configuration_feature_flags.sql"
             assert await repository.latest_backup_checkpoint() == created
             exercise = await repository.start_recovery_exercise(
                 created.checkpoint_id,
@@ -55,7 +55,7 @@ def test_backup_checkpoint_and_maintenance_inventory_are_durable() -> None:
                 rpo_seconds=1.0,
                 rto_seconds=2.0,
                 postgres_client_version="pg_restore 17",
-                restored_schema_version="0031_execution_checks.sql",
+                restored_schema_version="0032_configuration_feature_flags.sql",
                 objects_total=2,
                 objects_verified=2,
                 reconciliation={"unresolved": 0},

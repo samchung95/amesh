@@ -20,13 +20,13 @@ URS-F-0018,Functional,Must,EPIC-002,Canonical resource model and identifiers,M0,
 URS-F-0019,Functional,Must,EPIC-002,Canonical resource model and identifiers,M0,0,Domain model unit and serialization compatibility tests,Verified
 URS-F-0020,Functional,Must,EPIC-002,Canonical resource model and identifiers,M0,0,Domain model unit and serialization compatibility tests,Verified
 URS-F-0021,Functional,Must,EPIC-002,Canonical resource model and identifiers,M0,0,Domain model unit and serialization compatibility tests,Verified
-URS-F-0022,Functional,Must,EPIC-003,Configuration and feature flag system,M0,0,Configuration and service integration tests,Proposed
-URS-F-0023,Functional,Must,EPIC-003,Configuration and feature flag system,M0,0,Configuration and service integration tests,Proposed
-URS-F-0024,Functional,Must,EPIC-003,Configuration and feature flag system,M0,0,Configuration and service integration tests,Proposed
-URS-F-0025,Functional,Must,EPIC-003,Configuration and feature flag system,M0,0,Configuration and service integration tests,Proposed
-URS-F-0026,Functional,Must,EPIC-003,Configuration and feature flag system,M0,0,Configuration and service integration tests,Proposed
-URS-F-0027,Functional,Must,EPIC-003,Configuration and feature flag system,M0,0,Configuration and service integration tests,Proposed
-URS-F-0028,Functional,Must,EPIC-003,Configuration and feature flag system,M0,0,Configuration and service integration tests,Proposed
+URS-F-0022,Functional,Must,EPIC-003,Configuration and feature flag system,M0,0,Configuration and service integration tests,Verified
+URS-F-0023,Functional,Must,EPIC-003,Configuration and feature flag system,M0,0,Configuration and service integration tests,Verified
+URS-F-0024,Functional,Must,EPIC-003,Configuration and feature flag system,M0,0,Configuration and service integration tests,Verified
+URS-F-0025,Functional,Must,EPIC-003,Configuration and feature flag system,M0,0,Configuration and service integration tests,Verified
+URS-F-0026,Functional,Must,EPIC-003,Configuration and feature flag system,M0,0,Configuration and service integration tests,Verified
+URS-F-0027,Functional,Must,EPIC-003,Configuration and feature flag system,M0,0,Configuration and service integration tests,Verified
+URS-F-0028,Functional,Must,EPIC-003,Configuration and feature flag system,M0,0,Configuration and service integration tests,Verified
 URS-F-0029,Functional,Must,EPIC-004,"Flow DSL, YAML model and schema",M0,0,"Parser, schema, rendering and compatibility tests",Verified
 URS-F-0030,Functional,Must,EPIC-004,"Flow DSL, YAML model and schema",M0,0,"Parser, schema, rendering and compatibility tests",Verified
 URS-F-0031,Functional,Must,EPIC-004,"Flow DSL, YAML model and schema",M0,0,"Parser, schema, rendering and compatibility tests",Verified
@@ -879,9 +879,9 @@ URS-NFR-OPERABILITY-001,Non-functional,Must,EPIC-606,"Containers, Kubernetes and
 URS-NFR-OPERABILITY-002,Non-functional,Must,EPIC-607,"OpenTelemetry, Prometheus and log shipping",M6,6,Telemetry cardinality audit.,Proposed
 URS-NFR-OPERABILITY-003,Non-functional,Must,EPIC-607,"OpenTelemetry, Prometheus and log shipping",M6,6,Alert fixture and runbook audit.,Proposed
 URS-NFR-OPERABILITY-003,Non-functional,Must,EPIC-705,"Documentation, examples and community governance",M7,7,Alert fixture and runbook audit.,Proposed
-URS-NFR-OPERABILITY-004,Non-functional,Must,EPIC-003,Configuration and feature flag system,M0,0,Security test with seeded sensitive data.,Proposed
-URS-NFR-OPERABILITY-004,Non-functional,Must,EPIC-607,"OpenTelemetry, Prometheus and log shipping",M6,6,Security test with seeded sensitive data.,Proposed
-URS-NFR-OPERABILITY-004,Non-functional,Must,EPIC-612,Security hardening and software supply chain,M6,6,Security test with seeded sensitive data.,Proposed
+URS-NFR-OPERABILITY-004,Non-functional,Must,EPIC-003,Configuration and feature flag system,M0,0,Security test with seeded sensitive data.,In Progress
+URS-NFR-OPERABILITY-004,Non-functional,Must,EPIC-607,"OpenTelemetry, Prometheus and log shipping",M6,6,Security test with seeded sensitive data.,In Progress
+URS-NFR-OPERABILITY-004,Non-functional,Must,EPIC-612,Security hardening and software supply chain,M6,6,Security test with seeded sensitive data.,In Progress
 URS-NFR-OPERABILITY-005,Non-functional,Must,EPIC-105,"Concurrency, admission control and fairness",M1,1,Dashboard and telemetry contract tests.,In Progress
 URS-NFR-OPERABILITY-005,Non-functional,Must,EPIC-601,Distributed services and high availability,M6,6,Dashboard and telemetry contract tests.,In Progress
 URS-NFR-OPERABILITY-005,Non-functional,Must,EPIC-607,"OpenTelemetry, Prometheus and log shipping",M6,6,Dashboard and telemetry contract tests.,In Progress
@@ -972,10 +972,10 @@ URS-NFR-SECURITY-008,Non-functional,Must,EPIC-221,Docker and OCI task runner,M2,
 URS-NFR-SECURITY-008,Non-functional,Must,EPIC-222,Kubernetes task runner,M2,2,Architecture test and runtime process inspection.,Proposed
 URS-NFR-SECURITY-008,Non-functional,Must,EPIC-303,Isolated language-neutral plugin runtime,M3,3,Architecture test and runtime process inspection.,Proposed
 URS-NFR-SECURITY-009,Non-functional,Must,EPIC-504,Immutable audit log and evidence export,M5,5,Endpoint-to-audit traceability suite.,Proposed
-URS-NFR-SECURITY-010,Non-functional,Must,EPIC-003,Configuration and feature flag system,M0,0,Configuration conformance and container scan.,Proposed
-URS-NFR-SECURITY-010,Non-functional,Must,EPIC-403,Authentication session and credential entry points,M4,4,Configuration conformance and container scan.,Proposed
-URS-NFR-SECURITY-010,Non-functional,Must,EPIC-505,"Plugin allow, restrict and version policy",M5,5,Configuration conformance and container scan.,Proposed
-URS-NFR-SECURITY-010,Non-functional,Must,EPIC-612,Security hardening and software supply chain,M6,6,Configuration conformance and container scan.,Proposed
+URS-NFR-SECURITY-010,Non-functional,Must,EPIC-003,Configuration and feature flag system,M0,0,Configuration conformance and container scan.,In Progress
+URS-NFR-SECURITY-010,Non-functional,Must,EPIC-403,Authentication session and credential entry points,M4,4,Configuration conformance and container scan.,In Progress
+URS-NFR-SECURITY-010,Non-functional,Must,EPIC-505,"Plugin allow, restrict and version policy",M5,5,Configuration conformance and container scan.,In Progress
+URS-NFR-SECURITY-010,Non-functional,Must,EPIC-612,Security hardening and software supply chain,M6,6,Configuration conformance and container scan.,In Progress
 URS-NFR-USABILITY-001,Non-functional,Must,EPIC-004,"Flow DSL, YAML model and schema",M0,0,Editor benchmark and validation contract tests.,In Progress
 URS-NFR-USABILITY-001,Non-functional,Must,EPIC-405,Flow code editor and validation experience,M4,4,Editor benchmark and validation contract tests.,In Progress
 URS-NFR-USABILITY-002,Non-functional,Must,EPIC-105,"Concurrency, admission control and fairness",M1,1,Scenario-based UI and API acceptance tests.,In Progress

@@ -12,13 +12,17 @@ Offer typed, layered and auditable configuration for standalone and distributed 
 
 ## In scope
 
-- [ ] **URS-F-0022** — The system shall load configuration from files, environment variables, command-line flags and secret references with a documented precedence order.
-- [ ] **URS-F-0023** — The system shall validate all configuration at startup and reject unsafe or contradictory combinations.
-- [ ] **URS-F-0024** — The system shall redact secrets from diagnostics, API responses, logs and crash reports.
-- [ ] **URS-F-0025** — The system shall support dynamic reload only for explicitly reloadable settings.
-- [ ] **URS-F-0026** — The system shall expose effective non-secret configuration and provenance to authorized administrators.
-- [ ] **URS-F-0027** — The system shall provide feature flags with tenant, namespace and instance scopes.
-- [ ] **URS-F-0028** — The system shall support deprecation warnings and automated migration of renamed settings.
+- [x] **URS-F-0022** — The system shall load configuration from files, environment variables, command-line flags and secret references with a documented precedence order.
+- [x] **URS-F-0023** — The system shall validate all configuration at startup and reject unsafe or contradictory combinations.
+- [x] **URS-F-0024** — The system shall redact secrets from diagnostics, API responses, logs and crash reports.
+- [x] **URS-F-0025** — The system shall support dynamic reload only for explicitly reloadable settings.
+- [x] **URS-F-0026** — The system shall expose effective non-secret configuration and provenance to authorized administrators.
+- [x] **URS-F-0027** — The system shall provide feature flags with tenant, namespace and instance scopes.
+- [x] **URS-F-0028** — The system shall support deprecation warnings and automated migration of renamed settings.
+
+## Implementation completion evidence
+
+- 2026-08-22 — EPIC-003 is complete. AMESH now loads one typed process snapshot from ordered YAML/JSON files, environment variables, command-line overrides and secret references with explicit provenance; rejects invalid and unsafe startup combinations; redacts active secrets from API, diagnostic and structured-log output; atomically reloads only declared settings; exposes authorized configuration and tenant-bounded diagnostic APIs; persists audited, versioned instance/tenant/namespace feature flags through migration 0032; and migrates renamed settings with safe deprecation warnings. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`configuration.md`](../../docs/operations/configuration.md), [`config.py`](../../src/amesh/config.py), [`feature_flags.py`](../../src/amesh/adapters/postgres/feature_flags.py), [`test_config.py`](../../tests/test_config.py), [`test_configuration_api.py`](../../tests/api/test_configuration_api.py) and [`test_feature_flag_repository.py`](../../tests/adapters/postgres/test_feature_flag_repository.py). Shared URS-NFR-SECURITY-010, URS-NFR-OPERABILITY-004 and URS-NFR-PRIVACY-001 remain In Progress for their other owning epics and external qualification.
 
 ## Non-functional requirements
 
@@ -48,13 +52,13 @@ Offer typed, layered and auditable configuration for standalone and distributed 
 
 ## Definition of done
 
-- [ ] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
-- [ ] Public API, DSL, event and plugin contract changes pass compatibility checks.
-- [ ] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
-- [ ] Security, tenant isolation, redaction and audit behavior are reviewed.
-- [ ] Documentation, examples, migration notes and operational runbooks are updated.
-- [ ] Performance and recovery budgets are measured when this epic is on a critical path.
-- [ ] `python scripts/validate_backlog.py` passes.
+- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
+- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.
+- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
+- [x] Security, tenant isolation, redaction and audit behavior are reviewed.
+- [x] Documentation, examples, migration notes and operational runbooks are updated.
+- [x] Performance and recovery budgets are measured when this epic is on a critical path.
+- [x] `python scripts/validate_backlog.py` passes.
 
 ## Risks and unknowns
 

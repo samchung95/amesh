@@ -53,6 +53,7 @@ from .execution_repository import (
     SubflowPropagation,
     TaskStateConflictError,
 )
+from .feature_flags import FeatureFlagRepository, FeatureFlagVersionConflict
 from .metadata_repository import (
     AssetMetadata,
     ExecutionArtifact,
@@ -168,6 +169,8 @@ __all__ = [
     "ExecutionOutput",
     "ExecutionRepository",
     "ExecutionStateConflictError",
+    "FeatureFlagRepository",
+    "FeatureFlagVersionConflict",
     "LastAdministratorError",
     "LogLevel",
     "LogSourceStream",

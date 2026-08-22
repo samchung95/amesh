@@ -244,6 +244,8 @@ async def request_self_drain(settings: Settings) -> bool:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Run or inspect one AMESH service role")
+    parser.add_argument("--config", action="append", help=argparse.SUPPRESS)
+    parser.add_argument("--set", action="append", help=argparse.SUPPRESS)
     parser.add_argument("--check", choices=("liveness", "readiness"))
     parser.add_argument("--drain", action="store_true")
     args = parser.parse_args()

@@ -41,6 +41,7 @@ from amesh.adapters.postgres import (
     PostgresCheckRepository,
     PostgresCredentialRepository,
     PostgresExecutionRepository,
+    PostgresFeatureFlagRepository,
     PostgresMetadataRepository,
     PostgresReconciliationRepository,
     PostgresServiceRegistryRepository,
@@ -63,6 +64,7 @@ from amesh.api.models import (
     BulkExecutionRequest,
     ChangeLocalPasswordRequest,
     CheckPolicyUpsertRequest,
+    ConfigurationDiagnosticBundle,
     CreateExecutionRequest,
     CreateTenantRequest,
     ExchangeCredentialRequest,
@@ -70,6 +72,7 @@ from amesh.api.models import (
     ExecutionEvidencePage,
     ExecutionInterventionPreviewRequest,
     ExecutionInterventionRequest,
+    FeatureFlagUpsertRequest,
     FlowGraph,
     FlowGraphEdge,
     FlowGraphNode,
@@ -103,7 +106,15 @@ from amesh.authentication import (
 )
 from amesh.authorization import AuthorizationDenied, AuthorizationService
 from amesh.backfills import BackfillService
-from amesh.config import Settings, get_settings
+from amesh.config import (
+    ConfigurationLoadError,
+    ConfigurationManager,
+    ConfigurationSnapshot,
+    NonReloadableConfigurationChanged,
+    Settings,
+    get_configuration_manager,
+    get_settings,
+)
 from amesh.credentials import CredentialOperationError, CredentialService, InvalidCredential
 from amesh.database import create_database_engine
 from amesh.domain import (
@@ -120,6 +131,9 @@ from amesh.domain import (
     BackfillState,
     CredentialMetadata,
     ExecutionState,
+    FeatureFlag,
+    FeatureFlagDecision,
+    FeatureFlagScope,
     InvalidTransition,
     IssuedCredential,
     NamespaceAuthorizationBoundary,
@@ -169,6 +183,7 @@ from amesh.migrations import migration_directory
 from amesh.observability import (
     HTTP_REQUEST_DURATION,
     HTTP_REQUESTS,
+    configure_structured_logging,
     database_readiness,
     instrument_database,
 )
@@ -181,6 +196,7 @@ from amesh.ports import (
     ExecutionInterventionRecord,
     ExecutionLaunchSource,
     ExecutionStateConflictError,
+    FeatureFlagVersionConflict,
     LastAdministratorError,
     NamespaceCheckPolicy,
     PersistedExecution,
@@ -425,6 +441,10 @@ BackfillServiceDependency = Annotated[
     Depends(get_backfill_service),
 ]
 SettingsDependency = Annotated[Settings, Depends(get_settings)]
+ConfigurationManagerDependency = Annotated[
+    ConfigurationManager,
+    Depends(get_configuration_manager),
+]
 
 
 @lru_cache
@@ -504,6 +524,17 @@ def get_tenant_service() -> TenantService:
 
 
 TenantServiceDependency = Annotated[TenantService, Depends(get_tenant_service)]
+
+
+@lru_cache
+def get_feature_flag_repository() -> PostgresFeatureFlagRepository:
+    return PostgresFeatureFlagRepository(database_engine())
+
+
+FeatureFlagRepositoryDependency = Annotated[
+    PostgresFeatureFlagRepository,
+    Depends(get_feature_flag_repository),
+]
 
 
 @lru_cache
@@ -876,6 +907,237 @@ async def get_ui_session(
         telemetryEnabled=settings.product_telemetry_enabled,
         serverVersion=__version__,
     )
+
+
+@app.get(
+    "/api/v1/configuration",
+    response_model=ConfigurationSnapshot,
+    tags=["configuration"],
+)
+async def get_effective_configuration(
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    configuration: ConfigurationManagerDependency,
+) -> ConfigurationSnapshot:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="configuration",
+        action=PermissionAction.VIEW,
+    )
+    return configuration.snapshot()
+
+
+@app.post(
+    "/api/v1/configuration/reload",
+    response_model=ConfigurationSnapshot,
+    tags=["configuration"],
+)
+async def reload_configuration(
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    configuration: ConfigurationManagerDependency,
+    feature_flags: FeatureFlagRepositoryDependency,
+) -> ConfigurationSnapshot:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="configuration",
+        action=PermissionAction.MANAGE,
+    )
+    before = configuration.snapshot()
+    try:
+        after = configuration.reload()
+    except NonReloadableConfigurationChanged as exc:
+        await feature_flags.audit_configuration_reload(
+            actor_id=str(actor.principal_id),
+            outcome="REJECTED",
+            changed_fields=exc.fields,
+            reason="restart-required setting changed",
+        )
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=str(exc),
+        ) from exc
+    except ConfigurationLoadError as exc:
+        await feature_flags.audit_configuration_reload(
+            actor_id=str(actor.principal_id),
+            outcome="REJECTED",
+            changed_fields=(),
+            reason="candidate configuration failed validation",
+        )
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=str(exc),
+        ) from exc
+    before_entries = {entry.name: entry for entry in before.entries}
+    changed = tuple(
+        entry.name
+        for entry in after.entries
+        if before_entries[entry.name].value != entry.value
+        or before_entries[entry.name].source != entry.source
+    )
+    configure_structured_logging(configuration.settings.log_level)
+    await feature_flags.audit_configuration_reload(
+        actor_id=str(actor.principal_id),
+        outcome="SUCCESS",
+        changed_fields=changed,
+        reason="reload accepted",
+    )
+    return after
+
+
+@app.get(
+    "/api/v1/configuration/diagnostics",
+    response_model=ConfigurationDiagnosticBundle,
+    tags=["configuration"],
+)
+async def get_configuration_diagnostics(
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    configuration: ConfigurationManagerDependency,
+    feature_flags: FeatureFlagRepositoryDependency,
+    tenant_id: TenantDependency,
+    namespace: str | None = None,
+) -> ConfigurationDiagnosticBundle:
+    await authorize_request(
+        authorization_service,
+        actor,
+        tenant_id=tenant_id,
+        namespace=namespace,
+        resource_type="configuration",
+        action=PermissionAction.VIEW,
+    )
+    return ConfigurationDiagnosticBundle(
+        generatedAt=datetime.now(UTC),
+        tenantId=tenant_id,
+        namespace=namespace,
+        configuration=configuration.snapshot(),
+        featureFlags=await feature_flags.list_for_context(tenant_id, namespace=namespace),
+    )
+
+
+@app.get(
+    "/api/v1/feature-flags",
+    response_model=tuple[FeatureFlag, ...],
+    tags=["configuration"],
+)
+async def list_feature_flags(
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    feature_flags: FeatureFlagRepositoryDependency,
+    tenant_id: TenantDependency,
+    namespace: str | None = None,
+) -> tuple[FeatureFlag, ...]:
+    await authorize_request(
+        authorization_service,
+        actor,
+        tenant_id=tenant_id,
+        namespace=namespace,
+        resource_type="feature_flag",
+        action=PermissionAction.VIEW,
+    )
+    return await feature_flags.list_for_context(tenant_id, namespace=namespace)
+
+
+@app.get(
+    "/api/v1/feature-flags/{key}/evaluate",
+    response_model=FeatureFlagDecision,
+    tags=["configuration"],
+)
+async def evaluate_feature_flag(
+    key: str,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    feature_flags: FeatureFlagRepositoryDependency,
+    tenant_id: TenantDependency,
+    namespace: str | None = None,
+    default: bool = False,
+) -> FeatureFlagDecision:
+    await authorize_request(
+        authorization_service,
+        actor,
+        tenant_id=tenant_id,
+        namespace=namespace,
+        resource_type="feature_flag",
+        action=PermissionAction.VIEW,
+    )
+    return await feature_flags.evaluate(
+        key,
+        tenant_id,
+        namespace=namespace,
+        default=default,
+    )
+
+
+@app.put(
+    "/api/v1/feature-flags/{key}",
+    response_model=FeatureFlag,
+    tags=["configuration"],
+)
+async def put_feature_flag(
+    key: str,
+    request: FeatureFlagUpsertRequest,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    feature_flags: FeatureFlagRepositoryDependency,
+    tenant_id: TenantDependency,
+) -> FeatureFlag:
+    if request.scope is FeatureFlagScope.INSTANCE:
+        if request.tenant_id is not None or request.namespace is not None:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="instance feature flag cannot declare tenant or namespace",
+            )
+        scope_tenant = None
+        scope_namespace = None
+    else:
+        if request.tenant_id is not None and request.tenant_id != tenant_id:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="tenant unavailable")
+        scope_tenant = tenant_id
+        scope_namespace = request.namespace
+        if request.scope is FeatureFlagScope.TENANT and scope_namespace is not None:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="tenant feature flag cannot declare namespace",
+            )
+        if request.scope is FeatureFlagScope.NAMESPACE and scope_namespace is None:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="namespace feature flag requires namespace",
+            )
+    await authorize_request(
+        authorization_service,
+        actor,
+        tenant_id=scope_tenant,
+        namespace=scope_namespace,
+        resource_type="feature_flag",
+        action=PermissionAction.MANAGE,
+    )
+    flag = FeatureFlag(
+        key=key,
+        scope=request.scope,
+        enabled=request.enabled,
+        tenant_id=scope_tenant,
+        namespace=scope_namespace,
+        description=request.description,
+        updated_by=str(actor.principal_id),
+    )
+    try:
+        return await feature_flags.upsert(
+            flag,
+            actor_id=str(actor.principal_id),
+            expected_version=request.expected_version,
+        )
+    except FeatureFlagVersionConflict as exc:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="feature flag version changed",
+        ) from exc
+    except LookupError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="tenant unavailable"
+        ) from exc
 
 
 @app.get(

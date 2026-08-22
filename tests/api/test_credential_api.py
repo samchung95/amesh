@@ -128,6 +128,7 @@ def test_api_token_is_shown_once_and_authenticates_outside_development() -> None
                     auth_mode="credentials",
                     amesh_admin_token="bootstrap-test-token",
                     amesh_token_pepper="api-integration-pepper",
+                    object_storage_workload_identity=True,
                 )
                 durable_headers = {"authorization": f"Bearer {token}"}
                 assert (

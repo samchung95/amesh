@@ -238,11 +238,13 @@ class JsonFormatter(logging.Formatter):
     """Render one stable JSON object per process log record."""
 
     def format(self, record: logging.LogRecord) -> str:
+        from amesh.config import redact_runtime_text
+
         payload: dict[str, Any] = {
             "timestamp": datetime.fromtimestamp(record.created, UTC).isoformat(),
             "level": record.levelname,
             "logger": record.name,
-            "message": record.getMessage(),
+            "message": redact_runtime_text(record.getMessage()),
         }
         for name in (
             "execution_id",
@@ -255,7 +257,7 @@ class JsonFormatter(logging.Formatter):
             if value is not None:
                 payload[name] = value
         if record.exc_info:
-            payload["exception"] = self.formatException(record.exc_info)
+            payload["exception"] = redact_runtime_text(self.formatException(record.exc_info))
         return json.dumps(payload, separators=(",", ":"), sort_keys=True)
 
 

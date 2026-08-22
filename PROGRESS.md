@@ -3,11 +3,25 @@
 ## Current state
 
 - What works: the original five requested post-MVP areas plus durable cache, triggers, execution evidence and SLA/check policies are implemented, evidence-linked and deployed through migration 0031.
-- What's in flight: the 50-epic local completion program is tracked on Agent Hotel cards `c37`–`c86`; EPIC-000 on card `c37` has passed its final gates and EPIC-003 on card `c38` is next. The local Docker Compose deployment remains available at `http://localhost:8000`.
+- What's in flight: the 50-epic local completion program is tracked on Agent Hotel cards `c37`–`c86`; EPIC-003 on card `c38` has passed its deployment gate and EPIC-006 on card `c39` is next. The local Docker Compose deployment is healthy at migration 32/32 on `http://localhost:8000`.
 - Known broken / TODO: 20 external-cloud, SaaS, hosted-release, independent-certification, multi-region or long-duration epics are deferred. Cards `c15` and `c29` preserve unrelated test failures and are not blockers for the local program.
 - How to run/test: use `uv run --extra runtime --extra dev pytest`; set `AMESH_TEST_DATABASE_URL` for PostgreSQL integration tests and `OPENROUTER_API_KEY` for live LLM tests.
 
 ## Session log
+
+### 2026-08-22 (50-epic local completion program, EPIC-003 start)
+
+- Did: selected EPIC-003 on card `c38`; retained pinned Pydantic Settings and PyYAML after build-versus-buy review; accepted ADR-031; implemented ordered file/environment/CLI loading, `secret://` references, secret-free validation errors and structured-log redaction, explicit reloadable metadata, atomic reload rejection, renamed-setting migration and the namespace-over-tenant-over-instance feature-flag contract. Added additive migration 0032 and the PostgreSQL repository boundary.
+- Verification: ten focused configuration and feature-flag domain tests pass; Ruff and strict mypy pass for the new core modules.
+- Deviations from plan: no new dependency was added. The OpenFeature provider/evaluation shape informed the decision evidence, but its SDK would not supply AMESH's PostgreSQL scope, authorization or audit semantics.
+- Next step when resuming: qualify migration 0032 and tenant RLS, then expose authorized configuration, diagnostic, reload and flag APIs.
+
+### 2026-08-22 (50-epic local completion program, EPIC-003 completion)
+
+- Did: completed EPIC-003 with typed source snapshots and provenance; YAML/JSON, environment, CLI and secret-reference precedence; safe deprecation migration; production configuration gates; active-secret API/log/diagnostic redaction; atomic reload; authorized configuration APIs; and audited versioned PostgreSQL instance/tenant/namespace feature flags through migration 0032. Linked URS-F-0022 through URS-F-0028 to evidence.
+- Verification: 281 tests collected; 273 passed, six environment/profile tests skipped and cards `c15`/`c29` were explicitly deselected. Seventeen focused tests, Ruff, strict mypy, generated contracts/planning, migration, backlog and clean-room gates passed. The rebuilt Compose API/executor/scheduler are healthy at migration 32/32, and deployed HTTP acceptance passed configuration, reload, scoped evaluation and diagnostic-bundle checks.
+- Deviations from plan: the first full run's two failures were direct migration-version expectations; updating the owning assertion and applying migration 0032 to the deployed database resolved both. No LLM call or new package was required.
+- Next step when resuming: close and commit card `c38`, then select EPIC-006 on card `c39` for flow revisions, change history and promotion.
 
 ### 2026-08-22 (50-epic local completion program, EPIC-000 completion)
 

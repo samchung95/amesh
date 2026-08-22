@@ -331,85 +331,107 @@
       "requirement_id": "URS-F-0022",
       "epic_id": "EPIC-003",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/test_config.py::test_layered_configuration_precedence_secret_references_and_redaction",
+        "docs/operations/configuration.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0023",
       "epic_id": "EPIC-003",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/test_config.py::test_configuration_rejects_unknown_missing_secret_and_unsafe_combinations",
+        "tests/test_config.py::test_production_security_baseline_and_offline_defaults"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0024",
       "epic_id": "EPIC-003",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/test_config.py::test_layered_configuration_precedence_secret_references_and_redaction",
+        "tests/api/test_configuration_api.py::test_administrator_configuration_reload_diagnostics_and_scoped_flags"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0025",
       "epic_id": "EPIC-003",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/test_config.py::test_reload_is_atomic_and_limited_to_explicit_reloadable_settings",
+        "tests/api/test_configuration_api.py::test_administrator_configuration_reload_diagnostics_and_scoped_flags"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0026",
       "epic_id": "EPIC-003",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/api/test_configuration_api.py::test_administrator_configuration_reload_diagnostics_and_scoped_flags",
+        "docs/api/openapi.json"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0027",
       "epic_id": "EPIC-003",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/domain/test_feature_flags.py::test_namespace_tenant_instance_and_default_precedence",
+        "tests/adapters/postgres/test_feature_flag_repository.py::test_scoped_feature_flags_are_versioned_audited_and_tenant_isolated",
+        "tests/api/test_configuration_api.py::test_administrator_configuration_reload_diagnostics_and_scoped_flags"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0028",
       "epic_id": "EPIC-003",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/test_config.py::test_renamed_settings_are_migrated_with_a_safe_warning",
+        "docs/operations/configuration.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0029",

@@ -1,5 +1,39 @@
 # Test Log
 
+## EPIC-003: Configuration and feature flag system — 2026-08-22
+
+Spec source: Agent Hotel card `c38` and canonical `backlog/epics.json` EPIC-003 DoD.
+
+Verified with `uv`, Python 3.13, PostgreSQL 17 and the deployed Compose control plane:
+
+- [x] Ordered YAML/JSON files, environment variables, `--config`/`--set` arguments and
+  `secret://` references resolve with documented precedence, typed validation and winning-source
+  provenance; unknown, unavailable and contradictory candidates fail with secret-free diagnostics.
+- [x] Configuration snapshots redact all six current secret fields. Canary values are absent from
+  snapshots, API responses, tenant-bounded diagnostic bundles and structured log messages.
+- [x] Reload atomically accepts only declared log/telemetry/update-check settings and rejects a
+  restart-required change without publishing any part of the candidate. Accepted and rejected reloads
+  have durable audit contracts.
+- [x] Migration 0032 persists versioned instance, tenant and namespace flags with namespace → tenant
+  → instance → default resolution, optimistic version conflicts, audit evidence and runtime RLS.
+- [x] Renamed settings migrate with deprecation warnings; production validation fails closed for
+  development authentication, token pepper, object-store identity, plugin trust and declared public
+  TLS posture. Telemetry and update checks are off by default in the offline loader test.
+- [x] Seventeen focused configuration, feature-flag, migration, authentication and API tests passed.
+  The complete suite collected 281 tests: 273 passed, six environment/profile tests skipped and the
+  pre-existing card `c15`/`c29` assertions were explicitly deselected.
+- [x] Ruff formatting and lint passed for 216 files, strict mypy passed for 119 source files, generated
+  OpenAPI/planning artifacts, clean-room/backlog validation and migration ordering passed.
+- [x] The rebuilt local API, executor, scheduler and PostgreSQL services are healthy at migration
+  32/32. Deployed HTTP acceptance returned six redacted secret entries, two scoped flags,
+  `NAMESPACE_MATCH`, a tenant-bounded diagnostic bundle and a successful no-change reload.
+
+No LLM invocation was required for deterministic configuration or flag evaluation; the configured
+OpenRouter `openai/gpt-5.6-luna` default is unchanged.
+
+Verdict: PASS — EPIC-003 functional requirements URS-F-0022 through URS-F-0028 are verified. Its
+shared security, operability and privacy NFRs remain In Progress for their other owners.
+
 ## EPIC-000: Clean-room governance and parity baseline — 2026-08-22
 
 Spec source: Agent Hotel card `c37` and canonical `backlog/epics.json` EPIC-000 DoD.
