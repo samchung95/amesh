@@ -613,7 +613,12 @@ def test_canonical_resource_metadata_and_uuid7_are_persisted() -> None:
             persisted_flow = await repository.apply_flow(flow, tenant_id="default")
             assert persisted_flow.resource_id.version == 7
             assert persisted_flow.tenant_id == "default"
-            assert persisted_flow.metadata.labels == {"team": "platform"}
+            assert persisted_flow.metadata.labels == {
+                "team": "platform",
+                "amesh.namespace": flow.namespace,
+                "amesh.flow.id": flow.id,
+                "amesh.flow.revision": "1",
+            }
             assert persisted_flow.metadata.annotations == {"purpose": "EPIC-002 verification"}
             assert persisted_flow.metadata.resource_version >= 2
             assert persisted_flow.etag.startswith('"sha256:')
@@ -624,6 +629,8 @@ def test_canonical_resource_metadata_and_uuid7_are_persisted() -> None:
                 execution_id,
                 tenant_id="default",
             )
+            assert execution.labels["amesh.execution.id"] == str(execution.execution_id)
+            assert task_runs[0].labels["amesh.task.id"] == "done"
             assert execution_id.version == 7
             assert all(task.task_run_id.version == 7 for task in task_runs)
 

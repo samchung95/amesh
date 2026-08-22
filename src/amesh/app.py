@@ -77,6 +77,7 @@ from amesh.api.models import (
     FlowGraph,
     FlowGraphEdge,
     FlowGraphNode,
+    FlowMetadataResponse,
     FlowRevisionLifecycleRequest,
     FlowRevisionRestoreRequest,
     HealthResponse,
@@ -238,6 +239,11 @@ from amesh.workflow.data_contracts import (
     sensitive_execution_values,
     stage_file_inputs,
     validate_flow_inputs,
+)
+from amesh.workflow.metadata import (
+    NamespaceWorkflowMetadata,
+    NamespaceWorkflowMetadataUpdate,
+    NamespaceWorkflowMetadataView,
 )
 
 LOGGER = logging.getLogger("amesh.api")
@@ -1478,6 +1484,113 @@ async def list_flows(
         tenant_id=tenant_id,
     )
     return collection_response(await repository.list_flows(tenant_id=tenant_id), query)
+
+
+@app.put(
+    "/api/v1/namespaces/{namespace}/workflow-metadata",
+    response_model=NamespaceWorkflowMetadata,
+    tags=["namespaces"],
+)
+async def upsert_namespace_workflow_metadata(
+    namespace: str,
+    request: NamespaceWorkflowMetadataUpdate,
+    repository: RepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> NamespaceWorkflowMetadata:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="namespace",
+        action=PermissionAction.MANAGE,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    try:
+        return await repository.upsert_namespace_workflow_metadata(
+            namespace,
+            request,
+            tenant_id=tenant_id,
+            actor_id=str(actor.principal_id),
+        )
+    except ResourceVersionConflict as exc:
+        raise HTTPException(
+            status_code=status.HTTP_412_PRECONDITION_FAILED,
+            detail=str(exc),
+        ) from exc
+
+
+@app.get(
+    "/api/v1/namespaces/{namespace}/workflow-metadata",
+    response_model=NamespaceWorkflowMetadataView,
+    tags=["namespaces"],
+)
+async def get_namespace_workflow_metadata(
+    namespace: str,
+    repository: ReadRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> NamespaceWorkflowMetadataView:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="namespace",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    return await repository.get_namespace_workflow_metadata(
+        namespace,
+        tenant_id=tenant_id,
+    )
+
+
+@app.get(
+    "/api/v1/flows/{namespace}/{flow_id}/metadata",
+    response_model=FlowMetadataResponse,
+    tags=["flows"],
+)
+async def get_flow_metadata(
+    namespace: str,
+    flow_id: str,
+    repository: ReadRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> FlowMetadataResponse:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="flow",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    persisted = next(
+        (
+            item
+            for item in await repository.list_flows(tenant_id=tenant_id)
+            if item.namespace == namespace and item.flow_id == flow_id
+        ),
+        None,
+    )
+    if persisted is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="flow not found")
+    revisions = await repository.list_flow_revisions(
+        namespace,
+        flow_id,
+        tenant_id=tenant_id,
+    )
+    revision = next(item for item in revisions if item.revision == persisted.revision)
+    return FlowMetadataResponse(
+        namespace=namespace,
+        flowId=flow_id,
+        revision=persisted.revision,
+        labels=persisted.metadata.labels,
+        pluginResolution=revision.plugin_resolution,
+    )
 
 
 @app.get(

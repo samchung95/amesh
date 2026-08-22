@@ -117,7 +117,15 @@ class PostgresBackfillRepository(BackfillRepository):
                     "selection_kind": spec.selection.kind.value,
                     "selection": spec.selection.model_dump_json(by_alias=True),
                     "inputs": json.dumps(spec.inputs),
-                    "labels": json.dumps(spec.labels),
+                    "labels": json.dumps(
+                        {
+                            **spec.labels,
+                            "amesh.namespace": spec.namespace,
+                            "amesh.flow.id": spec.flow_id,
+                            "amesh.flow.revision": str(spec.flow_revision),
+                            "amesh.backfill.id": str(backfill_id),
+                        }
+                    ),
                     "max_concurrency": spec.max_concurrency,
                     "rate_per_minute": spec.rate_per_minute,
                     "priority": spec.priority,

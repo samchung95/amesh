@@ -3034,7 +3034,11 @@ def derive_task_cache_key(
     selectable_context: dict[str, object] = {
         "inputs": declared_inputs,
         "variables": flow.variables,
-        "labels": execution.labels,
+        "labels": {
+            key: value
+            for key, value in execution.labels.items()
+            if not key.startswith(("amesh.", "system."))
+        },
         "trigger": {
             key: value for key, value in execution.trigger.items() if not key.startswith("_amesh")
         },

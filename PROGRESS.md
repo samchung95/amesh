@@ -2,12 +2,19 @@
 
 ## Current state
 
-- What works: the original post-MVP foundation plus the first six cards of the 50-epic local program are implemented, evidence-linked and deployed through migration 0037, including canonical typed data contracts, pre-launch validation, object-staged file inputs, terminal outputs, schema-driven redaction and a generated control-room run form.
-- What's in flight: the 50-epic local completion program is tracked on Agent Hotel cards `c37`–`c86`; cards `c37`–`c42` are complete and EPIC-206 on card `c43` is next. The local Docker Compose deployment is healthy at migration 37/37 on `http://localhost:8000`.
+- What works: the original post-MVP foundation plus the first seven cards of the 50-epic local program are implemented, evidence-linked and deployed through migration 0038, including protected searchable labels, namespace policy, exact plugin defaults, deterministic inheritance and pinned per-property provenance in the control room.
+- What's in flight: the 50-epic local completion program is tracked on Agent Hotel cards `c37`–`c86`; cards `c37`–`c43` are complete and EPIC-207 on card `c44` is next. The local Docker Compose deployment is healthy at migration 38/38 on `http://localhost:8000`.
 - Known broken / TODO: 20 external-cloud, SaaS, hosted-release, independent-certification, multi-region or long-duration epics are deferred. Cards `c15` and `c29` preserve unrelated backend test failures; `c87` records missing fresh-Compose mounts for migrations 0033–0036; and `c88` records seven pre-existing frontend lint errors. None blocks the current local program path.
 - How to run/test: use `uv run --extra runtime --extra dev pytest`; set `AMESH_TEST_DATABASE_URL` for PostgreSQL integration tests and `OPENROUTER_API_KEY` for live LLM tests.
 
 ## Session log
+
+### 2026-08-22 (50-epic local completion program, EPIC-206 completion)
+
+- Did: completed EPIC-206 with tenant-scoped namespace metadata; protected user/system labels on flows, executions, task runs, assets and backfills; exact plugin-type defaults; recursive forced/non-forced precedence; policy require/deny/normalize controls; immutable revision provenance; JSONB label indexes and dotted filters; authorized metadata APIs; and control-room label/effective-origin panels. Linked URS-F-0227 through URS-F-0233 to automated evidence.
+- Verification: a fresh PostgreSQL database applied all 38 migrations and the complete suite passed with 292 tests, six environment/profile skips and cards `c15`/`c29` explicitly deselected. Ruff and strict mypy passed for 123 source files; frontend 11-test coverage and production build passed. The rebuilt API/executor/scheduler are healthy at 38/38. Live acceptance configured parent namespace defaults, applied `metadata-demo`, exposed flow/default provenance and completed execution `01a0299b-bf76-7893-8366-f2920cc5b614` with protected execution/task labels.
+- Deviations from plan: no dependency or LLM call was required. The first full run exposed a directly caused cache-key regression because unique system labels were included; cache derivation now uses user labels only and both restart/concurrency cache scenarios pass. The seven existing frontend lint errors remain deferred on `c88`.
+- Next step when resuming: close and commit card `c43`, then select EPIC-207 on card `c44` for namespace files, key-value data and secrets.
 
 ### 2026-08-22 (50-epic local completion program, EPIC-205 completion)
 

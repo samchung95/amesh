@@ -141,6 +141,10 @@ def test_every_protected_rest_surface_enforces_tenant_and_permission_policy() ->
                             "tasks:\n  - id: one\n    type: core.return\n"
                         ),
                     ),
+                    client.put(
+                        "/api/v1/namespaces/tests.authorization/workflow-metadata",
+                        json={},
+                    ),
                     client.post(
                         "/api/v1/executions",
                         json={

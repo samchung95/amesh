@@ -2621,6 +2621,44 @@
         "title": "FlowLifecycle",
         "type": "string"
       },
+      "FlowMetadataResponse": {
+        "properties": {
+          "flowId": {
+            "title": "Flowid",
+            "type": "string"
+          },
+          "labels": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Labels",
+            "type": "object"
+          },
+          "namespace": {
+            "title": "Namespace",
+            "type": "string"
+          },
+          "pluginResolution": {
+            "additionalProperties": true,
+            "title": "Pluginresolution",
+            "type": "object"
+          },
+          "revision": {
+            "minimum": 1.0,
+            "title": "Revision",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "namespace",
+          "flowId",
+          "revision",
+          "labels",
+          "pluginResolution"
+        ],
+        "title": "FlowMetadataResponse",
+        "type": "object"
+      },
       "FlowRevisionDiff": {
         "properties": {
           "from_revision": {
@@ -2940,6 +2978,15 @@
         "title": "IssuedCredentialResponse",
         "type": "object"
       },
+      "LabelNormalization": {
+        "enum": [
+          "TRIM",
+          "LOWERCASE",
+          "UPPERCASE"
+        ],
+        "title": "LabelNormalization",
+        "type": "string"
+      },
       "LogLevel": {
         "enum": [
           "TRACE",
@@ -3120,6 +3167,113 @@
           "updated_at"
         ],
         "title": "NamespaceCheckPolicy",
+        "type": "object"
+      },
+      "NamespaceWorkflowMetadata": {
+        "properties": {
+          "createdAt": {
+            "format": "date-time",
+            "title": "Createdat",
+            "type": "string"
+          },
+          "createdBy": {
+            "title": "Createdby",
+            "type": "string"
+          },
+          "namespace": {
+            "title": "Namespace",
+            "type": "string"
+          },
+          "pluginDefaults": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/PluginDefaultDefinition"
+            },
+            "title": "Plugindefaults",
+            "type": "array"
+          },
+          "policy": {
+            "$ref": "#/components/schemas/WorkflowMetadataPolicy"
+          },
+          "resourceVersion": {
+            "minimum": 1.0,
+            "title": "Resourceversion",
+            "type": "integer"
+          },
+          "tenantId": {
+            "title": "Tenantid",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "title": "Updatedat",
+            "type": "string"
+          },
+          "updatedBy": {
+            "title": "Updatedby",
+            "type": "string"
+          }
+        },
+        "required": [
+          "tenantId",
+          "namespace",
+          "resourceVersion",
+          "createdBy",
+          "updatedBy",
+          "createdAt",
+          "updatedAt"
+        ],
+        "title": "NamespaceWorkflowMetadata",
+        "type": "object"
+      },
+      "NamespaceWorkflowMetadataUpdate": {
+        "properties": {
+          "expectedVersion": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expectedversion"
+          },
+          "pluginDefaults": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/PluginDefaultDefinition"
+            },
+            "title": "Plugindefaults",
+            "type": "array"
+          },
+          "policy": {
+            "$ref": "#/components/schemas/WorkflowMetadataPolicy"
+          }
+        },
+        "title": "NamespaceWorkflowMetadataUpdate",
+        "type": "object"
+      },
+      "NamespaceWorkflowMetadataView": {
+        "properties": {
+          "lineage": {
+            "items": {
+              "$ref": "#/components/schemas/NamespaceWorkflowMetadata"
+            },
+            "title": "Lineage",
+            "type": "array"
+          },
+          "namespace": {
+            "title": "Namespace",
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "lineage"
+        ],
+        "title": "NamespaceWorkflowMetadataView",
         "type": "object"
       },
       "Permission": {
@@ -3495,6 +3649,13 @@
             ],
             "title": "Iteration Key"
           },
+          "labels": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Labels",
+            "type": "object"
+          },
           "lifecycle_phase": {
             "$ref": "#/components/schemas/TaskRunLifecyclePhase",
             "default": "MAIN"
@@ -3550,6 +3711,32 @@
           "version"
         ],
         "title": "PersistedTaskRun",
+        "type": "object"
+      },
+      "PluginDefaultDefinition": {
+        "additionalProperties": false,
+        "properties": {
+          "forced": {
+            "default": false,
+            "title": "Forced",
+            "type": "boolean"
+          },
+          "type": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Type",
+            "type": "string"
+          },
+          "values": {
+            "additionalProperties": true,
+            "title": "Values",
+            "type": "object"
+          }
+        },
+        "required": [
+          "type"
+        ],
+        "title": "PluginDefaultDefinition",
         "type": "object"
       },
       "PrincipalDefinition": {
@@ -6231,6 +6418,71 @@
         ],
         "title": "WorkerStatus",
         "type": "string"
+      },
+      "WorkflowMetadataPolicy": {
+        "properties": {
+          "deniedDefaults": {
+            "additionalProperties": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "title": "Denieddefaults",
+            "type": "object"
+          },
+          "deniedLabels": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Deniedlabels",
+            "type": "array"
+          },
+          "normalizeDefaults": {
+            "additionalProperties": {
+              "additionalProperties": {
+                "$ref": "#/components/schemas/LabelNormalization"
+              },
+              "type": "object"
+            },
+            "title": "Normalizedefaults",
+            "type": "object"
+          },
+          "normalizeLabels": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/LabelNormalization"
+            },
+            "title": "Normalizelabels",
+            "type": "object"
+          },
+          "requiredDefaults": {
+            "additionalProperties": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "title": "Requireddefaults",
+            "type": "object"
+          },
+          "requiredLabels": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": "Requiredlabels",
+            "type": "object"
+          }
+        },
+        "title": "WorkflowMetadataPolicy",
+        "type": "object"
       }
     }
   },
@@ -13414,6 +13666,105 @@
         ]
       }
     },
+    "/api/v1/flows/{namespace}/{flow_id}/metadata": {
+      "get": {
+        "operationId": "get_flow_metadata_api_v1_flows__namespace___flow_id__metadata_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "namespace",
+            "required": true,
+            "schema": {
+              "title": "Namespace",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "flow_id",
+            "required": true,
+            "schema": {
+              "title": "Flow Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FlowMetadataResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Flow Metadata",
+        "tags": [
+          "flows"
+        ]
+      }
+    },
     "/api/v1/flows/{namespace}/{flow_id}/revisions": {
       "get": {
         "operationId": "list_flow_revisions_api_v1_flows__namespace___flow_id__revisions_get",
@@ -14105,6 +14456,194 @@
         "summary": "Preview Schedule",
         "tags": [
           "triggers"
+        ]
+      }
+    },
+    "/api/v1/namespaces/{namespace}/workflow-metadata": {
+      "get": {
+        "operationId": "get_namespace_workflow_metadata_api_v1_namespaces__namespace__workflow_metadata_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "namespace",
+            "required": true,
+            "schema": {
+              "title": "Namespace",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NamespaceWorkflowMetadataView"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Namespace Workflow Metadata",
+        "tags": [
+          "namespaces"
+        ]
+      },
+      "put": {
+        "operationId": "upsert_namespace_workflow_metadata_api_v1_namespaces__namespace__workflow_metadata_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "namespace",
+            "required": true,
+            "schema": {
+              "title": "Namespace",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NamespaceWorkflowMetadataUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NamespaceWorkflowMetadata"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Upsert Namespace Workflow Metadata",
+        "tags": [
+          "namespaces"
         ]
       }
     },

@@ -30,6 +30,9 @@ export interface PersistedFlow {
   revision: number
   semantic_hash: string
   etag: string
+  metadata: {
+    labels: Record<string, string>
+  }
 }
 
 export type ExecutionState = 'RUNNING' | 'SUCCESS' | 'FAILED'
@@ -44,6 +47,7 @@ export interface PersistedExecution {
   flow_id: string
   inputs: Record<string, unknown>
   outputs: Record<string, unknown>
+  labels: Record<string, string>
   trigger: Record<string, unknown>
   created_at: string
   updated_at: string
@@ -79,6 +83,29 @@ export interface FlowDataContract {
   variables: Record<string, unknown>
 }
 
+export interface FlowMetadata {
+  namespace: string
+  flowId: string
+  revision: number
+  labels: Record<string, string>
+  pluginResolution: {
+    defaults?: {
+      schemaVersion: number
+      namespaceLineage: string[]
+      tasks: Record<string, {
+        type: string
+        effective: Record<string, unknown>
+        origins: Record<string, {
+          source: 'namespace' | 'flow' | 'task'
+          namespace: string | null
+          taskPath: string
+          forced: boolean
+        }>
+      }>
+    }
+  }
+}
+
 export interface PersistedTaskRun {
   task_run_id: string
   execution_id: string
@@ -89,6 +116,7 @@ export interface PersistedTaskRun {
   retry_at: string | null
   result: Record<string, unknown> | null
   iteration_key: string | null
+  labels: Record<string, string>
   evidence: {
     cache?: {
       decision: 'HIT' | 'MISS' | 'MISS_EXPIRED' | 'MISS_INVALIDATED' | 'MISS_CONCURRENT' | 'REFRESH' | 'BYPASS'

@@ -15,6 +15,10 @@ class Item(BaseModel):
     group: str
 
 
+class LabeledItem(Item):
+    labels: dict[str, str]
+
+
 def response_json(response) -> object:
     return json.loads(response.body)
 
@@ -51,3 +55,17 @@ def test_collection_query_filters_sorts_selects_and_pages() -> None:
 def test_collection_query_rejects_invalid_cursor() -> None:
     with pytest.raises(HTTPException, match="invalid collection cursor"):
         collection_response([Item(id="one", rank=1, group="a")], CollectionQuery(cursor="bad"))
+
+
+def test_nested_label_filter_uses_exact_key_and_value() -> None:
+    response = collection_response(
+        [
+            LabeledItem(id="one", rank=1, group="a", labels={"team": "platform"}),
+            LabeledItem(id="two", rank=2, group="a", labels={"team": "data"}),
+        ],
+        CollectionQuery(filters=["labels.team=platform"]),
+    )
+
+    assert response_json(response) == [
+        {"id": "one", "rank": 1, "group": "a", "labels": {"team": "platform"}}
+    ]

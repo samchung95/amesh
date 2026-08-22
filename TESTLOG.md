@@ -1471,6 +1471,42 @@ checked-in OpenRouter default remains `openai/gpt-5.6-luna`; object storage does
 
 Verdict: PASS — EPIC-010 closed.
 
+## EPIC-206: Labels, metadata and plugin defaults — 2026-08-22
+
+Spec source: board card `c43` and
+`backlog/epics/epic-206-labels-metadata-and-plugin-defaults.md`.
+
+Verified with `uv`, Python 3.13.12, PostgreSQL 17, FastAPI 0.141.1, React/Vite and
+Docker Compose:
+
+- [x] User and protected system labels persist on flows, executions, task runs, assets and backfills.
+  Spoofed `amesh.` and `system.` labels fail before persistence; execution/task labels inherit the
+  flow and invocation metadata without changing cache identity.
+- [x] Parent and child namespace metadata resolves exact plugin-type values with recursive merge.
+  Non-forced values use parent, child, flow, task precedence; forced values give the broader policy
+  priority. Unit evidence checks nested merges, normalization, exact-type mismatch and origins.
+- [x] Effective task values and per-property source/namespace/forced provenance are pinned in the
+  immutable flow revision and exposed by authorized metadata APIs and the flow detail page. Existing
+  executions do not re-resolve changed namespace policy.
+- [x] Namespace policy requires, denies and normalizes selected labels/defaults. Optimistic version
+  conflicts return 412, policy violations are deterministic, and the new management API passes the
+  viewer-denial authorization matrix.
+- [x] Migration 0038 applies tenant RLS to namespace metadata and adds five JSONB GIN label indexes.
+  Dotted collection filtering selected `metadata.labels.team=platform` in API integration evidence.
+- [x] A clean 38-migration database ran the full 300-test collection: 292 passed, six environment/
+  profile tests skipped and the known cards `c15`/`c29` were deselected. The first run found one
+  directly caused cache-key regression; the minimal user-label-only cache context fix passed both
+  restart and concurrent-population scenarios before the complete rerun passed.
+- [x] Ruff, strict mypy for 123 source files, generated contracts, frontend 11-test coverage and the
+  production frontend build passed. The seven unrelated lint failures remain recorded on `c88`.
+- [x] The rebuilt Compose stack reports 38/38 migrations. Live namespace configuration and example
+  flow application exposed effective defaults/origins; execution
+  `01a0299b-bf76-7893-8366-f2920cc5b614` completed `SUCCESS` with protected flow/execution/task labels.
+
+No package or LLM call was required; OpenRouter model configuration remains unchanged.
+
+Verdict: PASS — EPIC-206 closed.
+
 ## EPIC-111: Logs, metrics, outputs and artifact events — 2026-08-22
 
 Spec source: board card `c33` and

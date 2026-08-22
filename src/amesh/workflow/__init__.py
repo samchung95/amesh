@@ -8,14 +8,38 @@ from .data_contracts import (
     validate_flow_data_contract,
     validate_flow_inputs,
 )
+from .metadata import (
+    LabelNormalization,
+    NamespaceWorkflowMetadata,
+    NamespaceWorkflowMetadataUpdate,
+    NamespaceWorkflowMetadataView,
+    WorkflowMetadataPolicy,
+    execution_system_labels,
+    flow_system_labels,
+    namespace_lineage,
+    resolve_flow_metadata,
+    task_system_labels,
+    validate_user_labels,
+)
 
 __all__ = [
     "DataContractError",
+    "LabelNormalization",
+    "NamespaceWorkflowMetadata",
+    "NamespaceWorkflowMetadataUpdate",
+    "NamespaceWorkflowMetadataView",
+    "WorkflowMetadataPolicy",
+    "execution_system_labels",
     "flow_input_contract",
+    "flow_system_labels",
+    "namespace_lineage",
     "redact_sensitive_inputs",
     "redact_sensitive_outputs",
     "render_flow_outputs",
+    "resolve_flow_metadata",
     "stage_file_inputs",
+    "task_system_labels",
     "validate_flow_data_contract",
     "validate_flow_inputs",
+    "validate_user_labels",
 ]

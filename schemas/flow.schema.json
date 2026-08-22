@@ -501,6 +501,32 @@
       "title": "InputDefinition",
       "type": "object"
     },
+    "PluginDefaultDefinition": {
+      "additionalProperties": false,
+      "properties": {
+        "forced": {
+          "default": false,
+          "title": "Forced",
+          "type": "boolean"
+        },
+        "type": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Type",
+          "type": "string"
+        },
+        "values": {
+          "additionalProperties": true,
+          "title": "Values",
+          "type": "object"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "title": "PluginDefaultDefinition",
+      "type": "object"
+    },
     "RetryPolicy": {
       "additionalProperties": false,
       "properties": {
@@ -875,6 +901,13 @@
           ],
           "default": null,
           "title": "Runif"
+        },
+        "runLabels": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Runlabels",
+          "type": "object"
         },
         "taskCache": {
           "$ref": "#/$defs/TaskCachePolicy"
@@ -1276,6 +1309,13 @@
       "additionalProperties": true,
       "title": "Outputs",
       "type": "object"
+    },
+    "pluginDefaults": {
+      "items": {
+        "$ref": "#/$defs/PluginDefaultDefinition"
+      },
+      "title": "Plugindefaults",
+      "type": "array"
     },
     "priority": {
       "default": 0,

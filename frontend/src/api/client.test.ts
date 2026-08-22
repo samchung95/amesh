@@ -42,6 +42,7 @@ describe('API client', () => {
     await api.health()
     await api.session()
     await api.flowGraph('team/data', 'daily flow')
+    await api.flowMetadata('team/data', 'daily flow')
     await api.flowDataContract('team/data', 'daily flow')
     await api.executeFlow('team/data', 'daily flow', { message: 'hello' })
     await api.execution('run/one')
@@ -52,13 +53,14 @@ describe('API client', () => {
       '/health',
       '/api/v1/ui/session',
       '/api/v1/flows/team%2Fdata/daily%20flow/graph',
+      '/api/v1/flows/team%2Fdata/daily%20flow/metadata',
       '/api/v1/flows/team%2Fdata/daily%20flow/data-contract',
       '/api/v1/executions',
       '/api/v1/executions/run%2Fone',
       '/api/v1/executions/run%2Fone/graph',
       '/api/v1/executions/run%2Fone/evidence?cursor=cursor%2Fvalue',
     ])
-    const executeInit = fetchMock.mock.calls[4]?.[1] as RequestInit
+    const executeInit = fetchMock.mock.calls[5]?.[1] as RequestInit
     expect(executeInit.method).toBe('POST')
     expect(JSON.parse(executeInit.body as string)).toEqual({
       namespace: 'team/data',

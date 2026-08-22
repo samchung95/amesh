@@ -8,7 +8,7 @@ from uuid import UUID
 
 from jsonschema import Draft202012Validator
 from jsonschema.exceptions import SchemaError, ValidationError
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from amesh.domain import ExecutionState, FailureCategory, TaskRunState
 from amesh.dsl import FlowDefinition
@@ -24,6 +24,7 @@ from amesh.ports import (
     SubflowPropagation,
 )
 from amesh.workflow.data_contracts import output_contract, validate_flow_inputs
+from amesh.workflow.metadata import validate_user_labels
 
 from .service import (
     ExecutionBlockedError,
@@ -54,6 +55,11 @@ class SubflowTaskSpec(BaseModel):
     artifact_mapping: dict[str, str] = Field(default_factory=dict, alias="artifactMapping")
     artifact_schema: dict[str, Any] = Field(default_factory=dict, alias="artifactSchema")
     max_depth: int = Field(default=16, ge=1, le=100, alias="maxDepth")
+
+    @field_validator("labels")
+    @classmethod
+    def validate_labels(cls, value: dict[str, str]) -> dict[str, str]:
+        return validate_user_labels(value)
 
 
 def subflow_task_handler(

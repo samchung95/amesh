@@ -251,11 +251,11 @@ def test_sync_subflow_pins_revision_maps_outputs_and_preserves_lineage() -> None
                 tenant_id="default",
             )
             assert child.flow_revision == 1
-            assert child.labels == {
-                "child": "v1",
-                "team": "platform",
-                "purpose": "test",
-            }
+            assert {
+                key: child.labels[key] for key in ("child", "team", "purpose")
+            } == {"child": "v1", "team": "platform", "purpose": "test"}
+            assert child.labels["amesh.execution.id"] == str(child.execution_id)
+            assert child.labels["amesh.execution.source"] == "subflow"
             assert child.trigger["correlationId"] == "trace-123"
             assert child.trigger["traceContext"] == {"traceparent": "00-abc"}
             assert child.trigger["parentExecutionId"] == str(execution.execution_id)

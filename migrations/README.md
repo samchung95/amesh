@@ -129,6 +129,10 @@ Migration `0037_execution_data_contracts.sql` adds terminal flow outputs to the 
 Inputs are validated before execution rows exist, while successful terminalization stores the bounded,
 typed output rendering in the same transaction as the terminal event.
 
+Migration `0038_workflow_metadata.sql` adds tenant-isolated namespace plugin defaults and metadata
+policy, task-run and asset labels, and JSONB label indexes across flows, executions, task runs, assets
+and backfills. Effective defaults remain pinned in immutable flow revisions.
+
 ## Migration modes
 
 - `bootstrap` creates the initial schema and is only safe for an empty database.

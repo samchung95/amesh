@@ -54,6 +54,7 @@ _TASK_STRUCTURE_FIELDS = {
     "id",
     "type",
     "description",
+    "runLabels",
     "dependsOn",
     "runIf",
     "conditionErrorPolicy",

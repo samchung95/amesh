@@ -3384,85 +3384,106 @@
       "requirement_id": "URS-F-0227",
       "epic_id": "EPIC-206",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-206-labels-metadata-and-plugin-defaults.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0228",
       "epic_id": "EPIC-206",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-206-labels-metadata-and-plugin-defaults.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0229",
       "epic_id": "EPIC-206",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-206-labels-metadata-and-plugin-defaults.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0230",
       "epic_id": "EPIC-206",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-206-labels-metadata-and-plugin-defaults.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0231",
       "epic_id": "EPIC-206",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-206-labels-metadata-and-plugin-defaults.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0232",
       "epic_id": "EPIC-206",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-206-labels-metadata-and-plugin-defaults.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0233",
       "epic_id": "EPIC-206",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-workflow-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-206-labels-metadata-and-plugin-defaults.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0234",

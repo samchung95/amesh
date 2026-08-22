@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta
 from enum import StrEnum
-from typing import Any, Protocol
+from typing import TYPE_CHECKING, Any, Protocol
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -23,6 +23,13 @@ from amesh.domain import (
     TaskRunState,
 )
 from amesh.dsl import FlowDefinition
+
+if TYPE_CHECKING:
+    from amesh.workflow.metadata import (
+        NamespaceWorkflowMetadata,
+        NamespaceWorkflowMetadataUpdate,
+        NamespaceWorkflowMetadataView,
+    )
 
 
 class TaskStateConflictError(RuntimeError):
@@ -136,6 +143,7 @@ class PersistedTaskRun(BaseModel):
     failure_category: FailureCategory | None = None
     evidence: dict[str, Any] = Field(default_factory=dict)
     lifecycle_phase: TaskRunLifecyclePhase = TaskRunLifecyclePhase.MAIN
+    labels: dict[str, str] = Field(default_factory=dict)
 
 
 class PersistedIterationSummary(BaseModel):
@@ -238,6 +246,22 @@ class ExecutionRepository(Protocol):
     ) -> FlowDefinition: ...
 
     async def list_flows(self, *, tenant_id: str) -> list[PersistedFlow]: ...
+
+    async def upsert_namespace_workflow_metadata(
+        self,
+        namespace: str,
+        update: NamespaceWorkflowMetadataUpdate,
+        *,
+        tenant_id: str,
+        actor_id: str,
+    ) -> NamespaceWorkflowMetadata: ...
+
+    async def get_namespace_workflow_metadata(
+        self,
+        namespace: str,
+        *,
+        tenant_id: str,
+    ) -> NamespaceWorkflowMetadataView: ...
 
     async def list_flow_revisions(
         self,

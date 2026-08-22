@@ -6,10 +6,19 @@ from typing import Any, Literal, cast
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from croniter import croniter
-from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, model_validator
+from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, field_validator, model_validator
 
 from amesh.domain.admission import ConcurrencyLimit
 from amesh.domain.identity import NamespaceId, NaturalId
+
+
+def _validate_user_label_map(value: dict[str, str]) -> dict[str, str]:
+    for key, item in value.items():
+        if not key or len(key) > 128 or len(item) > 256:
+            raise ValueError("label keys must be 1-128 characters and values at most 256")
+        if key.startswith(("amesh.", "system.")):
+            raise ValueError(f"label {key!r} uses a protected system prefix")
+    return value
 
 
 class InputDefinition(BaseModel):
@@ -254,6 +263,9 @@ class TaskDefinition(BaseModel):
     id: NaturalId
     type: str = Field(min_length=1, max_length=512)
     description: str | None = None
+    run_labels: dict[str, str] = Field(default_factory=dict, alias="runLabels")
+
+    _validate_run_labels = field_validator("run_labels")(_validate_user_label_map)
     depends_on: list[str] = Field(default_factory=list, alias="dependsOn")
     run_if: str | None = Field(default=None, alias="runIf")
     condition_error_policy: ConditionErrorPolicy = Field(
@@ -459,6 +471,35 @@ class CheckDefinition(BaseModel):
         return self
 
 
+class PluginDefaultDefinition(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    type: str = Field(min_length=1, max_length=512)
+    values: dict[str, Any] = Field(default_factory=dict)
+    forced: bool = False
+
+    @field_validator("values")
+    @classmethod
+    def validate_values(cls, value: dict[str, Any]) -> dict[str, Any]:
+        structural = {
+            "id",
+            "type",
+            "tasks",
+            "then",
+            "elseIf",
+            "else",
+            "cases",
+            "predicateCases",
+            "errors",
+        }
+        invalid = sorted(structural.intersection(value))
+        if invalid:
+            raise ValueError("plugin defaults cannot set structural properties: " + ", ".join(invalid))
+        if any(not key or len(key) > 128 for key in value):
+            raise ValueError("plugin default property names must contain 1-128 characters")
+        return value
+
+
 class FlowDefinition(BaseModel):
     model_config = ConfigDict(extra="allow", populate_by_name=True)
 
@@ -474,7 +515,12 @@ class FlowDefinition(BaseModel):
     system: bool = False
     timeout_seconds: float | None = Field(default=None, gt=0, alias="timeoutSeconds")
     labels: dict[str, str] = Field(default_factory=dict)
+    _validate_labels = field_validator("labels")(_validate_user_label_map)
     annotations: dict[str, str] = Field(default_factory=dict)
+    plugin_defaults: list[PluginDefaultDefinition] = Field(
+        default_factory=list,
+        alias="pluginDefaults",
+    )
     inputs: list[InputDefinition] = Field(default_factory=list)
     variables: dict[str, Any] = Field(default_factory=dict)
     concurrency: list[ConcurrencyLimit] = Field(default_factory=list)
@@ -502,6 +548,9 @@ class FlowDefinition(BaseModel):
             raise ValueError("flow check ids must be unique")
         if len(set(self.check_policies)) != len(self.check_policies):
             raise ValueError("flow checkPolicies must be unique")
+        plugin_default_keys = [(item.type, item.forced) for item in self.plugin_defaults]
+        if len(set(plugin_default_keys)) != len(plugin_default_keys):
+            raise ValueError("flow pluginDefaults must have unique type/forced pairs")
         return self
 
     @classmethod

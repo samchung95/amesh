@@ -5,7 +5,7 @@ from enum import StrEnum
 from typing import Any
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 
 class BackfillState(StrEnum):
@@ -120,6 +120,16 @@ class BackfillSpec(BaseModel):
     max_concurrency: int = Field(default=1, alias="maxConcurrency", ge=1, le=10_000)
     rate_per_minute: int = Field(default=60, alias="ratePerMinute", ge=1, le=1_000_000)
     priority: int = Field(default=0, ge=-1_000_000, le=1_000_000)
+
+    @field_validator("labels")
+    @classmethod
+    def validate_labels(cls, value: dict[str, str]) -> dict[str, str]:
+        for key, item in value.items():
+            if not key or len(key) > 128 or len(item) > 256:
+                raise ValueError("label keys must be 1-128 characters and values at most 256")
+            if key.startswith(("amesh.", "system.")):
+                raise ValueError(f"label {key!r} uses a protected system prefix")
+        return value
 
 
 class BackfillPreview(BaseModel):

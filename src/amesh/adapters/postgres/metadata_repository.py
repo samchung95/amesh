@@ -25,6 +25,7 @@ from amesh.ports.metadata_repository import (
     WorkerMetadata,
     WorkerStatus,
 )
+from amesh.workflow.metadata import validate_user_labels
 
 from .quota import TenantQuotaType, reserve_tenant_quota
 from .tenant_context import tenant_transaction
@@ -284,15 +285,16 @@ _UPSERT_ASSET = text(
     """
     INSERT INTO assets (
         id, tenant_id, provider, external_key, asset_type, display_name,
-        metadata, resource_version, created_by, updated_by
+        metadata, labels, resource_version, created_by, updated_by
     ) VALUES (
         :id, :tenant_id, :provider, :external_key, :asset_type, :display_name,
-        CAST(:metadata AS jsonb), 1, :actor_id, :actor_id
+        CAST(:metadata AS jsonb), CAST(:labels AS jsonb), 1, :actor_id, :actor_id
     )
     ON CONFLICT (tenant_id, provider, external_key) DO UPDATE SET
         asset_type = EXCLUDED.asset_type,
         display_name = EXCLUDED.display_name,
         metadata = EXCLUDED.metadata,
+        labels = EXCLUDED.labels,
         resource_version = assets.resource_version + 1,
         updated_by = EXCLUDED.updated_by,
         updated_at = now()
@@ -753,6 +755,7 @@ class PostgresMetadataRepository(MetadataRepository):
         actor_id: str,
         expected_version: int | None = None,
     ) -> PersistedAsset:
+        validate_user_labels(asset.labels)
         async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
             row = (
                 (
@@ -766,6 +769,13 @@ class PostgresMetadataRepository(MetadataRepository):
                             "asset_type": asset.asset_type,
                             "display_name": asset.display_name,
                             "metadata": json.dumps(asset.metadata),
+                            "labels": json.dumps(
+                                {
+                                    **asset.labels,
+                                    "amesh.asset.provider": asset.provider,
+                                    "amesh.asset.type": asset.asset_type,
+                                }
+                            ),
                             "actor_id": actor_id,
                             "expected_version": expected_version,
                         },
@@ -912,6 +922,7 @@ def _to_asset(row: RowMapping, tenant_id: str) -> PersistedAsset:
         asset_type=row["asset_type"],
         display_name=row["display_name"],
         metadata=row["metadata"],
+        labels=row["labels"],
         resource_version=row["resource_version"],
         created_by=row["created_by"],
         updated_by=row["updated_by"],

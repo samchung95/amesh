@@ -1,4 +1,4 @@
-import { ArrowLeft, Braces, Play, ShieldCheck, Workflow } from 'lucide-react'
+import { ArrowLeft, Braces, Play, ShieldCheck, Tags, Workflow } from 'lucide-react'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
@@ -66,19 +66,26 @@ export function FlowDetailPage({ session }: { session: UiSession }) {
     queryFn: () => api.flowDataContract(namespace, flowId),
     enabled: Boolean(namespace && flowId),
   })
+  const metadata = useQuery({
+    queryKey: ['flow-metadata', namespace, flowId, settings.tenant],
+    queryFn: () => api.flowMetadata(namespace, flowId),
+    enabled: Boolean(namespace && flowId),
+  })
   const execute = useMutation({
     mutationFn: (inputs: FormValues) => api.executeFlow(namespace, flowId, inputs),
     onSuccess: (detail) => void navigate(`/executions/${detail.execution.execution_id}`),
     onError: (error) => setFormError(error.message),
   })
 
-  if (graph.isPending || contract.isPending) return <LoadingState label="Loading workflow contract" />
+  if (graph.isPending || contract.isPending || metadata.isPending) return <LoadingState label="Loading workflow contract" />
   if (graph.error) return <ErrorState message={graph.error.message} retry={() => void graph.refetch()} />
   if (contract.error) return <ErrorState message={contract.error.message} retry={() => void contract.refetch()} />
+  if (metadata.error) return <ErrorState message={metadata.error.message} retry={() => void metadata.refetch()} />
 
   const properties = contract.data.inputSchema.properties
   const required = new Set(contract.data.inputSchema.required)
   const setValue = (id: string, value: unknown) => setValues((current) => ({ ...current, [id]: value }))
+  const defaultTasks = metadata.data.pluginResolution.defaults?.tasks || {}
 
   return (
     <div className="page-stack">
@@ -87,6 +94,16 @@ export function FlowDetailPage({ session }: { session: UiSession }) {
         <div><p className="eyebrow">FLOW / REVISION {graph.data.revision}</p><h1>{graph.data.flowId}</h1><p>{graph.data.namespace}</p></div>
         <span className="live-indicator"><Workflow size={15} aria-hidden="true" />Definition</span>
       </header>
+      <section className="data-section flow-metadata-panel" aria-labelledby="flow-metadata-heading">
+        <div className="section-heading">
+          <div><p className="eyebrow">SEARCHABLE METADATA</p><h2 id="flow-metadata-heading">Labels and inherited defaults</h2></div>
+          <span><Tags size={15} aria-hidden="true" />Revision-pinned provenance</span>
+        </div>
+        <div className="metadata-labels" aria-label="Flow labels">
+          {Object.entries(metadata.data.labels).map(([key, value]) => <span key={key}><b>{key}</b>{value}</span>)}
+        </div>
+        {Object.keys(defaultTasks).length ? <div className="metadata-defaults">{Object.entries(defaultTasks).map(([taskPath, task]) => <details key={taskPath}><summary><code>{taskPath}</code><span>{task.type}</span></summary><div><article><h3>Effective inherited values</h3><pre>{JSON.stringify(task.effective, null, 2)}</pre></article><article><h3>Value origins</h3><pre>{JSON.stringify(task.origins, null, 2)}</pre></article></div></details>)}</div> : <p className="flow-no-inputs">No inherited plugin defaults apply to this revision.</p>}
+      </section>
       {session.capabilities['executions.execute'] ? (
         <section className="data-section flow-run-panel" aria-labelledby="run-flow-heading">
           <div className="section-heading">

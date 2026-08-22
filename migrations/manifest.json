@@ -222,6 +222,12 @@
       "mode": "expand",
       "onlineCompatible": true,
       "rollbackGuidance": "Pause typed flow-output publication and forward-fix the additive outputs column; preserve execution inputs, task results and terminal event evidence."
+    },
+    {
+      "file": "0038_workflow_metadata.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Pause namespace workflow-metadata updates and forward-fix the additive metadata table, label columns and indexes; preserve immutable flow revisions and existing resource labels."
     }
   ]
 }

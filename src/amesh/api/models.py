@@ -200,6 +200,16 @@ class FlowDataContract(BaseModel):
     variables: dict[str, Any] = Field(default_factory=dict)
 
 
+class FlowMetadataResponse(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    namespace: str
+    flow_id: str = Field(alias="flowId")
+    revision: int = Field(ge=1)
+    labels: dict[str, str]
+    plugin_resolution: dict[str, Any] = Field(alias="pluginResolution")
+
+
 class ExecutionEvidencePage(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 

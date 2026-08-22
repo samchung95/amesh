@@ -177,6 +177,7 @@ class AssetMetadata(BaseModel):
     asset_type: str = Field(min_length=1, max_length=128)
     display_name: str = Field(min_length=1, max_length=512)
     metadata: dict[str, Any] = Field(default_factory=dict)
+    labels: dict[str, str] = Field(default_factory=dict)
 
 
 class PersistedAsset(AssetMetadata):

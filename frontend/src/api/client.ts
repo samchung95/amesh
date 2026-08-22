@@ -4,6 +4,7 @@ import type {
   ExecutionDetail,
   ExecutionEvidencePage,
   FlowDataContract,
+  FlowMetadata,
   AuthenticationProvider,
   FlowGraph,
   HealthResponse,
@@ -88,6 +89,8 @@ export function createApiClient(connection: ApiConnection) {
       request<FlowGraph>(`/api/v1/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/graph`),
     flowDataContract: async (namespace: string, flowId: string) =>
       request<FlowDataContract>(`/api/v1/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/data-contract`),
+    flowMetadata: async (namespace: string, flowId: string) =>
+      request<FlowMetadata>(`/api/v1/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/metadata`),
     executeFlow: async (namespace: string, flowId: string, inputs: Record<string, unknown>) =>
       request<ExecutionDetail>('/api/v1/executions', {
         method: 'POST',

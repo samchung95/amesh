@@ -254,6 +254,7 @@ def test_metadata_repository_round_trip_constraints_and_rls() -> None:
                 asset_type="dataset",
                 display_name="Metadata contract",
                 metadata={"classification": "internal"},
+                labels={"team": "platform"},
             )
             created = await metadata.upsert_asset(
                 asset,
@@ -267,6 +268,11 @@ def test_metadata_repository_round_trip_constraints_and_rls() -> None:
                 expected_version=created.resource_version,
             )
             assert updated.resource_version == 2
+            assert updated.labels == {
+                "team": "platform",
+                "amesh.asset.provider": "test-catalog",
+                "amesh.asset.type": "dataset",
+            }
             assert updated in await metadata.list_assets(tenant_id="default")
             with pytest.raises(MetadataVersionConflict, match="stale"):
                 await metadata.upsert_asset(

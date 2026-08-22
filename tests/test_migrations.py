@@ -57,6 +57,7 @@ def test_checked_in_migration_manifest_is_complete_and_ordered() -> None:
             (35, "conditional_task_control"),
             (36, "execution_lifecycle_hooks"),
             (37, "execution_data_contracts"),
+            (38, "workflow_metadata"),
         )
     ]
     assert all(item.rollback_guidance for item in plan)

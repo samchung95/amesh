@@ -64,6 +64,16 @@ from amesh.workflow.data_contracts import (
     validate_flow_data_contract,
     validate_flow_inputs,
 )
+from amesh.workflow.metadata import (
+    NamespaceWorkflowMetadata,
+    NamespaceWorkflowMetadataUpdate,
+    NamespaceWorkflowMetadataView,
+    execution_system_labels,
+    flow_system_labels,
+    namespace_lineage,
+    resolve_flow_metadata,
+    task_system_labels,
+)
 
 from .check_repository import (
     evaluate_execution_terminal_checks,
@@ -640,6 +650,7 @@ _INSERT_TASK_RUN = text(
             task_path,
             iteration_key,
             lifecycle_phase,
+            labels,
             state,
             current_attempt,
             version
@@ -651,12 +662,14 @@ _INSERT_TASK_RUN = text(
             :task_id,
             :iteration_key,
             :lifecycle_phase,
+            CAST(:labels AS jsonb),
             'WAITING',
             0,
             1
         )
         ON CONFLICT (tenant_id, execution_id, task_path, iteration_key) DO NOTHING
-        RETURNING id, tenant_id, execution_id, task_path, iteration_key, lifecycle_phase, version
+        RETURNING id, tenant_id, execution_id, task_path, iteration_key,
+                  lifecycle_phase, labels, version
     )
     INSERT INTO task_run_events (
         tenant_id,
@@ -691,7 +704,8 @@ _INSERT_TASK_RUN = text(
         jsonb_build_object(
             'task_id', inserted.task_path,
             'iteration_key', inserted.iteration_key,
-            'lifecycle_phase', inserted.lifecycle_phase
+            'lifecycle_phase', inserted.lifecycle_phase,
+            'labels', inserted.labels
         )
     FROM inserted
     """
@@ -879,6 +893,39 @@ _LIST_FLOWS = text(
     """
 )
 
+_UPSERT_NAMESPACE_WORKFLOW_METADATA = text(
+    """
+    INSERT INTO namespace_workflow_metadata (
+        tenant_id, namespace_id, plugin_defaults, policy,
+        resource_version, created_by, updated_by
+    ) VALUES (
+        :tenant_id, :namespace_id, CAST(:plugin_defaults AS jsonb), CAST(:policy AS jsonb),
+        1, :actor_id, :actor_id
+    )
+    ON CONFLICT (tenant_id, namespace_id) DO UPDATE SET
+        plugin_defaults = EXCLUDED.plugin_defaults,
+        policy = EXCLUDED.policy,
+        resource_version = namespace_workflow_metadata.resource_version + 1,
+        updated_by = EXCLUDED.updated_by,
+        updated_at = clock_timestamp()
+    WHERE CAST(:expected_version AS bigint) IS NULL
+       OR namespace_workflow_metadata.resource_version = CAST(:expected_version AS bigint)
+    RETURNING *
+    """
+)
+
+_LIST_NAMESPACE_WORKFLOW_METADATA = text(
+    """
+    SELECT metadata.*, namespaces.name AS namespace_name, tenants.slug AS tenant_slug
+    FROM namespace_workflow_metadata AS metadata
+    JOIN namespaces ON namespaces.id = metadata.namespace_id
+    JOIN tenants ON tenants.id = metadata.tenant_id
+    WHERE metadata.tenant_id = :tenant_id
+      AND namespaces.name = ANY(CAST(:namespaces AS text[]))
+    ORDER BY array_position(CAST(:namespaces AS text[]), namespaces.name)
+    """
+)
+
 _GET_PERSISTED_FLOW = text(
     """
     SELECT
@@ -918,6 +965,7 @@ _LIST_TASK_RUNS = text(
         task_runs.task_path,
         task_runs.iteration_key,
         task_runs.lifecycle_phase,
+        task_runs.labels,
         task_runs.state,
         task_runs.current_attempt,
         task_runs.version,
@@ -977,6 +1025,7 @@ _LIST_ITERATION_TASK_RUNS = text(
         task_runs.task_path,
         task_runs.iteration_key,
         task_runs.lifecycle_phase,
+        task_runs.labels,
         task_runs.state,
         task_runs.current_attempt,
         task_runs.version,
@@ -1645,6 +1694,7 @@ class PostgresExecutionRepository(ExecutionRepository):
                 flow,
                 actor_id,
                 revision_source=revision_source,
+                resolve_namespace_metadata=True,
             )
             expected_version: int | None = None
             if expected_etag is not None:
@@ -1669,7 +1719,9 @@ class PostgresExecutionRepository(ExecutionRepository):
                         if stored_flow.disabled
                         else FlowLifecycle.ACTIVE.value
                     ),
-                    "labels": json.dumps(stored_flow.labels),
+                    "labels": json.dumps(
+                        {**stored_flow.labels, **flow_system_labels(stored_flow)}
+                    ),
                     "annotations": json.dumps(stored_flow.annotations),
                     "actor_id": actor_id,
                     "expected_version": expected_version,
@@ -1749,6 +1801,60 @@ class PostgresExecutionRepository(ExecutionRepository):
             )
             rows = result.mappings().all()
         return [_to_flow(row) for row in rows]
+
+    async def upsert_namespace_workflow_metadata(
+        self,
+        namespace: str,
+        update: NamespaceWorkflowMetadataUpdate,
+        *,
+        tenant_id: str,
+        actor_id: str,
+    ) -> NamespaceWorkflowMetadata:
+        async with tenant_transaction(self._engine, tenant_id) as (connection, scoped_tenant_id):
+            tenant_uuid, namespace_id = await self._ensure_namespace(
+                connection,
+                tenant_id,
+                namespace,
+                actor_id,
+            )
+            if tenant_uuid != scoped_tenant_id:
+                raise TenantUnavailableError("tenant context changed during metadata update")
+            result = await connection.execute(
+                _UPSERT_NAMESPACE_WORKFLOW_METADATA,
+                {
+                    "tenant_id": tenant_uuid,
+                    "namespace_id": namespace_id,
+                    "plugin_defaults": json.dumps(
+                        [
+                            item.model_dump(mode="json", by_alias=True)
+                            for item in update.plugin_defaults
+                        ]
+                    ),
+                    "policy": update.policy.model_dump_json(by_alias=True),
+                    "actor_id": actor_id,
+                    "expected_version": update.expected_version,
+                },
+            )
+            row = result.mappings().one_or_none()
+            if row is None:
+                raise ResourceVersionConflict(
+                    f"namespace {namespace!r} workflow metadata version is stale"
+                )
+            return _to_namespace_workflow_metadata(row, tenant_id, namespace)
+
+    async def get_namespace_workflow_metadata(
+        self,
+        namespace: str,
+        *,
+        tenant_id: str,
+    ) -> NamespaceWorkflowMetadataView:
+        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+            records = await _load_namespace_workflow_metadata(
+                connection,
+                tenant_uuid,
+                namespace,
+            )
+        return NamespaceWorkflowMetadataView(namespace=namespace, lineage=records)
 
     async def list_flow_revisions(
         self,
@@ -1965,7 +2071,9 @@ class PostgresExecutionRepository(ExecutionRepository):
                         "flow_id": flow_id,
                         "revision": stored_flow.revision,
                         "status": (FlowLifecycle.ACTIVE.value),
-                        "labels": json.dumps(stored_flow.labels),
+                        "labels": json.dumps(
+                            {**stored_flow.labels, **flow_system_labels(stored_flow)}
+                        ),
                         "annotations": json.dumps(stored_flow.annotations),
                         "actor_id": actor_id,
                         "expected_version": None,
@@ -1993,7 +2101,15 @@ class PostgresExecutionRepository(ExecutionRepository):
                 )
             )
             launch_context["source"] = launch_source.value
-            merged_labels = {**flow.labels, **(labels or {})}
+            merged_labels = {
+                **flow.labels,
+                **(labels or {}),
+                **execution_system_labels(
+                    flow,
+                    execution_id,
+                    source=launch_source.value,
+                ),
+            }
             expression_context = ExpressionContext(
                 flow={
                     "id": flow.id,
@@ -2146,6 +2262,13 @@ class PostgresExecutionRepository(ExecutionRepository):
                             "task_id": node.task.id,
                             "iteration_key": None,
                             "lifecycle_phase": node.lifecycle_phase.value,
+                            "labels": json.dumps(
+                                task_system_labels(
+                                    {**merged_labels, **node.task.run_labels},
+                                    task_id=node.task.id,
+                                    lifecycle_phase=node.lifecycle_phase.value,
+                                )
+                            ),
                             "event_id": task_event_id,
                             "idempotency_key": str(task_event_id),
                             "correlation_id": new_runtime_id(),
@@ -2433,6 +2556,15 @@ class PostgresExecutionRepository(ExecutionRepository):
             occurred_at = await connection.scalar(_DATABASE_TIME)
             if not isinstance(occurred_at, datetime):
                 raise TypeError("PostgreSQL returned an invalid database timestamp")
+            execution_labels = await connection.scalar(
+                text(
+                    "SELECT labels FROM executions "
+                    "WHERE tenant_id = :tenant_id AND id = :execution_id"
+                ),
+                {"tenant_id": tenant_uuid, "execution_id": execution_id},
+            )
+            if not isinstance(execution_labels, dict):
+                raise LookupError(f"execution {execution_id} does not exist")
             rows: list[dict[str, object]] = []
             for task_id in task_ids:
                 event_id = new_runtime_id()
@@ -2444,6 +2576,13 @@ class PostgresExecutionRepository(ExecutionRepository):
                         "task_id": task_id,
                         "iteration_key": iteration_key,
                         "lifecycle_phase": TaskRunLifecyclePhase.MAIN.value,
+                        "labels": json.dumps(
+                            task_system_labels(
+                                execution_labels,
+                                task_id=task_id,
+                                lifecycle_phase=TaskRunLifecyclePhase.MAIN.value,
+                            )
+                        ),
                         "event_id": event_id,
                         "idempotency_key": str(event_id),
                         "correlation_id": new_runtime_id(),
@@ -3890,7 +4029,15 @@ class PostgresExecutionRepository(ExecutionRepository):
         actor_id: str,
         *,
         revision_source: FlowRevisionSource | None = None,
+        resolve_namespace_metadata: bool = False,
     ) -> tuple[UUID, FlowDefinition, bool]:
+        scopes = (
+            await _load_namespace_workflow_metadata(connection, tenant_id, flow.namespace)
+            if resolve_namespace_metadata
+            else ()
+        )
+        flow, metadata_resolution = resolve_flow_metadata(flow, scopes)
+        validate_flow_data_contract(flow)
         _encoded, semantic_hash = _canonical_flow(flow)
         requested_result = await connection.execute(
             _SELECT_FLOW_REVISION,
@@ -3921,7 +4068,9 @@ class PostgresExecutionRepository(ExecutionRepository):
                 "revision": revision,
                 "semantic_hash": semantic_hash,
                 "canonical_definition": canonical_definition,
-                "plugin_resolution": json.dumps(_plugin_resolution(stored_flow)),
+                "plugin_resolution": json.dumps(
+                    _plugin_resolution(stored_flow, metadata_resolution)
+                ),
                 "source": source.source,
                 "source_commit": source.source_commit,
                 "environment": source.environment,
@@ -4008,7 +4157,7 @@ class PostgresExecutionRepository(ExecutionRepository):
                     "flow_id": flow_row["id"],
                     "revision": revision,
                     "status": lifecycle.value,
-                    "labels": json.dumps(flow.labels),
+                    "labels": json.dumps({**flow.labels, **flow_system_labels(flow)}),
                     "annotations": json.dumps(flow.annotations),
                     "actor_id": actor_id,
                     "expected_version": None,
@@ -5123,6 +5272,7 @@ def _to_task_run(row: RowMapping) -> PersistedTaskRun:
         failure_category=row["failure_category"],
         evidence=row.get("evidence") or {},
         lifecycle_phase=row.get("lifecycle_phase") or TaskRunLifecyclePhase.MAIN,
+        labels=dict(row.get("labels") or {}),
     )
 
 
@@ -5230,16 +5380,64 @@ def _same_flow_semantics(definition: object, flow: FlowDefinition) -> bool:
     return stored == candidate
 
 
-def _plugin_resolution(flow: FlowDefinition) -> dict[str, object]:
+def _plugin_resolution(
+    flow: FlowDefinition,
+    metadata_resolution: dict[str, object] | None = None,
+) -> dict[str, object]:
     resources = {("task", node.task.type) for node in compile_execution_tasks(flow)} | {
         ("trigger", trigger.type) for trigger in flow.triggers
     }
-    return {
+    resolution: dict[str, object] = {
         "catalogVersion": RESOURCE_CATALOG_VERSION,
         "resources": [
             {"kind": kind, "type": resource_type} for kind, resource_type in sorted(resources)
         ],
     }
+    if metadata_resolution:
+        resolution["defaults"] = metadata_resolution
+    return resolution
+
+
+async def _load_namespace_workflow_metadata(
+    connection: AsyncConnection,
+    tenant_id: UUID,
+    namespace: str,
+) -> tuple[NamespaceWorkflowMetadata, ...]:
+    rows = (
+        (
+            await connection.execute(
+                _LIST_NAMESPACE_WORKFLOW_METADATA,
+                {
+                    "tenant_id": tenant_id,
+                    "namespaces": list(namespace_lineage(namespace)),
+                },
+            )
+        )
+        .mappings()
+        .all()
+    )
+    return tuple(
+        _to_namespace_workflow_metadata(row, str(row["tenant_slug"]), str(row["namespace_name"]))
+        for row in rows
+    )
+
+
+def _to_namespace_workflow_metadata(
+    row: RowMapping,
+    tenant_id: str,
+    namespace: str,
+) -> NamespaceWorkflowMetadata:
+    return NamespaceWorkflowMetadata(
+        tenantId=tenant_id,
+        namespace=namespace,
+        pluginDefaults=row["plugin_defaults"],
+        policy=row["policy"],
+        resourceVersion=row["resource_version"],
+        createdBy=row["created_by"],
+        updatedBy=row["updated_by"],
+        createdAt=row["created_at"],
+        updatedAt=row["updated_at"],
+    )
 
 
 async def _load_tenant_policy(connection: AsyncConnection) -> TenantPolicy:

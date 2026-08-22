@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import base64
 import json
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from typing import Annotated, Any
 
 from fastapi import HTTPException, Query, status
@@ -123,13 +123,29 @@ def _filter_values(
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                 detail="filters must use field=value syntax",
             )
-        if result and field not in result[0]:
+        if result and _nested_value(result[0], field) is _MISSING:
             raise HTTPException(
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                 detail=f"unknown filter field: {field}",
             )
-        result = [item for item in result if _filter_text(item.get(field)) == expected]
+        result = [
+            item
+            for item in result
+            if _filter_text(_nested_value(item, field)) == expected
+        ]
     return result
+
+
+_MISSING = object()
+
+
+def _nested_value(item: Mapping[str, Any], field: str) -> Any:
+    value: Any = item
+    for part in field.split("."):
+        if not isinstance(value, Mapping) or part not in value:
+            return _MISSING
+        value = value[part]
+    return value
 
 
 def _sort_values(values: list[dict[str, Any]], sort: str | None) -> list[dict[str, Any]]:
