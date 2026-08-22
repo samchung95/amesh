@@ -246,7 +246,7 @@ def required_runner_ids(
             available=available,
         )
         for task in tasks
-        if task.type == "core.shell"
+        if task.type == "core.shell" or task.type.startswith("script.")
     )
 
 

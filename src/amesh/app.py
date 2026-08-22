@@ -271,7 +271,13 @@ from amesh.ports import (
 from amesh.reconciliation import ReconciliationService
 from amesh.scheduler import CronScheduler, SchedulePreview
 from amesh.storage.factory import build_object_store
-from amesh.tasks import HttpTaskPolicy, agent_llm_handler, agent_mcp_handler, core_utility_handlers
+from amesh.tasks import (
+    HttpTaskPolicy,
+    agent_llm_handler,
+    agent_mcp_handler,
+    core_utility_handlers,
+    script_task_handlers,
+)
 from amesh.tenancy import TenantService
 from amesh.workflow.data_contracts import (
     DataContractError,
@@ -5030,6 +5036,7 @@ async def _execute_flow(
         "agent.llm": agent_llm_handler(),
         "agent.mcp": agent_mcp_handler(),
         **core_utility_handlers(workspace_manager, http_policy=http_policy),
+        **script_task_handlers(shell_handler, settings.script_task_policy),
     }
     if settings.trusted_plugin_approvals or settings.isolated_plugin_services:
         revisions = await repository.list_flow_revisions(

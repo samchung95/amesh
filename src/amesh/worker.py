@@ -61,7 +61,14 @@ from amesh.ports import (
 from amesh.reconciliation import ReconciliationService
 from amesh.scheduler import CronScheduler
 from amesh.storage.factory import build_object_store
-from amesh.tasks import HttpTaskPolicy, agent_llm_handler, agent_mcp_handler, core_utility_handlers
+from amesh.tasks import (
+    SCRIPT_TASK_TYPES,
+    HttpTaskPolicy,
+    agent_llm_handler,
+    agent_mcp_handler,
+    core_utility_handlers,
+    script_task_handlers,
+)
 from amesh.workflow.shared_resources import SharedResourceContextProvider
 from amesh.workflow.working_directory import WorkingDirectoryManager
 
@@ -357,6 +364,7 @@ async def recover_once(
                 "agent.llm": agent_llm_handler(),
                 "agent.mcp": agent_mcp_handler(),
                 **core_utility_handlers(workspace_manager, http_policy=http_policy),
+                **script_task_handlers(shell_handler, settings.script_task_policy),
             }
             if settings.trusted_plugin_approvals or settings.isolated_plugin_services:
                 revisions = await repository.list_flow_revisions(
@@ -401,7 +409,7 @@ async def recover_once(
             executor = InProcessExecutor(
                 repository,
                 handlers=handlers,
-                recover_running_types=frozenset({"core.shell"}),
+                recover_running_types=frozenset({"core.shell", *SCRIPT_TASK_TYPES}),
                 context_provider=(
                     SharedResourceContextProvider(
                         shared_resources,

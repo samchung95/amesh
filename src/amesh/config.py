@@ -29,6 +29,7 @@ from pydantic import (
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from amesh.domain.runner import DockerImagePolicy, KubernetesRunnerProfile, RunnerPolicy
+from amesh.domain.scripts import ScriptTaskPolicy
 
 _REDACTED = "[REDACTED]"
 _SECRET_REFERENCE = re.compile(r"^secret://([A-Za-z0-9][A-Za-z0-9_.-]{0,127})$")
@@ -175,6 +176,7 @@ class Settings(BaseSettings):
     docker_signature_verification_command: tuple[str, ...] = ()
     docker_vulnerability_verification_command: tuple[str, ...] = ()
     runner_policies: tuple[RunnerPolicy, ...] = ()
+    script_task_policy: ScriptTaskPolicy = Field(default_factory=ScriptTaskPolicy)
     worker_poll_seconds: float = Field(default=5.0, gt=0)
     worker_recovery_grace_seconds: float = Field(default=120.0, ge=0)
     worker_reconciliation_interval_seconds: float = Field(default=60.0, ge=5)
@@ -234,6 +236,11 @@ class Settings(BaseSettings):
     @field_validator("docker_image_policy", mode="before")
     @classmethod
     def parse_docker_image_policy(cls, value: object) -> object:
+        return json.loads(value) if isinstance(value, str) else value
+
+    @field_validator("script_task_policy", mode="before")
+    @classmethod
+    def parse_script_task_policy(cls, value: object) -> object:
         return json.loads(value) if isinstance(value, str) else value
 
     @field_validator("kubernetes_runner_profiles", mode="before")

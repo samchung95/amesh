@@ -1,3 +1,4 @@
+from amesh.domain.scripts import SCRIPT_TASK_TYPES, ScriptTaskPolicy
 from amesh.executor import TaskHandler
 from amesh.workflow.working_directory import WorkingDirectoryManager
 
@@ -8,6 +9,7 @@ from .http import HttpTaskPolicy, core_download_handler, core_http_handler
 from .llm import OpenAICompatibleConfig, agent_llm_handler
 from .mcp import agent_mcp_handler
 from .notifications import EmailSender, SmtpDelivery, core_notification_handlers
+from .scripts import script_task_handlers
 
 
 def core_utility_handlers(
@@ -27,9 +29,11 @@ def core_utility_handlers(
 
 
 __all__ = [
+    "SCRIPT_TASK_TYPES",
     "EmailSender",
     "HttpTaskPolicy",
     "OpenAICompatibleConfig",
+    "ScriptTaskPolicy",
     "SmtpDelivery",
     "agent_llm_handler",
     "agent_mcp_handler",
@@ -40,4 +44,5 @@ __all__ = [
     "core_http_handler",
     "core_notification_handlers",
     "core_utility_handlers",
+    "script_task_handlers",
 ]

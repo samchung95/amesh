@@ -3689,6 +3689,1992 @@
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "additionalProperties": false,
         "properties": {
+          "args": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "dependencies": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "digest": {
+                  "pattern": "^sha256:[0-9a-f]{64}$",
+                  "type": "string"
+                },
+                "name": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "version": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name",
+                "version",
+                "digest"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "dependencyCommand": {
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "environment": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "image": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "inputFiles": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "interpreter": {
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "networkPolicy": {
+            "additionalProperties": false,
+            "properties": {
+              "access": {
+                "enum": [
+                  "inherit",
+                  "none",
+                  "restricted"
+                ],
+                "type": "string"
+              },
+              "allowedEgress": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array",
+                "uniqueItems": true
+              }
+            },
+            "type": "object"
+          },
+          "outputFiles": {
+            "items": {
+              "maxLength": 4096,
+              "minLength": 1,
+              "type": "string"
+            },
+            "type": "array",
+            "uniqueItems": true
+          },
+          "outputManifest": {
+            "maxLength": 4096,
+            "minLength": 1,
+            "type": "string"
+          },
+          "resources": {
+            "type": "object"
+          },
+          "retainDiagnosticsOnFailure": {
+            "type": "boolean"
+          },
+          "runnerCredentials": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "securityPolicy": {
+            "additionalProperties": false,
+            "properties": {
+              "capabilityAdd": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array",
+                "uniqueItems": true
+              },
+              "capabilityDrop": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array",
+                "uniqueItems": true
+              },
+              "noNewPrivileges": {
+                "type": "boolean"
+              },
+              "privileged": {
+                "type": "boolean"
+              },
+              "readOnlyRootFilesystem": {
+                "type": "boolean"
+              },
+              "runAsUser": {
+                "minimum": 0,
+                "type": "integer"
+              }
+            },
+            "type": "object"
+          },
+          "source": {
+            "oneOf": [
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "content": {
+                    "maxLength": 1048576,
+                    "type": "string"
+                  },
+                  "type": {
+                    "const": "inline"
+                  }
+                },
+                "required": [
+                  "type",
+                  "content"
+                ],
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "path": {
+                    "maxLength": 4096,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "type": {
+                    "enum": [
+                      "namespace",
+                      "repository",
+                      "package"
+                    ]
+                  }
+                },
+                "required": [
+                  "type",
+                  "path"
+                ],
+                "type": "object"
+              }
+            ]
+          },
+          "taskRunner": {
+            "oneOf": [
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "allowedHostEnvironment": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array",
+                    "uniqueItems": true
+                  },
+                  "inheritHostEnvironment": {
+                    "type": "boolean"
+                  },
+                  "shell": {
+                    "type": "boolean"
+                  },
+                  "type": {
+                    "const": "local"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "platform": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "pullPolicy": {
+                    "enum": [
+                      "NEVER",
+                      "IF_NOT_PRESENT",
+                      "ALWAYS"
+                    ],
+                    "type": "string"
+                  },
+                  "registryPasswordVariable": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "registryUsernameVariable": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "runtime": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "type": {
+                    "const": "docker"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "labels": {
+                    "additionalProperties": {
+                      "type": "string"
+                    },
+                    "type": "object"
+                  },
+                  "nodeSelector": {
+                    "additionalProperties": {
+                      "type": "string"
+                    },
+                    "type": "object"
+                  },
+                  "runtimeClassName": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "serviceAccountName": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "type": {
+                    "const": "kubernetes"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "type": "object"
+              }
+            ]
+          },
+          "timeoutSeconds": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          },
+          "workspaceQuotaBytes": {
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "source"
+        ],
+        "type": "object"
+      },
+      "editor": {
+        "category": "Scripts",
+        "description": "Run a Java script through the selected task runner.",
+        "propertyOrder": [
+          "source",
+          "args",
+          "interpreter",
+          "dependencies",
+          "dependencyCommand",
+          "image",
+          "environment",
+          "inputFiles",
+          "outputFiles",
+          "outputManifest",
+          "workspaceQuotaBytes",
+          "retainDiagnosticsOnFailure",
+          "taskRunner",
+          "runnerCredentials",
+          "networkPolicy",
+          "securityPolicy",
+          "resources",
+          "timeoutSeconds"
+        ],
+        "title": "Java script"
+      },
+      "kind": "task",
+      "type": "script.java"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "args": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "dependencies": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "digest": {
+                  "pattern": "^sha256:[0-9a-f]{64}$",
+                  "type": "string"
+                },
+                "name": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "version": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name",
+                "version",
+                "digest"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "dependencyCommand": {
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "environment": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "image": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "inputFiles": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "interpreter": {
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "networkPolicy": {
+            "additionalProperties": false,
+            "properties": {
+              "access": {
+                "enum": [
+                  "inherit",
+                  "none",
+                  "restricted"
+                ],
+                "type": "string"
+              },
+              "allowedEgress": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array",
+                "uniqueItems": true
+              }
+            },
+            "type": "object"
+          },
+          "outputFiles": {
+            "items": {
+              "maxLength": 4096,
+              "minLength": 1,
+              "type": "string"
+            },
+            "type": "array",
+            "uniqueItems": true
+          },
+          "outputManifest": {
+            "maxLength": 4096,
+            "minLength": 1,
+            "type": "string"
+          },
+          "resources": {
+            "type": "object"
+          },
+          "retainDiagnosticsOnFailure": {
+            "type": "boolean"
+          },
+          "runnerCredentials": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "securityPolicy": {
+            "additionalProperties": false,
+            "properties": {
+              "capabilityAdd": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array",
+                "uniqueItems": true
+              },
+              "capabilityDrop": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array",
+                "uniqueItems": true
+              },
+              "noNewPrivileges": {
+                "type": "boolean"
+              },
+              "privileged": {
+                "type": "boolean"
+              },
+              "readOnlyRootFilesystem": {
+                "type": "boolean"
+              },
+              "runAsUser": {
+                "minimum": 0,
+                "type": "integer"
+              }
+            },
+            "type": "object"
+          },
+          "source": {
+            "oneOf": [
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "content": {
+                    "maxLength": 1048576,
+                    "type": "string"
+                  },
+                  "type": {
+                    "const": "inline"
+                  }
+                },
+                "required": [
+                  "type",
+                  "content"
+                ],
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "path": {
+                    "maxLength": 4096,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "type": {
+                    "enum": [
+                      "namespace",
+                      "repository",
+                      "package"
+                    ]
+                  }
+                },
+                "required": [
+                  "type",
+                  "path"
+                ],
+                "type": "object"
+              }
+            ]
+          },
+          "taskRunner": {
+            "oneOf": [
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "allowedHostEnvironment": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array",
+                    "uniqueItems": true
+                  },
+                  "inheritHostEnvironment": {
+                    "type": "boolean"
+                  },
+                  "shell": {
+                    "type": "boolean"
+                  },
+                  "type": {
+                    "const": "local"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "platform": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "pullPolicy": {
+                    "enum": [
+                      "NEVER",
+                      "IF_NOT_PRESENT",
+                      "ALWAYS"
+                    ],
+                    "type": "string"
+                  },
+                  "registryPasswordVariable": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "registryUsernameVariable": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "runtime": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "type": {
+                    "const": "docker"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "labels": {
+                    "additionalProperties": {
+                      "type": "string"
+                    },
+                    "type": "object"
+                  },
+                  "nodeSelector": {
+                    "additionalProperties": {
+                      "type": "string"
+                    },
+                    "type": "object"
+                  },
+                  "runtimeClassName": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "serviceAccountName": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "type": {
+                    "const": "kubernetes"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "type": "object"
+              }
+            ]
+          },
+          "timeoutSeconds": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          },
+          "workspaceQuotaBytes": {
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "source"
+        ],
+        "type": "object"
+      },
+      "editor": {
+        "category": "Scripts",
+        "description": "Run a Node.js script through the selected task runner.",
+        "propertyOrder": [
+          "source",
+          "args",
+          "interpreter",
+          "dependencies",
+          "dependencyCommand",
+          "image",
+          "environment",
+          "inputFiles",
+          "outputFiles",
+          "outputManifest",
+          "workspaceQuotaBytes",
+          "retainDiagnosticsOnFailure",
+          "taskRunner",
+          "runnerCredentials",
+          "networkPolicy",
+          "securityPolicy",
+          "resources",
+          "timeoutSeconds"
+        ],
+        "title": "Node.js script"
+      },
+      "kind": "task",
+      "type": "script.node"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "args": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "dependencies": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "digest": {
+                  "pattern": "^sha256:[0-9a-f]{64}$",
+                  "type": "string"
+                },
+                "name": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "version": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name",
+                "version",
+                "digest"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "dependencyCommand": {
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "environment": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "image": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "inputFiles": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "interpreter": {
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "networkPolicy": {
+            "additionalProperties": false,
+            "properties": {
+              "access": {
+                "enum": [
+                  "inherit",
+                  "none",
+                  "restricted"
+                ],
+                "type": "string"
+              },
+              "allowedEgress": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array",
+                "uniqueItems": true
+              }
+            },
+            "type": "object"
+          },
+          "outputFiles": {
+            "items": {
+              "maxLength": 4096,
+              "minLength": 1,
+              "type": "string"
+            },
+            "type": "array",
+            "uniqueItems": true
+          },
+          "outputManifest": {
+            "maxLength": 4096,
+            "minLength": 1,
+            "type": "string"
+          },
+          "resources": {
+            "type": "object"
+          },
+          "retainDiagnosticsOnFailure": {
+            "type": "boolean"
+          },
+          "runnerCredentials": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "securityPolicy": {
+            "additionalProperties": false,
+            "properties": {
+              "capabilityAdd": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array",
+                "uniqueItems": true
+              },
+              "capabilityDrop": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array",
+                "uniqueItems": true
+              },
+              "noNewPrivileges": {
+                "type": "boolean"
+              },
+              "privileged": {
+                "type": "boolean"
+              },
+              "readOnlyRootFilesystem": {
+                "type": "boolean"
+              },
+              "runAsUser": {
+                "minimum": 0,
+                "type": "integer"
+              }
+            },
+            "type": "object"
+          },
+          "source": {
+            "oneOf": [
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "content": {
+                    "maxLength": 1048576,
+                    "type": "string"
+                  },
+                  "type": {
+                    "const": "inline"
+                  }
+                },
+                "required": [
+                  "type",
+                  "content"
+                ],
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "path": {
+                    "maxLength": 4096,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "type": {
+                    "enum": [
+                      "namespace",
+                      "repository",
+                      "package"
+                    ]
+                  }
+                },
+                "required": [
+                  "type",
+                  "path"
+                ],
+                "type": "object"
+              }
+            ]
+          },
+          "taskRunner": {
+            "oneOf": [
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "allowedHostEnvironment": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array",
+                    "uniqueItems": true
+                  },
+                  "inheritHostEnvironment": {
+                    "type": "boolean"
+                  },
+                  "shell": {
+                    "type": "boolean"
+                  },
+                  "type": {
+                    "const": "local"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "platform": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "pullPolicy": {
+                    "enum": [
+                      "NEVER",
+                      "IF_NOT_PRESENT",
+                      "ALWAYS"
+                    ],
+                    "type": "string"
+                  },
+                  "registryPasswordVariable": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "registryUsernameVariable": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "runtime": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "type": {
+                    "const": "docker"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "labels": {
+                    "additionalProperties": {
+                      "type": "string"
+                    },
+                    "type": "object"
+                  },
+                  "nodeSelector": {
+                    "additionalProperties": {
+                      "type": "string"
+                    },
+                    "type": "object"
+                  },
+                  "runtimeClassName": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "serviceAccountName": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "type": {
+                    "const": "kubernetes"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "type": "object"
+              }
+            ]
+          },
+          "timeoutSeconds": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          },
+          "workspaceQuotaBytes": {
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "source"
+        ],
+        "type": "object"
+      },
+      "editor": {
+        "category": "Scripts",
+        "description": "Run a PowerShell script through the selected task runner.",
+        "propertyOrder": [
+          "source",
+          "args",
+          "interpreter",
+          "dependencies",
+          "dependencyCommand",
+          "image",
+          "environment",
+          "inputFiles",
+          "outputFiles",
+          "outputManifest",
+          "workspaceQuotaBytes",
+          "retainDiagnosticsOnFailure",
+          "taskRunner",
+          "runnerCredentials",
+          "networkPolicy",
+          "securityPolicy",
+          "resources",
+          "timeoutSeconds"
+        ],
+        "title": "PowerShell script"
+      },
+      "kind": "task",
+      "type": "script.powershell"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "args": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "dependencies": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "digest": {
+                  "pattern": "^sha256:[0-9a-f]{64}$",
+                  "type": "string"
+                },
+                "name": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "version": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name",
+                "version",
+                "digest"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "dependencyCommand": {
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "environment": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "image": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "inputFiles": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "interpreter": {
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "networkPolicy": {
+            "additionalProperties": false,
+            "properties": {
+              "access": {
+                "enum": [
+                  "inherit",
+                  "none",
+                  "restricted"
+                ],
+                "type": "string"
+              },
+              "allowedEgress": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array",
+                "uniqueItems": true
+              }
+            },
+            "type": "object"
+          },
+          "outputFiles": {
+            "items": {
+              "maxLength": 4096,
+              "minLength": 1,
+              "type": "string"
+            },
+            "type": "array",
+            "uniqueItems": true
+          },
+          "outputManifest": {
+            "maxLength": 4096,
+            "minLength": 1,
+            "type": "string"
+          },
+          "resources": {
+            "type": "object"
+          },
+          "retainDiagnosticsOnFailure": {
+            "type": "boolean"
+          },
+          "runnerCredentials": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "securityPolicy": {
+            "additionalProperties": false,
+            "properties": {
+              "capabilityAdd": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array",
+                "uniqueItems": true
+              },
+              "capabilityDrop": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array",
+                "uniqueItems": true
+              },
+              "noNewPrivileges": {
+                "type": "boolean"
+              },
+              "privileged": {
+                "type": "boolean"
+              },
+              "readOnlyRootFilesystem": {
+                "type": "boolean"
+              },
+              "runAsUser": {
+                "minimum": 0,
+                "type": "integer"
+              }
+            },
+            "type": "object"
+          },
+          "source": {
+            "oneOf": [
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "content": {
+                    "maxLength": 1048576,
+                    "type": "string"
+                  },
+                  "type": {
+                    "const": "inline"
+                  }
+                },
+                "required": [
+                  "type",
+                  "content"
+                ],
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "path": {
+                    "maxLength": 4096,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "type": {
+                    "enum": [
+                      "namespace",
+                      "repository",
+                      "package"
+                    ]
+                  }
+                },
+                "required": [
+                  "type",
+                  "path"
+                ],
+                "type": "object"
+              }
+            ]
+          },
+          "taskRunner": {
+            "oneOf": [
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "allowedHostEnvironment": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array",
+                    "uniqueItems": true
+                  },
+                  "inheritHostEnvironment": {
+                    "type": "boolean"
+                  },
+                  "shell": {
+                    "type": "boolean"
+                  },
+                  "type": {
+                    "const": "local"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "platform": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "pullPolicy": {
+                    "enum": [
+                      "NEVER",
+                      "IF_NOT_PRESENT",
+                      "ALWAYS"
+                    ],
+                    "type": "string"
+                  },
+                  "registryPasswordVariable": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "registryUsernameVariable": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "runtime": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "type": {
+                    "const": "docker"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "labels": {
+                    "additionalProperties": {
+                      "type": "string"
+                    },
+                    "type": "object"
+                  },
+                  "nodeSelector": {
+                    "additionalProperties": {
+                      "type": "string"
+                    },
+                    "type": "object"
+                  },
+                  "runtimeClassName": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "serviceAccountName": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "type": {
+                    "const": "kubernetes"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "type": "object"
+              }
+            ]
+          },
+          "timeoutSeconds": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          },
+          "workspaceQuotaBytes": {
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "source"
+        ],
+        "type": "object"
+      },
+      "editor": {
+        "category": "Scripts",
+        "description": "Run a Python script through the selected task runner.",
+        "propertyOrder": [
+          "source",
+          "args",
+          "interpreter",
+          "dependencies",
+          "dependencyCommand",
+          "image",
+          "environment",
+          "inputFiles",
+          "outputFiles",
+          "outputManifest",
+          "workspaceQuotaBytes",
+          "retainDiagnosticsOnFailure",
+          "taskRunner",
+          "runnerCredentials",
+          "networkPolicy",
+          "securityPolicy",
+          "resources",
+          "timeoutSeconds"
+        ],
+        "title": "Python script"
+      },
+      "kind": "task",
+      "type": "script.python"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "args": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "dependencies": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "digest": {
+                  "pattern": "^sha256:[0-9a-f]{64}$",
+                  "type": "string"
+                },
+                "name": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "version": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name",
+                "version",
+                "digest"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "dependencyCommand": {
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "environment": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "image": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "inputFiles": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "interpreter": {
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "networkPolicy": {
+            "additionalProperties": false,
+            "properties": {
+              "access": {
+                "enum": [
+                  "inherit",
+                  "none",
+                  "restricted"
+                ],
+                "type": "string"
+              },
+              "allowedEgress": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array",
+                "uniqueItems": true
+              }
+            },
+            "type": "object"
+          },
+          "outputFiles": {
+            "items": {
+              "maxLength": 4096,
+              "minLength": 1,
+              "type": "string"
+            },
+            "type": "array",
+            "uniqueItems": true
+          },
+          "outputManifest": {
+            "maxLength": 4096,
+            "minLength": 1,
+            "type": "string"
+          },
+          "resources": {
+            "type": "object"
+          },
+          "retainDiagnosticsOnFailure": {
+            "type": "boolean"
+          },
+          "runnerCredentials": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "securityPolicy": {
+            "additionalProperties": false,
+            "properties": {
+              "capabilityAdd": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array",
+                "uniqueItems": true
+              },
+              "capabilityDrop": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array",
+                "uniqueItems": true
+              },
+              "noNewPrivileges": {
+                "type": "boolean"
+              },
+              "privileged": {
+                "type": "boolean"
+              },
+              "readOnlyRootFilesystem": {
+                "type": "boolean"
+              },
+              "runAsUser": {
+                "minimum": 0,
+                "type": "integer"
+              }
+            },
+            "type": "object"
+          },
+          "source": {
+            "oneOf": [
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "content": {
+                    "maxLength": 1048576,
+                    "type": "string"
+                  },
+                  "type": {
+                    "const": "inline"
+                  }
+                },
+                "required": [
+                  "type",
+                  "content"
+                ],
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "path": {
+                    "maxLength": 4096,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "type": {
+                    "enum": [
+                      "namespace",
+                      "repository",
+                      "package"
+                    ]
+                  }
+                },
+                "required": [
+                  "type",
+                  "path"
+                ],
+                "type": "object"
+              }
+            ]
+          },
+          "taskRunner": {
+            "oneOf": [
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "allowedHostEnvironment": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array",
+                    "uniqueItems": true
+                  },
+                  "inheritHostEnvironment": {
+                    "type": "boolean"
+                  },
+                  "shell": {
+                    "type": "boolean"
+                  },
+                  "type": {
+                    "const": "local"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "platform": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "pullPolicy": {
+                    "enum": [
+                      "NEVER",
+                      "IF_NOT_PRESENT",
+                      "ALWAYS"
+                    ],
+                    "type": "string"
+                  },
+                  "registryPasswordVariable": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "registryUsernameVariable": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "runtime": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "type": {
+                    "const": "docker"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "labels": {
+                    "additionalProperties": {
+                      "type": "string"
+                    },
+                    "type": "object"
+                  },
+                  "nodeSelector": {
+                    "additionalProperties": {
+                      "type": "string"
+                    },
+                    "type": "object"
+                  },
+                  "runtimeClassName": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "serviceAccountName": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "type": {
+                    "const": "kubernetes"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "type": "object"
+              }
+            ]
+          },
+          "timeoutSeconds": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          },
+          "workspaceQuotaBytes": {
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "source"
+        ],
+        "type": "object"
+      },
+      "editor": {
+        "category": "Scripts",
+        "description": "Run a R script through the selected task runner.",
+        "propertyOrder": [
+          "source",
+          "args",
+          "interpreter",
+          "dependencies",
+          "dependencyCommand",
+          "image",
+          "environment",
+          "inputFiles",
+          "outputFiles",
+          "outputManifest",
+          "workspaceQuotaBytes",
+          "retainDiagnosticsOnFailure",
+          "taskRunner",
+          "runnerCredentials",
+          "networkPolicy",
+          "securityPolicy",
+          "resources",
+          "timeoutSeconds"
+        ],
+        "title": "R script"
+      },
+      "kind": "task",
+      "type": "script.r"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "args": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "dependencies": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "digest": {
+                  "pattern": "^sha256:[0-9a-f]{64}$",
+                  "type": "string"
+                },
+                "name": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "version": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name",
+                "version",
+                "digest"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "dependencyCommand": {
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "environment": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "image": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "inputFiles": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "interpreter": {
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "networkPolicy": {
+            "additionalProperties": false,
+            "properties": {
+              "access": {
+                "enum": [
+                  "inherit",
+                  "none",
+                  "restricted"
+                ],
+                "type": "string"
+              },
+              "allowedEgress": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array",
+                "uniqueItems": true
+              }
+            },
+            "type": "object"
+          },
+          "outputFiles": {
+            "items": {
+              "maxLength": 4096,
+              "minLength": 1,
+              "type": "string"
+            },
+            "type": "array",
+            "uniqueItems": true
+          },
+          "outputManifest": {
+            "maxLength": 4096,
+            "minLength": 1,
+            "type": "string"
+          },
+          "resources": {
+            "type": "object"
+          },
+          "retainDiagnosticsOnFailure": {
+            "type": "boolean"
+          },
+          "runnerCredentials": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "securityPolicy": {
+            "additionalProperties": false,
+            "properties": {
+              "capabilityAdd": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array",
+                "uniqueItems": true
+              },
+              "capabilityDrop": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array",
+                "uniqueItems": true
+              },
+              "noNewPrivileges": {
+                "type": "boolean"
+              },
+              "privileged": {
+                "type": "boolean"
+              },
+              "readOnlyRootFilesystem": {
+                "type": "boolean"
+              },
+              "runAsUser": {
+                "minimum": 0,
+                "type": "integer"
+              }
+            },
+            "type": "object"
+          },
+          "source": {
+            "oneOf": [
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "content": {
+                    "maxLength": 1048576,
+                    "type": "string"
+                  },
+                  "type": {
+                    "const": "inline"
+                  }
+                },
+                "required": [
+                  "type",
+                  "content"
+                ],
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "path": {
+                    "maxLength": 4096,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "type": {
+                    "enum": [
+                      "namespace",
+                      "repository",
+                      "package"
+                    ]
+                  }
+                },
+                "required": [
+                  "type",
+                  "path"
+                ],
+                "type": "object"
+              }
+            ]
+          },
+          "taskRunner": {
+            "oneOf": [
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "allowedHostEnvironment": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array",
+                    "uniqueItems": true
+                  },
+                  "inheritHostEnvironment": {
+                    "type": "boolean"
+                  },
+                  "shell": {
+                    "type": "boolean"
+                  },
+                  "type": {
+                    "const": "local"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "platform": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "pullPolicy": {
+                    "enum": [
+                      "NEVER",
+                      "IF_NOT_PRESENT",
+                      "ALWAYS"
+                    ],
+                    "type": "string"
+                  },
+                  "registryPasswordVariable": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "registryUsernameVariable": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "runtime": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "type": {
+                    "const": "docker"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "labels": {
+                    "additionalProperties": {
+                      "type": "string"
+                    },
+                    "type": "object"
+                  },
+                  "nodeSelector": {
+                    "additionalProperties": {
+                      "type": "string"
+                    },
+                    "type": "object"
+                  },
+                  "runtimeClassName": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "serviceAccountName": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "type": {
+                    "const": "kubernetes"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "type": "object"
+              }
+            ]
+          },
+          "timeoutSeconds": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          },
+          "workspaceQuotaBytes": {
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "source"
+        ],
+        "type": "object"
+      },
+      "editor": {
+        "category": "Scripts",
+        "description": "Run a Shell script through the selected task runner.",
+        "propertyOrder": [
+          "source",
+          "args",
+          "interpreter",
+          "dependencies",
+          "dependencyCommand",
+          "image",
+          "environment",
+          "inputFiles",
+          "outputFiles",
+          "outputManifest",
+          "workspaceQuotaBytes",
+          "retainDiagnosticsOnFailure",
+          "taskRunner",
+          "runnerCredentials",
+          "networkPolicy",
+          "securityPolicy",
+          "resources",
+          "timeoutSeconds"
+        ],
+        "title": "Shell script"
+      },
+      "kind": "task",
+      "type": "script.shell"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
           "condition": {
             "type": "string"
           },

@@ -2079,3 +2079,37 @@ Verified with `uv`, Python 3.13.12, PostgreSQL 17 and Docker Compose:
   execution deep link returned HTTP 200.
 
 Verdict: PASS — EPIC-306 closed.
+
+## EPIC-307: Multi-language script plugin pack — 2026-08-23
+
+Spec source: board card `c57` and
+`backlog/epics/epic-307-multi-language-script-plugin-pack.md`.
+
+Verified with `uv`, Python 3.13.12, PostgreSQL 17 and Docker Compose:
+
+- [x] First-party shell, Python, Node.js, Java, R and PowerShell task types compiled into the
+  existing local, Docker or Kubernetes runner contract. Per-language contract tests confirmed
+  script text, argv and environment values remain separate through dispatch.
+- [x] Inline, namespace-file, immutable repository-artifact and packaged-workspace sources passed
+  catalog validation and adapter tests. Six checked-in sample flows validate against the generated
+  resource catalog.
+- [x] Runtime dependency installation failed closed until organization policy enabled it, every
+  dependency carried a name/version/SHA-256 record, and the task requested allowlisted restricted
+  egress. Image defaults and organization-approved overrides accepted only immutable SHA-256
+  references.
+- [x] Ordered stdout/stderr logs, duration/CPU/peak-memory metrics, output-file/manifests and helper
+  paths use the shared runner/workspace contract. Each task output records language, interpreter,
+  image digest, source origin and package metadata.
+- [x] The fresh 40-migration backend collection contained 420 tests. With the c15 timing-sensitive
+  execution controls, c29 order-sensitive observability check and c89 full-suite performance timing
+  check explicitly deselected, 416 tests ran: 406 passed and ten environment/profile tests skipped.
+  The disposable PostgreSQL database was force-dropped. The c89 check separately passed three
+  consecutive isolated runs after measuring 1.061 seconds once under full-suite load.
+- [x] Ruff, strict mypy over 157 source files, generated resource/OpenAPI/schema contracts,
+  configuration coverage and all six example validations passed.
+- [x] The rebuilt API, executor and scheduler were healthy. Live flow
+  `examples.plugins.script_python` revision 1 completed execution
+  `01a02b1c-7989-703a-8cc7-beb2dedebe4e` as `SUCCESS`; stdout was `python:amesh`, and the persisted
+  result included the runner metrics and immutable runtime metadata.
+
+Verdict: PASS — EPIC-307 closed.

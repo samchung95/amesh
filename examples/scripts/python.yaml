@@ -1,0 +1,14 @@
+id: script_python
+namespace: examples.plugins
+description: Run an inline Python script through the shared runner contract.
+labels:
+  team: platform
+tasks:
+  - id: hello
+    type: script.python
+    source:
+      type: inline
+      content: |
+        import sys
+        print(f"python:{sys.argv[1]}")
+    args: [amesh]

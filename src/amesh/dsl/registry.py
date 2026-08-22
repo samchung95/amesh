@@ -9,6 +9,8 @@ from typing import Any
 from jsonschema import Draft202012Validator
 from jsonschema.exceptions import SchemaError
 
+from amesh.domain.scripts import script_catalog_schema
+
 JSON_SCHEMA_DIALECT = "https://json-schema.org/draft/2020-12/schema"
 RESOURCE_CATALOG_VERSION = "amesh.resource-catalog/v1"
 
@@ -682,6 +684,55 @@ def _core_descriptors() -> tuple[ResourceSchemaDescriptor, ...]:
                 "resources",
                 "timeoutSeconds",
             ),
+        ),
+        *(
+            _descriptor(
+                f"script.{language}",
+                ResourceKind.TASK,
+                _object_schema(
+                    {
+                        **script_catalog_schema(),
+                        "image": {"type": "string", "minLength": 1},
+                        "environment": string_map,
+                        "resources": {"type": "object"},
+                        "timeoutSeconds": timeout,
+                        **workspace_properties,
+                        **runner_properties,
+                    },
+                    required=("source",),
+                ),
+                title=f"{title} script",
+                description=f"Run a {title} script through the selected task runner.",
+                category="Scripts",
+                property_order=(
+                    "source",
+                    "args",
+                    "interpreter",
+                    "dependencies",
+                    "dependencyCommand",
+                    "image",
+                    "environment",
+                    "inputFiles",
+                    "outputFiles",
+                    "outputManifest",
+                    "workspaceQuotaBytes",
+                    "retainDiagnosticsOnFailure",
+                    "taskRunner",
+                    "runnerCredentials",
+                    "networkPolicy",
+                    "securityPolicy",
+                    "resources",
+                    "timeoutSeconds",
+                ),
+            )
+            for language, title in (
+                ("shell", "Shell"),
+                ("python", "Python"),
+                ("node", "Node.js"),
+                ("java", "Java"),
+                ("r", "R"),
+                ("powershell", "PowerShell"),
+            )
         ),
         _descriptor(
             "core.workingDirectory",
