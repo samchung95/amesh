@@ -45,5 +45,7 @@
 - Compose namespace, identity, runtime, effective-configuration and guarded tenant controls through
   the administration surface. High-risk changes require a short-lived actor/tenant/draft-bound
   preview and immutable success or rejection evidence; see the [administration API guide](administration.md).
+- Search and preview versioned local blueprints, instantiate them as unsaved validated drafts, and
+  validate isolated expressions or flow fragments through the [blueprint API](blueprints.md).
 
 Future generated SDKs must consume the supported API contract, not internal Python classes.

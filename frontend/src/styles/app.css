@@ -682,6 +682,74 @@ details pre { max-width: 480px; overflow: auto; padding: 10px; background: var(-
 .audit-list article { display: grid; grid-template-columns: auto 1fr; gap: 10px; padding: 11px 3px; border-top: 1px solid var(--line); }
 .audit-list svg { color: var(--accent); }
 .audit-list p, .audit-list small { margin: 2px 0 0; color: var(--muted); }
+.blueprint-local-note { display: inline-flex; align-items: center; gap: 7px; padding: 8px 11px; color: var(--success); background: var(--success-soft); border: 1px solid color-mix(in srgb, var(--success) 28%, var(--line)); border-radius: 30px; font: 600 .72rem "IBM Plex Mono", monospace; }
+.blueprint-tabs button { flex: 0 0 min(220px, 31%); }
+.blueprint-catalog-layout { display: grid; grid-template-columns: minmax(300px, .75fr) minmax(460px, 1.25fr); gap: 18px; align-items: start; }
+.blueprint-library, .blueprint-preview { min-width: 0; padding: 19px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-panel); box-shadow: var(--shadow-low); }
+.blueprint-library .section-heading > span { color: var(--muted); font: 600 .7rem "IBM Plex Mono", monospace; }
+.blueprint-filters { display: grid; grid-template-columns: minmax(0, 1fr) 145px; gap: 8px; margin: 13px 0; }
+.blueprint-filters label { display: flex; align-items: center; gap: 7px; padding: 0 10px; background: var(--paper); border: 1px solid var(--line-strong); border-radius: var(--radius-control); }
+.blueprint-filters label:focus-within { border-color: var(--focus); box-shadow: 0 0 0 2px color-mix(in srgb, var(--focus) 20%, transparent); }
+.blueprint-filters input, .blueprint-filters select { min-height: 42px; color: var(--ink); background: var(--paper); border: 1px solid var(--line-strong); border-radius: var(--radius-control); }
+.blueprint-filters input { min-width: 0; flex: 1; padding: 0; background: transparent; border: 0; outline: 0; }
+.blueprint-filters select { padding: 0 9px; }
+.blueprint-list { display: grid; gap: 7px; padding: 0; margin: 0; list-style: none; }
+.blueprint-list button { display: grid; grid-template-columns: minmax(0, 1fr) auto; width: 100%; gap: 7px 10px; padding: 13px; color: var(--ink); text-align: left; background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius-control); cursor: pointer; }
+.blueprint-list button:hover, .blueprint-list button.selected { background: var(--success-soft); border-color: color-mix(in srgb, var(--success) 34%, var(--line)); }
+.blueprint-list button.selected { box-shadow: inset 3px 0 var(--success); }
+.blueprint-list button > span:first-child { grid-column: 1 / -1; }
+.blueprint-list strong, .blueprint-list small { display: block; }
+.blueprint-list small { margin-top: 3px; color: var(--muted); line-height: 1.4; }
+.blueprint-list code { color: var(--muted); font-size: .68rem; }
+.blueprint-source { width: fit-content; padding: 3px 6px; color: var(--accent); background: var(--accent-soft); border-radius: 20px; font: 700 .6rem "IBM Plex Mono", monospace; }
+.source-organization { color: var(--warning); background: var(--warning-soft); }
+.source-community { color: var(--success); background: var(--success-soft); }
+.blueprint-preview > p { color: var(--muted); line-height: 1.6; }
+.blueprint-provenance { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; margin: 16px 0; overflow: hidden; background: var(--line); border: 1px solid var(--line); border-radius: var(--radius-control); }
+.blueprint-provenance div { min-width: 0; padding: 10px 11px; background: var(--paper); }
+.blueprint-provenance dt { color: var(--muted); font-size: .68rem; }
+.blueprint-provenance dd { margin: 3px 0 0; overflow: hidden; font: 500 .72rem "IBM Plex Mono", monospace; text-overflow: ellipsis; white-space: nowrap; }
+.blueprint-parameters { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; padding-top: 15px; border-top: 1px solid var(--line); }
+.blueprint-parameters h3, .blueprint-parameters .blueprint-draft-warning, .blueprint-parameters > .button, .blueprint-parameters > .resource-failure { grid-column: 1 / -1; }
+.blueprint-parameters h3 { margin: 0 0 3px; }
+.blueprint-parameters label, .playground-form label { display: grid; gap: 5px; color: var(--ink); font-size: .76rem; font-weight: 600; }
+.blueprint-parameters label small { min-height: 30px; color: var(--muted); font-weight: 400; }
+.blueprint-parameters input, .playground-form textarea { width: 100%; min-height: 42px; padding: 9px 10px; color: var(--ink); background: var(--paper); border: 1px solid var(--line-strong); border-radius: var(--radius-control); }
+.blueprint-draft-warning { display: flex; align-items: center; gap: 8px; padding: 10px 12px; margin: 3px 0; color: var(--accent); background: var(--accent-soft); border-radius: var(--radius-control); }
+.blueprint-template { margin-top: 16px; }
+.blueprint-template summary, .playground-result summary { color: var(--accent); cursor: pointer; font-weight: 600; }
+.blueprint-template pre, .playground-result pre { max-height: 330px; padding: 13px; overflow: auto; background: var(--rail); color: var(--rail-text); border-radius: var(--radius-control); font-size: .72rem; }
+.blueprint-playground-layout, .setup-layout { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; align-items: start; }
+.playground-form { display: grid; gap: 12px; }
+.playground-form > p { margin: 0; color: var(--muted); }
+.playground-form textarea { min-height: 82px; resize: vertical; font-family: "IBM Plex Mono", monospace; font-size: .75rem; }
+.playground-form .playground-fragment { min-height: 170px; }
+.playground-safety { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
+.playground-safety article { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 7px; padding: 10px; color: var(--success); background: var(--success-soft); border-radius: var(--radius-control); }
+.playground-safety span { color: var(--ink); text-transform: capitalize; }
+.playground-safety strong { font: 600 .7rem "IBM Plex Mono", monospace; }
+.playground-steps, .setup-checklist { padding: 0; margin: 0; list-style: none; }
+.playground-steps li { display: flex; gap: 9px; padding: 10px 0; border-top: 1px solid var(--line); }
+.playground-steps li > span { color: var(--muted); }
+.playground-steps li > span.ready { color: var(--success); }
+.playground-steps strong, .playground-steps small { display: block; }
+.playground-steps small { color: var(--muted); }
+.setup-readiness { display: grid; gap: 8px; }
+.setup-readiness article { display: flex; align-items: center; gap: 10px; padding: 12px; color: var(--muted); background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius-control); }
+.setup-readiness article.ready { color: var(--success); border-color: color-mix(in srgb, var(--success) 28%, var(--line)); }
+.setup-readiness strong, .setup-readiness small { display: block; }
+.setup-readiness strong { color: var(--ink); }
+.setup-readiness small { margin-top: 2px; color: var(--muted); }
+.setup-checklist li { border-top: 1px solid var(--line); }
+.setup-checklist label { display: block; cursor: pointer; }
+.setup-checklist input { position: absolute; opacity: 0; pointer-events: none; }
+.setup-checklist label > span { display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 2px 10px; padding: 13px 4px; }
+.setup-checklist b { grid-row: 1 / 3; align-self: center; color: var(--muted); font: 500 .72rem "IBM Plex Mono", monospace; }
+.setup-checklist strong, .setup-checklist small { display: block; }
+.setup-checklist small { color: var(--muted); }
+.setup-checklist input:checked + span { color: var(--success); }
+.setup-checklist input:checked + span strong { text-decoration: line-through; text-decoration-color: color-mix(in srgb, var(--success) 45%, transparent); }
+.setup-checklist input:focus-visible + span { outline: 3px solid var(--focus); outline-offset: -3px; border-radius: var(--radius-control); }
 
 @media (max-width: 1100px) {
   :root { --rail-width: 76px; }
@@ -708,6 +776,7 @@ details pre { max-width: 480px; overflow: auto; padding: 10px; background: var(-
   .admin-health-strip { grid-template-columns: repeat(2, 1fr); }
   .admin-health-strip article:nth-child(2) { border-right: 0; }
   .admin-health-strip article:nth-child(-n+2) { border-bottom: 1px solid var(--rail-soft); }
+  .blueprint-catalog-layout { grid-template-columns: minmax(270px, .85fr) minmax(360px, 1.15fr); }
 }
 @media (max-width: 760px) {
   :root { --rail-width: 264px; }
@@ -814,6 +883,11 @@ details pre { max-width: 480px; overflow: auto; padding: 10px; background: var(-
   .admin-control-grid header, .admin-control-grid footer, .configuration-toolbar { align-items: flex-start; flex-direction: column; }
   .configuration-toolbar label { width: 100%; }
   .issued-secret code { max-width: 72vw; }
+  .blueprint-catalog-layout, .blueprint-playground-layout, .setup-layout { grid-template-columns: 1fr; }
+  .blueprint-tabs button { min-width: 145px; flex: 1 0 auto; }
+  .blueprint-parameters { grid-template-columns: 1fr; }
+  .blueprint-parameters h3, .blueprint-parameters .blueprint-draft-warning, .blueprint-parameters > .button, .blueprint-parameters > .resource-failure { grid-column: auto; }
+  .blueprint-filters, .playground-safety, .blueprint-provenance { grid-template-columns: 1fr; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }

@@ -289,6 +289,68 @@ export interface ExpressionPreviewResponse {
   compatibilityVersion: string
 }
 
+export type BlueprintCatalogSource = 'BUILTIN' | 'ORGANIZATION' | 'COMMUNITY'
+
+export interface BlueprintParameter {
+  name: string
+  title: string
+  description: string
+  kind: 'STRING' | 'NAMESPACE' | 'FLOW_ID'
+  required: boolean
+  default: string | null
+}
+
+export interface BlueprintProvenance {
+  publisher: string
+  location: string
+  revision: string
+  digest: string
+}
+
+export interface BlueprintSummary {
+  blueprintId: string
+  version: string
+  source: BlueprintCatalogSource
+  title: string
+  summary: string
+  tags: string[]
+  parameters: BlueprintParameter[]
+  documentation: string
+  license: string
+  provenance: BlueprintProvenance
+  localOnly: boolean
+}
+
+export interface BlueprintDefinition extends BlueprintSummary {
+  template: string
+}
+
+export interface BlueprintDraftResponse {
+  blueprint: BlueprintDefinition
+  document: string
+  validation: FlowValidationResult
+}
+
+export interface PlaygroundSimulationResponse {
+  expressionResult: unknown
+  redactedContext: Record<string, unknown>
+  validation: FlowValidationResult | null
+  steps: Array<{
+    taskId: string
+    taskType: string
+    dependencies: string[]
+    simulated: boolean
+    reason: string
+  }>
+  safety: {
+    persisted: false
+    executed: false
+    credentialAccess: false
+    infrastructureAccess: false
+  }
+  compatibilityVersion: string
+}
+
 export type ExecutionState =
   | 'CREATED'
   | 'QUEUED'

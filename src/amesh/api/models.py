@@ -9,6 +9,7 @@ from pydantic import BaseModel, ConfigDict, Field, SecretStr, model_validator
 
 from amesh.config import ConfigurationSnapshot
 from amesh.domain import (
+    BlueprintDefinition,
     CredentialMetadata,
     CredentialScope,
     ExecutionEvent,
@@ -125,6 +126,56 @@ class ExpressionPreviewResponse(BaseModel):
 
     result: Any
     redacted_context: dict[str, Any] = Field(alias="redactedContext")
+    compatibility_version: str = Field(alias="compatibilityVersion")
+
+
+class BlueprintDraftResponse(BaseModel):
+    blueprint: BlueprintDefinition
+    document: str
+    validation: FlowValidationResult
+
+
+class PlaygroundSimulationRequest(BaseModel):
+    expression: str | None = Field(default=None, max_length=65_536)
+    context: dict[str, Any] = Field(default_factory=dict)
+    fragment: str | None = Field(default=None, max_length=131_072)
+
+    @model_validator(mode="after")
+    def require_subject(self) -> PlaygroundSimulationRequest:
+        if not (self.expression and self.expression.strip()) and not (
+            self.fragment and self.fragment.strip()
+        ):
+            raise ValueError("playground requires an expression or flow fragment")
+        return self
+
+
+class PlaygroundStep(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    task_id: str = Field(alias="taskId")
+    task_type: str = Field(alias="taskType")
+    dependencies: tuple[str, ...]
+    simulated: bool
+    reason: str
+
+
+class PlaygroundSafety(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    persisted: bool = False
+    executed: bool = False
+    credential_access: bool = Field(default=False, alias="credentialAccess")
+    infrastructure_access: bool = Field(default=False, alias="infrastructureAccess")
+
+
+class PlaygroundSimulationResponse(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    expression_result: Any = Field(default=None, alias="expressionResult")
+    redacted_context: dict[str, Any] = Field(default_factory=dict, alias="redactedContext")
+    validation: FlowValidationResult | None = None
+    steps: tuple[PlaygroundStep, ...] = ()
+    safety: PlaygroundSafety = Field(default_factory=PlaygroundSafety)
     compatibility_version: str = Field(alias="compatibilityVersion")
 
 

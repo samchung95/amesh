@@ -10,6 +10,7 @@ docs/AdministrationApi.md
 docs/AuthenticationApi.md
 docs/AuthorizationApi.md
 docs/BackfillsApi.md
+docs/BlueprintsApi.md
 docs/ChecksApi.md
 docs/ConfigurationApi.md
 docs/CredentialsApi.md
@@ -52,6 +53,7 @@ src/main/java/io/amesh/client/api/AdministrationApi.java
 src/main/java/io/amesh/client/api/AuthenticationApi.java
 src/main/java/io/amesh/client/api/AuthorizationApi.java
 src/main/java/io/amesh/client/api/BackfillsApi.java
+src/main/java/io/amesh/client/api/BlueprintsApi.java
 src/main/java/io/amesh/client/api/ChecksApi.java
 src/main/java/io/amesh/client/api/ConfigurationApi.java
 src/main/java/io/amesh/client/api/CredentialsApi.java
@@ -95,6 +97,14 @@ src/main/java/io/amesh/client/model/BackfillSelection.java
 src/main/java/io/amesh/client/model/BackfillSelectionKind.java
 src/main/java/io/amesh/client/model/BackfillSpec.java
 src/main/java/io/amesh/client/model/BackfillState.java
+src/main/java/io/amesh/client/model/BlueprintCatalogSource.java
+src/main/java/io/amesh/client/model/BlueprintDefinition.java
+src/main/java/io/amesh/client/model/BlueprintDraftResponse.java
+src/main/java/io/amesh/client/model/BlueprintInstantiationRequest.java
+src/main/java/io/amesh/client/model/BlueprintParameter.java
+src/main/java/io/amesh/client/model/BlueprintParameterKind.java
+src/main/java/io/amesh/client/model/BlueprintProvenance.java
+src/main/java/io/amesh/client/model/BlueprintSummary.java
 src/main/java/io/amesh/client/model/BulkExecutionItemResult.java
 src/main/java/io/amesh/client/model/BulkExecutionRequest.java
 src/main/java/io/amesh/client/model/ChangeLocalPasswordRequest.java
@@ -207,6 +217,10 @@ src/main/java/io/amesh/client/model/PersistedFlow.java
 src/main/java/io/amesh/client/model/PersistedSubflow.java
 src/main/java/io/amesh/client/model/PersistedTaskRun.java
 src/main/java/io/amesh/client/model/PersistedTaskRunSummary.java
+src/main/java/io/amesh/client/model/PlaygroundSafety.java
+src/main/java/io/amesh/client/model/PlaygroundSimulationRequest.java
+src/main/java/io/amesh/client/model/PlaygroundSimulationResponse.java
+src/main/java/io/amesh/client/model/PlaygroundStep.java
 src/main/java/io/amesh/client/model/PluginCapabilities.java
 src/main/java/io/amesh/client/model/PluginCatalogSnapshot.java
 src/main/java/io/amesh/client/model/PluginCertificationStatus.java

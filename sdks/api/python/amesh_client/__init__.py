@@ -22,6 +22,7 @@ __all__ = [
     "AuthenticationApi",
     "AuthorizationApi",
     "BackfillsApi",
+    "BlueprintsApi",
     "ChecksApi",
     "ConfigurationApi",
     "CredentialsApi",
@@ -73,6 +74,14 @@ __all__ = [
     "BackfillSelectionKind",
     "BackfillSpec",
     "BackfillState",
+    "BlueprintCatalogSource",
+    "BlueprintDefinition",
+    "BlueprintDraftResponse",
+    "BlueprintInstantiationRequest",
+    "BlueprintParameter",
+    "BlueprintParameterKind",
+    "BlueprintProvenance",
+    "BlueprintSummary",
     "BulkExecutionItemResult",
     "BulkExecutionRequest",
     "ChangeLocalPasswordRequest",
@@ -185,6 +194,10 @@ __all__ = [
     "PersistedSubflow",
     "PersistedTaskRun",
     "PersistedTaskRunSummary",
+    "PlaygroundSafety",
+    "PlaygroundSimulationRequest",
+    "PlaygroundSimulationResponse",
+    "PlaygroundStep",
     "PluginCapabilities",
     "PluginCatalogSnapshot",
     "PluginCertificationStatus",
@@ -320,6 +333,7 @@ from amesh_client.api.administration_api import AdministrationApi as Administrat
 from amesh_client.api.authentication_api import AuthenticationApi as AuthenticationApi
 from amesh_client.api.authorization_api import AuthorizationApi as AuthorizationApi
 from amesh_client.api.backfills_api import BackfillsApi as BackfillsApi
+from amesh_client.api.blueprints_api import BlueprintsApi as BlueprintsApi
 from amesh_client.api.checks_api import ChecksApi as ChecksApi
 from amesh_client.api.configuration_api import ConfigurationApi as ConfigurationApi
 from amesh_client.api.credentials_api import CredentialsApi as CredentialsApi
@@ -375,6 +389,14 @@ from amesh_client.models.backfill_selection import BackfillSelection as Backfill
 from amesh_client.models.backfill_selection_kind import BackfillSelectionKind as BackfillSelectionKind
 from amesh_client.models.backfill_spec import BackfillSpec as BackfillSpec
 from amesh_client.models.backfill_state import BackfillState as BackfillState
+from amesh_client.models.blueprint_catalog_source import BlueprintCatalogSource as BlueprintCatalogSource
+from amesh_client.models.blueprint_definition import BlueprintDefinition as BlueprintDefinition
+from amesh_client.models.blueprint_draft_response import BlueprintDraftResponse as BlueprintDraftResponse
+from amesh_client.models.blueprint_instantiation_request import BlueprintInstantiationRequest as BlueprintInstantiationRequest
+from amesh_client.models.blueprint_parameter import BlueprintParameter as BlueprintParameter
+from amesh_client.models.blueprint_parameter_kind import BlueprintParameterKind as BlueprintParameterKind
+from amesh_client.models.blueprint_provenance import BlueprintProvenance as BlueprintProvenance
+from amesh_client.models.blueprint_summary import BlueprintSummary as BlueprintSummary
 from amesh_client.models.bulk_execution_item_result import BulkExecutionItemResult as BulkExecutionItemResult
 from amesh_client.models.bulk_execution_request import BulkExecutionRequest as BulkExecutionRequest
 from amesh_client.models.change_local_password_request import ChangeLocalPasswordRequest as ChangeLocalPasswordRequest
@@ -487,6 +509,10 @@ from amesh_client.models.persisted_flow import PersistedFlow as PersistedFlow
 from amesh_client.models.persisted_subflow import PersistedSubflow as PersistedSubflow
 from amesh_client.models.persisted_task_run import PersistedTaskRun as PersistedTaskRun
 from amesh_client.models.persisted_task_run_summary import PersistedTaskRunSummary as PersistedTaskRunSummary
+from amesh_client.models.playground_safety import PlaygroundSafety as PlaygroundSafety
+from amesh_client.models.playground_simulation_request import PlaygroundSimulationRequest as PlaygroundSimulationRequest
+from amesh_client.models.playground_simulation_response import PlaygroundSimulationResponse as PlaygroundSimulationResponse
+from amesh_client.models.playground_step import PlaygroundStep as PlaygroundStep
 from amesh_client.models.plugin_capabilities import PluginCapabilities as PluginCapabilities
 from amesh_client.models.plugin_catalog_snapshot import PluginCatalogSnapshot as PluginCatalogSnapshot
 from amesh_client.models.plugin_certification_status import PluginCertificationStatus as PluginCertificationStatus

@@ -169,6 +169,14 @@ Class | Method | HTTP request | Description
 *BackfillsApi* | [**previewBackfillApiV1BackfillsPreviewPostWithHttpInfo**](docs/BackfillsApi.md#previewBackfillApiV1BackfillsPreviewPostWithHttpInfo) | **POST** /api/v1/backfills/preview | Preview Backfill
 *BackfillsApi* | [**resumeBackfillApiV1BackfillsBackfillIdResumePost**](docs/BackfillsApi.md#resumeBackfillApiV1BackfillsBackfillIdResumePost) | **POST** /api/v1/backfills/{backfill_id}/resume | Resume Backfill
 *BackfillsApi* | [**resumeBackfillApiV1BackfillsBackfillIdResumePostWithHttpInfo**](docs/BackfillsApi.md#resumeBackfillApiV1BackfillsBackfillIdResumePostWithHttpInfo) | **POST** /api/v1/backfills/{backfill_id}/resume | Resume Backfill
+*BlueprintsApi* | [**getBlueprintVersionApiV1BlueprintsBlueprintIdVersionGet**](docs/BlueprintsApi.md#getBlueprintVersionApiV1BlueprintsBlueprintIdVersionGet) | **GET** /api/v1/blueprints/{blueprint_id}/{version} | Get Blueprint Version
+*BlueprintsApi* | [**getBlueprintVersionApiV1BlueprintsBlueprintIdVersionGetWithHttpInfo**](docs/BlueprintsApi.md#getBlueprintVersionApiV1BlueprintsBlueprintIdVersionGetWithHttpInfo) | **GET** /api/v1/blueprints/{blueprint_id}/{version} | Get Blueprint Version
+*BlueprintsApi* | [**getBlueprintsApiV1BlueprintsGet**](docs/BlueprintsApi.md#getBlueprintsApiV1BlueprintsGet) | **GET** /api/v1/blueprints | Get Blueprints
+*BlueprintsApi* | [**getBlueprintsApiV1BlueprintsGetWithHttpInfo**](docs/BlueprintsApi.md#getBlueprintsApiV1BlueprintsGetWithHttpInfo) | **GET** /api/v1/blueprints | Get Blueprints
+*BlueprintsApi* | [**instantiateBlueprintDraftApiV1BlueprintsBlueprintIdVersionInstantiatePost**](docs/BlueprintsApi.md#instantiateBlueprintDraftApiV1BlueprintsBlueprintIdVersionInstantiatePost) | **POST** /api/v1/blueprints/{blueprint_id}/{version}/instantiate | Instantiate Blueprint Draft
+*BlueprintsApi* | [**instantiateBlueprintDraftApiV1BlueprintsBlueprintIdVersionInstantiatePostWithHttpInfo**](docs/BlueprintsApi.md#instantiateBlueprintDraftApiV1BlueprintsBlueprintIdVersionInstantiatePostWithHttpInfo) | **POST** /api/v1/blueprints/{blueprint_id}/{version}/instantiate | Instantiate Blueprint Draft
+*BlueprintsApi* | [**simulatePlaygroundApiV1PlaygroundSimulatePost**](docs/BlueprintsApi.md#simulatePlaygroundApiV1PlaygroundSimulatePost) | **POST** /api/v1/playground/simulate | Simulate Playground
+*BlueprintsApi* | [**simulatePlaygroundApiV1PlaygroundSimulatePostWithHttpInfo**](docs/BlueprintsApi.md#simulatePlaygroundApiV1PlaygroundSimulatePostWithHttpInfo) | **POST** /api/v1/playground/simulate | Simulate Playground
 *ChecksApi* | [**getCheckComplianceApiV1CheckComplianceGet**](docs/ChecksApi.md#getCheckComplianceApiV1CheckComplianceGet) | **GET** /api/v1/check-compliance | Get Check Compliance
 *ChecksApi* | [**getCheckComplianceApiV1CheckComplianceGetWithHttpInfo**](docs/ChecksApi.md#getCheckComplianceApiV1CheckComplianceGetWithHttpInfo) | **GET** /api/v1/check-compliance | Get Check Compliance
 *ChecksApi* | [**listCheckEvaluationsApiV1CheckEvaluationsGet**](docs/ChecksApi.md#listCheckEvaluationsApiV1CheckEvaluationsGet) | **GET** /api/v1/check-evaluations | List Check Evaluations
@@ -457,6 +465,14 @@ Class | Method | HTTP request | Description
  - [BackfillSelectionKind](docs/BackfillSelectionKind.md)
  - [BackfillSpec](docs/BackfillSpec.md)
  - [BackfillState](docs/BackfillState.md)
+ - [BlueprintCatalogSource](docs/BlueprintCatalogSource.md)
+ - [BlueprintDefinition](docs/BlueprintDefinition.md)
+ - [BlueprintDraftResponse](docs/BlueprintDraftResponse.md)
+ - [BlueprintInstantiationRequest](docs/BlueprintInstantiationRequest.md)
+ - [BlueprintParameter](docs/BlueprintParameter.md)
+ - [BlueprintParameterKind](docs/BlueprintParameterKind.md)
+ - [BlueprintProvenance](docs/BlueprintProvenance.md)
+ - [BlueprintSummary](docs/BlueprintSummary.md)
  - [BulkExecutionItemResult](docs/BulkExecutionItemResult.md)
  - [BulkExecutionRequest](docs/BulkExecutionRequest.md)
  - [ChangeLocalPasswordRequest](docs/ChangeLocalPasswordRequest.md)
@@ -569,6 +585,10 @@ Class | Method | HTTP request | Description
  - [PersistedSubflow](docs/PersistedSubflow.md)
  - [PersistedTaskRun](docs/PersistedTaskRun.md)
  - [PersistedTaskRunSummary](docs/PersistedTaskRunSummary.md)
+ - [PlaygroundSafety](docs/PlaygroundSafety.md)
+ - [PlaygroundSimulationRequest](docs/PlaygroundSimulationRequest.md)
+ - [PlaygroundSimulationResponse](docs/PlaygroundSimulationResponse.md)
+ - [PlaygroundStep](docs/PlaygroundStep.md)
  - [PluginCapabilities](docs/PluginCapabilities.md)
  - [PluginCatalogSnapshot](docs/PluginCatalogSnapshot.md)
  - [PluginCertificationStatus](docs/PluginCertificationStatus.md)

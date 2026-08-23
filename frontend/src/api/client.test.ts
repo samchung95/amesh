@@ -259,6 +259,38 @@ describe('API client', () => {
     expect(saveInit.body).toBe('id: daily')
   })
 
+  it('uses the versioned blueprint catalog and isolated playground endpoints', async () => {
+    const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(
+      new Response('{}', { status: 200 }),
+    ))
+    vi.stubGlobal('fetch', fetchMock)
+    const api = createApiClient({ token: 'token', tenant: 'default', namespace: '' })
+
+    await api.blueprints('hello world', 'BUILTIN')
+    await api.blueprint('hello-world', '1.0.0')
+    await api.instantiateBlueprint('hello-world', '1.0.0', {
+      namespace: 'examples.local',
+      flow_id: 'hello_draft',
+    })
+    await api.simulatePlayground(
+      '{{ inputs.name }}',
+      { inputs: { name: 'Ada' } },
+      'id: done\ntype: core.return\nvalue: ok\n',
+    )
+
+    expect(fetchMock.mock.calls.map((call) => call[0] as string)).toEqual([
+      '/api/v1/blueprints?q=hello+world&source=BUILTIN',
+      '/api/v1/blueprints/hello-world/1.0.0',
+      '/api/v1/blueprints/hello-world/1.0.0/instantiate',
+      '/api/v1/playground/simulate',
+    ])
+    const instantiateInit = fetchMock.mock.calls[2]?.[1] as RequestInit
+    const instantiateBody = JSON.parse(instantiateInit.body as string) as Record<string, unknown>
+    expect(instantiateBody).toEqual({
+      parameters: { namespace: 'examples.local', flow_id: 'hello_draft' },
+    })
+  })
+
   it('builds typed dashboard query, persistence and export requests', async () => {
     const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(new Response('{}', { status: 200 })))
     vi.stubGlobal('fetch', fetchMock)

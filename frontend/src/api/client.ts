@@ -15,6 +15,10 @@ import type {
   BackfillPreview,
   BackfillRecord,
   BackfillSpec,
+  BlueprintCatalogSource,
+  BlueprintDefinition,
+  BlueprintDraftResponse,
+  BlueprintSummary,
   ExecutionArtifact,
   ExecutionDetail,
   ExecutionEvidencePage,
@@ -48,6 +52,7 @@ import type {
   PersistedExecution,
   PersistedFlow,
   PersistedSubflow,
+  PlaygroundSimulationResponse,
   PrincipalDefinition,
   ReadinessResponse,
   RoleBinding,
@@ -240,6 +245,26 @@ export function createApiClient(connection: ApiConnection) {
         body: JSON.stringify({ draft: preview.draft, approval: preview.approval, confirmation }),
       }),
     administrationAudit: async () => request<AdministrationAuditEntry[]>('/api/v1/admin/audit?limit=200'),
+    blueprints: async (query = '', source?: BlueprintCatalogSource) => {
+      const params = new URLSearchParams()
+      if (query.trim()) params.set('q', query.trim())
+      if (source) params.set('source', source)
+      return request<BlueprintSummary[]>(`/api/v1/blueprints${params.size ? `?${params.toString()}` : ''}`)
+    },
+    blueprint: async (blueprintId: string, version: string) =>
+      request<BlueprintDefinition>(`/api/v1/blueprints/${encodeURIComponent(blueprintId)}/${encodeURIComponent(version)}`),
+    instantiateBlueprint: async (blueprintId: string, version: string, parameters: Record<string, string>) =>
+      request<BlueprintDraftResponse>(`/api/v1/blueprints/${encodeURIComponent(blueprintId)}/${encodeURIComponent(version)}/instantiate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ parameters }),
+      }),
+    simulatePlayground: async (expression: string, context: Record<string, unknown>, fragment: string) =>
+      request<PlaygroundSimulationResponse>('/api/v1/playground/simulate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ expression, context, fragment }),
+      }),
     flows: async () => request<PersistedFlow[]>('/api/v1/flows'),
     flowEditorSchema: async () => request<FlowEditorSchema>('/api/v1/flows/editor/schema'),
     validateFlow: async (document: string) =>

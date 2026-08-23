@@ -95,6 +95,21 @@ const namespaceSecrets = [
   { namespace: 'team.data', key: 'API_KEY', provider: 'env', providerReference: 'PRODUCTION_API_KEY', metadata: {}, resourceVersion: 1, inherited: false, originNamespace: 'team.data', createdAt: '2026-08-21T10:00:00Z', updatedAt: '2026-08-21T10:00:00Z' },
 ]
 
+const blueprints = [
+  {
+    blueprintId: 'hello-world', version: '1.0.0', source: 'BUILTIN', title: 'Hello, workflow', summary: 'A local log-and-return flow with one optional input.', tags: ['getting-started', 'local', 'core'], documentation: 'Start here. The draft uses only deterministic core tasks and runs in Compose.', license: 'Apache-2.0', localOnly: true,
+    parameters: [{ name: 'namespace', title: 'Namespace', description: 'Draft namespace in dotted AMESH form.', kind: 'NAMESPACE', required: true, default: 'examples.getting_started' }, { name: 'flow_id', title: 'Flow ID', description: 'Natural identifier for the unsaved draft.', kind: 'FLOW_ID', required: true, default: 'hello_blueprint' }, { name: 'greeting', title: 'Greeting', description: 'Text emitted before the supplied name.', kind: 'STRING', required: true, default: 'Hello' }],
+    provenance: { publisher: 'AMESH project', location: 'repository://amesh/examples/hello-world.yaml', revision: '0.2.0', digest: `sha256:${'a'.repeat(64)}` },
+    template: 'apiVersion: amesh.flow/v1\nid: ${flow_id}\nnamespace: ${namespace}\ntasks:\n- id: done\n  type: core.return\n  value: ${greeting}\n',
+  },
+  {
+    blueprintId: 'organization-readiness', version: '1.0.0', source: 'ORGANIZATION', title: 'Organization readiness marker', summary: 'A policy-neutral local marker.', tags: ['organization'], documentation: 'Organization example.', license: 'Apache-2.0', localOnly: true, parameters: [], provenance: { publisher: 'Example organization', location: 'organization://default', revision: '1', digest: `sha256:${'b'.repeat(64)}` }, template: 'tasks: []\n',
+  },
+  {
+    blueprintId: 'community-batch', version: '1.0.0', source: 'COMMUNITY', title: 'Community batch loop', summary: 'A bounded foreach example.', tags: ['community', 'foreach'], documentation: 'Community example.', license: 'MIT', localOnly: true, parameters: [], provenance: { publisher: 'AMESH community', location: 'community://amesh/examples', revision: '1', digest: `sha256:${'c'.repeat(64)}` }, template: 'tasks: []\n',
+  },
+]
+
 async function mockApi(page: Page, overrides = session) {
   let customDashboard: Record<string, unknown> | null = null
   let adminControls: Array<{ key: string; flagKey: string; enabled: boolean; value: unknown; version: number | null; updatedBy: string | null; updatedAt: string | null }> = [
@@ -105,7 +120,8 @@ async function mockApi(page: Page, overrides = session) {
   ]
   const adminAudit: Array<Record<string, unknown>> = []
   await page.route('**/api/v1/ui/session**', (route) => route.fulfill({ json: overrides }))
-  await page.route('**/ready', (route) => route.fulfill({ json: { database: 'ready', migrations_applied: 44, migrations_expected: 44, latest_migration: '0044_search_projection.sql' } }))
+  await page.route('**/ready', (route) => route.fulfill({ json: { status: 'ready', version: '0.2.0', database: 'ready', migrations_applied: 44, migrations_expected: 44, latest_migration: '0044_search_projection.sql', error: null } }))
+  await page.route('**/api/v1/auth/providers', (route) => route.fulfill({ json: [{ id: 'local', kind: 'LOCAL', display_name: 'Local account', interactive: true }] }))
   await page.route('**/api/v1/admin/controls**', (route) => {
     const request = route.request()
     const path = new URL(request.url()).pathname
@@ -124,8 +140,8 @@ async function mockApi(page: Page, overrides = session) {
   })
   await page.route('**/api/v1/admin/audit**', (route) => route.fulfill({ json: adminAudit }))
   await page.route('**/api/v1/feature-flags**', (route) => route.fulfill({ json: [{ id: 'flag-1', key: 'editor-v2', scope: 'TENANT', enabled: true, tenant_id: 'default', namespace: null, description: 'New editor rollout', version: 2, updated_by: session.principalId, updated_at: '2026-08-23T08:00:00Z' }] }))
-  await page.route('**/api/v1/configuration**', (route) => route.fulfill({ json: { schema_version: 1, version: 7, fingerprint: 'abcdef0123456789abcdef0123456789', loaded_at: '2026-08-23T08:00:00Z', precedence: ['defaults', 'environment'], entries: [{ name: 'database.url', value: 'postgresql://amesh', source: 'environment', reloadable: false, secret: false }, { name: 'amesh.token_pepper', value: 'server-redacted', source: 'environment', reloadable: false, secret: true }], warnings: [] } }))
-  await page.route('**/api/v1/operations/topology', (route) => route.fulfill({ json: { observedAt: '2026-08-23T09:00:00Z', currentVersion: '0.2.0', versionSkew: false, coordination: 'postgresql-leases', quorumDependencies: { objectStorage: 'ready' }, roles: [{ role: 'api', totalInstances: 1, liveInstances: 1, readyInstances: 1, drainingInstances: 0, staleInstances: 0, versions: ['0.2.0'], failoverStatus: 'READY' }], instances: [] } }))
+  await page.route('**/api/v1/configuration**', (route) => route.fulfill({ json: { schema_version: 1, version: 7, fingerprint: 'abcdef0123456789abcdef0123456789', loaded_at: '2026-08-23T08:00:00Z', precedence: ['defaults', 'environment'], entries: [{ name: 'database.url', value: 'postgresql://amesh', source: 'environment', reloadable: false, secret: false }, { name: 'object_storage_backend', value: 's3', source: 'environment', reloadable: false, secret: false }, { name: 'execution_runner_mode', value: 'local', source: 'environment', reloadable: false, secret: false }, { name: 'amesh.token_pepper', value: 'server-redacted', source: 'environment', reloadable: false, secret: true }], warnings: [] } }))
+  await page.route('**/api/v1/operations/topology', (route) => route.fulfill({ json: { observedAt: '2026-08-23T09:00:00Z', currentVersion: '0.2.0', versionSkew: false, coordination: 'postgresql-leases', quorumDependencies: { objectStorage: 'ready' }, roles: [{ role: 'api', totalInstances: 1, liveInstances: 1, readyInstances: 1, drainingInstances: 0, staleInstances: 0, versions: ['0.2.0'], failoverStatus: 'READY' }, { role: 'executor', totalInstances: 1, liveInstances: 1, readyInstances: 1, drainingInstances: 0, staleInstances: 0, versions: ['0.2.0'], failoverStatus: 'READY' }], instances: [] } }))
   await page.route('**/api/v1/workers', (route) => route.fulfill({ json: [{ worker_id: 'worker-1', worker_group: 'local', instance_name: 'executor-1', version: '0.2.0', status: 'ACTIVE', liveness: 'LIVE', compatibility: 'COMPATIBLE', capacity: 4, claimed_work: 1, utilization: 0.25, last_heartbeat_at: '2026-08-23T09:00:00Z' }] }))
   await page.route('**/api/v1/admissions/diagnostics', (route) => route.fulfill({ json: { active_reservations: 1, queued_requests: 0, oldest_queue_age_seconds: 0, pressure_by_policy: {} } }))
   await page.route('**/api/v1/dashboards', (route) => route.fulfill({ json: customDashboard ? [...dashboardDefinitions, customDashboard] : dashboardDefinitions }))
@@ -163,6 +179,24 @@ async function mockApi(page: Page, overrides = session) {
     if (body.cursor) return route.fulfill({ json: { items: [searchDocuments[1]], nextCursor: null, deniedTypes: ['AUDIT'], projectionVersion: 4, projectionCondition: 'READY' } })
     return route.fulfill({ json: { items: searchDocuments, nextCursor: 'search-page-2', deniedTypes: ['AUDIT'], projectionVersion: 4, projectionCondition: 'READY' } })
   })
+  await page.route('**/api/v1/blueprints**', (route) => {
+    const request = route.request()
+    const url = new URL(request.url())
+    if (url.pathname.endsWith('/instantiate')) {
+      const body = request.postDataJSON() as { parameters: Record<string, string> }
+      const document = `apiVersion: amesh.flow/v1\nid: ${body.parameters.flow_id}\nnamespace: ${body.parameters.namespace}\ndescription: Created from the built-in hello-world blueprint.\ntasks:\n- id: done\n  type: core.return\n  value: ${body.parameters.greeting}\n`
+      return route.fulfill({ json: { blueprint: blueprints[0], document, validation: { valid: true, irVersion: 'amesh.flow/v1', semantic_hash: 'blueprint-hash', canonical: {}, issues: [] } } })
+    }
+    const parts = url.pathname.split('/').filter(Boolean)
+    if (parts.length > 3) {
+      const item = blueprints.find((blueprint) => blueprint.blueprintId === parts[3]) || blueprints[0]
+      return route.fulfill({ json: item })
+    }
+    const source = url.searchParams.get('source')
+    const query = (url.searchParams.get('q') || '').toLowerCase()
+    return route.fulfill({ json: blueprints.filter((item) => (!source || item.source === source) && (!query || `${item.title} ${item.summary} ${item.tags.join(' ')}`.toLowerCase().includes(query))) })
+  })
+  await page.route('**/api/v1/playground/simulate', (route) => route.fulfill({ json: { expressionResult: 'Ada', redactedContext: { inputs: { name: 'Ada', apiToken: '[REDACTED]' } }, validation: { valid: true, irVersion: 'amesh.flow/v1', semantic_hash: 'playground-hash', canonical: {}, issues: [] }, steps: [{ taskId: 'done', taskType: 'core.return', dependencies: [], simulated: true, reason: 'deterministic local preview' }], safety: { persisted: false, executed: false, credentialAccess: false, infrastructureAccess: false }, compatibilityVersion: 'amesh.expr/v1' } }))
   await page.route('**/api/v1/flows', (route) => route.fulfill({ json: flows }))
   await page.route('**/api/v1/flows/editor/schema', (route) => route.fulfill({ json: {
     schemaVersion: 'amesh.flow-editor/v1',
@@ -355,6 +389,53 @@ test('administers tenant controls with preview, redaction and audit evidence', a
   await page.getByRole('button', { name: 'Audit' }).click()
   await expect(page.getByText('incident containment exercise').first()).toBeVisible()
   await expect(page.getByText('SUCCESS').first()).toBeVisible()
+  const findings = await new AxeBuilder({ page }).analyze()
+  expect(findings.violations.filter((item) => ['critical', 'serious'].includes(item.impact || ''))).toEqual([])
+})
+
+test('previews blueprints, opens an unsaved draft and isolates playground work', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name === 'tablet', 'desktop blueprint workbench acceptance')
+  const executionRequests: string[] = []
+  page.on('request', (request) => {
+    if (request.method() === 'POST' && new URL(request.url()).pathname === '/api/v1/executions') {
+      executionRequests.push(request.url())
+    }
+  })
+  await connect(page)
+
+  await page.locator('.app-rail').getByRole('link', { name: 'Blueprints' }).click()
+  await expect(page.getByRole('heading', { name: 'Blueprints' })).toBeVisible()
+  await expect(page.getByText('Hello, workflow', { exact: true }).first()).toBeVisible()
+  await expect(page.getByText('Organization readiness marker', { exact: true })).toBeVisible()
+  await expect(page.getByText('Community batch loop', { exact: true })).toBeVisible()
+  await page.getByLabel('Catalog source').selectOption('COMMUNITY')
+  await expect(page.getByText('Community batch loop', { exact: true }).first()).toBeVisible()
+  await expect(page.getByText('Hello, workflow', { exact: true })).toHaveCount(0)
+  await page.getByLabel('Catalog source').selectOption('ALL')
+  await page.getByText('Hello, workflow', { exact: true }).first().click()
+  await page.getByRole('button', { name: 'Open unsaved draft' }).click()
+
+  await expect(page).toHaveURL(/\/flows\/new\?.*blueprint=hello-world/)
+  await expect(page.getByRole('heading', { name: 'Draft hello_blueprint' })).toBeVisible()
+  await expect(page.getByText(/loaded as an unsaved draft\. Nothing has run/)).toBeVisible()
+  await page.getByRole('tab', { name: 'YAML' }).click()
+  await expect(page.getByText('Created from the built-in hello-world blueprint.')).toBeVisible()
+  expect(executionRequests).toEqual([])
+
+  page.once('dialog', (dialog) => void dialog.accept())
+  await page.locator('#main-content').getByRole('link', { name: 'Blueprints' }).click()
+  await page.getByRole('tab', { name: 'Playground' }).click()
+  await page.getByRole('button', { name: 'Validate and simulate' }).click()
+  await expect(page.locator('.playground-safety article').filter({ hasText: 'persisted' })).toContainText('No')
+  await expect(page.locator('.playground-safety article').filter({ hasText: 'credential access' })).toContainText('No')
+  await expect(page.getByText('deterministic local preview')).toBeVisible()
+
+  await page.getByRole('tab', { name: 'Setup guide' }).click()
+  await expect(page.getByText('4 / 4 ready')).toBeVisible()
+  await page.getByText('Start the local stack').click()
+  await expect(page.getByText('1 / 4', { exact: true })).toBeVisible()
+  await page.reload()
+  await expect(page.getByText('1 / 4', { exact: true })).toBeVisible()
   const findings = await new AxeBuilder({ page }).analyze()
   expect(findings.violations.filter((item) => ['critical', 'serious'].includes(item.impact || ''))).toEqual([])
 })

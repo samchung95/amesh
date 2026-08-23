@@ -1,6 +1,7 @@
 import {
   Boxes,
   Braces,
+  BookOpenCheck,
   Cable,
   ChartNoAxesCombined,
   CircleGauge,
@@ -34,6 +35,14 @@ export const navigationItems: NavigationItem[] = [
     path: '/flows',
     group: 'build',
     icon: Workflow,
+    capability: 'flows.view',
+  },
+  {
+    id: 'blueprints',
+    labelKey: 'blueprints',
+    path: '/blueprints',
+    group: 'build',
+    icon: BookOpenCheck,
     capability: 'flows.view',
   },
   {

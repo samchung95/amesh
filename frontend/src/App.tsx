@@ -20,6 +20,7 @@ import { SearchPage } from './pages/SearchPage'
 import { TriggersPage } from './pages/TriggersPage'
 import { ChecksPage } from './pages/ChecksPage'
 import { AdministrationPage } from './pages/AdministrationPage'
+import { BlueprintsPage } from './pages/BlueprintsPage'
 
 export function App() {
   const { connected } = useAppSettings()
@@ -69,6 +70,7 @@ function WorkspaceRoutes({ session }: { session: UiSession }) {
         <Route index element={<CapabilityRoute session={session} capability="dashboards.view" title="Dashboard"><DashboardPage session={session} /></CapabilityRoute>} />
         <Route path="search" element={<CapabilityRoute session={session} capability="search.view" title="Search"><SearchPage session={session} /></CapabilityRoute>} />
         <Route path="flows" element={<CapabilityRoute session={session} capability="flows.view" title="Flows"><FlowsPage session={session} /></CapabilityRoute>} />
+        <Route path="blueprints" element={<CapabilityRoute session={session} capability="flows.view" title="Blueprints"><BlueprintsPage session={session} /></CapabilityRoute>} />
         <Route path="flows/new" element={<CapabilityRoute session={session} capability="flows.create" title="Create flow"><FlowEditorPage session={session} /></CapabilityRoute>} />
         <Route path="flows/:namespace/:flowId/edit" element={<CapabilityRoute session={session} capability="flows.update" title="Edit flow"><FlowEditorPage session={session} /></CapabilityRoute>} />
         <Route path="flows/:namespace/:flowId" element={<CapabilityRoute session={session} capability="flows.view" title="Flow"><FlowDetailPage session={session} /></CapabilityRoute>} />

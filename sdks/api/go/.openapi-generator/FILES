@@ -7,6 +7,7 @@ api_administration.go
 api_authentication.go
 api_authorization.go
 api_backfills.go
+api_blueprints.go
 api_checks.go
 api_configuration.go
 api_credentials.go
@@ -31,6 +32,7 @@ docs/AdministrationAPI.md
 docs/AuthenticationAPI.md
 docs/AuthorizationAPI.md
 docs/BackfillsAPI.md
+docs/BlueprintsAPI.md
 docs/ChecksAPI.md
 docs/ConfigurationAPI.md
 docs/CredentialsAPI.md
@@ -76,6 +78,14 @@ model_backfill_selection.go
 model_backfill_selection_kind.go
 model_backfill_spec.go
 model_backfill_state.go
+model_blueprint_catalog_source.go
+model_blueprint_definition.go
+model_blueprint_draft_response.go
+model_blueprint_instantiation_request.go
+model_blueprint_parameter.go
+model_blueprint_parameter_kind.go
+model_blueprint_provenance.go
+model_blueprint_summary.go
 model_bulk_execution_item_result.go
 model_bulk_execution_request.go
 model_change_local_password_request.go
@@ -188,6 +198,10 @@ model_persisted_flow.go
 model_persisted_subflow.go
 model_persisted_task_run.go
 model_persisted_task_run_summary.go
+model_playground_safety.go
+model_playground_simulation_request.go
+model_playground_simulation_response.go
+model_playground_step.go
 model_plugin_capabilities.go
 model_plugin_catalog_snapshot.go
 model_plugin_certification_status.go

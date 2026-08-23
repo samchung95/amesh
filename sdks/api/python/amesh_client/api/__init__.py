@@ -5,6 +5,7 @@ from amesh_client.api.administration_api import AdministrationApi
 from amesh_client.api.authentication_api import AuthenticationApi
 from amesh_client.api.authorization_api import AuthorizationApi
 from amesh_client.api.backfills_api import BackfillsApi
+from amesh_client.api.blueprints_api import BlueprintsApi
 from amesh_client.api.checks_api import ChecksApi
 from amesh_client.api.configuration_api import ConfigurationApi
 from amesh_client.api.credentials_api import CredentialsApi

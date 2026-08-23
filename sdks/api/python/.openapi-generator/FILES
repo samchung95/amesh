@@ -10,6 +10,7 @@ amesh_client/api/administration_api.py
 amesh_client/api/authentication_api.py
 amesh_client/api/authorization_api.py
 amesh_client/api/backfills_api.py
+amesh_client/api/blueprints_api.py
 amesh_client/api/checks_api.py
 amesh_client/api/configuration_api.py
 amesh_client/api/credentials_api.py
@@ -57,6 +58,14 @@ amesh_client/models/backfill_selection.py
 amesh_client/models/backfill_selection_kind.py
 amesh_client/models/backfill_spec.py
 amesh_client/models/backfill_state.py
+amesh_client/models/blueprint_catalog_source.py
+amesh_client/models/blueprint_definition.py
+amesh_client/models/blueprint_draft_response.py
+amesh_client/models/blueprint_instantiation_request.py
+amesh_client/models/blueprint_parameter.py
+amesh_client/models/blueprint_parameter_kind.py
+amesh_client/models/blueprint_provenance.py
+amesh_client/models/blueprint_summary.py
 amesh_client/models/bulk_execution_item_result.py
 amesh_client/models/bulk_execution_request.py
 amesh_client/models/change_local_password_request.py
@@ -169,6 +178,10 @@ amesh_client/models/persisted_flow.py
 amesh_client/models/persisted_subflow.py
 amesh_client/models/persisted_task_run.py
 amesh_client/models/persisted_task_run_summary.py
+amesh_client/models/playground_safety.py
+amesh_client/models/playground_simulation_request.py
+amesh_client/models/playground_simulation_response.py
+amesh_client/models/playground_step.py
 amesh_client/models/plugin_capabilities.py
 amesh_client/models/plugin_catalog_snapshot.py
 amesh_client/models/plugin_certification_status.py
@@ -303,6 +316,7 @@ docs/AdministrationApi.md
 docs/AuthenticationApi.md
 docs/AuthorizationApi.md
 docs/BackfillsApi.md
+docs/BlueprintsApi.md
 docs/ChecksApi.md
 docs/ConfigurationApi.md
 docs/CredentialsApi.md

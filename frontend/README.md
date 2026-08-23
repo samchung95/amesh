@@ -56,6 +56,18 @@ redacted. Existing flows can be compared with a selected revision, cloned, disab
 Import and export operate on local YAML files. Unsaved source is isolated by tenant, user and flow in
 local storage; navigation warns before leaving it behind.
 
+## Start from a blueprint
+
+Open **Blueprints** to search and preview versioned built-in, organization and community catalog
+entries. Each preview exposes its parameters, documentation, license and immutable provenance before
+opening it in the real flow editor. Instantiation creates a dirty unsaved draft only; save and execute
+remain separate explicit actions.
+
+The adjacent **Playground** previews native expressions and validates YAML fragments without
+persistence, runner, production credential or infrastructure access. **Setup guide** reports database,
+storage, local-runner and authentication readiness and retains checklist completion only in
+tenant/user-scoped browser storage. See the [first-run guide](../docs/operations/onboarding.md).
+
 ## Debug executions
 
 Open an execution to inspect its identity, revision, inputs, labels, trigger, duration and related

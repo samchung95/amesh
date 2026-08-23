@@ -4,6 +4,7 @@ export * from './AdministrationApi';
 export * from './AuthenticationApi';
 export * from './AuthorizationApi';
 export * from './BackfillsApi';
+export * from './BlueprintsApi';
 export * from './ChecksApi';
 export * from './ConfigurationApi';
 export * from './CredentialsApi';

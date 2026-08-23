@@ -1,5 +1,47 @@
 # Test Log
 
+## EPIC-411: Blueprints, playground and onboarding — 2026-08-23
+
+Spec source: Agent Hotel card `c67` and canonical `backlog/epics.json` EPIC-411 DoD.
+
+Verified with `uv`, Python 3.13, PostgreSQL 17, React/TypeScript, Chromium and Docker Compose:
+
+- [x] Three checked-in versioned local blueprints represent built-in, organization and community
+  catalogs. Domain and API tests verified search/source filtering, typed/default parameters,
+  documentation, license and immutable SHA-256 provenance.
+- [x] Every blueprint instantiated into a valid native flow. The authorized API returns YAML plus
+  validation evidence without a repository dependency; Chromium transferred the built-in example to
+  the existing editor as a dirty unsaved draft and observed no execution request.
+- [x] The playground reuses native expression redaction and flow validation. Focused tests and live
+  deployment returned `[REDACTED]` for a token-shaped input and explicit `false` values for persistence,
+  execution, credential access and infrastructure access.
+- [x] The setup guide reports live database/migration, object-storage, executor and interactive-auth
+  readiness. Its four completion steps are tenant/principal scoped in browser local storage and
+  survived Chromium reload without an external telemetry request.
+- [x] All 43 frontend unit tests passed; the production build, targeted ESLint and full Playwright
+  matrix passed with 13 Chromium workflows and 13 tablet-inapplicable skips. The blueprint workflow
+  reported no critical or serious axe findings. The separate global branch-coverage threshold remains
+  deferred on board card `c94` after reporting 69.23% against 75%.
+- [x] Focused domain/API/generated-contract tests passed. Ruff, strict mypy across 170 source files,
+  deterministic OpenAPI/schema generation, planning regeneration and backlog validation passed.
+  Python and TypeScript generated clients compiled, Java assembled, and SDK freshness covered 1,380
+  files; Go was not installed locally and was not claimed.
+- [x] The broad backend collection had one non-functional timing miss: the existing board-card `c89`
+  5,000-line DSL p95 check measured 1.009 seconds against 1.000. It is unrelated to the blueprint path;
+  all seven focused blueprint domain/API tests and the generated-contract check passed.
+- [x] Rebuilt API, executor, scheduler and indexer containers are healthy. Live readiness reported
+  44/44 migrations; catalog/API smoke returned three sources and a valid draft; headless Chromium
+  opened `/blueprints`, rendered three cards, all four all-false playground safety facts and four ready
+  onboarding prerequisites with zero alerts.
+- [x] No dependency or LLM call was required. OpenRouter remains configured for
+  `openai/gpt-5.6-luna` when a later behavior test needs an LLM.
+
+Qualification boundary: the recurring external quarterly median required by shared
+`URS-NFR-USABILITY-003` cannot be produced by local development and is deferred on card `c93`. The
+local documented path and automated first-run workflow are complete; the shared NFR remains Proposed.
+
+Verdict: PASS — EPIC-411 functional requirements URS-F-0486 through URS-F-0493 are verified.
+
 ## EPIC-410: Namespace, settings and administration UI — 2026-08-23
 
 Spec source: Agent Hotel card `c66` and canonical `backlog/epics.json` EPIC-410 DoD.

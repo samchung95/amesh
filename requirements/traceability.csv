@@ -484,14 +484,14 @@ URS-F-0482,Functional,Must,EPIC-410,"Namespace, settings and administration UI",
 URS-F-0483,Functional,Must,EPIC-410,"Namespace, settings and administration UI",M4,4,"Automated browser, accessibility and manual usability tests",Verified
 URS-F-0484,Functional,Must,EPIC-410,"Namespace, settings and administration UI",M4,4,"Automated browser, accessibility and manual usability tests",Verified
 URS-F-0485,Functional,Must,EPIC-410,"Namespace, settings and administration UI",M4,4,"Automated browser, accessibility and manual usability tests",Verified
-URS-F-0486,Functional,Must,EPIC-411,"Blueprints, playground and onboarding",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
-URS-F-0487,Functional,Must,EPIC-411,"Blueprints, playground and onboarding",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
-URS-F-0488,Functional,Must,EPIC-411,"Blueprints, playground and onboarding",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
-URS-F-0489,Functional,Must,EPIC-411,"Blueprints, playground and onboarding",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
-URS-F-0490,Functional,Must,EPIC-411,"Blueprints, playground and onboarding",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
-URS-F-0491,Functional,Must,EPIC-411,"Blueprints, playground and onboarding",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
-URS-F-0492,Functional,Must,EPIC-411,"Blueprints, playground and onboarding",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
-URS-F-0493,Functional,Must,EPIC-411,"Blueprints, playground and onboarding",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
+URS-F-0486,Functional,Must,EPIC-411,"Blueprints, playground and onboarding",M4,4,"Automated browser, accessibility and manual usability tests",Verified
+URS-F-0487,Functional,Must,EPIC-411,"Blueprints, playground and onboarding",M4,4,"Automated browser, accessibility and manual usability tests",Verified
+URS-F-0488,Functional,Must,EPIC-411,"Blueprints, playground and onboarding",M4,4,"Automated browser, accessibility and manual usability tests",Verified
+URS-F-0489,Functional,Must,EPIC-411,"Blueprints, playground and onboarding",M4,4,"Automated browser, accessibility and manual usability tests",Verified
+URS-F-0490,Functional,Must,EPIC-411,"Blueprints, playground and onboarding",M4,4,"Automated browser, accessibility and manual usability tests",Verified
+URS-F-0491,Functional,Must,EPIC-411,"Blueprints, playground and onboarding",M4,4,"Automated browser, accessibility and manual usability tests",Verified
+URS-F-0492,Functional,Must,EPIC-411,"Blueprints, playground and onboarding",M4,4,"Automated browser, accessibility and manual usability tests",Verified
+URS-F-0493,Functional,Must,EPIC-411,"Blueprints, playground and onboarding",M4,4,"Automated browser, accessibility and manual usability tests",Verified
 URS-F-0494,Functional,Must,EPIC-500,"Users, groups, roles, bindings and authorization",M5,5,"Authorization, audit and administrative end-to-end tests",Verified
 URS-F-0495,Functional,Must,EPIC-500,"Users, groups, roles, bindings and authorization",M5,5,"Authorization, audit and administrative end-to-end tests",Verified
 URS-F-0496,Functional,Must,EPIC-500,"Users, groups, roles, bindings and authorization",M5,5,"Authorization, audit and administrative end-to-end tests",Verified

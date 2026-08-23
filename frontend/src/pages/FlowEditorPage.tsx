@@ -29,6 +29,7 @@ import {
   type FlowCodeEditorHandle,
 } from '../components/FlowCodeEditor'
 import { VisualFlowEditor } from '../components/VisualFlowEditor'
+import { blueprintDraftTransferKey } from '../components/blueprintModel'
 
 const EMPTY_VALIDATION: FlowValidationResult = {
   valid: false,
@@ -82,6 +83,10 @@ export function FlowEditorPage({ session }: { session: UiSession }) {
   const [searchParams] = useSearchParams()
   const cloneNamespace = searchParams.get('cloneNamespace') || ''
   const cloneFlowId = searchParams.get('cloneFlowId') || ''
+  const blueprintId = searchParams.get('blueprint') || ''
+  const blueprintVersion = searchParams.get('blueprintVersion') || ''
+  const draftNamespace = searchParams.get('draftNamespace') || ''
+  const draftFlowId = searchParams.get('draftFlowId') || ''
   const existing = Boolean(namespace && flowId)
   const api = useApiClient()
   const navigate = useNavigate()
@@ -128,9 +133,10 @@ export function FlowEditorPage({ session }: { session: UiSession }) {
     () => flows.data?.find((flow) => flow.namespace === namespace && flow.flow_id === flowId),
     [flowId, flows.data, namespace],
   )
-  const targetNamespace = existing ? namespace : cloneNamespace || settings.namespace || 'default'
-  const targetFlowId = existing ? flowId : cloneFlowId ? `${cloneFlowId}_copy` : 'new_flow'
+  const targetNamespace = existing ? namespace : draftNamespace || cloneNamespace || settings.namespace || 'default'
+  const targetFlowId = existing ? flowId : draftFlowId || (cloneFlowId ? `${cloneFlowId}_copy` : 'new_flow')
   const draftKey = flowDraftKey(settings.tenant, session.principalId, targetNamespace, targetFlowId)
+  const blueprintKey = blueprintDraftTransferKey(settings.tenant, session.principalId, blueprintId, blueprintVersion)
   const dirty = Boolean(savedSource) && source !== savedSource
   const effectiveRevision = selectedRevision ?? revisions.data?.[0]?.revision ?? null
   const saveEtag = etag || persisted?.etag
@@ -140,14 +146,19 @@ export function FlowEditorPage({ session }: { session: UiSession }) {
     let initial: string | null = null
     if (existing && document.data) initial = stringify(document.data.document, { lineWidth: 100 })
     if (!existing && cloneDocument.data) initial = cloneFlowDocument(cloneDocument.data.document)
-    if (!existing && !cloneNamespace && !cloneFlowId) initial = starterFlow(settings.namespace)
+    if (!existing && !cloneNamespace && !cloneFlowId) initial = starterFlow(targetNamespace)
     if (initial === null) return
+    const blueprintDraft = blueprintId && blueprintVersion ? sessionStorage.getItem(blueprintKey) : null
     const localDraft = localStorage.getItem(draftKey)
     setSavedSource(initial)
-    setSource(localDraft || initial)
-    setRecovered(Boolean(localDraft && localDraft !== initial))
+    setSource(blueprintDraft || localDraft || initial)
+    setRecovered(Boolean(!blueprintDraft && localDraft && localDraft !== initial))
+    if (blueprintDraft) {
+      sessionStorage.removeItem(blueprintKey)
+      setNotice(`Blueprint ${blueprintId} v${blueprintVersion} loaded as an unsaved draft. Nothing has run.`)
+    }
     initialized.current = true
-  }, [cloneDocument.data, cloneFlowId, cloneNamespace, document.data, draftKey, existing, settings.namespace])
+  }, [blueprintId, blueprintKey, blueprintVersion, cloneDocument.data, cloneFlowId, cloneNamespace, document.data, draftKey, existing, targetNamespace])
 
   useEffect(() => {
     if (!initialized.current || !savedSource) return
@@ -251,9 +262,9 @@ export function FlowEditorPage({ session }: { session: UiSession }) {
 
   return (
     <div className="page-stack flow-editor-page">
-      <Link className="back-link" to={existing ? `/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}` : '/flows'} onClick={confirmLeave}><ArrowLeft size={16} aria-hidden="true" />{existing ? 'Flow details' : 'Flows'}</Link>
+      <Link className="back-link" to={existing ? `/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}` : blueprintId ? '/blueprints' : '/flows'} onClick={confirmLeave}><ArrowLeft size={16} aria-hidden="true" />{existing ? 'Flow details' : blueprintId ? 'Blueprints' : 'Flows'}</Link>
       <header className="page-heading flow-editor-heading">
-        <div><p className="eyebrow">BUILD / VISUAL + YAML</p><h1>{existing ? flowId : cloneFlowId ? `Clone ${cloneFlowId}` : 'Create flow'}</h1><p>Visual topology and schema forms backed by one server-validated YAML definition.</p></div>
+        <div><p className="eyebrow">BUILD / VISUAL + YAML</p><h1>{existing ? flowId : cloneFlowId ? `Clone ${cloneFlowId}` : blueprintId ? `Draft ${draftFlowId || blueprintId}` : 'Create flow'}</h1><p>Visual topology and schema forms backed by one server-validated YAML definition.</p></div>
         <div className="flow-editor-actions">
           <button className="button button-secondary" type="button" onClick={() => importInput.current?.click()}><FileUp size={16} aria-hidden="true" />Import</button>
           <input ref={importInput} className="sr-only" type="file" accept=".yaml,.yml,application/yaml,text/yaml" aria-label="Import flow YAML" onChange={(event) => {

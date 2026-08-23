@@ -152,6 +152,11 @@ uv run --extra runtime python -m amesh \
   --token development-token --tenant default run examples.engine parallel_dag
 ```
 
+For the graphical first run, open `http://localhost:8000` with the development token, then use
+**Blueprints → Hello, workflow → Open unsaved draft**. Review and save the draft before explicitly
+running it from Flow details. The [first-run guide](docs/operations/onboarding.md) covers readiness,
+the isolated playground and the under-20-minute local path.
+
 Apply `examples/nested-flowables.yaml`, then open **Flows → Open graph** to inspect its expanded
 sequential, bounded-parallel and DAG plan before execution. Execution details show the same graph with
 live task states.

@@ -37,6 +37,14 @@ from amesh_client.models.backfill_selection import BackfillSelection
 from amesh_client.models.backfill_selection_kind import BackfillSelectionKind
 from amesh_client.models.backfill_spec import BackfillSpec
 from amesh_client.models.backfill_state import BackfillState
+from amesh_client.models.blueprint_catalog_source import BlueprintCatalogSource
+from amesh_client.models.blueprint_definition import BlueprintDefinition
+from amesh_client.models.blueprint_draft_response import BlueprintDraftResponse
+from amesh_client.models.blueprint_instantiation_request import BlueprintInstantiationRequest
+from amesh_client.models.blueprint_parameter import BlueprintParameter
+from amesh_client.models.blueprint_parameter_kind import BlueprintParameterKind
+from amesh_client.models.blueprint_provenance import BlueprintProvenance
+from amesh_client.models.blueprint_summary import BlueprintSummary
 from amesh_client.models.bulk_execution_item_result import BulkExecutionItemResult
 from amesh_client.models.bulk_execution_request import BulkExecutionRequest
 from amesh_client.models.change_local_password_request import ChangeLocalPasswordRequest
@@ -149,6 +157,10 @@ from amesh_client.models.persisted_flow import PersistedFlow
 from amesh_client.models.persisted_subflow import PersistedSubflow
 from amesh_client.models.persisted_task_run import PersistedTaskRun
 from amesh_client.models.persisted_task_run_summary import PersistedTaskRunSummary
+from amesh_client.models.playground_safety import PlaygroundSafety
+from amesh_client.models.playground_simulation_request import PlaygroundSimulationRequest
+from amesh_client.models.playground_simulation_response import PlaygroundSimulationResponse
+from amesh_client.models.playground_step import PlaygroundStep
 from amesh_client.models.plugin_capabilities import PluginCapabilities
 from amesh_client.models.plugin_catalog_snapshot import PluginCatalogSnapshot
 from amesh_client.models.plugin_certification_status import PluginCertificationStatus

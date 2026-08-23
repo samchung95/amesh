@@ -71,6 +71,7 @@ from amesh.api.contracts import (
 from amesh.api.models import (
     AuthorizationExplanationRequest,
     BackfillActionRequest,
+    BlueprintDraftResponse,
     BulkExecutionItemResult,
     BulkExecutionRequest,
     ChangeLocalPasswordRequest,
@@ -103,6 +104,10 @@ from amesh.api.models import (
     LoginResponse,
     NamespaceFileMoveRequest,
     NamespaceResourceImportResult,
+    PlaygroundSafety,
+    PlaygroundSimulationRequest,
+    PlaygroundSimulationResponse,
+    PlaygroundStep,
     ProblemDetail,
     ReadinessResponse,
     ReduceExecutionRequest,
@@ -165,6 +170,10 @@ from amesh.domain import (
     BackfillRecord,
     BackfillSpec,
     BackfillState,
+    BlueprintCatalogSource,
+    BlueprintDefinition,
+    BlueprintInstantiationRequest,
+    BlueprintSummary,
     CredentialMetadata,
     DashboardDataSource,
     DashboardDefinition,
@@ -218,7 +227,10 @@ from amesh.domain import (
     administration_control_flag,
     administration_controls,
     canonical_hash,
+    get_blueprint,
+    instantiate_blueprint,
     issue_administration_preview,
+    list_blueprints,
     new_runtime_id,
     reduce_execution,
     verify_administration_approval,
@@ -404,6 +416,47 @@ def _redact_editor_context(context: Mapping[str, object]) -> dict[str, object]:
         return value
 
     return {key: sanitize(value) for key, value in context.items() if key in _EDITOR_CONTEXT_KEYS}
+
+
+def _playground_flow(fragment: str) -> dict[str, object]:
+    try:
+        loaded = yaml.safe_load(fragment)
+    except yaml.YAMLError as exc:
+        raise ValueError(f"invalid playground YAML: {exc}") from exc
+    if isinstance(loaded, list):
+        document: dict[str, object] = {"tasks": loaded}
+    elif isinstance(loaded, dict) and "tasks" in loaded:
+        document = dict(loaded)
+    elif isinstance(loaded, dict) and {"id", "type"} <= loaded.keys():
+        document = {"tasks": [loaded]}
+    else:
+        raise ValueError("flow fragment must be a task, a task list, or a flow with tasks")
+    document.setdefault("apiVersion", "amesh.flow/v1")
+    document.setdefault("id", "playground_preview")
+    document.setdefault("namespace", "playground.local")
+    return document
+
+
+def _playground_steps(document: Mapping[str, object]) -> tuple[PlaygroundStep, ...]:
+    tasks = document.get("tasks", [])
+    if not isinstance(tasks, list):
+        return ()
+    deterministic_types = {"core.log", "core.return"}
+    return tuple(
+        PlaygroundStep(
+            taskId=str(task.get("id", "unknown")),
+            taskType=str(task.get("type", "unknown")),
+            dependencies=tuple(str(value) for value in task.get("dependsOn", [])),
+            simulated=task.get("type") in deterministic_types,
+            reason=(
+                "deterministic local preview"
+                if task.get("type") in deterministic_types
+                else "validated only; the playground never invokes this resource"
+            ),
+        )
+        for task in tasks
+        if isinstance(task, dict)
+    )
 
 
 app = FastAPI(
@@ -2549,6 +2602,153 @@ async def revoke_principal_sessions(
 @app.get("/metrics", include_in_schema=False)
 async def metrics() -> Response:
     return Response(content=generate_latest(), media_type=CONTENT_TYPE_LATEST)
+
+
+@app.get(
+    "/api/v1/blueprints",
+    response_model=tuple[BlueprintSummary, ...],
+    tags=["blueprints"],
+)
+async def get_blueprints(
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    q: Annotated[str | None, Query(max_length=200)] = None,
+    source: BlueprintCatalogSource | None = None,
+) -> tuple[BlueprintSummary, ...]:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="flow",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+    )
+    return list_blueprints(query=q, source=source)
+
+
+@app.get(
+    "/api/v1/blueprints/{blueprint_id}/{version}",
+    response_model=BlueprintDefinition,
+    tags=["blueprints"],
+)
+async def get_blueprint_version(
+    blueprint_id: str,
+    version: str,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> BlueprintDefinition:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="flow",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+    )
+    try:
+        return get_blueprint(blueprint_id, version)
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+
+
+@app.post(
+    "/api/v1/blueprints/{blueprint_id}/{version}/instantiate",
+    response_model=BlueprintDraftResponse,
+    tags=["blueprints"],
+)
+async def instantiate_blueprint_draft(
+    blueprint_id: str,
+    version: str,
+    request: BlueprintInstantiationRequest,
+    plugin_catalog: PluginCatalogDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> BlueprintDraftResponse:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="flow",
+        action=PermissionAction.CREATE,
+        tenant_id=tenant_id,
+    )
+    try:
+        blueprint = get_blueprint(blueprint_id, version)
+        document = instantiate_blueprint(blueprint, request)
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=str(exc),
+        ) from exc
+    source = yaml.safe_dump(document, allow_unicode=True, sort_keys=False)
+    validation = validate_flow_document(source, registry=plugin_catalog.resource_registry())
+    if not validation.valid:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="the selected blueprint produced an invalid draft",
+        )
+    return BlueprintDraftResponse(
+        blueprint=blueprint,
+        document=source,
+        validation=validation,
+    )
+
+
+@app.post(
+    "/api/v1/playground/simulate",
+    response_model=PlaygroundSimulationResponse,
+    tags=["blueprints"],
+)
+async def simulate_playground(
+    request: PlaygroundSimulationRequest,
+    plugin_catalog: PluginCatalogDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> PlaygroundSimulationResponse:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="flow",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+    )
+    engine = NativeExpressionEngine()
+    context = _redact_editor_context(request.context)
+    expression_result: object = None
+    if request.expression and request.expression.strip():
+        try:
+            expression_result = engine.preview_value(request.expression, context)
+        except ExpressionError as exc:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail={"code": exc.code, "message": str(exc)},
+            ) from exc
+    validation: FlowValidationResult | None = None
+    steps: tuple[PlaygroundStep, ...] = ()
+    if request.fragment and request.fragment.strip():
+        try:
+            document = _playground_flow(request.fragment)
+        except ValueError as exc:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail=str(exc),
+            ) from exc
+        validation = validate_flow_document(
+            document,
+            registry=plugin_catalog.resource_registry(),
+        )
+        steps = _playground_steps(document)
+    return PlaygroundSimulationResponse(
+        expressionResult=expression_result,
+        redactedContext=context,
+        validation=validation,
+        steps=steps,
+        safety=PlaygroundSafety(),
+        compatibilityVersion=engine.compatibility_version,
+    )
 
 
 @app.post(

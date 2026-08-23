@@ -87,6 +87,10 @@ All URIs are relative to *http://localhost*
 *BackfillsApi* | [**pauseBackfillApiV1BackfillsBackfillIdPausePost**](docs/BackfillsApi.md#pausebackfillapiv1backfillsbackfillidpausepost) | **POST** /api/v1/backfills/{backfill_id}/pause | Pause Backfill
 *BackfillsApi* | [**previewBackfillApiV1BackfillsPreviewPost**](docs/BackfillsApi.md#previewbackfillapiv1backfillspreviewpost) | **POST** /api/v1/backfills/preview | Preview Backfill
 *BackfillsApi* | [**resumeBackfillApiV1BackfillsBackfillIdResumePost**](docs/BackfillsApi.md#resumebackfillapiv1backfillsbackfillidresumepost) | **POST** /api/v1/backfills/{backfill_id}/resume | Resume Backfill
+*BlueprintsApi* | [**getBlueprintVersionApiV1BlueprintsBlueprintIdVersionGet**](docs/BlueprintsApi.md#getblueprintversionapiv1blueprintsblueprintidversionget) | **GET** /api/v1/blueprints/{blueprint_id}/{version} | Get Blueprint Version
+*BlueprintsApi* | [**getBlueprintsApiV1BlueprintsGet**](docs/BlueprintsApi.md#getblueprintsapiv1blueprintsget) | **GET** /api/v1/blueprints | Get Blueprints
+*BlueprintsApi* | [**instantiateBlueprintDraftApiV1BlueprintsBlueprintIdVersionInstantiatePost**](docs/BlueprintsApi.md#instantiateblueprintdraftapiv1blueprintsblueprintidversioninstantiatepost) | **POST** /api/v1/blueprints/{blueprint_id}/{version}/instantiate | Instantiate Blueprint Draft
+*BlueprintsApi* | [**simulatePlaygroundApiV1PlaygroundSimulatePost**](docs/BlueprintsApi.md#simulateplaygroundapiv1playgroundsimulatepost) | **POST** /api/v1/playground/simulate | Simulate Playground
 *ChecksApi* | [**getCheckComplianceApiV1CheckComplianceGet**](docs/ChecksApi.md#getcheckcomplianceapiv1checkcomplianceget) | **GET** /api/v1/check-compliance | Get Check Compliance
 *ChecksApi* | [**listCheckEvaluationsApiV1CheckEvaluationsGet**](docs/ChecksApi.md#listcheckevaluationsapiv1checkevaluationsget) | **GET** /api/v1/check-evaluations | List Check Evaluations
 *ChecksApi* | [**listCheckPoliciesApiV1CheckPoliciesGet**](docs/ChecksApi.md#listcheckpoliciesapiv1checkpoliciesget) | **GET** /api/v1/check-policies | List Check Policies
@@ -245,6 +249,14 @@ All URIs are relative to *http://localhost*
 - [BackfillSelectionKind](docs/BackfillSelectionKind.md)
 - [BackfillSpec](docs/BackfillSpec.md)
 - [BackfillState](docs/BackfillState.md)
+- [BlueprintCatalogSource](docs/BlueprintCatalogSource.md)
+- [BlueprintDefinition](docs/BlueprintDefinition.md)
+- [BlueprintDraftResponse](docs/BlueprintDraftResponse.md)
+- [BlueprintInstantiationRequest](docs/BlueprintInstantiationRequest.md)
+- [BlueprintParameter](docs/BlueprintParameter.md)
+- [BlueprintParameterKind](docs/BlueprintParameterKind.md)
+- [BlueprintProvenance](docs/BlueprintProvenance.md)
+- [BlueprintSummary](docs/BlueprintSummary.md)
 - [BulkExecutionItemResult](docs/BulkExecutionItemResult.md)
 - [BulkExecutionRequest](docs/BulkExecutionRequest.md)
 - [ChangeLocalPasswordRequest](docs/ChangeLocalPasswordRequest.md)
@@ -357,6 +369,10 @@ All URIs are relative to *http://localhost*
 - [PersistedSubflow](docs/PersistedSubflow.md)
 - [PersistedTaskRun](docs/PersistedTaskRun.md)
 - [PersistedTaskRunSummary](docs/PersistedTaskRunSummary.md)
+- [PlaygroundSafety](docs/PlaygroundSafety.md)
+- [PlaygroundSimulationRequest](docs/PlaygroundSimulationRequest.md)
+- [PlaygroundSimulationResponse](docs/PlaygroundSimulationResponse.md)
+- [PlaygroundStep](docs/PlaygroundStep.md)
 - [PluginCapabilities](docs/PluginCapabilities.md)
 - [PluginCatalogSnapshot](docs/PluginCatalogSnapshot.md)
 - [PluginCertificationStatus](docs/PluginCertificationStatus.md)

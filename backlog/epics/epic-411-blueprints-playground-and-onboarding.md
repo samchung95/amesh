@@ -12,14 +12,18 @@ Help users learn and start workflows without weakening production controls.
 
 ## In scope
 
-- [ ] **URS-F-0486** — The system shall provide versioned blueprint templates with parameters, documentation, license and provenance.
-- [ ] **URS-F-0487** — The system shall search and preview built-in, organization and community blueprint catalogs.
-- [ ] **URS-F-0488** — The system shall instantiate a blueprint into a draft flow without executing it automatically.
-- [ ] **URS-F-0489** — The system shall provide a playground that validates and simulates supported expressions and flow fragments.
-- [ ] **URS-F-0490** — The system shall isolate playground execution from production credentials and infrastructure by default.
-- [ ] **URS-F-0491** — The system shall guide first-time administrators through storage, database, runner and authentication readiness.
-- [ ] **URS-F-0492** — The system shall provide sample data and local-only examples that run in the reference Compose environment.
-- [ ] **URS-F-0493** — The system shall track onboarding completion locally without requiring external telemetry.
+- [x] **URS-F-0486** — The system shall provide versioned blueprint templates with parameters, documentation, license and provenance.
+- [x] **URS-F-0487** — The system shall search and preview built-in, organization and community blueprint catalogs.
+- [x] **URS-F-0488** — The system shall instantiate a blueprint into a draft flow without executing it automatically.
+- [x] **URS-F-0489** — The system shall provide a playground that validates and simulates supported expressions and flow fragments.
+- [x] **URS-F-0490** — The system shall isolate playground execution from production credentials and infrastructure by default.
+- [x] **URS-F-0491** — The system shall guide first-time administrators through storage, database, runner and authentication readiness.
+- [x] **URS-F-0492** — The system shall provide sample data and local-only examples that run in the reference Compose environment.
+- [x] **URS-F-0493** — The system shall track onboarding completion locally without requiring external telemetry.
+
+## Implementation completion evidence
+
+- 2026-08-23 — EPIC-411 is complete. The permission-aware Blueprints workbench searches and previews versioned built-in, organization and community local catalogs with typed parameters, documentation, license and SHA-256 provenance. Instantiation returns a server-validated unsaved draft and transfers it into the existing editor without persistence or execution. The isolated playground reuses native expression redaction and flow validation while returning explicit false evidence for persistence, execution, credential and infrastructure access. The setup guide reports database, storage, local-runner and authentication readiness and retains progress only in tenant/user-scoped browser storage. Focused domain/API/frontend tests and Chromium verified catalog filtering, draft handoff without an execution request, playground isolation, reload persistence and automated accessibility. The recurring quarterly external documentation usability measurement remains deferred because it requires external participants; the local reference path and guide are complete. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`blueprints.md`](../../docs/api/blueprints.md), [`onboarding.md`](../../docs/operations/onboarding.md), [`BlueprintsPage.tsx`](../../frontend/src/pages/BlueprintsPage.tsx), [`test_blueprints_api.py`](../../tests/api/test_blueprints_api.py), and [`blueprints.py`](../../src/amesh/domain/blueprints.py).
 
 ## Non-functional requirements
 
@@ -46,13 +50,13 @@ Help users learn and start workflows without weakening production controls.
 
 ## Definition of done
 
-- [ ] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
-- [ ] Public API, DSL, event and plugin contract changes pass compatibility checks.
-- [ ] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
-- [ ] Security, tenant isolation, redaction and audit behavior are reviewed.
-- [ ] Documentation, examples, migration notes and operational runbooks are updated.
-- [ ] Performance and recovery budgets are measured when this epic is on a critical path.
-- [ ] `python scripts/validate_backlog.py` passes.
+- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
+- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.
+- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
+- [x] Security, tenant isolation, redaction and audit behavior are reviewed.
+- [x] Documentation, examples, migration notes and operational runbooks are updated.
+- [x] Performance and recovery budgets are measured when this epic is on a critical path.
+- [x] `python scripts/validate_backlog.py` passes.
 
 ## Risks and unknowns
 

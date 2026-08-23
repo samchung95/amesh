@@ -2478,6 +2478,205 @@ paths:
       x-content-type: application/json
       x-accepts:
       - application/json
+  /api/v1/blueprints:
+    get:
+      operationId: get_blueprints_api_v1_blueprints_get
+      parameters:
+      - explode: true
+        in: query
+        name: q
+        required: false
+        schema:
+          maxLength: 200
+          nullable: true
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: source
+        required: false
+        schema:
+          allOf:
+          - $ref: "#/components/schemas/BlueprintCatalogSource"
+          nullable: true
+        style: form
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/BlueprintSummary"
+                title: Response Get Blueprints Api V1 Blueprints Get
+                type: array
+                default: null
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Get Blueprints
+      tags:
+      - blueprints
+      x-accepts:
+      - application/json
+  /api/v1/blueprints/{blueprint_id}/{version}:
+    get:
+      operationId: get_blueprint_version_api_v1_blueprints__blueprint_id___version__get
+      parameters:
+      - explode: false
+        in: path
+        name: blueprint_id
+        required: true
+        schema:
+          title: Blueprint Id
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: version
+        required: true
+        schema:
+          title: Version
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BlueprintDefinition"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Get Blueprint Version
+      tags:
+      - blueprints
+      x-accepts:
+      - application/json
+  /api/v1/blueprints/{blueprint_id}/{version}/instantiate:
+    post:
+      operationId: instantiate_blueprint_draft_api_v1_blueprints__blueprint_id___version__instantiate_post
+      parameters:
+      - explode: false
+        in: path
+        name: blueprint_id
+        required: true
+        schema:
+          title: Blueprint Id
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: version
+        required: true
+        schema:
+          title: Version
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BlueprintInstantiationRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BlueprintDraftResponse"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Instantiate Blueprint Draft
+      tags:
+      - blueprints
+      x-content-type: application/json
+      x-accepts:
+      - application/json
   /api/v1/check-compliance:
     get:
       operationId: get_check_compliance_api_v1_check_compliance_get
@@ -7225,6 +7424,59 @@ paths:
       - operations
       x-accepts:
       - application/json
+  /api/v1/playground/simulate:
+    post:
+      operationId: simulate_playground_api_v1_playground_simulate_post
+      parameters:
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PlaygroundSimulationRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlaygroundSimulationResponse"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Simulate Playground
+      tags:
+      - blueprints
+      x-content-type: application/json
+      x-accepts:
+      - application/json
   /api/v1/plugin-registry/blobs/{digest}:
     get:
       operationId: download_plugin_registry_bundle_api_v1_plugin_registry_blobs__digest__get
@@ -10612,6 +10864,346 @@ components:
       - COMPLETED
       title: BackfillState
       type: string
+    BlueprintCatalogSource:
+      enum:
+      - BUILTIN
+      - ORGANIZATION
+      - COMMUNITY
+      title: BlueprintCatalogSource
+      type: string
+    BlueprintDefinition:
+      additionalProperties: false
+      example:
+        blueprintId: blueprintId
+        documentation: documentation
+        license: license
+        localOnly: true
+        parameters:
+        - default: default
+          description: description
+          kind: STRING
+          name: name
+          required: true
+          title: title
+        - default: default
+          description: description
+          kind: STRING
+          name: name
+          required: true
+          title: title
+        provenance:
+          digest: digest
+          location: location
+          publisher: publisher
+          revision: revision
+        source: BUILTIN
+        summary: summary
+        tags:
+        - tags
+        - tags
+        template: template
+        title: title
+        version: version
+      properties:
+        blueprintId:
+          maxLength: 128
+          minLength: 1
+          pattern: "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+          title: Blueprintid
+          type: string
+        documentation:
+          title: Documentation
+          type: string
+        license:
+          title: License
+          type: string
+        localOnly:
+          title: Localonly
+          type: boolean
+        parameters:
+          items:
+            $ref: "#/components/schemas/BlueprintParameter"
+          title: Parameters
+          type: array
+          default: null
+        provenance:
+          $ref: "#/components/schemas/BlueprintProvenance"
+        source:
+          $ref: "#/components/schemas/BlueprintCatalogSource"
+        summary:
+          title: Summary
+          type: string
+        tags:
+          items:
+            type: string
+          title: Tags
+          type: array
+          default: null
+        template:
+          title: Template
+          type: string
+        title:
+          title: Title
+          type: string
+        version:
+          pattern: "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+          title: Version
+          type: string
+      required:
+      - blueprintId
+      - documentation
+      - license
+      - localOnly
+      - parameters
+      - provenance
+      - source
+      - summary
+      - tags
+      - template
+      - title
+      - version
+      title: BlueprintDefinition
+    BlueprintDraftResponse:
+      example:
+        blueprint:
+          blueprintId: blueprintId
+          documentation: documentation
+          license: license
+          localOnly: true
+          parameters:
+          - default: default
+            description: description
+            kind: STRING
+            name: name
+            required: true
+            title: title
+          - default: default
+            description: description
+            kind: STRING
+            name: name
+            required: true
+            title: title
+          provenance:
+            digest: digest
+            location: location
+            publisher: publisher
+            revision: revision
+          source: BUILTIN
+          summary: summary
+          tags:
+          - tags
+          - tags
+          template: template
+          title: title
+          version: version
+        document: document
+        validation:
+          canonical:
+            key: ""
+          irVersion: amesh.flow/v1
+          issues:
+          - code: code
+            hint: hint
+            message: message
+            path: path
+            severity: error
+            sourceRange: ""
+          - code: code
+            hint: hint
+            message: message
+            path: path
+            severity: error
+            sourceRange: ""
+          semantic_hash: semantic_hash
+          valid: true
+      properties:
+        blueprint:
+          $ref: "#/components/schemas/BlueprintDefinition"
+        document:
+          title: Document
+          type: string
+        validation:
+          $ref: "#/components/schemas/FlowValidationResult"
+      required:
+      - blueprint
+      - document
+      - validation
+      title: BlueprintDraftResponse
+    BlueprintInstantiationRequest:
+      additionalProperties: false
+      example:
+        parameters:
+          key: parameters
+      properties:
+        parameters:
+          additionalProperties:
+            type: string
+          maxProperties: 32
+          title: Parameters
+      title: BlueprintInstantiationRequest
+    BlueprintParameter:
+      additionalProperties: false
+      example:
+        default: default
+        description: description
+        kind: STRING
+        name: name
+        required: true
+        title: title
+      properties:
+        default:
+          maxLength: 500
+          nullable: true
+          type: string
+        description:
+          maxLength: 500
+          minLength: 1
+          title: Description
+          type: string
+        kind:
+          $ref: "#/components/schemas/BlueprintParameterKind"
+        name:
+          maxLength: 128
+          minLength: 1
+          pattern: "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+          title: Name
+          type: string
+        required:
+          default: true
+          title: Required
+          type: boolean
+        title:
+          maxLength: 128
+          minLength: 1
+          title: Title
+          type: string
+      required:
+      - description
+      - kind
+      - name
+      - title
+      title: BlueprintParameter
+    BlueprintParameterKind:
+      enum:
+      - STRING
+      - NAMESPACE
+      - FLOW_ID
+      title: BlueprintParameterKind
+      type: string
+    BlueprintProvenance:
+      additionalProperties: false
+      example:
+        digest: digest
+        location: location
+        publisher: publisher
+        revision: revision
+      properties:
+        digest:
+          pattern: "^sha256:[0-9a-f]{64}$"
+          title: Digest
+          type: string
+        location:
+          title: Location
+          type: string
+        publisher:
+          title: Publisher
+          type: string
+        revision:
+          title: Revision
+          type: string
+      required:
+      - digest
+      - location
+      - publisher
+      - revision
+      title: BlueprintProvenance
+    BlueprintSummary:
+      additionalProperties: false
+      example:
+        blueprintId: blueprintId
+        documentation: documentation
+        license: license
+        localOnly: true
+        parameters:
+        - default: default
+          description: description
+          kind: STRING
+          name: name
+          required: true
+          title: title
+        - default: default
+          description: description
+          kind: STRING
+          name: name
+          required: true
+          title: title
+        provenance:
+          digest: digest
+          location: location
+          publisher: publisher
+          revision: revision
+        source: BUILTIN
+        summary: summary
+        tags:
+        - tags
+        - tags
+        title: title
+        version: version
+      properties:
+        blueprintId:
+          maxLength: 128
+          minLength: 1
+          pattern: "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+          title: Blueprintid
+          type: string
+        documentation:
+          title: Documentation
+          type: string
+        license:
+          title: License
+          type: string
+        localOnly:
+          title: Localonly
+          type: boolean
+        parameters:
+          items:
+            $ref: "#/components/schemas/BlueprintParameter"
+          title: Parameters
+          type: array
+          default: null
+        provenance:
+          $ref: "#/components/schemas/BlueprintProvenance"
+        source:
+          $ref: "#/components/schemas/BlueprintCatalogSource"
+        summary:
+          title: Summary
+          type: string
+        tags:
+          items:
+            type: string
+          title: Tags
+          type: array
+          default: null
+        title:
+          title: Title
+          type: string
+        version:
+          pattern: "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+          title: Version
+          type: string
+      required:
+      - blueprintId
+      - documentation
+      - license
+      - localOnly
+      - parameters
+      - provenance
+      - source
+      - summary
+      - tags
+      - title
+      - version
+      title: BlueprintSummary
     BulkExecutionItemResult:
       example:
         error: ""
@@ -15574,6 +16166,137 @@ components:
       - total
       - waiting
       title: PersistedTaskRunSummary
+    PlaygroundSafety:
+      example:
+        credentialAccess: false
+        executed: false
+        infrastructureAccess: false
+        persisted: false
+      properties:
+        credentialAccess:
+          default: false
+          title: Credentialaccess
+          type: boolean
+        executed:
+          default: false
+          title: Executed
+          type: boolean
+        infrastructureAccess:
+          default: false
+          title: Infrastructureaccess
+          type: boolean
+        persisted:
+          default: false
+          title: Persisted
+          type: boolean
+      title: PlaygroundSafety
+    PlaygroundSimulationRequest:
+      example:
+        context:
+          key: ""
+        expression: expression
+        fragment: fragment
+      properties:
+        context:
+          additionalProperties: true
+          title: Context
+          type: object
+        expression:
+          maxLength: 65536
+          nullable: true
+          type: string
+        fragment:
+          maxLength: 131072
+          nullable: true
+          type: string
+      title: PlaygroundSimulationRequest
+    PlaygroundSimulationResponse:
+      example:
+        compatibilityVersion: compatibilityVersion
+        expressionResult: ""
+        redactedContext:
+          key: ""
+        safety:
+          credentialAccess: false
+          executed: false
+          infrastructureAccess: false
+          persisted: false
+        steps:
+        - dependencies:
+          - dependencies
+          - dependencies
+          reason: reason
+          simulated: true
+          taskId: taskId
+          taskType: taskType
+        - dependencies:
+          - dependencies
+          - dependencies
+          reason: reason
+          simulated: true
+          taskId: taskId
+          taskType: taskType
+        validation: ""
+      properties:
+        compatibilityVersion:
+          title: Compatibilityversion
+          type: string
+        expressionResult:
+          title: Expressionresult
+        redactedContext:
+          additionalProperties: true
+          title: Redactedcontext
+          type: object
+        safety:
+          $ref: "#/components/schemas/PlaygroundSafety"
+        steps:
+          default: []
+          items:
+            $ref: "#/components/schemas/PlaygroundStep"
+          title: Steps
+          type: array
+        validation:
+          allOf:
+          - $ref: "#/components/schemas/FlowValidationResult"
+          nullable: true
+      required:
+      - compatibilityVersion
+      title: PlaygroundSimulationResponse
+    PlaygroundStep:
+      example:
+        dependencies:
+        - dependencies
+        - dependencies
+        reason: reason
+        simulated: true
+        taskId: taskId
+        taskType: taskType
+      properties:
+        dependencies:
+          items:
+            type: string
+          title: Dependencies
+          type: array
+          default: null
+        reason:
+          title: Reason
+          type: string
+        simulated:
+          title: Simulated
+          type: boolean
+        taskId:
+          title: Taskid
+          type: string
+        taskType:
+          title: Tasktype
+          type: string
+      required:
+      - dependencies
+      - reason
+      - simulated
+      - taskId
+      - taskType
+      title: PlaygroundStep
     PluginCapabilities:
       additionalProperties: false
       properties:

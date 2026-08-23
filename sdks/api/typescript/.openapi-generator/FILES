@@ -6,6 +6,7 @@ docs/AdministrationApi.md
 docs/AuthenticationApi.md
 docs/AuthorizationApi.md
 docs/BackfillsApi.md
+docs/BlueprintsApi.md
 docs/ChecksApi.md
 docs/ConfigurationApi.md
 docs/CredentialsApi.md
@@ -29,6 +30,7 @@ src/apis/AdministrationApi.ts
 src/apis/AuthenticationApi.ts
 src/apis/AuthorizationApi.ts
 src/apis/BackfillsApi.ts
+src/apis/BlueprintsApi.ts
 src/apis/ChecksApi.ts
 src/apis/ConfigurationApi.ts
 src/apis/CredentialsApi.ts
@@ -73,6 +75,14 @@ src/models/BackfillSelection.ts
 src/models/BackfillSelectionKind.ts
 src/models/BackfillSpec.ts
 src/models/BackfillState.ts
+src/models/BlueprintCatalogSource.ts
+src/models/BlueprintDefinition.ts
+src/models/BlueprintDraftResponse.ts
+src/models/BlueprintInstantiationRequest.ts
+src/models/BlueprintParameter.ts
+src/models/BlueprintParameterKind.ts
+src/models/BlueprintProvenance.ts
+src/models/BlueprintSummary.ts
 src/models/BulkExecutionItemResult.ts
 src/models/BulkExecutionRequest.ts
 src/models/ChangeLocalPasswordRequest.ts
@@ -185,6 +195,10 @@ src/models/PersistedFlow.ts
 src/models/PersistedSubflow.ts
 src/models/PersistedTaskRun.ts
 src/models/PersistedTaskRunSummary.ts
+src/models/PlaygroundSafety.ts
+src/models/PlaygroundSimulationRequest.ts
+src/models/PlaygroundSimulationResponse.ts
+src/models/PlaygroundStep.ts
 src/models/PluginCapabilities.ts
 src/models/PluginCatalogSnapshot.ts
 src/models/PluginCertificationStatus.ts
