@@ -7,6 +7,7 @@ from amesh_client.api.backfills_api import BackfillsApi
 from amesh_client.api.checks_api import ChecksApi
 from amesh_client.api.configuration_api import ConfigurationApi
 from amesh_client.api.credentials_api import CredentialsApi
+from amesh_client.api.dashboards_api import DashboardsApi
 from amesh_client.api.executions_api import ExecutionsApi
 from amesh_client.api.flows_api import FlowsApi
 from amesh_client.api.namespace_resources_api import NamespaceResourcesApi

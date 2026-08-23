@@ -75,6 +75,8 @@ def test_ui_session_returns_server_authoritative_capabilities_and_privacy_policy
             "executions.execute": False,
             "executions.manage": False,
             "executions.view": True,
+            "dashboards.manage": False,
+            "dashboards.view": False,
             "flows.create": False,
             "flows.update": False,
             "flows.view": True,

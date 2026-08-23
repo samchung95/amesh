@@ -1,5 +1,40 @@
 # Test Log
 
+## EPIC-408: Dashboards, query language and saved views — 2026-08-23
+
+Spec source: Agent Hotel card `c64` and canonical `backlog/epics.json` EPIC-408 DoD.
+
+Verified with `uv`, Python 3.13, PostgreSQL 17, React/TypeScript, Chromium and Docker Compose:
+
+- [x] Six code-defined instance, tenant, namespace, flow, worker and SLA dashboards execute across
+  the execution, log, metric, SLA, worker and asset projections. They cover time series, tables,
+  counters, distributions, status breakdowns and ranked lists.
+- [x] The public typed model accepts only enumerated sources, measures, aggregations and
+  visualizations plus whitelisted dimensions; invalid dimensions and source/measure pairs return a
+  deterministic validation error and no API accepts raw SQL.
+- [x] Time, labels, namespace, flow, state, worker group and custom dimensions are supported. The
+  repository enforces the 90-day range, 500-result limit, 20,000-row scan cap, 100-5,000 ms database
+  timeout and deterministic sampling before bounded aggregation.
+- [x] Custom API/GitOps definitions use optimistic versions, independent private/tenant viewer and
+  editor ACLs, immutable definition events and transactional outbox publication. YAML/JSON export,
+  deep-link sharing and soft deletion were exercised.
+- [x] Widget source authorization remains independent from definition authorization. An SLA render
+  under a principal lacking check access returned explicit redacted placeholders, while its direct
+  query was denied. Results report freshness, scanned/matched counts, sampling and partial state.
+- [x] The control room renders all supported chart forms, edits typed custom views and exposes filter,
+  freshness, partial, sampled, authorization and redaction state. Chromium covered filtering,
+  creation, permission fields, export and deletion; axe reported no critical or serious findings.
+- [x] Fresh PostgreSQL repository and API suites applied all 43 migrations and passed every built-in
+  source. Frontend unit tests passed 31 tests with 91.27% statement coverage; the production build,
+  targeted lint, strict mypy for 165 source files and focused Ruff checks passed.
+- [x] Generated OpenAPI and Python, TypeScript, Java and Go SDK surfaces include the dashboard API.
+  Rebuilt API, executor, scheduler and indexer containers are healthy; `/ready` reports migration
+  `0043_dashboards.sql` at 43/43 and the deployed frontend returns HTTP 200.
+- [x] No LLM call or Python dependency was required. OpenRouter remains configured for
+  `openai/gpt-5.6-luna` when a later behavior test needs an LLM.
+
+Verdict: PASS — EPIC-408 functional requirements URS-F-0462 through URS-F-0469 are verified.
+
 ## EPIC-303: Isolated language-neutral plugin runtime — 2026-08-23
 
 Spec source: Agent Hotel card `c53` and canonical `backlog/epics.json` EPIC-303 DoD.

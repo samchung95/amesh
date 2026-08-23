@@ -6781,97 +6781,121 @@
       "requirement_id": "URS-F-0462",
       "epic_id": "EPIC-408",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-ui-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-408-dashboards-query-language-and-saved-views.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0463",
       "epic_id": "EPIC-408",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-ui-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-408-dashboards-query-language-and-saved-views.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0464",
       "epic_id": "EPIC-408",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-ui-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-408-dashboards-query-language-and-saved-views.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0465",
       "epic_id": "EPIC-408",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-ui-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-408-dashboards-query-language-and-saved-views.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0466",
       "epic_id": "EPIC-408",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-ui-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-408-dashboards-query-language-and-saved-views.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0467",
       "epic_id": "EPIC-408",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-ui-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-408-dashboards-query-language-and-saved-views.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0468",
       "epic_id": "EPIC-408",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-ui-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-408-dashboards-query-language-and-saved-views.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0469",
       "epic_id": "EPIC-408",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-ui-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-408-dashboards-query-language-and-saved-views.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0470",

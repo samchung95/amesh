@@ -43,6 +43,11 @@ from .credential_repository import (
     CredentialRateLimitExceeded,
     CredentialRepository,
 )
+from .dashboard_repository import (
+    DashboardQueryTimeout,
+    DashboardRepository,
+    DashboardVersionConflict,
+)
 from .durable_transport import (
     DeadLetterRecord,
     DeadLetterReplayError,
@@ -183,6 +188,9 @@ __all__ = [
     "CredentialPrincipal",
     "CredentialRateLimitExceeded",
     "CredentialRepository",
+    "DashboardQueryTimeout",
+    "DashboardRepository",
+    "DashboardVersionConflict",
     "DeadLetterRecord",
     "DeadLetterReplayError",
     "DockerContainerResourceLimits",

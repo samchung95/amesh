@@ -3,6 +3,7 @@ from .authorization_repository import PostgresAuthorizationRepository
 from .backfill_repository import PostgresBackfillRepository
 from .check_repository import PostgresCheckRepository
 from .credential_repository import PostgresCredentialRepository
+from .dashboard_repository import PostgresDashboardRepository
 from .durable_transport import PostgresDurableTransport
 from .execution_repository import PostgresExecutionRepository
 from .feature_flags import PostgresFeatureFlagRepository
@@ -30,6 +31,7 @@ __all__ = [
     "PostgresBackfillRepository",
     "PostgresCheckRepository",
     "PostgresCredentialRepository",
+    "PostgresDashboardRepository",
     "PostgresDurableTransport",
     "PostgresExecutionRepository",
     "PostgresFeatureFlagRepository",

@@ -37,6 +37,11 @@ administration/identity/policy/health
 Plugin schemas drive forms and completion. The canonical YAML/IR remains the source of flow semantics;
 the visual editor is a projection and editor of the same model.
 
+Dashboards are also public-API clients. Their restricted typed query contract selects only supported
+operational projections and never accepts database SQL. Saved-view authorization is evaluated before
+the underlying execution, log, metric, SLA, worker or asset permission; a denied source remains an
+explicitly redacted widget rather than leaking data through the dashboard definition.
+
 ## Frontend safety
 
 - Secrets are never embedded in initial HTML or browser telemetry.

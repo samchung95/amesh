@@ -128,6 +128,13 @@ Class | Method | HTTP request | Description
 *CredentialsApi* | [**revoke_all_credentials_api_v1_admin_principals_principal_id_credentials_delete**](docs/CredentialsApi.md#revoke_all_credentials_api_v1_admin_principals_principal_id_credentials_delete) | **DELETE** /api/v1/admin/principals/{principal_id}/credentials | Revoke All Credentials
 *CredentialsApi* | [**revoke_credential_api_v1_admin_credentials_credential_id_delete**](docs/CredentialsApi.md#revoke_credential_api_v1_admin_credentials_credential_id_delete) | **DELETE** /api/v1/admin/credentials/{credential_id} | Revoke Credential
 *CredentialsApi* | [**rotate_credential_api_v1_admin_credentials_credential_id_rotate_post**](docs/CredentialsApi.md#rotate_credential_api_v1_admin_credentials_credential_id_rotate_post) | **POST** /api/v1/admin/credentials/{credential_id}/rotate | Rotate Credential
+*DashboardsApi* | [**delete_dashboard_api_v1_dashboards_dashboard_id_delete**](docs/DashboardsApi.md#delete_dashboard_api_v1_dashboards_dashboard_id_delete) | **DELETE** /api/v1/dashboards/{dashboard_id} | Delete Dashboard
+*DashboardsApi* | [**execute_dashboard_query_api_v1_dashboard_queries_post**](docs/DashboardsApi.md#execute_dashboard_query_api_v1_dashboard_queries_post) | **POST** /api/v1/dashboard-queries | Execute Dashboard Query
+*DashboardsApi* | [**export_dashboard_api_v1_dashboards_dashboard_id_export_get**](docs/DashboardsApi.md#export_dashboard_api_v1_dashboards_dashboard_id_export_get) | **GET** /api/v1/dashboards/{dashboard_id}/export | Export Dashboard
+*DashboardsApi* | [**get_dashboard_api_v1_dashboards_dashboard_id_get**](docs/DashboardsApi.md#get_dashboard_api_v1_dashboards_dashboard_id_get) | **GET** /api/v1/dashboards/{dashboard_id} | Get Dashboard
+*DashboardsApi* | [**list_dashboards_api_v1_dashboards_get**](docs/DashboardsApi.md#list_dashboards_api_v1_dashboards_get) | **GET** /api/v1/dashboards | List Dashboards
+*DashboardsApi* | [**put_dashboard_api_v1_dashboards_dashboard_id_put**](docs/DashboardsApi.md#put_dashboard_api_v1_dashboards_dashboard_id_put) | **PUT** /api/v1/dashboards/{dashboard_id} | Put Dashboard
+*DashboardsApi* | [**render_dashboard_api_v1_dashboards_dashboard_id_render_post**](docs/DashboardsApi.md#render_dashboard_api_v1_dashboards_dashboard_id_render_post) | **POST** /api/v1/dashboards/{dashboard_id}/render | Render Dashboard
 *ExecutionsApi* | [**apply_execution_control_api_v1_executions_execution_id_interventions_post**](docs/ExecutionsApi.md#apply_execution_control_api_v1_executions_execution_id_interventions_post) | **POST** /api/v1/executions/{execution_id}/interventions | Apply Execution Control
 *ExecutionsApi* | [**create_execution_api_v1_executions_post**](docs/ExecutionsApi.md#create_execution_api_v1_executions_post) | **POST** /api/v1/executions | Create Execution
 *ExecutionsApi* | [**create_executions_bulk_api_v1_executions_bulk_post**](docs/ExecutionsApi.md#create_executions_bulk_api_v1_executions_bulk_post) | **POST** /api/v1/executions/bulk | Create Executions Bulk
@@ -274,6 +281,20 @@ Class | Method | HTTP request | Description
  - [CredentialMetadata](docs/CredentialMetadata.md)
  - [CredentialStatus](docs/CredentialStatus.md)
  - [CronOccurrence](docs/CronOccurrence.md)
+ - [DashboardAggregation](docs/DashboardAggregation.md)
+ - [DashboardDataSource](docs/DashboardDataSource.md)
+ - [DashboardDefinition](docs/DashboardDefinition.md)
+ - [DashboardDefinitionSource](docs/DashboardDefinitionSource.md)
+ - [DashboardFilters](docs/DashboardFilters.md)
+ - [DashboardMeasure](docs/DashboardMeasure.md)
+ - [DashboardQuery](docs/DashboardQuery.md)
+ - [DashboardQueryResult](docs/DashboardQueryResult.md)
+ - [DashboardRender](docs/DashboardRender.md)
+ - [DashboardSpec](docs/DashboardSpec.md)
+ - [DashboardVisibility](docs/DashboardVisibility.md)
+ - [DashboardVisualization](docs/DashboardVisualization.md)
+ - [DashboardWidget](docs/DashboardWidget.md)
+ - [DashboardWidgetResult](docs/DashboardWidgetResult.md)
  - [ExchangeCredentialRequest](docs/ExchangeCredentialRequest.md)
  - [ExecutionArtifact](docs/ExecutionArtifact.md)
  - [ExecutionDetail](docs/ExecutionDetail.md)

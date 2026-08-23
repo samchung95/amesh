@@ -6,6 +6,7 @@ export * from './BackfillsApi';
 export * from './ChecksApi';
 export * from './ConfigurationApi';
 export * from './CredentialsApi';
+export * from './DashboardsApi';
 export * from './ExecutionsApi';
 export * from './FlowsApi';
 export * from './NamespaceResourcesApi';

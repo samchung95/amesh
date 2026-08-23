@@ -12,6 +12,7 @@ amesh_client/api/backfills_api.py
 amesh_client/api/checks_api.py
 amesh_client/api/configuration_api.py
 amesh_client/api/credentials_api.py
+amesh_client/api/dashboards_api.py
 amesh_client/api/executions_api.py
 amesh_client/api/flows_api.py
 amesh_client/api/namespace_resources_api.py
@@ -68,6 +69,20 @@ amesh_client/models/credential_kind.py
 amesh_client/models/credential_metadata.py
 amesh_client/models/credential_status.py
 amesh_client/models/cron_occurrence.py
+amesh_client/models/dashboard_aggregation.py
+amesh_client/models/dashboard_data_source.py
+amesh_client/models/dashboard_definition.py
+amesh_client/models/dashboard_definition_source.py
+amesh_client/models/dashboard_filters.py
+amesh_client/models/dashboard_measure.py
+amesh_client/models/dashboard_query.py
+amesh_client/models/dashboard_query_result.py
+amesh_client/models/dashboard_render.py
+amesh_client/models/dashboard_spec.py
+amesh_client/models/dashboard_visibility.py
+amesh_client/models/dashboard_visualization.py
+amesh_client/models/dashboard_widget.py
+amesh_client/models/dashboard_widget_result.py
 amesh_client/models/exchange_credential_request.py
 amesh_client/models/execution_artifact.py
 amesh_client/models/execution_detail.py
@@ -268,6 +283,7 @@ docs/BackfillsApi.md
 docs/ChecksApi.md
 docs/ConfigurationApi.md
 docs/CredentialsApi.md
+docs/DashboardsApi.md
 docs/ExecutionsApi.md
 docs/FlowsApi.md
 docs/NamespaceResourcesApi.md

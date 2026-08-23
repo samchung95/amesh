@@ -9,6 +9,7 @@ api_backfills.go
 api_checks.go
 api_configuration.go
 api_credentials.go
+api_dashboards.go
 api_executions.go
 api_flows.go
 api_namespace_resources.go
@@ -30,6 +31,7 @@ docs/BackfillsAPI.md
 docs/ChecksAPI.md
 docs/ConfigurationAPI.md
 docs/CredentialsAPI.md
+docs/DashboardsAPI.md
 docs/ExecutionsAPI.md
 docs/FlowsAPI.md
 docs/NamespaceResourcesAPI.md
@@ -84,6 +86,20 @@ model_credential_kind.go
 model_credential_metadata.go
 model_credential_status.go
 model_cron_occurrence.go
+model_dashboard_aggregation.go
+model_dashboard_data_source.go
+model_dashboard_definition.go
+model_dashboard_definition_source.go
+model_dashboard_filters.go
+model_dashboard_measure.go
+model_dashboard_query.go
+model_dashboard_query_result.go
+model_dashboard_render.go
+model_dashboard_spec.go
+model_dashboard_visibility.go
+model_dashboard_visualization.go
+model_dashboard_widget.go
+model_dashboard_widget_result.go
 model_exchange_credential_request.go
 model_execution_artifact.go
 model_execution_detail.go

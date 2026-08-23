@@ -1,5 +1,11 @@
 import type {
   CheckComplianceSummary,
+  DashboardDefinition,
+  DashboardFilters,
+  DashboardQuery,
+  DashboardQueryResult,
+  DashboardRender,
+  DashboardSpec,
   CheckEvaluation,
   BackfillPreview,
   BackfillRecord,
@@ -210,6 +216,31 @@ export function createApiClient(connection: ApiConnection) {
         body: JSON.stringify({ namespace, flowId, inputs, runner: 'local' }),
       }),
     executions: async () => request<PersistedExecution[]>('/api/v1/executions?limit=200'),
+    dashboards: async () => request<DashboardDefinition[]>('/api/v1/dashboards'),
+    dashboard: async (dashboardId: string) =>
+      request<DashboardDefinition>(`/api/v1/dashboards/${encodeURIComponent(dashboardId)}`),
+    renderDashboard: async (dashboardId: string, filters: DashboardFilters) =>
+      request<DashboardRender>(`/api/v1/dashboards/${encodeURIComponent(dashboardId)}/render`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(filters),
+      }),
+    queryDashboard: async (query: DashboardQuery) =>
+      request<DashboardQueryResult>('/api/v1/dashboard-queries', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(query),
+      }),
+    saveDashboard: async (dashboardId: string, spec: DashboardSpec, expectedVersion?: number) =>
+      request<DashboardDefinition>(`/api/v1/dashboards/${encodeURIComponent(dashboardId)}${expectedVersion ? `?expectedVersion=${String(expectedVersion)}` : ''}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(spec),
+      }),
+    deleteDashboard: async (dashboardId: string, expectedVersion: number) =>
+      request<void>(`/api/v1/dashboards/${encodeURIComponent(dashboardId)}?expectedVersion=${String(expectedVersion)}`, { method: 'DELETE' }),
+    exportDashboard: async (dashboardId: string, format: 'yaml' | 'json' = 'yaml') =>
+      requestBlob(`/api/v1/dashboards/${encodeURIComponent(dashboardId)}/export?format=${format}`),
     triggers: async (namespace?: string) => {
       const suffix = namespace ? `?namespace=${encodeURIComponent(namespace)}` : ''
       return request<TriggerRuntimeState[]>(`/api/v1/triggers${suffix}`)

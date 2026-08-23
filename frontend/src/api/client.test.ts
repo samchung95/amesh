@@ -258,4 +258,43 @@ describe('API client', () => {
     expect(new Headers(saveInit.headers).get('if-match')).toBe('etag-7')
     expect(saveInit.body).toBe('id: daily')
   })
+
+  it('builds typed dashboard query, persistence and export requests', async () => {
+    const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(new Response('{}', { status: 200 })))
+    vi.stubGlobal('fetch', fetchMock)
+    const api = createApiClient({ token: 'token', tenant: 'default', namespace: '' })
+    const query = {
+      source: 'EXECUTIONS' as const, visualization: 'STATUS_BREAKDOWN' as const,
+      measure: 'COUNT' as const, aggregation: 'COUNT' as const, groupBy: ['state'],
+      filters: { namespace: 'team/data' }, limit: 100, timeoutMs: 1500, sampleRate: 1,
+    }
+    const spec = {
+      title: 'Operations', description: '', visibility: 'TENANT' as const,
+      viewerIds: [], editorIds: [], source: 'API' as const,
+      widgets: [{ widgetId: 'states', title: 'States', description: '', query }],
+    }
+
+    await api.dashboards()
+    await api.dashboard('ops/team')
+    await api.renderDashboard('ops/team', { namespace: 'team/data' })
+    await api.queryDashboard(query)
+    await api.saveDashboard('ops/team', spec)
+    await api.saveDashboard('ops/team', spec, 2)
+    await api.deleteDashboard('ops/team', 3)
+    await api.exportDashboard('ops/team', 'json')
+
+    expect(fetchMock.mock.calls.map((call) => call[0] as string)).toEqual([
+      '/api/v1/dashboards',
+      '/api/v1/dashboards/ops%2Fteam',
+      '/api/v1/dashboards/ops%2Fteam/render',
+      '/api/v1/dashboard-queries',
+      '/api/v1/dashboards/ops%2Fteam',
+      '/api/v1/dashboards/ops%2Fteam?expectedVersion=2',
+      '/api/v1/dashboards/ops%2Fteam?expectedVersion=3',
+      '/api/v1/dashboards/ops%2Fteam/export?format=json',
+    ])
+    expect((fetchMock.mock.calls[2]?.[1] as RequestInit).method).toBe('POST')
+    expect((fetchMock.mock.calls[4]?.[1] as RequestInit).method).toBe('PUT')
+    expect((fetchMock.mock.calls[6]?.[1] as RequestInit).method).toBe('DELETE')
+  })
 })

@@ -14,6 +14,8 @@ const session = {
     'executions.view': true,
     'executions.execute': true,
     'executions.manage': true,
+    'dashboards.view': true,
+    'dashboards.manage': true,
     'triggers.view': true,
     'triggers.manage': true,
     'checks.view': true,
@@ -37,6 +39,19 @@ const flows = [
 const executions = [
   { execution_id: '00000000-0000-7000-8000-000000000101', tenant_id: 'default', state: 'RUNNING', epoch: 1, version: 2, namespace: 'examples.engine', flow_id: 'hello_world', flow_revision: 3, inputs: { message: 'hello' }, outputs: {}, labels: { environment: 'test' }, trigger: { type: 'manual' }, created_by: 'operator', created_at: '2026-08-21T12:00:00Z', updated_at: '2026-08-21T12:01:00Z', timeout_at: null, cancel_deadline_at: null, lifecycle_evidence: {} },
   { execution_id: '00000000-0000-7000-8000-000000000102', tenant_id: 'default', state: 'SUCCESS', epoch: 1, version: 4, namespace: 'examples.agent', flow_id: 'luna_research', flow_revision: 1, inputs: {}, outputs: {}, labels: {}, trigger: { type: 'cron' }, created_by: 'scheduler', created_at: '2026-08-21T11:00:00Z', updated_at: '2026-08-21T11:02:00Z', timeout_at: null, cancel_deadline_at: null, lifecycle_evidence: {} },
+]
+
+const dashboardDefinitions = [
+  {
+    dashboardId: 'builtin.instance', tenantId: 'default', title: 'Instance overview', description: 'Execution, log and worker posture across the selected tenant.', visibility: 'TENANT', viewerIds: [], editorIds: [], source: 'BUILTIN', version: 1, ownerId: 'system', builtin: true, createdAt: '2026-01-01T00:00:00Z', updatedAt: '2026-01-01T00:00:00Z',
+    widgets: [
+      { widgetId: 'executions', title: 'Executions', description: '', query: { source: 'EXECUTIONS', visualization: 'COUNTER', measure: 'COUNT', aggregation: 'COUNT', groupBy: [], filters: {}, limit: 100, timeoutMs: 1500, sampleRate: 1 } },
+      { widgetId: 'states', title: 'Execution states', description: '', query: { source: 'EXECUTIONS', visualization: 'STATUS_BREAKDOWN', measure: 'COUNT', aggregation: 'COUNT', groupBy: [], filters: {}, limit: 100, timeoutMs: 1500, sampleRate: 1 } },
+      { widgetId: 'activity', title: 'Execution activity', description: '', query: { source: 'EXECUTIONS', visualization: 'TIME_SERIES', measure: 'COUNT', aggregation: 'COUNT', groupBy: ['state'], filters: {}, limit: 100, timeoutMs: 1500, sampleRate: 1 } },
+      { widgetId: 'log_levels', title: 'Log levels', description: '', query: { source: 'LOGS', visualization: 'RANKED_LIST', measure: 'COUNT', aggregation: 'COUNT', groupBy: ['level'], filters: {}, limit: 8, timeoutMs: 1500, sampleRate: 0.25 } },
+    ],
+  },
+  ...['tenant', 'namespace', 'flow', 'workers', 'sla'].map((id) => ({ dashboardId: `builtin.${id}`, tenantId: 'default', title: `${id[0].toUpperCase()}${id.slice(1)} dashboard`, description: `${id} operational view`, visibility: 'TENANT', viewerIds: [], editorIds: [], source: 'BUILTIN', version: 1, ownerId: 'system', builtin: true, createdAt: '2026-01-01T00:00:00Z', updatedAt: '2026-01-01T00:00:00Z', widgets: [] })),
 ]
 
 const triggers = [
@@ -74,7 +89,33 @@ const namespaceSecrets = [
 ]
 
 async function mockApi(page: Page, overrides = session) {
+  let customDashboard: Record<string, unknown> | null = null
   await page.route('**/api/v1/ui/session**', (route) => route.fulfill({ json: overrides }))
+  await page.route('**/api/v1/dashboards', (route) => route.fulfill({ json: customDashboard ? [...dashboardDefinitions, customDashboard] : dashboardDefinitions }))
+  await page.route('**/api/v1/dashboards/**', async (route) => {
+    const request = route.request()
+    const path = new URL(request.url()).pathname
+    const dashboardId = decodeURIComponent(path.split('/')[4] || 'builtin.instance')
+    if (path.endsWith('/render')) {
+      const dashboard = customDashboard && customDashboard.dashboardId === dashboardId ? customDashboard : dashboardDefinitions.find((item) => item.dashboardId === dashboardId) || dashboardDefinitions[0]
+      const widgets = (dashboard.widgets as Array<{ widgetId: string }>).map((widget) => ({ widgetId: widget.widgetId, result: widget.widgetId === 'executions'
+        ? { columns: ['value'], rows: [{ value: 2 }], freshAt: '2026-08-21T12:01:00Z', partial: false, sampled: false, redacted: false, scannedRows: 2, limit: 100 }
+        : widget.widgetId === 'states'
+          ? { columns: ['state', 'value'], rows: [{ state: 'RUNNING', value: 1 }, { state: 'SUCCESS', value: 1 }], freshAt: '2026-08-21T12:01:00Z', partial: false, sampled: false, redacted: false, scannedRows: 2, limit: 100 }
+          : widget.widgetId === 'activity'
+            ? { columns: ['bucketStart', 'state', 'value'], rows: [{ bucketStart: '2026-08-21T11:00:00Z', state: 'SUCCESS', value: 1 }, { bucketStart: '2026-08-21T12:00:00Z', state: 'RUNNING', value: 1 }], freshAt: '2026-08-21T12:01:00Z', partial: false, sampled: false, redacted: false, scannedRows: 2, limit: 100 }
+            : { columns: ['level', 'value'], rows: [{ level: 'INFO', value: 8 }, { level: 'ERROR', value: 1 }], freshAt: '2026-08-21T12:01:00Z', partial: true, sampled: true, redacted: false, scannedRows: 9, limit: 8 } }))
+      return route.fulfill({ json: { dashboard, widgets, renderedAt: '2026-08-21T12:01:00Z' } })
+    }
+    if (path.endsWith('/export')) return route.fulfill({ body: `dashboardId: ${dashboardId}\n`, contentType: 'application/yaml' })
+    if (request.method() === 'PUT') {
+      const spec = request.postDataJSON() as Record<string, unknown>
+      customDashboard = { dashboardId, tenantId: 'default', ...spec, version: 1, ownerId: session.principalId, builtin: false, createdAt: '2026-08-21T12:01:00Z', updatedAt: '2026-08-21T12:01:00Z' }
+      return route.fulfill({ json: customDashboard })
+    }
+    if (request.method() === 'DELETE') { customDashboard = null; return route.fulfill({ status: 204 }) }
+    return route.fulfill({ json: customDashboard || dashboardDefinitions[0] })
+  })
   await page.route('**/api/v1/flows', (route) => route.fulfill({ json: flows }))
   await page.route('**/api/v1/flows/editor/schema', (route) => route.fulfill({ json: {
     schemaVersion: 'amesh.flow-editor/v1',
@@ -165,6 +206,34 @@ test('connects, navigates resources, preserves deep links and opens the command 
   if (testInfo.project.name === 'chromium') {
     await page.screenshot({ path: 'test-results/dashboard-shell.png', fullPage: true })
   }
+})
+
+test('filters, creates, permissions and exports typed dashboards', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name === 'tablet', 'desktop dashboard authoring acceptance')
+  await connect(page)
+  await expect(page.getByRole('heading', { name: 'Instance overview' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Execution states' })).toBeVisible()
+  await expect(page.getByText('Partial · limit 8')).toBeVisible()
+  await expect(page.getByText('Sampled 25%')).toBeVisible()
+
+  const renderRequest = page.waitForRequest((request) => request.url().includes('/builtin.instance/render') && request.method() === 'POST' && request.postData()?.includes('examples.engine') === true)
+  await page.getByRole('textbox', { name: 'Namespace' }).fill('examples.engine')
+  await page.getByRole('button', { name: 'Apply' }).click()
+  await renderRequest
+
+  await page.getByRole('button', { name: 'Create dashboard' }).click()
+  const editor = page.getByRole('dialog', { name: 'Create dashboard' })
+  await editor.getByLabel('Dashboard ID').fill('ops.team')
+  await editor.getByLabel('Title', { exact: true }).fill('Team operations')
+  await editor.getByLabel('Visibility').selectOption('TENANT')
+  await editor.getByLabel('Viewer IDs').fill('viewer-a')
+  await editor.getByLabel('Editor IDs').fill('editor-a')
+  await editor.getByRole('button', { name: 'Save dashboard' }).click()
+  await expect(page).toHaveURL(/dashboard=ops.team/)
+  await expect(page.getByRole('heading', { name: 'Team operations' })).toBeVisible()
+  const download = page.waitForEvent('download')
+  await page.getByRole('button', { name: 'Export' }).click()
+  expect((await download).suggestedFilename()).toBe('ops.team.yaml')
 })
 
 test('uses server permissions for navigation and direct routes', async ({ page }, testInfo) => {

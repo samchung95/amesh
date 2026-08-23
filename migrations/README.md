@@ -148,6 +148,11 @@ their immutable evidence payload. It does not rewrite historical evidence. The m
 pause evidence consumers and forward-fix on failure while retaining the authoritative execution and
 task event streams.
 
+Migration `0043_dashboards.sql` adds tenant-isolated custom dashboard definitions, independent
+viewer/editor ACLs and immutable definition events. Every create, update or delete publishes through
+the transactional outbox. Built-in dashboards remain code-defined; the database stores only custom
+API/GitOps definitions and their optimistic-concurrency version.
+
 ## Migration modes
 
 - `bootstrap` creates the initial schema and is only safe for an empty database.

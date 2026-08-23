@@ -11,7 +11,7 @@ from functools import lru_cache
 from http import HTTPStatus
 from pathlib import Path
 from time import perf_counter
-from typing import Annotated
+from typing import Annotated, Literal
 from uuid import UUID
 
 import yaml
@@ -29,6 +29,7 @@ from fastapi import (
 from fastapi import (
     Path as PathParameter,
 )
+from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 from pydantic import TypeAdapter, ValidationError
@@ -46,6 +47,7 @@ from amesh.adapters.postgres import (
     PostgresBackfillRepository,
     PostgresCheckRepository,
     PostgresCredentialRepository,
+    PostgresDashboardRepository,
     PostgresExecutionRepository,
     PostgresFeatureFlagRepository,
     PostgresMetadataRepository,
@@ -135,6 +137,13 @@ from amesh.config import (
     get_settings,
 )
 from amesh.credentials import CredentialOperationError, CredentialService, InvalidCredential
+from amesh.dashboards import (
+    apply_dashboard_filters,
+    builtin_dashboard,
+    builtin_dashboards,
+    can_edit_dashboard,
+    can_view_dashboard,
+)
 from amesh.database import create_database_engine
 from amesh.domain import (
     ActorContext,
@@ -149,6 +158,14 @@ from amesh.domain import (
     BackfillSpec,
     BackfillState,
     CredentialMetadata,
+    DashboardDataSource,
+    DashboardDefinition,
+    DashboardFilters,
+    DashboardQuery,
+    DashboardQueryResult,
+    DashboardRender,
+    DashboardSpec,
+    DashboardWidgetResult,
     ExecutionState,
     FeatureFlag,
     FeatureFlagDecision,
@@ -280,6 +297,7 @@ from amesh.ports import (
     WorkerFenceError,
     WorkerInventory,
 )
+from amesh.ports.dashboard_repository import DashboardQueryTimeout, DashboardVersionConflict
 from amesh.realtime import (
     ProvisionedWebhookSubscription,
     RealtimeEvent,
@@ -433,7 +451,7 @@ async def request_validation_handler(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
         detail="Request validation failed",
         code="REQUEST_VALIDATION_FAILED",
-        errors=exc.errors(),
+        errors=jsonable_encoder(exc.errors()),
     )
 
 
@@ -603,6 +621,17 @@ def get_metadata_repository() -> PostgresMetadataRepository:
 MetadataRepositoryDependency = Annotated[
     PostgresMetadataRepository,
     Depends(get_metadata_repository),
+]
+
+
+@lru_cache
+def get_dashboard_repository() -> PostgresDashboardRepository:
+    return PostgresDashboardRepository(database_engine())
+
+
+DashboardRepositoryDependency = Annotated[
+    PostgresDashboardRepository,
+    Depends(get_dashboard_repository),
 ]
 
 
@@ -1109,6 +1138,8 @@ async def get_ui_session(
         "executions.view": ("execution", PermissionAction.VIEW),
         "executions.execute": ("execution", PermissionAction.EXECUTE),
         "executions.manage": ("execution", PermissionAction.MANAGE),
+        "dashboards.view": ("dashboard", PermissionAction.VIEW),
+        "dashboards.manage": ("dashboard", PermissionAction.UPDATE),
         "triggers.view": ("trigger", PermissionAction.VIEW),
         "triggers.manage": ("trigger", PermissionAction.MANAGE),
         "checks.view": ("check", PermissionAction.VIEW),
@@ -1152,6 +1183,312 @@ async def get_ui_session(
         capabilities=capabilities,
         telemetryEnabled=settings.product_telemetry_enabled,
         serverVersion=__version__,
+    )
+
+
+_DASHBOARD_DATA_RESOURCES = {
+    DashboardDataSource.EXECUTIONS: "execution",
+    DashboardDataSource.LOGS: "execution",
+    DashboardDataSource.METRICS: "execution",
+    DashboardDataSource.SLA: "check",
+    DashboardDataSource.WORKERS: "worker",
+    DashboardDataSource.ASSETS: "asset",
+}
+_DASHBOARD_ADMIN_ROLES = {"instance-admin", "tenant-admin", "namespace-admin"}
+
+
+def _dashboard_admin(decision: AuthorizationDecision, actor: ActorContext) -> bool:
+    return actor.bootstrap_admin or bool(
+        _DASHBOARD_ADMIN_ROLES.intersection(decision.matched_role_names)
+    )
+
+
+async def _load_dashboard(
+    dashboard_id: str,
+    *,
+    repository: PostgresDashboardRepository,
+    tenant_id: str,
+) -> DashboardDefinition:
+    if dashboard_id.startswith("builtin."):
+        try:
+            return builtin_dashboard(dashboard_id, tenant_id)
+        except LookupError as exc:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="dashboard unavailable"
+            ) from exc
+    try:
+        return await repository.get_definition(dashboard_id, tenant_id=tenant_id)
+    except LookupError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="dashboard unavailable"
+        ) from exc
+
+
+async def _authorize_dashboard_source(
+    query: DashboardQuery,
+    *,
+    actor: ActorContext,
+    authorization_service: AuthorizationService,
+    tenant_id: str,
+) -> AuthorizationDecision:
+    return await authorization_service.decide(
+        AuthorizationRequest(
+            actor=actor,
+            tenant_id=tenant_id,
+            namespace=query.filters.namespace,
+            resource_type=_DASHBOARD_DATA_RESOURCES[query.source],
+            action=PermissionAction.VIEW,
+        )
+    )
+
+
+@app.get(
+    "/api/v1/dashboards",
+    response_model=list[DashboardDefinition],
+    tags=["dashboards"],
+)
+async def list_dashboards(
+    repository: DashboardRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> list[DashboardDefinition]:
+    decision = await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="dashboard",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+    )
+    custom = await repository.list_definitions(tenant_id=tenant_id)
+    principal_id = str(actor.principal_id)
+    visible = [
+        definition
+        for definition in custom
+        if _dashboard_admin(decision, actor) or can_view_dashboard(definition, principal_id)
+    ]
+    return [*builtin_dashboards(tenant_id), *visible]
+
+
+@app.post(
+    "/api/v1/dashboard-queries",
+    response_model=DashboardQueryResult,
+    tags=["dashboards"],
+)
+async def execute_dashboard_query(
+    query: DashboardQuery,
+    repository: DashboardRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> DashboardQueryResult:
+    decision = await _authorize_dashboard_source(
+        query,
+        actor=actor,
+        authorization_service=authorization_service,
+        tenant_id=tenant_id,
+    )
+    if not decision.allowed:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="dashboard data unavailable"
+        )
+    try:
+        return await repository.execute_query(query, tenant_id=tenant_id)
+    except DashboardQueryTimeout as exc:
+        raise HTTPException(status_code=status.HTTP_504_GATEWAY_TIMEOUT, detail=str(exc)) from exc
+
+
+@app.get(
+    "/api/v1/dashboards/{dashboard_id}",
+    response_model=DashboardDefinition,
+    tags=["dashboards"],
+)
+async def get_dashboard(
+    dashboard_id: Annotated[str, PathParameter(pattern=r"^[a-z][a-z0-9_.-]{0,127}$")],
+    repository: DashboardRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> DashboardDefinition:
+    decision = await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="dashboard",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+    )
+    definition = await _load_dashboard(dashboard_id, repository=repository, tenant_id=tenant_id)
+    if not _dashboard_admin(decision, actor) and not can_view_dashboard(
+        definition, str(actor.principal_id)
+    ):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="dashboard unavailable")
+    return definition
+
+
+@app.post(
+    "/api/v1/dashboards/{dashboard_id}/render",
+    response_model=DashboardRender,
+    tags=["dashboards"],
+)
+async def render_dashboard(
+    dashboard_id: Annotated[str, PathParameter(pattern=r"^[a-z][a-z0-9_.-]{0,127}$")],
+    filters: DashboardFilters,
+    repository: DashboardRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> DashboardRender:
+    definition = await get_dashboard(
+        dashboard_id,
+        repository,
+        actor,
+        authorization_service,
+        tenant_id,
+    )
+    widget_results: list[DashboardWidgetResult] = []
+    for widget in definition.widgets:
+        query = apply_dashboard_filters(widget.query, filters)
+        decision = await _authorize_dashboard_source(
+            query,
+            actor=actor,
+            authorization_service=authorization_service,
+            tenant_id=tenant_id,
+        )
+        if not decision.allowed:
+            result = DashboardQueryResult(
+                columns=(),
+                rows=(),
+                freshAt=datetime.now(UTC),
+                partial=False,
+                sampled=query.sample_rate < 1,
+                redacted=True,
+                scannedRows=0,
+                limit=query.limit,
+            )
+        else:
+            try:
+                result = await repository.execute_query(query, tenant_id=tenant_id)
+            except DashboardQueryTimeout as exc:
+                raise HTTPException(
+                    status_code=status.HTTP_504_GATEWAY_TIMEOUT,
+                    detail=f"widget {widget.widget_id}: {exc}",
+                ) from exc
+        widget_results.append(DashboardWidgetResult(widgetId=widget.widget_id, result=result))
+    return DashboardRender(dashboard=definition, widgets=tuple(widget_results))
+
+
+@app.put(
+    "/api/v1/dashboards/{dashboard_id}",
+    response_model=DashboardDefinition,
+    tags=["dashboards"],
+)
+async def put_dashboard(
+    dashboard_id: Annotated[str, PathParameter(pattern=r"^[a-z][a-z0-9_.-]{0,127}$")],
+    spec: DashboardSpec,
+    repository: DashboardRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    expected_version: Annotated[int | None, Query(alias="expectedVersion", ge=1)] = None,
+) -> DashboardDefinition:
+    decision = await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="dashboard",
+        action=PermissionAction.CREATE if expected_version is None else PermissionAction.UPDATE,
+        tenant_id=tenant_id,
+    )
+    if dashboard_id.startswith("builtin.") or spec.source.value == "BUILTIN":
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="built-in dashboards are immutable",
+        )
+    if expected_version is not None:
+        existing = await _load_dashboard(dashboard_id, repository=repository, tenant_id=tenant_id)
+        if not _dashboard_admin(decision, actor) and not can_edit_dashboard(
+            existing, str(actor.principal_id)
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="dashboard unavailable"
+            )
+    try:
+        return await repository.upsert_definition(
+            dashboard_id,
+            spec,
+            tenant_id=tenant_id,
+            actor_id=str(actor.principal_id),
+            expected_version=expected_version,
+        )
+    except DashboardVersionConflict as exc:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
+
+
+@app.delete(
+    "/api/v1/dashboards/{dashboard_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    tags=["dashboards"],
+)
+async def delete_dashboard(
+    dashboard_id: Annotated[str, PathParameter(pattern=r"^[a-z][a-z0-9_.-]{0,127}$")],
+    repository: DashboardRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    expected_version: Annotated[int, Query(alias="expectedVersion", ge=1)],
+) -> Response:
+    decision = await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="dashboard",
+        action=PermissionAction.DELETE,
+        tenant_id=tenant_id,
+    )
+    definition = await _load_dashboard(dashboard_id, repository=repository, tenant_id=tenant_id)
+    if not _dashboard_admin(decision, actor) and not can_edit_dashboard(
+        definition, str(actor.principal_id)
+    ):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="dashboard unavailable")
+    try:
+        await repository.delete_definition(
+            dashboard_id,
+            tenant_id=tenant_id,
+            actor_id=str(actor.principal_id),
+            expected_version=expected_version,
+        )
+    except DashboardVersionConflict as exc:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@app.get("/api/v1/dashboards/{dashboard_id}/export", tags=["dashboards"])
+async def export_dashboard(
+    dashboard_id: Annotated[str, PathParameter(pattern=r"^[a-z][a-z0-9_.-]{0,127}$")],
+    repository: DashboardRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    format: Literal["yaml", "json"] = "yaml",
+) -> Response:
+    definition = await get_dashboard(
+        dashboard_id,
+        repository,
+        actor,
+        authorization_service,
+        tenant_id,
+    )
+    payload = definition.model_dump(mode="json", by_alias=True)
+    if format == "json":
+        content = json.dumps(payload, indent=2, sort_keys=True)
+        media_type = "application/json"
+        suffix = "json"
+    else:
+        content = yaml.safe_dump(payload, sort_keys=False, allow_unicode=True)
+        media_type = "application/yaml"
+        suffix = "yaml"
+    return Response(
+        content=content,
+        media_type=media_type,
+        headers={"Content-Disposition": f'attachment; filename="{dashboard_id}.{suffix}"'},
     )
 
 

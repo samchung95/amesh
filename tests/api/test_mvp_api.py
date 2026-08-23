@@ -12,6 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 
 from amesh.adapters.postgres import (
     PostgresAuthorizationRepository,
+    PostgresDashboardRepository,
     PostgresExecutionRepository,
     PostgresMetadataRepository,
     PostgresTenantRepository,
@@ -20,6 +21,7 @@ from amesh.adapters.postgres import (
 from amesh.app import (
     app,
     get_authorization_service,
+    get_dashboard_repository,
     get_metadata_repository,
     get_repository,
     get_tenant_service,
@@ -89,6 +91,22 @@ async def cleanup_execution(engine: AsyncEngine, execution_id: UUID) -> None:
         )
 
 
+async def cleanup_dashboard(engine: AsyncEngine, dashboard_id: str) -> None:
+    async with engine.begin() as connection:
+        await connection.execute(
+            text("DELETE FROM messages_outbox WHERE partition_key = :partition_key"),
+            {"partition_key": f"dashboard:{dashboard_id}"},
+        )
+        await connection.execute(
+            text("DELETE FROM dashboard_definition_events WHERE dashboard_id = :dashboard_id"),
+            {"dashboard_id": dashboard_id},
+        )
+        await connection.execute(
+            text("DELETE FROM dashboard_definitions WHERE dashboard_id = :dashboard_id"),
+            {"dashboard_id": dashboard_id},
+        )
+
+
 def test_authenticated_flow_execution_and_webhook_api() -> None:
     async def scenario() -> None:
         if TEST_DATABASE_URL is None:
@@ -96,6 +114,7 @@ def test_authenticated_flow_execution_and_webhook_api() -> None:
         engine = create_async_engine(TEST_DATABASE_URL)
         repository = PostgresExecutionRepository(engine)
         metadata = PostgresMetadataRepository(engine)
+        dashboards = PostgresDashboardRepository(engine)
         authorization_service = AuthorizationService(PostgresAuthorizationRepository(engine))
         tenant_service = TenantService(PostgresTenantRepository(engine))
         settings = Settings(
@@ -104,6 +123,7 @@ def test_authenticated_flow_execution_and_webhook_api() -> None:
         )
         app.dependency_overrides[get_repository] = lambda: repository
         app.dependency_overrides[get_metadata_repository] = lambda: metadata
+        app.dependency_overrides[get_dashboard_repository] = lambda: dashboards
         app.dependency_overrides[get_authorization_service] = lambda: authorization_service
         app.dependency_overrides[get_tenant_service] = lambda: tenant_service
         app.dependency_overrides[get_trigger_runtime_repository] = lambda: (
@@ -134,6 +154,7 @@ tasks:
             "content-type": "application/yaml",
         }
         execution_ids: list[UUID] = []
+        dashboard_id = f"api.{uuid4().hex}"
         transport = httpx.ASGITransport(app=app)
         try:
             async with httpx.AsyncClient(
@@ -458,6 +479,85 @@ tasks:
                 assert executions.status_code == 200
                 returned_ids = {UUID(item["execution_id"]) for item in executions.json()}
                 assert set(execution_ids) <= returned_ids
+
+                listed_dashboards = await client.get(
+                    "/api/v1/dashboards",
+                    headers={"authorization": "Bearer test-token"},
+                )
+                assert listed_dashboards.status_code == 200
+                assert {
+                    "builtin.instance",
+                    "builtin.tenant",
+                    "builtin.namespace",
+                    "builtin.flow",
+                    "builtin.workers",
+                    "builtin.sla",
+                } <= {item["dashboardId"] for item in listed_dashboards.json()}
+                created_dashboard = await client.put(
+                    f"/api/v1/dashboards/{dashboard_id}",
+                    headers={
+                        "authorization": "Bearer test-token",
+                        "content-type": "application/json",
+                    },
+                    json={
+                        "title": "API execution states",
+                        "visibility": "TENANT",
+                        "viewerIds": [],
+                        "editorIds": [],
+                        "source": "API",
+                        "widgets": [
+                            {
+                                "widgetId": "states",
+                                "title": "States",
+                                "query": {
+                                    "source": "EXECUTIONS",
+                                    "visualization": "STATUS_BREAKDOWN",
+                                    "filters": {"namespace": namespace},
+                                },
+                            }
+                        ],
+                    },
+                )
+                assert created_dashboard.status_code == 200
+                assert created_dashboard.json()["version"] == 1
+                rendered_dashboard = await client.post(
+                    f"/api/v1/dashboards/{dashboard_id}/render",
+                    headers={
+                        "authorization": "Bearer test-token",
+                        "content-type": "application/json",
+                    },
+                    json={"namespace": namespace},
+                )
+                assert rendered_dashboard.status_code == 200
+                rendered_widget = rendered_dashboard.json()["widgets"][0]["result"]
+                assert rendered_widget["redacted"] is False
+                assert rendered_widget["scannedRows"] >= 1
+                assert rendered_widget["freshAt"]
+                invalid_query = await client.post(
+                    "/api/v1/dashboard-queries",
+                    headers={
+                        "authorization": "Bearer test-token",
+                        "content-type": "application/json",
+                    },
+                    json={
+                        "source": "EXECUTIONS",
+                        "visualization": "COUNTER",
+                        "groupBy": ["sql.drop_table"],
+                    },
+                )
+                assert invalid_query.status_code == 422
+                exported_dashboard = await client.get(
+                    f"/api/v1/dashboards/{dashboard_id}/export?format=yaml",
+                    headers={"authorization": "Bearer test-token"},
+                )
+                assert exported_dashboard.status_code == 200
+                assert exported_dashboard.headers["content-type"].startswith("application/yaml")
+                assert f"dashboardId: {dashboard_id}" in exported_dashboard.text
+                deleted_dashboard = await client.delete(
+                    f"/api/v1/dashboards/{dashboard_id}?expectedVersion=1",
+                    headers={"authorization": "Bearer test-token"},
+                )
+                assert deleted_dashboard.status_code == 204
                 async with engine.connect() as connection:
                     assert (
                         int(
@@ -478,6 +578,7 @@ tasks:
             app.dependency_overrides.clear()
             for execution_id in execution_ids:
                 await cleanup_execution(engine, execution_id)
+            await cleanup_dashboard(engine, dashboard_id)
             await engine.dispose()
 
     asyncio.run(scenario())

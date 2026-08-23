@@ -12,6 +12,7 @@ docs/BackfillsApi.md
 docs/ChecksApi.md
 docs/ConfigurationApi.md
 docs/CredentialsApi.md
+docs/DashboardsApi.md
 docs/ExecutionsApi.md
 docs/FlowsApi.md
 docs/NamespaceResourcesApi.md
@@ -51,6 +52,7 @@ src/main/java/io/amesh/client/api/BackfillsApi.java
 src/main/java/io/amesh/client/api/ChecksApi.java
 src/main/java/io/amesh/client/api/ConfigurationApi.java
 src/main/java/io/amesh/client/api/CredentialsApi.java
+src/main/java/io/amesh/client/api/DashboardsApi.java
 src/main/java/io/amesh/client/api/ExecutionsApi.java
 src/main/java/io/amesh/client/api/FlowsApi.java
 src/main/java/io/amesh/client/api/NamespaceResourcesApi.java
@@ -103,6 +105,20 @@ src/main/java/io/amesh/client/model/CredentialKind.java
 src/main/java/io/amesh/client/model/CredentialMetadata.java
 src/main/java/io/amesh/client/model/CredentialStatus.java
 src/main/java/io/amesh/client/model/CronOccurrence.java
+src/main/java/io/amesh/client/model/DashboardAggregation.java
+src/main/java/io/amesh/client/model/DashboardDataSource.java
+src/main/java/io/amesh/client/model/DashboardDefinition.java
+src/main/java/io/amesh/client/model/DashboardDefinitionSource.java
+src/main/java/io/amesh/client/model/DashboardFilters.java
+src/main/java/io/amesh/client/model/DashboardMeasure.java
+src/main/java/io/amesh/client/model/DashboardQuery.java
+src/main/java/io/amesh/client/model/DashboardQueryResult.java
+src/main/java/io/amesh/client/model/DashboardRender.java
+src/main/java/io/amesh/client/model/DashboardSpec.java
+src/main/java/io/amesh/client/model/DashboardVisibility.java
+src/main/java/io/amesh/client/model/DashboardVisualization.java
+src/main/java/io/amesh/client/model/DashboardWidget.java
+src/main/java/io/amesh/client/model/DashboardWidgetResult.java
 src/main/java/io/amesh/client/model/ExchangeCredentialRequest.java
 src/main/java/io/amesh/client/model/ExecutionArtifact.java
 src/main/java/io/amesh/client/model/ExecutionDetail.java

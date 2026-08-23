@@ -62,6 +62,7 @@ def test_checked_in_migration_manifest_is_complete_and_ordered() -> None:
             (40, "execution_file_lineage"),
             (41, "realtime_webhook_subscriptions"),
             (42, "execution_debug_evidence"),
+            (43, "dashboards"),
         )
     ]
     assert all(item.rollback_guidance for item in plan)

@@ -460,14 +460,14 @@ URS-F-0458,Functional,Must,EPIC-407,"Execution details, Gantt, logs and debuggin
 URS-F-0459,Functional,Must,EPIC-407,"Execution details, Gantt, logs and debugging UI",M4,4,"Automated browser, accessibility and manual usability tests",Verified
 URS-F-0460,Functional,Must,EPIC-407,"Execution details, Gantt, logs and debugging UI",M4,4,"Automated browser, accessibility and manual usability tests",Verified
 URS-F-0461,Functional,Must,EPIC-407,"Execution details, Gantt, logs and debugging UI",M4,4,"Automated browser, accessibility and manual usability tests",Verified
-URS-F-0462,Functional,Must,EPIC-408,"Dashboards, query language and saved views",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
-URS-F-0463,Functional,Must,EPIC-408,"Dashboards, query language and saved views",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
-URS-F-0464,Functional,Must,EPIC-408,"Dashboards, query language and saved views",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
-URS-F-0465,Functional,Must,EPIC-408,"Dashboards, query language and saved views",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
-URS-F-0466,Functional,Must,EPIC-408,"Dashboards, query language and saved views",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
-URS-F-0467,Functional,Must,EPIC-408,"Dashboards, query language and saved views",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
-URS-F-0468,Functional,Must,EPIC-408,"Dashboards, query language and saved views",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
-URS-F-0469,Functional,Must,EPIC-408,"Dashboards, query language and saved views",M4,4,"Automated browser, accessibility and manual usability tests",Proposed
+URS-F-0462,Functional,Must,EPIC-408,"Dashboards, query language and saved views",M4,4,"Automated browser, accessibility and manual usability tests",Verified
+URS-F-0463,Functional,Must,EPIC-408,"Dashboards, query language and saved views",M4,4,"Automated browser, accessibility and manual usability tests",Verified
+URS-F-0464,Functional,Must,EPIC-408,"Dashboards, query language and saved views",M4,4,"Automated browser, accessibility and manual usability tests",Verified
+URS-F-0465,Functional,Must,EPIC-408,"Dashboards, query language and saved views",M4,4,"Automated browser, accessibility and manual usability tests",Verified
+URS-F-0466,Functional,Must,EPIC-408,"Dashboards, query language and saved views",M4,4,"Automated browser, accessibility and manual usability tests",Verified
+URS-F-0467,Functional,Must,EPIC-408,"Dashboards, query language and saved views",M4,4,"Automated browser, accessibility and manual usability tests",Verified
+URS-F-0468,Functional,Must,EPIC-408,"Dashboards, query language and saved views",M4,4,"Automated browser, accessibility and manual usability tests",Verified
+URS-F-0469,Functional,Must,EPIC-408,"Dashboards, query language and saved views",M4,4,"Automated browser, accessibility and manual usability tests",Verified
 URS-F-0470,Functional,Must,EPIC-409,"Search, indexing and retrieval projections",M4,4,"Projection rebuild, isolation and query contract tests",Proposed
 URS-F-0471,Functional,Must,EPIC-409,"Search, indexing and retrieval projections",M4,4,"Projection rebuild, isolation and query contract tests",Proposed
 URS-F-0472,Functional,Must,EPIC-409,"Search, indexing and retrieval projections",M4,4,"Projection rebuild, isolation and query contract tests",Proposed

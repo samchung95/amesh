@@ -1549,6 +1549,508 @@
         "title": "CronOccurrence",
         "type": "object"
       },
+      "DashboardAggregation": {
+        "enum": [
+          "COUNT",
+          "SUM",
+          "AVG",
+          "MIN",
+          "MAX",
+          "P50",
+          "P95"
+        ],
+        "title": "DashboardAggregation",
+        "type": "string"
+      },
+      "DashboardDataSource": {
+        "enum": [
+          "EXECUTIONS",
+          "LOGS",
+          "METRICS",
+          "SLA",
+          "WORKERS",
+          "ASSETS"
+        ],
+        "title": "DashboardDataSource",
+        "type": "string"
+      },
+      "DashboardDefinition": {
+        "additionalProperties": false,
+        "properties": {
+          "builtin": {
+            "default": false,
+            "title": "Builtin",
+            "type": "boolean"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "title": "Createdat",
+            "type": "string"
+          },
+          "dashboardId": {
+            "pattern": "^[a-z][a-z0-9_.-]{0,127}$",
+            "title": "Dashboardid",
+            "type": "string"
+          },
+          "description": {
+            "default": "",
+            "maxLength": 1000,
+            "title": "Description",
+            "type": "string"
+          },
+          "editorIds": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 100,
+            "title": "Editorids",
+            "type": "array"
+          },
+          "ownerId": {
+            "title": "Ownerid",
+            "type": "string"
+          },
+          "source": {
+            "$ref": "#/components/schemas/DashboardDefinitionSource",
+            "default": "API"
+          },
+          "tenantId": {
+            "title": "Tenantid",
+            "type": "string"
+          },
+          "title": {
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "title": "Updatedat",
+            "type": "string"
+          },
+          "version": {
+            "minimum": 1.0,
+            "title": "Version",
+            "type": "integer"
+          },
+          "viewerIds": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 100,
+            "title": "Viewerids",
+            "type": "array"
+          },
+          "visibility": {
+            "$ref": "#/components/schemas/DashboardVisibility",
+            "default": "PRIVATE"
+          },
+          "widgets": {
+            "items": {
+              "$ref": "#/components/schemas/DashboardWidget"
+            },
+            "maxItems": 24,
+            "minItems": 1,
+            "title": "Widgets",
+            "type": "array"
+          }
+        },
+        "required": [
+          "title",
+          "widgets",
+          "dashboardId",
+          "tenantId",
+          "version",
+          "ownerId",
+          "createdAt",
+          "updatedAt"
+        ],
+        "title": "DashboardDefinition",
+        "type": "object"
+      },
+      "DashboardDefinitionSource": {
+        "enum": [
+          "BUILTIN",
+          "API",
+          "GITOPS"
+        ],
+        "title": "DashboardDefinitionSource",
+        "type": "string"
+      },
+      "DashboardFilters": {
+        "additionalProperties": false,
+        "properties": {
+          "dimensions": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "maxProperties": 20,
+            "title": "Dimensions",
+            "type": "object"
+          },
+          "flowId": {
+            "anyOf": [
+              {
+                "maxLength": 255,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Flowid"
+          },
+          "from": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "From"
+          },
+          "labels": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "maxProperties": 20,
+            "title": "Labels",
+            "type": "object"
+          },
+          "namespace": {
+            "anyOf": [
+              {
+                "maxLength": 255,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Namespace"
+          },
+          "states": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 20,
+            "title": "States",
+            "type": "array"
+          },
+          "to": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "To"
+          },
+          "workerGroups": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 20,
+            "title": "Workergroups",
+            "type": "array"
+          }
+        },
+        "title": "DashboardFilters",
+        "type": "object"
+      },
+      "DashboardMeasure": {
+        "enum": [
+          "COUNT",
+          "DURATION_MS",
+          "VALUE"
+        ],
+        "title": "DashboardMeasure",
+        "type": "string"
+      },
+      "DashboardQuery": {
+        "additionalProperties": false,
+        "properties": {
+          "aggregation": {
+            "$ref": "#/components/schemas/DashboardAggregation",
+            "default": "COUNT"
+          },
+          "filters": {
+            "$ref": "#/components/schemas/DashboardFilters"
+          },
+          "groupBy": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 3,
+            "title": "Groupby",
+            "type": "array"
+          },
+          "limit": {
+            "default": 100,
+            "maximum": 500.0,
+            "minimum": 1.0,
+            "title": "Limit",
+            "type": "integer"
+          },
+          "measure": {
+            "$ref": "#/components/schemas/DashboardMeasure",
+            "default": "COUNT"
+          },
+          "sampleRate": {
+            "default": 1.0,
+            "maximum": 1.0,
+            "minimum": 0.01,
+            "title": "Samplerate",
+            "type": "number"
+          },
+          "source": {
+            "$ref": "#/components/schemas/DashboardDataSource"
+          },
+          "timeoutMs": {
+            "default": 1500,
+            "maximum": 5000.0,
+            "minimum": 100.0,
+            "title": "Timeoutms",
+            "type": "integer"
+          },
+          "visualization": {
+            "$ref": "#/components/schemas/DashboardVisualization"
+          }
+        },
+        "required": [
+          "source",
+          "visualization"
+        ],
+        "title": "DashboardQuery",
+        "type": "object"
+      },
+      "DashboardQueryResult": {
+        "additionalProperties": false,
+        "properties": {
+          "columns": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Columns",
+            "type": "array"
+          },
+          "freshAt": {
+            "format": "date-time",
+            "title": "Freshat",
+            "type": "string"
+          },
+          "limit": {
+            "minimum": 1.0,
+            "title": "Limit",
+            "type": "integer"
+          },
+          "partial": {
+            "title": "Partial",
+            "type": "boolean"
+          },
+          "redacted": {
+            "default": false,
+            "title": "Redacted",
+            "type": "boolean"
+          },
+          "rows": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Rows",
+            "type": "array"
+          },
+          "sampled": {
+            "title": "Sampled",
+            "type": "boolean"
+          },
+          "scannedRows": {
+            "minimum": 0.0,
+            "title": "Scannedrows",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "columns",
+          "rows",
+          "freshAt",
+          "partial",
+          "sampled",
+          "scannedRows",
+          "limit"
+        ],
+        "title": "DashboardQueryResult",
+        "type": "object"
+      },
+      "DashboardRender": {
+        "additionalProperties": false,
+        "properties": {
+          "dashboard": {
+            "$ref": "#/components/schemas/DashboardDefinition"
+          },
+          "renderedAt": {
+            "format": "date-time",
+            "title": "Renderedat",
+            "type": "string"
+          },
+          "widgets": {
+            "items": {
+              "$ref": "#/components/schemas/DashboardWidgetResult"
+            },
+            "title": "Widgets",
+            "type": "array"
+          }
+        },
+        "required": [
+          "dashboard",
+          "widgets"
+        ],
+        "title": "DashboardRender",
+        "type": "object"
+      },
+      "DashboardSpec": {
+        "additionalProperties": false,
+        "properties": {
+          "description": {
+            "default": "",
+            "maxLength": 1000,
+            "title": "Description",
+            "type": "string"
+          },
+          "editorIds": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 100,
+            "title": "Editorids",
+            "type": "array"
+          },
+          "source": {
+            "$ref": "#/components/schemas/DashboardDefinitionSource",
+            "default": "API"
+          },
+          "title": {
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          },
+          "viewerIds": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 100,
+            "title": "Viewerids",
+            "type": "array"
+          },
+          "visibility": {
+            "$ref": "#/components/schemas/DashboardVisibility",
+            "default": "PRIVATE"
+          },
+          "widgets": {
+            "items": {
+              "$ref": "#/components/schemas/DashboardWidget"
+            },
+            "maxItems": 24,
+            "minItems": 1,
+            "title": "Widgets",
+            "type": "array"
+          }
+        },
+        "required": [
+          "title",
+          "widgets"
+        ],
+        "title": "DashboardSpec",
+        "type": "object"
+      },
+      "DashboardVisibility": {
+        "enum": [
+          "PRIVATE",
+          "TENANT"
+        ],
+        "title": "DashboardVisibility",
+        "type": "string"
+      },
+      "DashboardVisualization": {
+        "enum": [
+          "TIME_SERIES",
+          "TABLE",
+          "COUNTER",
+          "DISTRIBUTION",
+          "STATUS_BREAKDOWN",
+          "RANKED_LIST"
+        ],
+        "title": "DashboardVisualization",
+        "type": "string"
+      },
+      "DashboardWidget": {
+        "additionalProperties": false,
+        "properties": {
+          "description": {
+            "default": "",
+            "maxLength": 500,
+            "title": "Description",
+            "type": "string"
+          },
+          "query": {
+            "$ref": "#/components/schemas/DashboardQuery"
+          },
+          "title": {
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          },
+          "widgetId": {
+            "pattern": "^[a-z][a-z0-9_.-]{0,63}$",
+            "title": "Widgetid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "widgetId",
+          "title",
+          "query"
+        ],
+        "title": "DashboardWidget",
+        "type": "object"
+      },
+      "DashboardWidgetResult": {
+        "additionalProperties": false,
+        "properties": {
+          "result": {
+            "$ref": "#/components/schemas/DashboardQueryResult"
+          },
+          "widgetId": {
+            "title": "Widgetid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "widgetId",
+          "result"
+        ],
+        "title": "DashboardWidgetResult",
+        "type": "object"
+      },
       "ExchangeCredentialRequest": {
         "properties": {
           "audience": {
@@ -13927,6 +14429,685 @@
         "summary": "Exchange Workload Credential",
         "tags": [
           "credentials"
+        ]
+      }
+    },
+    "/api/v1/dashboard-queries": {
+      "post": {
+        "operationId": "execute_dashboard_query_api_v1_dashboard_queries_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DashboardQuery"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DashboardQueryResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Execute Dashboard Query",
+        "tags": [
+          "dashboards"
+        ]
+      }
+    },
+    "/api/v1/dashboards": {
+      "get": {
+        "operationId": "list_dashboards_api_v1_dashboards_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/DashboardDefinition"
+                  },
+                  "title": "Response List Dashboards Api V1 Dashboards Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Dashboards",
+        "tags": [
+          "dashboards"
+        ]
+      }
+    },
+    "/api/v1/dashboards/{dashboard_id}": {
+      "delete": {
+        "operationId": "delete_dashboard_api_v1_dashboards__dashboard_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "dashboard_id",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-z][a-z0-9_.-]{0,127}$",
+              "title": "Dashboard Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "expectedVersion",
+            "required": true,
+            "schema": {
+              "minimum": 1,
+              "title": "Expectedversion",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Delete Dashboard",
+        "tags": [
+          "dashboards"
+        ]
+      },
+      "get": {
+        "operationId": "get_dashboard_api_v1_dashboards__dashboard_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "dashboard_id",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-z][a-z0-9_.-]{0,127}$",
+              "title": "Dashboard Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DashboardDefinition"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Dashboard",
+        "tags": [
+          "dashboards"
+        ]
+      },
+      "put": {
+        "operationId": "put_dashboard_api_v1_dashboards__dashboard_id__put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "dashboard_id",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-z][a-z0-9_.-]{0,127}$",
+              "title": "Dashboard Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "expectedVersion",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Expectedversion"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DashboardSpec"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DashboardDefinition"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Put Dashboard",
+        "tags": [
+          "dashboards"
+        ]
+      }
+    },
+    "/api/v1/dashboards/{dashboard_id}/export": {
+      "get": {
+        "operationId": "export_dashboard_api_v1_dashboards__dashboard_id__export_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "dashboard_id",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-z][a-z0-9_.-]{0,127}$",
+              "title": "Dashboard Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "format",
+            "required": false,
+            "schema": {
+              "default": "yaml",
+              "enum": [
+                "yaml",
+                "json"
+              ],
+              "title": "Format",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Export Dashboard",
+        "tags": [
+          "dashboards"
+        ]
+      }
+    },
+    "/api/v1/dashboards/{dashboard_id}/render": {
+      "post": {
+        "operationId": "render_dashboard_api_v1_dashboards__dashboard_id__render_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "dashboard_id",
+            "required": true,
+            "schema": {
+              "pattern": "^[a-z][a-z0-9_.-]{0,127}$",
+              "title": "Dashboard Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DashboardFilters"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DashboardRender"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Render Dashboard",
+        "tags": [
+          "dashboards"
         ]
       }
     },

@@ -24,6 +24,7 @@ __all__ = [
     "ChecksApi",
     "ConfigurationApi",
     "CredentialsApi",
+    "DashboardsApi",
     "ExecutionsApi",
     "FlowsApi",
     "NamespaceResourcesApi",
@@ -84,6 +85,20 @@ __all__ = [
     "CredentialMetadata",
     "CredentialStatus",
     "CronOccurrence",
+    "DashboardAggregation",
+    "DashboardDataSource",
+    "DashboardDefinition",
+    "DashboardDefinitionSource",
+    "DashboardFilters",
+    "DashboardMeasure",
+    "DashboardQuery",
+    "DashboardQueryResult",
+    "DashboardRender",
+    "DashboardSpec",
+    "DashboardVisibility",
+    "DashboardVisualization",
+    "DashboardWidget",
+    "DashboardWidgetResult",
     "ExchangeCredentialRequest",
     "ExecutionArtifact",
     "ExecutionDetail",
@@ -285,6 +300,7 @@ from amesh_client.api.backfills_api import BackfillsApi as BackfillsApi
 from amesh_client.api.checks_api import ChecksApi as ChecksApi
 from amesh_client.api.configuration_api import ConfigurationApi as ConfigurationApi
 from amesh_client.api.credentials_api import CredentialsApi as CredentialsApi
+from amesh_client.api.dashboards_api import DashboardsApi as DashboardsApi
 from amesh_client.api.executions_api import ExecutionsApi as ExecutionsApi
 from amesh_client.api.flows_api import FlowsApi as FlowsApi
 from amesh_client.api.namespace_resources_api import NamespaceResourcesApi as NamespaceResourcesApi
@@ -349,6 +365,20 @@ from amesh_client.models.credential_kind import CredentialKind as CredentialKind
 from amesh_client.models.credential_metadata import CredentialMetadata as CredentialMetadata
 from amesh_client.models.credential_status import CredentialStatus as CredentialStatus
 from amesh_client.models.cron_occurrence import CronOccurrence as CronOccurrence
+from amesh_client.models.dashboard_aggregation import DashboardAggregation as DashboardAggregation
+from amesh_client.models.dashboard_data_source import DashboardDataSource as DashboardDataSource
+from amesh_client.models.dashboard_definition import DashboardDefinition as DashboardDefinition
+from amesh_client.models.dashboard_definition_source import DashboardDefinitionSource as DashboardDefinitionSource
+from amesh_client.models.dashboard_filters import DashboardFilters as DashboardFilters
+from amesh_client.models.dashboard_measure import DashboardMeasure as DashboardMeasure
+from amesh_client.models.dashboard_query import DashboardQuery as DashboardQuery
+from amesh_client.models.dashboard_query_result import DashboardQueryResult as DashboardQueryResult
+from amesh_client.models.dashboard_render import DashboardRender as DashboardRender
+from amesh_client.models.dashboard_spec import DashboardSpec as DashboardSpec
+from amesh_client.models.dashboard_visibility import DashboardVisibility as DashboardVisibility
+from amesh_client.models.dashboard_visualization import DashboardVisualization as DashboardVisualization
+from amesh_client.models.dashboard_widget import DashboardWidget as DashboardWidget
+from amesh_client.models.dashboard_widget_result import DashboardWidgetResult as DashboardWidgetResult
 from amesh_client.models.exchange_credential_request import ExchangeCredentialRequest as ExchangeCredentialRequest
 from amesh_client.models.execution_artifact import ExecutionArtifact as ExecutionArtifact
 from amesh_client.models.execution_detail import ExecutionDetail as ExecutionDetail

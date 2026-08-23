@@ -8,6 +8,7 @@ docs/BackfillsApi.md
 docs/ChecksApi.md
 docs/ConfigurationApi.md
 docs/CredentialsApi.md
+docs/DashboardsApi.md
 docs/ExecutionsApi.md
 docs/FlowsApi.md
 docs/NamespaceResourcesApi.md
@@ -28,6 +29,7 @@ src/apis/BackfillsApi.ts
 src/apis/ChecksApi.ts
 src/apis/ConfigurationApi.ts
 src/apis/CredentialsApi.ts
+src/apis/DashboardsApi.ts
 src/apis/ExecutionsApi.ts
 src/apis/FlowsApi.ts
 src/apis/NamespaceResourcesApi.ts
@@ -81,6 +83,20 @@ src/models/CredentialKind.ts
 src/models/CredentialMetadata.ts
 src/models/CredentialStatus.ts
 src/models/CronOccurrence.ts
+src/models/DashboardAggregation.ts
+src/models/DashboardDataSource.ts
+src/models/DashboardDefinition.ts
+src/models/DashboardDefinitionSource.ts
+src/models/DashboardFilters.ts
+src/models/DashboardMeasure.ts
+src/models/DashboardQuery.ts
+src/models/DashboardQueryResult.ts
+src/models/DashboardRender.ts
+src/models/DashboardSpec.ts
+src/models/DashboardVisibility.ts
+src/models/DashboardVisualization.ts
+src/models/DashboardWidget.ts
+src/models/DashboardWidgetResult.ts
 src/models/ExchangeCredentialRequest.ts
 src/models/ExecutionArtifact.ts
 src/models/ExecutionDetail.ts

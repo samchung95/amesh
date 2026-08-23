@@ -5,6 +5,8 @@ export type Capability =
   | 'executions.view'
   | 'executions.execute'
   | 'executions.manage'
+  | 'dashboards.view'
+  | 'dashboards.manage'
   | 'triggers.view'
   | 'triggers.manage'
   | 'checks.view'
@@ -25,6 +27,85 @@ export interface UiSession {
   capabilities: Record<Capability, boolean>
   telemetryEnabled: boolean
   serverVersion: string
+}
+
+export type DashboardDataSource = 'EXECUTIONS' | 'LOGS' | 'METRICS' | 'SLA' | 'WORKERS' | 'ASSETS'
+export type DashboardVisualization = 'TIME_SERIES' | 'TABLE' | 'COUNTER' | 'DISTRIBUTION' | 'STATUS_BREAKDOWN' | 'RANKED_LIST'
+export type DashboardAggregation = 'COUNT' | 'SUM' | 'AVG' | 'MIN' | 'MAX' | 'P50' | 'P95'
+export type DashboardMeasure = 'COUNT' | 'DURATION_MS' | 'VALUE'
+
+export interface DashboardFilters {
+  from?: string | null
+  to?: string | null
+  labels?: Record<string, string>
+  namespace?: string | null
+  flowId?: string | null
+  states?: string[]
+  workerGroups?: string[]
+  dimensions?: Record<string, string>
+}
+
+export interface DashboardQuery {
+  source: DashboardDataSource
+  visualization: DashboardVisualization
+  measure: DashboardMeasure
+  aggregation: DashboardAggregation
+  groupBy: string[]
+  filters: DashboardFilters
+  limit: number
+  timeoutMs: number
+  sampleRate: number
+}
+
+export interface DashboardWidget {
+  widgetId: string
+  title: string
+  description: string
+  query: DashboardQuery
+}
+
+export interface DashboardDefinition {
+  dashboardId: string
+  tenantId: string
+  title: string
+  description: string
+  visibility: 'PRIVATE' | 'TENANT'
+  viewerIds: string[]
+  editorIds: string[]
+  widgets: DashboardWidget[]
+  source: 'BUILTIN' | 'API' | 'GITOPS'
+  version: number
+  ownerId: string
+  builtin: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+export interface DashboardSpec {
+  title: string
+  description: string
+  visibility: 'PRIVATE' | 'TENANT'
+  viewerIds: string[]
+  editorIds: string[]
+  widgets: DashboardWidget[]
+  source: 'API' | 'GITOPS'
+}
+
+export interface DashboardQueryResult {
+  columns: string[]
+  rows: Array<Record<string, unknown>>
+  freshAt: string
+  partial: boolean
+  sampled: boolean
+  redacted: boolean
+  scannedRows: number
+  limit: number
+}
+
+export interface DashboardRender {
+  dashboard: DashboardDefinition
+  widgets: Array<{ widgetId: string; result: DashboardQueryResult }>
+  renderedAt: string
 }
 
 export interface PersistedFlow {

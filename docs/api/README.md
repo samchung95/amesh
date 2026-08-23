@@ -37,5 +37,7 @@
 - Manage reusable execution-check policies with `GET/PUT /api/v1/check-policies`, inspect evidence
   with `GET /api/v1/check-evaluations`, and aggregate it with `GET /api/v1/check-compliance`; see the
   [execution-check runbook](../operations/execution-checks.md).
+- List, render, save and export typed operational dashboards through `/api/v1/dashboards`; direct
+  typed queries use `/api/v1/dashboard-queries`. See the [dashboard API guide](dashboards.md).
 
 Future generated SDKs must consume the supported API contract, not internal Python classes.

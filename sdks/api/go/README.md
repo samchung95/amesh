@@ -112,6 +112,13 @@ Class | Method | HTTP request | Description
 *CredentialsAPI* | [**RevokeAllCredentialsApiV1AdminPrincipalsPrincipalIdCredentialsDelete**](docs/CredentialsAPI.md#revokeallcredentialsapiv1adminprincipalsprincipalidcredentialsdelete) | **Delete** /api/v1/admin/principals/{principal_id}/credentials | Revoke All Credentials
 *CredentialsAPI* | [**RevokeCredentialApiV1AdminCredentialsCredentialIdDelete**](docs/CredentialsAPI.md#revokecredentialapiv1admincredentialscredentialiddelete) | **Delete** /api/v1/admin/credentials/{credential_id} | Revoke Credential
 *CredentialsAPI* | [**RotateCredentialApiV1AdminCredentialsCredentialIdRotatePost**](docs/CredentialsAPI.md#rotatecredentialapiv1admincredentialscredentialidrotatepost) | **Post** /api/v1/admin/credentials/{credential_id}/rotate | Rotate Credential
+*DashboardsAPI* | [**DeleteDashboardApiV1DashboardsDashboardIdDelete**](docs/DashboardsAPI.md#deletedashboardapiv1dashboardsdashboardiddelete) | **Delete** /api/v1/dashboards/{dashboard_id} | Delete Dashboard
+*DashboardsAPI* | [**ExecuteDashboardQueryApiV1DashboardQueriesPost**](docs/DashboardsAPI.md#executedashboardqueryapiv1dashboardqueriespost) | **Post** /api/v1/dashboard-queries | Execute Dashboard Query
+*DashboardsAPI* | [**ExportDashboardApiV1DashboardsDashboardIdExportGet**](docs/DashboardsAPI.md#exportdashboardapiv1dashboardsdashboardidexportget) | **Get** /api/v1/dashboards/{dashboard_id}/export | Export Dashboard
+*DashboardsAPI* | [**GetDashboardApiV1DashboardsDashboardIdGet**](docs/DashboardsAPI.md#getdashboardapiv1dashboardsdashboardidget) | **Get** /api/v1/dashboards/{dashboard_id} | Get Dashboard
+*DashboardsAPI* | [**ListDashboardsApiV1DashboardsGet**](docs/DashboardsAPI.md#listdashboardsapiv1dashboardsget) | **Get** /api/v1/dashboards | List Dashboards
+*DashboardsAPI* | [**PutDashboardApiV1DashboardsDashboardIdPut**](docs/DashboardsAPI.md#putdashboardapiv1dashboardsdashboardidput) | **Put** /api/v1/dashboards/{dashboard_id} | Put Dashboard
+*DashboardsAPI* | [**RenderDashboardApiV1DashboardsDashboardIdRenderPost**](docs/DashboardsAPI.md#renderdashboardapiv1dashboardsdashboardidrenderpost) | **Post** /api/v1/dashboards/{dashboard_id}/render | Render Dashboard
 *ExecutionsAPI* | [**ApplyExecutionControlApiV1ExecutionsExecutionIdInterventionsPost**](docs/ExecutionsAPI.md#applyexecutioncontrolapiv1executionsexecutionidinterventionspost) | **Post** /api/v1/executions/{execution_id}/interventions | Apply Execution Control
 *ExecutionsAPI* | [**CreateExecutionApiV1ExecutionsPost**](docs/ExecutionsAPI.md#createexecutionapiv1executionspost) | **Post** /api/v1/executions | Create Execution
 *ExecutionsAPI* | [**CreateExecutionsBulkApiV1ExecutionsBulkPost**](docs/ExecutionsAPI.md#createexecutionsbulkapiv1executionsbulkpost) | **Post** /api/v1/executions/bulk | Create Executions Bulk
@@ -258,6 +265,20 @@ Class | Method | HTTP request | Description
  - [CredentialMetadata](docs/CredentialMetadata.md)
  - [CredentialStatus](docs/CredentialStatus.md)
  - [CronOccurrence](docs/CronOccurrence.md)
+ - [DashboardAggregation](docs/DashboardAggregation.md)
+ - [DashboardDataSource](docs/DashboardDataSource.md)
+ - [DashboardDefinition](docs/DashboardDefinition.md)
+ - [DashboardDefinitionSource](docs/DashboardDefinitionSource.md)
+ - [DashboardFilters](docs/DashboardFilters.md)
+ - [DashboardMeasure](docs/DashboardMeasure.md)
+ - [DashboardQuery](docs/DashboardQuery.md)
+ - [DashboardQueryResult](docs/DashboardQueryResult.md)
+ - [DashboardRender](docs/DashboardRender.md)
+ - [DashboardSpec](docs/DashboardSpec.md)
+ - [DashboardVisibility](docs/DashboardVisibility.md)
+ - [DashboardVisualization](docs/DashboardVisualization.md)
+ - [DashboardWidget](docs/DashboardWidget.md)
+ - [DashboardWidgetResult](docs/DashboardWidgetResult.md)
  - [ExchangeCredentialRequest](docs/ExchangeCredentialRequest.md)
  - [ExecutionArtifact](docs/ExecutionArtifact.md)
  - [ExecutionDetail](docs/ExecutionDetail.md)

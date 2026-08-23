@@ -252,6 +252,12 @@
       "mode": "expand",
       "onlineCompatible": true,
       "rollbackGuidance": "Forward-fix the state-evidence capture functions; existing evidence remains valid and newly captured actor and causation fields are additive."
+    },
+    {
+      "file": "0043_dashboards.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Pause custom dashboard writes and forward-fix the additive definition, ACL and event tables; built-in dashboards and all underlying execution projections remain available."
     }
   ]
 }

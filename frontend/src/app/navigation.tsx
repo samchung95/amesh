@@ -27,7 +27,7 @@ export interface NavigationItem {
 }
 
 export const navigationItems: NavigationItem[] = [
-  { id: 'dashboard', labelKey: 'dashboard', path: '/', group: 'operate', icon: CircleGauge },
+  { id: 'dashboard', labelKey: 'dashboard', path: '/', group: 'operate', icon: CircleGauge, capability: 'dashboards.view' },
   {
     id: 'flows',
     labelKey: 'flows',

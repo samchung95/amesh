@@ -74,6 +74,18 @@ submitting a reason. Replay and backfill use the same preview-and-confirm workfl
 authorized inputs, outputs, metrics, cache decisions, artifacts and errors, while history links state
 changes to the recorded actor and causative event.
 
+## Build dashboards
+
+Open **Dashboard** to switch among the built-in instance, tenant, namespace, flow, worker and SLA
+views. The filter bar applies time, label, namespace, flow, state, worker-group and custom-dimension
+filters without changing the saved definition. Every widget exposes its freshness and complete,
+partial, sampled, authorized or redacted state.
+
+Users with dashboard-management permission can build a custom view from typed sources, measures,
+aggregations, visualizations and dimensions. Save it privately or for the tenant, assign independent
+viewer/editor principal IDs, share its deep link, export YAML/JSON for GitOps, or delete it. Dashboard
+access never grants access to its underlying data; denied widgets stay visible as redacted placeholders.
+
 ## Verification
 
 ```powershell
@@ -94,6 +106,8 @@ model tests cover connect, disconnect, reorder, grouping, removal, comment-prese
 invalid graph rejection and a 500-task local performance budget. Execution-debugger coverage includes
 deep-linked filters, task selection, Gantt timing, live log filtering, data/history panels, intervention
 impact confirmation, a 100,000-event bounded-memory model and 100,000 durable task-run paging.
+Dashboard coverage exercises built-ins, typed filters and bounds, all visualization projections,
+custom save/delete/export, source permission redaction, deep links and automated WCAG checks.
 
 ## Browser support policy
 
