@@ -52,5 +52,8 @@
 - Query the tamper-evident ledger, manage audit-only retention and legal holds, deliver signed SIEM
   events, and build redacted readiness packages through the
   [audit and compliance API](audit-and-compliance.md).
+- Inspect scoped plugin rules and their decision sources, validate candidate flow pins, and perform
+  impact-gated emergency version disable through the
+  [plugin governance API](plugin-governance.md).
 
 Future generated SDKs must consume the supported API contract, not internal Python classes.

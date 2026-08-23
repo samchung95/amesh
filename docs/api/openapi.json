@@ -3343,6 +3343,50 @@
         "title": "DashboardWidgetResult",
         "type": "object"
       },
+      "EffectivePluginPolicy": {
+        "properties": {
+          "defaultEffect": {
+            "$ref": "#/components/schemas/PluginPolicyEffect"
+          },
+          "namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Namespace"
+          },
+          "quarantines": {
+            "items": {
+              "$ref": "#/components/schemas/PluginQuarantine"
+            },
+            "title": "Quarantines",
+            "type": "array"
+          },
+          "rules": {
+            "items": {
+              "$ref": "#/components/schemas/PluginPolicyRule"
+            },
+            "title": "Rules",
+            "type": "array"
+          },
+          "tenantId": {
+            "title": "Tenantid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "tenantId",
+          "defaultEffect",
+          "rules",
+          "quarantines"
+        ],
+        "title": "EffectivePluginPolicy",
+        "type": "object"
+      },
       "ExchangeCredentialRequest": {
         "properties": {
           "audience": {
@@ -7174,6 +7218,610 @@
         ],
         "title": "PluginPackageRecord",
         "type": "object"
+      },
+      "PluginPolicyDecision": {
+        "properties": {
+          "allowed": {
+            "title": "Allowed",
+            "type": "boolean"
+          },
+          "decidedAt": {
+            "format": "date-time",
+            "title": "Decidedat",
+            "type": "string"
+          },
+          "flowId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Flowid"
+          },
+          "flowRevision": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Flowrevision"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "namespace": {
+            "title": "Namespace",
+            "type": "string"
+          },
+          "stage": {
+            "$ref": "#/components/schemas/PluginPolicyStage"
+          },
+          "subjects": {
+            "items": {
+              "$ref": "#/components/schemas/PluginPolicySubjectDecision"
+            },
+            "title": "Subjects",
+            "type": "array"
+          },
+          "tenantId": {
+            "title": "Tenantid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "tenantId",
+          "namespace",
+          "stage",
+          "allowed",
+          "subjects"
+        ],
+        "title": "PluginPolicyDecision",
+        "type": "object"
+      },
+      "PluginPolicyEffect": {
+        "enum": [
+          "ALLOW",
+          "DENY"
+        ],
+        "title": "PluginPolicyEffect",
+        "type": "string"
+      },
+      "PluginPolicyImpactPreview": {
+        "properties": {
+          "affectedFlows": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Affectedflows",
+            "type": "array"
+          },
+          "package": {
+            "title": "Package",
+            "type": "string"
+          },
+          "runningExecutions": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Runningexecutions",
+            "type": "array"
+          },
+          "version": {
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "package",
+          "version",
+          "affectedFlows",
+          "runningExecutions"
+        ],
+        "title": "PluginPolicyImpactPreview",
+        "type": "object"
+      },
+      "PluginPolicyRule": {
+        "additionalProperties": false,
+        "properties": {
+          "createdAt": {
+            "format": "date-time",
+            "title": "Createdat",
+            "type": "string"
+          },
+          "createdBy": {
+            "title": "Createdby",
+            "type": "string"
+          },
+          "effect": {
+            "$ref": "#/components/schemas/PluginPolicyEffect"
+          },
+          "enabled": {
+            "default": true,
+            "title": "Enabled",
+            "type": "boolean"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "namespace": {
+            "anyOf": [
+              {
+                "maxLength": 255,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Namespace"
+          },
+          "priority": {
+            "default": 0,
+            "maximum": 10000.0,
+            "minimum": -10000.0,
+            "title": "Priority",
+            "type": "integer"
+          },
+          "reason": {
+            "maxLength": 2048,
+            "minLength": 1,
+            "title": "Reason",
+            "type": "string"
+          },
+          "scope": {
+            "$ref": "#/components/schemas/PluginPolicyScope"
+          },
+          "selector": {
+            "$ref": "#/components/schemas/PluginPolicySelector"
+          },
+          "stages": {
+            "items": {
+              "$ref": "#/components/schemas/PluginPolicyStage"
+            },
+            "minItems": 1,
+            "title": "Stages",
+            "type": "array"
+          },
+          "tenantId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tenantid"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "title": "Updatedat",
+            "type": "string"
+          },
+          "updatedBy": {
+            "title": "Updatedby",
+            "type": "string"
+          }
+        },
+        "required": [
+          "scope",
+          "effect",
+          "stages",
+          "reason",
+          "createdBy",
+          "updatedBy"
+        ],
+        "title": "PluginPolicyRule",
+        "type": "object"
+      },
+      "PluginPolicyRuleCreate": {
+        "additionalProperties": false,
+        "properties": {
+          "effect": {
+            "$ref": "#/components/schemas/PluginPolicyEffect"
+          },
+          "enabled": {
+            "default": true,
+            "title": "Enabled",
+            "type": "boolean"
+          },
+          "namespace": {
+            "anyOf": [
+              {
+                "maxLength": 255,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Namespace"
+          },
+          "priority": {
+            "default": 0,
+            "maximum": 10000.0,
+            "minimum": -10000.0,
+            "title": "Priority",
+            "type": "integer"
+          },
+          "reason": {
+            "maxLength": 2048,
+            "minLength": 1,
+            "title": "Reason",
+            "type": "string"
+          },
+          "scope": {
+            "$ref": "#/components/schemas/PluginPolicyScope"
+          },
+          "selector": {
+            "$ref": "#/components/schemas/PluginPolicySelector"
+          },
+          "stages": {
+            "items": {
+              "$ref": "#/components/schemas/PluginPolicyStage"
+            },
+            "minItems": 1,
+            "title": "Stages",
+            "type": "array"
+          }
+        },
+        "required": [
+          "scope",
+          "effect",
+          "stages",
+          "reason"
+        ],
+        "title": "PluginPolicyRuleCreate",
+        "type": "object"
+      },
+      "PluginPolicyRuleSource": {
+        "properties": {
+          "effect": {
+            "$ref": "#/components/schemas/PluginPolicyEffect"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          },
+          "scope": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PluginPolicyScope"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "sourceId": {
+            "title": "Sourceid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "sourceId",
+          "effect",
+          "reason"
+        ],
+        "title": "PluginPolicyRuleSource",
+        "type": "object"
+      },
+      "PluginPolicyScope": {
+        "enum": [
+          "INSTANCE",
+          "TENANT",
+          "NAMESPACE"
+        ],
+        "title": "PluginPolicyScope",
+        "type": "string"
+      },
+      "PluginPolicySelector": {
+        "additionalProperties": false,
+        "properties": {
+          "capabilities": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Capabilities",
+            "type": "array"
+          },
+          "package": {
+            "default": "*",
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Package",
+            "type": "string"
+          },
+          "pluginTypes": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Plugintypes",
+            "type": "array"
+          },
+          "vendor": {
+            "default": "*",
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Vendor",
+            "type": "string"
+          },
+          "versionRange": {
+            "default": "*",
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Versionrange",
+            "type": "string"
+          }
+        },
+        "title": "PluginPolicySelector",
+        "type": "object"
+      },
+      "PluginPolicyStage": {
+        "enum": [
+          "AUTHORING",
+          "VALIDATION",
+          "EXECUTION",
+          "ADMINISTRATION"
+        ],
+        "title": "PluginPolicyStage",
+        "type": "string"
+      },
+      "PluginPolicySubject": {
+        "properties": {
+          "capabilities": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Capabilities",
+            "type": "array"
+          },
+          "contentDigest": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Contentdigest"
+          },
+          "package": {
+            "title": "Package",
+            "type": "string"
+          },
+          "pluginTypes": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Plugintypes",
+            "type": "array"
+          },
+          "vendor": {
+            "title": "Vendor",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "package",
+          "version",
+          "vendor"
+        ],
+        "title": "PluginPolicySubject",
+        "type": "object"
+      },
+      "PluginPolicySubjectDecision": {
+        "properties": {
+          "allowed": {
+            "title": "Allowed",
+            "type": "boolean"
+          },
+          "reasonCode": {
+            "title": "Reasoncode",
+            "type": "string"
+          },
+          "sources": {
+            "items": {
+              "$ref": "#/components/schemas/PluginPolicyRuleSource"
+            },
+            "title": "Sources",
+            "type": "array"
+          },
+          "subject": {
+            "$ref": "#/components/schemas/PluginPolicySubject"
+          }
+        },
+        "required": [
+          "subject",
+          "allowed",
+          "reasonCode",
+          "sources"
+        ],
+        "title": "PluginPolicySubjectDecision",
+        "type": "object"
+      },
+      "PluginQuarantine": {
+        "additionalProperties": false,
+        "properties": {
+          "createdAt": {
+            "format": "date-time",
+            "title": "Createdat",
+            "type": "string"
+          },
+          "createdBy": {
+            "title": "Createdby",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "namespace": {
+            "anyOf": [
+              {
+                "maxLength": 255,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Namespace"
+          },
+          "package": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Package",
+            "type": "string"
+          },
+          "reason": {
+            "maxLength": 2048,
+            "minLength": 1,
+            "title": "Reason",
+            "type": "string"
+          },
+          "releasedAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Releasedat"
+          },
+          "releasedBy": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Releasedby"
+          },
+          "scope": {
+            "$ref": "#/components/schemas/PluginPolicyScope",
+            "default": "INSTANCE"
+          },
+          "state": {
+            "$ref": "#/components/schemas/PluginQuarantineState",
+            "default": "ACTIVE"
+          },
+          "tenantId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tenantid"
+          },
+          "version": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "package",
+          "version",
+          "reason",
+          "createdBy"
+        ],
+        "title": "PluginQuarantine",
+        "type": "object"
+      },
+      "PluginQuarantineCreate": {
+        "additionalProperties": false,
+        "properties": {
+          "namespace": {
+            "anyOf": [
+              {
+                "maxLength": 255,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Namespace"
+          },
+          "package": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Package",
+            "type": "string"
+          },
+          "reason": {
+            "maxLength": 2048,
+            "minLength": 1,
+            "title": "Reason",
+            "type": "string"
+          },
+          "scope": {
+            "$ref": "#/components/schemas/PluginPolicyScope",
+            "default": "INSTANCE"
+          },
+          "version": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "package",
+          "version",
+          "reason"
+        ],
+        "title": "PluginQuarantineCreate",
+        "type": "object"
+      },
+      "PluginQuarantineState": {
+        "enum": [
+          "ACTIVE",
+          "RELEASED"
+        ],
+        "title": "PluginQuarantineState",
+        "type": "string"
       },
       "PluginRegistryAttachment": {
         "additionalProperties": false,
@@ -26041,6 +26689,848 @@
         "summary": "Simulate Playground",
         "tags": [
           "blueprints"
+        ]
+      }
+    },
+    "/api/v1/plugin-policy/decisions": {
+      "get": {
+        "operationId": "list_plugin_policy_decisions_api_v1_plugin_policy_decisions_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PluginPolicyDecision"
+                  },
+                  "title": "Response List Plugin Policy Decisions Api V1 Plugin Policy Decisions Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Plugin Policy Decisions",
+        "tags": [
+          "plugins"
+        ]
+      }
+    },
+    "/api/v1/plugin-policy/effective": {
+      "get": {
+        "operationId": "get_effective_plugin_policy_api_v1_plugin_policy_effective_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "namespace",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Namespace"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EffectivePluginPolicy"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Effective Plugin Policy",
+        "tags": [
+          "plugins"
+        ]
+      }
+    },
+    "/api/v1/plugin-policy/evaluate": {
+      "post": {
+        "operationId": "evaluate_flow_plugin_policy_api_v1_plugin_policy_evaluate_post",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "stage",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/PluginPolicyStage",
+              "default": "VALIDATION"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PluginPolicyDecision"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Evaluate Flow Plugin Policy",
+        "tags": [
+          "plugins"
+        ]
+      }
+    },
+    "/api/v1/plugin-policy/quarantines": {
+      "post": {
+        "operationId": "quarantine_plugin_version_api_v1_plugin_policy_quarantines_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PluginQuarantineCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PluginQuarantine"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Quarantine Plugin Version",
+        "tags": [
+          "plugins"
+        ]
+      }
+    },
+    "/api/v1/plugin-policy/quarantines/preview": {
+      "post": {
+        "operationId": "preview_plugin_quarantine_api_v1_plugin_policy_quarantines_preview_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PluginQuarantineCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PluginPolicyImpactPreview"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Preview Plugin Quarantine",
+        "tags": [
+          "plugins"
+        ]
+      }
+    },
+    "/api/v1/plugin-policy/quarantines/{quarantine_id}/release": {
+      "post": {
+        "operationId": "release_plugin_quarantine_api_v1_plugin_policy_quarantines__quarantine_id__release_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "quarantine_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Quarantine Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "reason",
+            "required": true,
+            "schema": {
+              "maxLength": 2048,
+              "minLength": 1,
+              "title": "Reason",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PluginQuarantine"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Release Plugin Quarantine",
+        "tags": [
+          "plugins"
+        ]
+      }
+    },
+    "/api/v1/plugin-policy/rules": {
+      "post": {
+        "operationId": "create_plugin_policy_rule_api_v1_plugin_policy_rules_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PluginPolicyRuleCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PluginPolicyRule"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Plugin Policy Rule",
+        "tags": [
+          "plugins"
+        ]
+      }
+    },
+    "/api/v1/plugin-policy/rules/{rule_id}": {
+      "delete": {
+        "operationId": "delete_plugin_policy_rule_api_v1_plugin_policy_rules__rule_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "rule_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Rule Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Delete Plugin Policy Rule",
+        "tags": [
+          "plugins"
+        ]
+      },
+      "put": {
+        "operationId": "update_plugin_policy_rule_api_v1_plugin_policy_rules__rule_id__put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "rule_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Rule Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PluginPolicyRuleCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PluginPolicyRule"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Update Plugin Policy Rule",
+        "tags": [
+          "plugins"
         ]
       }
     },

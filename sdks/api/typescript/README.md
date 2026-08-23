@@ -193,17 +193,26 @@ All URIs are relative to *http://localhost*
 *OperationsApi* | [**listReconciliationsApiV1ReconciliationsGet**](docs/OperationsApi.md#listreconciliationsapiv1reconciliationsget) | **GET** /api/v1/reconciliations | List Reconciliations
 *OperationsApi* | [**reconcileAdmissionsApiV1AdmissionsReconcilePost**](docs/OperationsApi.md#reconcileadmissionsapiv1admissionsreconcilepost) | **POST** /api/v1/admissions/reconcile | Reconcile Admissions
 *OperationsApi* | [**runReconciliationApiV1ReconciliationsPost**](docs/OperationsApi.md#runreconciliationapiv1reconciliationspost) | **POST** /api/v1/reconciliations | Run Reconciliation
+*PluginsApi* | [**createPluginPolicyRuleApiV1PluginPolicyRulesPost**](docs/PluginsApi.md#createpluginpolicyruleapiv1pluginpolicyrulespost) | **POST** /api/v1/plugin-policy/rules | Create Plugin Policy Rule
+*PluginsApi* | [**deletePluginPolicyRuleApiV1PluginPolicyRulesRuleIdDelete**](docs/PluginsApi.md#deletepluginpolicyruleapiv1pluginpolicyrulesruleiddelete) | **DELETE** /api/v1/plugin-policy/rules/{rule_id} | Delete Plugin Policy Rule
 *PluginsApi* | [**downloadPluginRegistryBundleApiV1PluginRegistryBlobsDigestGet**](docs/PluginsApi.md#downloadpluginregistrybundleapiv1pluginregistryblobsdigestget) | **GET** /api/v1/plugin-registry/blobs/{digest} | Download Plugin Registry Bundle
+*PluginsApi* | [**evaluateFlowPluginPolicyApiV1PluginPolicyEvaluatePost**](docs/PluginsApi.md#evaluateflowpluginpolicyapiv1pluginpolicyevaluatepost) | **POST** /api/v1/plugin-policy/evaluate | Evaluate Flow Plugin Policy
 *PluginsApi* | [**exportPluginRegistryApiV1PluginRegistryOfflineExportGet**](docs/PluginsApi.md#exportpluginregistryapiv1pluginregistryofflineexportget) | **GET** /api/v1/plugin-registry/offline-export | Export Plugin Registry
+*PluginsApi* | [**getEffectivePluginPolicyApiV1PluginPolicyEffectiveGet**](docs/PluginsApi.md#geteffectivepluginpolicyapiv1pluginpolicyeffectiveget) | **GET** /api/v1/plugin-policy/effective | Get Effective Plugin Policy
 *PluginsApi* | [**getPluginRegistryIndexApiV1PluginRegistryIndexGet**](docs/PluginsApi.md#getpluginregistryindexapiv1pluginregistryindexget) | **GET** /api/v1/plugin-registry/index | Get Plugin Registry Index
 *PluginsApi* | [**getPluginRegistryPackageApiV1PluginRegistryPackagesNameVersionGet**](docs/PluginsApi.md#getpluginregistrypackageapiv1pluginregistrypackagesnameversionget) | **GET** /api/v1/plugin-registry/packages/{name}/{version} | Get Plugin Registry Package
 *PluginsApi* | [**importPluginRegistryApiV1PluginRegistryOfflineImportPost**](docs/PluginsApi.md#importpluginregistryapiv1pluginregistryofflineimportpost) | **POST** /api/v1/plugin-registry/offline-import | Import Plugin Registry
 *PluginsApi* | [**installPluginBundleApiV1PluginsInstallPost**](docs/PluginsApi.md#installpluginbundleapiv1pluginsinstallpost) | **POST** /api/v1/plugins/install | Install Plugin Bundle
 *PluginsApi* | [**isolatedPluginRuntimeStatusApiV1PluginsIsolatedRuntimeGet**](docs/PluginsApi.md#isolatedpluginruntimestatusapiv1pluginsisolatedruntimeget) | **GET** /api/v1/plugins/isolated-runtime | Isolated Plugin Runtime Status
+*PluginsApi* | [**listPluginPolicyDecisionsApiV1PluginPolicyDecisionsGet**](docs/PluginsApi.md#listpluginpolicydecisionsapiv1pluginpolicydecisionsget) | **GET** /api/v1/plugin-policy/decisions | List Plugin Policy Decisions
 *PluginsApi* | [**listPluginsApiV1PluginsGet**](docs/PluginsApi.md#listpluginsapiv1pluginsget) | **GET** /api/v1/plugins | List Plugins
+*PluginsApi* | [**previewPluginQuarantineApiV1PluginPolicyQuarantinesPreviewPost**](docs/PluginsApi.md#previewpluginquarantineapiv1pluginpolicyquarantinespreviewpost) | **POST** /api/v1/plugin-policy/quarantines/preview | Preview Plugin Quarantine
 *PluginsApi* | [**publishPluginRegistryPackageApiV1PluginRegistryPackagesPost**](docs/PluginsApi.md#publishpluginregistrypackageapiv1pluginregistrypackagespost) | **POST** /api/v1/plugin-registry/packages | Publish Plugin Registry Package
+*PluginsApi* | [**quarantinePluginVersionApiV1PluginPolicyQuarantinesPost**](docs/PluginsApi.md#quarantinepluginversionapiv1pluginpolicyquarantinespost) | **POST** /api/v1/plugin-policy/quarantines | Quarantine Plugin Version
 *PluginsApi* | [**refreshPluginsApiV1PluginsRefreshPost**](docs/PluginsApi.md#refreshpluginsapiv1pluginsrefreshpost) | **POST** /api/v1/plugins/refresh | Refresh Plugins
+*PluginsApi* | [**releasePluginQuarantineApiV1PluginPolicyQuarantinesQuarantineIdReleasePost**](docs/PluginsApi.md#releasepluginquarantineapiv1pluginpolicyquarantinesquarantineidreleasepost) | **POST** /api/v1/plugin-policy/quarantines/{quarantine_id}/release | Release Plugin Quarantine
 *PluginsApi* | [**trustedPluginRuntimeStatusApiV1PluginsTrustedRuntimeGet**](docs/PluginsApi.md#trustedpluginruntimestatusapiv1pluginstrustedruntimeget) | **GET** /api/v1/plugins/trusted-runtime | Trusted Plugin Runtime Status
+*PluginsApi* | [**updatePluginPolicyRuleApiV1PluginPolicyRulesRuleIdPut**](docs/PluginsApi.md#updatepluginpolicyruleapiv1pluginpolicyrulesruleidput) | **PUT** /api/v1/plugin-policy/rules/{rule_id} | Update Plugin Policy Rule
 *PluginsApi* | [**yankPluginRegistryPackageApiV1PluginRegistryPackagesNameVersionYankPost**](docs/PluginsApi.md#yankpluginregistrypackageapiv1pluginregistrypackagesnameversionyankpost) | **POST** /api/v1/plugin-registry/packages/{name}/{version}/yank | Yank Plugin Registry Package
 *RealtimeApi* | [**createWebhookSubscriptionApiV1WebhookSubscriptionsPost**](docs/RealtimeApi.md#createwebhooksubscriptionapiv1webhooksubscriptionspost) | **POST** /api/v1/webhook-subscriptions | Create Webhook Subscription
 *RealtimeApi* | [**listRealtimeEventsApiV1RealtimeEventsGet**](docs/RealtimeApi.md#listrealtimeeventsapiv1realtimeeventsget) | **GET** /api/v1/realtime/events | List Realtime Events
@@ -337,6 +346,7 @@ All URIs are relative to *http://localhost*
 - [DashboardVisualization](docs/DashboardVisualization.md)
 - [DashboardWidget](docs/DashboardWidget.md)
 - [DashboardWidgetResult](docs/DashboardWidgetResult.md)
+- [EffectivePluginPolicy](docs/EffectivePluginPolicy.md)
 - [ExchangeCredentialRequest](docs/ExchangeCredentialRequest.md)
 - [ExecutionArtifact](docs/ExecutionArtifact.md)
 - [ExecutionDetail](docs/ExecutionDetail.md)
@@ -434,6 +444,20 @@ All URIs are relative to *http://localhost*
 - [PluginMarketplaceSignals](docs/PluginMarketplaceSignals.md)
 - [PluginNetworkAccess](docs/PluginNetworkAccess.md)
 - [PluginPackageRecord](docs/PluginPackageRecord.md)
+- [PluginPolicyDecision](docs/PluginPolicyDecision.md)
+- [PluginPolicyEffect](docs/PluginPolicyEffect.md)
+- [PluginPolicyImpactPreview](docs/PluginPolicyImpactPreview.md)
+- [PluginPolicyRule](docs/PluginPolicyRule.md)
+- [PluginPolicyRuleCreate](docs/PluginPolicyRuleCreate.md)
+- [PluginPolicyRuleSource](docs/PluginPolicyRuleSource.md)
+- [PluginPolicyScope](docs/PluginPolicyScope.md)
+- [PluginPolicySelector](docs/PluginPolicySelector.md)
+- [PluginPolicyStage](docs/PluginPolicyStage.md)
+- [PluginPolicySubject](docs/PluginPolicySubject.md)
+- [PluginPolicySubjectDecision](docs/PluginPolicySubjectDecision.md)
+- [PluginQuarantine](docs/PluginQuarantine.md)
+- [PluginQuarantineCreate](docs/PluginQuarantineCreate.md)
+- [PluginQuarantineState](docs/PluginQuarantineState.md)
 - [PluginRegistryAttachment](docs/PluginRegistryAttachment.md)
 - [PluginRegistryAttachmentKind](docs/PluginRegistryAttachmentKind.md)
 - [PluginRegistryIndex](docs/PluginRegistryIndex.md)

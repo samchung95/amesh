@@ -155,6 +155,19 @@ class PluginBundleInstaller:
             contentPath=str(destination),
         )
 
+    def inspect_bytes(self, content: bytes, *, expected_digest: str) -> PluginManifest:
+        digest = _validated_digest(expected_digest)
+        actual = _bytes_digest(content)
+        if actual != digest:
+            raise ValueError(f"bundle digest mismatch: expected {digest}, received {actual}")
+        with tempfile.TemporaryDirectory(prefix="amesh-plugin-inspect-") as temporary:
+            extraction_root = Path(temporary) / "extracted"
+            extraction_root.mkdir()
+            with zipfile.ZipFile(io.BytesIO(content)) as archive:
+                _validate_archive_members(archive)
+                archive.extractall(extraction_root)
+            return _load_manifest(_single_manifest(extraction_root))
+
     def install(self, bundle: str | Path, *, expected_digest: str) -> InstalledPluginBundle:
         return self.install_bytes(Path(bundle).read_bytes(), expected_digest=expected_digest)
 
@@ -277,6 +290,14 @@ class PluginCatalogManager:
         installed = self._installer.install_bytes(content, expected_digest=expected_digest)
         self.refresh()
         return installed
+
+    def inspect_offline_bundle_bytes(
+        self,
+        content: bytes,
+        *,
+        expected_digest: str,
+    ) -> PluginManifest:
+        return self._installer.inspect_bytes(content, expected_digest=expected_digest)
 
     def resource_registry(self) -> ResourceSchemaRegistry:
         registry = default_resource_registry()

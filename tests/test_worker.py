@@ -43,7 +43,11 @@ def test_worker_retries_after_database_connection_interruption(
         engine = FakeEngine()
         tenants = InterruptedTenantRepository()
         monkeypatch.setattr(worker, "create_database_engine", lambda settings: engine)
-        monkeypatch.setattr(worker, "PostgresExecutionRepository", lambda value: object())
+        monkeypatch.setattr(
+            worker,
+            "PostgresExecutionRepository",
+            lambda value, **kwargs: object(),
+        )
         monkeypatch.setattr(worker, "PostgresSchedulerRepository", lambda value: object())
         monkeypatch.setattr(worker, "PostgresTenantRepository", lambda value: tenants)
 

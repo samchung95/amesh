@@ -56,6 +56,7 @@ from amesh.adapters.postgres import (
     PostgresFeatureFlagRepository,
     PostgresFederationRepository,
     PostgresMetadataRepository,
+    PostgresPluginPolicyRepository,
     PostgresRealtimeRepository,
     PostgresReconciliationRepository,
     PostgresSearchRepository,
@@ -212,6 +213,7 @@ from amesh.domain import (
     DashboardRender,
     DashboardSpec,
     DashboardWidgetResult,
+    EffectivePluginPolicy,
     ExecutionState,
     FeatureFlag,
     FeatureFlagDecision,
@@ -230,6 +232,14 @@ from amesh.domain import (
     NamespaceFileVersion,
     NamespaceResourceBundle,
     PermissionAction,
+    PluginPolicyDecision,
+    PluginPolicyImpactPreview,
+    PluginPolicyRule,
+    PluginPolicyRuleCreate,
+    PluginPolicyScope,
+    PluginPolicyStage,
+    PluginQuarantine,
+    PluginQuarantineCreate,
     PrincipalDefinition,
     PrincipalType,
     ReconciliationRequest,
@@ -322,6 +332,8 @@ from amesh.plugin_sdk import (
 from amesh.plugins import (
     IsolatedPluginRuntime,
     IsolatedPluginRuntimeSnapshot,
+    PluginPolicyDenied,
+    PluginPolicyService,
     SelfHostedPluginRegistry,
     TrustedPluginRuntime,
     TrustedPluginRuntimeSnapshot,
@@ -634,6 +646,33 @@ PluginCatalogDependency = Annotated[
 
 
 @lru_cache
+def get_plugin_policy_repository() -> PostgresPluginPolicyRepository:
+    return PostgresPluginPolicyRepository(database_engine())
+
+
+PluginPolicyRepositoryDependency = Annotated[
+    PostgresPluginPolicyRepository,
+    Depends(get_plugin_policy_repository),
+]
+
+
+@lru_cache
+def get_plugin_policy_service() -> PluginPolicyService:
+    settings = get_settings()
+    return PluginPolicyService(
+        get_plugin_policy_repository(),
+        get_plugin_catalog_manager(),
+        default_allow=settings.plugin_trust_mode == "development",
+    )
+
+
+PluginPolicyServiceDependency = Annotated[
+    PluginPolicyService,
+    Depends(get_plugin_policy_service),
+]
+
+
+@lru_cache
 def get_self_hosted_plugin_registry() -> SelfHostedPluginRegistry:
     settings = get_settings()
     trusted_keys = {
@@ -684,6 +723,7 @@ def get_repository() -> PostgresExecutionRepository:
         plugin_resolution_provider=lambda flow: (
             PluginResolver(catalog.snapshot).resolve_flow(flow).revision_payload()
         ),
+        plugin_policy_enforcer=get_plugin_policy_service().enforce_flow,
     )
 
 
@@ -2026,6 +2066,269 @@ async def list_plugins(
 
 
 @app.get(
+    "/api/v1/plugin-policy/effective",
+    response_model=EffectivePluginPolicy,
+    tags=["plugins"],
+)
+async def get_effective_plugin_policy(
+    service: PluginPolicyServiceDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    namespace: str | None = None,
+) -> EffectivePluginPolicy:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="plugin",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    return await service.effective_policy(tenant_id, namespace=namespace)
+
+
+@app.get(
+    "/api/v1/plugin-policy/decisions",
+    response_model=tuple[PluginPolicyDecision, ...],
+    tags=["plugins"],
+)
+async def list_plugin_policy_decisions(
+    repository: PluginPolicyRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    limit: Annotated[int, Query(ge=1, le=500)] = 100,
+) -> tuple[PluginPolicyDecision, ...]:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="plugin",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+    )
+    return await repository.list_decisions(tenant_id, limit=limit)
+
+
+@app.post(
+    "/api/v1/plugin-policy/evaluate",
+    response_model=PluginPolicyDecision,
+    tags=["plugins"],
+)
+async def evaluate_flow_plugin_policy(
+    request: Request,
+    service: PluginPolicyServiceDependency,
+    plugin_catalog: PluginCatalogDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    stage: PluginPolicyStage = PluginPolicyStage.VALIDATION,
+) -> PluginPolicyDecision:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="plugin",
+        action=(
+            PermissionAction.MANAGE
+            if stage is PluginPolicyStage.ADMINISTRATION
+            else PermissionAction.VIEW
+        ),
+        tenant_id=tenant_id,
+    )
+    try:
+        result = validate_flow_document(
+            await request.body(),
+            registry=plugin_catalog.resource_registry(),
+        )
+    except FlowDocumentError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=str(exc),
+        ) from exc
+    if not result.valid or result.canonical is None:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=[issue.model_dump(mode="json", by_alias=True) for issue in result.issues],
+        )
+    flow = FlowDefinition.model_validate(result.canonical)
+    return await service.evaluate_flow(
+        flow,
+        tenant_id=tenant_id,
+        stage=stage,
+        actor_id=str(actor.principal_id),
+    )
+
+
+@app.post(
+    "/api/v1/plugin-policy/rules",
+    response_model=PluginPolicyRule,
+    status_code=status.HTTP_201_CREATED,
+    tags=["plugins"],
+)
+async def create_plugin_policy_rule(
+    request: PluginPolicyRuleCreate,
+    repository: PluginPolicyRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> PluginPolicyRule:
+    await _authorize_plugin_policy_change(
+        request.scope,
+        request.namespace,
+        actor,
+        authorization_service,
+        tenant_id,
+    )
+    return await repository.create_rule(
+        tenant_id,
+        request,
+        actor_id=str(actor.principal_id),
+    )
+
+
+@app.put(
+    "/api/v1/plugin-policy/rules/{rule_id}",
+    response_model=PluginPolicyRule,
+    tags=["plugins"],
+)
+async def update_plugin_policy_rule(
+    rule_id: UUID,
+    request: PluginPolicyRuleCreate,
+    repository: PluginPolicyRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> PluginPolicyRule:
+    await _authorize_plugin_policy_change(
+        request.scope,
+        request.namespace,
+        actor,
+        authorization_service,
+        tenant_id,
+    )
+    try:
+        return await repository.update_rule(
+            tenant_id,
+            rule_id,
+            request,
+            actor_id=str(actor.principal_id),
+        )
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+
+
+@app.delete(
+    "/api/v1/plugin-policy/rules/{rule_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    tags=["plugins"],
+)
+async def delete_plugin_policy_rule(
+    rule_id: UUID,
+    repository: PluginPolicyRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> Response:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="plugin",
+        action=PermissionAction.MANAGE,
+    )
+    try:
+        await repository.delete_rule(
+            tenant_id,
+            rule_id,
+            actor_id=str(actor.principal_id),
+        )
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@app.post(
+    "/api/v1/plugin-policy/quarantines/preview",
+    response_model=PluginPolicyImpactPreview,
+    tags=["plugins"],
+)
+async def preview_plugin_quarantine(
+    request: PluginQuarantineCreate,
+    repository: PluginPolicyRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> PluginPolicyImpactPreview:
+    await _authorize_plugin_policy_change(
+        request.scope,
+        request.namespace,
+        actor,
+        authorization_service,
+        tenant_id,
+    )
+    return await repository.impact_preview(tenant_id, request)
+
+
+@app.post(
+    "/api/v1/plugin-policy/quarantines",
+    response_model=PluginQuarantine,
+    status_code=status.HTTP_201_CREATED,
+    tags=["plugins"],
+)
+async def quarantine_plugin_version(
+    request: PluginQuarantineCreate,
+    repository: PluginPolicyRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> PluginQuarantine:
+    await _authorize_plugin_policy_change(
+        request.scope,
+        request.namespace,
+        actor,
+        authorization_service,
+        tenant_id,
+    )
+    try:
+        return await repository.create_quarantine(
+            tenant_id,
+            request,
+            actor_id=str(actor.principal_id),
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
+
+
+@app.post(
+    "/api/v1/plugin-policy/quarantines/{quarantine_id}/release",
+    response_model=PluginQuarantine,
+    tags=["plugins"],
+)
+async def release_plugin_quarantine(
+    quarantine_id: UUID,
+    repository: PluginPolicyRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    reason: Annotated[str, Query(min_length=1, max_length=2048)],
+) -> PluginQuarantine:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="plugin",
+        action=PermissionAction.MANAGE,
+    )
+    try:
+        return await repository.release_quarantine(
+            tenant_id,
+            quarantine_id,
+            actor_id=str(actor.principal_id),
+            reason=reason,
+        )
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+
+
+@app.get(
     "/api/v1/plugins/trusted-runtime",
     response_model=TrustedPluginRuntimeSnapshot,
     tags=["plugins"],
@@ -2080,7 +2383,6 @@ async def refresh_plugins(
     authorization_service: AuthorizationServiceDependency,
     tenant_id: TenantDependency,
 ) -> PluginCatalogSnapshot:
-    del tenant_id
     await authorize_request(
         authorization_service,
         actor,
@@ -2098,6 +2400,7 @@ async def refresh_plugins(
 async def install_plugin_bundle(
     request: Request,
     catalog: PluginCatalogDependency,
+    policy: PluginPolicyServiceDependency,
     actor: ActorDependency,
     authorization_service: AuthorizationServiceDependency,
     tenant_id: TenantDependency,
@@ -2106,7 +2409,6 @@ async def install_plugin_bundle(
         Query(alias="contentDigest", pattern=r"^sha256:[0-9a-f]{64}$"),
     ],
 ) -> PluginCatalogSnapshot:
-    del tenant_id
     await authorize_request(
         authorization_service,
         actor,
@@ -2120,7 +2422,22 @@ async def install_plugin_bundle(
             detail="plugin bundle exceeds the 64 MiB installation limit",
         )
     try:
+        manifest = catalog.inspect_offline_bundle_bytes(
+            content,
+            expected_digest=content_digest,
+        )
+        await policy.enforce_manifest_administration(
+            manifest,
+            content_digest,
+            tenant_id=tenant_id,
+            actor_id=str(actor.principal_id),
+        )
         catalog.install_offline_bundle_bytes(content, expected_digest=content_digest)
+    except PluginPolicyDenied as exc:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=str(exc),
+        ) from exc
     except (OSError, ValueError) as exc:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
@@ -7268,6 +7585,23 @@ def _resolve_idempotency_key(body_value: str | None, header_value: str | None) -
             detail="Idempotency-Key header does not match idempotencyKey body field",
         )
     return header_value or body_value
+
+
+async def _authorize_plugin_policy_change(
+    scope: PluginPolicyScope,
+    namespace: str | None,
+    actor: ActorContext,
+    authorization_service: AuthorizationService,
+    tenant_id: str,
+) -> None:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="plugin",
+        action=PermissionAction.MANAGE,
+        tenant_id=None if scope is PluginPolicyScope.INSTANCE else tenant_id,
+        namespace=namespace,
+    )
 
 
 async def _execute_flow(

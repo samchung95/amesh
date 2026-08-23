@@ -14,6 +14,11 @@
 
 import * as runtime from '../runtime';
 import {
+    type EffectivePluginPolicy,
+    EffectivePluginPolicyFromJSON,
+    EffectivePluginPolicyToJSON,
+} from '../models/EffectivePluginPolicy';
+import {
     type HTTPValidationError,
     HTTPValidationErrorFromJSON,
     HTTPValidationErrorToJSON,
@@ -28,6 +33,41 @@ import {
     PluginCatalogSnapshotFromJSON,
     PluginCatalogSnapshotToJSON,
 } from '../models/PluginCatalogSnapshot';
+import {
+    type PluginPolicyDecision,
+    PluginPolicyDecisionFromJSON,
+    PluginPolicyDecisionToJSON,
+} from '../models/PluginPolicyDecision';
+import {
+    type PluginPolicyImpactPreview,
+    PluginPolicyImpactPreviewFromJSON,
+    PluginPolicyImpactPreviewToJSON,
+} from '../models/PluginPolicyImpactPreview';
+import {
+    type PluginPolicyRule,
+    PluginPolicyRuleFromJSON,
+    PluginPolicyRuleToJSON,
+} from '../models/PluginPolicyRule';
+import {
+    type PluginPolicyRuleCreate,
+    PluginPolicyRuleCreateFromJSON,
+    PluginPolicyRuleCreateToJSON,
+} from '../models/PluginPolicyRuleCreate';
+import {
+    type PluginPolicyStage,
+    PluginPolicyStageFromJSON,
+    PluginPolicyStageToJSON,
+} from '../models/PluginPolicyStage';
+import {
+    type PluginQuarantine,
+    PluginQuarantineFromJSON,
+    PluginQuarantineToJSON,
+} from '../models/PluginQuarantine';
+import {
+    type PluginQuarantineCreate,
+    PluginQuarantineCreateFromJSON,
+    PluginQuarantineCreateToJSON,
+} from '../models/PluginQuarantineCreate';
 import {
     type PluginRegistryIndex,
     PluginRegistryIndexFromJSON,
@@ -54,6 +94,20 @@ import {
     TrustedPluginRuntimeSnapshotToJSON,
 } from '../models/TrustedPluginRuntimeSnapshot';
 
+export interface CreatePluginPolicyRuleApiV1PluginPolicyRulesPostRequest {
+    pluginPolicyRuleCreate: PluginPolicyRuleCreate;
+    authorization?: string | null;
+    xAmeshCSRF?: string | null;
+    xAmeshTenant?: string | null;
+}
+
+export interface DeletePluginPolicyRuleApiV1PluginPolicyRulesRuleIdDeleteRequest {
+    ruleId: string;
+    authorization?: string | null;
+    xAmeshCSRF?: string | null;
+    xAmeshTenant?: string | null;
+}
+
 export interface DownloadPluginRegistryBundleApiV1PluginRegistryBlobsDigestGetRequest {
     digest: string;
     authorization?: string | null;
@@ -61,7 +115,21 @@ export interface DownloadPluginRegistryBundleApiV1PluginRegistryBlobsDigestGetRe
     xAmeshTenant?: string | null;
 }
 
+export interface EvaluateFlowPluginPolicyApiV1PluginPolicyEvaluatePostRequest {
+    stage?: PluginPolicyStage;
+    authorization?: string | null;
+    xAmeshCSRF?: string | null;
+    xAmeshTenant?: string | null;
+}
+
 export interface ExportPluginRegistryApiV1PluginRegistryOfflineExportGetRequest {
+    authorization?: string | null;
+    xAmeshCSRF?: string | null;
+    xAmeshTenant?: string | null;
+}
+
+export interface GetEffectivePluginPolicyApiV1PluginPolicyEffectiveGetRequest {
+    namespace?: string | null;
     authorization?: string | null;
     xAmeshCSRF?: string | null;
     xAmeshTenant?: string | null;
@@ -100,7 +168,21 @@ export interface IsolatedPluginRuntimeStatusApiV1PluginsIsolatedRuntimeGetReques
     xAmeshTenant?: string | null;
 }
 
+export interface ListPluginPolicyDecisionsApiV1PluginPolicyDecisionsGetRequest {
+    limit?: number;
+    authorization?: string | null;
+    xAmeshCSRF?: string | null;
+    xAmeshTenant?: string | null;
+}
+
 export interface ListPluginsApiV1PluginsGetRequest {
+    authorization?: string | null;
+    xAmeshCSRF?: string | null;
+    xAmeshTenant?: string | null;
+}
+
+export interface PreviewPluginQuarantineApiV1PluginPolicyQuarantinesPreviewPostRequest {
+    pluginQuarantineCreate: PluginQuarantineCreate;
     authorization?: string | null;
     xAmeshCSRF?: string | null;
     xAmeshTenant?: string | null;
@@ -113,13 +195,36 @@ export interface PublishPluginRegistryPackageApiV1PluginRegistryPackagesPostRequ
     xAmeshTenant?: string | null;
 }
 
+export interface QuarantinePluginVersionApiV1PluginPolicyQuarantinesPostRequest {
+    pluginQuarantineCreate: PluginQuarantineCreate;
+    authorization?: string | null;
+    xAmeshCSRF?: string | null;
+    xAmeshTenant?: string | null;
+}
+
 export interface RefreshPluginsApiV1PluginsRefreshPostRequest {
     authorization?: string | null;
     xAmeshCSRF?: string | null;
     xAmeshTenant?: string | null;
 }
 
+export interface ReleasePluginQuarantineApiV1PluginPolicyQuarantinesQuarantineIdReleasePostRequest {
+    quarantineId: string;
+    reason: string;
+    authorization?: string | null;
+    xAmeshCSRF?: string | null;
+    xAmeshTenant?: string | null;
+}
+
 export interface TrustedPluginRuntimeStatusApiV1PluginsTrustedRuntimeGetRequest {
+    authorization?: string | null;
+    xAmeshCSRF?: string | null;
+    xAmeshTenant?: string | null;
+}
+
+export interface UpdatePluginPolicyRuleApiV1PluginPolicyRulesRuleIdPutRequest {
+    ruleId: string;
+    pluginPolicyRuleCreate: PluginPolicyRuleCreate;
     authorization?: string | null;
     xAmeshCSRF?: string | null;
     xAmeshTenant?: string | null;
@@ -138,6 +243,121 @@ export interface YankPluginRegistryPackageApiV1PluginRegistryPackagesNameVersion
  *
  */
 export class PluginsApi extends runtime.BaseAPI {
+
+    /**
+     * Creates request options for createPluginPolicyRuleApiV1PluginPolicyRulesPost without sending the request
+     */
+    async createPluginPolicyRuleApiV1PluginPolicyRulesPostRequestOpts(requestParameters: CreatePluginPolicyRuleApiV1PluginPolicyRulesPostRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['pluginPolicyRuleCreate'] == null) {
+            throw new runtime.RequiredError(
+                'pluginPolicyRuleCreate',
+                'Required parameter "pluginPolicyRuleCreate" was null or undefined when calling createPluginPolicyRuleApiV1PluginPolicyRulesPost().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        if (requestParameters['authorization'] != null) {
+            headerParameters['authorization'] = String(requestParameters['authorization']);
+        }
+
+        if (requestParameters['xAmeshCSRF'] != null) {
+            headerParameters['X-Amesh-CSRF'] = String(requestParameters['xAmeshCSRF']);
+        }
+
+        if (requestParameters['xAmeshTenant'] != null) {
+            headerParameters['X-Amesh-Tenant'] = String(requestParameters['xAmeshTenant']);
+        }
+
+
+        let urlPath = `/api/v1/plugin-policy/rules`;
+
+        return {
+            path: urlPath,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: PluginPolicyRuleCreateToJSON(requestParameters['pluginPolicyRuleCreate']),
+        };
+    }
+
+    /**
+     * Create Plugin Policy Rule
+     */
+    async createPluginPolicyRuleApiV1PluginPolicyRulesPostRaw(requestParameters: CreatePluginPolicyRuleApiV1PluginPolicyRulesPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PluginPolicyRule>> {
+        const requestOptions = await this.createPluginPolicyRuleApiV1PluginPolicyRulesPostRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => PluginPolicyRuleFromJSON(jsonValue));
+    }
+
+    /**
+     * Create Plugin Policy Rule
+     */
+    async createPluginPolicyRuleApiV1PluginPolicyRulesPost(requestParameters: CreatePluginPolicyRuleApiV1PluginPolicyRulesPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PluginPolicyRule> {
+        const response = await this.createPluginPolicyRuleApiV1PluginPolicyRulesPostRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Creates request options for deletePluginPolicyRuleApiV1PluginPolicyRulesRuleIdDelete without sending the request
+     */
+    async deletePluginPolicyRuleApiV1PluginPolicyRulesRuleIdDeleteRequestOpts(requestParameters: DeletePluginPolicyRuleApiV1PluginPolicyRulesRuleIdDeleteRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['ruleId'] == null) {
+            throw new runtime.RequiredError(
+                'ruleId',
+                'Required parameter "ruleId" was null or undefined when calling deletePluginPolicyRuleApiV1PluginPolicyRulesRuleIdDelete().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (requestParameters['authorization'] != null) {
+            headerParameters['authorization'] = String(requestParameters['authorization']);
+        }
+
+        if (requestParameters['xAmeshCSRF'] != null) {
+            headerParameters['X-Amesh-CSRF'] = String(requestParameters['xAmeshCSRF']);
+        }
+
+        if (requestParameters['xAmeshTenant'] != null) {
+            headerParameters['X-Amesh-Tenant'] = String(requestParameters['xAmeshTenant']);
+        }
+
+
+        let urlPath = `/api/v1/plugin-policy/rules/{rule_id}`;
+        urlPath = urlPath.replace('{rule_id}', encodeURIComponent(String(requestParameters['ruleId'])));
+
+        return {
+            path: urlPath,
+            method: 'DELETE',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     * Delete Plugin Policy Rule
+     */
+    async deletePluginPolicyRuleApiV1PluginPolicyRulesRuleIdDeleteRaw(requestParameters: DeletePluginPolicyRuleApiV1PluginPolicyRulesRuleIdDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        const requestOptions = await this.deletePluginPolicyRuleApiV1PluginPolicyRulesRuleIdDeleteRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.VoidApiResponse(response);
+    }
+
+    /**
+     * Delete Plugin Policy Rule
+     */
+    async deletePluginPolicyRuleApiV1PluginPolicyRulesRuleIdDelete(requestParameters: DeletePluginPolicyRuleApiV1PluginPolicyRulesRuleIdDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+        await this.deletePluginPolicyRuleApiV1PluginPolicyRulesRuleIdDeleteRaw(requestParameters, initOverrides);
+    }
 
     /**
      * Creates request options for downloadPluginRegistryBundleApiV1PluginRegistryBlobsDigestGet without sending the request
@@ -196,6 +416,59 @@ export class PluginsApi extends runtime.BaseAPI {
     }
 
     /**
+     * Creates request options for evaluateFlowPluginPolicyApiV1PluginPolicyEvaluatePost without sending the request
+     */
+    async evaluateFlowPluginPolicyApiV1PluginPolicyEvaluatePostRequestOpts(requestParameters: EvaluateFlowPluginPolicyApiV1PluginPolicyEvaluatePostRequest): Promise<runtime.RequestOpts> {
+        const queryParameters: any = {};
+
+        if (requestParameters['stage'] != null) {
+            queryParameters['stage'] = requestParameters['stage'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (requestParameters['authorization'] != null) {
+            headerParameters['authorization'] = String(requestParameters['authorization']);
+        }
+
+        if (requestParameters['xAmeshCSRF'] != null) {
+            headerParameters['X-Amesh-CSRF'] = String(requestParameters['xAmeshCSRF']);
+        }
+
+        if (requestParameters['xAmeshTenant'] != null) {
+            headerParameters['X-Amesh-Tenant'] = String(requestParameters['xAmeshTenant']);
+        }
+
+
+        let urlPath = `/api/v1/plugin-policy/evaluate`;
+
+        return {
+            path: urlPath,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     * Evaluate Flow Plugin Policy
+     */
+    async evaluateFlowPluginPolicyApiV1PluginPolicyEvaluatePostRaw(requestParameters: EvaluateFlowPluginPolicyApiV1PluginPolicyEvaluatePostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PluginPolicyDecision>> {
+        const requestOptions = await this.evaluateFlowPluginPolicyApiV1PluginPolicyEvaluatePostRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => PluginPolicyDecisionFromJSON(jsonValue));
+    }
+
+    /**
+     * Evaluate Flow Plugin Policy
+     */
+    async evaluateFlowPluginPolicyApiV1PluginPolicyEvaluatePost(requestParameters: EvaluateFlowPluginPolicyApiV1PluginPolicyEvaluatePostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PluginPolicyDecision> {
+        const response = await this.evaluateFlowPluginPolicyApiV1PluginPolicyEvaluatePostRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
      * Creates request options for exportPluginRegistryApiV1PluginRegistryOfflineExportGet without sending the request
      */
     async exportPluginRegistryApiV1PluginRegistryOfflineExportGetRequestOpts(requestParameters: ExportPluginRegistryApiV1PluginRegistryOfflineExportGetRequest): Promise<runtime.RequestOpts> {
@@ -241,6 +514,59 @@ export class PluginsApi extends runtime.BaseAPI {
      */
     async exportPluginRegistryApiV1PluginRegistryOfflineExportGet(requestParameters: ExportPluginRegistryApiV1PluginRegistryOfflineExportGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
         await this.exportPluginRegistryApiV1PluginRegistryOfflineExportGetRaw(requestParameters, initOverrides);
+    }
+
+    /**
+     * Creates request options for getEffectivePluginPolicyApiV1PluginPolicyEffectiveGet without sending the request
+     */
+    async getEffectivePluginPolicyApiV1PluginPolicyEffectiveGetRequestOpts(requestParameters: GetEffectivePluginPolicyApiV1PluginPolicyEffectiveGetRequest): Promise<runtime.RequestOpts> {
+        const queryParameters: any = {};
+
+        if (requestParameters['namespace'] != null) {
+            queryParameters['namespace'] = requestParameters['namespace'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (requestParameters['authorization'] != null) {
+            headerParameters['authorization'] = String(requestParameters['authorization']);
+        }
+
+        if (requestParameters['xAmeshCSRF'] != null) {
+            headerParameters['X-Amesh-CSRF'] = String(requestParameters['xAmeshCSRF']);
+        }
+
+        if (requestParameters['xAmeshTenant'] != null) {
+            headerParameters['X-Amesh-Tenant'] = String(requestParameters['xAmeshTenant']);
+        }
+
+
+        let urlPath = `/api/v1/plugin-policy/effective`;
+
+        return {
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     * Get Effective Plugin Policy
+     */
+    async getEffectivePluginPolicyApiV1PluginPolicyEffectiveGetRaw(requestParameters: GetEffectivePluginPolicyApiV1PluginPolicyEffectiveGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<EffectivePluginPolicy>> {
+        const requestOptions = await this.getEffectivePluginPolicyApiV1PluginPolicyEffectiveGetRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => EffectivePluginPolicyFromJSON(jsonValue));
+    }
+
+    /**
+     * Get Effective Plugin Policy
+     */
+    async getEffectivePluginPolicyApiV1PluginPolicyEffectiveGet(requestParameters: GetEffectivePluginPolicyApiV1PluginPolicyEffectiveGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<EffectivePluginPolicy> {
+        const response = await this.getEffectivePluginPolicyApiV1PluginPolicyEffectiveGetRaw(requestParameters, initOverrides);
+        return await response.value();
     }
 
     /**
@@ -516,6 +842,59 @@ export class PluginsApi extends runtime.BaseAPI {
     }
 
     /**
+     * Creates request options for listPluginPolicyDecisionsApiV1PluginPolicyDecisionsGet without sending the request
+     */
+    async listPluginPolicyDecisionsApiV1PluginPolicyDecisionsGetRequestOpts(requestParameters: ListPluginPolicyDecisionsApiV1PluginPolicyDecisionsGetRequest): Promise<runtime.RequestOpts> {
+        const queryParameters: any = {};
+
+        if (requestParameters['limit'] != null) {
+            queryParameters['limit'] = requestParameters['limit'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (requestParameters['authorization'] != null) {
+            headerParameters['authorization'] = String(requestParameters['authorization']);
+        }
+
+        if (requestParameters['xAmeshCSRF'] != null) {
+            headerParameters['X-Amesh-CSRF'] = String(requestParameters['xAmeshCSRF']);
+        }
+
+        if (requestParameters['xAmeshTenant'] != null) {
+            headerParameters['X-Amesh-Tenant'] = String(requestParameters['xAmeshTenant']);
+        }
+
+
+        let urlPath = `/api/v1/plugin-policy/decisions`;
+
+        return {
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     * List Plugin Policy Decisions
+     */
+    async listPluginPolicyDecisionsApiV1PluginPolicyDecisionsGetRaw(requestParameters: ListPluginPolicyDecisionsApiV1PluginPolicyDecisionsGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<PluginPolicyDecision>>> {
+        const requestOptions = await this.listPluginPolicyDecisionsApiV1PluginPolicyDecisionsGetRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(PluginPolicyDecisionFromJSON));
+    }
+
+    /**
+     * List Plugin Policy Decisions
+     */
+    async listPluginPolicyDecisionsApiV1PluginPolicyDecisionsGet(requestParameters: ListPluginPolicyDecisionsApiV1PluginPolicyDecisionsGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<PluginPolicyDecision>> {
+        const response = await this.listPluginPolicyDecisionsApiV1PluginPolicyDecisionsGetRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
      * Creates request options for listPluginsApiV1PluginsGet without sending the request
      */
     async listPluginsApiV1PluginsGetRequestOpts(requestParameters: ListPluginsApiV1PluginsGetRequest): Promise<runtime.RequestOpts> {
@@ -561,6 +940,65 @@ export class PluginsApi extends runtime.BaseAPI {
      */
     async listPluginsApiV1PluginsGet(requestParameters: ListPluginsApiV1PluginsGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PluginCatalogSnapshot> {
         const response = await this.listPluginsApiV1PluginsGetRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Creates request options for previewPluginQuarantineApiV1PluginPolicyQuarantinesPreviewPost without sending the request
+     */
+    async previewPluginQuarantineApiV1PluginPolicyQuarantinesPreviewPostRequestOpts(requestParameters: PreviewPluginQuarantineApiV1PluginPolicyQuarantinesPreviewPostRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['pluginQuarantineCreate'] == null) {
+            throw new runtime.RequiredError(
+                'pluginQuarantineCreate',
+                'Required parameter "pluginQuarantineCreate" was null or undefined when calling previewPluginQuarantineApiV1PluginPolicyQuarantinesPreviewPost().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        if (requestParameters['authorization'] != null) {
+            headerParameters['authorization'] = String(requestParameters['authorization']);
+        }
+
+        if (requestParameters['xAmeshCSRF'] != null) {
+            headerParameters['X-Amesh-CSRF'] = String(requestParameters['xAmeshCSRF']);
+        }
+
+        if (requestParameters['xAmeshTenant'] != null) {
+            headerParameters['X-Amesh-Tenant'] = String(requestParameters['xAmeshTenant']);
+        }
+
+
+        let urlPath = `/api/v1/plugin-policy/quarantines/preview`;
+
+        return {
+            path: urlPath,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: PluginQuarantineCreateToJSON(requestParameters['pluginQuarantineCreate']),
+        };
+    }
+
+    /**
+     * Preview Plugin Quarantine
+     */
+    async previewPluginQuarantineApiV1PluginPolicyQuarantinesPreviewPostRaw(requestParameters: PreviewPluginQuarantineApiV1PluginPolicyQuarantinesPreviewPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PluginPolicyImpactPreview>> {
+        const requestOptions = await this.previewPluginQuarantineApiV1PluginPolicyQuarantinesPreviewPostRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => PluginPolicyImpactPreviewFromJSON(jsonValue));
+    }
+
+    /**
+     * Preview Plugin Quarantine
+     */
+    async previewPluginQuarantineApiV1PluginPolicyQuarantinesPreviewPost(requestParameters: PreviewPluginQuarantineApiV1PluginPolicyQuarantinesPreviewPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PluginPolicyImpactPreview> {
+        const response = await this.previewPluginQuarantineApiV1PluginPolicyQuarantinesPreviewPostRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
@@ -624,6 +1062,65 @@ export class PluginsApi extends runtime.BaseAPI {
     }
 
     /**
+     * Creates request options for quarantinePluginVersionApiV1PluginPolicyQuarantinesPost without sending the request
+     */
+    async quarantinePluginVersionApiV1PluginPolicyQuarantinesPostRequestOpts(requestParameters: QuarantinePluginVersionApiV1PluginPolicyQuarantinesPostRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['pluginQuarantineCreate'] == null) {
+            throw new runtime.RequiredError(
+                'pluginQuarantineCreate',
+                'Required parameter "pluginQuarantineCreate" was null or undefined when calling quarantinePluginVersionApiV1PluginPolicyQuarantinesPost().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        if (requestParameters['authorization'] != null) {
+            headerParameters['authorization'] = String(requestParameters['authorization']);
+        }
+
+        if (requestParameters['xAmeshCSRF'] != null) {
+            headerParameters['X-Amesh-CSRF'] = String(requestParameters['xAmeshCSRF']);
+        }
+
+        if (requestParameters['xAmeshTenant'] != null) {
+            headerParameters['X-Amesh-Tenant'] = String(requestParameters['xAmeshTenant']);
+        }
+
+
+        let urlPath = `/api/v1/plugin-policy/quarantines`;
+
+        return {
+            path: urlPath,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: PluginQuarantineCreateToJSON(requestParameters['pluginQuarantineCreate']),
+        };
+    }
+
+    /**
+     * Quarantine Plugin Version
+     */
+    async quarantinePluginVersionApiV1PluginPolicyQuarantinesPostRaw(requestParameters: QuarantinePluginVersionApiV1PluginPolicyQuarantinesPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PluginQuarantine>> {
+        const requestOptions = await this.quarantinePluginVersionApiV1PluginPolicyQuarantinesPostRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => PluginQuarantineFromJSON(jsonValue));
+    }
+
+    /**
+     * Quarantine Plugin Version
+     */
+    async quarantinePluginVersionApiV1PluginPolicyQuarantinesPost(requestParameters: QuarantinePluginVersionApiV1PluginPolicyQuarantinesPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PluginQuarantine> {
+        const response = await this.quarantinePluginVersionApiV1PluginPolicyQuarantinesPostRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
      * Creates request options for refreshPluginsApiV1PluginsRefreshPost without sending the request
      */
     async refreshPluginsApiV1PluginsRefreshPostRequestOpts(requestParameters: RefreshPluginsApiV1PluginsRefreshPostRequest): Promise<runtime.RequestOpts> {
@@ -673,6 +1170,74 @@ export class PluginsApi extends runtime.BaseAPI {
     }
 
     /**
+     * Creates request options for releasePluginQuarantineApiV1PluginPolicyQuarantinesQuarantineIdReleasePost without sending the request
+     */
+    async releasePluginQuarantineApiV1PluginPolicyQuarantinesQuarantineIdReleasePostRequestOpts(requestParameters: ReleasePluginQuarantineApiV1PluginPolicyQuarantinesQuarantineIdReleasePostRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['quarantineId'] == null) {
+            throw new runtime.RequiredError(
+                'quarantineId',
+                'Required parameter "quarantineId" was null or undefined when calling releasePluginQuarantineApiV1PluginPolicyQuarantinesQuarantineIdReleasePost().'
+            );
+        }
+
+        if (requestParameters['reason'] == null) {
+            throw new runtime.RequiredError(
+                'reason',
+                'Required parameter "reason" was null or undefined when calling releasePluginQuarantineApiV1PluginPolicyQuarantinesQuarantineIdReleasePost().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        if (requestParameters['reason'] != null) {
+            queryParameters['reason'] = requestParameters['reason'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (requestParameters['authorization'] != null) {
+            headerParameters['authorization'] = String(requestParameters['authorization']);
+        }
+
+        if (requestParameters['xAmeshCSRF'] != null) {
+            headerParameters['X-Amesh-CSRF'] = String(requestParameters['xAmeshCSRF']);
+        }
+
+        if (requestParameters['xAmeshTenant'] != null) {
+            headerParameters['X-Amesh-Tenant'] = String(requestParameters['xAmeshTenant']);
+        }
+
+
+        let urlPath = `/api/v1/plugin-policy/quarantines/{quarantine_id}/release`;
+        urlPath = urlPath.replace('{quarantine_id}', encodeURIComponent(String(requestParameters['quarantineId'])));
+
+        return {
+            path: urlPath,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     * Release Plugin Quarantine
+     */
+    async releasePluginQuarantineApiV1PluginPolicyQuarantinesQuarantineIdReleasePostRaw(requestParameters: ReleasePluginQuarantineApiV1PluginPolicyQuarantinesQuarantineIdReleasePostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PluginQuarantine>> {
+        const requestOptions = await this.releasePluginQuarantineApiV1PluginPolicyQuarantinesQuarantineIdReleasePostRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => PluginQuarantineFromJSON(jsonValue));
+    }
+
+    /**
+     * Release Plugin Quarantine
+     */
+    async releasePluginQuarantineApiV1PluginPolicyQuarantinesQuarantineIdReleasePost(requestParameters: ReleasePluginQuarantineApiV1PluginPolicyQuarantinesQuarantineIdReleasePostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PluginQuarantine> {
+        const response = await this.releasePluginQuarantineApiV1PluginPolicyQuarantinesQuarantineIdReleasePostRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
      * Creates request options for trustedPluginRuntimeStatusApiV1PluginsTrustedRuntimeGet without sending the request
      */
     async trustedPluginRuntimeStatusApiV1PluginsTrustedRuntimeGetRequestOpts(requestParameters: TrustedPluginRuntimeStatusApiV1PluginsTrustedRuntimeGetRequest): Promise<runtime.RequestOpts> {
@@ -718,6 +1283,73 @@ export class PluginsApi extends runtime.BaseAPI {
      */
     async trustedPluginRuntimeStatusApiV1PluginsTrustedRuntimeGet(requestParameters: TrustedPluginRuntimeStatusApiV1PluginsTrustedRuntimeGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<TrustedPluginRuntimeSnapshot> {
         const response = await this.trustedPluginRuntimeStatusApiV1PluginsTrustedRuntimeGetRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Creates request options for updatePluginPolicyRuleApiV1PluginPolicyRulesRuleIdPut without sending the request
+     */
+    async updatePluginPolicyRuleApiV1PluginPolicyRulesRuleIdPutRequestOpts(requestParameters: UpdatePluginPolicyRuleApiV1PluginPolicyRulesRuleIdPutRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['ruleId'] == null) {
+            throw new runtime.RequiredError(
+                'ruleId',
+                'Required parameter "ruleId" was null or undefined when calling updatePluginPolicyRuleApiV1PluginPolicyRulesRuleIdPut().'
+            );
+        }
+
+        if (requestParameters['pluginPolicyRuleCreate'] == null) {
+            throw new runtime.RequiredError(
+                'pluginPolicyRuleCreate',
+                'Required parameter "pluginPolicyRuleCreate" was null or undefined when calling updatePluginPolicyRuleApiV1PluginPolicyRulesRuleIdPut().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        if (requestParameters['authorization'] != null) {
+            headerParameters['authorization'] = String(requestParameters['authorization']);
+        }
+
+        if (requestParameters['xAmeshCSRF'] != null) {
+            headerParameters['X-Amesh-CSRF'] = String(requestParameters['xAmeshCSRF']);
+        }
+
+        if (requestParameters['xAmeshTenant'] != null) {
+            headerParameters['X-Amesh-Tenant'] = String(requestParameters['xAmeshTenant']);
+        }
+
+
+        let urlPath = `/api/v1/plugin-policy/rules/{rule_id}`;
+        urlPath = urlPath.replace('{rule_id}', encodeURIComponent(String(requestParameters['ruleId'])));
+
+        return {
+            path: urlPath,
+            method: 'PUT',
+            headers: headerParameters,
+            query: queryParameters,
+            body: PluginPolicyRuleCreateToJSON(requestParameters['pluginPolicyRuleCreate']),
+        };
+    }
+
+    /**
+     * Update Plugin Policy Rule
+     */
+    async updatePluginPolicyRuleApiV1PluginPolicyRulesRuleIdPutRaw(requestParameters: UpdatePluginPolicyRuleApiV1PluginPolicyRulesRuleIdPutRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PluginPolicyRule>> {
+        const requestOptions = await this.updatePluginPolicyRuleApiV1PluginPolicyRulesRuleIdPutRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => PluginPolicyRuleFromJSON(jsonValue));
+    }
+
+    /**
+     * Update Plugin Policy Rule
+     */
+    async updatePluginPolicyRuleApiV1PluginPolicyRulesRuleIdPut(requestParameters: UpdatePluginPolicyRuleApiV1PluginPolicyRulesRuleIdPutRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PluginPolicyRule> {
+        const response = await this.updatePluginPolicyRuleApiV1PluginPolicyRulesRuleIdPutRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

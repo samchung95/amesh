@@ -224,17 +224,26 @@ Class | Method | HTTP request | Description
 *OperationsApi* | [**list_reconciliations_api_v1_reconciliations_get**](docs/OperationsApi.md#list_reconciliations_api_v1_reconciliations_get) | **GET** /api/v1/reconciliations | List Reconciliations
 *OperationsApi* | [**reconcile_admissions_api_v1_admissions_reconcile_post**](docs/OperationsApi.md#reconcile_admissions_api_v1_admissions_reconcile_post) | **POST** /api/v1/admissions/reconcile | Reconcile Admissions
 *OperationsApi* | [**run_reconciliation_api_v1_reconciliations_post**](docs/OperationsApi.md#run_reconciliation_api_v1_reconciliations_post) | **POST** /api/v1/reconciliations | Run Reconciliation
+*PluginsApi* | [**create_plugin_policy_rule_api_v1_plugin_policy_rules_post**](docs/PluginsApi.md#create_plugin_policy_rule_api_v1_plugin_policy_rules_post) | **POST** /api/v1/plugin-policy/rules | Create Plugin Policy Rule
+*PluginsApi* | [**delete_plugin_policy_rule_api_v1_plugin_policy_rules_rule_id_delete**](docs/PluginsApi.md#delete_plugin_policy_rule_api_v1_plugin_policy_rules_rule_id_delete) | **DELETE** /api/v1/plugin-policy/rules/{rule_id} | Delete Plugin Policy Rule
 *PluginsApi* | [**download_plugin_registry_bundle_api_v1_plugin_registry_blobs_digest_get**](docs/PluginsApi.md#download_plugin_registry_bundle_api_v1_plugin_registry_blobs_digest_get) | **GET** /api/v1/plugin-registry/blobs/{digest} | Download Plugin Registry Bundle
+*PluginsApi* | [**evaluate_flow_plugin_policy_api_v1_plugin_policy_evaluate_post**](docs/PluginsApi.md#evaluate_flow_plugin_policy_api_v1_plugin_policy_evaluate_post) | **POST** /api/v1/plugin-policy/evaluate | Evaluate Flow Plugin Policy
 *PluginsApi* | [**export_plugin_registry_api_v1_plugin_registry_offline_export_get**](docs/PluginsApi.md#export_plugin_registry_api_v1_plugin_registry_offline_export_get) | **GET** /api/v1/plugin-registry/offline-export | Export Plugin Registry
+*PluginsApi* | [**get_effective_plugin_policy_api_v1_plugin_policy_effective_get**](docs/PluginsApi.md#get_effective_plugin_policy_api_v1_plugin_policy_effective_get) | **GET** /api/v1/plugin-policy/effective | Get Effective Plugin Policy
 *PluginsApi* | [**get_plugin_registry_index_api_v1_plugin_registry_index_get**](docs/PluginsApi.md#get_plugin_registry_index_api_v1_plugin_registry_index_get) | **GET** /api/v1/plugin-registry/index | Get Plugin Registry Index
 *PluginsApi* | [**get_plugin_registry_package_api_v1_plugin_registry_packages_name_version_get**](docs/PluginsApi.md#get_plugin_registry_package_api_v1_plugin_registry_packages_name_version_get) | **GET** /api/v1/plugin-registry/packages/{name}/{version} | Get Plugin Registry Package
 *PluginsApi* | [**import_plugin_registry_api_v1_plugin_registry_offline_import_post**](docs/PluginsApi.md#import_plugin_registry_api_v1_plugin_registry_offline_import_post) | **POST** /api/v1/plugin-registry/offline-import | Import Plugin Registry
 *PluginsApi* | [**install_plugin_bundle_api_v1_plugins_install_post**](docs/PluginsApi.md#install_plugin_bundle_api_v1_plugins_install_post) | **POST** /api/v1/plugins/install | Install Plugin Bundle
 *PluginsApi* | [**isolated_plugin_runtime_status_api_v1_plugins_isolated_runtime_get**](docs/PluginsApi.md#isolated_plugin_runtime_status_api_v1_plugins_isolated_runtime_get) | **GET** /api/v1/plugins/isolated-runtime | Isolated Plugin Runtime Status
+*PluginsApi* | [**list_plugin_policy_decisions_api_v1_plugin_policy_decisions_get**](docs/PluginsApi.md#list_plugin_policy_decisions_api_v1_plugin_policy_decisions_get) | **GET** /api/v1/plugin-policy/decisions | List Plugin Policy Decisions
 *PluginsApi* | [**list_plugins_api_v1_plugins_get**](docs/PluginsApi.md#list_plugins_api_v1_plugins_get) | **GET** /api/v1/plugins | List Plugins
+*PluginsApi* | [**preview_plugin_quarantine_api_v1_plugin_policy_quarantines_preview_post**](docs/PluginsApi.md#preview_plugin_quarantine_api_v1_plugin_policy_quarantines_preview_post) | **POST** /api/v1/plugin-policy/quarantines/preview | Preview Plugin Quarantine
 *PluginsApi* | [**publish_plugin_registry_package_api_v1_plugin_registry_packages_post**](docs/PluginsApi.md#publish_plugin_registry_package_api_v1_plugin_registry_packages_post) | **POST** /api/v1/plugin-registry/packages | Publish Plugin Registry Package
+*PluginsApi* | [**quarantine_plugin_version_api_v1_plugin_policy_quarantines_post**](docs/PluginsApi.md#quarantine_plugin_version_api_v1_plugin_policy_quarantines_post) | **POST** /api/v1/plugin-policy/quarantines | Quarantine Plugin Version
 *PluginsApi* | [**refresh_plugins_api_v1_plugins_refresh_post**](docs/PluginsApi.md#refresh_plugins_api_v1_plugins_refresh_post) | **POST** /api/v1/plugins/refresh | Refresh Plugins
+*PluginsApi* | [**release_plugin_quarantine_api_v1_plugin_policy_quarantines_quarantine_id_release_post**](docs/PluginsApi.md#release_plugin_quarantine_api_v1_plugin_policy_quarantines_quarantine_id_release_post) | **POST** /api/v1/plugin-policy/quarantines/{quarantine_id}/release | Release Plugin Quarantine
 *PluginsApi* | [**trusted_plugin_runtime_status_api_v1_plugins_trusted_runtime_get**](docs/PluginsApi.md#trusted_plugin_runtime_status_api_v1_plugins_trusted_runtime_get) | **GET** /api/v1/plugins/trusted-runtime | Trusted Plugin Runtime Status
+*PluginsApi* | [**update_plugin_policy_rule_api_v1_plugin_policy_rules_rule_id_put**](docs/PluginsApi.md#update_plugin_policy_rule_api_v1_plugin_policy_rules_rule_id_put) | **PUT** /api/v1/plugin-policy/rules/{rule_id} | Update Plugin Policy Rule
 *PluginsApi* | [**yank_plugin_registry_package_api_v1_plugin_registry_packages_name_version_yank_post**](docs/PluginsApi.md#yank_plugin_registry_package_api_v1_plugin_registry_packages_name_version_yank_post) | **POST** /api/v1/plugin-registry/packages/{name}/{version}/yank | Yank Plugin Registry Package
 *RealtimeApi* | [**create_webhook_subscription_api_v1_webhook_subscriptions_post**](docs/RealtimeApi.md#create_webhook_subscription_api_v1_webhook_subscriptions_post) | **POST** /api/v1/webhook-subscriptions | Create Webhook Subscription
 *RealtimeApi* | [**list_realtime_events_api_v1_realtime_events_get**](docs/RealtimeApi.md#list_realtime_events_api_v1_realtime_events_get) | **GET** /api/v1/realtime/events | List Realtime Events
@@ -368,6 +377,7 @@ Class | Method | HTTP request | Description
  - [DashboardVisualization](docs/DashboardVisualization.md)
  - [DashboardWidget](docs/DashboardWidget.md)
  - [DashboardWidgetResult](docs/DashboardWidgetResult.md)
+ - [EffectivePluginPolicy](docs/EffectivePluginPolicy.md)
  - [ExchangeCredentialRequest](docs/ExchangeCredentialRequest.md)
  - [ExecutionArtifact](docs/ExecutionArtifact.md)
  - [ExecutionDetail](docs/ExecutionDetail.md)
@@ -465,6 +475,20 @@ Class | Method | HTTP request | Description
  - [PluginMarketplaceSignals](docs/PluginMarketplaceSignals.md)
  - [PluginNetworkAccess](docs/PluginNetworkAccess.md)
  - [PluginPackageRecord](docs/PluginPackageRecord.md)
+ - [PluginPolicyDecision](docs/PluginPolicyDecision.md)
+ - [PluginPolicyEffect](docs/PluginPolicyEffect.md)
+ - [PluginPolicyImpactPreview](docs/PluginPolicyImpactPreview.md)
+ - [PluginPolicyRule](docs/PluginPolicyRule.md)
+ - [PluginPolicyRuleCreate](docs/PluginPolicyRuleCreate.md)
+ - [PluginPolicyRuleSource](docs/PluginPolicyRuleSource.md)
+ - [PluginPolicyScope](docs/PluginPolicyScope.md)
+ - [PluginPolicySelector](docs/PluginPolicySelector.md)
+ - [PluginPolicyStage](docs/PluginPolicyStage.md)
+ - [PluginPolicySubject](docs/PluginPolicySubject.md)
+ - [PluginPolicySubjectDecision](docs/PluginPolicySubjectDecision.md)
+ - [PluginQuarantine](docs/PluginQuarantine.md)
+ - [PluginQuarantineCreate](docs/PluginQuarantineCreate.md)
+ - [PluginQuarantineState](docs/PluginQuarantineState.md)
  - [PluginRegistryAttachment](docs/PluginRegistryAttachment.md)
  - [PluginRegistryAttachmentKind](docs/PluginRegistryAttachmentKind.md)
  - [PluginRegistryIndex](docs/PluginRegistryIndex.md)

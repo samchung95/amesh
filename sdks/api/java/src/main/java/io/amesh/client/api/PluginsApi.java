@@ -18,14 +18,23 @@ import io.amesh.client.ApiResponse;
 import io.amesh.client.Configuration;
 import io.amesh.client.Pair;
 
+import io.amesh.client.model.EffectivePluginPolicy;
 import io.amesh.client.model.HTTPValidationError;
 import io.amesh.client.model.IsolatedPluginRuntimeSnapshot;
 import io.amesh.client.model.PluginCatalogSnapshot;
+import io.amesh.client.model.PluginPolicyDecision;
+import io.amesh.client.model.PluginPolicyImpactPreview;
+import io.amesh.client.model.PluginPolicyRule;
+import io.amesh.client.model.PluginPolicyRuleCreate;
+import io.amesh.client.model.PluginPolicyStage;
+import io.amesh.client.model.PluginQuarantine;
+import io.amesh.client.model.PluginQuarantineCreate;
 import io.amesh.client.model.PluginRegistryIndex;
 import io.amesh.client.model.PluginRegistryPackage;
 import io.amesh.client.model.PluginRegistryPublishRequest;
 import io.amesh.client.model.PluginRegistryYankRequest;
 import io.amesh.client.model.TrustedPluginRuntimeSnapshot;
+import java.util.UUID;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -170,6 +179,275 @@ public class PluginsApi {
   }
 
   /**
+   * Create Plugin Policy Rule
+   *
+   * @param pluginPolicyRuleCreate  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return PluginPolicyRule
+   * @throws ApiException if fails to make API call
+   */
+  public PluginPolicyRule createPluginPolicyRuleApiV1PluginPolicyRulesPost(@javax.annotation.Nonnull PluginPolicyRuleCreate pluginPolicyRuleCreate, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return createPluginPolicyRuleApiV1PluginPolicyRulesPost(pluginPolicyRuleCreate, authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * Create Plugin Policy Rule
+   *
+   * @param pluginPolicyRuleCreate  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return PluginPolicyRule
+   * @throws ApiException if fails to make API call
+   */
+  public PluginPolicyRule createPluginPolicyRuleApiV1PluginPolicyRulesPost(@javax.annotation.Nonnull PluginPolicyRuleCreate pluginPolicyRuleCreate, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    ApiResponse<PluginPolicyRule> localVarResponse = createPluginPolicyRuleApiV1PluginPolicyRulesPostWithHttpInfo(pluginPolicyRuleCreate, authorization, xAmeshCSRF, xAmeshTenant, headers);
+    return localVarResponse.getData();
+  }
+
+  /**
+   * Create Plugin Policy Rule
+   *
+   * @param pluginPolicyRuleCreate  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return ApiResponse&lt;PluginPolicyRule&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<PluginPolicyRule> createPluginPolicyRuleApiV1PluginPolicyRulesPostWithHttpInfo(@javax.annotation.Nonnull PluginPolicyRuleCreate pluginPolicyRuleCreate, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return createPluginPolicyRuleApiV1PluginPolicyRulesPostWithHttpInfo(pluginPolicyRuleCreate, authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * Create Plugin Policy Rule
+   *
+   * @param pluginPolicyRuleCreate  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return ApiResponse&lt;PluginPolicyRule&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<PluginPolicyRule> createPluginPolicyRuleApiV1PluginPolicyRulesPostWithHttpInfo(@javax.annotation.Nonnull PluginPolicyRuleCreate pluginPolicyRuleCreate, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = createPluginPolicyRuleApiV1PluginPolicyRulesPostRequestBuilder(pluginPolicyRuleCreate, authorization, xAmeshCSRF, xAmeshTenant, headers);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      InputStream localVarResponseBody = null;
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("createPluginPolicyRuleApiV1PluginPolicyRulesPost", localVarResponse);
+        }
+        localVarResponseBody = ApiClient.getResponseBody(localVarResponse);
+        if (localVarResponseBody == null) {
+          return new ApiResponse<PluginPolicyRule>(
+              localVarResponse.statusCode(),
+              localVarResponse.headers().map(),
+              null
+          );
+        }
+
+
+
+        String responseBody = new String(localVarResponseBody.readAllBytes());
+        PluginPolicyRule responseValue = responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<PluginPolicyRule>() {});
+
+
+        return new ApiResponse<PluginPolicyRule>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            responseValue
+        );
+      } finally {
+        if (localVarResponseBody != null) {
+          localVarResponseBody.close();
+        }
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder createPluginPolicyRuleApiV1PluginPolicyRulesPostRequestBuilder(@javax.annotation.Nonnull PluginPolicyRuleCreate pluginPolicyRuleCreate, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    // verify the required parameter 'pluginPolicyRuleCreate' is set
+    if (pluginPolicyRuleCreate == null) {
+      throw new ApiException(400, "Missing the required parameter 'pluginPolicyRuleCreate' when calling createPluginPolicyRuleApiV1PluginPolicyRulesPost");
+    }
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/api/v1/plugin-policy/rules";
+
+    localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+
+    if (authorization != null) {
+      localVarRequestBuilder.header("authorization", authorization.toString());
+    }
+    if (xAmeshCSRF != null) {
+      localVarRequestBuilder.header("X-Amesh-CSRF", xAmeshCSRF.toString());
+    }
+    if (xAmeshTenant != null) {
+      localVarRequestBuilder.header("X-Amesh-Tenant", xAmeshTenant.toString());
+    }
+    localVarRequestBuilder.header("Content-Type", "application/json");
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    try {
+      byte[] localVarPostBody = memberVarObjectMapper.writeValueAsBytes(pluginPolicyRuleCreate);
+      localVarRequestBuilder.method("POST", HttpRequest.BodyPublishers.ofByteArray(localVarPostBody));
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    // Add custom headers if provided
+    localVarRequestBuilder = HttpRequestBuilderExtensions.withAdditionalHeaders(localVarRequestBuilder, headers);
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
+  }
+
+  /**
+   * Delete Plugin Policy Rule
+   *
+   * @param ruleId  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @throws ApiException if fails to make API call
+   */
+  public void deletePluginPolicyRuleApiV1PluginPolicyRulesRuleIdDelete(@javax.annotation.Nonnull UUID ruleId, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    deletePluginPolicyRuleApiV1PluginPolicyRulesRuleIdDelete(ruleId, authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * Delete Plugin Policy Rule
+   *
+   * @param ruleId  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @throws ApiException if fails to make API call
+   */
+  public void deletePluginPolicyRuleApiV1PluginPolicyRulesRuleIdDelete(@javax.annotation.Nonnull UUID ruleId, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    deletePluginPolicyRuleApiV1PluginPolicyRulesRuleIdDeleteWithHttpInfo(ruleId, authorization, xAmeshCSRF, xAmeshTenant, headers);
+  }
+
+  /**
+   * Delete Plugin Policy Rule
+   *
+   * @param ruleId  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return ApiResponse&lt;Void&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<Void> deletePluginPolicyRuleApiV1PluginPolicyRulesRuleIdDeleteWithHttpInfo(@javax.annotation.Nonnull UUID ruleId, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return deletePluginPolicyRuleApiV1PluginPolicyRulesRuleIdDeleteWithHttpInfo(ruleId, authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * Delete Plugin Policy Rule
+   *
+   * @param ruleId  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return ApiResponse&lt;Void&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<Void> deletePluginPolicyRuleApiV1PluginPolicyRulesRuleIdDeleteWithHttpInfo(@javax.annotation.Nonnull UUID ruleId, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = deletePluginPolicyRuleApiV1PluginPolicyRulesRuleIdDeleteRequestBuilder(ruleId, authorization, xAmeshCSRF, xAmeshTenant, headers);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      InputStream localVarResponseBody = null;
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("deletePluginPolicyRuleApiV1PluginPolicyRulesRuleIdDelete", localVarResponse);
+        }
+        localVarResponseBody = ApiClient.getResponseBody(localVarResponse);
+        if (localVarResponseBody != null) {
+          localVarResponseBody.readAllBytes();
+        }
+        return new ApiResponse<>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            null
+        );
+      } finally {
+        if (localVarResponseBody != null) {
+          localVarResponseBody.close();
+        }
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder deletePluginPolicyRuleApiV1PluginPolicyRulesRuleIdDeleteRequestBuilder(@javax.annotation.Nonnull UUID ruleId, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    // verify the required parameter 'ruleId' is set
+    if (ruleId == null) {
+      throw new ApiException(400, "Missing the required parameter 'ruleId' when calling deletePluginPolicyRuleApiV1PluginPolicyRulesRuleIdDelete");
+    }
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/api/v1/plugin-policy/rules/{rule_id}"
+        .replace("{rule_id}", ApiClient.urlEncode(ruleId.toString()));
+
+    localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+
+    if (authorization != null) {
+      localVarRequestBuilder.header("authorization", authorization.toString());
+    }
+    if (xAmeshCSRF != null) {
+      localVarRequestBuilder.header("X-Amesh-CSRF", xAmeshCSRF.toString());
+    }
+    if (xAmeshTenant != null) {
+      localVarRequestBuilder.header("X-Amesh-Tenant", xAmeshTenant.toString());
+    }
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    localVarRequestBuilder.method("DELETE", HttpRequest.BodyPublishers.noBody());
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    // Add custom headers if provided
+    localVarRequestBuilder = HttpRequestBuilderExtensions.withAdditionalHeaders(localVarRequestBuilder, headers);
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
+  }
+
+  /**
    * Download Plugin Registry Bundle
    *
    * @param digest  (required)
@@ -295,6 +573,155 @@ public class PluginsApi {
   }
 
   /**
+   * Evaluate Flow Plugin Policy
+   *
+   * @param stage  (optional, default to VALIDATION)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return PluginPolicyDecision
+   * @throws ApiException if fails to make API call
+   */
+  public PluginPolicyDecision evaluateFlowPluginPolicyApiV1PluginPolicyEvaluatePost(@javax.annotation.Nullable PluginPolicyStage stage, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return evaluateFlowPluginPolicyApiV1PluginPolicyEvaluatePost(stage, authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * Evaluate Flow Plugin Policy
+   *
+   * @param stage  (optional, default to VALIDATION)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return PluginPolicyDecision
+   * @throws ApiException if fails to make API call
+   */
+  public PluginPolicyDecision evaluateFlowPluginPolicyApiV1PluginPolicyEvaluatePost(@javax.annotation.Nullable PluginPolicyStage stage, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    ApiResponse<PluginPolicyDecision> localVarResponse = evaluateFlowPluginPolicyApiV1PluginPolicyEvaluatePostWithHttpInfo(stage, authorization, xAmeshCSRF, xAmeshTenant, headers);
+    return localVarResponse.getData();
+  }
+
+  /**
+   * Evaluate Flow Plugin Policy
+   *
+   * @param stage  (optional, default to VALIDATION)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return ApiResponse&lt;PluginPolicyDecision&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<PluginPolicyDecision> evaluateFlowPluginPolicyApiV1PluginPolicyEvaluatePostWithHttpInfo(@javax.annotation.Nullable PluginPolicyStage stage, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return evaluateFlowPluginPolicyApiV1PluginPolicyEvaluatePostWithHttpInfo(stage, authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * Evaluate Flow Plugin Policy
+   *
+   * @param stage  (optional, default to VALIDATION)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return ApiResponse&lt;PluginPolicyDecision&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<PluginPolicyDecision> evaluateFlowPluginPolicyApiV1PluginPolicyEvaluatePostWithHttpInfo(@javax.annotation.Nullable PluginPolicyStage stage, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = evaluateFlowPluginPolicyApiV1PluginPolicyEvaluatePostRequestBuilder(stage, authorization, xAmeshCSRF, xAmeshTenant, headers);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      InputStream localVarResponseBody = null;
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("evaluateFlowPluginPolicyApiV1PluginPolicyEvaluatePost", localVarResponse);
+        }
+        localVarResponseBody = ApiClient.getResponseBody(localVarResponse);
+        if (localVarResponseBody == null) {
+          return new ApiResponse<PluginPolicyDecision>(
+              localVarResponse.statusCode(),
+              localVarResponse.headers().map(),
+              null
+          );
+        }
+
+
+
+        String responseBody = new String(localVarResponseBody.readAllBytes());
+        PluginPolicyDecision responseValue = responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<PluginPolicyDecision>() {});
+
+
+        return new ApiResponse<PluginPolicyDecision>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            responseValue
+        );
+      } finally {
+        if (localVarResponseBody != null) {
+          localVarResponseBody.close();
+        }
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder evaluateFlowPluginPolicyApiV1PluginPolicyEvaluatePostRequestBuilder(@javax.annotation.Nullable PluginPolicyStage stage, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/api/v1/plugin-policy/evaluate";
+
+    List<Pair> localVarQueryParams = new ArrayList<>();
+    StringJoiner localVarQueryStringJoiner = new StringJoiner("&");
+    String localVarQueryParameterBaseName;
+    localVarQueryParameterBaseName = "stage";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("stage", stage));
+
+    if (!localVarQueryParams.isEmpty() || localVarQueryStringJoiner.length() != 0) {
+      StringJoiner queryJoiner = new StringJoiner("&");
+      localVarQueryParams.forEach(p -> queryJoiner.add(p.getName() + '=' + p.getValue()));
+      if (localVarQueryStringJoiner.length() != 0) {
+        queryJoiner.add(localVarQueryStringJoiner.toString());
+      }
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath + '?' + queryJoiner.toString()));
+    } else {
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+    }
+
+    if (authorization != null) {
+      localVarRequestBuilder.header("authorization", authorization.toString());
+    }
+    if (xAmeshCSRF != null) {
+      localVarRequestBuilder.header("X-Amesh-CSRF", xAmeshCSRF.toString());
+    }
+    if (xAmeshTenant != null) {
+      localVarRequestBuilder.header("X-Amesh-Tenant", xAmeshTenant.toString());
+    }
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    localVarRequestBuilder.method("POST", HttpRequest.BodyPublishers.noBody());
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    // Add custom headers if provided
+    localVarRequestBuilder = HttpRequestBuilderExtensions.withAdditionalHeaders(localVarRequestBuilder, headers);
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
+  }
+
+  /**
    * Export Plugin Registry
    *
    * @param authorization  (optional)
@@ -386,6 +813,155 @@ public class PluginsApi {
     String localVarPath = "/api/v1/plugin-registry/offline-export";
 
     localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+
+    if (authorization != null) {
+      localVarRequestBuilder.header("authorization", authorization.toString());
+    }
+    if (xAmeshCSRF != null) {
+      localVarRequestBuilder.header("X-Amesh-CSRF", xAmeshCSRF.toString());
+    }
+    if (xAmeshTenant != null) {
+      localVarRequestBuilder.header("X-Amesh-Tenant", xAmeshTenant.toString());
+    }
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    localVarRequestBuilder.method("GET", HttpRequest.BodyPublishers.noBody());
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    // Add custom headers if provided
+    localVarRequestBuilder = HttpRequestBuilderExtensions.withAdditionalHeaders(localVarRequestBuilder, headers);
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
+  }
+
+  /**
+   * Get Effective Plugin Policy
+   *
+   * @param namespace  (optional)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return EffectivePluginPolicy
+   * @throws ApiException if fails to make API call
+   */
+  public EffectivePluginPolicy getEffectivePluginPolicyApiV1PluginPolicyEffectiveGet(@javax.annotation.Nullable String namespace, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return getEffectivePluginPolicyApiV1PluginPolicyEffectiveGet(namespace, authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * Get Effective Plugin Policy
+   *
+   * @param namespace  (optional)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return EffectivePluginPolicy
+   * @throws ApiException if fails to make API call
+   */
+  public EffectivePluginPolicy getEffectivePluginPolicyApiV1PluginPolicyEffectiveGet(@javax.annotation.Nullable String namespace, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    ApiResponse<EffectivePluginPolicy> localVarResponse = getEffectivePluginPolicyApiV1PluginPolicyEffectiveGetWithHttpInfo(namespace, authorization, xAmeshCSRF, xAmeshTenant, headers);
+    return localVarResponse.getData();
+  }
+
+  /**
+   * Get Effective Plugin Policy
+   *
+   * @param namespace  (optional)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return ApiResponse&lt;EffectivePluginPolicy&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<EffectivePluginPolicy> getEffectivePluginPolicyApiV1PluginPolicyEffectiveGetWithHttpInfo(@javax.annotation.Nullable String namespace, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return getEffectivePluginPolicyApiV1PluginPolicyEffectiveGetWithHttpInfo(namespace, authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * Get Effective Plugin Policy
+   *
+   * @param namespace  (optional)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return ApiResponse&lt;EffectivePluginPolicy&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<EffectivePluginPolicy> getEffectivePluginPolicyApiV1PluginPolicyEffectiveGetWithHttpInfo(@javax.annotation.Nullable String namespace, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = getEffectivePluginPolicyApiV1PluginPolicyEffectiveGetRequestBuilder(namespace, authorization, xAmeshCSRF, xAmeshTenant, headers);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      InputStream localVarResponseBody = null;
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("getEffectivePluginPolicyApiV1PluginPolicyEffectiveGet", localVarResponse);
+        }
+        localVarResponseBody = ApiClient.getResponseBody(localVarResponse);
+        if (localVarResponseBody == null) {
+          return new ApiResponse<EffectivePluginPolicy>(
+              localVarResponse.statusCode(),
+              localVarResponse.headers().map(),
+              null
+          );
+        }
+
+
+
+        String responseBody = new String(localVarResponseBody.readAllBytes());
+        EffectivePluginPolicy responseValue = responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<EffectivePluginPolicy>() {});
+
+
+        return new ApiResponse<EffectivePluginPolicy>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            responseValue
+        );
+      } finally {
+        if (localVarResponseBody != null) {
+          localVarResponseBody.close();
+        }
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder getEffectivePluginPolicyApiV1PluginPolicyEffectiveGetRequestBuilder(@javax.annotation.Nullable String namespace, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/api/v1/plugin-policy/effective";
+
+    List<Pair> localVarQueryParams = new ArrayList<>();
+    StringJoiner localVarQueryStringJoiner = new StringJoiner("&");
+    String localVarQueryParameterBaseName;
+    localVarQueryParameterBaseName = "namespace";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("namespace", namespace));
+
+    if (!localVarQueryParams.isEmpty() || localVarQueryStringJoiner.length() != 0) {
+      StringJoiner queryJoiner = new StringJoiner("&");
+      localVarQueryParams.forEach(p -> queryJoiner.add(p.getName() + '=' + p.getValue()));
+      if (localVarQueryStringJoiner.length() != 0) {
+        queryJoiner.add(localVarQueryStringJoiner.toString());
+      }
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath + '?' + queryJoiner.toString()));
+    } else {
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+    }
 
     if (authorization != null) {
       localVarRequestBuilder.header("authorization", authorization.toString());
@@ -1102,6 +1678,155 @@ public class PluginsApi {
   }
 
   /**
+   * List Plugin Policy Decisions
+   *
+   * @param limit  (optional, default to 100)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return List&lt;PluginPolicyDecision&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public List<PluginPolicyDecision> listPluginPolicyDecisionsApiV1PluginPolicyDecisionsGet(@javax.annotation.Nullable Integer limit, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return listPluginPolicyDecisionsApiV1PluginPolicyDecisionsGet(limit, authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * List Plugin Policy Decisions
+   *
+   * @param limit  (optional, default to 100)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return List&lt;PluginPolicyDecision&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public List<PluginPolicyDecision> listPluginPolicyDecisionsApiV1PluginPolicyDecisionsGet(@javax.annotation.Nullable Integer limit, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    ApiResponse<List<PluginPolicyDecision>> localVarResponse = listPluginPolicyDecisionsApiV1PluginPolicyDecisionsGetWithHttpInfo(limit, authorization, xAmeshCSRF, xAmeshTenant, headers);
+    return localVarResponse.getData();
+  }
+
+  /**
+   * List Plugin Policy Decisions
+   *
+   * @param limit  (optional, default to 100)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return ApiResponse&lt;List&lt;PluginPolicyDecision&gt;&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<List<PluginPolicyDecision>> listPluginPolicyDecisionsApiV1PluginPolicyDecisionsGetWithHttpInfo(@javax.annotation.Nullable Integer limit, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return listPluginPolicyDecisionsApiV1PluginPolicyDecisionsGetWithHttpInfo(limit, authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * List Plugin Policy Decisions
+   *
+   * @param limit  (optional, default to 100)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return ApiResponse&lt;List&lt;PluginPolicyDecision&gt;&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<List<PluginPolicyDecision>> listPluginPolicyDecisionsApiV1PluginPolicyDecisionsGetWithHttpInfo(@javax.annotation.Nullable Integer limit, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = listPluginPolicyDecisionsApiV1PluginPolicyDecisionsGetRequestBuilder(limit, authorization, xAmeshCSRF, xAmeshTenant, headers);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      InputStream localVarResponseBody = null;
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("listPluginPolicyDecisionsApiV1PluginPolicyDecisionsGet", localVarResponse);
+        }
+        localVarResponseBody = ApiClient.getResponseBody(localVarResponse);
+        if (localVarResponseBody == null) {
+          return new ApiResponse<List<PluginPolicyDecision>>(
+              localVarResponse.statusCode(),
+              localVarResponse.headers().map(),
+              null
+          );
+        }
+
+
+
+        String responseBody = new String(localVarResponseBody.readAllBytes());
+        List<PluginPolicyDecision> responseValue = responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<List<PluginPolicyDecision>>() {});
+
+
+        return new ApiResponse<List<PluginPolicyDecision>>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            responseValue
+        );
+      } finally {
+        if (localVarResponseBody != null) {
+          localVarResponseBody.close();
+        }
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder listPluginPolicyDecisionsApiV1PluginPolicyDecisionsGetRequestBuilder(@javax.annotation.Nullable Integer limit, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/api/v1/plugin-policy/decisions";
+
+    List<Pair> localVarQueryParams = new ArrayList<>();
+    StringJoiner localVarQueryStringJoiner = new StringJoiner("&");
+    String localVarQueryParameterBaseName;
+    localVarQueryParameterBaseName = "limit";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("limit", limit));
+
+    if (!localVarQueryParams.isEmpty() || localVarQueryStringJoiner.length() != 0) {
+      StringJoiner queryJoiner = new StringJoiner("&");
+      localVarQueryParams.forEach(p -> queryJoiner.add(p.getName() + '=' + p.getValue()));
+      if (localVarQueryStringJoiner.length() != 0) {
+        queryJoiner.add(localVarQueryStringJoiner.toString());
+      }
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath + '?' + queryJoiner.toString()));
+    } else {
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+    }
+
+    if (authorization != null) {
+      localVarRequestBuilder.header("authorization", authorization.toString());
+    }
+    if (xAmeshCSRF != null) {
+      localVarRequestBuilder.header("X-Amesh-CSRF", xAmeshCSRF.toString());
+    }
+    if (xAmeshTenant != null) {
+      localVarRequestBuilder.header("X-Amesh-Tenant", xAmeshTenant.toString());
+    }
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    localVarRequestBuilder.method("GET", HttpRequest.BodyPublishers.noBody());
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    // Add custom headers if provided
+    localVarRequestBuilder = HttpRequestBuilderExtensions.withAdditionalHeaders(localVarRequestBuilder, headers);
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
+  }
+
+  /**
    * List Plugins
    *
    * @param authorization  (optional)
@@ -1220,6 +1945,150 @@ public class PluginsApi {
     localVarRequestBuilder.header("Accept", "application/json");
 
     localVarRequestBuilder.method("GET", HttpRequest.BodyPublishers.noBody());
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    // Add custom headers if provided
+    localVarRequestBuilder = HttpRequestBuilderExtensions.withAdditionalHeaders(localVarRequestBuilder, headers);
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
+  }
+
+  /**
+   * Preview Plugin Quarantine
+   *
+   * @param pluginQuarantineCreate  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return PluginPolicyImpactPreview
+   * @throws ApiException if fails to make API call
+   */
+  public PluginPolicyImpactPreview previewPluginQuarantineApiV1PluginPolicyQuarantinesPreviewPost(@javax.annotation.Nonnull PluginQuarantineCreate pluginQuarantineCreate, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return previewPluginQuarantineApiV1PluginPolicyQuarantinesPreviewPost(pluginQuarantineCreate, authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * Preview Plugin Quarantine
+   *
+   * @param pluginQuarantineCreate  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return PluginPolicyImpactPreview
+   * @throws ApiException if fails to make API call
+   */
+  public PluginPolicyImpactPreview previewPluginQuarantineApiV1PluginPolicyQuarantinesPreviewPost(@javax.annotation.Nonnull PluginQuarantineCreate pluginQuarantineCreate, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    ApiResponse<PluginPolicyImpactPreview> localVarResponse = previewPluginQuarantineApiV1PluginPolicyQuarantinesPreviewPostWithHttpInfo(pluginQuarantineCreate, authorization, xAmeshCSRF, xAmeshTenant, headers);
+    return localVarResponse.getData();
+  }
+
+  /**
+   * Preview Plugin Quarantine
+   *
+   * @param pluginQuarantineCreate  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return ApiResponse&lt;PluginPolicyImpactPreview&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<PluginPolicyImpactPreview> previewPluginQuarantineApiV1PluginPolicyQuarantinesPreviewPostWithHttpInfo(@javax.annotation.Nonnull PluginQuarantineCreate pluginQuarantineCreate, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return previewPluginQuarantineApiV1PluginPolicyQuarantinesPreviewPostWithHttpInfo(pluginQuarantineCreate, authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * Preview Plugin Quarantine
+   *
+   * @param pluginQuarantineCreate  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return ApiResponse&lt;PluginPolicyImpactPreview&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<PluginPolicyImpactPreview> previewPluginQuarantineApiV1PluginPolicyQuarantinesPreviewPostWithHttpInfo(@javax.annotation.Nonnull PluginQuarantineCreate pluginQuarantineCreate, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = previewPluginQuarantineApiV1PluginPolicyQuarantinesPreviewPostRequestBuilder(pluginQuarantineCreate, authorization, xAmeshCSRF, xAmeshTenant, headers);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      InputStream localVarResponseBody = null;
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("previewPluginQuarantineApiV1PluginPolicyQuarantinesPreviewPost", localVarResponse);
+        }
+        localVarResponseBody = ApiClient.getResponseBody(localVarResponse);
+        if (localVarResponseBody == null) {
+          return new ApiResponse<PluginPolicyImpactPreview>(
+              localVarResponse.statusCode(),
+              localVarResponse.headers().map(),
+              null
+          );
+        }
+
+
+
+        String responseBody = new String(localVarResponseBody.readAllBytes());
+        PluginPolicyImpactPreview responseValue = responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<PluginPolicyImpactPreview>() {});
+
+
+        return new ApiResponse<PluginPolicyImpactPreview>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            responseValue
+        );
+      } finally {
+        if (localVarResponseBody != null) {
+          localVarResponseBody.close();
+        }
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder previewPluginQuarantineApiV1PluginPolicyQuarantinesPreviewPostRequestBuilder(@javax.annotation.Nonnull PluginQuarantineCreate pluginQuarantineCreate, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    // verify the required parameter 'pluginQuarantineCreate' is set
+    if (pluginQuarantineCreate == null) {
+      throw new ApiException(400, "Missing the required parameter 'pluginQuarantineCreate' when calling previewPluginQuarantineApiV1PluginPolicyQuarantinesPreviewPost");
+    }
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/api/v1/plugin-policy/quarantines/preview";
+
+    localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+
+    if (authorization != null) {
+      localVarRequestBuilder.header("authorization", authorization.toString());
+    }
+    if (xAmeshCSRF != null) {
+      localVarRequestBuilder.header("X-Amesh-CSRF", xAmeshCSRF.toString());
+    }
+    if (xAmeshTenant != null) {
+      localVarRequestBuilder.header("X-Amesh-Tenant", xAmeshTenant.toString());
+    }
+    localVarRequestBuilder.header("Content-Type", "application/json");
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    try {
+      byte[] localVarPostBody = memberVarObjectMapper.writeValueAsBytes(pluginQuarantineCreate);
+      localVarRequestBuilder.method("POST", HttpRequest.BodyPublishers.ofByteArray(localVarPostBody));
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
     if (memberVarReadTimeout != null) {
       localVarRequestBuilder.timeout(memberVarReadTimeout);
     }
@@ -1376,6 +2245,150 @@ public class PluginsApi {
   }
 
   /**
+   * Quarantine Plugin Version
+   *
+   * @param pluginQuarantineCreate  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return PluginQuarantine
+   * @throws ApiException if fails to make API call
+   */
+  public PluginQuarantine quarantinePluginVersionApiV1PluginPolicyQuarantinesPost(@javax.annotation.Nonnull PluginQuarantineCreate pluginQuarantineCreate, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return quarantinePluginVersionApiV1PluginPolicyQuarantinesPost(pluginQuarantineCreate, authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * Quarantine Plugin Version
+   *
+   * @param pluginQuarantineCreate  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return PluginQuarantine
+   * @throws ApiException if fails to make API call
+   */
+  public PluginQuarantine quarantinePluginVersionApiV1PluginPolicyQuarantinesPost(@javax.annotation.Nonnull PluginQuarantineCreate pluginQuarantineCreate, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    ApiResponse<PluginQuarantine> localVarResponse = quarantinePluginVersionApiV1PluginPolicyQuarantinesPostWithHttpInfo(pluginQuarantineCreate, authorization, xAmeshCSRF, xAmeshTenant, headers);
+    return localVarResponse.getData();
+  }
+
+  /**
+   * Quarantine Plugin Version
+   *
+   * @param pluginQuarantineCreate  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return ApiResponse&lt;PluginQuarantine&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<PluginQuarantine> quarantinePluginVersionApiV1PluginPolicyQuarantinesPostWithHttpInfo(@javax.annotation.Nonnull PluginQuarantineCreate pluginQuarantineCreate, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return quarantinePluginVersionApiV1PluginPolicyQuarantinesPostWithHttpInfo(pluginQuarantineCreate, authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * Quarantine Plugin Version
+   *
+   * @param pluginQuarantineCreate  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return ApiResponse&lt;PluginQuarantine&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<PluginQuarantine> quarantinePluginVersionApiV1PluginPolicyQuarantinesPostWithHttpInfo(@javax.annotation.Nonnull PluginQuarantineCreate pluginQuarantineCreate, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = quarantinePluginVersionApiV1PluginPolicyQuarantinesPostRequestBuilder(pluginQuarantineCreate, authorization, xAmeshCSRF, xAmeshTenant, headers);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      InputStream localVarResponseBody = null;
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("quarantinePluginVersionApiV1PluginPolicyQuarantinesPost", localVarResponse);
+        }
+        localVarResponseBody = ApiClient.getResponseBody(localVarResponse);
+        if (localVarResponseBody == null) {
+          return new ApiResponse<PluginQuarantine>(
+              localVarResponse.statusCode(),
+              localVarResponse.headers().map(),
+              null
+          );
+        }
+
+
+
+        String responseBody = new String(localVarResponseBody.readAllBytes());
+        PluginQuarantine responseValue = responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<PluginQuarantine>() {});
+
+
+        return new ApiResponse<PluginQuarantine>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            responseValue
+        );
+      } finally {
+        if (localVarResponseBody != null) {
+          localVarResponseBody.close();
+        }
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder quarantinePluginVersionApiV1PluginPolicyQuarantinesPostRequestBuilder(@javax.annotation.Nonnull PluginQuarantineCreate pluginQuarantineCreate, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    // verify the required parameter 'pluginQuarantineCreate' is set
+    if (pluginQuarantineCreate == null) {
+      throw new ApiException(400, "Missing the required parameter 'pluginQuarantineCreate' when calling quarantinePluginVersionApiV1PluginPolicyQuarantinesPost");
+    }
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/api/v1/plugin-policy/quarantines";
+
+    localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+
+    if (authorization != null) {
+      localVarRequestBuilder.header("authorization", authorization.toString());
+    }
+    if (xAmeshCSRF != null) {
+      localVarRequestBuilder.header("X-Amesh-CSRF", xAmeshCSRF.toString());
+    }
+    if (xAmeshTenant != null) {
+      localVarRequestBuilder.header("X-Amesh-Tenant", xAmeshTenant.toString());
+    }
+    localVarRequestBuilder.header("Content-Type", "application/json");
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    try {
+      byte[] localVarPostBody = memberVarObjectMapper.writeValueAsBytes(pluginQuarantineCreate);
+      localVarRequestBuilder.method("POST", HttpRequest.BodyPublishers.ofByteArray(localVarPostBody));
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    // Add custom headers if provided
+    localVarRequestBuilder = HttpRequestBuilderExtensions.withAdditionalHeaders(localVarRequestBuilder, headers);
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
+  }
+
+  /**
    * Refresh Plugins
    *
    * @param authorization  (optional)
@@ -1481,6 +2494,168 @@ public class PluginsApi {
     String localVarPath = "/api/v1/plugins/refresh";
 
     localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+
+    if (authorization != null) {
+      localVarRequestBuilder.header("authorization", authorization.toString());
+    }
+    if (xAmeshCSRF != null) {
+      localVarRequestBuilder.header("X-Amesh-CSRF", xAmeshCSRF.toString());
+    }
+    if (xAmeshTenant != null) {
+      localVarRequestBuilder.header("X-Amesh-Tenant", xAmeshTenant.toString());
+    }
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    localVarRequestBuilder.method("POST", HttpRequest.BodyPublishers.noBody());
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    // Add custom headers if provided
+    localVarRequestBuilder = HttpRequestBuilderExtensions.withAdditionalHeaders(localVarRequestBuilder, headers);
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
+  }
+
+  /**
+   * Release Plugin Quarantine
+   *
+   * @param quarantineId  (required)
+   * @param reason  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return PluginQuarantine
+   * @throws ApiException if fails to make API call
+   */
+  public PluginQuarantine releasePluginQuarantineApiV1PluginPolicyQuarantinesQuarantineIdReleasePost(@javax.annotation.Nonnull UUID quarantineId, @javax.annotation.Nonnull String reason, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return releasePluginQuarantineApiV1PluginPolicyQuarantinesQuarantineIdReleasePost(quarantineId, reason, authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * Release Plugin Quarantine
+   *
+   * @param quarantineId  (required)
+   * @param reason  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return PluginQuarantine
+   * @throws ApiException if fails to make API call
+   */
+  public PluginQuarantine releasePluginQuarantineApiV1PluginPolicyQuarantinesQuarantineIdReleasePost(@javax.annotation.Nonnull UUID quarantineId, @javax.annotation.Nonnull String reason, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    ApiResponse<PluginQuarantine> localVarResponse = releasePluginQuarantineApiV1PluginPolicyQuarantinesQuarantineIdReleasePostWithHttpInfo(quarantineId, reason, authorization, xAmeshCSRF, xAmeshTenant, headers);
+    return localVarResponse.getData();
+  }
+
+  /**
+   * Release Plugin Quarantine
+   *
+   * @param quarantineId  (required)
+   * @param reason  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return ApiResponse&lt;PluginQuarantine&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<PluginQuarantine> releasePluginQuarantineApiV1PluginPolicyQuarantinesQuarantineIdReleasePostWithHttpInfo(@javax.annotation.Nonnull UUID quarantineId, @javax.annotation.Nonnull String reason, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return releasePluginQuarantineApiV1PluginPolicyQuarantinesQuarantineIdReleasePostWithHttpInfo(quarantineId, reason, authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * Release Plugin Quarantine
+   *
+   * @param quarantineId  (required)
+   * @param reason  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return ApiResponse&lt;PluginQuarantine&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<PluginQuarantine> releasePluginQuarantineApiV1PluginPolicyQuarantinesQuarantineIdReleasePostWithHttpInfo(@javax.annotation.Nonnull UUID quarantineId, @javax.annotation.Nonnull String reason, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = releasePluginQuarantineApiV1PluginPolicyQuarantinesQuarantineIdReleasePostRequestBuilder(quarantineId, reason, authorization, xAmeshCSRF, xAmeshTenant, headers);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      InputStream localVarResponseBody = null;
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("releasePluginQuarantineApiV1PluginPolicyQuarantinesQuarantineIdReleasePost", localVarResponse);
+        }
+        localVarResponseBody = ApiClient.getResponseBody(localVarResponse);
+        if (localVarResponseBody == null) {
+          return new ApiResponse<PluginQuarantine>(
+              localVarResponse.statusCode(),
+              localVarResponse.headers().map(),
+              null
+          );
+        }
+
+
+
+        String responseBody = new String(localVarResponseBody.readAllBytes());
+        PluginQuarantine responseValue = responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<PluginQuarantine>() {});
+
+
+        return new ApiResponse<PluginQuarantine>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            responseValue
+        );
+      } finally {
+        if (localVarResponseBody != null) {
+          localVarResponseBody.close();
+        }
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder releasePluginQuarantineApiV1PluginPolicyQuarantinesQuarantineIdReleasePostRequestBuilder(@javax.annotation.Nonnull UUID quarantineId, @javax.annotation.Nonnull String reason, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    // verify the required parameter 'quarantineId' is set
+    if (quarantineId == null) {
+      throw new ApiException(400, "Missing the required parameter 'quarantineId' when calling releasePluginQuarantineApiV1PluginPolicyQuarantinesQuarantineIdReleasePost");
+    }
+    // verify the required parameter 'reason' is set
+    if (reason == null) {
+      throw new ApiException(400, "Missing the required parameter 'reason' when calling releasePluginQuarantineApiV1PluginPolicyQuarantinesQuarantineIdReleasePost");
+    }
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/api/v1/plugin-policy/quarantines/{quarantine_id}/release"
+        .replace("{quarantine_id}", ApiClient.urlEncode(quarantineId.toString()));
+
+    List<Pair> localVarQueryParams = new ArrayList<>();
+    StringJoiner localVarQueryStringJoiner = new StringJoiner("&");
+    String localVarQueryParameterBaseName;
+    localVarQueryParameterBaseName = "reason";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("reason", reason));
+
+    if (!localVarQueryParams.isEmpty() || localVarQueryStringJoiner.length() != 0) {
+      StringJoiner queryJoiner = new StringJoiner("&");
+      localVarQueryParams.forEach(p -> queryJoiner.add(p.getName() + '=' + p.getValue()));
+      if (localVarQueryStringJoiner.length() != 0) {
+        queryJoiner.add(localVarQueryStringJoiner.toString());
+      }
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath + '?' + queryJoiner.toString()));
+    } else {
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+    }
 
     if (authorization != null) {
       localVarRequestBuilder.header("authorization", authorization.toString());
@@ -1624,6 +2799,159 @@ public class PluginsApi {
     localVarRequestBuilder.header("Accept", "application/json");
 
     localVarRequestBuilder.method("GET", HttpRequest.BodyPublishers.noBody());
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    // Add custom headers if provided
+    localVarRequestBuilder = HttpRequestBuilderExtensions.withAdditionalHeaders(localVarRequestBuilder, headers);
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
+  }
+
+  /**
+   * Update Plugin Policy Rule
+   *
+   * @param ruleId  (required)
+   * @param pluginPolicyRuleCreate  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return PluginPolicyRule
+   * @throws ApiException if fails to make API call
+   */
+  public PluginPolicyRule updatePluginPolicyRuleApiV1PluginPolicyRulesRuleIdPut(@javax.annotation.Nonnull UUID ruleId, @javax.annotation.Nonnull PluginPolicyRuleCreate pluginPolicyRuleCreate, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return updatePluginPolicyRuleApiV1PluginPolicyRulesRuleIdPut(ruleId, pluginPolicyRuleCreate, authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * Update Plugin Policy Rule
+   *
+   * @param ruleId  (required)
+   * @param pluginPolicyRuleCreate  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return PluginPolicyRule
+   * @throws ApiException if fails to make API call
+   */
+  public PluginPolicyRule updatePluginPolicyRuleApiV1PluginPolicyRulesRuleIdPut(@javax.annotation.Nonnull UUID ruleId, @javax.annotation.Nonnull PluginPolicyRuleCreate pluginPolicyRuleCreate, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    ApiResponse<PluginPolicyRule> localVarResponse = updatePluginPolicyRuleApiV1PluginPolicyRulesRuleIdPutWithHttpInfo(ruleId, pluginPolicyRuleCreate, authorization, xAmeshCSRF, xAmeshTenant, headers);
+    return localVarResponse.getData();
+  }
+
+  /**
+   * Update Plugin Policy Rule
+   *
+   * @param ruleId  (required)
+   * @param pluginPolicyRuleCreate  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return ApiResponse&lt;PluginPolicyRule&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<PluginPolicyRule> updatePluginPolicyRuleApiV1PluginPolicyRulesRuleIdPutWithHttpInfo(@javax.annotation.Nonnull UUID ruleId, @javax.annotation.Nonnull PluginPolicyRuleCreate pluginPolicyRuleCreate, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return updatePluginPolicyRuleApiV1PluginPolicyRulesRuleIdPutWithHttpInfo(ruleId, pluginPolicyRuleCreate, authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * Update Plugin Policy Rule
+   *
+   * @param ruleId  (required)
+   * @param pluginPolicyRuleCreate  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return ApiResponse&lt;PluginPolicyRule&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<PluginPolicyRule> updatePluginPolicyRuleApiV1PluginPolicyRulesRuleIdPutWithHttpInfo(@javax.annotation.Nonnull UUID ruleId, @javax.annotation.Nonnull PluginPolicyRuleCreate pluginPolicyRuleCreate, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = updatePluginPolicyRuleApiV1PluginPolicyRulesRuleIdPutRequestBuilder(ruleId, pluginPolicyRuleCreate, authorization, xAmeshCSRF, xAmeshTenant, headers);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      InputStream localVarResponseBody = null;
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("updatePluginPolicyRuleApiV1PluginPolicyRulesRuleIdPut", localVarResponse);
+        }
+        localVarResponseBody = ApiClient.getResponseBody(localVarResponse);
+        if (localVarResponseBody == null) {
+          return new ApiResponse<PluginPolicyRule>(
+              localVarResponse.statusCode(),
+              localVarResponse.headers().map(),
+              null
+          );
+        }
+
+
+
+        String responseBody = new String(localVarResponseBody.readAllBytes());
+        PluginPolicyRule responseValue = responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<PluginPolicyRule>() {});
+
+
+        return new ApiResponse<PluginPolicyRule>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            responseValue
+        );
+      } finally {
+        if (localVarResponseBody != null) {
+          localVarResponseBody.close();
+        }
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder updatePluginPolicyRuleApiV1PluginPolicyRulesRuleIdPutRequestBuilder(@javax.annotation.Nonnull UUID ruleId, @javax.annotation.Nonnull PluginPolicyRuleCreate pluginPolicyRuleCreate, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    // verify the required parameter 'ruleId' is set
+    if (ruleId == null) {
+      throw new ApiException(400, "Missing the required parameter 'ruleId' when calling updatePluginPolicyRuleApiV1PluginPolicyRulesRuleIdPut");
+    }
+    // verify the required parameter 'pluginPolicyRuleCreate' is set
+    if (pluginPolicyRuleCreate == null) {
+      throw new ApiException(400, "Missing the required parameter 'pluginPolicyRuleCreate' when calling updatePluginPolicyRuleApiV1PluginPolicyRulesRuleIdPut");
+    }
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/api/v1/plugin-policy/rules/{rule_id}"
+        .replace("{rule_id}", ApiClient.urlEncode(ruleId.toString()));
+
+    localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+
+    if (authorization != null) {
+      localVarRequestBuilder.header("authorization", authorization.toString());
+    }
+    if (xAmeshCSRF != null) {
+      localVarRequestBuilder.header("X-Amesh-CSRF", xAmeshCSRF.toString());
+    }
+    if (xAmeshTenant != null) {
+      localVarRequestBuilder.header("X-Amesh-Tenant", xAmeshTenant.toString());
+    }
+    localVarRequestBuilder.header("Content-Type", "application/json");
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    try {
+      byte[] localVarPostBody = memberVarObjectMapper.writeValueAsBytes(pluginPolicyRuleCreate);
+      localVarRequestBuilder.method("PUT", HttpRequest.BodyPublishers.ofByteArray(localVarPostBody));
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
     if (memberVarReadTimeout != null) {
       localVarRequestBuilder.timeout(memberVarReadTimeout);
     }

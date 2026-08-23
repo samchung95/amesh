@@ -135,6 +135,7 @@ __all__ = [
     "DashboardVisualization",
     "DashboardWidget",
     "DashboardWidgetResult",
+    "EffectivePluginPolicy",
     "ExchangeCredentialRequest",
     "ExecutionArtifact",
     "ExecutionDetail",
@@ -232,6 +233,20 @@ __all__ = [
     "PluginMarketplaceSignals",
     "PluginNetworkAccess",
     "PluginPackageRecord",
+    "PluginPolicyDecision",
+    "PluginPolicyEffect",
+    "PluginPolicyImpactPreview",
+    "PluginPolicyRule",
+    "PluginPolicyRuleCreate",
+    "PluginPolicyRuleSource",
+    "PluginPolicyScope",
+    "PluginPolicySelector",
+    "PluginPolicyStage",
+    "PluginPolicySubject",
+    "PluginPolicySubjectDecision",
+    "PluginQuarantine",
+    "PluginQuarantineCreate",
+    "PluginQuarantineState",
     "PluginRegistryAttachment",
     "PluginRegistryAttachmentKind",
     "PluginRegistryIndex",
@@ -479,6 +494,7 @@ from amesh_client.models.dashboard_visibility import DashboardVisibility as Dash
 from amesh_client.models.dashboard_visualization import DashboardVisualization as DashboardVisualization
 from amesh_client.models.dashboard_widget import DashboardWidget as DashboardWidget
 from amesh_client.models.dashboard_widget_result import DashboardWidgetResult as DashboardWidgetResult
+from amesh_client.models.effective_plugin_policy import EffectivePluginPolicy as EffectivePluginPolicy
 from amesh_client.models.exchange_credential_request import ExchangeCredentialRequest as ExchangeCredentialRequest
 from amesh_client.models.execution_artifact import ExecutionArtifact as ExecutionArtifact
 from amesh_client.models.execution_detail import ExecutionDetail as ExecutionDetail
@@ -576,6 +592,20 @@ from amesh_client.models.plugin_manifest import PluginManifest as PluginManifest
 from amesh_client.models.plugin_marketplace_signals import PluginMarketplaceSignals as PluginMarketplaceSignals
 from amesh_client.models.plugin_network_access import PluginNetworkAccess as PluginNetworkAccess
 from amesh_client.models.plugin_package_record import PluginPackageRecord as PluginPackageRecord
+from amesh_client.models.plugin_policy_decision import PluginPolicyDecision as PluginPolicyDecision
+from amesh_client.models.plugin_policy_effect import PluginPolicyEffect as PluginPolicyEffect
+from amesh_client.models.plugin_policy_impact_preview import PluginPolicyImpactPreview as PluginPolicyImpactPreview
+from amesh_client.models.plugin_policy_rule import PluginPolicyRule as PluginPolicyRule
+from amesh_client.models.plugin_policy_rule_create import PluginPolicyRuleCreate as PluginPolicyRuleCreate
+from amesh_client.models.plugin_policy_rule_source import PluginPolicyRuleSource as PluginPolicyRuleSource
+from amesh_client.models.plugin_policy_scope import PluginPolicyScope as PluginPolicyScope
+from amesh_client.models.plugin_policy_selector import PluginPolicySelector as PluginPolicySelector
+from amesh_client.models.plugin_policy_stage import PluginPolicyStage as PluginPolicyStage
+from amesh_client.models.plugin_policy_subject import PluginPolicySubject as PluginPolicySubject
+from amesh_client.models.plugin_policy_subject_decision import PluginPolicySubjectDecision as PluginPolicySubjectDecision
+from amesh_client.models.plugin_quarantine import PluginQuarantine as PluginQuarantine
+from amesh_client.models.plugin_quarantine_create import PluginQuarantineCreate as PluginQuarantineCreate
+from amesh_client.models.plugin_quarantine_state import PluginQuarantineState as PluginQuarantineState
 from amesh_client.models.plugin_registry_attachment import PluginRegistryAttachment as PluginRegistryAttachment
 from amesh_client.models.plugin_registry_attachment_kind import PluginRegistryAttachmentKind as PluginRegistryAttachmentKind
 from amesh_client.models.plugin_registry_index import PluginRegistryIndex as PluginRegistryIndex

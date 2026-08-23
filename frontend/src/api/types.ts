@@ -1051,3 +1051,65 @@ export interface PluginRegistryIndex {
   packages: PluginRegistryPackage[]
   signature: { keyId: string; algorithm: string; value: string } | null
 }
+
+export type PluginPolicyScope = 'INSTANCE' | 'TENANT' | 'NAMESPACE'
+export type PluginPolicyStage = 'AUTHORING' | 'VALIDATION' | 'EXECUTION' | 'ADMINISTRATION'
+
+export interface PluginPolicyRuleDraft {
+  scope: PluginPolicyScope
+  namespace?: string | null
+  effect: 'ALLOW' | 'DENY'
+  stages: PluginPolicyStage[]
+  selector: {
+    package: string
+    versionRange: string
+    vendor: string
+    pluginTypes: string[]
+    capabilities: string[]
+  }
+  priority: number
+  reason: string
+  enabled: boolean
+}
+
+export interface PluginPolicyRule extends PluginPolicyRuleDraft {
+  id: string
+  tenantId: string | null
+  createdBy: string
+  createdAt: string
+  updatedBy: string
+  updatedAt: string
+}
+
+export interface PluginQuarantineDraft {
+  scope: PluginPolicyScope
+  namespace?: string | null
+  package: string
+  version: string
+  reason: string
+}
+
+export interface PluginQuarantine extends PluginQuarantineDraft {
+  id: string
+  tenantId: string | null
+  state: 'ACTIVE' | 'RELEASED'
+  createdBy: string
+  createdAt: string
+  releasedBy: string | null
+  releasedAt: string | null
+}
+
+export interface EffectivePluginPolicy {
+  tenantId: string
+  namespace: string | null
+  defaultEffect: 'ALLOW' | 'DENY'
+  rules: PluginPolicyRule[]
+  quarantines: PluginQuarantine[]
+}
+
+export interface PluginPolicyImpactPreview {
+  package: string
+  version: string
+  affectedFlows: Array<Record<string, unknown>>
+  runningExecutions: Array<Record<string, unknown>>
+}

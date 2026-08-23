@@ -16,6 +16,7 @@ from amesh.adapters.postgres import (
     PostgresBackfillRepository,
     PostgresCheckRepository,
     PostgresExecutionRepository,
+    PostgresPluginPolicyRepository,
     PostgresReconciliationRepository,
     PostgresSchedulerRepository,
     PostgresSharedResourceRepository,
@@ -46,6 +47,7 @@ from amesh.executor import (
 from amesh.observability import configure_structured_logging
 from amesh.plugins import (
     IsolatedPluginRuntime,
+    PluginPolicyService,
     TrustedPluginRuntime,
     build_isolated_runtime,
     build_plugin_catalog,
@@ -498,7 +500,16 @@ async def run_worker(settings: Settings) -> None:
     worker_uuid = new_runtime_id()
     worker_id = str(worker_uuid)
     engine = create_database_engine(settings)
-    repository = PostgresExecutionRepository(engine)
+    plugin_catalog = build_plugin_catalog(settings)
+    plugin_policy = PluginPolicyService(
+        PostgresPluginPolicyRepository(engine),
+        plugin_catalog,
+        default_allow=settings.plugin_trust_mode == "development",
+    )
+    repository = PostgresExecutionRepository(
+        engine,
+        plugin_policy_enforcer=plugin_policy.enforce_flow,
+    )
     scheduler_repository = PostgresSchedulerRepository(engine)
     trigger_runtime = PostgresTriggerRuntimeRepository(engine)
     checks = PostgresCheckRepository(engine)
@@ -507,7 +518,6 @@ async def run_worker(settings: Settings) -> None:
     shared_resources = PostgresSharedResourceRepository(engine)
     tenant_repository = PostgresTenantRepository(engine)
     next_reconciliation_at = 0.0
-    plugin_catalog = build_plugin_catalog(settings)
     trusted_runtime = build_trusted_runtime(settings, plugin_catalog)
     isolated_runtime = build_isolated_runtime(settings, plugin_catalog)
     LOGGER.info("worker started", extra={"worker_id": worker_id})

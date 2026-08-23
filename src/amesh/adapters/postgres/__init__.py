@@ -16,6 +16,7 @@ from .operations_repository import (
     RecoveryExercise,
     TableMaintenanceStatus,
 )
+from .plugin_policy_repository import PostgresPluginPolicyRepository
 from .realtime_repository import PostgresRealtimeRepository
 from .reconciliation_repository import PostgresReconciliationRepository
 from .scheduler_repository import PostgresSchedulerRepository
@@ -42,6 +43,7 @@ __all__ = [
     "PostgresFederationRepository",
     "PostgresMetadataRepository",
     "PostgresOperationsRepository",
+    "PostgresPluginPolicyRepository",
     "PostgresRealtimeRepository",
     "PostgresReconciliationRepository",
     "PostgresSchedulerRepository",

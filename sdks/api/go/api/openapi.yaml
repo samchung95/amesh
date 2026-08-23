@@ -8181,6 +8181,491 @@ paths:
       summary: Simulate Playground
       tags:
       - blueprints
+  /api/v1/plugin-policy/decisions:
+    get:
+      operationId: list_plugin_policy_decisions_api_v1_plugin_policy_decisions_get
+      parameters:
+      - explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          maximum: 500
+          minimum: 1
+          title: Limit
+          type: integer
+        style: form
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/PluginPolicyDecision"
+                title: Response List Plugin Policy Decisions Api V1 Plugin Policy
+                  Decisions Get
+                type: array
+                default: null
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: List Plugin Policy Decisions
+      tags:
+      - plugins
+  /api/v1/plugin-policy/effective:
+    get:
+      operationId: get_effective_plugin_policy_api_v1_plugin_policy_effective_get
+      parameters:
+      - explode: true
+        in: query
+        name: namespace
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: form
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EffectivePluginPolicy"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Get Effective Plugin Policy
+      tags:
+      - plugins
+  /api/v1/plugin-policy/evaluate:
+    post:
+      operationId: evaluate_flow_plugin_policy_api_v1_plugin_policy_evaluate_post
+      parameters:
+      - explode: true
+        in: query
+        name: stage
+        required: false
+        schema:
+          allOf:
+          - $ref: "#/components/schemas/PluginPolicyStage"
+          default: VALIDATION
+        style: form
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PluginPolicyDecision"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Evaluate Flow Plugin Policy
+      tags:
+      - plugins
+  /api/v1/plugin-policy/quarantines:
+    post:
+      operationId: quarantine_plugin_version_api_v1_plugin_policy_quarantines_post
+      parameters:
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PluginQuarantineCreate"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PluginQuarantine"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Quarantine Plugin Version
+      tags:
+      - plugins
+  /api/v1/plugin-policy/quarantines/preview:
+    post:
+      operationId: preview_plugin_quarantine_api_v1_plugin_policy_quarantines_preview_post
+      parameters:
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PluginQuarantineCreate"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PluginPolicyImpactPreview"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Preview Plugin Quarantine
+      tags:
+      - plugins
+  /api/v1/plugin-policy/quarantines/{quarantine_id}/release:
+    post:
+      operationId: release_plugin_quarantine_api_v1_plugin_policy_quarantines__quarantine_id__release_post
+      parameters:
+      - explode: false
+        in: path
+        name: quarantine_id
+        required: true
+        schema:
+          format: uuid
+          title: Quarantine Id
+          type: string
+        style: simple
+      - explode: true
+        in: query
+        name: reason
+        required: true
+        schema:
+          maxLength: 2048
+          minLength: 1
+          title: Reason
+          type: string
+        style: form
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PluginQuarantine"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Release Plugin Quarantine
+      tags:
+      - plugins
+  /api/v1/plugin-policy/rules:
+    post:
+      operationId: create_plugin_policy_rule_api_v1_plugin_policy_rules_post
+      parameters:
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PluginPolicyRuleCreate"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PluginPolicyRule"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Create Plugin Policy Rule
+      tags:
+      - plugins
+  /api/v1/plugin-policy/rules/{rule_id}:
+    delete:
+      operationId: delete_plugin_policy_rule_api_v1_plugin_policy_rules__rule_id__delete
+      parameters:
+      - explode: false
+        in: path
+        name: rule_id
+        required: true
+        schema:
+          format: uuid
+          title: Rule Id
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "204":
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Delete Plugin Policy Rule
+      tags:
+      - plugins
+    put:
+      operationId: update_plugin_policy_rule_api_v1_plugin_policy_rules__rule_id__put
+      parameters:
+      - explode: false
+        in: path
+        name: rule_id
+        required: true
+        schema:
+          format: uuid
+          title: Rule Id
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PluginPolicyRuleCreate"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PluginPolicyRule"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Update Plugin Policy Rule
+      tags:
+      - plugins
   /api/v1/plugin-registry/blobs/{digest}:
     get:
       operationId: download_plugin_registry_bundle_api_v1_plugin_registry_blobs__digest__get
@@ -8790,7 +9275,6 @@ paths:
         name: flowId
         required: false
         schema:
-          description: Opaque cursor from the prior page
           nullable: true
           type: string
         style: form
@@ -14871,6 +15355,114 @@ components:
       - result
       - widgetId
       title: DashboardWidgetResult
+    EffectivePluginPolicy:
+      example:
+        defaultEffect: ALLOW
+        namespace: namespace
+        quarantines:
+        - createdAt: 2000-01-23T04:56:07.000+00:00
+          createdBy: createdBy
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          namespace: namespace
+          package: package
+          reason: reason
+          releasedAt: 2000-01-23T04:56:07.000+00:00
+          releasedBy: releasedBy
+          scope: ""
+          state: ""
+          tenantId: tenantId
+          version: version
+        - createdAt: 2000-01-23T04:56:07.000+00:00
+          createdBy: createdBy
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          namespace: namespace
+          package: package
+          reason: reason
+          releasedAt: 2000-01-23T04:56:07.000+00:00
+          releasedBy: releasedBy
+          scope: ""
+          state: ""
+          tenantId: tenantId
+          version: version
+        rules:
+        - createdAt: 2000-01-23T04:56:07.000+00:00
+          createdBy: createdBy
+          effect: null
+          enabled: true
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          namespace: namespace
+          priority: -8398
+          reason: reason
+          scope: INSTANCE
+          selector:
+            capabilities:
+            - capabilities
+            - capabilities
+            package: '*'
+            pluginTypes:
+            - pluginTypes
+            - pluginTypes
+            vendor: '*'
+            versionRange: '*'
+          stages:
+          - AUTHORING
+          - AUTHORING
+          tenantId: tenantId
+          updatedAt: 2000-01-23T04:56:07.000+00:00
+          updatedBy: updatedBy
+        - createdAt: 2000-01-23T04:56:07.000+00:00
+          createdBy: createdBy
+          effect: null
+          enabled: true
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          namespace: namespace
+          priority: -8398
+          reason: reason
+          scope: INSTANCE
+          selector:
+            capabilities:
+            - capabilities
+            - capabilities
+            package: '*'
+            pluginTypes:
+            - pluginTypes
+            - pluginTypes
+            vendor: '*'
+            versionRange: '*'
+          stages:
+          - AUTHORING
+          - AUTHORING
+          tenantId: tenantId
+          updatedAt: 2000-01-23T04:56:07.000+00:00
+          updatedBy: updatedBy
+        tenantId: tenantId
+      properties:
+        defaultEffect:
+          $ref: "#/components/schemas/PluginPolicyEffect"
+        namespace:
+          nullable: true
+          type: string
+        quarantines:
+          items:
+            $ref: "#/components/schemas/PluginQuarantine"
+          title: Quarantines
+          type: array
+          default: null
+        rules:
+          items:
+            $ref: "#/components/schemas/PluginPolicyRule"
+          title: Rules
+          type: array
+          default: null
+        tenantId:
+          title: Tenantid
+          type: string
+      required:
+      - defaultEffect
+      - quarantines
+      - rules
+      - tenantId
+      title: EffectivePluginPolicy
     ExchangeCredentialRequest:
       example:
         audience: audience
@@ -18461,6 +19053,594 @@ components:
       - sourceLocation
       - status
       title: PluginPackageRecord
+    PluginPolicyDecision:
+      example:
+        allowed: true
+        decidedAt: 2000-01-23T04:56:07.000+00:00
+        flowId: flowId
+        flowRevision: 0
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        namespace: namespace
+        stage: AUTHORING
+        subjects:
+        - allowed: true
+          reasonCode: reasonCode
+          sources:
+          - effect: ALLOW
+            kind: kind
+            reason: reason
+            scope: ""
+            sourceId: sourceId
+          - effect: ALLOW
+            kind: kind
+            reason: reason
+            scope: ""
+            sourceId: sourceId
+          subject:
+            capabilities:
+            - capabilities
+            - capabilities
+            contentDigest: contentDigest
+            package: package
+            pluginTypes:
+            - pluginTypes
+            - pluginTypes
+            vendor: vendor
+            version: version
+        - allowed: true
+          reasonCode: reasonCode
+          sources:
+          - effect: ALLOW
+            kind: kind
+            reason: reason
+            scope: ""
+            sourceId: sourceId
+          - effect: ALLOW
+            kind: kind
+            reason: reason
+            scope: ""
+            sourceId: sourceId
+          subject:
+            capabilities:
+            - capabilities
+            - capabilities
+            contentDigest: contentDigest
+            package: package
+            pluginTypes:
+            - pluginTypes
+            - pluginTypes
+            vendor: vendor
+            version: version
+        tenantId: tenantId
+      properties:
+        allowed:
+          title: Allowed
+          type: boolean
+        decidedAt:
+          format: date-time
+          title: Decidedat
+          type: string
+        flowId:
+          nullable: true
+          type: string
+        flowRevision:
+          nullable: true
+          type: integer
+        id:
+          format: uuid
+          title: Id
+          type: string
+        namespace:
+          title: Namespace
+          type: string
+        stage:
+          $ref: "#/components/schemas/PluginPolicyStage"
+        subjects:
+          items:
+            $ref: "#/components/schemas/PluginPolicySubjectDecision"
+          title: Subjects
+          type: array
+          default: null
+        tenantId:
+          title: Tenantid
+          type: string
+      required:
+      - allowed
+      - namespace
+      - stage
+      - subjects
+      - tenantId
+      title: PluginPolicyDecision
+    PluginPolicyEffect:
+      enum:
+      - ALLOW
+      - DENY
+      title: PluginPolicyEffect
+      type: string
+    PluginPolicyImpactPreview:
+      example:
+        affectedFlows:
+        - key: ""
+        - key: ""
+        package: package
+        runningExecutions:
+        - key: ""
+        - key: ""
+        version: version
+      properties:
+        affectedFlows:
+          items:
+            additionalProperties: true
+            nullable: true
+            type: object
+          title: Affectedflows
+          type: array
+          default: null
+        package:
+          title: Package
+          type: string
+        runningExecutions:
+          items:
+            additionalProperties: true
+            nullable: true
+            type: object
+          title: Runningexecutions
+          type: array
+          default: null
+        version:
+          title: Version
+          type: string
+      required:
+      - affectedFlows
+      - package
+      - runningExecutions
+      - version
+      title: PluginPolicyImpactPreview
+    PluginPolicyRule:
+      additionalProperties: false
+      example:
+        createdAt: 2000-01-23T04:56:07.000+00:00
+        createdBy: createdBy
+        effect: null
+        enabled: true
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        namespace: namespace
+        priority: -8398
+        reason: reason
+        scope: INSTANCE
+        selector:
+          capabilities:
+          - capabilities
+          - capabilities
+          package: '*'
+          pluginTypes:
+          - pluginTypes
+          - pluginTypes
+          vendor: '*'
+          versionRange: '*'
+        stages:
+        - AUTHORING
+        - AUTHORING
+        tenantId: tenantId
+        updatedAt: 2000-01-23T04:56:07.000+00:00
+        updatedBy: updatedBy
+      properties:
+        createdAt:
+          format: date-time
+          title: Createdat
+          type: string
+        createdBy:
+          title: Createdby
+          type: string
+        effect:
+          $ref: "#/components/schemas/PluginPolicyEffect"
+        enabled:
+          default: true
+          title: Enabled
+          type: boolean
+        id:
+          format: uuid
+          title: Id
+          type: string
+        namespace:
+          maxLength: 255
+          minLength: 1
+          nullable: true
+          type: string
+        priority:
+          default: 0
+          maximum: 10000.0
+          minimum: -10000.0
+          title: Priority
+          type: integer
+        reason:
+          maxLength: 2048
+          minLength: 1
+          title: Reason
+          type: string
+        scope:
+          $ref: "#/components/schemas/PluginPolicyScope"
+        selector:
+          $ref: "#/components/schemas/PluginPolicySelector"
+        stages:
+          items:
+            $ref: "#/components/schemas/PluginPolicyStage"
+          minItems: 1
+          title: Stages
+          type: array
+          default: null
+        tenantId:
+          nullable: true
+          type: string
+        updatedAt:
+          format: date-time
+          title: Updatedat
+          type: string
+        updatedBy:
+          title: Updatedby
+          type: string
+      required:
+      - createdBy
+      - effect
+      - reason
+      - scope
+      - stages
+      - updatedBy
+      title: PluginPolicyRule
+    PluginPolicyRuleCreate:
+      additionalProperties: false
+      example:
+        effect: ALLOW
+        enabled: true
+        namespace: namespace
+        priority: -8398
+        reason: reason
+        scope: INSTANCE
+        selector:
+          capabilities:
+          - capabilities
+          - capabilities
+          package: '*'
+          pluginTypes:
+          - pluginTypes
+          - pluginTypes
+          vendor: '*'
+          versionRange: '*'
+        stages:
+        - AUTHORING
+        - AUTHORING
+      properties:
+        effect:
+          $ref: "#/components/schemas/PluginPolicyEffect"
+        enabled:
+          default: true
+          title: Enabled
+          type: boolean
+        namespace:
+          maxLength: 255
+          minLength: 1
+          nullable: true
+          type: string
+        priority:
+          default: 0
+          maximum: 10000.0
+          minimum: -10000.0
+          title: Priority
+          type: integer
+        reason:
+          maxLength: 2048
+          minLength: 1
+          title: Reason
+          type: string
+        scope:
+          $ref: "#/components/schemas/PluginPolicyScope"
+        selector:
+          $ref: "#/components/schemas/PluginPolicySelector"
+        stages:
+          items:
+            $ref: "#/components/schemas/PluginPolicyStage"
+          minItems: 1
+          title: Stages
+          type: array
+          default: null
+      required:
+      - effect
+      - reason
+      - scope
+      - stages
+      title: PluginPolicyRuleCreate
+    PluginPolicyRuleSource:
+      example:
+        effect: ALLOW
+        kind: kind
+        reason: reason
+        scope: ""
+        sourceId: sourceId
+      properties:
+        effect:
+          $ref: "#/components/schemas/PluginPolicyEffect"
+        kind:
+          title: Kind
+          type: string
+        reason:
+          title: Reason
+          type: string
+        scope:
+          allOf:
+          - $ref: "#/components/schemas/PluginPolicyScope"
+          nullable: true
+        sourceId:
+          title: Sourceid
+          type: string
+      required:
+      - effect
+      - kind
+      - reason
+      - sourceId
+      title: PluginPolicyRuleSource
+    PluginPolicyScope:
+      enum:
+      - INSTANCE
+      - TENANT
+      - NAMESPACE
+      title: PluginPolicyScope
+      type: string
+    PluginPolicySelector:
+      additionalProperties: false
+      example:
+        capabilities:
+        - capabilities
+        - capabilities
+        package: '*'
+        pluginTypes:
+        - pluginTypes
+        - pluginTypes
+        vendor: '*'
+        versionRange: '*'
+      properties:
+        capabilities:
+          default: []
+          items:
+            type: string
+          title: Capabilities
+          type: array
+        package:
+          default: '*'
+          maxLength: 255
+          minLength: 1
+          title: Package
+          type: string
+        pluginTypes:
+          default: []
+          items:
+            type: string
+          title: Plugintypes
+          type: array
+        vendor:
+          default: '*'
+          maxLength: 255
+          minLength: 1
+          title: Vendor
+          type: string
+        versionRange:
+          default: '*'
+          maxLength: 128
+          minLength: 1
+          title: Versionrange
+          type: string
+      title: PluginPolicySelector
+    PluginPolicyStage:
+      enum:
+      - AUTHORING
+      - VALIDATION
+      - EXECUTION
+      - ADMINISTRATION
+      title: PluginPolicyStage
+      type: string
+    PluginPolicySubject:
+      example:
+        capabilities:
+        - capabilities
+        - capabilities
+        contentDigest: contentDigest
+        package: package
+        pluginTypes:
+        - pluginTypes
+        - pluginTypes
+        vendor: vendor
+        version: version
+      properties:
+        capabilities:
+          default: []
+          items:
+            type: string
+          title: Capabilities
+          type: array
+        contentDigest:
+          nullable: true
+          type: string
+        package:
+          title: Package
+          type: string
+        pluginTypes:
+          default: []
+          items:
+            type: string
+          title: Plugintypes
+          type: array
+        vendor:
+          title: Vendor
+          type: string
+        version:
+          title: Version
+          type: string
+      required:
+      - package
+      - vendor
+      - version
+      title: PluginPolicySubject
+    PluginPolicySubjectDecision:
+      example:
+        allowed: true
+        reasonCode: reasonCode
+        sources:
+        - effect: ALLOW
+          kind: kind
+          reason: reason
+          scope: ""
+          sourceId: sourceId
+        - effect: ALLOW
+          kind: kind
+          reason: reason
+          scope: ""
+          sourceId: sourceId
+        subject:
+          capabilities:
+          - capabilities
+          - capabilities
+          contentDigest: contentDigest
+          package: package
+          pluginTypes:
+          - pluginTypes
+          - pluginTypes
+          vendor: vendor
+          version: version
+      properties:
+        allowed:
+          title: Allowed
+          type: boolean
+        reasonCode:
+          title: Reasoncode
+          type: string
+        sources:
+          items:
+            $ref: "#/components/schemas/PluginPolicyRuleSource"
+          title: Sources
+          type: array
+          default: null
+        subject:
+          $ref: "#/components/schemas/PluginPolicySubject"
+      required:
+      - allowed
+      - reasonCode
+      - sources
+      - subject
+      title: PluginPolicySubjectDecision
+    PluginQuarantine:
+      additionalProperties: false
+      example:
+        createdAt: 2000-01-23T04:56:07.000+00:00
+        createdBy: createdBy
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        namespace: namespace
+        package: package
+        reason: reason
+        releasedAt: 2000-01-23T04:56:07.000+00:00
+        releasedBy: releasedBy
+        scope: ""
+        state: ""
+        tenantId: tenantId
+        version: version
+      properties:
+        createdAt:
+          format: date-time
+          title: Createdat
+          type: string
+        createdBy:
+          title: Createdby
+          type: string
+        id:
+          format: uuid
+          title: Id
+          type: string
+        namespace:
+          maxLength: 255
+          minLength: 1
+          nullable: true
+          type: string
+        package:
+          maxLength: 255
+          minLength: 1
+          title: Package
+          type: string
+        reason:
+          maxLength: 2048
+          minLength: 1
+          title: Reason
+          type: string
+        releasedAt:
+          format: date-time
+          nullable: true
+          type: string
+        releasedBy:
+          nullable: true
+          type: string
+        scope:
+          allOf:
+          - $ref: "#/components/schemas/PluginPolicyScope"
+          default: INSTANCE
+        state:
+          allOf:
+          - $ref: "#/components/schemas/PluginQuarantineState"
+          default: ACTIVE
+        tenantId:
+          nullable: true
+          type: string
+        version:
+          maxLength: 128
+          minLength: 1
+          title: Version
+          type: string
+      required:
+      - createdBy
+      - package
+      - reason
+      - version
+      title: PluginQuarantine
+    PluginQuarantineCreate:
+      additionalProperties: false
+      example:
+        namespace: namespace
+        package: package
+        reason: reason
+        scope: ""
+        version: version
+      properties:
+        namespace:
+          maxLength: 255
+          minLength: 1
+          nullable: true
+          type: string
+        package:
+          maxLength: 255
+          minLength: 1
+          title: Package
+          type: string
+        reason:
+          maxLength: 2048
+          minLength: 1
+          title: Reason
+          type: string
+        scope:
+          allOf:
+          - $ref: "#/components/schemas/PluginPolicyScope"
+          default: INSTANCE
+        version:
+          maxLength: 128
+          minLength: 1
+          title: Version
+          type: string
+      required:
+      - package
+      - reason
+      - version
+      title: PluginQuarantineCreate
+    PluginQuarantineState:
+      enum:
+      - ACTIVE
+      - RELEASED
+      title: PluginQuarantineState
+      type: string
     PluginRegistryAttachment:
       additionalProperties: false
       example:

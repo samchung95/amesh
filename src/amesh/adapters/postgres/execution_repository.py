@@ -3,7 +3,7 @@ from __future__ import annotations
 import hashlib
 import hmac
 import json
-from collections.abc import Callable, Mapping
+from collections.abc import Awaitable, Callable, Mapping
 from datetime import datetime, timedelta
 from uuid import UUID
 
@@ -25,6 +25,7 @@ from amesh.domain import (
     FlowRevisionDiff,
     FlowRevisionRecord,
     FlowRevisionSource,
+    PluginPolicyStage,
     ResolvedAdmissionPolicy,
     ResourceMetadata,
     ResourceVersionConflict,
@@ -1681,9 +1682,14 @@ class PostgresExecutionRepository(ExecutionRepository):
         engine: AsyncEngine,
         *,
         plugin_resolution_provider: Callable[[FlowDefinition], dict[str, object]] | None = None,
+        plugin_policy_enforcer: Callable[
+            [FlowDefinition, str, PluginPolicyStage, str], Awaitable[None]
+        ]
+        | None = None,
     ) -> None:
         self._engine = engine
         self._plugin_resolution_provider = plugin_resolution_provider
+        self._plugin_policy_enforcer = plugin_policy_enforcer
 
     async def apply_flow(
         self,
@@ -1695,6 +1701,13 @@ class PostgresExecutionRepository(ExecutionRepository):
         revision_source: FlowRevisionSource | None = None,
     ) -> PersistedFlow:
         validate_flow_data_contract(flow)
+        if self._plugin_policy_enforcer is not None:
+            await self._plugin_policy_enforcer(
+                flow,
+                tenant_id,
+                PluginPolicyStage.AUTHORING,
+                actor_id,
+            )
         async with tenant_transaction(self._engine, tenant_id) as (connection, scoped_tenant_id):
             policy = await _load_tenant_policy(connection)
             _require_allowed_plugins(policy, flow)
@@ -2032,6 +2045,13 @@ class PostgresExecutionRepository(ExecutionRepository):
         if subflow is not None and flow.revision != subflow.target_revision:
             raise ValueError("subflow target revision does not match the loaded flow revision")
         inputs = validate_flow_inputs(flow, inputs)
+        if self._plugin_policy_enforcer is not None:
+            await self._plugin_policy_enforcer(
+                flow,
+                tenant_id,
+                PluginPolicyStage.EXECUTION,
+                actor_id,
+            )
         execution_id = new_runtime_id()
 
         async with tenant_transaction(self._engine, tenant_id) as (connection, scoped_tenant_id):

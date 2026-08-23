@@ -16,10 +16,18 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 from typing_extensions import Annotated
 
 from pydantic import Field, StrictStr, field_validator
-from typing import Optional
+from typing import Any, List, Optional
 from typing_extensions import Annotated
+from uuid import UUID
+from amesh_client.models.effective_plugin_policy import EffectivePluginPolicy
 from amesh_client.models.isolated_plugin_runtime_snapshot import IsolatedPluginRuntimeSnapshot
 from amesh_client.models.plugin_catalog_snapshot import PluginCatalogSnapshot
+from amesh_client.models.plugin_policy_decision import PluginPolicyDecision
+from amesh_client.models.plugin_policy_impact_preview import PluginPolicyImpactPreview
+from amesh_client.models.plugin_policy_rule import PluginPolicyRule
+from amesh_client.models.plugin_policy_rule_create import PluginPolicyRuleCreate
+from amesh_client.models.plugin_quarantine import PluginQuarantine
+from amesh_client.models.plugin_quarantine_create import PluginQuarantineCreate
 from amesh_client.models.plugin_registry_index import PluginRegistryIndex
 from amesh_client.models.plugin_registry_package import PluginRegistryPackage
 from amesh_client.models.plugin_registry_publish_request import PluginRegistryPublishRequest
@@ -42,6 +50,629 @@ class PluginsApi:
         if api_client is None:
             api_client = ApiClient.get_default()
         self.api_client = api_client
+
+
+    @validate_call
+    def create_plugin_policy_rule_api_v1_plugin_policy_rules_post(
+        self,
+        plugin_policy_rule_create: PluginPolicyRuleCreate,
+        authorization: Optional[StrictStr] = None,
+        x_amesh_csrf: Optional[StrictStr] = None,
+        x_amesh_tenant: Optional[StrictStr] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> PluginPolicyRule:
+        """Create Plugin Policy Rule
+
+
+        :param plugin_policy_rule_create: (required)
+        :type plugin_policy_rule_create: PluginPolicyRuleCreate
+        :param authorization:
+        :type authorization: str
+        :param x_amesh_csrf:
+        :type x_amesh_csrf: str
+        :param x_amesh_tenant:
+        :type x_amesh_tenant: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._create_plugin_policy_rule_api_v1_plugin_policy_rules_post_serialize(
+            plugin_policy_rule_create=plugin_policy_rule_create,
+            authorization=authorization,
+            x_amesh_csrf=x_amesh_csrf,
+            x_amesh_tenant=x_amesh_tenant,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "PluginPolicyRule",
+            '422': "HTTPValidationError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def create_plugin_policy_rule_api_v1_plugin_policy_rules_post_with_http_info(
+        self,
+        plugin_policy_rule_create: PluginPolicyRuleCreate,
+        authorization: Optional[StrictStr] = None,
+        x_amesh_csrf: Optional[StrictStr] = None,
+        x_amesh_tenant: Optional[StrictStr] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[PluginPolicyRule]:
+        """Create Plugin Policy Rule
+
+
+        :param plugin_policy_rule_create: (required)
+        :type plugin_policy_rule_create: PluginPolicyRuleCreate
+        :param authorization:
+        :type authorization: str
+        :param x_amesh_csrf:
+        :type x_amesh_csrf: str
+        :param x_amesh_tenant:
+        :type x_amesh_tenant: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._create_plugin_policy_rule_api_v1_plugin_policy_rules_post_serialize(
+            plugin_policy_rule_create=plugin_policy_rule_create,
+            authorization=authorization,
+            x_amesh_csrf=x_amesh_csrf,
+            x_amesh_tenant=x_amesh_tenant,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "PluginPolicyRule",
+            '422': "HTTPValidationError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def create_plugin_policy_rule_api_v1_plugin_policy_rules_post_without_preload_content(
+        self,
+        plugin_policy_rule_create: PluginPolicyRuleCreate,
+        authorization: Optional[StrictStr] = None,
+        x_amesh_csrf: Optional[StrictStr] = None,
+        x_amesh_tenant: Optional[StrictStr] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Create Plugin Policy Rule
+
+
+        :param plugin_policy_rule_create: (required)
+        :type plugin_policy_rule_create: PluginPolicyRuleCreate
+        :param authorization:
+        :type authorization: str
+        :param x_amesh_csrf:
+        :type x_amesh_csrf: str
+        :param x_amesh_tenant:
+        :type x_amesh_tenant: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._create_plugin_policy_rule_api_v1_plugin_policy_rules_post_serialize(
+            plugin_policy_rule_create=plugin_policy_rule_create,
+            authorization=authorization,
+            x_amesh_csrf=x_amesh_csrf,
+            x_amesh_tenant=x_amesh_tenant,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "PluginPolicyRule",
+            '422': "HTTPValidationError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _create_plugin_policy_rule_api_v1_plugin_policy_rules_post_serialize(
+        self,
+        plugin_policy_rule_create,
+        authorization,
+        x_amesh_csrf,
+        x_amesh_tenant,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        # process the query parameters
+        # process the header parameters
+        if authorization is not None:
+            _header_params['authorization'] = authorization
+        if x_amesh_csrf is not None:
+            _header_params['X-Amesh-CSRF'] = x_amesh_csrf
+        if x_amesh_tenant is not None:
+            _header_params['X-Amesh-Tenant'] = x_amesh_tenant
+        # process the form parameters
+        # process the body parameter
+        if plugin_policy_rule_create is not None:
+            _body_params = plugin_policy_rule_create
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/api/v1/plugin-policy/rules',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def delete_plugin_policy_rule_api_v1_plugin_policy_rules_rule_id_delete(
+        self,
+        rule_id: UUID,
+        authorization: Optional[StrictStr] = None,
+        x_amesh_csrf: Optional[StrictStr] = None,
+        x_amesh_tenant: Optional[StrictStr] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> None:
+        """Delete Plugin Policy Rule
+
+
+        :param rule_id: (required)
+        :type rule_id: UUID
+        :param authorization:
+        :type authorization: str
+        :param x_amesh_csrf:
+        :type x_amesh_csrf: str
+        :param x_amesh_tenant:
+        :type x_amesh_tenant: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._delete_plugin_policy_rule_api_v1_plugin_policy_rules_rule_id_delete_serialize(
+            rule_id=rule_id,
+            authorization=authorization,
+            x_amesh_csrf=x_amesh_csrf,
+            x_amesh_tenant=x_amesh_tenant,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '204': None,
+            '422': "HTTPValidationError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def delete_plugin_policy_rule_api_v1_plugin_policy_rules_rule_id_delete_with_http_info(
+        self,
+        rule_id: UUID,
+        authorization: Optional[StrictStr] = None,
+        x_amesh_csrf: Optional[StrictStr] = None,
+        x_amesh_tenant: Optional[StrictStr] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[None]:
+        """Delete Plugin Policy Rule
+
+
+        :param rule_id: (required)
+        :type rule_id: UUID
+        :param authorization:
+        :type authorization: str
+        :param x_amesh_csrf:
+        :type x_amesh_csrf: str
+        :param x_amesh_tenant:
+        :type x_amesh_tenant: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._delete_plugin_policy_rule_api_v1_plugin_policy_rules_rule_id_delete_serialize(
+            rule_id=rule_id,
+            authorization=authorization,
+            x_amesh_csrf=x_amesh_csrf,
+            x_amesh_tenant=x_amesh_tenant,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '204': None,
+            '422': "HTTPValidationError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def delete_plugin_policy_rule_api_v1_plugin_policy_rules_rule_id_delete_without_preload_content(
+        self,
+        rule_id: UUID,
+        authorization: Optional[StrictStr] = None,
+        x_amesh_csrf: Optional[StrictStr] = None,
+        x_amesh_tenant: Optional[StrictStr] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Delete Plugin Policy Rule
+
+
+        :param rule_id: (required)
+        :type rule_id: UUID
+        :param authorization:
+        :type authorization: str
+        :param x_amesh_csrf:
+        :type x_amesh_csrf: str
+        :param x_amesh_tenant:
+        :type x_amesh_tenant: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._delete_plugin_policy_rule_api_v1_plugin_policy_rules_rule_id_delete_serialize(
+            rule_id=rule_id,
+            authorization=authorization,
+            x_amesh_csrf=x_amesh_csrf,
+            x_amesh_tenant=x_amesh_tenant,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '204': None,
+            '422': "HTTPValidationError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _delete_plugin_policy_rule_api_v1_plugin_policy_rules_rule_id_delete_serialize(
+        self,
+        rule_id,
+        authorization,
+        x_amesh_csrf,
+        x_amesh_tenant,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if rule_id is not None:
+            _path_params['rule_id'] = rule_id
+        # process the query parameters
+        # process the header parameters
+        if authorization is not None:
+            _header_params['authorization'] = authorization
+        if x_amesh_csrf is not None:
+            _header_params['X-Amesh-CSRF'] = x_amesh_csrf
+        if x_amesh_tenant is not None:
+            _header_params['X-Amesh-Tenant'] = x_amesh_tenant
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+        ]
+
+        return self.api_client.param_serialize(
+            method='DELETE',
+            resource_path='/api/v1/plugin-policy/rules/{rule_id}',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
 
 
     @validate_call
@@ -350,6 +981,313 @@ class PluginsApi:
 
 
     @validate_call
+    def evaluate_flow_plugin_policy_api_v1_plugin_policy_evaluate_post(
+        self,
+        stage: Optional[Any] = None,
+        authorization: Optional[StrictStr] = None,
+        x_amesh_csrf: Optional[StrictStr] = None,
+        x_amesh_tenant: Optional[StrictStr] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> PluginPolicyDecision:
+        """Evaluate Flow Plugin Policy
+
+
+        :param stage:
+        :type stage: PluginPolicyStage
+        :param authorization:
+        :type authorization: str
+        :param x_amesh_csrf:
+        :type x_amesh_csrf: str
+        :param x_amesh_tenant:
+        :type x_amesh_tenant: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._evaluate_flow_plugin_policy_api_v1_plugin_policy_evaluate_post_serialize(
+            stage=stage,
+            authorization=authorization,
+            x_amesh_csrf=x_amesh_csrf,
+            x_amesh_tenant=x_amesh_tenant,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "PluginPolicyDecision",
+            '422': "HTTPValidationError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def evaluate_flow_plugin_policy_api_v1_plugin_policy_evaluate_post_with_http_info(
+        self,
+        stage: Optional[Any] = None,
+        authorization: Optional[StrictStr] = None,
+        x_amesh_csrf: Optional[StrictStr] = None,
+        x_amesh_tenant: Optional[StrictStr] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[PluginPolicyDecision]:
+        """Evaluate Flow Plugin Policy
+
+
+        :param stage:
+        :type stage: PluginPolicyStage
+        :param authorization:
+        :type authorization: str
+        :param x_amesh_csrf:
+        :type x_amesh_csrf: str
+        :param x_amesh_tenant:
+        :type x_amesh_tenant: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._evaluate_flow_plugin_policy_api_v1_plugin_policy_evaluate_post_serialize(
+            stage=stage,
+            authorization=authorization,
+            x_amesh_csrf=x_amesh_csrf,
+            x_amesh_tenant=x_amesh_tenant,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "PluginPolicyDecision",
+            '422': "HTTPValidationError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def evaluate_flow_plugin_policy_api_v1_plugin_policy_evaluate_post_without_preload_content(
+        self,
+        stage: Optional[Any] = None,
+        authorization: Optional[StrictStr] = None,
+        x_amesh_csrf: Optional[StrictStr] = None,
+        x_amesh_tenant: Optional[StrictStr] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Evaluate Flow Plugin Policy
+
+
+        :param stage:
+        :type stage: PluginPolicyStage
+        :param authorization:
+        :type authorization: str
+        :param x_amesh_csrf:
+        :type x_amesh_csrf: str
+        :param x_amesh_tenant:
+        :type x_amesh_tenant: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._evaluate_flow_plugin_policy_api_v1_plugin_policy_evaluate_post_serialize(
+            stage=stage,
+            authorization=authorization,
+            x_amesh_csrf=x_amesh_csrf,
+            x_amesh_tenant=x_amesh_tenant,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "PluginPolicyDecision",
+            '422': "HTTPValidationError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _evaluate_flow_plugin_policy_api_v1_plugin_policy_evaluate_post_serialize(
+        self,
+        stage,
+        authorization,
+        x_amesh_csrf,
+        x_amesh_tenant,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        # process the query parameters
+        if stage is not None:
+
+            _query_params.append(('stage', stage.value))
+
+        # process the header parameters
+        if authorization is not None:
+            _header_params['authorization'] = authorization
+        if x_amesh_csrf is not None:
+            _header_params['X-Amesh-CSRF'] = x_amesh_csrf
+        if x_amesh_tenant is not None:
+            _header_params['X-Amesh-Tenant'] = x_amesh_tenant
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/api/v1/plugin-policy/evaluate',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
     def export_plugin_registry_api_v1_plugin_registry_offline_export_get(
         self,
         authorization: Optional[StrictStr] = None,
@@ -624,6 +1562,313 @@ class PluginsApi:
         return self.api_client.param_serialize(
             method='GET',
             resource_path='/api/v1/plugin-registry/offline-export',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def get_effective_plugin_policy_api_v1_plugin_policy_effective_get(
+        self,
+        namespace: Optional[StrictStr] = None,
+        authorization: Optional[StrictStr] = None,
+        x_amesh_csrf: Optional[StrictStr] = None,
+        x_amesh_tenant: Optional[StrictStr] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> EffectivePluginPolicy:
+        """Get Effective Plugin Policy
+
+
+        :param namespace:
+        :type namespace: str
+        :param authorization:
+        :type authorization: str
+        :param x_amesh_csrf:
+        :type x_amesh_csrf: str
+        :param x_amesh_tenant:
+        :type x_amesh_tenant: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._get_effective_plugin_policy_api_v1_plugin_policy_effective_get_serialize(
+            namespace=namespace,
+            authorization=authorization,
+            x_amesh_csrf=x_amesh_csrf,
+            x_amesh_tenant=x_amesh_tenant,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "EffectivePluginPolicy",
+            '422': "HTTPValidationError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def get_effective_plugin_policy_api_v1_plugin_policy_effective_get_with_http_info(
+        self,
+        namespace: Optional[StrictStr] = None,
+        authorization: Optional[StrictStr] = None,
+        x_amesh_csrf: Optional[StrictStr] = None,
+        x_amesh_tenant: Optional[StrictStr] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[EffectivePluginPolicy]:
+        """Get Effective Plugin Policy
+
+
+        :param namespace:
+        :type namespace: str
+        :param authorization:
+        :type authorization: str
+        :param x_amesh_csrf:
+        :type x_amesh_csrf: str
+        :param x_amesh_tenant:
+        :type x_amesh_tenant: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._get_effective_plugin_policy_api_v1_plugin_policy_effective_get_serialize(
+            namespace=namespace,
+            authorization=authorization,
+            x_amesh_csrf=x_amesh_csrf,
+            x_amesh_tenant=x_amesh_tenant,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "EffectivePluginPolicy",
+            '422': "HTTPValidationError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def get_effective_plugin_policy_api_v1_plugin_policy_effective_get_without_preload_content(
+        self,
+        namespace: Optional[StrictStr] = None,
+        authorization: Optional[StrictStr] = None,
+        x_amesh_csrf: Optional[StrictStr] = None,
+        x_amesh_tenant: Optional[StrictStr] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Get Effective Plugin Policy
+
+
+        :param namespace:
+        :type namespace: str
+        :param authorization:
+        :type authorization: str
+        :param x_amesh_csrf:
+        :type x_amesh_csrf: str
+        :param x_amesh_tenant:
+        :type x_amesh_tenant: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._get_effective_plugin_policy_api_v1_plugin_policy_effective_get_serialize(
+            namespace=namespace,
+            authorization=authorization,
+            x_amesh_csrf=x_amesh_csrf,
+            x_amesh_tenant=x_amesh_tenant,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "EffectivePluginPolicy",
+            '422': "HTTPValidationError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _get_effective_plugin_policy_api_v1_plugin_policy_effective_get_serialize(
+        self,
+        namespace,
+        authorization,
+        x_amesh_csrf,
+        x_amesh_tenant,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        # process the query parameters
+        if namespace is not None:
+
+            _query_params.append(('namespace', namespace))
+
+        # process the header parameters
+        if authorization is not None:
+            _header_params['authorization'] = authorization
+        if x_amesh_csrf is not None:
+            _header_params['X-Amesh-CSRF'] = x_amesh_csrf
+        if x_amesh_tenant is not None:
+            _header_params['X-Amesh-Tenant'] = x_amesh_tenant
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+        ]
+
+        return self.api_client.param_serialize(
+            method='GET',
+            resource_path='/api/v1/plugin-policy/effective',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,
@@ -2137,6 +3382,313 @@ class PluginsApi:
 
 
     @validate_call
+    def list_plugin_policy_decisions_api_v1_plugin_policy_decisions_get(
+        self,
+        limit: Optional[Annotated[int, Field(le=500, strict=True, ge=1)]] = None,
+        authorization: Optional[StrictStr] = None,
+        x_amesh_csrf: Optional[StrictStr] = None,
+        x_amesh_tenant: Optional[StrictStr] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> List[PluginPolicyDecision]:
+        """List Plugin Policy Decisions
+
+
+        :param limit:
+        :type limit: int
+        :param authorization:
+        :type authorization: str
+        :param x_amesh_csrf:
+        :type x_amesh_csrf: str
+        :param x_amesh_tenant:
+        :type x_amesh_tenant: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_plugin_policy_decisions_api_v1_plugin_policy_decisions_get_serialize(
+            limit=limit,
+            authorization=authorization,
+            x_amesh_csrf=x_amesh_csrf,
+            x_amesh_tenant=x_amesh_tenant,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "List[PluginPolicyDecision]",
+            '422': "HTTPValidationError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def list_plugin_policy_decisions_api_v1_plugin_policy_decisions_get_with_http_info(
+        self,
+        limit: Optional[Annotated[int, Field(le=500, strict=True, ge=1)]] = None,
+        authorization: Optional[StrictStr] = None,
+        x_amesh_csrf: Optional[StrictStr] = None,
+        x_amesh_tenant: Optional[StrictStr] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[List[PluginPolicyDecision]]:
+        """List Plugin Policy Decisions
+
+
+        :param limit:
+        :type limit: int
+        :param authorization:
+        :type authorization: str
+        :param x_amesh_csrf:
+        :type x_amesh_csrf: str
+        :param x_amesh_tenant:
+        :type x_amesh_tenant: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_plugin_policy_decisions_api_v1_plugin_policy_decisions_get_serialize(
+            limit=limit,
+            authorization=authorization,
+            x_amesh_csrf=x_amesh_csrf,
+            x_amesh_tenant=x_amesh_tenant,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "List[PluginPolicyDecision]",
+            '422': "HTTPValidationError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def list_plugin_policy_decisions_api_v1_plugin_policy_decisions_get_without_preload_content(
+        self,
+        limit: Optional[Annotated[int, Field(le=500, strict=True, ge=1)]] = None,
+        authorization: Optional[StrictStr] = None,
+        x_amesh_csrf: Optional[StrictStr] = None,
+        x_amesh_tenant: Optional[StrictStr] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """List Plugin Policy Decisions
+
+
+        :param limit:
+        :type limit: int
+        :param authorization:
+        :type authorization: str
+        :param x_amesh_csrf:
+        :type x_amesh_csrf: str
+        :param x_amesh_tenant:
+        :type x_amesh_tenant: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_plugin_policy_decisions_api_v1_plugin_policy_decisions_get_serialize(
+            limit=limit,
+            authorization=authorization,
+            x_amesh_csrf=x_amesh_csrf,
+            x_amesh_tenant=x_amesh_tenant,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "List[PluginPolicyDecision]",
+            '422': "HTTPValidationError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _list_plugin_policy_decisions_api_v1_plugin_policy_decisions_get_serialize(
+        self,
+        limit,
+        authorization,
+        x_amesh_csrf,
+        x_amesh_tenant,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        # process the query parameters
+        if limit is not None:
+
+            _query_params.append(('limit', limit))
+
+        # process the header parameters
+        if authorization is not None:
+            _header_params['authorization'] = authorization
+        if x_amesh_csrf is not None:
+            _header_params['X-Amesh-CSRF'] = x_amesh_csrf
+        if x_amesh_tenant is not None:
+            _header_params['X-Amesh-Tenant'] = x_amesh_tenant
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+        ]
+
+        return self.api_client.param_serialize(
+            method='GET',
+            resource_path='/api/v1/plugin-policy/decisions',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
     def list_plugins_api_v1_plugins_get(
         self,
         authorization: Optional[StrictStr] = None,
@@ -2411,6 +3963,324 @@ class PluginsApi:
         return self.api_client.param_serialize(
             method='GET',
             resource_path='/api/v1/plugins',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def preview_plugin_quarantine_api_v1_plugin_policy_quarantines_preview_post(
+        self,
+        plugin_quarantine_create: PluginQuarantineCreate,
+        authorization: Optional[StrictStr] = None,
+        x_amesh_csrf: Optional[StrictStr] = None,
+        x_amesh_tenant: Optional[StrictStr] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> PluginPolicyImpactPreview:
+        """Preview Plugin Quarantine
+
+
+        :param plugin_quarantine_create: (required)
+        :type plugin_quarantine_create: PluginQuarantineCreate
+        :param authorization:
+        :type authorization: str
+        :param x_amesh_csrf:
+        :type x_amesh_csrf: str
+        :param x_amesh_tenant:
+        :type x_amesh_tenant: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._preview_plugin_quarantine_api_v1_plugin_policy_quarantines_preview_post_serialize(
+            plugin_quarantine_create=plugin_quarantine_create,
+            authorization=authorization,
+            x_amesh_csrf=x_amesh_csrf,
+            x_amesh_tenant=x_amesh_tenant,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "PluginPolicyImpactPreview",
+            '422': "HTTPValidationError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def preview_plugin_quarantine_api_v1_plugin_policy_quarantines_preview_post_with_http_info(
+        self,
+        plugin_quarantine_create: PluginQuarantineCreate,
+        authorization: Optional[StrictStr] = None,
+        x_amesh_csrf: Optional[StrictStr] = None,
+        x_amesh_tenant: Optional[StrictStr] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[PluginPolicyImpactPreview]:
+        """Preview Plugin Quarantine
+
+
+        :param plugin_quarantine_create: (required)
+        :type plugin_quarantine_create: PluginQuarantineCreate
+        :param authorization:
+        :type authorization: str
+        :param x_amesh_csrf:
+        :type x_amesh_csrf: str
+        :param x_amesh_tenant:
+        :type x_amesh_tenant: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._preview_plugin_quarantine_api_v1_plugin_policy_quarantines_preview_post_serialize(
+            plugin_quarantine_create=plugin_quarantine_create,
+            authorization=authorization,
+            x_amesh_csrf=x_amesh_csrf,
+            x_amesh_tenant=x_amesh_tenant,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "PluginPolicyImpactPreview",
+            '422': "HTTPValidationError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def preview_plugin_quarantine_api_v1_plugin_policy_quarantines_preview_post_without_preload_content(
+        self,
+        plugin_quarantine_create: PluginQuarantineCreate,
+        authorization: Optional[StrictStr] = None,
+        x_amesh_csrf: Optional[StrictStr] = None,
+        x_amesh_tenant: Optional[StrictStr] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Preview Plugin Quarantine
+
+
+        :param plugin_quarantine_create: (required)
+        :type plugin_quarantine_create: PluginQuarantineCreate
+        :param authorization:
+        :type authorization: str
+        :param x_amesh_csrf:
+        :type x_amesh_csrf: str
+        :param x_amesh_tenant:
+        :type x_amesh_tenant: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._preview_plugin_quarantine_api_v1_plugin_policy_quarantines_preview_post_serialize(
+            plugin_quarantine_create=plugin_quarantine_create,
+            authorization=authorization,
+            x_amesh_csrf=x_amesh_csrf,
+            x_amesh_tenant=x_amesh_tenant,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "PluginPolicyImpactPreview",
+            '422': "HTTPValidationError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _preview_plugin_quarantine_api_v1_plugin_policy_quarantines_preview_post_serialize(
+        self,
+        plugin_quarantine_create,
+        authorization,
+        x_amesh_csrf,
+        x_amesh_tenant,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        # process the query parameters
+        # process the header parameters
+        if authorization is not None:
+            _header_params['authorization'] = authorization
+        if x_amesh_csrf is not None:
+            _header_params['X-Amesh-CSRF'] = x_amesh_csrf
+        if x_amesh_tenant is not None:
+            _header_params['X-Amesh-Tenant'] = x_amesh_tenant
+        # process the form parameters
+        # process the body parameter
+        if plugin_quarantine_create is not None:
+            _body_params = plugin_quarantine_create
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/api/v1/plugin-policy/quarantines/preview',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,
@@ -2745,6 +4615,324 @@ class PluginsApi:
 
 
     @validate_call
+    def quarantine_plugin_version_api_v1_plugin_policy_quarantines_post(
+        self,
+        plugin_quarantine_create: PluginQuarantineCreate,
+        authorization: Optional[StrictStr] = None,
+        x_amesh_csrf: Optional[StrictStr] = None,
+        x_amesh_tenant: Optional[StrictStr] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> PluginQuarantine:
+        """Quarantine Plugin Version
+
+
+        :param plugin_quarantine_create: (required)
+        :type plugin_quarantine_create: PluginQuarantineCreate
+        :param authorization:
+        :type authorization: str
+        :param x_amesh_csrf:
+        :type x_amesh_csrf: str
+        :param x_amesh_tenant:
+        :type x_amesh_tenant: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._quarantine_plugin_version_api_v1_plugin_policy_quarantines_post_serialize(
+            plugin_quarantine_create=plugin_quarantine_create,
+            authorization=authorization,
+            x_amesh_csrf=x_amesh_csrf,
+            x_amesh_tenant=x_amesh_tenant,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "PluginQuarantine",
+            '422': "HTTPValidationError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def quarantine_plugin_version_api_v1_plugin_policy_quarantines_post_with_http_info(
+        self,
+        plugin_quarantine_create: PluginQuarantineCreate,
+        authorization: Optional[StrictStr] = None,
+        x_amesh_csrf: Optional[StrictStr] = None,
+        x_amesh_tenant: Optional[StrictStr] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[PluginQuarantine]:
+        """Quarantine Plugin Version
+
+
+        :param plugin_quarantine_create: (required)
+        :type plugin_quarantine_create: PluginQuarantineCreate
+        :param authorization:
+        :type authorization: str
+        :param x_amesh_csrf:
+        :type x_amesh_csrf: str
+        :param x_amesh_tenant:
+        :type x_amesh_tenant: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._quarantine_plugin_version_api_v1_plugin_policy_quarantines_post_serialize(
+            plugin_quarantine_create=plugin_quarantine_create,
+            authorization=authorization,
+            x_amesh_csrf=x_amesh_csrf,
+            x_amesh_tenant=x_amesh_tenant,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "PluginQuarantine",
+            '422': "HTTPValidationError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def quarantine_plugin_version_api_v1_plugin_policy_quarantines_post_without_preload_content(
+        self,
+        plugin_quarantine_create: PluginQuarantineCreate,
+        authorization: Optional[StrictStr] = None,
+        x_amesh_csrf: Optional[StrictStr] = None,
+        x_amesh_tenant: Optional[StrictStr] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Quarantine Plugin Version
+
+
+        :param plugin_quarantine_create: (required)
+        :type plugin_quarantine_create: PluginQuarantineCreate
+        :param authorization:
+        :type authorization: str
+        :param x_amesh_csrf:
+        :type x_amesh_csrf: str
+        :param x_amesh_tenant:
+        :type x_amesh_tenant: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._quarantine_plugin_version_api_v1_plugin_policy_quarantines_post_serialize(
+            plugin_quarantine_create=plugin_quarantine_create,
+            authorization=authorization,
+            x_amesh_csrf=x_amesh_csrf,
+            x_amesh_tenant=x_amesh_tenant,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "PluginQuarantine",
+            '422': "HTTPValidationError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _quarantine_plugin_version_api_v1_plugin_policy_quarantines_post_serialize(
+        self,
+        plugin_quarantine_create,
+        authorization,
+        x_amesh_csrf,
+        x_amesh_tenant,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        # process the query parameters
+        # process the header parameters
+        if authorization is not None:
+            _header_params['authorization'] = authorization
+        if x_amesh_csrf is not None:
+            _header_params['X-Amesh-CSRF'] = x_amesh_csrf
+        if x_amesh_tenant is not None:
+            _header_params['X-Amesh-Tenant'] = x_amesh_tenant
+        # process the form parameters
+        # process the body parameter
+        if plugin_quarantine_create is not None:
+            _body_params = plugin_quarantine_create
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/api/v1/plugin-policy/quarantines',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
     def refresh_plugins_api_v1_plugins_refresh_post(
         self,
         authorization: Optional[StrictStr] = None,
@@ -3035,6 +5223,328 @@ class PluginsApi:
 
 
     @validate_call
+    def release_plugin_quarantine_api_v1_plugin_policy_quarantines_quarantine_id_release_post(
+        self,
+        quarantine_id: UUID,
+        reason: Annotated[str, Field(min_length=1, strict=True, max_length=2048)],
+        authorization: Optional[StrictStr] = None,
+        x_amesh_csrf: Optional[StrictStr] = None,
+        x_amesh_tenant: Optional[StrictStr] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> PluginQuarantine:
+        """Release Plugin Quarantine
+
+
+        :param quarantine_id: (required)
+        :type quarantine_id: UUID
+        :param reason: (required)
+        :type reason: str
+        :param authorization:
+        :type authorization: str
+        :param x_amesh_csrf:
+        :type x_amesh_csrf: str
+        :param x_amesh_tenant:
+        :type x_amesh_tenant: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._release_plugin_quarantine_api_v1_plugin_policy_quarantines_quarantine_id_release_post_serialize(
+            quarantine_id=quarantine_id,
+            reason=reason,
+            authorization=authorization,
+            x_amesh_csrf=x_amesh_csrf,
+            x_amesh_tenant=x_amesh_tenant,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "PluginQuarantine",
+            '422': "HTTPValidationError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def release_plugin_quarantine_api_v1_plugin_policy_quarantines_quarantine_id_release_post_with_http_info(
+        self,
+        quarantine_id: UUID,
+        reason: Annotated[str, Field(min_length=1, strict=True, max_length=2048)],
+        authorization: Optional[StrictStr] = None,
+        x_amesh_csrf: Optional[StrictStr] = None,
+        x_amesh_tenant: Optional[StrictStr] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[PluginQuarantine]:
+        """Release Plugin Quarantine
+
+
+        :param quarantine_id: (required)
+        :type quarantine_id: UUID
+        :param reason: (required)
+        :type reason: str
+        :param authorization:
+        :type authorization: str
+        :param x_amesh_csrf:
+        :type x_amesh_csrf: str
+        :param x_amesh_tenant:
+        :type x_amesh_tenant: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._release_plugin_quarantine_api_v1_plugin_policy_quarantines_quarantine_id_release_post_serialize(
+            quarantine_id=quarantine_id,
+            reason=reason,
+            authorization=authorization,
+            x_amesh_csrf=x_amesh_csrf,
+            x_amesh_tenant=x_amesh_tenant,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "PluginQuarantine",
+            '422': "HTTPValidationError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def release_plugin_quarantine_api_v1_plugin_policy_quarantines_quarantine_id_release_post_without_preload_content(
+        self,
+        quarantine_id: UUID,
+        reason: Annotated[str, Field(min_length=1, strict=True, max_length=2048)],
+        authorization: Optional[StrictStr] = None,
+        x_amesh_csrf: Optional[StrictStr] = None,
+        x_amesh_tenant: Optional[StrictStr] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Release Plugin Quarantine
+
+
+        :param quarantine_id: (required)
+        :type quarantine_id: UUID
+        :param reason: (required)
+        :type reason: str
+        :param authorization:
+        :type authorization: str
+        :param x_amesh_csrf:
+        :type x_amesh_csrf: str
+        :param x_amesh_tenant:
+        :type x_amesh_tenant: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._release_plugin_quarantine_api_v1_plugin_policy_quarantines_quarantine_id_release_post_serialize(
+            quarantine_id=quarantine_id,
+            reason=reason,
+            authorization=authorization,
+            x_amesh_csrf=x_amesh_csrf,
+            x_amesh_tenant=x_amesh_tenant,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "PluginQuarantine",
+            '422': "HTTPValidationError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _release_plugin_quarantine_api_v1_plugin_policy_quarantines_quarantine_id_release_post_serialize(
+        self,
+        quarantine_id,
+        reason,
+        authorization,
+        x_amesh_csrf,
+        x_amesh_tenant,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if quarantine_id is not None:
+            _path_params['quarantine_id'] = quarantine_id
+        # process the query parameters
+        if reason is not None:
+
+            _query_params.append(('reason', reason))
+
+        # process the header parameters
+        if authorization is not None:
+            _header_params['authorization'] = authorization
+        if x_amesh_csrf is not None:
+            _header_params['X-Amesh-CSRF'] = x_amesh_csrf
+        if x_amesh_tenant is not None:
+            _header_params['X-Amesh-Tenant'] = x_amesh_tenant
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/api/v1/plugin-policy/quarantines/{quarantine_id}/release',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
     def trusted_plugin_runtime_status_api_v1_plugins_trusted_runtime_get(
         self,
         authorization: Optional[StrictStr] = None,
@@ -3309,6 +5819,339 @@ class PluginsApi:
         return self.api_client.param_serialize(
             method='GET',
             resource_path='/api/v1/plugins/trusted-runtime',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def update_plugin_policy_rule_api_v1_plugin_policy_rules_rule_id_put(
+        self,
+        rule_id: UUID,
+        plugin_policy_rule_create: PluginPolicyRuleCreate,
+        authorization: Optional[StrictStr] = None,
+        x_amesh_csrf: Optional[StrictStr] = None,
+        x_amesh_tenant: Optional[StrictStr] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> PluginPolicyRule:
+        """Update Plugin Policy Rule
+
+
+        :param rule_id: (required)
+        :type rule_id: UUID
+        :param plugin_policy_rule_create: (required)
+        :type plugin_policy_rule_create: PluginPolicyRuleCreate
+        :param authorization:
+        :type authorization: str
+        :param x_amesh_csrf:
+        :type x_amesh_csrf: str
+        :param x_amesh_tenant:
+        :type x_amesh_tenant: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._update_plugin_policy_rule_api_v1_plugin_policy_rules_rule_id_put_serialize(
+            rule_id=rule_id,
+            plugin_policy_rule_create=plugin_policy_rule_create,
+            authorization=authorization,
+            x_amesh_csrf=x_amesh_csrf,
+            x_amesh_tenant=x_amesh_tenant,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "PluginPolicyRule",
+            '422': "HTTPValidationError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def update_plugin_policy_rule_api_v1_plugin_policy_rules_rule_id_put_with_http_info(
+        self,
+        rule_id: UUID,
+        plugin_policy_rule_create: PluginPolicyRuleCreate,
+        authorization: Optional[StrictStr] = None,
+        x_amesh_csrf: Optional[StrictStr] = None,
+        x_amesh_tenant: Optional[StrictStr] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[PluginPolicyRule]:
+        """Update Plugin Policy Rule
+
+
+        :param rule_id: (required)
+        :type rule_id: UUID
+        :param plugin_policy_rule_create: (required)
+        :type plugin_policy_rule_create: PluginPolicyRuleCreate
+        :param authorization:
+        :type authorization: str
+        :param x_amesh_csrf:
+        :type x_amesh_csrf: str
+        :param x_amesh_tenant:
+        :type x_amesh_tenant: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._update_plugin_policy_rule_api_v1_plugin_policy_rules_rule_id_put_serialize(
+            rule_id=rule_id,
+            plugin_policy_rule_create=plugin_policy_rule_create,
+            authorization=authorization,
+            x_amesh_csrf=x_amesh_csrf,
+            x_amesh_tenant=x_amesh_tenant,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "PluginPolicyRule",
+            '422': "HTTPValidationError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def update_plugin_policy_rule_api_v1_plugin_policy_rules_rule_id_put_without_preload_content(
+        self,
+        rule_id: UUID,
+        plugin_policy_rule_create: PluginPolicyRuleCreate,
+        authorization: Optional[StrictStr] = None,
+        x_amesh_csrf: Optional[StrictStr] = None,
+        x_amesh_tenant: Optional[StrictStr] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Update Plugin Policy Rule
+
+
+        :param rule_id: (required)
+        :type rule_id: UUID
+        :param plugin_policy_rule_create: (required)
+        :type plugin_policy_rule_create: PluginPolicyRuleCreate
+        :param authorization:
+        :type authorization: str
+        :param x_amesh_csrf:
+        :type x_amesh_csrf: str
+        :param x_amesh_tenant:
+        :type x_amesh_tenant: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._update_plugin_policy_rule_api_v1_plugin_policy_rules_rule_id_put_serialize(
+            rule_id=rule_id,
+            plugin_policy_rule_create=plugin_policy_rule_create,
+            authorization=authorization,
+            x_amesh_csrf=x_amesh_csrf,
+            x_amesh_tenant=x_amesh_tenant,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "PluginPolicyRule",
+            '422': "HTTPValidationError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _update_plugin_policy_rule_api_v1_plugin_policy_rules_rule_id_put_serialize(
+        self,
+        rule_id,
+        plugin_policy_rule_create,
+        authorization,
+        x_amesh_csrf,
+        x_amesh_tenant,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if rule_id is not None:
+            _path_params['rule_id'] = rule_id
+        # process the query parameters
+        # process the header parameters
+        if authorization is not None:
+            _header_params['authorization'] = authorization
+        if x_amesh_csrf is not None:
+            _header_params['X-Amesh-CSRF'] = x_amesh_csrf
+        if x_amesh_tenant is not None:
+            _header_params['X-Amesh-Tenant'] = x_amesh_tenant
+        # process the form parameters
+        # process the body parameter
+        if plugin_policy_rule_create is not None:
+            _body_params = plugin_policy_rule_create
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+        ]
+
+        return self.api_client.param_serialize(
+            method='PUT',
+            resource_path='/api/v1/plugin-policy/rules/{rule_id}',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,

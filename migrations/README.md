@@ -169,6 +169,12 @@ context, per-tenant SHA-256 chaining, retention anchors, independent retention p
 signed-export receipts and redacted compliance evidence. It backfills existing audit rows and is
 additive; stop audit exporters and retention purges during a forward fix while preserving ledger rows.
 
+Migration `0047_plugin_governance.sql` adds scoped plugin allow/deny rules, exact-version
+quarantines and durable explained decisions. Instance rules remain visible inside each tenant policy
+evaluation, tenant and namespace records are RLS-isolated, and all violations and policy changes use
+the audit ledger. The migration is additive; pause policy changes and third-party starts during a
+forward fix while preserving immutable flow-revision pins and historical plugin metadata.
+
 ## Migration modes
 
 - `bootstrap` creates the initial schema and is only safe for an empty database.

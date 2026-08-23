@@ -20,6 +20,7 @@ from amesh.app import (
     authenticate_actor,
     get_authorization_service,
     get_plugin_catalog_manager,
+    get_plugin_policy_service,
     get_tenant_service,
 )
 from amesh.cli import build_parser
@@ -377,6 +378,7 @@ def test_flow_resolution_pins_embedded_package_and_catalog_api_refreshes(tmp_pat
     app.dependency_overrides[get_authorization_service] = lambda: authorization
     app.dependency_overrides[get_tenant_service] = _TenantQuotaStub
     app.dependency_overrides[get_plugin_catalog_manager] = lambda: manager
+    app.dependency_overrides[get_plugin_policy_service] = _PluginPolicyStub
     bundle = tmp_path / "api-install.amesh-plugin"
     with zipfile.ZipFile(bundle, "w") as archive:
         archive.writestr(
@@ -506,6 +508,21 @@ class _PluginAuthorizationStub:
             summary="test plugin access",
             policy_version=1,
         )
+
+
+class _PluginPolicyStub:
+    async def enforce_manifest_administration(
+        self,
+        manifest: Any,
+        content_digest: str,
+        *,
+        tenant_id: str,
+        actor_id: str,
+    ) -> None:
+        assert manifest.name == "vendor.api"
+        assert content_digest.startswith("sha256:")
+        assert tenant_id == "default"
+        assert actor_id
 
 
 class _TenantQuotaStub:

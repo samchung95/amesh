@@ -313,6 +313,26 @@ tbody tr:hover { background: var(--paper); }
 .registry-disclaimer { display: flex; align-items: center; gap: 9px; padding: 11px 14px; margin: 0; color: var(--muted); background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius-control); }
 .developer-portal { display: grid; gap: 14px; padding: 20px; background: linear-gradient(135deg, var(--surface-raised), var(--paper)); border: 1px solid var(--line); border-radius: var(--radius-panel); box-shadow: var(--shadow-low); }
 .developer-portal > p { margin: 0; color: var(--muted); }
+.plugin-governance { background: linear-gradient(135deg, var(--success-soft), var(--paper) 70%); }
+.policy-summary { display: grid; grid-template-columns: 1fr auto; gap: 3px 12px; align-items: center; padding: 13px; background: var(--surface-raised); border: 1px solid var(--line); border-radius: var(--radius-control); }
+.policy-summary strong { font: 700 .78rem "IBM Plex Mono", monospace; }
+.policy-summary small, .muted-copy { color: var(--muted); }
+.policy-rule-list { display: grid; gap: 8px; }
+.policy-rule-list article { position: relative; display: grid; gap: 5px; padding: 12px 52px 12px 12px; background: var(--surface-raised); border: 1px solid var(--line); border-radius: var(--radius-control); }
+.policy-rule-list article > div { display: flex; align-items: center; gap: 9px; }
+.policy-rule-list article p, .policy-rule-list article small { margin: 0; }
+.policy-rule-list article small { color: var(--muted); }
+.policy-rule-list .icon-button { position: absolute; top: 7px; right: 7px; color: var(--danger); }
+.active-quarantines { display: flex; flex-wrap: wrap; gap: 7px; }
+.active-quarantines span { display: inline-flex; align-items: center; gap: 5px; padding: 6px 9px; color: var(--danger); background: var(--danger-soft); border-radius: 999px; font-size: .75rem; }
+.governance-forms { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.governance-forms form { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-content: start; padding: 14px; background: var(--surface-raised); border: 1px solid var(--line); border-radius: var(--radius-control); }
+.governance-forms h3 { grid-column: 1 / -1; margin: 0; font-size: .88rem; }
+.governance-forms label { display: grid; gap: 4px; color: var(--muted); font-size: .72rem; }
+.governance-forms input, .governance-forms select { width: 100%; min-height: 40px; padding: 7px 9px; color: var(--ink); background: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--radius-control); }
+.governance-forms .button { align-self: end; }
+.quarantine-impact { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 10px; background: var(--danger-soft); border: 1px solid var(--danger); border-radius: var(--radius-control); }
+.quarantine-impact .button { grid-column: 1 / -1; }
 .quality-levels { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
 .quality-levels article { display: grid; grid-template-columns: auto 1fr; gap: 6px 9px; align-items: center; padding: 13px; background: var(--surface-raised); border: 1px solid var(--line); border-radius: var(--radius-control); }
 .quality-levels svg { color: var(--accent); }
@@ -866,6 +886,7 @@ details pre { max-width: 480px; overflow: auto; padding: 10px; background: var(-
   .resource-value { min-width: 0; }
   .registry-grid { grid-template-columns: 1fr; }
   .quality-levels { grid-template-columns: 1fr; }
+  .governance-forms { grid-template-columns: 1fr; }
   .registry-card > footer { align-items: flex-start; flex-direction: column; }
   .context-popover { top: 65px; left: 12px; width: min(310px, calc(100vw - 24px)); }
   .notification-popover { right: 12px; width: min(330px, calc(100vw - 24px)); }

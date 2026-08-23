@@ -1,5 +1,47 @@
 # Test Log
 
+## EPIC-505: Plugin allow, restrict and version policy — 2026-08-23
+
+Spec source: Agent Hotel card `c70` and canonical `backlog/epics.json` EPIC-505 DoD.
+
+Verified with `uv`, Python 3.13, PostgreSQL 17, React/TypeScript, Chromium and Docker Compose:
+
+- [x] Scoped allow/deny rules match packages, plugin types, semantic-version ranges, vendors and
+  capabilities at instance, tenant and namespace levels. Explicit deny and quarantine override allow;
+  the production-oriented default fails closed for unreviewed third-party plugins while retaining the
+  built-in `amesh.core` trust root.
+- [x] Authoring, validation, execution and administration are separate policy stages. Flow save and
+  execution start both enforce policy, and execution uses the revision's frozen package/version/digest
+  resolution rather than re-resolving a mutable catalog.
+- [x] Durable quarantine preserves version/reason/actor/history, prevents duplicate active entries,
+  supports audited release, and previews exact affected flow revisions and currently running
+  executions before mutation.
+- [x] The authorized API exposes effective rules and decision sources, rule/quarantine lifecycle,
+  impact preview and decision history. Offline bundle installation passes through the administration
+  gate before catalog mutation.
+- [x] The Plugins UI explains the effective default/source, manages rules, lists active quarantines
+  and requires a preview before emergency disable. Chromium verified the preview-before-mutation flow
+  and capability-gated controls.
+- [x] Ruff passed on affected Python paths; strict mypy passed across 181 source files. Focused unit,
+  PostgreSQL, API, plugin pinning, worker and migration tests passed. Frontend production build, all 43
+  unit assertions, targeted Chromium end-to-end coverage and generated-SDK currency across 1,564 files
+  passed.
+- [x] The full repository run's directly caused worker mock incompatibility was corrected and its
+  regression passes. Remaining failures are pre-existing or live-database test-isolation issues
+  tracked on cards `c15`, `c29` and `c95`; no unrelated subsystem was changed. The existing global
+  frontend lint issue remains tracked on `c88`.
+- [x] API, executor, scheduler and indexer containers are healthy. Live readiness reports 47/47 with
+  `0047_plugin_governance.sql`; live effective-policy evaluation, temporary rule lifecycle and a
+  non-mutating quarantine impact preview passed.
+- [x] No LLM behavior was involved, so no billable OpenRouter call was required. Applicable LLM tests
+  remain pinned to `openai/gpt-5.6-luna`.
+
+Qualification boundary: `URS-NFR-SECURITY-010` remains In Progress until EPIC-003, EPIC-403 and
+EPIC-612 plus the production security baseline scanner complete the whole-platform fail-closed
+qualification.
+
+Verdict: PASS — EPIC-505 functional requirements URS-F-0534 through URS-F-0541 are verified.
+
 ## EPIC-504: Immutable audit log and evidence export — 2026-08-23
 
 Spec source: Agent Hotel card `c69` and canonical `backlog/epics.json` EPIC-504 DoD.

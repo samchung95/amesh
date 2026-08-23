@@ -46,6 +46,12 @@ import type {
   NamespaceFile,
   NamespaceFileVersion,
   NamespaceWorkflowMetadataView,
+  EffectivePluginPolicy,
+  PluginPolicyImpactPreview,
+  PluginPolicyRule,
+  PluginPolicyRuleDraft,
+  PluginQuarantine,
+  PluginQuarantineDraft,
   PluginRegistryIndex,
   KeyValueEntry,
   KeyValueType,
@@ -324,6 +330,28 @@ export function createApiClient(connection: ApiConnection) {
         body: JSON.stringify({ expression, context }),
       }),
     pluginRegistry: async () => request<PluginRegistryIndex>('/api/v1/plugin-registry/index'),
+    pluginPolicy: async (namespace?: string) =>
+      request<EffectivePluginPolicy>(`/api/v1/plugin-policy/effective${namespace ? `?namespace=${encodeURIComponent(namespace)}` : ''}`),
+    createPluginPolicyRule: async (draft: PluginPolicyRuleDraft) =>
+      request<PluginPolicyRule>('/api/v1/plugin-policy/rules', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(draft),
+      }),
+    deletePluginPolicyRule: async (ruleId: string) =>
+      request<void>(`/api/v1/plugin-policy/rules/${encodeURIComponent(ruleId)}`, { method: 'DELETE' }),
+    previewPluginQuarantine: async (draft: PluginQuarantineDraft) =>
+      request<PluginPolicyImpactPreview>('/api/v1/plugin-policy/quarantines/preview', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(draft),
+      }),
+    createPluginQuarantine: async (draft: PluginQuarantineDraft) =>
+      request<PluginQuarantine>('/api/v1/plugin-policy/quarantines', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(draft),
+      }),
     flowGraph: async (namespace: string, flowId: string) =>
       request<FlowGraph>(`/api/v1/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/graph`),
     flowDataContract: async (namespace: string, flowId: string) =>

@@ -125,3 +125,14 @@ export function usePluginRegistry(enabled = true) {
     staleTime: 15_000,
   })
 }
+
+export function usePluginPolicy(enabled = true) {
+  const api = useApiClient()
+  const { settings } = useAppSettings()
+  return useQuery({
+    queryKey: ['plugin-policy', settings.tenant, settings.namespace],
+    queryFn: () => api.pluginPolicy(settings.namespace || undefined),
+    enabled,
+    staleTime: 10_000,
+  })
+}

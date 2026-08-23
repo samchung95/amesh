@@ -12,6 +12,7 @@ from amesh.adapters.postgres import (
     PostgresCheckRepository,
     PostgresDurableTransport,
     PostgresExecutionRepository,
+    PostgresPluginPolicyRepository,
     PostgresRealtimeRepository,
     PostgresReconciliationRepository,
     PostgresSchedulerRepository,
@@ -27,7 +28,12 @@ from amesh.config import Settings, get_settings
 from amesh.database import create_database_engine
 from amesh.domain import ServiceLiveness, ServiceRole, ServiceState
 from amesh.observability import configure_structured_logging
-from amesh.plugins import TrustedPluginRuntime, build_plugin_catalog, build_trusted_runtime
+from amesh.plugins import (
+    PluginPolicyService,
+    TrustedPluginRuntime,
+    build_plugin_catalog,
+    build_trusted_runtime,
+)
 from amesh.ports import SearchProjector, SearchUnavailableError, ServiceFenceError, WorkerLossPolicy
 from amesh.realtime import WebhookDispatcher
 from amesh.service_runtime import RegisteredService, service_instance_name
@@ -165,7 +171,16 @@ async def run_role(settings: Settings) -> None:
         stale_after_seconds=settings.service_stale_after_seconds,
     )
     service = RegisteredService(registry, settings, role)
-    executions = PostgresExecutionRepository(engine)
+    plugin_catalog = build_plugin_catalog(settings)
+    plugin_policy = PluginPolicyService(
+        PostgresPluginPolicyRepository(engine),
+        plugin_catalog,
+        default_allow=settings.plugin_trust_mode == "development",
+    )
+    executions = PostgresExecutionRepository(
+        engine,
+        plugin_policy_enforcer=plugin_policy.enforce_flow,
+    )
     scheduler = PostgresSchedulerRepository(engine)
     backfills = PostgresBackfillRepository(engine)
     reconciliations = PostgresReconciliationRepository(engine)
@@ -176,7 +191,7 @@ async def run_role(settings: Settings) -> None:
     shared_resources = PostgresSharedResourceRepository(engine)
     trigger_runtime = PostgresTriggerRuntimeRepository(engine)
     checks = PostgresCheckRepository(engine)
-    trusted_runtime = build_trusted_runtime(settings, build_plugin_catalog(settings))
+    trusted_runtime = build_trusted_runtime(settings, plugin_catalog)
     realtime = PostgresRealtimeRepository(engine)
     search_projector = PostgresSearchRepository(engine)
     webhook_dispatcher = WebhookDispatcher(

@@ -7927,105 +7927,129 @@
       "requirement_id": "URS-F-0534",
       "epic_id": "EPIC-505",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-enterprise-docs-v1.3.30",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/plugins/test_plugin_policy.py::test_scoped_deny_overrides_allow_and_explains_source",
+        "tests/adapters/postgres/test_plugin_policy_repository.py::test_plugin_policy_repository_persists_rules_quarantines_decisions_and_impact"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0535",
       "epic_id": "EPIC-505",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-enterprise-docs-v1.3.30",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/plugins/test_plugin_policy.py::test_policy_stages_are_independent",
+        "tests/api/test_plugin_policy_api.py::test_plugin_policy_api_lifecycle"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0536",
       "epic_id": "EPIC-505",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-enterprise-docs-v1.3.30",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/plugin_sdk/test_discovery.py::test_flow_resolution_pins_embedded_package_and_catalog_api_refreshes",
+        "tests/adapters/postgres/test_plugin_policy_repository.py::test_plugin_policy_repository_persists_rules_quarantines_decisions_and_impact"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0537",
       "epic_id": "EPIC-505",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-enterprise-docs-v1.3.30",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/plugins/test_plugin_policy.py::test_execution_uses_frozen_resolution",
+        "tests/adapters/postgres/test_plugin_policy_repository.py::test_plugin_policy_repository_persists_rules_quarantines_decisions_and_impact"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0538",
       "epic_id": "EPIC-505",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-enterprise-docs-v1.3.30",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/plugins/test_plugin_policy.py::test_quarantine_denies_matching_version",
+        "tests/adapters/postgres/test_plugin_policy_repository.py::test_plugin_policy_repository_persists_rules_quarantines_decisions_and_impact"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0539",
       "epic_id": "EPIC-505",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-enterprise-docs-v1.3.30",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/plugins/test_plugin_policy.py::test_scoped_deny_overrides_allow_and_explains_source",
+        "tests/api/test_plugin_policy_api.py::test_plugin_policy_api_lifecycle"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0540",
       "epic_id": "EPIC-505",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-enterprise-docs-v1.3.30",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/adapters/postgres/test_plugin_policy_repository.py::test_plugin_policy_repository_persists_rules_quarantines_decisions_and_impact",
+        "frontend/e2e/shell.spec.ts::explains plugin policy and previews emergency disable before mutation"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0541",
       "epic_id": "EPIC-505",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-enterprise-docs-v1.3.30",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/adapters/postgres/test_plugin_policy_repository.py::test_plugin_policy_repository_persists_rules_quarantines_decisions_and_impact",
+        "tests/api/test_plugin_policy_api.py::test_plugin_policy_api_lifecycle"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0542",
