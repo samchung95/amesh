@@ -7,6 +7,65 @@ info:
 servers:
 - url: /
 paths:
+  /api/v1/admin/audit:
+    get:
+      operationId: list_administration_audit_api_v1_admin_audit_get
+      parameters:
+      - explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          maximum: 500
+          minimum: 1
+          title: Limit
+          type: integer
+        style: form
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/AdministrationAuditEntry"
+                title: Response List Administration Audit Api V1 Admin Audit Get
+                type: array
+                default: null
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: List Administration Audit
+      tags:
+      - administration
   /api/v1/admin/bindings:
     get:
       operationId: list_role_bindings_api_v1_admin_bindings_get
@@ -39,8 +98,7 @@ paths:
         schema:
           description: Repeatable top-level equality filter in field=value form
           items:
-            description: Comma-separated top-level fields; prefix descending fields
-              with -
+            description: Opaque cursor from the prior page
             nullable: true
             type: string
           nullable: true
@@ -54,8 +112,7 @@ paths:
         name: sort
         required: false
         schema:
-          description: Comma-separated top-level fields; prefix descending fields
-            with -
+          description: Opaque cursor from the prior page
           nullable: true
           type: string
         style: form
@@ -65,8 +122,7 @@ paths:
         name: fields
         required: false
         schema:
-          description: Comma-separated top-level fields; prefix descending fields
-            with -
+          description: Opaque cursor from the prior page
           nullable: true
           type: string
         style: form
@@ -75,8 +131,6 @@ paths:
         name: authorization
         required: false
         schema:
-          description: Comma-separated top-level fields; prefix descending fields
-            with -
           nullable: true
           type: string
         style: simple
@@ -85,8 +139,6 @@ paths:
         name: X-Amesh-CSRF
         required: false
         schema:
-          description: Comma-separated top-level fields; prefix descending fields
-            with -
           nullable: true
           type: string
         style: simple
@@ -169,7 +221,6 @@ paths:
         name: X-Amesh-Tenant
         required: false
         schema:
-          description: Opaque reconnect cursor
           nullable: true
           type: string
         style: simple
@@ -178,7 +229,7 @@ paths:
         name: X-Amesh-Namespace
         required: false
         schema:
-          description: Opaque reconnect cursor
+          description: Opaque cursor from the prior page
           nullable: true
           type: string
         style: simple
@@ -210,6 +261,162 @@ paths:
       summary: Delete Role Binding
       tags:
       - authorization
+  /api/v1/admin/controls:
+    get:
+      operationId: list_administration_controls_api_v1_admin_controls_get
+      parameters:
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/AdministrationControl"
+                title: Response List Administration Controls Api V1 Admin Controls
+                  Get
+                type: array
+                default: null
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: List Administration Controls
+      tags:
+      - administration
+  /api/v1/admin/controls/preview:
+    post:
+      operationId: preview_administration_control_api_v1_admin_controls_preview_post
+      parameters:
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdministrationControlDraft"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdministrationImpactPreview"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Preview Administration Control
+      tags:
+      - administration
+  /api/v1/admin/controls/{key}:
+    put:
+      operationId: apply_administration_control_api_v1_admin_controls__key__put
+      parameters:
+      - explode: false
+        in: path
+        name: key
+        required: true
+        schema:
+          $ref: "#/components/schemas/AdministrationControlKey"
+        style: simple
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdministrationApplyRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdministrationControl"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Apply Administration Control
+      tags:
+      - administration
   /api/v1/admin/credentials/{credential_id}:
     delete:
       operationId: revoke_credential_api_v1_admin_credentials__credential_id__delete
@@ -2544,7 +2751,7 @@ paths:
         name: namespace
         required: false
         schema:
-          description: Opaque reconnect cursor
+          description: Opaque cursor from the prior page
           nullable: true
           type: string
         style: form
@@ -3176,7 +3383,7 @@ paths:
         name: Prefer
         required: false
         schema:
-          description: Opaque reconnect cursor
+          description: Opaque cursor from the prior page
           nullable: true
           type: string
         style: simple
@@ -3185,7 +3392,7 @@ paths:
         name: Idempotency-Key
         required: false
         schema:
-          description: Opaque reconnect cursor
+          description: Opaque cursor from the prior page
           nullable: true
           type: string
         style: simple
@@ -3498,7 +3705,7 @@ paths:
         name: cursor
         required: false
         schema:
-          description: Opaque reconnect cursor
+          description: Opaque cursor from the prior page
           nullable: true
           type: string
         style: form
@@ -4542,7 +4749,7 @@ paths:
         name: If-Match
         required: false
         schema:
-          description: Opaque reconnect cursor
+          description: Opaque cursor from the prior page
           nullable: true
           type: string
         style: simple
@@ -4551,7 +4758,7 @@ paths:
         name: X-AMESH-Source
         required: false
         schema:
-          description: Opaque reconnect cursor
+          description: Opaque cursor from the prior page
           nullable: true
           type: string
         style: simple
@@ -4560,7 +4767,7 @@ paths:
         name: X-AMESH-Commit
         required: false
         schema:
-          description: Opaque reconnect cursor
+          description: Opaque cursor from the prior page
           nullable: true
           type: string
         style: simple
@@ -4569,7 +4776,7 @@ paths:
         name: X-AMESH-Environment
         required: false
         schema:
-          description: Opaque reconnect cursor
+          description: Opaque cursor from the prior page
           nullable: true
           type: string
         style: simple
@@ -4578,7 +4785,7 @@ paths:
         name: X-AMESH-Deployment
         required: false
         schema:
-          description: Opaque reconnect cursor
+          description: Opaque cursor from the prior page
           nullable: true
           type: string
         style: simple
@@ -7350,7 +7557,7 @@ paths:
         name: flowId
         required: false
         schema:
-          description: Opaque reconnect cursor
+          description: Opaque cursor from the prior page
           nullable: true
           type: string
         style: form
@@ -7564,7 +7771,7 @@ paths:
         name: Last-Event-ID
         required: false
         schema:
-          description: Opaque reconnect cursor
+          description: Opaque cursor from the prior page
           nullable: true
           type: string
         style: simple
@@ -9000,7 +9207,7 @@ paths:
         name: X-Event-Id
         required: false
         schema:
-          description: Opaque reconnect cursor
+          description: Opaque cursor from the prior page
           nullable: true
           type: string
         style: simple
@@ -9243,6 +9450,205 @@ paths:
       - system
 components:
   schemas:
+    AdministrationApplyRequest:
+      additionalProperties: false
+      example:
+        approval: approval
+        confirmation: confirmation
+        draft:
+          enabled: true
+          expectedVersion: 1
+          key: RETENTION
+          reason: reason
+          value: 6
+      properties:
+        approval:
+          maxLength: 8192
+          minLength: 32
+          title: Approval
+          type: string
+        confirmation:
+          maxLength: 128
+          minLength: 1
+          title: Confirmation
+          type: string
+        draft:
+          $ref: "#/components/schemas/AdministrationControlDraft"
+      required:
+      - approval
+      - confirmation
+      - draft
+      title: AdministrationApplyRequest
+    AdministrationAuditEntry:
+      additionalProperties: {}
+      example:
+        action: action
+        actorId: actorId
+        eventId: eventId
+        evidence:
+          key: ""
+        occurredAt: 2000-01-23T04:56:07.000+00:00
+        outcome: outcome
+        reason: reason
+        resourceId: resourceId
+      properties:
+        action:
+          title: Action
+          type: string
+        actorId:
+          title: Actorid
+          type: string
+        eventId:
+          title: Eventid
+          type: string
+        evidence:
+          additionalProperties: true
+          title: Evidence
+          type: object
+        occurredAt:
+          format: date-time
+          title: Occurredat
+          type: string
+        outcome:
+          title: Outcome
+          type: string
+        reason:
+          title: Reason
+          type: string
+        resourceId:
+          title: Resourceid
+          type: string
+      required:
+      - action
+      - actorId
+      - eventId
+      - evidence
+      - occurredAt
+      - outcome
+      - reason
+      - resourceId
+      title: AdministrationAuditEntry
+    AdministrationControl:
+      additionalProperties: false
+      example:
+        enabled: true
+        flagKey: flagKey
+        key: RETENTION
+        updatedAt: 2000-01-23T04:56:07.000+00:00
+        updatedBy: updatedBy
+        value: 0
+        version: 1
+      properties:
+        enabled:
+          title: Enabled
+          type: boolean
+        flagKey:
+          title: Flagkey
+          type: string
+        key:
+          $ref: "#/components/schemas/AdministrationControlKey"
+        updatedAt:
+          format: date-time
+          nullable: true
+          type: string
+        updatedBy:
+          nullable: true
+          type: string
+        value:
+          $ref: "#/components/schemas/Value"
+        version:
+          minimum: 1.0
+          nullable: true
+          type: integer
+      required:
+      - enabled
+      - flagKey
+      - key
+      title: AdministrationControl
+    AdministrationControlDraft:
+      additionalProperties: false
+      example:
+        enabled: true
+        expectedVersion: 1
+        key: RETENTION
+        reason: reason
+        value: 6
+      properties:
+        enabled:
+          title: Enabled
+          type: boolean
+        expectedVersion:
+          minimum: 1.0
+          nullable: true
+          type: integer
+        key:
+          $ref: "#/components/schemas/AdministrationControlKey"
+        reason:
+          maxLength: 500
+          minLength: 3
+          title: Reason
+          type: string
+        value:
+          $ref: "#/components/schemas/Value"
+      required:
+      - enabled
+      - key
+      - reason
+      title: AdministrationControlDraft
+    AdministrationControlKey:
+      enum:
+      - RETENTION
+      - ANNOUNCEMENT
+      - MAINTENANCE
+      - KILL_SWITCH
+      title: AdministrationControlKey
+      type: string
+    AdministrationImpactPreview:
+      additionalProperties: false
+      example:
+        approval: approval
+        confirmation: confirmation
+        draft:
+          enabled: true
+          expectedVersion: 1
+          key: RETENTION
+          reason: reason
+          value: 6
+        expiresAt: 2000-01-23T04:56:07.000+00:00
+        impacts:
+        - impacts
+        - impacts
+        recovery: recovery
+      properties:
+        approval:
+          title: Approval
+          type: string
+        confirmation:
+          title: Confirmation
+          type: string
+        draft:
+          $ref: "#/components/schemas/AdministrationControlDraft"
+        expiresAt:
+          format: date-time
+          title: Expiresat
+          type: string
+        impacts:
+          items:
+            type: string
+          title: Impacts
+          type: array
+          default: null
+        recovery:
+          title: Recovery
+          type: string
+      required:
+      - approval
+      - confirmation
+      - draft
+      - expiresAt
+      - impacts
+      - recovery
+      title: AdministrationImpactPreview
     AdmissionDecision:
       example:
         active_count: 0
@@ -11147,7 +11553,7 @@ components:
         groupBy:
           default: []
           items:
-            description: Opaque reconnect cursor
+            description: Opaque cursor from the prior page
             nullable: true
             type: string
           maxItems: 3
@@ -12981,7 +13387,7 @@ components:
         children:
           default: []
           items:
-            description: Opaque reconnect cursor
+            description: Opaque cursor from the prior page
             nullable: true
             type: string
           title: Children
@@ -12989,7 +13395,7 @@ components:
         dependencies:
           default: []
           items:
-            description: Opaque reconnect cursor
+            description: Opaque cursor from the prior page
             nullable: true
             type: string
           title: Dependencies
@@ -15056,7 +15462,7 @@ components:
         propertyOrder:
           default: []
           items:
-            description: Opaque reconnect cursor
+            description: Opaque cursor from the prior page
             nullable: true
             type: string
           title: Propertyorder
@@ -18093,7 +18499,7 @@ components:
         sensitiveOutputKeys:
           default: []
           items:
-            description: Opaque reconnect cursor
+            description: Opaque cursor from the prior page
             nullable: true
             type: string
           title: Sensitiveoutputkeys
@@ -18225,7 +18631,7 @@ components:
           nullable: true
           type: string
         value:
-          $ref: "#/components/schemas/Value"
+          $ref: "#/components/schemas/Value_1"
       required:
       - name
       - value
@@ -18414,7 +18820,7 @@ components:
         identity_provider_refs:
           default: []
           items:
-            description: Opaque reconnect cursor
+            description: Opaque cursor from the prior page
             nullable: true
             type: string
           title: Identity Provider Refs
@@ -18453,7 +18859,7 @@ components:
           default:
           - '*'
           items:
-            description: Opaque reconnect cursor
+            description: Opaque cursor from the prior page
             nullable: true
             type: string
           title: Plugin Allowlist
@@ -19563,6 +19969,12 @@ components:
             type: string
           title: Requiredlabels
       title: WorkflowMetadataPolicy
+    Value:
+      anyOf:
+      - type: integer
+      - type: string
+      nullable: true
+      title: Value
     Action:
       anyOf:
       - $ref: "#/components/schemas/PermissionAction"
@@ -19582,7 +19994,7 @@ components:
       - type: integer
       nullable: true
       title: Lte
-    Value:
+    Value_1:
       anyOf:
       - type: number
       - pattern: "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"

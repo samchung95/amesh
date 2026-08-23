@@ -322,4 +322,37 @@ describe('API client', () => {
     const rebuildInit = fetchMock.mock.calls[2]?.[1] as RequestInit
     expect(JSON.parse(rebuildInit.body as string)).toEqual({ reason: 'repair projection drift' })
   })
+
+  it('builds guarded administration control requests', async () => {
+    const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(new Response('{}', { status: 200 })))
+    vi.stubGlobal('fetch', fetchMock)
+    const api = createApiClient({ token: 'token', tenant: 'tenant-a', namespace: '' })
+    const draft = { key: 'KILL_SWITCH' as const, enabled: true, value: null, reason: 'incident containment', expectedVersion: 2 }
+    const preview = {
+      draft,
+      impacts: ['Stop new execution admission.'],
+      recovery: 'Disable the switch.',
+      confirmation: 'APPLY KILL_SWITCH',
+      approval: 'signed-approval',
+      expiresAt: '2026-08-23T01:00:00Z',
+    }
+
+    await api.administrationControls()
+    await api.previewAdministrationControl(draft)
+    await api.applyAdministrationControl(preview, preview.confirmation)
+    await api.administrationAudit()
+
+    expect(fetchMock.mock.calls.map((call) => call[0] as string)).toEqual([
+      '/api/v1/admin/controls',
+      '/api/v1/admin/controls/preview',
+      '/api/v1/admin/controls/KILL_SWITCH',
+      '/api/v1/admin/audit?limit=200',
+    ])
+    expect(JSON.parse((fetchMock.mock.calls[1]?.[1] as RequestInit).body as string)).toEqual(draft)
+    expect(JSON.parse((fetchMock.mock.calls[2]?.[1] as RequestInit).body as string)).toEqual({
+      draft,
+      approval: 'signed-approval',
+      confirmation: 'APPLY KILL_SWITCH',
+    })
+  })
 })

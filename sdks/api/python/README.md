@@ -66,18 +66,20 @@ configuration = amesh_client.Configuration(
 # Enter a context with an instance of the API client
 with amesh_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
-    api_instance = amesh_client.AuthenticationApi(api_client)
-    change_local_password_request = amesh_client.ChangeLocalPasswordRequest() # ChangeLocalPasswordRequest |
+    api_instance = amesh_client.AdministrationApi(api_client)
+    key = amesh_client.AdministrationControlKey() # AdministrationControlKey |
+    administration_apply_request = amesh_client.AdministrationApplyRequest() # AdministrationApplyRequest |
     authorization = 'authorization_example' # str |  (optional)
     x_amesh_csrf = 'x_amesh_csrf_example' # str |  (optional)
+    x_amesh_tenant = 'x_amesh_tenant_example' # str |  (optional)
 
     try:
-        # Change Local Password
-        api_response = api_instance.change_local_password_api_v1_auth_password_post(change_local_password_request, authorization=authorization, x_amesh_csrf=x_amesh_csrf)
-        print("The response of AuthenticationApi->change_local_password_api_v1_auth_password_post:\n")
+        # Apply Administration Control
+        api_response = api_instance.apply_administration_control_api_v1_admin_controls_key_put(key, administration_apply_request, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
+        print("The response of AdministrationApi->apply_administration_control_api_v1_admin_controls_key_put:\n")
         pprint(api_response)
     except ApiException as e:
-        print("Exception when calling AuthenticationApi->change_local_password_api_v1_auth_password_post: %s\n" % e)
+        print("Exception when calling AdministrationApi->apply_administration_control_api_v1_admin_controls_key_put: %s\n" % e)
 
 ```
 
@@ -87,6 +89,10 @@ All URIs are relative to *http://localhost*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
+*AdministrationApi* | [**apply_administration_control_api_v1_admin_controls_key_put**](docs/AdministrationApi.md#apply_administration_control_api_v1_admin_controls_key_put) | **PUT** /api/v1/admin/controls/{key} | Apply Administration Control
+*AdministrationApi* | [**list_administration_audit_api_v1_admin_audit_get**](docs/AdministrationApi.md#list_administration_audit_api_v1_admin_audit_get) | **GET** /api/v1/admin/audit | List Administration Audit
+*AdministrationApi* | [**list_administration_controls_api_v1_admin_controls_get**](docs/AdministrationApi.md#list_administration_controls_api_v1_admin_controls_get) | **GET** /api/v1/admin/controls | List Administration Controls
+*AdministrationApi* | [**preview_administration_control_api_v1_admin_controls_preview_post**](docs/AdministrationApi.md#preview_administration_control_api_v1_admin_controls_preview_post) | **POST** /api/v1/admin/controls/preview | Preview Administration Control
 *AuthenticationApi* | [**change_local_password_api_v1_auth_password_post**](docs/AuthenticationApi.md#change_local_password_api_v1_auth_password_post) | **POST** /api/v1/auth/password | Change Local Password
 *AuthenticationApi* | [**list_authentication_providers_api_v1_auth_providers_get**](docs/AuthenticationApi.md#list_authentication_providers_api_v1_auth_providers_get) | **GET** /api/v1/auth/providers | List Authentication Providers
 *AuthenticationApi* | [**login_api_v1_auth_login_post**](docs/AuthenticationApi.md#login_api_v1_auth_login_post) | **POST** /api/v1/auth/login | Login
@@ -247,6 +253,12 @@ Class | Method | HTTP request | Description
 ## Documentation For Models
 
  - [Action](docs/Action.md)
+ - [AdministrationApplyRequest](docs/AdministrationApplyRequest.md)
+ - [AdministrationAuditEntry](docs/AdministrationAuditEntry.md)
+ - [AdministrationControl](docs/AdministrationControl.md)
+ - [AdministrationControlDraft](docs/AdministrationControlDraft.md)
+ - [AdministrationControlKey](docs/AdministrationControlKey.md)
+ - [AdministrationImpactPreview](docs/AdministrationImpactPreview.md)
  - [AdmissionDecision](docs/AdmissionDecision.md)
  - [AdmissionDiagnostics](docs/AdmissionDiagnostics.md)
  - [AdmissionOutcome](docs/AdmissionOutcome.md)
@@ -491,6 +503,7 @@ Class | Method | HTTP request | Description
  - [ValidationError](docs/ValidationError.md)
  - [ValidationIssue](docs/ValidationIssue.md)
  - [Value](docs/Value.md)
+ - [Value1](docs/Value1.md)
  - [WebhookDelivery](docs/WebhookDelivery.md)
  - [WebhookDeliveryAttempt](docs/WebhookDeliveryAttempt.md)
  - [WebhookDeliveryHistory](docs/WebhookDeliveryHistory.md)

@@ -2,6 +2,7 @@
 .npmignore
 .openapi-generator-ignore
 README.md
+docs/AdministrationApi.md
 docs/AuthenticationApi.md
 docs/AuthorizationApi.md
 docs/BackfillsApi.md
@@ -24,6 +25,7 @@ docs/TriggersApi.md
 docs/UiApi.md
 docs/WorkersApi.md
 package.json
+src/apis/AdministrationApi.ts
 src/apis/AuthenticationApi.ts
 src/apis/AuthorizationApi.ts
 src/apis/BackfillsApi.ts
@@ -48,6 +50,12 @@ src/apis/WorkersApi.ts
 src/apis/index.ts
 src/index.ts
 src/models/Action.ts
+src/models/AdministrationApplyRequest.ts
+src/models/AdministrationAuditEntry.ts
+src/models/AdministrationControl.ts
+src/models/AdministrationControlDraft.ts
+src/models/AdministrationControlKey.ts
+src/models/AdministrationImpactPreview.ts
 src/models/AdmissionDecision.ts
 src/models/AdmissionDiagnostics.ts
 src/models/AdmissionOutcome.ts
@@ -292,6 +300,7 @@ src/models/UiSessionResponse.ts
 src/models/ValidationError.ts
 src/models/ValidationIssue.ts
 src/models/Value.ts
+src/models/Value1.ts
 src/models/WebhookDelivery.ts
 src/models/WebhookDeliveryAttempt.ts
 src/models/WebhookDeliveryHistory.ts

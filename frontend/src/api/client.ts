@@ -1,4 +1,9 @@
 import type {
+  AdministrationAuditEntry,
+  AdministrationControl,
+  AdministrationControlDraft,
+  AdministrationImpactPreview,
+  AdmissionDiagnostics,
   CheckComplianceSummary,
   DashboardDefinition,
   DashboardFilters,
@@ -23,6 +28,9 @@ import type {
   FlowFormatResponse,
   FlowMetadata,
   AuthenticationProvider,
+  ConfigurationSnapshot,
+  CredentialMetadata,
+  FeatureFlag,
   FlowGraph,
   FlowRevisionDiff,
   FlowRevisionRecord,
@@ -33,19 +41,27 @@ import type {
   NamespaceCheckPolicy,
   NamespaceFile,
   NamespaceFileVersion,
+  NamespaceWorkflowMetadataView,
   PluginRegistryIndex,
   KeyValueEntry,
   KeyValueType,
   PersistedExecution,
   PersistedFlow,
   PersistedSubflow,
+  PrincipalDefinition,
+  ReadinessResponse,
+  RoleBinding,
+  RoleDefinition,
   SecretBinding,
   SearchProjectionStatus,
   SearchRequest,
   SearchResponse,
+  ServiceTopology,
   TriggerOccurrence,
   TriggerRuntimeState,
   UiSession,
+  WorkerInventory,
+  IssuedCredential,
 } from './types'
 
 export interface ApiConnection {
@@ -140,6 +156,7 @@ export function createApiClient(connection: ApiConnection) {
 
   return {
     health: async () => request<HealthResponse>('/health'),
+    readiness: async () => request<ReadinessResponse>('/ready'),
     providers: async () => request<AuthenticationProvider[]>('/api/v1/auth/providers'),
     login: async (identifier: string, password: string, provider = 'local') =>
       request<LoginResponse>('/api/v1/auth/login', {
@@ -154,6 +171,75 @@ export function createApiClient(connection: ApiConnection) {
       const suffix = params.size ? `?${params.toString()}` : ''
       return request<UiSession>(`/api/v1/ui/session${suffix}`)
     },
+    principals: async () => request<PrincipalDefinition[]>('/api/v1/admin/principals'),
+    createPrincipal: async (principalType: PrincipalDefinition['principal_type'], handle: string, displayName: string) =>
+      request<PrincipalDefinition>('/api/v1/admin/principals', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ principal_type: principalType, handle, display_name: displayName }),
+      }),
+    addGroupMember: async (groupId: string, memberId: string) =>
+      request<void>(`/api/v1/admin/groups/${encodeURIComponent(groupId)}/members/${encodeURIComponent(memberId)}`, { method: 'PUT' }),
+    removeGroupMember: async (groupId: string, memberId: string) =>
+      request<void>(`/api/v1/admin/groups/${encodeURIComponent(groupId)}/members/${encodeURIComponent(memberId)}`, { method: 'DELETE' }),
+    roles: async () => request<RoleDefinition[]>('/api/v1/admin/roles'),
+    saveRole: async (name: string, displayName: string, description: string, permissions: RoleDefinition['permissions']) =>
+      request<RoleDefinition>(`/api/v1/admin/roles/${encodeURIComponent(name)}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, display_name: displayName, description, permissions }),
+      }),
+    bindings: async () => request<RoleBinding[]>('/api/v1/admin/bindings'),
+    createBinding: async (binding: Omit<RoleBinding, 'id'>) =>
+      request<RoleBinding>('/api/v1/admin/bindings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(binding),
+      }),
+    principalCredentials: async (principalId: string) =>
+      request<CredentialMetadata[]>(`/api/v1/admin/principals/${encodeURIComponent(principalId)}/credentials`),
+    createCredential: async (principalId: string, name: string, scopes: string[], expiresAt: string) =>
+      request<IssuedCredential>(`/api/v1/admin/principals/${encodeURIComponent(principalId)}/credentials`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, scopes, expiresAt, audience: 'amesh-api', rateLimitPerMinute: 600 }),
+      }),
+    topology: async () => request<ServiceTopology>('/api/v1/operations/topology'),
+    workers: async () => request<WorkerInventory[]>('/api/v1/workers'),
+    admissionDiagnostics: async () => request<AdmissionDiagnostics>('/api/v1/admissions/diagnostics'),
+    configuration: async () => request<ConfigurationSnapshot>('/api/v1/configuration'),
+    reloadConfiguration: async () => request<ConfigurationSnapshot>('/api/v1/configuration/reload', { method: 'POST' }),
+    featureFlags: async () => {
+      const suffix = connection.namespace ? `?namespace=${encodeURIComponent(connection.namespace)}` : ''
+      return request<FeatureFlag[]>(`/api/v1/feature-flags${suffix}`)
+    },
+    saveFeatureFlag: async (key: string, enabled: boolean, description: string, expectedVersion?: number) =>
+      request<FeatureFlag>(`/api/v1/feature-flags/${encodeURIComponent(key)}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          scope: connection.namespace ? 'NAMESPACE' : 'TENANT',
+          enabled,
+          tenantId: connection.tenant,
+          namespace: connection.namespace || null,
+          description,
+          expectedVersion: expectedVersion || null,
+        }),
+      }),
+    administrationControls: async () => request<AdministrationControl[]>('/api/v1/admin/controls'),
+    previewAdministrationControl: async (draft: AdministrationControlDraft) =>
+      request<AdministrationImpactPreview>('/api/v1/admin/controls/preview', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(draft),
+      }),
+    applyAdministrationControl: async (preview: AdministrationImpactPreview, confirmation: string) =>
+      request<AdministrationControl>(`/api/v1/admin/controls/${preview.draft.key}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ draft: preview.draft, approval: preview.approval, confirmation }),
+      }),
+    administrationAudit: async () => request<AdministrationAuditEntry[]>('/api/v1/admin/audit?limit=200'),
     flows: async () => request<PersistedFlow[]>('/api/v1/flows'),
     flowEditorSchema: async () => request<FlowEditorSchema>('/api/v1/flows/editor/schema'),
     validateFlow: async (document: string) =>
@@ -283,6 +369,8 @@ export function createApiClient(connection: ApiConnection) {
     },
     namespaceFiles: async (namespace: string) =>
       request<NamespaceFile[]>(`${namespaceRoot(namespace)}/files`),
+    namespaceWorkflowMetadata: async (namespace: string) =>
+      request<NamespaceWorkflowMetadataView>(`${namespaceRoot(namespace)}/workflow-metadata`),
     uploadNamespaceFile: async (namespace: string, path: string, file: File) =>
       request<NamespaceFile>(filePath(namespace, path), {
         method: 'PUT',

@@ -25,7 +25,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import io.amesh.client.model.MetricKind;
-import io.amesh.client.model.Value;
+import io.amesh.client.model.Value1;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -66,7 +66,7 @@ public class TaskMetricRecord {
 
   public static final String JSON_PROPERTY_VALUE = "value";
   @javax.annotation.Nonnull
-  private Value value;
+  private Value1 value;
 
   public TaskMetricRecord() {
   }
@@ -183,7 +183,7 @@ public class TaskMetricRecord {
   }
 
 
-  public TaskMetricRecord value(@javax.annotation.Nonnull Value value) {
+  public TaskMetricRecord value(@javax.annotation.Nonnull Value1 value) {
     this.value = value;
     return this;
   }
@@ -195,14 +195,14 @@ public class TaskMetricRecord {
   @javax.annotation.Nonnull
   @JsonProperty(value = JSON_PROPERTY_VALUE, required = true)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public Value getValue() {
+  public Value1 getValue() {
     return value;
   }
 
 
   @JsonProperty(value = JSON_PROPERTY_VALUE, required = true)
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setValue(@javax.annotation.Nonnull Value value) {
+  public void setValue(@javax.annotation.Nonnull Value1 value) {
     this.value = value;
   }
 

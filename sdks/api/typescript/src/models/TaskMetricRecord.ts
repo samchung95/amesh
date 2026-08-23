@@ -13,13 +13,13 @@
  */
 
 import { mapValues } from '../runtime';
-import type { Value } from './Value';
+import type { Value1 } from './Value1';
 import {
-    ValueFromJSON,
-    ValueFromJSONTyped,
-    ValueToJSON,
-    ValueToJSONTyped,
-} from './Value';
+    Value1FromJSON,
+    Value1FromJSONTyped,
+    Value1ToJSON,
+    Value1ToJSONTyped,
+} from './Value1';
 import type { MetricKind } from './MetricKind';
 import {
     MetricKindFromJSON,
@@ -60,10 +60,10 @@ export interface TaskMetricRecord {
     unit?: string | null;
     /**
      *
-     * @type {Value}
+     * @type {Value1}
      * @memberof TaskMetricRecord
      */
-    value: Value;
+    value: Value1;
 }
 
 
@@ -91,7 +91,7 @@ export function TaskMetricRecordFromJSONTyped(json: any, ignoreDiscriminator: bo
         'labels': json['labels'] == null ? undefined : json['labels'],
         'name': json['name'],
         'unit': json['unit'] === undefined ? undefined : json['unit'] === null ? null : json['unit'],
-        'value': ValueFromJSON(json['value']),
+        'value': Value1FromJSON(json['value']),
     };
 }
 
@@ -110,6 +110,6 @@ export function TaskMetricRecordToJSONTyped(value?: TaskMetricRecord | null, ign
         'labels': value['labels'],
         'name': value['name'],
         'unit': value['unit'],
-        'value': ValueToJSON(value['value']),
+        'value': Value1ToJSON(value['value']),
     };
 }

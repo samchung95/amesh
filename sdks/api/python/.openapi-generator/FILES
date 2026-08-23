@@ -6,6 +6,7 @@
 README.md
 amesh_client/__init__.py
 amesh_client/api/__init__.py
+amesh_client/api/administration_api.py
 amesh_client/api/authentication_api.py
 amesh_client/api/authorization_api.py
 amesh_client/api/backfills_api.py
@@ -33,6 +34,12 @@ amesh_client/configuration.py
 amesh_client/exceptions.py
 amesh_client/models/__init__.py
 amesh_client/models/action.py
+amesh_client/models/administration_apply_request.py
+amesh_client/models/administration_audit_entry.py
+amesh_client/models/administration_control.py
+amesh_client/models/administration_control_draft.py
+amesh_client/models/administration_control_key.py
+amesh_client/models/administration_impact_preview.py
 amesh_client/models/admission_decision.py
 amesh_client/models/admission_diagnostics.py
 amesh_client/models/admission_outcome.py
@@ -277,6 +284,7 @@ amesh_client/models/ui_session_response.py
 amesh_client/models/validation_error.py
 amesh_client/models/validation_issue.py
 amesh_client/models/value.py
+amesh_client/models/value1.py
 amesh_client/models/webhook_delivery.py
 amesh_client/models/webhook_delivery_attempt.py
 amesh_client/models/webhook_delivery_history.py
@@ -291,6 +299,7 @@ amesh_client/models/worker_status.py
 amesh_client/models/workflow_metadata_policy.py
 amesh_client/py.typed
 amesh_client/rest.py
+docs/AdministrationApi.md
 docs/AuthenticationApi.md
 docs/AuthorizationApi.md
 docs/BackfillsApi.md

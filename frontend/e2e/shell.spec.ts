@@ -97,7 +97,37 @@ const namespaceSecrets = [
 
 async function mockApi(page: Page, overrides = session) {
   let customDashboard: Record<string, unknown> | null = null
+  let adminControls: Array<{ key: string; flagKey: string; enabled: boolean; value: unknown; version: number | null; updatedBy: string | null; updatedAt: string | null }> = [
+    { key: 'RETENTION', flagKey: 'admin-retention-executions', enabled: false, value: 30, version: null, updatedBy: null, updatedAt: null },
+    { key: 'ANNOUNCEMENT', flagKey: 'admin-announcement-banner', enabled: false, value: '', version: null, updatedBy: null, updatedAt: null },
+    { key: 'MAINTENANCE', flagKey: 'admin-maintenance-mode', enabled: false, value: null, version: null, updatedBy: null, updatedAt: null },
+    { key: 'KILL_SWITCH', flagKey: 'admin-execution-kill-switch', enabled: false, value: null, version: null, updatedBy: null, updatedAt: null },
+  ]
+  const adminAudit: Array<Record<string, unknown>> = []
   await page.route('**/api/v1/ui/session**', (route) => route.fulfill({ json: overrides }))
+  await page.route('**/ready', (route) => route.fulfill({ json: { database: 'ready', migrations_applied: 44, migrations_expected: 44, latest_migration: '0044_search_projection.sql' } }))
+  await page.route('**/api/v1/admin/controls**', (route) => {
+    const request = route.request()
+    const path = new URL(request.url()).pathname
+    if (path.endsWith('/preview')) {
+      const draft = request.postDataJSON() as Record<string, unknown>
+      return route.fulfill({ json: { draft, impacts: ['Stop new execution admission for this tenant.'], recovery: 'Disable the switch and verify capacity.', confirmation: `APPLY ${String(draft.key)}`, approval: 'signed-administration-approval', expiresAt: '2026-08-23T10:00:00Z' } })
+    }
+    if (request.method() === 'PUT') {
+      const body = request.postDataJSON() as { draft: { key: string; enabled: boolean; value: unknown; reason: string } }
+      adminControls = adminControls.map((control) => control.key === body.draft.key ? { ...control, enabled: body.draft.enabled, value: body.draft.value, version: 1, updatedBy: session.principalId, updatedAt: '2026-08-23T09:00:00Z' } : control)
+      const changed = adminControls.find((control) => control.key === body.draft.key)
+      adminAudit.unshift({ eventId: 'admin-event-1', actorId: session.principalId, action: 'APPLY_CONTROL', resourceId: body.draft.key, outcome: 'SUCCESS', reason: body.draft.reason, evidence: { enabled: body.draft.enabled }, occurredAt: '2026-08-23T09:00:00Z' })
+      return route.fulfill({ json: changed })
+    }
+    return route.fulfill({ json: adminControls })
+  })
+  await page.route('**/api/v1/admin/audit**', (route) => route.fulfill({ json: adminAudit }))
+  await page.route('**/api/v1/feature-flags**', (route) => route.fulfill({ json: [{ id: 'flag-1', key: 'editor-v2', scope: 'TENANT', enabled: true, tenant_id: 'default', namespace: null, description: 'New editor rollout', version: 2, updated_by: session.principalId, updated_at: '2026-08-23T08:00:00Z' }] }))
+  await page.route('**/api/v1/configuration**', (route) => route.fulfill({ json: { schema_version: 1, version: 7, fingerprint: 'abcdef0123456789abcdef0123456789', loaded_at: '2026-08-23T08:00:00Z', precedence: ['defaults', 'environment'], entries: [{ name: 'database.url', value: 'postgresql://amesh', source: 'environment', reloadable: false, secret: false }, { name: 'amesh.token_pepper', value: 'server-redacted', source: 'environment', reloadable: false, secret: true }], warnings: [] } }))
+  await page.route('**/api/v1/operations/topology', (route) => route.fulfill({ json: { observedAt: '2026-08-23T09:00:00Z', currentVersion: '0.2.0', versionSkew: false, coordination: 'postgresql-leases', quorumDependencies: { objectStorage: 'ready' }, roles: [{ role: 'api', totalInstances: 1, liveInstances: 1, readyInstances: 1, drainingInstances: 0, staleInstances: 0, versions: ['0.2.0'], failoverStatus: 'READY' }], instances: [] } }))
+  await page.route('**/api/v1/workers', (route) => route.fulfill({ json: [{ worker_id: 'worker-1', worker_group: 'local', instance_name: 'executor-1', version: '0.2.0', status: 'ACTIVE', liveness: 'LIVE', compatibility: 'COMPATIBLE', capacity: 4, claimed_work: 1, utilization: 0.25, last_heartbeat_at: '2026-08-23T09:00:00Z' }] }))
+  await page.route('**/api/v1/admissions/diagnostics', (route) => route.fulfill({ json: { active_reservations: 1, queued_requests: 0, oldest_queue_age_seconds: 0, pressure_by_policy: {} } }))
   await page.route('**/api/v1/dashboards', (route) => route.fulfill({ json: customDashboard ? [...dashboardDefinitions, customDashboard] : dashboardDefinitions }))
   await page.route('**/api/v1/dashboards/**', async (route) => {
     const request = route.request()
@@ -128,7 +158,8 @@ async function mockApi(page: Page, overrides = session) {
     const path = new URL(request.url()).pathname
     if (path.endsWith('/status')) return route.fulfill({ json: { projectionVersion: 4, condition: 'READY', documentsIndexed: 42, sourceDocuments: 42, progress: 1, lastProjectedAt: '2026-08-21T12:01:00Z', latestSourceAt: '2026-08-21T12:01:00Z', lagSeconds: 0, rebuildStartedAt: null, rebuildCompletedAt: '2026-08-21T12:00:00Z', failures: 0, lastError: null } })
     if (path.endsWith('/rebuild')) return route.fulfill({ status: 202, json: { projectionVersion: 5, condition: 'REBUILDING', documentsIndexed: 0, sourceDocuments: 42, progress: 0, lastProjectedAt: '2026-08-21T12:01:00Z', latestSourceAt: '2026-08-21T12:01:00Z', lagSeconds: 0, rebuildStartedAt: '2026-08-21T12:02:00Z', rebuildCompletedAt: null, failures: 0, lastError: null } })
-    const body = request.postDataJSON() as { cursor?: string }
+    const body = request.postDataJSON() as { cursor?: string; types?: string[] }
+    if (body.types?.includes('AUDIT')) return route.fulfill({ json: { items: adminAudit.map((event) => ({ documentType: 'AUDIT', documentId: event.eventId, namespace: null, title: String(event.action), summary: String(event.reason), state: String(event.outcome), labels: {}, fields: { action: event.action, resourceType: 'administration_control', outcome: event.outcome }, occurredAt: event.occurredAt, updatedAt: event.occurredAt, sourceVersion: 1, relevance: 1 })), nextCursor: null, deniedTypes: [], projectionVersion: 4, projectionCondition: 'READY' } })
     if (body.cursor) return route.fulfill({ json: { items: [searchDocuments[1]], nextCursor: null, deniedTypes: ['AUDIT'], projectionVersion: 4, projectionCondition: 'READY' } })
     return route.fulfill({ json: { items: searchDocuments, nextCursor: 'search-page-2', deniedTypes: ['AUDIT'], projectionVersion: 4, projectionCondition: 'READY' } })
   })
@@ -289,6 +320,43 @@ test('uses server permissions for navigation and direct routes', async ({ page }
   await expect(administration).toHaveAttribute('aria-disabled', 'true')
   await page.goto('/administration')
   await expect(page.getByRole('heading', { name: 'Permission required' })).toBeVisible()
+})
+
+test('administers tenant controls with preview, redaction and audit evidence', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name === 'tablet', 'desktop administration acceptance')
+  await page.unroute('**/api/v1/ui/session**')
+  await page.route('**/api/v1/ui/session**', (route) => route.fulfill({ json: { ...session, capabilities: { ...session.capabilities, 'administration.manage': true } } }))
+  await connect(page)
+
+  await page.getByRole('link', { name: 'Administration' }).click()
+  await expect(page.getByRole('heading', { name: 'Administration' })).toBeVisible()
+  await page.getByRole('button', { name: 'Operations' }).click()
+  await expect(page.getByText('PostgreSQL', { exact: true })).toBeVisible()
+  await expect(page.getByText('44/44 migrations')).toBeVisible()
+
+  await page.getByRole('button', { name: 'Controls' }).click()
+  const killSwitch = page.locator('.admin-control-grid article').filter({ hasText: 'Execution kill switch' })
+  await killSwitch.getByRole('button', { name: 'Preview change' }).click()
+  const draft = page.locator('.admin-panel').filter({ hasText: 'DRAFT' })
+  await draft.getByRole('checkbox').check()
+  await draft.getByLabel('Reason').fill('incident containment exercise')
+  await draft.getByRole('button', { name: 'Generate impact preview' }).click()
+  const dialog = page.getByRole('dialog', { name: 'Confirm Execution kill switch' })
+  await expect(dialog.getByText('Stop new execution admission for this tenant.')).toBeVisible()
+  await dialog.getByLabel(/Type APPLY KILL_SWITCH/).fill('APPLY KILL_SWITCH')
+  await dialog.getByRole('button', { name: 'Apply guarded change' }).click()
+  await expect(page.getByText('Administrative control applied and audited')).toBeVisible()
+
+  await page.getByRole('button', { name: 'Configuration' }).click()
+  await expect(page.getByText('Configuration version 7')).toBeVisible()
+  await expect(page.getByText('[REDACTED]')).toBeVisible()
+  await expect(page.getByText('server-redacted', { exact: true })).toHaveCount(0)
+
+  await page.getByRole('button', { name: 'Audit' }).click()
+  await expect(page.getByText('incident containment exercise').first()).toBeVisible()
+  await expect(page.getByText('SUCCESS').first()).toBeVisible()
+  const findings = await new AxeBuilder({ page }).analyze()
+  expect(findings.violations.filter((item) => ['critical', 'serious'].includes(item.impact || ''))).toEqual([])
 })
 
 test('shows live trigger health and durable occurrence evidence', async ({ page }, testInfo) => {

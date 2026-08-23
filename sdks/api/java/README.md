@@ -76,23 +76,25 @@ Please follow the [installation](#installation) instruction and execute the foll
 
 import io.amesh.client.*;
 import io.amesh.client.model.*;
-import io.amesh.client.api.AuthenticationApi;
+import io.amesh.client.api.AdministrationApi;
 
-public class AuthenticationApiExample {
+public class AdministrationApiExample {
 
     public static void main(String[] args) {
         ApiClient defaultClient = Configuration.getDefaultApiClient();
         // Configure clients using the `defaultClient` object, such as
         // overriding the host and port, timeout, etc.
-        AuthenticationApi apiInstance = new AuthenticationApi(defaultClient);
-        ChangeLocalPasswordRequest changeLocalPasswordRequest = new ChangeLocalPasswordRequest(); // ChangeLocalPasswordRequest |
+        AdministrationApi apiInstance = new AdministrationApi(defaultClient);
+        AdministrationControlKey key = AdministrationControlKey.fromValue("RETENTION"); // AdministrationControlKey |
+        AdministrationApplyRequest administrationApplyRequest = new AdministrationApplyRequest(); // AdministrationApplyRequest |
         String authorization = "authorization_example"; // String |
         String xAmeshCSRF = "xAmeshCSRF_example"; // String |
+        String xAmeshTenant = "xAmeshTenant_example"; // String |
         try {
-            RevokedSessionsResponse result = apiInstance.changeLocalPasswordApiV1AuthPasswordPost(changeLocalPasswordRequest, authorization, xAmeshCSRF);
+            AdministrationControl result = apiInstance.applyAdministrationControlApiV1AdminControlsKeyPut(key, administrationApplyRequest, authorization, xAmeshCSRF, xAmeshTenant);
             System.out.println(result);
         } catch (ApiException e) {
-            System.err.println("Exception when calling AuthenticationApi#changeLocalPasswordApiV1AuthPasswordPost");
+            System.err.println("Exception when calling AdministrationApi#applyAdministrationControlApiV1AdminControlsKeyPut");
             System.err.println("Status code: " + e.getCode());
             System.err.println("Reason: " + e.getResponseBody());
             System.err.println("Response headers: " + e.getResponseHeaders());
@@ -109,6 +111,14 @@ All URIs are relative to *http://localhost*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
+*AdministrationApi* | [**applyAdministrationControlApiV1AdminControlsKeyPut**](docs/AdministrationApi.md#applyAdministrationControlApiV1AdminControlsKeyPut) | **PUT** /api/v1/admin/controls/{key} | Apply Administration Control
+*AdministrationApi* | [**applyAdministrationControlApiV1AdminControlsKeyPutWithHttpInfo**](docs/AdministrationApi.md#applyAdministrationControlApiV1AdminControlsKeyPutWithHttpInfo) | **PUT** /api/v1/admin/controls/{key} | Apply Administration Control
+*AdministrationApi* | [**listAdministrationAuditApiV1AdminAuditGet**](docs/AdministrationApi.md#listAdministrationAuditApiV1AdminAuditGet) | **GET** /api/v1/admin/audit | List Administration Audit
+*AdministrationApi* | [**listAdministrationAuditApiV1AdminAuditGetWithHttpInfo**](docs/AdministrationApi.md#listAdministrationAuditApiV1AdminAuditGetWithHttpInfo) | **GET** /api/v1/admin/audit | List Administration Audit
+*AdministrationApi* | [**listAdministrationControlsApiV1AdminControlsGet**](docs/AdministrationApi.md#listAdministrationControlsApiV1AdminControlsGet) | **GET** /api/v1/admin/controls | List Administration Controls
+*AdministrationApi* | [**listAdministrationControlsApiV1AdminControlsGetWithHttpInfo**](docs/AdministrationApi.md#listAdministrationControlsApiV1AdminControlsGetWithHttpInfo) | **GET** /api/v1/admin/controls | List Administration Controls
+*AdministrationApi* | [**previewAdministrationControlApiV1AdminControlsPreviewPost**](docs/AdministrationApi.md#previewAdministrationControlApiV1AdminControlsPreviewPost) | **POST** /api/v1/admin/controls/preview | Preview Administration Control
+*AdministrationApi* | [**previewAdministrationControlApiV1AdminControlsPreviewPostWithHttpInfo**](docs/AdministrationApi.md#previewAdministrationControlApiV1AdminControlsPreviewPostWithHttpInfo) | **POST** /api/v1/admin/controls/preview | Preview Administration Control
 *AuthenticationApi* | [**changeLocalPasswordApiV1AuthPasswordPost**](docs/AuthenticationApi.md#changeLocalPasswordApiV1AuthPasswordPost) | **POST** /api/v1/auth/password | Change Local Password
 *AuthenticationApi* | [**changeLocalPasswordApiV1AuthPasswordPostWithHttpInfo**](docs/AuthenticationApi.md#changeLocalPasswordApiV1AuthPasswordPostWithHttpInfo) | **POST** /api/v1/auth/password | Change Local Password
 *AuthenticationApi* | [**listAuthenticationProvidersApiV1AuthProvidersGet**](docs/AuthenticationApi.md#listAuthenticationProvidersApiV1AuthProvidersGet) | **GET** /api/v1/auth/providers | List Authentication Providers
@@ -424,6 +434,12 @@ Class | Method | HTTP request | Description
 ## Documentation for Models
 
  - [Action](docs/Action.md)
+ - [AdministrationApplyRequest](docs/AdministrationApplyRequest.md)
+ - [AdministrationAuditEntry](docs/AdministrationAuditEntry.md)
+ - [AdministrationControl](docs/AdministrationControl.md)
+ - [AdministrationControlDraft](docs/AdministrationControlDraft.md)
+ - [AdministrationControlKey](docs/AdministrationControlKey.md)
+ - [AdministrationImpactPreview](docs/AdministrationImpactPreview.md)
  - [AdmissionDecision](docs/AdmissionDecision.md)
  - [AdmissionDiagnostics](docs/AdmissionDiagnostics.md)
  - [AdmissionOutcome](docs/AdmissionOutcome.md)
@@ -668,6 +684,7 @@ Class | Method | HTTP request | Description
  - [ValidationError](docs/ValidationError.md)
  - [ValidationIssue](docs/ValidationIssue.md)
  - [Value](docs/Value.md)
+ - [Value1](docs/Value1.md)
  - [WebhookDelivery](docs/WebhookDelivery.md)
  - [WebhookDeliveryAttempt](docs/WebhookDeliveryAttempt.md)
  - [WebhookDeliveryHistory](docs/WebhookDeliveryHistory.md)

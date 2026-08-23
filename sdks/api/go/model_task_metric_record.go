@@ -25,7 +25,7 @@ type TaskMetricRecord struct {
 	Labels map[string]string `json:"labels,omitempty"`
 	Name string `json:"name"`
 	Unit NullableString `json:"unit,omitempty"`
-	Value Value `json:"value"`
+	Value Value1 `json:"value"`
 }
 
 type _TaskMetricRecord TaskMetricRecord
@@ -34,7 +34,7 @@ type _TaskMetricRecord TaskMetricRecord
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewTaskMetricRecord(name string, value Value) *TaskMetricRecord {
+func NewTaskMetricRecord(name string, value Value1) *TaskMetricRecord {
 	this := TaskMetricRecord{}
 	var kind MetricKind = METRICKIND_GAUGE
 	this.Kind = &kind
@@ -184,9 +184,9 @@ func (o *TaskMetricRecord) UnsetUnit() {
 }
 
 // GetValue returns the Value field value
-func (o *TaskMetricRecord) GetValue() Value {
+func (o *TaskMetricRecord) GetValue() Value1 {
 	if o == nil {
-		var ret Value
+		var ret Value1
 		return ret
 	}
 
@@ -195,7 +195,7 @@ func (o *TaskMetricRecord) GetValue() Value {
 
 // GetValueOk returns a tuple with the Value field value
 // and a boolean to check if the value has been set.
-func (o *TaskMetricRecord) GetValueOk() (*Value, bool) {
+func (o *TaskMetricRecord) GetValueOk() (*Value1, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -203,7 +203,7 @@ func (o *TaskMetricRecord) GetValueOk() (*Value, bool) {
 }
 
 // SetValue sets field value
-func (o *TaskMetricRecord) SetValue(v Value) {
+func (o *TaskMetricRecord) SetValue(v Value1) {
 	o.Value = v
 }
 

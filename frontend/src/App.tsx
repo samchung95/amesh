@@ -19,6 +19,7 @@ import { PluginsPage } from './pages/PluginsPage'
 import { SearchPage } from './pages/SearchPage'
 import { TriggersPage } from './pages/TriggersPage'
 import { ChecksPage } from './pages/ChecksPage'
+import { AdministrationPage } from './pages/AdministrationPage'
 
 export function App() {
   const { connected } = useAppSettings()
@@ -79,7 +80,7 @@ function WorkspaceRoutes({ session }: { session: UiSession }) {
         <Route path="assets" element={<PlaceholderPage title="Assets" />} />
         <Route path="apps" element={<PlaceholderPage title="Apps" />} />
         <Route path="plugins" element={<CapabilityRoute session={session} capability="plugins.view" title="Plugins"><PluginsPage /></CapabilityRoute>} />
-        <Route path="administration" element={<CapabilityRoute session={session} capability="administration.manage" title="Administration"><PlaceholderPage title="Administration" /></CapabilityRoute>} />
+        <Route path="administration" element={<CapabilityRoute session={session} capability="administration.manage" title="Administration"><AdministrationPage session={session} /></CapabilityRoute>} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>

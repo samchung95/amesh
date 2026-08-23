@@ -148,6 +148,13 @@ from amesh.dashboards import (
 from amesh.database import create_database_engine
 from amesh.domain import (
     ActorContext,
+    AdministrationApplyRequest,
+    AdministrationApprovalError,
+    AdministrationAuditEntry,
+    AdministrationControl,
+    AdministrationControlDraft,
+    AdministrationControlKey,
+    AdministrationImpactPreview,
     AdmissionDecision,
     AdmissionDiagnostics,
     AdmissionResourceType,
@@ -208,9 +215,13 @@ from amesh.domain import (
     TenantExport,
     TenantPolicy,
     TenantSlug,
+    administration_control_flag,
+    administration_controls,
     canonical_hash,
+    issue_administration_preview,
     new_runtime_id,
     reduce_execution,
+    verify_administration_approval,
 )
 from amesh.domain import (
     AuthenticationRequest as ProviderAuthenticationRequest,
@@ -2124,6 +2135,11 @@ async def put_feature_flag(
     feature_flags: FeatureFlagRepositoryDependency,
     tenant_id: TenantDependency,
 ) -> FeatureFlag:
+    if key.startswith("admin-"):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="reserved administration controls require the guarded administration API",
+        )
     if request.scope is FeatureFlagScope.INSTANCE:
         if request.tenant_id is not None or request.namespace is not None:
             raise HTTPException(
@@ -2179,6 +2195,151 @@ async def put_feature_flag(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="tenant unavailable"
         ) from exc
+
+
+@app.get(
+    "/api/v1/admin/controls",
+    response_model=tuple[AdministrationControl, ...],
+    tags=["administration"],
+)
+async def list_administration_controls(
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    feature_flags: FeatureFlagRepositoryDependency,
+    tenant_id: TenantDependency,
+) -> tuple[AdministrationControl, ...]:
+    await authorize_request(
+        authorization_service,
+        actor,
+        tenant_id=tenant_id,
+        resource_type="configuration",
+        action=PermissionAction.VIEW,
+    )
+    return administration_controls(await feature_flags.list_for_context(tenant_id))
+
+
+@app.post(
+    "/api/v1/admin/controls/preview",
+    response_model=AdministrationImpactPreview,
+    tags=["administration"],
+)
+async def preview_administration_control(
+    draft: AdministrationControlDraft,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    settings: SettingsDependency,
+    tenant_id: TenantDependency,
+) -> AdministrationImpactPreview:
+    await authorize_request(
+        authorization_service,
+        actor,
+        tenant_id=tenant_id,
+        resource_type="configuration",
+        action=PermissionAction.MANAGE,
+    )
+    return issue_administration_preview(
+        draft,
+        actor_id=str(actor.principal_id),
+        tenant_id=tenant_id,
+        signing_key=settings.amesh_token_pepper.get_secret_value(),
+    )
+
+
+@app.put(
+    "/api/v1/admin/controls/{key}",
+    response_model=AdministrationControl,
+    tags=["administration"],
+)
+async def apply_administration_control(
+    key: AdministrationControlKey,
+    request: AdministrationApplyRequest,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    feature_flags: FeatureFlagRepositoryDependency,
+    settings: SettingsDependency,
+    tenant_id: TenantDependency,
+) -> AdministrationControl:
+    await authorize_request(
+        authorization_service,
+        actor,
+        tenant_id=tenant_id,
+        resource_type="configuration",
+        action=PermissionAction.MANAGE,
+    )
+    actor_id = str(actor.principal_id)
+    try:
+        if request.draft.key is not key:
+            raise AdministrationApprovalError("administration control path does not match draft")
+        verify_administration_approval(
+            request,
+            actor_id=actor_id,
+            tenant_id=tenant_id,
+            signing_key=settings.amesh_token_pepper.get_secret_value(),
+        )
+    except AdministrationApprovalError as exc:
+        await feature_flags.audit_administration_action(
+            tenant_id,
+            actor_id=actor_id,
+            action="administration-control.apply",
+            resource_id=key.value,
+            outcome="REJECTED",
+            reason=str(exc),
+            evidence={"enabled": request.draft.enabled, "value": request.draft.value},
+        )
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
+
+    flag = administration_control_flag(request.draft, tenant_id=tenant_id, actor_id=actor_id)
+    try:
+        persisted = await feature_flags.upsert(
+            flag,
+            actor_id=actor_id,
+            expected_version=request.draft.expected_version,
+            administration_audit={
+                "action": "administration-control.apply",
+                "resourceId": key.value,
+                "reason": request.draft.reason,
+                "evidence": {"enabled": request.draft.enabled, "value": request.draft.value},
+            },
+        )
+    except FeatureFlagVersionConflict as exc:
+        await feature_flags.audit_administration_action(
+            tenant_id,
+            actor_id=actor_id,
+            action="administration-control.apply",
+            resource_id=key.value,
+            outcome="REJECTED",
+            reason="administration control version changed",
+            evidence={"expectedVersion": request.draft.expected_version},
+        )
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="administration control version changed",
+        ) from exc
+    return next(
+        control for control in administration_controls((persisted,)) if control.key is key
+    )
+
+
+@app.get(
+    "/api/v1/admin/audit",
+    response_model=tuple[AdministrationAuditEntry, ...],
+    tags=["administration"],
+)
+async def list_administration_audit(
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    feature_flags: FeatureFlagRepositoryDependency,
+    tenant_id: TenantDependency,
+    limit: Annotated[int, Query(ge=1, le=500)] = 100,
+) -> tuple[AdministrationAuditEntry, ...]:
+    await authorize_request(
+        authorization_service,
+        actor,
+        tenant_id=tenant_id,
+        resource_type="audit",
+        action=PermissionAction.VIEW,
+    )
+    return await feature_flags.list_administration_audit(tenant_id, limit=limit)
 
 
 @app.get(

@@ -19,7 +19,6 @@ import java.util.StringJoiner;
 import java.util.Objects;
 import java.util.Map;
 import java.util.HashMap;
-import java.math.BigDecimal;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
@@ -79,9 +78,9 @@ public class Value extends AbstractOpenApiSchema {
             JsonNode tree = ctxt.readTree(jp);
 
             Object deserialized = null;
-            // deserialize BigDecimal
+            // deserialize Integer
             try {
-                deserialized = tree.traverse(jp.getCodec()).readValueAs(BigDecimal.class);
+                deserialized = tree.traverse(jp.getCodec()).readValueAs(Integer.class);
                 Value ret = new Value();
                 ret.setActualInstance(deserialized);
                 return ret;
@@ -109,7 +108,7 @@ public class Value extends AbstractOpenApiSchema {
          */
         @Override
         public Value getNullValue(DeserializationContext ctxt) throws JsonMappingException {
-            throw new JsonMappingException(ctxt.getParser(), "Value cannot be null");
+            return null;
         }
     }
 
@@ -117,21 +116,21 @@ public class Value extends AbstractOpenApiSchema {
     public static final Map<String, Class<?>> schemas = new HashMap<String, Class<?>>();
 
     public Value() {
-        super("anyOf", Boolean.FALSE);
+        super("anyOf", Boolean.TRUE);
     }
 
-    public Value(BigDecimal o) {
-        super("anyOf", Boolean.FALSE);
+    public Value(Integer o) {
+        super("anyOf", Boolean.TRUE);
         setActualInstance(o);
     }
 
     public Value(String o) {
-        super("anyOf", Boolean.FALSE);
+        super("anyOf", Boolean.TRUE);
         setActualInstance(o);
     }
 
     static {
-        schemas.put("BigDecimal", BigDecimal.class);
+        schemas.put("Integer", Integer.class);
         schemas.put("String", String.class);
         JSON.registerDescendants(Value.class, Collections.unmodifiableMap(schemas));
     }
@@ -144,14 +143,19 @@ public class Value extends AbstractOpenApiSchema {
     /**
      * Set the instance that matches the anyOf child schema, check
      * the instance parameter is valid against the anyOf child schemas:
-     * BigDecimal, String
+     * Integer, String
      *
      * It could be an instance of the 'anyOf' schemas.
      * The anyOf child schemas may themselves be a composed schema (allOf, anyOf, anyOf).
      */
     @Override
     public void setActualInstance(Object instance) {
-        if (JSON.isInstanceOf(BigDecimal.class, instance, new HashSet<Class<?>>())) {
+        if (instance == null) {
+           super.setActualInstance(instance);
+           return;
+        }
+
+        if (JSON.isInstanceOf(Integer.class, instance, new HashSet<Class<?>>())) {
             super.setActualInstance(instance);
             return;
         }
@@ -161,14 +165,14 @@ public class Value extends AbstractOpenApiSchema {
             return;
         }
 
-        throw new RuntimeException("Invalid instance type. Must be BigDecimal, String");
+        throw new RuntimeException("Invalid instance type. Must be Integer, String");
     }
 
     /**
      * Get the actual instance, which can be the following:
-     * BigDecimal, String
+     * Integer, String
      *
-     * @return The actual instance (BigDecimal, String)
+     * @return The actual instance (Integer, String)
      */
     @Override
     public Object getActualInstance() {
@@ -176,14 +180,14 @@ public class Value extends AbstractOpenApiSchema {
     }
 
     /**
-     * Get the actual instance of `BigDecimal`. If the actual instance is not `BigDecimal`,
+     * Get the actual instance of `Integer`. If the actual instance is not `Integer`,
      * the ClassCastException will be thrown.
      *
-     * @return The actual instance of `BigDecimal`
-     * @throws ClassCastException if the instance is not `BigDecimal`
+     * @return The actual instance of `Integer`
+     * @throws ClassCastException if the instance is not `Integer`
      */
-    public BigDecimal getBigDecimal() throws ClassCastException {
-        return (BigDecimal)super.getActualInstance();
+    public Integer getInteger() throws ClassCastException {
+        return (Integer)super.getActualInstance();
     }
 
     /**

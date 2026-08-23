@@ -6,6 +6,7 @@ README.md
 api/openapi.yaml
 build.gradle
 build.sbt
+docs/AdministrationApi.md
 docs/AuthenticationApi.md
 docs/AuthorizationApi.md
 docs/BackfillsApi.md
@@ -47,6 +48,7 @@ src/main/java/io/amesh/client/RFC3339InstantDeserializer.java
 src/main/java/io/amesh/client/RFC3339JavaTimeModule.java
 src/main/java/io/amesh/client/ServerConfiguration.java
 src/main/java/io/amesh/client/ServerVariable.java
+src/main/java/io/amesh/client/api/AdministrationApi.java
 src/main/java/io/amesh/client/api/AuthenticationApi.java
 src/main/java/io/amesh/client/api/AuthorizationApi.java
 src/main/java/io/amesh/client/api/BackfillsApi.java
@@ -70,6 +72,12 @@ src/main/java/io/amesh/client/api/UiApi.java
 src/main/java/io/amesh/client/api/WorkersApi.java
 src/main/java/io/amesh/client/model/AbstractOpenApiSchema.java
 src/main/java/io/amesh/client/model/Action.java
+src/main/java/io/amesh/client/model/AdministrationApplyRequest.java
+src/main/java/io/amesh/client/model/AdministrationAuditEntry.java
+src/main/java/io/amesh/client/model/AdministrationControl.java
+src/main/java/io/amesh/client/model/AdministrationControlDraft.java
+src/main/java/io/amesh/client/model/AdministrationControlKey.java
+src/main/java/io/amesh/client/model/AdministrationImpactPreview.java
 src/main/java/io/amesh/client/model/AdmissionDecision.java
 src/main/java/io/amesh/client/model/AdmissionDiagnostics.java
 src/main/java/io/amesh/client/model/AdmissionOutcome.java
@@ -314,6 +322,7 @@ src/main/java/io/amesh/client/model/UiSessionResponse.java
 src/main/java/io/amesh/client/model/ValidationError.java
 src/main/java/io/amesh/client/model/ValidationIssue.java
 src/main/java/io/amesh/client/model/Value.java
+src/main/java/io/amesh/client/model/Value1.java
 src/main/java/io/amesh/client/model/WebhookDelivery.java
 src/main/java/io/amesh/client/model/WebhookDeliveryAttempt.java
 src/main/java/io/amesh/client/model/WebhookDeliveryHistory.java

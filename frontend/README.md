@@ -122,6 +122,16 @@ custom save/delete/export, source permission redaction, deep links and automated
 Search coverage exercises command-menu results, typed filters, stable paging, permission redaction,
 status and rebuild controls, deep links and the dedicated workbench.
 
+## Administer a tenant
+
+Users with administration permission can open **Administration** to browse namespace hierarchy and
+inherited metadata, manage principals/roles/bindings/service-account tokens, inspect live component
+health, view effective configuration provenance and manage feature flags. Retention, announcements,
+maintenance mode and the execution kill switch require a server-generated impact/recovery preview,
+a short-lived actor/tenant/draft-bound approval and exact confirmation. Successful and rejected
+attempts appear in the adjacent audit view. Secret-typed configuration values are always rendered as
+`[REDACTED]`; the server never sends their material value.
+
 ## Browser support policy
 
 - Chrome and Edge: current and previous stable desktop versions.

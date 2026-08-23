@@ -1,5 +1,40 @@
 # Test Log
 
+## EPIC-410: Namespace, settings and administration UI — 2026-08-23
+
+Spec source: Agent Hotel card `c66` and canonical `backlog/epics.json` EPIC-410 DoD.
+
+Verified with `uv`, Python 3.13, PostgreSQL 17, React/TypeScript, Chromium and Docker Compose:
+
+- [x] The permission-gated administration workbench browses dotted namespace hierarchy, selected
+  resource counts and inherited workflow/plugin-default provenance, while linking to the existing
+  namespace resource manager.
+- [x] Existing server-authoritative user, group, role, binding, service-account, token and identity
+  provider contracts are composed into one access view. Issued token material is shown once.
+- [x] Readiness, service topology, workers, admission queues, object storage, migrations and search
+  freshness are available in the ten-second operations view.
+- [x] Retention, announcements, maintenance mode and the execution kill switch use typed tenant
+  controls backed by the existing versioned feature-flag repository. Ordinary feature flags remain
+  independently manageable.
+- [x] High-risk applies require a five-minute HMAC approval bound to actor, tenant and complete draft,
+  an impact/recovery preview and exact confirmation. Tampered, expired, cross-actor and changed-draft
+  tests all rejected deterministically.
+- [x] Successful control state plus its immutable `SUCCESS` audit entry commit atomically. Rejected
+  confirmations and version conflicts record `REJECTED` evidence without changing the control. A
+  fresh PostgreSQL integration test verified both outcomes and cross-tenant audit isolation.
+- [x] Effective configuration reports provenance and reloadability while both server and UI hard-redact
+  secret-typed values. Browser acceptance confirmed the canary secret was absent.
+- [x] Focused domain/API tests, Ruff and strict mypy passed; 17 focused frontend unit tests, targeted
+  lint, the production build and the Chromium administration workflow passed. Axe found no critical
+  or serious finding in the guarded workflow.
+- [x] The rebuilt API/UI container reached healthy state; `/ready` reported 44/44 migrations and the
+  deployed `/administration` route returned HTTP 200. Live guarded preview/apply persisted a disabled
+  announcement with `SUCCESS` audit evidence, while direct reserved feature-flag bypass returned 409.
+- [x] No dependency or LLM call was required. OpenRouter remains configured for
+  `openai/gpt-5.6-luna` when a later behavior test needs an LLM.
+
+Verdict: PASS — EPIC-410 functional requirements URS-F-0478 through URS-F-0485 are verified.
+
 ## EPIC-409: Search, indexing and retrieval projections — 2026-08-23
 
 Spec source: Agent Hotel card `c65` and canonical `backlog/epics.json` EPIC-409 DoD.

@@ -71,6 +71,10 @@ All URIs are relative to *http://localhost*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
+*AdministrationAPI* | [**ApplyAdministrationControlApiV1AdminControlsKeyPut**](docs/AdministrationAPI.md#applyadministrationcontrolapiv1admincontrolskeyput) | **Put** /api/v1/admin/controls/{key} | Apply Administration Control
+*AdministrationAPI* | [**ListAdministrationAuditApiV1AdminAuditGet**](docs/AdministrationAPI.md#listadministrationauditapiv1adminauditget) | **Get** /api/v1/admin/audit | List Administration Audit
+*AdministrationAPI* | [**ListAdministrationControlsApiV1AdminControlsGet**](docs/AdministrationAPI.md#listadministrationcontrolsapiv1admincontrolsget) | **Get** /api/v1/admin/controls | List Administration Controls
+*AdministrationAPI* | [**PreviewAdministrationControlApiV1AdminControlsPreviewPost**](docs/AdministrationAPI.md#previewadministrationcontrolapiv1admincontrolspreviewpost) | **Post** /api/v1/admin/controls/preview | Preview Administration Control
 *AuthenticationAPI* | [**ChangeLocalPasswordApiV1AuthPasswordPost**](docs/AuthenticationAPI.md#changelocalpasswordapiv1authpasswordpost) | **Post** /api/v1/auth/password | Change Local Password
 *AuthenticationAPI* | [**ListAuthenticationProvidersApiV1AuthProvidersGet**](docs/AuthenticationAPI.md#listauthenticationprovidersapiv1authprovidersget) | **Get** /api/v1/auth/providers | List Authentication Providers
 *AuthenticationAPI* | [**LoginApiV1AuthLoginPost**](docs/AuthenticationAPI.md#loginapiv1authloginpost) | **Post** /api/v1/auth/login | Login
@@ -231,6 +235,12 @@ Class | Method | HTTP request | Description
 ## Documentation For Models
 
  - [Action](docs/Action.md)
+ - [AdministrationApplyRequest](docs/AdministrationApplyRequest.md)
+ - [AdministrationAuditEntry](docs/AdministrationAuditEntry.md)
+ - [AdministrationControl](docs/AdministrationControl.md)
+ - [AdministrationControlDraft](docs/AdministrationControlDraft.md)
+ - [AdministrationControlKey](docs/AdministrationControlKey.md)
+ - [AdministrationImpactPreview](docs/AdministrationImpactPreview.md)
  - [AdmissionDecision](docs/AdmissionDecision.md)
  - [AdmissionDiagnostics](docs/AdmissionDiagnostics.md)
  - [AdmissionOutcome](docs/AdmissionOutcome.md)
@@ -475,6 +485,7 @@ Class | Method | HTTP request | Description
  - [ValidationError](docs/ValidationError.md)
  - [ValidationIssue](docs/ValidationIssue.md)
  - [Value](docs/Value.md)
+ - [Value1](docs/Value1.md)
  - [WebhookDelivery](docs/WebhookDelivery.md)
  - [WebhookDeliveryAttempt](docs/WebhookDeliveryAttempt.md)
  - [WebhookDeliveryHistory](docs/WebhookDeliveryHistory.md)

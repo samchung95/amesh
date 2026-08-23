@@ -1,0 +1,224 @@
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import {
+  Activity,
+  AlertTriangle,
+  Boxes,
+  Database,
+  FileKey,
+  FolderTree,
+  KeyRound,
+  Network,
+  RefreshCw,
+  ScrollText,
+  Settings2,
+  ShieldCheck,
+  UserRoundCog,
+  Wrench,
+} from 'lucide-react'
+import { type FormEvent, useMemo, useState } from 'react'
+import { Link, useSearchParams } from 'react-router-dom'
+
+import type {
+  AdministrationControl,
+  AdministrationControlDraft,
+  AdministrationImpactPreview,
+  PrincipalDefinition,
+  RoleBinding,
+  UiSession,
+} from '../api/types'
+import { formatDate, formatNumber } from '../app/format'
+import { useApiClient } from '../app/queries'
+import { useAppSettings } from '../app/settings'
+import { EmptyState, ErrorState, LoadingState } from '../components/AsyncState'
+import {
+  administrationControlDraft,
+  configurationValue,
+  CONTROL_COPY,
+  namespaceHierarchy,
+  visibleConfiguration,
+} from '../components/administrationModel'
+import { StatusBadge } from '../components/StatusBadge'
+
+type AdministrationView = 'namespaces' | 'access' | 'operations' | 'controls' | 'configuration' | 'audit'
+
+const views: Array<{ id: AdministrationView; label: string; icon: typeof FolderTree }> = [
+  { id: 'namespaces', label: 'Namespaces', icon: FolderTree },
+  { id: 'access', label: 'Access', icon: UserRoundCog },
+  { id: 'operations', label: 'Operations', icon: Activity },
+  { id: 'controls', label: 'Controls', icon: Wrench },
+  { id: 'configuration', label: 'Configuration', icon: Settings2 },
+  { id: 'audit', label: 'Audit', icon: ScrollText },
+]
+
+function expiryIn(days: number) {
+  const value = new Date()
+  value.setUTCDate(value.getUTCDate() + days)
+  return value.toISOString()
+}
+
+function fieldText(value: unknown, fallback: string): string {
+  return typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean'
+    ? String(value)
+    : fallback
+}
+
+export function AdministrationPage({ session }: { session: UiSession }) {
+  const api = useApiClient()
+  const queryClient = useQueryClient()
+  const { settings } = useAppSettings()
+  const [params, setParams] = useSearchParams()
+  const view = (params.get('view') as AdministrationView) || 'namespaces'
+  const [notice, setNotice] = useState('')
+  const [failure, setFailure] = useState('')
+
+  const flows = useQuery({ queryKey: ['admin', 'flows', settings.tenant], queryFn: api.flows, enabled: view === 'namespaces' })
+  const namespaceMetadata = useQuery({ queryKey: ['admin', 'namespace-metadata', settings.tenant, settings.namespace], queryFn: () => api.namespaceWorkflowMetadata(settings.namespace), enabled: view === 'namespaces' && Boolean(settings.namespace) })
+  const namespaceFiles = useQuery({ queryKey: ['admin', 'namespace-files', settings.tenant, settings.namespace], queryFn: () => api.namespaceFiles(settings.namespace), enabled: view === 'namespaces' && Boolean(settings.namespace) })
+  const namespaceKeys = useQuery({ queryKey: ['admin', 'namespace-keys', settings.tenant, settings.namespace], queryFn: () => api.namespaceKeyValues(settings.namespace), enabled: view === 'namespaces' && Boolean(settings.namespace) })
+  const namespaceSecrets = useQuery({ queryKey: ['admin', 'namespace-secrets', settings.tenant, settings.namespace], queryFn: () => api.namespaceSecretBindings(settings.namespace), enabled: view === 'namespaces' && Boolean(settings.namespace) })
+
+  const principals = useQuery({ queryKey: ['admin', 'principals'], queryFn: api.principals, enabled: view === 'access' })
+  const roles = useQuery({ queryKey: ['admin', 'roles'], queryFn: api.roles, enabled: view === 'access' })
+  const bindings = useQuery({ queryKey: ['admin', 'bindings'], queryFn: api.bindings, enabled: view === 'access' })
+  const providers = useQuery({ queryKey: ['admin', 'providers'], queryFn: api.providers, enabled: view === 'access' })
+
+  const readiness = useQuery({ queryKey: ['admin', 'readiness'], queryFn: api.readiness, enabled: view === 'operations', refetchInterval: 10_000 })
+  const topology = useQuery({ queryKey: ['admin', 'topology'], queryFn: api.topology, enabled: view === 'operations', refetchInterval: 10_000 })
+  const workers = useQuery({ queryKey: ['admin', 'workers'], queryFn: api.workers, enabled: view === 'operations', refetchInterval: 10_000 })
+  const admission = useQuery({ queryKey: ['admin', 'admission'], queryFn: api.admissionDiagnostics, enabled: view === 'operations', refetchInterval: 10_000 })
+  const search = useQuery({ queryKey: ['admin', 'search'], queryFn: api.searchStatus, enabled: view === 'operations', refetchInterval: 10_000 })
+
+  const controls = useQuery({ queryKey: ['admin', 'controls'], queryFn: api.administrationControls, enabled: view === 'controls' })
+  const flags = useQuery({ queryKey: ['admin', 'flags', settings.tenant, settings.namespace], queryFn: api.featureFlags, enabled: view === 'controls' })
+  const configuration = useQuery({ queryKey: ['admin', 'configuration'], queryFn: api.configuration, enabled: view === 'configuration' })
+  const controlAudit = useQuery({ queryKey: ['admin', 'audit'], queryFn: api.administrationAudit, enabled: view === 'audit', refetchInterval: 10_000 })
+  const indexedAudit = useQuery({ queryKey: ['admin', 'indexed-audit'], queryFn: () => api.search({ types: ['AUDIT'], limit: 100, sort: 'OCCURRED_AT', direction: 'DESC' }), enabled: view === 'audit' })
+
+  const action = useMutation({
+    mutationFn: async (operation: () => Promise<unknown>) => operation(),
+    onSuccess: async () => {
+      setFailure('')
+      await queryClient.invalidateQueries({ queryKey: ['admin'] })
+    },
+    onError: (error) => setFailure(error.message),
+  })
+
+  const selected = views.find((item) => item.id === view) || views[0]
+  const SelectedIcon = selected.icon
+  return (
+    <div className="page-stack administration-page">
+      <header className="page-heading resource-heading">
+        <div><p className="eyebrow">GOVERN / CONTROL PLANE</p><h1>Administration</h1><p>Tenant resources, identities, runtime posture and guarded operational controls.</p></div>
+        <span className="admin-boundary"><ShieldCheck size={16} aria-hidden="true" />{session.display} · {settings.tenant}</span>
+      </header>
+      <nav className="admin-tabs" aria-label="Administration sections">
+        {views.map(({ id, label, icon: Icon }) => <button type="button" className={view === id ? 'active' : ''} aria-current={view === id ? 'page' : undefined} key={id} onClick={() => setParams({ view: id })}><Icon size={16} aria-hidden="true" />{label}</button>)}
+      </nav>
+      <div className="admin-view-heading"><SelectedIcon size={20} aria-hidden="true" /><div><h2>{selected.label}</h2><p>Server-authoritative data and permissions for the selected tenant boundary.</p></div></div>
+      {notice ? <p className="inline-notice" role="status">{notice}</p> : null}
+      {failure ? <p className="form-error" role="alert">{failure}</p> : null}
+      {view === 'namespaces' ? <NamespaceAdministration flows={flows.data || []} metadata={namespaceMetadata.data} files={namespaceFiles.data?.length || 0} keys={namespaceKeys.data?.length || 0} secrets={namespaceSecrets.data?.length || 0} namespace={settings.namespace} pending={flows.isPending} error={flows.error?.message} /> : null}
+      {view === 'access' ? <AccessAdministration api={api} tenant={settings.tenant} principals={principals.data || []} roles={roles.data || []} bindings={bindings.data || []} providers={providers.data || []} pending={principals.isPending || roles.isPending || bindings.isPending || providers.isPending} mutate={(operation, message) => action.mutate(async () => { const result = await operation(); setNotice(message); return result })} /> : null}
+      {view === 'operations' ? <OperationsAdministration readiness={readiness.data} topology={topology.data} workers={workers.data || []} admission={admission.data} search={search.data} pending={readiness.isPending || topology.isPending || admission.isPending || search.isPending} /> : null}
+      {view === 'controls' ? <ControlsAdministration controls={controls.data || []} flags={flags.data || []} api={api} tenant={settings.tenant} pending={controls.isPending || flags.isPending} onChanged={async (message) => { setNotice(message); setFailure(''); await queryClient.invalidateQueries({ queryKey: ['admin'] }) }} onFailure={setFailure} /> : null}
+      {view === 'configuration' ? <ConfigurationAdministration snapshot={configuration.data} pending={configuration.isPending} onReload={() => action.mutate(async () => { const result = await api.reloadConfiguration(); setNotice(`Configuration reloaded at version ${String(result.version)}`); return result })} /> : null}
+      {view === 'audit' ? <AuditAdministration direct={controlAudit.data || []} indexed={indexedAudit.data?.items || []} pending={controlAudit.isPending || indexedAudit.isPending} settings={settings} /> : null}
+    </div>
+  )
+}
+
+function NamespaceAdministration({ flows, metadata, files, keys, secrets, namespace, pending, error }: { flows: Array<{ namespace: string }>; metadata?: Awaited<ReturnType<ReturnType<typeof useApiClient>['namespaceWorkflowMetadata']>>; files: number; keys: number; secrets: number; namespace: string; pending: boolean; error?: string }) {
+  const hierarchy = namespaceHierarchy([...flows.map((item) => item.namespace), namespace])
+  if (pending) return <LoadingState label="Loading namespace hierarchy" />
+  if (error) return <ErrorState message={error} retry={() => window.location.reload()} />
+  return <div className="admin-split">
+    <section className="admin-panel"><div className="section-heading"><div><p className="eyebrow">HIERARCHY</p><h3>Namespace tree</h3></div><span>{hierarchy.length} scopes</span></div>{hierarchy.length ? <ul className="namespace-tree">{hierarchy.map((item) => <li className={item.namespace === namespace ? 'selected' : ''} style={{ paddingLeft: `${String(14 + item.depth * 22)}px` }} key={item.namespace}><span>{item.direct ? '●' : '○'}</span><strong>{item.namespace}</strong>{item.namespace === namespace ? <em>selected</em> : null}</li>)}</ul> : <EmptyState title="No namespaces" body="Create or select a namespace to inspect inherited resources." />}</section>
+    <div className="admin-panel-stack">
+      <section className="admin-panel"><div className="section-heading"><div><p className="eyebrow">EFFECTIVE SCOPE</p><h3>{namespace || 'Select a namespace'}</h3></div>{namespace ? <Link className="button button-secondary" to="/namespaces">Manage resources</Link> : null}</div>{namespace ? <div className="admin-metric-grid"><article><strong>{files}</strong><span>files</span></article><article><strong>{keys}</strong><span>key-values</span></article><article><strong>{secrets}</strong><span>secret references</span></article><article><strong>{metadata?.lineage.length || 0}</strong><span>metadata ancestors</span></article></div> : <p className="inline-empty">Use the top-bar context selector to choose a namespace.</p>}</section>
+      {metadata ? <section className="admin-panel"><div className="section-heading"><div><p className="eyebrow">INHERITANCE / PROVENANCE</p><h3>Workflow settings</h3></div></div><ol className="metadata-lineage">{metadata.lineage.map((scope) => <li key={scope.namespace}><div><strong>{scope.namespace}</strong><small>version {scope.resourceVersion} · {scope.updatedBy}</small></div><span>{scope.pluginDefaults.length} plugin defaults</span><ul>{scope.pluginDefaults.map((item) => <li key={`${scope.namespace}:${item.type}:${String(item.forced)}`}><code>{item.type}</code>{item.forced ? <b>forced</b> : null}<small>{Object.keys(item.values).join(', ') || 'no properties'}</small></li>)}</ul></li>)}</ol></section> : null}
+    </div>
+  </div>
+}
+
+function AccessAdministration({ api, tenant, principals, roles, bindings, providers, pending, mutate }: { api: ReturnType<typeof useApiClient>; tenant: string; principals: PrincipalDefinition[]; roles: Awaited<ReturnType<ReturnType<typeof useApiClient>['roles']>>; bindings: RoleBinding[]; providers: Awaited<ReturnType<ReturnType<typeof useApiClient>['providers']>>; pending: boolean; mutate: (operation: () => Promise<unknown>, message: string) => void }) {
+  const [principalType, setPrincipalType] = useState<PrincipalDefinition['principal_type']>('USER')
+  const [handle, setHandle] = useState('')
+  const [display, setDisplay] = useState('')
+  const [roleName, setRoleName] = useState('')
+  const [roleDisplay, setRoleDisplay] = useState('')
+  const [resource, setResource] = useState('flow')
+  const [permission, setPermission] = useState('view')
+  const [bindingPrincipal, setBindingPrincipal] = useState('')
+  const [bindingRole, setBindingRole] = useState('viewer')
+  const [bindingScope, setBindingScope] = useState<RoleBinding['scope_type']>('TENANT')
+  const [bindingNamespace, setBindingNamespace] = useState('')
+  const [group, setGroup] = useState('')
+  const [member, setMember] = useState('')
+  const [serviceAccount, setServiceAccount] = useState('')
+  const [tokenName, setTokenName] = useState('control-plane')
+  const [issuedToken, setIssuedToken] = useState('')
+  const credentials = useQuery({ queryKey: ['admin', 'credentials', serviceAccount], queryFn: () => api.principalCredentials(serviceAccount), enabled: Boolean(serviceAccount) })
+  if (pending) return <LoadingState label="Loading identities and authorization policy" />
+  const submitPrincipal = (event: FormEvent) => { event.preventDefault(); mutate(() => api.createPrincipal(principalType, handle.trim(), display.trim()), `${principalType.replace('_', ' ').toLowerCase()} created`); setHandle(''); setDisplay('') }
+  const submitRole = (event: FormEvent) => { event.preventDefault(); mutate(() => api.saveRole(roleName.trim(), roleDisplay.trim(), 'Created in the administration workbench.', [{ resource_type: resource.trim(), action: permission, effect: 'ALLOW' }]), 'Role saved'); setRoleName(''); setRoleDisplay('') }
+  const submitBinding = (event: FormEvent) => { event.preventDefault(); const principal = principals.find((item) => item.id === bindingPrincipal); if (!principal) return; mutate(() => api.createBinding({ principal_id: principal.id, principal_type: principal.principal_type, role_name: bindingRole, scope_type: bindingScope, tenant_id: bindingScope === 'INSTANCE' ? null : tenant, namespace: bindingScope === 'NAMESPACE' ? bindingNamespace.trim() : null }), 'Binding created') }
+  const issueToken = (event: FormEvent) => { event.preventDefault(); mutate(async () => { const issued = await api.createCredential(serviceAccount, tokenName.trim(), ['*:*'], expiryIn(30)); setIssuedToken(issued.token); return issued }, 'API token issued; copy it now') }
+  return <div className="admin-section-stack">
+    <section className="admin-panel"><div className="section-heading"><div><p className="eyebrow">IDENTITY PROVIDERS</p><h3>Configured entry points</h3></div><span>deployment configuration</span></div><div className="admin-card-grid">{providers.map((provider) => <article key={provider.id}><KeyRound size={18} aria-hidden="true" /><div><strong>{provider.display_name}</strong><small>{provider.kind} · {provider.interactive ? 'interactive' : 'non-interactive'}</small></div></article>)}</div></section>
+    <div className="admin-split equal">
+      <section className="admin-panel"><div className="section-heading"><div><p className="eyebrow">USERS / GROUPS / SERVICES</p><h3>Principals</h3></div><span>{principals.length}</span></div><form className="admin-form" onSubmit={submitPrincipal}><label>Type<select value={principalType} onChange={(event) => setPrincipalType(event.target.value as PrincipalDefinition['principal_type'])}><option>USER</option><option>GROUP</option><option>SERVICE_ACCOUNT</option></select></label><label>Handle<input value={handle} onChange={(event) => setHandle(event.target.value)} required pattern="[A-Za-z0-9][A-Za-z0-9_-]*" /></label><label>Display name<input value={display} onChange={(event) => setDisplay(event.target.value)} required /></label><button className="button button-primary" type="submit">Create principal</button></form><div className="compact-table"><table><thead><tr><th>Principal</th><th>Type</th><th>State</th></tr></thead><tbody>{principals.map((item) => <tr key={item.id}><td><strong>{item.display_name}</strong><small>{item.handle}</small></td><td>{item.principal_type}</td><td><StatusBadge state={item.enabled ? 'SUCCESS' : 'PAUSED'} /></td></tr>)}</tbody></table></div></section>
+      <section className="admin-panel"><div className="section-heading"><div><p className="eyebrow">POLICY</p><h3>Roles</h3></div><span>{roles.length}</span></div><form className="admin-form" onSubmit={submitRole}><label>Role name<input value={roleName} onChange={(event) => setRoleName(event.target.value)} required /></label><label>Display name<input value={roleDisplay} onChange={(event) => setRoleDisplay(event.target.value)} required /></label><label>Resource<input value={resource} onChange={(event) => setResource(event.target.value)} required /></label><label>Action<select value={permission} onChange={(event) => setPermission(event.target.value)}><option>view</option><option>create</option><option>update</option><option>delete</option><option>execute</option><option>manage</option><option>use</option></select></label><button className="button button-primary" type="submit">Save role</button></form><div className="chip-list">{roles.map((item) => <span key={item.name}><strong>{item.name}</strong>{item.permissions.length} permissions{item.built_in ? ' · built in' : ''}</span>)}</div></section>
+    </div>
+    <div className="admin-split equal">
+      <section className="admin-panel"><div className="section-heading"><div><p className="eyebrow">ASSIGNMENT</p><h3>Bindings & groups</h3></div><span>{bindings.length} bindings</span></div><form className="admin-form" onSubmit={submitBinding}><label>Principal<select value={bindingPrincipal} onChange={(event) => setBindingPrincipal(event.target.value)} required><option value="">Select</option>{principals.map((item) => <option key={item.id} value={item.id}>{item.handle}</option>)}</select></label><label>Role<select value={bindingRole} onChange={(event) => setBindingRole(event.target.value)}>{roles.map((item) => <option key={item.name}>{item.name}</option>)}</select></label><label>Scope<select value={bindingScope} onChange={(event) => setBindingScope(event.target.value as RoleBinding['scope_type'])}><option>INSTANCE</option><option>TENANT</option><option>NAMESPACE</option></select></label>{bindingScope === 'NAMESPACE' ? <label>Namespace<input value={bindingNamespace} onChange={(event) => setBindingNamespace(event.target.value)} required /></label> : null}<button className="button button-primary" type="submit">Create binding</button></form><form className="admin-form admin-inline-form" onSubmit={(event) => { event.preventDefault(); mutate(() => api.addGroupMember(group, member), 'Group membership added') }}><label>Group<select value={group} onChange={(event) => setGroup(event.target.value)} required><option value="">Select</option>{principals.filter((item) => item.principal_type === 'GROUP').map((item) => <option value={item.id} key={item.id}>{item.handle}</option>)}</select></label><label>Member<select value={member} onChange={(event) => setMember(event.target.value)} required><option value="">Select</option>{principals.filter((item) => item.id !== group && item.principal_type !== 'GROUP').map((item) => <option value={item.id} key={item.id}>{item.handle}</option>)}</select></label><button className="button button-secondary" type="submit">Add member</button></form></section>
+      <section className="admin-panel"><div className="section-heading"><div><p className="eyebrow">SERVICE ACCOUNTS</p><h3>API tokens</h3></div><span>secret shown once</span></div><form className="admin-form" onSubmit={issueToken}><label>Service account<select value={serviceAccount} onChange={(event) => setServiceAccount(event.target.value)} required><option value="">Select</option>{principals.filter((item) => item.principal_type === 'SERVICE_ACCOUNT').map((item) => <option value={item.id} key={item.id}>{item.handle}</option>)}</select></label><label>Token name<input value={tokenName} onChange={(event) => setTokenName(event.target.value)} required /></label><button className="button button-primary" type="submit">Issue 30-day token</button></form>{issuedToken ? <div className="issued-secret" role="status"><AlertTriangle size={18} aria-hidden="true" /><div><strong>Copy this token now</strong><code>{issuedToken}</code></div></div> : null}<ul className="credential-list">{credentials.data?.map((item) => <li key={item.id}><strong>{item.name}</strong><span>{item.status} · expires {new Date(item.expires_at).toLocaleDateString()}</span></li>)}</ul></section>
+    </div>
+  </div>
+}
+
+function OperationsAdministration({ readiness, topology, workers, admission, search, pending }: { readiness?: Awaited<ReturnType<ReturnType<typeof useApiClient>['readiness']>>; topology?: Awaited<ReturnType<ReturnType<typeof useApiClient>['topology']>>; workers: Awaited<ReturnType<ReturnType<typeof useApiClient>['workers']>>; admission?: Awaited<ReturnType<ReturnType<typeof useApiClient>['admissionDiagnostics']>>; search?: Awaited<ReturnType<ReturnType<typeof useApiClient>['searchStatus']>>; pending: boolean }) {
+  if (pending) return <LoadingState label="Loading component health" />
+  const storage = topology?.quorumDependencies.objectStorage || 'not reported'
+  return <div className="admin-section-stack">
+    <section className="admin-health-strip"><article><Database aria-hidden="true" /><div><strong>PostgreSQL</strong><span>{readiness?.database || 'unknown'} · {readiness?.migrations_applied || 0}/{readiness?.migrations_expected || 0} migrations</span></div></article><article><Boxes aria-hidden="true" /><div><strong>Object storage</strong><span>{storage}</span></div></article><article><Network aria-hidden="true" /><div><strong>Queue</strong><span>{admission?.queued_requests || 0} queued · {admission?.active_reservations || 0} active</span></div></article><article><FileKey aria-hidden="true" /><div><strong>Search</strong><span>{search?.condition || 'unknown'} · {Math.round((search?.progress || 0) * 100)}% projected</span></div></article></section>
+    <section className="admin-panel"><div className="section-heading"><div><p className="eyebrow">SERVICES</p><h3>Component topology</h3></div><span>{topology?.currentVersion || 'unknown'} · {topology?.coordination}</span></div><div className="admin-card-grid">{topology?.roles.map((role) => <article key={role.role}><div className={`health-dot health-${role.failoverStatus.toLowerCase()}`} /><div><strong>{role.role}</strong><small>{role.readyInstances}/{role.totalInstances} ready · {role.staleInstances} stale</small></div><b>{role.failoverStatus}</b></article>)}</div></section>
+    <div className="admin-split equal"><section className="admin-panel"><div className="section-heading"><div><p className="eyebrow">WORKERS</p><h3>Capacity</h3></div><span>{workers.length} workers</span></div>{workers.length ? <div className="compact-table"><table><thead><tr><th>Worker</th><th>Group</th><th>Utilization</th><th>State</th></tr></thead><tbody>{workers.map((worker) => <tr key={worker.worker_id}><td><strong>{worker.instance_name}</strong><small>{worker.version}</small></td><td>{worker.worker_group}</td><td>{Math.round(worker.utilization * 100)}%</td><td>{worker.liveness}</td></tr>)}</tbody></table></div> : <EmptyState title="No external workers" body="The local executor owns the current runnable workload." />}</section><section className="admin-panel"><div className="section-heading"><div><p className="eyebrow">DATABASE / SEARCH</p><h3>Freshness</h3></div></div><dl className="admin-facts"><div><dt>Latest migration</dt><dd>{readiness?.latest_migration || 'none'}</dd></div><div><dt>Search documents</dt><dd>{formatNumber(search?.documentsIndexed || 0, 'en')}</dd></div><div><dt>Search source rows</dt><dd>{formatNumber(search?.sourceDocuments || 0, 'en')}</dd></div><div><dt>Search lag</dt><dd>{search?.lagSeconds == null ? 'unknown' : `${search.lagSeconds.toFixed(2)}s`}</dd></div><div><dt>Oldest queue age</dt><dd>{(admission?.oldest_queue_age_seconds || 0).toFixed(2)}s</dd></div></dl></section></div>
+  </div>
+}
+
+function ControlsAdministration({ controls, flags, api, tenant, pending, onChanged, onFailure }: { controls: AdministrationControl[]; flags: Awaited<ReturnType<ReturnType<typeof useApiClient>['featureFlags']>>; api: ReturnType<typeof useApiClient>; tenant: string; pending: boolean; onChanged: (message: string) => Promise<void>; onFailure: (message: string) => void }) {
+  const [selected, setSelected] = useState<AdministrationControl | null>(null)
+  const [enabled, setEnabled] = useState(false)
+  const [value, setValue] = useState('')
+  const [reason, setReason] = useState('')
+  const [preview, setPreview] = useState<AdministrationImpactPreview | null>(null)
+  const [confirmation, setConfirmation] = useState('')
+  const [flagKey, setFlagKey] = useState('')
+  const [flagEnabled, setFlagEnabled] = useState(false)
+  const [flagDescription, setFlagDescription] = useState('')
+  const previewMutation = useMutation({ mutationFn: (draft: AdministrationControlDraft) => api.previewAdministrationControl(draft), onSuccess: setPreview, onError: (error) => onFailure(error.message) })
+  const applyMutation = useMutation({ mutationFn: ({ impact, phrase }: { impact: AdministrationImpactPreview; phrase: string }) => api.applyAdministrationControl(impact, phrase), onSuccess: async () => { setPreview(null); setSelected(null); setConfirmation(''); await onChanged('Administrative control applied and audited') }, onError: async (error) => { onFailure(error.message); await onChanged('Rejected administrative action recorded in audit history') } })
+  if (pending) return <LoadingState label="Loading administrative controls" />
+  const edit = (control: AdministrationControl) => { setSelected(control); setEnabled(control.enabled); setValue(control.value == null ? '' : String(control.value)); setReason(''); setPreview(null) }
+  const submit = (event: FormEvent) => { event.preventDefault(); if (!selected) return; try { previewMutation.mutate(administrationControlDraft(selected, enabled, value, reason)) } catch (error) { onFailure(error instanceof Error ? error.message : 'Invalid control') } }
+  return <div className="admin-section-stack">
+    <p className="admin-safety-note"><ShieldCheck size={18} aria-hidden="true" /><span><strong>Guarded changes</strong> Every control requires a server-generated impact preview, a short-lived actor/tenant-bound approval, exact confirmation and immutable success or rejection evidence.</span></p>
+    <section className="admin-control-grid">{controls.map((control) => { const copy = CONTROL_COPY[control.key]; return <article key={control.key} className={control.enabled ? 'enabled' : ''}><header><div><p className="eyebrow">{control.key.replace('_', ' ')}</p><h3>{copy.title}</h3></div><StatusBadge state={control.enabled ? 'RUNNING' : 'PAUSED'} /></header><p>{copy.summary}</p>{copy.valueLabel ? <dl><dt>{copy.valueLabel}</dt><dd>{control.value || '—'}</dd></dl> : null}<footer><span>{control.version ? `v${String(control.version)} · ${control.updatedBy || 'unknown'}` : 'default policy'}</span><button className="button button-secondary" type="button" onClick={() => edit(control)}>Preview change</button></footer></article> })}</section>
+    {selected ? <section className="admin-panel"><div className="section-heading"><div><p className="eyebrow">DRAFT</p><h3>{CONTROL_COPY[selected.key].title}</h3></div><button className="button button-quiet" type="button" onClick={() => setSelected(null)}>Close</button></div><form className="admin-form control-form" onSubmit={submit}><label className="toggle-field"><input type="checkbox" checked={enabled} onChange={(event) => setEnabled(event.target.checked)} /><span>{enabled ? 'Enabled' : 'Disabled'}</span></label>{selected.key === 'RETENTION' ? <label>Days<input type="number" min="1" max="3650" value={value} onChange={(event) => setValue(event.target.value)} required /></label> : null}{selected.key === 'ANNOUNCEMENT' ? <label className="span-two">Message<textarea value={value} onChange={(event) => setValue(event.target.value)} maxLength={1000} required={enabled} /></label> : null}<label className="span-two">Reason<input value={reason} onChange={(event) => setReason(event.target.value)} placeholder="Why is this change required?" minLength={3} required /></label><button className="button button-primary" type="submit">Generate impact preview</button></form></section> : null}
+    <section className="admin-panel"><div className="section-heading"><div><p className="eyebrow">FEATURE FLAGS</p><h3>Scoped release controls</h3></div><span>{tenant} · {flags.length} visible</span></div><form className="admin-form" onSubmit={(event) => { event.preventDefault(); const key = flagKey.trim(); if (key.startsWith('admin-')) { onFailure('Keys beginning with admin- require the guarded control workflow.'); return } void api.saveFeatureFlag(key, flagEnabled, flagDescription).then(() => { setFlagKey(''); setFlagDescription(''); return onChanged('Feature flag saved') }).catch((error: Error) => onFailure(error.message)) }}><label>Key<input value={flagKey} onChange={(event) => setFlagKey(event.target.value)} required pattern="[A-Za-z0-9][A-Za-z0-9_-]*" /></label><label className="toggle-field"><input type="checkbox" checked={flagEnabled} onChange={(event) => setFlagEnabled(event.target.checked)} /><span>{flagEnabled ? 'Enabled' : 'Disabled'}</span></label><label className="span-two">Description<input value={flagDescription} onChange={(event) => setFlagDescription(event.target.value)} /></label><button className="button button-primary" type="submit">Save flag</button></form><div className="chip-list">{flags.filter((flag) => !flag.key.startsWith('admin-')).map((flag) => <span key={`${flag.scope}:${flag.key}`}><strong>{flag.key}</strong>{flag.scope} · {flag.enabled ? 'on' : 'off'} · v{flag.version}</span>)}</div></section>
+    {preview ? <div className="modal-backdrop"><section className="confirmation-dialog admin-impact-dialog" role="dialog" aria-modal="true" aria-labelledby="admin-impact-title"><p className="eyebrow">SHORT-LIVED STEP-UP APPROVAL</p><h2 id="admin-impact-title">Confirm {CONTROL_COPY[preview.draft.key].title}</h2><div className="impact-grid"><article><strong>Impact</strong><ul>{preview.impacts.map((item) => <li key={item}>{item}</li>)}</ul></article><article><strong>Recovery</strong><p>{preview.recovery}</p></article></div><p className="approval-expiry"><AlertTriangle size={16} aria-hidden="true" />Approval expires {new Date(preview.expiresAt).toLocaleTimeString()}.</p><label>Type <code>{preview.confirmation}</code><input autoFocus value={confirmation} onChange={(event) => setConfirmation(event.target.value)} /></label><div><button className="button button-secondary" type="button" onClick={() => setPreview(null)}>Cancel</button><button className="button button-danger" type="button" disabled={confirmation !== preview.confirmation || applyMutation.isPending} onClick={() => applyMutation.mutate({ impact: preview, phrase: confirmation })}>Apply guarded change</button></div></section></div> : null}
+  </div>
+}
+
+function ConfigurationAdministration({ snapshot, pending, onReload }: { snapshot?: Awaited<ReturnType<ReturnType<typeof useApiClient>['configuration']>>; pending: boolean; onReload: () => void }) {
+  const [query, setQuery] = useState('')
+  const entries = useMemo(() => visibleConfiguration(snapshot?.entries || [], query), [query, snapshot?.entries])
+  if (pending) return <LoadingState label="Loading effective configuration" />
+  if (!snapshot) return <EmptyState title="Configuration unavailable" body="The effective configuration endpoint returned no snapshot." />
+  return <section className="admin-panel"><div className="section-heading"><div><p className="eyebrow">EFFECTIVE / REDACTED</p><h3>Configuration version {snapshot.version}</h3><p>{snapshot.fingerprint.slice(0, 16)} · loaded {new Date(snapshot.loaded_at).toLocaleString()}</p></div><button className="button button-secondary" type="button" onClick={() => { if (window.confirm('Reload only settings marked reloadable? Rejected changes are audited.')) onReload() }}><RefreshCw size={16} aria-hidden="true" />Reload</button></div><div className="configuration-toolbar"><label>Filter configuration<input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="setting or source" /></label><span><ShieldCheck size={15} aria-hidden="true" />Secret values are server-redacted</span></div><div className="table-shell"><table><thead><tr><th>Setting</th><th>Effective value</th><th>Provenance</th><th>Reload</th></tr></thead><tbody>{entries.map((entry) => <tr key={entry.name}><td><strong>{entry.name}</strong>{entry.secret ? <small className="cell-subtitle">sensitive</small> : null}</td><td><code className="config-value">{configurationValue(entry)}</code></td><td>{entry.source}</td><td>{entry.reloadable ? 'live' : 'restart'}</td></tr>)}</tbody></table></div></section>
+}
+
+function AuditAdministration({ direct, indexed, pending, settings }: { direct: Awaited<ReturnType<ReturnType<typeof useApiClient>['administrationAudit']>>; indexed: Awaited<ReturnType<ReturnType<typeof useApiClient>['search']>>['items']; pending: boolean; settings: ReturnType<typeof useAppSettings>['settings'] }) {
+  if (pending) return <LoadingState label="Loading administration audit history" />
+  return <div className="admin-section-stack"><section className="admin-panel"><div className="section-heading"><div><p className="eyebrow">IMMEDIATE CONTROL DECISIONS</p><h3>Successful and rejected changes</h3></div><span>{direct.length} events</span></div>{direct.length ? <div className="table-shell"><table><thead><tr><th>Time</th><th>Control</th><th>Outcome</th><th>Actor</th><th>Reason</th></tr></thead><tbody>{direct.map((event) => <tr key={event.eventId}><td><time dateTime={event.occurredAt}>{formatDate(event.occurredAt, settings.locale, settings.timezone)}</time></td><td><strong>{event.resourceId}</strong><small className="cell-subtitle">{event.action}</small></td><td><StatusBadge state={event.outcome === 'SUCCESS' ? 'SUCCESS' : 'FAILED'} /></td><td><code>{event.actorId.slice(0, 12)}</code></td><td>{event.reason}</td></tr>)}</tbody></table></div> : <EmptyState title="No guarded control actions" body="Preview and apply or reject a control change to create immediate evidence." />}</section><section className="admin-panel"><div className="section-heading"><div><p className="eyebrow">INDEXED AUDIT LEDGER</p><h3>All administration resources</h3></div><span>{indexed.length} projected events</span></div><div className="audit-list">{indexed.map((event) => <article key={event.documentId}><ScrollText size={17} aria-hidden="true" /><div><strong>{fieldText(event.fields.action, event.title)}</strong><p>{event.summary}</p><small>{fieldText(event.fields.resourceType, 'resource')} · {fieldText(event.fields.outcome, event.state || 'recorded')} · {formatDate(event.occurredAt, settings.locale, settings.timezone)}</small></div></article>)}</div></section></div>
+}

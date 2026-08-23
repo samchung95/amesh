@@ -18,6 +18,7 @@ __version__ = "0.2.0"
 
 # Define package exports
 __all__ = [
+    "AdministrationApi",
     "AuthenticationApi",
     "AuthorizationApi",
     "BackfillsApi",
@@ -49,6 +50,12 @@ __all__ = [
     "ApiAttributeError",
     "ApiException",
     "Action",
+    "AdministrationApplyRequest",
+    "AdministrationAuditEntry",
+    "AdministrationControl",
+    "AdministrationControlDraft",
+    "AdministrationControlKey",
+    "AdministrationImpactPreview",
     "AdmissionDecision",
     "AdmissionDiagnostics",
     "AdmissionOutcome",
@@ -293,6 +300,7 @@ __all__ = [
     "ValidationError",
     "ValidationIssue",
     "Value",
+    "Value1",
     "WebhookDelivery",
     "WebhookDeliveryAttempt",
     "WebhookDeliveryHistory",
@@ -308,6 +316,7 @@ __all__ = [
 ]
 
 # import apis into sdk package
+from amesh_client.api.administration_api import AdministrationApi as AdministrationApi
 from amesh_client.api.authentication_api import AuthenticationApi as AuthenticationApi
 from amesh_client.api.authorization_api import AuthorizationApi as AuthorizationApi
 from amesh_client.api.backfills_api import BackfillsApi as BackfillsApi
@@ -343,6 +352,12 @@ from amesh_client.exceptions import ApiException as ApiException
 
 # import models into sdk package
 from amesh_client.models.action import Action as Action
+from amesh_client.models.administration_apply_request import AdministrationApplyRequest as AdministrationApplyRequest
+from amesh_client.models.administration_audit_entry import AdministrationAuditEntry as AdministrationAuditEntry
+from amesh_client.models.administration_control import AdministrationControl as AdministrationControl
+from amesh_client.models.administration_control_draft import AdministrationControlDraft as AdministrationControlDraft
+from amesh_client.models.administration_control_key import AdministrationControlKey as AdministrationControlKey
+from amesh_client.models.administration_impact_preview import AdministrationImpactPreview as AdministrationImpactPreview
 from amesh_client.models.admission_decision import AdmissionDecision as AdmissionDecision
 from amesh_client.models.admission_diagnostics import AdmissionDiagnostics as AdmissionDiagnostics
 from amesh_client.models.admission_outcome import AdmissionOutcome as AdmissionOutcome
@@ -587,6 +602,7 @@ from amesh_client.models.ui_session_response import UiSessionResponse as UiSessi
 from amesh_client.models.validation_error import ValidationError as ValidationError
 from amesh_client.models.validation_issue import ValidationIssue as ValidationIssue
 from amesh_client.models.value import Value as Value
+from amesh_client.models.value1 import Value1 as Value1
 from amesh_client.models.webhook_delivery import WebhookDelivery as WebhookDelivery
 from amesh_client.models.webhook_delivery_attempt import WebhookDeliveryAttempt as WebhookDeliveryAttempt
 from amesh_client.models.webhook_delivery_history import WebhookDeliveryHistory as WebhookDeliveryHistory

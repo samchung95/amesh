@@ -16,25 +16,29 @@ Next, try it out.
 ```ts
 import {
   Configuration,
-  AuthenticationApi,
+  AdministrationApi,
 } from '@amesh/client';
-import type { ChangeLocalPasswordApiV1AuthPasswordPostRequest } from '@amesh/client';
+import type { ApplyAdministrationControlApiV1AdminControlsKeyPutRequest } from '@amesh/client';
 
 async function example() {
   console.log("🚀 Testing @amesh/client SDK...");
-  const api = new AuthenticationApi();
+  const api = new AdministrationApi();
 
   const body = {
-    // ChangeLocalPasswordRequest
-    changeLocalPasswordRequest: ...,
+    // AdministrationControlKey
+    key: ...,
+    // AdministrationApplyRequest
+    administrationApplyRequest: ...,
     // string (optional)
     authorization: authorization_example,
     // string (optional)
     xAmeshCSRF: xAmeshCSRF_example,
-  } satisfies ChangeLocalPasswordApiV1AuthPasswordPostRequest;
+    // string (optional)
+    xAmeshTenant: xAmeshTenant_example,
+  } satisfies ApplyAdministrationControlApiV1AdminControlsKeyPutRequest;
 
   try {
-    const data = await api.changeLocalPasswordApiV1AuthPasswordPost(body);
+    const data = await api.applyAdministrationControlApiV1AdminControlsKeyPut(body);
     console.log(data);
   } catch (error) {
     console.error(error);
@@ -54,6 +58,10 @@ All URIs are relative to *http://localhost*
 
 | Class | Method | HTTP request | Description
 | ----- | ------ | ------------ | -------------
+*AdministrationApi* | [**applyAdministrationControlApiV1AdminControlsKeyPut**](docs/AdministrationApi.md#applyadministrationcontrolapiv1admincontrolskeyput) | **PUT** /api/v1/admin/controls/{key} | Apply Administration Control
+*AdministrationApi* | [**listAdministrationAuditApiV1AdminAuditGet**](docs/AdministrationApi.md#listadministrationauditapiv1adminauditget) | **GET** /api/v1/admin/audit | List Administration Audit
+*AdministrationApi* | [**listAdministrationControlsApiV1AdminControlsGet**](docs/AdministrationApi.md#listadministrationcontrolsapiv1admincontrolsget) | **GET** /api/v1/admin/controls | List Administration Controls
+*AdministrationApi* | [**previewAdministrationControlApiV1AdminControlsPreviewPost**](docs/AdministrationApi.md#previewadministrationcontrolapiv1admincontrolspreviewpost) | **POST** /api/v1/admin/controls/preview | Preview Administration Control
 *AuthenticationApi* | [**changeLocalPasswordApiV1AuthPasswordPost**](docs/AuthenticationApi.md#changelocalpasswordapiv1authpasswordpost) | **POST** /api/v1/auth/password | Change Local Password
 *AuthenticationApi* | [**listAuthenticationProvidersApiV1AuthProvidersGet**](docs/AuthenticationApi.md#listauthenticationprovidersapiv1authprovidersget) | **GET** /api/v1/auth/providers | List Authentication Providers
 *AuthenticationApi* | [**loginApiV1AuthLoginPost**](docs/AuthenticationApi.md#loginapiv1authloginpost) | **POST** /api/v1/auth/login | Login
@@ -214,6 +222,12 @@ All URIs are relative to *http://localhost*
 ### Models
 
 - [Action](docs/Action.md)
+- [AdministrationApplyRequest](docs/AdministrationApplyRequest.md)
+- [AdministrationAuditEntry](docs/AdministrationAuditEntry.md)
+- [AdministrationControl](docs/AdministrationControl.md)
+- [AdministrationControlDraft](docs/AdministrationControlDraft.md)
+- [AdministrationControlKey](docs/AdministrationControlKey.md)
+- [AdministrationImpactPreview](docs/AdministrationImpactPreview.md)
 - [AdmissionDecision](docs/AdmissionDecision.md)
 - [AdmissionDiagnostics](docs/AdmissionDiagnostics.md)
 - [AdmissionOutcome](docs/AdmissionOutcome.md)
@@ -458,6 +472,7 @@ All URIs are relative to *http://localhost*
 - [ValidationError](docs/ValidationError.md)
 - [ValidationIssue](docs/ValidationIssue.md)
 - [Value](docs/Value.md)
+- [Value1](docs/Value1.md)
 - [WebhookDelivery](docs/WebhookDelivery.md)
 - [WebhookDeliveryAttempt](docs/WebhookDeliveryAttempt.md)
 - [WebhookDeliveryHistory](docs/WebhookDeliveryHistory.md)

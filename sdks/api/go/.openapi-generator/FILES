@@ -3,6 +3,7 @@
 .travis.yml
 README.md
 api/openapi.yaml
+api_administration.go
 api_authentication.go
 api_authorization.go
 api_backfills.go
@@ -26,6 +27,7 @@ api_ui.go
 api_workers.go
 client.go
 configuration.go
+docs/AdministrationAPI.md
 docs/AuthenticationAPI.md
 docs/AuthorizationAPI.md
 docs/BackfillsAPI.md
@@ -51,6 +53,12 @@ git_push.sh
 go.mod
 go.sum
 model_action.go
+model_administration_apply_request.go
+model_administration_audit_entry.go
+model_administration_control.go
+model_administration_control_draft.go
+model_administration_control_key.go
+model_administration_impact_preview.go
 model_admission_decision.go
 model_admission_diagnostics.go
 model_admission_outcome.go
@@ -295,6 +303,7 @@ model_ui_session_response.go
 model_validation_error.go
 model_validation_issue.go
 model_value.go
+model_value_1.go
 model_webhook_delivery.go
 model_webhook_delivery_attempt.go
 model_webhook_delivery_history.go

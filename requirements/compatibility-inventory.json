@@ -7021,97 +7021,121 @@
       "requirement_id": "URS-F-0478",
       "epic_id": "EPIC-410",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-ui-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-410-namespace-settings-and-administration-ui.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0479",
       "epic_id": "EPIC-410",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-ui-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-410-namespace-settings-and-administration-ui.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0480",
       "epic_id": "EPIC-410",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-ui-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-410-namespace-settings-and-administration-ui.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0481",
       "epic_id": "EPIC-410",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-ui-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-410-namespace-settings-and-administration-ui.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0482",
       "epic_id": "EPIC-410",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-ui-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-410-namespace-settings-and-administration-ui.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0483",
       "epic_id": "EPIC-410",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-ui-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-410-namespace-settings-and-administration-ui.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0484",
       "epic_id": "EPIC-410",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-ui-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-410-namespace-settings-and-administration-ui.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0485",
       "epic_id": "EPIC-410",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-ui-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-410-namespace-settings-and-administration-ui.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0486",

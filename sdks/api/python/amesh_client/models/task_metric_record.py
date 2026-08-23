@@ -21,7 +21,7 @@ from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from amesh_client.models.metric_kind import MetricKind
-from amesh_client.models.value import Value
+from amesh_client.models.value1 import Value1
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
@@ -34,7 +34,7 @@ class TaskMetricRecord(BaseModel):
     labels: Optional[Dict[str, StrictStr]] = None
     name: Annotated[str, Field(min_length=1, strict=True, max_length=256)]
     unit: Optional[Annotated[str, Field(strict=True, max_length=64)]] = None
-    value: Value
+    value: Value1
     __properties: ClassVar[List[str]] = ["kind", "labels", "name", "unit", "value"]
 
     model_config = ConfigDict(
@@ -100,6 +100,6 @@ class TaskMetricRecord(BaseModel):
             "labels": obj.get("labels"),
             "name": obj.get("name"),
             "unit": obj.get("unit"),
-            "value": Value.from_dict(obj["value"]) if obj.get("value") is not None else None
+            "value": Value1.from_dict(obj["value"]) if obj.get("value") is not None else None
         })
         return _obj

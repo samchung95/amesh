@@ -684,6 +684,194 @@ export interface HealthResponse {
   version: string
 }
 
+export interface ReadinessResponse extends HealthResponse {
+  database: string
+  migrations_applied: number
+  migrations_expected: number
+  latest_migration: string | null
+  error: string | null
+}
+
+export interface PrincipalDefinition {
+  id: string
+  principal_type: 'USER' | 'GROUP' | 'SERVICE_ACCOUNT' | 'WORKER' | 'PLUGIN'
+  handle: string
+  display_name: string
+  enabled: boolean
+  metadata: { resource_version: number; lifecycle: string; created_at: string; updated_at: string }
+}
+
+export interface PermissionDefinition {
+  resource_type: string
+  action: string
+  effect: 'ALLOW' | 'DENY'
+}
+
+export interface RoleDefinition {
+  name: string
+  display_name: string
+  description: string
+  built_in: boolean
+  permissions: PermissionDefinition[]
+}
+
+export interface RoleBinding {
+  id: string
+  principal_id: string
+  principal_type: PrincipalDefinition['principal_type']
+  role_name: string
+  scope_type: 'INSTANCE' | 'TENANT' | 'NAMESPACE'
+  tenant_id: string | null
+  namespace: string | null
+}
+
+export interface CredentialMetadata {
+  id: string
+  principal_id: string
+  principal_type: PrincipalDefinition['principal_type']
+  name: string
+  kind: string
+  scopes: string[]
+  audience: string
+  status: string
+  expires_at: string
+  rate_limit_per_minute: number
+  last_used_at: string | null
+  created_at: string
+}
+
+export interface IssuedCredential {
+  metadata: CredentialMetadata
+  token: string
+}
+
+export interface NamespaceWorkflowMetadataView {
+  namespace: string
+  lineage: Array<{
+    tenantId: string
+    namespace: string
+    pluginDefaults: Array<{ type: string; values: Record<string, unknown>; forced?: boolean }>
+    policy: Record<string, unknown>
+    resourceVersion: number
+    updatedBy: string
+    updatedAt: string
+  }>
+}
+
+export interface ServiceTopology {
+  observedAt: string
+  currentVersion: string
+  versionSkew: boolean
+  coordination: string
+  quorumDependencies: Record<string, string>
+  roles: Array<{
+    role: string
+    totalInstances: number
+    liveInstances: number
+    readyInstances: number
+    drainingInstances: number
+    staleInstances: number
+    versions: string[]
+    failoverStatus: string
+  }>
+  instances: Array<{
+    id: string
+    role: string
+    instanceName: string
+    version: string
+    state: string
+    liveness: string
+    compatibility: string
+    resourceVersion: number
+    dependencies: Record<string, string>
+    lastHeartbeatAt: string
+  }>
+}
+
+export interface WorkerInventory {
+  worker_id: string
+  worker_group: string
+  instance_name: string
+  version: string
+  status: string
+  liveness: string
+  compatibility: string
+  capacity: number
+  claimed_work: number
+  utilization: number
+  last_heartbeat_at: string
+}
+
+export interface AdmissionDiagnostics {
+  active_reservations: number
+  queued_requests: number
+  oldest_queue_age_seconds: number
+  pressure_by_policy: Record<string, number>
+}
+
+export interface ConfigurationSnapshot {
+  schema_version: number
+  version: number
+  fingerprint: string
+  loaded_at: string
+  precedence: string[]
+  entries: Array<{ name: string; value: unknown; source: string; reloadable: boolean; secret: boolean }>
+  warnings: string[]
+}
+
+export interface FeatureFlag {
+  id: string
+  key: string
+  scope: 'INSTANCE' | 'TENANT' | 'NAMESPACE'
+  enabled: boolean
+  tenant_id: string | null
+  namespace: string | null
+  description: string
+  version: number
+  updated_by: string
+  updated_at: string
+}
+
+export type AdministrationControlKey = 'RETENTION' | 'ANNOUNCEMENT' | 'MAINTENANCE' | 'KILL_SWITCH'
+
+export interface AdministrationControlDraft {
+  key: AdministrationControlKey
+  enabled: boolean
+  value: string | number | null
+  reason: string
+  expectedVersion?: number | null
+}
+
+export interface AdministrationControl {
+  key: AdministrationControlKey
+  flagKey: string
+  enabled: boolean
+  value: string | number | null
+  version: number | null
+  updatedBy: string | null
+  updatedAt: string | null
+}
+
+export interface AdministrationImpactPreview {
+  draft: AdministrationControlDraft
+  impacts: string[]
+  recovery: string
+  confirmation: string
+  approval: string
+  expiresAt: string
+}
+
+export interface AdministrationAuditEntry {
+  eventId: string
+  actorId: string
+  action: string
+  resourceId: string
+  outcome: 'SUCCESS' | 'REJECTED'
+  reason: string
+  evidence: Record<string, unknown>
+  occurredAt: string
+}
+
 export interface AuthenticationProvider {
   id: string
   kind: string

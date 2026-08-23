@@ -42,5 +42,8 @@
 - Search authorized flow, execution, selected log, asset and audit metadata with the typed
   `/api/v1/search` contract. Inspect or rebuild its disposable tenant projection through the adjacent
   status and rebuild endpoints; see the [search API guide](search.md).
+- Compose namespace, identity, runtime, effective-configuration and guarded tenant controls through
+  the administration surface. High-risk changes require a short-lived actor/tenant/draft-bound
+  preview and immutable success or rejection evidence; see the [administration API guide](administration.md).
 
 Future generated SDKs must consume the supported API contract, not internal Python classes.

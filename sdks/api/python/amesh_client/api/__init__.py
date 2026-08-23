@@ -1,6 +1,7 @@
 # flake8: noqa
 
 # import apis into api package
+from amesh_client.api.administration_api import AdministrationApi
 from amesh_client.api.authentication_api import AuthenticationApi
 from amesh_client.api.authorization_api import AuthorizationApi
 from amesh_client.api.backfills_api import BackfillsApi

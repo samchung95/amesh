@@ -11,6 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine
 from amesh.adapters.postgres.tenant_context import tenant_admin_transaction
 from amesh.domain import (
     SYSTEM_TENANT_ID,
+    AdministrationAuditEntry,
     FeatureFlag,
     FeatureFlagDecision,
     FeatureFlagScope,
@@ -44,6 +45,7 @@ class PostgresFeatureFlagRepository(FeatureFlagRepository):
         *,
         actor_id: str,
         expected_version: int | None = None,
+        administration_audit: dict[str, object] | None = None,
     ) -> FeatureFlag:
         async with tenant_admin_transaction(self._engine) as connection:
             tenant_uuid = await _resolve_tenant_uuid(connection, flag.tenant_id)
@@ -106,6 +108,21 @@ class PostgresFeatureFlagRepository(FeatureFlagRepository):
                     "version": persisted.version,
                 },
             )
+            if administration_audit is not None:
+                evidence = administration_audit["evidence"]
+                if not isinstance(evidence, dict):
+                    raise TypeError("administration audit evidence must be an object")
+                await _write_audit(
+                    connection,
+                    tenant_id=tenant_uuid or SYSTEM_TENANT_ID,
+                    actor_id=actor_id,
+                    action=str(administration_audit["action"]),
+                    resource_id=str(administration_audit["resourceId"]),
+                    outcome="SUCCESS",
+                    reason=str(administration_audit["reason"]),
+                    evidence=evidence,
+                    resource_type="administration_control",
+                )
             return persisted
 
     async def list_for_context(
@@ -172,6 +189,77 @@ class PostgresFeatureFlagRepository(FeatureFlagRepository):
                 evidence={"changedFields": list(changed_fields)},
             )
 
+    async def audit_administration_action(
+        self,
+        tenant_id: str,
+        *,
+        actor_id: str,
+        action: str,
+        resource_id: str,
+        outcome: str,
+        reason: str,
+        evidence: dict[str, object],
+    ) -> None:
+        async with tenant_admin_transaction(self._engine) as connection:
+            tenant_uuid = await _resolve_tenant_uuid(connection, tenant_id)
+            if tenant_uuid is None:
+                raise LookupError("tenant unavailable")
+            await _write_audit(
+                connection,
+                tenant_id=tenant_uuid,
+                actor_id=actor_id,
+                action=action,
+                resource_id=resource_id,
+                outcome=outcome,
+                reason=reason,
+                evidence=evidence,
+                resource_type="administration_control",
+            )
+
+    async def list_administration_audit(
+        self,
+        tenant_id: str,
+        *,
+        limit: int = 100,
+    ) -> tuple[AdministrationAuditEntry, ...]:
+        async with tenant_admin_transaction(self._engine) as connection:
+            tenant_uuid = await _resolve_tenant_uuid(connection, tenant_id)
+            if tenant_uuid is None:
+                raise LookupError("tenant unavailable")
+            rows = (
+                (
+                    await connection.execute(
+                        text(
+                            """
+                            SELECT event_id, actor_id, action, resource_id, outcome,
+                                   reason, evidence, occurred_at
+                            FROM audit_events
+                            WHERE tenant_id = :tenant_id
+                              AND resource_type = 'administration_control'
+                            ORDER BY occurred_at DESC, event_id DESC
+                            LIMIT :limit
+                            """
+                        ),
+                        {"tenant_id": tenant_uuid, "limit": limit},
+                    )
+                )
+                .mappings()
+                .all()
+            )
+        return tuple(
+            AdministrationAuditEntry(
+                eventId=str(row["event_id"]),
+                actorId=str(row["actor_id"]),
+                action=str(row["action"]),
+                resourceId=str(row["resource_id"]),
+                outcome=str(row["outcome"]),
+                reason=str(row["reason"]),
+                evidence=dict(row["evidence"]),
+                occurredAt=row["occurred_at"],
+            )
+            for row in rows
+        )
+
 
 async def _resolve_tenant_uuid(
     connection: AsyncConnection,
@@ -224,6 +312,7 @@ async def _write_audit(
     outcome: str,
     reason: str,
     evidence: dict[str, object],
+    resource_type: str = "configuration",
 ) -> None:
     await connection.execute(
         text(
@@ -232,7 +321,7 @@ async def _write_audit(
                 tenant_id, event_id, actor_id, action, resource_type, resource_id,
                 outcome, reason, source, evidence, occurred_at
             ) VALUES (
-                :tenant_id, :event_id, :actor_id, :action, 'configuration', :resource_id,
+                :tenant_id, :event_id, :actor_id, :action, :resource_type, :resource_id,
                 :outcome, :reason, CAST(:source AS jsonb), CAST(:evidence AS jsonb), :occurred_at
             )
             """
@@ -242,6 +331,7 @@ async def _write_audit(
             "event_id": new_runtime_id(),
             "actor_id": actor_id,
             "action": action,
+            "resource_type": resource_type,
             "resource_id": resource_id,
             "outcome": outcome,
             "reason": reason,

@@ -161,6 +161,65 @@ def test_administrator_configuration_reload_diagnostics_and_scoped_flags(tmp_pat
                 assert "configuration-canary-secret" not in diagnostics.text
                 assert "beta-only" not in diagnostics.text
                 assert "new-engine" in diagnostics.text
+
+                reserved = await client.put(
+                    "/api/v1/feature-flags/admin-execution-kill-switch",
+                    headers=headers,
+                    json={"scope": "TENANT", "enabled": True},
+                )
+                assert reserved.status_code == 409, reserved.text
+
+                draft = {
+                    "key": "KILL_SWITCH",
+                    "enabled": True,
+                    "value": None,
+                    "reason": "integration incident exercise",
+                    "expectedVersion": None,
+                }
+                preview = await client.post(
+                    "/api/v1/admin/controls/preview",
+                    headers=headers,
+                    json=draft,
+                )
+                assert preview.status_code == 200, preview.text
+                rejected = await client.put(
+                    "/api/v1/admin/controls/KILL_SWITCH",
+                    headers=headers,
+                    json={
+                        "draft": draft,
+                        "approval": preview.json()["approval"],
+                        "confirmation": "WRONG",
+                    },
+                )
+                assert rejected.status_code == 409, rejected.text
+                applied = await client.put(
+                    "/api/v1/admin/controls/KILL_SWITCH",
+                    headers=headers,
+                    json={
+                        "draft": draft,
+                        "approval": preview.json()["approval"],
+                        "confirmation": preview.json()["confirmation"],
+                    },
+                )
+                assert applied.status_code == 200, applied.text
+                assert applied.json()["enabled"] is True
+                controls = await client.get("/api/v1/admin/controls", headers=headers)
+                assert controls.status_code == 200, controls.text
+                assert next(
+                    item for item in controls.json() if item["key"] == "KILL_SWITCH"
+                )["enabled"] is True
+                audit = await client.get("/api/v1/admin/audit", headers=headers)
+                assert audit.status_code == 200, audit.text
+                assert [entry["outcome"] for entry in audit.json()[:2]] == [
+                    "SUCCESS",
+                    "REJECTED",
+                ]
+                beta_audit = await client.get(
+                    "/api/v1/admin/audit",
+                    headers={"X-Amesh-Tenant": "config-beta"},
+                )
+                assert beta_audit.status_code == 200, beta_audit.text
+                assert beta_audit.json() == []
         finally:
             app.dependency_overrides.clear()
             await engine.dispose()

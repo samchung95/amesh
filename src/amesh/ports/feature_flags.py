@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Protocol
 
+from amesh.domain.administration import AdministrationAuditEntry
 from amesh.domain.feature_flags import FeatureFlag, FeatureFlagDecision
 
 
@@ -16,6 +17,7 @@ class FeatureFlagRepository(Protocol):
         *,
         actor_id: str,
         expected_version: int | None = None,
+        administration_audit: dict[str, object] | None = None,
     ) -> FeatureFlag: ...
 
     async def list_for_context(
@@ -42,3 +44,22 @@ class FeatureFlagRepository(Protocol):
         changed_fields: tuple[str, ...],
         reason: str,
     ) -> None: ...
+
+    async def audit_administration_action(
+        self,
+        tenant_id: str,
+        *,
+        actor_id: str,
+        action: str,
+        resource_id: str,
+        outcome: str,
+        reason: str,
+        evidence: dict[str, object],
+    ) -> None: ...
+
+    async def list_administration_audit(
+        self,
+        tenant_id: str,
+        *,
+        limit: int = 100,
+    ) -> tuple[AdministrationAuditEntry, ...]: ...
