@@ -46,6 +46,9 @@ dependencies = [
   "tzdata>=2026.3",
   "uuid6>=2025.0.1,<2026",
   "uvicorn[standard]>=0.34,<1",
+  "opentelemetry-api>=1.44,<2",
+  "opentelemetry-sdk>=1.44,<2",
+  "opentelemetry-exporter-otlp-proto-http>=1.44,<2",
 ]
 
 [project.optional-dependencies]

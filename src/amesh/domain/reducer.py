@@ -179,6 +179,7 @@ def decide_execution(snapshot: ExecutionSnapshot, command: ExecutionCommand) -> 
         causation_id=command.causation_id,
         actor_id=command.actor_id,
         reason=command.reason,
+        trace_context=command.trace_context,
         payload=command.payload,
     )
     try:
@@ -204,6 +205,7 @@ def decide_task_run(snapshot: TaskRunSnapshot, command: TaskRunCommand) -> TaskR
         causation_id=command.causation_id,
         actor_id=command.actor_id,
         reason=command.reason,
+        trace_context=command.trace_context,
         payload=command.payload,
     )
     try:

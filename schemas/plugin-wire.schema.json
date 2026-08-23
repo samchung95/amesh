@@ -700,6 +700,13 @@
         },
         "session": {
           "$ref": "#/$defs/PluginSession"
+        },
+        "traceContext": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Tracecontext",
+          "type": "object"
         }
       },
       "required": [

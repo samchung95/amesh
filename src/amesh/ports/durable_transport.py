@@ -4,7 +4,9 @@ from datetime import datetime, timedelta
 from typing import Any, Protocol
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
+
+from amesh.observability import current_trace_context, normalize_trace_context
 
 
 class StaleWorkClaimError(RuntimeError):
@@ -32,8 +34,13 @@ class DurableEnvelope(BaseModel):
     correlation_id: UUID
     causation_id: UUID | None = None
     produced_at: datetime
-    trace_context: dict[str, str] = Field(default_factory=dict)
+    trace_context: dict[str, str] = Field(default_factory=current_trace_context)
     payload: dict[str, Any]
+
+    @field_validator("trace_context", mode="before")
+    @classmethod
+    def validate_trace_context(cls, value: object) -> dict[str, str]:
+        return normalize_trace_context(value)
 
 
 class WorkClaim(BaseModel):

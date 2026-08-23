@@ -41,7 +41,8 @@ class ExecutionEvent(BaseModel):
     payload: Optional[Dict[str, Any]] = None
     reason: Optional[StrictStr] = None
     schema_version: Optional[StrictInt] = 2
-    __properties: ClassVar[List[str]] = ["actor_id", "causation_id", "correlation_id", "event_id", "event_type", "idempotency_key", "occurred_at", "payload", "reason", "schema_version"]
+    trace_context: Optional[Dict[str, StrictStr]] = None
+    __properties: ClassVar[List[str]] = ["actor_id", "causation_id", "correlation_id", "event_id", "event_type", "idempotency_key", "occurred_at", "payload", "reason", "schema_version", "trace_context"]
 
     @field_validator('schema_version')
     def schema_version_validate_enum(cls, value):
@@ -128,6 +129,7 @@ class ExecutionEvent(BaseModel):
             "occurred_at": obj.get("occurred_at"),
             "payload": obj.get("payload"),
             "reason": obj.get("reason"),
-            "schema_version": obj.get("schema_version") if obj.get("schema_version") is not None else 2
+            "schema_version": obj.get("schema_version") if obj.get("schema_version") is not None else 2,
+            "trace_context": obj.get("trace_context")
         })
         return _obj

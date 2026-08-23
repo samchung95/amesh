@@ -6,6 +6,7 @@ import logging
 from collections.abc import Sequence
 from contextlib import suppress
 
+from opentelemetry import trace
 from sqlalchemy.exc import DBAPIError
 
 from amesh.adapters.postgres import (
@@ -29,7 +30,12 @@ from amesh.adapters.postgres import (
 from amesh.config import Settings, get_settings
 from amesh.database import create_database_engine
 from amesh.domain import ServiceLiveness, ServiceRole, ServiceState
-from amesh.observability import configure_structured_logging
+from amesh.observability import (
+    WORKER_CAPACITY,
+    configure_observability,
+    instrument_async_operation,
+    shutdown_observability,
+)
 from amesh.plugins import (
     PluginPolicyService,
     TrustedPluginRuntime,
@@ -52,6 +58,7 @@ from amesh.worker import (
 LOGGER = logging.getLogger("amesh.role")
 
 
+@instrument_async_operation("service", "cycle")
 async def _run_cycle(
     role: ServiceRole,
     settings: Settings,
@@ -73,6 +80,7 @@ async def _run_cycle(
     webhook_dispatcher: WebhookDispatcher | None = None,
     search_projector: SearchProjector | None = None,
 ) -> int:
+    trace.get_current_span().set_attribute("amesh.role", role.value)
     if role is ServiceRole.SCHEDULER:
         scheduled = await schedule_once(
             executions,
@@ -218,6 +226,8 @@ async def run_role(settings: Settings, *, stop_event: asyncio.Event | None = Non
     stop = stop_event or asyncio.Event()
     try:
         await service.register()
+        if role is ServiceRole.WORKER:
+            WORKER_CAPACITY.set(1)
         while not stop.is_set():
             try:
                 current = await service.heartbeat(
@@ -261,6 +271,8 @@ async def run_role(settings: Settings, *, stop_event: asyncio.Event | None = Non
             with suppress(TimeoutError):
                 await asyncio.wait_for(stop.wait(), timeout=settings.service_cycle_seconds)
     finally:
+        if role is ServiceRole.WORKER:
+            WORKER_CAPACITY.set(0)
         await trusted_runtime.stop()
         await service.stop()
         await engine.dispose()
@@ -335,14 +347,17 @@ def main() -> None:
     parser.add_argument("--drain", action="store_true")
     args = parser.parse_args()
     settings = get_settings()
-    configure_structured_logging(settings.log_level)
-    if args.check == "liveness":
-        return
-    if args.check == "readiness":
-        raise SystemExit(0 if asyncio.run(check_readiness(settings)) else 1)
-    if args.drain:
-        raise SystemExit(0 if asyncio.run(request_self_drain(settings)) else 1)
-    asyncio.run(run_role(settings))
+    configure_observability(settings)
+    try:
+        if args.check == "liveness":
+            return
+        if args.check == "readiness":
+            raise SystemExit(0 if asyncio.run(check_readiness(settings)) else 1)
+        if args.drain:
+            raise SystemExit(0 if asyncio.run(request_self_drain(settings)) else 1)
+        asyncio.run(run_role(settings))
+    finally:
+        shutdown_observability()
 
 
 if __name__ == "__main__":

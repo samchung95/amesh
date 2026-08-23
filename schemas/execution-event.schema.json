@@ -92,6 +92,13 @@
       "default": 2,
       "title": "Schema Version",
       "type": "integer"
+    },
+    "trace_context": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Trace Context",
+      "type": "object"
     }
   },
   "required": [

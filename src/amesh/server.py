@@ -14,7 +14,7 @@ from amesh.app import get_trusted_plugin_runtime
 from amesh.config import Settings, get_settings
 from amesh.database import create_database_engine
 from amesh.domain import ServiceRole
-from amesh.observability import configure_structured_logging
+from amesh.observability import configure_observability, shutdown_observability
 from amesh.service_runtime import RegisteredService
 
 
@@ -85,8 +85,11 @@ async def run_server(
 
 def main() -> None:
     settings = get_settings()
-    configure_structured_logging(settings.log_level)
-    asyncio.run(run_server())
+    configure_observability(settings)
+    try:
+        asyncio.run(run_server())
+    finally:
+        shutdown_observability()
 
 
 if __name__ == "__main__":

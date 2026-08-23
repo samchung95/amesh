@@ -15,6 +15,7 @@ from amesh.observability import (
     RECONCILIATION_FINDINGS,
     RECONCILIATION_RUNS,
     RECONCILIATION_UNRESOLVED,
+    STUCK_WORK,
 )
 from amesh.ports import ReconciliationRepository
 
@@ -47,6 +48,7 @@ class ReconciliationService:
         )
         for invariant in ReconciliationInvariant:
             RECONCILIATION_UNRESOLVED.labels(invariant.value).set(unresolved[invariant])
+        STUCK_WORK.set(sum(unresolved.values()))
         for finding in result.findings:
             RECONCILIATION_FINDINGS.labels(
                 finding.invariant.value,

@@ -36,6 +36,12 @@ import {
 export interface ConfigurationDiagnosticBundle {
     /**
      *
+     * @type {{ [key: string]: string; }}
+     * @memberof ConfigurationDiagnosticBundle
+     */
+    componentHealth: { [key: string]: string; };
+    /**
+     *
      * @type {ConfigurationSnapshot}
      * @memberof ConfigurationDiagnosticBundle
      */
@@ -60,26 +66,48 @@ export interface ConfigurationDiagnosticBundle {
     namespace?: string | null;
     /**
      *
+     * @type {Array<{ [key: string]: any; } | null>}
+     * @memberof ConfigurationDiagnosticBundle
+     */
+    recentErrors: Array<{ [key: string]: any; } | null>;
+    /**
+     *
      * @type {number}
      * @memberof ConfigurationDiagnosticBundle
      */
     schemaVersion?: number;
     /**
      *
+     * @type {{ [key: string]: number; }}
+     * @memberof ConfigurationDiagnosticBundle
+     */
+    selectedMetrics: { [key: string]: number; };
+    /**
+     *
      * @type {string}
      * @memberof ConfigurationDiagnosticBundle
      */
     tenantId: string;
+    /**
+     *
+     * @type {{ [key: string]: string; }}
+     * @memberof ConfigurationDiagnosticBundle
+     */
+    versionMatrix: { [key: string]: string; };
 }
 
 /**
  * Check if a given object implements the ConfigurationDiagnosticBundle interface.
  */
 export function instanceOfConfigurationDiagnosticBundle(value: object): value is ConfigurationDiagnosticBundle {
+    if (!('componentHealth' in value) || value['componentHealth'] === undefined) return false;
     if ((!('_configuration' in (value as Record<string, any>)) && !('configuration' in (value as Record<string, any>))) || ((value as Record<string, any>)['_configuration'] === undefined && (value as Record<string, any>)['configuration'] === undefined)) return false;
     if (!('featureFlags' in value) || value['featureFlags'] === undefined) return false;
     if (!('generatedAt' in value) || value['generatedAt'] === undefined) return false;
+    if (!('recentErrors' in value) || value['recentErrors'] === undefined) return false;
+    if (!('selectedMetrics' in value) || value['selectedMetrics'] === undefined) return false;
     if (!('tenantId' in value) || value['tenantId'] === undefined) return false;
+    if (!('versionMatrix' in value) || value['versionMatrix'] === undefined) return false;
     return true;
 }
 
@@ -93,12 +121,16 @@ export function ConfigurationDiagnosticBundleFromJSONTyped(json: any, ignoreDisc
     }
     return {
 
+        'componentHealth': json['componentHealth'],
         '_configuration': ConfigurationSnapshotFromJSON(json['configuration']),
         'featureFlags': ((json['featureFlags'] as Array<any>).map(FeatureFlagFromJSON)),
         'generatedAt': (new Date(json['generatedAt'])),
         'namespace': json['namespace'] === undefined ? undefined : json['namespace'] === null ? null : json['namespace'],
+        'recentErrors': json['recentErrors'],
         'schemaVersion': json['schemaVersion'] == null ? undefined : json['schemaVersion'],
+        'selectedMetrics': json['selectedMetrics'],
         'tenantId': json['tenantId'],
+        'versionMatrix': json['versionMatrix'],
     };
 }
 
@@ -113,11 +145,15 @@ export function ConfigurationDiagnosticBundleToJSONTyped(value?: ConfigurationDi
 
     return {
 
+        'componentHealth': value['componentHealth'],
         'configuration': ConfigurationSnapshotToJSON(value['_configuration']),
         'featureFlags': ((value['featureFlags'] as Array<any>).map(FeatureFlagToJSON)),
         'generatedAt': value['generatedAt'].toISOString(),
         'namespace': value['namespace'],
+        'recentErrors': value['recentErrors'],
         'schemaVersion': value['schemaVersion'],
+        'selectedMetrics': value['selectedMetrics'],
         'tenantId': value['tenantId'],
+        'versionMatrix': value['versionMatrix'],
     };
 }

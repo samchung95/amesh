@@ -17031,6 +17031,8 @@ components:
       title: CompliancePackageRequest
     ConfigurationDiagnosticBundle:
       example:
+        componentHealth:
+          key: componentHealth
         configuration:
           entries:
           - name: name
@@ -17078,9 +17080,20 @@ components:
           version: 1
         generatedAt: 2000-01-23T04:56:07.000+00:00
         namespace: namespace
+        recentErrors:
+        - key: ""
+        - key: ""
         schemaVersion: 6
+        selectedMetrics:
+          key: 1.4658129805029452
         tenantId: tenantId
+        versionMatrix:
+          key: versionMatrix
       properties:
+        componentHealth:
+          additionalProperties:
+            type: string
+          title: Componenthealth
         configuration:
           $ref: "#/components/schemas/ConfigurationSnapshot"
         featureFlags:
@@ -17096,18 +17109,38 @@ components:
         namespace:
           nullable: true
           type: string
+        recentErrors:
+          items:
+            additionalProperties: true
+            nullable: true
+            type: object
+          title: Recenterrors
+          type: array
+          default: null
         schemaVersion:
           default: 1
           title: Schemaversion
           type: integer
+        selectedMetrics:
+          additionalProperties:
+            type: number
+          title: Selectedmetrics
         tenantId:
           title: Tenantid
           type: string
+        versionMatrix:
+          additionalProperties:
+            type: string
+          title: Versionmatrix
       required:
+      - componentHealth
       - configuration
       - featureFlags
       - generatedAt
+      - recentErrors
+      - selectedMetrics
       - tenantId
+      - versionMatrix
       title: ConfigurationDiagnosticBundle
     ConfigurationEntry:
       example:
@@ -18862,6 +18895,8 @@ components:
           key: ""
         reason: reason
         schema_version: 0
+        trace_context:
+          key: trace_context
       properties:
         actor_id:
           default: system
@@ -18903,6 +18938,10 @@ components:
           - 2
           title: Schema Version
           type: integer
+        trace_context:
+          additionalProperties:
+            type: string
+          title: Trace Context
       required:
       - event_type
       title: ExecutionEvent
@@ -25702,6 +25741,8 @@ components:
             key: ""
           reason: reason
           schema_version: 0
+          trace_context:
+            key: trace_context
         - actor_id: system
           causation_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
           correlation_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
@@ -25713,6 +25754,8 @@ components:
             key: ""
           reason: reason
           schema_version: 0
+          trace_context:
+            key: trace_context
         snapshot:
           applied_event_ids:
           - 046b6c7f-0b8a-43b9-b35d-6489e6daee91

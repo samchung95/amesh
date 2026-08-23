@@ -8,6 +8,7 @@ from sqlalchemy import text
 from sqlalchemy.engine import RowMapping
 from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine
 
+from amesh.observability import instrument_async_operation
 from amesh.ports import (
     WORKER_PROTOCOL_VERSION,
     WorkerClaimHeartbeat,
@@ -580,6 +581,7 @@ class PostgresWorkerRepository(WorkerRepository):
             row = await _get_inventory_row(connection, tenant_uuid, worker_id)
         return _to_inventory(row)
 
+    @instrument_async_operation("worker", "recover-claims")
     async def recover_expired_claims(
         self,
         *,

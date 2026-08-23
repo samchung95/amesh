@@ -9,6 +9,11 @@ tenant requests and tenant-aware worker routing; see the
 The worker performs bounded durable-state reconciliation every 60 seconds by default; tune the three
 `worker.reconciliation*` values using the [reconciliation runbook](../../docs/operations/reconciliation.md).
 
+Prometheus/Grafana reference assets are included in the observability ConfigMap. Configure bounded
+JSON log shipping and optional OTLP/HTTP trace export through `observability.*`; collector credentials
+come from an existing Secret. See the
+[observability runbook](../../docs/operations/observability.md).
+
 The default values deploy two replicas of each critical independent role plus one maintenance role.
 Select `profiles/small.yaml`, `profiles/medium.yaml` or `profiles/large.yaml` and follow the
 [high-availability runbook](../../docs/operations/high-availability.md) for topology, quorum, drain

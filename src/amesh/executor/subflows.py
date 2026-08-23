@@ -14,6 +14,7 @@ from amesh.domain import ExecutionState, FailureCategory, TaskRunState
 from amesh.dsl import FlowDefinition
 from amesh.dsl.models import TaskDefinition
 from amesh.expressions import ExpressionContext, NativeExpressionEngine
+from amesh.observability import normalize_trace_context
 from amesh.ports import (
     ExecutionInterventionAction,
     ExecutionLaunchSource,
@@ -148,7 +149,7 @@ def subflow_task_handler(
             "parentTaskRunId": str(context.task_run_id),
             "parentAttempt": context.attempt,
             "correlationId": context.trigger.get("correlationId", str(context.execution_id)),
-            "traceContext": context.trigger.get("traceContext", {}),
+            "traceContext": normalize_trace_context(context.trigger.get("traceContext", {})),
             "detached": spec.mode is SubflowMode.DETACHED,
         }
         child = await repository.create_execution(

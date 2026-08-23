@@ -24,6 +24,7 @@ from amesh.domain.search import (
     SearchSortDirection,
     SearchSortField,
 )
+from amesh.observability import SEARCH_PROJECTION_LAG
 from amesh.ports.search_repository import SearchCursorError, SearchUnavailableError
 
 from .tenant_context import tenant_transaction
@@ -1110,7 +1111,11 @@ class PostgresSearchRepository:
                         "latest_source_at": diagnostics["latest_source_at"],
                     },
                 )
-                return _status_from_row((await connection.execute(_STATUS, parameters)).mappings().one())
+                status = _status_from_row(
+                    (await connection.execute(_STATUS, parameters)).mappings().one()
+                )
+                SEARCH_PROJECTION_LAG.set(status.lag_seconds or 0)
+                return status
         except SQLAlchemyError as exc:
             raise SearchUnavailableError("search projection status unavailable") from exc
 

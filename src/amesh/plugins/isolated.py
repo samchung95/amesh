@@ -32,6 +32,7 @@ from amesh.executor import (
     TaskLogRecord,
     TaskMetricRecord,
 )
+from amesh.observability import instrument_async_operation
 from amesh.plugin_sdk import (
     ExtensionType,
     PluginCatalogManager,
@@ -576,6 +577,7 @@ class IsolatedPluginRuntime:
             platformApis=registration.profile.platform_apis,
         )
 
+    @instrument_async_operation("plugin", "outbound-call")
     async def _invoke(
         self,
         registration: _Registration,

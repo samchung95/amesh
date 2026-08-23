@@ -30,6 +30,7 @@ from amesh.observability import (
     PLUGIN_CIRCUIT_OPEN,
     PLUGIN_MEMORY_BYTES,
     PLUGIN_QUARANTINES,
+    instrument_async_operation,
 )
 from amesh.plugin_sdk import (
     ExtensionType,
@@ -231,6 +232,7 @@ class TrustedPluginRuntime:
             for registration in reversed(tuple(self._registrations.values())):
                 await self._stop(registration)
 
+    @instrument_async_operation("plugin", "callback")
     async def invoke(
         self, request: PluginRequest, *, version: str, content_digest: str
     ) -> PluginResponse:

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from uuid import UUID
@@ -7,6 +8,7 @@ from uuid import UUID
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine
 
+from amesh.observability import current_trace_context
 from amesh.ports.tenant_repository import TenantUnavailableError
 
 
@@ -38,5 +40,9 @@ async def tenant_transaction(
             await connection.execute(
                 text("SELECT set_config('amesh.tenant_id', :tenant_id, true)"),
                 {"tenant_id": str(tenant_id)},
+            )
+            await connection.execute(
+                text("SELECT set_config('amesh.trace_context', :trace_context, true)"),
+                {"trace_context": json.dumps(current_trace_context())},
             )
             yield connection, tenant_id

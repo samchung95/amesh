@@ -51,7 +51,8 @@ import io.amesh.client.ApiClient;
   ExecutionEvent.JSON_PROPERTY_OCCURRED_AT,
   ExecutionEvent.JSON_PROPERTY_PAYLOAD,
   ExecutionEvent.JSON_PROPERTY_REASON,
-  ExecutionEvent.JSON_PROPERTY_SCHEMA_VERSION
+  ExecutionEvent.JSON_PROPERTY_SCHEMA_VERSION,
+  ExecutionEvent.JSON_PROPERTY_TRACE_CONTEXT
 })
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.24.0")
 public class ExecutionEvent {
@@ -124,6 +125,10 @@ public class ExecutionEvent {
   public static final String JSON_PROPERTY_SCHEMA_VERSION = "schema_version";
   @javax.annotation.Nullable
   private SchemaVersionEnum schemaVersion = SchemaVersionEnum.NUMBER_2;
+
+  public static final String JSON_PROPERTY_TRACE_CONTEXT = "trace_context";
+  @javax.annotation.Nullable
+  private Map<String, String> traceContext = new HashMap<>();
 
   public ExecutionEvent() {
   }
@@ -400,6 +405,38 @@ public class ExecutionEvent {
   }
 
 
+  public ExecutionEvent traceContext(@javax.annotation.Nullable Map<String, String> traceContext) {
+    this.traceContext = traceContext;
+    return this;
+  }
+
+  public ExecutionEvent putTraceContextItem(String key, String traceContextItem) {
+    if (this.traceContext == null) {
+      this.traceContext = new HashMap<>();
+    }
+    this.traceContext.put(key, traceContextItem);
+    return this;
+  }
+
+  /**
+   * Get traceContext
+   * @return traceContext
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_TRACE_CONTEXT, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public Map<String, String> getTraceContext() {
+    return traceContext;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_TRACE_CONTEXT, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setTraceContext(@javax.annotation.Nullable Map<String, String> traceContext) {
+    this.traceContext = traceContext;
+  }
+
+
   /**
    * Return true if this ExecutionEvent object is equal to o.
    */
@@ -421,7 +458,8 @@ public class ExecutionEvent {
         Objects.equals(this.occurredAt, executionEvent.occurredAt) &&
         Objects.equals(this.payload, executionEvent.payload) &&
         equalsNullable(this.reason, executionEvent.reason) &&
-        Objects.equals(this.schemaVersion, executionEvent.schemaVersion);
+        Objects.equals(this.schemaVersion, executionEvent.schemaVersion) &&
+        Objects.equals(this.traceContext, executionEvent.traceContext);
   }
 
   private static <T> boolean equalsNullable(JsonNullable<T> a, JsonNullable<T> b) {
@@ -430,7 +468,7 @@ public class ExecutionEvent {
 
   @Override
   public int hashCode() {
-    return Objects.hash(actorId, hashCodeNullable(causationId), correlationId, eventId, eventType, hashCodeNullable(idempotencyKey), occurredAt, payload, hashCodeNullable(reason), schemaVersion);
+    return Objects.hash(actorId, hashCodeNullable(causationId), correlationId, eventId, eventType, hashCodeNullable(idempotencyKey), occurredAt, payload, hashCodeNullable(reason), schemaVersion, traceContext);
   }
 
   private static <T> int hashCodeNullable(JsonNullable<T> a) {
@@ -454,6 +492,7 @@ public class ExecutionEvent {
     sb.append("    payload: ").append(toIndentedString(payload)).append("\n");
     sb.append("    reason: ").append(toIndentedString(reason)).append("\n");
     sb.append("    schemaVersion: ").append(toIndentedString(schemaVersion)).append("\n");
+    sb.append("    traceContext: ").append(toIndentedString(traceContext)).append("\n");
     sb.append("}");
     return sb.toString();
   }
@@ -550,6 +589,15 @@ public class ExecutionEvent {
     // add `schema_version` to the URL query string
     if (getSchemaVersion() != null) {
       joiner.add(String.format(java.util.Locale.ROOT, "%sschema_version%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getSchemaVersion()))));
+    }
+
+    // add `trace_context` to the URL query string
+    if (getTraceContext() != null) {
+      for (String _key : getTraceContext().keySet()) {
+        joiner.add(String.format(java.util.Locale.ROOT, "%strace_context%s%s=%s", prefix, suffix,
+            "".equals(suffix) ? "" : String.format(java.util.Locale.ROOT, "%s%d%s", containerPrefix, _key, containerSuffix),
+            getTraceContext().get(_key), ApiClient.urlEncode(ApiClient.valueToString(getTraceContext().get(_key)))));
+      }
     }
 
     return joiner.toString();

@@ -636,14 +636,14 @@ URS-F-0634,Functional,Must,EPIC-606,"Containers, Kubernetes and Helm deployment"
 URS-F-0635,Functional,Must,EPIC-606,"Containers, Kubernetes and Helm deployment",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
 URS-F-0636,Functional,Must,EPIC-606,"Containers, Kubernetes and Helm deployment",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
 URS-F-0637,Functional,Must,EPIC-606,"Containers, Kubernetes and Helm deployment",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
-URS-F-0638,Functional,Must,EPIC-607,"OpenTelemetry, Prometheus and log shipping",M6,6,Telemetry contract and outage tests,Proposed
-URS-F-0639,Functional,Must,EPIC-607,"OpenTelemetry, Prometheus and log shipping",M6,6,Telemetry contract and outage tests,Proposed
-URS-F-0640,Functional,Must,EPIC-607,"OpenTelemetry, Prometheus and log shipping",M6,6,Telemetry contract and outage tests,Proposed
-URS-F-0641,Functional,Must,EPIC-607,"OpenTelemetry, Prometheus and log shipping",M6,6,Telemetry contract and outage tests,Proposed
-URS-F-0642,Functional,Must,EPIC-607,"OpenTelemetry, Prometheus and log shipping",M6,6,Telemetry contract and outage tests,Proposed
-URS-F-0643,Functional,Must,EPIC-607,"OpenTelemetry, Prometheus and log shipping",M6,6,Telemetry contract and outage tests,Proposed
-URS-F-0644,Functional,Must,EPIC-607,"OpenTelemetry, Prometheus and log shipping",M6,6,Telemetry contract and outage tests,Proposed
-URS-F-0645,Functional,Must,EPIC-607,"OpenTelemetry, Prometheus and log shipping",M6,6,Telemetry contract and outage tests,Proposed
+URS-F-0638,Functional,Must,EPIC-607,"OpenTelemetry, Prometheus and log shipping",M6,6,Telemetry contract and outage tests,Verified
+URS-F-0639,Functional,Must,EPIC-607,"OpenTelemetry, Prometheus and log shipping",M6,6,Telemetry contract and outage tests,Verified
+URS-F-0640,Functional,Must,EPIC-607,"OpenTelemetry, Prometheus and log shipping",M6,6,Telemetry contract and outage tests,Verified
+URS-F-0641,Functional,Must,EPIC-607,"OpenTelemetry, Prometheus and log shipping",M6,6,Telemetry contract and outage tests,Verified
+URS-F-0642,Functional,Must,EPIC-607,"OpenTelemetry, Prometheus and log shipping",M6,6,Telemetry contract and outage tests,Verified
+URS-F-0643,Functional,Must,EPIC-607,"OpenTelemetry, Prometheus and log shipping",M6,6,Telemetry contract and outage tests,Verified
+URS-F-0644,Functional,Must,EPIC-607,"OpenTelemetry, Prometheus and log shipping",M6,6,Telemetry contract and outage tests,Verified
+URS-F-0645,Functional,Must,EPIC-607,"OpenTelemetry, Prometheus and log shipping",M6,6,Telemetry contract and outage tests,Verified
 URS-F-0646,Functional,Must,EPIC-608,"Retention, purge and data lifecycle",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
 URS-F-0647,Functional,Must,EPIC-608,"Retention, purge and data lifecycle",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
 URS-F-0648,Functional,Must,EPIC-608,"Retention, purge and data lifecycle",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
@@ -876,7 +876,7 @@ URS-NFR-MAINTAINABILITY-006,Non-functional,Must,EPIC-612,Security hardening and 
 URS-NFR-OPERABILITY-001,Non-functional,Must,EPIC-600,Standalone server and compact deployment,M6,6,Kubernetes and Compose health tests.,Verified
 URS-NFR-OPERABILITY-001,Non-functional,Must,EPIC-601,Distributed services and high availability,M6,6,Kubernetes and Compose health tests.,Verified
 URS-NFR-OPERABILITY-001,Non-functional,Must,EPIC-606,"Containers, Kubernetes and Helm deployment",M6,6,Kubernetes and Compose health tests.,Verified
-URS-NFR-OPERABILITY-002,Non-functional,Must,EPIC-607,"OpenTelemetry, Prometheus and log shipping",M6,6,Telemetry cardinality audit.,Proposed
+URS-NFR-OPERABILITY-002,Non-functional,Must,EPIC-607,"OpenTelemetry, Prometheus and log shipping",M6,6,Telemetry cardinality audit.,Verified
 URS-NFR-OPERABILITY-003,Non-functional,Must,EPIC-607,"OpenTelemetry, Prometheus and log shipping",M6,6,Alert fixture and runbook audit.,Proposed
 URS-NFR-OPERABILITY-003,Non-functional,Must,EPIC-705,"Documentation, examples and community governance",M7,7,Alert fixture and runbook audit.,Proposed
 URS-NFR-OPERABILITY-004,Non-functional,Must,EPIC-003,Configuration and feature flag system,M0,0,Security test with seeded sensitive data.,In Progress

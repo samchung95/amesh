@@ -153,6 +153,19 @@ taskNamespace: ""
 taskRunner:
   profiles: []
 logLevel: INFO
+observability:
+  otlpEndpoint: ""
+  otlpHeadersExistingSecret: ""
+  otlpHeadersKey: otlp-headers
+  otlpBatchQueueSize: 2048
+  otlpBatchSize: 512
+  otlpExportTimeoutSeconds: 5
+  logDestination: stdout
+  logFilePath: ""
+  logSyslogAddress: 127.0.0.1:514
+  logQueueCapacity: 10000
+  referenceAssets:
+    enabled: true
 serviceHeartbeatSeconds: 5
 serviceStaleAfterSeconds: 20
 serviceCycleSeconds: 5

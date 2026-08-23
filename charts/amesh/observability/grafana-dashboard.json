@@ -1,0 +1,60 @@
+{
+  "title": "AMESH Operations",
+  "uid": "amesh-operations",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "30s",
+  "tags": ["amesh", "operations"],
+  "panels": [
+    {
+      "id": 1,
+      "title": "Availability",
+      "type": "stat",
+      "targets": [{"expr": "min(amesh_database_health)", "legendFormat": "database"}]
+    },
+    {
+      "id": 2,
+      "title": "Operation p95 latency",
+      "type": "timeseries",
+      "targets": [{"expr": "histogram_quantile(0.95, sum by (le, component, operation) (rate(amesh_component_operation_duration_seconds_bucket[5m])))", "legendFormat": "{{component}} {{operation}}"}]
+    },
+    {
+      "id": 3,
+      "title": "Database and admission saturation",
+      "type": "timeseries",
+      "targets": [
+        {"expr": "amesh_database_pool_checked_out / clamp_min(amesh_database_pool_size, 1)", "legendFormat": "database pool"},
+        {"expr": "amesh_admission_pressure_ratio", "legendFormat": "admission"}
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Failures",
+      "type": "timeseries",
+      "targets": [{"expr": "sum by (component, operation) (rate(amesh_component_operations_total{outcome=\"error\"}[5m]))", "legendFormat": "{{component}} {{operation}}"}]
+    },
+    {
+      "id": 5,
+      "title": "Queue and search lag",
+      "type": "timeseries",
+      "targets": [
+        {"expr": "amesh_queue_oldest_eligible_age_seconds", "legendFormat": "queue"},
+        {"expr": "amesh_search_projection_lag_seconds", "legendFormat": "search"}
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Stuck work",
+      "type": "stat",
+      "targets": [
+        {"expr": "sum(amesh_reconciliation_unresolved) + sum(amesh_stuck_work)", "legendFormat": "findings"}
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Worker capacity",
+      "type": "stat",
+      "targets": [{"expr": "sum(amesh_worker_capacity)", "legendFormat": "workers"}]
+    }
+  ]
+}

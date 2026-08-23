@@ -49,7 +49,11 @@ from amesh.executor import (
     selecting_runner_handler,
 )
 from amesh.human_tasks import HumanTaskService, approval_task_handler
-from amesh.observability import configure_structured_logging
+from amesh.observability import (
+    configure_observability,
+    instrument_async_operation,
+    shutdown_observability,
+)
 from amesh.plugins import (
     IsolatedPluginRuntime,
     PluginPolicyService,
@@ -83,6 +87,7 @@ from amesh.workflow.working_directory import WorkingDirectoryManager
 LOGGER = logging.getLogger("amesh.worker")
 
 
+@instrument_async_operation("scheduler", "schedule")
 async def schedule_once(
     repository: PostgresExecutionRepository,
     scheduler_repository: PostgresSchedulerRepository,
@@ -131,6 +136,7 @@ async def schedule_once(
     return scheduled
 
 
+@instrument_async_operation("scheduler", "triggers")
 async def process_trigger_occurrences_once(
     repository: PostgresExecutionRepository,
     trigger_runtime: TriggerRuntimeRepository,
@@ -238,6 +244,7 @@ async def process_trigger_occurrences_once(
     return processed
 
 
+@instrument_async_operation("scheduler", "checks")
 async def process_execution_checks_once(
     repository: PostgresExecutionRepository,
     checks: CheckRepository,
@@ -328,6 +335,7 @@ async def process_execution_checks_once(
     return processed
 
 
+@instrument_async_operation("executor", "recover")
 async def recover_once(
     repository: PostgresExecutionRepository,
     settings: Settings,
@@ -548,6 +556,7 @@ async def recover_once(
     return recovered
 
 
+@instrument_async_operation("scheduler", "backfill")
 async def backfill_once(
     repository: PostgresExecutionRepository,
     backfill_repository: PostgresBackfillRepository,
@@ -562,6 +571,7 @@ async def backfill_once(
     return processed
 
 
+@instrument_async_operation("maintenance", "reconcile")
 async def reconcile_once(
     repository: PostgresReconciliationRepository,
     settings: Settings,
@@ -697,8 +707,11 @@ async def run_worker(settings: Settings) -> None:
 
 def main() -> None:
     settings = get_settings()
-    configure_structured_logging(settings.log_level)
-    asyncio.run(run_worker(settings))
+    configure_observability(settings.model_copy(update={"service_role": "worker"}))
+    try:
+        asyncio.run(run_worker(settings))
+    finally:
+        shutdown_observability()
 
 
 if __name__ == "__main__":

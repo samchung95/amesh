@@ -1,5 +1,46 @@
 # Test Log
 
+## EPIC-607: OpenTelemetry, Prometheus and log shipping — 2026-08-23
+
+Spec source: Agent Hotel card `c77` and
+`backlog/epics/epic-607-opentelemetry-prometheus-and-log-shipping.md`.
+
+Verified with `uv`, Python 3.13, PostgreSQL 17, OpenTelemetry 1.44 and Docker Compose:
+
+- [x] The official OpenTelemetry SDK emits redacted spans for API, scheduler, executor, worker,
+  storage, messaging, plugin and runner operations. W3C `traceparent` propagation passes through
+  commands, reducer events, durable envelopes, task/runner/plugin requests and subflow triggers.
+- [x] Migration `0053_observability_trace_context.sql` captures the active redacted carrier on
+  execution and task-run events. A fresh database applied all 53 migrations and exposed both columns
+  and triggers; live repository integration proved both event streams persisted the parent carrier.
+- [x] Prometheus publishes bounded operation, queue, worker-capacity, admission-pressure, database,
+  search-lag, stuck-work, exporter-failure and log-drop signals without tenant, flow, execution,
+  task-run, correlation or trace IDs as default labels.
+- [x] Newline JSON logs include component, version, correlation and trace metadata. Bounded non-blocking
+  queues ship to stdout, rotating file or UDP syslog; overflow and exporter failure increment metrics
+  without failing the operation. A seeded secret was absent from exported span attributes/events.
+- [x] Helm packages a seven-panel Grafana dashboard plus availability, latency, saturation, failure,
+  lag and stuck-work alerts. Every alert has severity, symptom, likely causes, impact and a resolvable
+  runbook section. The tenant-scoped diagnostic API returns fixed metrics, component/version evidence
+  and only tenant-matched redacted recent errors.
+- [x] Focused telemetry, configuration, reducer, transport, worker, storage and plugin suites passed.
+  Ruff passed affected paths, strict mypy passed all 194 source files, both Compose files validated,
+  and Python/TypeScript/Java/Go generated SDK freshness covered 1,828 files.
+- [x] The distributed six-role deployment and compact deployment rebuilt and are healthy. Live HTTP
+  responses include `traceparent`; `/metrics` exposes the new signals; logs contain JSON trace/span,
+  component and version fields; diagnostics report version 0.2.0; both databases are at migration 53.
+- [x] No LLM behavior was involved, so no billable OpenRouter call was required. Applicable LLM tests
+  remain pinned to `openai/gpt-5.6-luna`.
+
+Qualification boundary: the provisional 50,000-log-record/second standard-cluster target, simulated
+Prometheus firing review and shared pre-GA security/support-bundle qualification remain deferred. The
+local implementation proves bounded overload and telemetry-outage isolation; no external cluster
+throughput claim is made. The existing c29 order-dependent uninitialized storage-histogram assertion
+remains deferred and does not affect the EPIC-607 paths.
+
+Verdict: PASS — EPIC-607 functional requirements URS-F-0638 through URS-F-0645 and
+URS-NFR-OPERABILITY-002 are verified.
+
 ## EPIC-604: Search and analytics projection backend — 2026-08-23
 
 Spec source: Agent Hotel card `c76` and canonical `backlog/epics.json` EPIC-604 DoD.

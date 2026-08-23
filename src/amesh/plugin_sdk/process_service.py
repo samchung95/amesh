@@ -12,6 +12,8 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict
 
+from amesh.observability import observe_operation
+
 from .contracts import PluginOperation, PluginRequest, PluginResponse
 from .errors import PluginErrorDetail, PluginErrorPhase
 from .harness import PluginCapabilityGrant, PluginContractHarness, PluginHandler
@@ -93,16 +95,17 @@ async def serve_stdio_plugin(
             *,
             selected: ProcessPluginHandler = handler,
         ) -> PluginResponse:
-            capability_envelope = active_capabilities.get()
-            if capability_envelope is None:
-                raise RuntimeError("plugin invocation capability envelope is unavailable")
-            result = await selected(request, capability_envelope)
-            if isinstance(result, ProcessPluginResult):
-                captured.set(result)
-                return result.response
-            if not isinstance(result, PluginResponse):
-                raise TypeError("plugin handler must return PluginResponse or ProcessPluginResult")
-            return result
+            with observe_operation("plugin", "inbound-call", carrier=request.trace_context):
+                capability_envelope = active_capabilities.get()
+                if capability_envelope is None:
+                    raise RuntimeError("plugin invocation capability envelope is unavailable")
+                result = await selected(request, capability_envelope)
+                if isinstance(result, ProcessPluginResult):
+                    captured.set(result)
+                    return result.response
+                if not isinstance(result, PluginResponse):
+                    raise TypeError("plugin handler must return PluginResponse or ProcessPluginResult")
+                return result
 
         wrapped[key] = invoke_handler
     capabilities = manifest.capabilities

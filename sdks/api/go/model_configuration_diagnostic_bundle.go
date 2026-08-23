@@ -22,12 +22,16 @@ var _ MappedNullable = &ConfigurationDiagnosticBundle{}
 
 // ConfigurationDiagnosticBundle struct for ConfigurationDiagnosticBundle
 type ConfigurationDiagnosticBundle struct {
+	ComponentHealth map[string]string `json:"componentHealth"`
 	Configuration ConfigurationSnapshot `json:"configuration"`
 	FeatureFlags []FeatureFlag `json:"featureFlags"`
 	GeneratedAt time.Time `json:"generatedAt"`
 	Namespace NullableString `json:"namespace,omitempty"`
+	RecentErrors []*map[string]interface{} `json:"recentErrors"`
 	SchemaVersion *int32 `json:"schemaVersion,omitempty"`
+	SelectedMetrics map[string]float32 `json:"selectedMetrics"`
 	TenantId string `json:"tenantId"`
+	VersionMatrix map[string]string `json:"versionMatrix"`
 }
 
 type _ConfigurationDiagnosticBundle ConfigurationDiagnosticBundle
@@ -36,14 +40,18 @@ type _ConfigurationDiagnosticBundle ConfigurationDiagnosticBundle
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewConfigurationDiagnosticBundle(configuration ConfigurationSnapshot, featureFlags []FeatureFlag, generatedAt time.Time, tenantId string) *ConfigurationDiagnosticBundle {
+func NewConfigurationDiagnosticBundle(componentHealth map[string]string, configuration ConfigurationSnapshot, featureFlags []FeatureFlag, generatedAt time.Time, recentErrors []*map[string]interface{}, selectedMetrics map[string]float32, tenantId string, versionMatrix map[string]string) *ConfigurationDiagnosticBundle {
 	this := ConfigurationDiagnosticBundle{}
+	this.ComponentHealth = componentHealth
 	this.Configuration = configuration
 	this.FeatureFlags = featureFlags
 	this.GeneratedAt = generatedAt
+	this.RecentErrors = recentErrors
 	var schemaVersion int32 = 1
 	this.SchemaVersion = &schemaVersion
+	this.SelectedMetrics = selectedMetrics
 	this.TenantId = tenantId
+	this.VersionMatrix = versionMatrix
 	return &this
 }
 
@@ -55,6 +63,30 @@ func NewConfigurationDiagnosticBundleWithDefaults() *ConfigurationDiagnosticBund
 	var schemaVersion int32 = 1
 	this.SchemaVersion = &schemaVersion
 	return &this
+}
+
+// GetComponentHealth returns the ComponentHealth field value
+func (o *ConfigurationDiagnosticBundle) GetComponentHealth() map[string]string {
+	if o == nil {
+		var ret map[string]string
+		return ret
+	}
+
+	return o.ComponentHealth
+}
+
+// GetComponentHealthOk returns a tuple with the ComponentHealth field value
+// and a boolean to check if the value has been set.
+func (o *ConfigurationDiagnosticBundle) GetComponentHealthOk() (map[string]string, bool) {
+	if o == nil {
+		return map[string]string{}, false
+	}
+	return o.ComponentHealth, true
+}
+
+// SetComponentHealth sets field value
+func (o *ConfigurationDiagnosticBundle) SetComponentHealth(v map[string]string) {
+	o.ComponentHealth = v
 }
 
 // GetConfiguration returns the Configuration field value
@@ -171,6 +203,30 @@ func (o *ConfigurationDiagnosticBundle) UnsetNamespace() {
 	o.Namespace.Unset()
 }
 
+// GetRecentErrors returns the RecentErrors field value
+func (o *ConfigurationDiagnosticBundle) GetRecentErrors() []*map[string]interface{} {
+	if o == nil {
+		var ret []*map[string]interface{}
+		return ret
+	}
+
+	return o.RecentErrors
+}
+
+// GetRecentErrorsOk returns a tuple with the RecentErrors field value
+// and a boolean to check if the value has been set.
+func (o *ConfigurationDiagnosticBundle) GetRecentErrorsOk() ([]*map[string]interface{}, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return o.RecentErrors, true
+}
+
+// SetRecentErrors sets field value
+func (o *ConfigurationDiagnosticBundle) SetRecentErrors(v []*map[string]interface{}) {
+	o.RecentErrors = v
+}
+
 // GetSchemaVersion returns the SchemaVersion field value if set, zero value otherwise.
 func (o *ConfigurationDiagnosticBundle) GetSchemaVersion() int32 {
 	if o == nil || IsNil(o.SchemaVersion) {
@@ -203,6 +259,30 @@ func (o *ConfigurationDiagnosticBundle) SetSchemaVersion(v int32) {
 	o.SchemaVersion = &v
 }
 
+// GetSelectedMetrics returns the SelectedMetrics field value
+func (o *ConfigurationDiagnosticBundle) GetSelectedMetrics() map[string]float32 {
+	if o == nil {
+		var ret map[string]float32
+		return ret
+	}
+
+	return o.SelectedMetrics
+}
+
+// GetSelectedMetricsOk returns a tuple with the SelectedMetrics field value
+// and a boolean to check if the value has been set.
+func (o *ConfigurationDiagnosticBundle) GetSelectedMetricsOk() (map[string]float32, bool) {
+	if o == nil {
+		return map[string]float32{}, false
+	}
+	return o.SelectedMetrics, true
+}
+
+// SetSelectedMetrics sets field value
+func (o *ConfigurationDiagnosticBundle) SetSelectedMetrics(v map[string]float32) {
+	o.SelectedMetrics = v
+}
+
 // GetTenantId returns the TenantId field value
 func (o *ConfigurationDiagnosticBundle) GetTenantId() string {
 	if o == nil {
@@ -227,6 +307,30 @@ func (o *ConfigurationDiagnosticBundle) SetTenantId(v string) {
 	o.TenantId = v
 }
 
+// GetVersionMatrix returns the VersionMatrix field value
+func (o *ConfigurationDiagnosticBundle) GetVersionMatrix() map[string]string {
+	if o == nil {
+		var ret map[string]string
+		return ret
+	}
+
+	return o.VersionMatrix
+}
+
+// GetVersionMatrixOk returns a tuple with the VersionMatrix field value
+// and a boolean to check if the value has been set.
+func (o *ConfigurationDiagnosticBundle) GetVersionMatrixOk() (map[string]string, bool) {
+	if o == nil {
+		return map[string]string{}, false
+	}
+	return o.VersionMatrix, true
+}
+
+// SetVersionMatrix sets field value
+func (o *ConfigurationDiagnosticBundle) SetVersionMatrix(v map[string]string) {
+	o.VersionMatrix = v
+}
+
 func (o ConfigurationDiagnosticBundle) MarshalJSON() ([]byte, error) {
 	toSerialize,err := o.ToMap()
 	if err != nil {
@@ -237,16 +341,20 @@ func (o ConfigurationDiagnosticBundle) MarshalJSON() ([]byte, error) {
 
 func (o ConfigurationDiagnosticBundle) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
+	toSerialize["componentHealth"] = o.ComponentHealth
 	toSerialize["configuration"] = o.Configuration
 	toSerialize["featureFlags"] = o.FeatureFlags
 	toSerialize["generatedAt"] = o.GeneratedAt
 	if o.Namespace.IsSet() {
 		toSerialize["namespace"] = o.Namespace.Get()
 	}
+	toSerialize["recentErrors"] = o.RecentErrors
 	if !IsNil(o.SchemaVersion) {
 		toSerialize["schemaVersion"] = o.SchemaVersion
 	}
+	toSerialize["selectedMetrics"] = o.SelectedMetrics
 	toSerialize["tenantId"] = o.TenantId
+	toSerialize["versionMatrix"] = o.VersionMatrix
 	return toSerialize, nil
 }
 
@@ -255,10 +363,14 @@ func (o *ConfigurationDiagnosticBundle) UnmarshalJSON(data []byte) (err error) {
 	// by unmarshalling the object into a generic map with string keys and checking
 	// that every required field exists as a key in the generic map.
 	requiredProperties := []string{
+		"componentHealth",
 		"configuration",
 		"featureFlags",
 		"generatedAt",
+		"recentErrors",
+		"selectedMetrics",
 		"tenantId",
+		"versionMatrix",
 	}
 
 	allProperties := make(map[string]interface{})

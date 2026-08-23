@@ -5,7 +5,9 @@ from enum import StrEnum
 from typing import Any, Literal, Self
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+
+from amesh.observability import current_trace_context, normalize_trace_context
 
 from .identity import new_runtime_id
 
@@ -135,7 +137,13 @@ class ExecutionEvent(BaseModel):
     causation_id: UUID | None = None
     actor_id: str = "system"
     reason: str | None = None
+    trace_context: dict[str, str] = Field(default_factory=current_trace_context)
     payload: dict[str, Any] = Field(default_factory=dict)
+
+    @field_validator("trace_context", mode="before")
+    @classmethod
+    def validate_trace_context(cls, value: object) -> dict[str, str]:
+        return normalize_trace_context(value)
 
     @property
     def deduplication_key(self) -> str:
@@ -156,7 +164,13 @@ class ExecutionCommand(BaseModel):
     reason: str | None = None
     expected_version: int | None = Field(default=None, ge=0)
     expected_epoch: int | None = Field(default=None, ge=1)
+    trace_context: dict[str, str] = Field(default_factory=current_trace_context)
     payload: dict[str, Any] = Field(default_factory=dict)
+
+    @field_validator("trace_context", mode="before")
+    @classmethod
+    def validate_trace_context(cls, value: object) -> dict[str, str]:
+        return normalize_trace_context(value)
 
 
 class ExecutionSnapshot(BaseModel):
@@ -196,7 +210,13 @@ class TaskRunEvent(BaseModel):
     causation_id: UUID | None = None
     actor_id: str = "system"
     reason: str | None = None
+    trace_context: dict[str, str] = Field(default_factory=current_trace_context)
     payload: dict[str, Any] = Field(default_factory=dict)
+
+    @field_validator("trace_context", mode="before")
+    @classmethod
+    def validate_trace_context(cls, value: object) -> dict[str, str]:
+        return normalize_trace_context(value)
 
     @property
     def deduplication_key(self) -> str:
@@ -216,7 +236,13 @@ class TaskRunCommand(BaseModel):
     actor_id: str = "system"
     reason: str | None = None
     expected_version: int | None = Field(default=None, ge=0)
+    trace_context: dict[str, str] = Field(default_factory=current_trace_context)
     payload: dict[str, Any] = Field(default_factory=dict)
+
+    @field_validator("trace_context", mode="before")
+    @classmethod
+    def validate_trace_context(cls, value: object) -> dict[str, str]:
+        return normalize_trace_context(value)
 
 
 class TaskRunSnapshot(BaseModel):

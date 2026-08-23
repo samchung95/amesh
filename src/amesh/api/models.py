@@ -190,6 +190,10 @@ class ConfigurationDiagnosticBundle(BaseModel):
     namespace: str | None = None
     configuration: ConfigurationSnapshot
     feature_flags: tuple[FeatureFlag, ...] = Field(alias="featureFlags")
+    component_health: dict[str, str] = Field(alias="componentHealth")
+    version_matrix: dict[str, str] = Field(alias="versionMatrix")
+    recent_errors: tuple[dict[str, Any], ...] = Field(alias="recentErrors")
+    selected_metrics: dict[str, float] = Field(alias="selectedMetrics")
 
 
 class LoginRequest(BaseModel):

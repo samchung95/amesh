@@ -8,6 +8,11 @@
 - Logs: structured component diagnostics and user task logs with separate retention and access.
 - Events: durable execution and audit evidence.
 
+The implementation uses the vendor-neutral OpenTelemetry Python SDK with explicit OTLP/HTTP export.
+Each process owns bounded trace and log queues; exporters do not participate in control-plane
+transactions. The operational configuration, metric catalog and default alert response are in the
+[observability runbook](../operations/observability.md).
+
 Task handlers return a bounded `TaskCompletion` envelope. The executor redacts declared sensitive
 output keys and resolved secret values, then commits the attempt and its query projection together.
 `execution_logs`, `execution_metrics`, `execution_outputs` and `execution_artifacts` remain separate
@@ -37,6 +42,10 @@ Reference SLOs cover API availability, command acceptance, schedule delay, dispa
 executions, queue lag, projection lag and recovery convergence. Alert rules link to versioned runbooks.
 
 ## Degraded telemetry
+
+OpenTelemetry and log export are failure-isolated from core work. An unavailable collector increments
+a bounded failure metric; a full log queue drops telemetry and increments its drop counter. Neither
+condition blocks API, scheduling, execution, task completion or durable message processing.
 
 External evidence export reads batches of at most 1,000 committed events. The policy applies a
 retention cutoff, deterministic sampling and a second sensitive-field redaction pass before calling

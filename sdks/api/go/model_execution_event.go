@@ -32,6 +32,7 @@ type ExecutionEvent struct {
 	Payload map[string]interface{} `json:"payload,omitempty"`
 	Reason NullableString `json:"reason,omitempty"`
 	SchemaVersion *int32 `json:"schema_version,omitempty"`
+	TraceContext map[string]string `json:"trace_context,omitempty"`
 }
 
 type _ExecutionEvent ExecutionEvent
@@ -404,6 +405,38 @@ func (o *ExecutionEvent) SetSchemaVersion(v int32) {
 	o.SchemaVersion = &v
 }
 
+// GetTraceContext returns the TraceContext field value if set, zero value otherwise.
+func (o *ExecutionEvent) GetTraceContext() map[string]string {
+	if o == nil || IsNil(o.TraceContext) {
+		var ret map[string]string
+		return ret
+	}
+	return o.TraceContext
+}
+
+// GetTraceContextOk returns a tuple with the TraceContext field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *ExecutionEvent) GetTraceContextOk() (map[string]string, bool) {
+	if o == nil || IsNil(o.TraceContext) {
+		return map[string]string{}, false
+	}
+	return o.TraceContext, true
+}
+
+// HasTraceContext returns a boolean if a field has been set.
+func (o *ExecutionEvent) HasTraceContext() bool {
+	if o != nil && !IsNil(o.TraceContext) {
+		return true
+	}
+
+	return false
+}
+
+// SetTraceContext gets a reference to the given map[string]string and assigns it to the TraceContext field.
+func (o *ExecutionEvent) SetTraceContext(v map[string]string) {
+	o.TraceContext = v
+}
+
 func (o ExecutionEvent) MarshalJSON() ([]byte, error) {
 	toSerialize,err := o.ToMap()
 	if err != nil {
@@ -441,6 +474,9 @@ func (o ExecutionEvent) ToMap() (map[string]interface{}, error) {
 	}
 	if !IsNil(o.SchemaVersion) {
 		toSerialize["schema_version"] = o.SchemaVersion
+	}
+	if !IsNil(o.TraceContext) {
+		toSerialize["trace_context"] = o.TraceContext
 	}
 	return toSerialize, nil
 }

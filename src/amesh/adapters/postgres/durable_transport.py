@@ -12,6 +12,11 @@ from sqlalchemy.ext.asyncio import AsyncEngine
 from sqlalchemy.sql.elements import TextClause
 
 from amesh.adapters.postgres.tenant_context import tenant_transaction
+from amesh.observability import (
+    QUEUE_DEPTH,
+    QUEUE_OLDEST_AGE,
+    instrument_async_operation,
+)
 from amesh.ports.durable_transport import (
     DeadLetterRecord,
     DeadLetterReplayError,
@@ -548,6 +553,7 @@ class PostgresDurableTransport(DurableTransport):
     def __init__(self, engine: AsyncEngine) -> None:
         self._engine = engine
 
+    @instrument_async_operation("messaging", "enqueue")
     async def enqueue(
         self,
         lane: str,
@@ -583,6 +589,7 @@ class PostgresDurableTransport(DurableTransport):
             )
         return int(queue_id)
 
+    @instrument_async_operation("messaging", "enqueue-outbox")
     async def enqueue_outbox(
         self,
         subject: str,
@@ -616,6 +623,7 @@ class PostgresDurableTransport(DurableTransport):
             )
         return int(sequence)
 
+    @instrument_async_operation("messaging", "publish-outbox")
     async def publish_outbox(self, *, tenant_id: str, limit: int) -> int:
         if limit < 1:
             raise ValueError("outbox publish limit must be at least 1")
@@ -630,6 +638,7 @@ class PostgresDurableTransport(DurableTransport):
             published = result.scalars().all()
         return len(published)
 
+    @instrument_async_operation("messaging", "outbox-failure")
     async def record_outbox_failure(
         self,
         sequence: int,
@@ -663,6 +672,7 @@ class PostgresDurableTransport(DurableTransport):
             raise LookupError(f"pending outbox sequence {sequence} does not exist")
         return bool(row["dead_lettered"])
 
+    @instrument_async_operation("messaging", "record-consumed")
     async def record_consumed(
         self,
         consumer_name: str,
@@ -685,6 +695,7 @@ class PostgresDurableTransport(DurableTransport):
             raise LookupError(f"tenant {envelope.tenant_id!r} does not exist")
         return bool(row["inserted"])
 
+    @instrument_async_operation("messaging", "claim")
     async def claim(
         self,
         lane: str,
@@ -728,6 +739,7 @@ class PostgresDurableTransport(DurableTransport):
             rows = result.mappings().all()
         return [_to_work_claim(row) for row in rows]
 
+    @instrument_async_operation("messaging", "wait")
     async def wait_for_work(
         self,
         lane: str,
@@ -795,6 +807,7 @@ class PostgresDurableTransport(DurableTransport):
             finally:
                 await connection.remove_listener(channel, listener)
 
+    @instrument_async_operation("messaging", "extend")
     async def extend(
         self,
         queue_id: int,
@@ -826,6 +839,7 @@ class PostgresDurableTransport(DurableTransport):
             raise TypeError("PostgreSQL returned a non-datetime lease expiry")
         return lease_expires_at
 
+    @instrument_async_operation("messaging", "acknowledge")
     async def acknowledge(
         self,
         queue_id: int,
@@ -842,6 +856,7 @@ class PostgresDurableTransport(DurableTransport):
             tenant_id=tenant_id,
         )
 
+    @instrument_async_operation("messaging", "release")
     async def release(
         self,
         queue_id: int,
@@ -864,6 +879,7 @@ class PostgresDurableTransport(DurableTransport):
             failure_class=failure_class,
         )
 
+    @instrument_async_operation("messaging", "list-dead-letters")
     async def list_dead_letters(self, *, tenant_id: str) -> list[DeadLetterRecord]:
         async with tenant_transaction(self._engine, tenant_id) as (
             connection,
@@ -881,6 +897,7 @@ class PostgresDurableTransport(DurableTransport):
             )
         return [_to_dead_letter(row) for row in rows]
 
+    @instrument_async_operation("messaging", "replay-dead-letter")
     async def replay_dead_letter(
         self,
         dead_letter_id: UUID,
@@ -924,6 +941,7 @@ class PostgresDurableTransport(DurableTransport):
                 },
             )
 
+    @instrument_async_operation("messaging", "diagnostics")
     async def diagnostics(
         self,
         *,
@@ -955,7 +973,7 @@ class PostgresDurableTransport(DurableTransport):
         shard_skew_ratio = (
             max(item.queue_depth for item in shards) / average_depth if average_depth else 0.0
         )
-        return TransportDiagnostics(
+        diagnostics = TransportDiagnostics(
             queue_depth=row["queue_depth"],
             oldest_eligible_age_seconds=row["oldest_eligible_age_seconds"],
             claimed_count=row["claimed_count"],
@@ -978,7 +996,11 @@ class PostgresDurableTransport(DurableTransport):
             postgres_in_recovery=row["postgres_in_recovery"],
             transaction_latency_ms=transaction_latency_ms,
         )
+        QUEUE_DEPTH.set(diagnostics.queue_depth)
+        QUEUE_OLDEST_AGE.set(diagnostics.oldest_eligible_age_seconds or 0)
+        return diagnostics
 
+    @instrument_async_operation("messaging", "retention")
     async def purge_terminal(
         self,
         *,

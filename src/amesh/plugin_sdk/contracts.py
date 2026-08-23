@@ -4,7 +4,9 @@ from datetime import UTC, datetime
 from enum import StrEnum
 from typing import Any, Protocol, runtime_checkable
 
-from pydantic import BaseModel, ConfigDict, Field, SecretStr
+from pydantic import BaseModel, ConfigDict, Field, SecretStr, field_validator
+
+from amesh.observability import current_trace_context, normalize_trace_context
 
 from .errors import PluginErrorDetail
 from .manifest import PLUGIN_PROTOCOL_VERSION
@@ -51,6 +53,15 @@ class PluginRequest(BaseModel):
     configuration: dict[str, Any] = Field(default_factory=dict)
     input: dict[str, Any] = Field(default_factory=dict)
     context: dict[str, Any] = Field(default_factory=dict)
+    trace_context: dict[str, str] = Field(
+        default_factory=current_trace_context,
+        alias="traceContext",
+    )
+
+    @field_validator("trace_context", mode="before")
+    @classmethod
+    def validate_trace_context(cls, value: object) -> dict[str, str]:
+        return normalize_trace_context(value)
 
 
 class PluginLog(BaseModel):

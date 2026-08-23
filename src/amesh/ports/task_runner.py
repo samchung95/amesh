@@ -5,7 +5,7 @@ from datetime import UTC, datetime
 from enum import StrEnum
 from typing import Any, Literal, Protocol
 
-from pydantic import BaseModel, ConfigDict, Field, SecretStr, model_validator
+from pydantic import BaseModel, ConfigDict, Field, SecretStr, field_validator, model_validator
 
 from amesh.domain.runner import (
     RunnerExtension,
@@ -14,6 +14,7 @@ from amesh.domain.runner import (
     RunnerNetworkPolicy,
     RunnerSecurityPolicy,
 )
+from amesh.observability import current_trace_context, normalize_trace_context
 
 
 class ScopedRunnerCredential(BaseModel):
@@ -51,6 +52,15 @@ class RunnerRequest(BaseModel):
     extension: RunnerExtension | None = None
     timeout_seconds: float | None = Field(default=None, gt=0)
     cancel_grace_seconds: float = Field(default=1, ge=0)
+    trace_context: dict[str, str] = Field(
+        default_factory=current_trace_context,
+        alias="traceContext",
+    )
+
+    @field_validator("trace_context", mode="before")
+    @classmethod
+    def validate_trace_context(cls, value: object) -> dict[str, str]:
+        return normalize_trace_context(value)
 
     @model_validator(mode="after")
     def validate_execution_payload(self) -> RunnerRequest:

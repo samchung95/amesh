@@ -202,6 +202,10 @@ checksums, archive rows, versioned components and daily rollups make recovery an
 The v1 table remains available during rollout, so search can be disabled or forward-fixed without
 placing authoritative orchestration state at risk.
 
+Migration `0053_observability_trace_context.sql` adds bounded W3C trace carriers to execution and
+task-run events. Tenant transactions set the active carrier and insert triggers capture it without
+coupling event commits to an external collector. Empty carriers remain valid when tracing is disabled.
+
 ## Migration modes
 
 - `bootstrap` creates the initial schema and is only safe for an empty database.

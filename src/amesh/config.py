@@ -364,6 +364,15 @@ class Settings(BaseSettings):
         json_schema_extra={"reloadable": True},
     )
     log_level: str = Field(default="INFO", json_schema_extra={"reloadable": True})
+    log_destination: Literal["stdout", "file", "syslog"] = "stdout"
+    log_file_path: str | None = Field(default=None, max_length=4096)
+    log_syslog_address: str = Field(default="127.0.0.1:514", min_length=3, max_length=512)
+    log_queue_capacity: int = Field(default=10_000, ge=100, le=1_000_000)
+    otel_exporter_otlp_endpoint: str | None = Field(default=None, max_length=2048)
+    otel_exporter_otlp_headers: dict[str, SecretStr] = Field(default_factory=dict)
+    otel_batch_queue_size: int = Field(default=2_048, ge=128, le=65_536)
+    otel_batch_size: int = Field(default=512, ge=1, le=8_192)
+    otel_export_timeout_seconds: float = Field(default=5, gt=0, le=60)
 
     @field_validator("docker_image_policy", mode="before")
     @classmethod
@@ -400,6 +409,7 @@ class Settings(BaseSettings):
         "isolated_plugin_services",
         "identity_providers",
         "scim_providers",
+        "otel_exporter_otlp_headers",
         mode="before",
     )
     @classmethod
@@ -479,6 +489,10 @@ class Settings(BaseSettings):
             )
         if self.log_level.upper() not in {"DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"}:
             raise ValueError("LOG_LEVEL must be DEBUG, INFO, WARNING, ERROR or CRITICAL")
+        if self.log_destination == "file" and self.log_file_path is None:
+            raise ValueError("LOG_FILE_PATH is required when LOG_DESTINATION=file")
+        if self.otel_batch_size > self.otel_batch_queue_size:
+            raise ValueError("OTEL_BATCH_SIZE cannot exceed OTEL_BATCH_QUEUE_SIZE")
         return self
 
     @property

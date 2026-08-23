@@ -1,5 +1,16 @@
 name: amesh-compact
 
+x-observability-environment: &observability-environment
+  LOG_DESTINATION: ${LOG_DESTINATION:-stdout}
+  LOG_FILE_PATH: ${LOG_FILE_PATH:-}
+  LOG_SYSLOG_ADDRESS: ${LOG_SYSLOG_ADDRESS:-127.0.0.1:514}
+  LOG_QUEUE_CAPACITY: ${LOG_QUEUE_CAPACITY:-10000}
+  OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
+  OTEL_EXPORTER_OTLP_HEADERS: ${OTEL_EXPORTER_OTLP_HEADERS:-{}}
+  OTEL_BATCH_QUEUE_SIZE: ${OTEL_BATCH_QUEUE_SIZE:-2048}
+  OTEL_BATCH_SIZE: ${OTEL_BATCH_SIZE:-512}
+  OTEL_EXPORT_TIMEOUT_SECONDS: ${OTEL_EXPORT_TIMEOUT_SECONDS:-5}
+
 services:
   compact:
     build:
@@ -9,6 +20,7 @@ services:
       - -c
       - python -m amesh.migrations && exec python -m amesh.compact
     environment:
+      <<: *observability-environment
       APP_ENV: development
       APP_HOST: 0.0.0.0
       APP_PORT: "8000"

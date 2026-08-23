@@ -16,6 +16,7 @@ from amesh.observability import (
     STORAGE_REQUEST_DURATION,
     STORAGE_REQUESTS,
     STORAGE_TRANSFER_BYTES,
+    instrument_async_operation,
 )
 from amesh.ports import (
     ObjectLifecycleResult,
@@ -78,6 +79,7 @@ class VerifiedObjectStore:
     def backend(self) -> StorageBackend:
         return self._backend.backend
 
+    @instrument_async_operation("storage", "put")
     async def put(
         self,
         tenant_id: str,
@@ -167,6 +169,7 @@ class VerifiedObjectStore:
 
         return ranged_chunks()
 
+    @instrument_async_operation("storage", "delete")
     async def delete(self, tenant_id: str, uri: str) -> None:
         started = perf_counter()
         try:
@@ -176,6 +179,7 @@ class VerifiedObjectStore:
             self._request("delete", "error", started)
             raise
 
+    @instrument_async_operation("storage", "head")
     async def head(self, tenant_id: str, uri: str) -> ObjectMetadata:
         started = perf_counter()
         try:
@@ -242,6 +246,7 @@ class VerifiedObjectStore:
     def iter_objects(self, tenant_id: str) -> AsyncIterator[ObjectMetadata]:
         return self._backend.iter_objects(tenant_id)
 
+    @instrument_async_operation("storage", "lifecycle")
     async def apply_lifecycle(
         self,
         tenant_id: str,
@@ -274,6 +279,7 @@ class VerifiedObjectStore:
         await self.delete(tenant_id, uri)
         return ObjectLifecycleResult(metadata=metadata, deleted=True, deletion_marker=True)
 
+    @instrument_async_operation("storage", "garbage-collection")
     async def collect_unreferenced(
         self,
         tenant_id: str,
@@ -307,6 +313,7 @@ class VerifiedObjectStore:
             )
         return tuple(results)
 
+    @instrument_async_operation("storage", "migration")
     async def migrate_to(
         self,
         destination: VerifiedObjectStore,
@@ -355,6 +362,7 @@ class VerifiedObjectStore:
             await write_checkpoint(current)
         return current
 
+    @instrument_async_operation("storage", "validation")
     async def validate_inventory(
         self,
         tenant_id: str,

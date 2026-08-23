@@ -94,6 +94,13 @@
       "format": "date-time",
       "title": "Submitted At",
       "type": "string"
+    },
+    "trace_context": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Trace Context",
+      "type": "object"
     }
   },
   "required": [

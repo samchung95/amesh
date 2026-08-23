@@ -34,6 +34,7 @@ from fastapi import (
 )
 from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
+from opentelemetry.trace import SpanKind
 from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 from pydantic import TypeAdapter, ValidationError
 from sqlalchemy.ext.asyncio import AsyncEngine
@@ -352,10 +353,15 @@ from amesh.flow_testing import FlowTestService
 from amesh.frontend import SpaStaticFiles, find_frontend_dist
 from amesh.human_tasks import HumanTaskService, approval_task_handler
 from amesh.observability import (
+    ADMISSION_PRESSURE,
     HTTP_REQUEST_DURATION,
     HTTP_REQUESTS,
-    configure_structured_logging,
+    configure_observability,
+    diagnostic_metric_samples,
     instrument_database,
+    observe_operation,
+    propagated_trace_context,
+    recent_redacted_logs,
 )
 from amesh.plugin_sdk import (
     PluginCatalogManager,
@@ -648,21 +654,33 @@ async def observe_http(
     call_next: Callable[[Request], Awaitable[Response]],
 ) -> Response:
     started = perf_counter()
-    response = await call_next(request)
-    route = request.scope.get("route")
-    route_path = getattr(route, "path", "unmatched")
-    status_code = str(response.status_code)
-    HTTP_REQUESTS.labels(request.method, route_path, status_code).inc()
-    HTTP_REQUEST_DURATION.labels(request.method, route_path).inc(perf_counter() - started)
-    LOGGER.info(
-        "http request",
-        extra={
-            "http_method": request.method,
-            "http_route": route_path,
-            "http_status": response.status_code,
-        },
-    )
-    return response
+    with observe_operation(
+        "api",
+        "request",
+        carrier=request.headers,
+        kind=SpanKind.SERVER,
+        attributes={"http.request.method": request.method},
+    ) as span:
+        response = await call_next(request)
+        route = request.scope.get("route")
+        route_path = getattr(route, "path", "unmatched")
+        status_code = str(response.status_code)
+        span.set_attribute("http.route", route_path)
+        span.set_attribute("http.response.status_code", response.status_code)
+        HTTP_REQUESTS.labels(request.method, route_path, status_code).inc()
+        HTTP_REQUEST_DURATION.labels(request.method, route_path).inc(perf_counter() - started)
+        trace_context = propagated_trace_context()
+        if "traceparent" in trace_context:
+            response.headers["traceparent"] = trace_context["traceparent"]
+        LOGGER.info(
+            "http request",
+            extra={
+                "http_method": request.method,
+                "http_route": route_path,
+                "http_status": response.status_code,
+            },
+        )
+        return response
 
 
 @lru_cache
@@ -3198,7 +3216,7 @@ async def reload_configuration(
         if before_entries[entry.name].value != entry.value
         or before_entries[entry.name].source != entry.source
     )
-    configure_structured_logging(configuration.settings.log_level)
+    configure_observability(configuration.settings)
     await feature_flags.audit_configuration_reload(
         actor_id=str(actor.principal_id),
         outcome="SUCCESS",
@@ -3229,12 +3247,21 @@ async def get_configuration_diagnostics(
         resource_type="configuration",
         action=PermissionAction.VIEW,
     )
+    recent_errors = tuple(
+        entry
+        for entry in recent_redacted_logs(limit=50, tenant_id=tenant_id)
+        if entry.get("level") in {"ERROR", "CRITICAL"}
+    )
     return ConfigurationDiagnosticBundle(
         generatedAt=datetime.now(UTC),
         tenantId=tenant_id,
         namespace=namespace,
         configuration=configuration.snapshot(),
         featureFlags=await feature_flags.list_for_context(tenant_id, namespace=namespace),
+        componentHealth={configuration.settings.service_role: "AVAILABLE"},
+        versionMatrix={"amesh": __version__},
+        recentErrors=recent_errors,
+        selectedMetrics=diagnostic_metric_samples(),
     )
 
 
@@ -7084,7 +7111,12 @@ async def get_admission_diagnostics(
         action=PermissionAction.VIEW,
         tenant_id=tenant_id,
     )
-    return await repository.admission_diagnostics(tenant_id=tenant_id)
+    diagnostics = await repository.admission_diagnostics(tenant_id=tenant_id)
+    total_demand = diagnostics.active_reservations + diagnostics.queued_requests
+    ADMISSION_PRESSURE.set(
+        diagnostics.queued_requests / max(1, total_demand)
+    )
+    return diagnostics
 
 
 @app.post("/api/v1/admissions/reconcile", tags=["operations"])

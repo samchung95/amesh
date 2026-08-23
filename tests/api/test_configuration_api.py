@@ -161,6 +161,10 @@ def test_administrator_configuration_reload_diagnostics_and_scoped_flags(tmp_pat
                 assert "configuration-canary-secret" not in diagnostics.text
                 assert "beta-only" not in diagnostics.text
                 assert "new-engine" in diagnostics.text
+                assert diagnostics.json()["componentHealth"]
+                assert diagnostics.json()["versionMatrix"]["amesh"]
+                assert isinstance(diagnostics.json()["recentErrors"], list)
+                assert "databaseHealth" in diagnostics.json()["selectedMetrics"]
 
                 reserved = await client.put(
                     "/api/v1/feature-flags/admin-execution-kill-switch",

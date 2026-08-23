@@ -1,0 +1,14 @@
+{{- if .Values.observability.referenceAssets.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "amesh.fullname" . }}-observability
+  labels:
+    {{- include "amesh.labels" . | nindent 4 }}
+    grafana_dashboard: "1"
+data:
+  amesh-operations.json: |-
+{{ .Files.Get "observability/grafana-dashboard.json" | indent 4 }}
+  amesh-alerts.yaml: |-
+{{ .Files.Get "observability/prometheus-alerts.yaml" | indent 4 }}
+{{- end }}

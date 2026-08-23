@@ -312,6 +312,12 @@
       "mode": "expand",
       "onlineCompatible": true,
       "rollbackGuidance": "Disable optional search projection cycles, keep orchestration on authoritative PostgreSQL state, preserve the v1 projection tables, and forward-fix or rebuild the disposable v2 generations, checkpoints, archives and rollups before re-enabling projected reads."
+    },
+    {
+      "file": "0053_observability_trace_context.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Disable optional OTLP export and continue core orchestration; preserve execution and task-run events with their additive trace carriers, then forward-fix propagation or exporter configuration before re-enabling external collection."
     }
   ]
 }

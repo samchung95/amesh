@@ -3300,6 +3300,13 @@
       },
       "ConfigurationDiagnosticBundle": {
         "properties": {
+          "componentHealth": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Componenthealth",
+            "type": "object"
+          },
           "configuration": {
             "$ref": "#/components/schemas/ConfigurationSnapshot"
           },
@@ -3326,21 +3333,47 @@
             ],
             "title": "Namespace"
           },
+          "recentErrors": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Recenterrors",
+            "type": "array"
+          },
           "schemaVersion": {
             "default": 1,
             "title": "Schemaversion",
             "type": "integer"
           },
+          "selectedMetrics": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "title": "Selectedmetrics",
+            "type": "object"
+          },
           "tenantId": {
             "title": "Tenantid",
             "type": "string"
+          },
+          "versionMatrix": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Versionmatrix",
+            "type": "object"
           }
         },
         "required": [
           "generatedAt",
           "tenantId",
           "configuration",
-          "featureFlags"
+          "featureFlags",
+          "componentHealth",
+          "versionMatrix",
+          "recentErrors",
+          "selectedMetrics"
         ],
         "title": "ConfigurationDiagnosticBundle",
         "type": "object"
@@ -4470,6 +4503,13 @@
             "default": 2,
             "title": "Schema Version",
             "type": "integer"
+          },
+          "trace_context": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Trace Context",
+            "type": "object"
           }
         },
         "required": [

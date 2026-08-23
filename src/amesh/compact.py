@@ -10,7 +10,7 @@ from typing import Any
 
 from amesh.config import Settings, get_settings
 from amesh.domain import ServiceRole
-from amesh.observability import configure_structured_logging
+from amesh.observability import configure_observability, shutdown_observability
 from amesh.preflight import PreflightFailed, run_preflight
 from amesh.role import request_self_drain, run_role
 from amesh.server import run_server
@@ -161,12 +161,14 @@ def _install_shutdown_handlers(
 
 def main() -> None:
     settings = get_settings()
-    configure_structured_logging(settings.log_level)
+    configure_observability(settings.model_copy(update={"service_role": "compact"}))
     try:
         asyncio.run(run_compact(settings))
     except PreflightFailed as exc:
         print(exc.report.model_dump_json(by_alias=True, indent=2), file=sys.stderr)
         raise SystemExit(1) from exc
+    finally:
+        shutdown_observability()
 
 
 if __name__ == "__main__":

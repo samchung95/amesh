@@ -9,6 +9,7 @@ from pydantic import SecretStr
 
 from amesh.domain import FailureCategory
 from amesh.dsl.models import TaskDefinition
+from amesh.observability import instrument_async_operation
 from amesh.ports import (
     LogLevel,
     LogSourceStream,
@@ -267,6 +268,7 @@ def _runner_credentials(
     )
 
 
+@instrument_async_operation("runner", "dispatch")
 async def _dispatch_runner(
     runner: TaskRunner,
     request: RunnerRequest,

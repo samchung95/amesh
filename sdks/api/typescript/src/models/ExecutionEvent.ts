@@ -87,6 +87,12 @@ export interface ExecutionEvent {
      * @memberof ExecutionEvent
      */
     schemaVersion?: ExecutionEventSchemaVersionEnum;
+    /**
+     *
+     * @type {{ [key: string]: string; }}
+     * @memberof ExecutionEvent
+     */
+    traceContext?: { [key: string]: string; };
 }
 
 
@@ -127,6 +133,7 @@ export function ExecutionEventFromJSONTyped(json: any, ignoreDiscriminator: bool
         'payload': json['payload'] == null ? undefined : json['payload'],
         'reason': json['reason'] === undefined ? undefined : json['reason'] === null ? null : json['reason'],
         'schemaVersion': json['schema_version'] == null ? undefined : json['schema_version'],
+        'traceContext': json['trace_context'] == null ? undefined : json['trace_context'],
     };
 }
 
@@ -151,5 +158,6 @@ export function ExecutionEventToJSONTyped(value?: ExecutionEvent | null, ignoreD
         'payload': value['payload'],
         'reason': value['reason'],
         'schema_version': value['schemaVersion'],
+        'trace_context': value['traceContext'],
     };
 }

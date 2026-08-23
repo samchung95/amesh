@@ -9504,97 +9504,121 @@
       "requirement_id": "URS-F-0638",
       "epic_id": "EPIC-607",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-607-opentelemetry-prometheus-and-log-shipping.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0639",
       "epic_id": "EPIC-607",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-607-opentelemetry-prometheus-and-log-shipping.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0640",
       "epic_id": "EPIC-607",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-607-opentelemetry-prometheus-and-log-shipping.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0641",
       "epic_id": "EPIC-607",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-607-opentelemetry-prometheus-and-log-shipping.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0642",
       "epic_id": "EPIC-607",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-607-opentelemetry-prometheus-and-log-shipping.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0643",
       "epic_id": "EPIC-607",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-607-opentelemetry-prometheus-and-log-shipping.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0644",
       "epic_id": "EPIC-607",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-607-opentelemetry-prometheus-and-log-shipping.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0645",
       "epic_id": "EPIC-607",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-607-opentelemetry-prometheus-and-log-shipping.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0646",

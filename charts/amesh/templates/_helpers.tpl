@@ -181,6 +181,33 @@ app.kubernetes.io/instance: {{ .Release.Name }}
   value: {{ .Values.tenancy.singleTenantSlug | quote }}
 - name: LOG_LEVEL
   value: {{ .Values.logLevel | quote }}
+- name: LOG_DESTINATION
+  value: {{ .Values.observability.logDestination | quote }}
+{{- with .Values.observability.logFilePath }}
+- name: LOG_FILE_PATH
+  value: {{ . | quote }}
+{{- end }}
+- name: LOG_SYSLOG_ADDRESS
+  value: {{ .Values.observability.logSyslogAddress | quote }}
+- name: LOG_QUEUE_CAPACITY
+  value: {{ .Values.observability.logQueueCapacity | quote }}
+{{- with .Values.observability.otlpEndpoint }}
+- name: OTEL_EXPORTER_OTLP_ENDPOINT
+  value: {{ . | quote }}
+{{- end }}
+{{- if .Values.observability.otlpHeadersExistingSecret }}
+- name: OTEL_EXPORTER_OTLP_HEADERS
+  valueFrom:
+    secretKeyRef:
+      name: {{ .Values.observability.otlpHeadersExistingSecret | quote }}
+      key: {{ .Values.observability.otlpHeadersKey | quote }}
+{{- end }}
+- name: OTEL_BATCH_QUEUE_SIZE
+  value: {{ .Values.observability.otlpBatchQueueSize | quote }}
+- name: OTEL_BATCH_SIZE
+  value: {{ .Values.observability.otlpBatchSize | quote }}
+- name: OTEL_EXPORT_TIMEOUT_SECONDS
+  value: {{ .Values.observability.otlpExportTimeoutSeconds | quote }}
 - name: SERVICE_HEARTBEAT_SECONDS
   value: {{ .Values.serviceHeartbeatSeconds | quote }}
 - name: SERVICE_STALE_AFTER_SECONDS

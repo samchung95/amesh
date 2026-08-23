@@ -18,8 +18,8 @@ import re  # noqa: F401
 import json
 
 from datetime import datetime
-from pydantic import BaseModel, ConfigDict, Field, StrictInt, StrictStr
-from typing import Any, ClassVar, Dict, List, Optional
+from pydantic import BaseModel, ConfigDict, Field, StrictFloat, StrictInt, StrictStr
+from typing import Any, ClassVar, Dict, List, Optional, Union
 from amesh_client.models.configuration_snapshot import ConfigurationSnapshot
 from amesh_client.models.feature_flag import FeatureFlag
 from typing import Optional, Set
@@ -30,13 +30,17 @@ class ConfigurationDiagnosticBundle(BaseModel):
     """
     ConfigurationDiagnosticBundle
     """ # noqa: E501
+    component_health: Dict[str, StrictStr] = Field(alias="componentHealth")
     configuration: ConfigurationSnapshot
     feature_flags: List[FeatureFlag] = Field(alias="featureFlags")
     generated_at: datetime = Field(alias="generatedAt")
     namespace: Optional[StrictStr] = None
+    recent_errors: List[Optional[Dict[str, Any]]] = Field(alias="recentErrors")
     schema_version: Optional[StrictInt] = Field(default=1, alias="schemaVersion")
+    selected_metrics: Dict[str, Union[StrictFloat, StrictInt]] = Field(alias="selectedMetrics")
     tenant_id: StrictStr = Field(alias="tenantId")
-    __properties: ClassVar[List[str]] = ["configuration", "featureFlags", "generatedAt", "namespace", "schemaVersion", "tenantId"]
+    version_matrix: Dict[str, StrictStr] = Field(alias="versionMatrix")
+    __properties: ClassVar[List[str]] = ["componentHealth", "configuration", "featureFlags", "generatedAt", "namespace", "recentErrors", "schemaVersion", "selectedMetrics", "tenantId", "versionMatrix"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -104,11 +108,15 @@ class ConfigurationDiagnosticBundle(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
+            "componentHealth": obj.get("componentHealth"),
             "configuration": ConfigurationSnapshot.from_dict(obj["configuration"]) if obj.get("configuration") is not None else None,
             "featureFlags": [FeatureFlag.from_dict(_item) for _item in obj["featureFlags"]] if obj.get("featureFlags") is not None else None,
             "generatedAt": obj.get("generatedAt"),
             "namespace": obj.get("namespace"),
+            "recentErrors": obj.get("recentErrors"),
             "schemaVersion": obj.get("schemaVersion") if obj.get("schemaVersion") is not None else 1,
-            "tenantId": obj.get("tenantId")
+            "selectedMetrics": obj.get("selectedMetrics"),
+            "tenantId": obj.get("tenantId"),
+            "versionMatrix": obj.get("versionMatrix")
         })
         return _obj

@@ -26,10 +26,13 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import io.amesh.client.model.ConfigurationSnapshot;
 import io.amesh.client.model.FeatureFlag;
+import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.openapitools.jackson.nullable.JsonNullable;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.openapitools.jackson.nullable.JsonNullable;
@@ -42,15 +45,23 @@ import io.amesh.client.ApiClient;
  * ConfigurationDiagnosticBundle
  */
 @JsonPropertyOrder({
+  ConfigurationDiagnosticBundle.JSON_PROPERTY_COMPONENT_HEALTH,
   ConfigurationDiagnosticBundle.JSON_PROPERTY_CONFIGURATION,
   ConfigurationDiagnosticBundle.JSON_PROPERTY_FEATURE_FLAGS,
   ConfigurationDiagnosticBundle.JSON_PROPERTY_GENERATED_AT,
   ConfigurationDiagnosticBundle.JSON_PROPERTY_NAMESPACE,
+  ConfigurationDiagnosticBundle.JSON_PROPERTY_RECENT_ERRORS,
   ConfigurationDiagnosticBundle.JSON_PROPERTY_SCHEMA_VERSION,
-  ConfigurationDiagnosticBundle.JSON_PROPERTY_TENANT_ID
+  ConfigurationDiagnosticBundle.JSON_PROPERTY_SELECTED_METRICS,
+  ConfigurationDiagnosticBundle.JSON_PROPERTY_TENANT_ID,
+  ConfigurationDiagnosticBundle.JSON_PROPERTY_VERSION_MATRIX
 })
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.24.0")
 public class ConfigurationDiagnosticBundle {
+  public static final String JSON_PROPERTY_COMPONENT_HEALTH = "componentHealth";
+  @javax.annotation.Nonnull
+  private Map<String, String> componentHealth = new HashMap<>();
+
   public static final String JSON_PROPERTY_CONFIGURATION = "configuration";
   @javax.annotation.Nonnull
   private ConfigurationSnapshot _configuration;
@@ -66,16 +77,60 @@ public class ConfigurationDiagnosticBundle {
   public static final String JSON_PROPERTY_NAMESPACE = "namespace";
   private JsonNullable<String> namespace = JsonNullable.<String>undefined();
 
+  public static final String JSON_PROPERTY_RECENT_ERRORS = "recentErrors";
+  @javax.annotation.Nonnull
+  private List<Map<String, Object>> recentErrors = new ArrayList<>();
+
   public static final String JSON_PROPERTY_SCHEMA_VERSION = "schemaVersion";
   @javax.annotation.Nullable
   private Integer schemaVersion = 1;
+
+  public static final String JSON_PROPERTY_SELECTED_METRICS = "selectedMetrics";
+  @javax.annotation.Nonnull
+  private Map<String, BigDecimal> selectedMetrics = new HashMap<>();
 
   public static final String JSON_PROPERTY_TENANT_ID = "tenantId";
   @javax.annotation.Nonnull
   private String tenantId;
 
+  public static final String JSON_PROPERTY_VERSION_MATRIX = "versionMatrix";
+  @javax.annotation.Nonnull
+  private Map<String, String> versionMatrix = new HashMap<>();
+
   public ConfigurationDiagnosticBundle() {
   }
+
+  public ConfigurationDiagnosticBundle componentHealth(@javax.annotation.Nonnull Map<String, String> componentHealth) {
+    this.componentHealth = componentHealth;
+    return this;
+  }
+
+  public ConfigurationDiagnosticBundle putComponentHealthItem(String key, String componentHealthItem) {
+    if (this.componentHealth == null) {
+      this.componentHealth = new HashMap<>();
+    }
+    this.componentHealth.put(key, componentHealthItem);
+    return this;
+  }
+
+  /**
+   * Get componentHealth
+   * @return componentHealth
+   */
+  @javax.annotation.Nonnull
+  @JsonProperty(value = JSON_PROPERTY_COMPONENT_HEALTH, required = true)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public Map<String, String> getComponentHealth() {
+    return componentHealth;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_COMPONENT_HEALTH, required = true)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setComponentHealth(@javax.annotation.Nonnull Map<String, String> componentHealth) {
+    this.componentHealth = componentHealth;
+  }
+
 
   public ConfigurationDiagnosticBundle _configuration(@javax.annotation.Nonnull ConfigurationSnapshot _configuration) {
     this._configuration = _configuration;
@@ -189,6 +244,38 @@ public class ConfigurationDiagnosticBundle {
   }
 
 
+  public ConfigurationDiagnosticBundle recentErrors(@javax.annotation.Nonnull List<Map<String, Object>> recentErrors) {
+    this.recentErrors = recentErrors;
+    return this;
+  }
+
+  public ConfigurationDiagnosticBundle addRecentErrorsItem(Map<String, Object> recentErrorsItem) {
+    if (this.recentErrors == null) {
+      this.recentErrors = new ArrayList<>();
+    }
+    this.recentErrors.add(recentErrorsItem);
+    return this;
+  }
+
+  /**
+   * Get recentErrors
+   * @return recentErrors
+   */
+  @javax.annotation.Nonnull
+  @JsonProperty(value = JSON_PROPERTY_RECENT_ERRORS, required = true)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public List<Map<String, Object>> getRecentErrors() {
+    return recentErrors;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_RECENT_ERRORS, required = true)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setRecentErrors(@javax.annotation.Nonnull List<Map<String, Object>> recentErrors) {
+    this.recentErrors = recentErrors;
+  }
+
+
   public ConfigurationDiagnosticBundle schemaVersion(@javax.annotation.Nullable Integer schemaVersion) {
     this.schemaVersion = schemaVersion;
     return this;
@@ -210,6 +297,38 @@ public class ConfigurationDiagnosticBundle {
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public void setSchemaVersion(@javax.annotation.Nullable Integer schemaVersion) {
     this.schemaVersion = schemaVersion;
+  }
+
+
+  public ConfigurationDiagnosticBundle selectedMetrics(@javax.annotation.Nonnull Map<String, BigDecimal> selectedMetrics) {
+    this.selectedMetrics = selectedMetrics;
+    return this;
+  }
+
+  public ConfigurationDiagnosticBundle putSelectedMetricsItem(String key, BigDecimal selectedMetricsItem) {
+    if (this.selectedMetrics == null) {
+      this.selectedMetrics = new HashMap<>();
+    }
+    this.selectedMetrics.put(key, selectedMetricsItem);
+    return this;
+  }
+
+  /**
+   * Get selectedMetrics
+   * @return selectedMetrics
+   */
+  @javax.annotation.Nonnull
+  @JsonProperty(value = JSON_PROPERTY_SELECTED_METRICS, required = true)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public Map<String, BigDecimal> getSelectedMetrics() {
+    return selectedMetrics;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_SELECTED_METRICS, required = true)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setSelectedMetrics(@javax.annotation.Nonnull Map<String, BigDecimal> selectedMetrics) {
+    this.selectedMetrics = selectedMetrics;
   }
 
 
@@ -237,6 +356,38 @@ public class ConfigurationDiagnosticBundle {
   }
 
 
+  public ConfigurationDiagnosticBundle versionMatrix(@javax.annotation.Nonnull Map<String, String> versionMatrix) {
+    this.versionMatrix = versionMatrix;
+    return this;
+  }
+
+  public ConfigurationDiagnosticBundle putVersionMatrixItem(String key, String versionMatrixItem) {
+    if (this.versionMatrix == null) {
+      this.versionMatrix = new HashMap<>();
+    }
+    this.versionMatrix.put(key, versionMatrixItem);
+    return this;
+  }
+
+  /**
+   * Get versionMatrix
+   * @return versionMatrix
+   */
+  @javax.annotation.Nonnull
+  @JsonProperty(value = JSON_PROPERTY_VERSION_MATRIX, required = true)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public Map<String, String> getVersionMatrix() {
+    return versionMatrix;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_VERSION_MATRIX, required = true)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setVersionMatrix(@javax.annotation.Nonnull Map<String, String> versionMatrix) {
+    this.versionMatrix = versionMatrix;
+  }
+
+
   /**
    * Return true if this ConfigurationDiagnosticBundle object is equal to o.
    */
@@ -249,12 +400,16 @@ public class ConfigurationDiagnosticBundle {
       return false;
     }
     ConfigurationDiagnosticBundle configurationDiagnosticBundle = (ConfigurationDiagnosticBundle) o;
-    return Objects.equals(this._configuration, configurationDiagnosticBundle._configuration) &&
+    return Objects.equals(this.componentHealth, configurationDiagnosticBundle.componentHealth) &&
+        Objects.equals(this._configuration, configurationDiagnosticBundle._configuration) &&
         Objects.equals(this.featureFlags, configurationDiagnosticBundle.featureFlags) &&
         Objects.equals(this.generatedAt, configurationDiagnosticBundle.generatedAt) &&
         equalsNullable(this.namespace, configurationDiagnosticBundle.namespace) &&
+        Objects.equals(this.recentErrors, configurationDiagnosticBundle.recentErrors) &&
         Objects.equals(this.schemaVersion, configurationDiagnosticBundle.schemaVersion) &&
-        Objects.equals(this.tenantId, configurationDiagnosticBundle.tenantId);
+        Objects.equals(this.selectedMetrics, configurationDiagnosticBundle.selectedMetrics) &&
+        Objects.equals(this.tenantId, configurationDiagnosticBundle.tenantId) &&
+        Objects.equals(this.versionMatrix, configurationDiagnosticBundle.versionMatrix);
   }
 
   private static <T> boolean equalsNullable(JsonNullable<T> a, JsonNullable<T> b) {
@@ -263,7 +418,7 @@ public class ConfigurationDiagnosticBundle {
 
   @Override
   public int hashCode() {
-    return Objects.hash(_configuration, featureFlags, generatedAt, hashCodeNullable(namespace), schemaVersion, tenantId);
+    return Objects.hash(componentHealth, _configuration, featureFlags, generatedAt, hashCodeNullable(namespace), recentErrors, schemaVersion, selectedMetrics, tenantId, versionMatrix);
   }
 
   private static <T> int hashCodeNullable(JsonNullable<T> a) {
@@ -277,12 +432,16 @@ public class ConfigurationDiagnosticBundle {
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class ConfigurationDiagnosticBundle {\n");
+    sb.append("    componentHealth: ").append(toIndentedString(componentHealth)).append("\n");
     sb.append("    _configuration: ").append(toIndentedString(_configuration)).append("\n");
     sb.append("    featureFlags: ").append(toIndentedString(featureFlags)).append("\n");
     sb.append("    generatedAt: ").append(toIndentedString(generatedAt)).append("\n");
     sb.append("    namespace: ").append(toIndentedString(namespace)).append("\n");
+    sb.append("    recentErrors: ").append(toIndentedString(recentErrors)).append("\n");
     sb.append("    schemaVersion: ").append(toIndentedString(schemaVersion)).append("\n");
+    sb.append("    selectedMetrics: ").append(toIndentedString(selectedMetrics)).append("\n");
     sb.append("    tenantId: ").append(toIndentedString(tenantId)).append("\n");
+    sb.append("    versionMatrix: ").append(toIndentedString(versionMatrix)).append("\n");
     sb.append("}");
     return sb.toString();
   }
@@ -327,6 +486,15 @@ public class ConfigurationDiagnosticBundle {
 
     StringJoiner joiner = new StringJoiner("&");
 
+    // add `componentHealth` to the URL query string
+    if (getComponentHealth() != null) {
+      for (String _key : getComponentHealth().keySet()) {
+        joiner.add(String.format(java.util.Locale.ROOT, "%scomponentHealth%s%s=%s", prefix, suffix,
+            "".equals(suffix) ? "" : String.format(java.util.Locale.ROOT, "%s%d%s", containerPrefix, _key, containerSuffix),
+            getComponentHealth().get(_key), ApiClient.urlEncode(ApiClient.valueToString(getComponentHealth().get(_key)))));
+      }
+    }
+
     // add `configuration` to the URL query string
     if (getConfiguration() != null) {
       joiner.add(getConfiguration().toUrlQueryString(prefix + "configuration" + suffix));
@@ -352,14 +520,41 @@ public class ConfigurationDiagnosticBundle {
       joiner.add(String.format(java.util.Locale.ROOT, "%snamespace%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getNamespace()))));
     }
 
+    // add `recentErrors` to the URL query string
+    if (getRecentErrors() != null) {
+      for (int i = 0; i < getRecentErrors().size(); i++) {
+        joiner.add(String.format(java.util.Locale.ROOT, "%srecentErrors%s%s=%s", prefix, suffix,
+            "".equals(suffix) ? "" : String.format(java.util.Locale.ROOT, "%s%d%s", containerPrefix, i, containerSuffix),
+            ApiClient.urlEncode(ApiClient.valueToString(getRecentErrors().get(i)))));
+      }
+    }
+
     // add `schemaVersion` to the URL query string
     if (getSchemaVersion() != null) {
       joiner.add(String.format(java.util.Locale.ROOT, "%sschemaVersion%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getSchemaVersion()))));
     }
 
+    // add `selectedMetrics` to the URL query string
+    if (getSelectedMetrics() != null) {
+      for (String _key : getSelectedMetrics().keySet()) {
+        joiner.add(String.format(java.util.Locale.ROOT, "%sselectedMetrics%s%s=%s", prefix, suffix,
+            "".equals(suffix) ? "" : String.format(java.util.Locale.ROOT, "%s%d%s", containerPrefix, _key, containerSuffix),
+            getSelectedMetrics().get(_key), ApiClient.urlEncode(ApiClient.valueToString(getSelectedMetrics().get(_key)))));
+      }
+    }
+
     // add `tenantId` to the URL query string
     if (getTenantId() != null) {
       joiner.add(String.format(java.util.Locale.ROOT, "%stenantId%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getTenantId()))));
+    }
+
+    // add `versionMatrix` to the URL query string
+    if (getVersionMatrix() != null) {
+      for (String _key : getVersionMatrix().keySet()) {
+        joiner.add(String.format(java.util.Locale.ROOT, "%sversionMatrix%s%s=%s", prefix, suffix,
+            "".equals(suffix) ? "" : String.format(java.util.Locale.ROOT, "%s%d%s", containerPrefix, _key, containerSuffix),
+            getVersionMatrix().get(_key), ApiClient.urlEncode(ApiClient.valueToString(getVersionMatrix().get(_key)))));
+      }
     }
 
     return joiner.toString();
