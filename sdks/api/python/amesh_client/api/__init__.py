@@ -15,6 +15,7 @@ from amesh_client.api.namespaces_api import NamespacesApi
 from amesh_client.api.operations_api import OperationsApi
 from amesh_client.api.plugins_api import PluginsApi
 from amesh_client.api.realtime_api import RealtimeApi
+from amesh_client.api.search_api import SearchApi
 from amesh_client.api.system_api import SystemApi
 from amesh_client.api.task_cache_api import TaskCacheApi
 from amesh_client.api.tenants_api import TenantsApi

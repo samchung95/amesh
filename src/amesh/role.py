@@ -15,6 +15,7 @@ from amesh.adapters.postgres import (
     PostgresRealtimeRepository,
     PostgresReconciliationRepository,
     PostgresSchedulerRepository,
+    PostgresSearchRepository,
     PostgresServiceRegistryRepository,
     PostgresSharedResourceRepository,
     PostgresTaskCacheRepository,
@@ -27,7 +28,7 @@ from amesh.database import create_database_engine
 from amesh.domain import ServiceLiveness, ServiceRole, ServiceState
 from amesh.observability import configure_structured_logging
 from amesh.plugins import TrustedPluginRuntime, build_plugin_catalog, build_trusted_runtime
-from amesh.ports import ServiceFenceError, WorkerLossPolicy
+from amesh.ports import SearchProjector, SearchUnavailableError, ServiceFenceError, WorkerLossPolicy
 from amesh.realtime import WebhookDispatcher
 from amesh.service_runtime import RegisteredService, service_instance_name
 from amesh.tasks import HttpTaskPolicy
@@ -61,6 +62,7 @@ async def _run_cycle(
     checks: PostgresCheckRepository | None = None,
     trusted_runtime: TrustedPluginRuntime | None = None,
     webhook_dispatcher: WebhookDispatcher | None = None,
+    search_projector: SearchProjector | None = None,
 ) -> int:
     if role is ServiceRole.SCHEDULER:
         scheduled = await schedule_once(
@@ -136,7 +138,18 @@ async def _run_cycle(
             if webhook_dispatcher is not None
             else 0
         )
-        return outbox_work + webhook_work
+        search_work = 0
+        if search_projector is not None:
+            for tenant_id in tenant_ids:
+                try:
+                    search_work += await search_projector.project_once(
+                        tenant_id=tenant_id,
+                        limit=500,
+                    )
+                except SearchUnavailableError as exc:
+                    LOGGER.exception("optional search projection cycle failed")
+                    await search_projector.record_failure(tenant_id=tenant_id, error=str(exc))
+        return outbox_work + webhook_work + search_work
     if role is ServiceRole.MAINTENANCE:
         return await reconcile_once(reconciliations, settings, tenant_ids=tenant_ids)
     raise ValueError(f"role {role.value!r} must run through amesh.server")
@@ -165,6 +178,7 @@ async def run_role(settings: Settings) -> None:
     checks = PostgresCheckRepository(engine)
     trusted_runtime = build_trusted_runtime(settings, build_plugin_catalog(settings))
     realtime = PostgresRealtimeRepository(engine)
+    search_projector = PostgresSearchRepository(engine)
     webhook_dispatcher = WebhookDispatcher(
         realtime,
         signing_key=settings.webhook_signing_key.get_secret_value(),
@@ -209,6 +223,7 @@ async def run_role(settings: Settings) -> None:
                     checks=checks,
                     trusted_runtime=trusted_runtime,
                     webhook_dispatcher=webhook_dispatcher,
+                    search_projector=search_projector,
                 )
             except (DBAPIError, OSError):
                 LOGGER.exception("service role cycle interrupted; retrying")

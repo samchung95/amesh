@@ -1,13 +1,15 @@
 import { Command } from 'cmdk'
 import { Clock3, CornerDownLeft, FileCode2, Route, Search, Workflow } from 'lucide-react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
 import type { UiSession } from '../api/types'
 import { compactId } from '../app/format'
 import { navigationItems } from '../app/navigation'
-import { useExecutions, useFlows } from '../app/queries'
+import { useExecutions, useFlows, useGlobalSearch } from '../app/queries'
 import { useAppSettings } from '../app/settings'
+import { searchResultPath, searchTypeLabel } from './searchModel'
 
 interface CommandPaletteProps {
   open: boolean
@@ -19,8 +21,10 @@ export function CommandPalette({ open, onOpenChange, session }: CommandPalettePr
   const { t } = useTranslation()
   const navigate = useNavigate()
   const { settings } = useAppSettings()
+  const [query, setQuery] = useState('')
   const flows = useFlows(open && session.capabilities['flows.view'])
   const executions = useExecutions(open && session.capabilities['executions.view'])
+  const search = useGlobalSearch(query, open && session.capabilities['search.view'])
 
   const select = (path: string) => {
     void navigate(path)
@@ -38,7 +42,7 @@ export function CommandPalette({ open, onOpenChange, session }: CommandPalettePr
     >
       <div className="command-input-row">
         <Search size={20} aria-hidden="true" />
-        <Command.Input autoFocus placeholder={t('search')} aria-label={t('search')} />
+        <Command.Input autoFocus placeholder={t('search')} aria-label={t('search')} value={query} onValueChange={setQuery} />
         <kbd>ESC</kbd>
       </div>
       <Command.List>
@@ -70,6 +74,26 @@ export function CommandPalette({ open, onOpenChange, session }: CommandPalettePr
                 <small>{view.path}</small>
               </Command.Item>
             ))}
+          </Command.Group>
+        ) : null}
+        {search.data?.items.length ? (
+          <Command.Group heading="Indexed resources">
+            {search.data.items.map((item) => (
+              <Command.Item
+                key={`${item.documentType}:${item.documentId}`}
+                value={`${item.title} ${item.summary} ${item.namespace || ''} ${item.state || ''}`}
+                onSelect={() => select(searchResultPath(item))}
+              >
+                <Search size={17} aria-hidden="true" />
+                <span>{item.title}</span>
+                <small>{searchTypeLabel(item.documentType)}{item.namespace ? ` · ${item.namespace}` : ''}</small>
+              </Command.Item>
+            ))}
+            <Command.Item value={`all indexed results ${query}`} onSelect={() => select(`/search?q=${encodeURIComponent(query)}`)}>
+              <CornerDownLeft size={17} aria-hidden="true" />
+              <span>View all indexed results</span>
+              <small>/search</small>
+            </Command.Item>
           </Command.Group>
         ) : null}
         {flows.data?.length ? (
@@ -104,7 +128,7 @@ export function CommandPalette({ open, onOpenChange, session }: CommandPalettePr
         ) : null}
       </Command.List>
       <div className="command-footer">
-        <span><FileCode2 size={14} aria-hidden="true" /> Search navigation and live resources</span>
+        <span><FileCode2 size={14} aria-hidden="true" /> Search indexed resources and navigation</span>
         <span><kbd>↑</kbd><kbd>↓</kbd> move <kbd>↵</kbd> open</span>
       </div>
     </Command.Dialog>

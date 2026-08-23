@@ -45,6 +45,21 @@ export function useExecutions(enabled = true) {
   })
 }
 
+export function useGlobalSearch(query: string, enabled = true) {
+  const api = useApiClient()
+  const { settings } = useAppSettings()
+  return useQuery({
+    queryKey: ['search', settings.tenant, settings.namespace, query],
+    queryFn: () => api.search({
+      query,
+      namespace: settings.namespace || undefined,
+      limit: 20,
+    }),
+    enabled: enabled && query.trim().length >= 2,
+    staleTime: 5_000,
+  })
+}
+
 export function useTriggerRuntime(enabled = true) {
   const api = useApiClient()
   const { settings } = useAppSettings()

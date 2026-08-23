@@ -7380,6 +7380,488 @@
         "title": "SchedulePreview",
         "type": "object"
       },
+      "SearchDocument": {
+        "additionalProperties": false,
+        "properties": {
+          "documentId": {
+            "title": "Documentid",
+            "type": "string"
+          },
+          "documentType": {
+            "$ref": "#/components/schemas/SearchDocumentType"
+          },
+          "fields": {
+            "additionalProperties": true,
+            "title": "Fields",
+            "type": "object"
+          },
+          "labels": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Labels",
+            "type": "object"
+          },
+          "namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Namespace"
+          },
+          "occurredAt": {
+            "format": "date-time",
+            "title": "Occurredat",
+            "type": "string"
+          },
+          "relevance": {
+            "minimum": 0.0,
+            "title": "Relevance",
+            "type": "number"
+          },
+          "sourceVersion": {
+            "minimum": 0.0,
+            "title": "Sourceversion",
+            "type": "integer"
+          },
+          "state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "State"
+          },
+          "summary": {
+            "title": "Summary",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "title": "Updatedat",
+            "type": "string"
+          }
+        },
+        "required": [
+          "documentType",
+          "documentId",
+          "title",
+          "summary",
+          "occurredAt",
+          "updatedAt",
+          "sourceVersion",
+          "relevance"
+        ],
+        "title": "SearchDocument",
+        "type": "object"
+      },
+      "SearchDocumentType": {
+        "enum": [
+          "FLOW",
+          "EXECUTION",
+          "LOG",
+          "ASSET",
+          "AUDIT"
+        ],
+        "title": "SearchDocumentType",
+        "type": "string"
+      },
+      "SearchProjectionCondition": {
+        "enum": [
+          "READY",
+          "REBUILDING",
+          "DEGRADED"
+        ],
+        "title": "SearchProjectionCondition",
+        "type": "string"
+      },
+      "SearchProjectionStatus": {
+        "additionalProperties": false,
+        "properties": {
+          "condition": {
+            "$ref": "#/components/schemas/SearchProjectionCondition"
+          },
+          "documentsIndexed": {
+            "minimum": 0.0,
+            "title": "Documentsindexed",
+            "type": "integer"
+          },
+          "failures": {
+            "minimum": 0.0,
+            "title": "Failures",
+            "type": "integer"
+          },
+          "lagSeconds": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lagseconds"
+          },
+          "lastError": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lasterror"
+          },
+          "lastProjectedAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lastprojectedat"
+          },
+          "latestSourceAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latestsourceat"
+          },
+          "progress": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Progress",
+            "type": "number"
+          },
+          "projectionVersion": {
+            "minimum": 1.0,
+            "title": "Projectionversion",
+            "type": "integer"
+          },
+          "rebuildCompletedAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rebuildcompletedat"
+          },
+          "rebuildStartedAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rebuildstartedat"
+          },
+          "sourceDocuments": {
+            "minimum": 0.0,
+            "title": "Sourcedocuments",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "projectionVersion",
+          "condition",
+          "documentsIndexed",
+          "sourceDocuments",
+          "progress",
+          "lastProjectedAt",
+          "latestSourceAt",
+          "lagSeconds",
+          "rebuildStartedAt",
+          "rebuildCompletedAt",
+          "failures",
+          "lastError"
+        ],
+        "title": "SearchProjectionStatus",
+        "type": "object"
+      },
+      "SearchRange": {
+        "additionalProperties": false,
+        "properties": {
+          "field": {
+            "$ref": "#/components/schemas/SearchRangeField"
+          },
+          "gte": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gte"
+          },
+          "lte": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lte"
+          }
+        },
+        "required": [
+          "field"
+        ],
+        "title": "SearchRange",
+        "type": "object"
+      },
+      "SearchRangeField": {
+        "enum": [
+          "OCCURRED_AT",
+          "UPDATED_AT",
+          "SOURCE_VERSION"
+        ],
+        "title": "SearchRangeField",
+        "type": "string"
+      },
+      "SearchRebuildRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "reason": {
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "reason"
+        ],
+        "title": "SearchRebuildRequest",
+        "type": "object"
+      },
+      "SearchRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "cursor": {
+            "anyOf": [
+              {
+                "maxLength": 2048,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cursor"
+          },
+          "direction": {
+            "$ref": "#/components/schemas/SearchSortDirection",
+            "default": "DESC"
+          },
+          "fields": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "maxProperties": 20,
+            "title": "Fields",
+            "type": "object"
+          },
+          "from": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "From"
+          },
+          "labels": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "maxProperties": 20,
+            "title": "Labels",
+            "type": "object"
+          },
+          "limit": {
+            "default": 50,
+            "maximum": 200.0,
+            "minimum": 1.0,
+            "title": "Limit",
+            "type": "integer"
+          },
+          "namespace": {
+            "anyOf": [
+              {
+                "maxLength": 255,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Namespace"
+          },
+          "query": {
+            "default": "",
+            "maxLength": 500,
+            "title": "Query",
+            "type": "string"
+          },
+          "ranges": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/SearchRange"
+            },
+            "maxItems": 3,
+            "title": "Ranges",
+            "type": "array"
+          },
+          "sort": {
+            "$ref": "#/components/schemas/SearchSortField",
+            "default": "RELEVANCE"
+          },
+          "states": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 20,
+            "title": "States",
+            "type": "array"
+          },
+          "to": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "To"
+          },
+          "types": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/SearchDocumentType"
+            },
+            "maxItems": 5,
+            "title": "Types",
+            "type": "array"
+          }
+        },
+        "title": "SearchRequest",
+        "type": "object"
+      },
+      "SearchResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "deniedTypes": {
+            "items": {
+              "$ref": "#/components/schemas/SearchDocumentType"
+            },
+            "title": "Deniedtypes",
+            "type": "array"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/SearchDocument"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "nextCursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nextcursor"
+          },
+          "projectionCondition": {
+            "$ref": "#/components/schemas/SearchProjectionCondition"
+          },
+          "projectionVersion": {
+            "minimum": 1.0,
+            "title": "Projectionversion",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "nextCursor",
+          "deniedTypes",
+          "projectionVersion",
+          "projectionCondition"
+        ],
+        "title": "SearchResponse",
+        "type": "object"
+      },
+      "SearchSortDirection": {
+        "enum": [
+          "ASC",
+          "DESC"
+        ],
+        "title": "SearchSortDirection",
+        "type": "string"
+      },
+      "SearchSortField": {
+        "enum": [
+          "RELEVANCE",
+          "TITLE",
+          "OCCURRED_AT",
+          "UPDATED_AT",
+          "TYPE",
+          "STATE"
+        ],
+        "title": "SearchSortField",
+        "type": "string"
+      },
       "SecretBinding": {
         "properties": {
           "createdAt": {
@@ -23104,6 +23586,269 @@
         "summary": "List Runner Capabilities",
         "tags": [
           "workers"
+        ]
+      }
+    },
+    "/api/v1/search": {
+      "post": {
+        "operationId": "search_resources_api_v1_search_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Search Resources",
+        "tags": [
+          "search"
+        ]
+      }
+    },
+    "/api/v1/search/rebuild": {
+      "post": {
+        "operationId": "rebuild_search_projection_api_v1_search_rebuild_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchRebuildRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchProjectionStatus"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Rebuild Search Projection",
+        "tags": [
+          "search"
+        ]
+      }
+    },
+    "/api/v1/search/status": {
+      "get": {
+        "operationId": "get_search_status_api_v1_search_status_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchProjectionStatus"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Search Status",
+        "tags": [
+          "search"
         ]
       }
     },

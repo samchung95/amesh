@@ -258,6 +258,12 @@
       "mode": "expand",
       "onlineCompatible": true,
       "rollbackGuidance": "Pause custom dashboard writes and forward-fix the additive definition, ACL and event tables; built-in dashboards and all underlying execution projections remain available."
+    },
+    {
+      "file": "0044_search_projection.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Stop optional search projection cycles and forward-fix or rebuild the disposable tenant-scoped documents and checkpoints; authoritative resources, events, logs and orchestration remain available."
     }
   ]
 }

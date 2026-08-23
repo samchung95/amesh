@@ -16,6 +16,8 @@ const session = {
     'executions.manage': true,
     'dashboards.view': true,
     'dashboards.manage': true,
+    'search.view': true,
+    'search.manage': true,
     'triggers.view': true,
     'triggers.manage': true,
     'checks.view': true,
@@ -39,6 +41,11 @@ const flows = [
 const executions = [
   { execution_id: '00000000-0000-7000-8000-000000000101', tenant_id: 'default', state: 'RUNNING', epoch: 1, version: 2, namespace: 'examples.engine', flow_id: 'hello_world', flow_revision: 3, inputs: { message: 'hello' }, outputs: {}, labels: { environment: 'test' }, trigger: { type: 'manual' }, created_by: 'operator', created_at: '2026-08-21T12:00:00Z', updated_at: '2026-08-21T12:01:00Z', timeout_at: null, cancel_deadline_at: null, lifecycle_evidence: {} },
   { execution_id: '00000000-0000-7000-8000-000000000102', tenant_id: 'default', state: 'SUCCESS', epoch: 1, version: 4, namespace: 'examples.agent', flow_id: 'luna_research', flow_revision: 1, inputs: {}, outputs: {}, labels: {}, trigger: { type: 'cron' }, created_by: 'scheduler', created_at: '2026-08-21T11:00:00Z', updated_at: '2026-08-21T11:02:00Z', timeout_at: null, cancel_deadline_at: null, lifecycle_evidence: {} },
+]
+
+const searchDocuments = [
+  { documentType: 'FLOW', documentId: 'flow-1', namespace: 'examples.engine', title: 'examples.engine.hello_world', summary: 'Searchable hello workflow', state: 'ACTIVE', labels: { team: 'platform' }, fields: { flowId: 'hello_world' }, occurredAt: '2026-08-21T10:00:00Z', updatedAt: '2026-08-21T12:00:00Z', sourceVersion: 3, relevance: 1.2 },
+  { documentType: 'LOG', documentId: 'log-1', namespace: 'examples.engine', title: 'ERROR · task.return', summary: 'diagnostic needle appeared', state: 'ERROR', labels: {}, fields: { flowId: 'hello_world', executionId: executions[0].execution_id, level: 'ERROR', logger: 'task.return' }, occurredAt: '2026-08-21T12:00:03Z', updatedAt: '2026-08-21T12:00:03Z', sourceVersion: 0, relevance: 0.9 },
 ]
 
 const dashboardDefinitions = [
@@ -115,6 +122,15 @@ async function mockApi(page: Page, overrides = session) {
     }
     if (request.method() === 'DELETE') { customDashboard = null; return route.fulfill({ status: 204 }) }
     return route.fulfill({ json: customDashboard || dashboardDefinitions[0] })
+  })
+  await page.route('**/api/v1/search**', (route) => {
+    const request = route.request()
+    const path = new URL(request.url()).pathname
+    if (path.endsWith('/status')) return route.fulfill({ json: { projectionVersion: 4, condition: 'READY', documentsIndexed: 42, sourceDocuments: 42, progress: 1, lastProjectedAt: '2026-08-21T12:01:00Z', latestSourceAt: '2026-08-21T12:01:00Z', lagSeconds: 0, rebuildStartedAt: null, rebuildCompletedAt: '2026-08-21T12:00:00Z', failures: 0, lastError: null } })
+    if (path.endsWith('/rebuild')) return route.fulfill({ status: 202, json: { projectionVersion: 5, condition: 'REBUILDING', documentsIndexed: 0, sourceDocuments: 42, progress: 0, lastProjectedAt: '2026-08-21T12:01:00Z', latestSourceAt: '2026-08-21T12:01:00Z', lagSeconds: 0, rebuildStartedAt: '2026-08-21T12:02:00Z', rebuildCompletedAt: null, failures: 0, lastError: null } })
+    const body = request.postDataJSON() as { cursor?: string }
+    if (body.cursor) return route.fulfill({ json: { items: [searchDocuments[1]], nextCursor: null, deniedTypes: ['AUDIT'], projectionVersion: 4, projectionCondition: 'READY' } })
+    return route.fulfill({ json: { items: searchDocuments, nextCursor: 'search-page-2', deniedTypes: ['AUDIT'], projectionVersion: 4, projectionCondition: 'READY' } })
   })
   await page.route('**/api/v1/flows', (route) => route.fulfill({ json: flows }))
   await page.route('**/api/v1/flows/editor/schema', (route) => route.fulfill({ json: {
@@ -234,6 +250,36 @@ test('filters, creates, permissions and exports typed dashboards', async ({ page
   const download = page.waitForEvent('download')
   await page.getByRole('button', { name: 'Export' }).click()
   expect((await download).suggestedFilename()).toBe('ops.team.yaml')
+})
+
+test('searches, filters, paginates and rebuilds the tenant projection', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name === 'tablet', 'desktop structured-search acceptance')
+  await connect(page)
+  await page.keyboard.press('Control+K')
+  await page.locator('[cmdk-input]').fill('diagnostic')
+  await expect(page.getByText('ERROR · task.return')).toBeVisible()
+  await page.getByText('View all indexed results').click()
+  await expect(page).toHaveURL(/\/search\?q=diagnostic/)
+  await expect(page.getByRole('heading', { name: 'Search' })).toBeVisible()
+  await expect(page.getByText('READY · projection v4')).toBeVisible()
+  await expect(page.getByText('examples.engine.hello_world')).toBeVisible()
+
+  const filtered = page.waitForRequest((request) => request.url().endsWith('/api/v1/search') && request.method() === 'POST' && request.postData()?.includes('examples.engine') === true && request.postData()?.includes('team') === true)
+  await page.getByRole('textbox', { name: 'Namespace' }).fill('examples.engine')
+  await page.getByLabel('Labels').fill('team=platform')
+  await page.getByLabel('Field', { exact: true }).selectOption('level')
+  await page.getByLabel('Field value', { exact: true }).fill('ERROR')
+  await page.getByRole('button', { name: 'Search projection' }).click()
+  await filtered
+  await expect(page.getByText(/Not searched: Audit/)).toBeVisible()
+
+  await page.getByRole('button', { name: 'Next' }).click()
+  await expect(page.getByText('diagnostic needle appeared')).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Previous' })).toBeEnabled()
+
+  page.once('dialog', (dialog) => void dialog.accept())
+  await page.getByRole('button', { name: 'Rebuild index' }).click()
+  await expect(page.getByText(/Rebuild accepted/)).toBeVisible()
 })
 
 test('uses server permissions for navigation and direct routes', async ({ page }, testInfo) => {

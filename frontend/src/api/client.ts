@@ -40,6 +40,9 @@ import type {
   PersistedFlow,
   PersistedSubflow,
   SecretBinding,
+  SearchProjectionStatus,
+  SearchRequest,
+  SearchResponse,
   TriggerOccurrence,
   TriggerRuntimeState,
   UiSession,
@@ -241,6 +244,19 @@ export function createApiClient(connection: ApiConnection) {
       request<void>(`/api/v1/dashboards/${encodeURIComponent(dashboardId)}?expectedVersion=${String(expectedVersion)}`, { method: 'DELETE' }),
     exportDashboard: async (dashboardId: string, format: 'yaml' | 'json' = 'yaml') =>
       requestBlob(`/api/v1/dashboards/${encodeURIComponent(dashboardId)}/export?format=${format}`),
+    search: async (searchRequest: SearchRequest) =>
+      request<SearchResponse>('/api/v1/search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(searchRequest),
+      }),
+    searchStatus: async () => request<SearchProjectionStatus>('/api/v1/search/status'),
+    rebuildSearch: async (reason: string) =>
+      request<SearchProjectionStatus>('/api/v1/search/rebuild', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason }),
+      }),
     triggers: async (namespace?: string) => {
       const suffix = namespace ? `?namespace=${encodeURIComponent(namespace)}` : ''
       return request<TriggerRuntimeState[]>(`/api/v1/triggers${suffix}`)

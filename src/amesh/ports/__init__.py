@@ -113,6 +113,12 @@ from .reconciliation_repository import (
     ReconciliationRepository,
 )
 from .scheduler_repository import SchedulerFenceError, SchedulerRepository, ScheduleState
+from .search_repository import (
+    SearchCursorError,
+    SearchProjector,
+    SearchRepository,
+    SearchUnavailableError,
+)
 from .service_registry import ServiceFenceError, ServiceRegistryRepository
 from .task_cache import (
     TaskCacheDecision,
@@ -270,6 +276,10 @@ __all__ = [
     "SchedulerFenceError",
     "SchedulerRepository",
     "ScopedRunnerCredential",
+    "SearchCursorError",
+    "SearchProjector",
+    "SearchRepository",
+    "SearchUnavailableError",
     "ServiceFenceError",
     "ServiceRegistryRepository",
     "StaleRunnerAttemptError",

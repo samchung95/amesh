@@ -32,6 +32,7 @@ __all__ = [
     "OperationsApi",
     "PluginsApi",
     "RealtimeApi",
+    "SearchApi",
     "SystemApi",
     "TaskCacheApi",
     "TenantsApi",
@@ -137,6 +138,7 @@ __all__ = [
     "FlowRevisionRecord",
     "FlowRevisionRestoreRequest",
     "FlowValidationResult",
+    "Gte",
     "HTTPValidationError",
     "HealthResponse",
     "IsolatedPluginRuntimeSnapshot",
@@ -155,6 +157,7 @@ __all__ = [
     "LogSourceStream",
     "LoginRequest",
     "LoginResponse",
+    "Lte",
     "MetricKind",
     "NamespaceAuthorizationBoundary",
     "NamespaceCheckPolicy",
@@ -234,6 +237,17 @@ __all__ = [
     "RunnerMode",
     "RunnerNetworkAccess",
     "SchedulePreview",
+    "SearchDocument",
+    "SearchDocumentType",
+    "SearchProjectionCondition",
+    "SearchProjectionStatus",
+    "SearchRange",
+    "SearchRangeField",
+    "SearchRebuildRequest",
+    "SearchRequest",
+    "SearchResponse",
+    "SearchSortDirection",
+    "SearchSortField",
     "SecretBinding",
     "SecretBindingExport",
     "SecretBindingWrite",
@@ -308,6 +322,7 @@ from amesh_client.api.namespaces_api import NamespacesApi as NamespacesApi
 from amesh_client.api.operations_api import OperationsApi as OperationsApi
 from amesh_client.api.plugins_api import PluginsApi as PluginsApi
 from amesh_client.api.realtime_api import RealtimeApi as RealtimeApi
+from amesh_client.api.search_api import SearchApi as SearchApi
 from amesh_client.api.system_api import SystemApi as SystemApi
 from amesh_client.api.task_cache_api import TaskCacheApi as TaskCacheApi
 from amesh_client.api.tenants_api import TenantsApi as TenantsApi
@@ -417,6 +432,7 @@ from amesh_client.models.flow_revision_lifecycle_request import FlowRevisionLife
 from amesh_client.models.flow_revision_record import FlowRevisionRecord as FlowRevisionRecord
 from amesh_client.models.flow_revision_restore_request import FlowRevisionRestoreRequest as FlowRevisionRestoreRequest
 from amesh_client.models.flow_validation_result import FlowValidationResult as FlowValidationResult
+from amesh_client.models.gte import Gte as Gte
 from amesh_client.models.http_validation_error import HTTPValidationError as HTTPValidationError
 from amesh_client.models.health_response import HealthResponse as HealthResponse
 from amesh_client.models.isolated_plugin_runtime_snapshot import IsolatedPluginRuntimeSnapshot as IsolatedPluginRuntimeSnapshot
@@ -435,6 +451,7 @@ from amesh_client.models.log_level import LogLevel as LogLevel
 from amesh_client.models.log_source_stream import LogSourceStream as LogSourceStream
 from amesh_client.models.login_request import LoginRequest as LoginRequest
 from amesh_client.models.login_response import LoginResponse as LoginResponse
+from amesh_client.models.lte import Lte as Lte
 from amesh_client.models.metric_kind import MetricKind as MetricKind
 from amesh_client.models.namespace_authorization_boundary import NamespaceAuthorizationBoundary as NamespaceAuthorizationBoundary
 from amesh_client.models.namespace_check_policy import NamespaceCheckPolicy as NamespaceCheckPolicy
@@ -514,6 +531,17 @@ from amesh_client.models.runner_id import RunnerId as RunnerId
 from amesh_client.models.runner_mode import RunnerMode as RunnerMode
 from amesh_client.models.runner_network_access import RunnerNetworkAccess as RunnerNetworkAccess
 from amesh_client.models.schedule_preview import SchedulePreview as SchedulePreview
+from amesh_client.models.search_document import SearchDocument as SearchDocument
+from amesh_client.models.search_document_type import SearchDocumentType as SearchDocumentType
+from amesh_client.models.search_projection_condition import SearchProjectionCondition as SearchProjectionCondition
+from amesh_client.models.search_projection_status import SearchProjectionStatus as SearchProjectionStatus
+from amesh_client.models.search_range import SearchRange as SearchRange
+from amesh_client.models.search_range_field import SearchRangeField as SearchRangeField
+from amesh_client.models.search_rebuild_request import SearchRebuildRequest as SearchRebuildRequest
+from amesh_client.models.search_request import SearchRequest as SearchRequest
+from amesh_client.models.search_response import SearchResponse as SearchResponse
+from amesh_client.models.search_sort_direction import SearchSortDirection as SearchSortDirection
+from amesh_client.models.search_sort_field import SearchSortField as SearchSortField
 from amesh_client.models.secret_binding import SecretBinding as SecretBinding
 from amesh_client.models.secret_binding_export import SecretBindingExport as SecretBindingExport
 from amesh_client.models.secret_binding_write import SecretBindingWrite as SecretBindingWrite

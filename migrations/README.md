@@ -153,6 +153,12 @@ viewer/editor ACLs and immutable definition events. Every create, update or dele
 the transactional outbox. Built-in dashboards remain code-defined; the database stores only custom
 API/GitOps definitions and their optimistic-concurrency version.
 
+Migration `0044_search_projection.sql` adds the disposable tenant-hash-partitioned search document
+projection, generated PostgreSQL full-text vectors, trigram/JSON/structured indexes, per-tenant
+projection state and immutable rebuild/failure events with transactional outbox publication. It is
+additive; stop optional projection cycles and forward-fix or rebuild these rows while authoritative
+resources and orchestration continue.
+
 ## Migration modes
 
 - `bootstrap` creates the initial schema and is only safe for an empty database.

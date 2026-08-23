@@ -216,6 +216,9 @@ Class | Method | HTTP request | Description
 *RealtimeApi* | [**rotate_webhook_subscription_secret_api_v1_webhook_subscriptions_subscription_id_rotate_secret_post**](docs/RealtimeApi.md#rotate_webhook_subscription_secret_api_v1_webhook_subscriptions_subscription_id_rotate_secret_post) | **POST** /api/v1/webhook-subscriptions/{subscription_id}/rotate-secret | Rotate Webhook Subscription Secret
 *RealtimeApi* | [**stream_realtime_events_api_v1_realtime_stream_get**](docs/RealtimeApi.md#stream_realtime_events_api_v1_realtime_stream_get) | **GET** /api/v1/realtime/stream | Stream Realtime Events
 *RealtimeApi* | [**test_webhook_subscription_api_v1_webhook_subscriptions_subscription_id_test_post**](docs/RealtimeApi.md#test_webhook_subscription_api_v1_webhook_subscriptions_subscription_id_test_post) | **POST** /api/v1/webhook-subscriptions/{subscription_id}/test | Test Webhook Subscription
+*SearchApi* | [**get_search_status_api_v1_search_status_get**](docs/SearchApi.md#get_search_status_api_v1_search_status_get) | **GET** /api/v1/search/status | Get Search Status
+*SearchApi* | [**rebuild_search_projection_api_v1_search_rebuild_post**](docs/SearchApi.md#rebuild_search_projection_api_v1_search_rebuild_post) | **POST** /api/v1/search/rebuild | Rebuild Search Projection
+*SearchApi* | [**search_resources_api_v1_search_post**](docs/SearchApi.md#search_resources_api_v1_search_post) | **POST** /api/v1/search | Search Resources
 *SystemApi* | [**health_health_get**](docs/SystemApi.md#health_health_get) | **GET** /health | Health
 *SystemApi* | [**ready_ready_get**](docs/SystemApi.md#ready_ready_get) | **GET** /ready | Ready
 *TaskCacheApi* | [**list_task_cache_entries_api_v1_task_cache_get**](docs/TaskCacheApi.md#list_task_cache_entries_api_v1_task_cache_get) | **GET** /api/v1/task-cache | List Task Cache Entries
@@ -333,6 +336,7 @@ Class | Method | HTTP request | Description
  - [FlowRevisionRecord](docs/FlowRevisionRecord.md)
  - [FlowRevisionRestoreRequest](docs/FlowRevisionRestoreRequest.md)
  - [FlowValidationResult](docs/FlowValidationResult.md)
+ - [Gte](docs/Gte.md)
  - [HTTPValidationError](docs/HTTPValidationError.md)
  - [HealthResponse](docs/HealthResponse.md)
  - [IsolatedPluginRuntimeSnapshot](docs/IsolatedPluginRuntimeSnapshot.md)
@@ -351,6 +355,7 @@ Class | Method | HTTP request | Description
  - [LogSourceStream](docs/LogSourceStream.md)
  - [LoginRequest](docs/LoginRequest.md)
  - [LoginResponse](docs/LoginResponse.md)
+ - [Lte](docs/Lte.md)
  - [MetricKind](docs/MetricKind.md)
  - [NamespaceAuthorizationBoundary](docs/NamespaceAuthorizationBoundary.md)
  - [NamespaceCheckPolicy](docs/NamespaceCheckPolicy.md)
@@ -430,6 +435,17 @@ Class | Method | HTTP request | Description
  - [RunnerMode](docs/RunnerMode.md)
  - [RunnerNetworkAccess](docs/RunnerNetworkAccess.md)
  - [SchedulePreview](docs/SchedulePreview.md)
+ - [SearchDocument](docs/SearchDocument.md)
+ - [SearchDocumentType](docs/SearchDocumentType.md)
+ - [SearchProjectionCondition](docs/SearchProjectionCondition.md)
+ - [SearchProjectionStatus](docs/SearchProjectionStatus.md)
+ - [SearchRange](docs/SearchRange.md)
+ - [SearchRangeField](docs/SearchRangeField.md)
+ - [SearchRebuildRequest](docs/SearchRebuildRequest.md)
+ - [SearchRequest](docs/SearchRequest.md)
+ - [SearchResponse](docs/SearchResponse.md)
+ - [SearchSortDirection](docs/SearchSortDirection.md)
+ - [SearchSortField](docs/SearchSortField.md)
  - [SecretBinding](docs/SecretBinding.md)
  - [SecretBindingExport](docs/SecretBindingExport.md)
  - [SecretBindingWrite](docs/SecretBindingWrite.md)

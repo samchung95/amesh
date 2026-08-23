@@ -39,5 +39,8 @@
   [execution-check runbook](../operations/execution-checks.md).
 - List, render, save and export typed operational dashboards through `/api/v1/dashboards`; direct
   typed queries use `/api/v1/dashboard-queries`. See the [dashboard API guide](dashboards.md).
+- Search authorized flow, execution, selected log, asset and audit metadata with the typed
+  `/api/v1/search` contract. Inspect or rebuild its disposable tenant projection through the adjacent
+  status and rebuild endpoints; see the [search API guide](search.md).
 
 Future generated SDKs must consume the supported API contract, not internal Python classes.

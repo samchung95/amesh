@@ -8123,6 +8123,158 @@ paths:
       - workers
       x-accepts:
       - application/json
+  /api/v1/search:
+    post:
+      operationId: search_resources_api_v1_search_post
+      parameters:
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SearchRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SearchResponse"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Search Resources
+      tags:
+      - search
+      x-content-type: application/json
+      x-accepts:
+      - application/json
+  /api/v1/search/rebuild:
+    post:
+      operationId: rebuild_search_projection_api_v1_search_rebuild_post
+      parameters:
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SearchRebuildRequest"
+        required: true
+      responses:
+        "202":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SearchProjectionStatus"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Rebuild Search Projection
+      tags:
+      - search
+      x-content-type: application/json
+      x-accepts:
+      - application/json
+  /api/v1/search/status:
+    get:
+      operationId: get_search_status_api_v1_search_status_get
+      parameters:
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SearchProjectionStatus"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Get Search Status
+      tags:
+      - search
+      x-accepts:
+      - application/json
   /api/v1/task-cache:
     get:
       operationId: list_task_cache_entries_api_v1_task_cache_get
@@ -17095,6 +17247,392 @@ components:
       - occurrences
       - trigger_id
       title: SchedulePreview
+    SearchDocument:
+      additionalProperties: {}
+      example:
+        documentId: documentId
+        documentType: null
+        fields:
+          key: ""
+        labels:
+          key: labels
+        namespace: namespace
+        occurredAt: 2000-01-23T04:56:07.000+00:00
+        relevance: 0.08008281904610115
+        sourceVersion: 0
+        state: state
+        summary: summary
+        title: title
+        updatedAt: 2000-01-23T04:56:07.000+00:00
+      properties:
+        documentId:
+          title: Documentid
+          type: string
+        documentType:
+          $ref: "#/components/schemas/SearchDocumentType"
+        fields:
+          additionalProperties: true
+          title: Fields
+          type: object
+        labels:
+          additionalProperties:
+            type: string
+          title: Labels
+        namespace:
+          nullable: true
+          type: string
+        occurredAt:
+          format: date-time
+          title: Occurredat
+          type: string
+        relevance:
+          minimum: 0.0
+          title: Relevance
+          type: number
+        sourceVersion:
+          minimum: 0.0
+          title: Sourceversion
+          type: integer
+        state:
+          nullable: true
+          type: string
+        summary:
+          title: Summary
+          type: string
+        title:
+          title: Title
+          type: string
+        updatedAt:
+          format: date-time
+          title: Updatedat
+          type: string
+      required:
+      - documentId
+      - documentType
+      - occurredAt
+      - relevance
+      - sourceVersion
+      - summary
+      - title
+      - updatedAt
+      title: SearchDocument
+    SearchDocumentType:
+      enum:
+      - FLOW
+      - EXECUTION
+      - LOG
+      - ASSET
+      - AUDIT
+      title: SearchDocumentType
+      type: string
+    SearchProjectionCondition:
+      enum:
+      - READY
+      - REBUILDING
+      - DEGRADED
+      title: SearchProjectionCondition
+      type: string
+    SearchProjectionStatus:
+      additionalProperties: false
+      example:
+        condition: READY
+        documentsIndexed: 0
+        failures: 0
+        lagSeconds: 0.14658129805029452
+        lastError: lastError
+        lastProjectedAt: 2000-01-23T04:56:07.000+00:00
+        latestSourceAt: 2000-01-23T04:56:07.000+00:00
+        progress: 0.5962133916683182
+        projectionVersion: 1
+        rebuildCompletedAt: 2000-01-23T04:56:07.000+00:00
+        rebuildStartedAt: 2000-01-23T04:56:07.000+00:00
+        sourceDocuments: 0
+      properties:
+        condition:
+          $ref: "#/components/schemas/SearchProjectionCondition"
+        documentsIndexed:
+          minimum: 0.0
+          title: Documentsindexed
+          type: integer
+        failures:
+          minimum: 0.0
+          title: Failures
+          type: integer
+        lagSeconds:
+          minimum: 0.0
+          nullable: true
+          type: number
+        lastError:
+          nullable: true
+          type: string
+        lastProjectedAt:
+          format: date-time
+          nullable: true
+          type: string
+        latestSourceAt:
+          format: date-time
+          nullable: true
+          type: string
+        progress:
+          maximum: 1.0
+          minimum: 0.0
+          title: Progress
+          type: number
+        projectionVersion:
+          minimum: 1.0
+          title: Projectionversion
+          type: integer
+        rebuildCompletedAt:
+          format: date-time
+          nullable: true
+          type: string
+        rebuildStartedAt:
+          format: date-time
+          nullable: true
+          type: string
+        sourceDocuments:
+          minimum: 0.0
+          title: Sourcedocuments
+          type: integer
+      required:
+      - condition
+      - documentsIndexed
+      - failures
+      - lagSeconds
+      - lastError
+      - lastProjectedAt
+      - latestSourceAt
+      - progress
+      - projectionVersion
+      - rebuildCompletedAt
+      - rebuildStartedAt
+      - sourceDocuments
+      title: SearchProjectionStatus
+    SearchRange:
+      additionalProperties: false
+      example:
+        field: OCCURRED_AT
+        gte: 2000-01-23T04:56:07.000+00:00
+        lte: 2000-01-23T04:56:07.000+00:00
+      properties:
+        field:
+          $ref: "#/components/schemas/SearchRangeField"
+        gte:
+          $ref: "#/components/schemas/Gte"
+        lte:
+          $ref: "#/components/schemas/Lte"
+      required:
+      - field
+      title: SearchRange
+    SearchRangeField:
+      enum:
+      - OCCURRED_AT
+      - UPDATED_AT
+      - SOURCE_VERSION
+      title: SearchRangeField
+      type: string
+    SearchRebuildRequest:
+      additionalProperties: false
+      example:
+        reason: reason
+      properties:
+        reason:
+          maxLength: 500
+          minLength: 1
+          title: Reason
+          type: string
+      required:
+      - reason
+      title: SearchRebuildRequest
+    SearchRequest:
+      additionalProperties: false
+      example:
+        cursor: cursor
+        direction: ""
+        fields:
+          key: fields
+        from: 2000-01-23T04:56:07.000+00:00
+        labels:
+          key: labels
+        limit: 16
+        namespace: namespace
+        query: ""
+        ranges:
+        - field: OCCURRED_AT
+          gte: 2000-01-23T04:56:07.000+00:00
+          lte: 2000-01-23T04:56:07.000+00:00
+        - field: OCCURRED_AT
+          gte: 2000-01-23T04:56:07.000+00:00
+          lte: 2000-01-23T04:56:07.000+00:00
+        - field: OCCURRED_AT
+          gte: 2000-01-23T04:56:07.000+00:00
+          lte: 2000-01-23T04:56:07.000+00:00
+        sort: ""
+        states:
+        - states
+        - states
+        - states
+        - states
+        - states
+        to: 2000-01-23T04:56:07.000+00:00
+        types:
+        - FLOW
+        - FLOW
+        - FLOW
+        - FLOW
+        - FLOW
+      properties:
+        cursor:
+          maxLength: 2048
+          nullable: true
+          type: string
+        direction:
+          allOf:
+          - $ref: "#/components/schemas/SearchSortDirection"
+          default: DESC
+        fields:
+          additionalProperties:
+            type: string
+          maxProperties: 20
+          title: Fields
+        from:
+          format: date-time
+          nullable: true
+          type: string
+        labels:
+          additionalProperties:
+            type: string
+          maxProperties: 20
+          title: Labels
+        limit:
+          default: 50
+          maximum: 200.0
+          minimum: 1.0
+          title: Limit
+          type: integer
+        namespace:
+          maxLength: 255
+          minLength: 1
+          nullable: true
+          type: string
+        query:
+          default: ""
+          maxLength: 500
+          title: Query
+          type: string
+        ranges:
+          default: []
+          items:
+            $ref: "#/components/schemas/SearchRange"
+          maxItems: 3
+          title: Ranges
+          type: array
+        sort:
+          allOf:
+          - $ref: "#/components/schemas/SearchSortField"
+          default: RELEVANCE
+        states:
+          default: []
+          items:
+            type: string
+          maxItems: 20
+          title: States
+          type: array
+        to:
+          format: date-time
+          nullable: true
+          type: string
+        types:
+          default: []
+          items:
+            $ref: "#/components/schemas/SearchDocumentType"
+          maxItems: 5
+          title: Types
+          type: array
+      title: SearchRequest
+    SearchResponse:
+      additionalProperties: false
+      example:
+        deniedTypes:
+        - FLOW
+        - FLOW
+        items:
+        - documentId: documentId
+          documentType: null
+          fields:
+            key: ""
+          labels:
+            key: labels
+          namespace: namespace
+          occurredAt: 2000-01-23T04:56:07.000+00:00
+          relevance: 0.08008281904610115
+          sourceVersion: 0
+          state: state
+          summary: summary
+          title: title
+          updatedAt: 2000-01-23T04:56:07.000+00:00
+        - documentId: documentId
+          documentType: null
+          fields:
+            key: ""
+          labels:
+            key: labels
+          namespace: namespace
+          occurredAt: 2000-01-23T04:56:07.000+00:00
+          relevance: 0.08008281904610115
+          sourceVersion: 0
+          state: state
+          summary: summary
+          title: title
+          updatedAt: 2000-01-23T04:56:07.000+00:00
+        nextCursor: nextCursor
+        projectionCondition: READY
+        projectionVersion: 1
+      properties:
+        deniedTypes:
+          items:
+            $ref: "#/components/schemas/SearchDocumentType"
+          title: Deniedtypes
+          type: array
+          default: null
+        items:
+          items:
+            $ref: "#/components/schemas/SearchDocument"
+          title: Items
+          type: array
+          default: null
+        nextCursor:
+          nullable: true
+          type: string
+        projectionCondition:
+          $ref: "#/components/schemas/SearchProjectionCondition"
+        projectionVersion:
+          minimum: 1.0
+          title: Projectionversion
+          type: integer
+      required:
+      - deniedTypes
+      - items
+      - nextCursor
+      - projectionCondition
+      - projectionVersion
+      title: SearchResponse
+    SearchSortDirection:
+      enum:
+      - ASC
+      - DESC
+      title: SearchSortDirection
+      type: string
+    SearchSortField:
+      enum:
+      - RELEVANCE
+      - TITLE
+      - OCCURRED_AT
+      - UPDATED_AT
+      - TYPE
+      - STATE
+      title: SearchSortField
+      type: string
     SecretBinding:
       example:
         createdAt: 2000-01-23T04:56:07.000+00:00
@@ -19390,6 +19928,20 @@ components:
       - $ref: "#/components/schemas/PermissionAction"
       - type: string
       title: Action
+    Gte:
+      anyOf:
+      - format: date-time
+        type: string
+      - type: integer
+      nullable: true
+      title: Gte
+    Lte:
+      anyOf:
+      - format: date-time
+        type: string
+      - type: integer
+      nullable: true
+      title: Lte
     Value:
       anyOf:
       - type: number

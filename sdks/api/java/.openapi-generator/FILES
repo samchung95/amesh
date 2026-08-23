@@ -20,6 +20,7 @@ docs/NamespacesApi.md
 docs/OperationsApi.md
 docs/PluginsApi.md
 docs/RealtimeApi.md
+docs/SearchApi.md
 docs/SystemApi.md
 docs/TaskCacheApi.md
 docs/TenantsApi.md
@@ -60,6 +61,7 @@ src/main/java/io/amesh/client/api/NamespacesApi.java
 src/main/java/io/amesh/client/api/OperationsApi.java
 src/main/java/io/amesh/client/api/PluginsApi.java
 src/main/java/io/amesh/client/api/RealtimeApi.java
+src/main/java/io/amesh/client/api/SearchApi.java
 src/main/java/io/amesh/client/api/SystemApi.java
 src/main/java/io/amesh/client/api/TaskCacheApi.java
 src/main/java/io/amesh/client/api/TenantsApi.java
@@ -157,6 +159,7 @@ src/main/java/io/amesh/client/model/FlowRevisionLifecycleRequest.java
 src/main/java/io/amesh/client/model/FlowRevisionRecord.java
 src/main/java/io/amesh/client/model/FlowRevisionRestoreRequest.java
 src/main/java/io/amesh/client/model/FlowValidationResult.java
+src/main/java/io/amesh/client/model/Gte.java
 src/main/java/io/amesh/client/model/HTTPValidationError.java
 src/main/java/io/amesh/client/model/HealthResponse.java
 src/main/java/io/amesh/client/model/IsolatedPluginRuntimeSnapshot.java
@@ -175,6 +178,7 @@ src/main/java/io/amesh/client/model/LogLevel.java
 src/main/java/io/amesh/client/model/LogSourceStream.java
 src/main/java/io/amesh/client/model/LoginRequest.java
 src/main/java/io/amesh/client/model/LoginResponse.java
+src/main/java/io/amesh/client/model/Lte.java
 src/main/java/io/amesh/client/model/MetricKind.java
 src/main/java/io/amesh/client/model/NamespaceAuthorizationBoundary.java
 src/main/java/io/amesh/client/model/NamespaceCheckPolicy.java
@@ -254,6 +258,17 @@ src/main/java/io/amesh/client/model/RunnerId.java
 src/main/java/io/amesh/client/model/RunnerMode.java
 src/main/java/io/amesh/client/model/RunnerNetworkAccess.java
 src/main/java/io/amesh/client/model/SchedulePreview.java
+src/main/java/io/amesh/client/model/SearchDocument.java
+src/main/java/io/amesh/client/model/SearchDocumentType.java
+src/main/java/io/amesh/client/model/SearchProjectionCondition.java
+src/main/java/io/amesh/client/model/SearchProjectionStatus.java
+src/main/java/io/amesh/client/model/SearchRange.java
+src/main/java/io/amesh/client/model/SearchRangeField.java
+src/main/java/io/amesh/client/model/SearchRebuildRequest.java
+src/main/java/io/amesh/client/model/SearchRequest.java
+src/main/java/io/amesh/client/model/SearchResponse.java
+src/main/java/io/amesh/client/model/SearchSortDirection.java
+src/main/java/io/amesh/client/model/SearchSortField.java
 src/main/java/io/amesh/client/model/SecretBinding.java
 src/main/java/io/amesh/client/model/SecretBindingExport.java
 src/main/java/io/amesh/client/model/SecretBindingWrite.java

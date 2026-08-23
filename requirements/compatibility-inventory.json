@@ -6901,97 +6901,121 @@
       "requirement_id": "URS-F-0470",
       "epic_id": "EPIC-409",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-409-search-indexing-and-retrieval-projections.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0471",
       "epic_id": "EPIC-409",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-409-search-indexing-and-retrieval-projections.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0472",
       "epic_id": "EPIC-409",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-409-search-indexing-and-retrieval-projections.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0473",
       "epic_id": "EPIC-409",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-409-search-indexing-and-retrieval-projections.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0474",
       "epic_id": "EPIC-409",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-409-search-indexing-and-retrieval-projections.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0475",
       "epic_id": "EPIC-409",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-409-search-indexing-and-retrieval-projections.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0476",
       "epic_id": "EPIC-409",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-409-search-indexing-and-retrieval-projections.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0477",
       "epic_id": "EPIC-409",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-409-search-indexing-and-retrieval-projections.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0478",

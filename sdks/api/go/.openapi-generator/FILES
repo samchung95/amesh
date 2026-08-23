@@ -17,6 +17,7 @@ api_namespaces.go
 api_operations.go
 api_plugins.go
 api_realtime.go
+api_search.go
 api_system.go
 api_task_cache.go
 api_tenants.go
@@ -39,6 +40,7 @@ docs/NamespacesAPI.md
 docs/OperationsAPI.md
 docs/PluginsAPI.md
 docs/RealtimeAPI.md
+docs/SearchAPI.md
 docs/SystemAPI.md
 docs/TaskCacheAPI.md
 docs/TenantsAPI.md
@@ -138,6 +140,7 @@ model_flow_revision_lifecycle_request.go
 model_flow_revision_record.go
 model_flow_revision_restore_request.go
 model_flow_validation_result.go
+model_gte.go
 model_health_response.go
 model_http_validation_error.go
 model_isolated_plugin_runtime_snapshot.go
@@ -156,6 +159,7 @@ model_log_level.go
 model_log_source_stream.go
 model_login_request.go
 model_login_response.go
+model_lte.go
 model_metric_kind.go
 model_namespace_authorization_boundary.go
 model_namespace_check_policy.go
@@ -235,6 +239,17 @@ model_runner_id.go
 model_runner_mode.go
 model_runner_network_access.go
 model_schedule_preview.go
+model_search_document.go
+model_search_document_type.go
+model_search_projection_condition.go
+model_search_projection_status.go
+model_search_range.go
+model_search_range_field.go
+model_search_rebuild_request.go
+model_search_request.go
+model_search_response.go
+model_search_sort_direction.go
+model_search_sort_field.go
 model_secret_binding.go
 model_secret_binding_export.go
 model_secret_binding_write.go

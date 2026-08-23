@@ -367,6 +367,12 @@ Class | Method | HTTP request | Description
 *RealtimeApi* | [**streamRealtimeEventsApiV1RealtimeStreamGetWithHttpInfo**](docs/RealtimeApi.md#streamRealtimeEventsApiV1RealtimeStreamGetWithHttpInfo) | **GET** /api/v1/realtime/stream | Stream Realtime Events
 *RealtimeApi* | [**testWebhookSubscriptionApiV1WebhookSubscriptionsSubscriptionIdTestPost**](docs/RealtimeApi.md#testWebhookSubscriptionApiV1WebhookSubscriptionsSubscriptionIdTestPost) | **POST** /api/v1/webhook-subscriptions/{subscription_id}/test | Test Webhook Subscription
 *RealtimeApi* | [**testWebhookSubscriptionApiV1WebhookSubscriptionsSubscriptionIdTestPostWithHttpInfo**](docs/RealtimeApi.md#testWebhookSubscriptionApiV1WebhookSubscriptionsSubscriptionIdTestPostWithHttpInfo) | **POST** /api/v1/webhook-subscriptions/{subscription_id}/test | Test Webhook Subscription
+*SearchApi* | [**getSearchStatusApiV1SearchStatusGet**](docs/SearchApi.md#getSearchStatusApiV1SearchStatusGet) | **GET** /api/v1/search/status | Get Search Status
+*SearchApi* | [**getSearchStatusApiV1SearchStatusGetWithHttpInfo**](docs/SearchApi.md#getSearchStatusApiV1SearchStatusGetWithHttpInfo) | **GET** /api/v1/search/status | Get Search Status
+*SearchApi* | [**rebuildSearchProjectionApiV1SearchRebuildPost**](docs/SearchApi.md#rebuildSearchProjectionApiV1SearchRebuildPost) | **POST** /api/v1/search/rebuild | Rebuild Search Projection
+*SearchApi* | [**rebuildSearchProjectionApiV1SearchRebuildPostWithHttpInfo**](docs/SearchApi.md#rebuildSearchProjectionApiV1SearchRebuildPostWithHttpInfo) | **POST** /api/v1/search/rebuild | Rebuild Search Projection
+*SearchApi* | [**searchResourcesApiV1SearchPost**](docs/SearchApi.md#searchResourcesApiV1SearchPost) | **POST** /api/v1/search | Search Resources
+*SearchApi* | [**searchResourcesApiV1SearchPostWithHttpInfo**](docs/SearchApi.md#searchResourcesApiV1SearchPostWithHttpInfo) | **POST** /api/v1/search | Search Resources
 *SystemApi* | [**healthHealthGet**](docs/SystemApi.md#healthHealthGet) | **GET** /health | Health
 *SystemApi* | [**healthHealthGetWithHttpInfo**](docs/SystemApi.md#healthHealthGetWithHttpInfo) | **GET** /health | Health
 *SystemApi* | [**readyReadyGet**](docs/SystemApi.md#readyReadyGet) | **GET** /ready | Ready
@@ -507,6 +513,7 @@ Class | Method | HTTP request | Description
  - [FlowRevisionRecord](docs/FlowRevisionRecord.md)
  - [FlowRevisionRestoreRequest](docs/FlowRevisionRestoreRequest.md)
  - [FlowValidationResult](docs/FlowValidationResult.md)
+ - [Gte](docs/Gte.md)
  - [HTTPValidationError](docs/HTTPValidationError.md)
  - [HealthResponse](docs/HealthResponse.md)
  - [IsolatedPluginRuntimeSnapshot](docs/IsolatedPluginRuntimeSnapshot.md)
@@ -525,6 +532,7 @@ Class | Method | HTTP request | Description
  - [LogSourceStream](docs/LogSourceStream.md)
  - [LoginRequest](docs/LoginRequest.md)
  - [LoginResponse](docs/LoginResponse.md)
+ - [Lte](docs/Lte.md)
  - [MetricKind](docs/MetricKind.md)
  - [NamespaceAuthorizationBoundary](docs/NamespaceAuthorizationBoundary.md)
  - [NamespaceCheckPolicy](docs/NamespaceCheckPolicy.md)
@@ -604,6 +612,17 @@ Class | Method | HTTP request | Description
  - [RunnerMode](docs/RunnerMode.md)
  - [RunnerNetworkAccess](docs/RunnerNetworkAccess.md)
  - [SchedulePreview](docs/SchedulePreview.md)
+ - [SearchDocument](docs/SearchDocument.md)
+ - [SearchDocumentType](docs/SearchDocumentType.md)
+ - [SearchProjectionCondition](docs/SearchProjectionCondition.md)
+ - [SearchProjectionStatus](docs/SearchProjectionStatus.md)
+ - [SearchRange](docs/SearchRange.md)
+ - [SearchRangeField](docs/SearchRangeField.md)
+ - [SearchRebuildRequest](docs/SearchRebuildRequest.md)
+ - [SearchRequest](docs/SearchRequest.md)
+ - [SearchResponse](docs/SearchResponse.md)
+ - [SearchSortDirection](docs/SearchSortDirection.md)
+ - [SearchSortField](docs/SearchSortField.md)
  - [SecretBinding](docs/SecretBinding.md)
  - [SecretBindingExport](docs/SecretBindingExport.md)
  - [SecretBindingWrite](docs/SecretBindingWrite.md)

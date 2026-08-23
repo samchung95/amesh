@@ -103,6 +103,7 @@ from amesh_client.models.flow_revision_lifecycle_request import FlowRevisionLife
 from amesh_client.models.flow_revision_record import FlowRevisionRecord
 from amesh_client.models.flow_revision_restore_request import FlowRevisionRestoreRequest
 from amesh_client.models.flow_validation_result import FlowValidationResult
+from amesh_client.models.gte import Gte
 from amesh_client.models.http_validation_error import HTTPValidationError
 from amesh_client.models.health_response import HealthResponse
 from amesh_client.models.isolated_plugin_runtime_snapshot import IsolatedPluginRuntimeSnapshot
@@ -121,6 +122,7 @@ from amesh_client.models.log_level import LogLevel
 from amesh_client.models.log_source_stream import LogSourceStream
 from amesh_client.models.login_request import LoginRequest
 from amesh_client.models.login_response import LoginResponse
+from amesh_client.models.lte import Lte
 from amesh_client.models.metric_kind import MetricKind
 from amesh_client.models.namespace_authorization_boundary import NamespaceAuthorizationBoundary
 from amesh_client.models.namespace_check_policy import NamespaceCheckPolicy
@@ -200,6 +202,17 @@ from amesh_client.models.runner_id import RunnerId
 from amesh_client.models.runner_mode import RunnerMode
 from amesh_client.models.runner_network_access import RunnerNetworkAccess
 from amesh_client.models.schedule_preview import SchedulePreview
+from amesh_client.models.search_document import SearchDocument
+from amesh_client.models.search_document_type import SearchDocumentType
+from amesh_client.models.search_projection_condition import SearchProjectionCondition
+from amesh_client.models.search_projection_status import SearchProjectionStatus
+from amesh_client.models.search_range import SearchRange
+from amesh_client.models.search_range_field import SearchRangeField
+from amesh_client.models.search_rebuild_request import SearchRebuildRequest
+from amesh_client.models.search_request import SearchRequest
+from amesh_client.models.search_response import SearchResponse
+from amesh_client.models.search_sort_direction import SearchSortDirection
+from amesh_client.models.search_sort_field import SearchSortField
 from amesh_client.models.secret_binding import SecretBinding
 from amesh_client.models.secret_binding_export import SecretBindingExport
 from amesh_client.models.secret_binding_write import SecretBindingWrite

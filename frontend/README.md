@@ -86,6 +86,17 @@ aggregations, visualizations and dimensions. Save it privately or for the tenant
 viewer/editor principal IDs, share its deep link, export YAML/JSON for GitOps, or delete it. Dashboard
 access never grants access to its underlying data; denied widgets stay visible as redacted placeholders.
 
+## Search resources
+
+Open **Search** or press `Ctrl+K` to query the server-backed tenant search projection. The workbench
+supports full-text, type, namespace, state, label, field, time and sort controls with stable cursor
+pagination. Results deep-link to the matching product resource and visibly report any resource types
+excluded by source authorization.
+
+Projection status shows version, indexed/source counts, progress, lag and failures. Authorized
+operators can request a tenant rebuild with a recorded reason. Search degradation is displayed in the
+workbench but does not stop flows, executions or the orchestration roles.
+
 ## Verification
 
 ```powershell
@@ -108,6 +119,8 @@ deep-linked filters, task selection, Gantt timing, live log filtering, data/hist
 impact confirmation, a 100,000-event bounded-memory model and 100,000 durable task-run paging.
 Dashboard coverage exercises built-ins, typed filters and bounds, all visualization projections,
 custom save/delete/export, source permission redaction, deep links and automated WCAG checks.
+Search coverage exercises command-menu results, typed filters, stable paging, permission redaction,
+status and rebuild controls, deep links and the dedicated workbench.
 
 ## Browser support policy
 

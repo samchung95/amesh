@@ -7,6 +7,8 @@ export type Capability =
   | 'executions.manage'
   | 'dashboards.view'
   | 'dashboards.manage'
+  | 'search.view'
+  | 'search.manage'
   | 'triggers.view'
   | 'triggers.manage'
   | 'checks.view'
@@ -106,6 +108,72 @@ export interface DashboardRender {
   dashboard: DashboardDefinition
   widgets: Array<{ widgetId: string; result: DashboardQueryResult }>
   renderedAt: string
+}
+
+export type SearchDocumentType = 'FLOW' | 'EXECUTION' | 'LOG' | 'ASSET' | 'AUDIT'
+export type SearchSortField = 'RELEVANCE' | 'TITLE' | 'OCCURRED_AT' | 'UPDATED_AT' | 'TYPE' | 'STATE'
+export type SearchSortDirection = 'ASC' | 'DESC'
+export type SearchRangeField = 'OCCURRED_AT' | 'UPDATED_AT' | 'SOURCE_VERSION'
+export type SearchProjectionCondition = 'READY' | 'REBUILDING' | 'DEGRADED'
+
+export interface SearchRange {
+  field: SearchRangeField
+  gte?: string | number | null
+  lte?: string | number | null
+}
+
+export interface SearchRequest {
+  query?: string
+  types?: SearchDocumentType[]
+  namespace?: string | null
+  states?: string[]
+  labels?: Record<string, string>
+  fields?: Record<string, string>
+  from?: string | null
+  to?: string | null
+  ranges?: SearchRange[]
+  sort?: SearchSortField
+  direction?: SearchSortDirection
+  limit?: number
+  cursor?: string | null
+}
+
+export interface SearchDocument {
+  documentType: SearchDocumentType
+  documentId: string
+  namespace: string | null
+  title: string
+  summary: string
+  state: string | null
+  labels: Record<string, string>
+  fields: Record<string, unknown>
+  occurredAt: string
+  updatedAt: string
+  sourceVersion: number
+  relevance: number
+}
+
+export interface SearchResponse {
+  items: SearchDocument[]
+  nextCursor: string | null
+  deniedTypes: SearchDocumentType[]
+  projectionVersion: number
+  projectionCondition: SearchProjectionCondition
+}
+
+export interface SearchProjectionStatus {
+  projectionVersion: number
+  condition: SearchProjectionCondition
+  documentsIndexed: number
+  sourceDocuments: number
+  progress: number
+  lastProjectedAt: string | null
+  latestSourceAt: string | null
+  lagSeconds: number | null
+  rebuildStartedAt: string | null
+  rebuildCompletedAt: string | null
+  failures: number
+  lastError: string | null
 }
 
 export interface PersistedFlow {

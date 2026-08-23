@@ -297,4 +297,29 @@ describe('API client', () => {
     expect((fetchMock.mock.calls[4]?.[1] as RequestInit).method).toBe('PUT')
     expect((fetchMock.mock.calls[6]?.[1] as RequestInit).method).toBe('DELETE')
   })
+
+  it('builds typed search, status and rebuild requests', async () => {
+    const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(new Response('{}', { status: 200 })))
+    vi.stubGlobal('fetch', fetchMock)
+    const api = createApiClient({ token: 'token', tenant: 'default', namespace: '' })
+
+    await api.search({
+      query: 'needle', types: ['FLOW', 'LOG'], namespace: 'team.data',
+      labels: { team: 'platform' }, fields: { level: 'ERROR' },
+      sort: 'UPDATED_AT', direction: 'DESC', limit: 25,
+    })
+    await api.searchStatus()
+    await api.rebuildSearch('repair projection drift')
+
+    expect(fetchMock.mock.calls.map((call) => call[0] as string)).toEqual([
+      '/api/v1/search',
+      '/api/v1/search/status',
+      '/api/v1/search/rebuild',
+    ])
+    const searchInit = fetchMock.mock.calls[0]?.[1] as RequestInit
+    expect(searchInit.method).toBe('POST')
+    expect(JSON.parse(searchInit.body as string)).toMatchObject({ query: 'needle', types: ['FLOW', 'LOG'] })
+    const rebuildInit = fetchMock.mock.calls[2]?.[1] as RequestInit
+    expect(JSON.parse(rebuildInit.body as string)).toEqual({ reason: 'repair projection drift' })
+  })
 })

@@ -15,6 +15,7 @@ from amesh.adapters.postgres import (
     PostgresDashboardRepository,
     PostgresExecutionRepository,
     PostgresMetadataRepository,
+    PostgresSearchRepository,
     PostgresTenantRepository,
     PostgresTriggerRuntimeRepository,
 )
@@ -24,6 +25,7 @@ from amesh.app import (
     get_dashboard_repository,
     get_metadata_repository,
     get_repository,
+    get_search_repository,
     get_tenant_service,
     get_trigger_runtime_repository,
 )
@@ -86,6 +88,13 @@ async def cleanup_execution(engine: AsyncEngine, execution_id: UUID) -> None:
             {"execution_id": execution_id},
         )
         await connection.execute(
+            text(
+                "DELETE FROM search_documents "
+                "WHERE fields ->> 'executionId' = :execution_id"
+            ),
+            {"execution_id": str(execution_id)},
+        )
+        await connection.execute(
             text("DELETE FROM executions WHERE id = :execution_id"),
             {"execution_id": execution_id},
         )
@@ -115,6 +124,7 @@ def test_authenticated_flow_execution_and_webhook_api() -> None:
         repository = PostgresExecutionRepository(engine)
         metadata = PostgresMetadataRepository(engine)
         dashboards = PostgresDashboardRepository(engine)
+        search = PostgresSearchRepository(engine)
         authorization_service = AuthorizationService(PostgresAuthorizationRepository(engine))
         tenant_service = TenantService(PostgresTenantRepository(engine))
         settings = Settings(
@@ -124,6 +134,7 @@ def test_authenticated_flow_execution_and_webhook_api() -> None:
         app.dependency_overrides[get_repository] = lambda: repository
         app.dependency_overrides[get_metadata_repository] = lambda: metadata
         app.dependency_overrides[get_dashboard_repository] = lambda: dashboards
+        app.dependency_overrides[get_search_repository] = lambda: search
         app.dependency_overrides[get_authorization_service] = lambda: authorization_service
         app.dependency_overrides[get_tenant_service] = lambda: tenant_service
         app.dependency_overrides[get_trigger_runtime_repository] = lambda: (
@@ -264,6 +275,29 @@ tasks:
                 assert created_payload["taskRuns"][0]["result"] == {
                     "value": {"message": "manual", "trigger": {"source": "api"}},
                 }
+                assert await search.project_once(tenant_id="default", limit=5_000) > 0
+                searched = await client.post(
+                    "/api/v1/search",
+                    headers={"authorization": "Bearer test-token"},
+                    json={
+                        "namespace": namespace,
+                        "types": ["FLOW", "EXECUTION"],
+                        "fields": {"flowId": flow_id},
+                        "sort": "UPDATED_AT",
+                        "limit": 10,
+                    },
+                )
+                assert searched.status_code == 200
+                assert "FLOW" in {
+                    item["documentType"] for item in searched.json()["items"]
+                }
+                assert all(item["namespace"] == namespace for item in searched.json()["items"])
+                search_status = await client.get(
+                    "/api/v1/search/status",
+                    headers={"authorization": "Bearer test-token"},
+                )
+                assert search_status.status_code == 200
+                assert search_status.json()["documentsIndexed"] > 0
                 bounded_detail = await client.get(
                     f"/api/v1/executions/{execution_id}",
                     headers={"authorization": "Bearer test-token"},

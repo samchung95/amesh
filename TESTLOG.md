@@ -1,5 +1,41 @@
 # Test Log
 
+## EPIC-409: Search, indexing and retrieval projections — 2026-08-23
+
+Spec source: Agent Hotel card `c65` and canonical `backlog/epics.json` EPIC-409 DoD.
+
+Verified with `uv`, Python 3.13, PostgreSQL 17, React/TypeScript, Chromium and Docker Compose:
+
+- [x] The indexer projects authorized flow, execution, selected non-sensitive log, asset and audit
+  metadata into a replaceable tenant-hash-partitioned PostgreSQL projection. Redacted log content is
+  not indexed and source repositories remain authoritative.
+- [x] Typed full-text, trigram, field, range, state, label, namespace and time filters passed repository
+  tests. Relevance and whitelisted field sorts use deterministic tie-breakers and opaque cursors reject
+  changed request fingerprints.
+- [x] A tenant rebuild deleted only projection rows, incremented its version, repopulated from sources
+  and emitted immutable requested/completed evidence through the outbox. Status exposed condition,
+  counts, progress, lag, timestamps, failures and last error.
+- [x] A forced search failure recorded `DEGRADED` state while a new execution was accepted and the
+  indexer continued webhook/outbox work. A following healthy projection converged and returned
+  `READY`, demonstrating optional-search outage isolation.
+- [x] Fresh-database integration exercised PostgreSQL RLS with two tenants and observed disjoint result
+  IDs. The API separately authorized every requested resource type, reported denied types and never
+  sent them to the repository.
+- [x] A repeatable local 50,000-document search corpus passed the provisional p95 below 500 ms gate for
+  the fixed structured/full-text workload. The dedicated 10-million-retained-execution qualification
+  is deferred to a scale environment and does not block local functional delivery.
+- [x] The control room provides command-palette results and a dedicated workbench with all filters,
+  cursor paging, deep links, status, lag/failure indicators and authorized rebuild. Chromium covered
+  the workflow; 35 frontend unit tests, the production build and targeted lint passed.
+- [x] Focused API, service-role, authenticated MVP, repository and migration tests passed. Ruff and
+  strict mypy for 168 source files passed. Rebuilt API, executor, scheduler and indexer containers are
+  healthy; `/ready` reports `0044_search_projection.sql` at 44/44, live search returned tenant results
+  and the deployed `/search` HTML route returned HTTP 200.
+- [x] No LLM call or Python dependency was required. OpenRouter remains configured for
+  `openai/gpt-5.6-luna` when a later behavior test needs an LLM.
+
+Verdict: PASS — EPIC-409 functional requirements URS-F-0470 through URS-F-0477 are verified.
+
 ## EPIC-408: Dashboards, query language and saved views — 2026-08-23
 
 Spec source: Agent Hotel card `c64` and canonical `backlog/epics.json` EPIC-408 DoD.

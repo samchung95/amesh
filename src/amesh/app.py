@@ -53,6 +53,7 @@ from amesh.adapters.postgres import (
     PostgresMetadataRepository,
     PostgresRealtimeRepository,
     PostgresReconciliationRepository,
+    PostgresSearchRepository,
     PostgresServiceRegistryRepository,
     PostgresSharedResourceRepository,
     PostgresTaskCacheRepository,
@@ -190,6 +191,11 @@ from amesh.domain import (
     ResourceVersionConflict,
     RoleBinding,
     RoleDefinition,
+    SearchDocumentType,
+    SearchProjectionStatus,
+    SearchRebuildRequest,
+    SearchRequest,
+    SearchResponse,
     SecretBinding,
     SecretBindingWrite,
     ServiceDrainRequest,
@@ -298,6 +304,7 @@ from amesh.ports import (
     WorkerInventory,
 )
 from amesh.ports.dashboard_repository import DashboardQueryTimeout, DashboardVersionConflict
+from amesh.ports.search_repository import SearchCursorError, SearchUnavailableError
 from amesh.realtime import (
     ProvisionedWebhookSubscription,
     RealtimeEvent,
@@ -632,6 +639,17 @@ def get_dashboard_repository() -> PostgresDashboardRepository:
 DashboardRepositoryDependency = Annotated[
     PostgresDashboardRepository,
     Depends(get_dashboard_repository),
+]
+
+
+@lru_cache
+def get_search_repository() -> PostgresSearchRepository:
+    return PostgresSearchRepository(database_engine())
+
+
+SearchRepositoryDependency = Annotated[
+    PostgresSearchRepository,
+    Depends(get_search_repository),
 ]
 
 
@@ -1140,6 +1158,8 @@ async def get_ui_session(
         "executions.manage": ("execution", PermissionAction.MANAGE),
         "dashboards.view": ("dashboard", PermissionAction.VIEW),
         "dashboards.manage": ("dashboard", PermissionAction.UPDATE),
+        "search.view": ("search", PermissionAction.VIEW),
+        "search.manage": ("search", PermissionAction.MANAGE),
         "triggers.view": ("trigger", PermissionAction.VIEW),
         "triggers.manage": ("trigger", PermissionAction.MANAGE),
         "checks.view": ("check", PermissionAction.VIEW),
@@ -1490,6 +1510,132 @@ async def export_dashboard(
         media_type=media_type,
         headers={"Content-Disposition": f'attachment; filename="{dashboard_id}.{suffix}"'},
     )
+
+
+_SEARCH_DATA_RESOURCES = {
+    SearchDocumentType.FLOW: "flow",
+    SearchDocumentType.EXECUTION: "execution",
+    SearchDocumentType.LOG: "execution",
+    SearchDocumentType.ASSET: "asset",
+    SearchDocumentType.AUDIT: "audit",
+}
+
+
+@app.post("/api/v1/search", response_model=SearchResponse, tags=["search"])
+async def search_resources(
+    request: SearchRequest,
+    repository: SearchRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> SearchResponse:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="search",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+        namespace=request.namespace,
+    )
+    requested_types = request.types or tuple(SearchDocumentType)
+    decisions = await asyncio.gather(
+        *(
+            authorization_service.decide(
+                AuthorizationRequest(
+                    actor=actor,
+                    tenant_id=tenant_id,
+                    namespace=request.namespace,
+                    resource_type=_SEARCH_DATA_RESOURCES[document_type],
+                    action=PermissionAction.VIEW,
+                )
+            )
+            for document_type in requested_types
+        )
+    )
+    authorized = tuple(
+        document_type
+        for document_type, decision in zip(requested_types, decisions, strict=True)
+        if decision.allowed
+    )
+    denied = tuple(
+        document_type
+        for document_type, decision in zip(requested_types, decisions, strict=True)
+        if not decision.allowed
+    )
+    try:
+        return await repository.search(
+            request,
+            tenant_id=tenant_id,
+            authorized_types=authorized,
+            denied_types=denied,
+        )
+    except SearchCursorError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+    except SearchUnavailableError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=str(exc),
+        ) from exc
+
+
+@app.get(
+    "/api/v1/search/status",
+    response_model=SearchProjectionStatus,
+    tags=["search"],
+)
+async def get_search_status(
+    repository: SearchRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> SearchProjectionStatus:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="search",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+    )
+    try:
+        return await repository.status(tenant_id=tenant_id)
+    except SearchUnavailableError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=str(exc),
+        ) from exc
+
+
+@app.post(
+    "/api/v1/search/rebuild",
+    response_model=SearchProjectionStatus,
+    status_code=status.HTTP_202_ACCEPTED,
+    tags=["search"],
+)
+async def rebuild_search_projection(
+    request: SearchRebuildRequest,
+    repository: SearchRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> SearchProjectionStatus:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="search",
+        action=PermissionAction.MANAGE,
+        tenant_id=tenant_id,
+    )
+    try:
+        return await repository.request_rebuild(
+            tenant_id=tenant_id,
+            actor_id=str(actor.principal_id),
+            reason=request.reason,
+        )
+    except SearchUnavailableError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=str(exc),
+        ) from exc
 
 
 @app.get(

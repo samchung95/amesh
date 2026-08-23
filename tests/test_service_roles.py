@@ -9,6 +9,7 @@ import pytest
 from amesh import role
 from amesh.config import Settings
 from amesh.domain import ServiceRole
+from amesh.ports import SearchUnavailableError
 
 
 def test_independent_roles_route_only_their_owned_cycle(
@@ -98,4 +99,61 @@ def test_independent_roles_route_only_their_owned_cycle(
         ("indexer", ("second",)),
         ("webhook", ("first", "second")),
         ("maintenance", ("first", "second")),
+    ]
+
+
+def test_search_projection_failure_does_not_block_other_indexer_work() -> None:
+    calls: list[str] = []
+
+    class Transport:
+        async def publish_outbox(self, *, tenant_id: str, limit: int) -> int:
+            del limit
+            calls.append(f"outbox:{tenant_id}")
+            return 2
+
+    class Webhooks:
+        async def run_once(
+            self,
+            tenant_ids: list[str],
+            *,
+            worker_id: str,
+            limit: int,
+        ) -> int:
+            del worker_id, limit
+            calls.append(f"webhooks:{','.join(tenant_ids)}")
+            return 3
+
+    class FailedSearch:
+        async def project_once(self, *, tenant_id: str, limit: int) -> int:
+            del limit
+            calls.append(f"search:{tenant_id}")
+            raise SearchUnavailableError("projection table unavailable")
+
+        async def record_failure(self, *, tenant_id: str, error: str) -> None:
+            assert error == "projection table unavailable"
+            calls.append(f"failure:{tenant_id}")
+
+    async def scenario() -> None:
+        result = await role._run_cycle(
+            ServiceRole.INDEXER,
+            Settings(_env_file=None),
+            ["default"],
+            service=SimpleNamespace(instance=SimpleNamespace(instance_id=uuid4())),
+            executions=object(),  # type: ignore[arg-type]
+            scheduler=object(),  # type: ignore[arg-type]
+            backfills=object(),  # type: ignore[arg-type]
+            reconciliations=object(),  # type: ignore[arg-type]
+            workers=object(),  # type: ignore[arg-type]
+            transport=Transport(),  # type: ignore[arg-type]
+            webhook_dispatcher=Webhooks(),  # type: ignore[arg-type]
+            search_projector=FailedSearch(),
+        )
+        assert result == 5
+
+    asyncio.run(scenario())
+    assert calls == [
+        "outbox:default",
+        "webhooks:default",
+        "search:default",
+        "failure:default",
     ]

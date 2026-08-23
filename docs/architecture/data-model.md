@@ -74,4 +74,8 @@ in depth, not the sole authorization layer.
 - Metadata database: identifiers, state, structured small outputs and object references.
 - Object storage: files, artifacts, large outputs, import/export bundles and plugin packages.
 - Event bus: bounded messages and references, never large files.
-- Search: denormalized authorized projections that can be deleted and rebuilt.
+- Search: the tenant-hash-partitioned `search_documents` table contains denormalized authorized
+  metadata, generated weighted full-text vectors and structured JSON fields. Indexer-owned
+  `search_projection_state` records version, lag, failures and rebuild progress. Both can be deleted
+  and rebuilt without changing source resources or orchestration; rebuild/failure evidence remains in
+  the immutable `search_projection_events` stream and transactional outbox.

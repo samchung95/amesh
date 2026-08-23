@@ -16,6 +16,7 @@ docs/NamespacesApi.md
 docs/OperationsApi.md
 docs/PluginsApi.md
 docs/RealtimeApi.md
+docs/SearchApi.md
 docs/SystemApi.md
 docs/TaskCacheApi.md
 docs/TenantsApi.md
@@ -37,6 +38,7 @@ src/apis/NamespacesApi.ts
 src/apis/OperationsApi.ts
 src/apis/PluginsApi.ts
 src/apis/RealtimeApi.ts
+src/apis/SearchApi.ts
 src/apis/SystemApi.ts
 src/apis/TaskCacheApi.ts
 src/apis/TenantsApi.ts
@@ -135,6 +137,7 @@ src/models/FlowRevisionLifecycleRequest.ts
 src/models/FlowRevisionRecord.ts
 src/models/FlowRevisionRestoreRequest.ts
 src/models/FlowValidationResult.ts
+src/models/Gte.ts
 src/models/HTTPValidationError.ts
 src/models/HealthResponse.ts
 src/models/IsolatedPluginRuntimeSnapshot.ts
@@ -153,6 +156,7 @@ src/models/LogLevel.ts
 src/models/LogSourceStream.ts
 src/models/LoginRequest.ts
 src/models/LoginResponse.ts
+src/models/Lte.ts
 src/models/MetricKind.ts
 src/models/NamespaceAuthorizationBoundary.ts
 src/models/NamespaceCheckPolicy.ts
@@ -232,6 +236,17 @@ src/models/RunnerId.ts
 src/models/RunnerMode.ts
 src/models/RunnerNetworkAccess.ts
 src/models/SchedulePreview.ts
+src/models/SearchDocument.ts
+src/models/SearchDocumentType.ts
+src/models/SearchProjectionCondition.ts
+src/models/SearchProjectionStatus.ts
+src/models/SearchRange.ts
+src/models/SearchRangeField.ts
+src/models/SearchRebuildRequest.ts
+src/models/SearchRequest.ts
+src/models/SearchResponse.ts
+src/models/SearchSortDirection.ts
+src/models/SearchSortField.ts
 src/models/SecretBinding.ts
 src/models/SecretBindingExport.ts
 src/models/SecretBindingWrite.ts

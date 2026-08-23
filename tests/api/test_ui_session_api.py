@@ -84,6 +84,8 @@ def test_ui_session_returns_server_authoritative_capabilities_and_privacy_policy
             "namespaceResources.read": False,
             "namespaceResources.write": False,
             "plugins.view": False,
+            "search.manage": False,
+            "search.view": False,
             "secretBindings.write": False,
             "triggers.manage": False,
             "triggers.view": False,

@@ -16,6 +16,7 @@ import { FlowsPage } from './pages/FlowsPage'
 import { PlaceholderPage } from './pages/PlaceholderPage'
 import { NamespaceResourcesPage } from './pages/NamespaceResourcesPage'
 import { PluginsPage } from './pages/PluginsPage'
+import { SearchPage } from './pages/SearchPage'
 import { TriggersPage } from './pages/TriggersPage'
 import { ChecksPage } from './pages/ChecksPage'
 
@@ -65,6 +66,7 @@ function WorkspaceRoutes({ session }: { session: UiSession }) {
     <Routes>
       <Route element={<AppShell session={session} />}>
         <Route index element={<CapabilityRoute session={session} capability="dashboards.view" title="Dashboard"><DashboardPage session={session} /></CapabilityRoute>} />
+        <Route path="search" element={<CapabilityRoute session={session} capability="search.view" title="Search"><SearchPage session={session} /></CapabilityRoute>} />
         <Route path="flows" element={<CapabilityRoute session={session} capability="flows.view" title="Flows"><FlowsPage session={session} /></CapabilityRoute>} />
         <Route path="flows/new" element={<CapabilityRoute session={session} capability="flows.create" title="Create flow"><FlowEditorPage session={session} /></CapabilityRoute>} />
         <Route path="flows/:namespace/:flowId/edit" element={<CapabilityRoute session={session} capability="flows.update" title="Edit flow"><FlowEditorPage session={session} /></CapabilityRoute>} />
