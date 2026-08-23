@@ -51,6 +51,10 @@ amesh_client/models/admission_diagnostics.py
 amesh_client/models/admission_outcome.py
 amesh_client/models/admission_resource_type.py
 amesh_client/models/admission_scope.py
+amesh_client/models/announcement.py
+amesh_client/models/announcement_audience.py
+amesh_client/models/announcement_create_request.py
+amesh_client/models/announcement_severity.py
 amesh_client/models/app_form.py
 amesh_client/models/asset_access_mode.py
 amesh_client/models/asset_catalog_entry.py
@@ -213,6 +217,16 @@ amesh_client/models/namespace_resource_import_result.py
 amesh_client/models/namespace_workflow_metadata.py
 amesh_client/models/namespace_workflow_metadata_update.py
 amesh_client/models/namespace_workflow_metadata_view.py
+amesh_client/models/operational_boundary.py
+amesh_client/models/operational_control.py
+amesh_client/models/operational_control_acknowledgement.py
+amesh_client/models/operational_control_action_kind.py
+amesh_client/models/operational_control_action_request.py
+amesh_client/models/operational_control_create_request.py
+amesh_client/models/operational_control_event.py
+amesh_client/models/operational_control_kind.py
+amesh_client/models/operational_control_scope.py
+amesh_client/models/operational_control_state.py
 amesh_client/models/permission.py
 amesh_client/models/permission_action.py
 amesh_client/models/permission_effect.py
@@ -299,6 +313,7 @@ amesh_client/models/runner_capabilities.py
 amesh_client/models/runner_id.py
 amesh_client/models/runner_mode.py
 amesh_client/models/runner_network_access.py
+amesh_client/models/running_work_policy.py
 amesh_client/models/schedule_preview.py
 amesh_client/models/scim_group_request.py
 amesh_client/models/scim_group_resource.py

@@ -76,6 +76,10 @@ model_admission_diagnostics.go
 model_admission_outcome.go
 model_admission_resource_type.go
 model_admission_scope.go
+model_announcement.go
+model_announcement_audience.go
+model_announcement_create_request.go
+model_announcement_severity.go
 model_app_form.go
 model_asset_access_mode.go
 model_asset_catalog_entry.go
@@ -238,6 +242,16 @@ model_namespace_resource_import_result.go
 model_namespace_workflow_metadata.go
 model_namespace_workflow_metadata_update.go
 model_namespace_workflow_metadata_view.go
+model_operational_boundary.go
+model_operational_control.go
+model_operational_control_acknowledgement.go
+model_operational_control_action_kind.go
+model_operational_control_action_request.go
+model_operational_control_create_request.go
+model_operational_control_event.go
+model_operational_control_kind.go
+model_operational_control_scope.go
+model_operational_control_state.go
 model_permission.go
 model_permission_action.go
 model_permission_effect.go
@@ -324,6 +338,7 @@ model_runner_capabilities.go
 model_runner_id.go
 model_runner_mode.go
 model_runner_network_access.go
+model_running_work_policy.go
 model_schedule_preview.go
 model_scim_group_request.go
 model_scim_group_resource.go

@@ -1,5 +1,49 @@
 # Test Log
 
+## EPIC-509: Announcements, maintenance mode and kill switch — 2026-08-23
+
+Spec source: Agent Hotel card `c73` and canonical `backlog/epics.json` EPIC-509 DoD.
+
+Verified with `uv`, Python 3.13, PostgreSQL 17, React/TypeScript, Chromium and Docker Compose:
+
+- [x] Migration `0050_operational_controls.sql` applies to a fresh database and adds scheduled
+  announcements, scoped maintenance/kill-switch state, component acknowledgements, lifecycle
+  evidence, expiry processing, tenant RLS and PostgreSQL change notifications.
+- [x] Instance, tenant, namespace, flow, plugin and runner scopes independently gate authoring, new
+  executions, triggers, API writes and worker dispatch. Emergency controls require actor, reason and
+  expiry or review time; optimistic versions protect extend, bypass and deactivate actions.
+- [x] Existing work follows an explicit `CONTINUE`, `DRAIN` or `CANCEL` policy. Direct worker tests
+  proved DRAIN preserves running work without dispatch, cron launch is blocked before persistence,
+  and accepted trigger occurrences can be deferred without consuming a delivery attempt.
+- [x] Fresh-PostgreSQL repository coverage proved tenant isolation, runtime RLS, target matching,
+  severity ordering, version conflict, acknowledgement, bypass, deactivation, automatic expiry and
+  `ACTIVATE`/`BYPASS`/`DEACTIVATE`/`EXPIRE` evidence. Authorized API coverage proved announcement
+  publication, an actual HTTP `423` write gate, acknowledgement visibility and recovery actions.
+- [x] The Administration Controls UI publishes announcements and operates maintenance or kill
+  switches with boundary, scope, target, running-policy and expiry controls. Targeted Chromium
+  acceptance, the existing administration regression and the production frontend build passed.
+- [x] Ruff passed on affected paths and strict mypy passed across 187 source files. Focused migration,
+  scheduler, trigger, backfill, worker, service-role, repository, API and generated-contract tests
+  passed; OpenAPI and Python, TypeScript, Java and Go SDKs are current.
+- [x] API, executor, scheduler and indexer images rebuilt successfully and are healthy. Live readiness
+  reports 50/50 with `0050_operational_controls.sql`. A live control rejected a tenant write with
+  HTTP `423`, then exposed version-1 acknowledgements from webserver, scheduler, executor and indexer
+  within six seconds before bypass/deactivation; the test announcement was also removed.
+- [x] No LLM behavior was involved, so no billable OpenRouter call was required. Applicable LLM tests
+  remain pinned to `openai/gpt-5.6-luna`.
+
+Qualification boundary: local durable drain, retry and propagation behavior is qualified. External
+multi-node rolling-upgrade transfer, failure-zone behavior and silent-loss certification remain
+unverified under shared `URS-NFR-AVAILABILITY-004`; EPIC-509 does not claim those external results.
+
+Deferred unrelated test hygiene: the broad API run still sees the existing exact UI-capability list
+drift introduced by EPIC-508 and shared live-database final-admin contamination. Focused EPIC-509 API
+coverage passes against a fresh database. The known `c29` storage-metric registration assertion also
+remains dependent on process registration state. These findings do not affect the shipped control
+path.
+
+Verdict: PASS — EPIC-509 functional requirements URS-F-0566 through URS-F-0573 are verified.
+
 ## EPIC-508: Apps, forms and human approval tasks — 2026-08-23
 
 Spec source: Agent Hotel card `c72` and canonical `backlog/epics.json` EPIC-508 DoD.

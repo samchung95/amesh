@@ -294,6 +294,12 @@
       "mode": "expand",
       "onlineCompatible": true,
       "rollbackGuidance": "Pause app revision writes and new human-approval tasks; retain app revisions, participant actions and pending decisions; then forward-fix the additive ledgers and resume reconciliation."
+    },
+    {
+      "file": "0050_operational_controls.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Deactivate operational controls through the exempt administration API, preserve announcement, control, acknowledgement and event evidence, then forward-fix the additive tables and enforcement readers."
     }
   ]
 }

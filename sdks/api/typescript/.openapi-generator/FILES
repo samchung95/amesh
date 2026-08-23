@@ -73,6 +73,10 @@ src/models/AdmissionDiagnostics.ts
 src/models/AdmissionOutcome.ts
 src/models/AdmissionResourceType.ts
 src/models/AdmissionScope.ts
+src/models/Announcement.ts
+src/models/AnnouncementAudience.ts
+src/models/AnnouncementCreateRequest.ts
+src/models/AnnouncementSeverity.ts
 src/models/AppForm.ts
 src/models/AssetAccessMode.ts
 src/models/AssetCatalogEntry.ts
@@ -235,6 +239,16 @@ src/models/NamespaceResourceImportResult.ts
 src/models/NamespaceWorkflowMetadata.ts
 src/models/NamespaceWorkflowMetadataUpdate.ts
 src/models/NamespaceWorkflowMetadataView.ts
+src/models/OperationalBoundary.ts
+src/models/OperationalControl.ts
+src/models/OperationalControlAcknowledgement.ts
+src/models/OperationalControlActionKind.ts
+src/models/OperationalControlActionRequest.ts
+src/models/OperationalControlCreateRequest.ts
+src/models/OperationalControlEvent.ts
+src/models/OperationalControlKind.ts
+src/models/OperationalControlScope.ts
+src/models/OperationalControlState.ts
 src/models/Permission.ts
 src/models/PermissionAction.ts
 src/models/PermissionEffect.ts
@@ -321,6 +335,7 @@ src/models/RunnerCapabilities.ts
 src/models/RunnerId.ts
 src/models/RunnerMode.ts
 src/models/RunnerNetworkAccess.ts
+src/models/RunningWorkPolicy.ts
 src/models/SchedulePreview.ts
 src/models/ScimGroupRequest.ts
 src/models/ScimGroupResource.ts

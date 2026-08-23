@@ -19,10 +19,40 @@ import {
     AdmissionDiagnosticsToJSON,
 } from '../models/AdmissionDiagnostics';
 import {
+    type Announcement,
+    AnnouncementFromJSON,
+    AnnouncementToJSON,
+} from '../models/Announcement';
+import {
+    type AnnouncementCreateRequest,
+    AnnouncementCreateRequestFromJSON,
+    AnnouncementCreateRequestToJSON,
+} from '../models/AnnouncementCreateRequest';
+import {
     type HTTPValidationError,
     HTTPValidationErrorFromJSON,
     HTTPValidationErrorToJSON,
 } from '../models/HTTPValidationError';
+import {
+    type OperationalControl,
+    OperationalControlFromJSON,
+    OperationalControlToJSON,
+} from '../models/OperationalControl';
+import {
+    type OperationalControlActionRequest,
+    OperationalControlActionRequestFromJSON,
+    OperationalControlActionRequestToJSON,
+} from '../models/OperationalControlActionRequest';
+import {
+    type OperationalControlCreateRequest,
+    OperationalControlCreateRequestFromJSON,
+    OperationalControlCreateRequestToJSON,
+} from '../models/OperationalControlCreateRequest';
+import {
+    type OperationalControlEvent,
+    OperationalControlEventFromJSON,
+    OperationalControlEventToJSON,
+} from '../models/OperationalControlEvent';
 import {
     type ReconciliationRequest,
     ReconciliationRequestFromJSON,
@@ -49,6 +79,29 @@ import {
     ServiceTopologyToJSON,
 } from '../models/ServiceTopology';
 
+export interface ActivateOperationalControlApiV1OperationalControlsPostRequest {
+    operationalControlCreateRequest: OperationalControlCreateRequest;
+    authorization?: string | null;
+    xAmeshCSRF?: string | null;
+    xAmeshTenant?: string | null;
+}
+
+export interface ChangeOperationalControlApiV1OperationalControlsControlIdActionsPostRequest {
+    controlId: string;
+    operationalControlActionRequest: OperationalControlActionRequest;
+    authorization?: string | null;
+    xAmeshCSRF?: string | null;
+    xAmeshTenant?: string | null;
+}
+
+export interface DeactivateAnnouncementApiV1AnnouncementsAnnouncementIdDeleteRequest {
+    announcementId: string;
+    expectedVersion: number;
+    authorization?: string | null;
+    xAmeshCSRF?: string | null;
+    xAmeshTenant?: string | null;
+}
+
 export interface DrainServiceInstanceApiV1OperationsServicesInstanceIdDrainPostRequest {
     instanceId: string;
     serviceDrainRequest: ServiceDrainRequest;
@@ -74,8 +127,36 @@ export interface GetServiceTopologyApiV1OperationsTopologyGetRequest {
     xAmeshCSRF?: string | null;
 }
 
+export interface ListAnnouncementsApiV1AnnouncementsGetRequest {
+    namespace?: string | null;
+    includeInactive?: boolean;
+    authorization?: string | null;
+    xAmeshCSRF?: string | null;
+    xAmeshTenant?: string | null;
+}
+
+export interface ListOperationalControlEventsApiV1OperationalControlEventsGetRequest {
+    limit?: number;
+    authorization?: string | null;
+    xAmeshCSRF?: string | null;
+    xAmeshTenant?: string | null;
+}
+
+export interface ListOperationalControlsApiV1OperationalControlsGetRequest {
+    authorization?: string | null;
+    xAmeshCSRF?: string | null;
+    xAmeshTenant?: string | null;
+}
+
 export interface ListReconciliationsApiV1ReconciliationsGetRequest {
     limit?: number;
+    authorization?: string | null;
+    xAmeshCSRF?: string | null;
+    xAmeshTenant?: string | null;
+}
+
+export interface PublishAnnouncementApiV1AnnouncementsPostRequest {
+    announcementCreateRequest: AnnouncementCreateRequest;
     authorization?: string | null;
     xAmeshCSRF?: string | null;
     xAmeshTenant?: string | null;
@@ -99,6 +180,200 @@ export interface RunReconciliationApiV1ReconciliationsPostRequest {
  *
  */
 export class OperationsApi extends runtime.BaseAPI {
+
+    /**
+     * Creates request options for activateOperationalControlApiV1OperationalControlsPost without sending the request
+     */
+    async activateOperationalControlApiV1OperationalControlsPostRequestOpts(requestParameters: ActivateOperationalControlApiV1OperationalControlsPostRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['operationalControlCreateRequest'] == null) {
+            throw new runtime.RequiredError(
+                'operationalControlCreateRequest',
+                'Required parameter "operationalControlCreateRequest" was null or undefined when calling activateOperationalControlApiV1OperationalControlsPost().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        if (requestParameters['authorization'] != null) {
+            headerParameters['authorization'] = String(requestParameters['authorization']);
+        }
+
+        if (requestParameters['xAmeshCSRF'] != null) {
+            headerParameters['X-Amesh-CSRF'] = String(requestParameters['xAmeshCSRF']);
+        }
+
+        if (requestParameters['xAmeshTenant'] != null) {
+            headerParameters['X-Amesh-Tenant'] = String(requestParameters['xAmeshTenant']);
+        }
+
+
+        let urlPath = `/api/v1/operational-controls`;
+
+        return {
+            path: urlPath,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: OperationalControlCreateRequestToJSON(requestParameters['operationalControlCreateRequest']),
+        };
+    }
+
+    /**
+     * Activate Operational Control
+     */
+    async activateOperationalControlApiV1OperationalControlsPostRaw(requestParameters: ActivateOperationalControlApiV1OperationalControlsPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<OperationalControl>> {
+        const requestOptions = await this.activateOperationalControlApiV1OperationalControlsPostRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => OperationalControlFromJSON(jsonValue));
+    }
+
+    /**
+     * Activate Operational Control
+     */
+    async activateOperationalControlApiV1OperationalControlsPost(requestParameters: ActivateOperationalControlApiV1OperationalControlsPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<OperationalControl> {
+        const response = await this.activateOperationalControlApiV1OperationalControlsPostRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Creates request options for changeOperationalControlApiV1OperationalControlsControlIdActionsPost without sending the request
+     */
+    async changeOperationalControlApiV1OperationalControlsControlIdActionsPostRequestOpts(requestParameters: ChangeOperationalControlApiV1OperationalControlsControlIdActionsPostRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['controlId'] == null) {
+            throw new runtime.RequiredError(
+                'controlId',
+                'Required parameter "controlId" was null or undefined when calling changeOperationalControlApiV1OperationalControlsControlIdActionsPost().'
+            );
+        }
+
+        if (requestParameters['operationalControlActionRequest'] == null) {
+            throw new runtime.RequiredError(
+                'operationalControlActionRequest',
+                'Required parameter "operationalControlActionRequest" was null or undefined when calling changeOperationalControlApiV1OperationalControlsControlIdActionsPost().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        if (requestParameters['authorization'] != null) {
+            headerParameters['authorization'] = String(requestParameters['authorization']);
+        }
+
+        if (requestParameters['xAmeshCSRF'] != null) {
+            headerParameters['X-Amesh-CSRF'] = String(requestParameters['xAmeshCSRF']);
+        }
+
+        if (requestParameters['xAmeshTenant'] != null) {
+            headerParameters['X-Amesh-Tenant'] = String(requestParameters['xAmeshTenant']);
+        }
+
+
+        let urlPath = `/api/v1/operational-controls/{control_id}/actions`;
+        urlPath = urlPath.replace('{control_id}', encodeURIComponent(String(requestParameters['controlId'])));
+
+        return {
+            path: urlPath,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: OperationalControlActionRequestToJSON(requestParameters['operationalControlActionRequest']),
+        };
+    }
+
+    /**
+     * Change Operational Control
+     */
+    async changeOperationalControlApiV1OperationalControlsControlIdActionsPostRaw(requestParameters: ChangeOperationalControlApiV1OperationalControlsControlIdActionsPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<OperationalControl>> {
+        const requestOptions = await this.changeOperationalControlApiV1OperationalControlsControlIdActionsPostRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => OperationalControlFromJSON(jsonValue));
+    }
+
+    /**
+     * Change Operational Control
+     */
+    async changeOperationalControlApiV1OperationalControlsControlIdActionsPost(requestParameters: ChangeOperationalControlApiV1OperationalControlsControlIdActionsPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<OperationalControl> {
+        const response = await this.changeOperationalControlApiV1OperationalControlsControlIdActionsPostRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Creates request options for deactivateAnnouncementApiV1AnnouncementsAnnouncementIdDelete without sending the request
+     */
+    async deactivateAnnouncementApiV1AnnouncementsAnnouncementIdDeleteRequestOpts(requestParameters: DeactivateAnnouncementApiV1AnnouncementsAnnouncementIdDeleteRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['announcementId'] == null) {
+            throw new runtime.RequiredError(
+                'announcementId',
+                'Required parameter "announcementId" was null or undefined when calling deactivateAnnouncementApiV1AnnouncementsAnnouncementIdDelete().'
+            );
+        }
+
+        if (requestParameters['expectedVersion'] == null) {
+            throw new runtime.RequiredError(
+                'expectedVersion',
+                'Required parameter "expectedVersion" was null or undefined when calling deactivateAnnouncementApiV1AnnouncementsAnnouncementIdDelete().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        if (requestParameters['expectedVersion'] != null) {
+            queryParameters['expectedVersion'] = requestParameters['expectedVersion'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (requestParameters['authorization'] != null) {
+            headerParameters['authorization'] = String(requestParameters['authorization']);
+        }
+
+        if (requestParameters['xAmeshCSRF'] != null) {
+            headerParameters['X-Amesh-CSRF'] = String(requestParameters['xAmeshCSRF']);
+        }
+
+        if (requestParameters['xAmeshTenant'] != null) {
+            headerParameters['X-Amesh-Tenant'] = String(requestParameters['xAmeshTenant']);
+        }
+
+
+        let urlPath = `/api/v1/announcements/{announcement_id}`;
+        urlPath = urlPath.replace('{announcement_id}', encodeURIComponent(String(requestParameters['announcementId'])));
+
+        return {
+            path: urlPath,
+            method: 'DELETE',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     * Deactivate Announcement
+     */
+    async deactivateAnnouncementApiV1AnnouncementsAnnouncementIdDeleteRaw(requestParameters: DeactivateAnnouncementApiV1AnnouncementsAnnouncementIdDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Announcement>> {
+        const requestOptions = await this.deactivateAnnouncementApiV1AnnouncementsAnnouncementIdDeleteRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => AnnouncementFromJSON(jsonValue));
+    }
+
+    /**
+     * Deactivate Announcement
+     */
+    async deactivateAnnouncementApiV1AnnouncementsAnnouncementIdDelete(requestParameters: DeactivateAnnouncementApiV1AnnouncementsAnnouncementIdDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Announcement> {
+        const response = await this.deactivateAnnouncementApiV1AnnouncementsAnnouncementIdDeleteRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
 
     /**
      * Creates request options for drainServiceInstanceApiV1OperationsServicesInstanceIdDrainPost without sending the request
@@ -315,6 +590,165 @@ export class OperationsApi extends runtime.BaseAPI {
     }
 
     /**
+     * Creates request options for listAnnouncementsApiV1AnnouncementsGet without sending the request
+     */
+    async listAnnouncementsApiV1AnnouncementsGetRequestOpts(requestParameters: ListAnnouncementsApiV1AnnouncementsGetRequest): Promise<runtime.RequestOpts> {
+        const queryParameters: any = {};
+
+        if (requestParameters['namespace'] != null) {
+            queryParameters['namespace'] = requestParameters['namespace'];
+        }
+
+        if (requestParameters['includeInactive'] != null) {
+            queryParameters['includeInactive'] = requestParameters['includeInactive'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (requestParameters['authorization'] != null) {
+            headerParameters['authorization'] = String(requestParameters['authorization']);
+        }
+
+        if (requestParameters['xAmeshCSRF'] != null) {
+            headerParameters['X-Amesh-CSRF'] = String(requestParameters['xAmeshCSRF']);
+        }
+
+        if (requestParameters['xAmeshTenant'] != null) {
+            headerParameters['X-Amesh-Tenant'] = String(requestParameters['xAmeshTenant']);
+        }
+
+
+        let urlPath = `/api/v1/announcements`;
+
+        return {
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     * List Announcements
+     */
+    async listAnnouncementsApiV1AnnouncementsGetRaw(requestParameters: ListAnnouncementsApiV1AnnouncementsGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<Announcement>>> {
+        const requestOptions = await this.listAnnouncementsApiV1AnnouncementsGetRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(AnnouncementFromJSON));
+    }
+
+    /**
+     * List Announcements
+     */
+    async listAnnouncementsApiV1AnnouncementsGet(requestParameters: ListAnnouncementsApiV1AnnouncementsGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<Announcement>> {
+        const response = await this.listAnnouncementsApiV1AnnouncementsGetRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Creates request options for listOperationalControlEventsApiV1OperationalControlEventsGet without sending the request
+     */
+    async listOperationalControlEventsApiV1OperationalControlEventsGetRequestOpts(requestParameters: ListOperationalControlEventsApiV1OperationalControlEventsGetRequest): Promise<runtime.RequestOpts> {
+        const queryParameters: any = {};
+
+        if (requestParameters['limit'] != null) {
+            queryParameters['limit'] = requestParameters['limit'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (requestParameters['authorization'] != null) {
+            headerParameters['authorization'] = String(requestParameters['authorization']);
+        }
+
+        if (requestParameters['xAmeshCSRF'] != null) {
+            headerParameters['X-Amesh-CSRF'] = String(requestParameters['xAmeshCSRF']);
+        }
+
+        if (requestParameters['xAmeshTenant'] != null) {
+            headerParameters['X-Amesh-Tenant'] = String(requestParameters['xAmeshTenant']);
+        }
+
+
+        let urlPath = `/api/v1/operational-control-events`;
+
+        return {
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     * List Operational Control Events
+     */
+    async listOperationalControlEventsApiV1OperationalControlEventsGetRaw(requestParameters: ListOperationalControlEventsApiV1OperationalControlEventsGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<OperationalControlEvent>>> {
+        const requestOptions = await this.listOperationalControlEventsApiV1OperationalControlEventsGetRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(OperationalControlEventFromJSON));
+    }
+
+    /**
+     * List Operational Control Events
+     */
+    async listOperationalControlEventsApiV1OperationalControlEventsGet(requestParameters: ListOperationalControlEventsApiV1OperationalControlEventsGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<OperationalControlEvent>> {
+        const response = await this.listOperationalControlEventsApiV1OperationalControlEventsGetRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Creates request options for listOperationalControlsApiV1OperationalControlsGet without sending the request
+     */
+    async listOperationalControlsApiV1OperationalControlsGetRequestOpts(requestParameters: ListOperationalControlsApiV1OperationalControlsGetRequest): Promise<runtime.RequestOpts> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (requestParameters['authorization'] != null) {
+            headerParameters['authorization'] = String(requestParameters['authorization']);
+        }
+
+        if (requestParameters['xAmeshCSRF'] != null) {
+            headerParameters['X-Amesh-CSRF'] = String(requestParameters['xAmeshCSRF']);
+        }
+
+        if (requestParameters['xAmeshTenant'] != null) {
+            headerParameters['X-Amesh-Tenant'] = String(requestParameters['xAmeshTenant']);
+        }
+
+
+        let urlPath = `/api/v1/operational-controls`;
+
+        return {
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     * List Operational Controls
+     */
+    async listOperationalControlsApiV1OperationalControlsGetRaw(requestParameters: ListOperationalControlsApiV1OperationalControlsGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<OperationalControl>>> {
+        const requestOptions = await this.listOperationalControlsApiV1OperationalControlsGetRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(OperationalControlFromJSON));
+    }
+
+    /**
+     * List Operational Controls
+     */
+    async listOperationalControlsApiV1OperationalControlsGet(requestParameters: ListOperationalControlsApiV1OperationalControlsGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<OperationalControl>> {
+        const response = await this.listOperationalControlsApiV1OperationalControlsGetRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
      * Creates request options for listReconciliationsApiV1ReconciliationsGet without sending the request
      */
     async listReconciliationsApiV1ReconciliationsGetRequestOpts(requestParameters: ListReconciliationsApiV1ReconciliationsGetRequest): Promise<runtime.RequestOpts> {
@@ -364,6 +798,65 @@ export class OperationsApi extends runtime.BaseAPI {
      */
     async listReconciliationsApiV1ReconciliationsGet(requestParameters: ListReconciliationsApiV1ReconciliationsGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<ReconciliationRun>> {
         const response = await this.listReconciliationsApiV1ReconciliationsGetRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Creates request options for publishAnnouncementApiV1AnnouncementsPost without sending the request
+     */
+    async publishAnnouncementApiV1AnnouncementsPostRequestOpts(requestParameters: PublishAnnouncementApiV1AnnouncementsPostRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['announcementCreateRequest'] == null) {
+            throw new runtime.RequiredError(
+                'announcementCreateRequest',
+                'Required parameter "announcementCreateRequest" was null or undefined when calling publishAnnouncementApiV1AnnouncementsPost().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        if (requestParameters['authorization'] != null) {
+            headerParameters['authorization'] = String(requestParameters['authorization']);
+        }
+
+        if (requestParameters['xAmeshCSRF'] != null) {
+            headerParameters['X-Amesh-CSRF'] = String(requestParameters['xAmeshCSRF']);
+        }
+
+        if (requestParameters['xAmeshTenant'] != null) {
+            headerParameters['X-Amesh-Tenant'] = String(requestParameters['xAmeshTenant']);
+        }
+
+
+        let urlPath = `/api/v1/announcements`;
+
+        return {
+            path: urlPath,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: AnnouncementCreateRequestToJSON(requestParameters['announcementCreateRequest']),
+        };
+    }
+
+    /**
+     * Publish Announcement
+     */
+    async publishAnnouncementApiV1AnnouncementsPostRaw(requestParameters: PublishAnnouncementApiV1AnnouncementsPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Announcement>> {
+        const requestOptions = await this.publishAnnouncementApiV1AnnouncementsPostRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => AnnouncementFromJSON(jsonValue));
+    }
+
+    /**
+     * Publish Announcement
+     */
+    async publishAnnouncementApiV1AnnouncementsPost(requestParameters: PublishAnnouncementApiV1AnnouncementsPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Announcement> {
+        const response = await this.publishAnnouncementApiV1AnnouncementsPostRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

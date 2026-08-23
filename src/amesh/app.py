@@ -57,6 +57,7 @@ from amesh.adapters.postgres import (
     PostgresFederationRepository,
     PostgresHumanTaskRepository,
     PostgresMetadataRepository,
+    PostgresOperationalControlRepository,
     PostgresPluginPolicyRepository,
     PostgresRealtimeRepository,
     PostgresReconciliationRepository,
@@ -71,6 +72,9 @@ from amesh.adapters.postgres import (
 from amesh.adapters.postgres.human_task_repository import (
     HumanTaskConflict,
     WorkflowAppVersionConflict,
+)
+from amesh.adapters.postgres.operational_control_repository import (
+    OperationalControlVersionConflict,
 )
 from amesh.api.contracts import (
     CollectionQuery,
@@ -184,6 +188,9 @@ from amesh.domain import (
     AdmissionDecision,
     AdmissionDiagnostics,
     AdmissionResourceType,
+    Announcement,
+    AnnouncementAudience,
+    AnnouncementCreateRequest,
     AuditEventPage,
     AuditExportDestination,
     AuditExportFormat,
@@ -236,6 +243,12 @@ from amesh.domain import (
     NamespaceFile,
     NamespaceFileVersion,
     NamespaceResourceBundle,
+    OperationalBoundary,
+    OperationalControl,
+    OperationalControlActionRequest,
+    OperationalControlCreateRequest,
+    OperationalControlEvent,
+    OperationalControlScope,
     PermissionAction,
     PluginPolicyDecision,
     PluginPolicyImpactPreview,
@@ -858,6 +871,17 @@ HumanTaskRepositoryDependency = Annotated[
 
 
 @lru_cache
+def get_operational_control_repository() -> PostgresOperationalControlRepository:
+    return PostgresOperationalControlRepository(database_engine())
+
+
+OperationalControlRepositoryDependency = Annotated[
+    PostgresOperationalControlRepository,
+    Depends(get_operational_control_repository),
+]
+
+
+@lru_cache
 def get_human_task_service() -> HumanTaskService:
     return HumanTaskService(
         get_human_task_repository(),
@@ -918,7 +942,11 @@ BackfillRepositoryDependency = Annotated[
 
 @lru_cache
 def get_backfill_service() -> BackfillService:
-    return BackfillService(get_repository(), get_backfill_repository())
+    return BackfillService(
+        get_repository(),
+        get_backfill_repository(),
+        get_operational_control_repository(),
+    )
 
 
 BackfillServiceDependency = Annotated[
@@ -1477,7 +1505,7 @@ def _scim_group_patch(
                 flags=re.IGNORECASE,
             )
             if matched is None:
-                raise ValueError("SCIM member removal requires members[value eq \"uuid\"]")
+                raise ValueError('SCIM member removal requires members[value eq "uuid"]')
             members.discard(UUID(matched.group(1)))
             members_changed = True
         else:
@@ -1489,9 +1517,57 @@ def _scim_group_patch(
 ActorDependency = Annotated[ActorContext, Depends(authenticate_actor)]
 
 
+def _request_control_boundaries(request: Request) -> tuple[OperationalBoundary, ...]:
+    if request.method not in {"POST", "PUT", "PATCH", "DELETE"}:
+        return ()
+    path = request.url.path
+    if path.startswith("/api/v1/operational-controls"):
+        return ()
+    boundaries = [OperationalBoundary.API_WRITES]
+    authoring_roots = (
+        "/api/v1/flows",
+        "/api/v1/apps",
+        "/api/v1/dashboards",
+        "/api/v1/plugin-policy",
+        "/api/v1/plugin-registry",
+        "/api/v1/namespaces",
+    )
+    if path.startswith(authoring_roots):
+        boundaries.append(OperationalBoundary.AUTHORING)
+    return tuple(boundaries)
+
+
+async def _enforce_request_controls(
+    repository: PostgresOperationalControlRepository,
+    request: Request,
+    *,
+    tenant_id: str,
+) -> None:
+    for boundary in _request_control_boundaries(request):
+        decision = await repository.evaluate(
+            boundary,
+            tenant_id=tenant_id,
+            namespace=request.path_params.get("namespace"),
+            flow_id=request.path_params.get("flow_id"),
+            component_id="webserver:api",
+            component_role=ServiceRole.WEBSERVER.value,
+        )
+        if decision.blocked:
+            raise HTTPException(
+                status_code=status.HTTP_423_LOCKED,
+                detail={
+                    "message": f"{boundary.value.lower()} blocked by operational control",
+                    "boundary": boundary.value,
+                    "controlIds": [str(control.control_id) for control in decision.controls],
+                },
+            )
+
+
 async def require_tenant_context(
+    request: Request,
     settings: SettingsDependency,
     tenant_service: TenantServiceDependency,
+    operational_controls: OperationalControlRepositoryDependency,
     tenant_header: Annotated[str | None, Header(alias="X-Amesh-Tenant")] = None,
 ) -> str:
     if tenant_header is None:
@@ -1516,6 +1592,11 @@ async def require_tenant_context(
             detail="tenant API request quota exceeded",
             headers={"Retry-After": "60"},
         ) from exc
+    await _enforce_request_controls(
+        operational_controls,
+        request,
+        tenant_id=tenant_slug,
+    )
     return tenant_slug
 
 
@@ -1620,6 +1701,8 @@ async def get_ui_session(
         "apps.execute": ("app", PermissionAction.EXECUTE),
         "humanTasks.view": ("human_task", PermissionAction.VIEW),
         "humanTasks.update": ("human_task", PermissionAction.UPDATE),
+        "announcements.view": ("announcement", PermissionAction.VIEW),
+        "operationalControls.manage": ("operational_control", PermissionAction.MANAGE),
         "dashboards.view": ("dashboard", PermissionAction.VIEW),
         "dashboards.manage": ("dashboard", PermissionAction.UPDATE),
         "search.view": ("search", PermissionAction.VIEW),
@@ -1843,7 +1926,9 @@ async def declare_asset_lineage(
         upstream = await metadata.get_asset(payload.upstream_asset_id, tenant_id=tenant_id)
         downstream = await metadata.get_asset(payload.downstream_asset_id, tenant_id=tenant_id)
     except LookupError as exc:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="asset unavailable") from exc
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="asset unavailable"
+        ) from exc
     for asset in (upstream, downstream):
         await authorize_request(
             authorization_service,
@@ -1877,7 +1962,9 @@ async def get_asset_catalog_entry(
     try:
         entry = await metadata.get_asset_catalog_entry(asset_id, tenant_id=tenant_id)
     except LookupError as exc:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="asset unavailable") from exc
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="asset unavailable"
+        ) from exc
     await authorize_request(
         authorization_service,
         actor,
@@ -1899,22 +1986,17 @@ async def get_asset_catalog_entry(
         )
     )
     visible_ids = {
-        asset.asset_id
-        for asset, allowed in zip(neighbors, visibility, strict=True)
-        if allowed
+        asset.asset_id for asset, allowed in zip(neighbors, visibility, strict=True) if allowed
     }
     visible_ids.add(entry.asset.asset_id)
     return entry.model_copy(
         update={
             "upstream": tuple(item for item in entry.upstream if item.asset_id in visible_ids),
-            "downstream": tuple(
-                item for item in entry.downstream if item.asset_id in visible_ids
-            ),
+            "downstream": tuple(item for item in entry.downstream if item.asset_id in visible_ids),
             "edges": tuple(
                 edge
                 for edge in entry.edges
-                if edge.upstream_asset_id in visible_ids
-                and edge.downstream_asset_id in visible_ids
+                if edge.upstream_asset_id in visible_ids and edge.downstream_asset_id in visible_ids
             ),
         }
     )
@@ -3295,9 +3377,7 @@ async def apply_administration_control(
             status_code=status.HTTP_409_CONFLICT,
             detail="administration control version changed",
         ) from exc
-    return next(
-        control for control in administration_controls((persisted,)) if control.key is key
-    )
+    return next(control for control in administration_controls((persisted,)) if control.key is key)
 
 
 @app.get(
@@ -3320,6 +3400,205 @@ async def list_administration_audit(
         action=PermissionAction.VIEW,
     )
     return await feature_flags.list_administration_audit(tenant_id, limit=limit)
+
+
+@app.get(
+    "/api/v1/announcements",
+    response_model=tuple[Announcement, ...],
+    tags=["operations"],
+)
+async def list_announcements(
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    repository: OperationalControlRepositoryDependency,
+    tenant_id: TenantDependency,
+    namespace: str | None = None,
+    include_inactive: Annotated[bool, Query(alias="includeInactive")] = False,
+) -> tuple[Announcement, ...]:
+    await authorize_request(
+        authorization_service,
+        actor,
+        tenant_id=tenant_id,
+        namespace=namespace,
+        resource_type="announcement",
+        action=PermissionAction.VIEW,
+    )
+    return await repository.list_announcements(
+        tenant_id,
+        namespace=namespace,
+        include_inactive=include_inactive,
+    )
+
+
+@app.post(
+    "/api/v1/announcements",
+    response_model=Announcement,
+    status_code=status.HTTP_201_CREATED,
+    tags=["operations"],
+)
+async def publish_announcement(
+    request: AnnouncementCreateRequest,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    repository: OperationalControlRepositoryDependency,
+    tenant_id: TenantDependency,
+) -> Announcement:
+    await authorize_request(
+        authorization_service,
+        actor,
+        tenant_id=None if request.audience is AnnouncementAudience.INSTANCE else tenant_id,
+        namespace=request.namespace,
+        resource_type="announcement",
+        action=PermissionAction.MANAGE,
+    )
+    return await repository.create_announcement(
+        request,
+        tenant_id=tenant_id,
+        actor_id=str(actor.principal_id),
+    )
+
+
+@app.delete(
+    "/api/v1/announcements/{announcement_id}",
+    response_model=Announcement,
+    tags=["operations"],
+)
+async def deactivate_announcement(
+    announcement_id: UUID,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    repository: OperationalControlRepositoryDependency,
+    tenant_id: TenantDependency,
+    expected_version: Annotated[int, Query(alias="expectedVersion", ge=1)],
+) -> Announcement:
+    await authorize_request(
+        authorization_service,
+        actor,
+        tenant_id=tenant_id,
+        resource_type="announcement",
+        action=PermissionAction.MANAGE,
+    )
+    try:
+        return await repository.deactivate_announcement(
+            announcement_id,
+            tenant_id=tenant_id,
+            actor_id=str(actor.principal_id),
+            expected_version=expected_version,
+        )
+    except OperationalControlVersionConflict as exc:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
+
+
+@app.get(
+    "/api/v1/operational-controls",
+    response_model=tuple[OperationalControl, ...],
+    tags=["operations"],
+)
+async def list_operational_controls(
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    repository: OperationalControlRepositoryDependency,
+    tenant_id: TenantDependency,
+) -> tuple[OperationalControl, ...]:
+    await authorize_request(
+        authorization_service,
+        actor,
+        tenant_id=tenant_id,
+        resource_type="operational_control",
+        action=PermissionAction.VIEW,
+    )
+    return await repository.list_controls(tenant_id)
+
+
+@app.post(
+    "/api/v1/operational-controls",
+    response_model=OperationalControl,
+    status_code=status.HTTP_201_CREATED,
+    tags=["operations"],
+)
+async def activate_operational_control(
+    request: OperationalControlCreateRequest,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    repository: OperationalControlRepositoryDependency,
+    tenant_id: TenantDependency,
+) -> OperationalControl:
+    await authorize_request(
+        authorization_service,
+        actor,
+        tenant_id=None if request.scope is OperationalControlScope.INSTANCE else tenant_id,
+        namespace=request.namespace,
+        resource_type="operational_control",
+        action=PermissionAction.MANAGE,
+    )
+    return await repository.create_control(
+        request,
+        tenant_id=tenant_id,
+        actor_id=str(actor.principal_id),
+    )
+
+
+@app.post(
+    "/api/v1/operational-controls/{control_id}/actions",
+    response_model=OperationalControl,
+    tags=["operations"],
+)
+async def change_operational_control(
+    control_id: UUID,
+    request: OperationalControlActionRequest,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    repository: OperationalControlRepositoryDependency,
+    tenant_id: TenantDependency,
+) -> OperationalControl:
+    try:
+        control = await repository.get_control(control_id, tenant_id=tenant_id)
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    await authorize_request(
+        authorization_service,
+        actor,
+        tenant_id=None if control.scope is OperationalControlScope.INSTANCE else tenant_id,
+        namespace=control.namespace,
+        resource_type="operational_control",
+        action=PermissionAction.MANAGE,
+    )
+    try:
+        return await repository.apply_action(
+            control_id,
+            request,
+            tenant_id=tenant_id,
+            actor_id=str(actor.principal_id),
+        )
+    except OperationalControlVersionConflict as exc:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=str(exc),
+        ) from exc
+
+
+@app.get(
+    "/api/v1/operational-control-events",
+    response_model=tuple[OperationalControlEvent, ...],
+    tags=["operations"],
+)
+async def list_operational_control_events(
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    repository: OperationalControlRepositoryDependency,
+    tenant_id: TenantDependency,
+    limit: Annotated[int, Query(ge=1, le=500)] = 200,
+) -> tuple[OperationalControlEvent, ...]:
+    await authorize_request(
+        authorization_service,
+        actor,
+        tenant_id=tenant_id,
+        resource_type="audit",
+        action=PermissionAction.VIEW,
+    )
+    return await repository.list_events(tenant_id, limit=limit)
 
 
 @app.get(
@@ -3369,7 +3648,9 @@ async def begin_federated_login(
         else:
             raise FederationRejected("LDAP providers use password login")
     except FederationProviderUnavailable as exc:
-        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(exc)) from exc
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(exc)
+        ) from exc
     except FederationRejected as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
     return RedirectResponse(location, status_code=status.HTTP_307_TEMPORARY_REDIRECT)
@@ -3407,7 +3688,9 @@ async def complete_oidc_login(
             code=code,
         )
     except FederationProviderUnavailable as exc:
-        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(exc)) from exc
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(exc)
+        ) from exc
     except (
         AmbiguousFederatedIdentity,
         FederationRejected,
@@ -3448,7 +3731,9 @@ async def complete_saml_login(
             state_token=state_token,
         )
     except FederationProviderUnavailable as exc:
-        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(exc)) from exc
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(exc)
+        ) from exc
     except (
         AmbiguousFederatedIdentity,
         FederationRejected,
@@ -4338,7 +4623,9 @@ async def upsert_workflow_app(
     required_missing = sorted(
         definition.id
         for definition in flow.inputs
-        if definition.required and not definition.has_default and definition.id not in form_input_ids
+        if definition.required
+        and not definition.has_default
+        and definition.id not in form_input_ids
     )
     if unknown or required_missing:
         details = []
@@ -4387,6 +4674,7 @@ async def launch_workflow_app(
     execution_repository: RepositoryDependency,
     task_cache: TaskCacheRepositoryDependency,
     shared_resources: SharedResourceRepositoryDependency,
+    operational_controls: OperationalControlRepositoryDependency,
     settings: SettingsDependency,
     actor: ActorDependency,
     authorization_service: AuthorizationServiceDependency,
@@ -4430,6 +4718,7 @@ async def launch_workflow_app(
         flow,
         launch_request,
         settings,
+        operational_controls=operational_controls,
         shared_resources=shared_resources,
         tenant_id=tenant_id,
         actor_id=str(actor.principal_id),
@@ -4588,6 +4877,7 @@ async def apply_flow(
     response: Response,
     repository: RepositoryDependency,
     plugin_catalog: PluginCatalogDependency,
+    operational_controls: OperationalControlRepositoryDependency,
     actor: ActorDependency,
     authorization_service: AuthorizationServiceDependency,
     tenant_id: TenantDependency,
@@ -4613,6 +4903,24 @@ async def apply_flow(
             detail=[issue.model_dump(mode="json", by_alias=True) for issue in result.issues],
         )
     flow = FlowDefinition.model_validate(result.canonical)
+    authoring_decision = await operational_controls.evaluate(
+        OperationalBoundary.AUTHORING,
+        tenant_id=tenant_id,
+        namespace=flow.namespace,
+        flow_id=flow.id,
+        plugin_ids=tuple(node.task.type for node in compile_execution_tasks(flow)),
+        component_id="webserver:flow-authoring",
+        component_role=ServiceRole.WEBSERVER.value,
+    )
+    if authoring_decision.blocked:
+        raise HTTPException(
+            status_code=status.HTTP_423_LOCKED,
+            detail={
+                "message": "authoring blocked by operational control",
+                "boundary": OperationalBoundary.AUTHORING.value,
+                "controlIds": [str(control.control_id) for control in authoring_decision.controls],
+            },
+        )
     try:
         await repository.get_flow(flow.namespace, flow.id, tenant_id=tenant_id)
     except LookupError:
@@ -5757,6 +6065,7 @@ async def create_execution(
     repository: RepositoryDependency,
     task_cache: TaskCacheRepositoryDependency,
     shared_resources: SharedResourceRepositoryDependency,
+    operational_controls: OperationalControlRepositoryDependency,
     settings: SettingsDependency,
     actor: ActorDependency,
     authorization_service: AuthorizationServiceDependency,
@@ -5791,6 +6100,7 @@ async def create_execution(
         flow,
         request,
         settings,
+        operational_controls=operational_controls,
         shared_resources=shared_resources,
         tenant_id=tenant_id,
         actor_id=str(actor.principal_id),
@@ -5820,6 +6130,7 @@ async def create_executions_bulk(
     repository: RepositoryDependency,
     task_cache: TaskCacheRepositoryDependency,
     shared_resources: SharedResourceRepositoryDependency,
+    operational_controls: OperationalControlRepositoryDependency,
     settings: SettingsDependency,
     actor: ActorDependency,
     authorization_service: AuthorizationServiceDependency,
@@ -5849,6 +6160,7 @@ async def create_executions_bulk(
                 flow,
                 item,
                 settings,
+                operational_controls=operational_controls,
                 shared_resources=shared_resources,
                 tenant_id=tenant_id,
                 actor_id=str(actor.principal_id),
@@ -7956,6 +8268,7 @@ async def trigger_webhook(
     task_cache: TaskCacheRepositoryDependency,
     shared_resources: SharedResourceRepositoryDependency,
     trigger_runtime: TriggerRuntimeRepositoryDependency,
+    operational_controls: OperationalControlRepositoryDependency,
     settings: SettingsDependency,
     actor: ActorDependency,
     authorization_service: AuthorizationServiceDependency,
@@ -7989,6 +8302,23 @@ async def trigger_webhook(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"enabled webhook trigger {trigger_id!r} does not exist",
+        )
+    trigger_decision = await operational_controls.evaluate(
+        OperationalBoundary.TRIGGERS,
+        tenant_id=tenant_id,
+        namespace=namespace,
+        flow_id=flow_id,
+        component_id="webserver:webhook",
+        component_role=ServiceRole.WEBSERVER.value,
+    )
+    if trigger_decision.blocked:
+        raise HTTPException(
+            status_code=status.HTTP_423_LOCKED,
+            detail={
+                "message": "triggers blocked by operational control",
+                "boundary": OperationalBoundary.TRIGGERS.value,
+                "controlIds": [str(control.control_id) for control in trigger_decision.controls],
+            },
         )
     payload = await request.json()
     if not isinstance(payload, dict):
@@ -8081,6 +8411,7 @@ async def trigger_webhook(
             flow,
             execution_request,
             settings,
+            operational_controls=operational_controls,
             shared_resources=shared_resources,
             tenant_id=tenant_id,
             actor_id=str(actor.principal_id),
@@ -8268,6 +8599,7 @@ async def _execute_flow(
     request: CreateExecutionRequest,
     settings: Settings,
     *,
+    operational_controls: PostgresOperationalControlRepository,
     shared_resources: PostgresSharedResourceRepository,
     tenant_id: str,
     actor_id: str,
@@ -8350,6 +8682,25 @@ async def _execute_flow(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail=str(exc),
         ) from exc
+    decision = await operational_controls.evaluate(
+        OperationalBoundary.NEW_EXECUTIONS,
+        tenant_id=tenant_id,
+        namespace=flow.namespace,
+        flow_id=flow.id,
+        plugin_ids=tuple(node.task.type for node in planned_tasks),
+        runner_ids=tuple(runner.value for runner in selected_runners),
+        component_id="webserver:execution-admission",
+        component_role=ServiceRole.WEBSERVER.value,
+    )
+    if decision.blocked:
+        raise HTTPException(
+            status_code=status.HTTP_423_LOCKED,
+            detail={
+                "message": "new executions blocked by operational control",
+                "boundary": OperationalBoundary.NEW_EXECUTIONS.value,
+                "controlIds": [str(control.control_id) for control in decision.controls],
+            },
+        )
     runner_handlers: dict[RunnerId, TaskHandler] = {}
     docker_runner: DockerContainerRunner | None = None
     if RunnerId.LOCAL in selected_runners:

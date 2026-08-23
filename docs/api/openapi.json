@@ -469,6 +469,170 @@
         "title": "AdmissionScope",
         "type": "string"
       },
+      "Announcement": {
+        "properties": {
+          "active": {
+            "title": "Active",
+            "type": "boolean"
+          },
+          "audience": {
+            "$ref": "#/components/schemas/AnnouncementAudience"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "title": "Createdat",
+            "type": "string"
+          },
+          "createdBy": {
+            "title": "Createdby",
+            "type": "string"
+          },
+          "expiresAt": {
+            "format": "date-time",
+            "title": "Expiresat",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          },
+          "namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Namespace"
+          },
+          "severity": {
+            "$ref": "#/components/schemas/AnnouncementSeverity"
+          },
+          "startsAt": {
+            "format": "date-time",
+            "title": "Startsat",
+            "type": "string"
+          },
+          "tenantId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tenantid"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "title": "Updatedat",
+            "type": "string"
+          },
+          "version": {
+            "minimum": 1.0,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "title",
+          "message",
+          "severity",
+          "audience",
+          "startsAt",
+          "expiresAt",
+          "active",
+          "version",
+          "createdBy",
+          "createdAt",
+          "updatedAt"
+        ],
+        "title": "Announcement",
+        "type": "object"
+      },
+      "AnnouncementAudience": {
+        "enum": [
+          "INSTANCE",
+          "TENANT",
+          "NAMESPACE"
+        ],
+        "title": "AnnouncementAudience",
+        "type": "string"
+      },
+      "AnnouncementCreateRequest": {
+        "properties": {
+          "audience": {
+            "$ref": "#/components/schemas/AnnouncementAudience",
+            "default": "TENANT"
+          },
+          "expiresAt": {
+            "format": "date-time",
+            "title": "Expiresat",
+            "type": "string"
+          },
+          "message": {
+            "maxLength": 4000,
+            "minLength": 1,
+            "title": "Message",
+            "type": "string"
+          },
+          "namespace": {
+            "anyOf": [
+              {
+                "maxLength": 255,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Namespace"
+          },
+          "severity": {
+            "$ref": "#/components/schemas/AnnouncementSeverity",
+            "default": "INFO"
+          },
+          "startsAt": {
+            "format": "date-time",
+            "title": "Startsat",
+            "type": "string"
+          },
+          "title": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "title",
+          "message",
+          "expiresAt"
+        ],
+        "title": "AnnouncementCreateRequest",
+        "type": "object"
+      },
+      "AnnouncementSeverity": {
+        "enum": [
+          "INFO",
+          "WARNING",
+          "CRITICAL"
+        ],
+        "title": "AnnouncementSeverity",
+        "type": "string"
+      },
       "AppForm": {
         "additionalProperties": false,
         "properties": {
@@ -7160,6 +7324,494 @@
         "title": "NamespaceWorkflowMetadataView",
         "type": "object"
       },
+      "OperationalBoundary": {
+        "enum": [
+          "AUTHORING",
+          "NEW_EXECUTIONS",
+          "TRIGGERS",
+          "API_WRITES",
+          "WORKER_DISPATCH"
+        ],
+        "title": "OperationalBoundary",
+        "type": "string"
+      },
+      "OperationalControl": {
+        "properties": {
+          "acknowledgements": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/OperationalControlAcknowledgement"
+            },
+            "title": "Acknowledgements",
+            "type": "array"
+          },
+          "boundaries": {
+            "items": {
+              "$ref": "#/components/schemas/OperationalBoundary"
+            },
+            "title": "Boundaries",
+            "type": "array"
+          },
+          "bypassReason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bypassreason"
+          },
+          "bypassUntil": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bypassuntil"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "title": "Createdat",
+            "type": "string"
+          },
+          "createdBy": {
+            "title": "Createdby",
+            "type": "string"
+          },
+          "expiresAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expiresat"
+          },
+          "flowId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Flowid"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/OperationalControlKind"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Namespace"
+          },
+          "pluginId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pluginid"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          },
+          "reviewAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reviewat"
+          },
+          "runnerId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Runnerid"
+          },
+          "runningWorkPolicy": {
+            "$ref": "#/components/schemas/RunningWorkPolicy"
+          },
+          "scope": {
+            "$ref": "#/components/schemas/OperationalControlScope"
+          },
+          "state": {
+            "$ref": "#/components/schemas/OperationalControlState"
+          },
+          "tenantId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tenantid"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "title": "Updatedat",
+            "type": "string"
+          },
+          "updatedBy": {
+            "title": "Updatedby",
+            "type": "string"
+          },
+          "version": {
+            "minimum": 1.0,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "kind",
+          "name",
+          "scope",
+          "boundaries",
+          "runningWorkPolicy",
+          "reason",
+          "state",
+          "version",
+          "createdBy",
+          "updatedBy",
+          "createdAt",
+          "updatedAt"
+        ],
+        "title": "OperationalControl",
+        "type": "object"
+      },
+      "OperationalControlAcknowledgement": {
+        "properties": {
+          "acknowledgedAt": {
+            "format": "date-time",
+            "title": "Acknowledgedat",
+            "type": "string"
+          },
+          "componentId": {
+            "title": "Componentid",
+            "type": "string"
+          },
+          "componentRole": {
+            "title": "Componentrole",
+            "type": "string"
+          },
+          "controlVersion": {
+            "minimum": 1.0,
+            "title": "Controlversion",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "componentId",
+          "componentRole",
+          "controlVersion",
+          "acknowledgedAt"
+        ],
+        "title": "OperationalControlAcknowledgement",
+        "type": "object"
+      },
+      "OperationalControlActionKind": {
+        "enum": [
+          "EXTEND",
+          "BYPASS",
+          "DEACTIVATE"
+        ],
+        "title": "OperationalControlActionKind",
+        "type": "string"
+      },
+      "OperationalControlActionRequest": {
+        "properties": {
+          "action": {
+            "$ref": "#/components/schemas/OperationalControlActionKind"
+          },
+          "bypassUntil": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bypassuntil"
+          },
+          "expectedVersion": {
+            "minimum": 1.0,
+            "title": "Expectedversion",
+            "type": "integer"
+          },
+          "expiresAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expiresat"
+          },
+          "reason": {
+            "maxLength": 4000,
+            "minLength": 3,
+            "title": "Reason",
+            "type": "string"
+          },
+          "reviewAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reviewat"
+          }
+        },
+        "required": [
+          "action",
+          "reason",
+          "expectedVersion"
+        ],
+        "title": "OperationalControlActionRequest",
+        "type": "object"
+      },
+      "OperationalControlCreateRequest": {
+        "properties": {
+          "boundaries": {
+            "items": {
+              "$ref": "#/components/schemas/OperationalBoundary"
+            },
+            "minItems": 1,
+            "title": "Boundaries",
+            "type": "array"
+          },
+          "expiresAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expiresat"
+          },
+          "flowId": {
+            "anyOf": [
+              {
+                "maxLength": 255,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Flowid"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/OperationalControlKind"
+          },
+          "name": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "namespace": {
+            "anyOf": [
+              {
+                "maxLength": 255,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Namespace"
+          },
+          "pluginId": {
+            "anyOf": [
+              {
+                "maxLength": 255,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pluginid"
+          },
+          "reason": {
+            "maxLength": 4000,
+            "minLength": 3,
+            "title": "Reason",
+            "type": "string"
+          },
+          "reviewAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reviewat"
+          },
+          "runnerId": {
+            "anyOf": [
+              {
+                "maxLength": 255,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Runnerid"
+          },
+          "runningWorkPolicy": {
+            "$ref": "#/components/schemas/RunningWorkPolicy",
+            "default": "DRAIN"
+          },
+          "scope": {
+            "$ref": "#/components/schemas/OperationalControlScope"
+          }
+        },
+        "required": [
+          "kind",
+          "name",
+          "scope",
+          "boundaries",
+          "reason"
+        ],
+        "title": "OperationalControlCreateRequest",
+        "type": "object"
+      },
+      "OperationalControlEvent": {
+        "properties": {
+          "action": {
+            "title": "Action",
+            "type": "string"
+          },
+          "actorId": {
+            "title": "Actorid",
+            "type": "string"
+          },
+          "controlId": {
+            "format": "uuid",
+            "title": "Controlid",
+            "type": "string"
+          },
+          "eventId": {
+            "format": "uuid",
+            "title": "Eventid",
+            "type": "string"
+          },
+          "evidence": {
+            "additionalProperties": true,
+            "title": "Evidence",
+            "type": "object"
+          },
+          "occurredAt": {
+            "format": "date-time",
+            "title": "Occurredat",
+            "type": "string"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "eventId",
+          "controlId",
+          "action",
+          "actorId",
+          "reason",
+          "evidence",
+          "occurredAt"
+        ],
+        "title": "OperationalControlEvent",
+        "type": "object"
+      },
+      "OperationalControlKind": {
+        "enum": [
+          "MAINTENANCE",
+          "KILL_SWITCH"
+        ],
+        "title": "OperationalControlKind",
+        "type": "string"
+      },
+      "OperationalControlScope": {
+        "enum": [
+          "INSTANCE",
+          "TENANT",
+          "NAMESPACE",
+          "FLOW",
+          "PLUGIN",
+          "RUNNER"
+        ],
+        "title": "OperationalControlScope",
+        "type": "string"
+      },
+      "OperationalControlState": {
+        "enum": [
+          "ACTIVE",
+          "BYPASSED",
+          "DEACTIVATED",
+          "EXPIRED"
+        ],
+        "title": "OperationalControlState",
+        "type": "string"
+      },
       "Permission": {
         "properties": {
           "action": {
@@ -10768,6 +11420,15 @@
           "restricted"
         ],
         "title": "RunnerNetworkAccess",
+        "type": "string"
+      },
+      "RunningWorkPolicy": {
+        "enum": [
+          "CONTINUE",
+          "DRAIN",
+          "CANCEL"
+        ],
+        "title": "RunningWorkPolicy",
         "type": "string"
       },
       "SchedulePreview": {
@@ -17439,6 +18100,307 @@
           }
         },
         "summary": "Reconcile Admissions",
+        "tags": [
+          "operations"
+        ]
+      }
+    },
+    "/api/v1/announcements": {
+      "get": {
+        "operationId": "list_announcements_api_v1_announcements_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "namespace",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Namespace"
+            }
+          },
+          {
+            "in": "query",
+            "name": "includeInactive",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Includeinactive",
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Announcement"
+                  },
+                  "title": "Response List Announcements Api V1 Announcements Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Announcements",
+        "tags": [
+          "operations"
+        ]
+      },
+      "post": {
+        "operationId": "publish_announcement_api_v1_announcements_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnnouncementCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Announcement"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Publish Announcement",
+        "tags": [
+          "operations"
+        ]
+      }
+    },
+    "/api/v1/announcements/{announcement_id}": {
+      "delete": {
+        "operationId": "deactivate_announcement_api_v1_announcements__announcement_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "announcement_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Announcement Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "expectedVersion",
+            "required": true,
+            "schema": {
+              "minimum": 1,
+              "title": "Expectedversion",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Announcement"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Deactivate Announcement",
         "tags": [
           "operations"
         ]
@@ -29426,6 +30388,378 @@
         "summary": "Upsert Namespace Workflow Metadata",
         "tags": [
           "namespaces"
+        ]
+      }
+    },
+    "/api/v1/operational-control-events": {
+      "get": {
+        "operationId": "list_operational_control_events_api_v1_operational_control_events_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 200,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/OperationalControlEvent"
+                  },
+                  "title": "Response List Operational Control Events Api V1 Operational Control Events Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Operational Control Events",
+        "tags": [
+          "operations"
+        ]
+      }
+    },
+    "/api/v1/operational-controls": {
+      "get": {
+        "operationId": "list_operational_controls_api_v1_operational_controls_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/OperationalControl"
+                  },
+                  "title": "Response List Operational Controls Api V1 Operational Controls Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Operational Controls",
+        "tags": [
+          "operations"
+        ]
+      },
+      "post": {
+        "operationId": "activate_operational_control_api_v1_operational_controls_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OperationalControlCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperationalControl"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Activate Operational Control",
+        "tags": [
+          "operations"
+        ]
+      }
+    },
+    "/api/v1/operational-controls/{control_id}/actions": {
+      "post": {
+        "operationId": "change_operational_control_api_v1_operational_controls__control_id__actions_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "control_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Control Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OperationalControlActionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperationalControl"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Change Operational Control",
+        "tags": [
+          "operations"
         ]
       }
     },

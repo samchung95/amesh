@@ -67,6 +67,10 @@ __all__ = [
     "AdmissionOutcome",
     "AdmissionResourceType",
     "AdmissionScope",
+    "Announcement",
+    "AnnouncementAudience",
+    "AnnouncementCreateRequest",
+    "AnnouncementSeverity",
     "AppForm",
     "AssetAccessMode",
     "AssetCatalogEntry",
@@ -229,6 +233,16 @@ __all__ = [
     "NamespaceWorkflowMetadata",
     "NamespaceWorkflowMetadataUpdate",
     "NamespaceWorkflowMetadataView",
+    "OperationalBoundary",
+    "OperationalControl",
+    "OperationalControlAcknowledgement",
+    "OperationalControlActionKind",
+    "OperationalControlActionRequest",
+    "OperationalControlCreateRequest",
+    "OperationalControlEvent",
+    "OperationalControlKind",
+    "OperationalControlScope",
+    "OperationalControlState",
     "Permission",
     "PermissionAction",
     "PermissionEffect",
@@ -315,6 +329,7 @@ __all__ = [
     "RunnerId",
     "RunnerMode",
     "RunnerNetworkAccess",
+    "RunningWorkPolicy",
     "SchedulePreview",
     "ScimGroupRequest",
     "ScimGroupResource",
@@ -454,6 +469,10 @@ from amesh_client.models.admission_diagnostics import AdmissionDiagnostics as Ad
 from amesh_client.models.admission_outcome import AdmissionOutcome as AdmissionOutcome
 from amesh_client.models.admission_resource_type import AdmissionResourceType as AdmissionResourceType
 from amesh_client.models.admission_scope import AdmissionScope as AdmissionScope
+from amesh_client.models.announcement import Announcement as Announcement
+from amesh_client.models.announcement_audience import AnnouncementAudience as AnnouncementAudience
+from amesh_client.models.announcement_create_request import AnnouncementCreateRequest as AnnouncementCreateRequest
+from amesh_client.models.announcement_severity import AnnouncementSeverity as AnnouncementSeverity
 from amesh_client.models.app_form import AppForm as AppForm
 from amesh_client.models.asset_access_mode import AssetAccessMode as AssetAccessMode
 from amesh_client.models.asset_catalog_entry import AssetCatalogEntry as AssetCatalogEntry
@@ -616,6 +635,16 @@ from amesh_client.models.namespace_resource_import_result import NamespaceResour
 from amesh_client.models.namespace_workflow_metadata import NamespaceWorkflowMetadata as NamespaceWorkflowMetadata
 from amesh_client.models.namespace_workflow_metadata_update import NamespaceWorkflowMetadataUpdate as NamespaceWorkflowMetadataUpdate
 from amesh_client.models.namespace_workflow_metadata_view import NamespaceWorkflowMetadataView as NamespaceWorkflowMetadataView
+from amesh_client.models.operational_boundary import OperationalBoundary as OperationalBoundary
+from amesh_client.models.operational_control import OperationalControl as OperationalControl
+from amesh_client.models.operational_control_acknowledgement import OperationalControlAcknowledgement as OperationalControlAcknowledgement
+from amesh_client.models.operational_control_action_kind import OperationalControlActionKind as OperationalControlActionKind
+from amesh_client.models.operational_control_action_request import OperationalControlActionRequest as OperationalControlActionRequest
+from amesh_client.models.operational_control_create_request import OperationalControlCreateRequest as OperationalControlCreateRequest
+from amesh_client.models.operational_control_event import OperationalControlEvent as OperationalControlEvent
+from amesh_client.models.operational_control_kind import OperationalControlKind as OperationalControlKind
+from amesh_client.models.operational_control_scope import OperationalControlScope as OperationalControlScope
+from amesh_client.models.operational_control_state import OperationalControlState as OperationalControlState
 from amesh_client.models.permission import Permission as Permission
 from amesh_client.models.permission_action import PermissionAction as PermissionAction
 from amesh_client.models.permission_effect import PermissionEffect as PermissionEffect
@@ -702,6 +731,7 @@ from amesh_client.models.runner_capabilities import RunnerCapabilities as Runner
 from amesh_client.models.runner_id import RunnerId as RunnerId
 from amesh_client.models.runner_mode import RunnerMode as RunnerMode
 from amesh_client.models.runner_network_access import RunnerNetworkAccess as RunnerNetworkAccess
+from amesh_client.models.running_work_policy import RunningWorkPolicy as RunningWorkPolicy
 from amesh_client.models.schedule_preview import SchedulePreview as SchedulePreview
 from amesh_client.models.scim_group_request import ScimGroupRequest as ScimGroupRequest
 from amesh_client.models.scim_group_resource import ScimGroupResource as ScimGroupResource

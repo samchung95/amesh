@@ -12,6 +12,7 @@ from amesh.adapters.postgres import (
     PostgresCheckRepository,
     PostgresDurableTransport,
     PostgresExecutionRepository,
+    PostgresOperationalControlRepository,
     PostgresPluginPolicyRepository,
     PostgresRealtimeRepository,
     PostgresReconciliationRepository,
@@ -62,6 +63,7 @@ async def _run_cycle(
     reconciliations: PostgresReconciliationRepository,
     workers: PostgresWorkerRepository,
     transport: PostgresDurableTransport,
+    operational_controls: PostgresOperationalControlRepository,
     task_cache: PostgresTaskCacheRepository | None = None,
     shared_resources: PostgresSharedResourceRepository | None = None,
     trigger_runtime: PostgresTriggerRuntimeRepository | None = None,
@@ -77,6 +79,7 @@ async def _run_cycle(
             tenant_ids=tenant_ids,
             scheduler_id=service.instance.instance_id,
             trigger_runtime=trigger_runtime,
+            operational_controls=operational_controls,
         )
         triggered = (
             await process_trigger_occurrences_once(
@@ -84,6 +87,7 @@ async def _run_cycle(
                 trigger_runtime,
                 tenant_ids=tenant_ids,
                 worker_id=service.instance.instance_id,
+                operational_controls=operational_controls,
             )
             if trigger_runtime is not None
             else 0
@@ -94,6 +98,7 @@ async def _run_cycle(
                 checks,
                 tenant_ids=tenant_ids,
                 worker_id=service.instance.instance_id,
+                operational_controls=operational_controls,
             )
             if checks is not None
             else 0
@@ -106,6 +111,7 @@ async def _run_cycle(
                 executions,
                 backfills,
                 tenant_ids=tenant_ids,
+                operational_controls=operational_controls,
             )
         )
     if role is ServiceRole.EXECUTOR:
@@ -116,6 +122,7 @@ async def _run_cycle(
             task_cache=task_cache,
             shared_resources=shared_resources,
             trusted_runtime=trusted_runtime,
+            operational_controls=operational_controls,
         )
     if role is ServiceRole.WORKER:
         return sum(
@@ -187,6 +194,7 @@ async def run_role(settings: Settings) -> None:
     tenants = PostgresTenantRepository(engine)
     workers = PostgresWorkerRepository(engine)
     transport = PostgresDurableTransport(engine)
+    operational_controls = PostgresOperationalControlRepository(engine)
     task_cache = PostgresTaskCacheRepository(engine)
     shared_resources = PostgresSharedResourceRepository(engine)
     trigger_runtime = PostgresTriggerRuntimeRepository(engine)
@@ -221,6 +229,11 @@ async def run_role(settings: Settings) -> None:
                 if current.state is ServiceState.DRAINING:
                     break
                 tenant_ids = await tenants.list_active_for_worker_group(settings.worker_group)
+                await operational_controls.acknowledge_active(
+                    tenant_ids=tenant_ids,
+                    component_id=str(service.instance.instance_id),
+                    component_role=role.value,
+                )
                 work_count = await _run_cycle(
                     role,
                     settings,
@@ -232,6 +245,7 @@ async def run_role(settings: Settings) -> None:
                     reconciliations=reconciliations,
                     workers=workers,
                     transport=transport,
+                    operational_controls=operational_controls,
                     task_cache=task_cache,
                     shared_resources=shared_resources,
                     trigger_runtime=trigger_runtime,
@@ -240,7 +254,7 @@ async def run_role(settings: Settings) -> None:
                     webhook_dispatcher=webhook_dispatcher,
                     search_projector=search_projector,
                 )
-            except (DBAPIError, OSError):
+            except (DBAPIError, OSError, LookupError):
                 LOGGER.exception("service role cycle interrupted; retrying")
             await asyncio.sleep(settings.service_cycle_seconds)
     finally:

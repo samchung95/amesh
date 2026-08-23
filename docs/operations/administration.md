@@ -12,7 +12,9 @@ The workbench has six views:
   and reports configured identity providers. Issued token material is displayed once.
 - **Operations** refreshes readiness, services, workers, queue admission, storage, migrations and
   search health every ten seconds.
-- **Controls** manages the four guarded tenant controls and ordinary scoped feature flags.
+- **Controls** publishes scheduled announcements, activates scoped maintenance or kill switches,
+  exposes component acknowledgements, and retains the four guarded tenant controls and ordinary
+  scoped feature flags.
 - **Configuration** displays effective settings with source provenance and hard redaction, and can
   reload only settings the configuration contract marks reloadable.
 - **Audit** combines immediate successful/rejected control decisions with the general indexed audit
@@ -40,3 +42,5 @@ Do not bypass this workflow by editing reserved `admin-` feature flags directly.
   audit decision but no control change.
 
 The API contract is documented in [Administration API](../api/administration.md).
+Incident posture and maintenance workflows are documented in
+[Operational controls API](../api/operational-controls.md).

@@ -186,6 +186,11 @@ revisions plus durable participant-scoped approval tasks, actions and redacted n
 decisions enter a pending-resume state before the existing idempotent task-deferral contract resumes
 execution, so worker reconciliation can finish safely after a process interruption.
 
+Migration `0050_operational_controls.sql` adds scheduled announcements and durable instance, tenant,
+namespace, flow, plugin and runner controls. Maintenance and kill-switch changes notify every local
+component, retain acknowledgement and action history, automatically expire, and are sampled at API,
+trigger, execution-admission and worker-dispatch boundaries.
+
 ## Migration modes
 
 - `bootstrap` creates the initial schema and is only safe for an empty database.

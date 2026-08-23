@@ -6,6 +6,8 @@ import type {
   AdministrationControl,
   AdministrationControlDraft,
   AdministrationImpactPreview,
+  Announcement,
+  AnnouncementDraft,
   AdmissionDiagnostics,
   CheckComplianceSummary,
   DashboardDefinition,
@@ -49,6 +51,10 @@ import type {
   LoginResponse,
   ExpressionPreviewResponse,
   NamespaceCheckPolicy,
+  OperationalControl,
+  OperationalControlAction,
+  OperationalControlDraft,
+  OperationalControlEvent,
   NamespaceFile,
   NamespaceFileVersion,
   NamespaceWorkflowMetadataView,
@@ -303,6 +309,34 @@ export function createApiClient(connection: ApiConnection) {
         body: JSON.stringify({ draft: preview.draft, approval: preview.approval, confirmation }),
       }),
     administrationAudit: async () => request<AdministrationAuditEntry[]>('/api/v1/admin/audit?limit=200'),
+    announcements: async (namespace?: string, includeInactive = false) => {
+      const params = new URLSearchParams()
+      if (namespace) params.set('namespace', namespace)
+      if (includeInactive) params.set('includeInactive', 'true')
+      return request<Announcement[]>(`/api/v1/announcements${params.size ? `?${params.toString()}` : ''}`)
+    },
+    publishAnnouncement: async (draft: AnnouncementDraft) =>
+      request<Announcement>('/api/v1/announcements', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(draft),
+      }),
+    deactivateAnnouncement: async (announcementId: string, expectedVersion: number) =>
+      request<Announcement>(`/api/v1/announcements/${encodeURIComponent(announcementId)}?expectedVersion=${String(expectedVersion)}`, { method: 'DELETE' }),
+    operationalControls: async () => request<OperationalControl[]>('/api/v1/operational-controls'),
+    activateOperationalControl: async (draft: OperationalControlDraft) =>
+      request<OperationalControl>('/api/v1/operational-controls', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(draft),
+      }),
+    changeOperationalControl: async (controlId: string, action: OperationalControlAction) =>
+      request<OperationalControl>(`/api/v1/operational-controls/${encodeURIComponent(controlId)}/actions`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(action),
+      }),
+    operationalControlEvents: async () => request<OperationalControlEvent[]>('/api/v1/operational-control-events?limit=200'),
     blueprints: async (query = '', source?: BlueprintCatalogSource) => {
       const params = new URLSearchParams()
       if (query.trim()) params.set('q', query.trim())

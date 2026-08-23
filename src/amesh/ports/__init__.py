@@ -124,6 +124,7 @@ from .object_store import (
     StorageBackend,
     StorageMigrationCheckpoint,
 )
+from .operational_controls import OperationalControlEvaluator
 from .plugin_runtime import PluginInvocation, PluginRuntime
 from .reconciliation_repository import (
     ReconciliationAlreadyRunningError,
@@ -270,6 +271,7 @@ __all__ = [
     "ObjectMetadata",
     "ObjectStorageBackend",
     "ObjectStore",
+    "OperationalControlEvaluator",
     "PersistedAsset",
     "PersistedExecution",
     "PersistedFlow",

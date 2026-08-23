@@ -9,6 +9,7 @@ from amesh.domain import (
     BackfillSelectionKind,
     BackfillSpec,
     BackfillState,
+    OperationalBoundary,
     canonical_hash,
 )
 from amesh.ports import (
@@ -16,6 +17,7 @@ from amesh.ports import (
     BackfillRepository,
     ExecutionLaunchSource,
     ExecutionRepository,
+    OperationalControlEvaluator,
     TenantQuotaExceeded,
 )
 
@@ -27,9 +29,11 @@ class BackfillService:
         self,
         execution_repository: ExecutionRepository,
         backfill_repository: BackfillRepository,
+        operational_controls: OperationalControlEvaluator | None = None,
     ) -> None:
         self._executions = execution_repository
         self._backfills = backfill_repository
+        self._operational_controls = operational_controls
 
     async def preview(self, spec: BackfillSpec, *, tenant_id: str) -> BackfillPreview:
         flow = await self._executions.get_flow(
@@ -69,6 +73,12 @@ class BackfillService:
         tenant_id: str,
         actor_id: str,
     ) -> BackfillRecord:
+        if await self._launch_blocked(
+            tenant_id=tenant_id,
+            namespace=spec.namespace,
+            flow_id=spec.flow_id,
+        ):
+            raise ValueError("new backfill executions are blocked by operational control")
         flow = await self._executions.get_flow(
             spec.namespace,
             spec.flow_id,
@@ -101,6 +111,12 @@ class BackfillService:
             tenant_id=tenant_id,
             revision=backfill.flow_revision,
         )
+        if await self._launch_blocked(
+            tenant_id=tenant_id,
+            namespace=backfill.namespace,
+            flow_id=backfill.flow_id,
+        ):
+            return await self._backfills.refresh_backfill(backfill_id, tenant_id=tenant_id)
         for item in await self._backfills.list_pending_items(
             backfill_id,
             tenant_id=tenant_id,
@@ -208,3 +224,22 @@ class BackfillService:
                 )
             )
         return tuple(items)
+
+    async def _launch_blocked(
+        self,
+        *,
+        tenant_id: str,
+        namespace: str,
+        flow_id: str,
+    ) -> bool:
+        if self._operational_controls is None:
+            return False
+        decision = await self._operational_controls.evaluate(
+            OperationalBoundary.NEW_EXECUTIONS,
+            tenant_id=tenant_id,
+            namespace=namespace,
+            flow_id=flow_id,
+            component_id="scheduler:backfill",
+            component_role="SCHEDULER",
+        )
+        return decision.blocked

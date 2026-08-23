@@ -59,5 +59,7 @@
   OpenLineage events through the [asset catalog and lineage API](asset-catalog-and-lineage.md).
 - Publish pinned workflow forms, launch them from authenticated links or embeds, and operate durable
   participant approvals through the [workflow apps and human tasks API](workflow-apps-and-human-tasks.md).
+- Publish announcements and operate scoped maintenance or kill switches through the
+  [operational controls API](operational-controls.md).
 
 Future generated SDKs must consume the supported API contract, not internal Python classes.

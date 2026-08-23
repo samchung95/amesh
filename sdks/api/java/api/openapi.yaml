@@ -1816,6 +1816,190 @@ paths:
       - operations
       x-accepts:
       - application/json
+  /api/v1/announcements:
+    get:
+      operationId: list_announcements_api_v1_announcements_get
+      parameters:
+      - explode: true
+        in: query
+        name: namespace
+        required: false
+        schema:
+          description: Opaque cursor from the prior page
+          nullable: true
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: includeInactive
+        required: false
+        schema:
+          default: false
+          title: Includeinactive
+          type: boolean
+        style: form
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/Announcement"
+                title: Response List Announcements Api V1 Announcements Get
+                type: array
+                default: null
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: List Announcements
+      tags:
+      - operations
+      x-accepts:
+      - application/json
+    post:
+      operationId: publish_announcement_api_v1_announcements_post
+      parameters:
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AnnouncementCreateRequest"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Announcement"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Publish Announcement
+      tags:
+      - operations
+      x-content-type: application/json
+      x-accepts:
+      - application/json
+  /api/v1/announcements/{announcement_id}:
+    delete:
+      operationId: deactivate_announcement_api_v1_announcements__announcement_id__delete
+      parameters:
+      - explode: false
+        in: path
+        name: announcement_id
+        required: true
+        schema:
+          format: uuid
+          title: Announcement Id
+          type: string
+        style: simple
+      - explode: true
+        in: query
+        name: expectedVersion
+        required: true
+        schema:
+          minimum: 1
+          title: Expectedversion
+          type: integer
+        style: form
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Announcement"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Deactivate Announcement
+      tags:
+      - operations
+      x-accepts:
+      - application/json
   /api/v1/apps:
     get:
       operationId: list_workflow_apps_api_v1_apps_get
@@ -1825,7 +2009,6 @@ paths:
         name: namespace
         required: false
         schema:
-          description: Opaque cursor from the prior page
           nullable: true
           type: string
         style: form
@@ -9159,6 +9342,233 @@ paths:
       x-content-type: application/json
       x-accepts:
       - application/json
+  /api/v1/operational-control-events:
+    get:
+      operationId: list_operational_control_events_api_v1_operational_control_events_get
+      parameters:
+      - explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 200
+          maximum: 500
+          minimum: 1
+          title: Limit
+          type: integer
+        style: form
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/OperationalControlEvent"
+                title: Response List Operational Control Events Api V1 Operational
+                  Control Events Get
+                type: array
+                default: null
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: List Operational Control Events
+      tags:
+      - operations
+      x-accepts:
+      - application/json
+  /api/v1/operational-controls:
+    get:
+      operationId: list_operational_controls_api_v1_operational_controls_get
+      parameters:
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/OperationalControl"
+                title: Response List Operational Controls Api V1 Operational Controls
+                  Get
+                type: array
+                default: null
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: List Operational Controls
+      tags:
+      - operations
+      x-accepts:
+      - application/json
+    post:
+      operationId: activate_operational_control_api_v1_operational_controls_post
+      parameters:
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OperationalControlCreateRequest"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OperationalControl"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Activate Operational Control
+      tags:
+      - operations
+      x-content-type: application/json
+      x-accepts:
+      - application/json
+  /api/v1/operational-controls/{control_id}/actions:
+    post:
+      operationId: change_operational_control_api_v1_operational_controls__control_id__actions_post
+      parameters:
+      - explode: false
+        in: path
+        name: control_id
+        required: true
+        schema:
+          format: uuid
+          title: Control Id
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OperationalControlActionRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OperationalControl"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Change Operational Control
+      tags:
+      - operations
+      x-content-type: application/json
+      x-accepts:
+      - application/json
   /api/v1/operations/services/{instance_id}/drain:
     post:
       operationId: drain_service_instance_api_v1_operations_services__instance_id__drain_post
@@ -13212,6 +13622,141 @@ components:
       - WORKER_GROUP
       - KEY
       title: AdmissionScope
+      type: string
+    Announcement:
+      example:
+        active: true
+        audience: INSTANCE
+        createdAt: 2000-01-23T04:56:07.000+00:00
+        createdBy: createdBy
+        expiresAt: 2000-01-23T04:56:07.000+00:00
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        message: message
+        namespace: namespace
+        severity: INFO
+        startsAt: 2000-01-23T04:56:07.000+00:00
+        tenantId: tenantId
+        title: title
+        updatedAt: 2000-01-23T04:56:07.000+00:00
+        version: 1
+      properties:
+        active:
+          title: Active
+          type: boolean
+        audience:
+          $ref: "#/components/schemas/AnnouncementAudience"
+        createdAt:
+          format: date-time
+          title: Createdat
+          type: string
+        createdBy:
+          title: Createdby
+          type: string
+        expiresAt:
+          format: date-time
+          title: Expiresat
+          type: string
+        id:
+          format: uuid
+          title: Id
+          type: string
+        message:
+          title: Message
+          type: string
+        namespace:
+          nullable: true
+          type: string
+        severity:
+          $ref: "#/components/schemas/AnnouncementSeverity"
+        startsAt:
+          format: date-time
+          title: Startsat
+          type: string
+        tenantId:
+          nullable: true
+          type: string
+        title:
+          title: Title
+          type: string
+        updatedAt:
+          format: date-time
+          title: Updatedat
+          type: string
+        version:
+          minimum: 1.0
+          title: Version
+          type: integer
+      required:
+      - active
+      - audience
+      - createdAt
+      - createdBy
+      - expiresAt
+      - message
+      - severity
+      - startsAt
+      - title
+      - updatedAt
+      - version
+      title: Announcement
+    AnnouncementAudience:
+      enum:
+      - INSTANCE
+      - TENANT
+      - NAMESPACE
+      title: AnnouncementAudience
+      type: string
+    AnnouncementCreateRequest:
+      example:
+        audience: ""
+        expiresAt: 2000-01-23T04:56:07.000+00:00
+        message: message
+        namespace: namespace
+        severity: ""
+        startsAt: 2000-01-23T04:56:07.000+00:00
+        title: title
+      properties:
+        audience:
+          allOf:
+          - $ref: "#/components/schemas/AnnouncementAudience"
+          default: TENANT
+        expiresAt:
+          format: date-time
+          title: Expiresat
+          type: string
+        message:
+          maxLength: 4000
+          minLength: 1
+          title: Message
+          type: string
+        namespace:
+          maxLength: 255
+          nullable: true
+          type: string
+        severity:
+          allOf:
+          - $ref: "#/components/schemas/AnnouncementSeverity"
+          default: INFO
+        startsAt:
+          format: date-time
+          title: Startsat
+          type: string
+        title:
+          maxLength: 200
+          minLength: 1
+          title: Title
+          type: string
+      required:
+      - expiresAt
+      - message
+      - title
+      title: AnnouncementCreateRequest
+    AnnouncementSeverity:
+      enum:
+      - INFO
+      - WARNING
+      - CRITICAL
+      title: AnnouncementSeverity
       type: string
     AppForm:
       additionalProperties: false
@@ -20505,6 +21050,356 @@ components:
       - lineage
       - namespace
       title: NamespaceWorkflowMetadataView
+    OperationalBoundary:
+      enum:
+      - AUTHORING
+      - NEW_EXECUTIONS
+      - TRIGGERS
+      - API_WRITES
+      - WORKER_DISPATCH
+      title: OperationalBoundary
+      type: string
+    OperationalControl:
+      example:
+        acknowledgements:
+        - acknowledgedAt: 2000-01-23T04:56:07.000+00:00
+          componentId: componentId
+          componentRole: componentRole
+          controlVersion: 1
+        - acknowledgedAt: 2000-01-23T04:56:07.000+00:00
+          componentId: componentId
+          componentRole: componentRole
+          controlVersion: 1
+        boundaries:
+        - AUTHORING
+        - AUTHORING
+        bypassReason: bypassReason
+        bypassUntil: 2000-01-23T04:56:07.000+00:00
+        createdAt: 2000-01-23T04:56:07.000+00:00
+        createdBy: createdBy
+        expiresAt: 2000-01-23T04:56:07.000+00:00
+        flowId: flowId
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        kind: MAINTENANCE
+        name: name
+        namespace: namespace
+        pluginId: pluginId
+        reason: reason
+        reviewAt: 2000-01-23T04:56:07.000+00:00
+        runnerId: runnerId
+        runningWorkPolicy: CONTINUE
+        scope: INSTANCE
+        state: ACTIVE
+        tenantId: tenantId
+        updatedAt: 2000-01-23T04:56:07.000+00:00
+        updatedBy: updatedBy
+        version: 1
+      properties:
+        acknowledgements:
+          default: []
+          items:
+            $ref: "#/components/schemas/OperationalControlAcknowledgement"
+          title: Acknowledgements
+          type: array
+        boundaries:
+          items:
+            $ref: "#/components/schemas/OperationalBoundary"
+          title: Boundaries
+          type: array
+          default: null
+        bypassReason:
+          nullable: true
+          type: string
+        bypassUntil:
+          format: date-time
+          nullable: true
+          type: string
+        createdAt:
+          format: date-time
+          title: Createdat
+          type: string
+        createdBy:
+          title: Createdby
+          type: string
+        expiresAt:
+          format: date-time
+          nullable: true
+          type: string
+        flowId:
+          nullable: true
+          type: string
+        id:
+          format: uuid
+          title: Id
+          type: string
+        kind:
+          $ref: "#/components/schemas/OperationalControlKind"
+        name:
+          title: Name
+          type: string
+        namespace:
+          nullable: true
+          type: string
+        pluginId:
+          nullable: true
+          type: string
+        reason:
+          title: Reason
+          type: string
+        reviewAt:
+          format: date-time
+          nullable: true
+          type: string
+        runnerId:
+          nullable: true
+          type: string
+        runningWorkPolicy:
+          $ref: "#/components/schemas/RunningWorkPolicy"
+        scope:
+          $ref: "#/components/schemas/OperationalControlScope"
+        state:
+          $ref: "#/components/schemas/OperationalControlState"
+        tenantId:
+          nullable: true
+          type: string
+        updatedAt:
+          format: date-time
+          title: Updatedat
+          type: string
+        updatedBy:
+          title: Updatedby
+          type: string
+        version:
+          minimum: 1.0
+          title: Version
+          type: integer
+      required:
+      - boundaries
+      - createdAt
+      - createdBy
+      - kind
+      - name
+      - reason
+      - runningWorkPolicy
+      - scope
+      - state
+      - updatedAt
+      - updatedBy
+      - version
+      title: OperationalControl
+    OperationalControlAcknowledgement:
+      example:
+        acknowledgedAt: 2000-01-23T04:56:07.000+00:00
+        componentId: componentId
+        componentRole: componentRole
+        controlVersion: 1
+      properties:
+        acknowledgedAt:
+          format: date-time
+          title: Acknowledgedat
+          type: string
+        componentId:
+          title: Componentid
+          type: string
+        componentRole:
+          title: Componentrole
+          type: string
+        controlVersion:
+          minimum: 1.0
+          title: Controlversion
+          type: integer
+      required:
+      - acknowledgedAt
+      - componentId
+      - componentRole
+      - controlVersion
+      title: OperationalControlAcknowledgement
+    OperationalControlActionKind:
+      enum:
+      - EXTEND
+      - BYPASS
+      - DEACTIVATE
+      title: OperationalControlActionKind
+      type: string
+    OperationalControlActionRequest:
+      example:
+        action: EXTEND
+        bypassUntil: 2000-01-23T04:56:07.000+00:00
+        expectedVersion: 1
+        expiresAt: 2000-01-23T04:56:07.000+00:00
+        reason: reason
+        reviewAt: 2000-01-23T04:56:07.000+00:00
+      properties:
+        action:
+          $ref: "#/components/schemas/OperationalControlActionKind"
+        bypassUntil:
+          format: date-time
+          nullable: true
+          type: string
+        expectedVersion:
+          minimum: 1.0
+          title: Expectedversion
+          type: integer
+        expiresAt:
+          format: date-time
+          nullable: true
+          type: string
+        reason:
+          maxLength: 4000
+          minLength: 3
+          title: Reason
+          type: string
+        reviewAt:
+          format: date-time
+          nullable: true
+          type: string
+      required:
+      - action
+      - expectedVersion
+      - reason
+      title: OperationalControlActionRequest
+    OperationalControlCreateRequest:
+      example:
+        boundaries:
+        - AUTHORING
+        - AUTHORING
+        expiresAt: 2000-01-23T04:56:07.000+00:00
+        flowId: flowId
+        kind: MAINTENANCE
+        name: name
+        namespace: namespace
+        pluginId: pluginId
+        reason: reason
+        reviewAt: 2000-01-23T04:56:07.000+00:00
+        runnerId: runnerId
+        runningWorkPolicy: ""
+        scope: INSTANCE
+      properties:
+        boundaries:
+          items:
+            $ref: "#/components/schemas/OperationalBoundary"
+          minItems: 1
+          title: Boundaries
+          type: array
+          default: null
+        expiresAt:
+          format: date-time
+          nullable: true
+          type: string
+        flowId:
+          maxLength: 255
+          nullable: true
+          type: string
+        kind:
+          $ref: "#/components/schemas/OperationalControlKind"
+        name:
+          maxLength: 200
+          minLength: 1
+          title: Name
+          type: string
+        namespace:
+          maxLength: 255
+          nullable: true
+          type: string
+        pluginId:
+          maxLength: 255
+          nullable: true
+          type: string
+        reason:
+          maxLength: 4000
+          minLength: 3
+          title: Reason
+          type: string
+        reviewAt:
+          format: date-time
+          nullable: true
+          type: string
+        runnerId:
+          maxLength: 255
+          nullable: true
+          type: string
+        runningWorkPolicy:
+          allOf:
+          - $ref: "#/components/schemas/RunningWorkPolicy"
+          default: DRAIN
+        scope:
+          $ref: "#/components/schemas/OperationalControlScope"
+      required:
+      - boundaries
+      - kind
+      - name
+      - reason
+      - scope
+      title: OperationalControlCreateRequest
+    OperationalControlEvent:
+      example:
+        action: action
+        actorId: actorId
+        controlId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        eventId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        evidence:
+          key: ""
+        occurredAt: 2000-01-23T04:56:07.000+00:00
+        reason: reason
+      properties:
+        action:
+          title: Action
+          type: string
+        actorId:
+          title: Actorid
+          type: string
+        controlId:
+          format: uuid
+          title: Controlid
+          type: string
+        eventId:
+          format: uuid
+          title: Eventid
+          type: string
+        evidence:
+          additionalProperties: true
+          title: Evidence
+          type: object
+        occurredAt:
+          format: date-time
+          title: Occurredat
+          type: string
+        reason:
+          title: Reason
+          type: string
+      required:
+      - action
+      - actorId
+      - controlId
+      - eventId
+      - evidence
+      - occurredAt
+      - reason
+      title: OperationalControlEvent
+    OperationalControlKind:
+      enum:
+      - MAINTENANCE
+      - KILL_SWITCH
+      title: OperationalControlKind
+      type: string
+    OperationalControlScope:
+      enum:
+      - INSTANCE
+      - TENANT
+      - NAMESPACE
+      - FLOW
+      - PLUGIN
+      - RUNNER
+      title: OperationalControlScope
+      type: string
+    OperationalControlState:
+      enum:
+      - ACTIVE
+      - BYPASSED
+      - DEACTIVATED
+      - EXPIRED
+      title: OperationalControlState
+      type: string
     Permission:
       example:
         action: view
@@ -23965,6 +24860,13 @@ components:
       - none
       - restricted
       title: RunnerNetworkAccess
+      type: string
+    RunningWorkPolicy:
+      enum:
+      - CONTINUE
+      - DRAIN
+      - CANCEL
+      title: RunningWorkPolicy
       type: string
     SchedulePreview:
       example:

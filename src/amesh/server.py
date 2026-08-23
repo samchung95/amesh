@@ -5,7 +5,11 @@ from contextlib import suppress
 
 import uvicorn
 
-from amesh.adapters.postgres import PostgresServiceRegistryRepository
+from amesh.adapters.postgres import (
+    PostgresOperationalControlRepository,
+    PostgresServiceRegistryRepository,
+    PostgresTenantRepository,
+)
 from amesh.app import get_trusted_plugin_runtime
 from amesh.config import get_settings
 from amesh.database import create_database_engine
@@ -22,6 +26,8 @@ async def run_server() -> None:
         stale_after_seconds=settings.service_stale_after_seconds,
     )
     service = RegisteredService(repository, settings, ServiceRole.WEBSERVER)
+    controls = PostgresOperationalControlRepository(engine)
+    tenants = PostgresTenantRepository(engine)
     server = uvicorn.Server(
         uvicorn.Config(
             "amesh.app:app",
@@ -35,7 +41,17 @@ async def run_server() -> None:
     heartbeat_task: asyncio.Task[None] | None = None
     try:
         await service.register()
-        heartbeat_task = asyncio.create_task(service.heartbeat_server_until_draining(stop))
+
+        async def acknowledge_controls(instance: object) -> None:
+            await controls.acknowledge_active(
+                tenant_ids=await tenants.list_active_for_worker_group(settings.worker_group),
+                component_id=str(service.instance.instance_id),
+                component_role=ServiceRole.WEBSERVER.value,
+            )
+
+        heartbeat_task = asyncio.create_task(
+            service.heartbeat_server_until_draining(stop, acknowledge_controls)
+        )
         serve_task = asyncio.create_task(server.serve())
         stop_task = asyncio.create_task(stop.wait())
         done, _pending = await asyncio.wait(

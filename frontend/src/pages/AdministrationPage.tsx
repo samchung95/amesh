@@ -22,6 +22,12 @@ import type {
   AdministrationControl,
   AdministrationControlDraft,
   AdministrationImpactPreview,
+  Announcement,
+  AnnouncementAudience,
+  AnnouncementSeverity,
+  OperationalBoundary,
+  OperationalControl,
+  OperationalControlScope,
   PrincipalDefinition,
   RoleBinding,
   UiSession,
@@ -54,6 +60,10 @@ function expiryIn(days: number) {
   const value = new Date()
   value.setUTCDate(value.getUTCDate() + days)
   return value.toISOString()
+}
+
+function hoursFromNow(hours: number) {
+  return new Date(Date.now() + hours * 60 * 60 * 1000).toISOString()
 }
 
 function fieldText(value: unknown, fallback: string): string {
@@ -90,6 +100,8 @@ export function AdministrationPage({ session }: { session: UiSession }) {
 
   const controls = useQuery({ queryKey: ['admin', 'controls'], queryFn: api.administrationControls, enabled: view === 'controls' })
   const flags = useQuery({ queryKey: ['admin', 'flags', settings.tenant, settings.namespace], queryFn: api.featureFlags, enabled: view === 'controls' })
+  const announcements = useQuery({ queryKey: ['admin', 'announcements', settings.tenant, settings.namespace], queryFn: () => api.announcements(settings.namespace || undefined, true), enabled: view === 'controls' })
+  const operationalControls = useQuery({ queryKey: ['admin', 'operational-controls', settings.tenant], queryFn: api.operationalControls, enabled: view === 'controls' })
   const configuration = useQuery({ queryKey: ['admin', 'configuration'], queryFn: api.configuration, enabled: view === 'configuration' })
   const controlAudit = useQuery({ queryKey: ['admin', 'audit'], queryFn: api.administrationAudit, enabled: view === 'audit', refetchInterval: 10_000 })
   const indexedAudit = useQuery({ queryKey: ['admin', 'indexed-audit'], queryFn: () => api.search({ types: ['AUDIT'], limit: 100, sort: 'OCCURRED_AT', direction: 'DESC' }), enabled: view === 'audit' })
@@ -120,7 +132,7 @@ export function AdministrationPage({ session }: { session: UiSession }) {
       {view === 'namespaces' ? <NamespaceAdministration flows={flows.data || []} metadata={namespaceMetadata.data} files={namespaceFiles.data?.length || 0} keys={namespaceKeys.data?.length || 0} secrets={namespaceSecrets.data?.length || 0} namespace={settings.namespace} pending={flows.isPending} error={flows.error?.message} /> : null}
       {view === 'access' ? <AccessAdministration api={api} tenant={settings.tenant} principals={principals.data || []} roles={roles.data || []} bindings={bindings.data || []} providers={providers.data || []} pending={principals.isPending || roles.isPending || bindings.isPending || providers.isPending} mutate={(operation, message) => action.mutate(async () => { const result = await operation(); setNotice(message); return result })} /> : null}
       {view === 'operations' ? <OperationsAdministration readiness={readiness.data} topology={topology.data} workers={workers.data || []} admission={admission.data} search={search.data} pending={readiness.isPending || topology.isPending || admission.isPending || search.isPending} /> : null}
-      {view === 'controls' ? <ControlsAdministration controls={controls.data || []} flags={flags.data || []} api={api} tenant={settings.tenant} pending={controls.isPending || flags.isPending} onChanged={async (message) => { setNotice(message); setFailure(''); await queryClient.invalidateQueries({ queryKey: ['admin'] }) }} onFailure={setFailure} /> : null}
+      {view === 'controls' ? <ControlsAdministration controls={controls.data || []} flags={flags.data || []} announcements={announcements.data || []} operationalControls={operationalControls.data || []} api={api} tenant={settings.tenant} namespace={settings.namespace} pending={controls.isPending || flags.isPending || announcements.isPending || operationalControls.isPending} onChanged={async (message) => { setNotice(message); setFailure(''); await queryClient.invalidateQueries({ queryKey: ['admin'] }) }} onFailure={setFailure} /> : null}
       {view === 'configuration' ? <ConfigurationAdministration snapshot={configuration.data} pending={configuration.isPending} onReload={() => action.mutate(async () => { const result = await api.reloadConfiguration(); setNotice(`Configuration reloaded at version ${String(result.version)}`); return result })} /> : null}
       {view === 'audit' ? <AuditAdministration direct={controlAudit.data || []} indexed={indexedAudit.data?.items || []} pending={controlAudit.isPending || indexedAudit.isPending} settings={settings} /> : null}
     </div>
@@ -186,7 +198,7 @@ function OperationsAdministration({ readiness, topology, workers, admission, sea
   </div>
 }
 
-function ControlsAdministration({ controls, flags, api, tenant, pending, onChanged, onFailure }: { controls: AdministrationControl[]; flags: Awaited<ReturnType<ReturnType<typeof useApiClient>['featureFlags']>>; api: ReturnType<typeof useApiClient>; tenant: string; pending: boolean; onChanged: (message: string) => Promise<void>; onFailure: (message: string) => void }) {
+function ControlsAdministration({ controls, flags, announcements, operationalControls, api, tenant, namespace, pending, onChanged, onFailure }: { controls: AdministrationControl[]; flags: Awaited<ReturnType<ReturnType<typeof useApiClient>['featureFlags']>>; announcements: Announcement[]; operationalControls: OperationalControl[]; api: ReturnType<typeof useApiClient>; tenant: string; namespace: string; pending: boolean; onChanged: (message: string) => Promise<void>; onFailure: (message: string) => void }) {
   const [selected, setSelected] = useState<AdministrationControl | null>(null)
   const [enabled, setEnabled] = useState(false)
   const [value, setValue] = useState('')
@@ -203,11 +215,154 @@ function ControlsAdministration({ controls, flags, api, tenant, pending, onChang
   const submit = (event: FormEvent) => { event.preventDefault(); if (!selected) return; try { previewMutation.mutate(administrationControlDraft(selected, enabled, value, reason)) } catch (error) { onFailure(error instanceof Error ? error.message : 'Invalid control') } }
   return <div className="admin-section-stack">
     <p className="admin-safety-note"><ShieldCheck size={18} aria-hidden="true" /><span><strong>Guarded changes</strong> Every control requires a server-generated impact preview, a short-lived actor/tenant-bound approval, exact confirmation and immutable success or rejection evidence.</span></p>
+    <OperationalPosture announcements={announcements} controls={operationalControls} api={api} namespace={namespace} onChanged={onChanged} onFailure={onFailure} />
     <section className="admin-control-grid">{controls.map((control) => { const copy = CONTROL_COPY[control.key]; return <article key={control.key} className={control.enabled ? 'enabled' : ''}><header><div><p className="eyebrow">{control.key.replace('_', ' ')}</p><h3>{copy.title}</h3></div><StatusBadge state={control.enabled ? 'RUNNING' : 'PAUSED'} /></header><p>{copy.summary}</p>{copy.valueLabel ? <dl><dt>{copy.valueLabel}</dt><dd>{control.value || '—'}</dd></dl> : null}<footer><span>{control.version ? `v${String(control.version)} · ${control.updatedBy || 'unknown'}` : 'default policy'}</span><button className="button button-secondary" type="button" onClick={() => edit(control)}>Preview change</button></footer></article> })}</section>
     {selected ? <section className="admin-panel"><div className="section-heading"><div><p className="eyebrow">DRAFT</p><h3>{CONTROL_COPY[selected.key].title}</h3></div><button className="button button-quiet" type="button" onClick={() => setSelected(null)}>Close</button></div><form className="admin-form control-form" onSubmit={submit}><label className="toggle-field"><input type="checkbox" checked={enabled} onChange={(event) => setEnabled(event.target.checked)} /><span>{enabled ? 'Enabled' : 'Disabled'}</span></label>{selected.key === 'RETENTION' ? <label>Days<input type="number" min="1" max="3650" value={value} onChange={(event) => setValue(event.target.value)} required /></label> : null}{selected.key === 'ANNOUNCEMENT' ? <label className="span-two">Message<textarea value={value} onChange={(event) => setValue(event.target.value)} maxLength={1000} required={enabled} /></label> : null}<label className="span-two">Reason<input value={reason} onChange={(event) => setReason(event.target.value)} placeholder="Why is this change required?" minLength={3} required /></label><button className="button button-primary" type="submit">Generate impact preview</button></form></section> : null}
     <section className="admin-panel"><div className="section-heading"><div><p className="eyebrow">FEATURE FLAGS</p><h3>Scoped release controls</h3></div><span>{tenant} · {flags.length} visible</span></div><form className="admin-form" onSubmit={(event) => { event.preventDefault(); const key = flagKey.trim(); if (key.startsWith('admin-')) { onFailure('Keys beginning with admin- require the guarded control workflow.'); return } void api.saveFeatureFlag(key, flagEnabled, flagDescription).then(() => { setFlagKey(''); setFlagDescription(''); return onChanged('Feature flag saved') }).catch((error: Error) => onFailure(error.message)) }}><label>Key<input value={flagKey} onChange={(event) => setFlagKey(event.target.value)} required pattern="[A-Za-z0-9][A-Za-z0-9_-]*" /></label><label className="toggle-field"><input type="checkbox" checked={flagEnabled} onChange={(event) => setFlagEnabled(event.target.checked)} /><span>{flagEnabled ? 'Enabled' : 'Disabled'}</span></label><label className="span-two">Description<input value={flagDescription} onChange={(event) => setFlagDescription(event.target.value)} /></label><button className="button button-primary" type="submit">Save flag</button></form><div className="chip-list">{flags.filter((flag) => !flag.key.startsWith('admin-')).map((flag) => <span key={`${flag.scope}:${flag.key}`}><strong>{flag.key}</strong>{flag.scope} · {flag.enabled ? 'on' : 'off'} · v{flag.version}</span>)}</div></section>
     {preview ? <div className="modal-backdrop"><section className="confirmation-dialog admin-impact-dialog" role="dialog" aria-modal="true" aria-labelledby="admin-impact-title"><p className="eyebrow">SHORT-LIVED STEP-UP APPROVAL</p><h2 id="admin-impact-title">Confirm {CONTROL_COPY[preview.draft.key].title}</h2><div className="impact-grid"><article><strong>Impact</strong><ul>{preview.impacts.map((item) => <li key={item}>{item}</li>)}</ul></article><article><strong>Recovery</strong><p>{preview.recovery}</p></article></div><p className="approval-expiry"><AlertTriangle size={16} aria-hidden="true" />Approval expires {new Date(preview.expiresAt).toLocaleTimeString()}.</p><label>Type <code>{preview.confirmation}</code><input autoFocus value={confirmation} onChange={(event) => setConfirmation(event.target.value)} /></label><div><button className="button button-secondary" type="button" onClick={() => setPreview(null)}>Cancel</button><button className="button button-danger" type="button" disabled={confirmation !== preview.confirmation || applyMutation.isPending} onClick={() => applyMutation.mutate({ impact: preview, phrase: confirmation })}>Apply guarded change</button></div></section></div> : null}
   </div>
+}
+
+const operationalBoundaries: OperationalBoundary[] = ['AUTHORING', 'NEW_EXECUTIONS', 'TRIGGERS', 'API_WRITES', 'WORKER_DISPATCH']
+
+function OperationalPosture({ announcements, controls, api, namespace, onChanged, onFailure }: { announcements: Announcement[]; controls: OperationalControl[]; api: ReturnType<typeof useApiClient>; namespace: string; onChanged: (message: string) => Promise<void>; onFailure: (message: string) => void }) {
+  const [announcementTitle, setAnnouncementTitle] = useState('')
+  const [announcementMessage, setAnnouncementMessage] = useState('')
+  const [announcementSeverity, setAnnouncementSeverity] = useState<AnnouncementSeverity>('INFO')
+  const [announcementAudience, setAnnouncementAudience] = useState<AnnouncementAudience>('TENANT')
+  const [announcementHours, setAnnouncementHours] = useState(4)
+  const [controlKind, setControlKind] = useState<OperationalControl['kind']>('MAINTENANCE')
+  const [controlName, setControlName] = useState('')
+  const [controlScope, setControlScope] = useState<OperationalControlScope>('TENANT')
+  const [controlNamespace, setControlNamespace] = useState(namespace)
+  const [controlFlow, setControlFlow] = useState('')
+  const [controlPlugin, setControlPlugin] = useState('')
+  const [controlRunner, setControlRunner] = useState('')
+  const [boundaries, setBoundaries] = useState<OperationalBoundary[]>(['NEW_EXECUTIONS', 'TRIGGERS'])
+  const [runningPolicy, setRunningPolicy] = useState<OperationalControl['runningWorkPolicy']>('DRAIN')
+  const [controlReason, setControlReason] = useState('')
+  const [controlHours, setControlHours] = useState(1)
+  const [submitting, setSubmitting] = useState(false)
+
+  const submitAnnouncement = async (event: FormEvent) => {
+    event.preventDefault()
+    setSubmitting(true)
+    try {
+      await api.publishAnnouncement({
+        title: announcementTitle.trim(),
+        message: announcementMessage.trim(),
+        severity: announcementSeverity,
+        audience: announcementAudience,
+        namespace: announcementAudience === 'NAMESPACE' ? controlNamespace.trim() : null,
+        startsAt: new Date().toISOString(),
+        expiresAt: hoursFromNow(announcementHours),
+      })
+      setAnnouncementTitle('')
+      setAnnouncementMessage('')
+      await onChanged('Announcement published')
+    } catch (error) {
+      onFailure(error instanceof Error ? error.message : 'Could not publish announcement')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  const submitControl = async (event: FormEvent) => {
+    event.preventDefault()
+    if (!boundaries.length) {
+      onFailure('Select at least one enforcement boundary.')
+      return
+    }
+    setSubmitting(true)
+    try {
+      await api.activateOperationalControl({
+        kind: controlKind,
+        name: controlName.trim(),
+        scope: controlScope,
+        namespace: ['NAMESPACE', 'FLOW'].includes(controlScope) ? controlNamespace.trim() : null,
+        flowId: controlScope === 'FLOW' ? controlFlow.trim() : null,
+        pluginId: controlScope === 'PLUGIN' ? controlPlugin.trim() : null,
+        runnerId: controlScope === 'RUNNER' ? controlRunner.trim() : null,
+        boundaries,
+        runningWorkPolicy: runningPolicy,
+        reason: controlReason.trim(),
+        expiresAt: hoursFromNow(controlHours),
+      })
+      setControlName('')
+      setControlReason('')
+      await onChanged('Operational control activated and propagation started')
+    } catch (error) {
+      onFailure(error instanceof Error ? error.message : 'Could not activate control')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  const changeControl = async (control: OperationalControl, action: 'EXTEND' | 'BYPASS' | 'DEACTIVATE') => {
+    const reason = window.prompt(`${action.replace('_', ' ').toLowerCase()} reason`)
+    if (!reason?.trim()) return
+    try {
+      await api.changeOperationalControl(control.id, {
+        action,
+        reason: reason.trim(),
+        expectedVersion: control.version,
+        ...(action === 'EXTEND' ? { expiresAt: hoursFromNow(1) } : {}),
+        ...(action === 'BYPASS' ? { bypassUntil: hoursFromNow(0.25) } : {}),
+      })
+      await onChanged(`Operational control ${action.toLowerCase()} recorded`)
+    } catch (error) {
+      onFailure(error instanceof Error ? error.message : 'Could not change control')
+    }
+  }
+
+  return (
+    <div className="admin-section-stack operational-posture">
+      <div className="admin-split equal">
+        <section className="admin-panel">
+          <div className="section-heading">
+            <div><p className="eyebrow">SCHEDULED / IMMEDIATE</p><h3>Announcements</h3></div>
+            <span>{announcements.filter((item) => item.active).length} active</span>
+          </div>
+          <form className="admin-form" onSubmit={(event) => void submitAnnouncement(event)}>
+            <label>Title<input value={announcementTitle} onChange={(event) => setAnnouncementTitle(event.target.value)} required maxLength={200} /></label>
+            <label>Severity<select value={announcementSeverity} onChange={(event) => setAnnouncementSeverity(event.target.value as AnnouncementSeverity)}><option>INFO</option><option>WARNING</option><option>CRITICAL</option></select></label>
+            <label>Audience<select value={announcementAudience} onChange={(event) => setAnnouncementAudience(event.target.value as AnnouncementAudience)}><option>TENANT</option><option>NAMESPACE</option><option>INSTANCE</option></select></label>
+            <label>Expires in hours<input type="number" min="1" max="720" value={announcementHours} onChange={(event) => setAnnouncementHours(Number(event.target.value))} /></label>
+            {announcementAudience === 'NAMESPACE' ? <label className="span-two">Namespace<input value={controlNamespace} onChange={(event) => setControlNamespace(event.target.value)} required /></label> : null}
+            <label className="span-two">Message<textarea value={announcementMessage} onChange={(event) => setAnnouncementMessage(event.target.value)} required maxLength={4000} /></label>
+            <button className="button button-primary" type="submit" disabled={submitting}>Publish announcement</button>
+          </form>
+          <div className="operational-list">
+            {announcements.map((announcement) => <article key={announcement.id}><div><strong>{announcement.title}</strong><small>{announcement.severity} · {announcement.audience} · expires {new Date(announcement.expiresAt).toLocaleString()}</small><p>{announcement.message}</p></div><StatusBadge state={announcement.active ? 'RUNNING' : 'PAUSED'} />{announcement.active ? <button className="button button-quiet" type="button" onClick={() => void api.deactivateAnnouncement(announcement.id, announcement.version).then(() => onChanged('Announcement deactivated')).catch((error: Error) => onFailure(error.message))}>Deactivate</button> : null}</article>)}
+          </div>
+        </section>
+        <section className="admin-panel">
+          <div className="section-heading">
+            <div><p className="eyebrow">DURABLE ENFORCEMENT</p><h3>Maintenance & kill switches</h3></div>
+            <span>{controls.filter((item) => item.state === 'ACTIVE').length} active</span>
+          </div>
+          <form className="admin-form" onSubmit={(event) => void submitControl(event)}>
+            <label>Kind<select value={controlKind} onChange={(event) => setControlKind(event.target.value as OperationalControl['kind'])}><option>MAINTENANCE</option><option>KILL_SWITCH</option></select></label>
+            <label>Name<input value={controlName} onChange={(event) => setControlName(event.target.value)} required /></label>
+            <label>Scope<select value={controlScope} onChange={(event) => setControlScope(event.target.value as OperationalControlScope)}>{(['TENANT', 'NAMESPACE', 'FLOW', 'PLUGIN', 'RUNNER', 'INSTANCE'] as OperationalControlScope[]).map((scope) => <option key={scope}>{scope}</option>)}</select></label>
+            <label>Running work<select value={runningPolicy} onChange={(event) => setRunningPolicy(event.target.value as OperationalControl['runningWorkPolicy'])}><option>CONTINUE</option><option>DRAIN</option><option>CANCEL</option></select></label>
+            {['NAMESPACE', 'FLOW'].includes(controlScope) ? <label>Namespace<input value={controlNamespace} onChange={(event) => setControlNamespace(event.target.value)} required /></label> : null}
+            {controlScope === 'FLOW' ? <label>Flow ID<input value={controlFlow} onChange={(event) => setControlFlow(event.target.value)} required /></label> : null}
+            {controlScope === 'PLUGIN' ? <label>Plugin ID<input value={controlPlugin} onChange={(event) => setControlPlugin(event.target.value)} required /></label> : null}
+            {controlScope === 'RUNNER' ? <label>Runner ID<input value={controlRunner} onChange={(event) => setControlRunner(event.target.value)} required placeholder="local, docker or kubernetes" /></label> : null}
+            <fieldset className="span-two"><legend>Enforcement boundaries</legend><div className="control-boundaries">{operationalBoundaries.map((boundary) => <label key={boundary}><input type="checkbox" checked={boundaries.includes(boundary)} onChange={(event) => setBoundaries((current) => event.target.checked ? [...current, boundary] : current.filter((item) => item !== boundary))} />{boundary.replace('_', ' ')}</label>)}</div></fieldset>
+            <label>Expires in hours<input type="number" min="1" max="720" value={controlHours} onChange={(event) => setControlHours(Number(event.target.value))} /></label>
+            <label className="span-two">Reason<input value={controlReason} onChange={(event) => setControlReason(event.target.value)} minLength={3} required /></label>
+            <button className="button button-danger" type="submit" disabled={submitting}>Activate control</button>
+          </form>
+        </section>
+      </div>
+      <section className="admin-panel">
+        <div className="section-heading"><div><p className="eyebrow">PROPAGATION / RUNNING-WORK POLICY</p><h3>Control status</h3></div><span>{controls.length} controls</span></div>
+        <div className="table-shell"><table><thead><tr><th>Control</th><th>Scope</th><th>Boundaries</th><th>Policy</th><th>Acknowledged</th><th>Actions</th></tr></thead><tbody>{controls.map((control) => <tr key={control.id}><td><strong>{control.name}</strong><small>{control.kind} · <StatusBadge state={control.state === 'ACTIVE' ? 'RUNNING' : control.state === 'BYPASSED' ? 'WARNING' : 'PAUSED'} /></small></td><td>{control.scope}<small>{control.namespace || control.flowId || control.pluginId || control.runnerId || 'all'}</small></td><td>{control.boundaries.join(', ')}</td><td>{control.runningWorkPolicy}</td><td>{control.acknowledgements.length}<small>{control.acknowledgements.map((ack) => ack.componentRole).join(', ') || 'waiting'}</small></td><td>{control.state === 'ACTIVE' ? <div className="table-actions"><button className="button button-quiet" type="button" onClick={() => void changeControl(control, 'EXTEND')}>Extend</button><button className="button button-quiet" type="button" onClick={() => void changeControl(control, 'BYPASS')}>Bypass</button><button className="button button-danger" type="button" onClick={() => void changeControl(control, 'DEACTIVATE')}>Deactivate</button></div> : '—'}</td></tr>)}</tbody></table></div>
+      </section>
+    </div>
+  )
 }
 
 function ConfigurationAdministration({ snapshot, pending, onReload }: { snapshot?: Awaited<ReturnType<ReturnType<typeof useApiClient>['configuration']>>; pending: boolean; onReload: () => void }) {

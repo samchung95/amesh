@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import os
 import socket
+from collections.abc import Awaitable, Callable
 from contextlib import suppress
 from typing import Any
 
@@ -81,7 +82,11 @@ class RegisteredService:
         except ServiceFenceError:
             self._instance = None
 
-    async def heartbeat_server_until_draining(self, stop: asyncio.Event) -> None:
+    async def heartbeat_server_until_draining(
+        self,
+        stop: asyncio.Event,
+        on_heartbeat: Callable[[ServiceInstance], Awaitable[None]] | None = None,
+    ) -> None:
         while not stop.is_set():
             try:
                 current = await self.heartbeat(
@@ -94,6 +99,11 @@ class RegisteredService:
             except ServiceFenceError:
                 stop.set()
                 return
+            if current is not None and on_heartbeat is not None:
+                try:
+                    await on_heartbeat(current)
+                except (DBAPIError, OSError):
+                    current = None
             if current is not None and current.state is ServiceState.DRAINING:
                 stop.set()
                 return

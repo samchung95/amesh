@@ -202,6 +202,17 @@ class TriggerRuntimeRepository(Protocol):
         retry_delay: timedelta,
     ) -> TriggerOccurrence: ...
 
+    async def defer_occurrence(
+        self,
+        occurrence_id: UUID,
+        *,
+        tenant_id: str,
+        owner_id: UUID,
+        fencing_token: int,
+        reason: str,
+        retry_delay: timedelta,
+    ) -> TriggerOccurrence: ...
+
     async def get_occurrence(
         self,
         occurrence_id: UUID,

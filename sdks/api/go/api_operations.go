@@ -23,6 +23,451 @@ import (
 // OperationsAPIService OperationsAPI service
 type OperationsAPIService service
 
+type ApiActivateOperationalControlApiV1OperationalControlsPostRequest struct {
+	ctx context.Context
+	ApiService *OperationsAPIService
+	operationalControlCreateRequest *OperationalControlCreateRequest
+	authorization *string
+	xAmeshCSRF *string
+	xAmeshTenant *string
+}
+
+func (r ApiActivateOperationalControlApiV1OperationalControlsPostRequest) OperationalControlCreateRequest(operationalControlCreateRequest OperationalControlCreateRequest) ApiActivateOperationalControlApiV1OperationalControlsPostRequest {
+	r.operationalControlCreateRequest = &operationalControlCreateRequest
+	return r
+}
+
+func (r ApiActivateOperationalControlApiV1OperationalControlsPostRequest) Authorization(authorization string) ApiActivateOperationalControlApiV1OperationalControlsPostRequest {
+	r.authorization = &authorization
+	return r
+}
+
+func (r ApiActivateOperationalControlApiV1OperationalControlsPostRequest) XAmeshCSRF(xAmeshCSRF string) ApiActivateOperationalControlApiV1OperationalControlsPostRequest {
+	r.xAmeshCSRF = &xAmeshCSRF
+	return r
+}
+
+func (r ApiActivateOperationalControlApiV1OperationalControlsPostRequest) XAmeshTenant(xAmeshTenant string) ApiActivateOperationalControlApiV1OperationalControlsPostRequest {
+	r.xAmeshTenant = &xAmeshTenant
+	return r
+}
+
+func (r ApiActivateOperationalControlApiV1OperationalControlsPostRequest) Execute() (*OperationalControl, *http.Response, error) {
+	return r.ApiService.ActivateOperationalControlApiV1OperationalControlsPostExecute(r)
+}
+
+/*
+ActivateOperationalControlApiV1OperationalControlsPost Activate Operational Control
+
+ @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+ @return ApiActivateOperationalControlApiV1OperationalControlsPostRequest
+*/
+func (a *OperationsAPIService) ActivateOperationalControlApiV1OperationalControlsPost(ctx context.Context) ApiActivateOperationalControlApiV1OperationalControlsPostRequest {
+	return ApiActivateOperationalControlApiV1OperationalControlsPostRequest{
+		ApiService: a,
+		ctx: ctx,
+	}
+}
+
+// Execute executes the request
+//  @return OperationalControl
+func (a *OperationsAPIService) ActivateOperationalControlApiV1OperationalControlsPostExecute(r ApiActivateOperationalControlApiV1OperationalControlsPostRequest) (*OperationalControl, *http.Response, error) {
+	var (
+		localVarHTTPMethod   = http.MethodPost
+		localVarPostBody     interface{}
+		formFiles            []formFile
+		localVarReturnValue  *OperationalControl
+	)
+
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "OperationsAPIService.ActivateOperationalControlApiV1OperationalControlsPost")
+	if err != nil {
+		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
+	}
+
+	localVarPath := localBasePath + "/api/v1/operational-controls"
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+	if r.operationalControlCreateRequest == nil {
+		return localVarReturnValue, nil, reportError("operationalControlCreateRequest is required and must be specified")
+	}
+
+	// to determine the Content-Type header
+	localVarHTTPContentTypes := []string{"application/json"}
+
+	// set Content-Type header
+	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
+	if localVarHTTPContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHTTPContentType
+	}
+
+	// to determine the Accept header
+	localVarHTTPHeaderAccepts := []string{"application/json"}
+
+	// set Accept header
+	localVarHTTPHeaderAccept := selectHeaderAccept(localVarHTTPHeaderAccepts)
+	if localVarHTTPHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
+	}
+	if r.authorization != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "authorization", r.authorization, "simple", "")
+	}
+	if r.xAmeshCSRF != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "X-Amesh-CSRF", r.xAmeshCSRF, "simple", "")
+	}
+	if r.xAmeshTenant != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "X-Amesh-Tenant", r.xAmeshTenant, "simple", "")
+	}
+	// body params
+	localVarPostBody = r.operationalControlCreateRequest
+	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
+	if err != nil {
+		return localVarReturnValue, nil, err
+	}
+
+	localVarHTTPResponse, err := a.client.callAPI(req)
+	if err != nil || localVarHTTPResponse == nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	localVarBody, err := io.ReadAll(localVarHTTPResponse.Body)
+	localVarHTTPResponse.Body.Close()
+	localVarHTTPResponse.Body = io.NopCloser(bytes.NewBuffer(localVarBody))
+	if err != nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	if localVarHTTPResponse.StatusCode >= 300 {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: localVarHTTPResponse.Status,
+		}
+		if localVarHTTPResponse.StatusCode == 422 {
+			var v HTTPValidationError
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+					newErr.model = v
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	err = a.client.decode(&localVarReturnValue, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+	if err != nil {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: err.Error(),
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	return localVarReturnValue, localVarHTTPResponse, nil
+}
+
+type ApiChangeOperationalControlApiV1OperationalControlsControlIdActionsPostRequest struct {
+	ctx context.Context
+	ApiService *OperationsAPIService
+	controlId string
+	operationalControlActionRequest *OperationalControlActionRequest
+	authorization *string
+	xAmeshCSRF *string
+	xAmeshTenant *string
+}
+
+func (r ApiChangeOperationalControlApiV1OperationalControlsControlIdActionsPostRequest) OperationalControlActionRequest(operationalControlActionRequest OperationalControlActionRequest) ApiChangeOperationalControlApiV1OperationalControlsControlIdActionsPostRequest {
+	r.operationalControlActionRequest = &operationalControlActionRequest
+	return r
+}
+
+func (r ApiChangeOperationalControlApiV1OperationalControlsControlIdActionsPostRequest) Authorization(authorization string) ApiChangeOperationalControlApiV1OperationalControlsControlIdActionsPostRequest {
+	r.authorization = &authorization
+	return r
+}
+
+func (r ApiChangeOperationalControlApiV1OperationalControlsControlIdActionsPostRequest) XAmeshCSRF(xAmeshCSRF string) ApiChangeOperationalControlApiV1OperationalControlsControlIdActionsPostRequest {
+	r.xAmeshCSRF = &xAmeshCSRF
+	return r
+}
+
+func (r ApiChangeOperationalControlApiV1OperationalControlsControlIdActionsPostRequest) XAmeshTenant(xAmeshTenant string) ApiChangeOperationalControlApiV1OperationalControlsControlIdActionsPostRequest {
+	r.xAmeshTenant = &xAmeshTenant
+	return r
+}
+
+func (r ApiChangeOperationalControlApiV1OperationalControlsControlIdActionsPostRequest) Execute() (*OperationalControl, *http.Response, error) {
+	return r.ApiService.ChangeOperationalControlApiV1OperationalControlsControlIdActionsPostExecute(r)
+}
+
+/*
+ChangeOperationalControlApiV1OperationalControlsControlIdActionsPost Change Operational Control
+
+ @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+ @param controlId
+ @return ApiChangeOperationalControlApiV1OperationalControlsControlIdActionsPostRequest
+*/
+func (a *OperationsAPIService) ChangeOperationalControlApiV1OperationalControlsControlIdActionsPost(ctx context.Context, controlId string) ApiChangeOperationalControlApiV1OperationalControlsControlIdActionsPostRequest {
+	return ApiChangeOperationalControlApiV1OperationalControlsControlIdActionsPostRequest{
+		ApiService: a,
+		ctx: ctx,
+		controlId: controlId,
+	}
+}
+
+// Execute executes the request
+//  @return OperationalControl
+func (a *OperationsAPIService) ChangeOperationalControlApiV1OperationalControlsControlIdActionsPostExecute(r ApiChangeOperationalControlApiV1OperationalControlsControlIdActionsPostRequest) (*OperationalControl, *http.Response, error) {
+	var (
+		localVarHTTPMethod   = http.MethodPost
+		localVarPostBody     interface{}
+		formFiles            []formFile
+		localVarReturnValue  *OperationalControl
+	)
+
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "OperationsAPIService.ChangeOperationalControlApiV1OperationalControlsControlIdActionsPost")
+	if err != nil {
+		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
+	}
+
+	localVarPath := localBasePath + "/api/v1/operational-controls/{control_id}/actions"
+	localVarPath = strings.Replace(localVarPath, "{"+"control_id"+"}", url.PathEscape(parameterValueToString(r.controlId, "controlId")), -1)
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+	if r.operationalControlActionRequest == nil {
+		return localVarReturnValue, nil, reportError("operationalControlActionRequest is required and must be specified")
+	}
+
+	// to determine the Content-Type header
+	localVarHTTPContentTypes := []string{"application/json"}
+
+	// set Content-Type header
+	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
+	if localVarHTTPContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHTTPContentType
+	}
+
+	// to determine the Accept header
+	localVarHTTPHeaderAccepts := []string{"application/json"}
+
+	// set Accept header
+	localVarHTTPHeaderAccept := selectHeaderAccept(localVarHTTPHeaderAccepts)
+	if localVarHTTPHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
+	}
+	if r.authorization != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "authorization", r.authorization, "simple", "")
+	}
+	if r.xAmeshCSRF != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "X-Amesh-CSRF", r.xAmeshCSRF, "simple", "")
+	}
+	if r.xAmeshTenant != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "X-Amesh-Tenant", r.xAmeshTenant, "simple", "")
+	}
+	// body params
+	localVarPostBody = r.operationalControlActionRequest
+	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
+	if err != nil {
+		return localVarReturnValue, nil, err
+	}
+
+	localVarHTTPResponse, err := a.client.callAPI(req)
+	if err != nil || localVarHTTPResponse == nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	localVarBody, err := io.ReadAll(localVarHTTPResponse.Body)
+	localVarHTTPResponse.Body.Close()
+	localVarHTTPResponse.Body = io.NopCloser(bytes.NewBuffer(localVarBody))
+	if err != nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	if localVarHTTPResponse.StatusCode >= 300 {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: localVarHTTPResponse.Status,
+		}
+		if localVarHTTPResponse.StatusCode == 422 {
+			var v HTTPValidationError
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+					newErr.model = v
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	err = a.client.decode(&localVarReturnValue, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+	if err != nil {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: err.Error(),
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	return localVarReturnValue, localVarHTTPResponse, nil
+}
+
+type ApiDeactivateAnnouncementApiV1AnnouncementsAnnouncementIdDeleteRequest struct {
+	ctx context.Context
+	ApiService *OperationsAPIService
+	announcementId string
+	expectedVersion *int32
+	authorization *string
+	xAmeshCSRF *string
+	xAmeshTenant *string
+}
+
+func (r ApiDeactivateAnnouncementApiV1AnnouncementsAnnouncementIdDeleteRequest) ExpectedVersion(expectedVersion int32) ApiDeactivateAnnouncementApiV1AnnouncementsAnnouncementIdDeleteRequest {
+	r.expectedVersion = &expectedVersion
+	return r
+}
+
+func (r ApiDeactivateAnnouncementApiV1AnnouncementsAnnouncementIdDeleteRequest) Authorization(authorization string) ApiDeactivateAnnouncementApiV1AnnouncementsAnnouncementIdDeleteRequest {
+	r.authorization = &authorization
+	return r
+}
+
+func (r ApiDeactivateAnnouncementApiV1AnnouncementsAnnouncementIdDeleteRequest) XAmeshCSRF(xAmeshCSRF string) ApiDeactivateAnnouncementApiV1AnnouncementsAnnouncementIdDeleteRequest {
+	r.xAmeshCSRF = &xAmeshCSRF
+	return r
+}
+
+func (r ApiDeactivateAnnouncementApiV1AnnouncementsAnnouncementIdDeleteRequest) XAmeshTenant(xAmeshTenant string) ApiDeactivateAnnouncementApiV1AnnouncementsAnnouncementIdDeleteRequest {
+	r.xAmeshTenant = &xAmeshTenant
+	return r
+}
+
+func (r ApiDeactivateAnnouncementApiV1AnnouncementsAnnouncementIdDeleteRequest) Execute() (*Announcement, *http.Response, error) {
+	return r.ApiService.DeactivateAnnouncementApiV1AnnouncementsAnnouncementIdDeleteExecute(r)
+}
+
+/*
+DeactivateAnnouncementApiV1AnnouncementsAnnouncementIdDelete Deactivate Announcement
+
+ @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+ @param announcementId
+ @return ApiDeactivateAnnouncementApiV1AnnouncementsAnnouncementIdDeleteRequest
+*/
+func (a *OperationsAPIService) DeactivateAnnouncementApiV1AnnouncementsAnnouncementIdDelete(ctx context.Context, announcementId string) ApiDeactivateAnnouncementApiV1AnnouncementsAnnouncementIdDeleteRequest {
+	return ApiDeactivateAnnouncementApiV1AnnouncementsAnnouncementIdDeleteRequest{
+		ApiService: a,
+		ctx: ctx,
+		announcementId: announcementId,
+	}
+}
+
+// Execute executes the request
+//  @return Announcement
+func (a *OperationsAPIService) DeactivateAnnouncementApiV1AnnouncementsAnnouncementIdDeleteExecute(r ApiDeactivateAnnouncementApiV1AnnouncementsAnnouncementIdDeleteRequest) (*Announcement, *http.Response, error) {
+	var (
+		localVarHTTPMethod   = http.MethodDelete
+		localVarPostBody     interface{}
+		formFiles            []formFile
+		localVarReturnValue  *Announcement
+	)
+
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "OperationsAPIService.DeactivateAnnouncementApiV1AnnouncementsAnnouncementIdDelete")
+	if err != nil {
+		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
+	}
+
+	localVarPath := localBasePath + "/api/v1/announcements/{announcement_id}"
+	localVarPath = strings.Replace(localVarPath, "{"+"announcement_id"+"}", url.PathEscape(parameterValueToString(r.announcementId, "announcementId")), -1)
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+	if r.expectedVersion == nil {
+		return localVarReturnValue, nil, reportError("expectedVersion is required and must be specified")
+	}
+	if *r.expectedVersion < 1 {
+		return localVarReturnValue, nil, reportError("expectedVersion must be greater than 1")
+	}
+
+	parameterAddToHeaderOrQuery(localVarQueryParams, "expectedVersion", r.expectedVersion, "form", "")
+	// to determine the Content-Type header
+	localVarHTTPContentTypes := []string{}
+
+	// set Content-Type header
+	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
+	if localVarHTTPContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHTTPContentType
+	}
+
+	// to determine the Accept header
+	localVarHTTPHeaderAccepts := []string{"application/json"}
+
+	// set Accept header
+	localVarHTTPHeaderAccept := selectHeaderAccept(localVarHTTPHeaderAccepts)
+	if localVarHTTPHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
+	}
+	if r.authorization != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "authorization", r.authorization, "simple", "")
+	}
+	if r.xAmeshCSRF != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "X-Amesh-CSRF", r.xAmeshCSRF, "simple", "")
+	}
+	if r.xAmeshTenant != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "X-Amesh-Tenant", r.xAmeshTenant, "simple", "")
+	}
+	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
+	if err != nil {
+		return localVarReturnValue, nil, err
+	}
+
+	localVarHTTPResponse, err := a.client.callAPI(req)
+	if err != nil || localVarHTTPResponse == nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	localVarBody, err := io.ReadAll(localVarHTTPResponse.Body)
+	localVarHTTPResponse.Body.Close()
+	localVarHTTPResponse.Body = io.NopCloser(bytes.NewBuffer(localVarBody))
+	if err != nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	if localVarHTTPResponse.StatusCode >= 300 {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: localVarHTTPResponse.Status,
+		}
+		if localVarHTTPResponse.StatusCode == 422 {
+			var v HTTPValidationError
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+					newErr.model = v
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	err = a.client.decode(&localVarReturnValue, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+	if err != nil {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: err.Error(),
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	return localVarReturnValue, localVarHTTPResponse, nil
+}
+
 type ApiDrainServiceInstanceApiV1OperationsServicesInstanceIdDrainPostRequest struct {
 	ctx context.Context
 	ApiService *OperationsAPIService
@@ -560,6 +1005,443 @@ func (a *OperationsAPIService) GetServiceTopologyApiV1OperationsTopologyGetExecu
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
+type ApiListAnnouncementsApiV1AnnouncementsGetRequest struct {
+	ctx context.Context
+	ApiService *OperationsAPIService
+	namespace *string
+	includeInactive *bool
+	authorization *string
+	xAmeshCSRF *string
+	xAmeshTenant *string
+}
+
+func (r ApiListAnnouncementsApiV1AnnouncementsGetRequest) Namespace(namespace string) ApiListAnnouncementsApiV1AnnouncementsGetRequest {
+	r.namespace = &namespace
+	return r
+}
+
+func (r ApiListAnnouncementsApiV1AnnouncementsGetRequest) IncludeInactive(includeInactive bool) ApiListAnnouncementsApiV1AnnouncementsGetRequest {
+	r.includeInactive = &includeInactive
+	return r
+}
+
+func (r ApiListAnnouncementsApiV1AnnouncementsGetRequest) Authorization(authorization string) ApiListAnnouncementsApiV1AnnouncementsGetRequest {
+	r.authorization = &authorization
+	return r
+}
+
+func (r ApiListAnnouncementsApiV1AnnouncementsGetRequest) XAmeshCSRF(xAmeshCSRF string) ApiListAnnouncementsApiV1AnnouncementsGetRequest {
+	r.xAmeshCSRF = &xAmeshCSRF
+	return r
+}
+
+func (r ApiListAnnouncementsApiV1AnnouncementsGetRequest) XAmeshTenant(xAmeshTenant string) ApiListAnnouncementsApiV1AnnouncementsGetRequest {
+	r.xAmeshTenant = &xAmeshTenant
+	return r
+}
+
+func (r ApiListAnnouncementsApiV1AnnouncementsGetRequest) Execute() ([]Announcement, *http.Response, error) {
+	return r.ApiService.ListAnnouncementsApiV1AnnouncementsGetExecute(r)
+}
+
+/*
+ListAnnouncementsApiV1AnnouncementsGet List Announcements
+
+ @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+ @return ApiListAnnouncementsApiV1AnnouncementsGetRequest
+*/
+func (a *OperationsAPIService) ListAnnouncementsApiV1AnnouncementsGet(ctx context.Context) ApiListAnnouncementsApiV1AnnouncementsGetRequest {
+	return ApiListAnnouncementsApiV1AnnouncementsGetRequest{
+		ApiService: a,
+		ctx: ctx,
+	}
+}
+
+// Execute executes the request
+//  @return []Announcement
+func (a *OperationsAPIService) ListAnnouncementsApiV1AnnouncementsGetExecute(r ApiListAnnouncementsApiV1AnnouncementsGetRequest) ([]Announcement, *http.Response, error) {
+	var (
+		localVarHTTPMethod   = http.MethodGet
+		localVarPostBody     interface{}
+		formFiles            []formFile
+		localVarReturnValue  []Announcement
+	)
+
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "OperationsAPIService.ListAnnouncementsApiV1AnnouncementsGet")
+	if err != nil {
+		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
+	}
+
+	localVarPath := localBasePath + "/api/v1/announcements"
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+
+	if r.namespace != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "namespace", r.namespace, "form", "")
+	}
+	if r.includeInactive != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "includeInactive", r.includeInactive, "form", "")
+	} else {
+		var defaultValue bool = false
+		parameterAddToHeaderOrQuery(localVarQueryParams, "includeInactive", defaultValue, "form", "")
+		r.includeInactive = &defaultValue
+	}
+	// to determine the Content-Type header
+	localVarHTTPContentTypes := []string{}
+
+	// set Content-Type header
+	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
+	if localVarHTTPContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHTTPContentType
+	}
+
+	// to determine the Accept header
+	localVarHTTPHeaderAccepts := []string{"application/json"}
+
+	// set Accept header
+	localVarHTTPHeaderAccept := selectHeaderAccept(localVarHTTPHeaderAccepts)
+	if localVarHTTPHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
+	}
+	if r.authorization != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "authorization", r.authorization, "simple", "")
+	}
+	if r.xAmeshCSRF != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "X-Amesh-CSRF", r.xAmeshCSRF, "simple", "")
+	}
+	if r.xAmeshTenant != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "X-Amesh-Tenant", r.xAmeshTenant, "simple", "")
+	}
+	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
+	if err != nil {
+		return localVarReturnValue, nil, err
+	}
+
+	localVarHTTPResponse, err := a.client.callAPI(req)
+	if err != nil || localVarHTTPResponse == nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	localVarBody, err := io.ReadAll(localVarHTTPResponse.Body)
+	localVarHTTPResponse.Body.Close()
+	localVarHTTPResponse.Body = io.NopCloser(bytes.NewBuffer(localVarBody))
+	if err != nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	if localVarHTTPResponse.StatusCode >= 300 {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: localVarHTTPResponse.Status,
+		}
+		if localVarHTTPResponse.StatusCode == 422 {
+			var v HTTPValidationError
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+					newErr.model = v
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	err = a.client.decode(&localVarReturnValue, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+	if err != nil {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: err.Error(),
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	return localVarReturnValue, localVarHTTPResponse, nil
+}
+
+type ApiListOperationalControlEventsApiV1OperationalControlEventsGetRequest struct {
+	ctx context.Context
+	ApiService *OperationsAPIService
+	limit *int32
+	authorization *string
+	xAmeshCSRF *string
+	xAmeshTenant *string
+}
+
+func (r ApiListOperationalControlEventsApiV1OperationalControlEventsGetRequest) Limit(limit int32) ApiListOperationalControlEventsApiV1OperationalControlEventsGetRequest {
+	r.limit = &limit
+	return r
+}
+
+func (r ApiListOperationalControlEventsApiV1OperationalControlEventsGetRequest) Authorization(authorization string) ApiListOperationalControlEventsApiV1OperationalControlEventsGetRequest {
+	r.authorization = &authorization
+	return r
+}
+
+func (r ApiListOperationalControlEventsApiV1OperationalControlEventsGetRequest) XAmeshCSRF(xAmeshCSRF string) ApiListOperationalControlEventsApiV1OperationalControlEventsGetRequest {
+	r.xAmeshCSRF = &xAmeshCSRF
+	return r
+}
+
+func (r ApiListOperationalControlEventsApiV1OperationalControlEventsGetRequest) XAmeshTenant(xAmeshTenant string) ApiListOperationalControlEventsApiV1OperationalControlEventsGetRequest {
+	r.xAmeshTenant = &xAmeshTenant
+	return r
+}
+
+func (r ApiListOperationalControlEventsApiV1OperationalControlEventsGetRequest) Execute() ([]OperationalControlEvent, *http.Response, error) {
+	return r.ApiService.ListOperationalControlEventsApiV1OperationalControlEventsGetExecute(r)
+}
+
+/*
+ListOperationalControlEventsApiV1OperationalControlEventsGet List Operational Control Events
+
+ @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+ @return ApiListOperationalControlEventsApiV1OperationalControlEventsGetRequest
+*/
+func (a *OperationsAPIService) ListOperationalControlEventsApiV1OperationalControlEventsGet(ctx context.Context) ApiListOperationalControlEventsApiV1OperationalControlEventsGetRequest {
+	return ApiListOperationalControlEventsApiV1OperationalControlEventsGetRequest{
+		ApiService: a,
+		ctx: ctx,
+	}
+}
+
+// Execute executes the request
+//  @return []OperationalControlEvent
+func (a *OperationsAPIService) ListOperationalControlEventsApiV1OperationalControlEventsGetExecute(r ApiListOperationalControlEventsApiV1OperationalControlEventsGetRequest) ([]OperationalControlEvent, *http.Response, error) {
+	var (
+		localVarHTTPMethod   = http.MethodGet
+		localVarPostBody     interface{}
+		formFiles            []formFile
+		localVarReturnValue  []OperationalControlEvent
+	)
+
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "OperationsAPIService.ListOperationalControlEventsApiV1OperationalControlEventsGet")
+	if err != nil {
+		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
+	}
+
+	localVarPath := localBasePath + "/api/v1/operational-control-events"
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+
+	if r.limit != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "limit", r.limit, "form", "")
+	} else {
+		var defaultValue int32 = 200
+		parameterAddToHeaderOrQuery(localVarQueryParams, "limit", defaultValue, "form", "")
+		r.limit = &defaultValue
+	}
+	// to determine the Content-Type header
+	localVarHTTPContentTypes := []string{}
+
+	// set Content-Type header
+	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
+	if localVarHTTPContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHTTPContentType
+	}
+
+	// to determine the Accept header
+	localVarHTTPHeaderAccepts := []string{"application/json"}
+
+	// set Accept header
+	localVarHTTPHeaderAccept := selectHeaderAccept(localVarHTTPHeaderAccepts)
+	if localVarHTTPHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
+	}
+	if r.authorization != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "authorization", r.authorization, "simple", "")
+	}
+	if r.xAmeshCSRF != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "X-Amesh-CSRF", r.xAmeshCSRF, "simple", "")
+	}
+	if r.xAmeshTenant != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "X-Amesh-Tenant", r.xAmeshTenant, "simple", "")
+	}
+	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
+	if err != nil {
+		return localVarReturnValue, nil, err
+	}
+
+	localVarHTTPResponse, err := a.client.callAPI(req)
+	if err != nil || localVarHTTPResponse == nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	localVarBody, err := io.ReadAll(localVarHTTPResponse.Body)
+	localVarHTTPResponse.Body.Close()
+	localVarHTTPResponse.Body = io.NopCloser(bytes.NewBuffer(localVarBody))
+	if err != nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	if localVarHTTPResponse.StatusCode >= 300 {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: localVarHTTPResponse.Status,
+		}
+		if localVarHTTPResponse.StatusCode == 422 {
+			var v HTTPValidationError
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+					newErr.model = v
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	err = a.client.decode(&localVarReturnValue, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+	if err != nil {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: err.Error(),
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	return localVarReturnValue, localVarHTTPResponse, nil
+}
+
+type ApiListOperationalControlsApiV1OperationalControlsGetRequest struct {
+	ctx context.Context
+	ApiService *OperationsAPIService
+	authorization *string
+	xAmeshCSRF *string
+	xAmeshTenant *string
+}
+
+func (r ApiListOperationalControlsApiV1OperationalControlsGetRequest) Authorization(authorization string) ApiListOperationalControlsApiV1OperationalControlsGetRequest {
+	r.authorization = &authorization
+	return r
+}
+
+func (r ApiListOperationalControlsApiV1OperationalControlsGetRequest) XAmeshCSRF(xAmeshCSRF string) ApiListOperationalControlsApiV1OperationalControlsGetRequest {
+	r.xAmeshCSRF = &xAmeshCSRF
+	return r
+}
+
+func (r ApiListOperationalControlsApiV1OperationalControlsGetRequest) XAmeshTenant(xAmeshTenant string) ApiListOperationalControlsApiV1OperationalControlsGetRequest {
+	r.xAmeshTenant = &xAmeshTenant
+	return r
+}
+
+func (r ApiListOperationalControlsApiV1OperationalControlsGetRequest) Execute() ([]OperationalControl, *http.Response, error) {
+	return r.ApiService.ListOperationalControlsApiV1OperationalControlsGetExecute(r)
+}
+
+/*
+ListOperationalControlsApiV1OperationalControlsGet List Operational Controls
+
+ @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+ @return ApiListOperationalControlsApiV1OperationalControlsGetRequest
+*/
+func (a *OperationsAPIService) ListOperationalControlsApiV1OperationalControlsGet(ctx context.Context) ApiListOperationalControlsApiV1OperationalControlsGetRequest {
+	return ApiListOperationalControlsApiV1OperationalControlsGetRequest{
+		ApiService: a,
+		ctx: ctx,
+	}
+}
+
+// Execute executes the request
+//  @return []OperationalControl
+func (a *OperationsAPIService) ListOperationalControlsApiV1OperationalControlsGetExecute(r ApiListOperationalControlsApiV1OperationalControlsGetRequest) ([]OperationalControl, *http.Response, error) {
+	var (
+		localVarHTTPMethod   = http.MethodGet
+		localVarPostBody     interface{}
+		formFiles            []formFile
+		localVarReturnValue  []OperationalControl
+	)
+
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "OperationsAPIService.ListOperationalControlsApiV1OperationalControlsGet")
+	if err != nil {
+		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
+	}
+
+	localVarPath := localBasePath + "/api/v1/operational-controls"
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+
+	// to determine the Content-Type header
+	localVarHTTPContentTypes := []string{}
+
+	// set Content-Type header
+	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
+	if localVarHTTPContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHTTPContentType
+	}
+
+	// to determine the Accept header
+	localVarHTTPHeaderAccepts := []string{"application/json"}
+
+	// set Accept header
+	localVarHTTPHeaderAccept := selectHeaderAccept(localVarHTTPHeaderAccepts)
+	if localVarHTTPHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
+	}
+	if r.authorization != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "authorization", r.authorization, "simple", "")
+	}
+	if r.xAmeshCSRF != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "X-Amesh-CSRF", r.xAmeshCSRF, "simple", "")
+	}
+	if r.xAmeshTenant != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "X-Amesh-Tenant", r.xAmeshTenant, "simple", "")
+	}
+	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
+	if err != nil {
+		return localVarReturnValue, nil, err
+	}
+
+	localVarHTTPResponse, err := a.client.callAPI(req)
+	if err != nil || localVarHTTPResponse == nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	localVarBody, err := io.ReadAll(localVarHTTPResponse.Body)
+	localVarHTTPResponse.Body.Close()
+	localVarHTTPResponse.Body = io.NopCloser(bytes.NewBuffer(localVarBody))
+	if err != nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	if localVarHTTPResponse.StatusCode >= 300 {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: localVarHTTPResponse.Status,
+		}
+		if localVarHTTPResponse.StatusCode == 422 {
+			var v HTTPValidationError
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+					newErr.model = v
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	err = a.client.decode(&localVarReturnValue, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+	if err != nil {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: err.Error(),
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	return localVarReturnValue, localVarHTTPResponse, nil
+}
+
 type ApiListReconciliationsApiV1ReconciliationsGetRequest struct {
 	ctx context.Context
 	ApiService *OperationsAPIService
@@ -660,6 +1542,151 @@ func (a *OperationsAPIService) ListReconciliationsApiV1ReconciliationsGetExecute
 	if r.xAmeshTenant != nil {
 		parameterAddToHeaderOrQuery(localVarHeaderParams, "X-Amesh-Tenant", r.xAmeshTenant, "simple", "")
 	}
+	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
+	if err != nil {
+		return localVarReturnValue, nil, err
+	}
+
+	localVarHTTPResponse, err := a.client.callAPI(req)
+	if err != nil || localVarHTTPResponse == nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	localVarBody, err := io.ReadAll(localVarHTTPResponse.Body)
+	localVarHTTPResponse.Body.Close()
+	localVarHTTPResponse.Body = io.NopCloser(bytes.NewBuffer(localVarBody))
+	if err != nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	if localVarHTTPResponse.StatusCode >= 300 {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: localVarHTTPResponse.Status,
+		}
+		if localVarHTTPResponse.StatusCode == 422 {
+			var v HTTPValidationError
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+					newErr.model = v
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	err = a.client.decode(&localVarReturnValue, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+	if err != nil {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: err.Error(),
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	return localVarReturnValue, localVarHTTPResponse, nil
+}
+
+type ApiPublishAnnouncementApiV1AnnouncementsPostRequest struct {
+	ctx context.Context
+	ApiService *OperationsAPIService
+	announcementCreateRequest *AnnouncementCreateRequest
+	authorization *string
+	xAmeshCSRF *string
+	xAmeshTenant *string
+}
+
+func (r ApiPublishAnnouncementApiV1AnnouncementsPostRequest) AnnouncementCreateRequest(announcementCreateRequest AnnouncementCreateRequest) ApiPublishAnnouncementApiV1AnnouncementsPostRequest {
+	r.announcementCreateRequest = &announcementCreateRequest
+	return r
+}
+
+func (r ApiPublishAnnouncementApiV1AnnouncementsPostRequest) Authorization(authorization string) ApiPublishAnnouncementApiV1AnnouncementsPostRequest {
+	r.authorization = &authorization
+	return r
+}
+
+func (r ApiPublishAnnouncementApiV1AnnouncementsPostRequest) XAmeshCSRF(xAmeshCSRF string) ApiPublishAnnouncementApiV1AnnouncementsPostRequest {
+	r.xAmeshCSRF = &xAmeshCSRF
+	return r
+}
+
+func (r ApiPublishAnnouncementApiV1AnnouncementsPostRequest) XAmeshTenant(xAmeshTenant string) ApiPublishAnnouncementApiV1AnnouncementsPostRequest {
+	r.xAmeshTenant = &xAmeshTenant
+	return r
+}
+
+func (r ApiPublishAnnouncementApiV1AnnouncementsPostRequest) Execute() (*Announcement, *http.Response, error) {
+	return r.ApiService.PublishAnnouncementApiV1AnnouncementsPostExecute(r)
+}
+
+/*
+PublishAnnouncementApiV1AnnouncementsPost Publish Announcement
+
+ @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+ @return ApiPublishAnnouncementApiV1AnnouncementsPostRequest
+*/
+func (a *OperationsAPIService) PublishAnnouncementApiV1AnnouncementsPost(ctx context.Context) ApiPublishAnnouncementApiV1AnnouncementsPostRequest {
+	return ApiPublishAnnouncementApiV1AnnouncementsPostRequest{
+		ApiService: a,
+		ctx: ctx,
+	}
+}
+
+// Execute executes the request
+//  @return Announcement
+func (a *OperationsAPIService) PublishAnnouncementApiV1AnnouncementsPostExecute(r ApiPublishAnnouncementApiV1AnnouncementsPostRequest) (*Announcement, *http.Response, error) {
+	var (
+		localVarHTTPMethod   = http.MethodPost
+		localVarPostBody     interface{}
+		formFiles            []formFile
+		localVarReturnValue  *Announcement
+	)
+
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "OperationsAPIService.PublishAnnouncementApiV1AnnouncementsPost")
+	if err != nil {
+		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
+	}
+
+	localVarPath := localBasePath + "/api/v1/announcements"
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+	if r.announcementCreateRequest == nil {
+		return localVarReturnValue, nil, reportError("announcementCreateRequest is required and must be specified")
+	}
+
+	// to determine the Content-Type header
+	localVarHTTPContentTypes := []string{"application/json"}
+
+	// set Content-Type header
+	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
+	if localVarHTTPContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHTTPContentType
+	}
+
+	// to determine the Accept header
+	localVarHTTPHeaderAccepts := []string{"application/json"}
+
+	// set Accept header
+	localVarHTTPHeaderAccept := selectHeaderAccept(localVarHTTPHeaderAccepts)
+	if localVarHTTPHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
+	}
+	if r.authorization != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "authorization", r.authorization, "simple", "")
+	}
+	if r.xAmeshCSRF != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "X-Amesh-CSRF", r.xAmeshCSRF, "simple", "")
+	}
+	if r.xAmeshTenant != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "X-Amesh-Tenant", r.xAmeshTenant, "simple", "")
+	}
+	// body params
+	localVarPostBody = r.announcementCreateRequest
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err

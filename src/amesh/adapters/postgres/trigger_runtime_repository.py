@@ -797,6 +797,72 @@ class PostgresTriggerRuntimeRepository(TriggerRuntimeRepository):
             )
         return _to_occurrence(row, tenant_id=tenant_id)
 
+    async def defer_occurrence(
+        self,
+        occurrence_id: UUID,
+        *,
+        tenant_id: str,
+        owner_id: UUID,
+        fencing_token: int,
+        reason: str,
+        retry_delay: timedelta,
+    ) -> TriggerOccurrence:
+        retry_seconds = retry_delay.total_seconds()
+        if retry_seconds <= 0:
+            raise ValueError("trigger retry delay must be positive")
+        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+            row = (
+                (
+                    await connection.execute(
+                        text(
+                            """
+                            UPDATE trigger_occurrences
+                            SET state = 'RETRY_WAIT',
+                                attempt = GREATEST(attempt - 1, 0),
+                                available_at = clock_timestamp()
+                                    + make_interval(secs => :retry_seconds),
+                                evidence = evidence || jsonb_build_object(
+                                    'decision', 'deferred',
+                                    'reason', CAST(:reason AS text)
+                                ),
+                                owner_id = NULL,
+                                lease_expires_at = NULL,
+                                updated_at = clock_timestamp()
+                            WHERE tenant_id = :tenant_id
+                              AND occurrence_id = :occurrence_id
+                              AND state = 'PROCESSING'
+                              AND owner_id = :owner_id
+                              AND fencing_token = :fencing_token
+                              AND lease_expires_at > clock_timestamp()
+                            RETURNING *
+                            """
+                        ),
+                        {
+                            "tenant_id": tenant_uuid,
+                            "occurrence_id": occurrence_id,
+                            "owner_id": owner_id,
+                            "fencing_token": fencing_token,
+                            "retry_seconds": retry_seconds,
+                            "reason": reason[:4096],
+                        },
+                    )
+                )
+                .mappings()
+                .one_or_none()
+            )
+            if row is None:
+                raise RuntimeError(f"trigger occurrence {occurrence_id} ownership is stale")
+            await _insert_occurrence_event(
+                connection,
+                tenant_uuid,
+                occurrence_id,
+                "RETRY_SCHEDULED",
+                reason[:4096],
+                actor_id=f"system:trigger-worker:{owner_id}",
+                payload={"attemptConsumed": False, "operationalControl": True},
+            )
+        return _to_occurrence(row, tenant_id=tenant_id)
+
     async def get_occurrence(
         self,
         occurrence_id: UUID,

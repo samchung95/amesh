@@ -15,11 +15,17 @@ from pydantic import validate_call, Field, StrictFloat, StrictStr, StrictInt
 from typing import Any, Dict, List, Optional, Tuple, Union
 from typing_extensions import Annotated
 
-from pydantic import Field, StrictInt, StrictStr
+from pydantic import Field, StrictBool, StrictInt, StrictStr
 from typing import Dict, List, Optional
 from typing_extensions import Annotated
 from uuid import UUID
 from amesh_client.models.admission_diagnostics import AdmissionDiagnostics
+from amesh_client.models.announcement import Announcement
+from amesh_client.models.announcement_create_request import AnnouncementCreateRequest
+from amesh_client.models.operational_control import OperationalControl
+from amesh_client.models.operational_control_action_request import OperationalControlActionRequest
+from amesh_client.models.operational_control_create_request import OperationalControlCreateRequest
+from amesh_client.models.operational_control_event import OperationalControlEvent
 from amesh_client.models.reconciliation_request import ReconciliationRequest
 from amesh_client.models.reconciliation_run import ReconciliationRun
 from amesh_client.models.service_drain_request import ServiceDrainRequest
@@ -42,6 +48,979 @@ class OperationsApi:
         if api_client is None:
             api_client = ApiClient.get_default()
         self.api_client = api_client
+
+
+    @validate_call
+    def activate_operational_control_api_v1_operational_controls_post(
+        self,
+        operational_control_create_request: OperationalControlCreateRequest,
+        authorization: Optional[StrictStr] = None,
+        x_amesh_csrf: Optional[StrictStr] = None,
+        x_amesh_tenant: Optional[StrictStr] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> OperationalControl:
+        """Activate Operational Control
+
+
+        :param operational_control_create_request: (required)
+        :type operational_control_create_request: OperationalControlCreateRequest
+        :param authorization:
+        :type authorization: str
+        :param x_amesh_csrf:
+        :type x_amesh_csrf: str
+        :param x_amesh_tenant:
+        :type x_amesh_tenant: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._activate_operational_control_api_v1_operational_controls_post_serialize(
+            operational_control_create_request=operational_control_create_request,
+            authorization=authorization,
+            x_amesh_csrf=x_amesh_csrf,
+            x_amesh_tenant=x_amesh_tenant,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "OperationalControl",
+            '422': "HTTPValidationError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def activate_operational_control_api_v1_operational_controls_post_with_http_info(
+        self,
+        operational_control_create_request: OperationalControlCreateRequest,
+        authorization: Optional[StrictStr] = None,
+        x_amesh_csrf: Optional[StrictStr] = None,
+        x_amesh_tenant: Optional[StrictStr] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[OperationalControl]:
+        """Activate Operational Control
+
+
+        :param operational_control_create_request: (required)
+        :type operational_control_create_request: OperationalControlCreateRequest
+        :param authorization:
+        :type authorization: str
+        :param x_amesh_csrf:
+        :type x_amesh_csrf: str
+        :param x_amesh_tenant:
+        :type x_amesh_tenant: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._activate_operational_control_api_v1_operational_controls_post_serialize(
+            operational_control_create_request=operational_control_create_request,
+            authorization=authorization,
+            x_amesh_csrf=x_amesh_csrf,
+            x_amesh_tenant=x_amesh_tenant,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "OperationalControl",
+            '422': "HTTPValidationError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def activate_operational_control_api_v1_operational_controls_post_without_preload_content(
+        self,
+        operational_control_create_request: OperationalControlCreateRequest,
+        authorization: Optional[StrictStr] = None,
+        x_amesh_csrf: Optional[StrictStr] = None,
+        x_amesh_tenant: Optional[StrictStr] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Activate Operational Control
+
+
+        :param operational_control_create_request: (required)
+        :type operational_control_create_request: OperationalControlCreateRequest
+        :param authorization:
+        :type authorization: str
+        :param x_amesh_csrf:
+        :type x_amesh_csrf: str
+        :param x_amesh_tenant:
+        :type x_amesh_tenant: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._activate_operational_control_api_v1_operational_controls_post_serialize(
+            operational_control_create_request=operational_control_create_request,
+            authorization=authorization,
+            x_amesh_csrf=x_amesh_csrf,
+            x_amesh_tenant=x_amesh_tenant,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "OperationalControl",
+            '422': "HTTPValidationError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _activate_operational_control_api_v1_operational_controls_post_serialize(
+        self,
+        operational_control_create_request,
+        authorization,
+        x_amesh_csrf,
+        x_amesh_tenant,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        # process the query parameters
+        # process the header parameters
+        if authorization is not None:
+            _header_params['authorization'] = authorization
+        if x_amesh_csrf is not None:
+            _header_params['X-Amesh-CSRF'] = x_amesh_csrf
+        if x_amesh_tenant is not None:
+            _header_params['X-Amesh-Tenant'] = x_amesh_tenant
+        # process the form parameters
+        # process the body parameter
+        if operational_control_create_request is not None:
+            _body_params = operational_control_create_request
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/api/v1/operational-controls',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def change_operational_control_api_v1_operational_controls_control_id_actions_post(
+        self,
+        control_id: UUID,
+        operational_control_action_request: OperationalControlActionRequest,
+        authorization: Optional[StrictStr] = None,
+        x_amesh_csrf: Optional[StrictStr] = None,
+        x_amesh_tenant: Optional[StrictStr] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> OperationalControl:
+        """Change Operational Control
+
+
+        :param control_id: (required)
+        :type control_id: UUID
+        :param operational_control_action_request: (required)
+        :type operational_control_action_request: OperationalControlActionRequest
+        :param authorization:
+        :type authorization: str
+        :param x_amesh_csrf:
+        :type x_amesh_csrf: str
+        :param x_amesh_tenant:
+        :type x_amesh_tenant: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._change_operational_control_api_v1_operational_controls_control_id_actions_post_serialize(
+            control_id=control_id,
+            operational_control_action_request=operational_control_action_request,
+            authorization=authorization,
+            x_amesh_csrf=x_amesh_csrf,
+            x_amesh_tenant=x_amesh_tenant,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "OperationalControl",
+            '422': "HTTPValidationError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def change_operational_control_api_v1_operational_controls_control_id_actions_post_with_http_info(
+        self,
+        control_id: UUID,
+        operational_control_action_request: OperationalControlActionRequest,
+        authorization: Optional[StrictStr] = None,
+        x_amesh_csrf: Optional[StrictStr] = None,
+        x_amesh_tenant: Optional[StrictStr] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[OperationalControl]:
+        """Change Operational Control
+
+
+        :param control_id: (required)
+        :type control_id: UUID
+        :param operational_control_action_request: (required)
+        :type operational_control_action_request: OperationalControlActionRequest
+        :param authorization:
+        :type authorization: str
+        :param x_amesh_csrf:
+        :type x_amesh_csrf: str
+        :param x_amesh_tenant:
+        :type x_amesh_tenant: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._change_operational_control_api_v1_operational_controls_control_id_actions_post_serialize(
+            control_id=control_id,
+            operational_control_action_request=operational_control_action_request,
+            authorization=authorization,
+            x_amesh_csrf=x_amesh_csrf,
+            x_amesh_tenant=x_amesh_tenant,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "OperationalControl",
+            '422': "HTTPValidationError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def change_operational_control_api_v1_operational_controls_control_id_actions_post_without_preload_content(
+        self,
+        control_id: UUID,
+        operational_control_action_request: OperationalControlActionRequest,
+        authorization: Optional[StrictStr] = None,
+        x_amesh_csrf: Optional[StrictStr] = None,
+        x_amesh_tenant: Optional[StrictStr] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Change Operational Control
+
+
+        :param control_id: (required)
+        :type control_id: UUID
+        :param operational_control_action_request: (required)
+        :type operational_control_action_request: OperationalControlActionRequest
+        :param authorization:
+        :type authorization: str
+        :param x_amesh_csrf:
+        :type x_amesh_csrf: str
+        :param x_amesh_tenant:
+        :type x_amesh_tenant: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._change_operational_control_api_v1_operational_controls_control_id_actions_post_serialize(
+            control_id=control_id,
+            operational_control_action_request=operational_control_action_request,
+            authorization=authorization,
+            x_amesh_csrf=x_amesh_csrf,
+            x_amesh_tenant=x_amesh_tenant,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "OperationalControl",
+            '422': "HTTPValidationError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _change_operational_control_api_v1_operational_controls_control_id_actions_post_serialize(
+        self,
+        control_id,
+        operational_control_action_request,
+        authorization,
+        x_amesh_csrf,
+        x_amesh_tenant,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if control_id is not None:
+            _path_params['control_id'] = control_id
+        # process the query parameters
+        # process the header parameters
+        if authorization is not None:
+            _header_params['authorization'] = authorization
+        if x_amesh_csrf is not None:
+            _header_params['X-Amesh-CSRF'] = x_amesh_csrf
+        if x_amesh_tenant is not None:
+            _header_params['X-Amesh-Tenant'] = x_amesh_tenant
+        # process the form parameters
+        # process the body parameter
+        if operational_control_action_request is not None:
+            _body_params = operational_control_action_request
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/api/v1/operational-controls/{control_id}/actions',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def deactivate_announcement_api_v1_announcements_announcement_id_delete(
+        self,
+        announcement_id: UUID,
+        expected_version: Annotated[int, Field(strict=True, ge=1)],
+        authorization: Optional[StrictStr] = None,
+        x_amesh_csrf: Optional[StrictStr] = None,
+        x_amesh_tenant: Optional[StrictStr] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> Announcement:
+        """Deactivate Announcement
+
+
+        :param announcement_id: (required)
+        :type announcement_id: UUID
+        :param expected_version: (required)
+        :type expected_version: int
+        :param authorization:
+        :type authorization: str
+        :param x_amesh_csrf:
+        :type x_amesh_csrf: str
+        :param x_amesh_tenant:
+        :type x_amesh_tenant: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._deactivate_announcement_api_v1_announcements_announcement_id_delete_serialize(
+            announcement_id=announcement_id,
+            expected_version=expected_version,
+            authorization=authorization,
+            x_amesh_csrf=x_amesh_csrf,
+            x_amesh_tenant=x_amesh_tenant,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "Announcement",
+            '422': "HTTPValidationError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def deactivate_announcement_api_v1_announcements_announcement_id_delete_with_http_info(
+        self,
+        announcement_id: UUID,
+        expected_version: Annotated[int, Field(strict=True, ge=1)],
+        authorization: Optional[StrictStr] = None,
+        x_amesh_csrf: Optional[StrictStr] = None,
+        x_amesh_tenant: Optional[StrictStr] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[Announcement]:
+        """Deactivate Announcement
+
+
+        :param announcement_id: (required)
+        :type announcement_id: UUID
+        :param expected_version: (required)
+        :type expected_version: int
+        :param authorization:
+        :type authorization: str
+        :param x_amesh_csrf:
+        :type x_amesh_csrf: str
+        :param x_amesh_tenant:
+        :type x_amesh_tenant: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._deactivate_announcement_api_v1_announcements_announcement_id_delete_serialize(
+            announcement_id=announcement_id,
+            expected_version=expected_version,
+            authorization=authorization,
+            x_amesh_csrf=x_amesh_csrf,
+            x_amesh_tenant=x_amesh_tenant,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "Announcement",
+            '422': "HTTPValidationError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def deactivate_announcement_api_v1_announcements_announcement_id_delete_without_preload_content(
+        self,
+        announcement_id: UUID,
+        expected_version: Annotated[int, Field(strict=True, ge=1)],
+        authorization: Optional[StrictStr] = None,
+        x_amesh_csrf: Optional[StrictStr] = None,
+        x_amesh_tenant: Optional[StrictStr] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Deactivate Announcement
+
+
+        :param announcement_id: (required)
+        :type announcement_id: UUID
+        :param expected_version: (required)
+        :type expected_version: int
+        :param authorization:
+        :type authorization: str
+        :param x_amesh_csrf:
+        :type x_amesh_csrf: str
+        :param x_amesh_tenant:
+        :type x_amesh_tenant: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._deactivate_announcement_api_v1_announcements_announcement_id_delete_serialize(
+            announcement_id=announcement_id,
+            expected_version=expected_version,
+            authorization=authorization,
+            x_amesh_csrf=x_amesh_csrf,
+            x_amesh_tenant=x_amesh_tenant,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "Announcement",
+            '422': "HTTPValidationError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _deactivate_announcement_api_v1_announcements_announcement_id_delete_serialize(
+        self,
+        announcement_id,
+        expected_version,
+        authorization,
+        x_amesh_csrf,
+        x_amesh_tenant,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        if announcement_id is not None:
+            _path_params['announcement_id'] = announcement_id
+        # process the query parameters
+        if expected_version is not None:
+
+            _query_params.append(('expectedVersion', expected_version))
+
+        # process the header parameters
+        if authorization is not None:
+            _header_params['authorization'] = authorization
+        if x_amesh_csrf is not None:
+            _header_params['X-Amesh-CSRF'] = x_amesh_csrf
+        if x_amesh_tenant is not None:
+            _header_params['X-Amesh-Tenant'] = x_amesh_tenant
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+        ]
+
+        return self.api_client.param_serialize(
+            method='DELETE',
+            resource_path='/api/v1/announcements/{announcement_id}',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
 
 
     @validate_call
@@ -1233,6 +2212,927 @@ class OperationsApi:
 
 
     @validate_call
+    def list_announcements_api_v1_announcements_get(
+        self,
+        namespace: Optional[StrictStr] = None,
+        include_inactive: Optional[StrictBool] = None,
+        authorization: Optional[StrictStr] = None,
+        x_amesh_csrf: Optional[StrictStr] = None,
+        x_amesh_tenant: Optional[StrictStr] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> List[Announcement]:
+        """List Announcements
+
+
+        :param namespace:
+        :type namespace: str
+        :param include_inactive:
+        :type include_inactive: bool
+        :param authorization:
+        :type authorization: str
+        :param x_amesh_csrf:
+        :type x_amesh_csrf: str
+        :param x_amesh_tenant:
+        :type x_amesh_tenant: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_announcements_api_v1_announcements_get_serialize(
+            namespace=namespace,
+            include_inactive=include_inactive,
+            authorization=authorization,
+            x_amesh_csrf=x_amesh_csrf,
+            x_amesh_tenant=x_amesh_tenant,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "List[Announcement]",
+            '422': "HTTPValidationError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def list_announcements_api_v1_announcements_get_with_http_info(
+        self,
+        namespace: Optional[StrictStr] = None,
+        include_inactive: Optional[StrictBool] = None,
+        authorization: Optional[StrictStr] = None,
+        x_amesh_csrf: Optional[StrictStr] = None,
+        x_amesh_tenant: Optional[StrictStr] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[List[Announcement]]:
+        """List Announcements
+
+
+        :param namespace:
+        :type namespace: str
+        :param include_inactive:
+        :type include_inactive: bool
+        :param authorization:
+        :type authorization: str
+        :param x_amesh_csrf:
+        :type x_amesh_csrf: str
+        :param x_amesh_tenant:
+        :type x_amesh_tenant: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_announcements_api_v1_announcements_get_serialize(
+            namespace=namespace,
+            include_inactive=include_inactive,
+            authorization=authorization,
+            x_amesh_csrf=x_amesh_csrf,
+            x_amesh_tenant=x_amesh_tenant,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "List[Announcement]",
+            '422': "HTTPValidationError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def list_announcements_api_v1_announcements_get_without_preload_content(
+        self,
+        namespace: Optional[StrictStr] = None,
+        include_inactive: Optional[StrictBool] = None,
+        authorization: Optional[StrictStr] = None,
+        x_amesh_csrf: Optional[StrictStr] = None,
+        x_amesh_tenant: Optional[StrictStr] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """List Announcements
+
+
+        :param namespace:
+        :type namespace: str
+        :param include_inactive:
+        :type include_inactive: bool
+        :param authorization:
+        :type authorization: str
+        :param x_amesh_csrf:
+        :type x_amesh_csrf: str
+        :param x_amesh_tenant:
+        :type x_amesh_tenant: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_announcements_api_v1_announcements_get_serialize(
+            namespace=namespace,
+            include_inactive=include_inactive,
+            authorization=authorization,
+            x_amesh_csrf=x_amesh_csrf,
+            x_amesh_tenant=x_amesh_tenant,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "List[Announcement]",
+            '422': "HTTPValidationError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _list_announcements_api_v1_announcements_get_serialize(
+        self,
+        namespace,
+        include_inactive,
+        authorization,
+        x_amesh_csrf,
+        x_amesh_tenant,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        # process the query parameters
+        if namespace is not None:
+
+            _query_params.append(('namespace', namespace))
+
+        if include_inactive is not None:
+
+            _query_params.append(('includeInactive', include_inactive))
+
+        # process the header parameters
+        if authorization is not None:
+            _header_params['authorization'] = authorization
+        if x_amesh_csrf is not None:
+            _header_params['X-Amesh-CSRF'] = x_amesh_csrf
+        if x_amesh_tenant is not None:
+            _header_params['X-Amesh-Tenant'] = x_amesh_tenant
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+        ]
+
+        return self.api_client.param_serialize(
+            method='GET',
+            resource_path='/api/v1/announcements',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def list_operational_control_events_api_v1_operational_control_events_get(
+        self,
+        limit: Optional[Annotated[int, Field(le=500, strict=True, ge=1)]] = None,
+        authorization: Optional[StrictStr] = None,
+        x_amesh_csrf: Optional[StrictStr] = None,
+        x_amesh_tenant: Optional[StrictStr] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> List[OperationalControlEvent]:
+        """List Operational Control Events
+
+
+        :param limit:
+        :type limit: int
+        :param authorization:
+        :type authorization: str
+        :param x_amesh_csrf:
+        :type x_amesh_csrf: str
+        :param x_amesh_tenant:
+        :type x_amesh_tenant: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_operational_control_events_api_v1_operational_control_events_get_serialize(
+            limit=limit,
+            authorization=authorization,
+            x_amesh_csrf=x_amesh_csrf,
+            x_amesh_tenant=x_amesh_tenant,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "List[OperationalControlEvent]",
+            '422': "HTTPValidationError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def list_operational_control_events_api_v1_operational_control_events_get_with_http_info(
+        self,
+        limit: Optional[Annotated[int, Field(le=500, strict=True, ge=1)]] = None,
+        authorization: Optional[StrictStr] = None,
+        x_amesh_csrf: Optional[StrictStr] = None,
+        x_amesh_tenant: Optional[StrictStr] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[List[OperationalControlEvent]]:
+        """List Operational Control Events
+
+
+        :param limit:
+        :type limit: int
+        :param authorization:
+        :type authorization: str
+        :param x_amesh_csrf:
+        :type x_amesh_csrf: str
+        :param x_amesh_tenant:
+        :type x_amesh_tenant: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_operational_control_events_api_v1_operational_control_events_get_serialize(
+            limit=limit,
+            authorization=authorization,
+            x_amesh_csrf=x_amesh_csrf,
+            x_amesh_tenant=x_amesh_tenant,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "List[OperationalControlEvent]",
+            '422': "HTTPValidationError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def list_operational_control_events_api_v1_operational_control_events_get_without_preload_content(
+        self,
+        limit: Optional[Annotated[int, Field(le=500, strict=True, ge=1)]] = None,
+        authorization: Optional[StrictStr] = None,
+        x_amesh_csrf: Optional[StrictStr] = None,
+        x_amesh_tenant: Optional[StrictStr] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """List Operational Control Events
+
+
+        :param limit:
+        :type limit: int
+        :param authorization:
+        :type authorization: str
+        :param x_amesh_csrf:
+        :type x_amesh_csrf: str
+        :param x_amesh_tenant:
+        :type x_amesh_tenant: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_operational_control_events_api_v1_operational_control_events_get_serialize(
+            limit=limit,
+            authorization=authorization,
+            x_amesh_csrf=x_amesh_csrf,
+            x_amesh_tenant=x_amesh_tenant,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "List[OperationalControlEvent]",
+            '422': "HTTPValidationError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _list_operational_control_events_api_v1_operational_control_events_get_serialize(
+        self,
+        limit,
+        authorization,
+        x_amesh_csrf,
+        x_amesh_tenant,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        # process the query parameters
+        if limit is not None:
+
+            _query_params.append(('limit', limit))
+
+        # process the header parameters
+        if authorization is not None:
+            _header_params['authorization'] = authorization
+        if x_amesh_csrf is not None:
+            _header_params['X-Amesh-CSRF'] = x_amesh_csrf
+        if x_amesh_tenant is not None:
+            _header_params['X-Amesh-Tenant'] = x_amesh_tenant
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+        ]
+
+        return self.api_client.param_serialize(
+            method='GET',
+            resource_path='/api/v1/operational-control-events',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def list_operational_controls_api_v1_operational_controls_get(
+        self,
+        authorization: Optional[StrictStr] = None,
+        x_amesh_csrf: Optional[StrictStr] = None,
+        x_amesh_tenant: Optional[StrictStr] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> List[OperationalControl]:
+        """List Operational Controls
+
+
+        :param authorization:
+        :type authorization: str
+        :param x_amesh_csrf:
+        :type x_amesh_csrf: str
+        :param x_amesh_tenant:
+        :type x_amesh_tenant: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_operational_controls_api_v1_operational_controls_get_serialize(
+            authorization=authorization,
+            x_amesh_csrf=x_amesh_csrf,
+            x_amesh_tenant=x_amesh_tenant,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "List[OperationalControl]",
+            '422': "HTTPValidationError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def list_operational_controls_api_v1_operational_controls_get_with_http_info(
+        self,
+        authorization: Optional[StrictStr] = None,
+        x_amesh_csrf: Optional[StrictStr] = None,
+        x_amesh_tenant: Optional[StrictStr] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[List[OperationalControl]]:
+        """List Operational Controls
+
+
+        :param authorization:
+        :type authorization: str
+        :param x_amesh_csrf:
+        :type x_amesh_csrf: str
+        :param x_amesh_tenant:
+        :type x_amesh_tenant: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_operational_controls_api_v1_operational_controls_get_serialize(
+            authorization=authorization,
+            x_amesh_csrf=x_amesh_csrf,
+            x_amesh_tenant=x_amesh_tenant,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "List[OperationalControl]",
+            '422': "HTTPValidationError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def list_operational_controls_api_v1_operational_controls_get_without_preload_content(
+        self,
+        authorization: Optional[StrictStr] = None,
+        x_amesh_csrf: Optional[StrictStr] = None,
+        x_amesh_tenant: Optional[StrictStr] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """List Operational Controls
+
+
+        :param authorization:
+        :type authorization: str
+        :param x_amesh_csrf:
+        :type x_amesh_csrf: str
+        :param x_amesh_tenant:
+        :type x_amesh_tenant: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._list_operational_controls_api_v1_operational_controls_get_serialize(
+            authorization=authorization,
+            x_amesh_csrf=x_amesh_csrf,
+            x_amesh_tenant=x_amesh_tenant,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '200': "List[OperationalControl]",
+            '422': "HTTPValidationError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _list_operational_controls_api_v1_operational_controls_get_serialize(
+        self,
+        authorization,
+        x_amesh_csrf,
+        x_amesh_tenant,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        # process the query parameters
+        # process the header parameters
+        if authorization is not None:
+            _header_params['authorization'] = authorization
+        if x_amesh_csrf is not None:
+            _header_params['X-Amesh-CSRF'] = x_amesh_csrf
+        if x_amesh_tenant is not None:
+            _header_params['X-Amesh-Tenant'] = x_amesh_tenant
+        # process the form parameters
+        # process the body parameter
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+
+        # authentication setting
+        _auth_settings: List[str] = [
+        ]
+
+        return self.api_client.param_serialize(
+            method='GET',
+            resource_path='/api/v1/operational-controls',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
     def list_reconciliations_api_v1_reconciliations_get(
         self,
         limit: Optional[Annotated[int, Field(le=200, strict=True, ge=1)]] = None,
@@ -1524,6 +3424,324 @@ class OperationsApi:
         return self.api_client.param_serialize(
             method='GET',
             resource_path='/api/v1/reconciliations',
+            path_params=_path_params,
+            query_params=_query_params,
+            header_params=_header_params,
+            body=_body_params,
+            post_params=_form_params,
+            files=_files,
+            auth_settings=_auth_settings,
+            collection_formats=_collection_formats,
+            _host=_host,
+            _request_auth=_request_auth
+        )
+
+
+
+
+    @validate_call
+    def publish_announcement_api_v1_announcements_post(
+        self,
+        announcement_create_request: AnnouncementCreateRequest,
+        authorization: Optional[StrictStr] = None,
+        x_amesh_csrf: Optional[StrictStr] = None,
+        x_amesh_tenant: Optional[StrictStr] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> Announcement:
+        """Publish Announcement
+
+
+        :param announcement_create_request: (required)
+        :type announcement_create_request: AnnouncementCreateRequest
+        :param authorization:
+        :type authorization: str
+        :param x_amesh_csrf:
+        :type x_amesh_csrf: str
+        :param x_amesh_tenant:
+        :type x_amesh_tenant: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._publish_announcement_api_v1_announcements_post_serialize(
+            announcement_create_request=announcement_create_request,
+            authorization=authorization,
+            x_amesh_csrf=x_amesh_csrf,
+            x_amesh_tenant=x_amesh_tenant,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "Announcement",
+            '422': "HTTPValidationError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        ).data
+
+
+    @validate_call
+    def publish_announcement_api_v1_announcements_post_with_http_info(
+        self,
+        announcement_create_request: AnnouncementCreateRequest,
+        authorization: Optional[StrictStr] = None,
+        x_amesh_csrf: Optional[StrictStr] = None,
+        x_amesh_tenant: Optional[StrictStr] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> ApiResponse[Announcement]:
+        """Publish Announcement
+
+
+        :param announcement_create_request: (required)
+        :type announcement_create_request: AnnouncementCreateRequest
+        :param authorization:
+        :type authorization: str
+        :param x_amesh_csrf:
+        :type x_amesh_csrf: str
+        :param x_amesh_tenant:
+        :type x_amesh_tenant: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._publish_announcement_api_v1_announcements_post_serialize(
+            announcement_create_request=announcement_create_request,
+            authorization=authorization,
+            x_amesh_csrf=x_amesh_csrf,
+            x_amesh_tenant=x_amesh_tenant,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "Announcement",
+            '422': "HTTPValidationError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        response_data.read()
+        return self.api_client.response_deserialize(
+            response_data=response_data,
+            response_types_map=_response_types_map,
+        )
+
+
+    @validate_call
+    def publish_announcement_api_v1_announcements_post_without_preload_content(
+        self,
+        announcement_create_request: AnnouncementCreateRequest,
+        authorization: Optional[StrictStr] = None,
+        x_amesh_csrf: Optional[StrictStr] = None,
+        x_amesh_tenant: Optional[StrictStr] = None,
+        _request_timeout: Union[
+            None,
+            Annotated[StrictFloat, Field(gt=0)],
+            Tuple[
+                Annotated[StrictFloat, Field(gt=0)],
+                Annotated[StrictFloat, Field(gt=0)]
+            ]
+        ] = None,
+        _request_auth: Optional[Dict[StrictStr, Any]] = None,
+        _content_type: Optional[StrictStr] = None,
+        _headers: Optional[Dict[StrictStr, Any]] = None,
+        _host_index: Annotated[StrictInt, Field(ge=0, le=0)] = 0,
+    ) -> RESTResponseType:
+        """Publish Announcement
+
+
+        :param announcement_create_request: (required)
+        :type announcement_create_request: AnnouncementCreateRequest
+        :param authorization:
+        :type authorization: str
+        :param x_amesh_csrf:
+        :type x_amesh_csrf: str
+        :param x_amesh_tenant:
+        :type x_amesh_tenant: str
+        :param _request_timeout: timeout setting for this request. If one
+                                 number provided, it will be total request
+                                 timeout. It can also be a pair (tuple) of
+                                 (connection, read) timeouts.
+        :type _request_timeout: int, tuple(int, int), optional
+        :param _request_auth: set to override the auth_settings for an a single
+                              request; this effectively ignores the
+                              authentication in the spec for a single request.
+        :type _request_auth: dict, optional
+        :param _content_type: force content-type for the request.
+        :type _content_type: str, Optional
+        :param _headers: set to override the headers for a single
+                         request; this effectively ignores the headers
+                         in the spec for a single request.
+        :type _headers: dict, optional
+        :param _host_index: set to override the host_index for a single
+                            request; this effectively ignores the host_index
+                            in the spec for a single request.
+        :type _host_index: int, optional
+        :return: Returns the result object.
+        """ # noqa: E501
+
+        _param = self._publish_announcement_api_v1_announcements_post_serialize(
+            announcement_create_request=announcement_create_request,
+            authorization=authorization,
+            x_amesh_csrf=x_amesh_csrf,
+            x_amesh_tenant=x_amesh_tenant,
+            _request_auth=_request_auth,
+            _content_type=_content_type,
+            _headers=_headers,
+            _host_index=_host_index
+        )
+
+        _response_types_map: Dict[str, Optional[str]] = {
+            '201': "Announcement",
+            '422': "HTTPValidationError",
+        }
+        response_data = self.api_client.call_api(
+            *_param,
+            _request_timeout=_request_timeout
+        )
+        return response_data.response
+
+
+    def _publish_announcement_api_v1_announcements_post_serialize(
+        self,
+        announcement_create_request,
+        authorization,
+        x_amesh_csrf,
+        x_amesh_tenant,
+        _request_auth,
+        _content_type,
+        _headers,
+        _host_index,
+    ) -> RequestSerialized:
+
+        _host = None
+
+        _collection_formats: Dict[str, str] = {
+        }
+
+        _path_params: Dict[str, str] = {}
+        _query_params: List[Tuple[str, str]] = []
+        _header_params: Dict[str, Optional[str]] = _headers or {}
+        _form_params: List[Tuple[str, str]] = []
+        _files: Dict[
+            str, Union[str, bytes, List[str], List[bytes], List[Tuple[str, bytes]]]
+        ] = {}
+        _body_params: Optional[bytes] = None
+
+        # process the path parameters
+        # process the query parameters
+        # process the header parameters
+        if authorization is not None:
+            _header_params['authorization'] = authorization
+        if x_amesh_csrf is not None:
+            _header_params['X-Amesh-CSRF'] = x_amesh_csrf
+        if x_amesh_tenant is not None:
+            _header_params['X-Amesh-Tenant'] = x_amesh_tenant
+        # process the form parameters
+        # process the body parameter
+        if announcement_create_request is not None:
+            _body_params = announcement_create_request
+
+
+        # set the HTTP header `Accept`
+        if 'Accept' not in _header_params:
+            _header_params['Accept'] = self.api_client.select_header_accept(
+                [
+                    'application/json'
+                ]
+            )
+
+        # set the HTTP header `Content-Type`
+        if _content_type:
+            _header_params['Content-Type'] = _content_type
+        else:
+            _default_content_type = (
+                self.api_client.select_header_content_type(
+                    [
+                        'application/json'
+                    ]
+                )
+            )
+            if _default_content_type is not None:
+                _header_params['Content-Type'] = _default_content_type
+
+        # authentication setting
+        _auth_settings: List[str] = [
+        ]
+
+        return self.api_client.param_serialize(
+            method='POST',
+            resource_path='/api/v1/announcements',
             path_params=_path_params,
             query_params=_query_params,
             header_params=_header_params,

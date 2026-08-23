@@ -95,6 +95,10 @@ src/main/java/io/amesh/client/model/AdmissionDiagnostics.java
 src/main/java/io/amesh/client/model/AdmissionOutcome.java
 src/main/java/io/amesh/client/model/AdmissionResourceType.java
 src/main/java/io/amesh/client/model/AdmissionScope.java
+src/main/java/io/amesh/client/model/Announcement.java
+src/main/java/io/amesh/client/model/AnnouncementAudience.java
+src/main/java/io/amesh/client/model/AnnouncementCreateRequest.java
+src/main/java/io/amesh/client/model/AnnouncementSeverity.java
 src/main/java/io/amesh/client/model/AppForm.java
 src/main/java/io/amesh/client/model/AssetAccessMode.java
 src/main/java/io/amesh/client/model/AssetCatalogEntry.java
@@ -257,6 +261,16 @@ src/main/java/io/amesh/client/model/NamespaceResourceImportResult.java
 src/main/java/io/amesh/client/model/NamespaceWorkflowMetadata.java
 src/main/java/io/amesh/client/model/NamespaceWorkflowMetadataUpdate.java
 src/main/java/io/amesh/client/model/NamespaceWorkflowMetadataView.java
+src/main/java/io/amesh/client/model/OperationalBoundary.java
+src/main/java/io/amesh/client/model/OperationalControl.java
+src/main/java/io/amesh/client/model/OperationalControlAcknowledgement.java
+src/main/java/io/amesh/client/model/OperationalControlActionKind.java
+src/main/java/io/amesh/client/model/OperationalControlActionRequest.java
+src/main/java/io/amesh/client/model/OperationalControlCreateRequest.java
+src/main/java/io/amesh/client/model/OperationalControlEvent.java
+src/main/java/io/amesh/client/model/OperationalControlKind.java
+src/main/java/io/amesh/client/model/OperationalControlScope.java
+src/main/java/io/amesh/client/model/OperationalControlState.java
 src/main/java/io/amesh/client/model/Permission.java
 src/main/java/io/amesh/client/model/PermissionAction.java
 src/main/java/io/amesh/client/model/PermissionEffect.java
@@ -343,6 +357,7 @@ src/main/java/io/amesh/client/model/RunnerCapabilities.java
 src/main/java/io/amesh/client/model/RunnerId.java
 src/main/java/io/amesh/client/model/RunnerMode.java
 src/main/java/io/amesh/client/model/RunnerNetworkAccess.java
+src/main/java/io/amesh/client/model/RunningWorkPolicy.java
 src/main/java/io/amesh/client/model/SchedulePreview.java
 src/main/java/io/amesh/client/model/ScimGroupRequest.java
 src/main/java/io/amesh/client/model/ScimGroupResource.java

@@ -11,6 +11,10 @@ from .feature_flags import PostgresFeatureFlagRepository
 from .federation_repository import PostgresFederationRepository
 from .human_task_repository import PostgresHumanTaskRepository
 from .metadata_repository import PostgresMetadataRepository
+from .operational_control_repository import (
+    OperationalControlVersionConflict,
+    PostgresOperationalControlRepository,
+)
 from .operations_repository import (
     BackupCheckpoint,
     PostgresOperationsRepository,
@@ -31,6 +35,7 @@ from .worker_repository import PostgresWorkerRepository
 
 __all__ = [
     "BackupCheckpoint",
+    "OperationalControlVersionConflict",
     "PostgresAuditRepository",
     "PostgresAuthenticationRepository",
     "PostgresAuthorizationRepository",
@@ -44,6 +49,7 @@ __all__ = [
     "PostgresFederationRepository",
     "PostgresHumanTaskRepository",
     "PostgresMetadataRepository",
+    "PostgresOperationalControlRepository",
     "PostgresOperationsRepository",
     "PostgresPluginPolicyRepository",
     "PostgresRealtimeRepository",

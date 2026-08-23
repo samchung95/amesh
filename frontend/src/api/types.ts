@@ -12,6 +12,8 @@ export type Capability =
   | 'apps.execute'
   | 'humanTasks.view'
   | 'humanTasks.update'
+  | 'announcements.view'
+  | 'operationalControls.manage'
   | 'dashboards.view'
   | 'dashboards.manage'
   | 'search.view'
@@ -1101,6 +1103,107 @@ export interface AdministrationAuditEntry {
   action: string
   resourceId: string
   outcome: 'SUCCESS' | 'REJECTED'
+  reason: string
+  evidence: Record<string, unknown>
+  occurredAt: string
+}
+
+export type AnnouncementSeverity = 'INFO' | 'WARNING' | 'CRITICAL'
+export type AnnouncementAudience = 'INSTANCE' | 'TENANT' | 'NAMESPACE'
+
+export interface Announcement {
+  id: string
+  tenantId: string | null
+  title: string
+  message: string
+  severity: AnnouncementSeverity
+  audience: AnnouncementAudience
+  namespace: string | null
+  startsAt: string
+  expiresAt: string
+  active: boolean
+  version: number
+  createdBy: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface AnnouncementDraft {
+  title: string
+  message: string
+  severity: AnnouncementSeverity
+  audience: AnnouncementAudience
+  namespace?: string | null
+  startsAt: string
+  expiresAt: string
+}
+
+export type OperationalBoundary = 'AUTHORING' | 'NEW_EXECUTIONS' | 'TRIGGERS' | 'API_WRITES' | 'WORKER_DISPATCH'
+export type OperationalControlScope = 'INSTANCE' | 'TENANT' | 'NAMESPACE' | 'FLOW' | 'PLUGIN' | 'RUNNER'
+export type RunningWorkPolicy = 'CONTINUE' | 'DRAIN' | 'CANCEL'
+
+export interface OperationalControlAcknowledgement {
+  componentId: string
+  componentRole: string
+  controlVersion: number
+  acknowledgedAt: string
+}
+
+export interface OperationalControl {
+  id: string
+  tenantId: string | null
+  kind: 'MAINTENANCE' | 'KILL_SWITCH'
+  name: string
+  scope: OperationalControlScope
+  namespace: string | null
+  flowId: string | null
+  pluginId: string | null
+  runnerId: string | null
+  boundaries: OperationalBoundary[]
+  runningWorkPolicy: RunningWorkPolicy
+  reason: string
+  state: 'ACTIVE' | 'BYPASSED' | 'DEACTIVATED' | 'EXPIRED'
+  version: number
+  expiresAt: string | null
+  reviewAt: string | null
+  bypassUntil: string | null
+  bypassReason: string | null
+  createdBy: string
+  updatedBy: string
+  createdAt: string
+  updatedAt: string
+  acknowledgements: OperationalControlAcknowledgement[]
+}
+
+export interface OperationalControlDraft {
+  kind: OperationalControl['kind']
+  name: string
+  scope: OperationalControlScope
+  namespace?: string | null
+  flowId?: string | null
+  pluginId?: string | null
+  runnerId?: string | null
+  boundaries: OperationalBoundary[]
+  runningWorkPolicy: RunningWorkPolicy
+  reason: string
+  expiresAt?: string | null
+  reviewAt?: string | null
+}
+
+export interface OperationalControlAction {
+  action: 'EXTEND' | 'BYPASS' | 'DEACTIVATE'
+  reason: string
+  expectedVersion: number
+  expiresAt?: string | null
+  reviewAt?: string | null
+  bypassUntil?: string | null
+}
+
+export interface OperationalControlEvent {
+  eventId: string
+  controlId: string
+  action: string
+  actorId: string
   reason: string
   evidence: Record<string, unknown>
   occurredAt: string

@@ -17,6 +17,7 @@ from amesh.adapters.postgres import (
     PostgresCheckRepository,
     PostgresExecutionRepository,
     PostgresHumanTaskRepository,
+    PostgresOperationalControlRepository,
     PostgresPluginPolicyRepository,
     PostgresReconciliationRepository,
     PostgresSchedulerRepository,
@@ -29,8 +30,10 @@ from amesh.config import Settings, get_settings
 from amesh.database import create_database_engine
 from amesh.domain import (
     ExecutionState,
+    OperationalBoundary,
     ReconciliationMode,
     ReconciliationRequest,
+    RunningWorkPolicy,
     new_runtime_id,
 )
 from amesh.domain.runner import RunnerId, RunnerPolicySet
@@ -57,6 +60,7 @@ from amesh.plugins import (
 )
 from amesh.ports import (
     CheckRepository,
+    ExecutionInterventionAction,
     ExecutionLaunchSource,
     ReconciliationAlreadyRunningError,
     TaskCacheRepository,
@@ -87,12 +91,14 @@ async def schedule_once(
     scheduler_id: UUID,
     now: datetime | None = None,
     trigger_runtime: TriggerRuntimeRepository | None = None,
+    operational_controls: PostgresOperationalControlRepository | None = None,
 ) -> int:
     scheduler = CronScheduler(
         repository,
         scheduler_repository,
         owner_id=scheduler_id,
         trigger_runtime=trigger_runtime,
+        operational_controls=operational_controls,
     )
     scheduled_at = now or await scheduler_repository.database_time()
     scheduled = 0
@@ -132,11 +138,21 @@ async def process_trigger_occurrences_once(
     tenant_ids: Sequence[str],
     worker_id: UUID,
     limit: int = 100,
+    operational_controls: PostgresOperationalControlRepository | None = None,
 ) -> int:
     """Launch accepted non-temporal occurrences with fenced retry/dead-letter handling."""
 
     processed = 0
     for tenant_id in tenant_ids:
+        if operational_controls is not None:
+            tenant_decision = await operational_controls.evaluate(
+                OperationalBoundary.TRIGGERS,
+                tenant_id=tenant_id,
+                component_id=f"scheduler:{worker_id}",
+                component_role="SCHEDULER",
+            )
+            if tenant_decision.blocked:
+                continue
         claimed = await trigger_runtime.claim_due_occurrences(
             tenant_id=tenant_id,
             owner_id=worker_id,
@@ -154,6 +170,31 @@ async def process_trigger_occurrences_once(
                 )
                 trigger = next(item for item in flow.triggers if item.id == occurrence.trigger_id)
                 retry_delay = trigger.retry_delay
+                if operational_controls is not None:
+                    decisions = [
+                        await operational_controls.evaluate(
+                            boundary,
+                            tenant_id=tenant_id,
+                            namespace=flow.namespace,
+                            flow_id=flow.id,
+                            component_id=f"scheduler:{worker_id}",
+                            component_role="SCHEDULER",
+                        )
+                        for boundary in (
+                            OperationalBoundary.TRIGGERS,
+                            OperationalBoundary.NEW_EXECUTIONS,
+                        )
+                    ]
+                    if any(decision.blocked for decision in decisions):
+                        await trigger_runtime.defer_occurrence(
+                            occurrence.occurrence_id,
+                            tenant_id=tenant_id,
+                            owner_id=worker_id,
+                            fencing_token=occurrence.fencing_token,
+                            reason="occurrence deferred by operational control",
+                            retry_delay=retry_delay,
+                        )
+                        continue
                 execution = await repository.create_execution(
                     flow,
                     tenant_id=tenant_id,
@@ -204,6 +245,7 @@ async def process_execution_checks_once(
     tenant_ids: Sequence[str],
     worker_id: UUID,
     limit: int = 100,
+    operational_controls: PostgresOperationalControlRepository | None = None,
 ) -> int:
     """Evaluate due checks and execute their bounded durable actions."""
 
@@ -232,6 +274,17 @@ async def process_execution_checks_once(
                         action.target_flow_id,
                         tenant_id=tenant_id,
                     )
+                    if operational_controls is not None:
+                        decision = await operational_controls.evaluate(
+                            OperationalBoundary.NEW_EXECUTIONS,
+                            tenant_id=tenant_id,
+                            namespace=flow.namespace,
+                            flow_id=flow.id,
+                            component_id=f"scheduler:{worker_id}",
+                            component_role="SCHEDULER",
+                        )
+                        if decision.blocked:
+                            raise RuntimeError("check flow launch blocked by operational control")
                     execution = await repository.create_execution(
                         flow,
                         tenant_id=tenant_id,
@@ -285,6 +338,7 @@ async def recover_once(
     human_tasks: PostgresHumanTaskRepository | None = None,
     trusted_runtime: TrustedPluginRuntime | None = None,
     isolated_runtime: IsolatedPluginRuntime | None = None,
+    operational_controls: PostgresOperationalControlRepository | None = None,
 ) -> int:
     now = datetime.now(UTC)
     recovered = 0
@@ -316,13 +370,44 @@ async def recover_once(
                 available_runners.add(RunnerId.LOCAL)
             if settings.docker_runner_enabled:
                 available_runners.add(RunnerId.DOCKER)
+            planned_tasks = compile_execution_tasks(flow)
             selected_runners = required_runner_ids(
-                (node.task for node in compile_execution_tasks(flow)),
+                (node.task for node in planned_tasks),
                 runner_policy,
                 namespace=flow.namespace,
                 fallback=fallback_runner,
                 available=frozenset(available_runners),
             )
+            if operational_controls is not None:
+                decision = await operational_controls.evaluate(
+                    OperationalBoundary.WORKER_DISPATCH,
+                    tenant_id=tenant_id,
+                    namespace=flow.namespace,
+                    flow_id=flow.id,
+                    plugin_ids=tuple(node.task.type for node in planned_tasks),
+                    runner_ids=tuple(runner.value for runner in selected_runners),
+                    component_id="executor:recovery",
+                    component_role="EXECUTOR",
+                )
+                if decision.blocked:
+                    if decision.running_work_policy is RunningWorkPolicy.CONTINUE:
+                        pass
+                    elif decision.running_work_policy is RunningWorkPolicy.CANCEL:
+                        await repository.apply_execution_intervention(
+                            execution.execution_id,
+                            ExecutionInterventionAction.FORCE_CANCEL,
+                            tenant_id=tenant_id,
+                            expected_version=execution.version,
+                            expected_epoch=execution.epoch,
+                            actor_id="system:operational-control",
+                            reason=(
+                                "cancelled by operational control "
+                                + ",".join(str(control.control_id) for control in decision.controls)
+                            ),
+                        )
+                        continue
+                    else:
+                        continue
             runner_handlers: dict[RunnerId, TaskHandler] = {}
             docker_runner: DockerContainerRunner | None = None
             if RunnerId.LOCAL in selected_runners:
@@ -468,8 +553,9 @@ async def backfill_once(
     backfill_repository: PostgresBackfillRepository,
     *,
     tenant_ids: Sequence[str],
+    operational_controls: PostgresOperationalControlRepository | None = None,
 ) -> int:
-    service = BackfillService(repository, backfill_repository)
+    service = BackfillService(repository, backfill_repository, operational_controls)
     processed = 0
     for tenant_id in tenant_ids:
         processed += await service.process_active(tenant_id=tenant_id)
@@ -526,6 +612,7 @@ async def run_worker(settings: Settings) -> None:
     reconciliation_repository = PostgresReconciliationRepository(engine)
     shared_resources = PostgresSharedResourceRepository(engine)
     human_tasks = PostgresHumanTaskRepository(engine)
+    operational_controls = PostgresOperationalControlRepository(engine)
     human_task_service = HumanTaskService(
         human_tasks,
         repository,
@@ -548,23 +635,27 @@ async def run_worker(settings: Settings) -> None:
                     tenant_ids=tenant_ids,
                     scheduler_id=worker_uuid,
                     trigger_runtime=trigger_runtime,
+                    operational_controls=operational_controls,
                 )
                 await process_trigger_occurrences_once(
                     repository,
                     trigger_runtime,
                     tenant_ids=tenant_ids,
                     worker_id=worker_uuid,
+                    operational_controls=operational_controls,
                 )
                 await process_execution_checks_once(
                     repository,
                     checks,
                     tenant_ids=tenant_ids,
                     worker_id=worker_uuid,
+                    operational_controls=operational_controls,
                 )
                 await backfill_once(
                     repository,
                     backfill_repository,
                     tenant_ids=tenant_ids,
+                    operational_controls=operational_controls,
                 )
                 await recover_once(
                     repository,
@@ -574,6 +665,12 @@ async def run_worker(settings: Settings) -> None:
                     human_tasks=human_tasks,
                     trusted_runtime=trusted_runtime,
                     isolated_runtime=isolated_runtime,
+                    operational_controls=operational_controls,
+                )
+                await operational_controls.acknowledge_active(
+                    tenant_ids=tenant_ids,
+                    component_id=worker_id,
+                    component_role="WORKER",
                 )
                 for tenant_id in tenant_ids:
                     await human_task_service.reconcile(tenant_id=tenant_id)

@@ -8414,97 +8414,129 @@
       "requirement_id": "URS-F-0566",
       "epic_id": "EPIC-509",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/adapters/postgres/test_operational_controls.py::test_operational_controls_are_scoped_acknowledged_audited_and_expired",
+        "tests/api/test_operational_controls_api.py::test_operations_api_publishes_announcements_and_enforces_bypassable_controls",
+        "frontend/e2e/operational-controls.spec.ts::publishes an announcement and activates an acknowledged kill switch"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0567",
       "epic_id": "EPIC-509",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/adapters/postgres/test_operational_controls.py::test_operational_controls_are_scoped_acknowledged_audited_and_expired",
+        "tests/api/test_operational_controls_api.py::test_operations_api_publishes_announcements_and_enforces_bypassable_controls",
+        "tests/test_worker.py::test_cron_scheduler_rejects_new_work_when_triggers_are_controlled"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0568",
       "epic_id": "EPIC-509",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/adapters/postgres/test_operational_controls.py::test_operational_controls_are_scoped_acknowledged_audited_and_expired",
+        "tests/api/test_operational_controls_api.py::test_operations_api_publishes_announcements_and_enforces_bypassable_controls",
+        "frontend/e2e/operational-controls.spec.ts::publishes an announcement and activates an acknowledged kill switch"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0569",
       "epic_id": "EPIC-509",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/test_worker.py::test_worker_drain_control_preserves_running_execution_without_dispatch",
+        "tests/test_worker.py::test_cron_scheduler_rejects_new_work_when_triggers_are_controlled",
+        "docs/api/operational-controls.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0570",
       "epic_id": "EPIC-509",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/adapters/postgres/test_operational_controls.py::test_operational_controls_are_scoped_acknowledged_audited_and_expired",
+        "tests/api/test_operational_controls_api.py::test_operations_api_publishes_announcements_and_enforces_bypassable_controls",
+        "migrations/0050_operational_controls.sql"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0571",
       "epic_id": "EPIC-509",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/adapters/postgres/test_operational_controls.py::test_operational_controls_are_scoped_acknowledged_audited_and_expired",
+        "tests/api/test_operational_controls_api.py::test_operations_api_publishes_announcements_and_enforces_bypassable_controls",
+        "TESTLOG.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0572",
       "epic_id": "EPIC-509",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/adapters/postgres/test_operational_controls.py::test_operational_controls_are_scoped_acknowledged_audited_and_expired",
+        "migrations/0050_operational_controls.sql",
+        "docs/api/operational-controls.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0573",
       "epic_id": "EPIC-509",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/adapters/postgres/test_operational_controls.py::test_operational_controls_are_scoped_acknowledged_audited_and_expired",
+        "tests/api/test_operational_controls_api.py::test_operations_api_publishes_announcements_and_enforces_bypassable_controls",
+        "migrations/0050_operational_controls.sql"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0574",

@@ -199,11 +199,18 @@ All URIs are relative to *http://localhost*
 *NamespaceResourcesApi* | [**uploadNamespaceFileApiV1NamespacesNamespaceFilesPathPut**](docs/NamespaceResourcesApi.md#uploadnamespacefileapiv1namespacesnamespacefilespathput) | **PUT** /api/v1/namespaces/{namespace}/files/{path} | Upload Namespace File
 *NamespacesApi* | [**getNamespaceWorkflowMetadataApiV1NamespacesNamespaceWorkflowMetadataGet**](docs/NamespacesApi.md#getnamespaceworkflowmetadataapiv1namespacesnamespaceworkflowmetadataget) | **GET** /api/v1/namespaces/{namespace}/workflow-metadata | Get Namespace Workflow Metadata
 *NamespacesApi* | [**upsertNamespaceWorkflowMetadataApiV1NamespacesNamespaceWorkflowMetadataPut**](docs/NamespacesApi.md#upsertnamespaceworkflowmetadataapiv1namespacesnamespaceworkflowmetadataput) | **PUT** /api/v1/namespaces/{namespace}/workflow-metadata | Upsert Namespace Workflow Metadata
+*OperationsApi* | [**activateOperationalControlApiV1OperationalControlsPost**](docs/OperationsApi.md#activateoperationalcontrolapiv1operationalcontrolspost) | **POST** /api/v1/operational-controls | Activate Operational Control
+*OperationsApi* | [**changeOperationalControlApiV1OperationalControlsControlIdActionsPost**](docs/OperationsApi.md#changeoperationalcontrolapiv1operationalcontrolscontrolidactionspost) | **POST** /api/v1/operational-controls/{control_id}/actions | Change Operational Control
+*OperationsApi* | [**deactivateAnnouncementApiV1AnnouncementsAnnouncementIdDelete**](docs/OperationsApi.md#deactivateannouncementapiv1announcementsannouncementiddelete) | **DELETE** /api/v1/announcements/{announcement_id} | Deactivate Announcement
 *OperationsApi* | [**drainServiceInstanceApiV1OperationsServicesInstanceIdDrainPost**](docs/OperationsApi.md#drainserviceinstanceapiv1operationsservicesinstanceiddrainpost) | **POST** /api/v1/operations/services/{instance_id}/drain | Drain Service Instance
 *OperationsApi* | [**getAdmissionDiagnosticsApiV1AdmissionsDiagnosticsGet**](docs/OperationsApi.md#getadmissiondiagnosticsapiv1admissionsdiagnosticsget) | **GET** /api/v1/admissions/diagnostics | Get Admission Diagnostics
 *OperationsApi* | [**getReconciliationApiV1ReconciliationsRunIdGet**](docs/OperationsApi.md#getreconciliationapiv1reconciliationsrunidget) | **GET** /api/v1/reconciliations/{run_id} | Get Reconciliation
 *OperationsApi* | [**getServiceTopologyApiV1OperationsTopologyGet**](docs/OperationsApi.md#getservicetopologyapiv1operationstopologyget) | **GET** /api/v1/operations/topology | Get Service Topology
+*OperationsApi* | [**listAnnouncementsApiV1AnnouncementsGet**](docs/OperationsApi.md#listannouncementsapiv1announcementsget) | **GET** /api/v1/announcements | List Announcements
+*OperationsApi* | [**listOperationalControlEventsApiV1OperationalControlEventsGet**](docs/OperationsApi.md#listoperationalcontroleventsapiv1operationalcontroleventsget) | **GET** /api/v1/operational-control-events | List Operational Control Events
+*OperationsApi* | [**listOperationalControlsApiV1OperationalControlsGet**](docs/OperationsApi.md#listoperationalcontrolsapiv1operationalcontrolsget) | **GET** /api/v1/operational-controls | List Operational Controls
 *OperationsApi* | [**listReconciliationsApiV1ReconciliationsGet**](docs/OperationsApi.md#listreconciliationsapiv1reconciliationsget) | **GET** /api/v1/reconciliations | List Reconciliations
+*OperationsApi* | [**publishAnnouncementApiV1AnnouncementsPost**](docs/OperationsApi.md#publishannouncementapiv1announcementspost) | **POST** /api/v1/announcements | Publish Announcement
 *OperationsApi* | [**reconcileAdmissionsApiV1AdmissionsReconcilePost**](docs/OperationsApi.md#reconcileadmissionsapiv1admissionsreconcilepost) | **POST** /api/v1/admissions/reconcile | Reconcile Admissions
 *OperationsApi* | [**runReconciliationApiV1ReconciliationsPost**](docs/OperationsApi.md#runreconciliationapiv1reconciliationspost) | **POST** /api/v1/reconciliations | Run Reconciliation
 *PluginsApi* | [**createPluginPolicyRuleApiV1PluginPolicyRulesPost**](docs/PluginsApi.md#createpluginpolicyruleapiv1pluginpolicyrulespost) | **POST** /api/v1/plugin-policy/rules | Create Plugin Policy Rule
@@ -288,6 +295,10 @@ All URIs are relative to *http://localhost*
 - [AdmissionOutcome](docs/AdmissionOutcome.md)
 - [AdmissionResourceType](docs/AdmissionResourceType.md)
 - [AdmissionScope](docs/AdmissionScope.md)
+- [Announcement](docs/Announcement.md)
+- [AnnouncementAudience](docs/AnnouncementAudience.md)
+- [AnnouncementCreateRequest](docs/AnnouncementCreateRequest.md)
+- [AnnouncementSeverity](docs/AnnouncementSeverity.md)
 - [AppForm](docs/AppForm.md)
 - [AssetAccessMode](docs/AssetAccessMode.md)
 - [AssetCatalogEntry](docs/AssetCatalogEntry.md)
@@ -450,6 +461,16 @@ All URIs are relative to *http://localhost*
 - [NamespaceWorkflowMetadata](docs/NamespaceWorkflowMetadata.md)
 - [NamespaceWorkflowMetadataUpdate](docs/NamespaceWorkflowMetadataUpdate.md)
 - [NamespaceWorkflowMetadataView](docs/NamespaceWorkflowMetadataView.md)
+- [OperationalBoundary](docs/OperationalBoundary.md)
+- [OperationalControl](docs/OperationalControl.md)
+- [OperationalControlAcknowledgement](docs/OperationalControlAcknowledgement.md)
+- [OperationalControlActionKind](docs/OperationalControlActionKind.md)
+- [OperationalControlActionRequest](docs/OperationalControlActionRequest.md)
+- [OperationalControlCreateRequest](docs/OperationalControlCreateRequest.md)
+- [OperationalControlEvent](docs/OperationalControlEvent.md)
+- [OperationalControlKind](docs/OperationalControlKind.md)
+- [OperationalControlScope](docs/OperationalControlScope.md)
+- [OperationalControlState](docs/OperationalControlState.md)
 - [Permission](docs/Permission.md)
 - [PermissionAction](docs/PermissionAction.md)
 - [PermissionEffect](docs/PermissionEffect.md)
@@ -536,6 +557,7 @@ All URIs are relative to *http://localhost*
 - [RunnerId](docs/RunnerId.md)
 - [RunnerMode](docs/RunnerMode.md)
 - [RunnerNetworkAccess](docs/RunnerNetworkAccess.md)
+- [RunningWorkPolicy](docs/RunningWorkPolicy.md)
 - [SchedulePreview](docs/SchedulePreview.md)
 - [ScimGroupRequest](docs/ScimGroupRequest.md)
 - [ScimGroupResource](docs/ScimGroupResource.md)

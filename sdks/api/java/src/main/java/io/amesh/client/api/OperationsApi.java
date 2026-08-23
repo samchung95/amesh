@@ -19,7 +19,13 @@ import io.amesh.client.Configuration;
 import io.amesh.client.Pair;
 
 import io.amesh.client.model.AdmissionDiagnostics;
+import io.amesh.client.model.Announcement;
+import io.amesh.client.model.AnnouncementCreateRequest;
 import io.amesh.client.model.HTTPValidationError;
+import io.amesh.client.model.OperationalControl;
+import io.amesh.client.model.OperationalControlActionRequest;
+import io.amesh.client.model.OperationalControlCreateRequest;
+import io.amesh.client.model.OperationalControlEvent;
 import io.amesh.client.model.ReconciliationRequest;
 import io.amesh.client.model.ReconciliationRun;
 import io.amesh.client.model.ServiceDrainRequest;
@@ -167,6 +173,465 @@ public class OperationsApi {
       file.deleteOnExit(); // best effort cleanup
     }
     return file;
+  }
+
+  /**
+   * Activate Operational Control
+   *
+   * @param operationalControlCreateRequest  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return OperationalControl
+   * @throws ApiException if fails to make API call
+   */
+  public OperationalControl activateOperationalControlApiV1OperationalControlsPost(@javax.annotation.Nonnull OperationalControlCreateRequest operationalControlCreateRequest, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return activateOperationalControlApiV1OperationalControlsPost(operationalControlCreateRequest, authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * Activate Operational Control
+   *
+   * @param operationalControlCreateRequest  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return OperationalControl
+   * @throws ApiException if fails to make API call
+   */
+  public OperationalControl activateOperationalControlApiV1OperationalControlsPost(@javax.annotation.Nonnull OperationalControlCreateRequest operationalControlCreateRequest, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    ApiResponse<OperationalControl> localVarResponse = activateOperationalControlApiV1OperationalControlsPostWithHttpInfo(operationalControlCreateRequest, authorization, xAmeshCSRF, xAmeshTenant, headers);
+    return localVarResponse.getData();
+  }
+
+  /**
+   * Activate Operational Control
+   *
+   * @param operationalControlCreateRequest  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return ApiResponse&lt;OperationalControl&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<OperationalControl> activateOperationalControlApiV1OperationalControlsPostWithHttpInfo(@javax.annotation.Nonnull OperationalControlCreateRequest operationalControlCreateRequest, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return activateOperationalControlApiV1OperationalControlsPostWithHttpInfo(operationalControlCreateRequest, authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * Activate Operational Control
+   *
+   * @param operationalControlCreateRequest  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return ApiResponse&lt;OperationalControl&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<OperationalControl> activateOperationalControlApiV1OperationalControlsPostWithHttpInfo(@javax.annotation.Nonnull OperationalControlCreateRequest operationalControlCreateRequest, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = activateOperationalControlApiV1OperationalControlsPostRequestBuilder(operationalControlCreateRequest, authorization, xAmeshCSRF, xAmeshTenant, headers);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      InputStream localVarResponseBody = null;
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("activateOperationalControlApiV1OperationalControlsPost", localVarResponse);
+        }
+        localVarResponseBody = ApiClient.getResponseBody(localVarResponse);
+        if (localVarResponseBody == null) {
+          return new ApiResponse<OperationalControl>(
+              localVarResponse.statusCode(),
+              localVarResponse.headers().map(),
+              null
+          );
+        }
+
+
+
+        String responseBody = new String(localVarResponseBody.readAllBytes());
+        OperationalControl responseValue = responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<OperationalControl>() {});
+
+
+        return new ApiResponse<OperationalControl>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            responseValue
+        );
+      } finally {
+        if (localVarResponseBody != null) {
+          localVarResponseBody.close();
+        }
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder activateOperationalControlApiV1OperationalControlsPostRequestBuilder(@javax.annotation.Nonnull OperationalControlCreateRequest operationalControlCreateRequest, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    // verify the required parameter 'operationalControlCreateRequest' is set
+    if (operationalControlCreateRequest == null) {
+      throw new ApiException(400, "Missing the required parameter 'operationalControlCreateRequest' when calling activateOperationalControlApiV1OperationalControlsPost");
+    }
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/api/v1/operational-controls";
+
+    localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+
+    if (authorization != null) {
+      localVarRequestBuilder.header("authorization", authorization.toString());
+    }
+    if (xAmeshCSRF != null) {
+      localVarRequestBuilder.header("X-Amesh-CSRF", xAmeshCSRF.toString());
+    }
+    if (xAmeshTenant != null) {
+      localVarRequestBuilder.header("X-Amesh-Tenant", xAmeshTenant.toString());
+    }
+    localVarRequestBuilder.header("Content-Type", "application/json");
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    try {
+      byte[] localVarPostBody = memberVarObjectMapper.writeValueAsBytes(operationalControlCreateRequest);
+      localVarRequestBuilder.method("POST", HttpRequest.BodyPublishers.ofByteArray(localVarPostBody));
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    // Add custom headers if provided
+    localVarRequestBuilder = HttpRequestBuilderExtensions.withAdditionalHeaders(localVarRequestBuilder, headers);
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
+  }
+
+  /**
+   * Change Operational Control
+   *
+   * @param controlId  (required)
+   * @param operationalControlActionRequest  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return OperationalControl
+   * @throws ApiException if fails to make API call
+   */
+  public OperationalControl changeOperationalControlApiV1OperationalControlsControlIdActionsPost(@javax.annotation.Nonnull UUID controlId, @javax.annotation.Nonnull OperationalControlActionRequest operationalControlActionRequest, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return changeOperationalControlApiV1OperationalControlsControlIdActionsPost(controlId, operationalControlActionRequest, authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * Change Operational Control
+   *
+   * @param controlId  (required)
+   * @param operationalControlActionRequest  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return OperationalControl
+   * @throws ApiException if fails to make API call
+   */
+  public OperationalControl changeOperationalControlApiV1OperationalControlsControlIdActionsPost(@javax.annotation.Nonnull UUID controlId, @javax.annotation.Nonnull OperationalControlActionRequest operationalControlActionRequest, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    ApiResponse<OperationalControl> localVarResponse = changeOperationalControlApiV1OperationalControlsControlIdActionsPostWithHttpInfo(controlId, operationalControlActionRequest, authorization, xAmeshCSRF, xAmeshTenant, headers);
+    return localVarResponse.getData();
+  }
+
+  /**
+   * Change Operational Control
+   *
+   * @param controlId  (required)
+   * @param operationalControlActionRequest  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return ApiResponse&lt;OperationalControl&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<OperationalControl> changeOperationalControlApiV1OperationalControlsControlIdActionsPostWithHttpInfo(@javax.annotation.Nonnull UUID controlId, @javax.annotation.Nonnull OperationalControlActionRequest operationalControlActionRequest, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return changeOperationalControlApiV1OperationalControlsControlIdActionsPostWithHttpInfo(controlId, operationalControlActionRequest, authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * Change Operational Control
+   *
+   * @param controlId  (required)
+   * @param operationalControlActionRequest  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return ApiResponse&lt;OperationalControl&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<OperationalControl> changeOperationalControlApiV1OperationalControlsControlIdActionsPostWithHttpInfo(@javax.annotation.Nonnull UUID controlId, @javax.annotation.Nonnull OperationalControlActionRequest operationalControlActionRequest, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = changeOperationalControlApiV1OperationalControlsControlIdActionsPostRequestBuilder(controlId, operationalControlActionRequest, authorization, xAmeshCSRF, xAmeshTenant, headers);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      InputStream localVarResponseBody = null;
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("changeOperationalControlApiV1OperationalControlsControlIdActionsPost", localVarResponse);
+        }
+        localVarResponseBody = ApiClient.getResponseBody(localVarResponse);
+        if (localVarResponseBody == null) {
+          return new ApiResponse<OperationalControl>(
+              localVarResponse.statusCode(),
+              localVarResponse.headers().map(),
+              null
+          );
+        }
+
+
+
+        String responseBody = new String(localVarResponseBody.readAllBytes());
+        OperationalControl responseValue = responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<OperationalControl>() {});
+
+
+        return new ApiResponse<OperationalControl>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            responseValue
+        );
+      } finally {
+        if (localVarResponseBody != null) {
+          localVarResponseBody.close();
+        }
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder changeOperationalControlApiV1OperationalControlsControlIdActionsPostRequestBuilder(@javax.annotation.Nonnull UUID controlId, @javax.annotation.Nonnull OperationalControlActionRequest operationalControlActionRequest, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    // verify the required parameter 'controlId' is set
+    if (controlId == null) {
+      throw new ApiException(400, "Missing the required parameter 'controlId' when calling changeOperationalControlApiV1OperationalControlsControlIdActionsPost");
+    }
+    // verify the required parameter 'operationalControlActionRequest' is set
+    if (operationalControlActionRequest == null) {
+      throw new ApiException(400, "Missing the required parameter 'operationalControlActionRequest' when calling changeOperationalControlApiV1OperationalControlsControlIdActionsPost");
+    }
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/api/v1/operational-controls/{control_id}/actions"
+        .replace("{control_id}", ApiClient.urlEncode(controlId.toString()));
+
+    localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+
+    if (authorization != null) {
+      localVarRequestBuilder.header("authorization", authorization.toString());
+    }
+    if (xAmeshCSRF != null) {
+      localVarRequestBuilder.header("X-Amesh-CSRF", xAmeshCSRF.toString());
+    }
+    if (xAmeshTenant != null) {
+      localVarRequestBuilder.header("X-Amesh-Tenant", xAmeshTenant.toString());
+    }
+    localVarRequestBuilder.header("Content-Type", "application/json");
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    try {
+      byte[] localVarPostBody = memberVarObjectMapper.writeValueAsBytes(operationalControlActionRequest);
+      localVarRequestBuilder.method("POST", HttpRequest.BodyPublishers.ofByteArray(localVarPostBody));
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    // Add custom headers if provided
+    localVarRequestBuilder = HttpRequestBuilderExtensions.withAdditionalHeaders(localVarRequestBuilder, headers);
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
+  }
+
+  /**
+   * Deactivate Announcement
+   *
+   * @param announcementId  (required)
+   * @param expectedVersion  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return Announcement
+   * @throws ApiException if fails to make API call
+   */
+  public Announcement deactivateAnnouncementApiV1AnnouncementsAnnouncementIdDelete(@javax.annotation.Nonnull UUID announcementId, @javax.annotation.Nonnull Integer expectedVersion, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return deactivateAnnouncementApiV1AnnouncementsAnnouncementIdDelete(announcementId, expectedVersion, authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * Deactivate Announcement
+   *
+   * @param announcementId  (required)
+   * @param expectedVersion  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return Announcement
+   * @throws ApiException if fails to make API call
+   */
+  public Announcement deactivateAnnouncementApiV1AnnouncementsAnnouncementIdDelete(@javax.annotation.Nonnull UUID announcementId, @javax.annotation.Nonnull Integer expectedVersion, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    ApiResponse<Announcement> localVarResponse = deactivateAnnouncementApiV1AnnouncementsAnnouncementIdDeleteWithHttpInfo(announcementId, expectedVersion, authorization, xAmeshCSRF, xAmeshTenant, headers);
+    return localVarResponse.getData();
+  }
+
+  /**
+   * Deactivate Announcement
+   *
+   * @param announcementId  (required)
+   * @param expectedVersion  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return ApiResponse&lt;Announcement&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<Announcement> deactivateAnnouncementApiV1AnnouncementsAnnouncementIdDeleteWithHttpInfo(@javax.annotation.Nonnull UUID announcementId, @javax.annotation.Nonnull Integer expectedVersion, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return deactivateAnnouncementApiV1AnnouncementsAnnouncementIdDeleteWithHttpInfo(announcementId, expectedVersion, authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * Deactivate Announcement
+   *
+   * @param announcementId  (required)
+   * @param expectedVersion  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return ApiResponse&lt;Announcement&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<Announcement> deactivateAnnouncementApiV1AnnouncementsAnnouncementIdDeleteWithHttpInfo(@javax.annotation.Nonnull UUID announcementId, @javax.annotation.Nonnull Integer expectedVersion, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = deactivateAnnouncementApiV1AnnouncementsAnnouncementIdDeleteRequestBuilder(announcementId, expectedVersion, authorization, xAmeshCSRF, xAmeshTenant, headers);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      InputStream localVarResponseBody = null;
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("deactivateAnnouncementApiV1AnnouncementsAnnouncementIdDelete", localVarResponse);
+        }
+        localVarResponseBody = ApiClient.getResponseBody(localVarResponse);
+        if (localVarResponseBody == null) {
+          return new ApiResponse<Announcement>(
+              localVarResponse.statusCode(),
+              localVarResponse.headers().map(),
+              null
+          );
+        }
+
+
+
+        String responseBody = new String(localVarResponseBody.readAllBytes());
+        Announcement responseValue = responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<Announcement>() {});
+
+
+        return new ApiResponse<Announcement>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            responseValue
+        );
+      } finally {
+        if (localVarResponseBody != null) {
+          localVarResponseBody.close();
+        }
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder deactivateAnnouncementApiV1AnnouncementsAnnouncementIdDeleteRequestBuilder(@javax.annotation.Nonnull UUID announcementId, @javax.annotation.Nonnull Integer expectedVersion, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    // verify the required parameter 'announcementId' is set
+    if (announcementId == null) {
+      throw new ApiException(400, "Missing the required parameter 'announcementId' when calling deactivateAnnouncementApiV1AnnouncementsAnnouncementIdDelete");
+    }
+    // verify the required parameter 'expectedVersion' is set
+    if (expectedVersion == null) {
+      throw new ApiException(400, "Missing the required parameter 'expectedVersion' when calling deactivateAnnouncementApiV1AnnouncementsAnnouncementIdDelete");
+    }
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/api/v1/announcements/{announcement_id}"
+        .replace("{announcement_id}", ApiClient.urlEncode(announcementId.toString()));
+
+    List<Pair> localVarQueryParams = new ArrayList<>();
+    StringJoiner localVarQueryStringJoiner = new StringJoiner("&");
+    String localVarQueryParameterBaseName;
+    localVarQueryParameterBaseName = "expectedVersion";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("expectedVersion", expectedVersion));
+
+    if (!localVarQueryParams.isEmpty() || localVarQueryStringJoiner.length() != 0) {
+      StringJoiner queryJoiner = new StringJoiner("&");
+      localVarQueryParams.forEach(p -> queryJoiner.add(p.getName() + '=' + p.getValue()));
+      if (localVarQueryStringJoiner.length() != 0) {
+        queryJoiner.add(localVarQueryStringJoiner.toString());
+      }
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath + '?' + queryJoiner.toString()));
+    } else {
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+    }
+
+    if (authorization != null) {
+      localVarRequestBuilder.header("authorization", authorization.toString());
+    }
+    if (xAmeshCSRF != null) {
+      localVarRequestBuilder.header("X-Amesh-CSRF", xAmeshCSRF.toString());
+    }
+    if (xAmeshTenant != null) {
+      localVarRequestBuilder.header("X-Amesh-Tenant", xAmeshTenant.toString());
+    }
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    localVarRequestBuilder.method("DELETE", HttpRequest.BodyPublishers.noBody());
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    // Add custom headers if provided
+    localVarRequestBuilder = HttpRequestBuilderExtensions.withAdditionalHeaders(localVarRequestBuilder, headers);
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
   }
 
   /**
@@ -708,6 +1173,440 @@ public class OperationsApi {
   }
 
   /**
+   * List Announcements
+   *
+   * @param namespace  (optional)
+   * @param includeInactive  (optional, default to false)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return List&lt;Announcement&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public List<Announcement> listAnnouncementsApiV1AnnouncementsGet(@javax.annotation.Nullable String namespace, @javax.annotation.Nullable Boolean includeInactive, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return listAnnouncementsApiV1AnnouncementsGet(namespace, includeInactive, authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * List Announcements
+   *
+   * @param namespace  (optional)
+   * @param includeInactive  (optional, default to false)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return List&lt;Announcement&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public List<Announcement> listAnnouncementsApiV1AnnouncementsGet(@javax.annotation.Nullable String namespace, @javax.annotation.Nullable Boolean includeInactive, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    ApiResponse<List<Announcement>> localVarResponse = listAnnouncementsApiV1AnnouncementsGetWithHttpInfo(namespace, includeInactive, authorization, xAmeshCSRF, xAmeshTenant, headers);
+    return localVarResponse.getData();
+  }
+
+  /**
+   * List Announcements
+   *
+   * @param namespace  (optional)
+   * @param includeInactive  (optional, default to false)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return ApiResponse&lt;List&lt;Announcement&gt;&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<List<Announcement>> listAnnouncementsApiV1AnnouncementsGetWithHttpInfo(@javax.annotation.Nullable String namespace, @javax.annotation.Nullable Boolean includeInactive, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return listAnnouncementsApiV1AnnouncementsGetWithHttpInfo(namespace, includeInactive, authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * List Announcements
+   *
+   * @param namespace  (optional)
+   * @param includeInactive  (optional, default to false)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return ApiResponse&lt;List&lt;Announcement&gt;&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<List<Announcement>> listAnnouncementsApiV1AnnouncementsGetWithHttpInfo(@javax.annotation.Nullable String namespace, @javax.annotation.Nullable Boolean includeInactive, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = listAnnouncementsApiV1AnnouncementsGetRequestBuilder(namespace, includeInactive, authorization, xAmeshCSRF, xAmeshTenant, headers);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      InputStream localVarResponseBody = null;
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("listAnnouncementsApiV1AnnouncementsGet", localVarResponse);
+        }
+        localVarResponseBody = ApiClient.getResponseBody(localVarResponse);
+        if (localVarResponseBody == null) {
+          return new ApiResponse<List<Announcement>>(
+              localVarResponse.statusCode(),
+              localVarResponse.headers().map(),
+              null
+          );
+        }
+
+
+
+        String responseBody = new String(localVarResponseBody.readAllBytes());
+        List<Announcement> responseValue = responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<List<Announcement>>() {});
+
+
+        return new ApiResponse<List<Announcement>>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            responseValue
+        );
+      } finally {
+        if (localVarResponseBody != null) {
+          localVarResponseBody.close();
+        }
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder listAnnouncementsApiV1AnnouncementsGetRequestBuilder(@javax.annotation.Nullable String namespace, @javax.annotation.Nullable Boolean includeInactive, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/api/v1/announcements";
+
+    List<Pair> localVarQueryParams = new ArrayList<>();
+    StringJoiner localVarQueryStringJoiner = new StringJoiner("&");
+    String localVarQueryParameterBaseName;
+    localVarQueryParameterBaseName = "namespace";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("namespace", namespace));
+    localVarQueryParameterBaseName = "includeInactive";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("includeInactive", includeInactive));
+
+    if (!localVarQueryParams.isEmpty() || localVarQueryStringJoiner.length() != 0) {
+      StringJoiner queryJoiner = new StringJoiner("&");
+      localVarQueryParams.forEach(p -> queryJoiner.add(p.getName() + '=' + p.getValue()));
+      if (localVarQueryStringJoiner.length() != 0) {
+        queryJoiner.add(localVarQueryStringJoiner.toString());
+      }
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath + '?' + queryJoiner.toString()));
+    } else {
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+    }
+
+    if (authorization != null) {
+      localVarRequestBuilder.header("authorization", authorization.toString());
+    }
+    if (xAmeshCSRF != null) {
+      localVarRequestBuilder.header("X-Amesh-CSRF", xAmeshCSRF.toString());
+    }
+    if (xAmeshTenant != null) {
+      localVarRequestBuilder.header("X-Amesh-Tenant", xAmeshTenant.toString());
+    }
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    localVarRequestBuilder.method("GET", HttpRequest.BodyPublishers.noBody());
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    // Add custom headers if provided
+    localVarRequestBuilder = HttpRequestBuilderExtensions.withAdditionalHeaders(localVarRequestBuilder, headers);
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
+  }
+
+  /**
+   * List Operational Control Events
+   *
+   * @param limit  (optional, default to 200)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return List&lt;OperationalControlEvent&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public List<OperationalControlEvent> listOperationalControlEventsApiV1OperationalControlEventsGet(@javax.annotation.Nullable Integer limit, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return listOperationalControlEventsApiV1OperationalControlEventsGet(limit, authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * List Operational Control Events
+   *
+   * @param limit  (optional, default to 200)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return List&lt;OperationalControlEvent&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public List<OperationalControlEvent> listOperationalControlEventsApiV1OperationalControlEventsGet(@javax.annotation.Nullable Integer limit, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    ApiResponse<List<OperationalControlEvent>> localVarResponse = listOperationalControlEventsApiV1OperationalControlEventsGetWithHttpInfo(limit, authorization, xAmeshCSRF, xAmeshTenant, headers);
+    return localVarResponse.getData();
+  }
+
+  /**
+   * List Operational Control Events
+   *
+   * @param limit  (optional, default to 200)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return ApiResponse&lt;List&lt;OperationalControlEvent&gt;&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<List<OperationalControlEvent>> listOperationalControlEventsApiV1OperationalControlEventsGetWithHttpInfo(@javax.annotation.Nullable Integer limit, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return listOperationalControlEventsApiV1OperationalControlEventsGetWithHttpInfo(limit, authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * List Operational Control Events
+   *
+   * @param limit  (optional, default to 200)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return ApiResponse&lt;List&lt;OperationalControlEvent&gt;&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<List<OperationalControlEvent>> listOperationalControlEventsApiV1OperationalControlEventsGetWithHttpInfo(@javax.annotation.Nullable Integer limit, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = listOperationalControlEventsApiV1OperationalControlEventsGetRequestBuilder(limit, authorization, xAmeshCSRF, xAmeshTenant, headers);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      InputStream localVarResponseBody = null;
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("listOperationalControlEventsApiV1OperationalControlEventsGet", localVarResponse);
+        }
+        localVarResponseBody = ApiClient.getResponseBody(localVarResponse);
+        if (localVarResponseBody == null) {
+          return new ApiResponse<List<OperationalControlEvent>>(
+              localVarResponse.statusCode(),
+              localVarResponse.headers().map(),
+              null
+          );
+        }
+
+
+
+        String responseBody = new String(localVarResponseBody.readAllBytes());
+        List<OperationalControlEvent> responseValue = responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<List<OperationalControlEvent>>() {});
+
+
+        return new ApiResponse<List<OperationalControlEvent>>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            responseValue
+        );
+      } finally {
+        if (localVarResponseBody != null) {
+          localVarResponseBody.close();
+        }
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder listOperationalControlEventsApiV1OperationalControlEventsGetRequestBuilder(@javax.annotation.Nullable Integer limit, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/api/v1/operational-control-events";
+
+    List<Pair> localVarQueryParams = new ArrayList<>();
+    StringJoiner localVarQueryStringJoiner = new StringJoiner("&");
+    String localVarQueryParameterBaseName;
+    localVarQueryParameterBaseName = "limit";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("limit", limit));
+
+    if (!localVarQueryParams.isEmpty() || localVarQueryStringJoiner.length() != 0) {
+      StringJoiner queryJoiner = new StringJoiner("&");
+      localVarQueryParams.forEach(p -> queryJoiner.add(p.getName() + '=' + p.getValue()));
+      if (localVarQueryStringJoiner.length() != 0) {
+        queryJoiner.add(localVarQueryStringJoiner.toString());
+      }
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath + '?' + queryJoiner.toString()));
+    } else {
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+    }
+
+    if (authorization != null) {
+      localVarRequestBuilder.header("authorization", authorization.toString());
+    }
+    if (xAmeshCSRF != null) {
+      localVarRequestBuilder.header("X-Amesh-CSRF", xAmeshCSRF.toString());
+    }
+    if (xAmeshTenant != null) {
+      localVarRequestBuilder.header("X-Amesh-Tenant", xAmeshTenant.toString());
+    }
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    localVarRequestBuilder.method("GET", HttpRequest.BodyPublishers.noBody());
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    // Add custom headers if provided
+    localVarRequestBuilder = HttpRequestBuilderExtensions.withAdditionalHeaders(localVarRequestBuilder, headers);
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
+  }
+
+  /**
+   * List Operational Controls
+   *
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return List&lt;OperationalControl&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public List<OperationalControl> listOperationalControlsApiV1OperationalControlsGet(@javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return listOperationalControlsApiV1OperationalControlsGet(authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * List Operational Controls
+   *
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return List&lt;OperationalControl&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public List<OperationalControl> listOperationalControlsApiV1OperationalControlsGet(@javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    ApiResponse<List<OperationalControl>> localVarResponse = listOperationalControlsApiV1OperationalControlsGetWithHttpInfo(authorization, xAmeshCSRF, xAmeshTenant, headers);
+    return localVarResponse.getData();
+  }
+
+  /**
+   * List Operational Controls
+   *
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return ApiResponse&lt;List&lt;OperationalControl&gt;&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<List<OperationalControl>> listOperationalControlsApiV1OperationalControlsGetWithHttpInfo(@javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return listOperationalControlsApiV1OperationalControlsGetWithHttpInfo(authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * List Operational Controls
+   *
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return ApiResponse&lt;List&lt;OperationalControl&gt;&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<List<OperationalControl>> listOperationalControlsApiV1OperationalControlsGetWithHttpInfo(@javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = listOperationalControlsApiV1OperationalControlsGetRequestBuilder(authorization, xAmeshCSRF, xAmeshTenant, headers);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      InputStream localVarResponseBody = null;
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("listOperationalControlsApiV1OperationalControlsGet", localVarResponse);
+        }
+        localVarResponseBody = ApiClient.getResponseBody(localVarResponse);
+        if (localVarResponseBody == null) {
+          return new ApiResponse<List<OperationalControl>>(
+              localVarResponse.statusCode(),
+              localVarResponse.headers().map(),
+              null
+          );
+        }
+
+
+
+        String responseBody = new String(localVarResponseBody.readAllBytes());
+        List<OperationalControl> responseValue = responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<List<OperationalControl>>() {});
+
+
+        return new ApiResponse<List<OperationalControl>>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            responseValue
+        );
+      } finally {
+        if (localVarResponseBody != null) {
+          localVarResponseBody.close();
+        }
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder listOperationalControlsApiV1OperationalControlsGetRequestBuilder(@javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/api/v1/operational-controls";
+
+    localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+
+    if (authorization != null) {
+      localVarRequestBuilder.header("authorization", authorization.toString());
+    }
+    if (xAmeshCSRF != null) {
+      localVarRequestBuilder.header("X-Amesh-CSRF", xAmeshCSRF.toString());
+    }
+    if (xAmeshTenant != null) {
+      localVarRequestBuilder.header("X-Amesh-Tenant", xAmeshTenant.toString());
+    }
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    localVarRequestBuilder.method("GET", HttpRequest.BodyPublishers.noBody());
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    // Add custom headers if provided
+    localVarRequestBuilder = HttpRequestBuilderExtensions.withAdditionalHeaders(localVarRequestBuilder, headers);
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
+  }
+
+  /**
    * List Reconciliations
    *
    * @param limit  (optional, default to 50)
@@ -845,6 +1744,150 @@ public class OperationsApi {
     localVarRequestBuilder.header("Accept", "application/json");
 
     localVarRequestBuilder.method("GET", HttpRequest.BodyPublishers.noBody());
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    // Add custom headers if provided
+    localVarRequestBuilder = HttpRequestBuilderExtensions.withAdditionalHeaders(localVarRequestBuilder, headers);
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
+  }
+
+  /**
+   * Publish Announcement
+   *
+   * @param announcementCreateRequest  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return Announcement
+   * @throws ApiException if fails to make API call
+   */
+  public Announcement publishAnnouncementApiV1AnnouncementsPost(@javax.annotation.Nonnull AnnouncementCreateRequest announcementCreateRequest, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return publishAnnouncementApiV1AnnouncementsPost(announcementCreateRequest, authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * Publish Announcement
+   *
+   * @param announcementCreateRequest  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return Announcement
+   * @throws ApiException if fails to make API call
+   */
+  public Announcement publishAnnouncementApiV1AnnouncementsPost(@javax.annotation.Nonnull AnnouncementCreateRequest announcementCreateRequest, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    ApiResponse<Announcement> localVarResponse = publishAnnouncementApiV1AnnouncementsPostWithHttpInfo(announcementCreateRequest, authorization, xAmeshCSRF, xAmeshTenant, headers);
+    return localVarResponse.getData();
+  }
+
+  /**
+   * Publish Announcement
+   *
+   * @param announcementCreateRequest  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return ApiResponse&lt;Announcement&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<Announcement> publishAnnouncementApiV1AnnouncementsPostWithHttpInfo(@javax.annotation.Nonnull AnnouncementCreateRequest announcementCreateRequest, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return publishAnnouncementApiV1AnnouncementsPostWithHttpInfo(announcementCreateRequest, authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * Publish Announcement
+   *
+   * @param announcementCreateRequest  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return ApiResponse&lt;Announcement&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<Announcement> publishAnnouncementApiV1AnnouncementsPostWithHttpInfo(@javax.annotation.Nonnull AnnouncementCreateRequest announcementCreateRequest, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = publishAnnouncementApiV1AnnouncementsPostRequestBuilder(announcementCreateRequest, authorization, xAmeshCSRF, xAmeshTenant, headers);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      InputStream localVarResponseBody = null;
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("publishAnnouncementApiV1AnnouncementsPost", localVarResponse);
+        }
+        localVarResponseBody = ApiClient.getResponseBody(localVarResponse);
+        if (localVarResponseBody == null) {
+          return new ApiResponse<Announcement>(
+              localVarResponse.statusCode(),
+              localVarResponse.headers().map(),
+              null
+          );
+        }
+
+
+
+        String responseBody = new String(localVarResponseBody.readAllBytes());
+        Announcement responseValue = responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<Announcement>() {});
+
+
+        return new ApiResponse<Announcement>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            responseValue
+        );
+      } finally {
+        if (localVarResponseBody != null) {
+          localVarResponseBody.close();
+        }
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder publishAnnouncementApiV1AnnouncementsPostRequestBuilder(@javax.annotation.Nonnull AnnouncementCreateRequest announcementCreateRequest, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    // verify the required parameter 'announcementCreateRequest' is set
+    if (announcementCreateRequest == null) {
+      throw new ApiException(400, "Missing the required parameter 'announcementCreateRequest' when calling publishAnnouncementApiV1AnnouncementsPost");
+    }
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/api/v1/announcements";
+
+    localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+
+    if (authorization != null) {
+      localVarRequestBuilder.header("authorization", authorization.toString());
+    }
+    if (xAmeshCSRF != null) {
+      localVarRequestBuilder.header("X-Amesh-CSRF", xAmeshCSRF.toString());
+    }
+    if (xAmeshTenant != null) {
+      localVarRequestBuilder.header("X-Amesh-Tenant", xAmeshTenant.toString());
+    }
+    localVarRequestBuilder.header("Content-Type", "application/json");
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    try {
+      byte[] localVarPostBody = memberVarObjectMapper.writeValueAsBytes(announcementCreateRequest);
+      localVarRequestBuilder.method("POST", HttpRequest.BodyPublishers.ofByteArray(localVarPostBody));
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
     if (memberVarReadTimeout != null) {
       localVarRequestBuilder.timeout(memberVarReadTimeout);
     }

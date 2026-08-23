@@ -77,6 +77,7 @@ def test_independent_roles_route_only_their_owned_cycle(
         "reconciliations": object(),
         "workers": Workers(),
         "transport": Transport(),
+        "operational_controls": object(),
         "webhook_dispatcher": Webhooks(),
     }
 
@@ -145,6 +146,7 @@ def test_search_projection_failure_does_not_block_other_indexer_work() -> None:
             reconciliations=object(),  # type: ignore[arg-type]
             workers=object(),  # type: ignore[arg-type]
             transport=Transport(),  # type: ignore[arg-type]
+            operational_controls=object(),  # type: ignore[arg-type]
             webhook_dispatcher=Webhooks(),  # type: ignore[arg-type]
             search_projector=FailedSearch(),
         )

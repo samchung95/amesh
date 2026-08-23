@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import asyncio
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from types import SimpleNamespace
 from uuid import uuid4
 
@@ -9,7 +9,15 @@ import pytest
 
 from amesh import worker
 from amesh.config import Settings
+from amesh.domain import (
+    ExecutionState,
+    OperationalBoundary,
+    OperationalControlDecision,
+    RunningWorkPolicy,
+)
+from amesh.dsl.models import FlowDefinition, TaskDefinition, TriggerDefinition
 from amesh.ports import ReconciliationAlreadyRunningError
+from amesh.scheduler import CronScheduler
 
 
 class StopWorker(BaseException):
@@ -141,3 +149,121 @@ def test_periodic_reconciliation_skips_a_tenant_already_being_repaired(
 
     assert repaired == 0
     assert service.calls == ["first", "second"]
+
+
+def test_cron_scheduler_rejects_new_work_when_triggers_are_controlled() -> None:
+    class ExecutionRepository:
+        async def create_execution(self, *args: object, **kwargs: object) -> object:
+            del args, kwargs
+            raise AssertionError("controlled scheduler must not create an execution")
+
+    class Controls:
+        def __init__(self) -> None:
+            self.boundaries: list[OperationalBoundary] = []
+
+        async def evaluate(
+            self,
+            boundary: OperationalBoundary,
+            **kwargs: object,
+        ) -> OperationalControlDecision:
+            del kwargs
+            self.boundaries.append(boundary)
+            return OperationalControlDecision(
+                blocked=True,
+                boundary=boundary,
+                runningWorkPolicy=RunningWorkPolicy.DRAIN,
+            )
+
+    controls = Controls()
+    flow = FlowDefinition(
+        id="controlled_cron",
+        namespace="tests.controls",
+        triggers=[
+            TriggerDefinition(
+                id="every_minute",
+                type="core.cron",
+                cron="* * * * *",
+                timezone="UTC",
+            )
+        ],
+        tasks=[TaskDefinition(id="done", type="core.return", value="done")],
+    )
+
+    with pytest.raises(RuntimeError, match="triggers blocked by operational control"):
+        asyncio.run(
+            CronScheduler(
+                ExecutionRepository(),  # type: ignore[arg-type]
+                operational_controls=controls,
+            ).fire_occurrence(
+                flow,
+                trigger_id="every_minute",
+                scheduled_for=datetime(2026, 8, 23, 12, 0, tzinfo=UTC),
+                tenant_id="default",
+            )
+        )
+
+    assert controls.boundaries == [OperationalBoundary.TRIGGERS]
+
+
+def test_worker_drain_control_preserves_running_execution_without_dispatch() -> None:
+    execution_id = uuid4()
+    flow = FlowDefinition(
+        id="controlled_worker",
+        namespace="tests.controls",
+        tasks=[TaskDefinition(id="done", type="core.return", value="done")],
+    )
+
+    class ExecutionRepository:
+        def __init__(self) -> None:
+            self.interventions = 0
+
+        async def list_executions(self, **kwargs: object) -> list[object]:
+            del kwargs
+            return [
+                SimpleNamespace(
+                    execution_id=execution_id,
+                    namespace=flow.namespace,
+                    flow_id=flow.id,
+                    flow_revision=flow.revision,
+                    state=ExecutionState.RUNNING,
+                    version=1,
+                    epoch=1,
+                    updated_at=datetime.now(UTC) - timedelta(minutes=5),
+                )
+            ]
+
+        async def get_flow(self, *args: object, **kwargs: object) -> FlowDefinition:
+            del args, kwargs
+            return flow
+
+        async def apply_execution_intervention(
+            self, *args: object, **kwargs: object
+        ) -> None:
+            del args, kwargs
+            self.interventions += 1
+
+    class Controls:
+        async def evaluate(
+            self,
+            boundary: OperationalBoundary,
+            **kwargs: object,
+        ) -> OperationalControlDecision:
+            del kwargs
+            return OperationalControlDecision(
+                blocked=True,
+                boundary=boundary,
+                runningWorkPolicy=RunningWorkPolicy.DRAIN,
+            )
+
+    repository = ExecutionRepository()
+    recovered = asyncio.run(
+        worker.recover_once(
+            repository,  # type: ignore[arg-type]
+            Settings(_env_file=None, worker_recovery_grace_seconds=0),
+            tenant_ids=("default",),
+            operational_controls=Controls(),  # type: ignore[arg-type]
+        )
+    )
+
+    assert recovered == 0
+    assert repository.interventions == 0

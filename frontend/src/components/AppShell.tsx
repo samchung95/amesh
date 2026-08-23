@@ -1,4 +1,5 @@
 import { type FormEvent, useEffect, useId, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import {
   Bell,
   CheckCircle2,
@@ -32,6 +33,12 @@ export function AppShell({ session }: { session: UiSession }) {
   const [notificationsOpen, setNotificationsOpen] = useState(false)
   const [contextOpen, setContextOpen] = useState(false)
   const notificationId = useId()
+  const announcements = useQuery({
+    queryKey: ['announcements', settings.tenant, settings.namespace],
+    queryFn: () => api.announcements(settings.namespace || undefined),
+    enabled: session.capabilities['announcements.view'],
+    refetchInterval: 10_000,
+  })
 
   useEffect(() => {
     void i18n.changeLanguage(settings.locale)
@@ -153,6 +160,17 @@ export function AppShell({ session }: { session: UiSession }) {
           </div>
           {notificationsOpen ? <NotificationPopover id={notificationId} telemetryEnabled={session.telemetryEnabled} /> : null}
         </header>
+        {announcements.data?.length ? (
+          <section className="announcement-stack" aria-label="Operational announcements" aria-live="polite">
+            {announcements.data.map((announcement) => (
+              <article className={`announcement-banner announcement-${announcement.severity.toLowerCase()}`} key={announcement.id}>
+                <strong>{announcement.title}</strong>
+                <span>{announcement.message}</span>
+                <small>Until {new Date(announcement.expiresAt).toLocaleString()}</small>
+              </article>
+            ))}
+          </section>
+        ) : null}
         <main id="main-content" className="main-content" tabIndex={-1}>
           <Outlet />
         </main>

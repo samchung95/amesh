@@ -9,13 +9,14 @@ from zoneinfo import ZoneInfo
 
 from croniter import croniter
 
-from amesh.domain import new_runtime_id
+from amesh.domain import OperationalBoundary, new_runtime_id
 from amesh.dsl import FlowDefinition
 from amesh.dsl.models import TriggerDefinition
 from amesh.expressions import ExpressionContext, ExpressionEngine, NativeExpressionEngine
 from amesh.ports import (
     ExecutionLaunchSource,
     ExecutionRepository,
+    OperationalControlEvaluator,
     PersistedExecution,
     SchedulerRepository,
     ScheduleState,
@@ -68,6 +69,7 @@ class CronScheduler:
         lease_duration: timedelta = timedelta(seconds=30),
         expressions: ExpressionEngine | None = None,
         trigger_runtime: TriggerRuntimeRepository | None = None,
+        operational_controls: OperationalControlEvaluator | None = None,
     ) -> None:
         if lease_duration.total_seconds() <= 0:
             raise ValueError("scheduler lease duration must be positive")
@@ -77,6 +79,7 @@ class CronScheduler:
         self._lease_duration = lease_duration
         self._expressions = expressions or NativeExpressionEngine()
         self._trigger_runtime = trigger_runtime
+        self._operational_controls = operational_controls
 
     def next_occurrence(
         self,
@@ -146,6 +149,21 @@ class CronScheduler:
         reason = self._constraint_reason(flow, trigger, scheduled_utc)
         if reason is not None:
             raise ValueError(reason)
+        if self._operational_controls is not None:
+            for boundary in (
+                OperationalBoundary.TRIGGERS,
+                OperationalBoundary.NEW_EXECUTIONS,
+            ):
+                decision = await self._operational_controls.evaluate(
+                    boundary,
+                    tenant_id=tenant_id,
+                    namespace=flow.namespace,
+                    flow_id=flow.id,
+                    component_id=f"scheduler:{self._owner_id}",
+                    component_role="SCHEDULER",
+                )
+                if decision.blocked:
+                    raise RuntimeError(f"{boundary.value.lower()} blocked by operational control")
         occurrence_key = (
             f"{trigger.type}:{flow.namespace}:{flow.id}:{flow.revision}:"
             f"{trigger.id}:{scheduled_utc.isoformat()}"

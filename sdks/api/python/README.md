@@ -230,11 +230,18 @@ Class | Method | HTTP request | Description
 *NamespaceResourcesApi* | [**upload_namespace_file_api_v1_namespaces_namespace_files_path_put**](docs/NamespaceResourcesApi.md#upload_namespace_file_api_v1_namespaces_namespace_files_path_put) | **PUT** /api/v1/namespaces/{namespace}/files/{path} | Upload Namespace File
 *NamespacesApi* | [**get_namespace_workflow_metadata_api_v1_namespaces_namespace_workflow_metadata_get**](docs/NamespacesApi.md#get_namespace_workflow_metadata_api_v1_namespaces_namespace_workflow_metadata_get) | **GET** /api/v1/namespaces/{namespace}/workflow-metadata | Get Namespace Workflow Metadata
 *NamespacesApi* | [**upsert_namespace_workflow_metadata_api_v1_namespaces_namespace_workflow_metadata_put**](docs/NamespacesApi.md#upsert_namespace_workflow_metadata_api_v1_namespaces_namespace_workflow_metadata_put) | **PUT** /api/v1/namespaces/{namespace}/workflow-metadata | Upsert Namespace Workflow Metadata
+*OperationsApi* | [**activate_operational_control_api_v1_operational_controls_post**](docs/OperationsApi.md#activate_operational_control_api_v1_operational_controls_post) | **POST** /api/v1/operational-controls | Activate Operational Control
+*OperationsApi* | [**change_operational_control_api_v1_operational_controls_control_id_actions_post**](docs/OperationsApi.md#change_operational_control_api_v1_operational_controls_control_id_actions_post) | **POST** /api/v1/operational-controls/{control_id}/actions | Change Operational Control
+*OperationsApi* | [**deactivate_announcement_api_v1_announcements_announcement_id_delete**](docs/OperationsApi.md#deactivate_announcement_api_v1_announcements_announcement_id_delete) | **DELETE** /api/v1/announcements/{announcement_id} | Deactivate Announcement
 *OperationsApi* | [**drain_service_instance_api_v1_operations_services_instance_id_drain_post**](docs/OperationsApi.md#drain_service_instance_api_v1_operations_services_instance_id_drain_post) | **POST** /api/v1/operations/services/{instance_id}/drain | Drain Service Instance
 *OperationsApi* | [**get_admission_diagnostics_api_v1_admissions_diagnostics_get**](docs/OperationsApi.md#get_admission_diagnostics_api_v1_admissions_diagnostics_get) | **GET** /api/v1/admissions/diagnostics | Get Admission Diagnostics
 *OperationsApi* | [**get_reconciliation_api_v1_reconciliations_run_id_get**](docs/OperationsApi.md#get_reconciliation_api_v1_reconciliations_run_id_get) | **GET** /api/v1/reconciliations/{run_id} | Get Reconciliation
 *OperationsApi* | [**get_service_topology_api_v1_operations_topology_get**](docs/OperationsApi.md#get_service_topology_api_v1_operations_topology_get) | **GET** /api/v1/operations/topology | Get Service Topology
+*OperationsApi* | [**list_announcements_api_v1_announcements_get**](docs/OperationsApi.md#list_announcements_api_v1_announcements_get) | **GET** /api/v1/announcements | List Announcements
+*OperationsApi* | [**list_operational_control_events_api_v1_operational_control_events_get**](docs/OperationsApi.md#list_operational_control_events_api_v1_operational_control_events_get) | **GET** /api/v1/operational-control-events | List Operational Control Events
+*OperationsApi* | [**list_operational_controls_api_v1_operational_controls_get**](docs/OperationsApi.md#list_operational_controls_api_v1_operational_controls_get) | **GET** /api/v1/operational-controls | List Operational Controls
 *OperationsApi* | [**list_reconciliations_api_v1_reconciliations_get**](docs/OperationsApi.md#list_reconciliations_api_v1_reconciliations_get) | **GET** /api/v1/reconciliations | List Reconciliations
+*OperationsApi* | [**publish_announcement_api_v1_announcements_post**](docs/OperationsApi.md#publish_announcement_api_v1_announcements_post) | **POST** /api/v1/announcements | Publish Announcement
 *OperationsApi* | [**reconcile_admissions_api_v1_admissions_reconcile_post**](docs/OperationsApi.md#reconcile_admissions_api_v1_admissions_reconcile_post) | **POST** /api/v1/admissions/reconcile | Reconcile Admissions
 *OperationsApi* | [**run_reconciliation_api_v1_reconciliations_post**](docs/OperationsApi.md#run_reconciliation_api_v1_reconciliations_post) | **POST** /api/v1/reconciliations | Run Reconciliation
 *PluginsApi* | [**create_plugin_policy_rule_api_v1_plugin_policy_rules_post**](docs/PluginsApi.md#create_plugin_policy_rule_api_v1_plugin_policy_rules_post) | **POST** /api/v1/plugin-policy/rules | Create Plugin Policy Rule
@@ -319,6 +326,10 @@ Class | Method | HTTP request | Description
  - [AdmissionOutcome](docs/AdmissionOutcome.md)
  - [AdmissionResourceType](docs/AdmissionResourceType.md)
  - [AdmissionScope](docs/AdmissionScope.md)
+ - [Announcement](docs/Announcement.md)
+ - [AnnouncementAudience](docs/AnnouncementAudience.md)
+ - [AnnouncementCreateRequest](docs/AnnouncementCreateRequest.md)
+ - [AnnouncementSeverity](docs/AnnouncementSeverity.md)
  - [AppForm](docs/AppForm.md)
  - [AssetAccessMode](docs/AssetAccessMode.md)
  - [AssetCatalogEntry](docs/AssetCatalogEntry.md)
@@ -481,6 +492,16 @@ Class | Method | HTTP request | Description
  - [NamespaceWorkflowMetadata](docs/NamespaceWorkflowMetadata.md)
  - [NamespaceWorkflowMetadataUpdate](docs/NamespaceWorkflowMetadataUpdate.md)
  - [NamespaceWorkflowMetadataView](docs/NamespaceWorkflowMetadataView.md)
+ - [OperationalBoundary](docs/OperationalBoundary.md)
+ - [OperationalControl](docs/OperationalControl.md)
+ - [OperationalControlAcknowledgement](docs/OperationalControlAcknowledgement.md)
+ - [OperationalControlActionKind](docs/OperationalControlActionKind.md)
+ - [OperationalControlActionRequest](docs/OperationalControlActionRequest.md)
+ - [OperationalControlCreateRequest](docs/OperationalControlCreateRequest.md)
+ - [OperationalControlEvent](docs/OperationalControlEvent.md)
+ - [OperationalControlKind](docs/OperationalControlKind.md)
+ - [OperationalControlScope](docs/OperationalControlScope.md)
+ - [OperationalControlState](docs/OperationalControlState.md)
  - [Permission](docs/Permission.md)
  - [PermissionAction](docs/PermissionAction.md)
  - [PermissionEffect](docs/PermissionEffect.md)
@@ -567,6 +588,7 @@ Class | Method | HTTP request | Description
  - [RunnerId](docs/RunnerId.md)
  - [RunnerMode](docs/RunnerMode.md)
  - [RunnerNetworkAccess](docs/RunnerNetworkAccess.md)
+ - [RunningWorkPolicy](docs/RunningWorkPolicy.md)
  - [SchedulePreview](docs/SchedulePreview.md)
  - [ScimGroupRequest](docs/ScimGroupRequest.md)
  - [ScimGroupResource](docs/ScimGroupResource.md)
