@@ -91,6 +91,7 @@ from pathlib import Path
 
 from amesh.plugin_sdk import (
     PluginArtifact,
+    PluginAsset,
     PluginLog,
     PluginManifest,
     PluginMetric,
@@ -129,6 +130,13 @@ async def execute(request, capabilities):
         ),
         metrics=(PluginMetric(name="fixture.count", kind="counter", value=1),),
         artifacts=(PluginArtifact(uri="s3://amesh/fixture.txt", sizeBytes=7),),
+        assets=((PluginAsset(
+            provider="pg",
+            assetType="table",
+            externalKey="orders",
+            displayName="Orders",
+            accessMode="READ",
+        ),) if request.configuration["message"] == "hello" else ()),
     )
 
 asyncio.run(serve_stdio_plugin(MANIFEST, {{("main", PluginOperation.EXECUTE): execute}}))
@@ -255,6 +263,8 @@ def test_isolated_process_negotiates_capabilities_and_records_evidence(tmp_path:
         assert completion.logs[0].message == "isolated fixture executed"
         assert completion.metrics[0].name == "fixture.count"
         assert completion.artifacts[0].uri == "s3://amesh/fixture.txt"
+        assert completion.assets[0].external_key == "orders"
+        assert completion.assets[0].access_mode.value == "READ"
         status = runtime.snapshot().plugins[0]
         assert status.state is IsolatedPluginState.READY
         assert status.starts == 1

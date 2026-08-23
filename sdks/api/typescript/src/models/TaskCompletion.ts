@@ -34,6 +34,13 @@ import {
     TaskMetricRecordToJSON,
     TaskMetricRecordToJSONTyped,
 } from './TaskMetricRecord';
+import type { TaskAssetRecord } from './TaskAssetRecord';
+import {
+    TaskAssetRecordFromJSON,
+    TaskAssetRecordFromJSONTyped,
+    TaskAssetRecordToJSON,
+    TaskAssetRecordToJSONTyped,
+} from './TaskAssetRecord';
 import type { TaskLogRecord } from './TaskLogRecord';
 import {
     TaskLogRecordFromJSON,
@@ -54,6 +61,12 @@ export interface TaskCompletion {
      * @memberof TaskCompletion
      */
     artifacts?: Array<TaskArtifactRecord>;
+    /**
+     *
+     * @type {Array<TaskAssetRecord>}
+     * @memberof TaskCompletion
+     */
+    assets?: Array<TaskAssetRecord>;
     /**
      *
      * @type {TaskExitMetadata}
@@ -104,6 +117,7 @@ export function TaskCompletionFromJSONTyped(json: any, ignoreDiscriminator: bool
     return {
 
         'artifacts': json['artifacts'] == null ? undefined : ((json['artifacts'] as Array<any>).map(TaskArtifactRecordFromJSON)),
+        'assets': json['assets'] == null ? undefined : ((json['assets'] as Array<any>).map(TaskAssetRecordFromJSON)),
         'exit': json['exit'] == null ? undefined : TaskExitMetadataFromJSON(json['exit']),
         'logs': json['logs'] == null ? undefined : ((json['logs'] as Array<any>).map(TaskLogRecordFromJSON)),
         'metrics': json['metrics'] == null ? undefined : ((json['metrics'] as Array<any>).map(TaskMetricRecordFromJSON)),
@@ -124,6 +138,7 @@ export function TaskCompletionToJSONTyped(value?: TaskCompletion | null, ignoreD
     return {
 
         'artifacts': value['artifacts'] == null ? undefined : ((value['artifacts'] as Array<any>).map(TaskArtifactRecordToJSON)),
+        'assets': value['assets'] == null ? undefined : ((value['assets'] as Array<any>).map(TaskAssetRecordToJSON)),
         'exit': TaskExitMetadataToJSON(value['exit']),
         'logs': value['logs'] == null ? undefined : ((value['logs'] as Array<any>).map(TaskLogRecordToJSON)),
         'metrics': value['metrics'] == null ? undefined : ((value['metrics'] as Array<any>).map(TaskMetricRecordToJSON)),

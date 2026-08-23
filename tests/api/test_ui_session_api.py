@@ -70,6 +70,8 @@ def test_ui_session_returns_server_authoritative_capabilities_and_privacy_policy
         assert payload["telemetryEnabled"] is False
         assert payload["capabilities"] == {
             "administration.manage": False,
+            "assets.manage": False,
+            "assets.view": False,
             "checks.manage": False,
             "checks.view": False,
             "executions.execute": False,

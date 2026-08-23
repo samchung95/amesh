@@ -34,7 +34,7 @@ class DashboardQueryResult(BaseModel):
     limit: Annotated[int, Field(strict=True, ge=1)]
     partial: StrictBool
     redacted: Optional[StrictBool] = False
-    rows: List[Dict[str, Any]]
+    rows: List[Optional[Dict[str, Any]]]
     sampled: StrictBool
     scanned_rows: Annotated[int, Field(strict=True, ge=0)] = Field(alias="scannedRows")
     additional_properties: Dict[str, Any] = {}

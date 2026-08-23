@@ -342,6 +342,13 @@ from amesh.plugins import (
     build_trusted_runtime,
 )
 from amesh.ports import (
+    AssetCatalogEntry,
+    AssetCatalogExport,
+    AssetLineageDeclaration,
+    AssetLineageEdge,
+    AssetMetadata,
+    AssetObservation,
+    AssetObservationCreate,
     CheckComplianceSummary,
     CheckEvaluation,
     CheckOutcome,
@@ -354,7 +361,9 @@ from amesh.ports import (
     ExecutionStateConflictError,
     FeatureFlagVersionConflict,
     LastAdministratorError,
+    MetadataVersionConflict,
     NamespaceCheckPolicy,
+    PersistedAsset,
     PersistedExecution,
     PersistedFlow,
     PersistedIterationSummary,
@@ -1556,6 +1565,8 @@ async def get_ui_session(
     namespace: str | None = None,
 ) -> UiSessionResponse:
     requested_capabilities = {
+        "assets.view": ("asset", PermissionAction.VIEW),
+        "assets.manage": ("asset", PermissionAction.UPDATE),
         "flows.view": ("flow", PermissionAction.VIEW),
         "flows.create": ("flow", PermissionAction.CREATE),
         "flows.update": ("flow", PermissionAction.UPDATE),
@@ -1609,6 +1620,256 @@ async def get_ui_session(
         capabilities=capabilities,
         telemetryEnabled=settings.product_telemetry_enabled,
         serverVersion=__version__,
+    )
+
+
+async def _asset_visible(
+    asset: PersistedAsset,
+    *,
+    actor: ActorContext,
+    authorization_service: AuthorizationService,
+    tenant_id: str,
+) -> bool:
+    decision = await authorization_service.decide(
+        AuthorizationRequest(
+            actor=actor,
+            tenant_id=tenant_id,
+            namespace=asset.namespace,
+            resource_type="asset",
+            action=PermissionAction.VIEW,
+        )
+    )
+    return decision.allowed
+
+
+@app.get(
+    "/api/v1/assets/export/openlineage",
+    response_model=AssetCatalogExport,
+    response_model_by_alias=True,
+    tags=["assets"],
+)
+async def export_asset_catalog(
+    metadata: MetadataRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    namespace: Annotated[str | None, Query(max_length=255)] = None,
+) -> AssetCatalogExport:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="asset",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    return await metadata.export_asset_catalog(tenant_id=tenant_id, namespace=namespace)
+
+
+@app.get(
+    "/api/v1/assets",
+    response_model=tuple[PersistedAsset, ...],
+    response_model_by_alias=True,
+    tags=["assets"],
+)
+async def list_assets(
+    metadata: MetadataRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    namespace: Annotated[str | None, Query(max_length=255)] = None,
+) -> tuple[PersistedAsset, ...]:
+    if namespace is not None:
+        await authorize_request(
+            authorization_service,
+            actor,
+            resource_type="asset",
+            action=PermissionAction.VIEW,
+            tenant_id=tenant_id,
+            namespace=namespace,
+        )
+    assets = tuple(
+        asset
+        for asset in await metadata.list_assets(tenant_id=tenant_id)
+        if namespace is None or asset.namespace == namespace
+    )
+    visible = await asyncio.gather(
+        *(
+            _asset_visible(
+                asset,
+                actor=actor,
+                authorization_service=authorization_service,
+                tenant_id=tenant_id,
+            )
+            for asset in assets
+        )
+    )
+    if namespace is None and not assets:
+        await authorize_request(
+            authorization_service,
+            actor,
+            resource_type="asset",
+            action=PermissionAction.VIEW,
+            tenant_id=tenant_id,
+        )
+    return tuple(asset for asset, allowed in zip(assets, visible, strict=True) if allowed)
+
+
+@app.post(
+    "/api/v1/assets",
+    response_model=PersistedAsset,
+    response_model_by_alias=True,
+    status_code=status.HTTP_201_CREATED,
+    tags=["assets"],
+)
+async def register_asset(
+    payload: AssetMetadata,
+    metadata: MetadataRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    expected_version: Annotated[int | None, Query(alias="expectedVersion", ge=1)] = None,
+) -> PersistedAsset:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="asset",
+        action=PermissionAction.UPDATE,
+        tenant_id=tenant_id,
+        namespace=payload.namespace,
+    )
+    try:
+        return await metadata.upsert_asset(
+            payload,
+            tenant_id=tenant_id,
+            actor_id=str(actor.principal_id),
+            expected_version=expected_version,
+        )
+    except MetadataVersionConflict as exc:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
+
+
+@app.post(
+    "/api/v1/assets/observations",
+    response_model=AssetObservation,
+    response_model_by_alias=True,
+    status_code=status.HTTP_201_CREATED,
+    tags=["assets"],
+)
+async def record_asset_observation(
+    payload: AssetObservationCreate,
+    metadata: MetadataRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> AssetObservation:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="asset",
+        action=PermissionAction.UPDATE,
+        tenant_id=tenant_id,
+        namespace=payload.asset.namespace,
+    )
+    return await metadata.record_asset_observation(
+        payload,
+        tenant_id=tenant_id,
+        actor_id=str(actor.principal_id),
+    )
+
+
+@app.post(
+    "/api/v1/assets/lineage",
+    response_model=AssetLineageEdge,
+    response_model_by_alias=True,
+    status_code=status.HTTP_201_CREATED,
+    tags=["assets"],
+)
+async def declare_asset_lineage(
+    payload: AssetLineageDeclaration,
+    metadata: MetadataRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> AssetLineageEdge:
+    try:
+        upstream = await metadata.get_asset(payload.upstream_asset_id, tenant_id=tenant_id)
+        downstream = await metadata.get_asset(payload.downstream_asset_id, tenant_id=tenant_id)
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="asset unavailable") from exc
+    for asset in (upstream, downstream):
+        await authorize_request(
+            authorization_service,
+            actor,
+            resource_type="asset",
+            action=PermissionAction.UPDATE,
+            tenant_id=tenant_id,
+            namespace=asset.namespace,
+        )
+    return await metadata.declare_asset_lineage(
+        payload,
+        tenant_id=tenant_id,
+        namespace=downstream.namespace,
+        actor_id=str(actor.principal_id),
+    )
+
+
+@app.get(
+    "/api/v1/assets/{asset_id}",
+    response_model=AssetCatalogEntry,
+    response_model_by_alias=True,
+    tags=["assets"],
+)
+async def get_asset_catalog_entry(
+    asset_id: UUID,
+    metadata: MetadataRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> AssetCatalogEntry:
+    try:
+        entry = await metadata.get_asset_catalog_entry(asset_id, tenant_id=tenant_id)
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="asset unavailable") from exc
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="asset",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+        namespace=entry.asset.namespace,
+    )
+    neighbors = entry.upstream + entry.downstream
+    visibility = await asyncio.gather(
+        *(
+            _asset_visible(
+                asset,
+                actor=actor,
+                authorization_service=authorization_service,
+                tenant_id=tenant_id,
+            )
+            for asset in neighbors
+        )
+    )
+    visible_ids = {
+        asset.asset_id
+        for asset, allowed in zip(neighbors, visibility, strict=True)
+        if allowed
+    }
+    visible_ids.add(entry.asset.asset_id)
+    return entry.model_copy(
+        update={
+            "upstream": tuple(item for item in entry.upstream if item.asset_id in visible_ids),
+            "downstream": tuple(
+                item for item in entry.downstream if item.asset_id in visible_ids
+            ),
+            "edges": tuple(
+                edge
+                for edge in entry.edges
+                if edge.upstream_asset_id in visible_ids
+                and edge.downstream_asset_id in visible_ids
+            ),
+        }
     )
 
 

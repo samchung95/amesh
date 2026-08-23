@@ -7,7 +7,7 @@ from urllib.parse import urlsplit
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from amesh.ports import LogLevel, LogSourceStream, MetricKind
+from amesh.ports import AssetAccessMode, LogLevel, LogSourceStream, MetricKind
 
 
 class TaskLogRecord(BaseModel):
@@ -61,6 +61,25 @@ class TaskArtifactRecord(BaseModel):
         return value
 
 
+class TaskAssetRecord(BaseModel):
+    model_config = ConfigDict(frozen=True, populate_by_name=True)
+
+    provider: str = Field(min_length=1, max_length=128)
+    account: str = Field(default="default", min_length=1, max_length=255)
+    location: str = Field(default="global", min_length=1, max_length=512)
+    asset_type: str = Field(alias="assetType", min_length=1, max_length=128)
+    external_key: str = Field(alias="externalKey", min_length=1, max_length=1024)
+    display_name: str = Field(alias="displayName", min_length=1, max_length=512)
+    access_mode: AssetAccessMode = Field(alias="accessMode")
+    description: str = Field(default="", max_length=4096)
+    owner: str | None = Field(default=None, max_length=255)
+    contacts: tuple[str, ...] = ()
+    domain_group: str | None = Field(default=None, alias="domainGroup", max_length=255)
+    tags: tuple[str, ...] = ()
+    custom_metadata: dict[str, Any] = Field(default_factory=dict, alias="customMetadata")
+    artifact_uri: str | None = Field(default=None, alias="artifactUri", max_length=4096)
+
+
 class TaskExitMetadata(BaseModel):
     model_config = ConfigDict(frozen=True, populate_by_name=True)
 
@@ -78,6 +97,7 @@ class TaskCompletion(BaseModel):
     logs: tuple[TaskLogRecord, ...] = ()
     metrics: tuple[TaskMetricRecord, ...] = ()
     artifacts: tuple[TaskArtifactRecord, ...] = ()
+    assets: tuple[TaskAssetRecord, ...] = Field(default=(), max_length=1000)
     exit: TaskExitMetadata = Field(default_factory=TaskExitMetadata)
 
 

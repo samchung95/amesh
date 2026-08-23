@@ -119,6 +119,18 @@ Class | Method | HTTP request | Description
 *AdministrationApi* | [**listAdministrationControlsApiV1AdminControlsGetWithHttpInfo**](docs/AdministrationApi.md#listAdministrationControlsApiV1AdminControlsGetWithHttpInfo) | **GET** /api/v1/admin/controls | List Administration Controls
 *AdministrationApi* | [**previewAdministrationControlApiV1AdminControlsPreviewPost**](docs/AdministrationApi.md#previewAdministrationControlApiV1AdminControlsPreviewPost) | **POST** /api/v1/admin/controls/preview | Preview Administration Control
 *AdministrationApi* | [**previewAdministrationControlApiV1AdminControlsPreviewPostWithHttpInfo**](docs/AdministrationApi.md#previewAdministrationControlApiV1AdminControlsPreviewPostWithHttpInfo) | **POST** /api/v1/admin/controls/preview | Preview Administration Control
+*AssetsApi* | [**declareAssetLineageApiV1AssetsLineagePost**](docs/AssetsApi.md#declareAssetLineageApiV1AssetsLineagePost) | **POST** /api/v1/assets/lineage | Declare Asset Lineage
+*AssetsApi* | [**declareAssetLineageApiV1AssetsLineagePostWithHttpInfo**](docs/AssetsApi.md#declareAssetLineageApiV1AssetsLineagePostWithHttpInfo) | **POST** /api/v1/assets/lineage | Declare Asset Lineage
+*AssetsApi* | [**exportAssetCatalogApiV1AssetsExportOpenlineageGet**](docs/AssetsApi.md#exportAssetCatalogApiV1AssetsExportOpenlineageGet) | **GET** /api/v1/assets/export/openlineage | Export Asset Catalog
+*AssetsApi* | [**exportAssetCatalogApiV1AssetsExportOpenlineageGetWithHttpInfo**](docs/AssetsApi.md#exportAssetCatalogApiV1AssetsExportOpenlineageGetWithHttpInfo) | **GET** /api/v1/assets/export/openlineage | Export Asset Catalog
+*AssetsApi* | [**getAssetCatalogEntryApiV1AssetsAssetIdGet**](docs/AssetsApi.md#getAssetCatalogEntryApiV1AssetsAssetIdGet) | **GET** /api/v1/assets/{asset_id} | Get Asset Catalog Entry
+*AssetsApi* | [**getAssetCatalogEntryApiV1AssetsAssetIdGetWithHttpInfo**](docs/AssetsApi.md#getAssetCatalogEntryApiV1AssetsAssetIdGetWithHttpInfo) | **GET** /api/v1/assets/{asset_id} | Get Asset Catalog Entry
+*AssetsApi* | [**listAssetsApiV1AssetsGet**](docs/AssetsApi.md#listAssetsApiV1AssetsGet) | **GET** /api/v1/assets | List Assets
+*AssetsApi* | [**listAssetsApiV1AssetsGetWithHttpInfo**](docs/AssetsApi.md#listAssetsApiV1AssetsGetWithHttpInfo) | **GET** /api/v1/assets | List Assets
+*AssetsApi* | [**recordAssetObservationApiV1AssetsObservationsPost**](docs/AssetsApi.md#recordAssetObservationApiV1AssetsObservationsPost) | **POST** /api/v1/assets/observations | Record Asset Observation
+*AssetsApi* | [**recordAssetObservationApiV1AssetsObservationsPostWithHttpInfo**](docs/AssetsApi.md#recordAssetObservationApiV1AssetsObservationsPostWithHttpInfo) | **POST** /api/v1/assets/observations | Record Asset Observation
+*AssetsApi* | [**registerAssetApiV1AssetsPost**](docs/AssetsApi.md#registerAssetApiV1AssetsPost) | **POST** /api/v1/assets | Register Asset
+*AssetsApi* | [**registerAssetApiV1AssetsPostWithHttpInfo**](docs/AssetsApi.md#registerAssetApiV1AssetsPostWithHttpInfo) | **POST** /api/v1/assets | Register Asset
 *AuditApi* | [**createAuditLegalHoldApiV1AuditLegalHoldsPost**](docs/AuditApi.md#createAuditLegalHoldApiV1AuditLegalHoldsPost) | **POST** /api/v1/audit-legal-holds | Create Audit Legal Hold
 *AuditApi* | [**createAuditLegalHoldApiV1AuditLegalHoldsPostWithHttpInfo**](docs/AuditApi.md#createAuditLegalHoldApiV1AuditLegalHoldsPostWithHttpInfo) | **POST** /api/v1/audit-legal-holds | Create Audit Legal Hold
 *AuditApi* | [**createComplianceEvidenceApiV1ComplianceEvidencePost**](docs/AuditApi.md#createComplianceEvidenceApiV1ComplianceEvidencePost) | **POST** /api/v1/compliance-evidence | Create Compliance Evidence
@@ -529,6 +541,16 @@ Class | Method | HTTP request | Description
  - [AdmissionOutcome](docs/AdmissionOutcome.md)
  - [AdmissionResourceType](docs/AdmissionResourceType.md)
  - [AdmissionScope](docs/AdmissionScope.md)
+ - [AssetAccessMode](docs/AssetAccessMode.md)
+ - [AssetCatalogEntry](docs/AssetCatalogEntry.md)
+ - [AssetCatalogExport](docs/AssetCatalogExport.md)
+ - [AssetHealth](docs/AssetHealth.md)
+ - [AssetLineageDeclaration](docs/AssetLineageDeclaration.md)
+ - [AssetLineageEdge](docs/AssetLineageEdge.md)
+ - [AssetMetadata](docs/AssetMetadata.md)
+ - [AssetObservation](docs/AssetObservation.md)
+ - [AssetObservationCreate](docs/AssetObservationCreate.md)
+ - [AssetRegistrationSource](docs/AssetRegistrationSource.md)
  - [AuditArtifactKind](docs/AuditArtifactKind.md)
  - [AuditEvent](docs/AuditEvent.md)
  - [AuditEventPage](docs/AuditEventPage.md)
@@ -653,6 +675,7 @@ Class | Method | HTTP request | Description
  - [KeyValueType](docs/KeyValueType.md)
  - [KeyValueWrite](docs/KeyValueWrite.md)
  - [LabelNormalization](docs/LabelNormalization.md)
+ - [LineageEvidenceKind](docs/LineageEvidenceKind.md)
  - [LocationInner](docs/LocationInner.md)
  - [LogLevel](docs/LogLevel.md)
  - [LogSourceStream](docs/LogSourceStream.md)
@@ -674,6 +697,7 @@ Class | Method | HTTP request | Description
  - [Permission](docs/Permission.md)
  - [PermissionAction](docs/PermissionAction.md)
  - [PermissionEffect](docs/PermissionEffect.md)
+ - [PersistedAsset](docs/PersistedAsset.md)
  - [PersistedExecution](docs/PersistedExecution.md)
  - [PersistedFlow](docs/PersistedFlow.md)
  - [PersistedSubflow](docs/PersistedSubflow.md)
@@ -794,6 +818,7 @@ Class | Method | HTTP request | Description
  - [SubflowMode](docs/SubflowMode.md)
  - [SubflowPropagation](docs/SubflowPropagation.md)
  - [TaskArtifactRecord](docs/TaskArtifactRecord.md)
+ - [TaskAssetRecord](docs/TaskAssetRecord.md)
  - [TaskCacheEntry](docs/TaskCacheEntry.md)
  - [TaskCacheMode](docs/TaskCacheMode.md)
  - [TaskCachePurgeRequest](docs/TaskCachePurgeRequest.md)

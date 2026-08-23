@@ -469,6 +469,657 @@
         "title": "AdmissionScope",
         "type": "string"
       },
+      "AssetAccessMode": {
+        "enum": [
+          "READ",
+          "WRITE"
+        ],
+        "title": "AssetAccessMode",
+        "type": "string"
+      },
+      "AssetCatalogEntry": {
+        "properties": {
+          "asset": {
+            "$ref": "#/components/schemas/PersistedAsset"
+          },
+          "downstream": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/PersistedAsset"
+            },
+            "title": "Downstream",
+            "type": "array"
+          },
+          "edges": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/AssetLineageEdge"
+            },
+            "title": "Edges",
+            "type": "array"
+          },
+          "observations": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/AssetObservation"
+            },
+            "title": "Observations",
+            "type": "array"
+          },
+          "upstream": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/PersistedAsset"
+            },
+            "title": "Upstream",
+            "type": "array"
+          }
+        },
+        "required": [
+          "asset"
+        ],
+        "title": "AssetCatalogEntry",
+        "type": "object"
+      },
+      "AssetCatalogExport": {
+        "properties": {
+          "events": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Events",
+            "type": "array"
+          },
+          "format": {
+            "default": "openlineage",
+            "title": "Format",
+            "type": "string"
+          },
+          "generatedAt": {
+            "format": "date-time",
+            "title": "Generatedat",
+            "type": "string"
+          },
+          "producer": {
+            "title": "Producer",
+            "type": "string"
+          }
+        },
+        "required": [
+          "generatedAt",
+          "producer",
+          "events"
+        ],
+        "title": "AssetCatalogExport",
+        "type": "object"
+      },
+      "AssetHealth": {
+        "enum": [
+          "UNKNOWN",
+          "HEALTHY",
+          "DEGRADED",
+          "FAILED"
+        ],
+        "title": "AssetHealth",
+        "type": "string"
+      },
+      "AssetLineageDeclaration": {
+        "properties": {
+          "artifactId": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Artifactid"
+          },
+          "confidence": {
+            "default": 1.0,
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Confidence",
+            "type": "number"
+          },
+          "downstreamAssetId": {
+            "format": "uuid",
+            "title": "Downstreamassetid",
+            "type": "string"
+          },
+          "evidenceKind": {
+            "$ref": "#/components/schemas/LineageEvidenceKind",
+            "default": "DECLARED"
+          },
+          "executionId": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Executionid"
+          },
+          "flowId": {
+            "anyOf": [
+              {
+                "maxLength": 255,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Flowid"
+          },
+          "metadata": {
+            "additionalProperties": true,
+            "title": "Metadata",
+            "type": "object"
+          },
+          "observedAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Observedat"
+          },
+          "taskRunId": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Taskrunid"
+          },
+          "upstreamAssetId": {
+            "format": "uuid",
+            "title": "Upstreamassetid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "upstreamAssetId",
+          "downstreamAssetId"
+        ],
+        "title": "AssetLineageDeclaration",
+        "type": "object"
+      },
+      "AssetLineageEdge": {
+        "properties": {
+          "artifactId": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Artifactid"
+          },
+          "confidence": {
+            "default": 1.0,
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Confidence",
+            "type": "number"
+          },
+          "createdBy": {
+            "title": "Createdby",
+            "type": "string"
+          },
+          "downstreamAssetId": {
+            "format": "uuid",
+            "title": "Downstreamassetid",
+            "type": "string"
+          },
+          "edgeId": {
+            "format": "uuid",
+            "title": "Edgeid",
+            "type": "string"
+          },
+          "evidenceKind": {
+            "$ref": "#/components/schemas/LineageEvidenceKind",
+            "default": "DECLARED"
+          },
+          "executionId": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Executionid"
+          },
+          "flowId": {
+            "anyOf": [
+              {
+                "maxLength": 255,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Flowid"
+          },
+          "metadata": {
+            "additionalProperties": true,
+            "title": "Metadata",
+            "type": "object"
+          },
+          "namespace": {
+            "title": "Namespace",
+            "type": "string"
+          },
+          "observedAt": {
+            "format": "date-time",
+            "title": "Observedat",
+            "type": "string"
+          },
+          "taskRunId": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Taskrunid"
+          },
+          "tenantId": {
+            "title": "Tenantid",
+            "type": "string"
+          },
+          "upstreamAssetId": {
+            "format": "uuid",
+            "title": "Upstreamassetid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "upstreamAssetId",
+          "downstreamAssetId",
+          "observedAt",
+          "edgeId",
+          "tenantId",
+          "namespace",
+          "createdBy"
+        ],
+        "title": "AssetLineageEdge",
+        "type": "object"
+      },
+      "AssetMetadata": {
+        "properties": {
+          "account": {
+            "default": "default",
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Account",
+            "type": "string"
+          },
+          "assetId": {
+            "format": "uuid",
+            "title": "Assetid",
+            "type": "string"
+          },
+          "assetType": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Assettype",
+            "type": "string"
+          },
+          "contacts": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Contacts",
+            "type": "array"
+          },
+          "customMetadata": {
+            "additionalProperties": true,
+            "title": "Custommetadata",
+            "type": "object"
+          },
+          "description": {
+            "default": "",
+            "maxLength": 4096,
+            "title": "Description",
+            "type": "string"
+          },
+          "displayName": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Displayname",
+            "type": "string"
+          },
+          "domainGroup": {
+            "anyOf": [
+              {
+                "maxLength": 255,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Domaingroup"
+          },
+          "externalKey": {
+            "maxLength": 1024,
+            "minLength": 1,
+            "title": "Externalkey",
+            "type": "string"
+          },
+          "health": {
+            "$ref": "#/components/schemas/AssetHealth",
+            "default": "UNKNOWN"
+          },
+          "labels": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Labels",
+            "type": "object"
+          },
+          "lastMaterializationAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lastmaterializationat"
+          },
+          "location": {
+            "default": "global",
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Location",
+            "type": "string"
+          },
+          "namespace": {
+            "default": "default",
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Namespace",
+            "type": "string"
+          },
+          "owner": {
+            "anyOf": [
+              {
+                "maxLength": 255,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Owner"
+          },
+          "provider": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Provider",
+            "type": "string"
+          },
+          "source": {
+            "$ref": "#/components/schemas/AssetRegistrationSource",
+            "default": "DECLARED"
+          },
+          "tags": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Tags",
+            "type": "array"
+          }
+        },
+        "required": [
+          "assetId",
+          "provider",
+          "externalKey",
+          "assetType",
+          "displayName"
+        ],
+        "title": "AssetMetadata",
+        "type": "object"
+      },
+      "AssetObservation": {
+        "properties": {
+          "accessMode": {
+            "$ref": "#/components/schemas/AssetAccessMode"
+          },
+          "artifactId": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Artifactid"
+          },
+          "assetId": {
+            "format": "uuid",
+            "title": "Assetid",
+            "type": "string"
+          },
+          "confidence": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Confidence",
+            "type": "number"
+          },
+          "createdBy": {
+            "title": "Createdby",
+            "type": "string"
+          },
+          "evidenceKind": {
+            "$ref": "#/components/schemas/LineageEvidenceKind"
+          },
+          "executionId": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Executionid"
+          },
+          "flowId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Flowid"
+          },
+          "metadata": {
+            "additionalProperties": true,
+            "title": "Metadata",
+            "type": "object"
+          },
+          "namespace": {
+            "title": "Namespace",
+            "type": "string"
+          },
+          "observationId": {
+            "format": "uuid",
+            "title": "Observationid",
+            "type": "string"
+          },
+          "observedAt": {
+            "format": "date-time",
+            "title": "Observedat",
+            "type": "string"
+          },
+          "taskRunId": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Taskrunid"
+          },
+          "tenantId": {
+            "title": "Tenantid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "observationId",
+          "assetId",
+          "tenantId",
+          "namespace",
+          "accessMode",
+          "evidenceKind",
+          "confidence",
+          "observedAt",
+          "createdBy"
+        ],
+        "title": "AssetObservation",
+        "type": "object"
+      },
+      "AssetObservationCreate": {
+        "properties": {
+          "accessMode": {
+            "$ref": "#/components/schemas/AssetAccessMode"
+          },
+          "artifactId": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Artifactid"
+          },
+          "asset": {
+            "$ref": "#/components/schemas/AssetMetadata"
+          },
+          "confidence": {
+            "default": 1.0,
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Confidence",
+            "type": "number"
+          },
+          "evidenceKind": {
+            "$ref": "#/components/schemas/LineageEvidenceKind",
+            "default": "OBSERVED"
+          },
+          "executionId": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Executionid"
+          },
+          "flowId": {
+            "anyOf": [
+              {
+                "maxLength": 255,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Flowid"
+          },
+          "metadata": {
+            "additionalProperties": true,
+            "title": "Metadata",
+            "type": "object"
+          },
+          "observedAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Observedat"
+          },
+          "taskRunId": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Taskrunid"
+          }
+        },
+        "required": [
+          "asset",
+          "accessMode"
+        ],
+        "title": "AssetObservationCreate",
+        "type": "object"
+      },
+      "AssetRegistrationSource": {
+        "enum": [
+          "DECLARED",
+          "PLUGIN_EVENT"
+        ],
+        "title": "AssetRegistrationSource",
+        "type": "string"
+      },
       "AuditArtifactKind": {
         "enum": [
           "AUDIT",
@@ -5424,6 +6075,15 @@
         "title": "LabelNormalization",
         "type": "string"
       },
+      "LineageEvidenceKind": {
+        "enum": [
+          "DECLARED",
+          "OBSERVED",
+          "INFERRED"
+        ],
+        "title": "LineageEvidenceKind",
+        "type": "string"
+      },
       "LogLevel": {
         "enum": [
           "TRACE",
@@ -6046,6 +6706,180 @@
         ],
         "title": "PermissionEffect",
         "type": "string"
+      },
+      "PersistedAsset": {
+        "properties": {
+          "account": {
+            "default": "default",
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Account",
+            "type": "string"
+          },
+          "assetId": {
+            "format": "uuid",
+            "title": "Assetid",
+            "type": "string"
+          },
+          "assetType": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Assettype",
+            "type": "string"
+          },
+          "contacts": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Contacts",
+            "type": "array"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "title": "Createdat",
+            "type": "string"
+          },
+          "createdBy": {
+            "title": "Createdby",
+            "type": "string"
+          },
+          "customMetadata": {
+            "additionalProperties": true,
+            "title": "Custommetadata",
+            "type": "object"
+          },
+          "description": {
+            "default": "",
+            "maxLength": 4096,
+            "title": "Description",
+            "type": "string"
+          },
+          "displayName": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Displayname",
+            "type": "string"
+          },
+          "domainGroup": {
+            "anyOf": [
+              {
+                "maxLength": 255,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Domaingroup"
+          },
+          "externalKey": {
+            "maxLength": 1024,
+            "minLength": 1,
+            "title": "Externalkey",
+            "type": "string"
+          },
+          "health": {
+            "$ref": "#/components/schemas/AssetHealth",
+            "default": "UNKNOWN"
+          },
+          "labels": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Labels",
+            "type": "object"
+          },
+          "lastMaterializationAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lastmaterializationat"
+          },
+          "location": {
+            "default": "global",
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Location",
+            "type": "string"
+          },
+          "namespace": {
+            "default": "default",
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Namespace",
+            "type": "string"
+          },
+          "owner": {
+            "anyOf": [
+              {
+                "maxLength": 255,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Owner"
+          },
+          "provider": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Provider",
+            "type": "string"
+          },
+          "resourceVersion": {
+            "minimum": 1.0,
+            "title": "Resourceversion",
+            "type": "integer"
+          },
+          "source": {
+            "$ref": "#/components/schemas/AssetRegistrationSource",
+            "default": "DECLARED"
+          },
+          "tags": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Tags",
+            "type": "array"
+          },
+          "tenantId": {
+            "title": "Tenantid",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "title": "Updatedat",
+            "type": "string"
+          },
+          "updatedBy": {
+            "title": "Updatedby",
+            "type": "string"
+          }
+        },
+        "required": [
+          "assetId",
+          "provider",
+          "externalKey",
+          "assetType",
+          "displayName",
+          "tenantId",
+          "resourceVersion",
+          "createdBy",
+          "updatedBy",
+          "createdAt",
+          "updatedAt"
+        ],
+        "title": "PersistedAsset",
+        "type": "object"
       },
       "PersistedExecution": {
         "properties": {
@@ -10906,6 +11740,123 @@
         "title": "TaskArtifactRecord",
         "type": "object"
       },
+      "TaskAssetRecord": {
+        "properties": {
+          "accessMode": {
+            "$ref": "#/components/schemas/AssetAccessMode"
+          },
+          "account": {
+            "default": "default",
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Account",
+            "type": "string"
+          },
+          "artifactUri": {
+            "anyOf": [
+              {
+                "maxLength": 4096,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Artifacturi"
+          },
+          "assetType": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Assettype",
+            "type": "string"
+          },
+          "contacts": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Contacts",
+            "type": "array"
+          },
+          "customMetadata": {
+            "additionalProperties": true,
+            "title": "Custommetadata",
+            "type": "object"
+          },
+          "description": {
+            "default": "",
+            "maxLength": 4096,
+            "title": "Description",
+            "type": "string"
+          },
+          "displayName": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Displayname",
+            "type": "string"
+          },
+          "domainGroup": {
+            "anyOf": [
+              {
+                "maxLength": 255,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Domaingroup"
+          },
+          "externalKey": {
+            "maxLength": 1024,
+            "minLength": 1,
+            "title": "Externalkey",
+            "type": "string"
+          },
+          "location": {
+            "default": "global",
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Location",
+            "type": "string"
+          },
+          "owner": {
+            "anyOf": [
+              {
+                "maxLength": 255,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Owner"
+          },
+          "provider": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Provider",
+            "type": "string"
+          },
+          "tags": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Tags",
+            "type": "array"
+          }
+        },
+        "required": [
+          "provider",
+          "assetType",
+          "externalKey",
+          "displayName",
+          "accessMode"
+        ],
+        "title": "TaskAssetRecord",
+        "type": "object"
+      },
       "TaskCacheEntry": {
         "properties": {
           "cache_namespace": {
@@ -11160,6 +12111,15 @@
               "$ref": "#/components/schemas/TaskArtifactRecord"
             },
             "title": "Artifacts",
+            "type": "array"
+          },
+          "assets": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/TaskAssetRecord"
+            },
+            "maxItems": 1000,
+            "title": "Assets",
             "type": "array"
           },
           "exit": {
@@ -15785,6 +16745,585 @@
         "summary": "Reconcile Admissions",
         "tags": [
           "operations"
+        ]
+      }
+    },
+    "/api/v1/assets": {
+      "get": {
+        "operationId": "list_assets_api_v1_assets_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "namespace",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 255,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Namespace"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PersistedAsset"
+                  },
+                  "title": "Response List Assets Api V1 Assets Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Assets",
+        "tags": [
+          "assets"
+        ]
+      },
+      "post": {
+        "operationId": "register_asset_api_v1_assets_post",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "expectedVersion",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Expectedversion"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssetMetadata"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PersistedAsset"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Register Asset",
+        "tags": [
+          "assets"
+        ]
+      }
+    },
+    "/api/v1/assets/export/openlineage": {
+      "get": {
+        "operationId": "export_asset_catalog_api_v1_assets_export_openlineage_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "namespace",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 255,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Namespace"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssetCatalogExport"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Export Asset Catalog",
+        "tags": [
+          "assets"
+        ]
+      }
+    },
+    "/api/v1/assets/lineage": {
+      "post": {
+        "operationId": "declare_asset_lineage_api_v1_assets_lineage_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssetLineageDeclaration"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssetLineageEdge"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Declare Asset Lineage",
+        "tags": [
+          "assets"
+        ]
+      }
+    },
+    "/api/v1/assets/observations": {
+      "post": {
+        "operationId": "record_asset_observation_api_v1_assets_observations_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssetObservationCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssetObservation"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Record Asset Observation",
+        "tags": [
+          "assets"
+        ]
+      }
+    },
+    "/api/v1/assets/{asset_id}": {
+      "get": {
+        "operationId": "get_asset_catalog_entry_api_v1_assets__asset_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "asset_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Asset Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssetCatalogEntry"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Asset Catalog Entry",
+        "tags": [
+          "assets"
         ]
       }
     },

@@ -75,6 +75,12 @@ Class | Method | HTTP request | Description
 *AdministrationAPI* | [**ListAdministrationAuditApiV1AdminAuditGet**](docs/AdministrationAPI.md#listadministrationauditapiv1adminauditget) | **Get** /api/v1/admin/audit | List Administration Audit
 *AdministrationAPI* | [**ListAdministrationControlsApiV1AdminControlsGet**](docs/AdministrationAPI.md#listadministrationcontrolsapiv1admincontrolsget) | **Get** /api/v1/admin/controls | List Administration Controls
 *AdministrationAPI* | [**PreviewAdministrationControlApiV1AdminControlsPreviewPost**](docs/AdministrationAPI.md#previewadministrationcontrolapiv1admincontrolspreviewpost) | **Post** /api/v1/admin/controls/preview | Preview Administration Control
+*AssetsAPI* | [**DeclareAssetLineageApiV1AssetsLineagePost**](docs/AssetsAPI.md#declareassetlineageapiv1assetslineagepost) | **Post** /api/v1/assets/lineage | Declare Asset Lineage
+*AssetsAPI* | [**ExportAssetCatalogApiV1AssetsExportOpenlineageGet**](docs/AssetsAPI.md#exportassetcatalogapiv1assetsexportopenlineageget) | **Get** /api/v1/assets/export/openlineage | Export Asset Catalog
+*AssetsAPI* | [**GetAssetCatalogEntryApiV1AssetsAssetIdGet**](docs/AssetsAPI.md#getassetcatalogentryapiv1assetsassetidget) | **Get** /api/v1/assets/{asset_id} | Get Asset Catalog Entry
+*AssetsAPI* | [**ListAssetsApiV1AssetsGet**](docs/AssetsAPI.md#listassetsapiv1assetsget) | **Get** /api/v1/assets | List Assets
+*AssetsAPI* | [**RecordAssetObservationApiV1AssetsObservationsPost**](docs/AssetsAPI.md#recordassetobservationapiv1assetsobservationspost) | **Post** /api/v1/assets/observations | Record Asset Observation
+*AssetsAPI* | [**RegisterAssetApiV1AssetsPost**](docs/AssetsAPI.md#registerassetapiv1assetspost) | **Post** /api/v1/assets | Register Asset
 *AuditAPI* | [**CreateAuditLegalHoldApiV1AuditLegalHoldsPost**](docs/AuditAPI.md#createauditlegalholdapiv1auditlegalholdspost) | **Post** /api/v1/audit-legal-holds | Create Audit Legal Hold
 *AuditAPI* | [**CreateComplianceEvidenceApiV1ComplianceEvidencePost**](docs/AuditAPI.md#createcomplianceevidenceapiv1complianceevidencepost) | **Post** /api/v1/compliance-evidence | Create Compliance Evidence
 *AuditAPI* | [**CreateObjectAuditExportApiV1AuditExportsPost**](docs/AuditAPI.md#createobjectauditexportapiv1auditexportspost) | **Post** /api/v1/audit-exports | Create Object Audit Export
@@ -288,6 +294,16 @@ Class | Method | HTTP request | Description
  - [AdmissionOutcome](docs/AdmissionOutcome.md)
  - [AdmissionResourceType](docs/AdmissionResourceType.md)
  - [AdmissionScope](docs/AdmissionScope.md)
+ - [AssetAccessMode](docs/AssetAccessMode.md)
+ - [AssetCatalogEntry](docs/AssetCatalogEntry.md)
+ - [AssetCatalogExport](docs/AssetCatalogExport.md)
+ - [AssetHealth](docs/AssetHealth.md)
+ - [AssetLineageDeclaration](docs/AssetLineageDeclaration.md)
+ - [AssetLineageEdge](docs/AssetLineageEdge.md)
+ - [AssetMetadata](docs/AssetMetadata.md)
+ - [AssetObservation](docs/AssetObservation.md)
+ - [AssetObservationCreate](docs/AssetObservationCreate.md)
+ - [AssetRegistrationSource](docs/AssetRegistrationSource.md)
  - [AuditArtifactKind](docs/AuditArtifactKind.md)
  - [AuditEvent](docs/AuditEvent.md)
  - [AuditEventPage](docs/AuditEventPage.md)
@@ -412,6 +428,7 @@ Class | Method | HTTP request | Description
  - [KeyValueType](docs/KeyValueType.md)
  - [KeyValueWrite](docs/KeyValueWrite.md)
  - [LabelNormalization](docs/LabelNormalization.md)
+ - [LineageEvidenceKind](docs/LineageEvidenceKind.md)
  - [LocationInner](docs/LocationInner.md)
  - [LogLevel](docs/LogLevel.md)
  - [LogSourceStream](docs/LogSourceStream.md)
@@ -433,6 +450,7 @@ Class | Method | HTTP request | Description
  - [Permission](docs/Permission.md)
  - [PermissionAction](docs/PermissionAction.md)
  - [PermissionEffect](docs/PermissionEffect.md)
+ - [PersistedAsset](docs/PersistedAsset.md)
  - [PersistedExecution](docs/PersistedExecution.md)
  - [PersistedFlow](docs/PersistedFlow.md)
  - [PersistedSubflow](docs/PersistedSubflow.md)
@@ -553,6 +571,7 @@ Class | Method | HTTP request | Description
  - [SubflowMode](docs/SubflowMode.md)
  - [SubflowPropagation](docs/SubflowPropagation.md)
  - [TaskArtifactRecord](docs/TaskArtifactRecord.md)
+ - [TaskAssetRecord](docs/TaskAssetRecord.md)
  - [TaskCacheEntry](docs/TaskCacheEntry.md)
  - [TaskCacheMode](docs/TaskCacheMode.md)
  - [TaskCachePurgeRequest](docs/TaskCachePurgeRequest.md)

@@ -25,6 +25,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import io.amesh.client.model.TaskArtifactRecord;
+import io.amesh.client.model.TaskAssetRecord;
 import io.amesh.client.model.TaskExitMetadata;
 import io.amesh.client.model.TaskLogRecord;
 import io.amesh.client.model.TaskMetricRecord;
@@ -42,6 +43,7 @@ import io.amesh.client.ApiClient;
  */
 @JsonPropertyOrder({
   TaskCompletion.JSON_PROPERTY_ARTIFACTS,
+  TaskCompletion.JSON_PROPERTY_ASSETS,
   TaskCompletion.JSON_PROPERTY_EXIT,
   TaskCompletion.JSON_PROPERTY_LOGS,
   TaskCompletion.JSON_PROPERTY_METRICS,
@@ -53,6 +55,10 @@ public class TaskCompletion {
   public static final String JSON_PROPERTY_ARTIFACTS = "artifacts";
   @javax.annotation.Nullable
   private List<TaskArtifactRecord> artifacts = new ArrayList<>();
+
+  public static final String JSON_PROPERTY_ASSETS = "assets";
+  @javax.annotation.Nullable
+  private List<TaskAssetRecord> assets = new ArrayList<>();
 
   public static final String JSON_PROPERTY_EXIT = "exit";
   @javax.annotation.Nullable
@@ -106,6 +112,38 @@ public class TaskCompletion {
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
   public void setArtifacts(@javax.annotation.Nullable List<TaskArtifactRecord> artifacts) {
     this.artifacts = artifacts;
+  }
+
+
+  public TaskCompletion assets(@javax.annotation.Nullable List<TaskAssetRecord> assets) {
+    this.assets = assets;
+    return this;
+  }
+
+  public TaskCompletion addAssetsItem(TaskAssetRecord assetsItem) {
+    if (this.assets == null) {
+      this.assets = new ArrayList<>();
+    }
+    this.assets.add(assetsItem);
+    return this;
+  }
+
+  /**
+   * Get assets
+   * @return assets
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_ASSETS, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public List<TaskAssetRecord> getAssets() {
+    return assets;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_ASSETS, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setAssets(@javax.annotation.Nullable List<TaskAssetRecord> assets) {
+    this.assets = assets;
   }
 
 
@@ -274,6 +312,7 @@ public class TaskCompletion {
     }
     TaskCompletion taskCompletion = (TaskCompletion) o;
     return Objects.equals(this.artifacts, taskCompletion.artifacts) &&
+        Objects.equals(this.assets, taskCompletion.assets) &&
         Objects.equals(this.exit, taskCompletion.exit) &&
         Objects.equals(this.logs, taskCompletion.logs) &&
         Objects.equals(this.metrics, taskCompletion.metrics) &&
@@ -283,7 +322,7 @@ public class TaskCompletion {
 
   @Override
   public int hashCode() {
-    return Objects.hash(artifacts, exit, logs, metrics, output, sensitiveOutputKeys);
+    return Objects.hash(artifacts, assets, exit, logs, metrics, output, sensitiveOutputKeys);
   }
 
   @Override
@@ -291,6 +330,7 @@ public class TaskCompletion {
     StringBuilder sb = new StringBuilder();
     sb.append("class TaskCompletion {\n");
     sb.append("    artifacts: ").append(toIndentedString(artifacts)).append("\n");
+    sb.append("    assets: ").append(toIndentedString(assets)).append("\n");
     sb.append("    exit: ").append(toIndentedString(exit)).append("\n");
     sb.append("    logs: ").append(toIndentedString(logs)).append("\n");
     sb.append("    metrics: ").append(toIndentedString(metrics)).append("\n");
@@ -345,6 +385,16 @@ public class TaskCompletion {
       for (int i = 0; i < getArtifacts().size(); i++) {
         if (getArtifacts().get(i) != null) {
           joiner.add(getArtifacts().get(i).toUrlQueryString(String.format(java.util.Locale.ROOT, "%sartifacts%s%s", prefix, suffix,
+          "".equals(suffix) ? "" : String.format(java.util.Locale.ROOT, "%s%d%s", containerPrefix, i, containerSuffix))));
+        }
+      }
+    }
+
+    // add `assets` to the URL query string
+    if (getAssets() != null) {
+      for (int i = 0; i < getAssets().size(); i++) {
+        if (getAssets().get(i) != null) {
+          joiner.add(getAssets().get(i).toUrlQueryString(String.format(java.util.Locale.ROOT, "%sassets%s%s", prefix, suffix,
           "".equals(suffix) ? "" : String.format(java.util.Locale.ROOT, "%s%d%s", containerPrefix, i, containerSuffix))));
         }
       }

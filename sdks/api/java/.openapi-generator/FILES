@@ -7,6 +7,7 @@ api/openapi.yaml
 build.gradle
 build.sbt
 docs/AdministrationApi.md
+docs/AssetsApi.md
 docs/AuditApi.md
 docs/AuthenticationApi.md
 docs/AuthorizationApi.md
@@ -52,6 +53,7 @@ src/main/java/io/amesh/client/RFC3339JavaTimeModule.java
 src/main/java/io/amesh/client/ServerConfiguration.java
 src/main/java/io/amesh/client/ServerVariable.java
 src/main/java/io/amesh/client/api/AdministrationApi.java
+src/main/java/io/amesh/client/api/AssetsApi.java
 src/main/java/io/amesh/client/api/AuditApi.java
 src/main/java/io/amesh/client/api/AuthenticationApi.java
 src/main/java/io/amesh/client/api/AuthorizationApi.java
@@ -89,6 +91,16 @@ src/main/java/io/amesh/client/model/AdmissionDiagnostics.java
 src/main/java/io/amesh/client/model/AdmissionOutcome.java
 src/main/java/io/amesh/client/model/AdmissionResourceType.java
 src/main/java/io/amesh/client/model/AdmissionScope.java
+src/main/java/io/amesh/client/model/AssetAccessMode.java
+src/main/java/io/amesh/client/model/AssetCatalogEntry.java
+src/main/java/io/amesh/client/model/AssetCatalogExport.java
+src/main/java/io/amesh/client/model/AssetHealth.java
+src/main/java/io/amesh/client/model/AssetLineageDeclaration.java
+src/main/java/io/amesh/client/model/AssetLineageEdge.java
+src/main/java/io/amesh/client/model/AssetMetadata.java
+src/main/java/io/amesh/client/model/AssetObservation.java
+src/main/java/io/amesh/client/model/AssetObservationCreate.java
+src/main/java/io/amesh/client/model/AssetRegistrationSource.java
 src/main/java/io/amesh/client/model/AuditArtifactKind.java
 src/main/java/io/amesh/client/model/AuditEvent.java
 src/main/java/io/amesh/client/model/AuditEventPage.java
@@ -213,6 +225,7 @@ src/main/java/io/amesh/client/model/KeyValueExport.java
 src/main/java/io/amesh/client/model/KeyValueType.java
 src/main/java/io/amesh/client/model/KeyValueWrite.java
 src/main/java/io/amesh/client/model/LabelNormalization.java
+src/main/java/io/amesh/client/model/LineageEvidenceKind.java
 src/main/java/io/amesh/client/model/LocationInner.java
 src/main/java/io/amesh/client/model/LogLevel.java
 src/main/java/io/amesh/client/model/LogSourceStream.java
@@ -234,6 +247,7 @@ src/main/java/io/amesh/client/model/NamespaceWorkflowMetadataView.java
 src/main/java/io/amesh/client/model/Permission.java
 src/main/java/io/amesh/client/model/PermissionAction.java
 src/main/java/io/amesh/client/model/PermissionEffect.java
+src/main/java/io/amesh/client/model/PersistedAsset.java
 src/main/java/io/amesh/client/model/PersistedExecution.java
 src/main/java/io/amesh/client/model/PersistedFlow.java
 src/main/java/io/amesh/client/model/PersistedSubflow.java
@@ -354,6 +368,7 @@ src/main/java/io/amesh/client/model/SourceRange.java
 src/main/java/io/amesh/client/model/SubflowMode.java
 src/main/java/io/amesh/client/model/SubflowPropagation.java
 src/main/java/io/amesh/client/model/TaskArtifactRecord.java
+src/main/java/io/amesh/client/model/TaskAssetRecord.java
 src/main/java/io/amesh/client/model/TaskCacheEntry.java
 src/main/java/io/amesh/client/model/TaskCacheMode.java
 src/main/java/io/amesh/client/model/TaskCachePurgeRequest.java

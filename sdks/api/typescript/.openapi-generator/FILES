@@ -3,6 +3,7 @@
 .openapi-generator-ignore
 README.md
 docs/AdministrationApi.md
+docs/AssetsApi.md
 docs/AuditApi.md
 docs/AuthenticationApi.md
 docs/AuthorizationApi.md
@@ -29,6 +30,7 @@ docs/UiApi.md
 docs/WorkersApi.md
 package.json
 src/apis/AdministrationApi.ts
+src/apis/AssetsApi.ts
 src/apis/AuditApi.ts
 src/apis/AuthenticationApi.ts
 src/apis/AuthorizationApi.ts
@@ -67,6 +69,16 @@ src/models/AdmissionDiagnostics.ts
 src/models/AdmissionOutcome.ts
 src/models/AdmissionResourceType.ts
 src/models/AdmissionScope.ts
+src/models/AssetAccessMode.ts
+src/models/AssetCatalogEntry.ts
+src/models/AssetCatalogExport.ts
+src/models/AssetHealth.ts
+src/models/AssetLineageDeclaration.ts
+src/models/AssetLineageEdge.ts
+src/models/AssetMetadata.ts
+src/models/AssetObservation.ts
+src/models/AssetObservationCreate.ts
+src/models/AssetRegistrationSource.ts
 src/models/AuditArtifactKind.ts
 src/models/AuditEvent.ts
 src/models/AuditEventPage.ts
@@ -191,6 +203,7 @@ src/models/KeyValueExport.ts
 src/models/KeyValueType.ts
 src/models/KeyValueWrite.ts
 src/models/LabelNormalization.ts
+src/models/LineageEvidenceKind.ts
 src/models/LocationInner.ts
 src/models/LogLevel.ts
 src/models/LogSourceStream.ts
@@ -212,6 +225,7 @@ src/models/NamespaceWorkflowMetadataView.ts
 src/models/Permission.ts
 src/models/PermissionAction.ts
 src/models/PermissionEffect.ts
+src/models/PersistedAsset.ts
 src/models/PersistedExecution.ts
 src/models/PersistedFlow.ts
 src/models/PersistedSubflow.ts
@@ -332,6 +346,7 @@ src/models/SourceRange.ts
 src/models/SubflowMode.ts
 src/models/SubflowPropagation.ts
 src/models/TaskArtifactRecord.ts
+src/models/TaskAssetRecord.ts
 src/models/TaskCacheEntry.ts
 src/models/TaskCacheMode.ts
 src/models/TaskCachePurgeRequest.ts

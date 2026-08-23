@@ -219,7 +219,7 @@ _SOURCES: dict[DashboardDataSource, str] = {
     DashboardDataSource.ASSETS: """
         SELECT assets.id::text AS row_id,
                assets.updated_at AS occurred_at,
-               NULL::text AS namespace,
+               assets.namespace_name AS namespace,
                NULL::text AS flow,
                NULL::text AS state,
                NULL::text AS worker_group,

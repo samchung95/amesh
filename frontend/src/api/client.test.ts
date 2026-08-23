@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { ApiError, createApiClient } from './client'
+import type { AssetDraft } from './types'
 
 describe('API client', () => {
   afterEach(() => vi.unstubAllGlobals())
@@ -75,6 +76,53 @@ describe('API client', () => {
       inputs: { message: 'hello' },
       runner: 'local',
     })
+  })
+
+  it('builds asset catalog list, detail, declaration and export requests', async () => {
+    const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(
+      new Response('{}', { status: 200, headers: { 'Content-Type': 'application/json' } }),
+    ))
+    vi.stubGlobal('fetch', fetchMock)
+    const api = createApiClient({ token: 'token', tenant: 'default', namespace: '' })
+    const draft: AssetDraft = {
+      assetId: 'asset-one',
+      namespace: 'team/data',
+      provider: 'postgresql',
+      account: 'analytics',
+      location: 'warehouse:5432',
+      externalKey: 'curated.orders',
+      assetType: 'table',
+      displayName: 'Curated orders',
+      description: '',
+      owner: null,
+      contacts: [],
+      domainGroup: null,
+      tags: [],
+      customMetadata: {},
+      labels: {},
+      health: 'UNKNOWN',
+      lastMaterializationAt: null,
+      source: 'DECLARED',
+    }
+
+    await api.assets('team/data')
+    await api.assets()
+    await api.asset('asset/one')
+    await api.registerAsset(draft)
+    await api.exportAssetCatalog('team/data')
+    await api.exportAssetCatalog()
+
+    expect(fetchMock.mock.calls.map((call) => call[0] as string)).toEqual([
+      '/api/v1/assets?namespace=team%2Fdata',
+      '/api/v1/assets',
+      '/api/v1/assets/asset%2Fone',
+      '/api/v1/assets',
+      '/api/v1/assets/export/openlineage?namespace=team%2Fdata',
+      '/api/v1/assets/export/openlineage',
+    ])
+    const declaration = fetchMock.mock.calls[3]?.[1] as RequestInit
+    expect(declaration.method).toBe('POST')
+    expect(JSON.parse(declaration.body as string)).toEqual(draft)
   })
 
   it('builds execution debugging, intervention and backfill requests', async () => {

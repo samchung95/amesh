@@ -20,6 +20,7 @@ var _ MappedNullable = &TaskCompletion{}
 // TaskCompletion struct for TaskCompletion
 type TaskCompletion struct {
 	Artifacts []TaskArtifactRecord `json:"artifacts,omitempty"`
+	Assets []TaskAssetRecord `json:"assets,omitempty"`
 	Exit *TaskExitMetadata `json:"exit,omitempty"`
 	Logs []TaskLogRecord `json:"logs,omitempty"`
 	Metrics []TaskMetricRecord `json:"metrics,omitempty"`
@@ -74,6 +75,38 @@ func (o *TaskCompletion) HasArtifacts() bool {
 // SetArtifacts gets a reference to the given []TaskArtifactRecord and assigns it to the Artifacts field.
 func (o *TaskCompletion) SetArtifacts(v []TaskArtifactRecord) {
 	o.Artifacts = v
+}
+
+// GetAssets returns the Assets field value if set, zero value otherwise.
+func (o *TaskCompletion) GetAssets() []TaskAssetRecord {
+	if o == nil || IsNil(o.Assets) {
+		var ret []TaskAssetRecord
+		return ret
+	}
+	return o.Assets
+}
+
+// GetAssetsOk returns a tuple with the Assets field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *TaskCompletion) GetAssetsOk() ([]TaskAssetRecord, bool) {
+	if o == nil || IsNil(o.Assets) {
+		return nil, false
+	}
+	return o.Assets, true
+}
+
+// HasAssets returns a boolean if a field has been set.
+func (o *TaskCompletion) HasAssets() bool {
+	if o != nil && !IsNil(o.Assets) {
+		return true
+	}
+
+	return false
+}
+
+// SetAssets gets a reference to the given []TaskAssetRecord and assigns it to the Assets field.
+func (o *TaskCompletion) SetAssets(v []TaskAssetRecord) {
+	o.Assets = v
 }
 
 // GetExit returns the Exit field value if set, zero value otherwise.
@@ -248,6 +281,9 @@ func (o TaskCompletion) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
 	if !IsNil(o.Artifacts) {
 		toSerialize["artifacts"] = o.Artifacts
+	}
+	if !IsNil(o.Assets) {
+		toSerialize["assets"] = o.Assets
 	}
 	if !IsNil(o.Exit) {
 		toSerialize["exit"] = o.Exit

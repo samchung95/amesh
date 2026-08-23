@@ -15845,7 +15845,7 @@
       "id": "URS-F-0550",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M5",
       "wave": 5,
       "epic_id": "EPIC-507",
@@ -15868,13 +15868,17 @@
         "EPIC-111",
         "EPIC-308",
         "EPIC-500"
+      ],
+      "evidence": [
+        "tests/plugins/test_isolated_runtime.py::test_isolated_process_negotiates_capabilities_and_records_evidence",
+        "tests/api/test_asset_catalog_api.py::test_asset_catalog_api_registers_traverses_filters_and_exports"
       ]
     },
     {
       "id": "URS-F-0551",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M5",
       "wave": 5,
       "epic_id": "EPIC-507",
@@ -15897,13 +15901,16 @@
         "EPIC-111",
         "EPIC-308",
         "EPIC-500"
+      ],
+      "evidence": [
+        "tests/adapters/postgres/test_asset_catalog_repository.py::test_asset_catalog_is_durable_tenant_scoped_and_openlineage_exportable"
       ]
     },
     {
       "id": "URS-F-0552",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M5",
       "wave": 5,
       "epic_id": "EPIC-507",
@@ -15926,13 +15933,17 @@
         "EPIC-111",
         "EPIC-308",
         "EPIC-500"
+      ],
+      "evidence": [
+        "tests/adapters/postgres/test_asset_catalog_repository.py::test_asset_catalog_is_durable_tenant_scoped_and_openlineage_exportable",
+        "tests/api/test_asset_catalog_api.py::test_asset_catalog_api_registers_traverses_filters_and_exports"
       ]
     },
     {
       "id": "URS-F-0553",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M5",
       "wave": 5,
       "epic_id": "EPIC-507",
@@ -15955,13 +15966,17 @@
         "EPIC-111",
         "EPIC-308",
         "EPIC-500"
+      ],
+      "evidence": [
+        "tests/adapters/postgres/test_asset_catalog_repository.py::test_asset_catalog_is_durable_tenant_scoped_and_openlineage_exportable",
+        "frontend/e2e/shell.spec.ts::discovers lineage evidence, declares assets and exports OpenLineage"
       ]
     },
     {
       "id": "URS-F-0554",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M5",
       "wave": 5,
       "epic_id": "EPIC-507",
@@ -15984,13 +15999,17 @@
         "EPIC-111",
         "EPIC-308",
         "EPIC-500"
+      ],
+      "evidence": [
+        "tests/adapters/postgres/test_asset_catalog_repository.py::test_asset_catalog_is_durable_tenant_scoped_and_openlineage_exportable",
+        "frontend/e2e/shell.spec.ts::discovers lineage evidence, declares assets and exports OpenLineage"
       ]
     },
     {
       "id": "URS-F-0555",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M5",
       "wave": 5,
       "epic_id": "EPIC-507",
@@ -16013,13 +16032,16 @@
         "EPIC-111",
         "EPIC-308",
         "EPIC-500"
+      ],
+      "evidence": [
+        "tests/adapters/postgres/test_asset_catalog_repository.py::test_asset_catalog_is_durable_tenant_scoped_and_openlineage_exportable"
       ]
     },
     {
       "id": "URS-F-0556",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M5",
       "wave": 5,
       "epic_id": "EPIC-507",
@@ -16042,13 +16064,17 @@
         "EPIC-111",
         "EPIC-308",
         "EPIC-500"
+      ],
+      "evidence": [
+        "tests/adapters/postgres/test_asset_catalog_repository.py::test_asset_catalog_is_durable_tenant_scoped_and_openlineage_exportable",
+        "tests/api/test_asset_catalog_api.py::test_asset_catalog_api_registers_traverses_filters_and_exports"
       ]
     },
     {
       "id": "URS-F-0557",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M5",
       "wave": 5,
       "epic_id": "EPIC-507",
@@ -16071,6 +16097,11 @@
         "EPIC-111",
         "EPIC-308",
         "EPIC-500"
+      ],
+      "evidence": [
+        "tests/adapters/postgres/test_asset_catalog_repository.py::test_asset_catalog_is_durable_tenant_scoped_and_openlineage_exportable",
+        "tests/api/test_asset_catalog_api.py::test_asset_catalog_api_registers_traverses_filters_and_exports",
+        "frontend/e2e/shell.spec.ts::discovers lineage evidence, declares assets and exports OpenLineage"
       ]
     },
     {

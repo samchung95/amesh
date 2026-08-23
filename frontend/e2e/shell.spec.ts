@@ -8,6 +8,8 @@ const session = {
   tenantId: 'default',
   namespace: null,
   capabilities: {
+    'assets.view': true,
+    'assets.manage': true,
     'flows.view': true,
     'flows.create': true,
     'flows.update': true,
@@ -95,6 +97,11 @@ const namespaceSecrets = [
   { namespace: 'team.data', key: 'API_KEY', provider: 'env', providerReference: 'PRODUCTION_API_KEY', metadata: {}, resourceVersion: 1, inherited: false, originNamespace: 'team.data', createdAt: '2026-08-21T10:00:00Z', updatedAt: '2026-08-21T10:00:00Z' },
 ]
 
+const catalogAssets = [
+  { assetId: '00000000-0000-7000-8000-000000000601', tenantId: 'default', namespace: 'team.data', provider: 'postgresql', account: 'analytics', location: 'warehouse.internal:5432', externalKey: 'raw.orders', assetType: 'table', displayName: 'Raw orders', description: 'Unmodified order intake.', owner: 'data-platform', contacts: ['data@example.test'], domainGroup: 'commerce', tags: ['qualified', 'raw'], customMetadata: { classification: 'internal' }, labels: {}, health: 'UNKNOWN', lastMaterializationAt: null, source: 'PLUGIN_EVENT', resourceVersion: 2, createdBy: 'plugin:warehouse', updatedBy: 'plugin:warehouse', createdAt: '2026-08-23T09:00:00Z', updatedAt: '2026-08-23T09:01:00Z' },
+  { assetId: '00000000-0000-7000-8000-000000000602', tenantId: 'default', namespace: 'team.data', provider: 'postgresql', account: 'analytics', location: 'warehouse.internal:5432', externalKey: 'curated.orders', assetType: 'table', displayName: 'Curated orders', description: 'Validated order facts.', owner: 'analytics', contacts: ['analytics@example.test'], domainGroup: 'commerce', tags: ['qualified', 'gold'], customMetadata: { classification: 'internal' }, labels: {}, health: 'HEALTHY', lastMaterializationAt: '2026-08-23T09:02:00Z', source: 'DECLARED', resourceVersion: 3, createdBy: session.principalId, updatedBy: 'plugin:warehouse', createdAt: '2026-08-23T08:00:00Z', updatedAt: '2026-08-23T09:02:00Z' },
+]
+
 const blueprints = [
   {
     blueprintId: 'hello-world', version: '1.0.0', source: 'BUILTIN', title: 'Hello, workflow', summary: 'A local log-and-return flow with one optional input.', tags: ['getting-started', 'local', 'core'], documentation: 'Start here. The draft uses only deterministic core tasks and runs in Compose.', license: 'Apache-2.0', localOnly: true,
@@ -112,6 +119,7 @@ const blueprints = [
 
 async function mockApi(page: Page, overrides = session) {
   let customDashboard: Record<string, unknown> | null = null
+  let assetRecords = [...catalogAssets]
   let adminControls: Array<{ key: string; flagKey: string; enabled: boolean; value: unknown; version: number | null; updatedBy: string | null; updatedAt: string | null }> = [
     { key: 'RETENTION', flagKey: 'admin-retention-executions', enabled: false, value: 30, version: null, updatedBy: null, updatedAt: null },
     { key: 'ANNOUNCEMENT', flagKey: 'admin-announcement-banner', enabled: false, value: '', version: null, updatedBy: null, updatedAt: null },
@@ -148,6 +156,32 @@ async function mockApi(page: Page, overrides = session) {
   await page.route('**/api/v1/operations/topology', (route) => route.fulfill({ json: { observedAt: '2026-08-23T09:00:00Z', currentVersion: '0.2.0', versionSkew: false, coordination: 'postgresql-leases', quorumDependencies: { objectStorage: 'ready' }, roles: [{ role: 'api', totalInstances: 1, liveInstances: 1, readyInstances: 1, drainingInstances: 0, staleInstances: 0, versions: ['0.2.0'], failoverStatus: 'READY' }, { role: 'executor', totalInstances: 1, liveInstances: 1, readyInstances: 1, drainingInstances: 0, staleInstances: 0, versions: ['0.2.0'], failoverStatus: 'READY' }], instances: [] } }))
   await page.route('**/api/v1/workers', (route) => route.fulfill({ json: [{ worker_id: 'worker-1', worker_group: 'local', instance_name: 'executor-1', version: '0.2.0', status: 'ACTIVE', liveness: 'LIVE', compatibility: 'COMPATIBLE', capacity: 4, claimed_work: 1, utilization: 0.25, last_heartbeat_at: '2026-08-23T09:00:00Z' }] }))
   await page.route('**/api/v1/admissions/diagnostics', (route) => route.fulfill({ json: { active_reservations: 1, queued_requests: 0, oldest_queue_age_seconds: 0, pressure_by_policy: {} } }))
+  await page.route('**/api/v1/assets**', (route) => {
+    const request = route.request()
+    const path = new URL(request.url()).pathname
+    if (path.endsWith('/export/openlineage')) return route.fulfill({ body: JSON.stringify({ format: 'openlineage', generatedAt: '2026-08-23T09:03:00Z', producer: 'https://github.com/amesh-workflows/amesh', events: [] }), contentType: 'application/json' })
+    if (path === '/api/v1/assets' && request.method() === 'POST') {
+      const draft = request.postDataJSON() as Record<string, unknown>
+      const created = { ...draft, tenantId: 'default', resourceVersion: 1, createdBy: session.principalId, updatedBy: session.principalId, createdAt: '2026-08-23T09:04:00Z', updatedAt: '2026-08-23T09:04:00Z' }
+      assetRecords = [...assetRecords, created as typeof catalogAssets[number]]
+      return route.fulfill({ status: 201, json: created })
+    }
+    if (path === '/api/v1/assets') return route.fulfill({ json: assetRecords })
+    const assetId = path.split('/').at(-1)
+    const asset = assetRecords.find((item) => item.assetId === assetId) || assetRecords[0]
+    const source = assetRecords[0]
+    const target = assetRecords[1]
+    const isTarget = asset.assetId === target.assetId
+    return route.fulfill({ json: {
+      asset,
+      upstream: isTarget ? [source] : [],
+      downstream: asset.assetId === source.assetId ? [target] : [],
+      observations: asset.assetId === source.assetId
+        ? [{ observationId: '00000000-0000-7000-8000-000000000603', assetId: source.assetId, tenantId: 'default', namespace: 'team.data', accessMode: 'READ', evidenceKind: 'OBSERVED', confidence: 0.9, flowId: 'warehouse', executionId: executions[1].execution_id, taskRunId: null, artifactId: null, metadata: {}, observedAt: '2026-08-23T09:01:00Z', createdBy: 'plugin:warehouse' }]
+        : isTarget ? [{ observationId: '00000000-0000-7000-8000-000000000604', assetId: target.assetId, tenantId: 'default', namespace: 'team.data', accessMode: 'WRITE', evidenceKind: 'OBSERVED', confidence: 1, flowId: 'warehouse', executionId: executions[1].execution_id, taskRunId: null, artifactId: '00000000-0000-7000-8000-000000000605', metadata: {}, observedAt: '2026-08-23T09:02:00Z', createdBy: 'plugin:warehouse' }] : [],
+      edges: isTarget || asset.assetId === source.assetId ? [{ edgeId: '00000000-0000-7000-8000-000000000606', tenantId: 'default', namespace: 'team.data', upstreamAssetId: source.assetId, downstreamAssetId: target.assetId, evidenceKind: 'INFERRED', confidence: 0.8, flowId: 'warehouse', executionId: executions[1].execution_id, taskRunId: null, artifactId: null, metadata: {}, observedAt: '2026-08-23T09:02:00Z', createdBy: 'plugin:warehouse' }] : [],
+    } })
+  })
   await page.route('**/api/v1/dashboards', (route) => route.fulfill({ json: customDashboard ? [...dashboardDefinitions, customDashboard] : dashboardDefinitions }))
   await page.route('**/api/v1/dashboards/**', async (route) => {
     const request = route.request()
@@ -373,6 +407,32 @@ test('uses server permissions for navigation and direct routes', async ({ page }
   await expect(administration).toHaveAttribute('aria-disabled', 'true')
   await page.goto('/administration')
   await expect(page.getByRole('heading', { name: 'Permission required' })).toBeVisible()
+})
+
+test('discovers lineage evidence, declares assets and exports OpenLineage', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name === 'tablet', 'desktop asset-catalog acceptance')
+  await connect(page)
+  await page.getByRole('link', { name: 'Assets' }).click()
+  await expect(page.getByRole('heading', { name: 'Asset catalog' })).toBeVisible()
+  await expect(page.getByText('Raw orders', { exact: true }).first()).toBeVisible()
+  await page.getByPlaceholder('Filter provider, key, owner or tag').fill('gold')
+  await page.getByText('Curated orders', { exact: true }).first().click()
+  await expect(page.getByRole('heading', { name: 'Curated orders' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Upstream' }).locator('..').getByText('Raw orders')).toBeVisible()
+  await expect(page.getByText('observed · confidence 1.00 · artifact linked')).toBeVisible()
+
+  await page.getByRole('button', { name: 'Declare asset' }).click()
+  await expect(page.getByRole('heading', { name: 'Register an asset' })).toBeVisible()
+  await page.getByLabel('Provider').fill('s3')
+  await page.getByLabel('Location').fill('minio:9000/amesh')
+  await page.getByLabel('Stable external key').fill('reports/orders.parquet')
+  await page.getByLabel('Display name').fill('Orders report')
+  await page.getByRole('button', { name: 'Save declaration' }).click()
+  await expect(page.getByText('Asset declaration saved.')).toBeVisible()
+
+  const download = page.waitForEvent('download')
+  await page.getByRole('button', { name: 'OpenLineage' }).click()
+  expect((await download).suggestedFilename()).toBe('amesh-openlineage-default.json')
 })
 
 test('explains plugin policy and previews emergency disable before mutation', async ({ page }, testInfo) => {

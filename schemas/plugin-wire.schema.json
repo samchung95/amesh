@@ -208,6 +208,132 @@
       "title": "PluginArtifact",
       "type": "object"
     },
+    "PluginAsset": {
+      "additionalProperties": false,
+      "properties": {
+        "accessMode": {
+          "enum": [
+            "READ",
+            "WRITE"
+          ],
+          "title": "Accessmode",
+          "type": "string"
+        },
+        "account": {
+          "default": "default",
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Account",
+          "type": "string"
+        },
+        "artifactUri": {
+          "anyOf": [
+            {
+              "maxLength": 4096,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Artifacturi"
+        },
+        "assetType": {
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Assettype",
+          "type": "string"
+        },
+        "contacts": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Contacts",
+          "type": "array"
+        },
+        "customMetadata": {
+          "additionalProperties": true,
+          "title": "Custommetadata",
+          "type": "object"
+        },
+        "description": {
+          "default": "",
+          "maxLength": 4096,
+          "title": "Description",
+          "type": "string"
+        },
+        "displayName": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Displayname",
+          "type": "string"
+        },
+        "domainGroup": {
+          "anyOf": [
+            {
+              "maxLength": 255,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Domaingroup"
+        },
+        "externalKey": {
+          "maxLength": 1024,
+          "minLength": 1,
+          "title": "Externalkey",
+          "type": "string"
+        },
+        "location": {
+          "default": "global",
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Location",
+          "type": "string"
+        },
+        "owner": {
+          "anyOf": [
+            {
+              "maxLength": 255,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Owner"
+        },
+        "provider": {
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Provider",
+          "type": "string"
+        },
+        "tags": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Tags",
+          "type": "array"
+        }
+      },
+      "required": [
+        "provider",
+        "assetType",
+        "externalKey",
+        "displayName",
+        "accessMode"
+      ],
+      "title": "PluginAsset",
+      "type": "object"
+    },
     "PluginAuthenticatedParams": {
       "additionalProperties": false,
       "properties": {
@@ -680,7 +806,8 @@
         "heartbeats",
         "logs",
         "metrics",
-        "artifacts"
+        "artifacts",
+        "assets"
       ],
       "title": "PluginWireFeature",
       "type": "string"
@@ -690,6 +817,9 @@
   "properties": {
     "artifact": {
       "$ref": "#/$defs/PluginArtifact"
+    },
+    "asset": {
+      "$ref": "#/$defs/PluginAsset"
     },
     "authenticated": {
       "$ref": "#/$defs/PluginAuthenticatedParams"
@@ -729,7 +859,8 @@
     "discovery",
     "authenticated",
     "metric",
-    "artifact"
+    "artifact",
+    "asset"
   ],
   "title": "PluginWireContract",
   "type": "object"

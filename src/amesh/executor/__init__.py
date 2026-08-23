@@ -1,5 +1,6 @@
 from .contracts import (
     TaskArtifactRecord,
+    TaskAssetRecord,
     TaskCompletion,
     TaskContextProvider,
     TaskContextRequest,
@@ -47,6 +48,7 @@ __all__ = [
     "SubflowCoordinator",
     "SubflowTaskSpec",
     "TaskArtifactRecord",
+    "TaskAssetRecord",
     "TaskCancellationChannel",
     "TaskCompletion",
     "TaskConfigurationError",

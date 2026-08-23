@@ -93,6 +93,12 @@ Class | Method | HTTP request | Description
 *AdministrationApi* | [**list_administration_audit_api_v1_admin_audit_get**](docs/AdministrationApi.md#list_administration_audit_api_v1_admin_audit_get) | **GET** /api/v1/admin/audit | List Administration Audit
 *AdministrationApi* | [**list_administration_controls_api_v1_admin_controls_get**](docs/AdministrationApi.md#list_administration_controls_api_v1_admin_controls_get) | **GET** /api/v1/admin/controls | List Administration Controls
 *AdministrationApi* | [**preview_administration_control_api_v1_admin_controls_preview_post**](docs/AdministrationApi.md#preview_administration_control_api_v1_admin_controls_preview_post) | **POST** /api/v1/admin/controls/preview | Preview Administration Control
+*AssetsApi* | [**declare_asset_lineage_api_v1_assets_lineage_post**](docs/AssetsApi.md#declare_asset_lineage_api_v1_assets_lineage_post) | **POST** /api/v1/assets/lineage | Declare Asset Lineage
+*AssetsApi* | [**export_asset_catalog_api_v1_assets_export_openlineage_get**](docs/AssetsApi.md#export_asset_catalog_api_v1_assets_export_openlineage_get) | **GET** /api/v1/assets/export/openlineage | Export Asset Catalog
+*AssetsApi* | [**get_asset_catalog_entry_api_v1_assets_asset_id_get**](docs/AssetsApi.md#get_asset_catalog_entry_api_v1_assets_asset_id_get) | **GET** /api/v1/assets/{asset_id} | Get Asset Catalog Entry
+*AssetsApi* | [**list_assets_api_v1_assets_get**](docs/AssetsApi.md#list_assets_api_v1_assets_get) | **GET** /api/v1/assets | List Assets
+*AssetsApi* | [**record_asset_observation_api_v1_assets_observations_post**](docs/AssetsApi.md#record_asset_observation_api_v1_assets_observations_post) | **POST** /api/v1/assets/observations | Record Asset Observation
+*AssetsApi* | [**register_asset_api_v1_assets_post**](docs/AssetsApi.md#register_asset_api_v1_assets_post) | **POST** /api/v1/assets | Register Asset
 *AuditApi* | [**create_audit_legal_hold_api_v1_audit_legal_holds_post**](docs/AuditApi.md#create_audit_legal_hold_api_v1_audit_legal_holds_post) | **POST** /api/v1/audit-legal-holds | Create Audit Legal Hold
 *AuditApi* | [**create_compliance_evidence_api_v1_compliance_evidence_post**](docs/AuditApi.md#create_compliance_evidence_api_v1_compliance_evidence_post) | **POST** /api/v1/compliance-evidence | Create Compliance Evidence
 *AuditApi* | [**create_object_audit_export_api_v1_audit_exports_post**](docs/AuditApi.md#create_object_audit_export_api_v1_audit_exports_post) | **POST** /api/v1/audit-exports | Create Object Audit Export
@@ -306,6 +312,16 @@ Class | Method | HTTP request | Description
  - [AdmissionOutcome](docs/AdmissionOutcome.md)
  - [AdmissionResourceType](docs/AdmissionResourceType.md)
  - [AdmissionScope](docs/AdmissionScope.md)
+ - [AssetAccessMode](docs/AssetAccessMode.md)
+ - [AssetCatalogEntry](docs/AssetCatalogEntry.md)
+ - [AssetCatalogExport](docs/AssetCatalogExport.md)
+ - [AssetHealth](docs/AssetHealth.md)
+ - [AssetLineageDeclaration](docs/AssetLineageDeclaration.md)
+ - [AssetLineageEdge](docs/AssetLineageEdge.md)
+ - [AssetMetadata](docs/AssetMetadata.md)
+ - [AssetObservation](docs/AssetObservation.md)
+ - [AssetObservationCreate](docs/AssetObservationCreate.md)
+ - [AssetRegistrationSource](docs/AssetRegistrationSource.md)
  - [AuditArtifactKind](docs/AuditArtifactKind.md)
  - [AuditEvent](docs/AuditEvent.md)
  - [AuditEventPage](docs/AuditEventPage.md)
@@ -430,6 +446,7 @@ Class | Method | HTTP request | Description
  - [KeyValueType](docs/KeyValueType.md)
  - [KeyValueWrite](docs/KeyValueWrite.md)
  - [LabelNormalization](docs/LabelNormalization.md)
+ - [LineageEvidenceKind](docs/LineageEvidenceKind.md)
  - [LocationInner](docs/LocationInner.md)
  - [LogLevel](docs/LogLevel.md)
  - [LogSourceStream](docs/LogSourceStream.md)
@@ -451,6 +468,7 @@ Class | Method | HTTP request | Description
  - [Permission](docs/Permission.md)
  - [PermissionAction](docs/PermissionAction.md)
  - [PermissionEffect](docs/PermissionEffect.md)
+ - [PersistedAsset](docs/PersistedAsset.md)
  - [PersistedExecution](docs/PersistedExecution.md)
  - [PersistedFlow](docs/PersistedFlow.md)
  - [PersistedSubflow](docs/PersistedSubflow.md)
@@ -571,6 +589,7 @@ Class | Method | HTTP request | Description
  - [SubflowMode](docs/SubflowMode.md)
  - [SubflowPropagation](docs/SubflowPropagation.md)
  - [TaskArtifactRecord](docs/TaskArtifactRecord.md)
+ - [TaskAssetRecord](docs/TaskAssetRecord.md)
  - [TaskCacheEntry](docs/TaskCacheEntry.md)
  - [TaskCacheMode](docs/TaskCacheMode.md)
  - [TaskCachePurgeRequest](docs/TaskCachePurgeRequest.md)

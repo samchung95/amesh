@@ -215,16 +215,21 @@ _ASSET_PROJECTION = text(
     WITH candidates AS (
         SELECT assets.tenant_id,
                assets.id::text AS document_id,
-               NULL::text AS namespace,
+               assets.namespace_name AS namespace,
                assets.display_name AS title,
                concat_ws(' ', assets.display_name, assets.external_key,
-                          assets.provider, assets.asset_type) AS content,
+                          assets.provider, assets.account, assets.location,
+                          assets.asset_type, assets.description, assets.owner,
+                          assets.domain_group) AS content,
                assets.asset_type AS state,
                assets.labels,
                jsonb_build_object(
                    'provider', assets.provider,
+                   'account', assets.account,
+                   'location', assets.location,
                    'assetType', assets.asset_type,
-                   'externalKey', assets.external_key
+                   'externalKey', assets.external_key,
+                   'health', assets.health
                ) AS fields,
                assets.created_at AS occurred_at,
                assets.updated_at AS source_updated_at,

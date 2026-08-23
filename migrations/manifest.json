@@ -282,6 +282,12 @@
       "mode": "expand",
       "onlineCompatible": true,
       "rollbackGuidance": "Pause plugin policy changes and new third-party execution starts; preserve immutable flow-revision pins, policy decisions, quarantines and audit evidence; then forward-fix the additive governance tables before resuming administration."
+    },
+    {
+      "file": "0048_asset_catalog_lineage.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Pause asset declarations and plugin asset-event ingestion; preserve catalog identities, observations and lineage edges; then forward-fix the additive metadata before resuming catalog writes."
     }
   ]
 }

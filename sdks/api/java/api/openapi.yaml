@@ -1816,6 +1816,342 @@ paths:
       - operations
       x-accepts:
       - application/json
+  /api/v1/assets:
+    get:
+      operationId: list_assets_api_v1_assets_get
+      parameters:
+      - explode: true
+        in: query
+        name: namespace
+        required: false
+        schema:
+          maxLength: 255
+          nullable: true
+          type: string
+        style: form
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/PersistedAsset"
+                title: Response List Assets Api V1 Assets Get
+                type: array
+                default: null
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: List Assets
+      tags:
+      - assets
+      x-accepts:
+      - application/json
+    post:
+      operationId: register_asset_api_v1_assets_post
+      parameters:
+      - explode: true
+        in: query
+        name: expectedVersion
+        required: false
+        schema:
+          minimum: 1
+          nullable: true
+          type: integer
+        style: form
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AssetMetadata"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PersistedAsset"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Register Asset
+      tags:
+      - assets
+      x-content-type: application/json
+      x-accepts:
+      - application/json
+  /api/v1/assets/export/openlineage:
+    get:
+      operationId: export_asset_catalog_api_v1_assets_export_openlineage_get
+      parameters:
+      - explode: true
+        in: query
+        name: namespace
+        required: false
+        schema:
+          maxLength: 255
+          nullable: true
+          type: string
+        style: form
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AssetCatalogExport"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Export Asset Catalog
+      tags:
+      - assets
+      x-accepts:
+      - application/json
+  /api/v1/assets/lineage:
+    post:
+      operationId: declare_asset_lineage_api_v1_assets_lineage_post
+      parameters:
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AssetLineageDeclaration"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AssetLineageEdge"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Declare Asset Lineage
+      tags:
+      - assets
+      x-content-type: application/json
+      x-accepts:
+      - application/json
+  /api/v1/assets/observations:
+    post:
+      operationId: record_asset_observation_api_v1_assets_observations_post
+      parameters:
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AssetObservationCreate"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AssetObservation"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Record Asset Observation
+      tags:
+      - assets
+      x-content-type: application/json
+      x-accepts:
+      - application/json
+  /api/v1/assets/{asset_id}:
+    get:
+      operationId: get_asset_catalog_entry_api_v1_assets__asset_id__get
+      parameters:
+      - explode: false
+        in: path
+        name: asset_id
+        required: true
+        schema:
+          format: uuid
+          title: Asset Id
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AssetCatalogEntry"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Get Asset Catalog Entry
+      tags:
+      - assets
+      x-accepts:
+      - application/json
   /api/v1/audit-events:
     get:
       operationId: list_audit_events_api_v1_audit_events_get
@@ -12419,6 +12755,726 @@ components:
       - KEY
       title: AdmissionScope
       type: string
+    AssetAccessMode:
+      enum:
+      - READ
+      - WRITE
+      title: AssetAccessMode
+      type: string
+    AssetCatalogEntry:
+      example:
+        asset:
+          account: default
+          assetId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          assetType: assetType
+          contacts:
+          - contacts
+          - contacts
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          createdBy: createdBy
+          customMetadata:
+            key: ""
+          description: ""
+          displayName: displayName
+          domainGroup: domainGroup
+          externalKey: externalKey
+          health: ""
+          labels:
+            key: labels
+          lastMaterializationAt: 2000-01-23T04:56:07.000+00:00
+          location: global
+          namespace: default
+          owner: owner
+          provider: provider
+          resourceVersion: 1
+          source: ""
+          tags:
+          - tags
+          - tags
+          tenantId: tenantId
+          updatedAt: 2000-01-23T04:56:07.000+00:00
+          updatedBy: updatedBy
+        downstream:
+        - account: default
+          assetId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          assetType: assetType
+          contacts:
+          - contacts
+          - contacts
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          createdBy: createdBy
+          customMetadata:
+            key: ""
+          description: ""
+          displayName: displayName
+          domainGroup: domainGroup
+          externalKey: externalKey
+          health: ""
+          labels:
+            key: labels
+          lastMaterializationAt: 2000-01-23T04:56:07.000+00:00
+          location: global
+          namespace: default
+          owner: owner
+          provider: provider
+          resourceVersion: 1
+          source: ""
+          tags:
+          - tags
+          - tags
+          tenantId: tenantId
+          updatedAt: 2000-01-23T04:56:07.000+00:00
+          updatedBy: updatedBy
+        - account: default
+          assetId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          assetType: assetType
+          contacts:
+          - contacts
+          - contacts
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          createdBy: createdBy
+          customMetadata:
+            key: ""
+          description: ""
+          displayName: displayName
+          domainGroup: domainGroup
+          externalKey: externalKey
+          health: ""
+          labels:
+            key: labels
+          lastMaterializationAt: 2000-01-23T04:56:07.000+00:00
+          location: global
+          namespace: default
+          owner: owner
+          provider: provider
+          resourceVersion: 1
+          source: ""
+          tags:
+          - tags
+          - tags
+          tenantId: tenantId
+          updatedAt: 2000-01-23T04:56:07.000+00:00
+          updatedBy: updatedBy
+        edges:
+        - artifactId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          confidence: 0.08008281904610115
+          createdBy: createdBy
+          downstreamAssetId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          edgeId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          evidenceKind: ""
+          executionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          flowId: flowId
+          metadata:
+            key: ""
+          namespace: namespace
+          observedAt: 2000-01-23T04:56:07.000+00:00
+          taskRunId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          tenantId: tenantId
+          upstreamAssetId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        - artifactId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          confidence: 0.08008281904610115
+          createdBy: createdBy
+          downstreamAssetId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          edgeId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          evidenceKind: ""
+          executionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          flowId: flowId
+          metadata:
+            key: ""
+          namespace: namespace
+          observedAt: 2000-01-23T04:56:07.000+00:00
+          taskRunId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          tenantId: tenantId
+          upstreamAssetId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        observations:
+        - accessMode: READ
+          artifactId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          assetId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          confidence: 0.08008281904610115
+          createdBy: createdBy
+          evidenceKind: DECLARED
+          executionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          flowId: flowId
+          metadata:
+            key: ""
+          namespace: namespace
+          observationId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          observedAt: 2000-01-23T04:56:07.000+00:00
+          taskRunId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          tenantId: tenantId
+        - accessMode: READ
+          artifactId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          assetId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          confidence: 0.08008281904610115
+          createdBy: createdBy
+          evidenceKind: DECLARED
+          executionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          flowId: flowId
+          metadata:
+            key: ""
+          namespace: namespace
+          observationId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          observedAt: 2000-01-23T04:56:07.000+00:00
+          taskRunId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          tenantId: tenantId
+        upstream:
+        - account: default
+          assetId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          assetType: assetType
+          contacts:
+          - contacts
+          - contacts
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          createdBy: createdBy
+          customMetadata:
+            key: ""
+          description: ""
+          displayName: displayName
+          domainGroup: domainGroup
+          externalKey: externalKey
+          health: ""
+          labels:
+            key: labels
+          lastMaterializationAt: 2000-01-23T04:56:07.000+00:00
+          location: global
+          namespace: default
+          owner: owner
+          provider: provider
+          resourceVersion: 1
+          source: ""
+          tags:
+          - tags
+          - tags
+          tenantId: tenantId
+          updatedAt: 2000-01-23T04:56:07.000+00:00
+          updatedBy: updatedBy
+        - account: default
+          assetId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          assetType: assetType
+          contacts:
+          - contacts
+          - contacts
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          createdBy: createdBy
+          customMetadata:
+            key: ""
+          description: ""
+          displayName: displayName
+          domainGroup: domainGroup
+          externalKey: externalKey
+          health: ""
+          labels:
+            key: labels
+          lastMaterializationAt: 2000-01-23T04:56:07.000+00:00
+          location: global
+          namespace: default
+          owner: owner
+          provider: provider
+          resourceVersion: 1
+          source: ""
+          tags:
+          - tags
+          - tags
+          tenantId: tenantId
+          updatedAt: 2000-01-23T04:56:07.000+00:00
+          updatedBy: updatedBy
+      properties:
+        asset:
+          $ref: "#/components/schemas/PersistedAsset"
+        downstream:
+          default: []
+          items:
+            $ref: "#/components/schemas/PersistedAsset"
+          title: Downstream
+          type: array
+        edges:
+          default: []
+          items:
+            $ref: "#/components/schemas/AssetLineageEdge"
+          title: Edges
+          type: array
+        observations:
+          default: []
+          items:
+            $ref: "#/components/schemas/AssetObservation"
+          title: Observations
+          type: array
+        upstream:
+          default: []
+          items:
+            $ref: "#/components/schemas/PersistedAsset"
+          title: Upstream
+          type: array
+      required:
+      - asset
+      title: AssetCatalogEntry
+    AssetCatalogExport:
+      example:
+        events:
+        - key: ""
+        - key: ""
+        format: openlineage
+        generatedAt: 2000-01-23T04:56:07.000+00:00
+        producer: producer
+      properties:
+        events:
+          items:
+            additionalProperties: true
+            type: object
+          title: Events
+          type: array
+          default: null
+        format:
+          default: openlineage
+          title: Format
+          type: string
+        generatedAt:
+          format: date-time
+          title: Generatedat
+          type: string
+        producer:
+          title: Producer
+          type: string
+      required:
+      - events
+      - generatedAt
+      - producer
+      title: AssetCatalogExport
+    AssetHealth:
+      enum:
+      - UNKNOWN
+      - HEALTHY
+      - DEGRADED
+      - FAILED
+      title: AssetHealth
+      type: string
+    AssetLineageDeclaration:
+      example:
+        artifactId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        confidence: 0.08008281904610115
+        downstreamAssetId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        evidenceKind: ""
+        executionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        flowId: flowId
+        metadata:
+          key: ""
+        observedAt: 2000-01-23T04:56:07.000+00:00
+        taskRunId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        upstreamAssetId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        artifactId:
+          format: uuid
+          nullable: true
+          type: string
+        confidence:
+          default: 1.0
+          maximum: 1.0
+          minimum: 0.0
+          title: Confidence
+          type: number
+        downstreamAssetId:
+          format: uuid
+          title: Downstreamassetid
+          type: string
+        evidenceKind:
+          allOf:
+          - $ref: "#/components/schemas/LineageEvidenceKind"
+          default: DECLARED
+        executionId:
+          format: uuid
+          nullable: true
+          type: string
+        flowId:
+          maxLength: 255
+          nullable: true
+          type: string
+        metadata:
+          additionalProperties: true
+          title: Metadata
+          type: object
+        observedAt:
+          format: date-time
+          nullable: true
+          type: string
+        taskRunId:
+          format: uuid
+          nullable: true
+          type: string
+        upstreamAssetId:
+          format: uuid
+          title: Upstreamassetid
+          type: string
+      required:
+      - downstreamAssetId
+      - upstreamAssetId
+      title: AssetLineageDeclaration
+    AssetLineageEdge:
+      example:
+        artifactId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        confidence: 0.08008281904610115
+        createdBy: createdBy
+        downstreamAssetId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        edgeId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        evidenceKind: ""
+        executionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        flowId: flowId
+        metadata:
+          key: ""
+        namespace: namespace
+        observedAt: 2000-01-23T04:56:07.000+00:00
+        taskRunId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        tenantId: tenantId
+        upstreamAssetId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        artifactId:
+          format: uuid
+          nullable: true
+          type: string
+        confidence:
+          default: 1.0
+          maximum: 1.0
+          minimum: 0.0
+          title: Confidence
+          type: number
+        createdBy:
+          title: Createdby
+          type: string
+        downstreamAssetId:
+          format: uuid
+          title: Downstreamassetid
+          type: string
+        edgeId:
+          format: uuid
+          title: Edgeid
+          type: string
+        evidenceKind:
+          allOf:
+          - $ref: "#/components/schemas/LineageEvidenceKind"
+          default: DECLARED
+        executionId:
+          format: uuid
+          nullable: true
+          type: string
+        flowId:
+          maxLength: 255
+          nullable: true
+          type: string
+        metadata:
+          additionalProperties: true
+          title: Metadata
+          type: object
+        namespace:
+          title: Namespace
+          type: string
+        observedAt:
+          format: date-time
+          title: Observedat
+          type: string
+        taskRunId:
+          format: uuid
+          nullable: true
+          type: string
+        tenantId:
+          title: Tenantid
+          type: string
+        upstreamAssetId:
+          format: uuid
+          title: Upstreamassetid
+          type: string
+      required:
+      - createdBy
+      - downstreamAssetId
+      - edgeId
+      - namespace
+      - observedAt
+      - tenantId
+      - upstreamAssetId
+      title: AssetLineageEdge
+    AssetMetadata:
+      example:
+        account: default
+        assetId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        assetType: assetType
+        contacts:
+        - contacts
+        - contacts
+        customMetadata:
+          key: ""
+        description: ""
+        displayName: displayName
+        domainGroup: domainGroup
+        externalKey: externalKey
+        health: ""
+        labels:
+          key: labels
+        lastMaterializationAt: 2000-01-23T04:56:07.000+00:00
+        location: global
+        namespace: default
+        owner: owner
+        provider: provider
+        source: ""
+        tags:
+        - tags
+        - tags
+      properties:
+        account:
+          default: default
+          maxLength: 255
+          minLength: 1
+          title: Account
+          type: string
+        assetId:
+          format: uuid
+          title: Assetid
+          type: string
+        assetType:
+          maxLength: 128
+          minLength: 1
+          title: Assettype
+          type: string
+        contacts:
+          default: []
+          items:
+            type: string
+          title: Contacts
+          type: array
+        customMetadata:
+          additionalProperties: true
+          title: Custommetadata
+          type: object
+        description:
+          default: ""
+          maxLength: 4096
+          title: Description
+          type: string
+        displayName:
+          maxLength: 512
+          minLength: 1
+          title: Displayname
+          type: string
+        domainGroup:
+          maxLength: 255
+          nullable: true
+          type: string
+        externalKey:
+          maxLength: 1024
+          minLength: 1
+          title: Externalkey
+          type: string
+        health:
+          allOf:
+          - $ref: "#/components/schemas/AssetHealth"
+          default: UNKNOWN
+        labels:
+          additionalProperties:
+            type: string
+          title: Labels
+        lastMaterializationAt:
+          format: date-time
+          nullable: true
+          type: string
+        location:
+          default: global
+          maxLength: 512
+          minLength: 1
+          title: Location
+          type: string
+        namespace:
+          default: default
+          maxLength: 255
+          minLength: 1
+          title: Namespace
+          type: string
+        owner:
+          maxLength: 255
+          nullable: true
+          type: string
+        provider:
+          maxLength: 128
+          minLength: 1
+          title: Provider
+          type: string
+        source:
+          allOf:
+          - $ref: "#/components/schemas/AssetRegistrationSource"
+          default: DECLARED
+        tags:
+          default: []
+          items:
+            type: string
+          title: Tags
+          type: array
+      required:
+      - assetId
+      - assetType
+      - displayName
+      - externalKey
+      - provider
+      title: AssetMetadata
+    AssetObservation:
+      example:
+        accessMode: READ
+        artifactId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        assetId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        confidence: 0.08008281904610115
+        createdBy: createdBy
+        evidenceKind: DECLARED
+        executionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        flowId: flowId
+        metadata:
+          key: ""
+        namespace: namespace
+        observationId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        observedAt: 2000-01-23T04:56:07.000+00:00
+        taskRunId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        tenantId: tenantId
+      properties:
+        accessMode:
+          $ref: "#/components/schemas/AssetAccessMode"
+        artifactId:
+          format: uuid
+          nullable: true
+          type: string
+        assetId:
+          format: uuid
+          title: Assetid
+          type: string
+        confidence:
+          maximum: 1.0
+          minimum: 0.0
+          title: Confidence
+          type: number
+        createdBy:
+          title: Createdby
+          type: string
+        evidenceKind:
+          $ref: "#/components/schemas/LineageEvidenceKind"
+        executionId:
+          format: uuid
+          nullable: true
+          type: string
+        flowId:
+          nullable: true
+          type: string
+        metadata:
+          additionalProperties: true
+          title: Metadata
+          type: object
+        namespace:
+          title: Namespace
+          type: string
+        observationId:
+          format: uuid
+          title: Observationid
+          type: string
+        observedAt:
+          format: date-time
+          title: Observedat
+          type: string
+        taskRunId:
+          format: uuid
+          nullable: true
+          type: string
+        tenantId:
+          title: Tenantid
+          type: string
+      required:
+      - accessMode
+      - assetId
+      - confidence
+      - createdBy
+      - evidenceKind
+      - namespace
+      - observationId
+      - observedAt
+      - tenantId
+      title: AssetObservation
+    AssetObservationCreate:
+      example:
+        accessMode: READ
+        artifactId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        asset:
+          account: default
+          assetId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          assetType: assetType
+          contacts:
+          - contacts
+          - contacts
+          customMetadata:
+            key: ""
+          description: ""
+          displayName: displayName
+          domainGroup: domainGroup
+          externalKey: externalKey
+          health: ""
+          labels:
+            key: labels
+          lastMaterializationAt: 2000-01-23T04:56:07.000+00:00
+          location: global
+          namespace: default
+          owner: owner
+          provider: provider
+          source: ""
+          tags:
+          - tags
+          - tags
+        confidence: 0.08008281904610115
+        evidenceKind: ""
+        executionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        flowId: flowId
+        metadata:
+          key: ""
+        observedAt: 2000-01-23T04:56:07.000+00:00
+        taskRunId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        accessMode:
+          $ref: "#/components/schemas/AssetAccessMode"
+        artifactId:
+          format: uuid
+          nullable: true
+          type: string
+        asset:
+          $ref: "#/components/schemas/AssetMetadata"
+        confidence:
+          default: 1.0
+          maximum: 1.0
+          minimum: 0.0
+          title: Confidence
+          type: number
+        evidenceKind:
+          allOf:
+          - $ref: "#/components/schemas/LineageEvidenceKind"
+          default: OBSERVED
+        executionId:
+          format: uuid
+          nullable: true
+          type: string
+        flowId:
+          maxLength: 255
+          nullable: true
+          type: string
+        metadata:
+          additionalProperties: true
+          title: Metadata
+          type: object
+        observedAt:
+          format: date-time
+          nullable: true
+          type: string
+        taskRunId:
+          format: uuid
+          nullable: true
+          type: string
+      required:
+      - accessMode
+      - asset
+      title: AssetObservationCreate
+    AssetRegistrationSource:
+      enum:
+      - DECLARED
+      - PLUGIN_EVENT
+      title: AssetRegistrationSource
+      type: string
     AuditArtifactKind:
       enum:
       - AUDIT
@@ -15201,6 +16257,7 @@ components:
         rows:
           items:
             additionalProperties: true
+            nullable: true
             type: object
           title: Rows
           type: array
@@ -17765,6 +18822,13 @@ components:
       - UPPERCASE
       title: LabelNormalization
       type: string
+    LineageEvidenceKind:
+      enum:
+      - DECLARED
+      - OBSERVED
+      - INFERRED
+      title: LineageEvidenceKind
+      type: string
     LogLevel:
       enum:
       - TRACE
@@ -18490,6 +19554,160 @@ components:
       - DENY
       title: PermissionEffect
       type: string
+    PersistedAsset:
+      example:
+        account: default
+        assetId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        assetType: assetType
+        contacts:
+        - contacts
+        - contacts
+        createdAt: 2000-01-23T04:56:07.000+00:00
+        createdBy: createdBy
+        customMetadata:
+          key: ""
+        description: ""
+        displayName: displayName
+        domainGroup: domainGroup
+        externalKey: externalKey
+        health: ""
+        labels:
+          key: labels
+        lastMaterializationAt: 2000-01-23T04:56:07.000+00:00
+        location: global
+        namespace: default
+        owner: owner
+        provider: provider
+        resourceVersion: 1
+        source: ""
+        tags:
+        - tags
+        - tags
+        tenantId: tenantId
+        updatedAt: 2000-01-23T04:56:07.000+00:00
+        updatedBy: updatedBy
+      properties:
+        account:
+          default: default
+          maxLength: 255
+          minLength: 1
+          title: Account
+          type: string
+        assetId:
+          format: uuid
+          title: Assetid
+          type: string
+        assetType:
+          maxLength: 128
+          minLength: 1
+          title: Assettype
+          type: string
+        contacts:
+          default: []
+          items:
+            type: string
+          title: Contacts
+          type: array
+        createdAt:
+          format: date-time
+          title: Createdat
+          type: string
+        createdBy:
+          title: Createdby
+          type: string
+        customMetadata:
+          additionalProperties: true
+          title: Custommetadata
+          type: object
+        description:
+          default: ""
+          maxLength: 4096
+          title: Description
+          type: string
+        displayName:
+          maxLength: 512
+          minLength: 1
+          title: Displayname
+          type: string
+        domainGroup:
+          maxLength: 255
+          nullable: true
+          type: string
+        externalKey:
+          maxLength: 1024
+          minLength: 1
+          title: Externalkey
+          type: string
+        health:
+          allOf:
+          - $ref: "#/components/schemas/AssetHealth"
+          default: UNKNOWN
+        labels:
+          additionalProperties:
+            type: string
+          title: Labels
+        lastMaterializationAt:
+          format: date-time
+          nullable: true
+          type: string
+        location:
+          default: global
+          maxLength: 512
+          minLength: 1
+          title: Location
+          type: string
+        namespace:
+          default: default
+          maxLength: 255
+          minLength: 1
+          title: Namespace
+          type: string
+        owner:
+          maxLength: 255
+          nullable: true
+          type: string
+        provider:
+          maxLength: 128
+          minLength: 1
+          title: Provider
+          type: string
+        resourceVersion:
+          minimum: 1.0
+          title: Resourceversion
+          type: integer
+        source:
+          allOf:
+          - $ref: "#/components/schemas/AssetRegistrationSource"
+          default: DECLARED
+        tags:
+          default: []
+          items:
+            type: string
+          title: Tags
+          type: array
+        tenantId:
+          title: Tenantid
+          type: string
+        updatedAt:
+          format: date-time
+          title: Updatedat
+          type: string
+        updatedBy:
+          title: Updatedby
+          type: string
+      required:
+      - assetId
+      - assetType
+      - createdAt
+      - createdBy
+      - displayName
+      - externalKey
+      - provider
+      - resourceVersion
+      - tenantId
+      - updatedAt
+      - updatedBy
+      title: PersistedAsset
     PersistedExecution:
       example:
         cancel_deadline_at: 2000-01-23T04:56:07.000+00:00
@@ -21344,6 +22562,102 @@ components:
             mediaType: mediaType
             sizeBytes: 0
             uri: uri
+          assets:
+          - accessMode: READ
+            account: default
+            artifactUri: artifactUri
+            assetType: assetType
+            contacts:
+            - contacts
+            - contacts
+            customMetadata:
+              key: ""
+            description: ""
+            displayName: displayName
+            domainGroup: domainGroup
+            externalKey: externalKey
+            location: global
+            owner: owner
+            provider: provider
+            tags:
+            - tags
+            - tags
+          - accessMode: READ
+            account: default
+            artifactUri: artifactUri
+            assetType: assetType
+            contacts:
+            - contacts
+            - contacts
+            customMetadata:
+              key: ""
+            description: ""
+            displayName: displayName
+            domainGroup: domainGroup
+            externalKey: externalKey
+            location: global
+            owner: owner
+            provider: provider
+            tags:
+            - tags
+            - tags
+          - accessMode: READ
+            account: default
+            artifactUri: artifactUri
+            assetType: assetType
+            contacts:
+            - contacts
+            - contacts
+            customMetadata:
+              key: ""
+            description: ""
+            displayName: displayName
+            domainGroup: domainGroup
+            externalKey: externalKey
+            location: global
+            owner: owner
+            provider: provider
+            tags:
+            - tags
+            - tags
+          - accessMode: READ
+            account: default
+            artifactUri: artifactUri
+            assetType: assetType
+            contacts:
+            - contacts
+            - contacts
+            customMetadata:
+              key: ""
+            description: ""
+            displayName: displayName
+            domainGroup: domainGroup
+            externalKey: externalKey
+            location: global
+            owner: owner
+            provider: provider
+            tags:
+            - tags
+            - tags
+          - accessMode: READ
+            account: default
+            artifactUri: artifactUri
+            assetType: assetType
+            contacts:
+            - contacts
+            - contacts
+            customMetadata:
+              key: ""
+            description: ""
+            displayName: displayName
+            domainGroup: domainGroup
+            externalKey: externalKey
+            location: global
+            owner: owner
+            provider: provider
+            tags:
+            - tags
+            - tags
           exit:
             code: 6
             durationMs: 0.14658129805029452
@@ -22984,6 +24298,102 @@ components:
       - sizeBytes
       - uri
       title: TaskArtifactRecord
+    TaskAssetRecord:
+      example:
+        accessMode: READ
+        account: default
+        artifactUri: artifactUri
+        assetType: assetType
+        contacts:
+        - contacts
+        - contacts
+        customMetadata:
+          key: ""
+        description: ""
+        displayName: displayName
+        domainGroup: domainGroup
+        externalKey: externalKey
+        location: global
+        owner: owner
+        provider: provider
+        tags:
+        - tags
+        - tags
+      properties:
+        accessMode:
+          $ref: "#/components/schemas/AssetAccessMode"
+        account:
+          default: default
+          maxLength: 255
+          minLength: 1
+          title: Account
+          type: string
+        artifactUri:
+          maxLength: 4096
+          nullable: true
+          type: string
+        assetType:
+          maxLength: 128
+          minLength: 1
+          title: Assettype
+          type: string
+        contacts:
+          default: []
+          items:
+            type: string
+          title: Contacts
+          type: array
+        customMetadata:
+          additionalProperties: true
+          title: Custommetadata
+          type: object
+        description:
+          default: ""
+          maxLength: 4096
+          title: Description
+          type: string
+        displayName:
+          maxLength: 512
+          minLength: 1
+          title: Displayname
+          type: string
+        domainGroup:
+          maxLength: 255
+          nullable: true
+          type: string
+        externalKey:
+          maxLength: 1024
+          minLength: 1
+          title: Externalkey
+          type: string
+        location:
+          default: global
+          maxLength: 512
+          minLength: 1
+          title: Location
+          type: string
+        owner:
+          maxLength: 255
+          nullable: true
+          type: string
+        provider:
+          maxLength: 128
+          minLength: 1
+          title: Provider
+          type: string
+        tags:
+          default: []
+          items:
+            type: string
+          title: Tags
+          type: array
+      required:
+      - accessMode
+      - assetType
+      - displayName
+      - externalKey
+      - provider
+      title: TaskAssetRecord
     TaskCacheEntry:
       example:
         cache_namespace: cache_namespace
@@ -23168,6 +24578,102 @@ components:
           mediaType: mediaType
           sizeBytes: 0
           uri: uri
+        assets:
+        - accessMode: READ
+          account: default
+          artifactUri: artifactUri
+          assetType: assetType
+          contacts:
+          - contacts
+          - contacts
+          customMetadata:
+            key: ""
+          description: ""
+          displayName: displayName
+          domainGroup: domainGroup
+          externalKey: externalKey
+          location: global
+          owner: owner
+          provider: provider
+          tags:
+          - tags
+          - tags
+        - accessMode: READ
+          account: default
+          artifactUri: artifactUri
+          assetType: assetType
+          contacts:
+          - contacts
+          - contacts
+          customMetadata:
+            key: ""
+          description: ""
+          displayName: displayName
+          domainGroup: domainGroup
+          externalKey: externalKey
+          location: global
+          owner: owner
+          provider: provider
+          tags:
+          - tags
+          - tags
+        - accessMode: READ
+          account: default
+          artifactUri: artifactUri
+          assetType: assetType
+          contacts:
+          - contacts
+          - contacts
+          customMetadata:
+            key: ""
+          description: ""
+          displayName: displayName
+          domainGroup: domainGroup
+          externalKey: externalKey
+          location: global
+          owner: owner
+          provider: provider
+          tags:
+          - tags
+          - tags
+        - accessMode: READ
+          account: default
+          artifactUri: artifactUri
+          assetType: assetType
+          contacts:
+          - contacts
+          - contacts
+          customMetadata:
+            key: ""
+          description: ""
+          displayName: displayName
+          domainGroup: domainGroup
+          externalKey: externalKey
+          location: global
+          owner: owner
+          provider: provider
+          tags:
+          - tags
+          - tags
+        - accessMode: READ
+          account: default
+          artifactUri: artifactUri
+          assetType: assetType
+          contacts:
+          - contacts
+          - contacts
+          customMetadata:
+            key: ""
+          description: ""
+          displayName: displayName
+          domainGroup: domainGroup
+          externalKey: externalKey
+          location: global
+          owner: owner
+          provider: provider
+          tags:
+          - tags
+          - tags
         exit:
           code: 6
           durationMs: 0.14658129805029452
@@ -23216,6 +24722,13 @@ components:
           items:
             $ref: "#/components/schemas/TaskArtifactRecord"
           title: Artifacts
+          type: array
+        assets:
+          default: []
+          items:
+            $ref: "#/components/schemas/TaskAssetRecord"
+          maxItems: 1000
+          title: Assets
           type: array
         exit:
           $ref: "#/components/schemas/TaskExitMetadata"

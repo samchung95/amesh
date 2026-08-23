@@ -77,7 +77,7 @@ export const navigationItems: NavigationItem[] = [
     icon: Braces,
     capability: 'namespaceResources.read',
   },
-  { id: 'assets', labelKey: 'assets', path: '/assets', group: 'build', icon: DatabaseZap },
+  { id: 'assets', labelKey: 'assets', path: '/assets', group: 'build', icon: DatabaseZap, capability: 'assets.view' },
   { id: 'apps', labelKey: 'apps', path: '/apps', group: 'build', icon: LayoutGrid },
   {
     id: 'plugins',

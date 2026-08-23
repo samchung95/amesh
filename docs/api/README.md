@@ -55,5 +55,7 @@
 - Inspect scoped plugin rules and their decision sources, validate candidate flow pins, and perform
   impact-gated emergency version disable through the
   [plugin governance API](plugin-governance.md).
+- Declare or observe data and infrastructure assets, traverse permission-filtered lineage and export
+  OpenLineage events through the [asset catalog and lineage API](asset-catalog-and-lineage.md).
 
 Future generated SDKs must consume the supported API contract, not internal Python classes.

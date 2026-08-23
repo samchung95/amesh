@@ -45,6 +45,28 @@ export function useExecutions(enabled = true) {
   })
 }
 
+export function useAssets(enabled = true) {
+  const api = useApiClient()
+  const { settings } = useAppSettings()
+  return useQuery({
+    queryKey: ['assets', settings.tenant, settings.namespace],
+    queryFn: () => api.assets(settings.namespace || undefined),
+    enabled,
+    staleTime: 10_000,
+  })
+}
+
+export function useAsset(assetId: string | null, enabled = true) {
+  const api = useApiClient()
+  const { settings } = useAppSettings()
+  return useQuery({
+    queryKey: ['asset', settings.tenant, assetId],
+    queryFn: () => api.asset(assetId || ''),
+    enabled: enabled && Boolean(assetId),
+    staleTime: 10_000,
+  })
+}
+
 export function useGlobalSearch(query: string, enabled = true) {
   const api = useApiClient()
   const { settings } = useAppSettings()

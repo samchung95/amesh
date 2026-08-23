@@ -8151,105 +8151,128 @@
       "requirement_id": "URS-F-0550",
       "epic_id": "EPIC-507",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-enterprise-docs-v1.3.30",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/plugins/test_isolated_runtime.py::test_isolated_process_negotiates_capabilities_and_records_evidence",
+        "tests/api/test_asset_catalog_api.py::test_asset_catalog_api_registers_traverses_filters_and_exports"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0551",
       "epic_id": "EPIC-507",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-enterprise-docs-v1.3.30",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/adapters/postgres/test_asset_catalog_repository.py::test_asset_catalog_is_durable_tenant_scoped_and_openlineage_exportable"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0552",
       "epic_id": "EPIC-507",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-enterprise-docs-v1.3.30",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/adapters/postgres/test_asset_catalog_repository.py::test_asset_catalog_is_durable_tenant_scoped_and_openlineage_exportable",
+        "tests/api/test_asset_catalog_api.py::test_asset_catalog_api_registers_traverses_filters_and_exports"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0553",
       "epic_id": "EPIC-507",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-enterprise-docs-v1.3.30",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/adapters/postgres/test_asset_catalog_repository.py::test_asset_catalog_is_durable_tenant_scoped_and_openlineage_exportable",
+        "frontend/e2e/shell.spec.ts::discovers lineage evidence, declares assets and exports OpenLineage"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0554",
       "epic_id": "EPIC-507",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-enterprise-docs-v1.3.30",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/adapters/postgres/test_asset_catalog_repository.py::test_asset_catalog_is_durable_tenant_scoped_and_openlineage_exportable",
+        "frontend/e2e/shell.spec.ts::discovers lineage evidence, declares assets and exports OpenLineage"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0555",
       "epic_id": "EPIC-507",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-enterprise-docs-v1.3.30",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/adapters/postgres/test_asset_catalog_repository.py::test_asset_catalog_is_durable_tenant_scoped_and_openlineage_exportable"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0556",
       "epic_id": "EPIC-507",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-enterprise-docs-v1.3.30",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/adapters/postgres/test_asset_catalog_repository.py::test_asset_catalog_is_durable_tenant_scoped_and_openlineage_exportable",
+        "tests/api/test_asset_catalog_api.py::test_asset_catalog_api_registers_traverses_filters_and_exports"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0557",
       "epic_id": "EPIC-507",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-enterprise-docs-v1.3.30",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/adapters/postgres/test_asset_catalog_repository.py::test_asset_catalog_is_durable_tenant_scoped_and_openlineage_exportable",
+        "tests/api/test_asset_catalog_api.py::test_asset_catalog_api_registers_traverses_filters_and_exports",
+        "frontend/e2e/shell.spec.ts::discovers lineage evidence, declares assets and exports OpenLineage"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0558",

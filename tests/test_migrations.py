@@ -67,6 +67,7 @@ def test_checked_in_migration_manifest_is_complete_and_ordered() -> None:
             (45, "identity_federation"),
             (46, "audit_evidence_ledger"),
             (47, "plugin_governance"),
+            (48, "asset_catalog_lineage"),
         )
     ]
     assert all(item.rollback_guidance for item in plan)

@@ -4,6 +4,7 @@
 README.md
 api/openapi.yaml
 api_administration.go
+api_assets.go
 api_audit.go
 api_authentication.go
 api_authorization.go
@@ -31,6 +32,7 @@ api_workers.go
 client.go
 configuration.go
 docs/AdministrationAPI.md
+docs/AssetsAPI.md
 docs/AuditAPI.md
 docs/AuthenticationAPI.md
 docs/AuthorizationAPI.md
@@ -70,6 +72,16 @@ model_admission_diagnostics.go
 model_admission_outcome.go
 model_admission_resource_type.go
 model_admission_scope.go
+model_asset_access_mode.go
+model_asset_catalog_entry.go
+model_asset_catalog_export.go
+model_asset_health.go
+model_asset_lineage_declaration.go
+model_asset_lineage_edge.go
+model_asset_metadata.go
+model_asset_observation.go
+model_asset_observation_create.go
+model_asset_registration_source.go
 model_audit_artifact_kind.go
 model_audit_event.go
 model_audit_event_page.go
@@ -194,6 +206,7 @@ model_key_value_export.go
 model_key_value_type.go
 model_key_value_write.go
 model_label_normalization.go
+model_lineage_evidence_kind.go
 model_location_inner.go
 model_log_level.go
 model_log_source_stream.go
@@ -215,6 +228,7 @@ model_namespace_workflow_metadata_view.go
 model_permission.go
 model_permission_action.go
 model_permission_effect.go
+model_persisted_asset.go
 model_persisted_execution.go
 model_persisted_flow.go
 model_persisted_subflow.go
@@ -335,6 +349,7 @@ model_source_range.go
 model_subflow_mode.go
 model_subflow_propagation.go
 model_task_artifact_record.go
+model_task_asset_record.go
 model_task_cache_entry.go
 model_task_cache_mode.go
 model_task_cache_purge_request.go

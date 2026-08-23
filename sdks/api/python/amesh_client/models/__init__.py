@@ -25,6 +25,16 @@ from amesh_client.models.admission_diagnostics import AdmissionDiagnostics
 from amesh_client.models.admission_outcome import AdmissionOutcome
 from amesh_client.models.admission_resource_type import AdmissionResourceType
 from amesh_client.models.admission_scope import AdmissionScope
+from amesh_client.models.asset_access_mode import AssetAccessMode
+from amesh_client.models.asset_catalog_entry import AssetCatalogEntry
+from amesh_client.models.asset_catalog_export import AssetCatalogExport
+from amesh_client.models.asset_health import AssetHealth
+from amesh_client.models.asset_lineage_declaration import AssetLineageDeclaration
+from amesh_client.models.asset_lineage_edge import AssetLineageEdge
+from amesh_client.models.asset_metadata import AssetMetadata
+from amesh_client.models.asset_observation import AssetObservation
+from amesh_client.models.asset_observation_create import AssetObservationCreate
+from amesh_client.models.asset_registration_source import AssetRegistrationSource
 from amesh_client.models.audit_artifact_kind import AuditArtifactKind
 from amesh_client.models.audit_event import AuditEvent
 from amesh_client.models.audit_event_page import AuditEventPage
@@ -149,6 +159,7 @@ from amesh_client.models.key_value_export import KeyValueExport
 from amesh_client.models.key_value_type import KeyValueType
 from amesh_client.models.key_value_write import KeyValueWrite
 from amesh_client.models.label_normalization import LabelNormalization
+from amesh_client.models.lineage_evidence_kind import LineageEvidenceKind
 from amesh_client.models.location_inner import LocationInner
 from amesh_client.models.log_level import LogLevel
 from amesh_client.models.log_source_stream import LogSourceStream
@@ -170,6 +181,7 @@ from amesh_client.models.namespace_workflow_metadata_view import NamespaceWorkfl
 from amesh_client.models.permission import Permission
 from amesh_client.models.permission_action import PermissionAction
 from amesh_client.models.permission_effect import PermissionEffect
+from amesh_client.models.persisted_asset import PersistedAsset
 from amesh_client.models.persisted_execution import PersistedExecution
 from amesh_client.models.persisted_flow import PersistedFlow
 from amesh_client.models.persisted_subflow import PersistedSubflow
@@ -290,6 +302,7 @@ from amesh_client.models.source_range import SourceRange
 from amesh_client.models.subflow_mode import SubflowMode
 from amesh_client.models.subflow_propagation import SubflowPropagation
 from amesh_client.models.task_artifact_record import TaskArtifactRecord
+from amesh_client.models.task_asset_record import TaskAssetRecord
 from amesh_client.models.task_cache_entry import TaskCacheEntry
 from amesh_client.models.task_cache_mode import TaskCacheMode
 from amesh_client.models.task_cache_purge_request import TaskCachePurgeRequest

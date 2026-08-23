@@ -548,14 +548,14 @@ URS-F-0546,Functional,Must,EPIC-506,External secrets managers and secret lifecyc
 URS-F-0547,Functional,Must,EPIC-506,External secrets managers and secret lifecycle,M5,5,Security integration tests and threat-model review,Proposed
 URS-F-0548,Functional,Must,EPIC-506,External secrets managers and secret lifecycle,M5,5,Security integration tests and threat-model review,Proposed
 URS-F-0549,Functional,Must,EPIC-506,External secrets managers and secret lifecycle,M5,5,Security integration tests and threat-model review,Proposed
-URS-F-0550,Functional,Must,EPIC-507,"Assets, lineage and catalog",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
-URS-F-0551,Functional,Must,EPIC-507,"Assets, lineage and catalog",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
-URS-F-0552,Functional,Must,EPIC-507,"Assets, lineage and catalog",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
-URS-F-0553,Functional,Must,EPIC-507,"Assets, lineage and catalog",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
-URS-F-0554,Functional,Must,EPIC-507,"Assets, lineage and catalog",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
-URS-F-0555,Functional,Must,EPIC-507,"Assets, lineage and catalog",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
-URS-F-0556,Functional,Must,EPIC-507,"Assets, lineage and catalog",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
-URS-F-0557,Functional,Must,EPIC-507,"Assets, lineage and catalog",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0550,Functional,Must,EPIC-507,"Assets, lineage and catalog",M5,5,"Authorization, audit and administrative end-to-end tests",Verified
+URS-F-0551,Functional,Must,EPIC-507,"Assets, lineage and catalog",M5,5,"Authorization, audit and administrative end-to-end tests",Verified
+URS-F-0552,Functional,Must,EPIC-507,"Assets, lineage and catalog",M5,5,"Authorization, audit and administrative end-to-end tests",Verified
+URS-F-0553,Functional,Must,EPIC-507,"Assets, lineage and catalog",M5,5,"Authorization, audit and administrative end-to-end tests",Verified
+URS-F-0554,Functional,Must,EPIC-507,"Assets, lineage and catalog",M5,5,"Authorization, audit and administrative end-to-end tests",Verified
+URS-F-0555,Functional,Must,EPIC-507,"Assets, lineage and catalog",M5,5,"Authorization, audit and administrative end-to-end tests",Verified
+URS-F-0556,Functional,Must,EPIC-507,"Assets, lineage and catalog",M5,5,"Authorization, audit and administrative end-to-end tests",Verified
+URS-F-0557,Functional,Must,EPIC-507,"Assets, lineage and catalog",M5,5,"Authorization, audit and administrative end-to-end tests",Verified
 URS-F-0558,Functional,Must,EPIC-508,"Apps, forms and human approval tasks",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
 URS-F-0559,Functional,Must,EPIC-508,"Apps, forms and human approval tasks",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
 URS-F-0560,Functional,Must,EPIC-508,"Apps, forms and human approval tasks",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed

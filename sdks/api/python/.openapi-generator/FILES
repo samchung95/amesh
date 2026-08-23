@@ -7,6 +7,7 @@ README.md
 amesh_client/__init__.py
 amesh_client/api/__init__.py
 amesh_client/api/administration_api.py
+amesh_client/api/assets_api.py
 amesh_client/api/audit_api.py
 amesh_client/api/authentication_api.py
 amesh_client/api/authorization_api.py
@@ -48,6 +49,16 @@ amesh_client/models/admission_diagnostics.py
 amesh_client/models/admission_outcome.py
 amesh_client/models/admission_resource_type.py
 amesh_client/models/admission_scope.py
+amesh_client/models/asset_access_mode.py
+amesh_client/models/asset_catalog_entry.py
+amesh_client/models/asset_catalog_export.py
+amesh_client/models/asset_health.py
+amesh_client/models/asset_lineage_declaration.py
+amesh_client/models/asset_lineage_edge.py
+amesh_client/models/asset_metadata.py
+amesh_client/models/asset_observation.py
+amesh_client/models/asset_observation_create.py
+amesh_client/models/asset_registration_source.py
 amesh_client/models/audit_artifact_kind.py
 amesh_client/models/audit_event.py
 amesh_client/models/audit_event_page.py
@@ -172,6 +183,7 @@ amesh_client/models/key_value_export.py
 amesh_client/models/key_value_type.py
 amesh_client/models/key_value_write.py
 amesh_client/models/label_normalization.py
+amesh_client/models/lineage_evidence_kind.py
 amesh_client/models/location_inner.py
 amesh_client/models/log_level.py
 amesh_client/models/log_source_stream.py
@@ -193,6 +205,7 @@ amesh_client/models/namespace_workflow_metadata_view.py
 amesh_client/models/permission.py
 amesh_client/models/permission_action.py
 amesh_client/models/permission_effect.py
+amesh_client/models/persisted_asset.py
 amesh_client/models/persisted_execution.py
 amesh_client/models/persisted_flow.py
 amesh_client/models/persisted_subflow.py
@@ -313,6 +326,7 @@ amesh_client/models/source_range.py
 amesh_client/models/subflow_mode.py
 amesh_client/models/subflow_propagation.py
 amesh_client/models/task_artifact_record.py
+amesh_client/models/task_asset_record.py
 amesh_client/models/task_cache_entry.py
 amesh_client/models/task_cache_mode.py
 amesh_client/models/task_cache_purge_request.py
@@ -357,6 +371,7 @@ amesh_client/models/workflow_metadata_policy.py
 amesh_client/py.typed
 amesh_client/rest.py
 docs/AdministrationApi.md
+docs/AssetsApi.md
 docs/AuditApi.md
 docs/AuthenticationApi.md
 docs/AuthorizationApi.md

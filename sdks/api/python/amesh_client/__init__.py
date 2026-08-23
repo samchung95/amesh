@@ -19,6 +19,7 @@ __version__ = "0.2.0"
 # Define package exports
 __all__ = [
     "AdministrationApi",
+    "AssetsApi",
     "AuditApi",
     "AuthenticationApi",
     "AuthorizationApi",
@@ -64,6 +65,16 @@ __all__ = [
     "AdmissionOutcome",
     "AdmissionResourceType",
     "AdmissionScope",
+    "AssetAccessMode",
+    "AssetCatalogEntry",
+    "AssetCatalogExport",
+    "AssetHealth",
+    "AssetLineageDeclaration",
+    "AssetLineageEdge",
+    "AssetMetadata",
+    "AssetObservation",
+    "AssetObservationCreate",
+    "AssetRegistrationSource",
     "AuditArtifactKind",
     "AuditEvent",
     "AuditEventPage",
@@ -188,6 +199,7 @@ __all__ = [
     "KeyValueType",
     "KeyValueWrite",
     "LabelNormalization",
+    "LineageEvidenceKind",
     "LocationInner",
     "LogLevel",
     "LogSourceStream",
@@ -209,6 +221,7 @@ __all__ = [
     "Permission",
     "PermissionAction",
     "PermissionEffect",
+    "PersistedAsset",
     "PersistedExecution",
     "PersistedFlow",
     "PersistedSubflow",
@@ -329,6 +342,7 @@ __all__ = [
     "SubflowMode",
     "SubflowPropagation",
     "TaskArtifactRecord",
+    "TaskAssetRecord",
     "TaskCacheEntry",
     "TaskCacheMode",
     "TaskCachePurgeRequest",
@@ -374,6 +388,7 @@ __all__ = [
 
 # import apis into sdk package
 from amesh_client.api.administration_api import AdministrationApi as AdministrationApi
+from amesh_client.api.assets_api import AssetsApi as AssetsApi
 from amesh_client.api.audit_api import AuditApi as AuditApi
 from amesh_client.api.authentication_api import AuthenticationApi as AuthenticationApi
 from amesh_client.api.authorization_api import AuthorizationApi as AuthorizationApi
@@ -423,6 +438,16 @@ from amesh_client.models.admission_diagnostics import AdmissionDiagnostics as Ad
 from amesh_client.models.admission_outcome import AdmissionOutcome as AdmissionOutcome
 from amesh_client.models.admission_resource_type import AdmissionResourceType as AdmissionResourceType
 from amesh_client.models.admission_scope import AdmissionScope as AdmissionScope
+from amesh_client.models.asset_access_mode import AssetAccessMode as AssetAccessMode
+from amesh_client.models.asset_catalog_entry import AssetCatalogEntry as AssetCatalogEntry
+from amesh_client.models.asset_catalog_export import AssetCatalogExport as AssetCatalogExport
+from amesh_client.models.asset_health import AssetHealth as AssetHealth
+from amesh_client.models.asset_lineage_declaration import AssetLineageDeclaration as AssetLineageDeclaration
+from amesh_client.models.asset_lineage_edge import AssetLineageEdge as AssetLineageEdge
+from amesh_client.models.asset_metadata import AssetMetadata as AssetMetadata
+from amesh_client.models.asset_observation import AssetObservation as AssetObservation
+from amesh_client.models.asset_observation_create import AssetObservationCreate as AssetObservationCreate
+from amesh_client.models.asset_registration_source import AssetRegistrationSource as AssetRegistrationSource
 from amesh_client.models.audit_artifact_kind import AuditArtifactKind as AuditArtifactKind
 from amesh_client.models.audit_event import AuditEvent as AuditEvent
 from amesh_client.models.audit_event_page import AuditEventPage as AuditEventPage
@@ -547,6 +572,7 @@ from amesh_client.models.key_value_export import KeyValueExport as KeyValueExpor
 from amesh_client.models.key_value_type import KeyValueType as KeyValueType
 from amesh_client.models.key_value_write import KeyValueWrite as KeyValueWrite
 from amesh_client.models.label_normalization import LabelNormalization as LabelNormalization
+from amesh_client.models.lineage_evidence_kind import LineageEvidenceKind as LineageEvidenceKind
 from amesh_client.models.location_inner import LocationInner as LocationInner
 from amesh_client.models.log_level import LogLevel as LogLevel
 from amesh_client.models.log_source_stream import LogSourceStream as LogSourceStream
@@ -568,6 +594,7 @@ from amesh_client.models.namespace_workflow_metadata_view import NamespaceWorkfl
 from amesh_client.models.permission import Permission as Permission
 from amesh_client.models.permission_action import PermissionAction as PermissionAction
 from amesh_client.models.permission_effect import PermissionEffect as PermissionEffect
+from amesh_client.models.persisted_asset import PersistedAsset as PersistedAsset
 from amesh_client.models.persisted_execution import PersistedExecution as PersistedExecution
 from amesh_client.models.persisted_flow import PersistedFlow as PersistedFlow
 from amesh_client.models.persisted_subflow import PersistedSubflow as PersistedSubflow
@@ -688,6 +715,7 @@ from amesh_client.models.source_range import SourceRange as SourceRange
 from amesh_client.models.subflow_mode import SubflowMode as SubflowMode
 from amesh_client.models.subflow_propagation import SubflowPropagation as SubflowPropagation
 from amesh_client.models.task_artifact_record import TaskArtifactRecord as TaskArtifactRecord
+from amesh_client.models.task_asset_record import TaskAssetRecord as TaskAssetRecord
 from amesh_client.models.task_cache_entry import TaskCacheEntry as TaskCacheEntry
 from amesh_client.models.task_cache_mode import TaskCacheMode as TaskCacheMode
 from amesh_client.models.task_cache_purge_request import TaskCachePurgeRequest as TaskCachePurgeRequest

@@ -1,4 +1,6 @@
 export type Capability =
+  | 'assets.view'
+  | 'assets.manage'
   | 'flows.view'
   | 'flows.create'
   | 'flows.update'
@@ -29,6 +31,82 @@ export interface UiSession {
   capabilities: Record<Capability, boolean>
   telemetryEnabled: boolean
   serverVersion: string
+}
+
+export type AssetAccessMode = 'READ' | 'WRITE'
+export type AssetHealth = 'UNKNOWN' | 'HEALTHY' | 'DEGRADED' | 'FAILED'
+export type AssetRegistrationSource = 'DECLARED' | 'PLUGIN_EVENT'
+export type LineageEvidenceKind = 'DECLARED' | 'OBSERVED' | 'INFERRED'
+
+export interface AssetRecord {
+  assetId: string
+  tenantId: string
+  namespace: string
+  provider: string
+  account: string
+  location: string
+  externalKey: string
+  assetType: string
+  displayName: string
+  description: string
+  owner: string | null
+  contacts: string[]
+  domainGroup: string | null
+  tags: string[]
+  customMetadata: Record<string, unknown>
+  labels: Record<string, string>
+  health: AssetHealth
+  lastMaterializationAt: string | null
+  source: AssetRegistrationSource
+  resourceVersion: number
+  createdBy: string
+  updatedBy: string
+  createdAt: string
+  updatedAt: string
+}
+
+export type AssetDraft = Omit<AssetRecord, 'tenantId' | 'resourceVersion' | 'createdBy' | 'updatedBy' | 'createdAt' | 'updatedAt'>
+
+export interface AssetObservation {
+  observationId: string
+  assetId: string
+  tenantId: string
+  namespace: string
+  accessMode: AssetAccessMode
+  evidenceKind: LineageEvidenceKind
+  confidence: number
+  flowId: string | null
+  executionId: string | null
+  taskRunId: string | null
+  artifactId: string | null
+  metadata: Record<string, unknown>
+  observedAt: string
+  createdBy: string
+}
+
+export interface AssetLineageEdge {
+  edgeId: string
+  tenantId: string
+  namespace: string
+  upstreamAssetId: string
+  downstreamAssetId: string
+  evidenceKind: LineageEvidenceKind
+  confidence: number
+  flowId: string | null
+  executionId: string | null
+  taskRunId: string | null
+  artifactId: string | null
+  metadata: Record<string, unknown>
+  observedAt: string
+  createdBy: string
+}
+
+export interface AssetCatalogEntry {
+  asset: AssetRecord
+  upstream: AssetRecord[]
+  downstream: AssetRecord[]
+  observations: AssetObservation[]
+  edges: AssetLineageEdge[]
 }
 
 export type DashboardDataSource = 'EXECUTIONS' | 'LOGS' | 'METRICS' | 'SLA' | 'WORKERS' | 'ASSETS'

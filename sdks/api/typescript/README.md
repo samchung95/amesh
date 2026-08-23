@@ -62,6 +62,12 @@ All URIs are relative to *http://localhost*
 *AdministrationApi* | [**listAdministrationAuditApiV1AdminAuditGet**](docs/AdministrationApi.md#listadministrationauditapiv1adminauditget) | **GET** /api/v1/admin/audit | List Administration Audit
 *AdministrationApi* | [**listAdministrationControlsApiV1AdminControlsGet**](docs/AdministrationApi.md#listadministrationcontrolsapiv1admincontrolsget) | **GET** /api/v1/admin/controls | List Administration Controls
 *AdministrationApi* | [**previewAdministrationControlApiV1AdminControlsPreviewPost**](docs/AdministrationApi.md#previewadministrationcontrolapiv1admincontrolspreviewpost) | **POST** /api/v1/admin/controls/preview | Preview Administration Control
+*AssetsApi* | [**declareAssetLineageApiV1AssetsLineagePost**](docs/AssetsApi.md#declareassetlineageapiv1assetslineagepost) | **POST** /api/v1/assets/lineage | Declare Asset Lineage
+*AssetsApi* | [**exportAssetCatalogApiV1AssetsExportOpenlineageGet**](docs/AssetsApi.md#exportassetcatalogapiv1assetsexportopenlineageget) | **GET** /api/v1/assets/export/openlineage | Export Asset Catalog
+*AssetsApi* | [**getAssetCatalogEntryApiV1AssetsAssetIdGet**](docs/AssetsApi.md#getassetcatalogentryapiv1assetsassetidget) | **GET** /api/v1/assets/{asset_id} | Get Asset Catalog Entry
+*AssetsApi* | [**listAssetsApiV1AssetsGet**](docs/AssetsApi.md#listassetsapiv1assetsget) | **GET** /api/v1/assets | List Assets
+*AssetsApi* | [**recordAssetObservationApiV1AssetsObservationsPost**](docs/AssetsApi.md#recordassetobservationapiv1assetsobservationspost) | **POST** /api/v1/assets/observations | Record Asset Observation
+*AssetsApi* | [**registerAssetApiV1AssetsPost**](docs/AssetsApi.md#registerassetapiv1assetspost) | **POST** /api/v1/assets | Register Asset
 *AuditApi* | [**createAuditLegalHoldApiV1AuditLegalHoldsPost**](docs/AuditApi.md#createauditlegalholdapiv1auditlegalholdspost) | **POST** /api/v1/audit-legal-holds | Create Audit Legal Hold
 *AuditApi* | [**createComplianceEvidenceApiV1ComplianceEvidencePost**](docs/AuditApi.md#createcomplianceevidenceapiv1complianceevidencepost) | **POST** /api/v1/compliance-evidence | Create Compliance Evidence
 *AuditApi* | [**createObjectAuditExportApiV1AuditExportsPost**](docs/AuditApi.md#createobjectauditexportapiv1auditexportspost) | **POST** /api/v1/audit-exports | Create Object Audit Export
@@ -275,6 +281,16 @@ All URIs are relative to *http://localhost*
 - [AdmissionOutcome](docs/AdmissionOutcome.md)
 - [AdmissionResourceType](docs/AdmissionResourceType.md)
 - [AdmissionScope](docs/AdmissionScope.md)
+- [AssetAccessMode](docs/AssetAccessMode.md)
+- [AssetCatalogEntry](docs/AssetCatalogEntry.md)
+- [AssetCatalogExport](docs/AssetCatalogExport.md)
+- [AssetHealth](docs/AssetHealth.md)
+- [AssetLineageDeclaration](docs/AssetLineageDeclaration.md)
+- [AssetLineageEdge](docs/AssetLineageEdge.md)
+- [AssetMetadata](docs/AssetMetadata.md)
+- [AssetObservation](docs/AssetObservation.md)
+- [AssetObservationCreate](docs/AssetObservationCreate.md)
+- [AssetRegistrationSource](docs/AssetRegistrationSource.md)
 - [AuditArtifactKind](docs/AuditArtifactKind.md)
 - [AuditEvent](docs/AuditEvent.md)
 - [AuditEventPage](docs/AuditEventPage.md)
@@ -399,6 +415,7 @@ All URIs are relative to *http://localhost*
 - [KeyValueType](docs/KeyValueType.md)
 - [KeyValueWrite](docs/KeyValueWrite.md)
 - [LabelNormalization](docs/LabelNormalization.md)
+- [LineageEvidenceKind](docs/LineageEvidenceKind.md)
 - [LocationInner](docs/LocationInner.md)
 - [LogLevel](docs/LogLevel.md)
 - [LogSourceStream](docs/LogSourceStream.md)
@@ -420,6 +437,7 @@ All URIs are relative to *http://localhost*
 - [Permission](docs/Permission.md)
 - [PermissionAction](docs/PermissionAction.md)
 - [PermissionEffect](docs/PermissionEffect.md)
+- [PersistedAsset](docs/PersistedAsset.md)
 - [PersistedExecution](docs/PersistedExecution.md)
 - [PersistedFlow](docs/PersistedFlow.md)
 - [PersistedSubflow](docs/PersistedSubflow.md)
@@ -540,6 +558,7 @@ All URIs are relative to *http://localhost*
 - [SubflowMode](docs/SubflowMode.md)
 - [SubflowPropagation](docs/SubflowPropagation.md)
 - [TaskArtifactRecord](docs/TaskArtifactRecord.md)
+- [TaskAssetRecord](docs/TaskAssetRecord.md)
 - [TaskCacheEntry](docs/TaskCacheEntry.md)
 - [TaskCacheMode](docs/TaskCacheMode.md)
 - [TaskCachePurgeRequest](docs/TaskCachePurgeRequest.md)

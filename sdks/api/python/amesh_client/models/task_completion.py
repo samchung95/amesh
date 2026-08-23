@@ -19,7 +19,9 @@ import json
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
+from typing_extensions import Annotated
 from amesh_client.models.task_artifact_record import TaskArtifactRecord
+from amesh_client.models.task_asset_record import TaskAssetRecord
 from amesh_client.models.task_exit_metadata import TaskExitMetadata
 from amesh_client.models.task_log_record import TaskLogRecord
 from amesh_client.models.task_metric_record import TaskMetricRecord
@@ -32,12 +34,13 @@ class TaskCompletion(BaseModel):
     TaskCompletion
     """ # noqa: E501
     artifacts: Optional[List[TaskArtifactRecord]] = None
+    assets: Optional[Annotated[List[TaskAssetRecord], Field(max_length=1000)]] = None
     exit: Optional[TaskExitMetadata] = None
     logs: Optional[List[TaskLogRecord]] = None
     metrics: Optional[List[TaskMetricRecord]] = None
     output: Optional[Dict[str, Any]] = None
     sensitive_output_keys: Optional[List[Optional[StrictStr]]] = Field(default=None, alias="sensitiveOutputKeys")
-    __properties: ClassVar[List[str]] = ["artifacts", "exit", "logs", "metrics", "output", "sensitiveOutputKeys"]
+    __properties: ClassVar[List[str]] = ["artifacts", "assets", "exit", "logs", "metrics", "output", "sensitiveOutputKeys"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -85,6 +88,13 @@ class TaskCompletion(BaseModel):
                 if _item_artifacts:
                     _items.append(_item_artifacts.to_dict())
             _dict['artifacts'] = _items
+        # override the default output from pydantic by calling `to_dict()` of each item in assets (list)
+        _items = []
+        if self.assets:
+            for _item_assets in self.assets:
+                if _item_assets:
+                    _items.append(_item_assets.to_dict())
+            _dict['assets'] = _items
         # override the default output from pydantic by calling `to_dict()` of exit
         if self.exit:
             _dict['exit'] = self.exit.to_dict()
@@ -115,6 +125,7 @@ class TaskCompletion(BaseModel):
 
         _obj = cls.model_validate({
             "artifacts": [TaskArtifactRecord.from_dict(_item) for _item in obj["artifacts"]] if obj.get("artifacts") is not None else None,
+            "assets": [TaskAssetRecord.from_dict(_item) for _item in obj["assets"]] if obj.get("assets") is not None else None,
             "exit": TaskExitMetadata.from_dict(obj["exit"]) if obj.get("exit") is not None else None,
             "logs": [TaskLogRecord.from_dict(_item) for _item in obj["logs"]] if obj.get("logs") is not None else None,
             "metrics": [TaskMetricRecord.from_dict(_item) for _item in obj["metrics"]] if obj.get("metrics") is not None else None,

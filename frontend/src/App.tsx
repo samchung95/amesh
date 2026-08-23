@@ -20,6 +20,7 @@ import { SearchPage } from './pages/SearchPage'
 import { TriggersPage } from './pages/TriggersPage'
 import { ChecksPage } from './pages/ChecksPage'
 import { AdministrationPage } from './pages/AdministrationPage'
+import { AssetsPage } from './pages/AssetsPage'
 import { BlueprintsPage } from './pages/BlueprintsPage'
 
 export function App() {
@@ -79,7 +80,7 @@ function WorkspaceRoutes({ session }: { session: UiSession }) {
         <Route path="triggers" element={<CapabilityRoute session={session} capability="triggers.view" title="Triggers"><TriggersPage session={session} /></CapabilityRoute>} />
         <Route path="checks" element={<CapabilityRoute session={session} capability="checks.view" title="Checks"><ChecksPage session={session} /></CapabilityRoute>} />
         <Route path="namespaces" element={<CapabilityRoute session={session} capability="namespaceResources.read" title="Namespaces"><NamespaceResourcesPage session={session} /></CapabilityRoute>} />
-        <Route path="assets" element={<PlaceholderPage title="Assets" />} />
+        <Route path="assets" element={<CapabilityRoute session={session} capability="assets.view" title="Assets"><AssetsPage session={session} /></CapabilityRoute>} />
         <Route path="apps" element={<PlaceholderPage title="Apps" />} />
         <Route path="plugins" element={<CapabilityRoute session={session} capability="plugins.view" title="Plugins"><PluginsPage session={session} /></CapabilityRoute>} />
         <Route path="administration" element={<CapabilityRoute session={session} capability="administration.manage" title="Administration"><AdministrationPage session={session} /></CapabilityRoute>} />

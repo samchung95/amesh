@@ -25,16 +25,18 @@ from .wire import (
     PLUGIN_METHOD_SHUTDOWN,
     PLUGIN_METHOD_VALIDATE,
     PLUGIN_NOTIFICATION_ARTIFACT,
+    PLUGIN_NOTIFICATION_ASSET,
     PLUGIN_NOTIFICATION_HEARTBEAT,
     PLUGIN_NOTIFICATION_LOG,
     PLUGIN_NOTIFICATION_METRIC,
     PLUGIN_WIRE_VERSION,
-    REQUIRED_WIRE_FEATURES,
+    SUPPORTED_WIRE_FEATURES,
     JsonRpcError,
     JsonRpcNotification,
     JsonRpcRequest,
     JsonRpcResponse,
     PluginArtifact,
+    PluginAsset,
     PluginAuthenticatedParams,
     PluginCapabilityEnvelope,
     PluginHandshakeParams,
@@ -49,6 +51,7 @@ class ProcessPluginResult(BaseModel):
     response: PluginResponse
     metrics: tuple[PluginMetric, ...] = ()
     artifacts: tuple[PluginArtifact, ...] = ()
+    assets: tuple[PluginAsset, ...] = ()
 
 
 ProcessPluginHandler = Callable[
@@ -214,6 +217,16 @@ async def serve_stdio_plugin(
                         ),
                     },
                 )
+            for asset in result.assets:
+                await notify(
+                    PLUGIN_NOTIFICATION_ASSET,
+                    {
+                        "invocationId": params.request.session.invocation_id,
+                        "asset": asset.model_dump(
+                            mode="json", by_alias=True, exclude_none=True
+                        ),
+                    },
+                )
             response_payload = result.response.model_copy(update={"logs": ()}).model_dump(
                 mode="json",
                 by_alias=True,
@@ -272,7 +285,7 @@ async def serve_stdio_plugin(
                     raise ValueError("plugin session handshake is already complete")
                 if PLUGIN_WIRE_VERSION not in handshake_params.protocol_versions:
                     raise ValueError("no compatible plugin wire protocol")
-                if not set(handshake_params.required_features).issubset(REQUIRED_WIRE_FEATURES):
+                if not set(handshake_params.required_features).issubset(SUPPORTED_WIRE_FEATURES):
                     raise ValueError("plugin requires unsupported wire features")
                 if (
                     handshake_params.plugin != manifest.name
@@ -284,7 +297,7 @@ async def serve_stdio_plugin(
                     request.id,
                     result={
                         "protocolVersion": PLUGIN_WIRE_VERSION,
-                        "features": [feature.value for feature in REQUIRED_WIRE_FEATURES],
+                        "features": [feature.value for feature in SUPPORTED_WIRE_FEATURES],
                         "plugin": manifest.name,
                         "version": manifest.version,
                         "contentDigest": session.content_digest,

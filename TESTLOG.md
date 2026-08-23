@@ -1,5 +1,38 @@
 # Test Log
 
+## EPIC-507: Assets, lineage and catalog — 2026-08-23
+
+Spec source: Agent Hotel card `c71` and canonical `backlog/epics.json` EPIC-507 DoD.
+
+Verified with `uv`, Python 3.13, PostgreSQL 17, React/TypeScript, Chromium and Docker Compose:
+
+- [x] Migration `0048_asset_catalog_lineage.sql` applies to a fresh database and extends the existing
+  catalog with provider/account/location/type/external-key identity, namespace governance metadata,
+  tenant RLS, durable observations and confidence-bearing lineage edges.
+- [x] Explicit declarations and authenticated isolated-plugin `amesh.asset` READ/WRITE notifications
+  use the same normalized persistence contract. Runtime evidence retains flow, execution, task-run and
+  artifact references; a write advances health and last materialization.
+- [x] PostgreSQL integration proved full identity discrimination, duplicate edge convergence, restart
+  reload, tenant separation, declared and inferred lineage, 0.8 confidence derivation and official
+  OpenLineage dataset naming/event export.
+- [x] Authorized API coverage registered assets, observations and lineage, hid a denied-namespace
+  neighbor from list and traversal results, returned catalog detail, and exported OpenLineage events.
+- [x] The Assets UI lists and filters catalog entries, displays upstream/downstream and execution or
+  artifact evidence, creates explicit declarations, and downloads the OpenLineage export. Targeted
+  Chromium acceptance and the production frontend build passed.
+- [x] Ruff passed on affected paths and strict mypy passed across 181 source files. Focused migration,
+  executor, plugin, PostgreSQL, API and UI-session tests passed; the fresh-schema repository test and
+  generated contracts/SDKs were executed with `uv`.
+- [x] API, executor, scheduler and indexer images rebuilt successfully. Live readiness reports 48/48
+  with `0048_asset_catalog_lineage.sql` after the explicit migration runner completed.
+- [x] No LLM behavior was involved, so no billable OpenRouter call was required. Applicable LLM tests
+  remain pinned to `openai/gpt-5.6-luna`.
+
+Qualification boundary: OpenLineage is an export interchange contract; this epic does not qualify or
+operate an external OpenLineage catalog service.
+
+Verdict: PASS — EPIC-507 functional requirements URS-F-0550 through URS-F-0557 are verified.
+
 ## EPIC-505: Plugin allow, restrict and version policy — 2026-08-23
 
 Spec source: Agent Hotel card `c70` and canonical `backlog/epics.json` EPIC-505 DoD.

@@ -3484,6 +3484,11 @@ def normalize_task_completion(
         if uri_redacted:
             raise TaskResourceLimitError("artifact URI contains secret material")
         artifact["uri"] = uri
+    assets, assets_redacted = _redact_task_evidence(
+        serialized["assets"], sensitive_keys=sensitive_keys, secret_values=secrets
+    )
+    if assets_redacted:
+        raise TaskResourceLimitError("asset event contains secret material")
     exit_metadata, _ = _redact_task_evidence(
         serialized["exit"], sensitive_keys=sensitive_keys, secret_values=secrets
     )
@@ -3497,6 +3502,7 @@ def normalize_task_completion(
         "logs": logs,
         "metrics": serialized["metrics"],
         "artifacts": artifacts,
+        "assets": assets,
         "exit": exit_metadata,
         "outputSensitive": bool(sensitive_keys or output_redacted),
         "sizes": {

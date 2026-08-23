@@ -21,6 +21,7 @@ PLUGIN_NOTIFICATION_HEARTBEAT = "amesh.heartbeat"
 PLUGIN_NOTIFICATION_LOG = "amesh.log"
 PLUGIN_NOTIFICATION_METRIC = "amesh.metric"
 PLUGIN_NOTIFICATION_ARTIFACT = "amesh.artifact"
+PLUGIN_NOTIFICATION_ASSET = "amesh.asset"
 
 
 class PluginWireFeature(StrEnum):
@@ -32,9 +33,13 @@ class PluginWireFeature(StrEnum):
     LOGS = "logs"
     METRICS = "metrics"
     ARTIFACTS = "artifacts"
+    ASSETS = "assets"
 
 
-REQUIRED_WIRE_FEATURES = tuple(PluginWireFeature)
+SUPPORTED_WIRE_FEATURES = tuple(PluginWireFeature)
+REQUIRED_WIRE_FEATURES = tuple(
+    feature for feature in SUPPORTED_WIRE_FEATURES if feature is not PluginWireFeature.ASSETS
+)
 
 
 class JsonRpcError(BaseModel):
@@ -178,6 +183,25 @@ class PluginArtifact(BaseModel):
     logical_path: str | None = Field(default=None, alias="logicalPath", max_length=4096)
 
 
+class PluginAsset(BaseModel):
+    model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
+
+    provider: str = Field(min_length=1, max_length=128)
+    account: str = Field(default="default", min_length=1, max_length=255)
+    location: str = Field(default="global", min_length=1, max_length=512)
+    asset_type: str = Field(alias="assetType", min_length=1, max_length=128)
+    external_key: str = Field(alias="externalKey", min_length=1, max_length=1024)
+    display_name: str = Field(alias="displayName", min_length=1, max_length=512)
+    access_mode: Literal["READ", "WRITE"] = Field(alias="accessMode")
+    description: str = Field(default="", max_length=4096)
+    owner: str | None = Field(default=None, max_length=255)
+    contacts: tuple[str, ...] = ()
+    domain_group: str | None = Field(default=None, alias="domainGroup", max_length=255)
+    tags: tuple[str, ...] = ()
+    custom_metadata: dict[str, Any] = Field(default_factory=dict, alias="customMetadata")
+    artifact_uri: str | None = Field(default=None, alias="artifactUri", max_length=4096)
+
+
 class PluginInvocationResult(BaseModel):
     model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
 
@@ -199,3 +223,4 @@ class PluginWireContract(BaseModel):
     authenticated: PluginAuthenticatedParams
     metric: PluginMetric
     artifact: PluginArtifact
+    asset: PluginAsset

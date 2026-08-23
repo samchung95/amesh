@@ -175,6 +175,12 @@ evaluation, tenant and namespace records are RLS-isolated, and all violations an
 the audit ledger. The migration is additive; pause policy changes and third-party starts during a
 forward fix while preserving immutable flow-revision pins and historical plugin metadata.
 
+Migration `0048_asset_catalog_lineage.sql` extends the existing tenant-scoped asset identity with
+account, location, namespace, stewardship, health and materialization metadata. Durable observations
+link READ/WRITE evidence to flows, executions, task runs and artifacts; declared, observed and
+inferred asset edges retain confidence and provenance. The migration is additive; pause catalog
+writes during a forward fix while preserving existing asset and execution history.
+
 ## Migration modes
 
 - `bootstrap` creates the initial schema and is only safe for an empty database.

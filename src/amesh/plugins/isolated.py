@@ -23,6 +23,7 @@ from amesh.domain import FailureCategory
 from amesh.dsl import TaskDefinition
 from amesh.executor import (
     TaskArtifactRecord,
+    TaskAssetRecord,
     TaskCompletion,
     TaskConfigurationError,
     TaskExecutionContext,
@@ -59,6 +60,7 @@ from amesh.plugin_sdk.wire import (
     PLUGIN_METHOD_SHUTDOWN,
     PLUGIN_METHOD_VALIDATE,
     PLUGIN_NOTIFICATION_ARTIFACT,
+    PLUGIN_NOTIFICATION_ASSET,
     PLUGIN_NOTIFICATION_HEARTBEAT,
     PLUGIN_NOTIFICATION_LOG,
     PLUGIN_NOTIFICATION_METRIC,
@@ -68,6 +70,7 @@ from amesh.plugin_sdk.wire import (
     JsonRpcRequest,
     JsonRpcResponse,
     PluginArtifact,
+    PluginAsset,
     PluginAuthenticatedParams,
     PluginCapabilityEnvelope,
 )
@@ -166,6 +169,7 @@ class _Evidence:
     logs: list[TaskLogRecord] = field(default_factory=list)
     metrics: list[TaskMetricRecord] = field(default_factory=list)
     artifacts: list[TaskArtifactRecord] = field(default_factory=list)
+    assets: list[TaskAssetRecord] = field(default_factory=list)
 
 
 @dataclass
@@ -380,6 +384,10 @@ class _PluginProcess:
         if notification.method == PLUGIN_NOTIFICATION_ARTIFACT:
             artifact = PluginArtifact.model_validate(params.get("artifact"))
             evidence.artifacts.append(TaskArtifactRecord.model_validate(artifact.model_dump()))
+            return
+        if notification.method == PLUGIN_NOTIFICATION_ASSET:
+            asset = PluginAsset.model_validate(params.get("asset"))
+            evidence.assets.append(TaskAssetRecord.model_validate(asset.model_dump()))
             return
         raise IsolatedPluginRuntimeError(
             "isolated plugin emitted an unknown notification",
@@ -637,6 +645,7 @@ class IsolatedPluginRuntime:
                     logs=tuple(evidence.logs),
                     metrics=tuple(evidence.metrics),
                     artifacts=tuple(evidence.artifacts),
+                    assets=tuple(evidence.assets),
                 )
             except IsolatedPluginRuntimeError as exc:
                 registration.last_error_code = exc.code

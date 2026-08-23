@@ -1,5 +1,8 @@
 import type {
   AdministrationAuditEntry,
+  AssetCatalogEntry,
+  AssetDraft,
+  AssetRecord,
   AdministrationControl,
   AdministrationControlDraft,
   AdministrationImpactPreview,
@@ -189,6 +192,18 @@ export function createApiClient(connection: ApiConnection) {
       const suffix = params.size ? `?${params.toString()}` : ''
       return request<UiSession>(`/api/v1/ui/session${suffix}`)
     },
+    assets: async (namespace?: string) =>
+      request<AssetRecord[]>(`/api/v1/assets${namespace ? `?namespace=${encodeURIComponent(namespace)}` : ''}`),
+    asset: async (assetId: string) =>
+      request<AssetCatalogEntry>(`/api/v1/assets/${encodeURIComponent(assetId)}`),
+    registerAsset: async (draft: AssetDraft) =>
+      request<AssetRecord>('/api/v1/assets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(draft),
+      }),
+    exportAssetCatalog: async (namespace?: string) =>
+      requestBlob(`/api/v1/assets/export/openlineage${namespace ? `?namespace=${encodeURIComponent(namespace)}` : ''}`),
     principals: async () => request<PrincipalDefinition[]>('/api/v1/admin/principals'),
     createPrincipal: async (principalType: PrincipalDefinition['principal_type'], handle: string, displayName: string) =>
       request<PrincipalDefinition>('/api/v1/admin/principals', {
