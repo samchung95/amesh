@@ -68,6 +68,55 @@ jobs:
       - name: Validate Compose
         run: docker compose config --quiet
 
+  kestra-compatibility:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: |
+          python -m pip install uv
+          uv pip install --system -e '.[dev]'
+      - name: Verify pinned compatibility and migration contracts
+        run: >-
+          pytest -q
+          tests/compatibility
+          tests/expressions/test_pebble_contract.py
+      - name: Validate the core fixture on the pinned Kestra black box
+        shell: bash
+        run: |
+          set -euo pipefail
+          container=amesh-kestra-conformance-1330
+          cleanup() { docker rm -f "$container" >/dev/null 2>&1 || true; }
+          trap cleanup EXIT
+          docker run -d --name "$container" \
+            -e KESTRA_SERVER_BASIC_AUTH_USERNAME=admin@kestra.io \
+            -e KESTRA_SERVER_BASIC_AUTH_PASSWORD=Admin1234 \
+            -v "$PWD:/workspace" \
+            kestra/kestra@sha256:6442cd361bdaf317484c282ed45a7529c1d90ae433a17f02cb378fd24362d297 \
+            server local >/dev/null
+          ready=false
+          for _ in $(seq 1 60); do
+            if docker logs "$container" 2>&1 | grep -q 'Main server is running'; then
+              ready=true
+              break
+            fi
+            sleep 2
+          done
+          test "$ready" = true
+          docker exec "$container" sh -c \
+            "/app/kestra flow validate --server http://localhost:8080 --user 'admin@kestra.io:Admin1234' /workspace/conformance/kestra/1.3.30/kestra-core-flow.yaml"
+      - name: Block an unsupported full-version claim
+        run: >-
+          python -c "from amesh.kestra_compatibility import compatibility_manifest;
+          value=compatibility_manifest();
+          assert value['target']['version']=='1.3.30';
+          assert value['releaseClaimAllowed'] is False;
+          assert value['unresolvedGaps']"
+
   terraform-provider:
     runs-on: ubuntu-latest
     timeout-minutes: 20

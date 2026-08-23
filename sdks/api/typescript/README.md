@@ -123,6 +123,9 @@ All URIs are relative to *http://localhost*
 *ChecksApi* | [**listCheckEvaluationsApiV1CheckEvaluationsGet**](docs/ChecksApi.md#listcheckevaluationsapiv1checkevaluationsget) | **GET** /api/v1/check-evaluations | List Check Evaluations
 *ChecksApi* | [**listCheckPoliciesApiV1CheckPoliciesGet**](docs/ChecksApi.md#listcheckpoliciesapiv1checkpoliciesget) | **GET** /api/v1/check-policies | List Check Policies
 *ChecksApi* | [**upsertCheckPolicyApiV1CheckPoliciesNamespacePolicyKeyPut**](docs/ChecksApi.md#upsertcheckpolicyapiv1checkpoliciesnamespacepolicykeyput) | **PUT** /api/v1/check-policies/{namespace}/{policy_key} | Upsert Check Policy
+*CompatibilityApi* | [**createKestraExecutionApiV1ExecutionsNamespaceFlowIdPost**](docs/CompatibilityApi.md#createkestraexecutionapiv1executionsnamespaceflowidpost) | **POST** /api/v1/executions/{namespace}/{flow_id} | Create Kestra Execution
+*CompatibilityApi* | [**getKestraCompatibilityManifestApiV1CompatibilityKestraManifestGet**](docs/CompatibilityApi.md#getkestracompatibilitymanifestapiv1compatibilitykestramanifestget) | **GET** /api/v1/compatibility/kestra/manifest | Get Kestra Compatibility Manifest
+*CompatibilityApi* | [**validateKestraFlowApiV1MainFlowsValidatePost**](docs/CompatibilityApi.md#validatekestraflowapiv1mainflowsvalidatepost) | **POST** /api/v1/main/flows/validate | Validate Kestra Flow
 *ConfigurationApi* | [**evaluateFeatureFlagApiV1FeatureFlagsKeyEvaluateGet**](docs/ConfigurationApi.md#evaluatefeatureflagapiv1featureflagskeyevaluateget) | **GET** /api/v1/feature-flags/{key}/evaluate | Evaluate Feature Flag
 *ConfigurationApi* | [**getConfigurationDiagnosticsApiV1ConfigurationDiagnosticsGet**](docs/ConfigurationApi.md#getconfigurationdiagnosticsapiv1configurationdiagnosticsget) | **GET** /api/v1/configuration/diagnostics | Get Configuration Diagnostics
 *ConfigurationApi* | [**getEffectiveConfigurationApiV1ConfigurationGet**](docs/ConfigurationApi.md#geteffectiveconfigurationapiv1configurationget) | **GET** /api/v1/configuration | Get Effective Configuration
@@ -383,6 +386,7 @@ All URIs are relative to *http://localhost*
 - [CheckOutcome](docs/CheckOutcome.md)
 - [CheckPolicySource](docs/CheckPolicySource.md)
 - [CheckPolicyUpsertRequest](docs/CheckPolicyUpsertRequest.md)
+- [CompatibilityMapping](docs/CompatibilityMapping.md)
 - [ComplianceEvidenceCategory](docs/ComplianceEvidenceCategory.md)
 - [ComplianceEvidenceCreate](docs/ComplianceEvidenceCreate.md)
 - [ComplianceEvidenceRecord](docs/ComplianceEvidenceRecord.md)
@@ -484,6 +488,8 @@ All URIs are relative to *http://localhost*
 - [IsolatedPluginState](docs/IsolatedPluginState.md)
 - [IssueCredentialRequest](docs/IssueCredentialRequest.md)
 - [IssuedCredentialResponse](docs/IssuedCredentialResponse.md)
+- [KestraExecutionRequest](docs/KestraExecutionRequest.md)
+- [KestraFlowImport](docs/KestraFlowImport.md)
 - [KeyValueChange](docs/KeyValueChange.md)
 - [KeyValueEntry](docs/KeyValueEntry.md)
 - [KeyValueExport](docs/KeyValueExport.md)
@@ -508,7 +514,9 @@ All URIs are relative to *http://localhost*
 - [LoginRequest](docs/LoginRequest.md)
 - [LoginResponse](docs/LoginResponse.md)
 - [Lte](docs/Lte.md)
+- [MappingDisposition](docs/MappingDisposition.md)
 - [MetricKind](docs/MetricKind.md)
+- [MigrationPatch](docs/MigrationPatch.md)
 - [NamespaceAuthorizationBoundary](docs/NamespaceAuthorizationBoundary.md)
 - [NamespaceCheckPolicy](docs/NamespaceCheckPolicy.md)
 - [NamespaceFile](docs/NamespaceFile.md)

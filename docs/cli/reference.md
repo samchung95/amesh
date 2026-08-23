@@ -8,7 +8,7 @@ Generated from `build_parser()`.
 usage: amesh [-h] [--version] [--api-url API_URL] [--token TOKEN]
              [--tenant TENANT] [--profile PROFILE] [--config-path CONFIG_PATH]
              [--output {human,json,quiet}] [--quiet]
-             {validate,apply,flows,executions,run,execution,logs,webhook,plugins,namespace,auth,config,flow,admin,lifecycle,completion,command-docs,storage,recovery,tenant-transfer} ...
+             {validate,apply,flows,executions,run,execution,logs,webhook,plugins,namespace,auth,config,flow,admin,lifecycle,upgrade,kestra,completion,command-docs,storage,recovery,tenant-transfer} ...
 ```
 
 ## `amesh admin`
@@ -232,6 +232,64 @@ usage: amesh flow test [-h] --revision REVISION [--test-id TEST_ID]
 
 ```text
 usage: amesh flows [-h]
+```
+
+## `amesh kestra`
+
+```text
+usage: amesh kestra [-h] {flow,migration,compatibility} ...
+```
+
+## `amesh kestra compatibility`
+
+```text
+usage: amesh kestra compatibility [-h] {manifest} ...
+```
+
+## `amesh kestra compatibility manifest`
+
+```text
+usage: amesh kestra compatibility manifest [-h]
+```
+
+## `amesh kestra flow`
+
+```text
+usage: amesh kestra flow [-h] {validate,migrate} ...
+```
+
+## `amesh kestra flow migrate`
+
+```text
+usage: amesh kestra flow migrate [-h] --output-path OUTPUT_PATH path
+```
+
+## `amesh kestra flow validate`
+
+```text
+usage: amesh kestra flow validate [-h] path
+```
+
+## `amesh kestra migration`
+
+```text
+usage: amesh kestra migration [-h] {plan,import} ...
+```
+
+## `amesh kestra migration import`
+
+```text
+usage: amesh kestra migration import [-h] --target-dir TARGET_DIR
+                                     [--max-records MAX_RECORDS]
+                                     [--secret-binding SECRET_BINDING]
+                                     bundle
+```
+
+## `amesh kestra migration plan`
+
+```text
+usage: amesh kestra migration plan [-h] [--secret-binding SECRET_BINDING]
+                                   bundle
 ```
 
 ## `amesh lifecycle`
@@ -580,6 +638,54 @@ usage: amesh tenant-transfer export [-h] [--actor ACTOR] tenant_slug path
 
 ```text
 usage: amesh tenant-transfer import [-h] [--actor ACTOR] path target_slug
+```
+
+## `amesh upgrade`
+
+```text
+usage: amesh upgrade [-h]
+                     {policy,preflight,postflight,events-preview,events-upcast,migrate-config} ...
+```
+
+## `amesh upgrade events-preview`
+
+```text
+usage: amesh upgrade events-preview [-h]
+```
+
+## `amesh upgrade events-upcast`
+
+```text
+usage: amesh upgrade events-upcast [-h] --reason REASON
+                                   [--batch-size BATCH_SIZE] [--force]
+```
+
+## `amesh upgrade migrate-config`
+
+```text
+usage: amesh upgrade migrate-config [-h] --target-version TARGET_VERSION
+                                    --output OUTPUT
+                                    {flow,plugin} path
+```
+
+## `amesh upgrade policy`
+
+```text
+usage: amesh upgrade policy [-h]
+```
+
+## `amesh upgrade postflight`
+
+```text
+usage: amesh upgrade postflight [-h] --from-version FROM_VERSION
+                                --to-version TO_VERSION
+```
+
+## `amesh upgrade preflight`
+
+```text
+usage: amesh upgrade preflight [-h] --from-version FROM_VERSION
+                               --to-version TO_VERSION
 ```
 
 ## `amesh validate`

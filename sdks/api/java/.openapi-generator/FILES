@@ -15,6 +15,7 @@ docs/AuthorizationApi.md
 docs/BackfillsApi.md
 docs/BlueprintsApi.md
 docs/ChecksApi.md
+docs/CompatibilityApi.md
 docs/ConfigurationApi.md
 docs/CredentialsApi.md
 docs/DashboardsApi.md
@@ -66,6 +67,7 @@ src/main/java/io/amesh/client/api/AuthorizationApi.java
 src/main/java/io/amesh/client/api/BackfillsApi.java
 src/main/java/io/amesh/client/api/BlueprintsApi.java
 src/main/java/io/amesh/client/api/ChecksApi.java
+src/main/java/io/amesh/client/api/CompatibilityApi.java
 src/main/java/io/amesh/client/api/ConfigurationApi.java
 src/main/java/io/amesh/client/api/CredentialsApi.java
 src/main/java/io/amesh/client/api/DashboardsApi.java
@@ -161,6 +163,7 @@ src/main/java/io/amesh/client/model/CheckEvaluationPoint.java
 src/main/java/io/amesh/client/model/CheckOutcome.java
 src/main/java/io/amesh/client/model/CheckPolicySource.java
 src/main/java/io/amesh/client/model/CheckPolicyUpsertRequest.java
+src/main/java/io/amesh/client/model/CompatibilityMapping.java
 src/main/java/io/amesh/client/model/ComplianceEvidenceCategory.java
 src/main/java/io/amesh/client/model/ComplianceEvidenceCreate.java
 src/main/java/io/amesh/client/model/ComplianceEvidenceRecord.java
@@ -262,6 +265,8 @@ src/main/java/io/amesh/client/model/IsolatedPluginRuntimeStatus.java
 src/main/java/io/amesh/client/model/IsolatedPluginState.java
 src/main/java/io/amesh/client/model/IssueCredentialRequest.java
 src/main/java/io/amesh/client/model/IssuedCredentialResponse.java
+src/main/java/io/amesh/client/model/KestraExecutionRequest.java
+src/main/java/io/amesh/client/model/KestraFlowImport.java
 src/main/java/io/amesh/client/model/KeyValueChange.java
 src/main/java/io/amesh/client/model/KeyValueEntry.java
 src/main/java/io/amesh/client/model/KeyValueExport.java
@@ -286,7 +291,9 @@ src/main/java/io/amesh/client/model/LogSourceStream.java
 src/main/java/io/amesh/client/model/LoginRequest.java
 src/main/java/io/amesh/client/model/LoginResponse.java
 src/main/java/io/amesh/client/model/Lte.java
+src/main/java/io/amesh/client/model/MappingDisposition.java
 src/main/java/io/amesh/client/model/MetricKind.java
+src/main/java/io/amesh/client/model/MigrationPatch.java
 src/main/java/io/amesh/client/model/NamespaceAuthorizationBoundary.java
 src/main/java/io/amesh/client/model/NamespaceCheckPolicy.java
 src/main/java/io/amesh/client/model/NamespaceFile.java

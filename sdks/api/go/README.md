@@ -136,6 +136,9 @@ Class | Method | HTTP request | Description
 *ChecksAPI* | [**ListCheckEvaluationsApiV1CheckEvaluationsGet**](docs/ChecksAPI.md#listcheckevaluationsapiv1checkevaluationsget) | **Get** /api/v1/check-evaluations | List Check Evaluations
 *ChecksAPI* | [**ListCheckPoliciesApiV1CheckPoliciesGet**](docs/ChecksAPI.md#listcheckpoliciesapiv1checkpoliciesget) | **Get** /api/v1/check-policies | List Check Policies
 *ChecksAPI* | [**UpsertCheckPolicyApiV1CheckPoliciesNamespacePolicyKeyPut**](docs/ChecksAPI.md#upsertcheckpolicyapiv1checkpoliciesnamespacepolicykeyput) | **Put** /api/v1/check-policies/{namespace}/{policy_key} | Upsert Check Policy
+*CompatibilityAPI* | [**CreateKestraExecutionApiV1ExecutionsNamespaceFlowIdPost**](docs/CompatibilityAPI.md#createkestraexecutionapiv1executionsnamespaceflowidpost) | **Post** /api/v1/executions/{namespace}/{flow_id} | Create Kestra Execution
+*CompatibilityAPI* | [**GetKestraCompatibilityManifestApiV1CompatibilityKestraManifestGet**](docs/CompatibilityAPI.md#getkestracompatibilitymanifestapiv1compatibilitykestramanifestget) | **Get** /api/v1/compatibility/kestra/manifest | Get Kestra Compatibility Manifest
+*CompatibilityAPI* | [**ValidateKestraFlowApiV1MainFlowsValidatePost**](docs/CompatibilityAPI.md#validatekestraflowapiv1mainflowsvalidatepost) | **Post** /api/v1/main/flows/validate | Validate Kestra Flow
 *ConfigurationAPI* | [**EvaluateFeatureFlagApiV1FeatureFlagsKeyEvaluateGet**](docs/ConfigurationAPI.md#evaluatefeatureflagapiv1featureflagskeyevaluateget) | **Get** /api/v1/feature-flags/{key}/evaluate | Evaluate Feature Flag
 *ConfigurationAPI* | [**GetConfigurationDiagnosticsApiV1ConfigurationDiagnosticsGet**](docs/ConfigurationAPI.md#getconfigurationdiagnosticsapiv1configurationdiagnosticsget) | **Get** /api/v1/configuration/diagnostics | Get Configuration Diagnostics
 *ConfigurationAPI* | [**GetEffectiveConfigurationApiV1ConfigurationGet**](docs/ConfigurationAPI.md#geteffectiveconfigurationapiv1configurationget) | **Get** /api/v1/configuration | Get Effective Configuration
@@ -396,6 +399,7 @@ Class | Method | HTTP request | Description
  - [CheckOutcome](docs/CheckOutcome.md)
  - [CheckPolicySource](docs/CheckPolicySource.md)
  - [CheckPolicyUpsertRequest](docs/CheckPolicyUpsertRequest.md)
+ - [CompatibilityMapping](docs/CompatibilityMapping.md)
  - [ComplianceEvidenceCategory](docs/ComplianceEvidenceCategory.md)
  - [ComplianceEvidenceCreate](docs/ComplianceEvidenceCreate.md)
  - [ComplianceEvidenceRecord](docs/ComplianceEvidenceRecord.md)
@@ -497,6 +501,8 @@ Class | Method | HTTP request | Description
  - [IsolatedPluginState](docs/IsolatedPluginState.md)
  - [IssueCredentialRequest](docs/IssueCredentialRequest.md)
  - [IssuedCredentialResponse](docs/IssuedCredentialResponse.md)
+ - [KestraExecutionRequest](docs/KestraExecutionRequest.md)
+ - [KestraFlowImport](docs/KestraFlowImport.md)
  - [KeyValueChange](docs/KeyValueChange.md)
  - [KeyValueEntry](docs/KeyValueEntry.md)
  - [KeyValueExport](docs/KeyValueExport.md)
@@ -521,7 +527,9 @@ Class | Method | HTTP request | Description
  - [LoginRequest](docs/LoginRequest.md)
  - [LoginResponse](docs/LoginResponse.md)
  - [Lte](docs/Lte.md)
+ - [MappingDisposition](docs/MappingDisposition.md)
  - [MetricKind](docs/MetricKind.md)
+ - [MigrationPatch](docs/MigrationPatch.md)
  - [NamespaceAuthorizationBoundary](docs/NamespaceAuthorizationBoundary.md)
  - [NamespaceCheckPolicy](docs/NamespaceCheckPolicy.md)
  - [NamespaceFile](docs/NamespaceFile.md)

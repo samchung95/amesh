@@ -3103,3 +3103,40 @@ registry accounts. The qualified local release surface is the deterministic four
 set and GitHub Release archives with SHA-256 checksums.
 
 Verdict: PASS — EPIC-703 closed.
+
+## 2026-08-23 — EPIC-704 Kestra migration importer and conformance suite
+
+Scope: `URS-F-0726` through `URS-F-0733`, `URS-F-0820` through `URS-F-0825`, and
+`URS-F-0829` through `URS-F-0833`.
+
+- [x] The source-preserving Kestra 1.3.30 importer retained comments and order, classified exact,
+  compatibility-adapted and blocked source paths, emitted a source-located patch for every
+  adaptation, preserved unsupported values and produced a valid native candidate only when no
+  blocker remained.
+- [x] The digest-pinned `kestra/kestra:v1.3.30` server at revision `db49f3b` accepted the shared
+  core flow through its authenticated black-box validator. AMESH accepted the same source and
+  mapped labels, task/trigger types, task timeout, retry, concurrency, errors and outputs.
+- [x] The declared REST façade exposes flow validation, execution launch and the compatibility
+  manifest with generated schemas. The declared CLI validates/migrates flows and plans/imports
+  bundles with documented flags, exit codes and JSON output. Specific execution actions remain
+  ordered ahead of the generic compatibility launch route.
+- [x] Pebble subset fixtures and normalized execution observations compare validation class, state
+  sequence, graph, outputs, API/CLI payloads, errors and duration tolerance. Shadow plans suppress
+  or mock external tasks and block idempotent mode unless an explicit idempotency key is present.
+- [x] Migration fixtures round-tripped all 26 declared resource, governance and history kinds with
+  exact payloads, stable identifiers, checksums, tenant/reference validation, chronological events,
+  external secret references, bounded checkpoints, replay-safe writes and reconciliation.
+- [x] Twenty-six compatibility/Pebble tests passed. The wider affected API/CLI collection passed 37
+  tests. Focused Ruff, strict mypy over 213 source files, deterministic OpenAPI/SDK generation and
+  Python, TypeScript, Java and Go SDK compilation/conformance passed.
+- [x] ADR-045, the operator runbook, fixture provenance and the machine manifest document the pinned
+  target, evidence, cutover/rollback procedure and gaps. CI repeats the focused suite and pinned
+  black-box validation and rejects an unsupported full-version claim.
+
+Qualification boundary: the manifest intentionally reports blocking plugin-type, complete-Pebble
+and bounded REST/CLI gaps, so AMESH makes no full Kestra 1.3.30 compatibility claim. The repository-
+wide Python run also reported three unrelated baseline failures: a stale UI capability expectation,
+a Windows asyncpg event-loop teardown and a load-sensitive one-second DSL performance threshold.
+They were not changed under the active epic's scope lock.
+
+Verdict: PASS — EPIC-704 closed for the manifest-declared surface.

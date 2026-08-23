@@ -241,6 +241,12 @@ Class | Method | HTTP request | Description
 *ChecksApi* | [**listCheckPoliciesApiV1CheckPoliciesGetWithHttpInfo**](docs/ChecksApi.md#listCheckPoliciesApiV1CheckPoliciesGetWithHttpInfo) | **GET** /api/v1/check-policies | List Check Policies
 *ChecksApi* | [**upsertCheckPolicyApiV1CheckPoliciesNamespacePolicyKeyPut**](docs/ChecksApi.md#upsertCheckPolicyApiV1CheckPoliciesNamespacePolicyKeyPut) | **PUT** /api/v1/check-policies/{namespace}/{policy_key} | Upsert Check Policy
 *ChecksApi* | [**upsertCheckPolicyApiV1CheckPoliciesNamespacePolicyKeyPutWithHttpInfo**](docs/ChecksApi.md#upsertCheckPolicyApiV1CheckPoliciesNamespacePolicyKeyPutWithHttpInfo) | **PUT** /api/v1/check-policies/{namespace}/{policy_key} | Upsert Check Policy
+*CompatibilityApi* | [**createKestraExecutionApiV1ExecutionsNamespaceFlowIdPost**](docs/CompatibilityApi.md#createKestraExecutionApiV1ExecutionsNamespaceFlowIdPost) | **POST** /api/v1/executions/{namespace}/{flow_id} | Create Kestra Execution
+*CompatibilityApi* | [**createKestraExecutionApiV1ExecutionsNamespaceFlowIdPostWithHttpInfo**](docs/CompatibilityApi.md#createKestraExecutionApiV1ExecutionsNamespaceFlowIdPostWithHttpInfo) | **POST** /api/v1/executions/{namespace}/{flow_id} | Create Kestra Execution
+*CompatibilityApi* | [**getKestraCompatibilityManifestApiV1CompatibilityKestraManifestGet**](docs/CompatibilityApi.md#getKestraCompatibilityManifestApiV1CompatibilityKestraManifestGet) | **GET** /api/v1/compatibility/kestra/manifest | Get Kestra Compatibility Manifest
+*CompatibilityApi* | [**getKestraCompatibilityManifestApiV1CompatibilityKestraManifestGetWithHttpInfo**](docs/CompatibilityApi.md#getKestraCompatibilityManifestApiV1CompatibilityKestraManifestGetWithHttpInfo) | **GET** /api/v1/compatibility/kestra/manifest | Get Kestra Compatibility Manifest
+*CompatibilityApi* | [**validateKestraFlowApiV1MainFlowsValidatePost**](docs/CompatibilityApi.md#validateKestraFlowApiV1MainFlowsValidatePost) | **POST** /api/v1/main/flows/validate | Validate Kestra Flow
+*CompatibilityApi* | [**validateKestraFlowApiV1MainFlowsValidatePostWithHttpInfo**](docs/CompatibilityApi.md#validateKestraFlowApiV1MainFlowsValidatePostWithHttpInfo) | **POST** /api/v1/main/flows/validate | Validate Kestra Flow
 *ConfigurationApi* | [**evaluateFeatureFlagApiV1FeatureFlagsKeyEvaluateGet**](docs/ConfigurationApi.md#evaluateFeatureFlagApiV1FeatureFlagsKeyEvaluateGet) | **GET** /api/v1/feature-flags/{key}/evaluate | Evaluate Feature Flag
 *ConfigurationApi* | [**evaluateFeatureFlagApiV1FeatureFlagsKeyEvaluateGetWithHttpInfo**](docs/ConfigurationApi.md#evaluateFeatureFlagApiV1FeatureFlagsKeyEvaluateGetWithHttpInfo) | **GET** /api/v1/feature-flags/{key}/evaluate | Evaluate Feature Flag
 *ConfigurationApi* | [**getConfigurationDiagnosticsApiV1ConfigurationDiagnosticsGet**](docs/ConfigurationApi.md#getConfigurationDiagnosticsApiV1ConfigurationDiagnosticsGet) | **GET** /api/v1/configuration/diagnostics | Get Configuration Diagnostics
@@ -685,6 +691,7 @@ Class | Method | HTTP request | Description
  - [CheckOutcome](docs/CheckOutcome.md)
  - [CheckPolicySource](docs/CheckPolicySource.md)
  - [CheckPolicyUpsertRequest](docs/CheckPolicyUpsertRequest.md)
+ - [CompatibilityMapping](docs/CompatibilityMapping.md)
  - [ComplianceEvidenceCategory](docs/ComplianceEvidenceCategory.md)
  - [ComplianceEvidenceCreate](docs/ComplianceEvidenceCreate.md)
  - [ComplianceEvidenceRecord](docs/ComplianceEvidenceRecord.md)
@@ -786,6 +793,8 @@ Class | Method | HTTP request | Description
  - [IsolatedPluginState](docs/IsolatedPluginState.md)
  - [IssueCredentialRequest](docs/IssueCredentialRequest.md)
  - [IssuedCredentialResponse](docs/IssuedCredentialResponse.md)
+ - [KestraExecutionRequest](docs/KestraExecutionRequest.md)
+ - [KestraFlowImport](docs/KestraFlowImport.md)
  - [KeyValueChange](docs/KeyValueChange.md)
  - [KeyValueEntry](docs/KeyValueEntry.md)
  - [KeyValueExport](docs/KeyValueExport.md)
@@ -810,7 +819,9 @@ Class | Method | HTTP request | Description
  - [LoginRequest](docs/LoginRequest.md)
  - [LoginResponse](docs/LoginResponse.md)
  - [Lte](docs/Lte.md)
+ - [MappingDisposition](docs/MappingDisposition.md)
  - [MetricKind](docs/MetricKind.md)
+ - [MigrationPatch](docs/MigrationPatch.md)
  - [NamespaceAuthorizationBoundary](docs/NamespaceAuthorizationBoundary.md)
  - [NamespaceCheckPolicy](docs/NamespaceCheckPolicy.md)
  - [NamespaceFile](docs/NamespaceFile.md)

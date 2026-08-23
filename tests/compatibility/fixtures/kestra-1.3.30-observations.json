@@ -1,0 +1,30 @@
+{
+  "reference": {
+    "system": "Kestra black-box",
+    "targetVersion": "1.3.30",
+    "validationClass": "VALID",
+    "stateSequence": ["CREATED", "RUNNING", "SUCCESS"],
+    "taskGraph": [["announce", []], ["finish", ["announce"]]],
+    "outputs": {"result": "done"},
+    "apiPayload": {"state": "SUCCESS", "output": "done"},
+    "cliExitCode": 0,
+    "cliPayload": {"valid": true},
+    "errorClass": null,
+    "durationMs": 1240,
+    "sideEffectMode": "suppress"
+  },
+  "candidate": {
+    "system": "AMESH shadow",
+    "targetVersion": "1.3.30",
+    "validationClass": "VALID",
+    "stateSequence": ["CREATED", "RUNNING", "SUCCESS"],
+    "taskGraph": [["announce", []], ["finish", ["announce"]]],
+    "outputs": {"result": "done"},
+    "apiPayload": {"state": "SUCCESS", "output": "done"},
+    "cliExitCode": 0,
+    "cliPayload": {"valid": true},
+    "errorClass": null,
+    "durationMs": 1300,
+    "sideEffectMode": "mock"
+  }
+}

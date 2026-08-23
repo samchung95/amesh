@@ -4424,6 +4424,22 @@ paths:
       summary: Upsert Check Policy
       tags:
       - checks
+  /api/v1/compatibility/kestra/manifest:
+    get:
+      operationId: get_kestra_compatibility_manifest_api_v1_compatibility_kestra_manifest_get
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  nullable: true
+                title: Response Get Kestra Compatibility Manifest Api V1 Compatibility
+                  Kestra Manifest Get
+          description: Successful Response
+      summary: Get Kestra Compatibility Manifest
+      tags:
+      - compatibility
   /api/v1/compliance-evidence:
     get:
       operationId: list_compliance_evidence_api_v1_compliance_evidence_get
@@ -6392,6 +6408,94 @@ paths:
       summary: Resume Task Run
       tags:
       - executions
+  /api/v1/executions/{namespace}/{flow_id}:
+    post:
+      operationId: create_kestra_execution_api_v1_executions__namespace___flow_id__post
+      parameters:
+      - explode: false
+        in: path
+        name: namespace
+        required: true
+        schema:
+          title: Namespace
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: flow_id
+        required: true
+        schema:
+          title: Flow Id
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: Prefer
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: Idempotency-Key
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/KestraExecutionRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExecutionDetail"
+          description: Successful Response
+        "202":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExecutionDetail"
+          description: Execution persisted and accepted for asynchronous processing
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Create Kestra Execution
+      tags:
+      - compatibility
   /api/v1/feature-flags:
     get:
       operationId: list_feature_flags_api_v1_feature_flags_get
@@ -8790,6 +8894,19 @@ paths:
       summary: Preview Lifecycle Purge
       tags:
       - lifecycle
+  /api/v1/main/flows/validate:
+    post:
+      operationId: validate_kestra_flow_api_v1_main_flows_validate_post
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KestraFlowImport"
+          description: Successful Response
+      summary: Validate Kestra Flow
+      tags:
+      - compatibility
   /api/v1/namespaces/{namespace}/files:
     get:
       operationId: list_namespace_files_api_v1_namespaces__namespace__files_get
@@ -17323,6 +17440,38 @@ components:
       required:
       - definition
       title: CheckPolicyUpsertRequest
+    CompatibilityMapping:
+      example:
+        adapter: adapter
+        disposition: exact
+        message: message
+        path: path
+        sourceRange: ""
+        targetPath: targetPath
+      properties:
+        adapter:
+          nullable: true
+          type: string
+        disposition:
+          $ref: "#/components/schemas/MappingDisposition"
+        message:
+          title: Message
+          type: string
+        path:
+          title: Path
+          type: string
+        sourceRange:
+          allOf:
+          - $ref: "#/components/schemas/SourceRange"
+          nullable: true
+        targetPath:
+          nullable: true
+          type: string
+      required:
+      - disposition
+      - message
+      - path
+      title: CompatibilityMapping
     ComplianceEvidenceCategory:
       enum:
       - ACCESS_REVIEW
@@ -22164,6 +22313,109 @@ components:
       - metadata
       - token
       title: IssuedCredentialResponse
+    JsonValue: {}
+    KestraExecutionRequest:
+      additionalProperties: {}
+      example:
+        idempotencyKey: idempotencyKey
+        inputs:
+          key: ""
+        runner: ""
+      properties:
+        idempotencyKey:
+          nullable: true
+          type: string
+        inputs:
+          additionalProperties: true
+          title: Inputs
+          type: object
+        runner:
+          allOf:
+          - $ref: "#/components/schemas/RunnerMode"
+          default: local
+      title: KestraExecutionRequest
+    KestraFlowImport:
+      example:
+        candidateDocument:
+          key: ""
+        mappings:
+        - adapter: adapter
+          disposition: exact
+          message: message
+          path: path
+          sourceRange: ""
+          targetPath: targetPath
+        - adapter: adapter
+          disposition: exact
+          message: message
+          path: path
+          sourceRange: ""
+          targetPath: targetPath
+        patches:
+        - operation: operation
+          path: path
+          reason: reason
+          sourceRange: ""
+          targetPath: targetPath
+          value: ""
+        - operation: operation
+          path: path
+          reason: reason
+          sourceRange: ""
+          targetPath: targetPath
+          value: ""
+        releaseClaimAllowed: true
+        roundTripDocument: roundTripDocument
+        schemaVersion: amesh.kestra-importer/v1
+        semanticHash: semanticHash
+        targetVersion: 1.3.30
+        valid: true
+      properties:
+        candidateDocument:
+          additionalProperties: true
+          title: Candidatedocument
+          type: object
+        mappings:
+          items:
+            $ref: "#/components/schemas/CompatibilityMapping"
+          title: Mappings
+          type: array
+          default: null
+        patches:
+          items:
+            $ref: "#/components/schemas/MigrationPatch"
+          title: Patches
+          type: array
+          default: null
+        releaseClaimAllowed:
+          title: Releaseclaimallowed
+          type: boolean
+        roundTripDocument:
+          title: Roundtripdocument
+          type: string
+        schemaVersion:
+          default: amesh.kestra-importer/v1
+          title: Schemaversion
+          type: string
+        semanticHash:
+          title: Semantichash
+          type: string
+        targetVersion:
+          default: 1.3.30
+          title: Targetversion
+          type: string
+        valid:
+          title: Valid
+          type: boolean
+      required:
+      - candidateDocument
+      - mappings
+      - patches
+      - releaseClaimAllowed
+      - roundTripDocument
+      - semanticHash
+      - valid
+      title: KestraFlowImport
     KeyValueChange:
       example:
         cursor: 1
@@ -22940,6 +23192,13 @@ components:
       - idleExpiresAt
       - principalId
       title: LoginResponse
+    MappingDisposition:
+      enum:
+      - exact
+      - compatibility-adapted
+      - blocked
+      title: MappingDisposition
+      type: string
     MetricKind:
       enum:
       - COUNTER
@@ -22948,6 +23207,38 @@ components:
       - CUSTOM
       title: MetricKind
       type: string
+    MigrationPatch:
+      example:
+        operation: operation
+        path: path
+        reason: reason
+        sourceRange: ""
+        targetPath: targetPath
+        value: ""
+      properties:
+        operation:
+          title: Operation
+          type: string
+        path:
+          title: Path
+          type: string
+        reason:
+          title: Reason
+          type: string
+        sourceRange:
+          allOf:
+          - $ref: "#/components/schemas/SourceRange"
+          nullable: true
+        targetPath:
+          title: Targetpath
+          type: string
+        value: {}
+      required:
+      - operation
+      - path
+      - reason
+      - targetPath
+      title: MigrationPatch
     NamespaceAuthorizationBoundary:
       example:
         namespace: namespace

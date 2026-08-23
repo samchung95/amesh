@@ -15,6 +15,7 @@ amesh_client/api/authorization_api.py
 amesh_client/api/backfills_api.py
 amesh_client/api/blueprints_api.py
 amesh_client/api/checks_api.py
+amesh_client/api/compatibility_api.py
 amesh_client/api/configuration_api.py
 amesh_client/api/credentials_api.py
 amesh_client/api/dashboards_api.py
@@ -114,6 +115,7 @@ amesh_client/models/check_evaluation_point.py
 amesh_client/models/check_outcome.py
 amesh_client/models/check_policy_source.py
 amesh_client/models/check_policy_upsert_request.py
+amesh_client/models/compatibility_mapping.py
 amesh_client/models/compliance_evidence_category.py
 amesh_client/models/compliance_evidence_create.py
 amesh_client/models/compliance_evidence_record.py
@@ -215,6 +217,8 @@ amesh_client/models/isolated_plugin_runtime_status.py
 amesh_client/models/isolated_plugin_state.py
 amesh_client/models/issue_credential_request.py
 amesh_client/models/issued_credential_response.py
+amesh_client/models/kestra_execution_request.py
+amesh_client/models/kestra_flow_import.py
 amesh_client/models/key_value_change.py
 amesh_client/models/key_value_entry.py
 amesh_client/models/key_value_export.py
@@ -239,7 +243,9 @@ amesh_client/models/log_source_stream.py
 amesh_client/models/login_request.py
 amesh_client/models/login_response.py
 amesh_client/models/lte.py
+amesh_client/models/mapping_disposition.py
 amesh_client/models/metric_kind.py
+amesh_client/models/migration_patch.py
 amesh_client/models/namespace_authorization_boundary.py
 amesh_client/models/namespace_check_policy.py
 amesh_client/models/namespace_file.py
@@ -459,6 +465,7 @@ docs/AuthorizationApi.md
 docs/BackfillsApi.md
 docs/BlueprintsApi.md
 docs/ChecksApi.md
+docs/CompatibilityApi.md
 docs/ConfigurationApi.md
 docs/CredentialsApi.md
 docs/DashboardsApi.md

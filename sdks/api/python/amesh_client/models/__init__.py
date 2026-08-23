@@ -85,6 +85,7 @@ from amesh_client.models.check_evaluation_point import CheckEvaluationPoint
 from amesh_client.models.check_outcome import CheckOutcome
 from amesh_client.models.check_policy_source import CheckPolicySource
 from amesh_client.models.check_policy_upsert_request import CheckPolicyUpsertRequest
+from amesh_client.models.compatibility_mapping import CompatibilityMapping
 from amesh_client.models.compliance_evidence_category import ComplianceEvidenceCategory
 from amesh_client.models.compliance_evidence_create import ComplianceEvidenceCreate
 from amesh_client.models.compliance_evidence_record import ComplianceEvidenceRecord
@@ -186,6 +187,8 @@ from amesh_client.models.isolated_plugin_runtime_status import IsolatedPluginRun
 from amesh_client.models.isolated_plugin_state import IsolatedPluginState
 from amesh_client.models.issue_credential_request import IssueCredentialRequest
 from amesh_client.models.issued_credential_response import IssuedCredentialResponse
+from amesh_client.models.kestra_execution_request import KestraExecutionRequest
+from amesh_client.models.kestra_flow_import import KestraFlowImport
 from amesh_client.models.key_value_change import KeyValueChange
 from amesh_client.models.key_value_entry import KeyValueEntry
 from amesh_client.models.key_value_export import KeyValueExport
@@ -210,7 +213,9 @@ from amesh_client.models.log_source_stream import LogSourceStream
 from amesh_client.models.login_request import LoginRequest
 from amesh_client.models.login_response import LoginResponse
 from amesh_client.models.lte import Lte
+from amesh_client.models.mapping_disposition import MappingDisposition
 from amesh_client.models.metric_kind import MetricKind
+from amesh_client.models.migration_patch import MigrationPatch
 from amesh_client.models.namespace_authorization_boundary import NamespaceAuthorizationBoundary
 from amesh_client.models.namespace_check_policy import NamespaceCheckPolicy
 from amesh_client.models.namespace_file import NamespaceFile

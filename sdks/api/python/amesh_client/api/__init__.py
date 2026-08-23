@@ -10,6 +10,7 @@ from amesh_client.api.authorization_api import AuthorizationApi
 from amesh_client.api.backfills_api import BackfillsApi
 from amesh_client.api.blueprints_api import BlueprintsApi
 from amesh_client.api.checks_api import ChecksApi
+from amesh_client.api.compatibility_api import CompatibilityApi
 from amesh_client.api.configuration_api import ConfigurationApi
 from amesh_client.api.credentials_api import CredentialsApi
 from amesh_client.api.dashboards_api import DashboardsApi

@@ -724,14 +724,14 @@ URS-F-0722,Functional,Must,EPIC-703,Public SDKs and embedded integration librari
 URS-F-0723,Functional,Must,EPIC-703,Public SDKs and embedded integration libraries,M7,7,OpenAPI contract and authenticated end-to-end API tests,Verified
 URS-F-0724,Functional,Must,EPIC-703,Public SDKs and embedded integration libraries,M7,7,OpenAPI contract and authenticated end-to-end API tests,Verified
 URS-F-0725,Functional,Must,EPIC-703,Public SDKs and embedded integration libraries,M7,7,OpenAPI contract and authenticated end-to-end API tests,Verified
-URS-F-0726,Functional,Must,EPIC-704,Kestra migration importer and conformance suite,M7,7,Black-box differential and migration fixture tests,Proposed
-URS-F-0727,Functional,Must,EPIC-704,Kestra migration importer and conformance suite,M7,7,Black-box differential and migration fixture tests,Proposed
-URS-F-0728,Functional,Must,EPIC-704,Kestra migration importer and conformance suite,M7,7,Black-box differential and migration fixture tests,Proposed
-URS-F-0729,Functional,Must,EPIC-704,Kestra migration importer and conformance suite,M7,7,Black-box differential and migration fixture tests,Proposed
-URS-F-0730,Functional,Must,EPIC-704,Kestra migration importer and conformance suite,M7,7,Black-box differential and migration fixture tests,Proposed
-URS-F-0731,Functional,Must,EPIC-704,Kestra migration importer and conformance suite,M7,7,Black-box differential and migration fixture tests,Proposed
-URS-F-0732,Functional,Must,EPIC-704,Kestra migration importer and conformance suite,M7,7,Black-box differential and migration fixture tests,Proposed
-URS-F-0733,Functional,Must,EPIC-704,Kestra migration importer and conformance suite,M7,7,Black-box differential and migration fixture tests,Proposed
+URS-F-0726,Functional,Must,EPIC-704,Kestra migration importer and conformance suite,M7,7,Black-box differential and migration fixture tests,Verified
+URS-F-0727,Functional,Must,EPIC-704,Kestra migration importer and conformance suite,M7,7,Black-box differential and migration fixture tests,Verified
+URS-F-0728,Functional,Must,EPIC-704,Kestra migration importer and conformance suite,M7,7,Black-box differential and migration fixture tests,Verified
+URS-F-0729,Functional,Must,EPIC-704,Kestra migration importer and conformance suite,M7,7,Black-box differential and migration fixture tests,Verified
+URS-F-0730,Functional,Must,EPIC-704,Kestra migration importer and conformance suite,M7,7,Black-box differential and migration fixture tests,Verified
+URS-F-0731,Functional,Must,EPIC-704,Kestra migration importer and conformance suite,M7,7,Black-box differential and migration fixture tests,Verified
+URS-F-0732,Functional,Must,EPIC-704,Kestra migration importer and conformance suite,M7,7,Black-box differential and migration fixture tests,Verified
+URS-F-0733,Functional,Must,EPIC-704,Kestra migration importer and conformance suite,M7,7,Black-box differential and migration fixture tests,Verified
 URS-F-0734,Functional,Must,EPIC-705,"Documentation, examples and community governance",M7,7,Documentation build and external contributor usability test,Proposed
 URS-F-0735,Functional,Must,EPIC-705,"Documentation, examples and community governance",M7,7,Documentation build and external contributor usability test,Proposed
 URS-F-0736,Functional,Must,EPIC-705,"Documentation, examples and community governance",M7,7,Documentation build and external contributor usability test,Proposed
@@ -818,20 +818,20 @@ URS-F-0816,Functional,Must,EPIC-806,First-class agent mesh runtime and governanc
 URS-F-0817,Functional,Must,EPIC-806,First-class agent mesh runtime and governance,M8,8,"Agent mesh state, budget, policy, failover and evaluation end-to-end tests",Proposed
 URS-F-0818,Functional,Must,EPIC-806,First-class agent mesh runtime and governance,M8,8,"Agent mesh state, budget, policy, failover and evaluation end-to-end tests",Proposed
 URS-F-0819,Functional,Must,EPIC-806,First-class agent mesh runtime and governance,M8,8,"Agent mesh state, budget, policy, failover and evaluation end-to-end tests",Proposed
-URS-F-0820,Functional,Must,EPIC-704,Kestra migration importer and conformance suite,M7,7,"Black-box differential API, CLI, expression and import/export conformance tests",Proposed
-URS-F-0821,Functional,Must,EPIC-704,Kestra migration importer and conformance suite,M7,7,"Black-box differential API, CLI, expression and import/export conformance tests",Proposed
-URS-F-0822,Functional,Must,EPIC-704,Kestra migration importer and conformance suite,M7,7,"Black-box differential API, CLI, expression and import/export conformance tests",Proposed
-URS-F-0823,Functional,Must,EPIC-704,Kestra migration importer and conformance suite,M7,7,"Black-box differential API, CLI, expression and import/export conformance tests",Proposed
-URS-F-0824,Functional,Must,EPIC-704,Kestra migration importer and conformance suite,M7,7,"Black-box differential API, CLI, expression and import/export conformance tests",Proposed
-URS-F-0825,Functional,Must,EPIC-704,Kestra migration importer and conformance suite,M7,7,"Black-box differential API, CLI, expression and import/export conformance tests",Proposed
+URS-F-0820,Functional,Must,EPIC-704,Kestra migration importer and conformance suite,M7,7,"Black-box differential API, CLI, expression and import/export conformance tests",Verified
+URS-F-0821,Functional,Must,EPIC-704,Kestra migration importer and conformance suite,M7,7,"Black-box differential API, CLI, expression and import/export conformance tests",Verified
+URS-F-0822,Functional,Must,EPIC-704,Kestra migration importer and conformance suite,M7,7,"Black-box differential API, CLI, expression and import/export conformance tests",Verified
+URS-F-0823,Functional,Must,EPIC-704,Kestra migration importer and conformance suite,M7,7,"Black-box differential API, CLI, expression and import/export conformance tests",Verified
+URS-F-0824,Functional,Must,EPIC-704,Kestra migration importer and conformance suite,M7,7,"Black-box differential API, CLI, expression and import/export conformance tests",Verified
+URS-F-0825,Functional,Must,EPIC-704,Kestra migration importer and conformance suite,M7,7,"Black-box differential API, CLI, expression and import/export conformance tests",Verified
 URS-F-0826,Functional,Must,EPIC-606,"Containers, Kubernetes and Helm deployment",M6,6,"On-premises Kubernetes installation, upgrade and failure-recovery tests",Proposed
 URS-F-0827,Functional,Must,EPIC-606,"Containers, Kubernetes and Helm deployment",M6,6,Air-gapped bundle installation and upgrade tests,Proposed
 URS-F-0828,Functional,Must,EPIC-606,"Containers, Kubernetes and Helm deployment",M6,6,Cross-distribution Kubernetes conformance and upgrade tests,Proposed
-URS-F-0829,Functional,Must,EPIC-704,Kestra migration importer and conformance suite,M7,7,Full-fidelity identity and governance migration fixtures,Proposed
-URS-F-0830,Functional,Must,EPIC-704,Kestra migration importer and conformance suite,M7,7,"Historical execution, log, artifact and audit migration fixtures",Proposed
-URS-F-0831,Functional,Must,EPIC-704,Kestra migration importer and conformance suite,M7,7,"Identifier-mapping, collision and referential-integrity tests",Proposed
-URS-F-0832,Functional,Must,EPIC-704,Kestra migration importer and conformance suite,M7,7,"Interrupted, repeated and rolled-back migration end-to-end tests",Proposed
-URS-F-0833,Functional,Must,EPIC-704,Kestra migration importer and conformance suite,M7,7,"Secret-reference migration, redaction and unresolved-binding tests",Proposed
+URS-F-0829,Functional,Must,EPIC-704,Kestra migration importer and conformance suite,M7,7,Full-fidelity identity and governance migration fixtures,Verified
+URS-F-0830,Functional,Must,EPIC-704,Kestra migration importer and conformance suite,M7,7,"Historical execution, log, artifact and audit migration fixtures",Verified
+URS-F-0831,Functional,Must,EPIC-704,Kestra migration importer and conformance suite,M7,7,"Identifier-mapping, collision and referential-integrity tests",Verified
+URS-F-0832,Functional,Must,EPIC-704,Kestra migration importer and conformance suite,M7,7,"Interrupted, repeated and rolled-back migration end-to-end tests",Verified
+URS-F-0833,Functional,Must,EPIC-704,Kestra migration importer and conformance suite,M7,7,"Secret-reference migration, redaction and unresolved-binding tests",Verified
 URS-F-0834,Functional,Must,EPIC-612,Security hardening and software supply chain,M6,6,Compliance control-crosswalk schema and completeness tests,Proposed
 URS-F-0835,Functional,Must,EPIC-504,Immutable audit log and evidence export,M5,5,"Compliance evidence export, redaction and authorization tests",Verified
 URS-F-0836,Functional,Must,EPIC-011,AI-native engineering factory and autonomous contribution controls,M0,0,"AI merge-policy, quorum and evidence-replay tests",Proposed

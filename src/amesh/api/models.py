@@ -340,6 +340,14 @@ class CreateExecutionRequest(BaseModel):
     cache_mode: TaskCacheMode = Field(default=TaskCacheMode.USE, alias="cacheMode")
 
 
+class KestraExecutionRequest(BaseModel):
+    model_config = ConfigDict(populate_by_name=True, extra="forbid")
+
+    inputs: dict[str, Any] = Field(default_factory=dict)
+    runner: RunnerMode = RunnerMode.LOCAL
+    idempotency_key: str | None = Field(default=None, alias="idempotencyKey")
+
+
 class TaskCachePurgeRequest(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 

@@ -67,6 +67,8 @@ type APIClient struct {
 
 	ChecksAPI *ChecksAPIService
 
+	CompatibilityAPI *CompatibilityAPIService
+
 	ConfigurationAPI *ConfigurationAPIService
 
 	CredentialsAPI *CredentialsAPIService
@@ -137,6 +139,7 @@ func NewAPIClient(cfg *Configuration) *APIClient {
 	c.BackfillsAPI = (*BackfillsAPIService)(&c.common)
 	c.BlueprintsAPI = (*BlueprintsAPIService)(&c.common)
 	c.ChecksAPI = (*ChecksAPIService)(&c.common)
+	c.CompatibilityAPI = (*CompatibilityAPIService)(&c.common)
 	c.ConfigurationAPI = (*ConfigurationAPIService)(&c.common)
 	c.CredentialsAPI = (*CredentialsAPIService)(&c.common)
 	c.DashboardsAPI = (*DashboardsAPIService)(&c.common)

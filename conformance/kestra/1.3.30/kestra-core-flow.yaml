@@ -1,0 +1,36 @@
+# Kestra 1.3.30 source comment must survive round-trip editing.
+id: parity_flow
+namespace: compatibility
+description: Pinned core compatibility fixture
+labels:
+  - key: team
+    value: platform
+concurrency:
+  limit: 2
+  behavior: QUEUE
+outputs:
+  - id: result
+    type: STRING
+    value: "{{ outputs.finish.value }}"
+tasks:
+  - id: announce
+    type: io.kestra.plugin.core.log.Log
+    message: "hello {{ flow.id }}"
+    timeout: PT30S
+    retry:
+      maxAttempts: 3
+      interval: PT1S
+      maxInterval: PT8S
+      delayFactor: 2
+      type: exponential
+  - id: finish
+    type: io.kestra.plugin.core.debug.Return
+    format: done
+errors:
+  - id: failed
+    type: io.kestra.plugin.core.log.Log
+    message: failed
+triggers:
+  - id: daily
+    type: io.kestra.plugin.core.trigger.Schedule
+    cron: "0 8 * * *"

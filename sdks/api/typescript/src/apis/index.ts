@@ -9,6 +9,7 @@ export * from './AuthorizationApi';
 export * from './BackfillsApi';
 export * from './BlueprintsApi';
 export * from './ChecksApi';
+export * from './CompatibilityApi';
 export * from './ConfigurationApi';
 export * from './CredentialsApi';
 export * from './DashboardsApi';

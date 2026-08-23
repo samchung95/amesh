@@ -27,6 +27,7 @@ __all__ = [
     "BackfillsApi",
     "BlueprintsApi",
     "ChecksApi",
+    "CompatibilityApi",
     "ConfigurationApi",
     "CredentialsApi",
     "DashboardsApi",
@@ -130,6 +131,7 @@ __all__ = [
     "CheckOutcome",
     "CheckPolicySource",
     "CheckPolicyUpsertRequest",
+    "CompatibilityMapping",
     "ComplianceEvidenceCategory",
     "ComplianceEvidenceCreate",
     "ComplianceEvidenceRecord",
@@ -231,6 +233,8 @@ __all__ = [
     "IsolatedPluginState",
     "IssueCredentialRequest",
     "IssuedCredentialResponse",
+    "KestraExecutionRequest",
+    "KestraFlowImport",
     "KeyValueChange",
     "KeyValueEntry",
     "KeyValueExport",
@@ -255,7 +259,9 @@ __all__ = [
     "LoginRequest",
     "LoginResponse",
     "Lte",
+    "MappingDisposition",
     "MetricKind",
+    "MigrationPatch",
     "NamespaceAuthorizationBoundary",
     "NamespaceCheckPolicy",
     "NamespaceFile",
@@ -476,6 +482,7 @@ from amesh_client.api.authorization_api import AuthorizationApi as Authorization
 from amesh_client.api.backfills_api import BackfillsApi as BackfillsApi
 from amesh_client.api.blueprints_api import BlueprintsApi as BlueprintsApi
 from amesh_client.api.checks_api import ChecksApi as ChecksApi
+from amesh_client.api.compatibility_api import CompatibilityApi as CompatibilityApi
 from amesh_client.api.configuration_api import ConfigurationApi as ConfigurationApi
 from amesh_client.api.credentials_api import CredentialsApi as CredentialsApi
 from amesh_client.api.dashboards_api import DashboardsApi as DashboardsApi
@@ -583,6 +590,7 @@ from amesh_client.models.check_evaluation_point import CheckEvaluationPoint as C
 from amesh_client.models.check_outcome import CheckOutcome as CheckOutcome
 from amesh_client.models.check_policy_source import CheckPolicySource as CheckPolicySource
 from amesh_client.models.check_policy_upsert_request import CheckPolicyUpsertRequest as CheckPolicyUpsertRequest
+from amesh_client.models.compatibility_mapping import CompatibilityMapping as CompatibilityMapping
 from amesh_client.models.compliance_evidence_category import ComplianceEvidenceCategory as ComplianceEvidenceCategory
 from amesh_client.models.compliance_evidence_create import ComplianceEvidenceCreate as ComplianceEvidenceCreate
 from amesh_client.models.compliance_evidence_record import ComplianceEvidenceRecord as ComplianceEvidenceRecord
@@ -684,6 +692,8 @@ from amesh_client.models.isolated_plugin_runtime_status import IsolatedPluginRun
 from amesh_client.models.isolated_plugin_state import IsolatedPluginState as IsolatedPluginState
 from amesh_client.models.issue_credential_request import IssueCredentialRequest as IssueCredentialRequest
 from amesh_client.models.issued_credential_response import IssuedCredentialResponse as IssuedCredentialResponse
+from amesh_client.models.kestra_execution_request import KestraExecutionRequest as KestraExecutionRequest
+from amesh_client.models.kestra_flow_import import KestraFlowImport as KestraFlowImport
 from amesh_client.models.key_value_change import KeyValueChange as KeyValueChange
 from amesh_client.models.key_value_entry import KeyValueEntry as KeyValueEntry
 from amesh_client.models.key_value_export import KeyValueExport as KeyValueExport
@@ -708,7 +718,9 @@ from amesh_client.models.log_source_stream import LogSourceStream as LogSourceSt
 from amesh_client.models.login_request import LoginRequest as LoginRequest
 from amesh_client.models.login_response import LoginResponse as LoginResponse
 from amesh_client.models.lte import Lte as Lte
+from amesh_client.models.mapping_disposition import MappingDisposition as MappingDisposition
 from amesh_client.models.metric_kind import MetricKind as MetricKind
+from amesh_client.models.migration_patch import MigrationPatch as MigrationPatch
 from amesh_client.models.namespace_authorization_boundary import NamespaceAuthorizationBoundary as NamespaceAuthorizationBoundary
 from amesh_client.models.namespace_check_policy import NamespaceCheckPolicy as NamespaceCheckPolicy
 from amesh_client.models.namespace_file import NamespaceFile as NamespaceFile

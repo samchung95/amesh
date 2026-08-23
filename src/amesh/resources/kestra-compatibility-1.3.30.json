@@ -1,0 +1,126 @@
+{
+  "schemaVersion": "amesh.compatibility-manifest/v1",
+  "target": {
+    "product": "Kestra",
+    "version": "1.3.30",
+    "tag": "v1.3.30",
+    "commit": "db49f3b2c2af60d61df10adb6f9fc34e4776b65b",
+    "image": "kestra/kestra@sha256:6442cd361bdaf317484c282ed45a7529c1d90ae433a17f02cb378fd24362d297"
+  },
+  "importerVersion": "amesh.kestra-importer/v1",
+  "releaseClaimAllowed": false,
+  "surfaces": [
+    {
+      "name": "flow-yaml",
+      "disposition": "compatibility-adapted",
+      "evidence": ["tests/compatibility/test_kestra_flow_import.py"],
+      "declaredScope": "source-preserving core flow, task, trigger, retry, timeout, concurrency, error and output mapping"
+    },
+    {
+      "name": "pebble",
+      "disposition": "compatibility-adapted",
+      "evidence": ["tests/expressions/fixtures/kestra-1.3.30-pebble-subset.json"],
+      "declaredScope": "kestra-pebble/1.3.30-subset-1"
+    },
+    {
+      "name": "rest",
+      "disposition": "compatibility-adapted",
+      "evidence": ["tests/compatibility/test_kestra_api.py"],
+      "operations": [
+        {
+          "method": "POST",
+          "path": "/api/v1/main/flows/validate",
+          "requestSchema": "application/yaml flow document, maximum 2 MiB",
+          "responseSchema": "KestraFlowImport",
+          "pagination": "none",
+          "statusCodes": [200, 413, 422],
+          "errorSchema": "ProblemDetail"
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/executions/{namespace}/{flow_id}",
+          "requestSchema": "KestraExecutionRequest",
+          "responseSchema": "ExecutionDetail",
+          "pagination": "none",
+          "statusCodes": [200, 202, 401, 403, 404, 409, 422],
+          "errorSchema": "ProblemDetail"
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/compatibility/kestra/manifest",
+          "requestSchema": "none",
+          "responseSchema": "amesh.compatibility-manifest/v1",
+          "pagination": "none",
+          "statusCodes": [200],
+          "errorSchema": "ProblemDetail"
+        }
+      ]
+    },
+    {
+      "name": "cli",
+      "disposition": "compatibility-adapted",
+      "evidence": ["tests/compatibility/test_kestra_cli.py"],
+      "commands": [
+        {
+          "command": "amesh kestra flow validate PATH",
+          "flags": ["global --output {human,json,quiet} before kestra"],
+          "exitCodes": {"0": "supported", "1": "blocked mapping", "2": "input error"},
+          "machineOutput": "KestraFlowImport JSON"
+        },
+        {
+          "command": "amesh kestra flow migrate PATH --output-path PATH",
+          "flags": ["--output-path PATH", "global --output {human,json,quiet} before kestra"],
+          "exitCodes": {"0": "candidate written", "1": "blocked mapping", "2": "input error"},
+          "machineOutput": "KestraFlowImport JSON plus outputPath"
+        },
+        {
+          "command": "amesh kestra migration plan BUNDLE",
+          "flags": ["--secret-binding NAME", "global --output {human,json,quiet} before kestra"],
+          "exitCodes": {"0": "cutover allowed", "1": "cutover blocked", "2": "input error"},
+          "machineOutput": "MigrationPlan JSON"
+        },
+        {
+          "command": "amesh kestra migration import BUNDLE --target-dir PATH",
+          "flags": ["--target-dir PATH", "--max-records N", "--secret-binding NAME", "global --output {human,json,quiet} before kestra"],
+          "exitCodes": {"0": "batch imported and reconciled", "1": "reconciliation difference", "2": "input error"},
+          "machineOutput": "MigrationImportResult JSON plus reconciliation"
+        },
+        {
+          "command": "amesh kestra compatibility manifest",
+          "flags": ["global --output {human,json,quiet} before kestra"],
+          "exitCodes": {"0": "manifest emitted", "2": "input error"},
+          "machineOutput": "amesh.compatibility-manifest/v1 JSON"
+        }
+      ]
+    },
+    {
+      "name": "migration-bundles",
+      "disposition": "exact",
+      "evidence": ["tests/compatibility/test_kestra_migration.py"],
+      "declaredScope": "resources, governance, history, evidence, identifier mapping, checkpoints and secret references"
+    },
+    {
+      "name": "shadow-execution",
+      "disposition": "compatibility-adapted",
+      "evidence": ["tests/compatibility/test_kestra_conformance.py"],
+      "declaredScope": "suppressed, mocked or idempotently isolated non-destructive differential observations"
+    }
+  ],
+  "unresolvedGaps": [
+    {
+      "code": "PLUGIN_TYPE_UNMAPPED",
+      "severity": "blocking",
+      "message": "Plugin types outside the declared core adapters require an installed AMESH plugin mapping."
+    },
+    {
+      "code": "PEBBLE_SUBSET",
+      "severity": "blocking",
+      "message": "The declared Pebble surface remains a tested subset rather than the complete upstream function and filter catalog."
+    },
+    {
+      "code": "REST_CLI_BOUNDED",
+      "severity": "blocking",
+      "message": "Only the manifest-declared REST paths and CLI commands carry compatibility evidence."
+    }
+  ]
+}

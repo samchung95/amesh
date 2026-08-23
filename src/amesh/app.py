@@ -119,6 +119,7 @@ from amesh.api.models import (
     HealthResponse,
     IssueCredentialRequest,
     IssuedCredentialResponse,
+    KestraExecutionRequest,
     LoginRequest,
     LoginResponse,
     NamespaceFileMoveRequest,
@@ -371,6 +372,11 @@ from amesh.federation import (
 from amesh.flow_testing import FlowTestService
 from amesh.frontend import SpaStaticFiles, find_frontend_dist
 from amesh.human_tasks import HumanTaskService, approval_task_handler
+from amesh.kestra_compatibility import (
+    KestraFlowImport,
+    compatibility_manifest,
+    import_kestra_flow,
+)
 from amesh.networking import (
     ForwardedHeaderRejected,
     NetworkDiagnosticBundle,
@@ -1801,11 +1807,7 @@ async def ready(
     if not readiness.ready or not registered_ready:
         response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
     return ReadinessResponse(
-        status=(
-            "not-ready"
-            if not readiness.ready or not registered_ready
-            else readiness.status
-        ),
+        status=("not-ready" if not readiness.ready or not registered_ready else readiness.status),
         version=__version__,
         database=(
             "ready"
@@ -1817,11 +1819,7 @@ async def ready(
         latest_migration=readiness.latest_migration,
         dependencies=dependencies,
         degraded_dependencies=readiness.degraded_dependencies,
-        error=(
-            "service instance is not ready"
-            if not registered_ready
-            else readiness.error
-        ),
+        error=("service instance is not ready" if not registered_ready else readiness.error),
     )
 
 
@@ -4676,6 +4674,35 @@ async def validate_flow(
 
 
 @app.get(
+    "/api/v1/compatibility/kestra/manifest",
+    tags=["compatibility"],
+)
+async def get_kestra_compatibility_manifest() -> dict[str, object]:
+    return compatibility_manifest()
+
+
+@app.post(
+    "/api/v1/main/flows/validate",
+    response_model=KestraFlowImport,
+    tags=["compatibility"],
+)
+async def validate_kestra_flow(request: Request) -> KestraFlowImport:
+    body = await request.body()
+    if len(body) > 2 * 1024 * 1024:
+        raise HTTPException(
+            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            detail="flow document exceeds the 2 MiB compatibility limit",
+        )
+    try:
+        return import_kestra_flow(body)
+    except (FlowDocumentError, ValueError) as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=str(exc),
+        ) from exc
+
+
+@app.get(
     "/api/v1/flows/editor/schema",
     response_model=FlowEditorSchemaResponse,
     tags=["flows"],
@@ -7248,9 +7275,7 @@ async def get_admission_diagnostics(
     )
     diagnostics = await repository.admission_diagnostics(tenant_id=tenant_id)
     total_demand = diagnostics.active_reservations + diagnostics.queued_requests
-    ADMISSION_PRESSURE.set(
-        diagnostics.queued_requests / max(1, total_demand)
-    )
+    ADMISSION_PRESSURE.set(diagnostics.queued_requests / max(1, total_demand))
     return diagnostics
 
 
@@ -8557,7 +8582,7 @@ async def create_webhook_subscription(
             request.url,
             HttpTaskPolicy(
                 allowed_hosts=settings.network_egress_allowed_hosts,
-                allowed_private_hosts=frozenset(settings.core_http_allowed_private_hosts)
+                allowed_private_hosts=frozenset(settings.core_http_allowed_private_hosts),
             ),
             resolve_dns=False,
         )
@@ -11171,6 +11196,57 @@ def _audit_artifact_response(artifact: AuditArtifact) -> Response:
             "X-Checksum-Sha256": artifact.receipt.checksum_sha256,
             "X-Amesh-Signature": artifact.receipt.signature,
         },
+    )
+
+
+@app.post(
+    "/api/v1/executions/{namespace}/{flow_id}",
+    response_model=ExecutionDetail,
+    responses={
+        status.HTTP_202_ACCEPTED: {
+            "model": ExecutionDetail,
+            "description": "Execution persisted and accepted for asynchronous processing",
+        }
+    },
+    tags=["compatibility"],
+)
+async def create_kestra_execution(
+    namespace: str,
+    flow_id: str,
+    request: KestraExecutionRequest,
+    background_tasks: BackgroundTasks,
+    response: Response,
+    repository: RepositoryDependency,
+    task_cache: TaskCacheRepositoryDependency,
+    shared_resources: SharedResourceRepositoryDependency,
+    operational_controls: OperationalControlRepositoryDependency,
+    settings: SettingsDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    prefer: Annotated[str | None, Header(alias="Prefer")] = None,
+    idempotency_key: Annotated[str | None, Header(alias="Idempotency-Key")] = None,
+) -> ExecutionDetail:
+    return await create_execution(
+        CreateExecutionRequest(
+            namespace=namespace,
+            flowId=flow_id,
+            inputs=request.inputs,
+            runner=request.runner,
+            idempotencyKey=request.idempotency_key,
+        ),
+        background_tasks,
+        response,
+        repository,
+        task_cache,
+        shared_resources,
+        operational_controls,
+        settings,
+        actor,
+        authorization_service,
+        tenant_id,
+        prefer,
+        idempotency_key,
     )
 
 

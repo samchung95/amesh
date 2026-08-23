@@ -11,6 +11,7 @@ docs/AuthorizationApi.md
 docs/BackfillsApi.md
 docs/BlueprintsApi.md
 docs/ChecksApi.md
+docs/CompatibilityApi.md
 docs/ConfigurationApi.md
 docs/CredentialsApi.md
 docs/DashboardsApi.md
@@ -43,6 +44,7 @@ src/apis/AuthorizationApi.ts
 src/apis/BackfillsApi.ts
 src/apis/BlueprintsApi.ts
 src/apis/ChecksApi.ts
+src/apis/CompatibilityApi.ts
 src/apis/ConfigurationApi.ts
 src/apis/CredentialsApi.ts
 src/apis/DashboardsApi.ts
@@ -139,6 +141,7 @@ src/models/CheckEvaluationPoint.ts
 src/models/CheckOutcome.ts
 src/models/CheckPolicySource.ts
 src/models/CheckPolicyUpsertRequest.ts
+src/models/CompatibilityMapping.ts
 src/models/ComplianceEvidenceCategory.ts
 src/models/ComplianceEvidenceCreate.ts
 src/models/ComplianceEvidenceRecord.ts
@@ -240,6 +243,8 @@ src/models/IsolatedPluginRuntimeStatus.ts
 src/models/IsolatedPluginState.ts
 src/models/IssueCredentialRequest.ts
 src/models/IssuedCredentialResponse.ts
+src/models/KestraExecutionRequest.ts
+src/models/KestraFlowImport.ts
 src/models/KeyValueChange.ts
 src/models/KeyValueEntry.ts
 src/models/KeyValueExport.ts
@@ -264,7 +269,9 @@ src/models/LogSourceStream.ts
 src/models/LoginRequest.ts
 src/models/LoginResponse.ts
 src/models/Lte.ts
+src/models/MappingDisposition.ts
 src/models/MetricKind.ts
+src/models/MigrationPatch.ts
 src/models/NamespaceAuthorizationBoundary.ts
 src/models/NamespaceCheckPolicy.ts
 src/models/NamespaceFile.ts

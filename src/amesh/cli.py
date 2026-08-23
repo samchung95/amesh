@@ -35,6 +35,14 @@ from amesh.config import Settings
 from amesh.database import create_database_engine
 from amesh.domain import compare_flow_revisions
 from amesh.dsl import FlowDocumentError, validate_flow_document
+from amesh.kestra_compatibility import (
+    FileMigrationStore,
+    MigrationBundle,
+    MigrationImporter,
+    compatibility_manifest,
+    import_kestra_flow,
+    plan_migration,
+)
 from amesh.plugin_sdk import (
     certify_plugin,
     generate_plugin_documentation,
@@ -385,6 +393,51 @@ def build_parser() -> argparse.ArgumentParser:
     config_migration.add_argument("--target-version", required=True)
     config_migration.add_argument("--output", type=Path, required=True)
 
+    kestra = subcommands.add_parser(
+        "kestra", help="Use the version-pinned Kestra 1.3.30 compatibility surface"
+    )
+    kestra_commands = kestra.add_subparsers(dest="kestra_command", required=True)
+    kestra_flow = kestra_commands.add_parser("flow", help="Validate or migrate Kestra flows")
+    kestra_flow_commands = kestra_flow.add_subparsers(dest="kestra_flow_command", required=True)
+    kestra_flow_validate = kestra_flow_commands.add_parser(
+        "validate", help="Classify a Kestra flow against the declared compatibility surface"
+    )
+    kestra_flow_validate.add_argument("path", type=Path)
+    kestra_flow_migrate = kestra_flow_commands.add_parser(
+        "migrate", help="Write an AMESH candidate flow when all mappings are supported"
+    )
+    kestra_flow_migrate.add_argument("path", type=Path)
+    kestra_flow_migrate.add_argument("--output-path", type=Path, required=True)
+
+    kestra_migration = kestra_commands.add_parser(
+        "migration", help="Plan or run a checksum-protected side-by-side migration"
+    )
+    kestra_migration_commands = kestra_migration.add_subparsers(
+        dest="kestra_migration_command", required=True
+    )
+    kestra_migration_plan = kestra_migration_commands.add_parser(
+        "plan", help="Dry-run a migration bundle and report cutover blockers"
+    )
+    kestra_migration_plan.add_argument("bundle", type=Path)
+    kestra_migration_plan.add_argument("--secret-binding", action="append", default=[])
+    kestra_migration_import = kestra_migration_commands.add_parser(
+        "import", help="Resume an idempotent side-by-side migration import"
+    )
+    kestra_migration_import.add_argument("bundle", type=Path)
+    kestra_migration_import.add_argument("--target-dir", type=Path, required=True)
+    kestra_migration_import.add_argument("--max-records", type=int)
+    kestra_migration_import.add_argument("--secret-binding", action="append", default=[])
+
+    kestra_compatibility = kestra_commands.add_parser(
+        "compatibility", help="Inspect the version-pinned compatibility contract"
+    )
+    kestra_compatibility_commands = kestra_compatibility.add_subparsers(
+        dest="kestra_compatibility_command", required=True
+    )
+    kestra_compatibility_commands.add_parser(
+        "manifest", help="Print the machine-readable compatibility manifest"
+    )
+
     completion = subcommands.add_parser(
         "completion", help="Generate shell completion from the command model"
     )
@@ -456,6 +509,12 @@ def main(argv: Sequence[str] | None = None) -> int:
             args.path.write_text(command_reference, encoding="utf-8", newline="\n")
             _emit({"documentation": str(args.path)}, output_mode)
         return EXIT_SUCCESS
+    if args.command == "kestra":
+        try:
+            return _run_kestra_command(args, output_mode)
+        except (OSError, FlowDocumentError, ValueError) as exc:
+            print(str(exc), file=sys.stderr)
+            return EXIT_ERROR
     try:
         if args.command == "config":
             return _run_config_command(args, output_mode)
@@ -693,9 +752,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             flow_exit = _write_flow_response(response, args, output_mode)
             if flow_exit is not None:
                 return flow_exit
-        if args.command == "upgrade" and _write_upgrade_response(
-            response, args, output_mode
-        ):
+        if args.command == "upgrade" and _write_upgrade_response(response, args, output_mode):
             return EXIT_SUCCESS
         if response.status_code == 204 or not response.content:
             _emit({"status": "ok"}, output_mode)
@@ -837,6 +894,49 @@ def _uses_api(args: argparse.Namespace) -> bool:
     }:
         return True
     return args.command == "plugins" and args.plugin_command in {"list", "refresh", "install"}
+
+
+def _run_kestra_command(args: argparse.Namespace, output_mode: str) -> int:
+    if args.kestra_command == "flow":
+        imported = import_kestra_flow(args.path.read_bytes())
+        if args.kestra_flow_command == "migrate" and imported.valid:
+            args.output_path.parent.mkdir(parents=True, exist_ok=True)
+            args.output_path.write_text(
+                yaml.safe_dump(imported.candidate_document, sort_keys=False),
+                encoding="utf-8",
+                newline="\n",
+            )
+        payload = imported.model_dump(mode="json", by_alias=True)
+        if args.kestra_flow_command == "migrate":
+            payload["outputPath"] = str(args.output_path) if imported.valid else None
+        _emit(payload, output_mode)
+        return EXIT_SUCCESS if imported.valid else EXIT_DIFFERENCE
+    if args.kestra_command == "migration":
+        bundle = MigrationBundle.model_validate_json(args.bundle.read_text(encoding="utf-8"))
+        bindings = set(args.secret_binding)
+        if args.kestra_migration_command == "plan":
+            plan = plan_migration(bundle, resolved_secret_bindings=bindings)
+            _emit(plan.model_dump(mode="json", by_alias=True), output_mode)
+            return EXIT_SUCCESS if plan.cutover_allowed else EXIT_DIFFERENCE
+        importer = MigrationImporter(FileMigrationStore(args.target_dir))
+        result = importer.import_bundle(
+            bundle,
+            resolved_secret_bindings=bindings,
+            max_records=args.max_records,
+        )
+        reconciliation = importer.reconcile(bundle) if result.complete else ()
+        _emit(
+            {
+                **result.model_dump(mode="json", by_alias=True),
+                "reconciliation": [
+                    item.model_dump(mode="json", by_alias=True) for item in reconciliation
+                ],
+            },
+            output_mode,
+        )
+        return EXIT_SUCCESS if not reconciliation else EXIT_DIFFERENCE
+    _emit(compatibility_manifest(), output_mode)
+    return EXIT_SUCCESS
 
 
 def _read_document(path: str) -> bytes:

@@ -61,7 +61,11 @@ Compare expanded task graphs, state sequences, retries, timeouts, pause/cancel/k
 
 ### Import/export
 
-Support documented flow, namespace, file, key-value, revision, dashboard and configuration bundles. The required depth of historical execution migration remains an open product decision.
+Support documented flow, namespace, file, key-value, revision, dashboard and configuration bundles.
+The implemented `amesh.kestra-migration/v1` bundle also covers identity/governance, system and plugin
+configuration, executions, task runs, state history, logs, metrics, artifacts and audit evidence.
+See the [Kestra migration runbook](../operations/kestra-migration.md) and machine-readable
+`kestra-compatibility-1.3.30.json` manifest for the declared surface and current blockers.
 
 ## Differential conformance
 
