@@ -55,6 +55,7 @@ from amesh.adapters.postgres import (
     PostgresExecutionRepository,
     PostgresFeatureFlagRepository,
     PostgresFederationRepository,
+    PostgresFlowTestRepository,
     PostgresHumanTaskRepository,
     PostgresMetadataRepository,
     PostgresOperationalControlRepository,
@@ -230,9 +231,16 @@ from amesh.domain import (
     FeatureFlag,
     FeatureFlagDecision,
     FeatureFlagScope,
+    FlowLifecycle,
     FlowRevisionDiff,
     FlowRevisionRecord,
     FlowRevisionSource,
+    FlowTestDefinition,
+    FlowTestDefinitionCreateRequest,
+    FlowTestQualityGate,
+    FlowTestQualityGateUpdate,
+    FlowTestRunRequest,
+    FlowTestRunResult,
     InvalidTransition,
     IssuedBrowserSession,
     IssuedCredential,
@@ -338,6 +346,7 @@ from amesh.federation import (
     IdentityFederationService,
     LdapAuthenticationProvider,
 )
+from amesh.flow_testing import FlowTestService
 from amesh.frontend import SpaStaticFiles, find_frontend_dist
 from amesh.human_tasks import HumanTaskService, approval_task_handler
 from amesh.migrations import migration_directory
@@ -389,6 +398,7 @@ from amesh.ports import (
     ExecutionLaunchSource,
     ExecutionStateConflictError,
     FeatureFlagVersionConflict,
+    FlowTestVersionConflict,
     LastAdministratorError,
     MetadataVersionConflict,
     NamespaceCheckPolicy,
@@ -768,6 +778,17 @@ def get_repository() -> PostgresExecutionRepository:
 RepositoryDependency = Annotated[
     PostgresExecutionRepository,
     Depends(get_repository),
+]
+
+
+@lru_cache
+def get_flow_test_repository() -> PostgresFlowTestRepository:
+    return PostgresFlowTestRepository(database_engine())
+
+
+FlowTestRepositoryDependency = Annotated[
+    PostgresFlowTestRepository,
+    Depends(get_flow_test_repository),
 ]
 
 
@@ -1693,6 +1714,9 @@ async def get_ui_session(
         "flows.view": ("flow", PermissionAction.VIEW),
         "flows.create": ("flow", PermissionAction.CREATE),
         "flows.update": ("flow", PermissionAction.UPDATE),
+        "flowTests.view": ("flow_test", PermissionAction.VIEW),
+        "flowTests.manage": ("flow_test", PermissionAction.UPDATE),
+        "flowTests.execute": ("flow_test", PermissionAction.EXECUTE),
         "executions.view": ("execution", PermissionAction.VIEW),
         "executions.execute": ("execution", PermissionAction.EXECUTE),
         "executions.manage": ("execution", PermissionAction.MANAGE),
@@ -4878,6 +4902,7 @@ async def apply_flow(
     repository: RepositoryDependency,
     plugin_catalog: PluginCatalogDependency,
     operational_controls: OperationalControlRepositoryDependency,
+    flow_tests: FlowTestRepositoryDependency,
     actor: ActorDependency,
     authorization_service: AuthorizationServiceDependency,
     tenant_id: TenantDependency,
@@ -4921,11 +4946,13 @@ async def apply_flow(
                 "controlIds": [str(control.control_id) for control in authoring_decision.controls],
             },
         )
+    existing_revision: int | None = None
     try:
-        await repository.get_flow(flow.namespace, flow.id, tenant_id=tenant_id)
+        existing = await repository.get_flow(flow.namespace, flow.id, tenant_id=tenant_id)
     except LookupError:
         write_action = PermissionAction.CREATE
     else:
+        existing_revision = existing.revision
         write_action = PermissionAction.UPDATE
     await authorize_request(
         authorization_service,
@@ -4956,6 +4983,21 @@ async def apply_flow(
                 deployment={"reference": deployment} if deployment is not None else {},
             ),
         )
+        gate = await flow_tests.get_gate(flow.namespace, tenant_id=tenant_id)
+        if (
+            gate is not None
+            and gate.enabled
+            and (existing_revision is None or persisted.revision > existing_revision)
+        ):
+            persisted = await repository.promote_flow_revision(
+                flow.namespace,
+                flow.id,
+                persisted.revision,
+                FlowLifecycle.DRAFT,
+                tenant_id=tenant_id,
+                actor_id=str(actor.principal_id),
+                reason="namespace flow-test gate requires passing tests before ACTIVE promotion",
+            )
     except ResourceVersionConflict as exc:
         raise HTTPException(
             status_code=status.HTTP_412_PRECONDITION_FAILED,
@@ -5721,6 +5763,254 @@ async def list_flow_revisions(
     return await repository.list_flow_revisions(namespace, flow_id, tenant_id=tenant_id)
 
 
+@app.put(
+    "/api/v1/flows/{namespace}/{flow_id}/tests",
+    response_model=FlowTestDefinition,
+    tags=["flow-tests"],
+)
+async def save_flow_test(
+    namespace: str,
+    flow_id: str,
+    request: FlowTestDefinitionCreateRequest,
+    repository: RepositoryDependency,
+    flow_tests: FlowTestRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> FlowTestDefinition:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="flow_test",
+        action=(
+            PermissionAction.CREATE if request.expected_version is None else PermissionAction.UPDATE
+        ),
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    try:
+        return await FlowTestService(repository, flow_tests).save_definition(
+            namespace,
+            flow_id,
+            request,
+            tenant_id=tenant_id,
+            actor_id=str(actor.principal_id),
+        )
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    except FlowTestVersionConflict as exc:
+        raise HTTPException(
+            status_code=status.HTTP_412_PRECONDITION_FAILED,
+            detail=str(exc),
+        ) from exc
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=str(exc),
+        ) from exc
+
+
+@app.get(
+    "/api/v1/flows/{namespace}/{flow_id}/tests",
+    response_model=list[FlowTestDefinition],
+    tags=["flow-tests"],
+)
+async def list_flow_tests(
+    namespace: str,
+    flow_id: str,
+    flow_tests: FlowTestRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    revision: Annotated[int | None, Query(ge=1)] = None,
+) -> list[FlowTestDefinition]:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="flow_test",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    return list(
+        await flow_tests.list_definitions(
+            namespace,
+            flow_id,
+            tenant_id=tenant_id,
+            revision=revision,
+        )
+    )
+
+
+@app.delete(
+    "/api/v1/flows/{namespace}/{flow_id}/tests/{test_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    tags=["flow-tests"],
+)
+async def delete_flow_test(
+    namespace: str,
+    flow_id: str,
+    test_id: str,
+    flow_tests: FlowTestRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    expected_version: Annotated[int, Query(alias="expectedVersion", ge=1)],
+) -> Response:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="flow_test",
+        action=PermissionAction.UPDATE,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    try:
+        await flow_tests.delete_definition(
+            namespace,
+            flow_id,
+            test_id,
+            tenant_id=tenant_id,
+            expected_version=expected_version,
+            actor_id=str(actor.principal_id),
+        )
+    except FlowTestVersionConflict as exc:
+        raise HTTPException(
+            status_code=status.HTTP_412_PRECONDITION_FAILED,
+            detail=str(exc),
+        ) from exc
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@app.post(
+    "/api/v1/flows/{namespace}/{flow_id}/tests/runs",
+    response_model=FlowTestRunResult,
+    tags=["flow-tests"],
+)
+async def run_flow_tests(
+    namespace: str,
+    flow_id: str,
+    request: FlowTestRunRequest,
+    repository: RepositoryDependency,
+    flow_tests: FlowTestRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    revision: Annotated[int, Query(ge=1)],
+) -> FlowTestRunResult:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="flow_test",
+        action=PermissionAction.EXECUTE,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    try:
+        return await FlowTestService(repository, flow_tests).run(
+            namespace,
+            flow_id,
+            revision,
+            request,
+            tenant_id=tenant_id,
+            actor_id=str(actor.principal_id),
+        )
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+
+
+@app.get(
+    "/api/v1/flows/{namespace}/{flow_id}/tests/runs",
+    response_model=list[FlowTestRunResult],
+    tags=["flow-tests"],
+)
+async def list_flow_test_runs(
+    namespace: str,
+    flow_id: str,
+    flow_tests: FlowTestRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    revision: Annotated[int | None, Query(ge=1)] = None,
+    limit: Annotated[int, Query(ge=1, le=100)] = 50,
+) -> list[FlowTestRunResult]:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="flow_test",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    return list(
+        await flow_tests.list_runs(
+            namespace,
+            flow_id,
+            tenant_id=tenant_id,
+            revision=revision,
+            limit=limit,
+        )
+    )
+
+
+@app.get(
+    "/api/v1/namespaces/{namespace}/flow-test-gate",
+    response_model=FlowTestQualityGate | None,
+    tags=["flow-tests"],
+)
+async def get_flow_test_gate(
+    namespace: str,
+    flow_tests: FlowTestRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> FlowTestQualityGate | None:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="flow_test",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    return await flow_tests.get_gate(namespace, tenant_id=tenant_id)
+
+
+@app.put(
+    "/api/v1/namespaces/{namespace}/flow-test-gate",
+    response_model=FlowTestQualityGate,
+    tags=["flow-tests"],
+)
+async def update_flow_test_gate(
+    namespace: str,
+    request: FlowTestQualityGateUpdate,
+    flow_tests: FlowTestRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> FlowTestQualityGate:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="flow_test",
+        action=PermissionAction.UPDATE,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    try:
+        return await flow_tests.upsert_gate(
+            namespace,
+            request,
+            tenant_id=tenant_id,
+            actor_id=str(actor.principal_id),
+        )
+    except FlowTestVersionConflict as exc:
+        raise HTTPException(
+            status_code=status.HTTP_412_PRECONDITION_FAILED,
+            detail=str(exc),
+        ) from exc
+
+
 @app.get(
     "/api/v1/flows/{namespace}/{flow_id}/revisions/diff",
     response_model=FlowRevisionDiff,
@@ -5837,6 +6127,7 @@ async def promote_flow_revision(
     revision: int,
     request: FlowRevisionLifecycleRequest,
     repository: RepositoryDependency,
+    flow_tests: FlowTestRepositoryDependency,
     actor: ActorDependency,
     authorization_service: AuthorizationServiceDependency,
     tenant_id: TenantDependency,
@@ -5850,6 +6141,22 @@ async def promote_flow_revision(
         namespace=namespace,
     )
     try:
+        if request.lifecycle is FlowLifecycle.ACTIVE:
+            decision = await FlowTestService(repository, flow_tests).gate_decision(
+                namespace,
+                flow_id,
+                revision,
+                tenant_id=tenant_id,
+            )
+            if not decision.allowed:
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail={
+                        "code": "FLOW_TEST_GATE_FAILED",
+                        "reason": decision.reason,
+                        "decision": decision.model_dump(mode="json", by_alias=True),
+                    },
+                )
         return await repository.promote_flow_revision(
             namespace,
             flow_id,

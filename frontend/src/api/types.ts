@@ -4,6 +4,9 @@ export type Capability =
   | 'flows.view'
   | 'flows.create'
   | 'flows.update'
+  | 'flowTests.view'
+  | 'flowTests.manage'
+  | 'flowTests.execute'
   | 'executions.view'
   | 'executions.execute'
   | 'executions.manage'
@@ -450,6 +453,94 @@ export interface FlowRevisionDiff {
   to_revision: number
   human: string
   operations: Array<Record<string, unknown>>
+}
+
+export type FlowTestOutcome = 'PASSED' | 'FAILED' | 'ERROR'
+
+export interface FlowTestDefinitionDraft {
+  testId: string
+  name: string
+  revision: number
+  inputs: Record<string, unknown>
+  variables: Record<string, unknown>
+  fixtures: Record<string, unknown>
+  expected: Record<string, unknown>
+  tags: string[]
+  expectedVersion?: number
+}
+
+export interface FlowTestDefinition extends Omit<FlowTestDefinitionDraft, 'expectedVersion'> {
+  id: string
+  tenantId: string
+  namespace: string
+  flowId: string
+  flowSemanticHash: string
+  pluginSetHash: string
+  version: number
+  createdBy: string
+  updatedBy: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface FlowTestCoverage {
+  tasksTotal: number
+  tasksCovered: number
+  branchesTotal: number
+  branchesCovered: number
+  handlersTotal: number
+  handlersCovered: number
+  conditionsTotal: number
+  conditionsCovered: number
+  percentage: number
+  disclaimer: string
+}
+
+export interface FlowTestAssertion {
+  path: string
+  passed: boolean
+  expected: unknown
+  actual: unknown
+}
+
+export interface FlowTestCaseResult {
+  testId: string
+  outcome: FlowTestOutcome
+  state: string
+  assertions: FlowTestAssertion[]
+  error: string | null
+}
+
+export interface FlowTestRunResult {
+  schemaVersion: string
+  runId: string
+  tenantId: string
+  namespace: string
+  flowId: string
+  revision: number
+  flowSemanticHash: string
+  pluginSetHash: string
+  simulatorVersion: string
+  outcome: FlowTestOutcome
+  cases: FlowTestCaseResult[]
+  coverage: FlowTestCoverage
+  isolated: boolean
+  productionExecutionsCreated: number
+  artifactsCreated: number
+  secretLookups: number
+  requestedBy: string
+  createdAt: string
+}
+
+export interface FlowTestQualityGate {
+  tenantId: string
+  namespace: string
+  enabled: boolean
+  minimumCoverage: number
+  requiredTestIds: string[]
+  version: number
+  updatedBy: string
+  updatedAt: string
 }
 
 export interface FlowFormatResponse {

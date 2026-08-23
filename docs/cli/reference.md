@@ -193,7 +193,7 @@ usage: amesh executions [-h] [--limit LIMIT]
 ## `amesh flow`
 
 ```text
-usage: amesh flow [-h] {apply,diff,export,delete} ...
+usage: amesh flow [-h] {apply,diff,export,delete,test} ...
 ```
 
 ## `amesh flow apply`
@@ -218,6 +218,14 @@ usage: amesh flow diff [-h] [path]
 
 ```text
 usage: amesh flow export [-h] [--revision REVISION] namespace flow_id [path]
+```
+
+## `amesh flow test`
+
+```text
+usage: amesh flow test [-h] --revision REVISION [--test-id TEST_ID]
+                       [--fail-fast]
+                       namespace flow_id
 ```
 
 ## `amesh flows`

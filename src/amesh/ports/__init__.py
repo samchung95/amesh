@@ -87,6 +87,7 @@ from .federation_repository import (
     FederationRepository,
     FederationStateRejected,
 )
+from .flow_tests import FlowTestRepository, FlowTestVersionConflict
 from .metadata_repository import (
     AssetAccessMode,
     AssetCatalogEntry,
@@ -252,6 +253,8 @@ __all__ = [
     "FederationReplayRejected",
     "FederationRepository",
     "FederationStateRejected",
+    "FlowTestRepository",
+    "FlowTestVersionConflict",
     "KubernetesJobRunnerExtension",
     "KubernetesJobTemplate",
     "KubernetesRunnerProfile",

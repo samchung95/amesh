@@ -572,14 +572,14 @@ URS-F-0570,Functional,Must,EPIC-509,"Announcements, maintenance mode and kill sw
 URS-F-0571,Functional,Must,EPIC-509,"Announcements, maintenance mode and kill switch",M5,5,"Reference deployment, upgrade and failure-recovery tests",Verified
 URS-F-0572,Functional,Must,EPIC-509,"Announcements, maintenance mode and kill switch",M5,5,"Reference deployment, upgrade and failure-recovery tests",Verified
 URS-F-0573,Functional,Must,EPIC-509,"Announcements, maintenance mode and kill switch",M5,5,"Reference deployment, upgrade and failure-recovery tests",Verified
-URS-F-0574,Functional,Must,EPIC-510,Flow unit tests and quality gates,M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
-URS-F-0575,Functional,Must,EPIC-510,Flow unit tests and quality gates,M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
-URS-F-0576,Functional,Must,EPIC-510,Flow unit tests and quality gates,M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
-URS-F-0577,Functional,Must,EPIC-510,Flow unit tests and quality gates,M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
-URS-F-0578,Functional,Must,EPIC-510,Flow unit tests and quality gates,M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
-URS-F-0579,Functional,Must,EPIC-510,Flow unit tests and quality gates,M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
-URS-F-0580,Functional,Must,EPIC-510,Flow unit tests and quality gates,M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
-URS-F-0581,Functional,Must,EPIC-510,Flow unit tests and quality gates,M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0574,Functional,Must,EPIC-510,Flow unit tests and quality gates,M5,5,"Authorization, audit and administrative end-to-end tests",Verified
+URS-F-0575,Functional,Must,EPIC-510,Flow unit tests and quality gates,M5,5,"Authorization, audit and administrative end-to-end tests",Verified
+URS-F-0576,Functional,Must,EPIC-510,Flow unit tests and quality gates,M5,5,"Authorization, audit and administrative end-to-end tests",Verified
+URS-F-0577,Functional,Must,EPIC-510,Flow unit tests and quality gates,M5,5,"Authorization, audit and administrative end-to-end tests",Verified
+URS-F-0578,Functional,Must,EPIC-510,Flow unit tests and quality gates,M5,5,"Authorization, audit and administrative end-to-end tests",Verified
+URS-F-0579,Functional,Must,EPIC-510,Flow unit tests and quality gates,M5,5,"Authorization, audit and administrative end-to-end tests",Verified
+URS-F-0580,Functional,Must,EPIC-510,Flow unit tests and quality gates,M5,5,"Authorization, audit and administrative end-to-end tests",Verified
+URS-F-0581,Functional,Must,EPIC-510,Flow unit tests and quality gates,M5,5,"Authorization, audit and administrative end-to-end tests",Verified
 URS-F-0582,Functional,Must,EPIC-600,Standalone server and compact deployment,M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
 URS-F-0583,Functional,Must,EPIC-600,Standalone server and compact deployment,M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
 URS-F-0584,Functional,Must,EPIC-600,Standalone server and compact deployment,M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed

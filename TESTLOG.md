@@ -1,5 +1,45 @@
 # Test Log
 
+## EPIC-510: Flow unit tests and quality gates — 2026-08-23
+
+Spec source: Agent Hotel card `c74` and canonical `backlog/epics.json` EPIC-510 DoD.
+
+Verified with `uv`, Python 3.13, PostgreSQL 17, React/TypeScript, Chromium and Docker Compose:
+
+- [x] Migration `0051_flow_tests_quality_gates.sql` applies to a fresh database and durably stores
+  tenant-isolated test definitions, immutable runs and namespace promotion gates with optimistic
+  versions, authorization grants, row-level security and lifecycle audit events.
+- [x] The versioned `amesh.flow-test/v1` simulator evaluates inputs, variables, expressions,
+  branches, retries, error/finally/after handlers and generated loop task graphs without dispatching
+  production work. Inline, plugin and recorded fixtures replay deterministic external responses.
+- [x] Assertions cover terminal state, outputs and task states. Observed task, branch, handler and
+  condition coverage includes an explicit disclaimer that it is not proof of full workflow semantics.
+- [x] Authorized API, JSON-emitting CLI, graphical Unit tests page and CI-friendly exit codes run
+  selected revision-pinned tests. The gate requires exact passing flow semantic, plugin-set and
+  simulator-version pins before ACTIVE promotion; a gated new revision is automatically DRAFT.
+- [x] Fresh-PostgreSQL integration proved durable reload, stale-version rejection, audit persistence,
+  gate rejection/recovery and zero production executions or artifacts. Secret-like test data is
+  rejected before persistence, and run results report zero secret lookups.
+- [x] Ruff passed affected paths and strict mypy passed all 191 source files. Sixteen focused backend
+  tests, 17 frontend client assertions, the production frontend build, generated-contract checks and
+  the targeted Chromium acceptance test passed; all four generated SDKs are current.
+- [x] API, executor, scheduler and indexer images rebuilt successfully and are healthy. Live readiness
+  reports 51/51 with `0051_flow_tests_quality_gates.sql`. The deployed
+  `tests.flowtests.live.promotion_demo` was blocked before testing, passed at 66.67% observed coverage
+  with zero side effects, and then promoted to ACTIVE through both HTTP and CLI paths.
+- [x] No LLM behavior was involved, so no billable OpenRouter call was required. Applicable LLM tests
+  remain pinned to `openai/gpt-5.6-luna`.
+
+Qualification boundary: this epic implements the smallest revision-pinned simulator contract needed
+for deterministic flow tests. Broader simulator estimation, plan-diff and signing work remains in
+EPIC-800, and observed coverage is intentionally not claimed as semantic proof.
+
+Deferred unrelated test hygiene: the isolated observability test still expects a storage histogram
+to have been initialized by another test; its database readiness assertions passed at 51/51, and the
+live readiness endpoint independently passed. No storage code was changed.
+
+Verdict: PASS — EPIC-510 functional requirements URS-F-0574 through URS-F-0581 are verified.
+
 ## EPIC-509: Announcements, maintenance mode and kill switch — 2026-08-23
 
 Spec source: Agent Hotel card `c73` and canonical `backlog/epics.json` EPIC-509 DoD.

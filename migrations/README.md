@@ -191,6 +191,11 @@ namespace, flow, plugin and runner controls. Maintenance and kill-switch changes
 component, retain acknowledgement and action history, automatically expire, and are sampled at API,
 trigger, execution-admission and worker-dispatch boundaries.
 
+Migration `0051_flow_tests_quality_gates.sql` adds tenant-scoped, revision-pinned flow-test
+definitions and immutable result records plus namespace promotion gates. Results retain semantic,
+plugin-set and simulator-version pins; definitions, runs and gate changes write audit evidence. The
+migration is additive; disable affected gates before a forward fix so lifecycle promotion can resume.
+
 ## Migration modes
 
 - `bootstrap` creates the initial schema and is only safe for an empty database.

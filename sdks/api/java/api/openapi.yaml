@@ -7956,6 +7956,389 @@ paths:
       - triggers
       x-accepts:
       - application/json
+  /api/v1/flows/{namespace}/{flow_id}/tests:
+    get:
+      operationId: list_flow_tests_api_v1_flows__namespace___flow_id__tests_get
+      parameters:
+      - explode: false
+        in: path
+        name: namespace
+        required: true
+        schema:
+          title: Namespace
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: flow_id
+        required: true
+        schema:
+          title: Flow Id
+          type: string
+        style: simple
+      - explode: true
+        in: query
+        name: revision
+        required: false
+        schema:
+          minimum: 1
+          nullable: true
+          type: integer
+        style: form
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/FlowTestDefinition"
+                title: Response List Flow Tests Api V1 Flows  Namespace   Flow Id  Tests
+                  Get
+                type: array
+                default: null
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: List Flow Tests
+      tags:
+      - flow-tests
+      x-accepts:
+      - application/json
+    put:
+      operationId: save_flow_test_api_v1_flows__namespace___flow_id__tests_put
+      parameters:
+      - explode: false
+        in: path
+        name: namespace
+        required: true
+        schema:
+          title: Namespace
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: flow_id
+        required: true
+        schema:
+          title: Flow Id
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FlowTestDefinitionCreateRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FlowTestDefinition"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Save Flow Test
+      tags:
+      - flow-tests
+      x-content-type: application/json
+      x-accepts:
+      - application/json
+  /api/v1/flows/{namespace}/{flow_id}/tests/runs:
+    get:
+      operationId: list_flow_test_runs_api_v1_flows__namespace___flow_id__tests_runs_get
+      parameters:
+      - explode: false
+        in: path
+        name: namespace
+        required: true
+        schema:
+          title: Namespace
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: flow_id
+        required: true
+        schema:
+          title: Flow Id
+          type: string
+        style: simple
+      - explode: true
+        in: query
+        name: revision
+        required: false
+        schema:
+          minimum: 1
+          nullable: true
+          type: integer
+        style: form
+      - explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 50
+          maximum: 100
+          minimum: 1
+          title: Limit
+          type: integer
+        style: form
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/FlowTestRunResult"
+                title: Response List Flow Test Runs Api V1 Flows  Namespace   Flow
+                  Id  Tests Runs Get
+                type: array
+                default: null
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: List Flow Test Runs
+      tags:
+      - flow-tests
+      x-accepts:
+      - application/json
+    post:
+      operationId: run_flow_tests_api_v1_flows__namespace___flow_id__tests_runs_post
+      parameters:
+      - explode: false
+        in: path
+        name: namespace
+        required: true
+        schema:
+          title: Namespace
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: flow_id
+        required: true
+        schema:
+          title: Flow Id
+          type: string
+        style: simple
+      - explode: true
+        in: query
+        name: revision
+        required: true
+        schema:
+          minimum: 1
+          title: Revision
+          type: integer
+        style: form
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FlowTestRunRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FlowTestRunResult"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Run Flow Tests
+      tags:
+      - flow-tests
+      x-content-type: application/json
+      x-accepts:
+      - application/json
+  /api/v1/flows/{namespace}/{flow_id}/tests/{test_id}:
+    delete:
+      operationId: delete_flow_test_api_v1_flows__namespace___flow_id__tests__test_id__delete
+      parameters:
+      - explode: false
+        in: path
+        name: namespace
+        required: true
+        schema:
+          title: Namespace
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: flow_id
+        required: true
+        schema:
+          title: Flow Id
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: test_id
+        required: true
+        schema:
+          title: Test Id
+          type: string
+        style: simple
+      - explode: true
+        in: query
+        name: expectedVersion
+        required: true
+        schema:
+          minimum: 1
+          title: Expectedversion
+          type: integer
+        style: form
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "204":
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Delete Flow Test
+      tags:
+      - flow-tests
+      x-accepts:
+      - application/json
   /api/v1/human-task-notifications:
     get:
       operationId: list_human_task_notifications_api_v1_human_task_notifications_get
@@ -8558,6 +8941,122 @@ paths:
       summary: List Namespace File Versions
       tags:
       - namespace-resources
+      x-accepts:
+      - application/json
+  /api/v1/namespaces/{namespace}/flow-test-gate:
+    get:
+      operationId: get_flow_test_gate_api_v1_namespaces__namespace__flow_test_gate_get
+      parameters:
+      - explode: false
+        in: path
+        name: namespace
+        required: true
+        schema:
+          title: Namespace
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                allOf:
+                - $ref: "#/components/schemas/FlowTestQualityGate"
+                nullable: true
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Get Flow Test Gate
+      tags:
+      - flow-tests
+      x-accepts:
+      - application/json
+    put:
+      operationId: update_flow_test_gate_api_v1_namespaces__namespace__flow_test_gate_put
+      parameters:
+      - explode: false
+        in: path
+        name: namespace
+        required: true
+        schema:
+          title: Namespace
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FlowTestQualityGateUpdate"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FlowTestQualityGate"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Update Flow Test Gate
+      tags:
+      - flow-tests
+      x-content-type: application/json
       x-accepts:
       - application/json
   /api/v1/namespaces/{namespace}/key-values:
@@ -19428,6 +19927,804 @@ components:
           nullable: true
           type: string
       title: FlowRevisionRestoreRequest
+    FlowTestAssertion:
+      example:
+        actual: ""
+        expected: ""
+        passed: true
+        path: path
+      properties:
+        actual:
+          title: Actual
+        expected:
+          title: Expected
+        passed:
+          title: Passed
+          type: boolean
+        path:
+          title: Path
+          type: string
+      required:
+      - actual
+      - expected
+      - passed
+      - path
+      title: FlowTestAssertion
+    FlowTestCaseResult:
+      example:
+        assertions:
+        - actual: ""
+          expected: ""
+          passed: true
+          path: path
+        - actual: ""
+          expected: ""
+          passed: true
+          path: path
+        coverage:
+          branchesCovered: 0
+          branchesTotal: 0
+          conditionsCovered: 0
+          conditionsTotal: 0
+          disclaimer: "Coverage is observed simulator execution, not proof of full\
+            \ workflow semantics."
+          handlersCovered: 0
+          handlersTotal: 0
+          percentage: 93.01444243932576
+          tasksCovered: 0
+          tasksTotal: 0
+        error: error
+        outcome: PASSED
+        outputs:
+          key: ""
+        state: SUCCESS
+        tasks:
+        - attempts: 0
+          branch: branch
+          fixtureSource: ""
+          lifecyclePhase: lifecyclePhase
+          output:
+            key: ""
+          reason: reason
+          state: null
+          taskId: taskId
+          taskType: taskType
+        - attempts: 0
+          branch: branch
+          fixtureSource: ""
+          lifecyclePhase: lifecyclePhase
+          output:
+            key: ""
+          reason: reason
+          state: null
+          taskId: taskId
+          taskType: taskType
+        testId: testId
+      properties:
+        assertions:
+          items:
+            $ref: "#/components/schemas/FlowTestAssertion"
+          title: Assertions
+          type: array
+          default: null
+        coverage:
+          $ref: "#/components/schemas/FlowTestCoverage"
+        error:
+          nullable: true
+          type: string
+        outcome:
+          $ref: "#/components/schemas/FlowTestOutcome"
+        outputs:
+          additionalProperties: true
+          title: Outputs
+          type: object
+        state:
+          $ref: "#/components/schemas/FlowTestTaskState"
+        tasks:
+          items:
+            $ref: "#/components/schemas/SimulatedTaskResult"
+          title: Tasks
+          type: array
+          default: null
+        testId:
+          title: Testid
+          type: string
+      required:
+      - assertions
+      - coverage
+      - outcome
+      - outputs
+      - state
+      - tasks
+      - testId
+      title: FlowTestCaseResult
+    FlowTestCoverage:
+      example:
+        branchesCovered: 0
+        branchesTotal: 0
+        conditionsCovered: 0
+        conditionsTotal: 0
+        disclaimer: "Coverage is observed simulator execution, not proof of full workflow\
+          \ semantics."
+        handlersCovered: 0
+        handlersTotal: 0
+        percentage: 93.01444243932576
+        tasksCovered: 0
+        tasksTotal: 0
+      properties:
+        branchesCovered:
+          minimum: 0.0
+          title: Branchescovered
+          type: integer
+        branchesTotal:
+          minimum: 0.0
+          title: Branchestotal
+          type: integer
+        conditionsCovered:
+          minimum: 0.0
+          title: Conditionscovered
+          type: integer
+        conditionsTotal:
+          minimum: 0.0
+          title: Conditionstotal
+          type: integer
+        disclaimer:
+          default: "Coverage is observed simulator execution, not proof of full workflow\
+            \ semantics."
+          title: Disclaimer
+          type: string
+        handlersCovered:
+          minimum: 0.0
+          title: Handlerscovered
+          type: integer
+        handlersTotal:
+          minimum: 0.0
+          title: Handlerstotal
+          type: integer
+        percentage:
+          maximum: 100.0
+          minimum: 0.0
+          title: Percentage
+          type: number
+        tasksCovered:
+          minimum: 0.0
+          title: Taskscovered
+          type: integer
+        tasksTotal:
+          minimum: 0.0
+          title: Taskstotal
+          type: integer
+      required:
+      - branchesCovered
+      - branchesTotal
+      - conditionsCovered
+      - conditionsTotal
+      - handlersCovered
+      - handlersTotal
+      - percentage
+      - tasksCovered
+      - tasksTotal
+      title: FlowTestCoverage
+    FlowTestDefinition:
+      example:
+        createdAt: 2000-01-23T04:56:07.000+00:00
+        createdBy: createdBy
+        expected:
+          outputs:
+            key: ""
+          state: ""
+          taskOutputs:
+            key:
+              key: ""
+          taskStates:
+            key: SUCCESS
+        fixtures:
+          key:
+            error: error
+            failuresBeforeSuccess: 7
+            iterations:
+            - ""
+            - ""
+            output:
+              key: ""
+            pluginId: pluginId
+            pluginVersion: pluginVersion
+            recordedAt: 2000-01-23T04:56:07.000+00:00
+            source: ""
+        flowId: flowId
+        flowSemanticHash: flowSemanticHash
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        inputs:
+          key: ""
+        name: name
+        namespace: namespace
+        pluginSetHash: pluginSetHash
+        revision: 1
+        tags:
+        - tags
+        - tags
+        tenantId: tenantId
+        testId: testId
+        updatedAt: 2000-01-23T04:56:07.000+00:00
+        updatedBy: updatedBy
+        variables:
+          key: ""
+        version: 1
+      properties:
+        createdAt:
+          format: date-time
+          title: Createdat
+          type: string
+        createdBy:
+          title: Createdby
+          type: string
+        expected:
+          $ref: "#/components/schemas/FlowTestExpectation"
+        fixtures:
+          additionalProperties:
+            $ref: "#/components/schemas/FlowTestFixture"
+          title: Fixtures
+        flowId:
+          title: Flowid
+          type: string
+        flowSemanticHash:
+          title: Flowsemantichash
+          type: string
+        id:
+          format: uuid
+          title: Id
+          type: string
+        inputs:
+          additionalProperties: true
+          title: Inputs
+          type: object
+        name:
+          title: Name
+          type: string
+        namespace:
+          title: Namespace
+          type: string
+        pluginSetHash:
+          title: Pluginsethash
+          type: string
+        revision:
+          minimum: 1.0
+          title: Revision
+          type: integer
+        tags:
+          items:
+            type: string
+          title: Tags
+          type: array
+          default: null
+        tenantId:
+          title: Tenantid
+          type: string
+        testId:
+          title: Testid
+          type: string
+        updatedAt:
+          format: date-time
+          title: Updatedat
+          type: string
+        updatedBy:
+          title: Updatedby
+          type: string
+        variables:
+          additionalProperties: true
+          title: Variables
+          type: object
+        version:
+          minimum: 1.0
+          title: Version
+          type: integer
+      required:
+      - createdAt
+      - createdBy
+      - expected
+      - fixtures
+      - flowId
+      - flowSemanticHash
+      - inputs
+      - name
+      - namespace
+      - pluginSetHash
+      - revision
+      - tags
+      - tenantId
+      - testId
+      - updatedAt
+      - updatedBy
+      - variables
+      - version
+      title: FlowTestDefinition
+    FlowTestDefinitionCreateRequest:
+      example:
+        expected:
+          outputs:
+            key: ""
+          state: ""
+          taskOutputs:
+            key:
+              key: ""
+          taskStates:
+            key: SUCCESS
+        expectedVersion: 1
+        fixtures:
+          key:
+            error: error
+            failuresBeforeSuccess: 7
+            iterations:
+            - ""
+            - ""
+            output:
+              key: ""
+            pluginId: pluginId
+            pluginVersion: pluginVersion
+            recordedAt: 2000-01-23T04:56:07.000+00:00
+            source: ""
+        inputs:
+          key: ""
+        name: name
+        revision: 1
+        tags:
+        - tags
+        - tags
+        testId: testId
+        variables:
+          key: ""
+      properties:
+        expected:
+          $ref: "#/components/schemas/FlowTestExpectation"
+        expectedVersion:
+          minimum: 1.0
+          nullable: true
+          type: integer
+        fixtures:
+          additionalProperties:
+            $ref: "#/components/schemas/FlowTestFixture"
+          title: Fixtures
+        inputs:
+          additionalProperties: true
+          title: Inputs
+          type: object
+        name:
+          maxLength: 200
+          minLength: 1
+          title: Name
+          type: string
+        revision:
+          minimum: 1.0
+          title: Revision
+          type: integer
+        tags:
+          default: []
+          items:
+            type: string
+          title: Tags
+          type: array
+        testId:
+          maxLength: 128
+          minLength: 1
+          pattern: "^[a-zA-Z0-9][a-zA-Z0-9._-]*$"
+          title: Testid
+          type: string
+        variables:
+          additionalProperties: true
+          title: Variables
+          type: object
+      required:
+      - name
+      - revision
+      - testId
+      title: FlowTestDefinitionCreateRequest
+    FlowTestExpectation:
+      example:
+        outputs:
+          key: ""
+        state: ""
+        taskOutputs:
+          key:
+            key: ""
+        taskStates:
+          key: SUCCESS
+      properties:
+        outputs:
+          additionalProperties: true
+          nullable: true
+          type: object
+        state:
+          allOf:
+          - $ref: "#/components/schemas/FlowTestTaskState"
+          default: SUCCESS
+        taskOutputs:
+          additionalProperties:
+            additionalProperties: true
+            nullable: true
+            type: object
+          title: Taskoutputs
+        taskStates:
+          additionalProperties:
+            $ref: "#/components/schemas/FlowTestTaskState"
+          title: Taskstates
+      title: FlowTestExpectation
+    FlowTestFixture:
+      example:
+        error: error
+        failuresBeforeSuccess: 7
+        iterations:
+        - ""
+        - ""
+        output:
+          key: ""
+        pluginId: pluginId
+        pluginVersion: pluginVersion
+        recordedAt: 2000-01-23T04:56:07.000+00:00
+        source: ""
+      properties:
+        error:
+          maxLength: 4000
+          nullable: true
+          type: string
+        failuresBeforeSuccess:
+          default: 0
+          maximum: 99.0
+          minimum: 0.0
+          title: Failuresbeforesuccess
+          type: integer
+        iterations:
+          items: {}
+          nullable: true
+          type: array
+          default: null
+        output:
+          additionalProperties: true
+          title: Output
+          type: object
+        pluginId:
+          maxLength: 512
+          nullable: true
+          type: string
+        pluginVersion:
+          maxLength: 128
+          nullable: true
+          type: string
+        recordedAt:
+          format: date-time
+          nullable: true
+          type: string
+        source:
+          allOf:
+          - $ref: "#/components/schemas/FlowTestFixtureSource"
+          default: INLINE
+      title: FlowTestFixture
+    FlowTestFixtureSource:
+      enum:
+      - INLINE
+      - PLUGIN
+      - RECORDED
+      title: FlowTestFixtureSource
+      type: string
+    FlowTestOutcome:
+      enum:
+      - PASSED
+      - FAILED
+      - ERROR
+      title: FlowTestOutcome
+      type: string
+    FlowTestQualityGate:
+      example:
+        enabled: true
+        minimumCoverage: 8.008281904610115
+        namespace: namespace
+        requiredTestIds:
+        - requiredTestIds
+        - requiredTestIds
+        tenantId: tenantId
+        updatedAt: 2000-01-23T04:56:07.000+00:00
+        updatedBy: updatedBy
+        version: 1
+      properties:
+        enabled:
+          title: Enabled
+          type: boolean
+        minimumCoverage:
+          maximum: 100.0
+          minimum: 0.0
+          title: Minimumcoverage
+          type: number
+        namespace:
+          title: Namespace
+          type: string
+        requiredTestIds:
+          items:
+            type: string
+          title: Requiredtestids
+          type: array
+          default: null
+        tenantId:
+          title: Tenantid
+          type: string
+        updatedAt:
+          format: date-time
+          title: Updatedat
+          type: string
+        updatedBy:
+          title: Updatedby
+          type: string
+        version:
+          minimum: 1.0
+          title: Version
+          type: integer
+      required:
+      - enabled
+      - minimumCoverage
+      - namespace
+      - requiredTestIds
+      - tenantId
+      - updatedAt
+      - updatedBy
+      - version
+      title: FlowTestQualityGate
+    FlowTestQualityGateUpdate:
+      example:
+        enabled: true
+        expectedVersion: 1
+        minimumCoverage: 60.27456183070403
+        requiredTestIds:
+        - requiredTestIds
+        - requiredTestIds
+      properties:
+        enabled:
+          default: true
+          title: Enabled
+          type: boolean
+        expectedVersion:
+          minimum: 1.0
+          nullable: true
+          type: integer
+        minimumCoverage:
+          default: 0
+          maximum: 100.0
+          minimum: 0.0
+          title: Minimumcoverage
+          type: number
+        requiredTestIds:
+          default: []
+          items:
+            type: string
+          title: Requiredtestids
+          type: array
+      title: FlowTestQualityGateUpdate
+    FlowTestRunRequest:
+      example:
+        failFast: false
+        testIds:
+        - testIds
+        - testIds
+      properties:
+        failFast:
+          default: false
+          title: Failfast
+          type: boolean
+        testIds:
+          default: []
+          items:
+            type: string
+          title: Testids
+          type: array
+      title: FlowTestRunRequest
+    FlowTestRunResult:
+      example:
+        artifactsCreated: 0
+        cases:
+        - assertions:
+          - actual: ""
+            expected: ""
+            passed: true
+            path: path
+          - actual: ""
+            expected: ""
+            passed: true
+            path: path
+          coverage:
+            branchesCovered: 0
+            branchesTotal: 0
+            conditionsCovered: 0
+            conditionsTotal: 0
+            disclaimer: "Coverage is observed simulator execution, not proof of full\
+              \ workflow semantics."
+            handlersCovered: 0
+            handlersTotal: 0
+            percentage: 93.01444243932576
+            tasksCovered: 0
+            tasksTotal: 0
+          error: error
+          outcome: PASSED
+          outputs:
+            key: ""
+          state: SUCCESS
+          tasks:
+          - attempts: 0
+            branch: branch
+            fixtureSource: ""
+            lifecyclePhase: lifecyclePhase
+            output:
+              key: ""
+            reason: reason
+            state: null
+            taskId: taskId
+            taskType: taskType
+          - attempts: 0
+            branch: branch
+            fixtureSource: ""
+            lifecyclePhase: lifecyclePhase
+            output:
+              key: ""
+            reason: reason
+            state: null
+            taskId: taskId
+            taskType: taskType
+          testId: testId
+        - assertions:
+          - actual: ""
+            expected: ""
+            passed: true
+            path: path
+          - actual: ""
+            expected: ""
+            passed: true
+            path: path
+          coverage:
+            branchesCovered: 0
+            branchesTotal: 0
+            conditionsCovered: 0
+            conditionsTotal: 0
+            disclaimer: "Coverage is observed simulator execution, not proof of full\
+              \ workflow semantics."
+            handlersCovered: 0
+            handlersTotal: 0
+            percentage: 93.01444243932576
+            tasksCovered: 0
+            tasksTotal: 0
+          error: error
+          outcome: PASSED
+          outputs:
+            key: ""
+          state: SUCCESS
+          tasks:
+          - attempts: 0
+            branch: branch
+            fixtureSource: ""
+            lifecyclePhase: lifecyclePhase
+            output:
+              key: ""
+            reason: reason
+            state: null
+            taskId: taskId
+            taskType: taskType
+          - attempts: 0
+            branch: branch
+            fixtureSource: ""
+            lifecyclePhase: lifecyclePhase
+            output:
+              key: ""
+            reason: reason
+            state: null
+            taskId: taskId
+            taskType: taskType
+          testId: testId
+        coverage:
+          branchesCovered: 0
+          branchesTotal: 0
+          conditionsCovered: 0
+          conditionsTotal: 0
+          disclaimer: "Coverage is observed simulator execution, not proof of full\
+            \ workflow semantics."
+          handlersCovered: 0
+          handlersTotal: 0
+          percentage: 93.01444243932576
+          tasksCovered: 0
+          tasksTotal: 0
+        createdAt: 2000-01-23T04:56:07.000+00:00
+        flowId: flowId
+        flowSemanticHash: flowSemanticHash
+        isolated: true
+        namespace: namespace
+        outcome: null
+        pluginSetHash: pluginSetHash
+        productionExecutionsCreated: 7
+        requestedBy: requestedBy
+        revision: 1
+        runId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        schemaVersion: amesh.flow-test-result/v1
+        secretLookups: 1
+        simulatorVersion: amesh.flow-test/v1
+        tenantId: tenantId
+      properties:
+        artifactsCreated:
+          default: 0
+          title: Artifactscreated
+          type: integer
+        cases:
+          items:
+            $ref: "#/components/schemas/FlowTestCaseResult"
+          title: Cases
+          type: array
+          default: null
+        coverage:
+          $ref: "#/components/schemas/FlowTestCoverage"
+        createdAt:
+          format: date-time
+          title: Createdat
+          type: string
+        flowId:
+          title: Flowid
+          type: string
+        flowSemanticHash:
+          title: Flowsemantichash
+          type: string
+        isolated:
+          default: true
+          title: Isolated
+          type: boolean
+        namespace:
+          title: Namespace
+          type: string
+        outcome:
+          $ref: "#/components/schemas/FlowTestOutcome"
+        pluginSetHash:
+          title: Pluginsethash
+          type: string
+        productionExecutionsCreated:
+          default: 0
+          title: Productionexecutionscreated
+          type: integer
+        requestedBy:
+          title: Requestedby
+          type: string
+        revision:
+          minimum: 1.0
+          title: Revision
+          type: integer
+        runId:
+          format: uuid
+          title: Runid
+          type: string
+        schemaVersion:
+          default: amesh.flow-test-result/v1
+          title: Schemaversion
+          type: string
+        secretLookups:
+          default: 0
+          title: Secretlookups
+          type: integer
+        simulatorVersion:
+          default: amesh.flow-test/v1
+          title: Simulatorversion
+          type: string
+        tenantId:
+          title: Tenantid
+          type: string
+      required:
+      - cases
+      - coverage
+      - flowId
+      - flowSemanticHash
+      - namespace
+      - outcome
+      - pluginSetHash
+      - requestedBy
+      - revision
+      - tenantId
+      title: FlowTestRunResult
+    FlowTestTaskState:
+      enum:
+      - SUCCESS
+      - FAILED
+      - SKIPPED
+      title: FlowTestTaskState
+      type: string
     FlowValidationResult:
       example:
         canonical:
@@ -26085,6 +27382,56 @@ components:
       required:
       - newPassword
       title: SetLocalPasswordRequest
+    SimulatedTaskResult:
+      example:
+        attempts: 0
+        branch: branch
+        fixtureSource: ""
+        lifecyclePhase: lifecyclePhase
+        output:
+          key: ""
+        reason: reason
+        state: null
+        taskId: taskId
+        taskType: taskType
+      properties:
+        attempts:
+          minimum: 0.0
+          title: Attempts
+          type: integer
+        branch:
+          nullable: true
+          type: string
+        fixtureSource:
+          allOf:
+          - $ref: "#/components/schemas/FlowTestFixtureSource"
+          nullable: true
+        lifecyclePhase:
+          title: Lifecyclephase
+          type: string
+        output:
+          additionalProperties: true
+          nullable: true
+          type: object
+        reason:
+          title: Reason
+          type: string
+        state:
+          $ref: "#/components/schemas/FlowTestTaskState"
+        taskId:
+          title: Taskid
+          type: string
+        taskType:
+          title: Tasktype
+          type: string
+      required:
+      - attempts
+      - lifecyclePhase
+      - reason
+      - state
+      - taskId
+      - taskType
+      title: SimulatedTaskResult
     SourcePosition:
       properties:
         column:

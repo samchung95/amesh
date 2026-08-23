@@ -193,6 +193,13 @@ Class | Method | HTTP request | Description
 *ExecutionsApi* | [**resume_task_run_api_v1_executions_execution_id_task_runs_task_run_id_resume_post**](docs/ExecutionsApi.md#resume_task_run_api_v1_executions_execution_id_task_runs_task_run_id_resume_post) | **POST** /api/v1/executions/{execution_id}/task-runs/{task_run_id}/resume | Resume Task Run
 *ExecutionsApi* | [**stream_execution_evidence_api_v1_executions_execution_id_evidence_stream_get**](docs/ExecutionsApi.md#stream_execution_evidence_api_v1_executions_execution_id_evidence_stream_get) | **GET** /api/v1/executions/{execution_id}/evidence/stream | Stream Execution Evidence
 *ExecutionsApi* | [**stream_execution_logs_api_v1_executions_execution_id_logs_stream_get**](docs/ExecutionsApi.md#stream_execution_logs_api_v1_executions_execution_id_logs_stream_get) | **GET** /api/v1/executions/{execution_id}/logs/stream | Stream Execution Logs
+*FlowTestsApi* | [**delete_flow_test_api_v1_flows_namespace_flow_id_tests_test_id_delete**](docs/FlowTestsApi.md#delete_flow_test_api_v1_flows_namespace_flow_id_tests_test_id_delete) | **DELETE** /api/v1/flows/{namespace}/{flow_id}/tests/{test_id} | Delete Flow Test
+*FlowTestsApi* | [**get_flow_test_gate_api_v1_namespaces_namespace_flow_test_gate_get**](docs/FlowTestsApi.md#get_flow_test_gate_api_v1_namespaces_namespace_flow_test_gate_get) | **GET** /api/v1/namespaces/{namespace}/flow-test-gate | Get Flow Test Gate
+*FlowTestsApi* | [**list_flow_test_runs_api_v1_flows_namespace_flow_id_tests_runs_get**](docs/FlowTestsApi.md#list_flow_test_runs_api_v1_flows_namespace_flow_id_tests_runs_get) | **GET** /api/v1/flows/{namespace}/{flow_id}/tests/runs | List Flow Test Runs
+*FlowTestsApi* | [**list_flow_tests_api_v1_flows_namespace_flow_id_tests_get**](docs/FlowTestsApi.md#list_flow_tests_api_v1_flows_namespace_flow_id_tests_get) | **GET** /api/v1/flows/{namespace}/{flow_id}/tests | List Flow Tests
+*FlowTestsApi* | [**run_flow_tests_api_v1_flows_namespace_flow_id_tests_runs_post**](docs/FlowTestsApi.md#run_flow_tests_api_v1_flows_namespace_flow_id_tests_runs_post) | **POST** /api/v1/flows/{namespace}/{flow_id}/tests/runs | Run Flow Tests
+*FlowTestsApi* | [**save_flow_test_api_v1_flows_namespace_flow_id_tests_put**](docs/FlowTestsApi.md#save_flow_test_api_v1_flows_namespace_flow_id_tests_put) | **PUT** /api/v1/flows/{namespace}/{flow_id}/tests | Save Flow Test
+*FlowTestsApi* | [**update_flow_test_gate_api_v1_namespaces_namespace_flow_test_gate_put**](docs/FlowTestsApi.md#update_flow_test_gate_api_v1_namespaces_namespace_flow_test_gate_put) | **PUT** /api/v1/namespaces/{namespace}/flow-test-gate | Update Flow Test Gate
 *FlowsApi* | [**apply_flow_api_v1_flows_put**](docs/FlowsApi.md#apply_flow_api_v1_flows_put) | **PUT** /api/v1/flows | Apply Flow
 *FlowsApi* | [**delete_flow_revision_api_v1_flows_namespace_flow_id_revisions_revision_delete**](docs/FlowsApi.md#delete_flow_revision_api_v1_flows_namespace_flow_id_revisions_revision_delete) | **DELETE** /api/v1/flows/{namespace}/{flow_id}/revisions/{revision} | Delete Flow Revision
 *FlowsApi* | [**diff_flow_draft_api_v1_flows_namespace_flow_id_revisions_revision_diff_draft_post**](docs/FlowsApi.md#diff_flow_draft_api_v1_flows_namespace_flow_id_revisions_revision_diff_draft_post) | **POST** /api/v1/flows/{namespace}/{flow_id}/revisions/{revision}/diff-draft | Diff Flow Draft
@@ -450,6 +457,20 @@ Class | Method | HTTP request | Description
  - [FlowRevisionLifecycleRequest](docs/FlowRevisionLifecycleRequest.md)
  - [FlowRevisionRecord](docs/FlowRevisionRecord.md)
  - [FlowRevisionRestoreRequest](docs/FlowRevisionRestoreRequest.md)
+ - [FlowTestAssertion](docs/FlowTestAssertion.md)
+ - [FlowTestCaseResult](docs/FlowTestCaseResult.md)
+ - [FlowTestCoverage](docs/FlowTestCoverage.md)
+ - [FlowTestDefinition](docs/FlowTestDefinition.md)
+ - [FlowTestDefinitionCreateRequest](docs/FlowTestDefinitionCreateRequest.md)
+ - [FlowTestExpectation](docs/FlowTestExpectation.md)
+ - [FlowTestFixture](docs/FlowTestFixture.md)
+ - [FlowTestFixtureSource](docs/FlowTestFixtureSource.md)
+ - [FlowTestOutcome](docs/FlowTestOutcome.md)
+ - [FlowTestQualityGate](docs/FlowTestQualityGate.md)
+ - [FlowTestQualityGateUpdate](docs/FlowTestQualityGateUpdate.md)
+ - [FlowTestRunRequest](docs/FlowTestRunRequest.md)
+ - [FlowTestRunResult](docs/FlowTestRunResult.md)
+ - [FlowTestTaskState](docs/FlowTestTaskState.md)
  - [FlowValidationResult](docs/FlowValidationResult.md)
  - [FormField](docs/FormField.md)
  - [FormSection](docs/FormSection.md)
@@ -622,6 +643,7 @@ Class | Method | HTTP request | Description
  - [ServiceState](docs/ServiceState.md)
  - [ServiceTopology](docs/ServiceTopology.md)
  - [SetLocalPasswordRequest](docs/SetLocalPasswordRequest.md)
+ - [SimulatedTaskResult](docs/SimulatedTaskResult.md)
  - [SourcePosition](docs/SourcePosition.md)
  - [SourceRange](docs/SourceRange.md)
  - [SubflowMode](docs/SubflowMode.md)

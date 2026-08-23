@@ -1,4 +1,4 @@
-import { ArrowLeft, Braces, Pencil, Play, ShieldCheck, Tags, Workflow } from 'lucide-react'
+import { ArrowLeft, Beaker, Braces, Pencil, Play, ShieldCheck, Tags, Workflow } from 'lucide-react'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
@@ -92,7 +92,7 @@ export function FlowDetailPage({ session }: { session: UiSession }) {
       <Link className="back-link" to="/flows"><ArrowLeft size={16} aria-hidden="true" />Flows</Link>
       <header className="page-heading detail-heading">
         <div><p className="eyebrow">FLOW / REVISION {graph.data.revision}</p><h1>{graph.data.flowId}</h1><p>{graph.data.namespace}</p></div>
-        <div className="resource-heading-actions">{session.capabilities['flows.update'] ? <Link className="button button-primary" to={`/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/edit`}><Pencil size={16} aria-hidden="true" />Edit YAML</Link> : null}<span className="live-indicator"><Workflow size={15} aria-hidden="true" />Definition</span></div>
+        <div className="resource-heading-actions">{session.capabilities['flowTests.view'] ? <Link className="button button-secondary" to={`/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/tests`}><Beaker size={16} aria-hidden="true" />Unit tests</Link> : null}{session.capabilities['flows.update'] ? <Link className="button button-primary" to={`/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/edit`}><Pencil size={16} aria-hidden="true" />Edit YAML</Link> : null}<span className="live-indicator"><Workflow size={15} aria-hidden="true" />Definition</span></div>
       </header>
       <section className="data-section flow-metadata-panel" aria-labelledby="flow-metadata-heading">
         <div className="section-heading">

@@ -19,6 +19,7 @@ docs/ConfigurationApi.md
 docs/CredentialsApi.md
 docs/DashboardsApi.md
 docs/ExecutionsApi.md
+docs/FlowTestsApi.md
 docs/FlowsApi.md
 docs/HumanTasksApi.md
 docs/NamespaceResourcesApi.md
@@ -67,6 +68,7 @@ src/main/java/io/amesh/client/api/ConfigurationApi.java
 src/main/java/io/amesh/client/api/CredentialsApi.java
 src/main/java/io/amesh/client/api/DashboardsApi.java
 src/main/java/io/amesh/client/api/ExecutionsApi.java
+src/main/java/io/amesh/client/api/FlowTestsApi.java
 src/main/java/io/amesh/client/api/FlowsApi.java
 src/main/java/io/amesh/client/api/HumanTasksApi.java
 src/main/java/io/amesh/client/api/NamespaceResourcesApi.java
@@ -219,6 +221,20 @@ src/main/java/io/amesh/client/model/FlowRevisionDiff.java
 src/main/java/io/amesh/client/model/FlowRevisionLifecycleRequest.java
 src/main/java/io/amesh/client/model/FlowRevisionRecord.java
 src/main/java/io/amesh/client/model/FlowRevisionRestoreRequest.java
+src/main/java/io/amesh/client/model/FlowTestAssertion.java
+src/main/java/io/amesh/client/model/FlowTestCaseResult.java
+src/main/java/io/amesh/client/model/FlowTestCoverage.java
+src/main/java/io/amesh/client/model/FlowTestDefinition.java
+src/main/java/io/amesh/client/model/FlowTestDefinitionCreateRequest.java
+src/main/java/io/amesh/client/model/FlowTestExpectation.java
+src/main/java/io/amesh/client/model/FlowTestFixture.java
+src/main/java/io/amesh/client/model/FlowTestFixtureSource.java
+src/main/java/io/amesh/client/model/FlowTestOutcome.java
+src/main/java/io/amesh/client/model/FlowTestQualityGate.java
+src/main/java/io/amesh/client/model/FlowTestQualityGateUpdate.java
+src/main/java/io/amesh/client/model/FlowTestRunRequest.java
+src/main/java/io/amesh/client/model/FlowTestRunResult.java
+src/main/java/io/amesh/client/model/FlowTestTaskState.java
 src/main/java/io/amesh/client/model/FlowValidationResult.java
 src/main/java/io/amesh/client/model/FormField.java
 src/main/java/io/amesh/client/model/FormSection.java
@@ -391,6 +407,7 @@ src/main/java/io/amesh/client/model/ServiceRoleStatus.java
 src/main/java/io/amesh/client/model/ServiceState.java
 src/main/java/io/amesh/client/model/ServiceTopology.java
 src/main/java/io/amesh/client/model/SetLocalPasswordRequest.java
+src/main/java/io/amesh/client/model/SimulatedTaskResult.java
 src/main/java/io/amesh/client/model/SourcePosition.java
 src/main/java/io/amesh/client/model/SourceRange.java
 src/main/java/io/amesh/client/model/SubflowMode.java

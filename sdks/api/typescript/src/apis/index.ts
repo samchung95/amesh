@@ -13,6 +13,7 @@ export * from './ConfigurationApi';
 export * from './CredentialsApi';
 export * from './DashboardsApi';
 export * from './ExecutionsApi';
+export * from './FlowTestsApi';
 export * from './FlowsApi';
 export * from './HumanTasksApi';
 export * from './NamespaceResourcesApi';

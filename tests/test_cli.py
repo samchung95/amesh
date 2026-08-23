@@ -101,6 +101,60 @@ def test_executions_command_lists_executions(monkeypatch: Any, capsys: Any) -> N
     assert capsys.readouterr().out.strip() == "[]"
 
 
+class FakeFlowTestClient:
+    request: ClassVar[tuple[str, dict[str, Any], dict[str, Any]] | None] = None
+
+    def __init__(self, **kwargs: Any) -> None:
+        del kwargs
+
+    def __enter__(self) -> FakeFlowTestClient:
+        return self
+
+    def __exit__(self, *args: object) -> None:
+        return None
+
+    def post(self, path: str, **kwargs: Any) -> httpx.Response:
+        type(self).request = (path, kwargs["params"], kwargs["json"])
+        return httpx.Response(
+            200,
+            request=httpx.Request("POST", path),
+            json={
+                "outcome": "FAILED",
+                "cases": [{"testId": "branch-a"}],
+                "coverage": {"percentage": 75.0},
+            },
+        )
+
+
+def test_flow_test_command_is_machine_readable_and_ci_fails(monkeypatch: Any) -> None:
+    monkeypatch.setattr(httpx, "Client", FakeFlowTestClient)
+
+    exit_code = main(
+        [
+            "--token",
+            "test-token",
+            "--output",
+            "json",
+            "flow",
+            "test",
+            "examples",
+            "approval",
+            "--revision",
+            "3",
+            "--test-id",
+            "branch-a",
+            "--fail-fast",
+        ]
+    )
+
+    assert exit_code == 1
+    assert FakeFlowTestClient.request == (
+        "/api/v1/flows/examples/approval/tests/runs",
+        {"revision": 3},
+        {"testIds": ["branch-a"], "failFast": True},
+    )
+
+
 class FakeNamespaceClient:
     calls: ClassVar[list[tuple[str, str, dict[str, Any]]]] = []
 

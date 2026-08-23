@@ -38,6 +38,7 @@ when the destination ends in `.json`.
 amesh flow apply flow.yaml
 amesh flow diff flow.yaml
 amesh flow export examples.cli hello exported.yaml
+amesh --output json flow test examples.cli hello --revision 2 --test-id happy-path
 amesh flow delete examples.cli hello 2        # impact preview, exit 3
 amesh flow delete examples.cli hello 2 --force
 
@@ -46,6 +47,9 @@ amesh admin tenants list
 amesh admin tenants delete tenant-a           # impact preview, exit 3
 amesh admin tenants delete tenant-a --force
 ```
+
+`flow test` returns exit `0` for a passing revision-pinned test result and exit `1` for a valid
+failed or error result, so the command can be used directly as a CI quality gate.
 
 Generate completions or the complete command reference directly from the parser model:
 

@@ -174,6 +174,36 @@ describe('API client', () => {
     await expect(api.flows()).rejects.toMatchObject({ message: 'Request failed with status 500' })
   })
 
+  it('builds revision-pinned flow-test and quality-gate requests', async () => {
+    const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(new Response('{}', { status: 200 })))
+    vi.stubGlobal('fetch', fetchMock)
+    const api = createApiClient({ token: 'token', tenant: 'default', namespace: '' })
+    const draft = {
+      testId: 'branch-a', name: 'Branch A', revision: 3, inputs: {}, variables: {},
+      fixtures: {}, expected: { state: 'SUCCESS' }, tags: ['ci'],
+    }
+
+    await api.flowTests('team/data', 'daily flow', 3)
+    await api.saveFlowTest('team/data', 'daily flow', draft)
+    await api.runFlowTests('team/data', 'daily flow', 3, ['branch-a'])
+    await api.flowTestRuns('team/data', 'daily flow', 3)
+    await api.flowTestGate('team/data')
+    await api.saveFlowTestGate('team/data', true, 80, ['branch-a'], 2)
+    await api.deleteFlowTest('team/data', 'daily flow', 'branch-a', 4)
+
+    expect(fetchMock.mock.calls.map((call) => call[0] as string)).toEqual([
+      '/api/v1/flows/team%2Fdata/daily%20flow/tests?revision=3',
+      '/api/v1/flows/team%2Fdata/daily%20flow/tests',
+      '/api/v1/flows/team%2Fdata/daily%20flow/tests/runs?revision=3',
+      '/api/v1/flows/team%2Fdata/daily%20flow/tests/runs?revision=3',
+      '/api/v1/namespaces/team%2Fdata/flow-test-gate',
+      '/api/v1/namespaces/team%2Fdata/flow-test-gate',
+      '/api/v1/flows/team%2Fdata/daily%20flow/tests/branch-a?expectedVersion=4',
+    ])
+    const runInit = fetchMock.mock.calls[2]?.[1] as RequestInit
+    expect(JSON.parse(runInit.body as string)).toEqual({ testIds: ['branch-a'], failFast: false })
+  })
+
   it('builds workflow control collection and mutation requests', async () => {
     const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(new Response('{}', { status: 200 })))
     vi.stubGlobal('fetch', fetchMock)

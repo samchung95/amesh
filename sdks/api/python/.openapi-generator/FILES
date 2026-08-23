@@ -19,6 +19,7 @@ amesh_client/api/configuration_api.py
 amesh_client/api/credentials_api.py
 amesh_client/api/dashboards_api.py
 amesh_client/api/executions_api.py
+amesh_client/api/flow_tests_api.py
 amesh_client/api/flows_api.py
 amesh_client/api/human_tasks_api.py
 amesh_client/api/namespace_resources_api.py
@@ -175,6 +176,20 @@ amesh_client/models/flow_revision_diff.py
 amesh_client/models/flow_revision_lifecycle_request.py
 amesh_client/models/flow_revision_record.py
 amesh_client/models/flow_revision_restore_request.py
+amesh_client/models/flow_test_assertion.py
+amesh_client/models/flow_test_case_result.py
+amesh_client/models/flow_test_coverage.py
+amesh_client/models/flow_test_definition.py
+amesh_client/models/flow_test_definition_create_request.py
+amesh_client/models/flow_test_expectation.py
+amesh_client/models/flow_test_fixture.py
+amesh_client/models/flow_test_fixture_source.py
+amesh_client/models/flow_test_outcome.py
+amesh_client/models/flow_test_quality_gate.py
+amesh_client/models/flow_test_quality_gate_update.py
+amesh_client/models/flow_test_run_request.py
+amesh_client/models/flow_test_run_result.py
+amesh_client/models/flow_test_task_state.py
 amesh_client/models/flow_validation_result.py
 amesh_client/models/form_field.py
 amesh_client/models/form_section.py
@@ -347,6 +362,7 @@ amesh_client/models/service_role_status.py
 amesh_client/models/service_state.py
 amesh_client/models/service_topology.py
 amesh_client/models/set_local_password_request.py
+amesh_client/models/simulated_task_result.py
 amesh_client/models/source_position.py
 amesh_client/models/source_range.py
 amesh_client/models/subflow_mode.py
@@ -412,6 +428,7 @@ docs/ConfigurationApi.md
 docs/CredentialsApi.md
 docs/DashboardsApi.md
 docs/ExecutionsApi.md
+docs/FlowTestsApi.md
 docs/FlowsApi.md
 docs/HumanTasksApi.md
 docs/NamespaceResourcesApi.md

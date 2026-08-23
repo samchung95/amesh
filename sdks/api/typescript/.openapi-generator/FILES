@@ -15,6 +15,7 @@ docs/ConfigurationApi.md
 docs/CredentialsApi.md
 docs/DashboardsApi.md
 docs/ExecutionsApi.md
+docs/FlowTestsApi.md
 docs/FlowsApi.md
 docs/HumanTasksApi.md
 docs/NamespaceResourcesApi.md
@@ -44,6 +45,7 @@ src/apis/ConfigurationApi.ts
 src/apis/CredentialsApi.ts
 src/apis/DashboardsApi.ts
 src/apis/ExecutionsApi.ts
+src/apis/FlowTestsApi.ts
 src/apis/FlowsApi.ts
 src/apis/HumanTasksApi.ts
 src/apis/NamespaceResourcesApi.ts
@@ -197,6 +199,20 @@ src/models/FlowRevisionDiff.ts
 src/models/FlowRevisionLifecycleRequest.ts
 src/models/FlowRevisionRecord.ts
 src/models/FlowRevisionRestoreRequest.ts
+src/models/FlowTestAssertion.ts
+src/models/FlowTestCaseResult.ts
+src/models/FlowTestCoverage.ts
+src/models/FlowTestDefinition.ts
+src/models/FlowTestDefinitionCreateRequest.ts
+src/models/FlowTestExpectation.ts
+src/models/FlowTestFixture.ts
+src/models/FlowTestFixtureSource.ts
+src/models/FlowTestOutcome.ts
+src/models/FlowTestQualityGate.ts
+src/models/FlowTestQualityGateUpdate.ts
+src/models/FlowTestRunRequest.ts
+src/models/FlowTestRunResult.ts
+src/models/FlowTestTaskState.ts
 src/models/FlowValidationResult.ts
 src/models/FormField.ts
 src/models/FormSection.ts
@@ -369,6 +385,7 @@ src/models/ServiceRoleStatus.ts
 src/models/ServiceState.ts
 src/models/ServiceTopology.ts
 src/models/SetLocalPasswordRequest.ts
+src/models/SimulatedTaskResult.ts
 src/models/SourcePosition.ts
 src/models/SourceRange.ts
 src/models/SubflowMode.ts

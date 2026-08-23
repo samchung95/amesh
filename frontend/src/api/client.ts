@@ -46,6 +46,10 @@ import type {
   FlowGraph,
   FlowRevisionDiff,
   FlowRevisionRecord,
+  FlowTestDefinition,
+  FlowTestDefinitionDraft,
+  FlowTestQualityGate,
+  FlowTestRunResult,
   FlowValidationResult,
   HealthResponse,
   LoginResponse,
@@ -384,6 +388,32 @@ export function createApiClient(connection: ApiConnection) {
       request<FlowDocumentExport>(`/api/v1/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/document${revision ? `?revision=${String(revision)}` : ''}`),
     flowRevisions: async (namespace: string, flowId: string) =>
       request<FlowRevisionRecord[]>(`/api/v1/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/revisions`),
+    flowTests: async (namespace: string, flowId: string, revision: number) =>
+      request<FlowTestDefinition[]>(`/api/v1/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/tests?revision=${String(revision)}`),
+    saveFlowTest: async (namespace: string, flowId: string, draft: FlowTestDefinitionDraft) =>
+      request<FlowTestDefinition>(`/api/v1/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/tests`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(draft),
+      }),
+    deleteFlowTest: async (namespace: string, flowId: string, testId: string, expectedVersion: number) =>
+      request<void>(`/api/v1/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/tests/${encodeURIComponent(testId)}?expectedVersion=${String(expectedVersion)}`, { method: 'DELETE' }),
+    flowTestRuns: async (namespace: string, flowId: string, revision: number) =>
+      request<FlowTestRunResult[]>(`/api/v1/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/tests/runs?revision=${String(revision)}`),
+    runFlowTests: async (namespace: string, flowId: string, revision: number, testIds: string[] = []) =>
+      request<FlowTestRunResult>(`/api/v1/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/tests/runs?revision=${String(revision)}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ testIds, failFast: false }),
+      }),
+    flowTestGate: async (namespace: string) =>
+      request<FlowTestQualityGate | null>(`${namespaceRoot(namespace)}/flow-test-gate`),
+    saveFlowTestGate: async (namespace: string, enabled: boolean, minimumCoverage: number, requiredTestIds: string[], expectedVersion?: number) =>
+      request<FlowTestQualityGate>(`${namespaceRoot(namespace)}/flow-test-gate`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ enabled, minimumCoverage, requiredTestIds, expectedVersion }),
+      }),
     diffFlowDraft: async (namespace: string, flowId: string, revision: number, document: string) =>
       request<FlowRevisionDiff>(`/api/v1/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/revisions/${String(revision)}/diff-draft`, {
         method: 'POST',

@@ -31,6 +31,7 @@ __all__ = [
     "CredentialsApi",
     "DashboardsApi",
     "ExecutionsApi",
+    "FlowTestsApi",
     "FlowsApi",
     "HumanTasksApi",
     "NamespaceResourcesApi",
@@ -191,6 +192,20 @@ __all__ = [
     "FlowRevisionLifecycleRequest",
     "FlowRevisionRecord",
     "FlowRevisionRestoreRequest",
+    "FlowTestAssertion",
+    "FlowTestCaseResult",
+    "FlowTestCoverage",
+    "FlowTestDefinition",
+    "FlowTestDefinitionCreateRequest",
+    "FlowTestExpectation",
+    "FlowTestFixture",
+    "FlowTestFixtureSource",
+    "FlowTestOutcome",
+    "FlowTestQualityGate",
+    "FlowTestQualityGateUpdate",
+    "FlowTestRunRequest",
+    "FlowTestRunResult",
+    "FlowTestTaskState",
     "FlowValidationResult",
     "FormField",
     "FormSection",
@@ -363,6 +378,7 @@ __all__ = [
     "ServiceState",
     "ServiceTopology",
     "SetLocalPasswordRequest",
+    "SimulatedTaskResult",
     "SourcePosition",
     "SourceRange",
     "SubflowMode",
@@ -429,6 +445,7 @@ from amesh_client.api.configuration_api import ConfigurationApi as Configuration
 from amesh_client.api.credentials_api import CredentialsApi as CredentialsApi
 from amesh_client.api.dashboards_api import DashboardsApi as DashboardsApi
 from amesh_client.api.executions_api import ExecutionsApi as ExecutionsApi
+from amesh_client.api.flow_tests_api import FlowTestsApi as FlowTestsApi
 from amesh_client.api.flows_api import FlowsApi as FlowsApi
 from amesh_client.api.human_tasks_api import HumanTasksApi as HumanTasksApi
 from amesh_client.api.namespace_resources_api import NamespaceResourcesApi as NamespaceResourcesApi
@@ -593,6 +610,20 @@ from amesh_client.models.flow_revision_diff import FlowRevisionDiff as FlowRevis
 from amesh_client.models.flow_revision_lifecycle_request import FlowRevisionLifecycleRequest as FlowRevisionLifecycleRequest
 from amesh_client.models.flow_revision_record import FlowRevisionRecord as FlowRevisionRecord
 from amesh_client.models.flow_revision_restore_request import FlowRevisionRestoreRequest as FlowRevisionRestoreRequest
+from amesh_client.models.flow_test_assertion import FlowTestAssertion as FlowTestAssertion
+from amesh_client.models.flow_test_case_result import FlowTestCaseResult as FlowTestCaseResult
+from amesh_client.models.flow_test_coverage import FlowTestCoverage as FlowTestCoverage
+from amesh_client.models.flow_test_definition import FlowTestDefinition as FlowTestDefinition
+from amesh_client.models.flow_test_definition_create_request import FlowTestDefinitionCreateRequest as FlowTestDefinitionCreateRequest
+from amesh_client.models.flow_test_expectation import FlowTestExpectation as FlowTestExpectation
+from amesh_client.models.flow_test_fixture import FlowTestFixture as FlowTestFixture
+from amesh_client.models.flow_test_fixture_source import FlowTestFixtureSource as FlowTestFixtureSource
+from amesh_client.models.flow_test_outcome import FlowTestOutcome as FlowTestOutcome
+from amesh_client.models.flow_test_quality_gate import FlowTestQualityGate as FlowTestQualityGate
+from amesh_client.models.flow_test_quality_gate_update import FlowTestQualityGateUpdate as FlowTestQualityGateUpdate
+from amesh_client.models.flow_test_run_request import FlowTestRunRequest as FlowTestRunRequest
+from amesh_client.models.flow_test_run_result import FlowTestRunResult as FlowTestRunResult
+from amesh_client.models.flow_test_task_state import FlowTestTaskState as FlowTestTaskState
 from amesh_client.models.flow_validation_result import FlowValidationResult as FlowValidationResult
 from amesh_client.models.form_field import FormField as FormField
 from amesh_client.models.form_section import FormSection as FormSection
@@ -765,6 +796,7 @@ from amesh_client.models.service_role_status import ServiceRoleStatus as Service
 from amesh_client.models.service_state import ServiceState as ServiceState
 from amesh_client.models.service_topology import ServiceTopology as ServiceTopology
 from amesh_client.models.set_local_password_request import SetLocalPasswordRequest as SetLocalPasswordRequest
+from amesh_client.models.simulated_task_result import SimulatedTaskResult as SimulatedTaskResult
 from amesh_client.models.source_position import SourcePosition as SourcePosition
 from amesh_client.models.source_range import SourceRange as SourceRange
 from amesh_client.models.subflow_mode import SubflowMode as SubflowMode

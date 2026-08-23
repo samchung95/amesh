@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Iterator, Sequence
 
 import pytest
 
-from amesh.app import app, get_operational_control_repository
+from amesh.app import app, get_flow_test_repository, get_operational_control_repository
 from amesh.domain import (
     OperationalBoundary,
     OperationalControlDecision,
@@ -33,6 +33,12 @@ class _NoOperationalControls:
         )
 
 
+class _NoFlowTestGate:
+    async def get_gate(self, namespace: str, *, tenant_id: str) -> None:
+        del namespace, tenant_id
+        return None
+
+
 @pytest.fixture(autouse=True)
 def disable_operational_controls_by_default() -> None:
     repository = _NoOperationalControls()
@@ -44,3 +50,16 @@ def disable_operational_controls_by_default() -> None:
     yield
     if app.dependency_overrides.get(get_operational_control_repository) is override:
         app.dependency_overrides.pop(get_operational_control_repository, None)
+
+
+@pytest.fixture(autouse=True)
+def disable_flow_test_gate_by_default() -> Iterator[None]:
+    repository = _NoFlowTestGate()
+
+    def override() -> _NoFlowTestGate:
+        return repository
+
+    app.dependency_overrides[get_flow_test_repository] = override
+    yield
+    if app.dependency_overrides.get(get_flow_test_repository) is override:
+        app.dependency_overrides.pop(get_flow_test_repository, None)

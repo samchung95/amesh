@@ -14,6 +14,7 @@ from amesh_client.api.configuration_api import ConfigurationApi
 from amesh_client.api.credentials_api import CredentialsApi
 from amesh_client.api.dashboards_api import DashboardsApi
 from amesh_client.api.executions_api import ExecutionsApi
+from amesh_client.api.flow_tests_api import FlowTestsApi
 from amesh_client.api.flows_api import FlowsApi
 from amesh_client.api.human_tasks_api import HumanTasksApi
 from amesh_client.api.namespace_resources_api import NamespaceResourcesApi

@@ -5768,6 +5768,699 @@
         "title": "FlowRevisionRestoreRequest",
         "type": "object"
       },
+      "FlowTestAssertion": {
+        "properties": {
+          "actual": {
+            "title": "Actual"
+          },
+          "expected": {
+            "title": "Expected"
+          },
+          "passed": {
+            "title": "Passed",
+            "type": "boolean"
+          },
+          "path": {
+            "title": "Path",
+            "type": "string"
+          }
+        },
+        "required": [
+          "path",
+          "passed",
+          "expected",
+          "actual"
+        ],
+        "title": "FlowTestAssertion",
+        "type": "object"
+      },
+      "FlowTestCaseResult": {
+        "properties": {
+          "assertions": {
+            "items": {
+              "$ref": "#/components/schemas/FlowTestAssertion"
+            },
+            "title": "Assertions",
+            "type": "array"
+          },
+          "coverage": {
+            "$ref": "#/components/schemas/FlowTestCoverage"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          },
+          "outcome": {
+            "$ref": "#/components/schemas/FlowTestOutcome"
+          },
+          "outputs": {
+            "additionalProperties": true,
+            "title": "Outputs",
+            "type": "object"
+          },
+          "state": {
+            "$ref": "#/components/schemas/FlowTestTaskState"
+          },
+          "tasks": {
+            "items": {
+              "$ref": "#/components/schemas/SimulatedTaskResult"
+            },
+            "title": "Tasks",
+            "type": "array"
+          },
+          "testId": {
+            "title": "Testid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "testId",
+          "outcome",
+          "state",
+          "outputs",
+          "tasks",
+          "assertions",
+          "coverage"
+        ],
+        "title": "FlowTestCaseResult",
+        "type": "object"
+      },
+      "FlowTestCoverage": {
+        "properties": {
+          "branchesCovered": {
+            "minimum": 0.0,
+            "title": "Branchescovered",
+            "type": "integer"
+          },
+          "branchesTotal": {
+            "minimum": 0.0,
+            "title": "Branchestotal",
+            "type": "integer"
+          },
+          "conditionsCovered": {
+            "minimum": 0.0,
+            "title": "Conditionscovered",
+            "type": "integer"
+          },
+          "conditionsTotal": {
+            "minimum": 0.0,
+            "title": "Conditionstotal",
+            "type": "integer"
+          },
+          "disclaimer": {
+            "default": "Coverage is observed simulator execution, not proof of full workflow semantics.",
+            "title": "Disclaimer",
+            "type": "string"
+          },
+          "handlersCovered": {
+            "minimum": 0.0,
+            "title": "Handlerscovered",
+            "type": "integer"
+          },
+          "handlersTotal": {
+            "minimum": 0.0,
+            "title": "Handlerstotal",
+            "type": "integer"
+          },
+          "percentage": {
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Percentage",
+            "type": "number"
+          },
+          "tasksCovered": {
+            "minimum": 0.0,
+            "title": "Taskscovered",
+            "type": "integer"
+          },
+          "tasksTotal": {
+            "minimum": 0.0,
+            "title": "Taskstotal",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "tasksTotal",
+          "tasksCovered",
+          "branchesTotal",
+          "branchesCovered",
+          "handlersTotal",
+          "handlersCovered",
+          "conditionsTotal",
+          "conditionsCovered",
+          "percentage"
+        ],
+        "title": "FlowTestCoverage",
+        "type": "object"
+      },
+      "FlowTestDefinition": {
+        "properties": {
+          "createdAt": {
+            "format": "date-time",
+            "title": "Createdat",
+            "type": "string"
+          },
+          "createdBy": {
+            "title": "Createdby",
+            "type": "string"
+          },
+          "expected": {
+            "$ref": "#/components/schemas/FlowTestExpectation"
+          },
+          "fixtures": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/FlowTestFixture"
+            },
+            "title": "Fixtures",
+            "type": "object"
+          },
+          "flowId": {
+            "title": "Flowid",
+            "type": "string"
+          },
+          "flowSemanticHash": {
+            "title": "Flowsemantichash",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "inputs": {
+            "additionalProperties": true,
+            "title": "Inputs",
+            "type": "object"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "namespace": {
+            "title": "Namespace",
+            "type": "string"
+          },
+          "pluginSetHash": {
+            "title": "Pluginsethash",
+            "type": "string"
+          },
+          "revision": {
+            "minimum": 1.0,
+            "title": "Revision",
+            "type": "integer"
+          },
+          "tags": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Tags",
+            "type": "array"
+          },
+          "tenantId": {
+            "title": "Tenantid",
+            "type": "string"
+          },
+          "testId": {
+            "title": "Testid",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "title": "Updatedat",
+            "type": "string"
+          },
+          "updatedBy": {
+            "title": "Updatedby",
+            "type": "string"
+          },
+          "variables": {
+            "additionalProperties": true,
+            "title": "Variables",
+            "type": "object"
+          },
+          "version": {
+            "minimum": 1.0,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "tenantId",
+          "namespace",
+          "flowId",
+          "testId",
+          "name",
+          "revision",
+          "flowSemanticHash",
+          "pluginSetHash",
+          "inputs",
+          "variables",
+          "fixtures",
+          "expected",
+          "tags",
+          "version",
+          "createdBy",
+          "updatedBy",
+          "createdAt",
+          "updatedAt"
+        ],
+        "title": "FlowTestDefinition",
+        "type": "object"
+      },
+      "FlowTestDefinitionCreateRequest": {
+        "properties": {
+          "expected": {
+            "$ref": "#/components/schemas/FlowTestExpectation"
+          },
+          "expectedVersion": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expectedversion"
+          },
+          "fixtures": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/FlowTestFixture"
+            },
+            "title": "Fixtures",
+            "type": "object"
+          },
+          "inputs": {
+            "additionalProperties": true,
+            "title": "Inputs",
+            "type": "object"
+          },
+          "name": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "revision": {
+            "minimum": 1.0,
+            "title": "Revision",
+            "type": "integer"
+          },
+          "tags": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Tags",
+            "type": "array"
+          },
+          "testId": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._-]*$",
+            "title": "Testid",
+            "type": "string"
+          },
+          "variables": {
+            "additionalProperties": true,
+            "title": "Variables",
+            "type": "object"
+          }
+        },
+        "required": [
+          "testId",
+          "name",
+          "revision"
+        ],
+        "title": "FlowTestDefinitionCreateRequest",
+        "type": "object"
+      },
+      "FlowTestExpectation": {
+        "properties": {
+          "outputs": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Outputs"
+          },
+          "state": {
+            "$ref": "#/components/schemas/FlowTestTaskState",
+            "default": "SUCCESS"
+          },
+          "taskOutputs": {
+            "additionalProperties": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Taskoutputs",
+            "type": "object"
+          },
+          "taskStates": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/FlowTestTaskState"
+            },
+            "title": "Taskstates",
+            "type": "object"
+          }
+        },
+        "title": "FlowTestExpectation",
+        "type": "object"
+      },
+      "FlowTestFixture": {
+        "properties": {
+          "error": {
+            "anyOf": [
+              {
+                "maxLength": 4000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          },
+          "failuresBeforeSuccess": {
+            "default": 0,
+            "maximum": 99.0,
+            "minimum": 0.0,
+            "title": "Failuresbeforesuccess",
+            "type": "integer"
+          },
+          "iterations": {
+            "anyOf": [
+              {
+                "items": {},
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Iterations"
+          },
+          "output": {
+            "additionalProperties": true,
+            "title": "Output",
+            "type": "object"
+          },
+          "pluginId": {
+            "anyOf": [
+              {
+                "maxLength": 512,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pluginid"
+          },
+          "pluginVersion": {
+            "anyOf": [
+              {
+                "maxLength": 128,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pluginversion"
+          },
+          "recordedAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recordedat"
+          },
+          "source": {
+            "$ref": "#/components/schemas/FlowTestFixtureSource",
+            "default": "INLINE"
+          }
+        },
+        "title": "FlowTestFixture",
+        "type": "object"
+      },
+      "FlowTestFixtureSource": {
+        "enum": [
+          "INLINE",
+          "PLUGIN",
+          "RECORDED"
+        ],
+        "title": "FlowTestFixtureSource",
+        "type": "string"
+      },
+      "FlowTestOutcome": {
+        "enum": [
+          "PASSED",
+          "FAILED",
+          "ERROR"
+        ],
+        "title": "FlowTestOutcome",
+        "type": "string"
+      },
+      "FlowTestQualityGate": {
+        "properties": {
+          "enabled": {
+            "title": "Enabled",
+            "type": "boolean"
+          },
+          "minimumCoverage": {
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Minimumcoverage",
+            "type": "number"
+          },
+          "namespace": {
+            "title": "Namespace",
+            "type": "string"
+          },
+          "requiredTestIds": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Requiredtestids",
+            "type": "array"
+          },
+          "tenantId": {
+            "title": "Tenantid",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "title": "Updatedat",
+            "type": "string"
+          },
+          "updatedBy": {
+            "title": "Updatedby",
+            "type": "string"
+          },
+          "version": {
+            "minimum": 1.0,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "tenantId",
+          "namespace",
+          "enabled",
+          "minimumCoverage",
+          "requiredTestIds",
+          "version",
+          "updatedBy",
+          "updatedAt"
+        ],
+        "title": "FlowTestQualityGate",
+        "type": "object"
+      },
+      "FlowTestQualityGateUpdate": {
+        "properties": {
+          "enabled": {
+            "default": true,
+            "title": "Enabled",
+            "type": "boolean"
+          },
+          "expectedVersion": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expectedversion"
+          },
+          "minimumCoverage": {
+            "default": 0,
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Minimumcoverage",
+            "type": "number"
+          },
+          "requiredTestIds": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Requiredtestids",
+            "type": "array"
+          }
+        },
+        "title": "FlowTestQualityGateUpdate",
+        "type": "object"
+      },
+      "FlowTestRunRequest": {
+        "properties": {
+          "failFast": {
+            "default": false,
+            "title": "Failfast",
+            "type": "boolean"
+          },
+          "testIds": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Testids",
+            "type": "array"
+          }
+        },
+        "title": "FlowTestRunRequest",
+        "type": "object"
+      },
+      "FlowTestRunResult": {
+        "properties": {
+          "artifactsCreated": {
+            "default": 0,
+            "title": "Artifactscreated",
+            "type": "integer"
+          },
+          "cases": {
+            "items": {
+              "$ref": "#/components/schemas/FlowTestCaseResult"
+            },
+            "title": "Cases",
+            "type": "array"
+          },
+          "coverage": {
+            "$ref": "#/components/schemas/FlowTestCoverage"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "title": "Createdat",
+            "type": "string"
+          },
+          "flowId": {
+            "title": "Flowid",
+            "type": "string"
+          },
+          "flowSemanticHash": {
+            "title": "Flowsemantichash",
+            "type": "string"
+          },
+          "isolated": {
+            "default": true,
+            "title": "Isolated",
+            "type": "boolean"
+          },
+          "namespace": {
+            "title": "Namespace",
+            "type": "string"
+          },
+          "outcome": {
+            "$ref": "#/components/schemas/FlowTestOutcome"
+          },
+          "pluginSetHash": {
+            "title": "Pluginsethash",
+            "type": "string"
+          },
+          "productionExecutionsCreated": {
+            "default": 0,
+            "title": "Productionexecutionscreated",
+            "type": "integer"
+          },
+          "requestedBy": {
+            "title": "Requestedby",
+            "type": "string"
+          },
+          "revision": {
+            "minimum": 1.0,
+            "title": "Revision",
+            "type": "integer"
+          },
+          "runId": {
+            "format": "uuid",
+            "title": "Runid",
+            "type": "string"
+          },
+          "schemaVersion": {
+            "default": "amesh.flow-test-result/v1",
+            "title": "Schemaversion",
+            "type": "string"
+          },
+          "secretLookups": {
+            "default": 0,
+            "title": "Secretlookups",
+            "type": "integer"
+          },
+          "simulatorVersion": {
+            "default": "amesh.flow-test/v1",
+            "title": "Simulatorversion",
+            "type": "string"
+          },
+          "tenantId": {
+            "title": "Tenantid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "tenantId",
+          "namespace",
+          "flowId",
+          "revision",
+          "flowSemanticHash",
+          "pluginSetHash",
+          "outcome",
+          "cases",
+          "coverage",
+          "requestedBy"
+        ],
+        "title": "FlowTestRunResult",
+        "type": "object"
+      },
+      "FlowTestTaskState": {
+        "enum": [
+          "SUCCESS",
+          "FAILED",
+          "SKIPPED"
+        ],
+        "title": "FlowTestTaskState",
+        "type": "string"
+      },
       "FlowValidationResult": {
         "properties": {
           "canonical": {
@@ -12760,6 +13453,77 @@
           "newPassword"
         ],
         "title": "SetLocalPasswordRequest",
+        "type": "object"
+      },
+      "SimulatedTaskResult": {
+        "properties": {
+          "attempts": {
+            "minimum": 0.0,
+            "title": "Attempts",
+            "type": "integer"
+          },
+          "branch": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Branch"
+          },
+          "fixtureSource": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FlowTestFixtureSource"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "lifecyclePhase": {
+            "title": "Lifecyclephase",
+            "type": "string"
+          },
+          "output": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Output"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          },
+          "state": {
+            "$ref": "#/components/schemas/FlowTestTaskState"
+          },
+          "taskId": {
+            "title": "Taskid",
+            "type": "string"
+          },
+          "taskType": {
+            "title": "Tasktype",
+            "type": "string"
+          }
+        },
+        "required": [
+          "taskId",
+          "taskType",
+          "state",
+          "attempts",
+          "lifecyclePhase",
+          "reason"
+        ],
+        "title": "SimulatedTaskResult",
         "type": "object"
       },
       "SourcePosition": {
@@ -28183,6 +28947,593 @@
         ]
       }
     },
+    "/api/v1/flows/{namespace}/{flow_id}/tests": {
+      "get": {
+        "operationId": "list_flow_tests_api_v1_flows__namespace___flow_id__tests_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "namespace",
+            "required": true,
+            "schema": {
+              "title": "Namespace",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "flow_id",
+            "required": true,
+            "schema": {
+              "title": "Flow Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "revision",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Revision"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/FlowTestDefinition"
+                  },
+                  "title": "Response List Flow Tests Api V1 Flows  Namespace   Flow Id  Tests Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Flow Tests",
+        "tags": [
+          "flow-tests"
+        ]
+      },
+      "put": {
+        "operationId": "save_flow_test_api_v1_flows__namespace___flow_id__tests_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "namespace",
+            "required": true,
+            "schema": {
+              "title": "Namespace",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "flow_id",
+            "required": true,
+            "schema": {
+              "title": "Flow Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FlowTestDefinitionCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FlowTestDefinition"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Save Flow Test",
+        "tags": [
+          "flow-tests"
+        ]
+      }
+    },
+    "/api/v1/flows/{namespace}/{flow_id}/tests/runs": {
+      "get": {
+        "operationId": "list_flow_test_runs_api_v1_flows__namespace___flow_id__tests_runs_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "namespace",
+            "required": true,
+            "schema": {
+              "title": "Namespace",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "flow_id",
+            "required": true,
+            "schema": {
+              "title": "Flow Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "revision",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Revision"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/FlowTestRunResult"
+                  },
+                  "title": "Response List Flow Test Runs Api V1 Flows  Namespace   Flow Id  Tests Runs Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Flow Test Runs",
+        "tags": [
+          "flow-tests"
+        ]
+      },
+      "post": {
+        "operationId": "run_flow_tests_api_v1_flows__namespace___flow_id__tests_runs_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "namespace",
+            "required": true,
+            "schema": {
+              "title": "Namespace",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "flow_id",
+            "required": true,
+            "schema": {
+              "title": "Flow Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "revision",
+            "required": true,
+            "schema": {
+              "minimum": 1,
+              "title": "Revision",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FlowTestRunRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FlowTestRunResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Run Flow Tests",
+        "tags": [
+          "flow-tests"
+        ]
+      }
+    },
+    "/api/v1/flows/{namespace}/{flow_id}/tests/{test_id}": {
+      "delete": {
+        "operationId": "delete_flow_test_api_v1_flows__namespace___flow_id__tests__test_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "namespace",
+            "required": true,
+            "schema": {
+              "title": "Namespace",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "flow_id",
+            "required": true,
+            "schema": {
+              "title": "Flow Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "test_id",
+            "required": true,
+            "schema": {
+              "title": "Test Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "expectedVersion",
+            "required": true,
+            "schema": {
+              "minimum": 1,
+              "title": "Expectedversion",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Delete Flow Test",
+        "tags": [
+          "flow-tests"
+        ]
+      }
+    },
     "/api/v1/human-task-notifications": {
       "get": {
         "operationId": "list_human_task_notifications_api_v1_human_task_notifications_get",
@@ -29146,6 +30497,202 @@
         "summary": "List Namespace File Versions",
         "tags": [
           "namespace-resources"
+        ]
+      }
+    },
+    "/api/v1/namespaces/{namespace}/flow-test-gate": {
+      "get": {
+        "operationId": "get_flow_test_gate_api_v1_namespaces__namespace__flow_test_gate_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "namespace",
+            "required": true,
+            "schema": {
+              "title": "Namespace",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/FlowTestQualityGate"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Response Get Flow Test Gate Api V1 Namespaces  Namespace  Flow Test Gate Get"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Flow Test Gate",
+        "tags": [
+          "flow-tests"
+        ]
+      },
+      "put": {
+        "operationId": "update_flow_test_gate_api_v1_namespaces__namespace__flow_test_gate_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "namespace",
+            "required": true,
+            "schema": {
+              "title": "Namespace",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FlowTestQualityGateUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FlowTestQualityGate"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Update Flow Test Gate",
+        "tags": [
+          "flow-tests"
         ]
       }
     },

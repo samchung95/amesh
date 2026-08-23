@@ -319,6 +319,20 @@ Class | Method | HTTP request | Description
 *ExecutionsApi* | [**streamExecutionEvidenceApiV1ExecutionsExecutionIdEvidenceStreamGetWithHttpInfo**](docs/ExecutionsApi.md#streamExecutionEvidenceApiV1ExecutionsExecutionIdEvidenceStreamGetWithHttpInfo) | **GET** /api/v1/executions/{execution_id}/evidence/stream | Stream Execution Evidence
 *ExecutionsApi* | [**streamExecutionLogsApiV1ExecutionsExecutionIdLogsStreamGet**](docs/ExecutionsApi.md#streamExecutionLogsApiV1ExecutionsExecutionIdLogsStreamGet) | **GET** /api/v1/executions/{execution_id}/logs/stream | Stream Execution Logs
 *ExecutionsApi* | [**streamExecutionLogsApiV1ExecutionsExecutionIdLogsStreamGetWithHttpInfo**](docs/ExecutionsApi.md#streamExecutionLogsApiV1ExecutionsExecutionIdLogsStreamGetWithHttpInfo) | **GET** /api/v1/executions/{execution_id}/logs/stream | Stream Execution Logs
+*FlowTestsApi* | [**deleteFlowTestApiV1FlowsNamespaceFlowIdTestsTestIdDelete**](docs/FlowTestsApi.md#deleteFlowTestApiV1FlowsNamespaceFlowIdTestsTestIdDelete) | **DELETE** /api/v1/flows/{namespace}/{flow_id}/tests/{test_id} | Delete Flow Test
+*FlowTestsApi* | [**deleteFlowTestApiV1FlowsNamespaceFlowIdTestsTestIdDeleteWithHttpInfo**](docs/FlowTestsApi.md#deleteFlowTestApiV1FlowsNamespaceFlowIdTestsTestIdDeleteWithHttpInfo) | **DELETE** /api/v1/flows/{namespace}/{flow_id}/tests/{test_id} | Delete Flow Test
+*FlowTestsApi* | [**getFlowTestGateApiV1NamespacesNamespaceFlowTestGateGet**](docs/FlowTestsApi.md#getFlowTestGateApiV1NamespacesNamespaceFlowTestGateGet) | **GET** /api/v1/namespaces/{namespace}/flow-test-gate | Get Flow Test Gate
+*FlowTestsApi* | [**getFlowTestGateApiV1NamespacesNamespaceFlowTestGateGetWithHttpInfo**](docs/FlowTestsApi.md#getFlowTestGateApiV1NamespacesNamespaceFlowTestGateGetWithHttpInfo) | **GET** /api/v1/namespaces/{namespace}/flow-test-gate | Get Flow Test Gate
+*FlowTestsApi* | [**listFlowTestRunsApiV1FlowsNamespaceFlowIdTestsRunsGet**](docs/FlowTestsApi.md#listFlowTestRunsApiV1FlowsNamespaceFlowIdTestsRunsGet) | **GET** /api/v1/flows/{namespace}/{flow_id}/tests/runs | List Flow Test Runs
+*FlowTestsApi* | [**listFlowTestRunsApiV1FlowsNamespaceFlowIdTestsRunsGetWithHttpInfo**](docs/FlowTestsApi.md#listFlowTestRunsApiV1FlowsNamespaceFlowIdTestsRunsGetWithHttpInfo) | **GET** /api/v1/flows/{namespace}/{flow_id}/tests/runs | List Flow Test Runs
+*FlowTestsApi* | [**listFlowTestsApiV1FlowsNamespaceFlowIdTestsGet**](docs/FlowTestsApi.md#listFlowTestsApiV1FlowsNamespaceFlowIdTestsGet) | **GET** /api/v1/flows/{namespace}/{flow_id}/tests | List Flow Tests
+*FlowTestsApi* | [**listFlowTestsApiV1FlowsNamespaceFlowIdTestsGetWithHttpInfo**](docs/FlowTestsApi.md#listFlowTestsApiV1FlowsNamespaceFlowIdTestsGetWithHttpInfo) | **GET** /api/v1/flows/{namespace}/{flow_id}/tests | List Flow Tests
+*FlowTestsApi* | [**runFlowTestsApiV1FlowsNamespaceFlowIdTestsRunsPost**](docs/FlowTestsApi.md#runFlowTestsApiV1FlowsNamespaceFlowIdTestsRunsPost) | **POST** /api/v1/flows/{namespace}/{flow_id}/tests/runs | Run Flow Tests
+*FlowTestsApi* | [**runFlowTestsApiV1FlowsNamespaceFlowIdTestsRunsPostWithHttpInfo**](docs/FlowTestsApi.md#runFlowTestsApiV1FlowsNamespaceFlowIdTestsRunsPostWithHttpInfo) | **POST** /api/v1/flows/{namespace}/{flow_id}/tests/runs | Run Flow Tests
+*FlowTestsApi* | [**saveFlowTestApiV1FlowsNamespaceFlowIdTestsPut**](docs/FlowTestsApi.md#saveFlowTestApiV1FlowsNamespaceFlowIdTestsPut) | **PUT** /api/v1/flows/{namespace}/{flow_id}/tests | Save Flow Test
+*FlowTestsApi* | [**saveFlowTestApiV1FlowsNamespaceFlowIdTestsPutWithHttpInfo**](docs/FlowTestsApi.md#saveFlowTestApiV1FlowsNamespaceFlowIdTestsPutWithHttpInfo) | **PUT** /api/v1/flows/{namespace}/{flow_id}/tests | Save Flow Test
+*FlowTestsApi* | [**updateFlowTestGateApiV1NamespacesNamespaceFlowTestGatePut**](docs/FlowTestsApi.md#updateFlowTestGateApiV1NamespacesNamespaceFlowTestGatePut) | **PUT** /api/v1/namespaces/{namespace}/flow-test-gate | Update Flow Test Gate
+*FlowTestsApi* | [**updateFlowTestGateApiV1NamespacesNamespaceFlowTestGatePutWithHttpInfo**](docs/FlowTestsApi.md#updateFlowTestGateApiV1NamespacesNamespaceFlowTestGatePutWithHttpInfo) | **PUT** /api/v1/namespaces/{namespace}/flow-test-gate | Update Flow Test Gate
 *FlowsApi* | [**applyFlowApiV1FlowsPut**](docs/FlowsApi.md#applyFlowApiV1FlowsPut) | **PUT** /api/v1/flows | Apply Flow
 *FlowsApi* | [**applyFlowApiV1FlowsPutWithHttpInfo**](docs/FlowsApi.md#applyFlowApiV1FlowsPutWithHttpInfo) | **PUT** /api/v1/flows | Apply Flow
 *FlowsApi* | [**deleteFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionDelete**](docs/FlowsApi.md#deleteFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionDelete) | **DELETE** /api/v1/flows/{namespace}/{flow_id}/revisions/{revision} | Delete Flow Revision
@@ -693,6 +707,20 @@ Class | Method | HTTP request | Description
  - [FlowRevisionLifecycleRequest](docs/FlowRevisionLifecycleRequest.md)
  - [FlowRevisionRecord](docs/FlowRevisionRecord.md)
  - [FlowRevisionRestoreRequest](docs/FlowRevisionRestoreRequest.md)
+ - [FlowTestAssertion](docs/FlowTestAssertion.md)
+ - [FlowTestCaseResult](docs/FlowTestCaseResult.md)
+ - [FlowTestCoverage](docs/FlowTestCoverage.md)
+ - [FlowTestDefinition](docs/FlowTestDefinition.md)
+ - [FlowTestDefinitionCreateRequest](docs/FlowTestDefinitionCreateRequest.md)
+ - [FlowTestExpectation](docs/FlowTestExpectation.md)
+ - [FlowTestFixture](docs/FlowTestFixture.md)
+ - [FlowTestFixtureSource](docs/FlowTestFixtureSource.md)
+ - [FlowTestOutcome](docs/FlowTestOutcome.md)
+ - [FlowTestQualityGate](docs/FlowTestQualityGate.md)
+ - [FlowTestQualityGateUpdate](docs/FlowTestQualityGateUpdate.md)
+ - [FlowTestRunRequest](docs/FlowTestRunRequest.md)
+ - [FlowTestRunResult](docs/FlowTestRunResult.md)
+ - [FlowTestTaskState](docs/FlowTestTaskState.md)
  - [FlowValidationResult](docs/FlowValidationResult.md)
  - [FormField](docs/FormField.md)
  - [FormSection](docs/FormSection.md)
@@ -865,6 +893,7 @@ Class | Method | HTTP request | Description
  - [ServiceState](docs/ServiceState.md)
  - [ServiceTopology](docs/ServiceTopology.md)
  - [SetLocalPasswordRequest](docs/SetLocalPasswordRequest.md)
+ - [SimulatedTaskResult](docs/SimulatedTaskResult.md)
  - [SourcePosition](docs/SourcePosition.md)
  - [SourceRange](docs/SourceRange.md)
  - [SubflowMode](docs/SubflowMode.md)

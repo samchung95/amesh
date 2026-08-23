@@ -16,6 +16,7 @@ api_configuration.go
 api_credentials.go
 api_dashboards.go
 api_executions.go
+api_flow_tests.go
 api_flows.go
 api_human_tasks.go
 api_namespace_resources.go
@@ -46,6 +47,7 @@ docs/ConfigurationAPI.md
 docs/CredentialsAPI.md
 docs/DashboardsAPI.md
 docs/ExecutionsAPI.md
+docs/FlowTestsAPI.md
 docs/FlowsAPI.md
 docs/HumanTasksAPI.md
 docs/NamespaceResourcesAPI.md
@@ -200,6 +202,20 @@ model_flow_revision_diff.go
 model_flow_revision_lifecycle_request.go
 model_flow_revision_record.go
 model_flow_revision_restore_request.go
+model_flow_test_assertion.go
+model_flow_test_case_result.go
+model_flow_test_coverage.go
+model_flow_test_definition.go
+model_flow_test_definition_create_request.go
+model_flow_test_expectation.go
+model_flow_test_fixture.go
+model_flow_test_fixture_source.go
+model_flow_test_outcome.go
+model_flow_test_quality_gate.go
+model_flow_test_quality_gate_update.go
+model_flow_test_run_request.go
+model_flow_test_run_result.go
+model_flow_test_task_state.go
 model_flow_validation_result.go
 model_form_field.go
 model_form_section.go
@@ -372,6 +388,7 @@ model_service_role_status.go
 model_service_state.go
 model_service_topology.go
 model_set_local_password_request.go
+model_simulated_task_result.go
 model_source_position.go
 model_source_range.go
 model_subflow_mode.go

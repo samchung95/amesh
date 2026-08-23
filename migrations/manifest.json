@@ -300,6 +300,12 @@
       "mode": "expand",
       "onlineCompatible": true,
       "rollbackGuidance": "Deactivate operational controls through the exempt administration API, preserve announcement, control, acknowledgement and event evidence, then forward-fix the additive tables and enforcement readers."
+    },
+    {
+      "file": "0051_flow_tests_quality_gates.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Disable namespace flow-test gates, preserve revision-pinned definitions and run evidence, then forward-fix the additive test and gate tables before resuming promotion enforcement."
     }
   ]
 }

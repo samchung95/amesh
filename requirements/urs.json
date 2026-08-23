@@ -16636,7 +16636,7 @@
       "id": "URS-F-0574",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M5",
       "wave": 5,
       "epic_id": "EPIC-510",
@@ -16658,13 +16658,18 @@
       "dependencies": [
         "EPIC-004",
         "EPIC-800"
+      ],
+      "evidence": [
+        "tests/api/test_flow_tests_api.py::test_flow_tests_are_durable_isolated_and_gate_active_promotion",
+        "tests/test_flow_testing.py",
+        "migrations/0051_flow_tests_quality_gates.sql"
       ]
     },
     {
       "id": "URS-F-0575",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M5",
       "wave": 5,
       "epic_id": "EPIC-510",
@@ -16686,13 +16691,18 @@
       "dependencies": [
         "EPIC-004",
         "EPIC-800"
+      ],
+      "evidence": [
+        "tests/test_flow_testing.py::test_simulator_covers_branches_retries_recorded_fixtures_and_generated_graphs",
+        "tests/test_flow_testing.py::test_simulator_runs_failure_and_finally_handlers",
+        "src/amesh/flow_testing.py"
       ]
     },
     {
       "id": "URS-F-0576",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M5",
       "wave": 5,
       "epic_id": "EPIC-510",
@@ -16714,13 +16724,18 @@
       "dependencies": [
         "EPIC-004",
         "EPIC-800"
+      ],
+      "evidence": [
+        "tests/api/test_flow_tests_api.py::test_flow_tests_are_durable_isolated_and_gate_active_promotion",
+        "tests/test_cli.py::test_flow_test_command_returns_machine_readable_result_and_failure_code",
+        "frontend/e2e/flow-tests.spec.ts"
       ]
     },
     {
       "id": "URS-F-0577",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M5",
       "wave": 5,
       "epic_id": "EPIC-510",
@@ -16742,13 +16757,18 @@
       "dependencies": [
         "EPIC-004",
         "EPIC-800"
+      ],
+      "evidence": [
+        "tests/test_flow_testing.py::test_simulator_covers_branches_retries_recorded_fixtures_and_generated_graphs",
+        "src/amesh/domain/flow_tests.py",
+        "docs/api/flow-tests.md"
       ]
     },
     {
       "id": "URS-F-0578",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M5",
       "wave": 5,
       "epic_id": "EPIC-510",
@@ -16770,13 +16790,18 @@
       "dependencies": [
         "EPIC-004",
         "EPIC-800"
+      ],
+      "evidence": [
+        "tests/test_flow_testing.py::test_simulator_covers_branches_retries_recorded_fixtures_and_generated_graphs",
+        "src/amesh/flow_testing.py",
+        "docs/api/flow-tests.md"
       ]
     },
     {
       "id": "URS-F-0579",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M5",
       "wave": 5,
       "epic_id": "EPIC-510",
@@ -16798,13 +16823,18 @@
       "dependencies": [
         "EPIC-004",
         "EPIC-800"
+      ],
+      "evidence": [
+        "tests/api/test_flow_tests_api.py::test_flow_tests_are_durable_isolated_and_gate_active_promotion",
+        "src/amesh/app.py",
+        "migrations/0051_flow_tests_quality_gates.sql"
       ]
     },
     {
       "id": "URS-F-0580",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M5",
       "wave": 5,
       "epic_id": "EPIC-510",
@@ -16826,13 +16856,18 @@
       "dependencies": [
         "EPIC-004",
         "EPIC-800"
+      ],
+      "evidence": [
+        "tests/api/test_flow_tests_api.py::test_flow_tests_are_durable_isolated_and_gate_active_promotion",
+        "src/amesh/flow_testing.py",
+        "docs/api/flow-tests.md"
       ]
     },
     {
       "id": "URS-F-0581",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M5",
       "wave": 5,
       "epic_id": "EPIC-510",
@@ -16854,6 +16889,11 @@
       "dependencies": [
         "EPIC-004",
         "EPIC-800"
+      ],
+      "evidence": [
+        "tests/api/test_flow_tests_api.py::test_flow_tests_are_durable_isolated_and_gate_active_promotion",
+        "tests/test_flow_testing.py::test_flow_test_definitions_reject_secret_like_data",
+        "migrations/0051_flow_tests_quality_gates.sql"
       ]
     },
     {

@@ -61,5 +61,7 @@
   participant approvals through the [workflow apps and human tasks API](workflow-apps-and-human-tasks.md).
 - Publish announcements and operate scoped maintenance or kill switches through the
   [operational controls API](operational-controls.md).
+- Define isolated revision-pinned simulations, inspect observed coverage and enforce namespace
+  promotion policy through the [flow tests API](flow-tests.md).
 
 Future generated SDKs must consume the supported API contract, not internal Python classes.

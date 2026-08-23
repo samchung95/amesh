@@ -276,6 +276,12 @@ def build_parser() -> argparse.ArgumentParser:
     flow_delete.add_argument("flow_id")
     flow_delete.add_argument("revision", type=int)
     flow_delete.add_argument("--force", action="store_true")
+    flow_test = flow_commands.add_parser("test", help="Run revision-pinned flow unit tests")
+    flow_test.add_argument("namespace")
+    flow_test.add_argument("flow_id")
+    flow_test.add_argument("--revision", type=int, required=True)
+    flow_test.add_argument("--test-id", action="append", default=[])
+    flow_test.add_argument("--fail-fast", action="store_true")
 
     admin = subcommands.add_parser("admin", help="Perform instance administration")
     admin_commands = admin.add_subparsers(dest="admin_command", required=True)
@@ -774,6 +780,12 @@ def _flow_request(
     if args.flow_command == "export":
         params = {"revision": args.revision} if args.revision is not None else None
         return client.get(f"{root}/document", params=params)
+    if args.flow_command == "test":
+        return client.post(
+            f"{root}/tests/runs",
+            params={"revision": args.revision},
+            json={"testIds": args.test_id, "failFast": args.fail_fast},
+        )
     if not args.force:
         _emit(
             {
@@ -797,6 +809,17 @@ def _write_flow_response(
     args: argparse.Namespace,
     output_mode: str,
 ) -> int | None:
+    if args.flow_command == "test":
+        payload = response.json()
+        _emit(
+            payload,
+            output_mode,
+            human=(
+                f"{payload['outcome']}: {len(payload['cases'])} case(s), "
+                f"{payload['coverage']['percentage']:.2f}% observed coverage"
+            ),
+        )
+        return EXIT_SUCCESS if payload["outcome"] == "PASSED" else EXIT_DIFFERENCE
     if args.flow_command == "diff":
         remote = response.json()
         difference = compare_flow_revisions(

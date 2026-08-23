@@ -162,6 +162,13 @@ All URIs are relative to *http://localhost*
 *ExecutionsApi* | [**resumeTaskRunApiV1ExecutionsExecutionIdTaskRunsTaskRunIdResumePost**](docs/ExecutionsApi.md#resumetaskrunapiv1executionsexecutionidtaskrunstaskrunidresumepost) | **POST** /api/v1/executions/{execution_id}/task-runs/{task_run_id}/resume | Resume Task Run
 *ExecutionsApi* | [**streamExecutionEvidenceApiV1ExecutionsExecutionIdEvidenceStreamGet**](docs/ExecutionsApi.md#streamexecutionevidenceapiv1executionsexecutionidevidencestreamget) | **GET** /api/v1/executions/{execution_id}/evidence/stream | Stream Execution Evidence
 *ExecutionsApi* | [**streamExecutionLogsApiV1ExecutionsExecutionIdLogsStreamGet**](docs/ExecutionsApi.md#streamexecutionlogsapiv1executionsexecutionidlogsstreamget) | **GET** /api/v1/executions/{execution_id}/logs/stream | Stream Execution Logs
+*FlowTestsApi* | [**deleteFlowTestApiV1FlowsNamespaceFlowIdTestsTestIdDelete**](docs/FlowTestsApi.md#deleteflowtestapiv1flowsnamespaceflowidteststestiddelete) | **DELETE** /api/v1/flows/{namespace}/{flow_id}/tests/{test_id} | Delete Flow Test
+*FlowTestsApi* | [**getFlowTestGateApiV1NamespacesNamespaceFlowTestGateGet**](docs/FlowTestsApi.md#getflowtestgateapiv1namespacesnamespaceflowtestgateget) | **GET** /api/v1/namespaces/{namespace}/flow-test-gate | Get Flow Test Gate
+*FlowTestsApi* | [**listFlowTestRunsApiV1FlowsNamespaceFlowIdTestsRunsGet**](docs/FlowTestsApi.md#listflowtestrunsapiv1flowsnamespaceflowidtestsrunsget) | **GET** /api/v1/flows/{namespace}/{flow_id}/tests/runs | List Flow Test Runs
+*FlowTestsApi* | [**listFlowTestsApiV1FlowsNamespaceFlowIdTestsGet**](docs/FlowTestsApi.md#listflowtestsapiv1flowsnamespaceflowidtestsget) | **GET** /api/v1/flows/{namespace}/{flow_id}/tests | List Flow Tests
+*FlowTestsApi* | [**runFlowTestsApiV1FlowsNamespaceFlowIdTestsRunsPost**](docs/FlowTestsApi.md#runflowtestsapiv1flowsnamespaceflowidtestsrunspost) | **POST** /api/v1/flows/{namespace}/{flow_id}/tests/runs | Run Flow Tests
+*FlowTestsApi* | [**saveFlowTestApiV1FlowsNamespaceFlowIdTestsPut**](docs/FlowTestsApi.md#saveflowtestapiv1flowsnamespaceflowidtestsput) | **PUT** /api/v1/flows/{namespace}/{flow_id}/tests | Save Flow Test
+*FlowTestsApi* | [**updateFlowTestGateApiV1NamespacesNamespaceFlowTestGatePut**](docs/FlowTestsApi.md#updateflowtestgateapiv1namespacesnamespaceflowtestgateput) | **PUT** /api/v1/namespaces/{namespace}/flow-test-gate | Update Flow Test Gate
 *FlowsApi* | [**applyFlowApiV1FlowsPut**](docs/FlowsApi.md#applyflowapiv1flowsput) | **PUT** /api/v1/flows | Apply Flow
 *FlowsApi* | [**deleteFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionDelete**](docs/FlowsApi.md#deleteflowrevisionapiv1flowsnamespaceflowidrevisionsrevisiondelete) | **DELETE** /api/v1/flows/{namespace}/{flow_id}/revisions/{revision} | Delete Flow Revision
 *FlowsApi* | [**diffFlowDraftApiV1FlowsNamespaceFlowIdRevisionsRevisionDiffDraftPost**](docs/FlowsApi.md#diffflowdraftapiv1flowsnamespaceflowidrevisionsrevisiondiffdraftpost) | **POST** /api/v1/flows/{namespace}/{flow_id}/revisions/{revision}/diff-draft | Diff Flow Draft
@@ -419,6 +426,20 @@ All URIs are relative to *http://localhost*
 - [FlowRevisionLifecycleRequest](docs/FlowRevisionLifecycleRequest.md)
 - [FlowRevisionRecord](docs/FlowRevisionRecord.md)
 - [FlowRevisionRestoreRequest](docs/FlowRevisionRestoreRequest.md)
+- [FlowTestAssertion](docs/FlowTestAssertion.md)
+- [FlowTestCaseResult](docs/FlowTestCaseResult.md)
+- [FlowTestCoverage](docs/FlowTestCoverage.md)
+- [FlowTestDefinition](docs/FlowTestDefinition.md)
+- [FlowTestDefinitionCreateRequest](docs/FlowTestDefinitionCreateRequest.md)
+- [FlowTestExpectation](docs/FlowTestExpectation.md)
+- [FlowTestFixture](docs/FlowTestFixture.md)
+- [FlowTestFixtureSource](docs/FlowTestFixtureSource.md)
+- [FlowTestOutcome](docs/FlowTestOutcome.md)
+- [FlowTestQualityGate](docs/FlowTestQualityGate.md)
+- [FlowTestQualityGateUpdate](docs/FlowTestQualityGateUpdate.md)
+- [FlowTestRunRequest](docs/FlowTestRunRequest.md)
+- [FlowTestRunResult](docs/FlowTestRunResult.md)
+- [FlowTestTaskState](docs/FlowTestTaskState.md)
 - [FlowValidationResult](docs/FlowValidationResult.md)
 - [FormField](docs/FormField.md)
 - [FormSection](docs/FormSection.md)
@@ -591,6 +612,7 @@ All URIs are relative to *http://localhost*
 - [ServiceState](docs/ServiceState.md)
 - [ServiceTopology](docs/ServiceTopology.md)
 - [SetLocalPasswordRequest](docs/SetLocalPasswordRequest.md)
+- [SimulatedTaskResult](docs/SimulatedTaskResult.md)
 - [SourcePosition](docs/SourcePosition.md)
 - [SourceRange](docs/SourceRange.md)
 - [SubflowMode](docs/SubflowMode.md)
