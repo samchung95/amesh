@@ -2821,6 +2821,31 @@ async def update_plugin_policy_rule(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
 
 
+@app.get(
+    "/api/v1/plugin-policy/rules/{rule_id}",
+    response_model=PluginPolicyRule,
+    tags=["plugins"],
+)
+async def get_plugin_policy_rule(
+    rule_id: UUID,
+    repository: PluginPolicyRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> PluginPolicyRule:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="plugin",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+    )
+    try:
+        return await repository.get_rule(tenant_id, rule_id)
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+
+
 @app.delete(
     "/api/v1/plugin-policy/rules/{rule_id}",
     status_code=status.HTTP_204_NO_CONTENT,

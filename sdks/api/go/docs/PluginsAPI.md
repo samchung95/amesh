@@ -10,6 +10,7 @@ Method | HTTP request | Description
 [**EvaluateFlowPluginPolicyApiV1PluginPolicyEvaluatePost**](PluginsAPI.md#EvaluateFlowPluginPolicyApiV1PluginPolicyEvaluatePost) | **Post** /api/v1/plugin-policy/evaluate | Evaluate Flow Plugin Policy
 [**ExportPluginRegistryApiV1PluginRegistryOfflineExportGet**](PluginsAPI.md#ExportPluginRegistryApiV1PluginRegistryOfflineExportGet) | **Get** /api/v1/plugin-registry/offline-export | Export Plugin Registry
 [**GetEffectivePluginPolicyApiV1PluginPolicyEffectiveGet**](PluginsAPI.md#GetEffectivePluginPolicyApiV1PluginPolicyEffectiveGet) | **Get** /api/v1/plugin-policy/effective | Get Effective Plugin Policy
+[**GetPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGet**](PluginsAPI.md#GetPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGet) | **Get** /api/v1/plugin-policy/rules/{rule_id} | Get Plugin Policy Rule
 [**GetPluginRegistryIndexApiV1PluginRegistryIndexGet**](PluginsAPI.md#GetPluginRegistryIndexApiV1PluginRegistryIndexGet) | **Get** /api/v1/plugin-registry/index | Get Plugin Registry Index
 [**GetPluginRegistryPackageApiV1PluginRegistryPackagesNameVersionGet**](PluginsAPI.md#GetPluginRegistryPackageApiV1PluginRegistryPackagesNameVersionGet) | **Get** /api/v1/plugin-registry/packages/{name}/{version} | Get Plugin Registry Package
 [**ImportPluginRegistryApiV1PluginRegistryOfflineImportPost**](PluginsAPI.md#ImportPluginRegistryApiV1PluginRegistryOfflineImportPost) | **Post** /api/v1/plugin-registry/offline-import | Import Plugin Registry
@@ -433,6 +434,80 @@ Name | Type | Description  | Notes
 ### Return type
 
 [**EffectivePluginPolicy**](EffectivePluginPolicy.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
+[[Back to Model list]](../README.md#documentation-for-models)
+[[Back to README]](../README.md)
+
+
+## GetPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGet
+
+> PluginPolicyRule GetPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGet(ctx, ruleId).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
+
+Get Plugin Policy Rule
+
+### Example
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"os"
+	openapiclient "github.com/amesh/amesh-client-go"
+)
+
+func main() {
+	ruleId := "38400000-8cf0-11bd-b23e-10b96e4ef00d" // string |
+	authorization := "authorization_example" // string |  (optional)
+	xAmeshCSRF := "xAmeshCSRF_example" // string |  (optional)
+	xAmeshTenant := "xAmeshTenant_example" // string |  (optional)
+
+	configuration := openapiclient.NewConfiguration()
+	apiClient := openapiclient.NewAPIClient(configuration)
+	resp, r, err := apiClient.PluginsAPI.GetPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGet(context.Background(), ruleId).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error when calling `PluginsAPI.GetPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGet``: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+	}
+	// response from `GetPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGet`: PluginPolicyRule
+	fmt.Fprintf(os.Stdout, "Response from `PluginsAPI.GetPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGet`: %v\n", resp)
+}
+```
+
+### Path Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+**ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
+**ruleId** | **string** |  |
+
+### Other Parameters
+
+Other parameters are passed through a pointer to a apiGetPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGetRequest struct via the builder pattern
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+
+ **authorization** | **string** |  |
+ **xAmeshCSRF** | **string** |  |
+ **xAmeshTenant** | **string** |  |
+
+### Return type
+
+[**PluginPolicyRule**](PluginPolicyRule.md)
 
 ### Authorization
 

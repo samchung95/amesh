@@ -16,6 +16,8 @@ All URIs are relative to *http://localhost*
 | [**exportPluginRegistryApiV1PluginRegistryOfflineExportGetWithHttpInfo**](PluginsApi.md#exportPluginRegistryApiV1PluginRegistryOfflineExportGetWithHttpInfo) | **GET** /api/v1/plugin-registry/offline-export | Export Plugin Registry |
 | [**getEffectivePluginPolicyApiV1PluginPolicyEffectiveGet**](PluginsApi.md#getEffectivePluginPolicyApiV1PluginPolicyEffectiveGet) | **GET** /api/v1/plugin-policy/effective | Get Effective Plugin Policy |
 | [**getEffectivePluginPolicyApiV1PluginPolicyEffectiveGetWithHttpInfo**](PluginsApi.md#getEffectivePluginPolicyApiV1PluginPolicyEffectiveGetWithHttpInfo) | **GET** /api/v1/plugin-policy/effective | Get Effective Plugin Policy |
+| [**getPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGet**](PluginsApi.md#getPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGet) | **GET** /api/v1/plugin-policy/rules/{rule_id} | Get Plugin Policy Rule |
+| [**getPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGetWithHttpInfo**](PluginsApi.md#getPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGetWithHttpInfo) | **GET** /api/v1/plugin-policy/rules/{rule_id} | Get Plugin Policy Rule |
 | [**getPluginRegistryIndexApiV1PluginRegistryIndexGet**](PluginsApi.md#getPluginRegistryIndexApiV1PluginRegistryIndexGet) | **GET** /api/v1/plugin-registry/index | Get Plugin Registry Index |
 | [**getPluginRegistryIndexApiV1PluginRegistryIndexGetWithHttpInfo**](PluginsApi.md#getPluginRegistryIndexApiV1PluginRegistryIndexGetWithHttpInfo) | **GET** /api/v1/plugin-registry/index | Get Plugin Registry Index |
 | [**getPluginRegistryPackageApiV1PluginRegistryPackagesNameVersionGet**](PluginsApi.md#getPluginRegistryPackageApiV1PluginRegistryPackagesNameVersionGet) | **GET** /api/v1/plugin-registry/packages/{name}/{version} | Get Plugin Registry Package |
@@ -885,6 +887,150 @@ public class Example {
 ### Return type
 
 ApiResponse<[**EffectivePluginPolicy**](EffectivePluginPolicy.md)>
+
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful Response |  -  |
+| **422** | Validation Error |  -  |
+
+
+## getPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGet
+
+> PluginPolicyRule getPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGet(ruleId, authorization, xAmeshCSRF, xAmeshTenant)
+
+Get Plugin Policy Rule
+
+### Example
+
+```java
+// Import classes:
+import io.amesh.client.ApiClient;
+import io.amesh.client.ApiException;
+import io.amesh.client.Configuration;
+import io.amesh.client.models.*;
+import io.amesh.client.api.PluginsApi;
+
+public class Example {
+    public static void main(String[] args) {
+        ApiClient defaultClient = Configuration.getDefaultApiClient();
+        defaultClient.setBasePath("http://localhost");
+
+        PluginsApi apiInstance = new PluginsApi(defaultClient);
+        UUID ruleId = UUID.randomUUID(); // UUID |
+        String authorization = "authorization_example"; // String |
+        String xAmeshCSRF = "xAmeshCSRF_example"; // String |
+        String xAmeshTenant = "xAmeshTenant_example"; // String |
+        try {
+            PluginPolicyRule result = apiInstance.getPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGet(ruleId, authorization, xAmeshCSRF, xAmeshTenant);
+            System.out.println(result);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling PluginsApi#getPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGet");
+            System.err.println("Status code: " + e.getCode());
+            System.err.println("Reason: " + e.getResponseBody());
+            System.err.println("Response headers: " + e.getResponseHeaders());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **ruleId** | **UUID**|  | |
+| **authorization** | **String**|  | [optional] |
+| **xAmeshCSRF** | **String**|  | [optional] |
+| **xAmeshTenant** | **String**|  | [optional] |
+
+### Return type
+
+[**PluginPolicyRule**](PluginPolicyRule.md)
+
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful Response |  -  |
+| **422** | Validation Error |  -  |
+
+## getPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGetWithHttpInfo
+
+> ApiResponse<PluginPolicyRule> getPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGetWithHttpInfo(ruleId, authorization, xAmeshCSRF, xAmeshTenant)
+
+Get Plugin Policy Rule
+
+### Example
+
+```java
+// Import classes:
+import io.amesh.client.ApiClient;
+import io.amesh.client.ApiException;
+import io.amesh.client.ApiResponse;
+import io.amesh.client.Configuration;
+import io.amesh.client.models.*;
+import io.amesh.client.api.PluginsApi;
+
+public class Example {
+    public static void main(String[] args) {
+        ApiClient defaultClient = Configuration.getDefaultApiClient();
+        defaultClient.setBasePath("http://localhost");
+
+        PluginsApi apiInstance = new PluginsApi(defaultClient);
+        UUID ruleId = UUID.randomUUID(); // UUID |
+        String authorization = "authorization_example"; // String |
+        String xAmeshCSRF = "xAmeshCSRF_example"; // String |
+        String xAmeshTenant = "xAmeshTenant_example"; // String |
+        try {
+            ApiResponse<PluginPolicyRule> response = apiInstance.getPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGetWithHttpInfo(ruleId, authorization, xAmeshCSRF, xAmeshTenant);
+            System.out.println("Status code: " + response.getStatusCode());
+            System.out.println("Response headers: " + response.getHeaders());
+            System.out.println("Response body: " + response.getData());
+        } catch (ApiException e) {
+            System.err.println("Exception when calling PluginsApi#getPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGet");
+            System.err.println("Status code: " + e.getCode());
+            System.err.println("Response headers: " + e.getResponseHeaders());
+            System.err.println("Reason: " + e.getResponseBody());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **ruleId** | **UUID**|  | |
+| **authorization** | **String**|  | [optional] |
+| **xAmeshCSRF** | **String**|  | [optional] |
+| **xAmeshTenant** | **String**|  | [optional] |
+
+### Return type
+
+ApiResponse<[**PluginPolicyRule**](PluginPolicyRule.md)>
 
 
 ### Authorization

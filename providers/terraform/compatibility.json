@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "amesh.terraform-provider-compatibility/v1",
+  "providerVersion": "0.1.0",
+  "pluginProtocol": "5.0",
+  "ameshApi": {
+    "supported": ">=0.2.0,<0.3.0",
+    "qualified": ["0.2.0"]
+  },
+  "terraform": {
+    "supported": ">=1.0.0,<1.16.0",
+    "qualified": ["1.15.8"]
+  },
+  "opentofu": {
+    "supported": ">=1.6.0,<1.13.0",
+    "qualified": ["1.12.1"]
+  },
+  "platforms": [
+    "darwin_amd64",
+    "darwin_arm64",
+    "linux_amd64",
+    "linux_arm64",
+    "windows_amd64",
+    "windows_arm64"
+  ],
+  "evidence": [
+    "go test ./...",
+    "Terraform provider schema: 14 resources and 14 data sources",
+    "OpenTofu provider schema: 14 resources and 14 data sources",
+    "live key-value create, clean refresh, drift plan, reconciliation, import and destroy",
+    "GoReleaser six-archive snapshot and SHA-256 verification"
+  ]
+}

@@ -10,6 +10,7 @@ Method | HTTP request | Description
 [**evaluate_flow_plugin_policy_api_v1_plugin_policy_evaluate_post**](PluginsApi.md#evaluate_flow_plugin_policy_api_v1_plugin_policy_evaluate_post) | **POST** /api/v1/plugin-policy/evaluate | Evaluate Flow Plugin Policy
 [**export_plugin_registry_api_v1_plugin_registry_offline_export_get**](PluginsApi.md#export_plugin_registry_api_v1_plugin_registry_offline_export_get) | **GET** /api/v1/plugin-registry/offline-export | Export Plugin Registry
 [**get_effective_plugin_policy_api_v1_plugin_policy_effective_get**](PluginsApi.md#get_effective_plugin_policy_api_v1_plugin_policy_effective_get) | **GET** /api/v1/plugin-policy/effective | Get Effective Plugin Policy
+[**get_plugin_policy_rule_api_v1_plugin_policy_rules_rule_id_get**](PluginsApi.md#get_plugin_policy_rule_api_v1_plugin_policy_rules_rule_id_get) | **GET** /api/v1/plugin-policy/rules/{rule_id} | Get Plugin Policy Rule
 [**get_plugin_registry_index_api_v1_plugin_registry_index_get**](PluginsApi.md#get_plugin_registry_index_api_v1_plugin_registry_index_get) | **GET** /api/v1/plugin-registry/index | Get Plugin Registry Index
 [**get_plugin_registry_package_api_v1_plugin_registry_packages_name_version_get**](PluginsApi.md#get_plugin_registry_package_api_v1_plugin_registry_packages_name_version_get) | **GET** /api/v1/plugin-registry/packages/{name}/{version} | Get Plugin Registry Package
 [**import_plugin_registry_api_v1_plugin_registry_offline_import_post**](PluginsApi.md#import_plugin_registry_api_v1_plugin_registry_offline_import_post) | **POST** /api/v1/plugin-registry/offline-import | Import Plugin Registry
@@ -436,6 +437,79 @@ Name | Type | Description  | Notes
 ### Return type
 
 [**EffectivePluginPolicy**](EffectivePluginPolicy.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Successful Response |  -  |
+**422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **get_plugin_policy_rule_api_v1_plugin_policy_rules_rule_id_get**
+> PluginPolicyRule get_plugin_policy_rule_api_v1_plugin_policy_rules_rule_id_get(rule_id, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
+
+Get Plugin Policy Rule
+
+### Example
+
+
+```python
+import amesh_client
+from amesh_client.models.plugin_policy_rule import PluginPolicyRule
+from amesh_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to http://localhost
+# See configuration.py for a list of all supported configuration parameters.
+configuration = amesh_client.Configuration(
+    host = "http://localhost"
+)
+
+
+# Enter a context with an instance of the API client
+with amesh_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = amesh_client.PluginsApi(api_client)
+    rule_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID |
+    authorization = 'authorization_example' # str |  (optional)
+    x_amesh_csrf = 'x_amesh_csrf_example' # str |  (optional)
+    x_amesh_tenant = 'x_amesh_tenant_example' # str |  (optional)
+
+    try:
+        # Get Plugin Policy Rule
+        api_response = api_instance.get_plugin_policy_rule_api_v1_plugin_policy_rules_rule_id_get(rule_id, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
+        print("The response of PluginsApi->get_plugin_policy_rule_api_v1_plugin_policy_rules_rule_id_get:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling PluginsApi->get_plugin_policy_rule_api_v1_plugin_policy_rules_rule_id_get: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **rule_id** | **UUID**|  |
+ **authorization** | **str**|  | [optional]
+ **x_amesh_csrf** | **str**|  | [optional]
+ **x_amesh_tenant** | **str**|  | [optional]
+
+### Return type
+
+[**PluginPolicyRule**](PluginPolicyRule.md)
 
 ### Authorization
 

@@ -68,6 +68,48 @@ jobs:
       - name: Validate Compose
         run: docker compose config --quiet
 
+  terraform-provider:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: providers/terraform/go.mod
+          cache-dependency-path: providers/terraform/go.sum
+      - name: Format and test provider
+        working-directory: providers/terraform
+        run: |
+          test -z "$(gofmt -l .)"
+          go test ./...
+      - name: Build static provider
+        working-directory: providers/terraform
+        env:
+          CGO_ENABLED: "0"
+        run: go build -trimpath -o build/terraform-provider-amesh .
+      - name: Verify generated provider documentation
+        working-directory: providers/terraform
+        run: |
+          go run github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs@v0.25.0 generate \
+            --provider-dir . --provider-name amesh --tf-version 1.15.8
+          git diff --exit-code -- docs templates
+      - name: Verify Terraform 1.15 provider schema
+        run: |
+          schema="$(docker run --rm -v "$PWD:/workspace" \
+            -w /workspace/providers/terraform/testdata/compatibility \
+            -e TF_CLI_CONFIG_FILE=/workspace/providers/terraform/testdata/compatibility/terraform.rc \
+            hashicorp/terraform:1.15.8 providers schema -json)"
+          test "$(jq '.provider_schemas["registry.terraform.io/amesh/amesh"].resource_schemas | length' <<<"$schema")" = 14
+          test "$(jq '.provider_schemas["registry.terraform.io/amesh/amesh"].data_source_schemas | length' <<<"$schema")" = 14
+      - name: Verify OpenTofu 1.12 provider schema
+        run: |
+          schema="$(docker run --rm -v "$PWD:/workspace" \
+            -w /workspace/providers/terraform/testdata/compatibility \
+            -e TF_CLI_CONFIG_FILE=/workspace/providers/terraform/testdata/compatibility/terraform.rc \
+            ghcr.io/opentofu/opentofu:1.12.1 providers schema -json)"
+          test "$(jq '.provider_schemas["registry.terraform.io/amesh/amesh"].resource_schemas | length' <<<"$schema")" = 14
+          test "$(jq '.provider_schemas["registry.terraform.io/amesh/amesh"].data_source_schemas | length' <<<"$schema")" = 14
+
   postgres-compatibility:
     runs-on: ubuntu-latest
     timeout-minutes: 15

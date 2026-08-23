@@ -3005,3 +3005,38 @@ rollout and both TLS topology renders. Shared `URS-NFR-SECURITY-006` remains In 
 EPIC-506 external-secret-manager lifecycle work.
 
 Verdict: PASS — EPIC-613 closed.
+
+## 2026-08-23 — EPIC-701 Terraform and OpenTofu provider
+
+Scope: `URS-F-0702` through `URS-F-0709`.
+
+- [x] A first-party Go provider serves Terraform plugin protocol v5 and exposes 14 named resources
+  plus the same 14 data sources: flows, namespaces, files, key-values, dashboards, apps, users,
+  groups, roles, bindings, service accounts, tenants, worker groups and plugin policies.
+- [x] The public REST/SCIM transport passed stable-ID, import, refresh, plan, apply, native-delete,
+  declared retained-lifecycle and immutable-replacement checks. A live key-value scenario passed
+  create, clean refresh, out-of-band drift detection, reconciliation, cross-CLI refresh, import and
+  OpenTofu destroy.
+- [x] Provider credentials and secret environments are sensitive. Placeholder expansion occurs only
+  in request memory, response paths containing secrets remain redacted across refresh, recursive
+  credential fields are removed, and transport errors do not include response bodies.
+- [x] Canonical JSON/YAML comparison suppresses formatting-only changes while retaining actual remote
+  drift. Server-managed defaults are excluded on import and caller-owned fields remain plan-visible.
+- [x] Schema-generated provider documentation and examples cover all 28 resource/data-source
+  surfaces. Terraform 1.15.8 and OpenTofu 1.12.1 each loaded exactly 14 resources and 14 data sources.
+- [x] Go formatting, tests, vet and static compilation passed. The PostgreSQL plugin-policy API test,
+  focused Ruff, strict mypy, generated OpenAPI and all four generated SDK checks passed.
+- [x] GoReleaser produced Linux, macOS and Windows archives for amd64 and arm64. The six archive
+  checksums and protocol manifest verified, and an ephemeral RSA qualification key produced a valid
+  detached checksum signature.
+- [x] Planning artifacts regenerated and the canonical backlog validator passed with 103 epics, 837
+  functional requirements, 63 non-functional requirements and 992 trace links.
+- [x] Rebuilt distributed and compact deployments are healthy at migration 54. A live authorized
+  plugin-policy rule passed create, the provider-required single-resource GET, and cleanup; the
+  Administration Operations browser deep link returned HTTP 200.
+
+Qualification boundary: actual GitHub release and public Registry publication require an operator-owned
+repository plus its production GPG private key. Local qualification verifies the identical build,
+manifest, checksum and detached-signature path without making an external publication claim.
+
+Verdict: PASS — EPIC-701 closed.

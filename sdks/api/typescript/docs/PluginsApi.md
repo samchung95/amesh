@@ -10,6 +10,7 @@ All URIs are relative to *http://localhost*
 | [**evaluateFlowPluginPolicyApiV1PluginPolicyEvaluatePost**](PluginsApi.md#evaluateflowpluginpolicyapiv1pluginpolicyevaluatepost) | **POST** /api/v1/plugin-policy/evaluate | Evaluate Flow Plugin Policy |
 | [**exportPluginRegistryApiV1PluginRegistryOfflineExportGet**](PluginsApi.md#exportpluginregistryapiv1pluginregistryofflineexportget) | **GET** /api/v1/plugin-registry/offline-export | Export Plugin Registry |
 | [**getEffectivePluginPolicyApiV1PluginPolicyEffectiveGet**](PluginsApi.md#geteffectivepluginpolicyapiv1pluginpolicyeffectiveget) | **GET** /api/v1/plugin-policy/effective | Get Effective Plugin Policy |
+| [**getPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGet**](PluginsApi.md#getpluginpolicyruleapiv1pluginpolicyrulesruleidget) | **GET** /api/v1/plugin-policy/rules/{rule_id} | Get Plugin Policy Rule |
 | [**getPluginRegistryIndexApiV1PluginRegistryIndexGet**](PluginsApi.md#getpluginregistryindexapiv1pluginregistryindexget) | **GET** /api/v1/plugin-registry/index | Get Plugin Registry Index |
 | [**getPluginRegistryPackageApiV1PluginRegistryPackagesNameVersionGet**](PluginsApi.md#getpluginregistrypackageapiv1pluginregistrypackagesnameversionget) | **GET** /api/v1/plugin-registry/packages/{name}/{version} | Get Plugin Registry Package |
 | [**importPluginRegistryApiV1PluginRegistryOfflineImportPost**](PluginsApi.md#importpluginregistryapiv1pluginregistryofflineimportpost) | **POST** /api/v1/plugin-registry/offline-import | Import Plugin Registry |
@@ -455,6 +456,81 @@ example().catch(console.error);
 ### Return type
 
 [**EffectivePluginPolicy**](EffectivePluginPolicy.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: `application/json`
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful Response |  -  |
+| **422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
+
+
+## getPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGet
+
+> PluginPolicyRule getPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGet(ruleId, authorization, xAmeshCSRF, xAmeshTenant)
+
+Get Plugin Policy Rule
+
+### Example
+
+```ts
+import {
+  Configuration,
+  PluginsApi,
+} from '@amesh/client';
+import type { GetPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGetRequest } from '@amesh/client';
+
+async function example() {
+  console.log("🚀 Testing @amesh/client SDK...");
+  const api = new PluginsApi();
+
+  const body = {
+    // string
+    ruleId: 38400000-8cf0-11bd-b23e-10b96e4ef00d,
+    // string (optional)
+    authorization: authorization_example,
+    // string (optional)
+    xAmeshCSRF: xAmeshCSRF_example,
+    // string (optional)
+    xAmeshTenant: xAmeshTenant_example,
+  } satisfies GetPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGetRequest;
+
+  try {
+    const data = await api.getPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGet(body);
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// Run the test
+example().catch(console.error);
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **ruleId** | `string` |  | [Defaults to `undefined`] |
+| **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
+
+### Return type
+
+[**PluginPolicyRule**](PluginPolicyRule.md)
 
 ### Authorization
 

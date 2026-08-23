@@ -168,6 +168,29 @@ class PostgresPluginPolicyRepository:
             )
         return _rule(row, tenant_id)
 
+    async def get_rule(self, tenant_id: str, rule_id: UUID) -> PluginPolicyRule:
+        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+            row = (
+                (
+                    await connection.execute(
+                        text(
+                            """
+                            SELECT *
+                            FROM plugin_policy_rules
+                            WHERE id = :id
+                              AND (tenant_id IS NULL OR tenant_id = :tenant_id)
+                            """
+                        ),
+                        {"id": rule_id, "tenant_id": tenant_uuid},
+                    )
+                )
+                .mappings()
+                .one_or_none()
+            )
+        if row is None:
+            raise LookupError("plugin policy rule does not exist")
+        return _rule(row, tenant_id)
+
     async def delete_rule(
         self,
         tenant_id: str,

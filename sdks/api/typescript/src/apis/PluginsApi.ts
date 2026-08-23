@@ -135,6 +135,13 @@ export interface GetEffectivePluginPolicyApiV1PluginPolicyEffectiveGetRequest {
     xAmeshTenant?: string | null;
 }
 
+export interface GetPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGetRequest {
+    ruleId: string;
+    authorization?: string | null;
+    xAmeshCSRF?: string | null;
+    xAmeshTenant?: string | null;
+}
+
 export interface GetPluginRegistryIndexApiV1PluginRegistryIndexGetRequest {
     authorization?: string | null;
     xAmeshCSRF?: string | null;
@@ -566,6 +573,63 @@ export class PluginsApi extends runtime.BaseAPI {
      */
     async getEffectivePluginPolicyApiV1PluginPolicyEffectiveGet(requestParameters: GetEffectivePluginPolicyApiV1PluginPolicyEffectiveGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<EffectivePluginPolicy> {
         const response = await this.getEffectivePluginPolicyApiV1PluginPolicyEffectiveGetRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Creates request options for getPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGet without sending the request
+     */
+    async getPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGetRequestOpts(requestParameters: GetPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGetRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['ruleId'] == null) {
+            throw new runtime.RequiredError(
+                'ruleId',
+                'Required parameter "ruleId" was null or undefined when calling getPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGet().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (requestParameters['authorization'] != null) {
+            headerParameters['authorization'] = String(requestParameters['authorization']);
+        }
+
+        if (requestParameters['xAmeshCSRF'] != null) {
+            headerParameters['X-Amesh-CSRF'] = String(requestParameters['xAmeshCSRF']);
+        }
+
+        if (requestParameters['xAmeshTenant'] != null) {
+            headerParameters['X-Amesh-Tenant'] = String(requestParameters['xAmeshTenant']);
+        }
+
+
+        let urlPath = `/api/v1/plugin-policy/rules/{rule_id}`;
+        urlPath = urlPath.replace('{rule_id}', encodeURIComponent(String(requestParameters['ruleId'])));
+
+        return {
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     * Get Plugin Policy Rule
+     */
+    async getPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGetRaw(requestParameters: GetPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PluginPolicyRule>> {
+        const requestOptions = await this.getPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGetRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => PluginPolicyRuleFromJSON(jsonValue));
+    }
+
+    /**
+     * Get Plugin Policy Rule
+     */
+    async getPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGet(requestParameters: GetPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PluginPolicyRule> {
+        const response = await this.getPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGetRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

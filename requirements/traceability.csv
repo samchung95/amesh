@@ -700,14 +700,14 @@ URS-F-0698,Functional,Must,EPIC-700,Git synchronization and CI/CD helpers,M7,7,"
 URS-F-0699,Functional,Must,EPIC-700,Git synchronization and CI/CD helpers,M7,7,"Declarative apply, drift and CI integration tests",Proposed
 URS-F-0700,Functional,Must,EPIC-700,Git synchronization and CI/CD helpers,M7,7,"Declarative apply, drift and CI integration tests",Proposed
 URS-F-0701,Functional,Must,EPIC-700,Git synchronization and CI/CD helpers,M7,7,"Declarative apply, drift and CI integration tests",Proposed
-URS-F-0702,Functional,Must,EPIC-701,Terraform and OpenTofu provider,M7,7,"Declarative apply, drift and CI integration tests",Proposed
-URS-F-0703,Functional,Must,EPIC-701,Terraform and OpenTofu provider,M7,7,"Declarative apply, drift and CI integration tests",Proposed
-URS-F-0704,Functional,Must,EPIC-701,Terraform and OpenTofu provider,M7,7,"Declarative apply, drift and CI integration tests",Proposed
-URS-F-0705,Functional,Must,EPIC-701,Terraform and OpenTofu provider,M7,7,"Declarative apply, drift and CI integration tests",Proposed
-URS-F-0706,Functional,Must,EPIC-701,Terraform and OpenTofu provider,M7,7,"Declarative apply, drift and CI integration tests",Proposed
-URS-F-0707,Functional,Must,EPIC-701,Terraform and OpenTofu provider,M7,7,"Declarative apply, drift and CI integration tests",Proposed
-URS-F-0708,Functional,Must,EPIC-701,Terraform and OpenTofu provider,M7,7,"Declarative apply, drift and CI integration tests",Proposed
-URS-F-0709,Functional,Must,EPIC-701,Terraform and OpenTofu provider,M7,7,"Declarative apply, drift and CI integration tests",Proposed
+URS-F-0702,Functional,Must,EPIC-701,Terraform and OpenTofu provider,M7,7,"Declarative apply, drift and CI integration tests",Verified
+URS-F-0703,Functional,Must,EPIC-701,Terraform and OpenTofu provider,M7,7,"Declarative apply, drift and CI integration tests",Verified
+URS-F-0704,Functional,Must,EPIC-701,Terraform and OpenTofu provider,M7,7,"Declarative apply, drift and CI integration tests",Verified
+URS-F-0705,Functional,Must,EPIC-701,Terraform and OpenTofu provider,M7,7,"Declarative apply, drift and CI integration tests",Verified
+URS-F-0706,Functional,Must,EPIC-701,Terraform and OpenTofu provider,M7,7,"Declarative apply, drift and CI integration tests",Verified
+URS-F-0707,Functional,Must,EPIC-701,Terraform and OpenTofu provider,M7,7,"Declarative apply, drift and CI integration tests",Verified
+URS-F-0708,Functional,Must,EPIC-701,Terraform and OpenTofu provider,M7,7,"Declarative apply, drift and CI integration tests",Verified
+URS-F-0709,Functional,Must,EPIC-701,Terraform and OpenTofu provider,M7,7,"Declarative apply, drift and CI integration tests",Verified
 URS-F-0710,Functional,Must,EPIC-702,Kubernetes operator and declarative resources,M7,7,"Declarative apply, drift and CI integration tests",Proposed
 URS-F-0711,Functional,Must,EPIC-702,Kubernetes operator and declarative resources,M7,7,"Declarative apply, drift and CI integration tests",Proposed
 URS-F-0712,Functional,Must,EPIC-702,Kubernetes operator and declarative resources,M7,7,"Declarative apply, drift and CI integration tests",Proposed

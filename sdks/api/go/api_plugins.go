@@ -835,6 +835,144 @@ func (a *PluginsAPIService) GetEffectivePluginPolicyApiV1PluginPolicyEffectiveGe
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
+type ApiGetPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGetRequest struct {
+	ctx context.Context
+	ApiService *PluginsAPIService
+	ruleId string
+	authorization *string
+	xAmeshCSRF *string
+	xAmeshTenant *string
+}
+
+func (r ApiGetPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGetRequest) Authorization(authorization string) ApiGetPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGetRequest {
+	r.authorization = &authorization
+	return r
+}
+
+func (r ApiGetPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGetRequest) XAmeshCSRF(xAmeshCSRF string) ApiGetPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGetRequest {
+	r.xAmeshCSRF = &xAmeshCSRF
+	return r
+}
+
+func (r ApiGetPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGetRequest) XAmeshTenant(xAmeshTenant string) ApiGetPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGetRequest {
+	r.xAmeshTenant = &xAmeshTenant
+	return r
+}
+
+func (r ApiGetPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGetRequest) Execute() (*PluginPolicyRule, *http.Response, error) {
+	return r.ApiService.GetPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGetExecute(r)
+}
+
+/*
+GetPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGet Get Plugin Policy Rule
+
+ @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+ @param ruleId
+ @return ApiGetPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGetRequest
+*/
+func (a *PluginsAPIService) GetPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGet(ctx context.Context, ruleId string) ApiGetPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGetRequest {
+	return ApiGetPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGetRequest{
+		ApiService: a,
+		ctx: ctx,
+		ruleId: ruleId,
+	}
+}
+
+// Execute executes the request
+//  @return PluginPolicyRule
+func (a *PluginsAPIService) GetPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGetExecute(r ApiGetPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGetRequest) (*PluginPolicyRule, *http.Response, error) {
+	var (
+		localVarHTTPMethod   = http.MethodGet
+		localVarPostBody     interface{}
+		formFiles            []formFile
+		localVarReturnValue  *PluginPolicyRule
+	)
+
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "PluginsAPIService.GetPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGet")
+	if err != nil {
+		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
+	}
+
+	localVarPath := localBasePath + "/api/v1/plugin-policy/rules/{rule_id}"
+	localVarPath = strings.Replace(localVarPath, "{"+"rule_id"+"}", url.PathEscape(parameterValueToString(r.ruleId, "ruleId")), -1)
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+
+	// to determine the Content-Type header
+	localVarHTTPContentTypes := []string{}
+
+	// set Content-Type header
+	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
+	if localVarHTTPContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHTTPContentType
+	}
+
+	// to determine the Accept header
+	localVarHTTPHeaderAccepts := []string{"application/json"}
+
+	// set Accept header
+	localVarHTTPHeaderAccept := selectHeaderAccept(localVarHTTPHeaderAccepts)
+	if localVarHTTPHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
+	}
+	if r.authorization != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "authorization", r.authorization, "simple", "")
+	}
+	if r.xAmeshCSRF != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "X-Amesh-CSRF", r.xAmeshCSRF, "simple", "")
+	}
+	if r.xAmeshTenant != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "X-Amesh-Tenant", r.xAmeshTenant, "simple", "")
+	}
+	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
+	if err != nil {
+		return localVarReturnValue, nil, err
+	}
+
+	localVarHTTPResponse, err := a.client.callAPI(req)
+	if err != nil || localVarHTTPResponse == nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	localVarBody, err := io.ReadAll(localVarHTTPResponse.Body)
+	localVarHTTPResponse.Body.Close()
+	localVarHTTPResponse.Body = io.NopCloser(bytes.NewBuffer(localVarBody))
+	if err != nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	if localVarHTTPResponse.StatusCode >= 300 {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: localVarHTTPResponse.Status,
+		}
+		if localVarHTTPResponse.StatusCode == 422 {
+			var v HTTPValidationError
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+					newErr.model = v
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	err = a.client.decode(&localVarReturnValue, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+	if err != nil {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: err.Error(),
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	return localVarReturnValue, localVarHTTPResponse, nil
+}
+
 type ApiGetPluginRegistryIndexApiV1PluginRegistryIndexGetRequest struct {
 	ctx context.Context
 	ApiService *PluginsAPIService

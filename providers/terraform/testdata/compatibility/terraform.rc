@@ -1,0 +1,6 @@
+provider_installation {
+  dev_overrides {
+    "registry.terraform.io/amesh/amesh" = "/workspace/providers/terraform/build"
+  }
+  direct {}
+}

@@ -116,6 +116,13 @@ tasks:
                 )
                 assert created.status_code == 201, created.text
 
+                fetched = await client.get(
+                    f"/api/v1/plugin-policy/rules/{created.json()['id']}",
+                    headers=headers,
+                )
+                assert fetched.status_code == 200, fetched.text
+                assert fetched.json()["reason"] == "API acceptance deny"
+
                 effective = await client.get(
                     "/api/v1/plugin-policy/effective",
                     headers=headers,
