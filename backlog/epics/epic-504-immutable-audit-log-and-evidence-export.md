@@ -12,15 +12,19 @@ Record security and administrative actions as tamper-evident, queryable evidence
 
 ## In scope
 
-- [ ] **URS-F-0526** — The system shall audit authentication, authorization, resource mutation, execution intervention, secret use, policy decision and administration events.
-- [ ] **URS-F-0527** — The system shall include actor, delegated identity, tenant, resource, action, outcome, reason, source, timestamp, correlation and trace identifiers.
-- [ ] **URS-F-0528** — The system shall redact protected values while retaining enough metadata for investigation.
-- [ ] **URS-F-0529** — The system shall write audit events transactionally with the associated state change where possible.
-- [ ] **URS-F-0530** — The system shall detect gaps or tampering through append-only storage, hash chaining or signed export batches.
-- [ ] **URS-F-0531** — The system shall apply independent audit retention and legal-hold policy.
-- [ ] **URS-F-0532** — The system shall export audit events to files, object storage and external security information systems.
-- [ ] **URS-F-0533** — The system shall restrict audit access and audit access to the audit log itself.
-- [ ] **URS-F-0835** — The system shall generate scoped compliance evidence packages containing access reviews, change evidence, audit records, backup and restore evidence, vulnerability results, incident records and provenance without exposing protected values.
+- [x] **URS-F-0526** — The system shall audit authentication, authorization, resource mutation, execution intervention, secret use, policy decision and administration events.
+- [x] **URS-F-0527** — The system shall include actor, delegated identity, tenant, resource, action, outcome, reason, source, timestamp, correlation and trace identifiers.
+- [x] **URS-F-0528** — The system shall redact protected values while retaining enough metadata for investigation.
+- [x] **URS-F-0529** — The system shall write audit events transactionally with the associated state change where possible.
+- [x] **URS-F-0530** — The system shall detect gaps or tampering through append-only storage, hash chaining or signed export batches.
+- [x] **URS-F-0531** — The system shall apply independent audit retention and legal-hold policy.
+- [x] **URS-F-0532** — The system shall export audit events to files, object storage and external security information systems.
+- [x] **URS-F-0533** — The system shall restrict audit access and audit access to the audit log itself.
+- [x] **URS-F-0835** — The system shall generate scoped compliance evidence packages containing access reviews, change evidence, audit records, backup and restore evidence, vulnerability results, incident records and provenance without exposing protected values.
+
+## Implementation completion evidence
+
+- 2026-08-23 — EPIC-504 is complete. PostgreSQL migration 0046 now normalizes/redacts every existing audit producer, fills attributable investigation context, and serializes each tenant into a SHA-256 chain with retention anchors. The authorized audit API queries and verifies the ledger, records audit reads, manages independent retention and legal holds, and produces signed file/object-store exports. Existing signed realtime subscriptions provide the external-SIEM path. Compliance evidence records are recursively redacted and checksummed, and deterministic signed ZIP packages contain access, change, audit, backup/restore, vulnerability, incident and provenance sections without claiming certification. Evidence: [`audit-and-compliance.md`](../../docs/api/audit-and-compliance.md), [`audit-evidence.md`](../../docs/operations/audit-evidence.md), [`0046_audit_evidence_ledger.sql`](../../migrations/0046_audit_evidence_ledger.sql), [`test_audit_repository.py`](../../tests/adapters/postgres/test_audit_repository.py), [`test_audit_api.py`](../../tests/api/test_audit_api.py), and [`test_audit_artifacts.py`](../../tests/test_audit_artifacts.py). Shared security/privacy/compliance NFRs remain In Progress until the full audited-action catalog, whole-platform retention inventory, control crosswalk, independent package review and pre-GA evidence period are complete.
 
 ## Non-functional requirements
 
@@ -52,13 +56,13 @@ Record security and administrative actions as tamper-evident, queryable evidence
 
 ## Definition of done
 
-- [ ] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
-- [ ] Public API, DSL, event and plugin contract changes pass compatibility checks.
-- [ ] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
-- [ ] Security, tenant isolation, redaction and audit behavior are reviewed.
-- [ ] Documentation, examples, migration notes and operational runbooks are updated.
-- [ ] Performance and recovery budgets are measured when this epic is on a critical path.
-- [ ] `python scripts/validate_backlog.py` passes.
+- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
+- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.
+- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
+- [x] Security, tenant isolation, redaction and audit behavior are reviewed.
+- [x] Documentation, examples, migration notes and operational runbooks are updated.
+- [x] Performance and recovery budgets are measured when this epic is on a critical path.
+- [x] `python scripts/validate_backlog.py` passes.
 
 ## Risks and unknowns
 

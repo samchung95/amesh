@@ -19,6 +19,7 @@ __version__ = "0.2.0"
 # Define package exports
 __all__ = [
     "AdministrationApi",
+    "AuditApi",
     "AuthenticationApi",
     "AuthorizationApi",
     "BackfillsApi",
@@ -63,6 +64,19 @@ __all__ = [
     "AdmissionOutcome",
     "AdmissionResourceType",
     "AdmissionScope",
+    "AuditArtifactKind",
+    "AuditEvent",
+    "AuditEventPage",
+    "AuditExportDestination",
+    "AuditExportFormat",
+    "AuditExportReceipt",
+    "AuditExportRequest",
+    "AuditIntegrityReport",
+    "AuditLegalHold",
+    "AuditLegalHoldCreate",
+    "AuditRetentionPolicy",
+    "AuditRetentionPolicyUpdate",
+    "AuditRetentionResult",
     "AuthenticationProviderDescriptor",
     "AuthenticationProviderKind",
     "AuthorizationDecision",
@@ -94,6 +108,10 @@ __all__ = [
     "CheckOutcome",
     "CheckPolicySource",
     "CheckPolicyUpsertRequest",
+    "ComplianceEvidenceCategory",
+    "ComplianceEvidenceCreate",
+    "ComplianceEvidenceRecord",
+    "CompliancePackageRequest",
     "ConfigurationDiagnosticBundle",
     "ConfigurationEntry",
     "ConfigurationSnapshot",
@@ -341,6 +359,7 @@ __all__ = [
 
 # import apis into sdk package
 from amesh_client.api.administration_api import AdministrationApi as AdministrationApi
+from amesh_client.api.audit_api import AuditApi as AuditApi
 from amesh_client.api.authentication_api import AuthenticationApi as AuthenticationApi
 from amesh_client.api.authorization_api import AuthorizationApi as AuthorizationApi
 from amesh_client.api.backfills_api import BackfillsApi as BackfillsApi
@@ -389,6 +408,19 @@ from amesh_client.models.admission_diagnostics import AdmissionDiagnostics as Ad
 from amesh_client.models.admission_outcome import AdmissionOutcome as AdmissionOutcome
 from amesh_client.models.admission_resource_type import AdmissionResourceType as AdmissionResourceType
 from amesh_client.models.admission_scope import AdmissionScope as AdmissionScope
+from amesh_client.models.audit_artifact_kind import AuditArtifactKind as AuditArtifactKind
+from amesh_client.models.audit_event import AuditEvent as AuditEvent
+from amesh_client.models.audit_event_page import AuditEventPage as AuditEventPage
+from amesh_client.models.audit_export_destination import AuditExportDestination as AuditExportDestination
+from amesh_client.models.audit_export_format import AuditExportFormat as AuditExportFormat
+from amesh_client.models.audit_export_receipt import AuditExportReceipt as AuditExportReceipt
+from amesh_client.models.audit_export_request import AuditExportRequest as AuditExportRequest
+from amesh_client.models.audit_integrity_report import AuditIntegrityReport as AuditIntegrityReport
+from amesh_client.models.audit_legal_hold import AuditLegalHold as AuditLegalHold
+from amesh_client.models.audit_legal_hold_create import AuditLegalHoldCreate as AuditLegalHoldCreate
+from amesh_client.models.audit_retention_policy import AuditRetentionPolicy as AuditRetentionPolicy
+from amesh_client.models.audit_retention_policy_update import AuditRetentionPolicyUpdate as AuditRetentionPolicyUpdate
+from amesh_client.models.audit_retention_result import AuditRetentionResult as AuditRetentionResult
 from amesh_client.models.authentication_provider_descriptor import AuthenticationProviderDescriptor as AuthenticationProviderDescriptor
 from amesh_client.models.authentication_provider_kind import AuthenticationProviderKind as AuthenticationProviderKind
 from amesh_client.models.authorization_decision import AuthorizationDecision as AuthorizationDecision
@@ -420,6 +452,10 @@ from amesh_client.models.check_evaluation_point import CheckEvaluationPoint as C
 from amesh_client.models.check_outcome import CheckOutcome as CheckOutcome
 from amesh_client.models.check_policy_source import CheckPolicySource as CheckPolicySource
 from amesh_client.models.check_policy_upsert_request import CheckPolicyUpsertRequest as CheckPolicyUpsertRequest
+from amesh_client.models.compliance_evidence_category import ComplianceEvidenceCategory as ComplianceEvidenceCategory
+from amesh_client.models.compliance_evidence_create import ComplianceEvidenceCreate as ComplianceEvidenceCreate
+from amesh_client.models.compliance_evidence_record import ComplianceEvidenceRecord as ComplianceEvidenceRecord
+from amesh_client.models.compliance_package_request import CompliancePackageRequest as CompliancePackageRequest
 from amesh_client.models.configuration_diagnostic_bundle import ConfigurationDiagnosticBundle as ConfigurationDiagnosticBundle
 from amesh_client.models.configuration_entry import ConfigurationEntry as ConfigurationEntry
 from amesh_client.models.configuration_snapshot import ConfigurationSnapshot as ConfigurationSnapshot

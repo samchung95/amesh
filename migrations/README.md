@@ -164,6 +164,11 @@ OIDC/SAML state and replay fences, provider-owned group memberships, and tenant-
 ownership. It is additive; disable the affected identity provider during a forward fix while existing
 local authentication and previously provisioned principals remain available.
 
+Migration `0046_audit_evidence_ledger.sql` adds recursive protected-field redaction, required audit
+context, per-tenant SHA-256 chaining, retention anchors, independent retention policies, legal holds,
+signed-export receipts and redacted compliance evidence. It backfills existing audit rows and is
+additive; stop audit exporters and retention purges during a forward fix while preserving ledger rows.
+
 ## Migration modes
 
 - `bootstrap` creates the initial schema and is only safe for an empty database.

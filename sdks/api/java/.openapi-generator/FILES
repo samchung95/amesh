@@ -7,6 +7,7 @@ api/openapi.yaml
 build.gradle
 build.sbt
 docs/AdministrationApi.md
+docs/AuditApi.md
 docs/AuthenticationApi.md
 docs/AuthorizationApi.md
 docs/BackfillsApi.md
@@ -51,6 +52,7 @@ src/main/java/io/amesh/client/RFC3339JavaTimeModule.java
 src/main/java/io/amesh/client/ServerConfiguration.java
 src/main/java/io/amesh/client/ServerVariable.java
 src/main/java/io/amesh/client/api/AdministrationApi.java
+src/main/java/io/amesh/client/api/AuditApi.java
 src/main/java/io/amesh/client/api/AuthenticationApi.java
 src/main/java/io/amesh/client/api/AuthorizationApi.java
 src/main/java/io/amesh/client/api/BackfillsApi.java
@@ -87,6 +89,19 @@ src/main/java/io/amesh/client/model/AdmissionDiagnostics.java
 src/main/java/io/amesh/client/model/AdmissionOutcome.java
 src/main/java/io/amesh/client/model/AdmissionResourceType.java
 src/main/java/io/amesh/client/model/AdmissionScope.java
+src/main/java/io/amesh/client/model/AuditArtifactKind.java
+src/main/java/io/amesh/client/model/AuditEvent.java
+src/main/java/io/amesh/client/model/AuditEventPage.java
+src/main/java/io/amesh/client/model/AuditExportDestination.java
+src/main/java/io/amesh/client/model/AuditExportFormat.java
+src/main/java/io/amesh/client/model/AuditExportReceipt.java
+src/main/java/io/amesh/client/model/AuditExportRequest.java
+src/main/java/io/amesh/client/model/AuditIntegrityReport.java
+src/main/java/io/amesh/client/model/AuditLegalHold.java
+src/main/java/io/amesh/client/model/AuditLegalHoldCreate.java
+src/main/java/io/amesh/client/model/AuditRetentionPolicy.java
+src/main/java/io/amesh/client/model/AuditRetentionPolicyUpdate.java
+src/main/java/io/amesh/client/model/AuditRetentionResult.java
 src/main/java/io/amesh/client/model/AuthenticationProviderDescriptor.java
 src/main/java/io/amesh/client/model/AuthenticationProviderKind.java
 src/main/java/io/amesh/client/model/AuthorizationDecision.java
@@ -118,6 +133,10 @@ src/main/java/io/amesh/client/model/CheckEvaluationPoint.java
 src/main/java/io/amesh/client/model/CheckOutcome.java
 src/main/java/io/amesh/client/model/CheckPolicySource.java
 src/main/java/io/amesh/client/model/CheckPolicyUpsertRequest.java
+src/main/java/io/amesh/client/model/ComplianceEvidenceCategory.java
+src/main/java/io/amesh/client/model/ComplianceEvidenceCreate.java
+src/main/java/io/amesh/client/model/ComplianceEvidenceRecord.java
+src/main/java/io/amesh/client/model/CompliancePackageRequest.java
 src/main/java/io/amesh/client/model/ConfigurationDiagnosticBundle.java
 src/main/java/io/amesh/client/model/ConfigurationEntry.java
 src/main/java/io/amesh/client/model/ConfigurationSnapshot.java

@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 from amesh.domain import AuthorizationDecision, AuthorizationRequest, evaluate_authorization
+from amesh.ports.audit_repository import AuthorizationDecisionAuditSink
 from amesh.ports.authorization_repository import AuthorizationRepository, PolicyVersionChanged
 
 
@@ -17,6 +18,7 @@ class AuthorizationDenied(PermissionError):
 @dataclass
 class AuthorizationService:
     repository: AuthorizationRepository
+    decision_audit: AuthorizationDecisionAuditSink | None = None
     max_cache_entries: int = 4096
     _cached_version: int | None = None
     _cache: dict[tuple[object, ...], AuthorizationDecision] = field(default_factory=dict)
@@ -27,7 +29,7 @@ class AuthorizationService:
                 request.actor.principal_id,
                 expected_version=await self.repository.policy_version(),
             )
-            return evaluate_authorization(request, snapshot)
+            return await self._record(request, evaluate_authorization(request, snapshot))
 
         for _ in range(3):
             version = await self.repository.policy_version()
@@ -48,7 +50,7 @@ class AuthorizationService:
             )
             cached = self._cache.get(key)
             if cached is not None:
-                return cached
+                return await self._record(request, cached)
             try:
                 snapshot = await self.repository.load_policy_snapshot(
                     request.actor.principal_id,
@@ -60,8 +62,17 @@ class AuthorizationService:
             if len(self._cache) >= self.max_cache_entries:
                 self._cache.clear()
             self._cache[key] = decision
-            return decision
+            return await self._record(request, decision)
         raise PolicyVersionChanged("authorization policy changed repeatedly during evaluation")
+
+    async def _record(
+        self,
+        request: AuthorizationRequest,
+        decision: AuthorizationDecision,
+    ) -> AuthorizationDecision:
+        if self.decision_audit is not None:
+            await self.decision_audit.record_authorization_decision(request, decision)
+        return decision
 
     async def require(self, request: AuthorizationRequest) -> AuthorizationDecision:
         decision = await self.decide(request)

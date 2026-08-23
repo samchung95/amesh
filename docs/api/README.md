@@ -49,5 +49,8 @@
   preview and immutable success or rejection evidence; see the [administration API guide](administration.md).
 - Search and preview versioned local blueprints, instantiate them as unsaved validated drafts, and
   validate isolated expressions or flow fragments through the [blueprint API](blueprints.md).
+- Query the tamper-evident ledger, manage audit-only retention and legal holds, deliver signed SIEM
+  events, and build redacted readiness packages through the
+  [audit and compliance API](audit-and-compliance.md).
 
 Future generated SDKs must consume the supported API contract, not internal Python classes.

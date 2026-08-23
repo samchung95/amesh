@@ -1,3 +1,4 @@
+from .audit_repository import PostgresAuditRepository
 from .authentication_repository import PostgresAuthenticationRepository
 from .authorization_repository import PostgresAuthorizationRepository
 from .backfill_repository import PostgresBackfillRepository
@@ -28,6 +29,7 @@ from .worker_repository import PostgresWorkerRepository
 
 __all__ = [
     "BackupCheckpoint",
+    "PostgresAuditRepository",
     "PostgresAuthenticationRepository",
     "PostgresAuthorizationRepository",
     "PostgresBackfillRepository",

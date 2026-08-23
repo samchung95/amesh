@@ -4,6 +4,7 @@
 README.md
 api/openapi.yaml
 api_administration.go
+api_audit.go
 api_authentication.go
 api_authorization.go
 api_backfills.go
@@ -30,6 +31,7 @@ api_workers.go
 client.go
 configuration.go
 docs/AdministrationAPI.md
+docs/AuditAPI.md
 docs/AuthenticationAPI.md
 docs/AuthorizationAPI.md
 docs/BackfillsAPI.md
@@ -68,6 +70,19 @@ model_admission_diagnostics.go
 model_admission_outcome.go
 model_admission_resource_type.go
 model_admission_scope.go
+model_audit_artifact_kind.go
+model_audit_event.go
+model_audit_event_page.go
+model_audit_export_destination.go
+model_audit_export_format.go
+model_audit_export_receipt.go
+model_audit_export_request.go
+model_audit_integrity_report.go
+model_audit_legal_hold.go
+model_audit_legal_hold_create.go
+model_audit_retention_policy.go
+model_audit_retention_policy_update.go
+model_audit_retention_result.go
 model_authentication_provider_descriptor.go
 model_authentication_provider_kind.go
 model_authorization_decision.go
@@ -99,6 +114,10 @@ model_check_evaluation_point.go
 model_check_outcome.go
 model_check_policy_source.go
 model_check_policy_upsert_request.go
+model_compliance_evidence_category.go
+model_compliance_evidence_create.go
+model_compliance_evidence_record.go
+model_compliance_package_request.go
 model_configuration_diagnostic_bundle.go
 model_configuration_entry.go
 model_configuration_snapshot.go

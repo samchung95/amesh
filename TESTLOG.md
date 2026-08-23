@@ -1,5 +1,50 @@
 # Test Log
 
+## EPIC-504: Immutable audit log and evidence export — 2026-08-23
+
+Spec source: Agent Hotel card `c69` and canonical `backlog/epics.json` EPIC-504 DoD.
+
+Verified with `uv`, Python 3.13, PostgreSQL 17 and Docker Compose:
+
+- [x] Migration `0046_audit_evidence_ledger.sql` applied repeatably to fresh databases and hardened
+  the shared audit table with recursive protected-field redaction, required reason/correlation/trace
+  context, per-tenant serialized SHA-256 chaining, independent retention, legal holds and purge
+  anchors. The trigger also passed through the restricted tenant-administrator write path.
+- [x] PostgreSQL integration inserted a nested secret canary and observed only `[REDACTED]`, verified
+  a valid chain, proved an active hold blocks expired-prefix purge, released the hold, preserved the
+  purge anchor, and then detected a deliberately modified row as `HASH_MISMATCH`.
+- [x] Every authorization decision, including a cached decision, calls the configured audit sink.
+  Existing transactional authentication, resource, execution, secret, policy and administration
+  producers continue through the same database-enforced audit contract.
+- [x] The authorized HTTP lifecycle changed retention, created/listed a legal hold, recorded redacted
+  compliance evidence, queried the ledger, observed `audit.read` evidence, verified integrity,
+  downloaded signed JSON and a signed compliance ZIP, and denied a principal without tenant access
+  using the non-disclosing `404 tenant unavailable` boundary.
+- [x] Deterministic artifacts carry SHA-256 checksums and `v1=` HMAC signatures. The compliance ZIP
+  contains access-review, change, audit, backup/restore, vulnerability, incident and provenance
+  sections plus a signed manifest. Object-storage upload passed in memory; the existing signed,
+  retryable realtime webhook subscription with `includeAudit=true` supplies the external SIEM path.
+- [x] Ruff and strict mypy across 178 source files passed. Eighteen focused domain, authorization,
+  PostgreSQL, API, migration and operations tests passed. OpenAPI/schema generation and all four
+  generated SDKs are current across 1,504 files; backlog regeneration, validation and clean-room
+  gates passed.
+- [x] The full repository run identified only already-tracked unrelated baseline failures: executor
+  timing (`c15`), the 5,000-line DSL performance threshold (`c89`) and test-order-dependent storage
+  metric registration (`c29`). Migration-count assertions directly affected by 0046 were updated and
+  pass; no unrelated subsystem was changed.
+- [x] API, executor, scheduler and indexer containers are healthy. Live readiness reports 46/46 with
+  `0046_audit_evidence_ledger.sql`; the default tenant's 157-event chain verified, and live audit JSON
+  and compliance ZIP downloads both returned signed artifacts.
+- [x] No LLM behavior was involved, so no billable OpenRouter call was required. Applicable future LLM
+  tests remain pinned to `openai/gpt-5.6-luna`.
+
+Qualification boundary: this is functional compliance-readiness evidence, not SOC 2 or ISO/IEC 27001
+certification. Shared audit completeness, whole-platform data inventory and control-crosswalk NFRs
+remain In Progress until their broader pre-GA evidence and independent review gates complete.
+
+Verdict: PASS — EPIC-504 functional requirements URS-F-0526 through URS-F-0533 and URS-F-0835 are
+verified.
+
 ## EPIC-502: SSO, OIDC, SAML, LDAP and SCIM — 2026-08-23
 
 Spec source: Agent Hotel card `c68` and canonical `backlog/epics.json` EPIC-502 DoD.

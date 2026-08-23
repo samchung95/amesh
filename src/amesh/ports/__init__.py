@@ -20,6 +20,7 @@ from amesh.domain.runner import (
     RunnerSecurityPolicy,
 )
 
+from .audit_repository import AuditRepository, AuthorizationDecisionAuditSink
 from .authentication_repository import AuthenticationProvider, AuthenticationRepository
 from .authorization_repository import (
     AuthorizationRepository,
@@ -185,8 +186,10 @@ __all__ = [
     "WORKER_PROTOCOL_VERSION",
     "AmbiguousFederatedIdentity",
     "AssetMetadata",
+    "AuditRepository",
     "AuthenticationProvider",
     "AuthenticationRepository",
+    "AuthorizationDecisionAuditSink",
     "AuthorizationRepository",
     "BackfillItemDefinition",
     "BackfillRepository",

@@ -267,6 +267,24 @@ BUILT_IN_ROLES: tuple[RoleDefinition, ...] = (
         ),
     ),
     RoleDefinition(
+        name="auditor",
+        display_name="Auditor",
+        description="Inspect and export tenant audit and compliance evidence.",
+        built_in=True,
+        permissions=(
+            *(
+                Permission(resource_type=resource_type, action=action)
+                for resource_type in ("audit", "compliance")
+                for action in (
+                    PermissionAction.VIEW,
+                    PermissionAction.LIST,
+                    PermissionAction.USE,
+                )
+            ),
+            Permission(resource_type="compliance", action=PermissionAction.CREATE),
+        ),
+    ),
+    RoleDefinition(
         name="viewer",
         display_name="Viewer",
         description="Read-only access inside the binding scope.",

@@ -93,6 +93,20 @@ Class | Method | HTTP request | Description
 *AdministrationApi* | [**list_administration_audit_api_v1_admin_audit_get**](docs/AdministrationApi.md#list_administration_audit_api_v1_admin_audit_get) | **GET** /api/v1/admin/audit | List Administration Audit
 *AdministrationApi* | [**list_administration_controls_api_v1_admin_controls_get**](docs/AdministrationApi.md#list_administration_controls_api_v1_admin_controls_get) | **GET** /api/v1/admin/controls | List Administration Controls
 *AdministrationApi* | [**preview_administration_control_api_v1_admin_controls_preview_post**](docs/AdministrationApi.md#preview_administration_control_api_v1_admin_controls_preview_post) | **POST** /api/v1/admin/controls/preview | Preview Administration Control
+*AuditApi* | [**create_audit_legal_hold_api_v1_audit_legal_holds_post**](docs/AuditApi.md#create_audit_legal_hold_api_v1_audit_legal_holds_post) | **POST** /api/v1/audit-legal-holds | Create Audit Legal Hold
+*AuditApi* | [**create_compliance_evidence_api_v1_compliance_evidence_post**](docs/AuditApi.md#create_compliance_evidence_api_v1_compliance_evidence_post) | **POST** /api/v1/compliance-evidence | Create Compliance Evidence
+*AuditApi* | [**create_object_audit_export_api_v1_audit_exports_post**](docs/AuditApi.md#create_object_audit_export_api_v1_audit_exports_post) | **POST** /api/v1/audit-exports | Create Object Audit Export
+*AuditApi* | [**create_object_compliance_package_api_v1_compliance_packages_post**](docs/AuditApi.md#create_object_compliance_package_api_v1_compliance_packages_post) | **POST** /api/v1/compliance-packages | Create Object Compliance Package
+*AuditApi* | [**download_audit_export_api_v1_audit_events_export_get**](docs/AuditApi.md#download_audit_export_api_v1_audit_events_export_get) | **GET** /api/v1/audit-events/export | Download Audit Export
+*AuditApi* | [**download_compliance_package_api_v1_compliance_packages_export_get**](docs/AuditApi.md#download_compliance_package_api_v1_compliance_packages_export_get) | **GET** /api/v1/compliance-packages/export | Download Compliance Package
+*AuditApi* | [**get_audit_policy_api_v1_audit_policy_get**](docs/AuditApi.md#get_audit_policy_api_v1_audit_policy_get) | **GET** /api/v1/audit-policy | Get Audit Policy
+*AuditApi* | [**list_audit_events_api_v1_audit_events_get**](docs/AuditApi.md#list_audit_events_api_v1_audit_events_get) | **GET** /api/v1/audit-events | List Audit Events
+*AuditApi* | [**list_audit_legal_holds_api_v1_audit_legal_holds_get**](docs/AuditApi.md#list_audit_legal_holds_api_v1_audit_legal_holds_get) | **GET** /api/v1/audit-legal-holds | List Audit Legal Holds
+*AuditApi* | [**list_compliance_evidence_api_v1_compliance_evidence_get**](docs/AuditApi.md#list_compliance_evidence_api_v1_compliance_evidence_get) | **GET** /api/v1/compliance-evidence | List Compliance Evidence
+*AuditApi* | [**purge_audit_retention_api_v1_audit_retention_purge_post**](docs/AuditApi.md#purge_audit_retention_api_v1_audit_retention_purge_post) | **POST** /api/v1/audit-retention/purge | Purge Audit Retention
+*AuditApi* | [**release_audit_legal_hold_api_v1_audit_legal_holds_hold_id_delete**](docs/AuditApi.md#release_audit_legal_hold_api_v1_audit_legal_holds_hold_id_delete) | **DELETE** /api/v1/audit-legal-holds/{hold_id} | Release Audit Legal Hold
+*AuditApi* | [**update_audit_policy_api_v1_audit_policy_put**](docs/AuditApi.md#update_audit_policy_api_v1_audit_policy_put) | **PUT** /api/v1/audit-policy | Update Audit Policy
+*AuditApi* | [**verify_audit_integrity_api_v1_audit_events_integrity_get**](docs/AuditApi.md#verify_audit_integrity_api_v1_audit_events_integrity_get) | **GET** /api/v1/audit-events/integrity | Verify Audit Integrity
 *AuthenticationApi* | [**begin_federated_login_api_v1_auth_federated_provider_id_start_get**](docs/AuthenticationApi.md#begin_federated_login_api_v1_auth_federated_provider_id_start_get) | **GET** /api/v1/auth/federated/{provider_id}/start | Begin Federated Login
 *AuthenticationApi* | [**change_local_password_api_v1_auth_password_post**](docs/AuthenticationApi.md#change_local_password_api_v1_auth_password_post) | **POST** /api/v1/auth/password | Change Local Password
 *AuthenticationApi* | [**complete_oidc_login_api_v1_auth_federated_provider_id_callback_get**](docs/AuthenticationApi.md#complete_oidc_login_api_v1_auth_federated_provider_id_callback_get) | **GET** /api/v1/auth/federated/{provider_id}/callback | Complete Oidc Login
@@ -283,6 +297,19 @@ Class | Method | HTTP request | Description
  - [AdmissionOutcome](docs/AdmissionOutcome.md)
  - [AdmissionResourceType](docs/AdmissionResourceType.md)
  - [AdmissionScope](docs/AdmissionScope.md)
+ - [AuditArtifactKind](docs/AuditArtifactKind.md)
+ - [AuditEvent](docs/AuditEvent.md)
+ - [AuditEventPage](docs/AuditEventPage.md)
+ - [AuditExportDestination](docs/AuditExportDestination.md)
+ - [AuditExportFormat](docs/AuditExportFormat.md)
+ - [AuditExportReceipt](docs/AuditExportReceipt.md)
+ - [AuditExportRequest](docs/AuditExportRequest.md)
+ - [AuditIntegrityReport](docs/AuditIntegrityReport.md)
+ - [AuditLegalHold](docs/AuditLegalHold.md)
+ - [AuditLegalHoldCreate](docs/AuditLegalHoldCreate.md)
+ - [AuditRetentionPolicy](docs/AuditRetentionPolicy.md)
+ - [AuditRetentionPolicyUpdate](docs/AuditRetentionPolicyUpdate.md)
+ - [AuditRetentionResult](docs/AuditRetentionResult.md)
  - [AuthenticationProviderDescriptor](docs/AuthenticationProviderDescriptor.md)
  - [AuthenticationProviderKind](docs/AuthenticationProviderKind.md)
  - [AuthorizationDecision](docs/AuthorizationDecision.md)
@@ -314,6 +341,10 @@ Class | Method | HTTP request | Description
  - [CheckOutcome](docs/CheckOutcome.md)
  - [CheckPolicySource](docs/CheckPolicySource.md)
  - [CheckPolicyUpsertRequest](docs/CheckPolicyUpsertRequest.md)
+ - [ComplianceEvidenceCategory](docs/ComplianceEvidenceCategory.md)
+ - [ComplianceEvidenceCreate](docs/ComplianceEvidenceCreate.md)
+ - [ComplianceEvidenceRecord](docs/ComplianceEvidenceRecord.md)
+ - [CompliancePackageRequest](docs/CompliancePackageRequest.md)
  - [ConfigurationDiagnosticBundle](docs/ConfigurationDiagnosticBundle.md)
  - [ConfigurationEntry](docs/ConfigurationEntry.md)
  - [ConfigurationSnapshot](docs/ConfigurationSnapshot.md)

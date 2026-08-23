@@ -270,6 +270,12 @@
       "mode": "expand",
       "onlineCompatible": true,
       "rollbackGuidance": "Disable federated login and SCIM writes, preserve identity links and replay evidence, and forward-fix the additive federation tables before re-enabling providers."
+    },
+    {
+      "file": "0046_audit_evidence_ledger.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Pause audit policy, export and compliance-package operations; preserve the existing audit ledger and additive hashes, holds, receipts and evidence records; then forward-fix integrity or policy behavior before resuming retention."
     }
   ]
 }

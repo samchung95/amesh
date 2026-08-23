@@ -62,6 +62,20 @@ All URIs are relative to *http://localhost*
 *AdministrationApi* | [**listAdministrationAuditApiV1AdminAuditGet**](docs/AdministrationApi.md#listadministrationauditapiv1adminauditget) | **GET** /api/v1/admin/audit | List Administration Audit
 *AdministrationApi* | [**listAdministrationControlsApiV1AdminControlsGet**](docs/AdministrationApi.md#listadministrationcontrolsapiv1admincontrolsget) | **GET** /api/v1/admin/controls | List Administration Controls
 *AdministrationApi* | [**previewAdministrationControlApiV1AdminControlsPreviewPost**](docs/AdministrationApi.md#previewadministrationcontrolapiv1admincontrolspreviewpost) | **POST** /api/v1/admin/controls/preview | Preview Administration Control
+*AuditApi* | [**createAuditLegalHoldApiV1AuditLegalHoldsPost**](docs/AuditApi.md#createauditlegalholdapiv1auditlegalholdspost) | **POST** /api/v1/audit-legal-holds | Create Audit Legal Hold
+*AuditApi* | [**createComplianceEvidenceApiV1ComplianceEvidencePost**](docs/AuditApi.md#createcomplianceevidenceapiv1complianceevidencepost) | **POST** /api/v1/compliance-evidence | Create Compliance Evidence
+*AuditApi* | [**createObjectAuditExportApiV1AuditExportsPost**](docs/AuditApi.md#createobjectauditexportapiv1auditexportspost) | **POST** /api/v1/audit-exports | Create Object Audit Export
+*AuditApi* | [**createObjectCompliancePackageApiV1CompliancePackagesPost**](docs/AuditApi.md#createobjectcompliancepackageapiv1compliancepackagespost) | **POST** /api/v1/compliance-packages | Create Object Compliance Package
+*AuditApi* | [**downloadAuditExportApiV1AuditEventsExportGet**](docs/AuditApi.md#downloadauditexportapiv1auditeventsexportget) | **GET** /api/v1/audit-events/export | Download Audit Export
+*AuditApi* | [**downloadCompliancePackageApiV1CompliancePackagesExportGet**](docs/AuditApi.md#downloadcompliancepackageapiv1compliancepackagesexportget) | **GET** /api/v1/compliance-packages/export | Download Compliance Package
+*AuditApi* | [**getAuditPolicyApiV1AuditPolicyGet**](docs/AuditApi.md#getauditpolicyapiv1auditpolicyget) | **GET** /api/v1/audit-policy | Get Audit Policy
+*AuditApi* | [**listAuditEventsApiV1AuditEventsGet**](docs/AuditApi.md#listauditeventsapiv1auditeventsget) | **GET** /api/v1/audit-events | List Audit Events
+*AuditApi* | [**listAuditLegalHoldsApiV1AuditLegalHoldsGet**](docs/AuditApi.md#listauditlegalholdsapiv1auditlegalholdsget) | **GET** /api/v1/audit-legal-holds | List Audit Legal Holds
+*AuditApi* | [**listComplianceEvidenceApiV1ComplianceEvidenceGet**](docs/AuditApi.md#listcomplianceevidenceapiv1complianceevidenceget) | **GET** /api/v1/compliance-evidence | List Compliance Evidence
+*AuditApi* | [**purgeAuditRetentionApiV1AuditRetentionPurgePost**](docs/AuditApi.md#purgeauditretentionapiv1auditretentionpurgepost) | **POST** /api/v1/audit-retention/purge | Purge Audit Retention
+*AuditApi* | [**releaseAuditLegalHoldApiV1AuditLegalHoldsHoldIdDelete**](docs/AuditApi.md#releaseauditlegalholdapiv1auditlegalholdsholdiddelete) | **DELETE** /api/v1/audit-legal-holds/{hold_id} | Release Audit Legal Hold
+*AuditApi* | [**updateAuditPolicyApiV1AuditPolicyPut**](docs/AuditApi.md#updateauditpolicyapiv1auditpolicyput) | **PUT** /api/v1/audit-policy | Update Audit Policy
+*AuditApi* | [**verifyAuditIntegrityApiV1AuditEventsIntegrityGet**](docs/AuditApi.md#verifyauditintegrityapiv1auditeventsintegrityget) | **GET** /api/v1/audit-events/integrity | Verify Audit Integrity
 *AuthenticationApi* | [**beginFederatedLoginApiV1AuthFederatedProviderIdStartGet**](docs/AuthenticationApi.md#beginfederatedloginapiv1authfederatedprovideridstartget) | **GET** /api/v1/auth/federated/{provider_id}/start | Begin Federated Login
 *AuthenticationApi* | [**changeLocalPasswordApiV1AuthPasswordPost**](docs/AuthenticationApi.md#changelocalpasswordapiv1authpasswordpost) | **POST** /api/v1/auth/password | Change Local Password
 *AuthenticationApi* | [**completeOidcLoginApiV1AuthFederatedProviderIdCallbackGet**](docs/AuthenticationApi.md#completeoidcloginapiv1authfederatedprovideridcallbackget) | **GET** /api/v1/auth/federated/{provider_id}/callback | Complete Oidc Login
@@ -252,6 +266,19 @@ All URIs are relative to *http://localhost*
 - [AdmissionOutcome](docs/AdmissionOutcome.md)
 - [AdmissionResourceType](docs/AdmissionResourceType.md)
 - [AdmissionScope](docs/AdmissionScope.md)
+- [AuditArtifactKind](docs/AuditArtifactKind.md)
+- [AuditEvent](docs/AuditEvent.md)
+- [AuditEventPage](docs/AuditEventPage.md)
+- [AuditExportDestination](docs/AuditExportDestination.md)
+- [AuditExportFormat](docs/AuditExportFormat.md)
+- [AuditExportReceipt](docs/AuditExportReceipt.md)
+- [AuditExportRequest](docs/AuditExportRequest.md)
+- [AuditIntegrityReport](docs/AuditIntegrityReport.md)
+- [AuditLegalHold](docs/AuditLegalHold.md)
+- [AuditLegalHoldCreate](docs/AuditLegalHoldCreate.md)
+- [AuditRetentionPolicy](docs/AuditRetentionPolicy.md)
+- [AuditRetentionPolicyUpdate](docs/AuditRetentionPolicyUpdate.md)
+- [AuditRetentionResult](docs/AuditRetentionResult.md)
 - [AuthenticationProviderDescriptor](docs/AuthenticationProviderDescriptor.md)
 - [AuthenticationProviderKind](docs/AuthenticationProviderKind.md)
 - [AuthorizationDecision](docs/AuthorizationDecision.md)
@@ -283,6 +310,10 @@ All URIs are relative to *http://localhost*
 - [CheckOutcome](docs/CheckOutcome.md)
 - [CheckPolicySource](docs/CheckPolicySource.md)
 - [CheckPolicyUpsertRequest](docs/CheckPolicyUpsertRequest.md)
+- [ComplianceEvidenceCategory](docs/ComplianceEvidenceCategory.md)
+- [ComplianceEvidenceCreate](docs/ComplianceEvidenceCreate.md)
+- [ComplianceEvidenceRecord](docs/ComplianceEvidenceRecord.md)
+- [CompliancePackageRequest](docs/CompliancePackageRequest.md)
 - [ConfigurationDiagnosticBundle](docs/ConfigurationDiagnosticBundle.md)
 - [ConfigurationEntry](docs/ConfigurationEntry.md)
 - [ConfigurationSnapshot](docs/ConfigurationSnapshot.md)

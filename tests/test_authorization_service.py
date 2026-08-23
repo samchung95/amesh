@@ -50,6 +50,18 @@ class PolicyRepositoryStub:
         )
 
 
+class DecisionAuditStub:
+    def __init__(self) -> None:
+        self.records: list[tuple[AuthorizationRequest, object]] = []
+
+    async def record_authorization_decision(
+        self,
+        request: AuthorizationRequest,
+        decision: object,
+    ) -> None:
+        self.records.append((request, decision))
+
+
 def test_decision_cache_is_invalidated_by_policy_version() -> None:
     actor = ActorContext(
         principal_id=uuid4(),
@@ -75,6 +87,36 @@ def test_decision_cache_is_invalidated_by_policy_version() -> None:
 
         assert not (await service.decide(request)).allowed
         assert repository.loads == 2
+
+    import asyncio
+
+    asyncio.run(scenario())
+
+
+def test_each_authorization_decision_is_audited_including_cached_decisions() -> None:
+    actor = ActorContext(
+        principal_id=uuid4(),
+        principal_type=PrincipalType.USER,
+        display="audited-user",
+    )
+    repository = PolicyRepositoryStub(actor.principal_id)
+    audit = DecisionAuditStub()
+    service = AuthorizationService(  # type: ignore[arg-type]
+        repository,
+        decision_audit=audit,
+    )
+    request = AuthorizationRequest(
+        actor=actor,
+        tenant_id="tenant-a",
+        resource_type="flow",
+        action=PermissionAction.VIEW,
+    )
+
+    async def scenario() -> None:
+        assert (await service.decide(request)).allowed
+        assert (await service.decide(request)).allowed
+        assert len(audit.records) == 2
+        assert all(record[0] == request for record in audit.records)
 
     import asyncio
 

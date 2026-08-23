@@ -7,6 +7,7 @@ README.md
 amesh_client/__init__.py
 amesh_client/api/__init__.py
 amesh_client/api/administration_api.py
+amesh_client/api/audit_api.py
 amesh_client/api/authentication_api.py
 amesh_client/api/authorization_api.py
 amesh_client/api/backfills_api.py
@@ -47,6 +48,19 @@ amesh_client/models/admission_diagnostics.py
 amesh_client/models/admission_outcome.py
 amesh_client/models/admission_resource_type.py
 amesh_client/models/admission_scope.py
+amesh_client/models/audit_artifact_kind.py
+amesh_client/models/audit_event.py
+amesh_client/models/audit_event_page.py
+amesh_client/models/audit_export_destination.py
+amesh_client/models/audit_export_format.py
+amesh_client/models/audit_export_receipt.py
+amesh_client/models/audit_export_request.py
+amesh_client/models/audit_integrity_report.py
+amesh_client/models/audit_legal_hold.py
+amesh_client/models/audit_legal_hold_create.py
+amesh_client/models/audit_retention_policy.py
+amesh_client/models/audit_retention_policy_update.py
+amesh_client/models/audit_retention_result.py
 amesh_client/models/authentication_provider_descriptor.py
 amesh_client/models/authentication_provider_kind.py
 amesh_client/models/authorization_decision.py
@@ -78,6 +92,10 @@ amesh_client/models/check_evaluation_point.py
 amesh_client/models/check_outcome.py
 amesh_client/models/check_policy_source.py
 amesh_client/models/check_policy_upsert_request.py
+amesh_client/models/compliance_evidence_category.py
+amesh_client/models/compliance_evidence_create.py
+amesh_client/models/compliance_evidence_record.py
+amesh_client/models/compliance_package_request.py
 amesh_client/models/configuration_diagnostic_bundle.py
 amesh_client/models/configuration_entry.py
 amesh_client/models/configuration_snapshot.py
@@ -324,6 +342,7 @@ amesh_client/models/workflow_metadata_policy.py
 amesh_client/py.typed
 amesh_client/rest.py
 docs/AdministrationApi.md
+docs/AuditApi.md
 docs/AuthenticationApi.md
 docs/AuthorizationApi.md
 docs/BackfillsApi.md

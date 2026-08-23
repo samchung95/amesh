@@ -3,6 +3,7 @@
 .openapi-generator-ignore
 README.md
 docs/AdministrationApi.md
+docs/AuditApi.md
 docs/AuthenticationApi.md
 docs/AuthorizationApi.md
 docs/BackfillsApi.md
@@ -28,6 +29,7 @@ docs/UiApi.md
 docs/WorkersApi.md
 package.json
 src/apis/AdministrationApi.ts
+src/apis/AuditApi.ts
 src/apis/AuthenticationApi.ts
 src/apis/AuthorizationApi.ts
 src/apis/BackfillsApi.ts
@@ -65,6 +67,19 @@ src/models/AdmissionDiagnostics.ts
 src/models/AdmissionOutcome.ts
 src/models/AdmissionResourceType.ts
 src/models/AdmissionScope.ts
+src/models/AuditArtifactKind.ts
+src/models/AuditEvent.ts
+src/models/AuditEventPage.ts
+src/models/AuditExportDestination.ts
+src/models/AuditExportFormat.ts
+src/models/AuditExportReceipt.ts
+src/models/AuditExportRequest.ts
+src/models/AuditIntegrityReport.ts
+src/models/AuditLegalHold.ts
+src/models/AuditLegalHoldCreate.ts
+src/models/AuditRetentionPolicy.ts
+src/models/AuditRetentionPolicyUpdate.ts
+src/models/AuditRetentionResult.ts
 src/models/AuthenticationProviderDescriptor.ts
 src/models/AuthenticationProviderKind.ts
 src/models/AuthorizationDecision.ts
@@ -96,6 +111,10 @@ src/models/CheckEvaluationPoint.ts
 src/models/CheckOutcome.ts
 src/models/CheckPolicySource.ts
 src/models/CheckPolicyUpsertRequest.ts
+src/models/ComplianceEvidenceCategory.ts
+src/models/ComplianceEvidenceCreate.ts
+src/models/ComplianceEvidenceRecord.ts
+src/models/CompliancePackageRequest.ts
 src/models/ConfigurationDiagnosticBundle.ts
 src/models/ConfigurationEntry.ts
 src/models/ConfigurationSnapshot.ts

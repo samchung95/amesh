@@ -1,6 +1,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export * from './AdministrationApi';
+export * from './AuditApi';
 export * from './AuthenticationApi';
 export * from './AuthorizationApi';
 export * from './BackfillsApi';

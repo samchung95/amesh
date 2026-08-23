@@ -15102,7 +15102,7 @@
       "id": "URS-F-0526",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M5",
       "wave": 5,
       "epic_id": "EPIC-504",
@@ -15124,13 +15124,18 @@
       "dependencies": [
         "EPIC-007",
         "EPIC-500"
+      ],
+      "evidence": [
+        "src/amesh/authorization.py::AuthorizationService._record",
+        "tests/test_authorization_service.py::test_each_authorization_decision_is_audited_including_cached_decisions",
+        "tests/adapters/postgres/test_audit_repository.py::test_audit_ledger_redaction_integrity_retention_and_compliance_evidence"
       ]
     },
     {
       "id": "URS-F-0527",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M5",
       "wave": 5,
       "epic_id": "EPIC-504",
@@ -15152,13 +15157,18 @@
       "dependencies": [
         "EPIC-007",
         "EPIC-500"
+      ],
+      "evidence": [
+        "migrations/0046_audit_evidence_ledger.sql",
+        "src/amesh/domain/audit.py::AuditEvent",
+        "tests/adapters/postgres/test_audit_repository.py::test_audit_ledger_redaction_integrity_retention_and_compliance_evidence"
       ]
     },
     {
       "id": "URS-F-0528",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M5",
       "wave": 5,
       "epic_id": "EPIC-504",
@@ -15180,13 +15190,18 @@
       "dependencies": [
         "EPIC-007",
         "EPIC-500"
+      ],
+      "evidence": [
+        "migrations/0046_audit_evidence_ledger.sql::amesh_redact_audit_json",
+        "tests/adapters/postgres/test_audit_repository.py::test_audit_ledger_redaction_integrity_retention_and_compliance_evidence",
+        "tests/test_audit_artifacts.py::test_signed_audit_and_compliance_artifacts_are_redacted_and_uploadable"
       ]
     },
     {
       "id": "URS-F-0529",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M5",
       "wave": 5,
       "epic_id": "EPIC-504",
@@ -15208,13 +15223,18 @@
       "dependencies": [
         "EPIC-007",
         "EPIC-500"
+      ],
+      "evidence": [
+        "src/amesh/adapters/postgres/authorization_repository.py",
+        "src/amesh/adapters/postgres/tenant_repository.py",
+        "tests/adapters/postgres/test_authorization_repository.py::test_postgres_policy_persistence_cache_revocation_and_last_admin_guard"
       ]
     },
     {
       "id": "URS-F-0530",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M5",
       "wave": 5,
       "epic_id": "EPIC-504",
@@ -15236,13 +15256,18 @@
       "dependencies": [
         "EPIC-007",
         "EPIC-500"
+      ],
+      "evidence": [
+        "migrations/0046_audit_evidence_ledger.sql::amesh_prepare_audit_event",
+        "src/amesh/adapters/postgres/audit_repository.py::PostgresAuditRepository.verify_integrity",
+        "tests/adapters/postgres/test_audit_repository.py::test_audit_ledger_redaction_integrity_retention_and_compliance_evidence"
       ]
     },
     {
       "id": "URS-F-0531",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M5",
       "wave": 5,
       "epic_id": "EPIC-504",
@@ -15264,13 +15289,18 @@
       "dependencies": [
         "EPIC-007",
         "EPIC-500"
+      ],
+      "evidence": [
+        "src/amesh/adapters/postgres/audit_repository.py::PostgresAuditRepository.purge_retained",
+        "tests/adapters/postgres/test_audit_repository.py::test_audit_ledger_redaction_integrity_retention_and_compliance_evidence",
+        "docs/operations/audit-evidence.md"
       ]
     },
     {
       "id": "URS-F-0532",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M5",
       "wave": 5,
       "epic_id": "EPIC-504",
@@ -15292,13 +15322,18 @@
       "dependencies": [
         "EPIC-007",
         "EPIC-500"
+      ],
+      "evidence": [
+        "src/amesh/audit.py::AuditArtifactService",
+        "tests/test_audit_artifacts.py::test_signed_audit_and_compliance_artifacts_are_redacted_and_uploadable",
+        "tests/api/test_realtime_api.py::test_urs_f_0409_0410_0413_signed_retry_rotation_replay_and_outage_isolation"
       ]
     },
     {
       "id": "URS-F-0533",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M5",
       "wave": 5,
       "epic_id": "EPIC-504",
@@ -15320,6 +15355,10 @@
       "dependencies": [
         "EPIC-007",
         "EPIC-500"
+      ],
+      "evidence": [
+        "src/amesh/domain/authorization.py::BUILT_IN_ROLES",
+        "tests/api/test_audit_api.py::test_audit_and_compliance_api_lifecycle"
       ]
     },
     {
@@ -23791,11 +23830,16 @@
       "rationale": "Support repeatable SOC 2 and ISO/IEC 27001 readiness reviews.",
       "source_scope": "AMESH compliance-readiness decision; not a certification claim",
       "statement": "The system shall generate scoped compliance evidence packages containing access reviews, change evidence, audit records, backup and restore evidence, vulnerability results, incident records and provenance without exposing protected values.",
-      "status": "Proposed",
+      "status": "Verified",
       "type": "Functional",
       "user_story": "As a auditor, I need AMESH to generate scoped compliance evidence packages containing access reviews, change evidence, audit records, backup and restore evidence, vulnerability results, incident records and provenance without exposing protected values, so AMESH can support repeatable SOC 2 and ISO/IEC 27001 readiness reviews.",
       "verification": "Compliance evidence export, redaction and authorization tests",
-      "wave": 5
+      "wave": 5,
+      "evidence": [
+        "src/amesh/audit.py::AuditArtifactService.export_compliance_package",
+        "tests/test_audit_artifacts.py::test_signed_audit_and_compliance_artifacts_are_redacted_and_uploadable",
+        "tests/api/test_audit_api.py::test_audit_and_compliance_api_lifecycle"
+      ]
     },
     {
       "acceptance_criteria": [
@@ -24028,7 +24072,12 @@
         "EPIC-805"
       ],
       "priority": "Must",
-      "status": "Proposed"
+      "status": "In Progress",
+      "evidence": [
+        "docs/governance/compliance-readiness.md",
+        "docs/api/audit-and-compliance.md",
+        "tests/test_audit_artifacts.py::test_signed_audit_and_compliance_artifacts_are_redacted_and_uploadable"
+      ]
     },
     {
       "id": "URS-NFR-MAINTAINABILITY-001",
@@ -24472,7 +24521,9 @@
       "status": "In Progress",
       "evidence": [
         "docs/operations/metadata-storage.md#metadata-data-inventory",
-        "tests/adapters/postgres/test_metadata_repository.py::test_metadata_repository_round_trip_constraints_and_rls"
+        "tests/adapters/postgres/test_metadata_repository.py::test_metadata_repository_round_trip_constraints_and_rls",
+        "docs/operations/audit-evidence.md",
+        "tests/adapters/postgres/test_audit_repository.py::test_audit_ledger_redaction_integrity_retention_and_compliance_evidence"
       ]
     },
     {
@@ -24804,7 +24855,12 @@
         "EPIC-504"
       ],
       "priority": "Must",
-      "status": "Proposed"
+      "status": "In Progress",
+      "evidence": [
+        "src/amesh/authorization.py::AuthorizationService._record",
+        "tests/test_authorization_service.py::test_each_authorization_decision_is_audited_including_cached_decisions",
+        "tests/api/test_audit_api.py::test_audit_and_compliance_api_lifecycle"
+      ]
     },
     {
       "id": "URS-NFR-SECURITY-010",

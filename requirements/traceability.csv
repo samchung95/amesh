@@ -524,14 +524,14 @@ URS-F-0522,Functional,Must,EPIC-503,Multi-tenancy and resource isolation,M5,5,"A
 URS-F-0523,Functional,Must,EPIC-503,Multi-tenancy and resource isolation,M5,5,"Authorization, audit and administrative end-to-end tests",Verified
 URS-F-0524,Functional,Must,EPIC-503,Multi-tenancy and resource isolation,M5,5,"Authorization, audit and administrative end-to-end tests",Verified
 URS-F-0525,Functional,Must,EPIC-503,Multi-tenancy and resource isolation,M5,5,"Authorization, audit and administrative end-to-end tests",Verified
-URS-F-0526,Functional,Must,EPIC-504,Immutable audit log and evidence export,M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
-URS-F-0527,Functional,Must,EPIC-504,Immutable audit log and evidence export,M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
-URS-F-0528,Functional,Must,EPIC-504,Immutable audit log and evidence export,M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
-URS-F-0529,Functional,Must,EPIC-504,Immutable audit log and evidence export,M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
-URS-F-0530,Functional,Must,EPIC-504,Immutable audit log and evidence export,M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
-URS-F-0531,Functional,Must,EPIC-504,Immutable audit log and evidence export,M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
-URS-F-0532,Functional,Must,EPIC-504,Immutable audit log and evidence export,M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
-URS-F-0533,Functional,Must,EPIC-504,Immutable audit log and evidence export,M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0526,Functional,Must,EPIC-504,Immutable audit log and evidence export,M5,5,"Authorization, audit and administrative end-to-end tests",Verified
+URS-F-0527,Functional,Must,EPIC-504,Immutable audit log and evidence export,M5,5,"Authorization, audit and administrative end-to-end tests",Verified
+URS-F-0528,Functional,Must,EPIC-504,Immutable audit log and evidence export,M5,5,"Authorization, audit and administrative end-to-end tests",Verified
+URS-F-0529,Functional,Must,EPIC-504,Immutable audit log and evidence export,M5,5,"Authorization, audit and administrative end-to-end tests",Verified
+URS-F-0530,Functional,Must,EPIC-504,Immutable audit log and evidence export,M5,5,"Authorization, audit and administrative end-to-end tests",Verified
+URS-F-0531,Functional,Must,EPIC-504,Immutable audit log and evidence export,M5,5,"Authorization, audit and administrative end-to-end tests",Verified
+URS-F-0532,Functional,Must,EPIC-504,Immutable audit log and evidence export,M5,5,"Authorization, audit and administrative end-to-end tests",Verified
+URS-F-0533,Functional,Must,EPIC-504,Immutable audit log and evidence export,M5,5,"Authorization, audit and administrative end-to-end tests",Verified
 URS-F-0534,Functional,Must,EPIC-505,"Plugin allow, restrict and version policy",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
 URS-F-0535,Functional,Must,EPIC-505,"Plugin allow, restrict and version policy",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
 URS-F-0536,Functional,Must,EPIC-505,"Plugin allow, restrict and version policy",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
@@ -833,7 +833,7 @@ URS-F-0831,Functional,Must,EPIC-704,Kestra migration importer and conformance su
 URS-F-0832,Functional,Must,EPIC-704,Kestra migration importer and conformance suite,M7,7,"Interrupted, repeated and rolled-back migration end-to-end tests",Proposed
 URS-F-0833,Functional,Must,EPIC-704,Kestra migration importer and conformance suite,M7,7,"Secret-reference migration, redaction and unresolved-binding tests",Proposed
 URS-F-0834,Functional,Must,EPIC-612,Security hardening and software supply chain,M6,6,Compliance control-crosswalk schema and completeness tests,Proposed
-URS-F-0835,Functional,Must,EPIC-504,Immutable audit log and evidence export,M5,5,"Compliance evidence export, redaction and authorization tests",Proposed
+URS-F-0835,Functional,Must,EPIC-504,Immutable audit log and evidence export,M5,5,"Compliance evidence export, redaction and authorization tests",Verified
 URS-F-0836,Functional,Must,EPIC-011,AI-native engineering factory and autonomous contribution controls,M0,0,"AI merge-policy, quorum and evidence-replay tests",Proposed
 URS-F-0837,Functional,Must,EPIC-011,AI-native engineering factory and autonomous contribution controls,M0,0,Protected-branch and release-authority policy tests,Proposed
 URS-NFR-AGENT-001,Non-functional,Must,EPIC-806,First-class agent mesh runtime and governance,M8,8,Adversarial runaway-loop and concurrent tool-call tests.,Proposed
@@ -853,9 +853,9 @@ URS-NFR-AVAILABILITY-003,Non-functional,Must,EPIC-805,General availability quali
 URS-NFR-AVAILABILITY-004,Non-functional,Must,EPIC-509,"Announcements, maintenance mode and kill switch",M5,5,Upgrade and drain conformance suite.,In Progress
 URS-NFR-AVAILABILITY-004,Non-functional,Must,EPIC-601,Distributed services and high availability,M6,6,Upgrade and drain conformance suite.,In Progress
 URS-NFR-AVAILABILITY-004,Non-functional,Must,EPIC-610,"Upgrades, migrations and LTS policy",M6,6,Upgrade and drain conformance suite.,In Progress
-URS-NFR-COMPLIANCE-001,Non-functional,Must,EPIC-504,Immutable audit log and evidence export,M5,5,Control-crosswalk validation and sample evidence-package review by an independent security or compliance reviewer.,Proposed
-URS-NFR-COMPLIANCE-001,Non-functional,Must,EPIC-612,Security hardening and software supply chain,M6,6,Control-crosswalk validation and sample evidence-package review by an independent security or compliance reviewer.,Proposed
-URS-NFR-COMPLIANCE-001,Non-functional,Must,EPIC-805,General availability quality and launch readiness,M8,8,Control-crosswalk validation and sample evidence-package review by an independent security or compliance reviewer.,Proposed
+URS-NFR-COMPLIANCE-001,Non-functional,Must,EPIC-504,Immutable audit log and evidence export,M5,5,Control-crosswalk validation and sample evidence-package review by an independent security or compliance reviewer.,In Progress
+URS-NFR-COMPLIANCE-001,Non-functional,Must,EPIC-612,Security hardening and software supply chain,M6,6,Control-crosswalk validation and sample evidence-package review by an independent security or compliance reviewer.,In Progress
+URS-NFR-COMPLIANCE-001,Non-functional,Must,EPIC-805,General availability quality and launch readiness,M8,8,Control-crosswalk validation and sample evidence-package review by an independent security or compliance reviewer.,In Progress
 URS-NFR-MAINTAINABILITY-001,Non-functional,Must,EPIC-001,"Repository engineering, CI and release foundation",M0,0,Static architecture test in CI.,In Progress
 URS-NFR-MAINTAINABILITY-001,Non-functional,Must,EPIC-007,Execution event model and state machine,M0,0,Static architecture test in CI.,In Progress
 URS-NFR-MAINTAINABILITY-001,Non-functional,Must,EPIC-009,"PostgreSQL transport, inbox and transactional outbox",M0,0,Static architecture test in CI.,In Progress
@@ -971,7 +971,7 @@ URS-NFR-SECURITY-008,Non-functional,Must,EPIC-209,Task runner interface and capa
 URS-NFR-SECURITY-008,Non-functional,Must,EPIC-221,Docker and OCI task runner,M2,2,Architecture test and runtime process inspection.,In Progress
 URS-NFR-SECURITY-008,Non-functional,Must,EPIC-222,Kubernetes task runner,M2,2,Architecture test and runtime process inspection.,In Progress
 URS-NFR-SECURITY-008,Non-functional,Must,EPIC-303,Isolated language-neutral plugin runtime,M3,3,Architecture test and runtime process inspection.,In Progress
-URS-NFR-SECURITY-009,Non-functional,Must,EPIC-504,Immutable audit log and evidence export,M5,5,Endpoint-to-audit traceability suite.,Proposed
+URS-NFR-SECURITY-009,Non-functional,Must,EPIC-504,Immutable audit log and evidence export,M5,5,Endpoint-to-audit traceability suite.,In Progress
 URS-NFR-SECURITY-010,Non-functional,Must,EPIC-003,Configuration and feature flag system,M0,0,Configuration conformance and container scan.,In Progress
 URS-NFR-SECURITY-010,Non-functional,Must,EPIC-403,Authentication session and credential entry points,M4,4,Configuration conformance and container scan.,In Progress
 URS-NFR-SECURITY-010,Non-functional,Must,EPIC-505,"Plugin allow, restrict and version policy",M5,5,Configuration conformance and container scan.,In Progress

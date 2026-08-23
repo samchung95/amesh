@@ -45,6 +45,7 @@ from amesh.adapters.docker import DockerContainerRunner
 from amesh.adapters.kubernetes import KubernetesJobRunner, ProfiledKubernetesJobRunner
 from amesh.adapters.local import LocalProcessRunner
 from amesh.adapters.postgres import (
+    PostgresAuditRepository,
     PostgresAuthenticationRepository,
     PostgresAuthorizationRepository,
     PostgresBackfillRepository,
@@ -135,6 +136,7 @@ from amesh.api.models import (
     TriggerActionRequest,
     UiSessionResponse,
 )
+from amesh.audit import AuditArtifact, AuditArtifactService
 from amesh.authentication import (
     AuthenticationRateLimited,
     AuthenticationService,
@@ -176,6 +178,17 @@ from amesh.domain import (
     AdmissionDecision,
     AdmissionDiagnostics,
     AdmissionResourceType,
+    AuditEventPage,
+    AuditExportDestination,
+    AuditExportFormat,
+    AuditExportReceipt,
+    AuditExportRequest,
+    AuditIntegrityReport,
+    AuditLegalHold,
+    AuditLegalHoldCreate,
+    AuditRetentionPolicy,
+    AuditRetentionPolicyUpdate,
+    AuditRetentionResult,
     AuthenticationProviderDescriptor,
     AuthorizationDecision,
     AuthorizationRequest,
@@ -187,6 +200,9 @@ from amesh.domain import (
     BlueprintDefinition,
     BlueprintInstantiationRequest,
     BlueprintSummary,
+    ComplianceEvidenceCreate,
+    ComplianceEvidenceRecord,
+    CompliancePackageRequest,
     CredentialMetadata,
     DashboardDataSource,
     DashboardDefinition,
@@ -831,8 +847,26 @@ def get_authorization_repository() -> PostgresAuthorizationRepository:
 
 
 @lru_cache
+def get_audit_repository() -> PostgresAuditRepository:
+    return PostgresAuditRepository(database_engine())
+
+
+@lru_cache
+def get_audit_artifact_service() -> AuditArtifactService:
+    settings = get_settings()
+    return AuditArtifactService(
+        get_audit_repository(),
+        signing_key=settings.webhook_signing_key.get_secret_value(),
+        object_store=build_object_store(settings),
+    )
+
+
+@lru_cache
 def get_authorization_service() -> AuthorizationService:
-    return AuthorizationService(get_authorization_repository())
+    return AuthorizationService(
+        get_authorization_repository(),
+        decision_audit=get_audit_repository(),
+    )
 
 
 AuthorizationServiceDependency = Annotated[
@@ -842,6 +876,11 @@ AuthorizationServiceDependency = Annotated[
 AuthorizationRepositoryDependency = Annotated[
     PostgresAuthorizationRepository,
     Depends(get_authorization_repository),
+]
+AuditRepositoryDependency = Annotated[PostgresAuditRepository, Depends(get_audit_repository)]
+AuditArtifactServiceDependency = Annotated[
+    AuditArtifactService,
+    Depends(get_audit_artifact_service),
 ]
 
 
@@ -8365,6 +8404,411 @@ async def reduce_execution_events(
     return ReduceExecutionResponse(
         snapshot=snapshot,
         duplicate_events_ignored=duplicates,
+    )
+
+
+@app.get(
+    "/api/v1/audit-events",
+    response_model=AuditEventPage,
+    tags=["audit"],
+)
+async def list_audit_events(
+    repository: AuditRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    cursor: Annotated[int | None, Query(ge=1)] = None,
+    limit: Annotated[int, Query(ge=1, le=1_000)] = 100,
+    action: Annotated[str | None, Query(max_length=255)] = None,
+    resource_type: Annotated[str | None, Query(alias="resourceType", max_length=128)] = None,
+    outcome: Annotated[str | None, Query(max_length=64)] = None,
+    occurred_from: Annotated[datetime | None, Query(alias="occurredFrom")] = None,
+    occurred_to: Annotated[datetime | None, Query(alias="occurredTo")] = None,
+) -> AuditEventPage:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="audit",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+    )
+    return await repository.list_events(
+        tenant_id,
+        actor_id=str(actor.principal_id),
+        cursor=cursor,
+        limit=limit,
+        action=action,
+        resource_type=resource_type,
+        outcome=outcome,
+        occurred_from=occurred_from,
+        occurred_to=occurred_to,
+    )
+
+
+@app.get(
+    "/api/v1/audit-events/integrity",
+    response_model=AuditIntegrityReport,
+    tags=["audit"],
+)
+async def verify_audit_integrity(
+    repository: AuditRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> AuditIntegrityReport:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="audit",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+    )
+    return await repository.verify_integrity(tenant_id, actor_id=str(actor.principal_id))
+
+
+@app.get(
+    "/api/v1/audit-policy",
+    response_model=AuditRetentionPolicy,
+    tags=["audit"],
+)
+async def get_audit_policy(
+    repository: AuditRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> AuditRetentionPolicy:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="audit",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+    )
+    return await repository.get_retention_policy(tenant_id)
+
+
+@app.put(
+    "/api/v1/audit-policy",
+    response_model=AuditRetentionPolicy,
+    tags=["audit"],
+)
+async def update_audit_policy(
+    request: AuditRetentionPolicyUpdate,
+    repository: AuditRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> AuditRetentionPolicy:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="audit",
+        action=PermissionAction.MANAGE,
+        tenant_id=tenant_id,
+    )
+    return await repository.set_retention_policy(
+        tenant_id,
+        AuditRetentionPolicy(retentionDays=request.retention_days),
+        actor_id=str(actor.principal_id),
+    )
+
+
+@app.get(
+    "/api/v1/audit-legal-holds",
+    response_model=tuple[AuditLegalHold, ...],
+    tags=["audit"],
+)
+async def list_audit_legal_holds(
+    repository: AuditRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> tuple[AuditLegalHold, ...]:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="audit",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+    )
+    return await repository.list_legal_holds(tenant_id, actor_id=str(actor.principal_id))
+
+
+@app.post(
+    "/api/v1/audit-legal-holds",
+    response_model=AuditLegalHold,
+    status_code=status.HTTP_201_CREATED,
+    tags=["audit"],
+)
+async def create_audit_legal_hold(
+    request: AuditLegalHoldCreate,
+    repository: AuditRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> AuditLegalHold:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="audit",
+        action=PermissionAction.MANAGE,
+        tenant_id=tenant_id,
+    )
+    return await repository.create_legal_hold(
+        tenant_id,
+        request,
+        actor_id=str(actor.principal_id),
+    )
+
+
+@app.delete(
+    "/api/v1/audit-legal-holds/{hold_id}",
+    response_model=AuditLegalHold,
+    tags=["audit"],
+)
+async def release_audit_legal_hold(
+    hold_id: UUID,
+    repository: AuditRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> AuditLegalHold:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="audit",
+        action=PermissionAction.MANAGE,
+        tenant_id=tenant_id,
+    )
+    try:
+        return await repository.release_legal_hold(
+            tenant_id,
+            hold_id,
+            actor_id=str(actor.principal_id),
+        )
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+
+
+@app.post(
+    "/api/v1/audit-retention/purge",
+    response_model=AuditRetentionResult,
+    tags=["audit"],
+)
+async def purge_audit_retention(
+    repository: AuditRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> AuditRetentionResult:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="audit",
+        action=PermissionAction.MANAGE,
+        tenant_id=tenant_id,
+    )
+    return await repository.purge_retained(tenant_id, actor_id=str(actor.principal_id))
+
+
+@app.get(
+    "/api/v1/audit-events/export",
+    response_model=None,
+    tags=["audit"],
+)
+async def download_audit_export(
+    service: AuditArtifactServiceDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    format: AuditExportFormat = AuditExportFormat.NDJSON,
+    limit: Annotated[int, Query(ge=1, le=10_000)] = 10_000,
+    action: Annotated[str | None, Query(max_length=255)] = None,
+    resource_type: Annotated[str | None, Query(alias="resourceType", max_length=128)] = None,
+    outcome: Annotated[str | None, Query(max_length=64)] = None,
+    occurred_from: Annotated[datetime | None, Query(alias="occurredFrom")] = None,
+    occurred_to: Annotated[datetime | None, Query(alias="occurredTo")] = None,
+) -> Response:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="audit",
+        action=PermissionAction.USE,
+        tenant_id=tenant_id,
+    )
+    artifact = await service.export_audit(
+        tenant_id,
+        actor_id=str(actor.principal_id),
+        destination=AuditExportDestination.FILE,
+        format=format,
+        limit=limit,
+        action=action,
+        resource_type=resource_type,
+        outcome=outcome,
+        occurred_from=occurred_from,
+        occurred_to=occurred_to,
+    )
+    return _audit_artifact_response(artifact)
+
+
+@app.post(
+    "/api/v1/audit-exports",
+    response_model=AuditExportReceipt,
+    status_code=status.HTTP_201_CREATED,
+    tags=["audit"],
+)
+async def create_object_audit_export(
+    request: AuditExportRequest,
+    service: AuditArtifactServiceDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> AuditExportReceipt:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="audit",
+        action=PermissionAction.USE,
+        tenant_id=tenant_id,
+    )
+    artifact = await service.export_audit(
+        tenant_id,
+        actor_id=str(actor.principal_id),
+        destination=AuditExportDestination.OBJECT_STORAGE,
+        format=request.format,
+        limit=request.limit,
+        action=request.action,
+        resource_type=request.resource_type,
+        outcome=request.outcome,
+        occurred_from=request.occurred_from,
+        occurred_to=request.occurred_to,
+    )
+    return artifact.receipt
+
+
+@app.post(
+    "/api/v1/compliance-evidence",
+    response_model=ComplianceEvidenceRecord,
+    status_code=status.HTTP_201_CREATED,
+    tags=["audit"],
+)
+async def create_compliance_evidence(
+    request: ComplianceEvidenceCreate,
+    repository: AuditRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> ComplianceEvidenceRecord:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="compliance",
+        action=PermissionAction.CREATE,
+        tenant_id=tenant_id,
+    )
+    return await repository.create_compliance_evidence(
+        tenant_id,
+        request,
+        actor_id=str(actor.principal_id),
+    )
+
+
+@app.get(
+    "/api/v1/compliance-evidence",
+    response_model=tuple[ComplianceEvidenceRecord, ...],
+    tags=["audit"],
+)
+async def list_compliance_evidence(
+    repository: AuditRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> tuple[ComplianceEvidenceRecord, ...]:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="compliance",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+    )
+    return await repository.list_compliance_evidence(
+        tenant_id,
+        actor_id=str(actor.principal_id),
+    )
+
+
+@app.get(
+    "/api/v1/compliance-packages/export",
+    response_model=None,
+    tags=["audit"],
+)
+async def download_compliance_package(
+    service: AuditArtifactServiceDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    occurred_from: Annotated[datetime | None, Query(alias="occurredFrom")] = None,
+    occurred_to: Annotated[datetime | None, Query(alias="occurredTo")] = None,
+    max_audit_events: Annotated[int, Query(alias="maxAuditEvents", ge=1, le=10_000)] = 10_000,
+) -> Response:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="compliance",
+        action=PermissionAction.USE,
+        tenant_id=tenant_id,
+    )
+    artifact = await service.export_compliance_package(
+        tenant_id,
+        actor_id=str(actor.principal_id),
+        destination=AuditExportDestination.FILE,
+        occurred_from=occurred_from,
+        occurred_to=occurred_to,
+        max_audit_events=max_audit_events,
+    )
+    return _audit_artifact_response(artifact)
+
+
+@app.post(
+    "/api/v1/compliance-packages",
+    response_model=AuditExportReceipt,
+    status_code=status.HTTP_201_CREATED,
+    tags=["audit"],
+)
+async def create_object_compliance_package(
+    request: CompliancePackageRequest,
+    service: AuditArtifactServiceDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> AuditExportReceipt:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="compliance",
+        action=PermissionAction.USE,
+        tenant_id=tenant_id,
+    )
+    artifact = await service.export_compliance_package(
+        tenant_id,
+        actor_id=str(actor.principal_id),
+        destination=AuditExportDestination.OBJECT_STORAGE,
+        occurred_from=request.occurred_from,
+        occurred_to=request.occurred_to,
+        max_audit_events=request.max_audit_events,
+    )
+    return artifact.receipt
+
+
+def _audit_artifact_response(artifact: AuditArtifact) -> Response:
+    return Response(
+        content=artifact.content,
+        media_type=artifact.content_type,
+        headers={
+            "Content-Disposition": f'attachment; filename="{artifact.filename}"',
+            "X-Checksum-Sha256": artifact.receipt.checksum_sha256,
+            "X-Amesh-Signature": artifact.receipt.signature,
+        },
     )
 
 

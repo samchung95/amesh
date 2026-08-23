@@ -7792,105 +7792,136 @@
       "requirement_id": "URS-F-0526",
       "epic_id": "EPIC-504",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-enterprise-docs-v1.3.30",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "src/amesh/authorization.py::AuthorizationService._record",
+        "tests/test_authorization_service.py::test_each_authorization_decision_is_audited_including_cached_decisions",
+        "tests/adapters/postgres/test_audit_repository.py::test_audit_ledger_redaction_integrity_retention_and_compliance_evidence"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0527",
       "epic_id": "EPIC-504",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-enterprise-docs-v1.3.30",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "migrations/0046_audit_evidence_ledger.sql",
+        "src/amesh/domain/audit.py::AuditEvent",
+        "tests/adapters/postgres/test_audit_repository.py::test_audit_ledger_redaction_integrity_retention_and_compliance_evidence"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0528",
       "epic_id": "EPIC-504",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-enterprise-docs-v1.3.30",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "migrations/0046_audit_evidence_ledger.sql::amesh_redact_audit_json",
+        "tests/adapters/postgres/test_audit_repository.py::test_audit_ledger_redaction_integrity_retention_and_compliance_evidence",
+        "tests/test_audit_artifacts.py::test_signed_audit_and_compliance_artifacts_are_redacted_and_uploadable"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0529",
       "epic_id": "EPIC-504",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-enterprise-docs-v1.3.30",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "src/amesh/adapters/postgres/authorization_repository.py",
+        "src/amesh/adapters/postgres/tenant_repository.py",
+        "tests/adapters/postgres/test_authorization_repository.py::test_postgres_policy_persistence_cache_revocation_and_last_admin_guard"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0530",
       "epic_id": "EPIC-504",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-enterprise-docs-v1.3.30",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "migrations/0046_audit_evidence_ledger.sql::amesh_prepare_audit_event",
+        "src/amesh/adapters/postgres/audit_repository.py::PostgresAuditRepository.verify_integrity",
+        "tests/adapters/postgres/test_audit_repository.py::test_audit_ledger_redaction_integrity_retention_and_compliance_evidence"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0531",
       "epic_id": "EPIC-504",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-enterprise-docs-v1.3.30",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "src/amesh/adapters/postgres/audit_repository.py::PostgresAuditRepository.purge_retained",
+        "tests/adapters/postgres/test_audit_repository.py::test_audit_ledger_redaction_integrity_retention_and_compliance_evidence",
+        "docs/operations/audit-evidence.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0532",
       "epic_id": "EPIC-504",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-enterprise-docs-v1.3.30",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "src/amesh/audit.py::AuditArtifactService",
+        "tests/test_audit_artifacts.py::test_signed_audit_and_compliance_artifacts_are_redacted_and_uploadable",
+        "tests/api/test_realtime_api.py::test_urs_f_0409_0410_0413_signed_retry_rotation_replay_and_outage_isolation"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0533",
       "epic_id": "EPIC-504",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-enterprise-docs-v1.3.30",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "src/amesh/domain/authorization.py::BUILT_IN_ROLES",
+        "tests/api/test_audit_api.py::test_audit_and_compliance_api_lifecycle"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0534",
@@ -11760,14 +11791,18 @@
       "requirement_id": "URS-F-0835",
       "epic_id": "EPIC-504",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-enterprise-docs-v1.3.30",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "src/amesh/audit.py::AuditArtifactService.export_compliance_package",
+        "tests/test_audit_artifacts.py::test_signed_audit_and_compliance_artifacts_are_redacted_and_uploadable",
+        "tests/api/test_audit_api.py::test_audit_and_compliance_api_lifecycle"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0836",

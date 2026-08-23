@@ -45,6 +45,7 @@ def test_builtin_roles_are_explicit_and_viewer_is_read_only() -> None:
     roles = {role.name: role for role in BUILT_IN_ROLES}
 
     assert set(roles) == {
+        "auditor",
         "flow-author",
         "instance-admin",
         "namespace-admin",

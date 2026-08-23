@@ -119,6 +119,34 @@ Class | Method | HTTP request | Description
 *AdministrationApi* | [**listAdministrationControlsApiV1AdminControlsGetWithHttpInfo**](docs/AdministrationApi.md#listAdministrationControlsApiV1AdminControlsGetWithHttpInfo) | **GET** /api/v1/admin/controls | List Administration Controls
 *AdministrationApi* | [**previewAdministrationControlApiV1AdminControlsPreviewPost**](docs/AdministrationApi.md#previewAdministrationControlApiV1AdminControlsPreviewPost) | **POST** /api/v1/admin/controls/preview | Preview Administration Control
 *AdministrationApi* | [**previewAdministrationControlApiV1AdminControlsPreviewPostWithHttpInfo**](docs/AdministrationApi.md#previewAdministrationControlApiV1AdminControlsPreviewPostWithHttpInfo) | **POST** /api/v1/admin/controls/preview | Preview Administration Control
+*AuditApi* | [**createAuditLegalHoldApiV1AuditLegalHoldsPost**](docs/AuditApi.md#createAuditLegalHoldApiV1AuditLegalHoldsPost) | **POST** /api/v1/audit-legal-holds | Create Audit Legal Hold
+*AuditApi* | [**createAuditLegalHoldApiV1AuditLegalHoldsPostWithHttpInfo**](docs/AuditApi.md#createAuditLegalHoldApiV1AuditLegalHoldsPostWithHttpInfo) | **POST** /api/v1/audit-legal-holds | Create Audit Legal Hold
+*AuditApi* | [**createComplianceEvidenceApiV1ComplianceEvidencePost**](docs/AuditApi.md#createComplianceEvidenceApiV1ComplianceEvidencePost) | **POST** /api/v1/compliance-evidence | Create Compliance Evidence
+*AuditApi* | [**createComplianceEvidenceApiV1ComplianceEvidencePostWithHttpInfo**](docs/AuditApi.md#createComplianceEvidenceApiV1ComplianceEvidencePostWithHttpInfo) | **POST** /api/v1/compliance-evidence | Create Compliance Evidence
+*AuditApi* | [**createObjectAuditExportApiV1AuditExportsPost**](docs/AuditApi.md#createObjectAuditExportApiV1AuditExportsPost) | **POST** /api/v1/audit-exports | Create Object Audit Export
+*AuditApi* | [**createObjectAuditExportApiV1AuditExportsPostWithHttpInfo**](docs/AuditApi.md#createObjectAuditExportApiV1AuditExportsPostWithHttpInfo) | **POST** /api/v1/audit-exports | Create Object Audit Export
+*AuditApi* | [**createObjectCompliancePackageApiV1CompliancePackagesPost**](docs/AuditApi.md#createObjectCompliancePackageApiV1CompliancePackagesPost) | **POST** /api/v1/compliance-packages | Create Object Compliance Package
+*AuditApi* | [**createObjectCompliancePackageApiV1CompliancePackagesPostWithHttpInfo**](docs/AuditApi.md#createObjectCompliancePackageApiV1CompliancePackagesPostWithHttpInfo) | **POST** /api/v1/compliance-packages | Create Object Compliance Package
+*AuditApi* | [**downloadAuditExportApiV1AuditEventsExportGet**](docs/AuditApi.md#downloadAuditExportApiV1AuditEventsExportGet) | **GET** /api/v1/audit-events/export | Download Audit Export
+*AuditApi* | [**downloadAuditExportApiV1AuditEventsExportGetWithHttpInfo**](docs/AuditApi.md#downloadAuditExportApiV1AuditEventsExportGetWithHttpInfo) | **GET** /api/v1/audit-events/export | Download Audit Export
+*AuditApi* | [**downloadCompliancePackageApiV1CompliancePackagesExportGet**](docs/AuditApi.md#downloadCompliancePackageApiV1CompliancePackagesExportGet) | **GET** /api/v1/compliance-packages/export | Download Compliance Package
+*AuditApi* | [**downloadCompliancePackageApiV1CompliancePackagesExportGetWithHttpInfo**](docs/AuditApi.md#downloadCompliancePackageApiV1CompliancePackagesExportGetWithHttpInfo) | **GET** /api/v1/compliance-packages/export | Download Compliance Package
+*AuditApi* | [**getAuditPolicyApiV1AuditPolicyGet**](docs/AuditApi.md#getAuditPolicyApiV1AuditPolicyGet) | **GET** /api/v1/audit-policy | Get Audit Policy
+*AuditApi* | [**getAuditPolicyApiV1AuditPolicyGetWithHttpInfo**](docs/AuditApi.md#getAuditPolicyApiV1AuditPolicyGetWithHttpInfo) | **GET** /api/v1/audit-policy | Get Audit Policy
+*AuditApi* | [**listAuditEventsApiV1AuditEventsGet**](docs/AuditApi.md#listAuditEventsApiV1AuditEventsGet) | **GET** /api/v1/audit-events | List Audit Events
+*AuditApi* | [**listAuditEventsApiV1AuditEventsGetWithHttpInfo**](docs/AuditApi.md#listAuditEventsApiV1AuditEventsGetWithHttpInfo) | **GET** /api/v1/audit-events | List Audit Events
+*AuditApi* | [**listAuditLegalHoldsApiV1AuditLegalHoldsGet**](docs/AuditApi.md#listAuditLegalHoldsApiV1AuditLegalHoldsGet) | **GET** /api/v1/audit-legal-holds | List Audit Legal Holds
+*AuditApi* | [**listAuditLegalHoldsApiV1AuditLegalHoldsGetWithHttpInfo**](docs/AuditApi.md#listAuditLegalHoldsApiV1AuditLegalHoldsGetWithHttpInfo) | **GET** /api/v1/audit-legal-holds | List Audit Legal Holds
+*AuditApi* | [**listComplianceEvidenceApiV1ComplianceEvidenceGet**](docs/AuditApi.md#listComplianceEvidenceApiV1ComplianceEvidenceGet) | **GET** /api/v1/compliance-evidence | List Compliance Evidence
+*AuditApi* | [**listComplianceEvidenceApiV1ComplianceEvidenceGetWithHttpInfo**](docs/AuditApi.md#listComplianceEvidenceApiV1ComplianceEvidenceGetWithHttpInfo) | **GET** /api/v1/compliance-evidence | List Compliance Evidence
+*AuditApi* | [**purgeAuditRetentionApiV1AuditRetentionPurgePost**](docs/AuditApi.md#purgeAuditRetentionApiV1AuditRetentionPurgePost) | **POST** /api/v1/audit-retention/purge | Purge Audit Retention
+*AuditApi* | [**purgeAuditRetentionApiV1AuditRetentionPurgePostWithHttpInfo**](docs/AuditApi.md#purgeAuditRetentionApiV1AuditRetentionPurgePostWithHttpInfo) | **POST** /api/v1/audit-retention/purge | Purge Audit Retention
+*AuditApi* | [**releaseAuditLegalHoldApiV1AuditLegalHoldsHoldIdDelete**](docs/AuditApi.md#releaseAuditLegalHoldApiV1AuditLegalHoldsHoldIdDelete) | **DELETE** /api/v1/audit-legal-holds/{hold_id} | Release Audit Legal Hold
+*AuditApi* | [**releaseAuditLegalHoldApiV1AuditLegalHoldsHoldIdDeleteWithHttpInfo**](docs/AuditApi.md#releaseAuditLegalHoldApiV1AuditLegalHoldsHoldIdDeleteWithHttpInfo) | **DELETE** /api/v1/audit-legal-holds/{hold_id} | Release Audit Legal Hold
+*AuditApi* | [**updateAuditPolicyApiV1AuditPolicyPut**](docs/AuditApi.md#updateAuditPolicyApiV1AuditPolicyPut) | **PUT** /api/v1/audit-policy | Update Audit Policy
+*AuditApi* | [**updateAuditPolicyApiV1AuditPolicyPutWithHttpInfo**](docs/AuditApi.md#updateAuditPolicyApiV1AuditPolicyPutWithHttpInfo) | **PUT** /api/v1/audit-policy | Update Audit Policy
+*AuditApi* | [**verifyAuditIntegrityApiV1AuditEventsIntegrityGet**](docs/AuditApi.md#verifyAuditIntegrityApiV1AuditEventsIntegrityGet) | **GET** /api/v1/audit-events/integrity | Verify Audit Integrity
+*AuditApi* | [**verifyAuditIntegrityApiV1AuditEventsIntegrityGetWithHttpInfo**](docs/AuditApi.md#verifyAuditIntegrityApiV1AuditEventsIntegrityGetWithHttpInfo) | **GET** /api/v1/audit-events/integrity | Verify Audit Integrity
 *AuthenticationApi* | [**beginFederatedLoginApiV1AuthFederatedProviderIdStartGet**](docs/AuthenticationApi.md#beginFederatedLoginApiV1AuthFederatedProviderIdStartGet) | **GET** /api/v1/auth/federated/{provider_id}/start | Begin Federated Login
 *AuthenticationApi* | [**beginFederatedLoginApiV1AuthFederatedProviderIdStartGetWithHttpInfo**](docs/AuthenticationApi.md#beginFederatedLoginApiV1AuthFederatedProviderIdStartGetWithHttpInfo) | **GET** /api/v1/auth/federated/{provider_id}/start | Begin Federated Login
 *AuthenticationApi* | [**changeLocalPasswordApiV1AuthPasswordPost**](docs/AuthenticationApi.md#changeLocalPasswordApiV1AuthPasswordPost) | **POST** /api/v1/auth/password | Change Local Password
@@ -483,6 +511,19 @@ Class | Method | HTTP request | Description
  - [AdmissionOutcome](docs/AdmissionOutcome.md)
  - [AdmissionResourceType](docs/AdmissionResourceType.md)
  - [AdmissionScope](docs/AdmissionScope.md)
+ - [AuditArtifactKind](docs/AuditArtifactKind.md)
+ - [AuditEvent](docs/AuditEvent.md)
+ - [AuditEventPage](docs/AuditEventPage.md)
+ - [AuditExportDestination](docs/AuditExportDestination.md)
+ - [AuditExportFormat](docs/AuditExportFormat.md)
+ - [AuditExportReceipt](docs/AuditExportReceipt.md)
+ - [AuditExportRequest](docs/AuditExportRequest.md)
+ - [AuditIntegrityReport](docs/AuditIntegrityReport.md)
+ - [AuditLegalHold](docs/AuditLegalHold.md)
+ - [AuditLegalHoldCreate](docs/AuditLegalHoldCreate.md)
+ - [AuditRetentionPolicy](docs/AuditRetentionPolicy.md)
+ - [AuditRetentionPolicyUpdate](docs/AuditRetentionPolicyUpdate.md)
+ - [AuditRetentionResult](docs/AuditRetentionResult.md)
  - [AuthenticationProviderDescriptor](docs/AuthenticationProviderDescriptor.md)
  - [AuthenticationProviderKind](docs/AuthenticationProviderKind.md)
  - [AuthorizationDecision](docs/AuthorizationDecision.md)
@@ -514,6 +555,10 @@ Class | Method | HTTP request | Description
  - [CheckOutcome](docs/CheckOutcome.md)
  - [CheckPolicySource](docs/CheckPolicySource.md)
  - [CheckPolicyUpsertRequest](docs/CheckPolicyUpsertRequest.md)
+ - [ComplianceEvidenceCategory](docs/ComplianceEvidenceCategory.md)
+ - [ComplianceEvidenceCreate](docs/ComplianceEvidenceCreate.md)
+ - [ComplianceEvidenceRecord](docs/ComplianceEvidenceRecord.md)
+ - [CompliancePackageRequest](docs/CompliancePackageRequest.md)
  - [ConfigurationDiagnosticBundle](docs/ConfigurationDiagnosticBundle.md)
  - [ConfigurationEntry](docs/ConfigurationEntry.md)
  - [ConfigurationSnapshot](docs/ConfigurationSnapshot.md)
