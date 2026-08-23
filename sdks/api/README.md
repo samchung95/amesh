@@ -11,6 +11,9 @@ uv run python scripts/generate_sdks.py
 uv run python scripts/generate_sdks.py --check
 ```
 
-Configure generated clients with `Authorization: Bearer <token>` and `X-Amesh-Tenant`. The
-language-specific `pagination` helper repeatedly calls a cursor-aware page loader until
-`nextCursor` is empty. Generated source should not be edited directly.
+Configure generated clients with `Authorization: Bearer <token>` and `X-Amesh-Tenant`. Each package
+includes a hand-written execution client for bounded retries, idempotent launch, terminal waiting,
+cancellation, logs, artifact download, NDJSON streaming and webhook signature verification. The
+language-specific `pagination` helper repeatedly calls a cursor-aware page loader until `nextCursor`
+is empty. Generated models and APIs should not be edited directly; execution helpers are maintained
+under `scripts/sdk_templates` and copied during generation.

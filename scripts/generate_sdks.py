@@ -15,6 +15,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 OPENAPI = ROOT / "docs" / "api" / "openapi.json"
 SDK_ROOT = ROOT / "sdks" / "api"
+TEMPLATE_ROOT = ROOT / "scripts" / "sdk_templates"
 GENERATOR_IMAGE = (
     "openapitools/openapi-generator-cli@"
     "sha256:5bf3dc75f764c584da8e3344c51b2f3f1e74703461d46a035b5ac1d31515cc88"
@@ -254,6 +255,87 @@ func CollectPages[T any](ctx context.Context, load PageLoader[T]) ([]T, error) {
     )
 
 
+def _write_execution_helpers(root: Path) -> None:
+    targets = {
+        TEMPLATE_ROOT / "python" / "execution.py": (
+            root / "python" / "amesh_client" / "execution.py"
+        ),
+        TEMPLATE_ROOT / "typescript" / "execution.ts": (
+            root / "typescript" / "src" / "execution.ts"
+        ),
+        TEMPLATE_ROOT / "java" / "AmeshExecutionClient.java": (
+            root
+            / "java"
+            / "src"
+            / "main"
+            / "java"
+            / "io"
+            / "amesh"
+            / "client"
+            / "AmeshExecutionClient.java"
+        ),
+        TEMPLATE_ROOT / "java" / "AnyOf.java": (
+            root
+            / "java"
+            / "src"
+            / "main"
+            / "java"
+            / "io"
+            / "amesh"
+            / "client"
+            / "model"
+            / "AnyOf.java"
+        ),
+        TEMPLATE_ROOT / "go" / "execution_client.go": root / "go" / "execution_client.go",
+        TEMPLATE_ROOT / "go" / "any_of.go": root / "go" / "any_of.go",
+        TEMPLATE_ROOT / "go" / "execution_client_test.go": (
+            root / "go" / "execution_client_test.go"
+        ),
+    }
+    for source, destination in targets.items():
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(source, destination)
+
+    python_init = root / "python" / "amesh_client" / "__init__.py"
+    with python_init.open("a", encoding="utf-8", newline="\n") as stream:
+        stream.write(
+            "from amesh_client.execution import (\n"
+            "    AmeshError as AmeshError,\n"
+            "    AsyncExecutionClient as AsyncExecutionClient,\n"
+            "    ExecutionClient as ExecutionClient,\n"
+            "    RetryPolicy as RetryPolicy,\n"
+            "    verify_webhook as verify_webhook,\n"
+            ")\n"
+        )
+    typescript_index = root / "typescript" / "src" / "index.ts"
+    with typescript_index.open("a", encoding="utf-8", newline="\n") as stream:
+        stream.write("export * from './execution';\n")
+
+
+def _repair_typescript_generator_gaps(root: Path) -> None:
+    """Keep the pinned generator's unconstrained FormField.default model compilable."""
+    form_field = root / "typescript" / "src" / "models" / "FormField.ts"
+    content = form_field.read_text(encoding="utf-8")
+    replacements = {
+        "_default?:  | null;": "_default?: unknown | null;",
+        "FromJSON(json['default'])": "json['default']",
+        "ToJSON(value['_default'])": "value['_default']",
+    }
+    for old, new in replacements.items():
+        if old not in content:
+            raise RuntimeError(f"generated TypeScript FormField marker changed: {old}")
+        content = content.replace(old, new, 1)
+    form_field.write_text(content, encoding="utf-8")
+
+    for name in ("tsconfig.json", "tsconfig.esm.json"):
+        path = root / "typescript" / name
+        document = json.loads(path.read_text(encoding="utf-8"))
+        compiler = document.setdefault("compilerOptions", {})
+        compiler["target"] = "es2018"
+        compiler["lib"] = ["ES2018", "DOM", "DOM.Iterable"]
+        path.write_text(json.dumps(document, indent=2) + "\n", encoding="utf-8")
+
+
 def _write_license_metadata(root: Path) -> None:
     for target in TARGETS:
         shutil.copy2(ROOT / "LICENSE", root / target.name / "LICENSE")
@@ -282,6 +364,7 @@ def _write_manifest(root: Path) -> None:
                 "package": target.package,
                 "path": target.name,
                 "paginationHelper": True,
+                "executionClient": True,
             }
             for target in TARGETS
         ],
@@ -301,9 +384,12 @@ uv run python scripts/generate_sdks.py
 uv run python scripts/generate_sdks.py --check
 ```
 
-Configure generated clients with `Authorization: Bearer <token>` and `X-Amesh-Tenant`. The
-language-specific `pagination` helper repeatedly calls a cursor-aware page loader until
-`nextCursor` is empty. Generated source should not be edited directly.
+Configure generated clients with `Authorization: Bearer <token>` and `X-Amesh-Tenant`. Each package
+includes a hand-written execution client for bounded retries, idempotent launch, terminal waiting,
+cancellation, logs, artifact download, NDJSON streaming and webhook signature verification. The
+language-specific `pagination` helper repeatedly calls a cursor-aware page loader until `nextCursor`
+is empty. Generated models and APIs should not be edited directly; execution helpers are maintained
+under `scripts/sdk_templates` and copied during generation.
 """,
         encoding="utf-8",
     )
@@ -332,6 +418,8 @@ def generate(root: Path, *, allowed_parent: Path) -> None:
         _run_generator(target, root / target.name)
     _write_license_metadata(root)
     _write_pagination_helpers(root)
+    _write_execution_helpers(root)
+    _repair_typescript_generator_gaps(root)
     _write_manifest(root)
     _normalize_generated_text(root)
 

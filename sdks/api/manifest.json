@@ -9,25 +9,29 @@
       "language": "python",
       "package": "amesh-client",
       "path": "python",
-      "paginationHelper": true
+      "paginationHelper": true,
+      "executionClient": true
     },
     {
       "language": "typescript",
       "package": "@amesh/client",
       "path": "typescript",
-      "paginationHelper": true
+      "paginationHelper": true,
+      "executionClient": true
     },
     {
       "language": "java",
       "package": "io.amesh:amesh-client",
       "path": "java",
-      "paginationHelper": true
+      "paginationHelper": true,
+      "executionClient": true
     },
     {
       "language": "go",
       "package": "github.com/amesh/amesh-client-go",
       "path": "go",
-      "paginationHelper": true
+      "paginationHelper": true,
+      "executionClient": true
     }
   ]
 }

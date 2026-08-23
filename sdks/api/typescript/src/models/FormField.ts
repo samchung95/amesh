@@ -24,7 +24,7 @@ export interface FormField {
      * @type {}
      * @memberof FormField
      */
-    _default?:  | null;
+    _default?: unknown | null;
     /**
      *
      * @type {string}
@@ -107,7 +107,7 @@ export function FormFieldFromJSONTyped(json: any, ignoreDiscriminator: boolean):
     }
     return {
 
-        '_default': json['default'] === undefined ? undefined : json['default'] === null ? null : FromJSON(json['default']),
+        '_default': json['default'] === undefined ? undefined : json['default'] === null ? null : json['default'],
         'helpText': json['helpText'] == null ? undefined : json['helpText'],
         'id': json['id'],
         'label': json['label'],
@@ -132,7 +132,7 @@ export function FormFieldToJSONTyped(value?: FormField | null, ignoreDiscriminat
 
     return {
 
-        'default': ToJSON(value['_default']),
+        'default': value['_default'],
         'helpText': value['helpText'],
         'id': value['id'],
         'label': value['label'],

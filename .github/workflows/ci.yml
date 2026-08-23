@@ -135,6 +135,58 @@ jobs:
             alpine/helm:3.19.0 template amesh charts/amesh \
             --namespace amesh-system --set operator.enabled=true >/dev/null
 
+  sdk-clients:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+          cache-dependency-path: sdks/api/java/pom.xml
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: sdks/api/go/go.mod
+      - name: Verify deterministic generation
+        run: |
+          python -m pip install uv
+          uv run python scripts/generate_sdks.py --check
+      - name: Test Python client
+        run: |
+          uv pip install --system pytest -e sdks/api/python
+          pytest -q tests/sdk/test_python_execution_client.py
+      - name: Build and test TypeScript client
+        working-directory: sdks/api/typescript
+        run: |
+          npm install
+          npm run build
+          node ../../../tests/sdk/typescript_execution_client.mjs
+      - name: Build and test Java client
+        working-directory: sdks/api/java
+        run: |
+          mvn -q -DskipTests package
+          mvn -q dependency:build-classpath -Dmdep.outputFile=target/classpath.txt
+          mkdir -p target/test-classes
+          javac --add-modules jdk.httpserver \
+            -cp "target/classes:$(cat target/classpath.txt)" \
+            -d target/test-classes ../../../tests/sdk/java/AmeshExecutionClientTestMain.java
+          java --add-modules jdk.httpserver \
+            -cp "target/classes:target/test-classes:$(cat target/classpath.txt)" \
+            AmeshExecutionClientTestMain
+      - name: Test Go client
+        working-directory: sdks/api/go
+        run: |
+          test -z "$(gofmt -l .)"
+          go test ./...
+
   postgres-compatibility:
     runs-on: ubuntu-latest
     timeout-minutes: 15

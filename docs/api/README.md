@@ -9,6 +9,8 @@
 - Enterprise provider discovery, OIDC/SAML browser redirects, LDAP authentication and tenant-bound
   SCIM provisioning are documented in the [identity and SCIM API guide](identity-and-scim.md).
 - They are not the complete compatibility API; gaps remain explicit until the version-pinned ADR-009 façade epics are verified.
+- Generated Python, TypeScript, Java and Go packages and their high-level execution facade are
+  documented in the [public SDK guide](sdks.md).
 
 ## v1 conventions
 

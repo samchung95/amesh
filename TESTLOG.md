@@ -3073,3 +3073,33 @@ local contract verifies scoped per-cluster deployment configuration and per-tena
 breaking version exists; ADR-043 requires conversion or storage migration before removal.
 
 Verdict: PASS — EPIC-702 closed.
+
+## 2026-08-23 — EPIC-703 public SDKs and embedded integration libraries
+
+Scope: `URS-F-0718` through `URS-F-0725`.
+
+- [x] The pinned OpenAPI generator produced current typed Python, TypeScript, Java and Go packages
+  across 1,971 files. Handwritten operational facades are copied deterministically from
+  `scripts/sdk_templates`; a clean regeneration check reported no drift.
+- [x] Every facade sends bearer and tenant authentication, launches with one stable idempotency key,
+  retries only reads and idempotent launches, returns generated execution/log/artifact models,
+  normalizes errors and supports terminal wait, fenced cancel, log streaming and artifact download.
+- [x] Python exposes thread-safe sync and async clients, TypeScript is async, Java uses an immutable
+  JDK HTTP client configuration and Go uses contexts. All four accept caller-controlled transports.
+- [x] Exact-byte webhook HMAC verification, constant-time comparison and timestamp-window rejection
+  passed in all four languages. Python additionally verified normalized authorization errors and
+  NDJSON consumption.
+- [x] Python Ruff and four pytest scenarios passed; TypeScript compiled twice and its Node test
+  passed; Java packaged and its standalone mock-server test passed; Go formatting and tests passed.
+- [x] A live kind conformance run applied `examples/hello-world.yaml`; Python, TypeScript, Java and
+  Go each launched the flow, observed `SUCCESS`, retrieved it, listed logs and listed artifacts.
+- [x] Pull-request CI now verifies deterministic generation and compiles/tests every language. Tag
+  release CI repeats the four-language tests against a fresh Compose API/executor before release.
+- [x] ADR-044, the public SDK guide and web, CLI, CI and event-consumer examples document semantic
+  compatibility, concurrency, customization, credentials, retry and webhook boundaries.
+
+Qualification boundary: public PyPI, npm and Maven Central publication requires operator-owned
+registry accounts. The qualified local release surface is the deterministic four-language package
+set and GitHub Release archives with SHA-256 checksums.
+
+Verdict: PASS — EPIC-703 closed.

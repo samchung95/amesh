@@ -10656,97 +10656,161 @@
       "requirement_id": "URS-F-0718",
       "epic_id": "EPIC-703",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-703-public-sdks-and-embedded-integration-libraries.md",
+        "tests/sdk/test_python_execution_client.py",
+        "tests/sdk/typescript_execution_client.mjs",
+        "tests/sdk/java/AmeshExecutionClientTestMain.java",
+        "sdks/api/go/execution_client_test.go",
+        "docs/api/sdks.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0719",
       "epic_id": "EPIC-703",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-703-public-sdks-and-embedded-integration-libraries.md",
+        "tests/sdk/test_python_execution_client.py",
+        "tests/sdk/typescript_execution_client.mjs",
+        "tests/sdk/java/AmeshExecutionClientTestMain.java",
+        "sdks/api/go/execution_client_test.go",
+        "docs/api/sdks.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0720",
       "epic_id": "EPIC-703",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-703-public-sdks-and-embedded-integration-libraries.md",
+        "tests/sdk/test_python_execution_client.py",
+        "tests/sdk/typescript_execution_client.mjs",
+        "tests/sdk/java/AmeshExecutionClientTestMain.java",
+        "sdks/api/go/execution_client_test.go",
+        "docs/api/sdks.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0721",
       "epic_id": "EPIC-703",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-703-public-sdks-and-embedded-integration-libraries.md",
+        "tests/sdk/test_python_execution_client.py",
+        "tests/sdk/typescript_execution_client.mjs",
+        "tests/sdk/java/AmeshExecutionClientTestMain.java",
+        "sdks/api/go/execution_client_test.go",
+        "docs/api/sdks.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0722",
       "epic_id": "EPIC-703",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-703-public-sdks-and-embedded-integration-libraries.md",
+        "tests/sdk/test_python_execution_client.py",
+        "tests/sdk/typescript_execution_client.mjs",
+        "tests/sdk/java/AmeshExecutionClientTestMain.java",
+        "sdks/api/go/execution_client_test.go",
+        "docs/api/sdks.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0723",
       "epic_id": "EPIC-703",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-703-public-sdks-and-embedded-integration-libraries.md",
+        "tests/sdk/test_python_execution_client.py",
+        "tests/sdk/typescript_execution_client.mjs",
+        "tests/sdk/java/AmeshExecutionClientTestMain.java",
+        "sdks/api/go/execution_client_test.go",
+        "docs/api/sdks.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0724",
       "epic_id": "EPIC-703",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-703-public-sdks-and-embedded-integration-libraries.md",
+        "tests/sdk/test_python_execution_client.py",
+        "tests/sdk/typescript_execution_client.mjs",
+        "tests/sdk/java/AmeshExecutionClientTestMain.java",
+        "sdks/api/go/execution_client_test.go",
+        "docs/api/sdks.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0725",
       "epic_id": "EPIC-703",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-703-public-sdks-and-embedded-integration-libraries.md",
+        "tests/sdk/test_python_execution_client.py",
+        "tests/sdk/typescript_execution_client.mjs",
+        "tests/sdk/java/AmeshExecutionClientTestMain.java",
+        "sdks/api/go/execution_client_test.go",
+        "docs/api/sdks.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0726",
