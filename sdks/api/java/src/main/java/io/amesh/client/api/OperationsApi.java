@@ -22,6 +22,7 @@ import io.amesh.client.model.AdmissionDiagnostics;
 import io.amesh.client.model.Announcement;
 import io.amesh.client.model.AnnouncementCreateRequest;
 import io.amesh.client.model.HTTPValidationError;
+import io.amesh.client.model.NetworkDiagnosticBundle;
 import io.amesh.client.model.OperationalControl;
 import io.amesh.client.model.OperationalControlActionRequest;
 import io.amesh.client.model.OperationalControlCreateRequest;
@@ -884,6 +885,136 @@ public class OperationsApi {
     HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
 
     String localVarPath = "/api/v1/admissions/diagnostics";
+
+    localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+
+    if (authorization != null) {
+      localVarRequestBuilder.header("authorization", authorization.toString());
+    }
+    if (xAmeshCSRF != null) {
+      localVarRequestBuilder.header("X-Amesh-CSRF", xAmeshCSRF.toString());
+    }
+    if (xAmeshTenant != null) {
+      localVarRequestBuilder.header("X-Amesh-Tenant", xAmeshTenant.toString());
+    }
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    localVarRequestBuilder.method("GET", HttpRequest.BodyPublishers.noBody());
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    // Add custom headers if provided
+    localVarRequestBuilder = HttpRequestBuilderExtensions.withAdditionalHeaders(localVarRequestBuilder, headers);
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
+  }
+
+  /**
+   * Get Network Diagnostics
+   *
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return NetworkDiagnosticBundle
+   * @throws ApiException if fails to make API call
+   */
+  public NetworkDiagnosticBundle getNetworkDiagnosticsApiV1OperationsNetworkDiagnosticsGet(@javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return getNetworkDiagnosticsApiV1OperationsNetworkDiagnosticsGet(authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * Get Network Diagnostics
+   *
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return NetworkDiagnosticBundle
+   * @throws ApiException if fails to make API call
+   */
+  public NetworkDiagnosticBundle getNetworkDiagnosticsApiV1OperationsNetworkDiagnosticsGet(@javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    ApiResponse<NetworkDiagnosticBundle> localVarResponse = getNetworkDiagnosticsApiV1OperationsNetworkDiagnosticsGetWithHttpInfo(authorization, xAmeshCSRF, xAmeshTenant, headers);
+    return localVarResponse.getData();
+  }
+
+  /**
+   * Get Network Diagnostics
+   *
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return ApiResponse&lt;NetworkDiagnosticBundle&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<NetworkDiagnosticBundle> getNetworkDiagnosticsApiV1OperationsNetworkDiagnosticsGetWithHttpInfo(@javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return getNetworkDiagnosticsApiV1OperationsNetworkDiagnosticsGetWithHttpInfo(authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * Get Network Diagnostics
+   *
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return ApiResponse&lt;NetworkDiagnosticBundle&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<NetworkDiagnosticBundle> getNetworkDiagnosticsApiV1OperationsNetworkDiagnosticsGetWithHttpInfo(@javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = getNetworkDiagnosticsApiV1OperationsNetworkDiagnosticsGetRequestBuilder(authorization, xAmeshCSRF, xAmeshTenant, headers);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      InputStream localVarResponseBody = null;
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("getNetworkDiagnosticsApiV1OperationsNetworkDiagnosticsGet", localVarResponse);
+        }
+        localVarResponseBody = ApiClient.getResponseBody(localVarResponse);
+        if (localVarResponseBody == null) {
+          return new ApiResponse<NetworkDiagnosticBundle>(
+              localVarResponse.statusCode(),
+              localVarResponse.headers().map(),
+              null
+          );
+        }
+
+
+
+        String responseBody = new String(localVarResponseBody.readAllBytes());
+        NetworkDiagnosticBundle responseValue = responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<NetworkDiagnosticBundle>() {});
+
+
+        return new ApiResponse<NetworkDiagnosticBundle>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            responseValue
+        );
+      } finally {
+        if (localVarResponseBody != null) {
+          localVarResponseBody.close();
+        }
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder getNetworkDiagnosticsApiV1OperationsNetworkDiagnosticsGetRequestBuilder(@javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/api/v1/operations/network-diagnostics";
 
     localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
 

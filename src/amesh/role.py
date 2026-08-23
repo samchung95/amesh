@@ -227,10 +227,25 @@ async def run_role(settings: Settings, *, stop_event: asyncio.Event | None = Non
         realtime,
         signing_key=settings.webhook_signing_key.get_secret_value(),
         policy=HttpTaskPolicy(
+            allowed_hosts=settings.network_egress_allowed_hosts,
             allowed_private_hosts=frozenset(settings.core_http_allowed_private_hosts),
             maximum_response_bytes=settings.core_http_max_response_bytes,
             maximum_pages=settings.core_http_max_pages,
             maximum_redirects=0,
+            http_proxy_url=(
+                settings.network_http_proxy_url.get_secret_value()
+                if settings.network_http_proxy_url is not None
+                else None
+            ),
+            https_proxy_url=(
+                settings.network_https_proxy_url.get_secret_value()
+                if settings.network_https_proxy_url is not None
+                else None
+            ),
+            no_proxy=settings.network_no_proxy,
+            ca_file=settings.network_outbound_ca_file,
+            client_certificate_file=settings.network_outbound_client_certificate_file,
+            client_key_file=settings.network_outbound_client_key_file,
         ),
         timeout_seconds=settings.webhook_delivery_timeout_seconds,
     )

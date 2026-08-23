@@ -6,13 +6,16 @@ metadata:
     {{- include "amesh.labels" . | nindent 4 }}
   annotations:
     {{- toYaml .Values.service.annotations | nindent 4 }}
+    {{- if .Values.network.privateEndpoint }}
+    {{- toYaml .Values.network.privateEndpointAnnotations | nindent 4 }}
+    {{- end }}
 spec:
   type: {{ .Values.service.type }}
   ports:
     - port: {{ .Values.service.port }}
-      targetPort: http
+      targetPort: {{ ternary "https" "http" (eq .Values.network.tls.mode "direct") }}
       protocol: TCP
-      name: http
+      name: {{ ternary "https" "http" (eq .Values.network.tls.mode "direct") }}
   selector:
     {{- include "amesh.selectorLabels" . | nindent 4 }}
     app.kubernetes.io/component: server

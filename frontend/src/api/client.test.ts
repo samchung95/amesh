@@ -236,6 +236,16 @@ describe('API client', () => {
     expect(JSON.parse((fetchMock.mock.calls[4]?.[1] as RequestInit).body as string)).toEqual({ confirmation: 'UPCAST 3', reason: 'supported LTS migration', batchSize: 25 })
   })
 
+  it('loads redacted network diagnostics from the operations API', async () => {
+    const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(new Response('{}', { status: 200 })))
+    vi.stubGlobal('fetch', fetchMock)
+    const api = createApiClient({ token: 'token', tenant: 'default', namespace: '' })
+
+    await api.networkDiagnostics()
+
+    expect(fetchMock.mock.calls[0]?.[0]).toBe('/api/v1/operations/network-diagnostics')
+  })
+
   it('uses a deterministic fallback when JSON detail is not text', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify({ detail: 42 }), { status: 500 })))
     const api = createApiClient({ token: 'token', tenant: 'default', namespace: '' })

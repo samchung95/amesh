@@ -10272,6 +10272,50 @@ paths:
       summary: Change Operational Control
       tags:
       - operations
+  /api/v1/operations/network-diagnostics:
+    get:
+      operationId: get_network_diagnostics_api_v1_operations_network_diagnostics_get
+      parameters:
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NetworkDiagnosticBundle"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Get Network Diagnostics
+      tags:
+      - operations
   /api/v1/operations/services/{instance_id}/drain:
     post:
       operationId: drain_service_instance_api_v1_operations_services__instance_id__drain_post
@@ -16767,6 +16811,45 @@ components:
       required:
       - items
       title: BulkExecutionRequest
+    CertificateDiagnostic:
+      example:
+        configured: true
+        detail: detail
+        fingerprint: fingerprint
+        modifiedAt: 2000-01-23T04:56:07.000+00:00
+        purpose: purpose
+        status: NOT_CONFIGURED
+      properties:
+        configured:
+          title: Configured
+          type: boolean
+        detail:
+          title: Detail
+          type: string
+        fingerprint:
+          nullable: true
+          type: string
+        modifiedAt:
+          format: date-time
+          nullable: true
+          type: string
+        purpose:
+          title: Purpose
+          type: string
+        status:
+          enum:
+          - NOT_CONFIGURED
+          - READY
+          - MISSING
+          - INVALID
+          title: Status
+          type: string
+      required:
+      - configured
+      - detail
+      - purpose
+      - status
+      title: CertificateDiagnostic
     ChangeLocalPasswordRequest:
       example:
         currentPassword: currentPassword
@@ -17589,6 +17672,40 @@ components:
       - loaded_at
       - version
       title: ConfigurationSnapshot
+    ConnectionDiagnostic:
+      example:
+        host: host
+        name: name
+        port: 0
+        proxy: HTTP
+        scheme: scheme
+      properties:
+        host:
+          title: Host
+          type: string
+        name:
+          title: Name
+          type: string
+        port:
+          nullable: true
+          type: integer
+        proxy:
+          enum:
+          - HTTP
+          - HTTPS
+          - BYPASSED
+          - DIRECT
+          title: Proxy
+          type: string
+        scheme:
+          title: Scheme
+          type: string
+      required:
+      - host
+      - name
+      - proxy
+      - scheme
+      title: ConnectionDiagnostic
     CreateExecutionRequest:
       example:
         cacheMode: ""
@@ -18928,6 +19045,38 @@ components:
       - result
       - widgetId
       title: DashboardWidgetResult
+    DnsDiagnostic:
+      example:
+        addresses:
+        - addresses
+        - addresses
+        detail: detail
+        host: host
+        status: RESOLVED
+      properties:
+        addresses:
+          default: []
+          items:
+            type: string
+          title: Addresses
+          type: array
+        detail:
+          title: Detail
+          type: string
+        host:
+          title: Host
+          type: string
+        status:
+          enum:
+          - RESOLVED
+          - FAILED
+          title: Status
+          type: string
+      required:
+      - detail
+      - host
+      - status
+      title: DnsDiagnostic
     EffectivePluginPolicy:
       example:
         defaultEffect: ALLOW
@@ -23349,6 +23498,159 @@ components:
       - lineage
       - namespace
       title: NamespaceWorkflowMetadataView
+    NetworkDiagnosticBundle:
+      example:
+        allowedPrivateHosts:
+        - allowedPrivateHosts
+        - allowedPrivateHosts
+        certificates:
+        - configured: true
+          detail: detail
+          fingerprint: fingerprint
+          modifiedAt: 2000-01-23T04:56:07.000+00:00
+          purpose: purpose
+          status: NOT_CONFIGURED
+        - configured: true
+          detail: detail
+          fingerprint: fingerprint
+          modifiedAt: 2000-01-23T04:56:07.000+00:00
+          purpose: purpose
+          status: NOT_CONFIGURED
+        clientAuthentication: clientAuthentication
+        connections:
+        - host: host
+          name: name
+          port: 0
+          proxy: HTTP
+          scheme: scheme
+        - host: host
+          name: name
+          port: 0
+          proxy: HTTP
+          scheme: scheme
+        dns:
+        - addresses:
+          - addresses
+          - addresses
+          detail: detail
+          host: host
+          status: RESOLVED
+        - addresses:
+          - addresses
+          - addresses
+          detail: detail
+          host: host
+          status: RESOLVED
+        egressAllowedHosts:
+        - egressAllowedHosts
+        - egressAllowedHosts
+        externalBaseUrl: externalBaseUrl
+        generatedAt: 2000-01-23T04:56:07.000+00:00
+        httpProxyConfigured: true
+        httpsProxyConfigured: true
+        inboundTlsMode: inboundTlsMode
+        minimumTlsVersion: minimumTlsVersion
+        noProxy:
+        - noProxy
+        - noProxy
+        privateEndpoint: true
+        schemaVersion: 6
+        topology: topology
+        trustedProxyRanges:
+        - trustedProxyRanges
+        - trustedProxyRanges
+      properties:
+        allowedPrivateHosts:
+          items:
+            type: string
+          title: Allowedprivatehosts
+          type: array
+          default: null
+        certificates:
+          items:
+            $ref: "#/components/schemas/CertificateDiagnostic"
+          title: Certificates
+          type: array
+          default: null
+        clientAuthentication:
+          title: Clientauthentication
+          type: string
+        connections:
+          items:
+            $ref: "#/components/schemas/ConnectionDiagnostic"
+          title: Connections
+          type: array
+          default: null
+        dns:
+          items:
+            $ref: "#/components/schemas/DnsDiagnostic"
+          title: Dns
+          type: array
+          default: null
+        egressAllowedHosts:
+          items:
+            type: string
+          title: Egressallowedhosts
+          type: array
+          default: null
+        externalBaseUrl:
+          nullable: true
+          type: string
+        generatedAt:
+          format: date-time
+          title: Generatedat
+          type: string
+        httpProxyConfigured:
+          title: Httpproxyconfigured
+          type: boolean
+        httpsProxyConfigured:
+          title: Httpsproxyconfigured
+          type: boolean
+        inboundTlsMode:
+          title: Inboundtlsmode
+          type: string
+        minimumTlsVersion:
+          title: Minimumtlsversion
+          type: string
+        noProxy:
+          items:
+            type: string
+          title: Noproxy
+          type: array
+          default: null
+        privateEndpoint:
+          title: Privateendpoint
+          type: boolean
+        schemaVersion:
+          default: 1
+          title: Schemaversion
+          type: integer
+        topology:
+          title: Topology
+          type: string
+        trustedProxyRanges:
+          items:
+            type: string
+          title: Trustedproxyranges
+          type: array
+          default: null
+      required:
+      - allowedPrivateHosts
+      - certificates
+      - clientAuthentication
+      - connections
+      - dns
+      - egressAllowedHosts
+      - generatedAt
+      - httpProxyConfigured
+      - httpsProxyConfigured
+      - inboundTlsMode
+      - minimumTlsVersion
+      - noProxy
+      - privateEndpoint
+      - topology
+      - trustedProxyRanges
+      title: NetworkDiagnosticBundle
     OperationalBoundary:
       enum:
       - AUTHORING

@@ -33,6 +33,8 @@ def test_reference_configuration_is_postgresql_only() -> None:
     assert settings.database_prepared_statement_cache_size == 100
     assert settings.core_http_allowed_private_hosts == ()
     assert settings.core_http_max_response_bytes == 10 * 1024 * 1024
+    assert settings.network_inbound_tls_mode == "disabled"
+    assert settings.network_egress_allowed_hosts == ("*",)
 
 
 def test_database_urls_require_the_async_postgresql_driver() -> None:
@@ -247,6 +249,41 @@ def test_core_http_policy_is_typed_and_operator_bounded() -> None:
     assert loaded.settings.core_http_max_response_bytes == 2_097_152
     assert loaded.settings.core_http_max_pages == 20
     assert loaded.settings.core_http_max_redirects == 2
+
+
+def test_network_security_configuration_is_typed_and_fails_closed() -> None:
+    loaded = load_configuration(
+        environment={
+            "NETWORK_INBOUND_TLS_MODE": "trusted-proxy",
+            "NETWORK_TRUSTED_PROXY_RANGES": '["10.0.0.0/8","2001:db8::/32"]',
+            "NETWORK_EXTERNAL_BASE_URL": "https://workflows.example.test",
+            "NETWORK_HTTP_PROXY_URL": "http://user:secret@proxy.example.test:8080",
+            "NETWORK_NO_PROXY": '["localhost",".svc.cluster.local"]',
+            "NETWORK_EGRESS_ALLOWED_HOSTS": '["api.example.test","10.20.0.0/16"]',
+            "NETWORK_TOPOLOGY": "split",
+            "NETWORK_PRIVATE_ENDPOINT": "true",
+        }
+    )
+
+    assert loaded.settings.network_trusted_proxy_ranges == (
+        "10.0.0.0/8",
+        "2001:db8::/32",
+    )
+    assert loaded.settings.network_http_proxy_url is not None
+    assert loaded.settings.network_http_proxy_url.get_secret_value().endswith(":8080")
+    assert loaded.settings.network_no_proxy == ("localhost", ".svc.cluster.local")
+    assert loaded.settings.network_topology == "split"
+    assert loaded.settings.network_private_endpoint
+    rendered = loaded.snapshot(1).model_dump_json()
+    assert "user:secret" not in rendered
+    assert "proxy.example.test:8080" not in rendered
+
+    with pytest.raises(ValueError, match="trusted-proxy TLS"):
+        Settings(_env_file=None, network_inbound_tls_mode="trusted-proxy")
+    with pytest.raises(ValueError, match="direct inbound TLS"):
+        Settings(_env_file=None, network_inbound_tls_mode="direct")
+    with pytest.raises(ValueError, match="TLS client authentication"):
+        Settings(_env_file=None, network_tls_client_auth="required")
 
 
 def test_renamed_settings_are_migrated_with_a_safe_warning(tmp_path: Path) -> None:

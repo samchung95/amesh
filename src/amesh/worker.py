@@ -452,14 +452,29 @@ async def recover_once(
                 fallback=fallback_runner,
             )
             http_policy = HttpTaskPolicy(
+                allowed_hosts=settings.network_egress_allowed_hosts,
                 allowed_private_hosts=frozenset(settings.core_http_allowed_private_hosts),
                 maximum_response_bytes=settings.core_http_max_response_bytes,
                 maximum_pages=settings.core_http_max_pages,
                 maximum_redirects=settings.core_http_max_redirects,
+                http_proxy_url=(
+                    settings.network_http_proxy_url.get_secret_value()
+                    if settings.network_http_proxy_url is not None
+                    else None
+                ),
+                https_proxy_url=(
+                    settings.network_https_proxy_url.get_secret_value()
+                    if settings.network_https_proxy_url is not None
+                    else None
+                ),
+                no_proxy=settings.network_no_proxy,
+                ca_file=settings.network_outbound_ca_file,
+                client_certificate_file=settings.network_outbound_client_certificate_file,
+                client_key_file=settings.network_outbound_client_key_file,
             )
             handlers = {
                 "core.shell": shell_handler,
-                "agent.llm": agent_llm_handler(),
+                "agent.llm": agent_llm_handler(http_policy=http_policy),
                 "agent.mcp": agent_mcp_handler(),
                 **core_utility_handlers(workspace_manager, http_policy=http_policy),
                 **script_task_handlers(shell_handler, settings.script_task_policy),

@@ -9,6 +9,7 @@ All URIs are relative to *http://localhost*
 | [**deactivateAnnouncementApiV1AnnouncementsAnnouncementIdDelete**](OperationsApi.md#deactivateannouncementapiv1announcementsannouncementiddelete) | **DELETE** /api/v1/announcements/{announcement_id} | Deactivate Announcement |
 | [**drainServiceInstanceApiV1OperationsServicesInstanceIdDrainPost**](OperationsApi.md#drainserviceinstanceapiv1operationsservicesinstanceiddrainpost) | **POST** /api/v1/operations/services/{instance_id}/drain | Drain Service Instance |
 | [**getAdmissionDiagnosticsApiV1AdmissionsDiagnosticsGet**](OperationsApi.md#getadmissiondiagnosticsapiv1admissionsdiagnosticsget) | **GET** /api/v1/admissions/diagnostics | Get Admission Diagnostics |
+| [**getNetworkDiagnosticsApiV1OperationsNetworkDiagnosticsGet**](OperationsApi.md#getnetworkdiagnosticsapiv1operationsnetworkdiagnosticsget) | **GET** /api/v1/operations/network-diagnostics | Get Network Diagnostics |
 | [**getReconciliationApiV1ReconciliationsRunIdGet**](OperationsApi.md#getreconciliationapiv1reconciliationsrunidget) | **GET** /api/v1/reconciliations/{run_id} | Get Reconciliation |
 | [**getServiceTopologyApiV1OperationsTopologyGet**](OperationsApi.md#getservicetopologyapiv1operationstopologyget) | **GET** /api/v1/operations/topology | Get Service Topology |
 | [**listAnnouncementsApiV1AnnouncementsGet**](OperationsApi.md#listannouncementsapiv1announcementsget) | **GET** /api/v1/announcements | List Announcements |
@@ -379,6 +380,78 @@ example().catch(console.error);
 ### Return type
 
 [**AdmissionDiagnostics**](AdmissionDiagnostics.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: `application/json`
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful Response |  -  |
+| **422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
+
+
+## getNetworkDiagnosticsApiV1OperationsNetworkDiagnosticsGet
+
+> NetworkDiagnosticBundle getNetworkDiagnosticsApiV1OperationsNetworkDiagnosticsGet(authorization, xAmeshCSRF, xAmeshTenant)
+
+Get Network Diagnostics
+
+### Example
+
+```ts
+import {
+  Configuration,
+  OperationsApi,
+} from '@amesh/client';
+import type { GetNetworkDiagnosticsApiV1OperationsNetworkDiagnosticsGetRequest } from '@amesh/client';
+
+async function example() {
+  console.log("🚀 Testing @amesh/client SDK...");
+  const api = new OperationsApi();
+
+  const body = {
+    // string (optional)
+    authorization: authorization_example,
+    // string (optional)
+    xAmeshCSRF: xAmeshCSRF_example,
+    // string (optional)
+    xAmeshTenant: xAmeshTenant_example,
+  } satisfies GetNetworkDiagnosticsApiV1OperationsNetworkDiagnosticsGetRequest;
+
+  try {
+    const data = await api.getNetworkDiagnosticsApiV1OperationsNetworkDiagnosticsGet(body);
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// Run the test
+example().catch(console.error);
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
+
+### Return type
+
+[**NetworkDiagnosticBundle**](NetworkDiagnosticBundle.md)
 
 ### Authorization
 

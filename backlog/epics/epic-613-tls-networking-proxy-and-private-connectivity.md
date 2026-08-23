@@ -12,14 +12,18 @@ Operate across enterprise networks without weakening transport or destination co
 
 ## In scope
 
-- [ ] **URS-F-0686** — The system shall support inbound TLS termination directly or through a trusted reverse proxy.
-- [ ] **URS-F-0687** — The system shall support mutual TLS between selected internal components and workers.
-- [ ] **URS-F-0688** — The system shall support custom certificate authorities and certificate rotation without full service outage.
-- [ ] **URS-F-0689** — The system shall support HTTP or HTTPS proxies and explicit no-proxy destinations.
-- [ ] **URS-F-0690** — The system shall validate forwarded headers and trusted proxy ranges before constructing external URLs.
-- [ ] **URS-F-0691** — The system shall provide egress allowlists and DNS or IP protections for plugins and HTTP tasks.
-- [ ] **URS-F-0692** — The system shall support private endpoints and split control-plane or worker network topologies.
-- [ ] **URS-F-0693** — The system shall expose connection, certificate, proxy and DNS diagnostics without leaking credentials.
+- [x] **URS-F-0686** — The system shall support inbound TLS termination directly or through a trusted reverse proxy.
+- [x] **URS-F-0687** — The system shall support mutual TLS between selected internal components and workers.
+- [x] **URS-F-0688** — The system shall support custom certificate authorities and certificate rotation without full service outage.
+- [x] **URS-F-0689** — The system shall support HTTP or HTTPS proxies and explicit no-proxy destinations.
+- [x] **URS-F-0690** — The system shall validate forwarded headers and trusted proxy ranges before constructing external URLs.
+- [x] **URS-F-0691** — The system shall provide egress allowlists and DNS or IP protections for plugins and HTTP tasks.
+- [x] **URS-F-0692** — The system shall support private endpoints and split control-plane or worker network topologies.
+- [x] **URS-F-0693** — The system shall expose connection, certificate, proxy and DNS diagnostics without leaking credentials.
+
+## Implementation completion evidence
+
+- 2026-08-23 — EPIC-613 is complete for the locally reproducible enterprise-network profile. AMESH now runs direct modern TLS with optional/required client-certificate authentication or behind a CIDR-trusted TLS proxy; untrusted forwarded origins are rejected before routing. HTTP, download, webhook and OpenRouter task traffic shares explicit HTTP/HTTPS proxy, no-proxy, custom CA/client certificate, hostname/CIDR allowlist, DNS and private-IP controls. Helm provides split component roles, optional Ingress and NetworkPolicy, private-service annotations, mounted certificate Secrets and zero-unavailable rolling rotation. An authorized Administration Operations view and versioned API report redacted connection, certificate fingerprint, proxy and DNS posture. Focused unit/API/frontend checks, TLS context/rotation tests, strict mypy, Ruff, two Helm 4 renders, OpenAPI and four generated SDKs passed. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`networking.md`](../../docs/operations/networking.md), [`041-trusted-network-boundary.md`](../../docs/adr/041-trusted-network-boundary.md), [`networking.py`](../../src/amesh/networking.py), [`test_networking.py`](../../tests/test_networking.py), and [`test_configuration_api.py`](../../tests/api/test_configuration_api.py).
 
 ## Non-functional requirements
 
@@ -48,18 +52,18 @@ Operate across enterprise networks without weakening transport or destination co
 
 ## Definition of done
 
-- [ ] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
-- [ ] Public API, DSL, event and plugin contract changes pass compatibility checks.
-- [ ] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
-- [ ] Security, tenant isolation, redaction and audit behavior are reviewed.
-- [ ] Documentation, examples, migration notes and operational runbooks are updated.
-- [ ] Performance and recovery budgets are measured when this epic is on a critical path.
-- [ ] `python scripts/validate_backlog.py` passes.
+- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
+- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.
+- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
+- [x] Security, tenant isolation, redaction and audit behavior are reviewed.
+- [x] Documentation, examples, migration notes and operational runbooks are updated.
+- [x] Performance and recovery budgets are measured when this epic is on a critical path.
+- [x] `python scripts/validate_backlog.py` passes.
 
 ## Risks and unknowns
 
-- Compatibility is version-pinned; gaps must remain explicit and release-scoped.
-- Qualification claims are valid only for the published profile, topology, configuration and evidence set.
+- Direct required mTLS covers the complete listener; deployments that require mTLS only for internal workers must expose a dedicated private listener or release boundary.
+- Cloud-provider private load balancers and live multi-node certificate-controller rotation remain environment qualification work; the Helm contracts, mounted-secret rotation path and zero-unavailable rollout are locally rendered and tested.
 
 ## Traceability
 

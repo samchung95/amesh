@@ -62,6 +62,7 @@ import type {
   NamespaceFile,
   NamespaceFileVersion,
   NamespaceWorkflowMetadataView,
+  NetworkDiagnosticBundle,
   EffectivePluginPolicy,
   PluginPolicyImpactPreview,
   PluginPolicyRule,
@@ -289,6 +290,7 @@ export function createApiClient(connection: ApiConnection) {
     topology: async () => request<ServiceTopology>('/api/v1/operations/topology'),
     workers: async () => request<WorkerInventory[]>('/api/v1/workers'),
     admissionDiagnostics: async () => request<AdmissionDiagnostics>('/api/v1/admissions/diagnostics'),
+    networkDiagnostics: async () => request<NetworkDiagnosticBundle>('/api/v1/operations/network-diagnostics'),
     configuration: async () => request<ConfigurationSnapshot>('/api/v1/configuration'),
     reloadConfiguration: async () => request<ConfigurationSnapshot>('/api/v1/configuration/reload', { method: 'POST' }),
     featureFlags: async () => {

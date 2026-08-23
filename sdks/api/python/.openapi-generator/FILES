@@ -104,6 +104,7 @@ amesh_client/models/blueprint_provenance.py
 amesh_client/models/blueprint_summary.py
 amesh_client/models/bulk_execution_item_result.py
 amesh_client/models/bulk_execution_request.py
+amesh_client/models/certificate_diagnostic.py
 amesh_client/models/change_local_password_request.py
 amesh_client/models/check_action_definition.py
 amesh_client/models/check_compliance_summary.py
@@ -123,6 +124,7 @@ amesh_client/models/configuration_migration.py
 amesh_client/models/configuration_migration_kind.py
 amesh_client/models/configuration_migration_request.py
 amesh_client/models/configuration_snapshot.py
+amesh_client/models/connection_diagnostic.py
 amesh_client/models/create_execution_request.py
 amesh_client/models/create_tenant_request.py
 amesh_client/models/credential_kind.py
@@ -143,6 +145,7 @@ amesh_client/models/dashboard_visibility.py
 amesh_client/models/dashboard_visualization.py
 amesh_client/models/dashboard_widget.py
 amesh_client/models/dashboard_widget_result.py
+amesh_client/models/dns_diagnostic.py
 amesh_client/models/effective_plugin_policy.py
 amesh_client/models/exchange_credential_request.py
 amesh_client/models/execution_artifact.py
@@ -248,6 +251,7 @@ amesh_client/models/namespace_resource_import_result.py
 amesh_client/models/namespace_workflow_metadata.py
 amesh_client/models/namespace_workflow_metadata_update.py
 amesh_client/models/namespace_workflow_metadata_view.py
+amesh_client/models/network_diagnostic_bundle.py
 amesh_client/models/operational_boundary.py
 amesh_client/models/operational_control.py
 amesh_client/models/operational_control_acknowledgement.py

@@ -120,6 +120,7 @@ __all__ = [
     "BlueprintSummary",
     "BulkExecutionItemResult",
     "BulkExecutionRequest",
+    "CertificateDiagnostic",
     "ChangeLocalPasswordRequest",
     "CheckActionDefinition",
     "CheckComplianceSummary",
@@ -139,6 +140,7 @@ __all__ = [
     "ConfigurationMigrationKind",
     "ConfigurationMigrationRequest",
     "ConfigurationSnapshot",
+    "ConnectionDiagnostic",
     "CreateExecutionRequest",
     "CreateTenantRequest",
     "CredentialKind",
@@ -159,6 +161,7 @@ __all__ = [
     "DashboardVisualization",
     "DashboardWidget",
     "DashboardWidgetResult",
+    "DnsDiagnostic",
     "EffectivePluginPolicy",
     "ExchangeCredentialRequest",
     "ExecutionArtifact",
@@ -264,6 +267,7 @@ __all__ = [
     "NamespaceWorkflowMetadata",
     "NamespaceWorkflowMetadataUpdate",
     "NamespaceWorkflowMetadataView",
+    "NetworkDiagnosticBundle",
     "OperationalBoundary",
     "OperationalControl",
     "OperationalControlAcknowledgement",
@@ -569,6 +573,7 @@ from amesh_client.models.blueprint_provenance import BlueprintProvenance as Blue
 from amesh_client.models.blueprint_summary import BlueprintSummary as BlueprintSummary
 from amesh_client.models.bulk_execution_item_result import BulkExecutionItemResult as BulkExecutionItemResult
 from amesh_client.models.bulk_execution_request import BulkExecutionRequest as BulkExecutionRequest
+from amesh_client.models.certificate_diagnostic import CertificateDiagnostic as CertificateDiagnostic
 from amesh_client.models.change_local_password_request import ChangeLocalPasswordRequest as ChangeLocalPasswordRequest
 from amesh_client.models.check_action_definition import CheckActionDefinition as CheckActionDefinition
 from amesh_client.models.check_compliance_summary import CheckComplianceSummary as CheckComplianceSummary
@@ -588,6 +593,7 @@ from amesh_client.models.configuration_migration import ConfigurationMigration a
 from amesh_client.models.configuration_migration_kind import ConfigurationMigrationKind as ConfigurationMigrationKind
 from amesh_client.models.configuration_migration_request import ConfigurationMigrationRequest as ConfigurationMigrationRequest
 from amesh_client.models.configuration_snapshot import ConfigurationSnapshot as ConfigurationSnapshot
+from amesh_client.models.connection_diagnostic import ConnectionDiagnostic as ConnectionDiagnostic
 from amesh_client.models.create_execution_request import CreateExecutionRequest as CreateExecutionRequest
 from amesh_client.models.create_tenant_request import CreateTenantRequest as CreateTenantRequest
 from amesh_client.models.credential_kind import CredentialKind as CredentialKind
@@ -608,6 +614,7 @@ from amesh_client.models.dashboard_visibility import DashboardVisibility as Dash
 from amesh_client.models.dashboard_visualization import DashboardVisualization as DashboardVisualization
 from amesh_client.models.dashboard_widget import DashboardWidget as DashboardWidget
 from amesh_client.models.dashboard_widget_result import DashboardWidgetResult as DashboardWidgetResult
+from amesh_client.models.dns_diagnostic import DnsDiagnostic as DnsDiagnostic
 from amesh_client.models.effective_plugin_policy import EffectivePluginPolicy as EffectivePluginPolicy
 from amesh_client.models.exchange_credential_request import ExchangeCredentialRequest as ExchangeCredentialRequest
 from amesh_client.models.execution_artifact import ExecutionArtifact as ExecutionArtifact
@@ -713,6 +720,7 @@ from amesh_client.models.namespace_resource_import_result import NamespaceResour
 from amesh_client.models.namespace_workflow_metadata import NamespaceWorkflowMetadata as NamespaceWorkflowMetadata
 from amesh_client.models.namespace_workflow_metadata_update import NamespaceWorkflowMetadataUpdate as NamespaceWorkflowMetadataUpdate
 from amesh_client.models.namespace_workflow_metadata_view import NamespaceWorkflowMetadataView as NamespaceWorkflowMetadataView
+from amesh_client.models.network_diagnostic_bundle import NetworkDiagnosticBundle as NetworkDiagnosticBundle
 from amesh_client.models.operational_boundary import OperationalBoundary as OperationalBoundary
 from amesh_client.models.operational_control import OperationalControl as OperationalControl
 from amesh_client.models.operational_control_acknowledgement import OperationalControlAcknowledgement as OperationalControlAcknowledgement

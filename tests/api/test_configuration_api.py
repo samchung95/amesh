@@ -166,6 +166,16 @@ def test_administrator_configuration_reload_diagnostics_and_scoped_flags(tmp_pat
                 assert isinstance(diagnostics.json()["recentErrors"], list)
                 assert "databaseHealth" in diagnostics.json()["selectedMetrics"]
 
+                network = await client.get(
+                    "/api/v1/operations/network-diagnostics",
+                    headers=headers,
+                )
+                assert network.status_code == 200, network.text
+                assert network.json()["schemaVersion"] == 1
+                assert network.json()["inboundTlsMode"] == "disabled"
+                assert network.json()["connections"]
+                assert "configuration-canary-secret" not in network.text
+
                 reserved = await client.put(
                     "/api/v1/feature-flags/admin-execution-kill-switch",
                     headers=headers,

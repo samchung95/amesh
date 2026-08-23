@@ -8,6 +8,8 @@ import httpx
 
 from amesh.dsl.models import TaskDefinition
 from amesh.executor import TaskExecutionContext, TaskHandler
+from amesh.networking import outbound_http_client
+from amesh.tasks.http import HttpTaskPolicy, validate_http_destination
 
 DEFAULT_OPENROUTER_MODEL = "openai/gpt-5.6-luna"
 
@@ -36,10 +38,18 @@ class OpenAICompatibleConfig:
 def agent_llm_handler(
     configuration: OpenAICompatibleConfig | None = None,
     client: httpx.AsyncClient | None = None,
+    *,
+    http_policy: HttpTaskPolicy | None = None,
 ) -> TaskHandler:
     async def run(task: TaskDefinition, context: TaskExecutionContext) -> dict[str, Any]:
         del context
         active_configuration = configuration or OpenAICompatibleConfig.from_environment()
+        active_policy = http_policy or HttpTaskPolicy()
+        validate_http_destination(
+            active_configuration.endpoint,
+            active_policy,
+            resolve_dns=client is None,
+        )
         extra = task.model_extra or {}
         messages = extra.get("messages")
         if messages is None:
@@ -83,7 +93,15 @@ def agent_llm_handler(
 
         if client is not None:
             return await complete(client)
-        async with httpx.AsyncClient() as active_client:
+        async with outbound_http_client(
+            active_configuration.endpoint,
+            http_proxy_url=active_policy.http_proxy_url,
+            https_proxy_url=active_policy.https_proxy_url,
+            no_proxy=active_policy.no_proxy,
+            ca_file=active_policy.ca_file,
+            client_certificate_file=active_policy.client_certificate_file,
+            client_key_file=active_policy.client_key_file,
+        ) as active_client:
             return await complete(active_client)
 
     return run

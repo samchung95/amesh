@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import ipaddress
 import json
 import os
 import re
@@ -15,6 +16,7 @@ from functools import lru_cache
 from pathlib import Path
 from threading import RLock
 from typing import Any, Literal, get_args, get_origin
+from urllib.parse import urlsplit
 
 import yaml
 from pydantic import (
@@ -355,6 +357,29 @@ class Settings(BaseSettings):
     isolated_plugin_monitor_interval_seconds: float = Field(default=0.05, gt=0, le=5)
     network_public_exposure: bool = False
     network_tls_terminated: bool = False
+    network_inbound_tls_mode: Literal["disabled", "direct", "trusted-proxy"] = "disabled"
+    network_tls_certificate_file: str | None = Field(default=None, max_length=4096)
+    network_tls_private_key_file: str | None = Field(default=None, max_length=4096)
+    network_tls_client_ca_file: str | None = Field(default=None, max_length=4096)
+    network_tls_client_auth: Literal["none", "optional", "required"] = "none"
+    network_tls_minimum_version: Literal["TLSv1.2", "TLSv1.3"] = "TLSv1.2"
+    network_tls_ciphers: str = Field(
+        default="ECDHE+AESGCM:ECDHE+CHACHA20",
+        min_length=1,
+        max_length=2048,
+    )
+    network_trusted_proxy_ranges: tuple[str, ...] = ()
+    network_external_base_url: str | None = Field(default=None, max_length=2048)
+    network_http_proxy_url: SecretStr | None = None
+    network_https_proxy_url: SecretStr | None = None
+    network_no_proxy: tuple[str, ...] = ()
+    network_outbound_ca_file: str | None = Field(default=None, max_length=4096)
+    network_outbound_client_certificate_file: str | None = Field(default=None, max_length=4096)
+    network_outbound_client_key_file: str | None = Field(default=None, max_length=4096)
+    network_egress_allowed_hosts: tuple[str, ...] = ("*",)
+    network_diagnostic_hosts: tuple[str, ...] = ()
+    network_topology: Literal["compact", "split"] = "compact"
+    network_private_endpoint: bool = False
     product_telemetry_enabled: bool = Field(
         default=False,
         json_schema_extra={"reloadable": True},
@@ -410,6 +435,10 @@ class Settings(BaseSettings):
         "identity_providers",
         "scim_providers",
         "otel_exporter_otlp_headers",
+        "network_trusted_proxy_ranges",
+        "network_no_proxy",
+        "network_egress_allowed_hosts",
+        "network_diagnostic_hosts",
         mode="before",
     )
     @classmethod
@@ -460,9 +489,70 @@ class Settings(BaseSettings):
         if (
             self.app_env != "development"
             and self.network_public_exposure
-            and not self.network_tls_terminated
+            and self.network_inbound_tls_mode == "disabled"
         ):
             raise ValueError("public production exposure requires trusted TLS termination")
+        if self.network_inbound_tls_mode == "direct" and (
+            self.network_tls_certificate_file is None
+            or self.network_tls_private_key_file is None
+        ):
+            raise ValueError(
+                "direct inbound TLS requires NETWORK_TLS_CERTIFICATE_FILE and "
+                "NETWORK_TLS_PRIVATE_KEY_FILE"
+            )
+        if (
+            self.network_inbound_tls_mode == "trusted-proxy"
+            and not self.network_trusted_proxy_ranges
+        ):
+            raise ValueError(
+                "trusted-proxy TLS requires at least one NETWORK_TRUSTED_PROXY_RANGES entry"
+            )
+        if self.network_tls_client_auth != "none":
+            if self.network_inbound_tls_mode != "direct":
+                raise ValueError("TLS client authentication requires direct inbound TLS")
+            if self.network_tls_client_ca_file is None:
+                raise ValueError("TLS client authentication requires NETWORK_TLS_CLIENT_CA_FILE")
+        if (self.network_outbound_client_certificate_file is None) != (
+            self.network_outbound_client_key_file is None
+        ):
+            raise ValueError(
+                "outbound mTLS requires both client certificate and private key files"
+            )
+        for value in self.network_trusted_proxy_ranges:
+            try:
+                ipaddress.ip_network(value, strict=False)
+            except ValueError as exc:
+                raise ValueError(f"invalid trusted proxy range: {value}") from exc
+        for field_name, configured_url in (
+            ("NETWORK_EXTERNAL_BASE_URL", self.network_external_base_url),
+            (
+                "NETWORK_HTTP_PROXY_URL",
+                self.network_http_proxy_url.get_secret_value()
+                if self.network_http_proxy_url is not None
+                else None,
+            ),
+            (
+                "NETWORK_HTTPS_PROXY_URL",
+                self.network_https_proxy_url.get_secret_value()
+                if self.network_https_proxy_url is not None
+                else None,
+            ),
+        ):
+            if configured_url is None:
+                continue
+            parsed = urlsplit(configured_url)
+            allowed_schemes = {"https"} if field_name == "NETWORK_EXTERNAL_BASE_URL" else {
+                "http",
+                "https",
+            }
+            if parsed.scheme not in allowed_schemes or not parsed.hostname:
+                raise ValueError(f"{field_name} must be an absolute {sorted(allowed_schemes)} URL")
+            if field_name == "NETWORK_EXTERNAL_BASE_URL" and (
+                parsed.username is not None or parsed.query or parsed.fragment
+            ):
+                raise ValueError("NETWORK_EXTERNAL_BASE_URL cannot contain credentials or query data")
+        if not self.network_egress_allowed_hosts:
+            raise ValueError("NETWORK_EGRESS_ALLOWED_HOSTS cannot be empty")
         if self.auth_session_idle_seconds > self.auth_session_absolute_seconds:
             raise ValueError(
                 "AUTH_SESSION_IDLE_SECONDS cannot exceed the absolute session lifetime"
@@ -682,7 +772,7 @@ def security_baseline_findings(settings: Settings) -> tuple[str, ...]:
     if (
         settings.app_env != "development"
         and settings.network_public_exposure
-        and not settings.network_tls_terminated
+        and settings.network_inbound_tls_mode == "disabled"
     ):
         findings.append("CRITICAL: public exposure lacks trusted TLS termination")
     return tuple(findings)

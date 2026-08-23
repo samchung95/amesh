@@ -2737,6 +2737,63 @@
         "title": "BulkExecutionRequest",
         "type": "object"
       },
+      "CertificateDiagnostic": {
+        "properties": {
+          "configured": {
+            "title": "Configured",
+            "type": "boolean"
+          },
+          "detail": {
+            "title": "Detail",
+            "type": "string"
+          },
+          "fingerprint": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fingerprint"
+          },
+          "modifiedAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Modifiedat"
+          },
+          "purpose": {
+            "title": "Purpose",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "NOT_CONFIGURED",
+              "READY",
+              "MISSING",
+              "INVALID"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "purpose",
+          "configured",
+          "status",
+          "detail"
+        ],
+        "title": "CertificateDiagnostic",
+        "type": "object"
+      },
       "ChangeLocalPasswordRequest": {
         "properties": {
           "currentPassword": {
@@ -3536,6 +3593,51 @@
         "title": "ConfigurationSnapshot",
         "type": "object"
       },
+      "ConnectionDiagnostic": {
+        "properties": {
+          "host": {
+            "title": "Host",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "port": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Port"
+          },
+          "proxy": {
+            "enum": [
+              "HTTP",
+              "HTTPS",
+              "BYPASSED",
+              "DIRECT"
+            ],
+            "title": "Proxy",
+            "type": "string"
+          },
+          "scheme": {
+            "title": "Scheme",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "scheme",
+          "host",
+          "proxy"
+        ],
+        "title": "ConnectionDiagnostic",
+        "type": "object"
+      },
       "CreateExecutionRequest": {
         "properties": {
           "cacheMode": {
@@ -4279,6 +4381,41 @@
           "result"
         ],
         "title": "DashboardWidgetResult",
+        "type": "object"
+      },
+      "DnsDiagnostic": {
+        "properties": {
+          "addresses": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Addresses",
+            "type": "array"
+          },
+          "detail": {
+            "title": "Detail",
+            "type": "string"
+          },
+          "host": {
+            "title": "Host",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "RESOLVED",
+              "FAILED"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "host",
+          "status",
+          "detail"
+        ],
+        "title": "DnsDiagnostic",
         "type": "object"
       },
       "EffectivePluginPolicy": {
@@ -8816,6 +8953,127 @@
           "lineage"
         ],
         "title": "NamespaceWorkflowMetadataView",
+        "type": "object"
+      },
+      "NetworkDiagnosticBundle": {
+        "properties": {
+          "allowedPrivateHosts": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Allowedprivatehosts",
+            "type": "array"
+          },
+          "certificates": {
+            "items": {
+              "$ref": "#/components/schemas/CertificateDiagnostic"
+            },
+            "title": "Certificates",
+            "type": "array"
+          },
+          "clientAuthentication": {
+            "title": "Clientauthentication",
+            "type": "string"
+          },
+          "connections": {
+            "items": {
+              "$ref": "#/components/schemas/ConnectionDiagnostic"
+            },
+            "title": "Connections",
+            "type": "array"
+          },
+          "dns": {
+            "items": {
+              "$ref": "#/components/schemas/DnsDiagnostic"
+            },
+            "title": "Dns",
+            "type": "array"
+          },
+          "egressAllowedHosts": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Egressallowedhosts",
+            "type": "array"
+          },
+          "externalBaseUrl": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Externalbaseurl"
+          },
+          "generatedAt": {
+            "format": "date-time",
+            "title": "Generatedat",
+            "type": "string"
+          },
+          "httpProxyConfigured": {
+            "title": "Httpproxyconfigured",
+            "type": "boolean"
+          },
+          "httpsProxyConfigured": {
+            "title": "Httpsproxyconfigured",
+            "type": "boolean"
+          },
+          "inboundTlsMode": {
+            "title": "Inboundtlsmode",
+            "type": "string"
+          },
+          "minimumTlsVersion": {
+            "title": "Minimumtlsversion",
+            "type": "string"
+          },
+          "noProxy": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Noproxy",
+            "type": "array"
+          },
+          "privateEndpoint": {
+            "title": "Privateendpoint",
+            "type": "boolean"
+          },
+          "schemaVersion": {
+            "default": 1,
+            "title": "Schemaversion",
+            "type": "integer"
+          },
+          "topology": {
+            "title": "Topology",
+            "type": "string"
+          },
+          "trustedProxyRanges": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Trustedproxyranges",
+            "type": "array"
+          }
+        },
+        "required": [
+          "generatedAt",
+          "inboundTlsMode",
+          "minimumTlsVersion",
+          "clientAuthentication",
+          "topology",
+          "privateEndpoint",
+          "trustedProxyRanges",
+          "httpProxyConfigured",
+          "httpsProxyConfigured",
+          "noProxy",
+          "egressAllowedHosts",
+          "allowedPrivateHosts",
+          "connections",
+          "certificates",
+          "dns"
+        ],
+        "title": "NetworkDiagnosticBundle",
         "type": "object"
       },
       "OperationalBoundary": {
@@ -34754,6 +35012,87 @@
           }
         },
         "summary": "Change Operational Control",
+        "tags": [
+          "operations"
+        ]
+      }
+    },
+    "/api/v1/operations/network-diagnostics": {
+      "get": {
+        "operationId": "get_network_diagnostics_api_v1_operations_network_diagnostics_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NetworkDiagnosticBundle"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Network Diagnostics",
         "tags": [
           "operations"
         ]

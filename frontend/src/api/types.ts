@@ -1163,6 +1163,44 @@ export interface AdmissionDiagnostics {
   pressure_by_policy: Record<string, number>
 }
 
+export interface NetworkDiagnosticBundle {
+  schemaVersion: number
+  generatedAt: string
+  inboundTlsMode: 'disabled' | 'direct' | 'trusted-proxy'
+  minimumTlsVersion: 'TLSv1.2' | 'TLSv1.3'
+  clientAuthentication: 'none' | 'optional' | 'required'
+  topology: 'compact' | 'split'
+  privateEndpoint: boolean
+  externalBaseUrl: string | null
+  trustedProxyRanges: string[]
+  httpProxyConfigured: boolean
+  httpsProxyConfigured: boolean
+  noProxy: string[]
+  egressAllowedHosts: string[]
+  allowedPrivateHosts: string[]
+  connections: Array<{
+    name: string
+    scheme: string
+    host: string
+    port: number | null
+    proxy: 'HTTP' | 'HTTPS' | 'BYPASSED' | 'DIRECT'
+  }>
+  certificates: Array<{
+    purpose: string
+    configured: boolean
+    status: 'NOT_CONFIGURED' | 'READY' | 'MISSING' | 'INVALID'
+    fingerprint: string | null
+    modifiedAt: string | null
+    detail: string
+  }>
+  dns: Array<{
+    host: string
+    status: 'RESOLVED' | 'FAILED'
+    addresses: string[]
+    detail: string
+  }>
+}
+
 export interface ConfigurationSnapshot {
   schema_version: number
   version: number

@@ -439,6 +439,8 @@ Class | Method | HTTP request | Description
 *OperationsApi* | [**drainServiceInstanceApiV1OperationsServicesInstanceIdDrainPostWithHttpInfo**](docs/OperationsApi.md#drainServiceInstanceApiV1OperationsServicesInstanceIdDrainPostWithHttpInfo) | **POST** /api/v1/operations/services/{instance_id}/drain | Drain Service Instance
 *OperationsApi* | [**getAdmissionDiagnosticsApiV1AdmissionsDiagnosticsGet**](docs/OperationsApi.md#getAdmissionDiagnosticsApiV1AdmissionsDiagnosticsGet) | **GET** /api/v1/admissions/diagnostics | Get Admission Diagnostics
 *OperationsApi* | [**getAdmissionDiagnosticsApiV1AdmissionsDiagnosticsGetWithHttpInfo**](docs/OperationsApi.md#getAdmissionDiagnosticsApiV1AdmissionsDiagnosticsGetWithHttpInfo) | **GET** /api/v1/admissions/diagnostics | Get Admission Diagnostics
+*OperationsApi* | [**getNetworkDiagnosticsApiV1OperationsNetworkDiagnosticsGet**](docs/OperationsApi.md#getNetworkDiagnosticsApiV1OperationsNetworkDiagnosticsGet) | **GET** /api/v1/operations/network-diagnostics | Get Network Diagnostics
+*OperationsApi* | [**getNetworkDiagnosticsApiV1OperationsNetworkDiagnosticsGetWithHttpInfo**](docs/OperationsApi.md#getNetworkDiagnosticsApiV1OperationsNetworkDiagnosticsGetWithHttpInfo) | **GET** /api/v1/operations/network-diagnostics | Get Network Diagnostics
 *OperationsApi* | [**getReconciliationApiV1ReconciliationsRunIdGet**](docs/OperationsApi.md#getReconciliationApiV1ReconciliationsRunIdGet) | **GET** /api/v1/reconciliations/{run_id} | Get Reconciliation
 *OperationsApi* | [**getReconciliationApiV1ReconciliationsRunIdGetWithHttpInfo**](docs/OperationsApi.md#getReconciliationApiV1ReconciliationsRunIdGetWithHttpInfo) | **GET** /api/v1/reconciliations/{run_id} | Get Reconciliation
 *OperationsApi* | [**getServiceTopologyApiV1OperationsTopologyGet**](docs/OperationsApi.md#getServiceTopologyApiV1OperationsTopologyGet) | **GET** /api/v1/operations/topology | Get Service Topology
@@ -671,6 +673,7 @@ Class | Method | HTTP request | Description
  - [BlueprintSummary](docs/BlueprintSummary.md)
  - [BulkExecutionItemResult](docs/BulkExecutionItemResult.md)
  - [BulkExecutionRequest](docs/BulkExecutionRequest.md)
+ - [CertificateDiagnostic](docs/CertificateDiagnostic.md)
  - [ChangeLocalPasswordRequest](docs/ChangeLocalPasswordRequest.md)
  - [CheckActionDefinition](docs/CheckActionDefinition.md)
  - [CheckComplianceSummary](docs/CheckComplianceSummary.md)
@@ -690,6 +693,7 @@ Class | Method | HTTP request | Description
  - [ConfigurationMigrationKind](docs/ConfigurationMigrationKind.md)
  - [ConfigurationMigrationRequest](docs/ConfigurationMigrationRequest.md)
  - [ConfigurationSnapshot](docs/ConfigurationSnapshot.md)
+ - [ConnectionDiagnostic](docs/ConnectionDiagnostic.md)
  - [CreateExecutionRequest](docs/CreateExecutionRequest.md)
  - [CreateTenantRequest](docs/CreateTenantRequest.md)
  - [CredentialKind](docs/CredentialKind.md)
@@ -710,6 +714,7 @@ Class | Method | HTTP request | Description
  - [DashboardVisualization](docs/DashboardVisualization.md)
  - [DashboardWidget](docs/DashboardWidget.md)
  - [DashboardWidgetResult](docs/DashboardWidgetResult.md)
+ - [DnsDiagnostic](docs/DnsDiagnostic.md)
  - [EffectivePluginPolicy](docs/EffectivePluginPolicy.md)
  - [ExchangeCredentialRequest](docs/ExchangeCredentialRequest.md)
  - [ExecutionArtifact](docs/ExecutionArtifact.md)
@@ -815,6 +820,7 @@ Class | Method | HTTP request | Description
  - [NamespaceWorkflowMetadata](docs/NamespaceWorkflowMetadata.md)
  - [NamespaceWorkflowMetadataUpdate](docs/NamespaceWorkflowMetadataUpdate.md)
  - [NamespaceWorkflowMetadataView](docs/NamespaceWorkflowMetadataView.md)
+ - [NetworkDiagnosticBundle](docs/NetworkDiagnosticBundle.md)
  - [OperationalBoundary](docs/OperationalBoundary.md)
  - [OperationalControl](docs/OperationalControl.md)
  - [OperationalControlAcknowledgement](docs/OperationalControlAcknowledgement.md)

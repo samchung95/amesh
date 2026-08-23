@@ -129,6 +129,7 @@ src/models/BlueprintProvenance.ts
 src/models/BlueprintSummary.ts
 src/models/BulkExecutionItemResult.ts
 src/models/BulkExecutionRequest.ts
+src/models/CertificateDiagnostic.ts
 src/models/ChangeLocalPasswordRequest.ts
 src/models/CheckActionDefinition.ts
 src/models/CheckComplianceSummary.ts
@@ -148,6 +149,7 @@ src/models/ConfigurationMigration.ts
 src/models/ConfigurationMigrationKind.ts
 src/models/ConfigurationMigrationRequest.ts
 src/models/ConfigurationSnapshot.ts
+src/models/ConnectionDiagnostic.ts
 src/models/CreateExecutionRequest.ts
 src/models/CreateTenantRequest.ts
 src/models/CredentialKind.ts
@@ -168,6 +170,7 @@ src/models/DashboardVisibility.ts
 src/models/DashboardVisualization.ts
 src/models/DashboardWidget.ts
 src/models/DashboardWidgetResult.ts
+src/models/DnsDiagnostic.ts
 src/models/EffectivePluginPolicy.ts
 src/models/ExchangeCredentialRequest.ts
 src/models/ExecutionArtifact.ts
@@ -273,6 +276,7 @@ src/models/NamespaceResourceImportResult.ts
 src/models/NamespaceWorkflowMetadata.ts
 src/models/NamespaceWorkflowMetadataUpdate.ts
 src/models/NamespaceWorkflowMetadataView.ts
+src/models/NetworkDiagnosticBundle.ts
 src/models/OperationalBoundary.ts
 src/models/OperationalControl.ts
 src/models/OperationalControlAcknowledgement.ts

@@ -214,6 +214,77 @@ app.kubernetes.io/instance: {{ .Release.Name }}
   value: {{ .Values.serviceStaleAfterSeconds | quote }}
 - name: SERVICE_CYCLE_SECONDS
   value: {{ .Values.serviceCycleSeconds | quote }}
+- name: NETWORK_TOPOLOGY
+  value: {{ .Values.network.topology | quote }}
+- name: NETWORK_PRIVATE_ENDPOINT
+  value: {{ .Values.network.privateEndpoint | quote }}
+- name: NETWORK_INBOUND_TLS_MODE
+  value: {{ .Values.network.tls.mode | quote }}
+- name: NETWORK_TLS_CLIENT_AUTH
+  value: {{ .Values.network.tls.clientAuth | quote }}
+- name: NETWORK_TLS_MINIMUM_VERSION
+  value: {{ .Values.network.tls.minimumVersion | quote }}
+- name: NETWORK_TLS_CIPHERS
+  value: {{ .Values.network.tls.ciphers | quote }}
+- name: NETWORK_TRUSTED_PROXY_RANGES
+  value: {{ toJson .Values.network.trustedProxyRanges | quote }}
+- name: NETWORK_NO_PROXY
+  value: {{ toJson .Values.network.proxy.noProxy | quote }}
+- name: NETWORK_EGRESS_ALLOWED_HOSTS
+  value: {{ toJson .Values.network.egress.allowedHosts | quote }}
+- name: CORE_HTTP_ALLOWED_PRIVATE_HOSTS
+  value: {{ toJson .Values.network.egress.allowedPrivateHosts | quote }}
+- name: NETWORK_DIAGNOSTIC_HOSTS
+  value: {{ toJson .Values.network.egress.diagnosticHosts | quote }}
+{{- with .Values.network.externalBaseURL }}
+- name: NETWORK_EXTERNAL_BASE_URL
+  value: {{ . | quote }}
+{{- end }}
+{{- if .Values.network.proxy.existingSecret }}
+- name: NETWORK_HTTP_PROXY_URL
+  valueFrom:
+    secretKeyRef:
+      name: {{ .Values.network.proxy.existingSecret | quote }}
+      key: {{ .Values.network.proxy.httpKey | quote }}
+      optional: true
+- name: NETWORK_HTTPS_PROXY_URL
+  valueFrom:
+    secretKeyRef:
+      name: {{ .Values.network.proxy.existingSecret | quote }}
+      key: {{ .Values.network.proxy.httpsKey | quote }}
+      optional: true
+{{- else }}
+{{- with .Values.network.proxy.httpURL }}
+- name: NETWORK_HTTP_PROXY_URL
+  value: {{ . | quote }}
+{{- end }}
+{{- with .Values.network.proxy.httpsURL }}
+- name: NETWORK_HTTPS_PROXY_URL
+  value: {{ . | quote }}
+{{- end }}
+{{- end }}
+{{- if .Values.network.tls.existingSecret }}
+{{- if eq .Values.network.tls.mode "direct" }}
+- name: NETWORK_TLS_CERTIFICATE_FILE
+  value: {{ printf "%s/%s" .Values.network.tls.mountPath .Values.network.tls.certificateKey | quote }}
+- name: NETWORK_TLS_PRIVATE_KEY_FILE
+  value: {{ printf "%s/%s" .Values.network.tls.mountPath .Values.network.tls.privateKeyKey | quote }}
+{{- end }}
+{{- if ne .Values.network.tls.clientAuth "none" }}
+- name: NETWORK_TLS_CLIENT_CA_FILE
+  value: {{ printf "%s/%s" .Values.network.tls.mountPath .Values.network.tls.clientCAKey | quote }}
+{{- end }}
+{{- if .Values.network.outboundTLS.useCA }}
+- name: NETWORK_OUTBOUND_CA_FILE
+  value: {{ printf "%s/%s" .Values.network.tls.mountPath .Values.network.outboundTLS.caKey | quote }}
+{{- end }}
+{{- if .Values.network.outboundTLS.useClientCertificate }}
+- name: NETWORK_OUTBOUND_CLIENT_CERTIFICATE_FILE
+  value: {{ printf "%s/%s" .Values.network.tls.mountPath .Values.network.outboundTLS.clientCertificateKey | quote }}
+- name: NETWORK_OUTBOUND_CLIENT_KEY_FILE
+  value: {{ printf "%s/%s" .Values.network.tls.mountPath .Values.network.outboundTLS.clientKeyKey | quote }}
+{{- end }}
+{{- end }}
 - name: OPENROUTER_MODEL
   value: {{ .Values.openRouter.model | quote }}
 {{- if .Values.openRouter.existingSecret }}

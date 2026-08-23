@@ -9,6 +9,7 @@ Method | HTTP request | Description
 [**DeactivateAnnouncementApiV1AnnouncementsAnnouncementIdDelete**](OperationsAPI.md#DeactivateAnnouncementApiV1AnnouncementsAnnouncementIdDelete) | **Delete** /api/v1/announcements/{announcement_id} | Deactivate Announcement
 [**DrainServiceInstanceApiV1OperationsServicesInstanceIdDrainPost**](OperationsAPI.md#DrainServiceInstanceApiV1OperationsServicesInstanceIdDrainPost) | **Post** /api/v1/operations/services/{instance_id}/drain | Drain Service Instance
 [**GetAdmissionDiagnosticsApiV1AdmissionsDiagnosticsGet**](OperationsAPI.md#GetAdmissionDiagnosticsApiV1AdmissionsDiagnosticsGet) | **Get** /api/v1/admissions/diagnostics | Get Admission Diagnostics
+[**GetNetworkDiagnosticsApiV1OperationsNetworkDiagnosticsGet**](OperationsAPI.md#GetNetworkDiagnosticsApiV1OperationsNetworkDiagnosticsGet) | **Get** /api/v1/operations/network-diagnostics | Get Network Diagnostics
 [**GetReconciliationApiV1ReconciliationsRunIdGet**](OperationsAPI.md#GetReconciliationApiV1ReconciliationsRunIdGet) | **Get** /api/v1/reconciliations/{run_id} | Get Reconciliation
 [**GetServiceTopologyApiV1OperationsTopologyGet**](OperationsAPI.md#GetServiceTopologyApiV1OperationsTopologyGet) | **Get** /api/v1/operations/topology | Get Service Topology
 [**ListAnnouncementsApiV1AnnouncementsGet**](OperationsAPI.md#ListAnnouncementsApiV1AnnouncementsGet) | **Get** /api/v1/announcements | List Announcements
@@ -370,6 +371,74 @@ Name | Type | Description  | Notes
 ### Return type
 
 [**AdmissionDiagnostics**](AdmissionDiagnostics.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
+[[Back to Model list]](../README.md#documentation-for-models)
+[[Back to README]](../README.md)
+
+
+## GetNetworkDiagnosticsApiV1OperationsNetworkDiagnosticsGet
+
+> NetworkDiagnosticBundle GetNetworkDiagnosticsApiV1OperationsNetworkDiagnosticsGet(ctx).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
+
+Get Network Diagnostics
+
+### Example
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"os"
+	openapiclient "github.com/amesh/amesh-client-go"
+)
+
+func main() {
+	authorization := "authorization_example" // string |  (optional)
+	xAmeshCSRF := "xAmeshCSRF_example" // string |  (optional)
+	xAmeshTenant := "xAmeshTenant_example" // string |  (optional)
+
+	configuration := openapiclient.NewConfiguration()
+	apiClient := openapiclient.NewAPIClient(configuration)
+	resp, r, err := apiClient.OperationsAPI.GetNetworkDiagnosticsApiV1OperationsNetworkDiagnosticsGet(context.Background()).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error when calling `OperationsAPI.GetNetworkDiagnosticsApiV1OperationsNetworkDiagnosticsGet``: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+	}
+	// response from `GetNetworkDiagnosticsApiV1OperationsNetworkDiagnosticsGet`: NetworkDiagnosticBundle
+	fmt.Fprintf(os.Stdout, "Response from `OperationsAPI.GetNetworkDiagnosticsApiV1OperationsNetworkDiagnosticsGet`: %v\n", resp)
+}
+```
+
+### Path Parameters
+
+
+
+### Other Parameters
+
+Other parameters are passed through a pointer to a apiGetNetworkDiagnosticsApiV1OperationsNetworkDiagnosticsGetRequest struct via the builder pattern
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **authorization** | **string** |  |
+ **xAmeshCSRF** | **string** |  |
+ **xAmeshTenant** | **string** |  |
+
+### Return type
+
+[**NetworkDiagnosticBundle**](NetworkDiagnosticBundle.md)
 
 ### Authorization
 

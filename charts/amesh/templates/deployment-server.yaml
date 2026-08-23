@@ -63,34 +63,60 @@ spec:
                 fieldRef:
                   fieldPath: spec.nodeName
           ports:
-            - name: http
+            - name: {{ ternary "https" "http" (eq .Values.network.tls.mode "direct") }}
               containerPort: 8000
               protocol: TCP
           livenessProbe:
+            {{- if and (eq .Values.network.tls.mode "direct") (eq .Values.network.tls.clientAuth "required") }}
+            tcpSocket:
+              port: https
+            {{- else }}
             httpGet:
               path: /health
-              port: http
+              port: {{ ternary "https" "http" (eq .Values.network.tls.mode "direct") }}
+              scheme: {{ ternary "HTTPS" "HTTP" (eq .Values.network.tls.mode "direct") }}
+            {{- end }}
           readinessProbe:
+            {{- if and (eq .Values.network.tls.mode "direct") (eq .Values.network.tls.clientAuth "required") }}
+            tcpSocket:
+              port: https
+            {{- else }}
             httpGet:
               path: /ready
-              port: http
+              port: {{ ternary "https" "http" (eq .Values.network.tls.mode "direct") }}
+              scheme: {{ ternary "HTTPS" "HTTP" (eq .Values.network.tls.mode "direct") }}
+            {{- end }}
           lifecycle:
             preStop:
               exec:
                 command: ["python", "-m", "amesh.role", "--drain"]
           resources:
             {{- toYaml .Values.server.resources | nindent 12 }}
-          {{- if .Values.identity.credentialSecret }}
+          {{- if or .Values.identity.credentialSecret .Values.network.tls.existingSecret }}
           volumeMounts:
+            {{- if .Values.identity.credentialSecret }}
             - name: identity-credentials
               mountPath: {{ .Values.identity.mountPath | quote }}
               readOnly: true
+            {{- end }}
+            {{- if .Values.network.tls.existingSecret }}
+            - name: network-certificates
+              mountPath: {{ .Values.network.tls.mountPath | quote }}
+              readOnly: true
+            {{- end }}
           {{- end }}
-      {{- if .Values.identity.credentialSecret }}
+      {{- if or .Values.identity.credentialSecret .Values.network.tls.existingSecret }}
       volumes:
+        {{- if .Values.identity.credentialSecret }}
         - name: identity-credentials
           secret:
             secretName: {{ .Values.identity.credentialSecret | quote }}
+        {{- end }}
+        {{- if .Values.network.tls.existingSecret }}
+        - name: network-certificates
+          secret:
+            secretName: {{ .Values.network.tls.existingSecret | quote }}
+        {{- end }}
       {{- end }}
       nodeSelector:
         {{- toYaml .Values.nodeSelector | nindent 8 }}

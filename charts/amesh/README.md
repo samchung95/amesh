@@ -38,6 +38,12 @@ mount client secrets, signing keys, certificates, LDAP trust anchors and SCIM to
 `identity.mountPath`; definitions refer to those mounted paths so material can rotate without
 rebuilding the image. See the [identity federation runbook](../../docs/operations/identity-federation.md).
 
+Configure direct TLS/mTLS, trusted ingress CIDRs, custom CAs, proxy Secrets, private Service
+annotations and optional component NetworkPolicy through `network.*`. Certificate and proxy
+credentials are mounted or sourced from existing Secrets; the chart's zero-unavailable rolling
+strategy supports overlapping certificate rotation. See the
+[networking runbook](../../docs/operations/networking.md).
+
 Set `recovery.enabled=true` to schedule a coordinated backup followed by an isolated restore exercise.
 The job records exact object versions, reconciliation results and measured RPO/RTO in PostgreSQL. Its
 database credential must be able to create and drop a disposable database on the recovery target;

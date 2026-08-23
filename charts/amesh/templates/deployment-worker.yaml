@@ -49,6 +49,18 @@ spec:
               value: {{ .Values.worker.group | quote }}
           resources:
             {{- toYaml .Values.worker.resources | nindent 12 }}
+          {{- if .Values.network.tls.existingSecret }}
+          volumeMounts:
+            - name: network-certificates
+              mountPath: {{ .Values.network.tls.mountPath | quote }}
+              readOnly: true
+          {{- end }}
+      {{- if .Values.network.tls.existingSecret }}
+      volumes:
+        - name: network-certificates
+          secret:
+            secretName: {{ .Values.network.tls.existingSecret | quote }}
+      {{- end }}
       nodeSelector:
         {{- toYaml .Values.nodeSelector | nindent 8 }}
       affinity:

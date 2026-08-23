@@ -222,6 +222,7 @@ All URIs are relative to *http://localhost*
 *OperationsApi* | [**deactivateAnnouncementApiV1AnnouncementsAnnouncementIdDelete**](docs/OperationsApi.md#deactivateannouncementapiv1announcementsannouncementiddelete) | **DELETE** /api/v1/announcements/{announcement_id} | Deactivate Announcement
 *OperationsApi* | [**drainServiceInstanceApiV1OperationsServicesInstanceIdDrainPost**](docs/OperationsApi.md#drainserviceinstanceapiv1operationsservicesinstanceiddrainpost) | **POST** /api/v1/operations/services/{instance_id}/drain | Drain Service Instance
 *OperationsApi* | [**getAdmissionDiagnosticsApiV1AdmissionsDiagnosticsGet**](docs/OperationsApi.md#getadmissiondiagnosticsapiv1admissionsdiagnosticsget) | **GET** /api/v1/admissions/diagnostics | Get Admission Diagnostics
+*OperationsApi* | [**getNetworkDiagnosticsApiV1OperationsNetworkDiagnosticsGet**](docs/OperationsApi.md#getnetworkdiagnosticsapiv1operationsnetworkdiagnosticsget) | **GET** /api/v1/operations/network-diagnostics | Get Network Diagnostics
 *OperationsApi* | [**getReconciliationApiV1ReconciliationsRunIdGet**](docs/OperationsApi.md#getreconciliationapiv1reconciliationsrunidget) | **GET** /api/v1/reconciliations/{run_id} | Get Reconciliation
 *OperationsApi* | [**getServiceTopologyApiV1OperationsTopologyGet**](docs/OperationsApi.md#getservicetopologyapiv1operationstopologyget) | **GET** /api/v1/operations/topology | Get Service Topology
 *OperationsApi* | [**listAnnouncementsApiV1AnnouncementsGet**](docs/OperationsApi.md#listannouncementsapiv1announcementsget) | **GET** /api/v1/announcements | List Announcements
@@ -371,6 +372,7 @@ All URIs are relative to *http://localhost*
 - [BlueprintSummary](docs/BlueprintSummary.md)
 - [BulkExecutionItemResult](docs/BulkExecutionItemResult.md)
 - [BulkExecutionRequest](docs/BulkExecutionRequest.md)
+- [CertificateDiagnostic](docs/CertificateDiagnostic.md)
 - [ChangeLocalPasswordRequest](docs/ChangeLocalPasswordRequest.md)
 - [CheckActionDefinition](docs/CheckActionDefinition.md)
 - [CheckComplianceSummary](docs/CheckComplianceSummary.md)
@@ -390,6 +392,7 @@ All URIs are relative to *http://localhost*
 - [ConfigurationMigrationKind](docs/ConfigurationMigrationKind.md)
 - [ConfigurationMigrationRequest](docs/ConfigurationMigrationRequest.md)
 - [ConfigurationSnapshot](docs/ConfigurationSnapshot.md)
+- [ConnectionDiagnostic](docs/ConnectionDiagnostic.md)
 - [CreateExecutionRequest](docs/CreateExecutionRequest.md)
 - [CreateTenantRequest](docs/CreateTenantRequest.md)
 - [CredentialKind](docs/CredentialKind.md)
@@ -410,6 +413,7 @@ All URIs are relative to *http://localhost*
 - [DashboardVisualization](docs/DashboardVisualization.md)
 - [DashboardWidget](docs/DashboardWidget.md)
 - [DashboardWidgetResult](docs/DashboardWidgetResult.md)
+- [DnsDiagnostic](docs/DnsDiagnostic.md)
 - [EffectivePluginPolicy](docs/EffectivePluginPolicy.md)
 - [ExchangeCredentialRequest](docs/ExchangeCredentialRequest.md)
 - [ExecutionArtifact](docs/ExecutionArtifact.md)
@@ -515,6 +519,7 @@ All URIs are relative to *http://localhost*
 - [NamespaceWorkflowMetadata](docs/NamespaceWorkflowMetadata.md)
 - [NamespaceWorkflowMetadataUpdate](docs/NamespaceWorkflowMetadataUpdate.md)
 - [NamespaceWorkflowMetadataView](docs/NamespaceWorkflowMetadataView.md)
+- [NetworkDiagnosticBundle](docs/NetworkDiagnosticBundle.md)
 - [OperationalBoundary](docs/OperationalBoundary.md)
 - [OperationalControl](docs/OperationalControl.md)
 - [OperationalControlAcknowledgement](docs/OperationalControlAcknowledgement.md)

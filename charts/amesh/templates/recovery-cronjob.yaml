@@ -46,7 +46,17 @@ spec:
               volumeMounts:
                 - name: temporary
                   mountPath: /tmp
+                {{- if .Values.network.tls.existingSecret }}
+                - name: network-certificates
+                  mountPath: {{ .Values.network.tls.mountPath | quote }}
+                  readOnly: true
+                {{- end }}
           volumes:
             - name: temporary
               emptyDir: {}
+            {{- if .Values.network.tls.existingSecret }}
+            - name: network-certificates
+              secret:
+                secretName: {{ .Values.network.tls.existingSecret | quote }}
+            {{- end }}
 {{- end }}

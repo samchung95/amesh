@@ -19878,7 +19878,7 @@
       "id": "URS-F-0686",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M6",
       "wave": 6,
       "epic_id": "EPIC-613",
@@ -19905,7 +19905,7 @@
       "id": "URS-F-0687",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M6",
       "wave": 6,
       "epic_id": "EPIC-613",
@@ -19932,7 +19932,7 @@
       "id": "URS-F-0688",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M6",
       "wave": 6,
       "epic_id": "EPIC-613",
@@ -19959,7 +19959,7 @@
       "id": "URS-F-0689",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M6",
       "wave": 6,
       "epic_id": "EPIC-613",
@@ -19986,7 +19986,7 @@
       "id": "URS-F-0690",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M6",
       "wave": 6,
       "epic_id": "EPIC-613",
@@ -20013,7 +20013,7 @@
       "id": "URS-F-0691",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M6",
       "wave": 6,
       "epic_id": "EPIC-613",
@@ -20040,7 +20040,7 @@
       "id": "URS-F-0692",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M6",
       "wave": 6,
       "epic_id": "EPIC-613",
@@ -20067,7 +20067,7 @@
       "id": "URS-F-0693",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M6",
       "wave": 6,
       "epic_id": "EPIC-613",
@@ -24991,7 +24991,14 @@
         "EPIC-613"
       ],
       "priority": "Must",
-      "status": "Proposed"
+      "status": "Verified",
+      "evidence": [
+        "src/amesh/server.py",
+        "src/amesh/networking.py",
+        "charts/amesh/templates/deployment-server.yaml",
+        "tests/test_networking.py",
+        "docs/operations/networking.md"
+      ]
     },
     {
       "id": "URS-NFR-SECURITY-005",
@@ -25036,6 +25043,11 @@
         "docs/operations/identity-federation.md",
         "tests/domain/test_federation.py",
         "tests/api/test_federation_api.py"
+        ,
+        "charts/amesh/templates/_helpers.tpl",
+        "charts/amesh/templates/deployment-server.yaml",
+        "tests/test_networking.py",
+        "docs/operations/networking.md"
       ]
     },
     {

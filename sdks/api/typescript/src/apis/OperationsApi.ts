@@ -34,6 +34,11 @@ import {
     HTTPValidationErrorToJSON,
 } from '../models/HTTPValidationError';
 import {
+    type NetworkDiagnosticBundle,
+    NetworkDiagnosticBundleFromJSON,
+    NetworkDiagnosticBundleToJSON,
+} from '../models/NetworkDiagnosticBundle';
+import {
     type OperationalControl,
     OperationalControlFromJSON,
     OperationalControlToJSON,
@@ -110,6 +115,12 @@ export interface DrainServiceInstanceApiV1OperationsServicesInstanceIdDrainPostR
 }
 
 export interface GetAdmissionDiagnosticsApiV1AdmissionsDiagnosticsGetRequest {
+    authorization?: string | null;
+    xAmeshCSRF?: string | null;
+    xAmeshTenant?: string | null;
+}
+
+export interface GetNetworkDiagnosticsApiV1OperationsNetworkDiagnosticsGetRequest {
     authorization?: string | null;
     xAmeshCSRF?: string | null;
     xAmeshTenant?: string | null;
@@ -484,6 +495,55 @@ export class OperationsApi extends runtime.BaseAPI {
      */
     async getAdmissionDiagnosticsApiV1AdmissionsDiagnosticsGet(requestParameters: GetAdmissionDiagnosticsApiV1AdmissionsDiagnosticsGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AdmissionDiagnostics> {
         const response = await this.getAdmissionDiagnosticsApiV1AdmissionsDiagnosticsGetRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Creates request options for getNetworkDiagnosticsApiV1OperationsNetworkDiagnosticsGet without sending the request
+     */
+    async getNetworkDiagnosticsApiV1OperationsNetworkDiagnosticsGetRequestOpts(requestParameters: GetNetworkDiagnosticsApiV1OperationsNetworkDiagnosticsGetRequest): Promise<runtime.RequestOpts> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (requestParameters['authorization'] != null) {
+            headerParameters['authorization'] = String(requestParameters['authorization']);
+        }
+
+        if (requestParameters['xAmeshCSRF'] != null) {
+            headerParameters['X-Amesh-CSRF'] = String(requestParameters['xAmeshCSRF']);
+        }
+
+        if (requestParameters['xAmeshTenant'] != null) {
+            headerParameters['X-Amesh-Tenant'] = String(requestParameters['xAmeshTenant']);
+        }
+
+
+        let urlPath = `/api/v1/operations/network-diagnostics`;
+
+        return {
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     * Get Network Diagnostics
+     */
+    async getNetworkDiagnosticsApiV1OperationsNetworkDiagnosticsGetRaw(requestParameters: GetNetworkDiagnosticsApiV1OperationsNetworkDiagnosticsGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<NetworkDiagnosticBundle>> {
+        const requestOptions = await this.getNetworkDiagnosticsApiV1OperationsNetworkDiagnosticsGetRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => NetworkDiagnosticBundleFromJSON(jsonValue));
+    }
+
+    /**
+     * Get Network Diagnostics
+     */
+    async getNetworkDiagnosticsApiV1OperationsNetworkDiagnosticsGet(requestParameters: GetNetworkDiagnosticsApiV1OperationsNetworkDiagnosticsGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<NetworkDiagnosticBundle> {
+        const response = await this.getNetworkDiagnosticsApiV1OperationsNetworkDiagnosticsGetRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

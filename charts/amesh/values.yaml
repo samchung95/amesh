@@ -84,6 +84,51 @@ service:
     prometheus.io/path: /metrics
     prometheus.io/port: "8000"
 
+network:
+  topology: split
+  privateEndpoint: false
+  privateEndpointAnnotations: {}
+  externalBaseURL: ""
+  trustedProxyRanges: []
+  tls:
+    mode: disabled
+    existingSecret: ""
+    mountPath: /var/run/secrets/amesh/network
+    certificateKey: tls.crt
+    privateKeyKey: tls.key
+    clientCAKey: client-ca.crt
+    clientAuth: none
+    minimumVersion: TLSv1.2
+    ciphers: ECDHE+AESGCM:ECDHE+CHACHA20
+  proxy:
+    existingSecret: ""
+    httpKey: http-proxy-url
+    httpsKey: https-proxy-url
+    httpURL: ""
+    httpsURL: ""
+    noProxy: []
+  outboundTLS:
+    caKey: outbound-ca.crt
+    clientCertificateKey: outbound-client.crt
+    clientKeyKey: outbound-client.key
+    useCA: false
+    useClientCertificate: false
+  egress:
+    allowedHosts:
+      - "*"
+    allowedPrivateHosts: []
+    diagnosticHosts: []
+  ingress:
+    enabled: false
+    className: ""
+    annotations: {}
+    hosts: []
+    tls: []
+  policy:
+    enabled: false
+    ingressNamespaceSelector: {}
+    egressCidrs: []
+
 serviceAccount:
   create: true
   name: ""

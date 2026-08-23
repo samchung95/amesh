@@ -2966,3 +2966,42 @@ availability qualification remain deferred under `URS-NFR-AVAILABILITY-004`; EPI
 broader availability claim beyond the locally reproducible LTS upgrade path.
 
 Verdict: PASS — EPIC-610 closed.
+
+## 2026-08-23 — EPIC-613 TLS, proxy and private networking
+
+Scope: `URS-F-0686` through `URS-F-0693` and `URS-NFR-SECURITY-004`; the EPIC-613
+certificate-rotation contribution to shared `URS-NFR-SECURITY-006` is complete.
+
+- [x] Direct Uvicorn TLS loads a TLS 1.2-or-newer context with a modern cipher policy and optional or
+  required client-certificate authentication. A generated certificate pair loaded successfully, a
+  second mounted pair replaced it, and required client CA verification remained enabled.
+- [x] Application-owned forwarding disabled Uvicorn's implicit rewriting. A trusted socket peer
+  applied HTTPS host/client origin, while the same headers from an untrusted peer produced the
+  deterministic `UNTRUSTED_FORWARDED_HEADERS` rejection.
+- [x] HTTP, download, webhook and OpenRouter task paths share explicit HTTP/HTTPS proxy, no-proxy,
+  custom CA/client-certificate, hostname/CIDR egress allowlist, DNS resolution, redirect revalidation
+  and private-address protections. Focused handler and HTTP utility tests passed.
+- [x] The Helm 4 trusted-proxy/Ingress/NetworkPolicy and direct-required-mTLS profiles both rendered.
+  Direct mTLS mounted the network Secret into all roles, selected the HTTPS service port and used
+  client-auth-compatible TCP probes; the split topology and zero-unavailable rollout remained intact.
+- [x] The authorized operations API and Administration Operations view expose connection hosts,
+  certificate fingerprints/readability, configured-proxy booleans, no-proxy policy and DNS results.
+  Seeded proxy credentials did not appear in configuration snapshots or network diagnostics.
+- [x] Twenty-one focused networking/configuration/HTTP tests, the PostgreSQL configuration API test,
+  20 frontend client tests, the TypeScript/Vite production build, focused Ruff, and strict mypy over
+  205 source files passed. Generated OpenAPI and Python, TypeScript, Java and Go SDKs are current
+  across 1,964 files. The live OpenRouter smoke test remained skipped because no API key is configured;
+  the tested default remains `openai/gpt-5.6-luna`.
+- [x] Planning artifacts regenerated and the canonical backlog validator passed with 103 epics, 837
+  functional requirements, 63 non-functional requirements and 992 trace links.
+- [x] Rebuilt distributed and compact Docker Compose deployments were healthy. The live authenticated
+  diagnostics route returned local `disabled` TLS mode and `compact` topology without proxy secrets,
+  `/ready` reported `ready`, and the Administration operations deep link returned HTTP 200.
+
+Qualification boundary: provider-specific private load balancers and certificate controllers require
+an operated cloud/on-prem environment. Live multi-node certificate rotation is deferred to that
+environment; the local contract verifies mounted material replacement, two-replica zero-unavailable
+rollout and both TLS topology renders. Shared `URS-NFR-SECURITY-006` remains In Progress pending
+EPIC-506 external-secret-manager lifecycle work.
+
+Verdict: PASS — EPIC-613 closed.

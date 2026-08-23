@@ -151,6 +151,7 @@ src/main/java/io/amesh/client/model/BlueprintProvenance.java
 src/main/java/io/amesh/client/model/BlueprintSummary.java
 src/main/java/io/amesh/client/model/BulkExecutionItemResult.java
 src/main/java/io/amesh/client/model/BulkExecutionRequest.java
+src/main/java/io/amesh/client/model/CertificateDiagnostic.java
 src/main/java/io/amesh/client/model/ChangeLocalPasswordRequest.java
 src/main/java/io/amesh/client/model/CheckActionDefinition.java
 src/main/java/io/amesh/client/model/CheckComplianceSummary.java
@@ -170,6 +171,7 @@ src/main/java/io/amesh/client/model/ConfigurationMigration.java
 src/main/java/io/amesh/client/model/ConfigurationMigrationKind.java
 src/main/java/io/amesh/client/model/ConfigurationMigrationRequest.java
 src/main/java/io/amesh/client/model/ConfigurationSnapshot.java
+src/main/java/io/amesh/client/model/ConnectionDiagnostic.java
 src/main/java/io/amesh/client/model/CreateExecutionRequest.java
 src/main/java/io/amesh/client/model/CreateTenantRequest.java
 src/main/java/io/amesh/client/model/CredentialKind.java
@@ -190,6 +192,7 @@ src/main/java/io/amesh/client/model/DashboardVisibility.java
 src/main/java/io/amesh/client/model/DashboardVisualization.java
 src/main/java/io/amesh/client/model/DashboardWidget.java
 src/main/java/io/amesh/client/model/DashboardWidgetResult.java
+src/main/java/io/amesh/client/model/DnsDiagnostic.java
 src/main/java/io/amesh/client/model/EffectivePluginPolicy.java
 src/main/java/io/amesh/client/model/ExchangeCredentialRequest.java
 src/main/java/io/amesh/client/model/ExecutionArtifact.java
@@ -295,6 +298,7 @@ src/main/java/io/amesh/client/model/NamespaceResourceImportResult.java
 src/main/java/io/amesh/client/model/NamespaceWorkflowMetadata.java
 src/main/java/io/amesh/client/model/NamespaceWorkflowMetadataUpdate.java
 src/main/java/io/amesh/client/model/NamespaceWorkflowMetadataView.java
+src/main/java/io/amesh/client/model/NetworkDiagnosticBundle.java
 src/main/java/io/amesh/client/model/OperationalBoundary.java
 src/main/java/io/amesh/client/model/OperationalControl.java
 src/main/java/io/amesh/client/model/OperationalControlAcknowledgement.java

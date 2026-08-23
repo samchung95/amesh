@@ -371,6 +371,12 @@ from amesh.federation import (
 from amesh.flow_testing import FlowTestService
 from amesh.frontend import SpaStaticFiles, find_frontend_dist
 from amesh.human_tasks import HumanTaskService, approval_task_handler
+from amesh.networking import (
+    ForwardedHeaderRejected,
+    NetworkDiagnosticBundle,
+    apply_trusted_forwarded_headers,
+    build_network_diagnostics,
+)
 from amesh.observability import (
     ADMISSION_PRESSURE,
     HTTP_REQUEST_DURATION,
@@ -675,6 +681,20 @@ async def observe_http(
     call_next: Callable[[Request], Awaitable[Response]],
 ) -> Response:
     started = perf_counter()
+    try:
+        settings = get_settings()
+        apply_trusted_forwarded_headers(
+            request.scope,
+            request.headers,
+            settings.network_trusted_proxy_ranges,
+        )
+    except ForwardedHeaderRejected as exc:
+        return _problem_response(
+            request,
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(exc),
+            code="UNTRUSTED_FORWARDED_HEADERS",
+        )
     with observe_operation(
         "api",
         "request",
@@ -3332,6 +3352,27 @@ async def get_configuration_diagnostics(
         recentErrors=recent_errors,
         selectedMetrics=diagnostic_metric_samples(),
     )
+
+
+@app.get(
+    "/api/v1/operations/network-diagnostics",
+    response_model=NetworkDiagnosticBundle,
+    tags=["operations"],
+)
+async def get_network_diagnostics(
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    settings: SettingsDependency,
+    tenant_id: TenantDependency,
+) -> NetworkDiagnosticBundle:
+    await authorize_request(
+        authorization_service,
+        actor,
+        tenant_id=tenant_id,
+        resource_type="configuration",
+        action=PermissionAction.VIEW,
+    )
+    return await build_network_diagnostics(settings)
 
 
 @app.get(
@@ -8490,6 +8531,7 @@ async def create_webhook_subscription(
         validate_http_destination(
             request.url,
             HttpTaskPolicy(
+                allowed_hosts=settings.network_egress_allowed_hosts,
                 allowed_private_hosts=frozenset(settings.core_http_allowed_private_hosts)
             ),
             resolve_dns=False,
@@ -9672,14 +9714,29 @@ async def _execute_flow(
     )
 
     http_policy = HttpTaskPolicy(
+        allowed_hosts=settings.network_egress_allowed_hosts,
         allowed_private_hosts=frozenset(settings.core_http_allowed_private_hosts),
         maximum_response_bytes=settings.core_http_max_response_bytes,
         maximum_pages=settings.core_http_max_pages,
         maximum_redirects=settings.core_http_max_redirects,
+        http_proxy_url=(
+            settings.network_http_proxy_url.get_secret_value()
+            if settings.network_http_proxy_url is not None
+            else None
+        ),
+        https_proxy_url=(
+            settings.network_https_proxy_url.get_secret_value()
+            if settings.network_https_proxy_url is not None
+            else None
+        ),
+        no_proxy=settings.network_no_proxy,
+        ca_file=settings.network_outbound_ca_file,
+        client_certificate_file=settings.network_outbound_client_certificate_file,
+        client_key_file=settings.network_outbound_client_key_file,
     )
     handlers = {
         "core.shell": shell_handler,
-        "agent.llm": agent_llm_handler(),
+        "agent.llm": agent_llm_handler(http_policy=http_policy),
         "agent.mcp": agent_mcp_handler(),
         "core.approval": approval_task_handler(
             get_human_task_repository(),

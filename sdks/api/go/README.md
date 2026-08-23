@@ -235,6 +235,7 @@ Class | Method | HTTP request | Description
 *OperationsAPI* | [**DeactivateAnnouncementApiV1AnnouncementsAnnouncementIdDelete**](docs/OperationsAPI.md#deactivateannouncementapiv1announcementsannouncementiddelete) | **Delete** /api/v1/announcements/{announcement_id} | Deactivate Announcement
 *OperationsAPI* | [**DrainServiceInstanceApiV1OperationsServicesInstanceIdDrainPost**](docs/OperationsAPI.md#drainserviceinstanceapiv1operationsservicesinstanceiddrainpost) | **Post** /api/v1/operations/services/{instance_id}/drain | Drain Service Instance
 *OperationsAPI* | [**GetAdmissionDiagnosticsApiV1AdmissionsDiagnosticsGet**](docs/OperationsAPI.md#getadmissiondiagnosticsapiv1admissionsdiagnosticsget) | **Get** /api/v1/admissions/diagnostics | Get Admission Diagnostics
+*OperationsAPI* | [**GetNetworkDiagnosticsApiV1OperationsNetworkDiagnosticsGet**](docs/OperationsAPI.md#getnetworkdiagnosticsapiv1operationsnetworkdiagnosticsget) | **Get** /api/v1/operations/network-diagnostics | Get Network Diagnostics
 *OperationsAPI* | [**GetReconciliationApiV1ReconciliationsRunIdGet**](docs/OperationsAPI.md#getreconciliationapiv1reconciliationsrunidget) | **Get** /api/v1/reconciliations/{run_id} | Get Reconciliation
 *OperationsAPI* | [**GetServiceTopologyApiV1OperationsTopologyGet**](docs/OperationsAPI.md#getservicetopologyapiv1operationstopologyget) | **Get** /api/v1/operations/topology | Get Service Topology
 *OperationsAPI* | [**ListAnnouncementsApiV1AnnouncementsGet**](docs/OperationsAPI.md#listannouncementsapiv1announcementsget) | **Get** /api/v1/announcements | List Announcements
@@ -384,6 +385,7 @@ Class | Method | HTTP request | Description
  - [BlueprintSummary](docs/BlueprintSummary.md)
  - [BulkExecutionItemResult](docs/BulkExecutionItemResult.md)
  - [BulkExecutionRequest](docs/BulkExecutionRequest.md)
+ - [CertificateDiagnostic](docs/CertificateDiagnostic.md)
  - [ChangeLocalPasswordRequest](docs/ChangeLocalPasswordRequest.md)
  - [CheckActionDefinition](docs/CheckActionDefinition.md)
  - [CheckComplianceSummary](docs/CheckComplianceSummary.md)
@@ -403,6 +405,7 @@ Class | Method | HTTP request | Description
  - [ConfigurationMigrationKind](docs/ConfigurationMigrationKind.md)
  - [ConfigurationMigrationRequest](docs/ConfigurationMigrationRequest.md)
  - [ConfigurationSnapshot](docs/ConfigurationSnapshot.md)
+ - [ConnectionDiagnostic](docs/ConnectionDiagnostic.md)
  - [CreateExecutionRequest](docs/CreateExecutionRequest.md)
  - [CreateTenantRequest](docs/CreateTenantRequest.md)
  - [CredentialKind](docs/CredentialKind.md)
@@ -423,6 +426,7 @@ Class | Method | HTTP request | Description
  - [DashboardVisualization](docs/DashboardVisualization.md)
  - [DashboardWidget](docs/DashboardWidget.md)
  - [DashboardWidgetResult](docs/DashboardWidgetResult.md)
+ - [DnsDiagnostic](docs/DnsDiagnostic.md)
  - [EffectivePluginPolicy](docs/EffectivePluginPolicy.md)
  - [ExchangeCredentialRequest](docs/ExchangeCredentialRequest.md)
  - [ExecutionArtifact](docs/ExecutionArtifact.md)
@@ -528,6 +532,7 @@ Class | Method | HTTP request | Description
  - [NamespaceWorkflowMetadata](docs/NamespaceWorkflowMetadata.md)
  - [NamespaceWorkflowMetadataUpdate](docs/NamespaceWorkflowMetadataUpdate.md)
  - [NamespaceWorkflowMetadataView](docs/NamespaceWorkflowMetadataView.md)
+ - [NetworkDiagnosticBundle](docs/NetworkDiagnosticBundle.md)
  - [OperationalBoundary](docs/OperationalBoundary.md)
  - [OperationalControl](docs/OperationalControl.md)
  - [OperationalControlAcknowledgement](docs/OperationalControlAcknowledgement.md)

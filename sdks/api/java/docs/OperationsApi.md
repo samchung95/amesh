@@ -14,6 +14,8 @@ All URIs are relative to *http://localhost*
 | [**drainServiceInstanceApiV1OperationsServicesInstanceIdDrainPostWithHttpInfo**](OperationsApi.md#drainServiceInstanceApiV1OperationsServicesInstanceIdDrainPostWithHttpInfo) | **POST** /api/v1/operations/services/{instance_id}/drain | Drain Service Instance |
 | [**getAdmissionDiagnosticsApiV1AdmissionsDiagnosticsGet**](OperationsApi.md#getAdmissionDiagnosticsApiV1AdmissionsDiagnosticsGet) | **GET** /api/v1/admissions/diagnostics | Get Admission Diagnostics |
 | [**getAdmissionDiagnosticsApiV1AdmissionsDiagnosticsGetWithHttpInfo**](OperationsApi.md#getAdmissionDiagnosticsApiV1AdmissionsDiagnosticsGetWithHttpInfo) | **GET** /api/v1/admissions/diagnostics | Get Admission Diagnostics |
+| [**getNetworkDiagnosticsApiV1OperationsNetworkDiagnosticsGet**](OperationsApi.md#getNetworkDiagnosticsApiV1OperationsNetworkDiagnosticsGet) | **GET** /api/v1/operations/network-diagnostics | Get Network Diagnostics |
+| [**getNetworkDiagnosticsApiV1OperationsNetworkDiagnosticsGetWithHttpInfo**](OperationsApi.md#getNetworkDiagnosticsApiV1OperationsNetworkDiagnosticsGetWithHttpInfo) | **GET** /api/v1/operations/network-diagnostics | Get Network Diagnostics |
 | [**getReconciliationApiV1ReconciliationsRunIdGet**](OperationsApi.md#getReconciliationApiV1ReconciliationsRunIdGet) | **GET** /api/v1/reconciliations/{run_id} | Get Reconciliation |
 | [**getReconciliationApiV1ReconciliationsRunIdGetWithHttpInfo**](OperationsApi.md#getReconciliationApiV1ReconciliationsRunIdGetWithHttpInfo) | **GET** /api/v1/reconciliations/{run_id} | Get Reconciliation |
 | [**getServiceTopologyApiV1OperationsTopologyGet**](OperationsApi.md#getServiceTopologyApiV1OperationsTopologyGet) | **GET** /api/v1/operations/topology | Get Service Topology |
@@ -741,6 +743,146 @@ public class Example {
 ### Return type
 
 ApiResponse<[**AdmissionDiagnostics**](AdmissionDiagnostics.md)>
+
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful Response |  -  |
+| **422** | Validation Error |  -  |
+
+
+## getNetworkDiagnosticsApiV1OperationsNetworkDiagnosticsGet
+
+> NetworkDiagnosticBundle getNetworkDiagnosticsApiV1OperationsNetworkDiagnosticsGet(authorization, xAmeshCSRF, xAmeshTenant)
+
+Get Network Diagnostics
+
+### Example
+
+```java
+// Import classes:
+import io.amesh.client.ApiClient;
+import io.amesh.client.ApiException;
+import io.amesh.client.Configuration;
+import io.amesh.client.models.*;
+import io.amesh.client.api.OperationsApi;
+
+public class Example {
+    public static void main(String[] args) {
+        ApiClient defaultClient = Configuration.getDefaultApiClient();
+        defaultClient.setBasePath("http://localhost");
+
+        OperationsApi apiInstance = new OperationsApi(defaultClient);
+        String authorization = "authorization_example"; // String |
+        String xAmeshCSRF = "xAmeshCSRF_example"; // String |
+        String xAmeshTenant = "xAmeshTenant_example"; // String |
+        try {
+            NetworkDiagnosticBundle result = apiInstance.getNetworkDiagnosticsApiV1OperationsNetworkDiagnosticsGet(authorization, xAmeshCSRF, xAmeshTenant);
+            System.out.println(result);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling OperationsApi#getNetworkDiagnosticsApiV1OperationsNetworkDiagnosticsGet");
+            System.err.println("Status code: " + e.getCode());
+            System.err.println("Reason: " + e.getResponseBody());
+            System.err.println("Response headers: " + e.getResponseHeaders());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **authorization** | **String**|  | [optional] |
+| **xAmeshCSRF** | **String**|  | [optional] |
+| **xAmeshTenant** | **String**|  | [optional] |
+
+### Return type
+
+[**NetworkDiagnosticBundle**](NetworkDiagnosticBundle.md)
+
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful Response |  -  |
+| **422** | Validation Error |  -  |
+
+## getNetworkDiagnosticsApiV1OperationsNetworkDiagnosticsGetWithHttpInfo
+
+> ApiResponse<NetworkDiagnosticBundle> getNetworkDiagnosticsApiV1OperationsNetworkDiagnosticsGetWithHttpInfo(authorization, xAmeshCSRF, xAmeshTenant)
+
+Get Network Diagnostics
+
+### Example
+
+```java
+// Import classes:
+import io.amesh.client.ApiClient;
+import io.amesh.client.ApiException;
+import io.amesh.client.ApiResponse;
+import io.amesh.client.Configuration;
+import io.amesh.client.models.*;
+import io.amesh.client.api.OperationsApi;
+
+public class Example {
+    public static void main(String[] args) {
+        ApiClient defaultClient = Configuration.getDefaultApiClient();
+        defaultClient.setBasePath("http://localhost");
+
+        OperationsApi apiInstance = new OperationsApi(defaultClient);
+        String authorization = "authorization_example"; // String |
+        String xAmeshCSRF = "xAmeshCSRF_example"; // String |
+        String xAmeshTenant = "xAmeshTenant_example"; // String |
+        try {
+            ApiResponse<NetworkDiagnosticBundle> response = apiInstance.getNetworkDiagnosticsApiV1OperationsNetworkDiagnosticsGetWithHttpInfo(authorization, xAmeshCSRF, xAmeshTenant);
+            System.out.println("Status code: " + response.getStatusCode());
+            System.out.println("Response headers: " + response.getHeaders());
+            System.out.println("Response body: " + response.getData());
+        } catch (ApiException e) {
+            System.err.println("Exception when calling OperationsApi#getNetworkDiagnosticsApiV1OperationsNetworkDiagnosticsGet");
+            System.err.println("Status code: " + e.getCode());
+            System.err.println("Response headers: " + e.getResponseHeaders());
+            System.err.println("Reason: " + e.getResponseBody());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **authorization** | **String**|  | [optional] |
+| **xAmeshCSRF** | **String**|  | [optional] |
+| **xAmeshTenant** | **String**|  | [optional] |
+
+### Return type
+
+ApiResponse<[**NetworkDiagnosticBundle**](NetworkDiagnosticBundle.md)>
 
 
 ### Authorization

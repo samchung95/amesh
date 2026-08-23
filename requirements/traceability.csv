@@ -684,14 +684,14 @@ URS-F-0682,Functional,Must,EPIC-612,Security hardening and software supply chain
 URS-F-0683,Functional,Must,EPIC-612,Security hardening and software supply chain,M6,6,Security integration tests and threat-model review,Proposed
 URS-F-0684,Functional,Must,EPIC-612,Security hardening and software supply chain,M6,6,Security integration tests and threat-model review,Proposed
 URS-F-0685,Functional,Must,EPIC-612,Security hardening and software supply chain,M6,6,Security integration tests and threat-model review,Proposed
-URS-F-0686,Functional,Must,EPIC-613,"TLS, networking, proxy and private connectivity",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
-URS-F-0687,Functional,Must,EPIC-613,"TLS, networking, proxy and private connectivity",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
-URS-F-0688,Functional,Must,EPIC-613,"TLS, networking, proxy and private connectivity",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
-URS-F-0689,Functional,Must,EPIC-613,"TLS, networking, proxy and private connectivity",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
-URS-F-0690,Functional,Must,EPIC-613,"TLS, networking, proxy and private connectivity",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
-URS-F-0691,Functional,Must,EPIC-613,"TLS, networking, proxy and private connectivity",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
-URS-F-0692,Functional,Must,EPIC-613,"TLS, networking, proxy and private connectivity",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
-URS-F-0693,Functional,Must,EPIC-613,"TLS, networking, proxy and private connectivity",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
+URS-F-0686,Functional,Must,EPIC-613,"TLS, networking, proxy and private connectivity",M6,6,"Reference deployment, upgrade and failure-recovery tests",Verified
+URS-F-0687,Functional,Must,EPIC-613,"TLS, networking, proxy and private connectivity",M6,6,"Reference deployment, upgrade and failure-recovery tests",Verified
+URS-F-0688,Functional,Must,EPIC-613,"TLS, networking, proxy and private connectivity",M6,6,"Reference deployment, upgrade and failure-recovery tests",Verified
+URS-F-0689,Functional,Must,EPIC-613,"TLS, networking, proxy and private connectivity",M6,6,"Reference deployment, upgrade and failure-recovery tests",Verified
+URS-F-0690,Functional,Must,EPIC-613,"TLS, networking, proxy and private connectivity",M6,6,"Reference deployment, upgrade and failure-recovery tests",Verified
+URS-F-0691,Functional,Must,EPIC-613,"TLS, networking, proxy and private connectivity",M6,6,"Reference deployment, upgrade and failure-recovery tests",Verified
+URS-F-0692,Functional,Must,EPIC-613,"TLS, networking, proxy and private connectivity",M6,6,"Reference deployment, upgrade and failure-recovery tests",Verified
+URS-F-0693,Functional,Must,EPIC-613,"TLS, networking, proxy and private connectivity",M6,6,"Reference deployment, upgrade and failure-recovery tests",Verified
 URS-F-0694,Functional,Must,EPIC-700,Git synchronization and CI/CD helpers,M7,7,"Declarative apply, drift and CI integration tests",Proposed
 URS-F-0695,Functional,Must,EPIC-700,Git synchronization and CI/CD helpers,M7,7,"Declarative apply, drift and CI integration tests",Proposed
 URS-F-0696,Functional,Must,EPIC-700,Git synchronization and CI/CD helpers,M7,7,"Declarative apply, drift and CI integration tests",Proposed
@@ -956,7 +956,7 @@ URS-NFR-SECURITY-003,Non-functional,Must,EPIC-111,"Logs, metrics, outputs and ar
 URS-NFR-SECURITY-003,Non-functional,Must,EPIC-205,"Inputs, outputs and variables",M2,2,Canary-secret scanning and redaction tests.,In Progress
 URS-NFR-SECURITY-003,Non-functional,Must,EPIC-506,External secrets managers and secret lifecycle,M5,5,Canary-secret scanning and redaction tests.,In Progress
 URS-NFR-SECURITY-003,Non-functional,Must,EPIC-607,"OpenTelemetry, Prometheus and log shipping",M6,6,Canary-secret scanning and redaction tests.,In Progress
-URS-NFR-SECURITY-004,Non-functional,Must,EPIC-613,"TLS, networking, proxy and private connectivity",M6,6,Automated protocol scan and reference deployment test.,Proposed
+URS-NFR-SECURITY-004,Non-functional,Must,EPIC-613,"TLS, networking, proxy and private connectivity",M6,6,Automated protocol scan and reference deployment test.,Verified
 URS-NFR-SECURITY-005,Non-functional,Must,EPIC-506,External secrets managers and secret lifecycle,M5,5,Configuration audit and restore test.,In Progress
 URS-NFR-SECURITY-005,Non-functional,Must,EPIC-602,PostgreSQL transactional backend,M6,6,Configuration audit and restore test.,In Progress
 URS-NFR-SECURITY-005,Non-functional,Must,EPIC-605,Object storage backends and lifecycle,M6,6,Configuration audit and restore test.,In Progress

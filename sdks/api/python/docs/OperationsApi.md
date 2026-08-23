@@ -9,6 +9,7 @@ Method | HTTP request | Description
 [**deactivate_announcement_api_v1_announcements_announcement_id_delete**](OperationsApi.md#deactivate_announcement_api_v1_announcements_announcement_id_delete) | **DELETE** /api/v1/announcements/{announcement_id} | Deactivate Announcement
 [**drain_service_instance_api_v1_operations_services_instance_id_drain_post**](OperationsApi.md#drain_service_instance_api_v1_operations_services_instance_id_drain_post) | **POST** /api/v1/operations/services/{instance_id}/drain | Drain Service Instance
 [**get_admission_diagnostics_api_v1_admissions_diagnostics_get**](OperationsApi.md#get_admission_diagnostics_api_v1_admissions_diagnostics_get) | **GET** /api/v1/admissions/diagnostics | Get Admission Diagnostics
+[**get_network_diagnostics_api_v1_operations_network_diagnostics_get**](OperationsApi.md#get_network_diagnostics_api_v1_operations_network_diagnostics_get) | **GET** /api/v1/operations/network-diagnostics | Get Network Diagnostics
 [**get_reconciliation_api_v1_reconciliations_run_id_get**](OperationsApi.md#get_reconciliation_api_v1_reconciliations_run_id_get) | **GET** /api/v1/reconciliations/{run_id} | Get Reconciliation
 [**get_service_topology_api_v1_operations_topology_get**](OperationsApi.md#get_service_topology_api_v1_operations_topology_get) | **GET** /api/v1/operations/topology | Get Service Topology
 [**list_announcements_api_v1_announcements_get**](OperationsApi.md#list_announcements_api_v1_announcements_get) | **GET** /api/v1/announcements | List Announcements
@@ -371,6 +372,77 @@ Name | Type | Description  | Notes
 ### Return type
 
 [**AdmissionDiagnostics**](AdmissionDiagnostics.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Successful Response |  -  |
+**422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **get_network_diagnostics_api_v1_operations_network_diagnostics_get**
+> NetworkDiagnosticBundle get_network_diagnostics_api_v1_operations_network_diagnostics_get(authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
+
+Get Network Diagnostics
+
+### Example
+
+
+```python
+import amesh_client
+from amesh_client.models.network_diagnostic_bundle import NetworkDiagnosticBundle
+from amesh_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to http://localhost
+# See configuration.py for a list of all supported configuration parameters.
+configuration = amesh_client.Configuration(
+    host = "http://localhost"
+)
+
+
+# Enter a context with an instance of the API client
+with amesh_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = amesh_client.OperationsApi(api_client)
+    authorization = 'authorization_example' # str |  (optional)
+    x_amesh_csrf = 'x_amesh_csrf_example' # str |  (optional)
+    x_amesh_tenant = 'x_amesh_tenant_example' # str |  (optional)
+
+    try:
+        # Get Network Diagnostics
+        api_response = api_instance.get_network_diagnostics_api_v1_operations_network_diagnostics_get(authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
+        print("The response of OperationsApi->get_network_diagnostics_api_v1_operations_network_diagnostics_get:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling OperationsApi->get_network_diagnostics_api_v1_operations_network_diagnostics_get: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **authorization** | **str**|  | [optional]
+ **x_amesh_csrf** | **str**|  | [optional]
+ **x_amesh_tenant** | **str**|  | [optional]
+
+### Return type
+
+[**NetworkDiagnosticBundle**](NetworkDiagnosticBundle.md)
 
 ### Authorization
 
