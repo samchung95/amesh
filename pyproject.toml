@@ -80,7 +80,7 @@ amesh-preflight = "amesh.preflight:main"
 where = ["src"]
 
 [tool.setuptools.package-data]
-amesh = ["web/*.html", "web/assets/*"]
+amesh = ["resources/*.json", "web/*.html", "web/assets/*"]
 
 [tool.setuptools.data-files]
 "share/amesh/migrations" = ["migrations/*.sql", "migrations/manifest.json"]

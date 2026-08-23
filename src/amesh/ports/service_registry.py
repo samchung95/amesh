@@ -14,6 +14,10 @@ class ServiceFenceError(RuntimeError):
     """Raised when a replaced or stale service incarnation attempts a mutation."""
 
 
+class ServiceVersionSkewError(RuntimeError):
+    """Raised before an unsafe service version can join the runtime topology."""
+
+
 class ServiceRegistryRepository(Protocol):
     async def register(self, registration: ServiceRegistration) -> ServiceInstance: ...
 

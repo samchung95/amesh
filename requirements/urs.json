@@ -19198,7 +19198,7 @@
       "id": "URS-F-0662",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M6",
       "wave": 6,
       "epic_id": "EPIC-610",
@@ -19226,7 +19226,7 @@
       "id": "URS-F-0663",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M6",
       "wave": 6,
       "epic_id": "EPIC-610",
@@ -19254,7 +19254,7 @@
       "id": "URS-F-0664",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M6",
       "wave": 6,
       "epic_id": "EPIC-610",
@@ -19282,7 +19282,7 @@
       "id": "URS-F-0665",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M6",
       "wave": 6,
       "epic_id": "EPIC-610",
@@ -19310,7 +19310,7 @@
       "id": "URS-F-0666",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M6",
       "wave": 6,
       "epic_id": "EPIC-610",
@@ -19338,7 +19338,7 @@
       "id": "URS-F-0667",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M6",
       "wave": 6,
       "epic_id": "EPIC-610",
@@ -19366,7 +19366,7 @@
       "id": "URS-F-0668",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M6",
       "wave": 6,
       "epic_id": "EPIC-610",
@@ -19394,7 +19394,7 @@
       "id": "URS-F-0669",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M6",
       "wave": 6,
       "epic_id": "EPIC-610",
@@ -24336,14 +24336,17 @@
         "EPIC-610"
       ],
       "priority": "Must",
-      "status": "In Progress",
+      "status": "Verified",
       "evidence": [
         "docs/adr/021-round-trip-yaml-and-resource-schema-registry.md",
         "docs/adr/025-incremental-versioned-api-contract.md",
         ".github/workflows/ci.yml",
         "tests/test_generated_contracts.py::test_generated_json_schemas_are_current",
         "schemas/flow.schema.json",
-        "schemas/resource-catalog.json"
+        "schemas/resource-catalog.json",
+        "src/amesh/resources/upgrade-policy.json",
+        "tests/adapters/postgres/test_upgrade_repository.py",
+        "tests/test_generated_contracts.py"
       ]
     },
     {
@@ -24358,10 +24361,11 @@
         "EPIC-610"
       ],
       "priority": "Must",
-      "status": "In Progress",
+      "status": "Verified",
       "evidence": [
         "tests/adapters/postgres/test_migration_contract.py",
-        "src/amesh/migrations.py::schema_fingerprint"
+        "src/amesh/migrations.py::schema_fingerprint",
+        "tests/adapters/postgres/test_upgrade_repository.py"
       ]
     },
     {
@@ -24499,7 +24503,12 @@
         "EPIC-610"
       ],
       "priority": "Must",
-      "status": "Proposed"
+      "status": "Verified",
+      "evidence": [
+        "src/amesh/resources/upgrade-policy.json",
+        "docs/operations/upgrades.md",
+        "migrations/manifest.json"
+      ]
     },
     {
       "id": "URS-NFR-PERFORMANCE-001",

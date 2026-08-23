@@ -32,6 +32,7 @@ api_task_cache.go
 api_tenants.go
 api_triggers.go
 api_ui.go
+api_upgrades.go
 api_workers.go
 client.go
 configuration.go
@@ -64,6 +65,7 @@ docs/TaskCacheAPI.md
 docs/TenantsAPI.md
 docs/TriggersAPI.md
 docs/UiAPI.md
+docs/UpgradesAPI.md
 docs/WorkersAPI.md
 git_push.sh
 go.mod
@@ -145,6 +147,9 @@ model_compliance_evidence_record.go
 model_compliance_package_request.go
 model_configuration_diagnostic_bundle.go
 model_configuration_entry.go
+model_configuration_migration.go
+model_configuration_migration_kind.go
+model_configuration_migration_request.go
 model_configuration_snapshot.go
 model_create_execution_request.go
 model_create_tenant_request.go
@@ -285,6 +290,8 @@ model_permission.go
 model_permission_action.go
 model_permission_effect.go
 model_persisted_asset.go
+model_persisted_event_migration.go
+model_persisted_event_migration_request.go
 model_persisted_execution.go
 model_persisted_flow.go
 model_persisted_subflow.go
@@ -362,6 +369,7 @@ model_revoked_credentials_response.go
 model_revoked_sessions_response.go
 model_role_binding.go
 model_role_definition.go
+model_rolling_upgrade_step.go
 model_rotate_credential_request.go
 model_runner_capabilities.go
 model_runner_id.go
@@ -436,6 +444,15 @@ model_trusted_plugin_runtime_snapshot.go
 model_trusted_plugin_runtime_status.go
 model_trusted_plugin_state.go
 model_ui_session_response.go
+model_upgrade_capacity_thresholds.go
+model_upgrade_check.go
+model_upgrade_check_status.go
+model_upgrade_path.go
+model_upgrade_phase.go
+model_upgrade_policy.go
+model_upgrade_release.go
+model_upgrade_report.go
+model_upgrade_report_request.go
 model_validation_error.go
 model_validation_issue.go
 model_value.go

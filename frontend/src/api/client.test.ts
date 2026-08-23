@@ -214,6 +214,28 @@ describe('API client', () => {
     expect(JSON.parse((fetchMock.mock.calls[7]?.[1] as RequestInit).body as string)).toEqual({ confirmation: 'PURGE 12' })
   })
 
+  it('builds upgrade reports and exact bounded event-upcast requests', async () => {
+    const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(new Response('{}', { status: 200 })))
+    vi.stubGlobal('fetch', fetchMock)
+    const api = createApiClient({ token: 'token', tenant: 'default', namespace: '' })
+
+    await api.upgradePolicy()
+    await api.upgradeReport('preflight', '0.1.0', '0.2.0')
+    await api.upgradeReport('postflight', '0.1.0', '0.2.0')
+    await api.previewEventUpcast()
+    await api.applyEventUpcast('UPCAST 3', 'supported LTS migration', 25)
+
+    expect(fetchMock.mock.calls.map((call) => call[0] as string)).toEqual([
+      '/api/v1/upgrades/policy',
+      '/api/v1/upgrades/preflight',
+      '/api/v1/upgrades/postflight',
+      '/api/v1/upgrades/events/upcast',
+      '/api/v1/upgrades/events/upcast',
+    ])
+    expect(JSON.parse((fetchMock.mock.calls[1]?.[1] as RequestInit).body as string)).toEqual({ fromVersion: '0.1.0', toVersion: '0.2.0' })
+    expect(JSON.parse((fetchMock.mock.calls[4]?.[1] as RequestInit).body as string)).toEqual({ confirmation: 'UPCAST 3', reason: 'supported LTS migration', batchSize: 25 })
+  })
+
   it('uses a deterministic fallback when JSON detail is not text', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify({ detail: 42 }), { status: 500 })))
     const api = createApiClient({ token: 'token', tenant: 'default', namespace: '' })

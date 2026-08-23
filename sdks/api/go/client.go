@@ -107,6 +107,8 @@ type APIClient struct {
 
 	UiAPI *UiAPIService
 
+	UpgradesAPI *UpgradesAPIService
+
 	WorkersAPI *WorkersAPIService
 }
 
@@ -155,6 +157,7 @@ func NewAPIClient(cfg *Configuration) *APIClient {
 	c.TenantsAPI = (*TenantsAPIService)(&c.common)
 	c.TriggersAPI = (*TriggersAPIService)(&c.common)
 	c.UiAPI = (*UiAPIService)(&c.common)
+	c.UpgradesAPI = (*UpgradesAPIService)(&c.common)
 	c.WorkersAPI = (*WorkersAPIService)(&c.common)
 
 	return c

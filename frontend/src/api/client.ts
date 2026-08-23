@@ -76,6 +76,7 @@ import type {
   LifecycleLegalHoldDraft,
   LifecyclePolicy,
   LifecyclePolicyDraft,
+  PersistedEventMigration,
   PersistedExecution,
   PersistedFlow,
   PersistedSubflow,
@@ -93,6 +94,8 @@ import type {
   TriggerOccurrence,
   TriggerRuntimeState,
   UiSession,
+  UpgradePolicy,
+  UpgradeReport,
   WorkerInventory,
   WorkflowApp,
   IssuedCredential,
@@ -587,6 +590,21 @@ export function createApiClient(connection: ApiConnection) {
     resumeLifecycleJob: async (jobId: string) =>
       request<LifecycleJob>(`/api/v1/lifecycle/jobs/${encodeURIComponent(jobId)}/resume`, {
         method: 'POST',
+      }),
+    upgradePolicy: async () => request<UpgradePolicy>('/api/v1/upgrades/policy'),
+    upgradeReport: async (phase: 'preflight' | 'postflight', fromVersion: string, toVersion: string) =>
+      request<UpgradeReport>(`/api/v1/upgrades/${phase}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fromVersion, toVersion }),
+      }),
+    previewEventUpcast: async () =>
+      request<PersistedEventMigration>('/api/v1/upgrades/events/upcast'),
+    applyEventUpcast: async (confirmation: string, reason: string, batchSize: number) =>
+      request<PersistedEventMigration>('/api/v1/upgrades/events/upcast', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ confirmation, reason, batchSize }),
       }),
     namespaceFiles: async (namespace: string) =>
       request<NamespaceFile[]>(`${namespaceRoot(namespace)}/files`),

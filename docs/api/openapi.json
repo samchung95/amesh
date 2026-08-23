@@ -3410,6 +3410,73 @@
         "title": "ConfigurationEntry",
         "type": "object"
       },
+      "ConfigurationMigration": {
+        "properties": {
+          "canonical": {
+            "additionalProperties": true,
+            "title": "Canonical",
+            "type": "object"
+          },
+          "changed": {
+            "title": "Changed",
+            "type": "boolean"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/ConfigurationMigrationKind"
+          },
+          "targetVersion": {
+            "title": "Targetversion",
+            "type": "string"
+          },
+          "warnings": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Warnings",
+            "type": "array"
+          }
+        },
+        "required": [
+          "kind",
+          "targetVersion",
+          "changed",
+          "canonical"
+        ],
+        "title": "ConfigurationMigration",
+        "type": "object"
+      },
+      "ConfigurationMigrationKind": {
+        "enum": [
+          "flow",
+          "plugin"
+        ],
+        "title": "ConfigurationMigrationKind",
+        "type": "string"
+      },
+      "ConfigurationMigrationRequest": {
+        "properties": {
+          "document": {
+            "additionalProperties": true,
+            "title": "Document",
+            "type": "object"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/ConfigurationMigrationKind"
+          },
+          "targetVersion": {
+            "title": "Targetversion",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "targetVersion",
+          "document"
+        ],
+        "title": "ConfigurationMigrationRequest",
+        "type": "object"
+      },
       "ConfigurationSnapshot": {
         "properties": {
           "entries": {
@@ -9468,6 +9535,81 @@
         "title": "PersistedAsset",
         "type": "object"
       },
+      "PersistedEventMigration": {
+        "properties": {
+          "applied": {
+            "title": "Applied",
+            "type": "boolean"
+          },
+          "confirmationPhrase": {
+            "title": "Confirmationphrase",
+            "type": "string"
+          },
+          "eligibleEvents": {
+            "minimum": 0.0,
+            "title": "Eligibleevents",
+            "type": "integer"
+          },
+          "evidenceEventId": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Evidenceeventid"
+          },
+          "migratedEvents": {
+            "minimum": 0.0,
+            "title": "Migratedevents",
+            "type": "integer"
+          },
+          "remainingEvents": {
+            "minimum": 0.0,
+            "title": "Remainingevents",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "eligibleEvents",
+          "migratedEvents",
+          "remainingEvents",
+          "confirmationPhrase",
+          "applied"
+        ],
+        "title": "PersistedEventMigration",
+        "type": "object"
+      },
+      "PersistedEventMigrationRequest": {
+        "properties": {
+          "batchSize": {
+            "default": 1000,
+            "maximum": 10000.0,
+            "minimum": 1.0,
+            "title": "Batchsize",
+            "type": "integer"
+          },
+          "confirmation": {
+            "title": "Confirmation",
+            "type": "string"
+          },
+          "reason": {
+            "maxLength": 1024,
+            "minLength": 1,
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "confirmation",
+          "reason"
+        ],
+        "title": "PersistedEventMigrationRequest",
+        "type": "object"
+      },
       "PersistedExecution": {
         "properties": {
           "cancel_deadline_at": {
@@ -12708,6 +12850,35 @@
         "title": "RoleDefinition",
         "type": "object"
       },
+      "RollingUpgradeStep": {
+        "properties": {
+          "action": {
+            "title": "Action",
+            "type": "string"
+          },
+          "order": {
+            "minimum": 1.0,
+            "title": "Order",
+            "type": "integer"
+          },
+          "role": {
+            "title": "Role",
+            "type": "string"
+          },
+          "verification": {
+            "title": "Verification",
+            "type": "string"
+          }
+        },
+        "required": [
+          "order",
+          "role",
+          "action",
+          "verification"
+        ],
+        "title": "RollingUpgradeStep",
+        "type": "object"
+      },
       "RotateCredentialRequest": {
         "properties": {
           "overlapSeconds": {
@@ -14095,7 +14266,8 @@
       "ServiceCompatibility": {
         "enum": [
           "CURRENT",
-          "VERSION_SKEW"
+          "ROLLING_COMPATIBLE",
+          "UNSAFE"
         ],
         "title": "ServiceCompatibility",
         "type": "string"
@@ -16029,6 +16201,315 @@
           "serverVersion"
         ],
         "title": "UiSessionResponse",
+        "type": "object"
+      },
+      "UpgradeCapacityThresholds": {
+        "properties": {
+          "maximumActiveExecutions": {
+            "exclusiveMinimum": 0.0,
+            "title": "Maximumactiveexecutions",
+            "type": "integer"
+          },
+          "maximumDatabaseBytes": {
+            "exclusiveMinimum": 0.0,
+            "title": "Maximumdatabasebytes",
+            "type": "integer"
+          },
+          "maximumQueuedWork": {
+            "exclusiveMinimum": 0.0,
+            "title": "Maximumqueuedwork",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "maximumDatabaseBytes",
+          "maximumQueuedWork",
+          "maximumActiveExecutions"
+        ],
+        "title": "UpgradeCapacityThresholds",
+        "type": "object"
+      },
+      "UpgradeCheck": {
+        "properties": {
+          "category": {
+            "title": "Category",
+            "type": "string"
+          },
+          "detail": {
+            "title": "Detail",
+            "type": "string"
+          },
+          "evidence": {
+            "additionalProperties": true,
+            "title": "Evidence",
+            "type": "object"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "remediation": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Remediation"
+          },
+          "status": {
+            "$ref": "#/components/schemas/UpgradeCheckStatus"
+          }
+        },
+        "required": [
+          "name",
+          "category",
+          "status",
+          "detail"
+        ],
+        "title": "UpgradeCheck",
+        "type": "object"
+      },
+      "UpgradeCheckStatus": {
+        "enum": [
+          "PASS",
+          "WARNING",
+          "BLOCKED"
+        ],
+        "title": "UpgradeCheckStatus",
+        "type": "string"
+      },
+      "UpgradePath": {
+        "properties": {
+          "fromVersion": {
+            "title": "Fromversion",
+            "type": "string"
+          },
+          "messageSchemaVersions": {
+            "items": {
+              "type": "integer"
+            },
+            "minItems": 1,
+            "title": "Messageschemaversions",
+            "type": "array"
+          },
+          "restorationGuidance": {
+            "minLength": 1,
+            "title": "Restorationguidance",
+            "type": "string"
+          },
+          "rollbackWindowHours": {
+            "minimum": 0.0,
+            "title": "Rollbackwindowhours",
+            "type": "integer"
+          },
+          "rollingCompatible": {
+            "title": "Rollingcompatible",
+            "type": "boolean"
+          },
+          "toVersion": {
+            "title": "Toversion",
+            "type": "string"
+          }
+        },
+        "required": [
+          "fromVersion",
+          "toVersion",
+          "rollingCompatible",
+          "messageSchemaVersions",
+          "rollbackWindowHours",
+          "restorationGuidance"
+        ],
+        "title": "UpgradePath",
+        "type": "object"
+      },
+      "UpgradePhase": {
+        "enum": [
+          "PRE_UPGRADE",
+          "POST_UPGRADE"
+        ],
+        "title": "UpgradePhase",
+        "type": "string"
+      },
+      "UpgradePolicy": {
+        "properties": {
+          "capacityThresholds": {
+            "$ref": "#/components/schemas/UpgradeCapacityThresholds"
+          },
+          "currentVersion": {
+            "title": "Currentversion",
+            "type": "string"
+          },
+          "paths": {
+            "items": {
+              "$ref": "#/components/schemas/UpgradePath"
+            },
+            "title": "Paths",
+            "type": "array"
+          },
+          "releases": {
+            "items": {
+              "$ref": "#/components/schemas/UpgradeRelease"
+            },
+            "title": "Releases",
+            "type": "array"
+          },
+          "schemaVersion": {
+            "const": "amesh.upgrade-policy/v1",
+            "title": "Schemaversion",
+            "type": "string"
+          }
+        },
+        "required": [
+          "schemaVersion",
+          "currentVersion",
+          "capacityThresholds",
+          "releases",
+          "paths"
+        ],
+        "title": "UpgradePolicy",
+        "type": "object"
+      },
+      "UpgradeRelease": {
+        "properties": {
+          "lts": {
+            "title": "Lts",
+            "type": "boolean"
+          },
+          "minimumComponents": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Minimumcomponents",
+            "type": "object"
+          },
+          "schemaMigration": {
+            "pattern": "^[0-9]{4}_.+\\.sql$",
+            "title": "Schemamigration",
+            "type": "string"
+          },
+          "supportEndsOn": {
+            "format": "date",
+            "title": "Supportendson",
+            "type": "string"
+          },
+          "supportStartsOn": {
+            "format": "date",
+            "title": "Supportstartson",
+            "type": "string"
+          },
+          "version": {
+            "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "version",
+          "lts",
+          "supportStartsOn",
+          "supportEndsOn",
+          "schemaMigration",
+          "minimumComponents"
+        ],
+        "title": "UpgradeRelease",
+        "type": "object"
+      },
+      "UpgradeReport": {
+        "properties": {
+          "checks": {
+            "items": {
+              "$ref": "#/components/schemas/UpgradeCheck"
+            },
+            "title": "Checks",
+            "type": "array"
+          },
+          "fromVersion": {
+            "title": "Fromversion",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "observedAt": {
+            "format": "date-time",
+            "title": "Observedat",
+            "type": "string"
+          },
+          "phase": {
+            "$ref": "#/components/schemas/UpgradePhase"
+          },
+          "reportFingerprint": {
+            "title": "Reportfingerprint",
+            "type": "string"
+          },
+          "restorationGuidance": {
+            "title": "Restorationguidance",
+            "type": "string"
+          },
+          "rollingCompatible": {
+            "title": "Rollingcompatible",
+            "type": "boolean"
+          },
+          "rollingPlan": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/RollingUpgradeStep"
+            },
+            "title": "Rollingplan",
+            "type": "array"
+          },
+          "safeToProceed": {
+            "title": "Safetoproceed",
+            "type": "boolean"
+          },
+          "toVersion": {
+            "title": "Toversion",
+            "type": "string"
+          },
+          "warnings": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Warnings",
+            "type": "array"
+          }
+        },
+        "required": [
+          "phase",
+          "fromVersion",
+          "toVersion",
+          "observedAt",
+          "safeToProceed",
+          "rollingCompatible",
+          "checks",
+          "restorationGuidance",
+          "reportFingerprint"
+        ],
+        "title": "UpgradeReport",
+        "type": "object"
+      },
+      "UpgradeReportRequest": {
+        "properties": {
+          "fromVersion": {
+            "title": "Fromversion",
+            "type": "string"
+          },
+          "toVersion": {
+            "title": "Toversion",
+            "type": "string"
+          }
+        },
+        "required": [
+          "fromVersion",
+          "toVersion"
+        ],
+        "title": "UpgradeReportRequest",
         "type": "object"
       },
       "ValidationError": {
@@ -38763,6 +39244,434 @@
         "summary": "Get Ui Session",
         "tags": [
           "ui"
+        ]
+      }
+    },
+    "/api/v1/upgrades/configuration/migrate": {
+      "post": {
+        "operationId": "migrate_upgrade_configuration_api_v1_upgrades_configuration_migrate_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfigurationMigrationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConfigurationMigration"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Migrate Upgrade Configuration",
+        "tags": [
+          "upgrades"
+        ]
+      }
+    },
+    "/api/v1/upgrades/events/upcast": {
+      "get": {
+        "operationId": "preview_upgrade_event_upcast_api_v1_upgrades_events_upcast_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PersistedEventMigration"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Preview Upgrade Event Upcast",
+        "tags": [
+          "upgrades"
+        ]
+      },
+      "post": {
+        "operationId": "run_upgrade_event_upcast_api_v1_upgrades_events_upcast_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PersistedEventMigrationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PersistedEventMigration"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Run Upgrade Event Upcast",
+        "tags": [
+          "upgrades"
+        ]
+      }
+    },
+    "/api/v1/upgrades/policy": {
+      "get": {
+        "operationId": "get_upgrade_policy_api_v1_upgrades_policy_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpgradePolicy"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Upgrade Policy",
+        "tags": [
+          "upgrades"
+        ]
+      }
+    },
+    "/api/v1/upgrades/postflight": {
+      "post": {
+        "operationId": "run_upgrade_postflight_api_v1_upgrades_postflight_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpgradeReportRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpgradeReport"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Run Upgrade Postflight",
+        "tags": [
+          "upgrades"
+        ]
+      }
+    },
+    "/api/v1/upgrades/preflight": {
+      "post": {
+        "operationId": "run_upgrade_preflight_api_v1_upgrades_preflight_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpgradeReportRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpgradeReport"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Run Upgrade Preflight",
+        "tags": [
+          "upgrades"
         ]
       }
     },

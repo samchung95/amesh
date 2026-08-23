@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import argparse
 import asyncio
 import hashlib
 import json
@@ -129,8 +130,21 @@ async def apply_migrations(
     directory: Path,
     *,
     ssl_argument: ssl.SSLContext | bool | None = None,
+    target_version: str | None = None,
 ) -> list[str]:
-    plan = migration_plan(directory)
+    complete_plan = migration_plan(directory)
+    if target_version is None:
+        plan = complete_plan
+    else:
+        try:
+            target_index = next(
+                index
+                for index, descriptor in enumerate(complete_plan)
+                if descriptor.filename == target_version
+            )
+        except StopIteration as exc:
+            raise ValueError(f"migration target {target_version!r} is not in the manifest") from exc
+        plan = complete_plan[: target_index + 1]
     connection = await asyncpg.connect(
         database_url.replace("postgresql+asyncpg://", "postgresql://", 1),
         ssl=ssl_argument,
@@ -310,6 +324,9 @@ def _replace_database(parts: SplitResult, database: str, *, asyncpg: bool = True
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser(description="Apply checksum-protected AMESH migrations")
+    parser.add_argument("--target", help="stop at one exact manifest filename")
+    args = parser.parse_args()
     settings = get_settings()
     configure_structured_logging(settings.log_level)
     applied = asyncio.run(
@@ -317,6 +334,7 @@ def main() -> None:
             settings.database_url,
             migration_directory(),
             ssl_argument=database_ssl_argument(settings),
+            target_version=args.target,
         )
     )
     print(f"applied {len(applied)} migration(s): {', '.join(applied) or 'none'}")

@@ -31,6 +31,7 @@ docs/TaskCacheApi.md
 docs/TenantsApi.md
 docs/TriggersApi.md
 docs/UiApi.md
+docs/UpgradesApi.md
 docs/WorkersApi.md
 package.json
 src/apis/AdministrationApi.ts
@@ -62,6 +63,7 @@ src/apis/TaskCacheApi.ts
 src/apis/TenantsApi.ts
 src/apis/TriggersApi.ts
 src/apis/UiApi.ts
+src/apis/UpgradesApi.ts
 src/apis/WorkersApi.ts
 src/apis/index.ts
 src/index.ts
@@ -142,6 +144,9 @@ src/models/ComplianceEvidenceRecord.ts
 src/models/CompliancePackageRequest.ts
 src/models/ConfigurationDiagnosticBundle.ts
 src/models/ConfigurationEntry.ts
+src/models/ConfigurationMigration.ts
+src/models/ConfigurationMigrationKind.ts
+src/models/ConfigurationMigrationRequest.ts
 src/models/ConfigurationSnapshot.ts
 src/models/CreateExecutionRequest.ts
 src/models/CreateTenantRequest.ts
@@ -282,6 +287,8 @@ src/models/Permission.ts
 src/models/PermissionAction.ts
 src/models/PermissionEffect.ts
 src/models/PersistedAsset.ts
+src/models/PersistedEventMigration.ts
+src/models/PersistedEventMigrationRequest.ts
 src/models/PersistedExecution.ts
 src/models/PersistedFlow.ts
 src/models/PersistedSubflow.ts
@@ -359,6 +366,7 @@ src/models/RevokedCredentialsResponse.ts
 src/models/RevokedSessionsResponse.ts
 src/models/RoleBinding.ts
 src/models/RoleDefinition.ts
+src/models/RollingUpgradeStep.ts
 src/models/RotateCredentialRequest.ts
 src/models/RunnerCapabilities.ts
 src/models/RunnerId.ts
@@ -433,6 +441,15 @@ src/models/TrustedPluginRuntimeSnapshot.ts
 src/models/TrustedPluginRuntimeStatus.ts
 src/models/TrustedPluginState.ts
 src/models/UiSessionResponse.ts
+src/models/UpgradeCapacityThresholds.ts
+src/models/UpgradeCheck.ts
+src/models/UpgradeCheckStatus.ts
+src/models/UpgradePath.ts
+src/models/UpgradePhase.ts
+src/models/UpgradePolicy.ts
+src/models/UpgradeRelease.ts
+src/models/UpgradeReport.ts
+src/models/UpgradeReportRequest.ts
 src/models/ValidationError.ts
 src/models/ValidationIssue.ts
 src/models/Value.ts

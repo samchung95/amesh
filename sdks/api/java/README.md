@@ -587,6 +587,18 @@ Class | Method | HTTP request | Description
 *TriggersApi* | [**triggerWebhookApiV1WebhooksNamespaceFlowIdTriggerIdPostWithHttpInfo**](docs/TriggersApi.md#triggerWebhookApiV1WebhooksNamespaceFlowIdTriggerIdPostWithHttpInfo) | **POST** /api/v1/webhooks/{namespace}/{flow_id}/{trigger_id} | Trigger Webhook
 *UiApi* | [**getUiSessionApiV1UiSessionGet**](docs/UiApi.md#getUiSessionApiV1UiSessionGet) | **GET** /api/v1/ui/session | Get Ui Session
 *UiApi* | [**getUiSessionApiV1UiSessionGetWithHttpInfo**](docs/UiApi.md#getUiSessionApiV1UiSessionGetWithHttpInfo) | **GET** /api/v1/ui/session | Get Ui Session
+*UpgradesApi* | [**getUpgradePolicyApiV1UpgradesPolicyGet**](docs/UpgradesApi.md#getUpgradePolicyApiV1UpgradesPolicyGet) | **GET** /api/v1/upgrades/policy | Get Upgrade Policy
+*UpgradesApi* | [**getUpgradePolicyApiV1UpgradesPolicyGetWithHttpInfo**](docs/UpgradesApi.md#getUpgradePolicyApiV1UpgradesPolicyGetWithHttpInfo) | **GET** /api/v1/upgrades/policy | Get Upgrade Policy
+*UpgradesApi* | [**migrateUpgradeConfigurationApiV1UpgradesConfigurationMigratePost**](docs/UpgradesApi.md#migrateUpgradeConfigurationApiV1UpgradesConfigurationMigratePost) | **POST** /api/v1/upgrades/configuration/migrate | Migrate Upgrade Configuration
+*UpgradesApi* | [**migrateUpgradeConfigurationApiV1UpgradesConfigurationMigratePostWithHttpInfo**](docs/UpgradesApi.md#migrateUpgradeConfigurationApiV1UpgradesConfigurationMigratePostWithHttpInfo) | **POST** /api/v1/upgrades/configuration/migrate | Migrate Upgrade Configuration
+*UpgradesApi* | [**previewUpgradeEventUpcastApiV1UpgradesEventsUpcastGet**](docs/UpgradesApi.md#previewUpgradeEventUpcastApiV1UpgradesEventsUpcastGet) | **GET** /api/v1/upgrades/events/upcast | Preview Upgrade Event Upcast
+*UpgradesApi* | [**previewUpgradeEventUpcastApiV1UpgradesEventsUpcastGetWithHttpInfo**](docs/UpgradesApi.md#previewUpgradeEventUpcastApiV1UpgradesEventsUpcastGetWithHttpInfo) | **GET** /api/v1/upgrades/events/upcast | Preview Upgrade Event Upcast
+*UpgradesApi* | [**runUpgradeEventUpcastApiV1UpgradesEventsUpcastPost**](docs/UpgradesApi.md#runUpgradeEventUpcastApiV1UpgradesEventsUpcastPost) | **POST** /api/v1/upgrades/events/upcast | Run Upgrade Event Upcast
+*UpgradesApi* | [**runUpgradeEventUpcastApiV1UpgradesEventsUpcastPostWithHttpInfo**](docs/UpgradesApi.md#runUpgradeEventUpcastApiV1UpgradesEventsUpcastPostWithHttpInfo) | **POST** /api/v1/upgrades/events/upcast | Run Upgrade Event Upcast
+*UpgradesApi* | [**runUpgradePostflightApiV1UpgradesPostflightPost**](docs/UpgradesApi.md#runUpgradePostflightApiV1UpgradesPostflightPost) | **POST** /api/v1/upgrades/postflight | Run Upgrade Postflight
+*UpgradesApi* | [**runUpgradePostflightApiV1UpgradesPostflightPostWithHttpInfo**](docs/UpgradesApi.md#runUpgradePostflightApiV1UpgradesPostflightPostWithHttpInfo) | **POST** /api/v1/upgrades/postflight | Run Upgrade Postflight
+*UpgradesApi* | [**runUpgradePreflightApiV1UpgradesPreflightPost**](docs/UpgradesApi.md#runUpgradePreflightApiV1UpgradesPreflightPost) | **POST** /api/v1/upgrades/preflight | Run Upgrade Preflight
+*UpgradesApi* | [**runUpgradePreflightApiV1UpgradesPreflightPostWithHttpInfo**](docs/UpgradesApi.md#runUpgradePreflightApiV1UpgradesPreflightPostWithHttpInfo) | **POST** /api/v1/upgrades/preflight | Run Upgrade Preflight
 *WorkersApi* | [**drainWorkerApiV1WorkersWorkerIdDrainPost**](docs/WorkersApi.md#drainWorkerApiV1WorkersWorkerIdDrainPost) | **POST** /api/v1/workers/{worker_id}/drain | Drain Worker
 *WorkersApi* | [**drainWorkerApiV1WorkersWorkerIdDrainPostWithHttpInfo**](docs/WorkersApi.md#drainWorkerApiV1WorkersWorkerIdDrainPostWithHttpInfo) | **POST** /api/v1/workers/{worker_id}/drain | Drain Worker
 *WorkersApi* | [**listRunnerCapabilitiesApiV1RunnersCapabilitiesGet**](docs/WorkersApi.md#listRunnerCapabilitiesApiV1RunnersCapabilitiesGet) | **GET** /api/v1/runners/capabilities | List Runner Capabilities
@@ -674,6 +686,9 @@ Class | Method | HTTP request | Description
  - [CompliancePackageRequest](docs/CompliancePackageRequest.md)
  - [ConfigurationDiagnosticBundle](docs/ConfigurationDiagnosticBundle.md)
  - [ConfigurationEntry](docs/ConfigurationEntry.md)
+ - [ConfigurationMigration](docs/ConfigurationMigration.md)
+ - [ConfigurationMigrationKind](docs/ConfigurationMigrationKind.md)
+ - [ConfigurationMigrationRequest](docs/ConfigurationMigrationRequest.md)
  - [ConfigurationSnapshot](docs/ConfigurationSnapshot.md)
  - [CreateExecutionRequest](docs/CreateExecutionRequest.md)
  - [CreateTenantRequest](docs/CreateTenantRequest.md)
@@ -814,6 +829,8 @@ Class | Method | HTTP request | Description
  - [PermissionAction](docs/PermissionAction.md)
  - [PermissionEffect](docs/PermissionEffect.md)
  - [PersistedAsset](docs/PersistedAsset.md)
+ - [PersistedEventMigration](docs/PersistedEventMigration.md)
+ - [PersistedEventMigrationRequest](docs/PersistedEventMigrationRequest.md)
  - [PersistedExecution](docs/PersistedExecution.md)
  - [PersistedFlow](docs/PersistedFlow.md)
  - [PersistedSubflow](docs/PersistedSubflow.md)
@@ -891,6 +908,7 @@ Class | Method | HTTP request | Description
  - [RevokedSessionsResponse](docs/RevokedSessionsResponse.md)
  - [RoleBinding](docs/RoleBinding.md)
  - [RoleDefinition](docs/RoleDefinition.md)
+ - [RollingUpgradeStep](docs/RollingUpgradeStep.md)
  - [RotateCredentialRequest](docs/RotateCredentialRequest.md)
  - [RunnerCapabilities](docs/RunnerCapabilities.md)
  - [RunnerId](docs/RunnerId.md)
@@ -965,6 +983,15 @@ Class | Method | HTTP request | Description
  - [TrustedPluginRuntimeStatus](docs/TrustedPluginRuntimeStatus.md)
  - [TrustedPluginState](docs/TrustedPluginState.md)
  - [UiSessionResponse](docs/UiSessionResponse.md)
+ - [UpgradeCapacityThresholds](docs/UpgradeCapacityThresholds.md)
+ - [UpgradeCheck](docs/UpgradeCheck.md)
+ - [UpgradeCheckStatus](docs/UpgradeCheckStatus.md)
+ - [UpgradePath](docs/UpgradePath.md)
+ - [UpgradePhase](docs/UpgradePhase.md)
+ - [UpgradePolicy](docs/UpgradePolicy.md)
+ - [UpgradeRelease](docs/UpgradeRelease.md)
+ - [UpgradeReport](docs/UpgradeReport.md)
+ - [UpgradeReportRequest](docs/UpgradeReportRequest.md)
  - [ValidationError](docs/ValidationError.md)
  - [ValidationIssue](docs/ValidationIssue.md)
  - [Value](docs/Value.md)

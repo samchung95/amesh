@@ -27,7 +27,8 @@ class ServiceCompatibility(str, Enum):
     allowed enum values
     """
     CURRENT = 'CURRENT'
-    VERSION_SKEW = 'VERSION_SKEW'
+    ROLLING_COMPATIBLE = 'ROLLING_COMPATIBLE'
+    UNSAFE = 'UNSAFE'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

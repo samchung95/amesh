@@ -32,7 +32,8 @@ class ServiceLiveness(StrEnum):
 
 class ServiceCompatibility(StrEnum):
     CURRENT = "CURRENT"
-    VERSION_SKEW = "VERSION_SKEW"
+    ROLLING_COMPATIBLE = "ROLLING_COMPATIBLE"
+    UNSAFE = "UNSAFE"
 
 
 class FailoverStatus(StrEnum):

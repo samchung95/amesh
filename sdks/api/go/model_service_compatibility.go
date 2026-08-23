@@ -21,13 +21,15 @@ type ServiceCompatibility string
 // List of ServiceCompatibility
 const (
 	SERVICECOMPATIBILITY_CURRENT ServiceCompatibility = "CURRENT"
-	SERVICECOMPATIBILITY_VERSION_SKEW ServiceCompatibility = "VERSION_SKEW"
+	SERVICECOMPATIBILITY_ROLLING_COMPATIBLE ServiceCompatibility = "ROLLING_COMPATIBLE"
+	SERVICECOMPATIBILITY_UNSAFE ServiceCompatibility = "UNSAFE"
 )
 
 // All allowed values of ServiceCompatibility enum
 var AllowedServiceCompatibilityEnumValues = []ServiceCompatibility{
 	"CURRENT",
-	"VERSION_SKEW",
+	"ROLLING_COMPATIBLE",
+	"UNSAFE",
 }
 
 func (v *ServiceCompatibility) UnmarshalJSON(src []byte) error {

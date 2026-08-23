@@ -138,7 +138,11 @@ from .search_repository import (
     SearchRepository,
     SearchUnavailableError,
 )
-from .service_registry import ServiceFenceError, ServiceRegistryRepository
+from .service_registry import (
+    ServiceFenceError,
+    ServiceRegistryRepository,
+    ServiceVersionSkewError,
+)
 from .task_cache import (
     TaskCacheDecision,
     TaskCacheEntry,
@@ -180,6 +184,7 @@ from .trigger_runtime import (
     TriggerRuntimeRepository,
     TriggerRuntimeState,
 )
+from .upgrade_repository import UpgradeRepository
 from .worker_repository import (
     WORKER_PROTOCOL_VERSION,
     WorkerClaimHeartbeat,
@@ -320,6 +325,7 @@ __all__ = [
     "SearchUnavailableError",
     "ServiceFenceError",
     "ServiceRegistryRepository",
+    "ServiceVersionSkewError",
     "StaleRunnerAttemptError",
     "StaleWorkClaimError",
     "StorageBackend",
@@ -350,6 +356,7 @@ __all__ = [
     "TriggerRuntimeRepository",
     "TriggerRuntimeState",
     "UnsupportedRunnerRequest",
+    "UpgradeRepository",
     "WorkClaim",
     "WorkerClaimHeartbeat",
     "WorkerCompatibility",

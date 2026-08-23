@@ -9864,97 +9864,121 @@
       "requirement_id": "URS-F-0662",
       "epic_id": "EPIC-610",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-610-upgrades-migrations-and-lts-policy.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0663",
       "epic_id": "EPIC-610",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-610-upgrades-migrations-and-lts-policy.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0664",
       "epic_id": "EPIC-610",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-610-upgrades-migrations-and-lts-policy.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0665",
       "epic_id": "EPIC-610",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-610-upgrades-migrations-and-lts-policy.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0666",
       "epic_id": "EPIC-610",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-610-upgrades-migrations-and-lts-policy.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0667",
       "epic_id": "EPIC-610",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-610-upgrades-migrations-and-lts-policy.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0668",
       "epic_id": "EPIC-610",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-610-upgrades-migrations-and-lts-policy.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0669",
       "epic_id": "EPIC-610",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-610-upgrades-migrations-and-lts-policy.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0670",

@@ -70,6 +70,7 @@ from amesh.adapters.postgres import (
     PostgresTaskCacheRepository,
     PostgresTenantRepository,
     PostgresTriggerRuntimeRepository,
+    PostgresUpgradeRepository,
     PostgresWorkerRepository,
 )
 from amesh.adapters.postgres.human_task_repository import (
@@ -219,6 +220,8 @@ from amesh.domain import (
     ComplianceEvidenceCreate,
     ComplianceEvidenceRecord,
     CompliancePackageRequest,
+    ConfigurationMigration,
+    ConfigurationMigrationRequest,
     CredentialMetadata,
     DashboardDataSource,
     DashboardDefinition,
@@ -260,6 +263,8 @@ from amesh.domain import (
     OperationalControlEvent,
     OperationalControlScope,
     PermissionAction,
+    PersistedEventMigration,
+    PersistedEventMigrationRequest,
     PluginPolicyDecision,
     PluginPolicyImpactPreview,
     PluginPolicyRule,
@@ -295,6 +300,9 @@ from amesh.domain import (
     TenantExport,
     TenantPolicy,
     TenantSlug,
+    UpgradePolicy,
+    UpgradeReport,
+    UpgradeReportRequest,
     administration_control_flag,
     administration_controls,
     canonical_hash,
@@ -474,6 +482,7 @@ from amesh.tasks import (
 )
 from amesh.tasks.http import validate_http_destination
 from amesh.tenancy import TenantService
+from amesh.upgrade import UpgradeService
 from amesh.workflow.data_contracts import (
     DataContractError,
     flow_input_contract,
@@ -1251,6 +1260,31 @@ def get_service_registry_repository() -> PostgresServiceRegistryRepository:
 ServiceRegistryRepositoryDependency = Annotated[
     PostgresServiceRegistryRepository,
     Depends(get_service_registry_repository),
+]
+
+
+@lru_cache
+def get_upgrade_repository() -> PostgresUpgradeRepository:
+    return PostgresUpgradeRepository(database_engine())
+
+
+@lru_cache
+def get_upgrade_service() -> UpgradeService:
+    return UpgradeService(
+        get_upgrade_repository(),
+        get_service_registry_repository(),
+        get_plugin_catalog_manager(),
+        build_object_store(get_settings()),
+    )
+
+
+UpgradeRepositoryDependency = Annotated[
+    PostgresUpgradeRepository,
+    Depends(get_upgrade_repository),
+]
+UpgradeServiceDependency = Annotated[
+    UpgradeService,
+    Depends(get_upgrade_service),
 ]
 _TENANT_SLUG_ADAPTER = TypeAdapter(TenantSlug)
 
@@ -7548,6 +7582,154 @@ async def resume_lifecycle_job(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
     except ValueError as exc:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
+
+
+@app.get(
+    "/api/v1/upgrades/policy",
+    response_model=UpgradePolicy,
+    tags=["upgrades"],
+)
+async def get_upgrade_policy(
+    service: UpgradeServiceDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+) -> UpgradePolicy:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="instance",
+        action=PermissionAction.MANAGE,
+    )
+    return service.policy
+
+
+@app.post(
+    "/api/v1/upgrades/preflight",
+    response_model=UpgradeReport,
+    tags=["upgrades"],
+)
+async def run_upgrade_preflight(
+    request: UpgradeReportRequest,
+    service: UpgradeServiceDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+) -> UpgradeReport:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="instance",
+        action=PermissionAction.MANAGE,
+    )
+    try:
+        return await service.pre_upgrade(request.from_version, request.to_version)
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=str(exc),
+        ) from exc
+
+
+@app.post(
+    "/api/v1/upgrades/postflight",
+    response_model=UpgradeReport,
+    tags=["upgrades"],
+)
+async def run_upgrade_postflight(
+    request: UpgradeReportRequest,
+    service: UpgradeServiceDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+) -> UpgradeReport:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="instance",
+        action=PermissionAction.MANAGE,
+    )
+    try:
+        return await service.post_upgrade(request.from_version, request.to_version)
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=str(exc),
+        ) from exc
+
+
+@app.get(
+    "/api/v1/upgrades/events/upcast",
+    response_model=PersistedEventMigration,
+    tags=["upgrades"],
+)
+async def preview_upgrade_event_upcast(
+    repository: UpgradeRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+) -> PersistedEventMigration:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="instance",
+        action=PermissionAction.MANAGE,
+    )
+    return await repository.preview_event_upcast()
+
+
+@app.post(
+    "/api/v1/upgrades/events/upcast",
+    response_model=PersistedEventMigration,
+    tags=["upgrades"],
+)
+async def run_upgrade_event_upcast(
+    request: PersistedEventMigrationRequest,
+    repository: UpgradeRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+) -> PersistedEventMigration:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="instance",
+        action=PermissionAction.MANAGE,
+    )
+    try:
+        return await repository.upcast_events(
+            request.confirmation,
+            actor_id=str(actor.principal_id),
+            reason=request.reason,
+            batch_size=request.batch_size,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
+
+
+@app.post(
+    "/api/v1/upgrades/configuration/migrate",
+    response_model=ConfigurationMigration,
+    tags=["upgrades"],
+)
+async def migrate_upgrade_configuration(
+    request: ConfigurationMigrationRequest,
+    service: UpgradeServiceDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+) -> ConfigurationMigration:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="instance",
+        action=PermissionAction.MANAGE,
+    )
+    try:
+        return service.migrate_configuration(
+            request.kind,
+            request.document,
+            target_version=request.target_version,
+        )
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=str(exc),
+        ) from exc
 
 
 @app.get(

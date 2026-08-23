@@ -33,9 +33,12 @@ import type {
   OperationalBoundary,
   OperationalControl,
   OperationalControlScope,
+  PersistedEventMigration,
   PrincipalDefinition,
   RoleBinding,
   UiSession,
+  UpgradePolicy,
+  UpgradeReport,
 } from '../api/types'
 import { formatDate, formatNumber } from '../app/format'
 import { useApiClient } from '../app/queries'
@@ -50,13 +53,14 @@ import {
 } from '../components/administrationModel'
 import { StatusBadge } from '../components/StatusBadge'
 
-type AdministrationView = 'namespaces' | 'access' | 'operations' | 'lifecycle' | 'controls' | 'configuration' | 'audit'
+type AdministrationView = 'namespaces' | 'access' | 'operations' | 'lifecycle' | 'upgrades' | 'controls' | 'configuration' | 'audit'
 
 const views: Array<{ id: AdministrationView; label: string; icon: typeof FolderTree }> = [
   { id: 'namespaces', label: 'Namespaces', icon: FolderTree },
   { id: 'access', label: 'Access', icon: UserRoundCog },
   { id: 'operations', label: 'Operations', icon: Activity },
   { id: 'lifecycle', label: 'Lifecycle', icon: Database },
+  { id: 'upgrades', label: 'Upgrades', icon: RefreshCw },
   { id: 'controls', label: 'Controls', icon: Wrench },
   { id: 'configuration', label: 'Configuration', icon: Settings2 },
   { id: 'audit', label: 'Audit', icon: ScrollText },
@@ -107,6 +111,8 @@ export function AdministrationPage({ session }: { session: UiSession }) {
   const lifecyclePolicies = useQuery({ queryKey: ['admin', 'lifecycle', 'policies', settings.tenant], queryFn: api.lifecyclePolicies, enabled: view === 'lifecycle' })
   const lifecycleHolds = useQuery({ queryKey: ['admin', 'lifecycle', 'holds', settings.tenant], queryFn: api.lifecycleLegalHolds, enabled: view === 'lifecycle' })
   const lifecycleJobs = useQuery({ queryKey: ['admin', 'lifecycle', 'jobs', settings.tenant], queryFn: api.lifecycleJobs, enabled: view === 'lifecycle', refetchInterval: 10_000 })
+  const upgradePolicy = useQuery({ queryKey: ['admin', 'upgrades', 'policy'], queryFn: api.upgradePolicy, enabled: view === 'upgrades' })
+  const eventUpcast = useQuery({ queryKey: ['admin', 'upgrades', 'events'], queryFn: api.previewEventUpcast, enabled: view === 'upgrades' })
 
   const controls = useQuery({ queryKey: ['admin', 'controls'], queryFn: api.administrationControls, enabled: view === 'controls' })
   const flags = useQuery({ queryKey: ['admin', 'flags', settings.tenant, settings.namespace], queryFn: api.featureFlags, enabled: view === 'controls' })
@@ -143,6 +149,7 @@ export function AdministrationPage({ session }: { session: UiSession }) {
       {view === 'access' ? <AccessAdministration api={api} tenant={settings.tenant} principals={principals.data || []} roles={roles.data || []} bindings={bindings.data || []} providers={providers.data || []} pending={principals.isPending || roles.isPending || bindings.isPending || providers.isPending} mutate={(operation, message) => action.mutate(async () => { const result = await operation(); setNotice(message); return result })} /> : null}
       {view === 'operations' ? <OperationsAdministration readiness={readiness.data} topology={topology.data} workers={workers.data || []} admission={admission.data} search={search.data} pending={readiness.isPending || topology.isPending || admission.isPending || search.isPending} /> : null}
       {view === 'lifecycle' ? <LifecycleAdministration api={api} tenant={settings.tenant} namespace={settings.namespace} policies={lifecyclePolicies.data || []} holds={lifecycleHolds.data || []} jobs={lifecycleJobs.data || []} pending={lifecyclePolicies.isPending || lifecycleHolds.isPending || lifecycleJobs.isPending} onChanged={async (message) => { setNotice(message); setFailure(''); await queryClient.invalidateQueries({ queryKey: ['admin', 'lifecycle'] }) }} onFailure={setFailure} /> : null}
+      {view === 'upgrades' ? <UpgradeAdministration api={api} policy={upgradePolicy.data} eventPreview={eventUpcast.data} pending={upgradePolicy.isPending || eventUpcast.isPending} onChanged={async (message) => { setNotice(message); setFailure(''); await queryClient.invalidateQueries({ queryKey: ['admin', 'upgrades'] }) }} onFailure={setFailure} /> : null}
       {view === 'controls' ? <ControlsAdministration controls={controls.data || []} flags={flags.data || []} announcements={announcements.data || []} operationalControls={operationalControls.data || []} api={api} tenant={settings.tenant} namespace={settings.namespace} pending={controls.isPending || flags.isPending || announcements.isPending || operationalControls.isPending} onChanged={async (message) => { setNotice(message); setFailure(''); await queryClient.invalidateQueries({ queryKey: ['admin'] }) }} onFailure={setFailure} /> : null}
       {view === 'configuration' ? <ConfigurationAdministration snapshot={configuration.data} pending={configuration.isPending} onReload={() => action.mutate(async () => { const result = await api.reloadConfiguration(); setNotice(`Configuration reloaded at version ${String(result.version)}`); return result })} /> : null}
       {view === 'audit' ? <AuditAdministration direct={controlAudit.data || []} indexed={indexedAudit.data?.items || []} pending={controlAudit.isPending || indexedAudit.isPending} settings={settings} /> : null}
@@ -326,6 +333,65 @@ function LifecycleAdministration({ api, tenant, namespace, policies, holds, jobs
       <section className="admin-panel"><div className="section-heading"><div><p className="eyebrow">PROGRESS / EVIDENCE</p><h3>Purge jobs</h3></div><span>{jobs.length} recent</span></div>{jobs.length ? <div className="compact-table"><table><thead><tr><th>Job</th><th>Progress</th><th>State</th><th>Action</th></tr></thead><tbody>{jobs.map((job) => <tr key={job.id}><td><strong>{job.policySnapshot.resourceType}</strong><small>{job.trigger} · {formatDate(job.createdAt, 'en', 'UTC')}</small></td><td>{formatNumber(job.processedRecords, 'en')} / {formatNumber(job.estimatedRecords, 'en')}<small>{formatNumber(job.processedBytes, 'en')} bytes · {job.retryCount} retries</small></td><td><StatusBadge state={job.state} />{job.lastError ? <small>{job.lastError}</small> : null}</td><td>{['READY', 'RUNNING', 'WAITING_EXTERNAL', 'FAILED'].includes(job.state) ? <button className="button button-secondary" type="button" onClick={() => void resumeJob(job)}>Resume batch</button> : '—'}</td></tr>)}</tbody></table></div> : <EmptyState title="No purge jobs" body="Impact previews and scheduled sweeps appear here with durable progress evidence." />}</section>
     </div>
     {preview ? <div className="modal-backdrop"><section className="confirmation-dialog admin-impact-dialog" role="dialog" aria-modal="true" aria-labelledby="lifecycle-impact-title"><p className="eyebrow">DESTRUCTIVE IMPACT PREVIEW</p><h2 id="lifecycle-impact-title">Confirm {preview.policySnapshot.resourceType.toLowerCase()} purge</h2><div className="impact-grid"><article><strong>Impact</strong><ul><li>{formatNumber(preview.estimatedRecords, 'en')} records</li><li>{formatNumber(preview.estimatedBytes, 'en')} bytes</li><li>{formatNumber(preview.activeRecords, 'en')} active records excluded</li><li>{formatNumber(preview.protectedRecords, 'en')} legal-held records protected</li></ul></article><article><strong>Recovery consequences</strong><p>Authoritative metadata decisions, object deletions and search projection removal are irreversible without a qualified backup restore.</p></article></div><p className="approval-expiry"><AlertTriangle size={16} aria-hidden="true" />Preview expires {new Date(preview.previewExpiresAt).toLocaleTimeString()}.</p><label>Type <code>{preview.confirmationPhrase}</code><input autoFocus value={confirmation} onChange={(event) => setConfirmation(event.target.value)} /></label><div><button className="button button-secondary" type="button" onClick={() => setPreview(null)}>Cancel</button><button className="button button-danger" type="button" disabled={confirmation !== preview.confirmationPhrase || submitting} onClick={() => void executePreview()}>Purge one bounded batch</button></div></section></div> : null}
+  </div>
+}
+
+function UpgradeAdministration({ api, policy, eventPreview, pending, onChanged, onFailure }: { api: ReturnType<typeof useApiClient>; policy?: UpgradePolicy; eventPreview?: PersistedEventMigration; pending: boolean; onChanged: (message: string) => Promise<void>; onFailure: (message: string) => void }) {
+  const [pathKey, setPathKey] = useState('')
+  const [report, setReport] = useState<UpgradeReport | null>(null)
+  const [migration, setMigration] = useState<PersistedEventMigration | null>(null)
+  const [confirmation, setConfirmation] = useState('')
+  const [reason, setReason] = useState('Migrate persisted events for the supported LTS upgrade')
+  const [submitting, setSubmitting] = useState(false)
+  if (pending) return <LoadingState label="Loading supported releases and upgrade evidence" />
+  if (!policy) return <ErrorState message="The release policy is unavailable." retry={() => window.location.reload()} />
+
+  const selectedPath = policy.paths.find((path) => `${path.fromVersion}:${path.toVersion}` === pathKey) || policy.paths[0]
+  const preview = migration || eventPreview
+
+  const runReport = async (phase: 'preflight' | 'postflight') => {
+    if (!selectedPath) return
+    setSubmitting(true)
+    try {
+      const result = await api.upgradeReport(phase, selectedPath.fromVersion, selectedPath.toVersion)
+      setReport(result)
+      await onChanged(`${phase === 'preflight' ? 'Pre-upgrade' : 'Post-upgrade'} report completed`)
+    } catch (error) {
+      onFailure(error instanceof Error ? error.message : String(error))
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  const applyUpcast = async () => {
+    if (!preview) return
+    setSubmitting(true)
+    try {
+      const result = await api.applyEventUpcast(confirmation, reason, 1_000)
+      setMigration(result)
+      setConfirmation('')
+      await onChanged(`Upcast ${String(result.migratedEvents)} persisted events`)
+    } catch (error) {
+      onFailure(error instanceof Error ? error.message : String(error))
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  return <div className="admin-section-stack">
+    <section className="admin-panel">
+      <div className="section-heading"><div><p className="eyebrow">RELEASE / SUPPORT POLICY</p><h3>Supported LTS paths</h3><p>Compatibility, support windows and component minimums are loaded from the server release catalog.</p></div><span>Current {policy.currentVersion}</span></div>
+      <div className="admin-card-grid">{policy.releases.map((release) => <article key={release.version}><div className={`health-dot ${release.version === policy.currentVersion ? 'health-healthy' : 'health-degraded'}`} /><div><strong>{release.version}{release.lts ? ' LTS' : ''}</strong><small>{release.supportStartsOn} — {release.supportEndsOn}</small></div><b>{release.schemaMigration.split('_')[0]}</b></article>)}</div>
+      {selectedPath ? <form className="admin-form" onSubmit={(event) => { event.preventDefault(); void runReport('preflight') }}>
+        <label className="span-two">Upgrade path<select value={`${selectedPath.fromVersion}:${selectedPath.toVersion}`} onChange={(event) => { setPathKey(event.target.value); setReport(null) }}>{policy.paths.map((path) => <option key={`${path.fromVersion}:${path.toVersion}`} value={`${path.fromVersion}:${path.toVersion}`}>{path.fromVersion} → {path.toVersion}{path.rollingCompatible ? ' · rolling' : ' · maintenance window'}</option>)}</select></label>
+        <button className="button button-primary" type="submit" disabled={submitting}>Run preflight</button>
+        <button className="button button-secondary" type="button" disabled={submitting} onClick={() => void runReport('postflight')}>Run postflight</button>
+      </form> : <EmptyState title="No supported path" body="Publish a directed release path before starting an upgrade." />}
+    </section>
+
+    {report ? <section className="admin-panel"><div className="section-heading"><div><p className="eyebrow">{report.phase.replace('_', ' ')}</p><h3>{report.fromVersion} → {report.toVersion}</h3><p>{report.restorationGuidance}</p></div><StatusBadge state={report.safeToProceed ? 'PASS' : 'BLOCKED'} /></div><div className="table-shell"><table><thead><tr><th>Check</th><th>Category</th><th>Status</th><th>Evidence / remediation</th></tr></thead><tbody>{report.checks.map((check) => <tr key={check.name}><td><strong>{check.name}</strong></td><td>{check.category}</td><td><StatusBadge state={check.status} /></td><td>{check.detail}{check.remediation ? <small>{check.remediation}</small> : null}</td></tr>)}</tbody></table></div>{report.rollingPlan.length ? <ol className="metadata-lineage">{report.rollingPlan.map((step) => <li key={step.order}><div><strong>{step.order}. {step.role}</strong><small>{step.action}</small></div><span>{step.verification}</span></li>)}</ol> : null}<p className="approval-expiry">Fingerprint <code>{report.reportFingerprint}</code></p></section> : null}
+
+    <section className="admin-panel"><div className="section-heading"><div><p className="eyebrow">PERSISTED EVENT MIGRATION</p><h3>Bounded schema upcast</h3><p>Preview the eligible count, take a recovery point, then type the exact phrase to migrate one bounded batch.</p></div><span>{formatNumber(preview?.remainingEvents || 0, 'en')} remaining</span></div>{preview ? <form className="admin-form" onSubmit={(event) => { event.preventDefault(); void applyUpcast() }}><label>Confirmation<input value={confirmation} onChange={(event) => setConfirmation(event.target.value)} placeholder={preview.confirmationPhrase} /></label><label className="span-two">Reason<input value={reason} onChange={(event) => setReason(event.target.value)} minLength={3} maxLength={1024} required /></label><button className="button button-danger" type="submit" disabled={submitting || confirmation !== preview.confirmationPhrase}>Upcast up to 1,000 events</button>{preview.evidenceEventId ? <span>Evidence {preview.evidenceEventId}</span> : null}</form> : <EmptyState title="No event preview" body="Refresh this view to load the persisted event inventory." />}</section>
   </div>
 }
 

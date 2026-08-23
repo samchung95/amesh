@@ -32,7 +32,9 @@ public enum ServiceCompatibility {
 
   CURRENT("CURRENT"),
 
-  VERSION_SKEW("VERSION_SKEW");
+  ROLLING_COMPATIBLE("ROLLING_COMPATIBLE"),
+
+  UNSAFE("UNSAFE");
 
   private String value;
 

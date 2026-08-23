@@ -2930,3 +2930,39 @@ does not block the verified EPIC-407 workflow. Repository-wide lint, formatting 
 baselines remain deferred on their existing board cards.
 
 Verdict: PASS — EPIC-407 closed.
+
+## 2026-08-23 — EPIC-610 upgrades, migrations and LTS policy
+
+Scope: `URS-F-0662` through `URS-F-0669`, `URS-NFR-MAINTAINABILITY-002`,
+`URS-NFR-MAINTAINABILITY-003` and `URS-NFR-OPERABILITY-006`.
+
+- [x] The versioned release catalog declares the 0.1.0 and 0.2.0 LTS support windows, exact schema
+  boundaries, component/protocol minimums, directed rolling compatibility, capacity limits, a
+  168-hour rollback window and restoration guidance.
+- [x] Preflight and postflight reports cover schema/checksum drift, expand-only migrations, runtime
+  configuration, plugin compatibility, every stored flow revision, object-storage metadata,
+  database/queue/execution capacity, live component skew, persisted event schema and rollback
+  evidence. Unsafe service registration is rejected with direct remediation.
+- [x] A fresh PostgreSQL fixture applied migration boundary 0032, persisted a representative flow,
+  successful execution and schema-1 event, verified rolling preflight, applied migrations 0033–0054,
+  reported the historical event warning, upcast it in a confirmed locked batch with audit evidence,
+  and produced a warning-free postflight report.
+- [x] Domain and configuration migration tests, service-skew tests, authorized API tests, CLI force
+  and canonical-output tests, migration manifest checks and generated-contract checks passed. The
+  focused PostgreSQL collection passed four tests; the non-database collection passed eight tests.
+- [x] Strict mypy over 204 source files and focused Ruff checks passed. Generated OpenAPI and Python,
+  TypeScript, Java and Go SDKs are current across 1,948 files.
+- [x] The focused frontend client suite passed 19 tests and the production TypeScript/Vite build
+  completed. The full 47-test frontend collection passed, while the pre-existing repository-wide
+  branch/function coverage baseline remained below its global threshold on board card `c94`.
+- [x] Distributed and compact images rebuilt healthy at migration 54. Against the retained local
+  dataset of 103,236 revisions/1,792 unique definitions, live preflight completed in 4.91 seconds and
+  correctly blocked on 424 invalid historical definitions and 960,564 queued items; postflight
+  completed in 4.34 seconds. Policy, event preview (`UPCAST 0`), flow migration and the HTML upgrade
+  deep link all returned successfully, while compact readiness reported 54/54 migrations.
+
+Qualification boundary: external multi-node transfer, dependency failover and long-duration
+availability qualification remain deferred under `URS-NFR-AVAILABILITY-004`; EPIC-610 makes no
+broader availability claim beyond the locally reproducible LTS upgrade path.
+
+Verdict: PASS — EPIC-610 closed.

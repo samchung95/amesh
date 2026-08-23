@@ -35,6 +35,7 @@ docs/TaskCacheApi.md
 docs/TenantsApi.md
 docs/TriggersApi.md
 docs/UiApi.md
+docs/UpgradesApi.md
 docs/WorkersApi.md
 git_push.sh
 gradle.properties
@@ -85,6 +86,7 @@ src/main/java/io/amesh/client/api/TaskCacheApi.java
 src/main/java/io/amesh/client/api/TenantsApi.java
 src/main/java/io/amesh/client/api/TriggersApi.java
 src/main/java/io/amesh/client/api/UiApi.java
+src/main/java/io/amesh/client/api/UpgradesApi.java
 src/main/java/io/amesh/client/api/WorkersApi.java
 src/main/java/io/amesh/client/model/AbstractOpenApiSchema.java
 src/main/java/io/amesh/client/model/Action.java
@@ -164,6 +166,9 @@ src/main/java/io/amesh/client/model/ComplianceEvidenceRecord.java
 src/main/java/io/amesh/client/model/CompliancePackageRequest.java
 src/main/java/io/amesh/client/model/ConfigurationDiagnosticBundle.java
 src/main/java/io/amesh/client/model/ConfigurationEntry.java
+src/main/java/io/amesh/client/model/ConfigurationMigration.java
+src/main/java/io/amesh/client/model/ConfigurationMigrationKind.java
+src/main/java/io/amesh/client/model/ConfigurationMigrationRequest.java
 src/main/java/io/amesh/client/model/ConfigurationSnapshot.java
 src/main/java/io/amesh/client/model/CreateExecutionRequest.java
 src/main/java/io/amesh/client/model/CreateTenantRequest.java
@@ -304,6 +309,8 @@ src/main/java/io/amesh/client/model/Permission.java
 src/main/java/io/amesh/client/model/PermissionAction.java
 src/main/java/io/amesh/client/model/PermissionEffect.java
 src/main/java/io/amesh/client/model/PersistedAsset.java
+src/main/java/io/amesh/client/model/PersistedEventMigration.java
+src/main/java/io/amesh/client/model/PersistedEventMigrationRequest.java
 src/main/java/io/amesh/client/model/PersistedExecution.java
 src/main/java/io/amesh/client/model/PersistedFlow.java
 src/main/java/io/amesh/client/model/PersistedSubflow.java
@@ -381,6 +388,7 @@ src/main/java/io/amesh/client/model/RevokedCredentialsResponse.java
 src/main/java/io/amesh/client/model/RevokedSessionsResponse.java
 src/main/java/io/amesh/client/model/RoleBinding.java
 src/main/java/io/amesh/client/model/RoleDefinition.java
+src/main/java/io/amesh/client/model/RollingUpgradeStep.java
 src/main/java/io/amesh/client/model/RotateCredentialRequest.java
 src/main/java/io/amesh/client/model/RunnerCapabilities.java
 src/main/java/io/amesh/client/model/RunnerId.java
@@ -455,6 +463,15 @@ src/main/java/io/amesh/client/model/TrustedPluginRuntimeSnapshot.java
 src/main/java/io/amesh/client/model/TrustedPluginRuntimeStatus.java
 src/main/java/io/amesh/client/model/TrustedPluginState.java
 src/main/java/io/amesh/client/model/UiSessionResponse.java
+src/main/java/io/amesh/client/model/UpgradeCapacityThresholds.java
+src/main/java/io/amesh/client/model/UpgradeCheck.java
+src/main/java/io/amesh/client/model/UpgradeCheckStatus.java
+src/main/java/io/amesh/client/model/UpgradePath.java
+src/main/java/io/amesh/client/model/UpgradePhase.java
+src/main/java/io/amesh/client/model/UpgradePolicy.java
+src/main/java/io/amesh/client/model/UpgradeRelease.java
+src/main/java/io/amesh/client/model/UpgradeReport.java
+src/main/java/io/amesh/client/model/UpgradeReportRequest.java
 src/main/java/io/amesh/client/model/ValidationError.java
 src/main/java/io/amesh/client/model/ValidationIssue.java
 src/main/java/io/amesh/client/model/Value.java

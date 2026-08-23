@@ -30,4 +30,5 @@ from amesh_client.api.task_cache_api import TaskCacheApi
 from amesh_client.api.tenants_api import TenantsApi
 from amesh_client.api.triggers_api import TriggersApi
 from amesh_client.api.ui_api import UiApi
+from amesh_client.api.upgrades_api import UpgradesApi
 from amesh_client.api.workers_api import WorkersApi

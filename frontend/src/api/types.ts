@@ -1582,3 +1582,66 @@ export interface LifecycleJob {
   updatedAt: string
   confirmationPhrase: string
 }
+
+export interface UpgradeRelease {
+  version: string
+  lts: boolean
+  supportStartsOn: string
+  supportEndsOn: string
+  schemaMigration: string
+  minimumComponents: Record<string, string>
+}
+
+export interface UpgradePath {
+  fromVersion: string
+  toVersion: string
+  rollingCompatible: boolean
+  messageSchemaVersions: number[]
+  rollbackWindowHours: number
+  restorationGuidance: string
+}
+
+export interface UpgradePolicy {
+  schemaVersion: 'amesh.upgrade-policy/v1'
+  currentVersion: string
+  capacityThresholds: {
+    maximumDatabaseBytes: number
+    maximumQueuedWork: number
+    maximumActiveExecutions: number
+  }
+  releases: UpgradeRelease[]
+  paths: UpgradePath[]
+}
+
+export interface UpgradeCheck {
+  name: string
+  category: string
+  status: 'PASS' | 'WARNING' | 'BLOCKED'
+  detail: string
+  remediation: string | null
+  evidence: Record<string, unknown>
+}
+
+export interface UpgradeReport {
+  id: string
+  phase: 'PRE_UPGRADE' | 'POST_UPGRADE'
+  fromVersion: string
+  toVersion: string
+  observedAt: string
+  safeToProceed: boolean
+  rollingCompatible: boolean
+  checks: UpgradeCheck[]
+  warnings: string[]
+  rollingPlan: Array<{ order: number; role: string; action: string; verification: string }>
+  restorationGuidance: string
+  reportFingerprint: string
+}
+
+export interface PersistedEventMigration {
+  eligibleEvents: number
+  migratedEvents: number
+  remainingEvents: number
+  confirmationPhrase: string
+  applied: boolean
+  evidenceEventId: string | null
+}

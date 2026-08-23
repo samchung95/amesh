@@ -660,14 +660,14 @@ URS-F-0658,Functional,Must,EPIC-609,"Backup, restore and disaster recovery",M6,6
 URS-F-0659,Functional,Must,EPIC-609,"Backup, restore and disaster recovery",M6,6,"Fault-injection, replay and invariant tests",Verified
 URS-F-0660,Functional,Must,EPIC-609,"Backup, restore and disaster recovery",M6,6,"Fault-injection, replay and invariant tests",Verified
 URS-F-0661,Functional,Must,EPIC-609,"Backup, restore and disaster recovery",M6,6,"Fault-injection, replay and invariant tests",Verified
-URS-F-0662,Functional,Must,EPIC-610,"Upgrades, migrations and LTS policy",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
-URS-F-0663,Functional,Must,EPIC-610,"Upgrades, migrations and LTS policy",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
-URS-F-0664,Functional,Must,EPIC-610,"Upgrades, migrations and LTS policy",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
-URS-F-0665,Functional,Must,EPIC-610,"Upgrades, migrations and LTS policy",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
-URS-F-0666,Functional,Must,EPIC-610,"Upgrades, migrations and LTS policy",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
-URS-F-0667,Functional,Must,EPIC-610,"Upgrades, migrations and LTS policy",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
-URS-F-0668,Functional,Must,EPIC-610,"Upgrades, migrations and LTS policy",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
-URS-F-0669,Functional,Must,EPIC-610,"Upgrades, migrations and LTS policy",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
+URS-F-0662,Functional,Must,EPIC-610,"Upgrades, migrations and LTS policy",M6,6,"Reference deployment, upgrade and failure-recovery tests",Verified
+URS-F-0663,Functional,Must,EPIC-610,"Upgrades, migrations and LTS policy",M6,6,"Reference deployment, upgrade and failure-recovery tests",Verified
+URS-F-0664,Functional,Must,EPIC-610,"Upgrades, migrations and LTS policy",M6,6,"Reference deployment, upgrade and failure-recovery tests",Verified
+URS-F-0665,Functional,Must,EPIC-610,"Upgrades, migrations and LTS policy",M6,6,"Reference deployment, upgrade and failure-recovery tests",Verified
+URS-F-0666,Functional,Must,EPIC-610,"Upgrades, migrations and LTS policy",M6,6,"Reference deployment, upgrade and failure-recovery tests",Verified
+URS-F-0667,Functional,Must,EPIC-610,"Upgrades, migrations and LTS policy",M6,6,"Reference deployment, upgrade and failure-recovery tests",Verified
+URS-F-0668,Functional,Must,EPIC-610,"Upgrades, migrations and LTS policy",M6,6,"Reference deployment, upgrade and failure-recovery tests",Verified
+URS-F-0669,Functional,Must,EPIC-610,"Upgrades, migrations and LTS policy",M6,6,"Reference deployment, upgrade and failure-recovery tests",Verified
 URS-F-0670,Functional,Must,EPIC-611,"Performance, scale and chaos qualification",M6,6,"Fault-injection, replay and invariant tests",Proposed
 URS-F-0671,Functional,Must,EPIC-611,"Performance, scale and chaos qualification",M6,6,"Fault-injection, replay and invariant tests",Proposed
 URS-F-0672,Functional,Must,EPIC-611,"Performance, scale and chaos qualification",M6,6,"Fault-injection, replay and invariant tests",Proposed
@@ -860,12 +860,12 @@ URS-NFR-MAINTAINABILITY-001,Non-functional,Must,EPIC-001,"Repository engineering
 URS-NFR-MAINTAINABILITY-001,Non-functional,Must,EPIC-007,Execution event model and state machine,M0,0,Static architecture test in CI.,In Progress
 URS-NFR-MAINTAINABILITY-001,Non-functional,Must,EPIC-009,"PostgreSQL transport, inbox and transactional outbox",M0,0,Static architecture test in CI.,In Progress
 URS-NFR-MAINTAINABILITY-001,Non-functional,Must,EPIC-010,Internal object storage and artifact addressing,M0,0,Static architecture test in CI.,In Progress
-URS-NFR-MAINTAINABILITY-002,Non-functional,Must,EPIC-004,"Flow DSL, YAML model and schema",M0,0,Automated schema and API compatibility checks.,In Progress
-URS-NFR-MAINTAINABILITY-002,Non-functional,Must,EPIC-300,Plugin SDK and manifest contract,M3,3,Automated schema and API compatibility checks.,In Progress
-URS-NFR-MAINTAINABILITY-002,Non-functional,Must,EPIC-400,Versioned REST API and OpenAPI contract,M4,4,Automated schema and API compatibility checks.,In Progress
-URS-NFR-MAINTAINABILITY-002,Non-functional,Must,EPIC-610,"Upgrades, migrations and LTS policy",M6,6,Automated schema and API compatibility checks.,In Progress
-URS-NFR-MAINTAINABILITY-003,Non-functional,Must,EPIC-008,Metadata persistence and migrations,M0,0,Migration golden tests.,In Progress
-URS-NFR-MAINTAINABILITY-003,Non-functional,Must,EPIC-610,"Upgrades, migrations and LTS policy",M6,6,Migration golden tests.,In Progress
+URS-NFR-MAINTAINABILITY-002,Non-functional,Must,EPIC-004,"Flow DSL, YAML model and schema",M0,0,Automated schema and API compatibility checks.,Verified
+URS-NFR-MAINTAINABILITY-002,Non-functional,Must,EPIC-300,Plugin SDK and manifest contract,M3,3,Automated schema and API compatibility checks.,Verified
+URS-NFR-MAINTAINABILITY-002,Non-functional,Must,EPIC-400,Versioned REST API and OpenAPI contract,M4,4,Automated schema and API compatibility checks.,Verified
+URS-NFR-MAINTAINABILITY-002,Non-functional,Must,EPIC-610,"Upgrades, migrations and LTS policy",M6,6,Automated schema and API compatibility checks.,Verified
+URS-NFR-MAINTAINABILITY-003,Non-functional,Must,EPIC-008,Metadata persistence and migrations,M0,0,Migration golden tests.,Verified
+URS-NFR-MAINTAINABILITY-003,Non-functional,Must,EPIC-610,"Upgrades, migrations and LTS policy",M6,6,Migration golden tests.,Verified
 URS-NFR-MAINTAINABILITY-004,Non-functional,Must,EPIC-001,"Repository engineering, CI and release foundation",M0,0,Traceability validator and release gate.,Proposed
 URS-NFR-MAINTAINABILITY-004,Non-functional,Must,EPIC-805,General availability quality and launch readiness,M8,8,Traceability validator and release gate.,Proposed
 URS-NFR-MAINTAINABILITY-005,Non-functional,Must,EPIC-001,"Repository engineering, CI and release foundation",M0,0,CI regeneration and clean-tree check.,Proposed
@@ -885,7 +885,7 @@ URS-NFR-OPERABILITY-004,Non-functional,Must,EPIC-612,Security hardening and soft
 URS-NFR-OPERABILITY-005,Non-functional,Must,EPIC-105,"Concurrency, admission control and fairness",M1,1,Dashboard and telemetry contract tests.,In Progress
 URS-NFR-OPERABILITY-005,Non-functional,Must,EPIC-601,Distributed services and high availability,M6,6,Dashboard and telemetry contract tests.,In Progress
 URS-NFR-OPERABILITY-005,Non-functional,Must,EPIC-607,"OpenTelemetry, Prometheus and log shipping",M6,6,Dashboard and telemetry contract tests.,In Progress
-URS-NFR-OPERABILITY-006,Non-functional,Must,EPIC-610,"Upgrades, migrations and LTS policy",M6,6,Release metadata validation.,Proposed
+URS-NFR-OPERABILITY-006,Non-functional,Must,EPIC-610,"Upgrades, migrations and LTS policy",M6,6,Release metadata validation.,Verified
 URS-NFR-PERFORMANCE-001,Non-functional,Must,EPIC-400,Versioned REST API and OpenAPI contract,M4,4,Repeatable load test with 10 million retained execution records and realistic filters.,Proposed
 URS-NFR-PERFORMANCE-001,Non-functional,Must,EPIC-409,"Search, indexing and retrieval projections",M4,4,Repeatable load test with 10 million retained execution records and realistic filters.,Proposed
 URS-NFR-PERFORMANCE-002,Non-functional,Must,EPIC-100,Executor and orchestration reducer,M1,1,End-to-end launch benchmark under mixed workload.,Verified

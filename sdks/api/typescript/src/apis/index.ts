@@ -29,4 +29,5 @@ export * from './TaskCacheApi';
 export * from './TenantsApi';
 export * from './TriggersApi';
 export * from './UiApi';
+export * from './UpgradesApi';
 export * from './WorkersApi';

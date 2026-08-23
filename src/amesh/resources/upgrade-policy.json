@@ -1,0 +1,51 @@
+{
+  "schemaVersion": "amesh.upgrade-policy/v1",
+  "currentVersion": "0.2.0",
+  "capacityThresholds": {
+    "maximumDatabaseBytes": 107374182400,
+    "maximumQueuedWork": 100000,
+    "maximumActiveExecutions": 10000
+  },
+  "releases": [
+    {
+      "version": "0.1.0",
+      "lts": true,
+      "supportStartsOn": "2026-01-01",
+      "supportEndsOn": "2027-01-31",
+      "schemaMigration": "0032_configuration_feature_flags.sql",
+      "minimumComponents": {
+        "postgresql": "15",
+        "python": "3.12",
+        "apiContract": "v1",
+        "executionEventSchema": "2",
+        "messageSchema": "1",
+        "pluginProtocol": "amesh.plugin.rpc/v1"
+      }
+    },
+    {
+      "version": "0.2.0",
+      "lts": true,
+      "supportStartsOn": "2026-07-01",
+      "supportEndsOn": "2027-07-31",
+      "schemaMigration": "0054_retention_lifecycle.sql",
+      "minimumComponents": {
+        "postgresql": "15",
+        "python": "3.12",
+        "apiContract": "v1",
+        "executionEventSchema": "2",
+        "messageSchema": "1",
+        "pluginProtocol": "amesh.plugin.rpc/v1"
+      }
+    }
+  ],
+  "paths": [
+    {
+      "fromVersion": "0.1.0",
+      "toVersion": "0.2.0",
+      "rollingCompatible": true,
+      "messageSchemaVersions": [1],
+      "rollbackWindowHours": 168,
+      "restorationGuidance": "Create and verify a coordinated AMESH recovery point before migration. During the seven-day rollback window, drain 0.2.0 roles before restoring the 0.1.0 database and matching object manifest. After new 0.2.0 lifecycle or audit writes are accepted, use the documented restore procedure rather than running schema files backward."
+    }
+  ]
+}

@@ -19,7 +19,8 @@
  */
 export const ServiceCompatibility = {
     Current: 'CURRENT',
-    VersionSkew: 'VERSION_SKEW'
+    RollingCompatible: 'ROLLING_COMPATIBLE',
+    Unsafe: 'UNSAFE'
 } as const;
 export type ServiceCompatibility = typeof ServiceCompatibility[keyof typeof ServiceCompatibility];
 

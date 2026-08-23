@@ -12853,6 +12853,245 @@ paths:
       summary: Get Ui Session
       tags:
       - ui
+  /api/v1/upgrades/configuration/migrate:
+    post:
+      operationId: migrate_upgrade_configuration_api_v1_upgrades_configuration_migrate_post
+      parameters:
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConfigurationMigrationRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConfigurationMigration"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Migrate Upgrade Configuration
+      tags:
+      - upgrades
+  /api/v1/upgrades/events/upcast:
+    get:
+      operationId: preview_upgrade_event_upcast_api_v1_upgrades_events_upcast_get
+      parameters:
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PersistedEventMigration"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Preview Upgrade Event Upcast
+      tags:
+      - upgrades
+    post:
+      operationId: run_upgrade_event_upcast_api_v1_upgrades_events_upcast_post
+      parameters:
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PersistedEventMigrationRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PersistedEventMigration"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Run Upgrade Event Upcast
+      tags:
+      - upgrades
+  /api/v1/upgrades/policy:
+    get:
+      operationId: get_upgrade_policy_api_v1_upgrades_policy_get
+      parameters:
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UpgradePolicy"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Get Upgrade Policy
+      tags:
+      - upgrades
+  /api/v1/upgrades/postflight:
+    post:
+      operationId: run_upgrade_postflight_api_v1_upgrades_postflight_post
+      parameters:
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpgradeReportRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UpgradeReport"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Run Upgrade Postflight
+      tags:
+      - upgrades
+  /api/v1/upgrades/preflight:
+    post:
+      operationId: run_upgrade_preflight_api_v1_upgrades_preflight_post
+      parameters:
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpgradeReportRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UpgradeReport"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Run Upgrade Preflight
+      tags:
+      - upgrades
   /api/v1/webhook-deliveries/{delivery_id}/replay:
     post:
       operationId: replay_webhook_delivery_api_v1_webhook_deliveries__delivery_id__replay_post
@@ -17221,6 +17460,68 @@ components:
       - source
       - value
       title: ConfigurationEntry
+    ConfigurationMigration:
+      example:
+        canonical:
+          key: ""
+        changed: true
+        kind: flow
+        targetVersion: targetVersion
+        warnings:
+        - warnings
+        - warnings
+      properties:
+        canonical:
+          additionalProperties: true
+          title: Canonical
+          type: object
+        changed:
+          title: Changed
+          type: boolean
+        kind:
+          $ref: "#/components/schemas/ConfigurationMigrationKind"
+        targetVersion:
+          title: Targetversion
+          type: string
+        warnings:
+          default: []
+          items:
+            type: string
+          title: Warnings
+          type: array
+      required:
+      - canonical
+      - changed
+      - kind
+      - targetVersion
+      title: ConfigurationMigration
+    ConfigurationMigrationKind:
+      enum:
+      - flow
+      - plugin
+      title: ConfigurationMigrationKind
+      type: string
+    ConfigurationMigrationRequest:
+      example:
+        document:
+          key: ""
+        kind: flow
+        targetVersion: targetVersion
+      properties:
+        document:
+          additionalProperties: true
+          title: Document
+          type: object
+        kind:
+          $ref: "#/components/schemas/ConfigurationMigrationKind"
+        targetVersion:
+          title: Targetversion
+          type: string
+      required:
+      - document
+      - kind
+      - targetVersion
+      title: ConfigurationMigrationRequest
     ConfigurationSnapshot:
       example:
         entries:
@@ -23593,6 +23894,68 @@ components:
       - updatedAt
       - updatedBy
       title: PersistedAsset
+    PersistedEventMigration:
+      example:
+        applied: true
+        confirmationPhrase: confirmationPhrase
+        eligibleEvents: 0
+        evidenceEventId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        migratedEvents: 0
+        remainingEvents: 0
+      properties:
+        applied:
+          title: Applied
+          type: boolean
+        confirmationPhrase:
+          title: Confirmationphrase
+          type: string
+        eligibleEvents:
+          minimum: 0.0
+          title: Eligibleevents
+          type: integer
+        evidenceEventId:
+          format: uuid
+          nullable: true
+          type: string
+        migratedEvents:
+          minimum: 0.0
+          title: Migratedevents
+          type: integer
+        remainingEvents:
+          minimum: 0.0
+          title: Remainingevents
+          type: integer
+      required:
+      - applied
+      - confirmationPhrase
+      - eligibleEvents
+      - migratedEvents
+      - remainingEvents
+      title: PersistedEventMigration
+    PersistedEventMigrationRequest:
+      example:
+        batchSize: 801
+        confirmation: confirmation
+        reason: reason
+      properties:
+        batchSize:
+          default: 1000
+          maximum: 10000.0
+          minimum: 1.0
+          title: Batchsize
+          type: integer
+        confirmation:
+          title: Confirmation
+          type: string
+        reason:
+          maxLength: 1024
+          minLength: 1
+          title: Reason
+          type: string
+      required:
+      - confirmation
+      - reason
+      title: PersistedEventMigrationRequest
     PersistedExecution:
       example:
         cancel_deadline_at: 2000-01-23T04:56:07.000+00:00
@@ -26728,6 +27091,32 @@ components:
       - display_name
       - name
       title: RoleDefinition
+    RollingUpgradeStep:
+      example:
+        action: action
+        order: 1
+        role: role
+        verification: verification
+      properties:
+        action:
+          title: Action
+          type: string
+        order:
+          minimum: 1.0
+          title: Order
+          type: integer
+        role:
+          title: Role
+          type: string
+        verification:
+          title: Verification
+          type: string
+      required:
+      - action
+      - order
+      - role
+      - verification
+      title: RollingUpgradeStep
     RotateCredentialRequest:
       example:
         overlapSeconds: 6919
@@ -27943,7 +28332,8 @@ components:
     ServiceCompatibility:
       enum:
       - CURRENT
-      - VERSION_SKEW
+      - ROLLING_COMPATIBLE
+      - UNSAFE
       title: ServiceCompatibility
       type: string
     ServiceDrainRequest:
@@ -29758,6 +30148,344 @@ components:
       - telemetryEnabled
       - tenantId
       title: UiSessionResponse
+    UpgradeCapacityThresholds:
+      example:
+        maximumActiveExecutions: 0
+        maximumDatabaseBytes: 0
+        maximumQueuedWork: 0
+      properties:
+        maximumActiveExecutions:
+          exclusiveMinimum: true
+          minimum: 0.0
+          title: Maximumactiveexecutions
+          type: integer
+        maximumDatabaseBytes:
+          exclusiveMinimum: true
+          minimum: 0.0
+          title: Maximumdatabasebytes
+          type: integer
+        maximumQueuedWork:
+          exclusiveMinimum: true
+          minimum: 0.0
+          title: Maximumqueuedwork
+          type: integer
+      required:
+      - maximumActiveExecutions
+      - maximumDatabaseBytes
+      - maximumQueuedWork
+      title: UpgradeCapacityThresholds
+    UpgradeCheck:
+      example:
+        category: category
+        detail: detail
+        evidence:
+          key: ""
+        name: name
+        remediation: remediation
+        status: PASS
+      properties:
+        category:
+          title: Category
+          type: string
+        detail:
+          title: Detail
+          type: string
+        evidence:
+          additionalProperties: true
+          title: Evidence
+          type: object
+        name:
+          title: Name
+          type: string
+        remediation:
+          nullable: true
+          type: string
+        status:
+          $ref: "#/components/schemas/UpgradeCheckStatus"
+      required:
+      - category
+      - detail
+      - name
+      - status
+      title: UpgradeCheck
+    UpgradeCheckStatus:
+      enum:
+      - PASS
+      - WARNING
+      - BLOCKED
+      title: UpgradeCheckStatus
+      type: string
+    UpgradePath:
+      example:
+        fromVersion: fromVersion
+        messageSchemaVersions:
+        - 5
+        - 5
+        restorationGuidance: restorationGuidance
+        rollbackWindowHours: 0
+        rollingCompatible: true
+        toVersion: toVersion
+      properties:
+        fromVersion:
+          title: Fromversion
+          type: string
+        messageSchemaVersions:
+          items:
+            type: integer
+          minItems: 1
+          title: Messageschemaversions
+          type: array
+          default: null
+        restorationGuidance:
+          minLength: 1
+          title: Restorationguidance
+          type: string
+        rollbackWindowHours:
+          minimum: 0.0
+          title: Rollbackwindowhours
+          type: integer
+        rollingCompatible:
+          title: Rollingcompatible
+          type: boolean
+        toVersion:
+          title: Toversion
+          type: string
+      required:
+      - fromVersion
+      - messageSchemaVersions
+      - restorationGuidance
+      - rollbackWindowHours
+      - rollingCompatible
+      - toVersion
+      title: UpgradePath
+    UpgradePhase:
+      enum:
+      - PRE_UPGRADE
+      - POST_UPGRADE
+      title: UpgradePhase
+      type: string
+    UpgradePolicy:
+      example:
+        capacityThresholds:
+          maximumActiveExecutions: 0
+          maximumDatabaseBytes: 0
+          maximumQueuedWork: 0
+        currentVersion: currentVersion
+        paths:
+        - fromVersion: fromVersion
+          messageSchemaVersions:
+          - 5
+          - 5
+          restorationGuidance: restorationGuidance
+          rollbackWindowHours: 0
+          rollingCompatible: true
+          toVersion: toVersion
+        - fromVersion: fromVersion
+          messageSchemaVersions:
+          - 5
+          - 5
+          restorationGuidance: restorationGuidance
+          rollbackWindowHours: 0
+          rollingCompatible: true
+          toVersion: toVersion
+        releases:
+        - lts: true
+          minimumComponents:
+            key: minimumComponents
+          schemaMigration: schemaMigration
+          supportEndsOn: 2000-01-23
+          supportStartsOn: 2000-01-23
+          version: version
+        - lts: true
+          minimumComponents:
+            key: minimumComponents
+          schemaMigration: schemaMigration
+          supportEndsOn: 2000-01-23
+          supportStartsOn: 2000-01-23
+          version: version
+        schemaVersion: amesh.upgrade-policy/v1
+      properties:
+        capacityThresholds:
+          $ref: "#/components/schemas/UpgradeCapacityThresholds"
+        currentVersion:
+          title: Currentversion
+          type: string
+        paths:
+          items:
+            $ref: "#/components/schemas/UpgradePath"
+          title: Paths
+          type: array
+          default: null
+        releases:
+          items:
+            $ref: "#/components/schemas/UpgradeRelease"
+          title: Releases
+          type: array
+          default: null
+        schemaVersion:
+          enum:
+          - amesh.upgrade-policy/v1
+          title: Schemaversion
+          type: string
+      required:
+      - capacityThresholds
+      - currentVersion
+      - paths
+      - releases
+      - schemaVersion
+      title: UpgradePolicy
+    UpgradeRelease:
+      example:
+        lts: true
+        minimumComponents:
+          key: minimumComponents
+        schemaMigration: schemaMigration
+        supportEndsOn: 2000-01-23
+        supportStartsOn: 2000-01-23
+        version: version
+      properties:
+        lts:
+          title: Lts
+          type: boolean
+        minimumComponents:
+          additionalProperties:
+            type: string
+          title: Minimumcomponents
+        schemaMigration:
+          pattern: "^[0-9]{4}_.+\\.sql$"
+          title: Schemamigration
+          type: string
+        supportEndsOn:
+          format: date
+          title: Supportendson
+          type: string
+        supportStartsOn:
+          format: date
+          title: Supportstartson
+          type: string
+        version:
+          pattern: "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+          title: Version
+          type: string
+      required:
+      - lts
+      - minimumComponents
+      - schemaMigration
+      - supportEndsOn
+      - supportStartsOn
+      - version
+      title: UpgradeRelease
+    UpgradeReport:
+      example:
+        checks:
+        - category: category
+          detail: detail
+          evidence:
+            key: ""
+          name: name
+          remediation: remediation
+          status: PASS
+        - category: category
+          detail: detail
+          evidence:
+            key: ""
+          name: name
+          remediation: remediation
+          status: PASS
+        fromVersion: fromVersion
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        observedAt: 2000-01-23T04:56:07.000+00:00
+        phase: PRE_UPGRADE
+        reportFingerprint: reportFingerprint
+        restorationGuidance: restorationGuidance
+        rollingCompatible: true
+        rollingPlan:
+        - action: action
+          order: 1
+          role: role
+          verification: verification
+        - action: action
+          order: 1
+          role: role
+          verification: verification
+        safeToProceed: true
+        toVersion: toVersion
+        warnings:
+        - warnings
+        - warnings
+      properties:
+        checks:
+          items:
+            $ref: "#/components/schemas/UpgradeCheck"
+          title: Checks
+          type: array
+          default: null
+        fromVersion:
+          title: Fromversion
+          type: string
+        id:
+          format: uuid
+          title: Id
+          type: string
+        observedAt:
+          format: date-time
+          title: Observedat
+          type: string
+        phase:
+          $ref: "#/components/schemas/UpgradePhase"
+        reportFingerprint:
+          title: Reportfingerprint
+          type: string
+        restorationGuidance:
+          title: Restorationguidance
+          type: string
+        rollingCompatible:
+          title: Rollingcompatible
+          type: boolean
+        rollingPlan:
+          default: []
+          items:
+            $ref: "#/components/schemas/RollingUpgradeStep"
+          title: Rollingplan
+          type: array
+        safeToProceed:
+          title: Safetoproceed
+          type: boolean
+        toVersion:
+          title: Toversion
+          type: string
+        warnings:
+          default: []
+          items:
+            type: string
+          title: Warnings
+          type: array
+      required:
+      - checks
+      - fromVersion
+      - observedAt
+      - phase
+      - reportFingerprint
+      - restorationGuidance
+      - rollingCompatible
+      - safeToProceed
+      - toVersion
+      title: UpgradeReport
+    UpgradeReportRequest:
+      example:
+        fromVersion: fromVersion
+        toVersion: toVersion
+      properties:
+        fromVersion:
+          title: Fromversion
+          type: string
+        toVersion:
+          title: Toversion
+          type: string
+      required:
+      - fromVersion
+      - toVersion
+      title: UpgradeReportRequest
     ValidationError:
       example:
         ctx: "{}"

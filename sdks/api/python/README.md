@@ -327,6 +327,12 @@ Class | Method | HTTP request | Description
 *TriggersApi* | [**resume_trigger_runtime_api_v1_triggers_namespace_flow_id_trigger_id_resume_post**](docs/TriggersApi.md#resume_trigger_runtime_api_v1_triggers_namespace_flow_id_trigger_id_resume_post) | **POST** /api/v1/triggers/{namespace}/{flow_id}/{trigger_id}/resume | Resume Trigger Runtime
 *TriggersApi* | [**trigger_webhook_api_v1_webhooks_namespace_flow_id_trigger_id_post**](docs/TriggersApi.md#trigger_webhook_api_v1_webhooks_namespace_flow_id_trigger_id_post) | **POST** /api/v1/webhooks/{namespace}/{flow_id}/{trigger_id} | Trigger Webhook
 *UiApi* | [**get_ui_session_api_v1_ui_session_get**](docs/UiApi.md#get_ui_session_api_v1_ui_session_get) | **GET** /api/v1/ui/session | Get Ui Session
+*UpgradesApi* | [**get_upgrade_policy_api_v1_upgrades_policy_get**](docs/UpgradesApi.md#get_upgrade_policy_api_v1_upgrades_policy_get) | **GET** /api/v1/upgrades/policy | Get Upgrade Policy
+*UpgradesApi* | [**migrate_upgrade_configuration_api_v1_upgrades_configuration_migrate_post**](docs/UpgradesApi.md#migrate_upgrade_configuration_api_v1_upgrades_configuration_migrate_post) | **POST** /api/v1/upgrades/configuration/migrate | Migrate Upgrade Configuration
+*UpgradesApi* | [**preview_upgrade_event_upcast_api_v1_upgrades_events_upcast_get**](docs/UpgradesApi.md#preview_upgrade_event_upcast_api_v1_upgrades_events_upcast_get) | **GET** /api/v1/upgrades/events/upcast | Preview Upgrade Event Upcast
+*UpgradesApi* | [**run_upgrade_event_upcast_api_v1_upgrades_events_upcast_post**](docs/UpgradesApi.md#run_upgrade_event_upcast_api_v1_upgrades_events_upcast_post) | **POST** /api/v1/upgrades/events/upcast | Run Upgrade Event Upcast
+*UpgradesApi* | [**run_upgrade_postflight_api_v1_upgrades_postflight_post**](docs/UpgradesApi.md#run_upgrade_postflight_api_v1_upgrades_postflight_post) | **POST** /api/v1/upgrades/postflight | Run Upgrade Postflight
+*UpgradesApi* | [**run_upgrade_preflight_api_v1_upgrades_preflight_post**](docs/UpgradesApi.md#run_upgrade_preflight_api_v1_upgrades_preflight_post) | **POST** /api/v1/upgrades/preflight | Run Upgrade Preflight
 *WorkersApi* | [**drain_worker_api_v1_workers_worker_id_drain_post**](docs/WorkersApi.md#drain_worker_api_v1_workers_worker_id_drain_post) | **POST** /api/v1/workers/{worker_id}/drain | Drain Worker
 *WorkersApi* | [**list_runner_capabilities_api_v1_runners_capabilities_get**](docs/WorkersApi.md#list_runner_capabilities_api_v1_runners_capabilities_get) | **GET** /api/v1/runners/capabilities | List Runner Capabilities
 *WorkersApi* | [**list_workers_api_v1_workers_get**](docs/WorkersApi.md#list_workers_api_v1_workers_get) | **GET** /api/v1/workers | List Workers
@@ -411,6 +417,9 @@ Class | Method | HTTP request | Description
  - [CompliancePackageRequest](docs/CompliancePackageRequest.md)
  - [ConfigurationDiagnosticBundle](docs/ConfigurationDiagnosticBundle.md)
  - [ConfigurationEntry](docs/ConfigurationEntry.md)
+ - [ConfigurationMigration](docs/ConfigurationMigration.md)
+ - [ConfigurationMigrationKind](docs/ConfigurationMigrationKind.md)
+ - [ConfigurationMigrationRequest](docs/ConfigurationMigrationRequest.md)
  - [ConfigurationSnapshot](docs/ConfigurationSnapshot.md)
  - [CreateExecutionRequest](docs/CreateExecutionRequest.md)
  - [CreateTenantRequest](docs/CreateTenantRequest.md)
@@ -551,6 +560,8 @@ Class | Method | HTTP request | Description
  - [PermissionAction](docs/PermissionAction.md)
  - [PermissionEffect](docs/PermissionEffect.md)
  - [PersistedAsset](docs/PersistedAsset.md)
+ - [PersistedEventMigration](docs/PersistedEventMigration.md)
+ - [PersistedEventMigrationRequest](docs/PersistedEventMigrationRequest.md)
  - [PersistedExecution](docs/PersistedExecution.md)
  - [PersistedFlow](docs/PersistedFlow.md)
  - [PersistedSubflow](docs/PersistedSubflow.md)
@@ -628,6 +639,7 @@ Class | Method | HTTP request | Description
  - [RevokedSessionsResponse](docs/RevokedSessionsResponse.md)
  - [RoleBinding](docs/RoleBinding.md)
  - [RoleDefinition](docs/RoleDefinition.md)
+ - [RollingUpgradeStep](docs/RollingUpgradeStep.md)
  - [RotateCredentialRequest](docs/RotateCredentialRequest.md)
  - [RunnerCapabilities](docs/RunnerCapabilities.md)
  - [RunnerId](docs/RunnerId.md)
@@ -702,6 +714,15 @@ Class | Method | HTTP request | Description
  - [TrustedPluginRuntimeStatus](docs/TrustedPluginRuntimeStatus.md)
  - [TrustedPluginState](docs/TrustedPluginState.md)
  - [UiSessionResponse](docs/UiSessionResponse.md)
+ - [UpgradeCapacityThresholds](docs/UpgradeCapacityThresholds.md)
+ - [UpgradeCheck](docs/UpgradeCheck.md)
+ - [UpgradeCheckStatus](docs/UpgradeCheckStatus.md)
+ - [UpgradePath](docs/UpgradePath.md)
+ - [UpgradePhase](docs/UpgradePhase.md)
+ - [UpgradePolicy](docs/UpgradePolicy.md)
+ - [UpgradeRelease](docs/UpgradeRelease.md)
+ - [UpgradeReport](docs/UpgradeReport.md)
+ - [UpgradeReportRequest](docs/UpgradeReportRequest.md)
  - [ValidationError](docs/ValidationError.md)
  - [ValidationIssue](docs/ValidationIssue.md)
  - [Value](docs/Value.md)

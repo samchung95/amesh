@@ -26,7 +26,7 @@ from amesh.migrations import (
     create_ephemeral_database,
     drop_ephemeral_database,
 )
-from amesh.ports import ServiceFenceError
+from amesh.ports import ServiceFenceError, ServiceVersionSkewError
 from amesh.role import run_role
 
 TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
@@ -107,7 +107,17 @@ def test_registry_fences_replaced_instances_and_reports_failover_topology() -> N
             assert scheduler.ready_instances == 2
             assert scheduler.failure_zones == ("zone-a", "zone-b")
             assert topology.version_skew
-            assert skewed.compatibility is ServiceCompatibility.VERSION_SKEW
+            assert skewed.compatibility is ServiceCompatibility.ROLLING_COMPATIBLE
+
+            with pytest.raises(ServiceVersionSkewError, match="unsafe with"):
+                await repository.register(
+                    _registration(
+                        ServiceRole.WORKER,
+                        "worker-unsafe",
+                        "zone-c",
+                        version="9.0.0",
+                    )
+                )
 
             with pytest.raises(ServiceFenceError):
                 await repository.request_drain(

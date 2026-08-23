@@ -33,6 +33,7 @@ from .shared_resources import PostgresSharedResourceRepository
 from .task_cache_repository import PostgresTaskCacheRepository
 from .tenant_repository import PostgresTenantRepository
 from .trigger_runtime_repository import PostgresTriggerRuntimeRepository
+from .upgrade_repository import PostgresUpgradeRepository
 from .worker_repository import PostgresWorkerRepository
 
 __all__ = [
@@ -66,6 +67,7 @@ __all__ = [
     "PostgresTaskCacheRepository",
     "PostgresTenantRepository",
     "PostgresTriggerRuntimeRepository",
+    "PostgresUpgradeRepository",
     "PostgresWorkerRepository",
     "RecoveryExercise",
     "TableMaintenanceStatus",

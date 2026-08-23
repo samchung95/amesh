@@ -47,6 +47,7 @@ __all__ = [
     "TenantsApi",
     "TriggersApi",
     "UiApi",
+    "UpgradesApi",
     "WorkersApi",
     "ApiResponse",
     "ApiClient",
@@ -134,6 +135,9 @@ __all__ = [
     "CompliancePackageRequest",
     "ConfigurationDiagnosticBundle",
     "ConfigurationEntry",
+    "ConfigurationMigration",
+    "ConfigurationMigrationKind",
+    "ConfigurationMigrationRequest",
     "ConfigurationSnapshot",
     "CreateExecutionRequest",
     "CreateTenantRequest",
@@ -274,6 +278,8 @@ __all__ = [
     "PermissionAction",
     "PermissionEffect",
     "PersistedAsset",
+    "PersistedEventMigration",
+    "PersistedEventMigrationRequest",
     "PersistedExecution",
     "PersistedFlow",
     "PersistedSubflow",
@@ -351,6 +357,7 @@ __all__ = [
     "RevokedSessionsResponse",
     "RoleBinding",
     "RoleDefinition",
+    "RollingUpgradeStep",
     "RotateCredentialRequest",
     "RunnerCapabilities",
     "RunnerId",
@@ -425,6 +432,15 @@ __all__ = [
     "TrustedPluginRuntimeStatus",
     "TrustedPluginState",
     "UiSessionResponse",
+    "UpgradeCapacityThresholds",
+    "UpgradeCheck",
+    "UpgradeCheckStatus",
+    "UpgradePath",
+    "UpgradePhase",
+    "UpgradePolicy",
+    "UpgradeRelease",
+    "UpgradeReport",
+    "UpgradeReportRequest",
     "ValidationError",
     "ValidationIssue",
     "Value",
@@ -476,6 +492,7 @@ from amesh_client.api.task_cache_api import TaskCacheApi as TaskCacheApi
 from amesh_client.api.tenants_api import TenantsApi as TenantsApi
 from amesh_client.api.triggers_api import TriggersApi as TriggersApi
 from amesh_client.api.ui_api import UiApi as UiApi
+from amesh_client.api.upgrades_api import UpgradesApi as UpgradesApi
 from amesh_client.api.workers_api import WorkersApi as WorkersApi
 
 # import ApiClient
@@ -567,6 +584,9 @@ from amesh_client.models.compliance_evidence_record import ComplianceEvidenceRec
 from amesh_client.models.compliance_package_request import CompliancePackageRequest as CompliancePackageRequest
 from amesh_client.models.configuration_diagnostic_bundle import ConfigurationDiagnosticBundle as ConfigurationDiagnosticBundle
 from amesh_client.models.configuration_entry import ConfigurationEntry as ConfigurationEntry
+from amesh_client.models.configuration_migration import ConfigurationMigration as ConfigurationMigration
+from amesh_client.models.configuration_migration_kind import ConfigurationMigrationKind as ConfigurationMigrationKind
+from amesh_client.models.configuration_migration_request import ConfigurationMigrationRequest as ConfigurationMigrationRequest
 from amesh_client.models.configuration_snapshot import ConfigurationSnapshot as ConfigurationSnapshot
 from amesh_client.models.create_execution_request import CreateExecutionRequest as CreateExecutionRequest
 from amesh_client.models.create_tenant_request import CreateTenantRequest as CreateTenantRequest
@@ -707,6 +727,8 @@ from amesh_client.models.permission import Permission as Permission
 from amesh_client.models.permission_action import PermissionAction as PermissionAction
 from amesh_client.models.permission_effect import PermissionEffect as PermissionEffect
 from amesh_client.models.persisted_asset import PersistedAsset as PersistedAsset
+from amesh_client.models.persisted_event_migration import PersistedEventMigration as PersistedEventMigration
+from amesh_client.models.persisted_event_migration_request import PersistedEventMigrationRequest as PersistedEventMigrationRequest
 from amesh_client.models.persisted_execution import PersistedExecution as PersistedExecution
 from amesh_client.models.persisted_flow import PersistedFlow as PersistedFlow
 from amesh_client.models.persisted_subflow import PersistedSubflow as PersistedSubflow
@@ -784,6 +806,7 @@ from amesh_client.models.revoked_credentials_response import RevokedCredentialsR
 from amesh_client.models.revoked_sessions_response import RevokedSessionsResponse as RevokedSessionsResponse
 from amesh_client.models.role_binding import RoleBinding as RoleBinding
 from amesh_client.models.role_definition import RoleDefinition as RoleDefinition
+from amesh_client.models.rolling_upgrade_step import RollingUpgradeStep as RollingUpgradeStep
 from amesh_client.models.rotate_credential_request import RotateCredentialRequest as RotateCredentialRequest
 from amesh_client.models.runner_capabilities import RunnerCapabilities as RunnerCapabilities
 from amesh_client.models.runner_id import RunnerId as RunnerId
@@ -858,6 +881,15 @@ from amesh_client.models.trusted_plugin_runtime_snapshot import TrustedPluginRun
 from amesh_client.models.trusted_plugin_runtime_status import TrustedPluginRuntimeStatus as TrustedPluginRuntimeStatus
 from amesh_client.models.trusted_plugin_state import TrustedPluginState as TrustedPluginState
 from amesh_client.models.ui_session_response import UiSessionResponse as UiSessionResponse
+from amesh_client.models.upgrade_capacity_thresholds import UpgradeCapacityThresholds as UpgradeCapacityThresholds
+from amesh_client.models.upgrade_check import UpgradeCheck as UpgradeCheck
+from amesh_client.models.upgrade_check_status import UpgradeCheckStatus as UpgradeCheckStatus
+from amesh_client.models.upgrade_path import UpgradePath as UpgradePath
+from amesh_client.models.upgrade_phase import UpgradePhase as UpgradePhase
+from amesh_client.models.upgrade_policy import UpgradePolicy as UpgradePolicy
+from amesh_client.models.upgrade_release import UpgradeRelease as UpgradeRelease
+from amesh_client.models.upgrade_report import UpgradeReport as UpgradeReport
+from amesh_client.models.upgrade_report_request import UpgradeReportRequest as UpgradeReportRequest
 from amesh_client.models.validation_error import ValidationError as ValidationError
 from amesh_client.models.validation_issue import ValidationIssue as ValidationIssue
 from amesh_client.models.value import Value as Value

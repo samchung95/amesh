@@ -309,6 +309,12 @@ Class | Method | HTTP request | Description
 *TriggersAPI* | [**ResumeTriggerRuntimeApiV1TriggersNamespaceFlowIdTriggerIdResumePost**](docs/TriggersAPI.md#resumetriggerruntimeapiv1triggersnamespaceflowidtriggeridresumepost) | **Post** /api/v1/triggers/{namespace}/{flow_id}/{trigger_id}/resume | Resume Trigger Runtime
 *TriggersAPI* | [**TriggerWebhookApiV1WebhooksNamespaceFlowIdTriggerIdPost**](docs/TriggersAPI.md#triggerwebhookapiv1webhooksnamespaceflowidtriggeridpost) | **Post** /api/v1/webhooks/{namespace}/{flow_id}/{trigger_id} | Trigger Webhook
 *UiAPI* | [**GetUiSessionApiV1UiSessionGet**](docs/UiAPI.md#getuisessionapiv1uisessionget) | **Get** /api/v1/ui/session | Get Ui Session
+*UpgradesAPI* | [**GetUpgradePolicyApiV1UpgradesPolicyGet**](docs/UpgradesAPI.md#getupgradepolicyapiv1upgradespolicyget) | **Get** /api/v1/upgrades/policy | Get Upgrade Policy
+*UpgradesAPI* | [**MigrateUpgradeConfigurationApiV1UpgradesConfigurationMigratePost**](docs/UpgradesAPI.md#migrateupgradeconfigurationapiv1upgradesconfigurationmigratepost) | **Post** /api/v1/upgrades/configuration/migrate | Migrate Upgrade Configuration
+*UpgradesAPI* | [**PreviewUpgradeEventUpcastApiV1UpgradesEventsUpcastGet**](docs/UpgradesAPI.md#previewupgradeeventupcastapiv1upgradeseventsupcastget) | **Get** /api/v1/upgrades/events/upcast | Preview Upgrade Event Upcast
+*UpgradesAPI* | [**RunUpgradeEventUpcastApiV1UpgradesEventsUpcastPost**](docs/UpgradesAPI.md#runupgradeeventupcastapiv1upgradeseventsupcastpost) | **Post** /api/v1/upgrades/events/upcast | Run Upgrade Event Upcast
+*UpgradesAPI* | [**RunUpgradePostflightApiV1UpgradesPostflightPost**](docs/UpgradesAPI.md#runupgradepostflightapiv1upgradespostflightpost) | **Post** /api/v1/upgrades/postflight | Run Upgrade Postflight
+*UpgradesAPI* | [**RunUpgradePreflightApiV1UpgradesPreflightPost**](docs/UpgradesAPI.md#runupgradepreflightapiv1upgradespreflightpost) | **Post** /api/v1/upgrades/preflight | Run Upgrade Preflight
 *WorkersAPI* | [**DrainWorkerApiV1WorkersWorkerIdDrainPost**](docs/WorkersAPI.md#drainworkerapiv1workersworkeriddrainpost) | **Post** /api/v1/workers/{worker_id}/drain | Drain Worker
 *WorkersAPI* | [**ListRunnerCapabilitiesApiV1RunnersCapabilitiesGet**](docs/WorkersAPI.md#listrunnercapabilitiesapiv1runnerscapabilitiesget) | **Get** /api/v1/runners/capabilities | List Runner Capabilities
 *WorkersAPI* | [**ListWorkersApiV1WorkersGet**](docs/WorkersAPI.md#listworkersapiv1workersget) | **Get** /api/v1/workers | List Workers
@@ -393,6 +399,9 @@ Class | Method | HTTP request | Description
  - [CompliancePackageRequest](docs/CompliancePackageRequest.md)
  - [ConfigurationDiagnosticBundle](docs/ConfigurationDiagnosticBundle.md)
  - [ConfigurationEntry](docs/ConfigurationEntry.md)
+ - [ConfigurationMigration](docs/ConfigurationMigration.md)
+ - [ConfigurationMigrationKind](docs/ConfigurationMigrationKind.md)
+ - [ConfigurationMigrationRequest](docs/ConfigurationMigrationRequest.md)
  - [ConfigurationSnapshot](docs/ConfigurationSnapshot.md)
  - [CreateExecutionRequest](docs/CreateExecutionRequest.md)
  - [CreateTenantRequest](docs/CreateTenantRequest.md)
@@ -533,6 +542,8 @@ Class | Method | HTTP request | Description
  - [PermissionAction](docs/PermissionAction.md)
  - [PermissionEffect](docs/PermissionEffect.md)
  - [PersistedAsset](docs/PersistedAsset.md)
+ - [PersistedEventMigration](docs/PersistedEventMigration.md)
+ - [PersistedEventMigrationRequest](docs/PersistedEventMigrationRequest.md)
  - [PersistedExecution](docs/PersistedExecution.md)
  - [PersistedFlow](docs/PersistedFlow.md)
  - [PersistedSubflow](docs/PersistedSubflow.md)
@@ -610,6 +621,7 @@ Class | Method | HTTP request | Description
  - [RevokedSessionsResponse](docs/RevokedSessionsResponse.md)
  - [RoleBinding](docs/RoleBinding.md)
  - [RoleDefinition](docs/RoleDefinition.md)
+ - [RollingUpgradeStep](docs/RollingUpgradeStep.md)
  - [RotateCredentialRequest](docs/RotateCredentialRequest.md)
  - [RunnerCapabilities](docs/RunnerCapabilities.md)
  - [RunnerId](docs/RunnerId.md)
@@ -684,6 +696,15 @@ Class | Method | HTTP request | Description
  - [TrustedPluginRuntimeStatus](docs/TrustedPluginRuntimeStatus.md)
  - [TrustedPluginState](docs/TrustedPluginState.md)
  - [UiSessionResponse](docs/UiSessionResponse.md)
+ - [UpgradeCapacityThresholds](docs/UpgradeCapacityThresholds.md)
+ - [UpgradeCheck](docs/UpgradeCheck.md)
+ - [UpgradeCheckStatus](docs/UpgradeCheckStatus.md)
+ - [UpgradePath](docs/UpgradePath.md)
+ - [UpgradePhase](docs/UpgradePhase.md)
+ - [UpgradePolicy](docs/UpgradePolicy.md)
+ - [UpgradeRelease](docs/UpgradeRelease.md)
+ - [UpgradeReport](docs/UpgradeReport.md)
+ - [UpgradeReportRequest](docs/UpgradeReportRequest.md)
  - [ValidationError](docs/ValidationError.md)
  - [ValidationIssue](docs/ValidationIssue.md)
  - [Value](docs/Value.md)

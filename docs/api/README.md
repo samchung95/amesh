@@ -54,6 +54,8 @@
   [audit and compliance API](audit-and-compliance.md).
 - Define workflow-data retention, preview destructive impact and resume bounded purge jobs through the
   [lifecycle API](lifecycle.md); audit retention remains independent.
+- Inspect the LTS catalog, run upgrade gates and explicitly migrate persisted events or configuration
+  through the [upgrade API](upgrades.md).
 - Inspect scoped plugin rules and their decision sources, validate candidate flow pins, and perform
   impact-gated emergency version disable through the
   [plugin governance API](plugin-governance.md).

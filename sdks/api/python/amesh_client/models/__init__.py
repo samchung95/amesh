@@ -90,6 +90,9 @@ from amesh_client.models.compliance_evidence_record import ComplianceEvidenceRec
 from amesh_client.models.compliance_package_request import CompliancePackageRequest
 from amesh_client.models.configuration_diagnostic_bundle import ConfigurationDiagnosticBundle
 from amesh_client.models.configuration_entry import ConfigurationEntry
+from amesh_client.models.configuration_migration import ConfigurationMigration
+from amesh_client.models.configuration_migration_kind import ConfigurationMigrationKind
+from amesh_client.models.configuration_migration_request import ConfigurationMigrationRequest
 from amesh_client.models.configuration_snapshot import ConfigurationSnapshot
 from amesh_client.models.create_execution_request import CreateExecutionRequest
 from amesh_client.models.create_tenant_request import CreateTenantRequest
@@ -230,6 +233,8 @@ from amesh_client.models.permission import Permission
 from amesh_client.models.permission_action import PermissionAction
 from amesh_client.models.permission_effect import PermissionEffect
 from amesh_client.models.persisted_asset import PersistedAsset
+from amesh_client.models.persisted_event_migration import PersistedEventMigration
+from amesh_client.models.persisted_event_migration_request import PersistedEventMigrationRequest
 from amesh_client.models.persisted_execution import PersistedExecution
 from amesh_client.models.persisted_flow import PersistedFlow
 from amesh_client.models.persisted_subflow import PersistedSubflow
@@ -307,6 +312,7 @@ from amesh_client.models.revoked_credentials_response import RevokedCredentialsR
 from amesh_client.models.revoked_sessions_response import RevokedSessionsResponse
 from amesh_client.models.role_binding import RoleBinding
 from amesh_client.models.role_definition import RoleDefinition
+from amesh_client.models.rolling_upgrade_step import RollingUpgradeStep
 from amesh_client.models.rotate_credential_request import RotateCredentialRequest
 from amesh_client.models.runner_capabilities import RunnerCapabilities
 from amesh_client.models.runner_id import RunnerId
@@ -381,6 +387,15 @@ from amesh_client.models.trusted_plugin_runtime_snapshot import TrustedPluginRun
 from amesh_client.models.trusted_plugin_runtime_status import TrustedPluginRuntimeStatus
 from amesh_client.models.trusted_plugin_state import TrustedPluginState
 from amesh_client.models.ui_session_response import UiSessionResponse
+from amesh_client.models.upgrade_capacity_thresholds import UpgradeCapacityThresholds
+from amesh_client.models.upgrade_check import UpgradeCheck
+from amesh_client.models.upgrade_check_status import UpgradeCheckStatus
+from amesh_client.models.upgrade_path import UpgradePath
+from amesh_client.models.upgrade_phase import UpgradePhase
+from amesh_client.models.upgrade_policy import UpgradePolicy
+from amesh_client.models.upgrade_release import UpgradeRelease
+from amesh_client.models.upgrade_report import UpgradeReport
+from amesh_client.models.upgrade_report_request import UpgradeReportRequest
 from amesh_client.models.validation_error import ValidationError
 from amesh_client.models.validation_issue import ValidationIssue
 from amesh_client.models.value import Value

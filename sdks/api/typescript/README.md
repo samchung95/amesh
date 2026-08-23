@@ -296,6 +296,12 @@ All URIs are relative to *http://localhost*
 *TriggersApi* | [**resumeTriggerRuntimeApiV1TriggersNamespaceFlowIdTriggerIdResumePost**](docs/TriggersApi.md#resumetriggerruntimeapiv1triggersnamespaceflowidtriggeridresumepost) | **POST** /api/v1/triggers/{namespace}/{flow_id}/{trigger_id}/resume | Resume Trigger Runtime
 *TriggersApi* | [**triggerWebhookApiV1WebhooksNamespaceFlowIdTriggerIdPost**](docs/TriggersApi.md#triggerwebhookapiv1webhooksnamespaceflowidtriggeridpost) | **POST** /api/v1/webhooks/{namespace}/{flow_id}/{trigger_id} | Trigger Webhook
 *UiApi* | [**getUiSessionApiV1UiSessionGet**](docs/UiApi.md#getuisessionapiv1uisessionget) | **GET** /api/v1/ui/session | Get Ui Session
+*UpgradesApi* | [**getUpgradePolicyApiV1UpgradesPolicyGet**](docs/UpgradesApi.md#getupgradepolicyapiv1upgradespolicyget) | **GET** /api/v1/upgrades/policy | Get Upgrade Policy
+*UpgradesApi* | [**migrateUpgradeConfigurationApiV1UpgradesConfigurationMigratePost**](docs/UpgradesApi.md#migrateupgradeconfigurationapiv1upgradesconfigurationmigratepost) | **POST** /api/v1/upgrades/configuration/migrate | Migrate Upgrade Configuration
+*UpgradesApi* | [**previewUpgradeEventUpcastApiV1UpgradesEventsUpcastGet**](docs/UpgradesApi.md#previewupgradeeventupcastapiv1upgradeseventsupcastget) | **GET** /api/v1/upgrades/events/upcast | Preview Upgrade Event Upcast
+*UpgradesApi* | [**runUpgradeEventUpcastApiV1UpgradesEventsUpcastPost**](docs/UpgradesApi.md#runupgradeeventupcastapiv1upgradeseventsupcastpost) | **POST** /api/v1/upgrades/events/upcast | Run Upgrade Event Upcast
+*UpgradesApi* | [**runUpgradePostflightApiV1UpgradesPostflightPost**](docs/UpgradesApi.md#runupgradepostflightapiv1upgradespostflightpost) | **POST** /api/v1/upgrades/postflight | Run Upgrade Postflight
+*UpgradesApi* | [**runUpgradePreflightApiV1UpgradesPreflightPost**](docs/UpgradesApi.md#runupgradepreflightapiv1upgradespreflightpost) | **POST** /api/v1/upgrades/preflight | Run Upgrade Preflight
 *WorkersApi* | [**drainWorkerApiV1WorkersWorkerIdDrainPost**](docs/WorkersApi.md#drainworkerapiv1workersworkeriddrainpost) | **POST** /api/v1/workers/{worker_id}/drain | Drain Worker
 *WorkersApi* | [**listRunnerCapabilitiesApiV1RunnersCapabilitiesGet**](docs/WorkersApi.md#listrunnercapabilitiesapiv1runnerscapabilitiesget) | **GET** /api/v1/runners/capabilities | List Runner Capabilities
 *WorkersApi* | [**listWorkersApiV1WorkersGet**](docs/WorkersApi.md#listworkersapiv1workersget) | **GET** /api/v1/workers | List Workers
@@ -380,6 +386,9 @@ All URIs are relative to *http://localhost*
 - [CompliancePackageRequest](docs/CompliancePackageRequest.md)
 - [ConfigurationDiagnosticBundle](docs/ConfigurationDiagnosticBundle.md)
 - [ConfigurationEntry](docs/ConfigurationEntry.md)
+- [ConfigurationMigration](docs/ConfigurationMigration.md)
+- [ConfigurationMigrationKind](docs/ConfigurationMigrationKind.md)
+- [ConfigurationMigrationRequest](docs/ConfigurationMigrationRequest.md)
 - [ConfigurationSnapshot](docs/ConfigurationSnapshot.md)
 - [CreateExecutionRequest](docs/CreateExecutionRequest.md)
 - [CreateTenantRequest](docs/CreateTenantRequest.md)
@@ -520,6 +529,8 @@ All URIs are relative to *http://localhost*
 - [PermissionAction](docs/PermissionAction.md)
 - [PermissionEffect](docs/PermissionEffect.md)
 - [PersistedAsset](docs/PersistedAsset.md)
+- [PersistedEventMigration](docs/PersistedEventMigration.md)
+- [PersistedEventMigrationRequest](docs/PersistedEventMigrationRequest.md)
 - [PersistedExecution](docs/PersistedExecution.md)
 - [PersistedFlow](docs/PersistedFlow.md)
 - [PersistedSubflow](docs/PersistedSubflow.md)
@@ -597,6 +608,7 @@ All URIs are relative to *http://localhost*
 - [RevokedSessionsResponse](docs/RevokedSessionsResponse.md)
 - [RoleBinding](docs/RoleBinding.md)
 - [RoleDefinition](docs/RoleDefinition.md)
+- [RollingUpgradeStep](docs/RollingUpgradeStep.md)
 - [RotateCredentialRequest](docs/RotateCredentialRequest.md)
 - [RunnerCapabilities](docs/RunnerCapabilities.md)
 - [RunnerId](docs/RunnerId.md)
@@ -671,6 +683,15 @@ All URIs are relative to *http://localhost*
 - [TrustedPluginRuntimeStatus](docs/TrustedPluginRuntimeStatus.md)
 - [TrustedPluginState](docs/TrustedPluginState.md)
 - [UiSessionResponse](docs/UiSessionResponse.md)
+- [UpgradeCapacityThresholds](docs/UpgradeCapacityThresholds.md)
+- [UpgradeCheck](docs/UpgradeCheck.md)
+- [UpgradeCheckStatus](docs/UpgradeCheckStatus.md)
+- [UpgradePath](docs/UpgradePath.md)
+- [UpgradePhase](docs/UpgradePhase.md)
+- [UpgradePolicy](docs/UpgradePolicy.md)
+- [UpgradeRelease](docs/UpgradeRelease.md)
+- [UpgradeReport](docs/UpgradeReport.md)
+- [UpgradeReportRequest](docs/UpgradeReportRequest.md)
 - [ValidationError](docs/ValidationError.md)
 - [ValidationIssue](docs/ValidationIssue.md)
 - [Value](docs/Value.md)

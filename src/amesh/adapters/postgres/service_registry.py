@@ -22,7 +22,8 @@ from amesh.domain import (
     ServiceTopology,
     new_runtime_id,
 )
-from amesh.ports import ServiceFenceError, ServiceRegistryRepository
+from amesh.ports import ServiceFenceError, ServiceRegistryRepository, ServiceVersionSkewError
+from amesh.release_policy import component_compatibility
 
 _REGISTER = text(
     """
@@ -130,6 +131,12 @@ class PostgresServiceRegistryRepository(ServiceRegistryRepository):
         self._stale_after = timedelta(seconds=stale_after_seconds)
 
     async def register(self, registration: ServiceRegistration) -> ServiceInstance:
+        compatibility = component_compatibility(registration.version)
+        if compatibility.compatibility is ServiceCompatibility.UNSAFE:
+            raise ServiceVersionSkewError(
+                f"service version {registration.version} is unsafe with {__version__}; "
+                f"{compatibility.remediation}"
+            )
         async with self._engine.begin() as connection:
             row = (
                 (
@@ -295,11 +302,7 @@ class PostgresServiceRegistryRepository(ServiceRegistryRepository):
             failureZone=row["failure_zone"],
             state=state,
             liveness=liveness,
-            compatibility=(
-                ServiceCompatibility.CURRENT
-                if row["version"] == __version__
-                else ServiceCompatibility.VERSION_SKEW
-            ),
+            compatibility=component_compatibility(str(row["version"])).compatibility,
             generation=row["generation"],
             resourceVersion=row["resource_version"],
             labels=row["labels"] or {},

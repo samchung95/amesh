@@ -361,6 +361,30 @@ def build_parser() -> argparse.ArgumentParser:
     )
     lifecycle_release.add_argument("hold_id")
 
+    upgrade = subcommands.add_parser("upgrade", help="Plan and verify supported upgrades")
+    upgrade_commands = upgrade.add_subparsers(dest="upgrade_command", required=True)
+    upgrade_commands.add_parser("policy", help="Show supported LTS releases and upgrade paths")
+    for command in ("preflight", "postflight"):
+        report = upgrade_commands.add_parser(command, help=f"Run the {command} report")
+        report.add_argument("--from-version", required=True)
+        report.add_argument("--to-version", required=True)
+    upgrade_commands.add_parser(
+        "events-preview", help="Preview persisted execution events eligible for upcast"
+    )
+    event_upcast = upgrade_commands.add_parser(
+        "events-upcast", help="Upcast one bounded batch of persisted execution events"
+    )
+    event_upcast.add_argument("--reason", required=True)
+    event_upcast.add_argument("--batch-size", type=int, default=1_000)
+    event_upcast.add_argument("--force", action="store_true")
+    config_migration = upgrade_commands.add_parser(
+        "migrate-config", help="Canonicalize one flow or plugin document for a target release"
+    )
+    config_migration.add_argument("kind", choices=("flow", "plugin"))
+    config_migration.add_argument("path", type=Path)
+    config_migration.add_argument("--target-version", required=True)
+    config_migration.add_argument("--output", type=Path, required=True)
+
     completion = subcommands.add_parser(
         "completion", help="Generate shell completion from the command model"
     )
@@ -653,6 +677,11 @@ def main(argv: Sequence[str] | None = None) -> int:
                 if isinstance(lifecycle_result, int):
                     return lifecycle_result
                 response = lifecycle_result
+            elif args.command == "upgrade":
+                upgrade_result = _upgrade_request(client, args, output_mode)
+                if isinstance(upgrade_result, int):
+                    return upgrade_result
+                response = upgrade_result
             else:
                 return EXIT_ERROR
         if response.is_error:
@@ -664,6 +693,10 @@ def main(argv: Sequence[str] | None = None) -> int:
             flow_exit = _write_flow_response(response, args, output_mode)
             if flow_exit is not None:
                 return flow_exit
+        if args.command == "upgrade" and _write_upgrade_response(
+            response, args, output_mode
+        ):
+            return EXIT_SUCCESS
         if response.status_code == 204 or not response.content:
             _emit({"status": "ok"}, output_mode)
         else:
@@ -800,6 +833,7 @@ def _uses_api(args: argparse.Namespace) -> bool:
         "flow",
         "admin",
         "lifecycle",
+        "upgrade",
     }:
         return True
     return args.command == "plugins" and args.plugin_command in {"list", "refresh", "install"}
@@ -1039,6 +1073,90 @@ def _lifecycle_request(
             },
         )
     return client.post(f"{root}/legal-holds/{quote(args.hold_id, safe='')}/release")
+
+
+def _upgrade_request(
+    client: httpx.Client,
+    args: argparse.Namespace,
+    output_mode: str,
+) -> httpx.Response | int:
+    root = "/api/v1/upgrades"
+    action = args.upgrade_command
+    if action == "policy":
+        return client.get(f"{root}/policy")
+    if action in {"preflight", "postflight"}:
+        return client.post(
+            f"{root}/{action}",
+            json={"fromVersion": args.from_version, "toVersion": args.to_version},
+        )
+    if action == "events-preview":
+        return client.get(f"{root}/events/upcast")
+    if action == "events-upcast":
+        preview_response = client.get(f"{root}/events/upcast")
+        preview_response.raise_for_status()
+        preview = preview_response.json()
+        if not args.force:
+            _emit(
+                {
+                    "action": "upcast persisted execution events",
+                    "eligibleEvents": preview["eligibleEvents"],
+                    "recovery": "restore the pre-upgrade recovery point if validation fails",
+                    "requiredFlag": "--force",
+                },
+                output_mode,
+                human=(
+                    f"Would upcast up to {args.batch_size} of "
+                    f"{preview['eligibleEvents']} event(s). Rerun with --force."
+                ),
+            )
+            return EXIT_CONFIRMATION_REQUIRED
+        return client.post(
+            f"{root}/events/upcast",
+            json={
+                "confirmation": preview["confirmationPhrase"],
+                "reason": args.reason,
+                "batchSize": args.batch_size,
+            },
+        )
+    return client.post(
+        f"{root}/configuration/migrate",
+        json={
+            "kind": args.kind,
+            "targetVersion": args.target_version,
+            "document": _load_mapping(args.path),
+        },
+    )
+
+
+def _write_upgrade_response(
+    response: httpx.Response,
+    args: argparse.Namespace,
+    output_mode: str,
+) -> bool:
+    if args.upgrade_command != "migrate-config":
+        return False
+    payload = response.json()
+    target: Path = args.output
+    target.parent.mkdir(parents=True, exist_ok=True)
+    if target.suffix.lower() == ".json":
+        target.write_text(json.dumps(payload["canonical"], indent=2) + "\n", encoding="utf-8")
+    else:
+        target.write_text(
+            yaml.safe_dump(payload["canonical"], sort_keys=False),
+            encoding="utf-8",
+        )
+    _emit(
+        {
+            "kind": payload["kind"],
+            "targetVersion": payload["targetVersion"],
+            "changed": payload["changed"],
+            "output": str(target),
+            "warnings": payload["warnings"],
+        },
+        output_mode,
+        human=f"wrote canonical {payload['kind']} configuration to {target}",
+    )
+    return True
 
 
 def _command_paths(parser: argparse.ArgumentParser) -> tuple[str, ...]:

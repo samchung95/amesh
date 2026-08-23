@@ -1,6 +1,6 @@
 # PostgreSQL migrations
 
-The MVP image applies the exact order declared in `manifest.json` through `python -m amesh.migrations`. The runner validates contiguous filenames, transaction wrappers, migration mode, online-compatibility classification and rollback guidance before connecting. It then checks PostgreSQL 15+, uses a serializable transaction and advisory lock, records each filename and SHA-256 checksum in `amesh_schema_migrations`, skips already-applied files, and rejects checksum drift or database migrations absent from the manifest. The Helm chart runs it as a pre-install/pre-upgrade hook before server or worker rollout.
+The MVP image applies the exact order declared in `manifest.json` through `python -m amesh.migrations`. The runner validates contiguous filenames, transaction wrappers, migration mode, online-compatibility classification and rollback guidance before connecting. It then checks PostgreSQL 15+, uses a serializable transaction and advisory lock, records each filename and SHA-256 checksum in `amesh_schema_migrations`, skips already-applied files, and rejects checksum drift or database migrations absent from the manifest. The Helm chart runs it as a pre-install/pre-upgrade hook before server or worker rollout. Operators and LTS fixtures can stop at an exact declared boundary with `python -m amesh.migrations --target 0032_configuration_feature_flags.sql`; an unknown boundary or a database already beyond it is rejected.
 
 It establishes the first explicit persistence concepts for:
 
