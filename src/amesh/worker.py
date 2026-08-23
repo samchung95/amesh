@@ -13,6 +13,7 @@ from amesh.adapters.docker import DockerContainerRunner
 from amesh.adapters.kubernetes import ProfiledKubernetesJobRunner
 from amesh.adapters.local import LocalProcessRunner
 from amesh.adapters.postgres import (
+    PostgresAdmissionPolicyRepository,
     PostgresBackfillRepository,
     PostgresCheckRepository,
     PostgresExecutionRepository,
@@ -25,19 +26,22 @@ from amesh.adapters.postgres import (
     PostgresTenantRepository,
     PostgresTriggerRuntimeRepository,
 )
+from amesh.admission_policy import AdmissionPolicyService
 from amesh.backfills import BackfillService
 from amesh.config import Settings, get_settings
 from amesh.database import create_database_engine
 from amesh.domain import (
     ExecutionState,
     OperationalBoundary,
+    PolicyDecision,
+    PolicyStage,
     ReconciliationMode,
     ReconciliationRequest,
     RunningWorkPolicy,
     new_runtime_id,
 )
 from amesh.domain.runner import RunnerId, RunnerPolicySet
-from amesh.dsl import compile_execution_tasks
+from amesh.dsl import FlowDefinition, TaskDefinition, compile_execution_tasks
 from amesh.executor import (
     InProcessExecutor,
     TaskHandler,
@@ -66,6 +70,8 @@ from amesh.ports import (
     CheckRepository,
     ExecutionInterventionAction,
     ExecutionLaunchSource,
+    PersistedExecution,
+    PersistedTaskRun,
     ReconciliationAlreadyRunningError,
     TaskCacheRepository,
     TriggerRuntimeRepository,
@@ -525,6 +531,24 @@ async def recover_once(
                             f"plugin task identity {task_type!r} conflicts with a core task"
                         )
                     handlers[task_type] = handler
+
+            async def enforce_dispatch_policy(
+                dispatch_flow: FlowDefinition,
+                dispatch_execution: PersistedExecution,
+                task_run: PersistedTaskRun,
+                task: TaskDefinition,
+            ) -> PolicyDecision:
+                return await repository.enforce_admission_policy(
+                    dispatch_flow,
+                    tenant_id=dispatch_execution.tenant_id,
+                    stage=PolicyStage.DISPATCH,
+                    actor_id=dispatch_execution.created_by,
+                    inputs=dict(dispatch_execution.inputs),
+                    task=task,
+                    execution_id=dispatch_execution.execution_id,
+                    task_run_id=task_run.task_run_id,
+                )
+
             executor = InProcessExecutor(
                 repository,
                 handlers=handlers,
@@ -540,6 +564,11 @@ async def recover_once(
                 object_store=object_store,
                 task_cache=task_cache,
                 workspace_manager=workspace_manager,
+                dispatch_policy_enforcer=(
+                    enforce_dispatch_policy
+                    if repository.has_admission_policy_enforcer
+                    else None
+                ),
             )
             try:
                 await executor.run_to_completion(
@@ -626,9 +655,11 @@ async def run_worker(settings: Settings) -> None:
         plugin_catalog,
         default_allow=settings.plugin_trust_mode == "development",
     )
+    admission_policy = AdmissionPolicyService(PostgresAdmissionPolicyRepository(engine))
     repository = PostgresExecutionRepository(
         engine,
         plugin_policy_enforcer=plugin_policy.enforce_flow,
+        admission_policy_enforcer=admission_policy.enforce_repository,
     )
     scheduler_repository = PostgresSchedulerRepository(engine)
     trigger_runtime = PostgresTriggerRuntimeRepository(engine)

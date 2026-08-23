@@ -1602,6 +1602,71 @@ export interface PluginPolicyImpactPreview {
   runningExecutions: Array<Record<string, unknown>>
 }
 
+export type AdmissionPolicyStage = 'VALIDATE' | 'SAVE' | 'PROMOTE' | 'LAUNCH' | 'DISPATCH'
+export type AdmissionPolicyOutcome = 'ALLOW' | 'DENY' | 'WARN' | 'MUTATE_DEFAULT' | 'REQUIRE_APPROVAL'
+export type AdmissionPolicyOperator = 'EQUALS' | 'NOT_EQUALS' | 'IN' | 'CONTAINS' | 'EXISTS' | 'MATCHES' | 'LESS_THAN' | 'LESS_THAN_OR_EQUAL' | 'GREATER_THAN' | 'GREATER_THAN_OR_EQUAL'
+
+export interface AdmissionPolicyDocument {
+  schemaVersion: 'amesh.policy/v1'
+  policyKey: string
+  name: string
+  description: string
+  scope: PluginPolicyScope
+  namespace?: string | null
+  criticality: 'ADVISORY' | 'ENFORCING'
+  evaluationTimeoutMs: number
+  enabled: boolean
+  rules: Array<{
+    id: string
+    stages: AdmissionPolicyStage[]
+    conditions: Array<{ path: string; operator: AdmissionPolicyOperator; value: unknown }>
+    outcome: AdmissionPolicyOutcome
+    reason: string
+    mutations: Record<string, unknown>
+  }>
+}
+
+export interface AdmissionPolicyRevision {
+  policyId: string
+  tenantId: string | null
+  revision: number
+  digest: string
+  document: AdmissionPolicyDocument
+  createdBy: string
+  createdAt: string
+}
+
+export interface AdmissionPolicyDecision {
+  id: string
+  engineVersion: string
+  stage: AdmissionPolicyStage
+  outcome: AdmissionPolicyOutcome
+  allowed: boolean
+  tenantId: string
+  namespace: string
+  actorId: string
+  flowId: string
+  flowRevision: number
+  pinnedPolicies: Array<{ policyId: string; policyKey: string; revision: number; digest: string }>
+  matchedRules: Array<{
+    policyId: string
+    policyKey: string
+    policyRevision: number
+    ruleId: string
+    outcome: AdmissionPolicyOutcome
+    reason: string
+    approvalKey: string | null
+    conditions: Array<{ path: string; operator: AdmissionPolicyOperator; expected: unknown; actual: unknown; matched: boolean }>
+  }>
+  warnings: string[]
+  mutations: Array<{ path: string; value: unknown; applied: boolean }>
+  requiredApprovals: string[]
+  inputHash: string
+  evaluationDurationMs: number
+  evaluationLimitMs: number
+  decidedAt: string
+}
+
 export type LifecycleResourceType = 'EXECUTION' | 'LOG' | 'METRIC' | 'ARTIFACT' | 'CACHE'
 export type LifecycleScope = 'INSTANCE' | 'TENANT' | 'NAMESPACE' | 'LABEL'
 

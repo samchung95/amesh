@@ -121,6 +121,10 @@ Migration `0054_retention_lifecycle.sql` adds instance/tenant/namespace/label wo
 workflow legal holds, previewed and scheduled bounded purge jobs, durable external-object decisions and
 transactional lifecycle events. Audit retention remains governed by its independent ledger policy.
 
+Migration `0055_admission_policy.sql` adds immutable instance, tenant and namespace admission-policy
+revisions plus tenant-isolated decision history. Policy revisions and every evaluation are also
+written to the existing audit ledger by the application repository.
+
 Migration `0035_conditional_task_control.sql` adds task-run-owned terminal results and control
 evidence for durable conditional decisions and zero-attempt skips. Ordinary runnable results remain
 authoritative on immutable task attempts.

@@ -23,6 +23,7 @@ from amesh_client.api.namespace_resources_api import NamespaceResourcesApi
 from amesh_client.api.namespaces_api import NamespacesApi
 from amesh_client.api.operations_api import OperationsApi
 from amesh_client.api.plugins_api import PluginsApi
+from amesh_client.api.policies_api import PoliciesApi
 from amesh_client.api.realtime_api import RealtimeApi
 from amesh_client.api.scim_api import ScimApi
 from amesh_client.api.search_api import SearchApi

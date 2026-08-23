@@ -13,6 +13,8 @@
   documented in the [public SDK guide](sdks.md).
 - Compile signed revision-pinned plans, declare side-effect substitutions and compare plan/plugin
   changes through the [deterministic simulation API](simulations.md).
+- Author immutable scoped rules, validate flows and inspect pinned lifecycle decisions through the
+  [admission policy API](admission-policies.md).
 
 ## v1 conventions
 

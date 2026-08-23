@@ -288,6 +288,14 @@ Class | Method | HTTP request | Description
 *PluginsApi* | [**trusted_plugin_runtime_status_api_v1_plugins_trusted_runtime_get**](docs/PluginsApi.md#trusted_plugin_runtime_status_api_v1_plugins_trusted_runtime_get) | **GET** /api/v1/plugins/trusted-runtime | Trusted Plugin Runtime Status
 *PluginsApi* | [**update_plugin_policy_rule_api_v1_plugin_policy_rules_rule_id_put**](docs/PluginsApi.md#update_plugin_policy_rule_api_v1_plugin_policy_rules_rule_id_put) | **PUT** /api/v1/plugin-policy/rules/{rule_id} | Update Plugin Policy Rule
 *PluginsApi* | [**yank_plugin_registry_package_api_v1_plugin_registry_packages_name_version_yank_post**](docs/PluginsApi.md#yank_plugin_registry_package_api_v1_plugin_registry_packages_name_version_yank_post) | **POST** /api/v1/plugin-registry/packages/{name}/{version}/yank | Yank Plugin Registry Package
+*PoliciesApi* | [**create_admission_policy_api_v1_policies_post**](docs/PoliciesApi.md#create_admission_policy_api_v1_policies_post) | **POST** /api/v1/policies | Create Admission Policy
+*PoliciesApi* | [**evaluate_admission_policies_api_v1_policies_evaluate_post**](docs/PoliciesApi.md#evaluate_admission_policies_api_v1_policies_evaluate_post) | **POST** /api/v1/policies/evaluate | Evaluate Admission Policies
+*PoliciesApi* | [**get_admission_policy_api_v1_policies_policy_key_get**](docs/PoliciesApi.md#get_admission_policy_api_v1_policies_policy_key_get) | **GET** /api/v1/policies/{policy_key} | Get Admission Policy
+*PoliciesApi* | [**list_admission_policies_api_v1_policies_get**](docs/PoliciesApi.md#list_admission_policies_api_v1_policies_get) | **GET** /api/v1/policies | List Admission Policies
+*PoliciesApi* | [**list_admission_policy_decisions_api_v1_policies_decisions_get**](docs/PoliciesApi.md#list_admission_policy_decisions_api_v1_policies_decisions_get) | **GET** /api/v1/policies/decisions | List Admission Policy Decisions
+*PoliciesApi* | [**test_admission_policy_api_v1_policies_policy_key_test_post**](docs/PoliciesApi.md#test_admission_policy_api_v1_policies_policy_key_test_post) | **POST** /api/v1/policies/{policy_key}/test | Test Admission Policy
+*PoliciesApi* | [**update_admission_policy_api_v1_policies_policy_key_put**](docs/PoliciesApi.md#update_admission_policy_api_v1_policies_policy_key_put) | **PUT** /api/v1/policies/{policy_key} | Update Admission Policy
+*PoliciesApi* | [**validate_flow_admission_policy_api_v1_policies_flows_validate_post**](docs/PoliciesApi.md#validate_flow_admission_policy_api_v1_policies_flows_validate_post) | **POST** /api/v1/policies/flows/validate | Validate Flow Admission Policy
 *RealtimeApi* | [**create_webhook_subscription_api_v1_webhook_subscriptions_post**](docs/RealtimeApi.md#create_webhook_subscription_api_v1_webhook_subscriptions_post) | **POST** /api/v1/webhook-subscriptions | Create Webhook Subscription
 *RealtimeApi* | [**list_realtime_events_api_v1_realtime_events_get**](docs/RealtimeApi.md#list_realtime_events_api_v1_realtime_events_get) | **GET** /api/v1/realtime/events | List Realtime Events
 *RealtimeApi* | [**list_webhook_delivery_history_api_v1_webhook_subscriptions_subscription_id_deliveries_get**](docs/RealtimeApi.md#list_webhook_delivery_history_api_v1_webhook_subscriptions_subscription_id_deliveries_get) | **GET** /api/v1/webhook-subscriptions/{subscription_id}/deliveries | List Webhook Delivery History
@@ -628,6 +636,34 @@ Class | Method | HTTP request | Description
  - [PluginSecurityStatus](docs/PluginSecurityStatus.md)
  - [PluginSourceKind](docs/PluginSourceKind.md)
  - [PluginTransport](docs/PluginTransport.md)
+ - [PolicyActorContext](docs/PolicyActorContext.md)
+ - [PolicyCondition](docs/PolicyCondition.md)
+ - [PolicyConditionEvidence](docs/PolicyConditionEvidence.md)
+ - [PolicyCriticality](docs/PolicyCriticality.md)
+ - [PolicyDecision](docs/PolicyDecision.md)
+ - [PolicyDocument](docs/PolicyDocument.md)
+ - [PolicyEvaluationRequest](docs/PolicyEvaluationRequest.md)
+ - [PolicyFixture](docs/PolicyFixture.md)
+ - [PolicyFixtureResult](docs/PolicyFixtureResult.md)
+ - [PolicyFlowContext](docs/PolicyFlowContext.md)
+ - [PolicyImageContext](docs/PolicyImageContext.md)
+ - [PolicyInput](docs/PolicyInput.md)
+ - [PolicyMutation](docs/PolicyMutation.md)
+ - [PolicyNamespaceContext](docs/PolicyNamespaceContext.md)
+ - [PolicyNetworkContext](docs/PolicyNetworkContext.md)
+ - [PolicyOperator](docs/PolicyOperator.md)
+ - [PolicyOutcome](docs/PolicyOutcome.md)
+ - [PolicyPin](docs/PolicyPin.md)
+ - [PolicyPluginContext](docs/PolicyPluginContext.md)
+ - [PolicyResourceContext](docs/PolicyResourceContext.md)
+ - [PolicyRevision](docs/PolicyRevision.md)
+ - [PolicyRule](docs/PolicyRule.md)
+ - [PolicyRuleEvidence](docs/PolicyRuleEvidence.md)
+ - [PolicyRunnerContext](docs/PolicyRunnerContext.md)
+ - [PolicyScope](docs/PolicyScope.md)
+ - [PolicySecretContext](docs/PolicySecretContext.md)
+ - [PolicyStage](docs/PolicyStage.md)
+ - [PolicyTenantContext](docs/PolicyTenantContext.md)
  - [PrincipalDefinition](docs/PrincipalDefinition.md)
  - [PrincipalType](docs/PrincipalType.md)
  - [ProblemDetail](docs/ProblemDetail.md)

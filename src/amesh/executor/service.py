@@ -15,11 +15,13 @@ from uuid import UUID, uuid5
 from pydantic import BaseModel, ConfigDict, Field
 
 from amesh import __version__
+from amesh.admission_policy import AdmissionPolicyDenied, policy_decision_metadata
 from amesh.domain import (
     AdmissionOutcome,
     AdmissionResourceType,
     ExecutionState,
     FailureCategory,
+    PolicyDecision,
     resolve_admission_policies,
 )
 from amesh.dsl import (
@@ -137,6 +139,10 @@ class TaskExecutionContext:
 
 
 TaskHandler = Callable[[TaskDefinition, TaskExecutionContext], Awaitable[TaskHandlerResult]]
+DispatchPolicyEnforcer = Callable[
+    [FlowDefinition, PersistedExecution, PersistedTaskRun, TaskDefinition],
+    Awaitable[PolicyDecision],
+]
 
 
 class ExecutionBlockedError(RuntimeError):
@@ -278,6 +284,7 @@ class InProcessExecutor:
         object_store: ObjectStore | None = None,
         task_cache: TaskCacheRepository | None = None,
         workspace_manager: WorkingDirectoryManager | None = None,
+        dispatch_policy_enforcer: DispatchPolicyEnforcer | None = None,
     ) -> None:
         self._repository = repository
         self._handlers = _core_handlers()
@@ -289,6 +296,7 @@ class InProcessExecutor:
         self._object_store = object_store
         self._task_cache = task_cache
         self._workspace_manager = workspace_manager
+        self._dispatch_policy_enforcer = dispatch_policy_enforcer
 
     async def create_execution(
         self,
@@ -1733,6 +1741,49 @@ class InProcessExecutor:
             except TaskStateConflictError:
                 return _TaskRunOutcome(claimed=False)
             return _TaskRunOutcome(claimed=True)
+        if condition.error is None and self._dispatch_policy_enforcer is not None:
+            try:
+                policy_decision = await self._dispatch_policy_enforcer(
+                    flow,
+                    execution,
+                    task_run,
+                    task,
+                )
+            except AdmissionPolicyDenied as exc:
+                policy_evidence = _merge_task_control(
+                    condition.evidence,
+                    "policy",
+                    policy_decision_metadata(exc.decision),
+                )
+                try:
+                    denied_run = (
+                        task_run
+                        if task_run.state is TaskRunState.RUNNING
+                        else await self._repository.start_task(
+                            task_run.task_run_id,
+                            tenant_id=tenant_id,
+                            dispatch=False,
+                        )
+                    )
+                    await self._repository.fail_task(
+                        denied_run.task_run_id,
+                        denied_run.current_attempt,
+                        str(exc),
+                        tenant_id=tenant_id,
+                        failure_category=FailureCategory.CONFIGURATION,
+                        evidence=policy_evidence,
+                    )
+                except TaskStateConflictError:
+                    return _TaskRunOutcome(claimed=False)
+                return _TaskRunOutcome(claimed=True, failure=str(exc))
+            condition = _ConditionDecision(
+                matched=condition.matched,
+                evidence=_merge_task_control(
+                    condition.evidence,
+                    "policy",
+                    policy_decision_metadata(policy_decision),
+                ),
+            )
         try:
             running = (
                 task_run

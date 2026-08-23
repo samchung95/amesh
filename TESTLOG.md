@@ -3167,3 +3167,35 @@ scheduling guarantees. Plans with unknowns remain useful previews but are not co
 claims. No epic-specific performance or recovery NFR is mapped.
 
 Verdict: PASS — EPIC-800 closed.
+
+## 2026-08-23 — EPIC-802 policy as code and admission controller
+
+Scope: `URS-F-0766` through `URS-F-0773`.
+
+- [x] The documented `amesh.policy/v1` format evaluates immutable instance, tenant and namespace
+  revisions at validation, save, promotion, launch and task dispatch. Decisions pin policy IDs,
+  revisions and SHA-256 document digests.
+- [x] Typed actor, tenant, namespace, flow, plugin, runner, image, secret-scope, network and resource
+  contexts passed rule evaluation. Sensitive flow inputs were redacted before evaluation evidence,
+  and internal mutated input is excluded from API, audit and decision-history serialization.
+- [x] Deny, warn, mutate-default and require-approval outcomes passed positive and blocking fixtures.
+  Default mutations never overwrite an explicit value; approval keys are stable policy/rule IDs.
+- [x] Enforcing timeouts denied and advisory timeouts warned. Matched conditions, reasons, warnings,
+  mutations, approval keys, input hashes and timing remained human-readable in decision evidence.
+- [x] Live ephemeral PostgreSQL tests passed immutable policy revision, tenant-RLS decision history,
+  audit linkage and real save/launch/dispatch enforcement. A denied dispatch failed the task and
+  retained policy evidence on the execution and task paths.
+- [x] Focused policy/API/migration tests, affected executor/flow/plugin regression, Ruff and strict
+  mypy passed. The React/TypeScript production build passed and all 22 focused API-client assertions
+  passed; the focused-only invocation continues to report the repository's global coverage threshold.
+- [x] OpenAPI plus Python, TypeScript, Java and Go SDKs regenerated deterministically across 2,183
+  files. Python tests, TypeScript build/client test, Java package and containerized Go tests passed.
+- [x] ADR-047, the admission-policy API guide, migration 0055, supported upgrade boundary and the
+  canonical backlog/traceability artifacts are current; backlog validation passed with 103 epics,
+  837 functional requirements, 63 non-functional requirements and 992 trace links.
+
+Qualification boundary: `amesh.policy/v1` is the supported local declarative engine, not an OPA or
+Kestra policy-language compatibility claim. External identity/provider qualification remains governed
+by its owning epics and does not block this local policy lifecycle.
+
+Verdict: PASS — EPIC-802 closed.

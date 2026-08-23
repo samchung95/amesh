@@ -191,3 +191,25 @@ export function usePluginPolicy(enabled = true) {
     staleTime: 10_000,
   })
 }
+
+export function useAdmissionPolicies(enabled = true) {
+  const api = useApiClient()
+  const { settings } = useAppSettings()
+  return useQuery({
+    queryKey: ['admission-policies', settings.tenant, settings.namespace],
+    queryFn: () => api.admissionPolicies(settings.namespace || undefined),
+    enabled,
+    staleTime: 10_000,
+  })
+}
+
+export function useAdmissionPolicyDecisions(enabled = true) {
+  const api = useApiClient()
+  const { settings } = useAppSettings()
+  return useQuery({
+    queryKey: ['admission-policy-decisions', settings.tenant],
+    queryFn: api.admissionPolicyDecisions,
+    enabled,
+    refetchInterval: 10_000,
+  })
+}

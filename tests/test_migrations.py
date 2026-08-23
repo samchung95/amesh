@@ -74,6 +74,7 @@ def test_checked_in_migration_manifest_is_complete_and_ordered() -> None:
             (52, "search_projection_backend"),
             (53, "observability_trace_context"),
             (54, "retention_lifecycle"),
+            (55, "admission_policy"),
         )
     ]
     assert all(item.rollback_guidance for item in plan)

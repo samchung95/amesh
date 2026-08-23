@@ -257,6 +257,14 @@ All URIs are relative to *http://localhost*
 *PluginsApi* | [**trustedPluginRuntimeStatusApiV1PluginsTrustedRuntimeGet**](docs/PluginsApi.md#trustedpluginruntimestatusapiv1pluginstrustedruntimeget) | **GET** /api/v1/plugins/trusted-runtime | Trusted Plugin Runtime Status
 *PluginsApi* | [**updatePluginPolicyRuleApiV1PluginPolicyRulesRuleIdPut**](docs/PluginsApi.md#updatepluginpolicyruleapiv1pluginpolicyrulesruleidput) | **PUT** /api/v1/plugin-policy/rules/{rule_id} | Update Plugin Policy Rule
 *PluginsApi* | [**yankPluginRegistryPackageApiV1PluginRegistryPackagesNameVersionYankPost**](docs/PluginsApi.md#yankpluginregistrypackageapiv1pluginregistrypackagesnameversionyankpost) | **POST** /api/v1/plugin-registry/packages/{name}/{version}/yank | Yank Plugin Registry Package
+*PoliciesApi* | [**createAdmissionPolicyApiV1PoliciesPost**](docs/PoliciesApi.md#createadmissionpolicyapiv1policiespost) | **POST** /api/v1/policies | Create Admission Policy
+*PoliciesApi* | [**evaluateAdmissionPoliciesApiV1PoliciesEvaluatePost**](docs/PoliciesApi.md#evaluateadmissionpoliciesapiv1policiesevaluatepost) | **POST** /api/v1/policies/evaluate | Evaluate Admission Policies
+*PoliciesApi* | [**getAdmissionPolicyApiV1PoliciesPolicyKeyGet**](docs/PoliciesApi.md#getadmissionpolicyapiv1policiespolicykeyget) | **GET** /api/v1/policies/{policy_key} | Get Admission Policy
+*PoliciesApi* | [**listAdmissionPoliciesApiV1PoliciesGet**](docs/PoliciesApi.md#listadmissionpoliciesapiv1policiesget) | **GET** /api/v1/policies | List Admission Policies
+*PoliciesApi* | [**listAdmissionPolicyDecisionsApiV1PoliciesDecisionsGet**](docs/PoliciesApi.md#listadmissionpolicydecisionsapiv1policiesdecisionsget) | **GET** /api/v1/policies/decisions | List Admission Policy Decisions
+*PoliciesApi* | [**testAdmissionPolicyApiV1PoliciesPolicyKeyTestPost**](docs/PoliciesApi.md#testadmissionpolicyapiv1policiespolicykeytestpost) | **POST** /api/v1/policies/{policy_key}/test | Test Admission Policy
+*PoliciesApi* | [**updateAdmissionPolicyApiV1PoliciesPolicyKeyPut**](docs/PoliciesApi.md#updateadmissionpolicyapiv1policiespolicykeyput) | **PUT** /api/v1/policies/{policy_key} | Update Admission Policy
+*PoliciesApi* | [**validateFlowAdmissionPolicyApiV1PoliciesFlowsValidatePost**](docs/PoliciesApi.md#validateflowadmissionpolicyapiv1policiesflowsvalidatepost) | **POST** /api/v1/policies/flows/validate | Validate Flow Admission Policy
 *RealtimeApi* | [**createWebhookSubscriptionApiV1WebhookSubscriptionsPost**](docs/RealtimeApi.md#createwebhooksubscriptionapiv1webhooksubscriptionspost) | **POST** /api/v1/webhook-subscriptions | Create Webhook Subscription
 *RealtimeApi* | [**listRealtimeEventsApiV1RealtimeEventsGet**](docs/RealtimeApi.md#listrealtimeeventsapiv1realtimeeventsget) | **GET** /api/v1/realtime/events | List Realtime Events
 *RealtimeApi* | [**listWebhookDeliveryHistoryApiV1WebhookSubscriptionsSubscriptionIdDeliveriesGet**](docs/RealtimeApi.md#listwebhookdeliveryhistoryapiv1webhooksubscriptionssubscriptioniddeliveriesget) | **GET** /api/v1/webhook-subscriptions/{subscription_id}/deliveries | List Webhook Delivery History
@@ -597,6 +605,34 @@ All URIs are relative to *http://localhost*
 - [PluginSecurityStatus](docs/PluginSecurityStatus.md)
 - [PluginSourceKind](docs/PluginSourceKind.md)
 - [PluginTransport](docs/PluginTransport.md)
+- [PolicyActorContext](docs/PolicyActorContext.md)
+- [PolicyCondition](docs/PolicyCondition.md)
+- [PolicyConditionEvidence](docs/PolicyConditionEvidence.md)
+- [PolicyCriticality](docs/PolicyCriticality.md)
+- [PolicyDecision](docs/PolicyDecision.md)
+- [PolicyDocument](docs/PolicyDocument.md)
+- [PolicyEvaluationRequest](docs/PolicyEvaluationRequest.md)
+- [PolicyFixture](docs/PolicyFixture.md)
+- [PolicyFixtureResult](docs/PolicyFixtureResult.md)
+- [PolicyFlowContext](docs/PolicyFlowContext.md)
+- [PolicyImageContext](docs/PolicyImageContext.md)
+- [PolicyInput](docs/PolicyInput.md)
+- [PolicyMutation](docs/PolicyMutation.md)
+- [PolicyNamespaceContext](docs/PolicyNamespaceContext.md)
+- [PolicyNetworkContext](docs/PolicyNetworkContext.md)
+- [PolicyOperator](docs/PolicyOperator.md)
+- [PolicyOutcome](docs/PolicyOutcome.md)
+- [PolicyPin](docs/PolicyPin.md)
+- [PolicyPluginContext](docs/PolicyPluginContext.md)
+- [PolicyResourceContext](docs/PolicyResourceContext.md)
+- [PolicyRevision](docs/PolicyRevision.md)
+- [PolicyRule](docs/PolicyRule.md)
+- [PolicyRuleEvidence](docs/PolicyRuleEvidence.md)
+- [PolicyRunnerContext](docs/PolicyRunnerContext.md)
+- [PolicyScope](docs/PolicyScope.md)
+- [PolicySecretContext](docs/PolicySecretContext.md)
+- [PolicyStage](docs/PolicyStage.md)
+- [PolicyTenantContext](docs/PolicyTenantContext.md)
 - [PrincipalDefinition](docs/PrincipalDefinition.md)
 - [PrincipalType](docs/PrincipalType.md)
 - [ProblemDetail](docs/ProblemDetail.md)

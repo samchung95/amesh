@@ -1,4 +1,7 @@
 import type {
+  AdmissionPolicyDecision,
+  AdmissionPolicyDocument,
+  AdmissionPolicyRevision,
   AdministrationAuditEntry,
   AssetCatalogEntry,
   AssetDraft,
@@ -381,6 +384,12 @@ export function createApiClient(connection: ApiConnection) {
         headers: { 'Content-Type': 'application/yaml' },
         body: document,
       }),
+    validateFlowPolicy: async (document: string) =>
+      request<AdmissionPolicyDecision>('/api/v1/policies/flows/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/yaml' },
+        body: document,
+      }),
     formatFlow: async (document: string) =>
       request<FlowFormatResponse>('/api/v1/flows/format', {
         method: 'POST',
@@ -453,6 +462,18 @@ export function createApiClient(connection: ApiConnection) {
     pluginRegistry: async () => request<PluginRegistryIndex>('/api/v1/plugin-registry/index'),
     pluginPolicy: async (namespace?: string) =>
       request<EffectivePluginPolicy>(`/api/v1/plugin-policy/effective${namespace ? `?namespace=${encodeURIComponent(namespace)}` : ''}`),
+    admissionPolicies: async (namespace?: string) => {
+      const params = new URLSearchParams({ namespace: namespace || 'default' })
+      return request<AdmissionPolicyRevision[]>(`/api/v1/policies?${params.toString()}`)
+    },
+    admissionPolicyDecisions: async () =>
+      request<AdmissionPolicyDecision[]>('/api/v1/policies/decisions?limit=50'),
+    saveAdmissionPolicy: async (document: AdmissionPolicyDocument) =>
+      request<AdmissionPolicyRevision>('/api/v1/policies', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(document),
+      }),
     createPluginPolicyRule: async (draft: PluginPolicyRuleDraft) =>
       request<PluginPolicyRule>('/api/v1/plugin-policy/rules', {
         method: 'POST',

@@ -11,6 +11,7 @@ from sqlalchemy import text
 from sqlalchemy.engine import RowMapping
 from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine
 
+from amesh.admission_policy import policy_decision_metadata
 from amesh.domain import (
     AdmissionBehavior,
     AdmissionDecision,
@@ -26,6 +27,8 @@ from amesh.domain import (
     FlowRevisionRecord,
     FlowRevisionSource,
     PluginPolicyStage,
+    PolicyDecision,
+    PolicyStage,
     ResolvedAdmissionPolicy,
     ResourceMetadata,
     ResourceVersionConflict,
@@ -39,7 +42,7 @@ from amesh.domain import (
     resolve_admission_policies,
     resource_etag,
 )
-from amesh.dsl import FlowDefinition, compile_execution_tasks
+from amesh.dsl import FlowDefinition, TaskDefinition, compile_execution_tasks
 from amesh.dsl.registry import RESOURCE_CATALOG_VERSION
 from amesh.expressions import ExpressionContext, NativeExpressionEngine
 from amesh.ports.execution_repository import (
@@ -1686,10 +1689,25 @@ class PostgresExecutionRepository(ExecutionRepository):
             [FlowDefinition, str, PluginPolicyStage, str], Awaitable[None]
         ]
         | None = None,
+        admission_policy_enforcer: Callable[
+            [
+                FlowDefinition,
+                str,
+                PolicyStage,
+                str,
+                dict[str, object] | None,
+                TaskDefinition | None,
+                UUID | None,
+                UUID | None,
+            ],
+            Awaitable[PolicyDecision],
+        ]
+        | None = None,
     ) -> None:
         self._engine = engine
         self._plugin_resolution_provider = plugin_resolution_provider
         self._plugin_policy_enforcer = plugin_policy_enforcer
+        self._admission_policy_enforcer = admission_policy_enforcer
 
     async def apply_flow(
         self,
@@ -1700,6 +1718,20 @@ class PostgresExecutionRepository(ExecutionRepository):
         actor_id: str = "system:flow-manager",
         revision_source: FlowRevisionSource | None = None,
     ) -> PersistedFlow:
+        if self._admission_policy_enforcer is not None:
+            decision = await self._admission_policy_enforcer(
+                flow,
+                tenant_id,
+                PolicyStage.SAVE,
+                actor_id,
+                None,
+                None,
+                None,
+                None,
+            )
+            if decision.mutated_input is None:
+                raise RuntimeError("save policy decision omitted its mutated input")
+            flow = FlowDefinition.model_validate(decision.mutated_input.flow.definition)
         validate_flow_data_contract(flow)
         if self._plugin_policy_enforcer is not None:
             await self._plugin_policy_enforcer(
@@ -1954,6 +1986,23 @@ class PostgresExecutionRepository(ExecutionRepository):
         actor_id: str = "system:flow-manager",
         reason: str | None = None,
     ) -> PersistedFlow:
+        if self._admission_policy_enforcer is not None:
+            flow = await self.get_flow(
+                namespace,
+                flow_id,
+                tenant_id=tenant_id,
+                revision=revision,
+            )
+            await self._admission_policy_enforcer(
+                flow,
+                tenant_id,
+                PolicyStage.PROMOTE,
+                actor_id,
+                None,
+                None,
+                None,
+                None,
+            )
         return await self._select_flow_revision(
             namespace,
             flow_id,
@@ -1975,6 +2024,23 @@ class PostgresExecutionRepository(ExecutionRepository):
         actor_id: str = "system:flow-manager",
         reason: str | None = None,
     ) -> PersistedFlow:
+        if self._admission_policy_enforcer is not None:
+            flow = await self.get_flow(
+                namespace,
+                flow_id,
+                tenant_id=tenant_id,
+                revision=revision,
+            )
+            await self._admission_policy_enforcer(
+                flow,
+                tenant_id,
+                PolicyStage.PROMOTE,
+                actor_id,
+                None,
+                None,
+                None,
+                None,
+            )
         return await self._select_flow_revision(
             namespace,
             flow_id,
@@ -2044,6 +2110,21 @@ class PostgresExecutionRepository(ExecutionRepository):
     ) -> PersistedExecution:
         if subflow is not None and flow.revision != subflow.target_revision:
             raise ValueError("subflow target revision does not match the loaded flow revision")
+        policy_decision: PolicyDecision | None = None
+        if self._admission_policy_enforcer is not None:
+            policy_decision = await self._admission_policy_enforcer(
+                flow,
+                tenant_id,
+                PolicyStage.LAUNCH,
+                actor_id,
+                inputs,
+                None,
+                None,
+                None,
+            )
+            if policy_decision.mutated_input is None:
+                raise RuntimeError("launch policy decision omitted its mutated input")
+            inputs = dict(policy_decision.mutated_input.resource.inputs)
         inputs = validate_flow_inputs(flow, inputs)
         if self._plugin_policy_enforcer is not None:
             await self._plugin_policy_enforcer(
@@ -2146,6 +2227,10 @@ class PostgresExecutionRepository(ExecutionRepository):
                     sensitive_execution_values(flow, inputs, {}),
                 )
             )
+            if policy_decision is not None:
+                launch_context["_ameshPolicyDecision"] = policy_decision_metadata(
+                    policy_decision
+                )
             launch_context["source"] = launch_source.value
             merged_labels = {
                 **flow.labels,
@@ -2394,6 +2479,35 @@ class PostgresExecutionRepository(ExecutionRepository):
                         )
 
         return await self.get_execution(execution_id, tenant_id=tenant_id)
+
+    @property
+    def has_admission_policy_enforcer(self) -> bool:
+        return self._admission_policy_enforcer is not None
+
+    async def enforce_admission_policy(
+        self,
+        flow: FlowDefinition,
+        *,
+        tenant_id: str,
+        stage: PolicyStage,
+        actor_id: str,
+        inputs: dict[str, object] | None = None,
+        task: TaskDefinition | None = None,
+        execution_id: UUID | None = None,
+        task_run_id: UUID | None = None,
+    ) -> PolicyDecision:
+        if self._admission_policy_enforcer is None:
+            raise RuntimeError("admission policy enforcer is not configured")
+        return await self._admission_policy_enforcer(
+            flow,
+            tenant_id,
+            stage,
+            actor_id,
+            inputs,
+            task,
+            execution_id,
+            task_run_id,
+        )
 
     async def request_admission(
         self,

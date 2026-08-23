@@ -221,7 +221,7 @@ def test_supported_lts_upgrade_report_and_bounded_persisted_event_upcast() -> No
 
             remaining = await apply_migrations(database.database_url, MIGRATIONS)
             assert remaining[0] == "0033_flow_revisions.sql"
-            assert remaining[-1] == "0054_retention_lifecycle.sql"
+            assert remaining[-1] == "0055_admission_policy.sql"
             postflight = await service.post_upgrade("0.1.0", "0.2.0")
             assert postflight.safe_to_proceed
             assert any("historical event" in warning for warning in postflight.warnings)

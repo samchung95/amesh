@@ -22,6 +22,7 @@ export * from './NamespaceResourcesApi';
 export * from './NamespacesApi';
 export * from './OperationsApi';
 export * from './PluginsApi';
+export * from './PoliciesApi';
 export * from './RealtimeApi';
 export * from './ScimApi';
 export * from './SearchApi';

@@ -1,4 +1,5 @@
 from .audit_repository import PostgresAuditRepository
+from .admission_policy_repository import PostgresAdmissionPolicyRepository
 from .authentication_repository import PostgresAuthenticationRepository
 from .authorization_repository import PostgresAuthorizationRepository
 from .backfill_repository import PostgresBackfillRepository
@@ -41,6 +42,7 @@ __all__ = [
     "LifecycleVersionConflict",
     "OperationalControlVersionConflict",
     "PostgresAuditRepository",
+    "PostgresAdmissionPolicyRepository",
     "PostgresAuthenticationRepository",
     "PostgresAuthorizationRepository",
     "PostgresBackfillRepository",

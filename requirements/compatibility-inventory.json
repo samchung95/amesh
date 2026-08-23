@@ -11376,104 +11376,128 @@
       "requirement_id": "URS-F-0766",
       "epic_id": "EPIC-802",
       "compatibility_level": "Intentional difference",
-      "implementation_status": "Proposed",
+      "implementation_status": "Verified",
       "disposition": "intentional-difference",
       "source_ids": [
         "amesh-product-baseline",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-802-policy-as-code-and-admission-controller.md"
+      ],
       "notes": "Evaluate authoring, deployment and execution policy through open, testable rules."
     },
     {
       "requirement_id": "URS-F-0767",
       "epic_id": "EPIC-802",
       "compatibility_level": "Intentional difference",
-      "implementation_status": "Proposed",
+      "implementation_status": "Verified",
       "disposition": "intentional-difference",
       "source_ids": [
         "amesh-product-baseline",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-802-policy-as-code-and-admission-controller.md"
+      ],
       "notes": "Evaluate authoring, deployment and execution policy through open, testable rules."
     },
     {
       "requirement_id": "URS-F-0768",
       "epic_id": "EPIC-802",
       "compatibility_level": "Intentional difference",
-      "implementation_status": "Proposed",
+      "implementation_status": "Verified",
       "disposition": "intentional-difference",
       "source_ids": [
         "amesh-product-baseline",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-802-policy-as-code-and-admission-controller.md"
+      ],
       "notes": "Evaluate authoring, deployment and execution policy through open, testable rules."
     },
     {
       "requirement_id": "URS-F-0769",
       "epic_id": "EPIC-802",
       "compatibility_level": "Intentional difference",
-      "implementation_status": "Proposed",
+      "implementation_status": "Verified",
       "disposition": "intentional-difference",
       "source_ids": [
         "amesh-product-baseline",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-802-policy-as-code-and-admission-controller.md"
+      ],
       "notes": "Evaluate authoring, deployment and execution policy through open, testable rules."
     },
     {
       "requirement_id": "URS-F-0770",
       "epic_id": "EPIC-802",
       "compatibility_level": "Intentional difference",
-      "implementation_status": "Proposed",
+      "implementation_status": "Verified",
       "disposition": "intentional-difference",
       "source_ids": [
         "amesh-product-baseline",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-802-policy-as-code-and-admission-controller.md"
+      ],
       "notes": "Evaluate authoring, deployment and execution policy through open, testable rules."
     },
     {
       "requirement_id": "URS-F-0771",
       "epic_id": "EPIC-802",
       "compatibility_level": "Intentional difference",
-      "implementation_status": "Proposed",
+      "implementation_status": "Verified",
       "disposition": "intentional-difference",
       "source_ids": [
         "amesh-product-baseline",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-802-policy-as-code-and-admission-controller.md"
+      ],
       "notes": "Evaluate authoring, deployment and execution policy through open, testable rules."
     },
     {
       "requirement_id": "URS-F-0772",
       "epic_id": "EPIC-802",
       "compatibility_level": "Intentional difference",
-      "implementation_status": "Proposed",
+      "implementation_status": "Verified",
       "disposition": "intentional-difference",
       "source_ids": [
         "amesh-product-baseline",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-802-policy-as-code-and-admission-controller.md"
+      ],
       "notes": "Evaluate authoring, deployment and execution policy through open, testable rules."
     },
     {
       "requirement_id": "URS-F-0773",
       "epic_id": "EPIC-802",
       "compatibility_level": "Intentional difference",
-      "implementation_status": "Proposed",
+      "implementation_status": "Verified",
       "disposition": "intentional-difference",
       "source_ids": [
         "amesh-product-baseline",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-802-policy-as-code-and-admission-controller.md"
+      ],
       "notes": "Evaluate authoring, deployment and execution policy through open, testable rules."
     },
     {

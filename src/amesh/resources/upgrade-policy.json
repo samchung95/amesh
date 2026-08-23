@@ -27,7 +27,7 @@
       "lts": true,
       "supportStartsOn": "2026-07-01",
       "supportEndsOn": "2027-07-31",
-      "schemaMigration": "0054_retention_lifecycle.sql",
+      "schemaMigration": "0055_admission_policy.sql",
       "minimumComponents": {
         "postgresql": "15",
         "python": "3.12",

@@ -8,14 +8,14 @@ is not supported merely because its database schema can be applied.
 The current supported path is `0.1.0` to `0.2.0`. Both releases require PostgreSQL 15, Python 3.12,
 API v1, message schema 1 and plugin protocol `amesh.plugin.rpc/v1`. Release `0.1.0` ends at migration
 `0032_configuration_feature_flags.sql`; release `0.2.0` ends at
-`0054_retention_lifecycle.sql`.
+`0055_admission_policy.sql`.
 
 ## Operator sequence
 
 1. Create and verify a coordinated recovery point before changing application or schema state.
 2. Run `amesh upgrade preflight --from-version 0.1.0 --to-version 0.2.0`.
 3. Resolve every `BLOCKED` check. Review warnings and retain the report fingerprint as change evidence.
-4. Apply the target schema boundary with `amesh-migrate --target 0054_retention_lifecycle.sql`.
+4. Apply the target schema boundary with `amesh-migrate --target 0055_admission_policy.sql`.
 5. For a rolling-compatible report, replace roles in the reported order and verify each role before
    moving forward. The service registry rejects versions outside the published overlap contract.
 6. Preview historical event work with `amesh upgrade events-preview`. After verifying the recovery

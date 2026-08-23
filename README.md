@@ -177,6 +177,10 @@ On any flow detail page, choose **Preview plan** to compile a signed, side-effec
 the current sample inputs. External tasks remain explicit unknowns until mocks, recordings or schemas
 are supplied through the [simulation API or CLI](docs/api/simulations.md).
 
+Open **Plugins → Workflow admission policies** to create a versioned tenant or namespace rule and
+inspect recent policy evidence. Flow Editor validation, save, promotion, launch and task dispatch use
+the same bounded evaluator; see the [admission policy API](docs/api/admission-policies.md).
+
 Apply `examples/loops.yaml` to try bounded foreach, while and until execution. The live graph shows one
 aggregated node per loop child and its completed iteration count instead of rendering every generated
 task run.

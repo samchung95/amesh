@@ -93,6 +93,8 @@ type APIClient struct {
 
 	PluginsAPI *PluginsAPIService
 
+	PoliciesAPI *PoliciesAPIService
+
 	RealtimeAPI *RealtimeAPIService
 
 	ScimAPI *ScimAPIService
@@ -154,6 +156,7 @@ func NewAPIClient(cfg *Configuration) *APIClient {
 	c.NamespacesAPI = (*NamespacesAPIService)(&c.common)
 	c.OperationsAPI = (*OperationsAPIService)(&c.common)
 	c.PluginsAPI = (*PluginsAPIService)(&c.common)
+	c.PoliciesAPI = (*PoliciesAPIService)(&c.common)
 	c.RealtimeAPI = (*RealtimeAPIService)(&c.common)
 	c.ScimAPI = (*ScimAPIService)(&c.common)
 	c.SearchAPI = (*SearchAPIService)(&c.common)

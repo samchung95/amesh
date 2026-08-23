@@ -7,6 +7,7 @@ import { formatDate } from '../app/format'
 import { useApiClient, usePluginPolicy, usePluginRegistry } from '../app/queries'
 import { useAppSettings } from '../app/settings'
 import { EmptyState, ErrorState, LoadingState } from '../components/AsyncState'
+import { AdmissionPolicyPanel } from '../components/AdmissionPolicyPanel'
 import { StatusBadge } from '../components/StatusBadge'
 
 const POLICY_STAGES: PluginPolicyStage[] = ['AUTHORING', 'VALIDATION', 'EXECUTION', 'ADMINISTRATION']
@@ -138,6 +139,8 @@ export function PluginsPage({ session }: { session: UiSession }) {
         {notice ? <p className="resource-notice" role="status">{notice}</p> : null}
         {createRule.error || deleteRule.error || previewQuarantine.error || createQuarantine.error ? <p className="resource-failure" role="alert">{(createRule.error || deleteRule.error || previewQuarantine.error || createQuarantine.error)?.message}</p> : null}
       </section>
+
+      <AdmissionPolicyPanel session={session} />
 
       <section className="developer-portal" aria-labelledby="developer-portal-heading">
         <div className="section-heading">

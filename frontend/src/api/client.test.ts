@@ -564,4 +564,44 @@ describe('API client', () => {
       confirmation: 'APPLY KILL_SWITCH',
     })
   })
+
+  it('uses versioned admission policy and decision endpoints', async () => {
+    const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(new Response('{}', { status: 200 })))
+    vi.stubGlobal('fetch', fetchMock)
+    const api = createApiClient({ token: 'token', tenant: 'default', namespace: 'team/data' })
+    const policy = {
+      schemaVersion: 'amesh.policy/v1' as const,
+      policyKey: 'security.local',
+      name: 'Local security',
+      description: 'Local test policy',
+      scope: 'NAMESPACE' as const,
+      namespace: 'team/data',
+      criticality: 'ENFORCING' as const,
+      evaluationTimeoutMs: 100,
+      enabled: true,
+      rules: [{
+        id: 'deny-docker',
+        stages: ['LAUNCH' as const],
+        conditions: [{ path: 'runner.requested', operator: 'EQUALS' as const, value: 'DOCKER' }],
+        outcome: 'DENY' as const,
+        reason: 'Docker disabled',
+        mutations: {},
+      }],
+    }
+
+    await api.admissionPolicies('team/data')
+    await api.admissionPolicyDecisions()
+    await api.saveAdmissionPolicy(policy)
+    await api.validateFlowPolicy('id: governed')
+
+    expect(fetchMock.mock.calls.map((call) => call[0] as string)).toEqual([
+      '/api/v1/policies?namespace=team%2Fdata',
+      '/api/v1/policies/decisions?limit=50',
+      '/api/v1/policies',
+      '/api/v1/policies/flows/validate',
+    ])
+    const saveInit = fetchMock.mock.calls[2]?.[1] as RequestInit
+    expect(saveInit.method).toBe('POST')
+    expect(JSON.parse(saveInit.body as string)).toEqual(policy)
+  })
 })

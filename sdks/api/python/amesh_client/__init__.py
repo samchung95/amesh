@@ -40,6 +40,7 @@ __all__ = [
     "NamespacesApi",
     "OperationsApi",
     "PluginsApi",
+    "PoliciesApi",
     "RealtimeApi",
     "ScimApi",
     "SearchApi",
@@ -341,6 +342,34 @@ __all__ = [
     "PluginSecurityStatus",
     "PluginSourceKind",
     "PluginTransport",
+    "PolicyActorContext",
+    "PolicyCondition",
+    "PolicyConditionEvidence",
+    "PolicyCriticality",
+    "PolicyDecision",
+    "PolicyDocument",
+    "PolicyEvaluationRequest",
+    "PolicyFixture",
+    "PolicyFixtureResult",
+    "PolicyFlowContext",
+    "PolicyImageContext",
+    "PolicyInput",
+    "PolicyMutation",
+    "PolicyNamespaceContext",
+    "PolicyNetworkContext",
+    "PolicyOperator",
+    "PolicyOutcome",
+    "PolicyPin",
+    "PolicyPluginContext",
+    "PolicyResourceContext",
+    "PolicyRevision",
+    "PolicyRule",
+    "PolicyRuleEvidence",
+    "PolicyRunnerContext",
+    "PolicyScope",
+    "PolicySecretContext",
+    "PolicyStage",
+    "PolicyTenantContext",
     "PrincipalDefinition",
     "PrincipalType",
     "ProblemDetail",
@@ -510,6 +539,7 @@ from amesh_client.api.namespace_resources_api import NamespaceResourcesApi as Na
 from amesh_client.api.namespaces_api import NamespacesApi as NamespacesApi
 from amesh_client.api.operations_api import OperationsApi as OperationsApi
 from amesh_client.api.plugins_api import PluginsApi as PluginsApi
+from amesh_client.api.policies_api import PoliciesApi as PoliciesApi
 from amesh_client.api.realtime_api import RealtimeApi as RealtimeApi
 from amesh_client.api.scim_api import ScimApi as ScimApi
 from amesh_client.api.search_api import SearchApi as SearchApi
@@ -815,6 +845,34 @@ from amesh_client.models.plugin_registry_yank_request import PluginRegistryYankR
 from amesh_client.models.plugin_security_status import PluginSecurityStatus as PluginSecurityStatus
 from amesh_client.models.plugin_source_kind import PluginSourceKind as PluginSourceKind
 from amesh_client.models.plugin_transport import PluginTransport as PluginTransport
+from amesh_client.models.policy_actor_context import PolicyActorContext as PolicyActorContext
+from amesh_client.models.policy_condition import PolicyCondition as PolicyCondition
+from amesh_client.models.policy_condition_evidence import PolicyConditionEvidence as PolicyConditionEvidence
+from amesh_client.models.policy_criticality import PolicyCriticality as PolicyCriticality
+from amesh_client.models.policy_decision import PolicyDecision as PolicyDecision
+from amesh_client.models.policy_document import PolicyDocument as PolicyDocument
+from amesh_client.models.policy_evaluation_request import PolicyEvaluationRequest as PolicyEvaluationRequest
+from amesh_client.models.policy_fixture import PolicyFixture as PolicyFixture
+from amesh_client.models.policy_fixture_result import PolicyFixtureResult as PolicyFixtureResult
+from amesh_client.models.policy_flow_context import PolicyFlowContext as PolicyFlowContext
+from amesh_client.models.policy_image_context import PolicyImageContext as PolicyImageContext
+from amesh_client.models.policy_input import PolicyInput as PolicyInput
+from amesh_client.models.policy_mutation import PolicyMutation as PolicyMutation
+from amesh_client.models.policy_namespace_context import PolicyNamespaceContext as PolicyNamespaceContext
+from amesh_client.models.policy_network_context import PolicyNetworkContext as PolicyNetworkContext
+from amesh_client.models.policy_operator import PolicyOperator as PolicyOperator
+from amesh_client.models.policy_outcome import PolicyOutcome as PolicyOutcome
+from amesh_client.models.policy_pin import PolicyPin as PolicyPin
+from amesh_client.models.policy_plugin_context import PolicyPluginContext as PolicyPluginContext
+from amesh_client.models.policy_resource_context import PolicyResourceContext as PolicyResourceContext
+from amesh_client.models.policy_revision import PolicyRevision as PolicyRevision
+from amesh_client.models.policy_rule import PolicyRule as PolicyRule
+from amesh_client.models.policy_rule_evidence import PolicyRuleEvidence as PolicyRuleEvidence
+from amesh_client.models.policy_runner_context import PolicyRunnerContext as PolicyRunnerContext
+from amesh_client.models.policy_scope import PolicyScope as PolicyScope
+from amesh_client.models.policy_secret_context import PolicySecretContext as PolicySecretContext
+from amesh_client.models.policy_stage import PolicyStage as PolicyStage
+from amesh_client.models.policy_tenant_context import PolicyTenantContext as PolicyTenantContext
 from amesh_client.models.principal_definition import PrincipalDefinition as PrincipalDefinition
 from amesh_client.models.principal_type import PrincipalType as PrincipalType
 from amesh_client.models.problem_detail import ProblemDetail as ProblemDetail

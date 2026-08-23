@@ -46,6 +46,7 @@ from amesh.adapters.docker import DockerContainerRunner
 from amesh.adapters.kubernetes import KubernetesJobRunner, ProfiledKubernetesJobRunner
 from amesh.adapters.local import LocalProcessRunner
 from amesh.adapters.postgres import (
+    PostgresAdmissionPolicyRepository,
     PostgresAuditRepository,
     PostgresAuthenticationRepository,
     PostgresAuthorizationRepository,
@@ -80,6 +81,7 @@ from amesh.adapters.postgres.human_task_repository import (
 from amesh.adapters.postgres.operational_control_repository import (
     OperationalControlVersionConflict,
 )
+from amesh.admission_policy import AdmissionPolicyService, policy_input_from_flow
 from amesh.api.contracts import (
     CollectionQuery,
     _decode_cursor,
@@ -274,6 +276,14 @@ from amesh.domain import (
     PluginPolicyStage,
     PluginQuarantine,
     PluginQuarantineCreate,
+    PolicyDecision,
+    PolicyDocument,
+    PolicyEvaluationRequest,
+    PolicyFixture,
+    PolicyFixtureResult,
+    PolicyRevision,
+    PolicyScope,
+    PolicyStage,
     PrincipalDefinition,
     PrincipalType,
     ReconciliationRequest,
@@ -344,6 +354,7 @@ from amesh.dsl import (
     FlowDefinition,
     FlowDocumentError,
     FlowValidationResult,
+    TaskDefinition,
     compile_execution_tasks,
     validate_flow_document,
 )
@@ -795,6 +806,50 @@ PluginPolicyServiceDependency = Annotated[
 
 
 @lru_cache
+def get_admission_policy_repository() -> PostgresAdmissionPolicyRepository:
+    return PostgresAdmissionPolicyRepository(database_engine())
+
+
+AdmissionPolicyRepositoryDependency = Annotated[
+    PostgresAdmissionPolicyRepository,
+    Depends(get_admission_policy_repository),
+]
+
+
+@lru_cache
+def get_admission_policy_service() -> AdmissionPolicyService:
+    return AdmissionPolicyService(get_admission_policy_repository())
+
+
+AdmissionPolicyServiceDependency = Annotated[
+    AdmissionPolicyService,
+    Depends(get_admission_policy_service),
+]
+
+
+async def _enforce_repository_admission_policy(
+    flow: FlowDefinition,
+    tenant_id: str,
+    stage: PolicyStage,
+    actor_id: str,
+    inputs: dict[str, object] | None,
+    task: TaskDefinition | None,
+    execution_id: UUID | None,
+    task_run_id: UUID | None,
+) -> PolicyDecision:
+    return await get_admission_policy_service().enforce_flow(
+        flow,
+        tenant_id,
+        stage,
+        actor_id,
+        inputs=inputs,
+        task=task,
+        execution_id=execution_id,
+        task_run_id=task_run_id,
+    )
+
+
+@lru_cache
 def get_self_hosted_plugin_registry() -> SelfHostedPluginRegistry:
     settings = get_settings()
     trusted_keys = {
@@ -846,6 +901,7 @@ def get_repository() -> PostgresExecutionRepository:
             PluginResolver(catalog.snapshot).resolve_flow(flow).revision_payload()
         ),
         plugin_policy_enforcer=get_plugin_policy_service().enforce_flow,
+        admission_policy_enforcer=_enforce_repository_admission_policy,
     )
 
 
@@ -2767,6 +2823,262 @@ async def evaluate_flow_plugin_policy(
         stage=stage,
         actor_id=str(actor.principal_id),
     )
+
+
+@app.get(
+    "/api/v1/policies",
+    response_model=tuple[PolicyRevision, ...],
+    tags=["policies"],
+)
+async def list_admission_policies(
+    repository: AdmissionPolicyRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    namespace: str = "default",
+) -> tuple[PolicyRevision, ...]:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="plugin",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    return await repository.effective_revisions(tenant_id, namespace=namespace)
+
+
+@app.post(
+    "/api/v1/policies",
+    response_model=PolicyRevision,
+    status_code=status.HTTP_201_CREATED,
+    tags=["policies"],
+)
+async def create_admission_policy(
+    request: PolicyDocument,
+    repository: AdmissionPolicyRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> PolicyRevision:
+    await _authorize_admission_policy_change(
+        request,
+        actor,
+        authorization_service,
+        tenant_id,
+    )
+    return await repository.save_revision(
+        tenant_id,
+        request,
+        actor_id=str(actor.principal_id),
+    )
+
+
+@app.post(
+    "/api/v1/policies/evaluate",
+    response_model=PolicyDecision,
+    tags=["policies"],
+)
+async def evaluate_admission_policies(
+    request: PolicyEvaluationRequest,
+    service: AdmissionPolicyServiceDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> PolicyDecision:
+    namespace = request.input.namespace.id
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="plugin",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    evaluated_input = request.input.model_copy(
+        update={
+            "actor": request.input.actor.model_copy(
+                update={
+                    "principal_id": str(actor.principal_id),
+                    "principal_type": actor.principal_type.value,
+                    "display": actor.display,
+                }
+            ),
+            "tenant": request.input.tenant.model_copy(update={"id": tenant_id}),
+        }
+    )
+    return await service.evaluate(request.model_copy(update={"input": evaluated_input}))
+
+
+@app.post(
+    "/api/v1/policies/flows/validate",
+    response_model=PolicyDecision,
+    tags=["policies"],
+)
+async def validate_flow_admission_policy(
+    request: Request,
+    service: AdmissionPolicyServiceDependency,
+    plugin_catalog: PluginCatalogDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> PolicyDecision:
+    body = await request.body()
+    if len(body) > 2 * 1024 * 1024:
+        raise HTTPException(
+            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            detail="flow document exceeds the 2 MiB policy-validation limit",
+        )
+    try:
+        result = validate_flow_document(
+            body,
+            registry=plugin_catalog.resource_registry(),
+        )
+    except FlowDocumentError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=str(exc),
+        ) from exc
+    if not result.valid or result.canonical is None:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=[issue.model_dump(mode="json", by_alias=True) for issue in result.issues],
+        )
+    flow = FlowDefinition.model_validate(result.canonical)
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="flow",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+        namespace=flow.namespace,
+    )
+    return await service.evaluate(
+        PolicyEvaluationRequest(
+            stage=PolicyStage.VALIDATE,
+            input=policy_input_from_flow(
+                flow,
+                tenant_id=tenant_id,
+                actor=actor,
+            ),
+        )
+    )
+
+
+@app.get(
+    "/api/v1/policies/decisions",
+    response_model=tuple[PolicyDecision, ...],
+    tags=["policies"],
+)
+async def list_admission_policy_decisions(
+    repository: AdmissionPolicyRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    limit: Annotated[int, Query(ge=1, le=500)] = 100,
+) -> tuple[PolicyDecision, ...]:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="plugin",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+    )
+    return await repository.list_decisions(tenant_id, limit=limit)
+
+
+@app.get(
+    "/api/v1/policies/{policy_key}",
+    response_model=PolicyRevision,
+    tags=["policies"],
+)
+async def get_admission_policy(
+    policy_key: str,
+    repository: AdmissionPolicyRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    revision: Annotated[int | None, Query(ge=1)] = None,
+) -> PolicyRevision:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="plugin",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+    )
+    try:
+        return await repository.get_revision(
+            tenant_id,
+            policy_key,
+            revision=revision,
+        )
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+
+
+@app.put(
+    "/api/v1/policies/{policy_key}",
+    response_model=PolicyRevision,
+    tags=["policies"],
+)
+async def update_admission_policy(
+    policy_key: str,
+    request: PolicyDocument,
+    repository: AdmissionPolicyRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> PolicyRevision:
+    if policy_key != request.policy_key:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="policy key does not match request document",
+        )
+    await _authorize_admission_policy_change(
+        request,
+        actor,
+        authorization_service,
+        tenant_id,
+    )
+    return await repository.save_revision(
+        tenant_id,
+        request,
+        actor_id=str(actor.principal_id),
+    )
+
+
+@app.post(
+    "/api/v1/policies/{policy_key}/test",
+    response_model=PolicyFixtureResult,
+    tags=["policies"],
+)
+async def test_admission_policy(
+    policy_key: str,
+    request: PolicyFixture,
+    service: AdmissionPolicyServiceDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    revision: Annotated[int | None, Query(ge=1)] = None,
+) -> PolicyFixtureResult:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="plugin",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+        namespace=request.request.input.namespace.id,
+    )
+    try:
+        return await service.test_fixture(
+            tenant_id,
+            policy_key,
+            request,
+            revision=revision,
+        )
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
 
 
 @app.post(
@@ -6595,6 +6907,8 @@ async def promote_flow_revision(
         )
     except LookupError as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
 
 
 @app.post(
@@ -6631,6 +6945,8 @@ async def restore_flow_revision(
         )
     except LookupError as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
 
 
 @app.delete(
@@ -9796,6 +10112,22 @@ async def _authorize_plugin_policy_change(
     )
 
 
+async def _authorize_admission_policy_change(
+    document: PolicyDocument,
+    actor: ActorContext,
+    authorization_service: AuthorizationService,
+    tenant_id: str,
+) -> None:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="plugin",
+        action=PermissionAction.MANAGE,
+        tenant_id=None if document.scope is PolicyScope.INSTANCE else tenant_id,
+        namespace=document.namespace,
+    )
+
+
 async def _execute_flow(
     repository: PostgresExecutionRepository,
     task_cache: PostgresTaskCacheRepository,
@@ -10052,6 +10384,23 @@ async def _execute_flow(
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
         await authorize_subflow(child_flow)
 
+    async def enforce_dispatch_policy(
+        dispatch_flow: FlowDefinition,
+        dispatch_execution: PersistedExecution,
+        task_run: PersistedTaskRun,
+        task: TaskDefinition,
+    ) -> PolicyDecision:
+        return await repository.enforce_admission_policy(
+            dispatch_flow,
+            tenant_id=dispatch_execution.tenant_id,
+            stage=PolicyStage.DISPATCH,
+            actor_id=dispatch_execution.created_by,
+            inputs=dict(dispatch_execution.inputs),
+            task=task,
+            execution_id=dispatch_execution.execution_id,
+            task_run_id=task_run.task_run_id,
+        )
+
     def executor_factory() -> InProcessExecutor:
         return InProcessExecutor(
             repository,
@@ -10061,6 +10410,11 @@ async def _execute_flow(
             object_store=object_store,
             task_cache=task_cache,
             workspace_manager=workspace_manager,
+            dispatch_policy_enforcer=(
+                enforce_dispatch_policy
+                if repository.has_admission_policy_enforcer
+                else None
+            ),
         )
 
     handlers["core.subflow"] = subflow_task_handler(

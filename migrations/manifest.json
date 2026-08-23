@@ -324,6 +324,12 @@
       "mode": "expand",
       "onlineCompatible": true,
       "rollbackGuidance": "Disable scheduled lifecycle processing, preserve policy, preview, job, item and event evidence, and forward-fix the additive coordinator tables before resuming manual or scheduled purge batches."
+    },
+    {
+      "file": "0055_admission_policy.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Stop policy revision writes, disable the admission-policy hook while retaining immutable revisions, decisions and audit evidence, then forward-fix the additive policy tables before restoring enforcement."
     }
   ]
 }

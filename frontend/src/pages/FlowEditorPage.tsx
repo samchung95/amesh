@@ -18,6 +18,7 @@ import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { stringify } from 'yaml'
 
 import type {
+  AdmissionPolicyDecision,
   FlowValidationResult,
   UiSession,
 } from '../api/types'
@@ -98,6 +99,7 @@ export function FlowEditorPage({ session }: { session: UiSession }) {
   const [source, setSource] = useState(() => starterFlow(settings.namespace))
   const [savedSource, setSavedSource] = useState('')
   const [validation, setValidation] = useState(EMPTY_VALIDATION)
+  const [policyDecision, setPolicyDecision] = useState<AdmissionPolicyDecision | null>(null)
   const [recovered, setRecovered] = useState(false)
   const [notice, setNotice] = useState<string | null>(null)
   const [selectedRevision, setSelectedRevision] = useState<number | null>(null)
@@ -200,7 +202,15 @@ export function FlowEditorPage({ session }: { session: UiSession }) {
   }, [api, source])
 
   const save = useMutation({
-    mutationFn: () => api.saveFlow(source, existing ? saveEtag : undefined),
+    mutationFn: async () => {
+      const decision = await api.validateFlowPolicy(source)
+      setPolicyDecision(decision)
+      if (!decision.allowed) {
+        const reasons = decision.matchedRules.map((rule) => rule.reason).join('; ')
+        throw new Error(`Policy ${decision.outcome.toLowerCase()}: ${reasons || 'save is not allowed'}`)
+      }
+      return api.saveFlow(source, existing ? saveEtag : undefined)
+    },
     onSuccess: (flow) => {
       localStorage.removeItem(draftKey)
       setSavedSource(source)
@@ -290,6 +300,7 @@ export function FlowEditorPage({ session }: { session: UiSession }) {
             <div className="section-heading"><div><p className="eyebrow">DIAGNOSTICS</p><h2 id="validation-heading">Validation</h2></div></div>
             {validation.issues.length ? <ol className="editor-issues">{validation.issues.map((issue, index) => <li key={`${issue.code}-${String(index)}`}><button type="button" onClick={() => { setView('code'); window.requestAnimationFrame(() => editor.current?.focusRange(issue.sourceRange?.start.offset || 0, issue.sourceRange?.end.offset || 0)) }}><strong>{issue.message}</strong><span>{issue.path || 'document'}{issue.sourceRange ? ` · ${String(issue.sourceRange.start.line)}:${String(issue.sourceRange.start.column)}` : ''}</span><small>{issue.hint}</small></button></li>)}</ol> : <p className="editor-empty"><CheckCircle2 size={16} aria-hidden="true" />No validation issues.</p>}
           </section>
+          {policyDecision ? <section aria-labelledby="policy-validation-heading"><div className="section-heading"><div><p className="eyebrow">ADMISSION EVIDENCE</p><h2 id="policy-validation-heading">Policy validation</h2></div></div><p className={policyDecision.allowed ? 'editor-empty' : 'field-error'}>{policyDecision.outcome} · {policyDecision.matchedRules.map((rule) => rule.reason).join(' · ') || 'Default allow'}</p><small>{policyDecision.pinnedPolicies.length} policy revisions pinned · {policyDecision.evaluationDurationMs.toFixed(2)} ms</small></section> : null}
           <section aria-labelledby="expression-heading">
             <div className="section-heading"><div><p className="eyebrow">SAFE PREVIEW</p><h2 id="expression-heading">Expression</h2></div><Sparkles size={17} aria-hidden="true" /></div>
             <label className="editor-field">Expression<textarea value={expression} onChange={(event) => setExpression(event.target.value)} /></label>

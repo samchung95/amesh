@@ -10,6 +10,7 @@ from opentelemetry import trace
 from sqlalchemy.exc import DBAPIError
 
 from amesh.adapters.postgres import (
+    PostgresAdmissionPolicyRepository,
     PostgresBackfillRepository,
     PostgresCheckRepository,
     PostgresDurableTransport,
@@ -28,6 +29,7 @@ from amesh.adapters.postgres import (
     PostgresTriggerRuntimeRepository,
     PostgresWorkerRepository,
 )
+from amesh.admission_policy import AdmissionPolicyService
 from amesh.config import Settings, get_settings
 from amesh.database import create_database_engine
 from amesh.domain import ServiceLiveness, ServiceRole, ServiceState
@@ -201,9 +203,11 @@ async def run_role(settings: Settings, *, stop_event: asyncio.Event | None = Non
         plugin_catalog,
         default_allow=settings.plugin_trust_mode == "development",
     )
+    admission_policy = AdmissionPolicyService(PostgresAdmissionPolicyRepository(engine))
     executions = PostgresExecutionRepository(
         engine,
         plugin_policy_enforcer=plugin_policy.enforce_flow,
+        admission_policy_enforcer=admission_policy.enforce_repository,
     )
     scheduler = PostgresSchedulerRepository(engine)
     backfills = PostgresBackfillRepository(engine)
