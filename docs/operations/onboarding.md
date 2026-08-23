@@ -13,9 +13,14 @@ docker compose up --build -d
 docker compose ps
 ```
 
-Wait until `api`, `executor`, `scheduler`, `indexer` and `postgres` report healthy. Open
+Wait until `api`, `executor`, `scheduler`, `worker`, `indexer`, `maintenance` and `postgres` report
+healthy. Open
 `http://localhost:8000`, choose **API token**, enter `development-token`, and keep tenant `default`.
 The development token is deliberately disabled outside the development profile.
+
+For the smaller one-process path, run `docker compose -f compose.compact.yaml up -d --build` and
+open `http://localhost:8100`. It includes all six runtime roles, PostgreSQL and local object storage;
+the [compact deployment guide](compact-deployment.md) covers preflight and shutdown.
 
 ## Create and run the sample
 

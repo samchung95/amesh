@@ -46,6 +46,8 @@ class ReadinessResponse(HealthResponse):
     migrations_applied: int
     migrations_expected: int
     latest_migration: str | None = None
+    dependencies: dict[str, str] = Field(default_factory=dict)
+    degraded_dependencies: tuple[str, ...] = ()
     error: str | None = None
 
 

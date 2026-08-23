@@ -152,6 +152,18 @@ uv run --extra runtime python -m amesh \
   --token development-token --tenant default run examples.engine parallel_dag
 ```
 
+For the dependency-minimal, all-in-one runtime, use:
+
+```bash
+docker compose -f compose.compact.yaml up -d --build
+curl -fsS http://localhost:8100/ready
+```
+
+This starts PostgreSQL plus one AMESH process containing webserver, executor, scheduler, worker,
+indexer and maintenance roles with local versioned storage. See the
+[compact deployment guide](docs/operations/compact-deployment.md) for native `uv tool install`,
+resource floors, preflight and graceful shutdown.
+
 For the graphical first run, open `http://localhost:8000` with the development token, then use
 **Blueprints → Hello, workflow → Open unsaved draft**. Review and save the draft before explicitly
 running it from Flow details. The [first-run guide](docs/operations/onboarding.md) covers readiness,

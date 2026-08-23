@@ -110,7 +110,16 @@ def test_every_protected_rest_surface_enforces_tenant_and_permission_policy() ->
                 base_url="http://amesh.test",
             ) as client:
                 assert (await client.get("/health")).status_code == 200
-                assert (await client.get("/ready")).status_code == 200
+                readiness = await client.get("/ready")
+                assert readiness.status_code == 200
+                assert readiness.json()["dependencies"] == {
+                    "configuration": "READY",
+                    "credentials": "READY",
+                    "database": "READY",
+                    "migrations": "READY",
+                    "object-storage": "DEGRADED",
+                }
+                assert readiness.json()["degraded_dependencies"] == ["object-storage"]
                 assert (await client.get("/metrics")).status_code == 200
                 validation = await client.post(
                     "/api/v1/flows/validate",

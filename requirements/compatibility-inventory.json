@@ -8678,97 +8678,128 @@
       "requirement_id": "URS-F-0582",
       "epic_id": "EPIC-600",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/test_compact.py",
+        "tests/test_compact_deployment.py",
+        "src/amesh/compact.py"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0583",
       "epic_id": "EPIC-600",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/test_compact.py",
+        "tests/test_compact_deployment.py",
+        "compose.compact.yaml"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0584",
       "epic_id": "EPIC-600",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/storage/test_local_object_store.py",
+        "src/amesh/adapters/local/object_store.py",
+        "docs/operations/object-storage.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0585",
       "epic_id": "EPIC-600",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/test_compact_deployment.py",
+        "pyproject.toml",
+        "compose.compact.yaml"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0586",
       "epic_id": "EPIC-600",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/test_preflight.py",
+        "src/amesh/preflight.py",
+        "docs/operations/compact-deployment.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0587",
       "epic_id": "EPIC-600",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/test_preflight.py",
+        "tests/api/test_authorization_api.py",
+        "docs/operations/metadata-storage.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0588",
       "epic_id": "EPIC-600",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/test_compact.py",
+        "src/amesh/compact.py",
+        "docs/operations/compact-deployment.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0589",
       "epic_id": "EPIC-600",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/test_compact_deployment.py",
+        "docs/operations/compact-deployment.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0590",

@@ -4,6 +4,7 @@ from datetime import timedelta
 
 from amesh.adapters.azure import AzureBlobObjectStore
 from amesh.adapters.gcs import GoogleCloudStorageObjectStore
+from amesh.adapters.local import LocalFilesystemObjectStore
 from amesh.adapters.s3 import S3ObjectStore
 from amesh.config import Settings
 from amesh.ports import ObjectStorageBackend
@@ -18,7 +19,9 @@ def build_object_store(settings: Settings) -> VerifiedObjectStore:
         "proxy_url": settings.object_storage_proxy_url,
         "ca_file": settings.object_storage_ca_file,
     }
-    if settings.object_storage_backend == "s3":
+    if settings.object_storage_backend == "local":
+        backend = LocalFilesystemObjectStore(settings.object_storage_local_root)
+    elif settings.object_storage_backend == "s3":
         backend = S3ObjectStore(
             endpoint=settings.object_storage_endpoint,
             region=settings.object_storage_region,

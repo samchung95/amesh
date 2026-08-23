@@ -6,6 +6,7 @@ import json
 import os
 import re
 import ssl
+import sysconfig
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal
@@ -51,7 +52,13 @@ def migration_directory() -> Path:
     container_path = Path("/app/migrations")
     if container_path.is_dir():
         return container_path
-    return Path(__file__).resolve().parents[2] / "migrations"
+    repository_path = Path(__file__).resolve().parents[2] / "migrations"
+    if repository_path.is_dir():
+        return repository_path
+    installed_path = Path(sysconfig.get_path("data")) / "share" / "amesh" / "migrations"
+    if installed_path.is_dir():
+        return installed_path
+    return repository_path
 
 
 def migration_body(source: str) -> str:

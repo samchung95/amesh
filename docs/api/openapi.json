@@ -11039,6 +11039,21 @@
             "title": "Database",
             "type": "string"
           },
+          "degraded_dependencies": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Degraded Dependencies",
+            "type": "array"
+          },
+          "dependencies": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Dependencies",
+            "type": "object"
+          },
           "error": {
             "anyOf": [
               {

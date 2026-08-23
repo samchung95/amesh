@@ -24536,6 +24536,11 @@ components:
     ReadinessResponse:
       example:
         database: database
+        degraded_dependencies:
+        - degraded_dependencies
+        - degraded_dependencies
+        dependencies:
+          key: dependencies
         error: error
         latest_migration: latest_migration
         migrations_applied: 0
@@ -24546,6 +24551,16 @@ components:
         database:
           title: Database
           type: string
+        degraded_dependencies:
+          default: []
+          items:
+            type: string
+          title: Degraded Dependencies
+          type: array
+        dependencies:
+          additionalProperties:
+            type: string
+          title: Dependencies
         error:
           nullable: true
           type: string

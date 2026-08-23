@@ -4,6 +4,7 @@ import argparse
 import asyncio
 import logging
 from collections.abc import Sequence
+from contextlib import suppress
 
 from sqlalchemy.exc import DBAPIError
 
@@ -168,7 +169,7 @@ async def _run_cycle(
     raise ValueError(f"role {role.value!r} must run through amesh.server")
 
 
-async def run_role(settings: Settings) -> None:
+async def run_role(settings: Settings, *, stop_event: asyncio.Event | None = None) -> None:
     role = ServiceRole(settings.service_role)
     if role is ServiceRole.WEBSERVER:
         raise ValueError("webserver role must run through python -m amesh.server")
@@ -214,9 +215,10 @@ async def run_role(settings: Settings) -> None:
         timeout_seconds=settings.webhook_delivery_timeout_seconds,
     )
     work_count = 0
+    stop = stop_event or asyncio.Event()
     try:
         await service.register()
-        while True:
+        while not stop.is_set():
             try:
                 current = await service.heartbeat(
                     ownership={"lastCycleWork": work_count},
@@ -256,7 +258,8 @@ async def run_role(settings: Settings) -> None:
                 )
             except (DBAPIError, OSError, LookupError):
                 LOGGER.exception("service role cycle interrupted; retrying")
-            await asyncio.sleep(settings.service_cycle_seconds)
+            with suppress(TimeoutError):
+                await asyncio.wait_for(stop.wait(), timeout=settings.service_cycle_seconds)
     finally:
         await trusted_runtime.stop()
         await service.stop()

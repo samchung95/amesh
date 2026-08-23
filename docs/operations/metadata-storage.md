@@ -42,8 +42,10 @@ not exactly match the checked-in manifest.
 
 ## Operational signals
 
-`GET /health` is process liveness. `GET /ready` verifies PostgreSQL and exact migration parity and
-returns HTTP 503 when either fails. `GET /metrics` exposes:
+`GET /health` is process liveness. `GET /ready` reports configuration, credential, PostgreSQL,
+exact-migration, object-storage and service-registry conditions as `READY`, `DEGRADED` or
+`UNAVAILABLE`; required failures return HTTP 503. Reference deployments enable the storage probe
+with `READINESS_CHECK_STORAGE=true`. `GET /metrics` exposes:
 
 - `amesh_database_health`;
 - `amesh_database_pool_size` and `amesh_database_pool_checked_out`;

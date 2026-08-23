@@ -245,7 +245,12 @@ class Settings(BaseSettings):
     database_tls_ca_file: str | None = None
     database_slow_query_seconds: float = Field(default=0.5, gt=0)
     object_storage_endpoint: str = "http://localhost:9000"
-    object_storage_backend: Literal["s3", "azure", "gcs"] = "s3"
+    object_storage_backend: Literal["local", "s3", "azure", "gcs"] = "s3"
+    object_storage_local_root: str = Field(
+        default_factory=lambda: str(Path.home() / ".amesh" / "storage"),
+        min_length=1,
+        max_length=4096,
+    )
     object_storage_region: str = "us-east-1"
     object_storage_bucket: str = "amesh"
     object_storage_access_key: SecretStr = SecretStr("minio")
@@ -316,6 +321,9 @@ class Settings(BaseSettings):
     service_heartbeat_seconds: float = Field(default=5.0, ge=1, le=60)
     service_stale_after_seconds: float = Field(default=20.0, ge=2, le=300)
     service_cycle_seconds: float = Field(default=5.0, ge=0.1, le=300)
+    compact_shutdown_grace_seconds: float = Field(default=30.0, ge=1, le=300)
+    preflight_timeout_seconds: float = Field(default=10.0, gt=0, le=120)
+    readiness_check_storage: bool = False
     plugin_trust_mode: Literal["development", "signed-only"] = "signed-only"
     plugin_directories: tuple[str, ...] = ()
     plugin_registries: tuple[str, ...] = ()

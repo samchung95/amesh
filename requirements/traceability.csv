@@ -580,14 +580,14 @@ URS-F-0578,Functional,Must,EPIC-510,Flow unit tests and quality gates,M5,5,"Auth
 URS-F-0579,Functional,Must,EPIC-510,Flow unit tests and quality gates,M5,5,"Authorization, audit and administrative end-to-end tests",Verified
 URS-F-0580,Functional,Must,EPIC-510,Flow unit tests and quality gates,M5,5,"Authorization, audit and administrative end-to-end tests",Verified
 URS-F-0581,Functional,Must,EPIC-510,Flow unit tests and quality gates,M5,5,"Authorization, audit and administrative end-to-end tests",Verified
-URS-F-0582,Functional,Must,EPIC-600,Standalone server and compact deployment,M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
-URS-F-0583,Functional,Must,EPIC-600,Standalone server and compact deployment,M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
-URS-F-0584,Functional,Must,EPIC-600,Standalone server and compact deployment,M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
-URS-F-0585,Functional,Must,EPIC-600,Standalone server and compact deployment,M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
-URS-F-0586,Functional,Must,EPIC-600,Standalone server and compact deployment,M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
-URS-F-0587,Functional,Must,EPIC-600,Standalone server and compact deployment,M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
-URS-F-0588,Functional,Must,EPIC-600,Standalone server and compact deployment,M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
-URS-F-0589,Functional,Must,EPIC-600,Standalone server and compact deployment,M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
+URS-F-0582,Functional,Must,EPIC-600,Standalone server and compact deployment,M6,6,"Reference deployment, upgrade and failure-recovery tests",Verified
+URS-F-0583,Functional,Must,EPIC-600,Standalone server and compact deployment,M6,6,"Reference deployment, upgrade and failure-recovery tests",Verified
+URS-F-0584,Functional,Must,EPIC-600,Standalone server and compact deployment,M6,6,"Reference deployment, upgrade and failure-recovery tests",Verified
+URS-F-0585,Functional,Must,EPIC-600,Standalone server and compact deployment,M6,6,"Reference deployment, upgrade and failure-recovery tests",Verified
+URS-F-0586,Functional,Must,EPIC-600,Standalone server and compact deployment,M6,6,"Reference deployment, upgrade and failure-recovery tests",Verified
+URS-F-0587,Functional,Must,EPIC-600,Standalone server and compact deployment,M6,6,"Reference deployment, upgrade and failure-recovery tests",Verified
+URS-F-0588,Functional,Must,EPIC-600,Standalone server and compact deployment,M6,6,"Reference deployment, upgrade and failure-recovery tests",Verified
+URS-F-0589,Functional,Must,EPIC-600,Standalone server and compact deployment,M6,6,"Reference deployment, upgrade and failure-recovery tests",Verified
 URS-F-0590,Functional,Must,EPIC-601,Distributed services and high availability,M6,6,"Reference deployment, upgrade and failure-recovery tests",Verified
 URS-F-0591,Functional,Must,EPIC-601,Distributed services and high availability,M6,6,"Reference deployment, upgrade and failure-recovery tests",Verified
 URS-F-0592,Functional,Must,EPIC-601,Distributed services and high availability,M6,6,"Reference deployment, upgrade and failure-recovery tests",Verified
@@ -873,9 +873,9 @@ URS-NFR-MAINTAINABILITY-005,Non-functional,Must,EPIC-402,CLI and generated clien
 URS-NFR-MAINTAINABILITY-005,Non-functional,Must,EPIC-705,"Documentation, examples and community governance",M7,7,CI regeneration and clean-tree check.,Proposed
 URS-NFR-MAINTAINABILITY-006,Non-functional,Must,EPIC-001,"Repository engineering, CI and release foundation",M0,0,Dependency and license scanning.,Proposed
 URS-NFR-MAINTAINABILITY-006,Non-functional,Must,EPIC-612,Security hardening and software supply chain,M6,6,Dependency and license scanning.,Proposed
-URS-NFR-OPERABILITY-001,Non-functional,Must,EPIC-600,Standalone server and compact deployment,M6,6,Kubernetes and Compose health tests.,In Progress
-URS-NFR-OPERABILITY-001,Non-functional,Must,EPIC-601,Distributed services and high availability,M6,6,Kubernetes and Compose health tests.,In Progress
-URS-NFR-OPERABILITY-001,Non-functional,Must,EPIC-606,"Containers, Kubernetes and Helm deployment",M6,6,Kubernetes and Compose health tests.,In Progress
+URS-NFR-OPERABILITY-001,Non-functional,Must,EPIC-600,Standalone server and compact deployment,M6,6,Kubernetes and Compose health tests.,Verified
+URS-NFR-OPERABILITY-001,Non-functional,Must,EPIC-601,Distributed services and high availability,M6,6,Kubernetes and Compose health tests.,Verified
+URS-NFR-OPERABILITY-001,Non-functional,Must,EPIC-606,"Containers, Kubernetes and Helm deployment",M6,6,Kubernetes and Compose health tests.,Verified
 URS-NFR-OPERABILITY-002,Non-functional,Must,EPIC-607,"OpenTelemetry, Prometheus and log shipping",M6,6,Telemetry cardinality audit.,Proposed
 URS-NFR-OPERABILITY-003,Non-functional,Must,EPIC-607,"OpenTelemetry, Prometheus and log shipping",M6,6,Alert fixture and runbook audit.,Proposed
 URS-NFR-OPERABILITY-003,Non-functional,Must,EPIC-705,"Documentation, examples and community governance",M7,7,Alert fixture and runbook audit.,Proposed

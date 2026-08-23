@@ -2,14 +2,20 @@
 
 AMESH stores large workflow payloads and artifacts behind one tenant-scoped streaming contract. The
 supported production adapters are S3-compatible storage, Azure Blob Storage and Google Cloud Storage;
-MinIO is the checked-in self-hosted conformance environment.
+MinIO is the checked-in self-hosted conformance environment. A version-preserving local filesystem
+adapter supports the single-host compact profile.
 
 ## Backend configuration
 
-Set `OBJECT_STORAGE_BACKEND` to `s3`, `azure` or `gcs`. Every backend uses
-`OBJECT_STORAGE_BUCKET` as its bucket or Azure container and writes only below
+Set `OBJECT_STORAGE_BACKEND` to `local`, `s3`, `azure` or `gcs`. The provider backends use
+`OBJECT_STORAGE_BUCKET` as their bucket or Azure container and write only below
 `tenants/<tenant-id>/`. Object URIs are opaque (`s3://`, `azure://` or `gs://`) and an adapter rejects
 another tenant's prefix before making a provider request.
+
+`local` uses `OBJECT_STORAGE_LOCAL_ROOT`, retains immutable SHA-256 versions and lifecycle metadata,
+and returns opaque `local://` URIs. It has no external credential and is intended for one-host
+development or compact installations. Production deployments that need storage failure independence
+should use S3-compatible storage.
 
 | Capability | S3 compatible | Azure Blob | Google Cloud Storage |
 |---|---|---|---|
@@ -93,7 +99,8 @@ key. Source objects are not deleted automatically.
 
 ## Qualification boundary
 
-The automated suite covers the common contract, deterministic S3/Azure/GCS provider fakes,
+The automated suite covers the common contract, durable local-filesystem reload and versions,
+deterministic S3/Azure/GCS provider fakes,
 cross-tenant rejection, corruption injection, interrupted migration and a 10 GiB logical transfer
 below the 256 MiB process-memory target. The development gate also runs multipart, lifecycle,
 inventory and versioned-delete behavior against real MinIO. Live managed-provider certification,

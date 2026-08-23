@@ -1,0 +1,80 @@
+name: amesh-compact
+
+services:
+  compact:
+    build:
+      context: .
+    command:
+      - /bin/sh
+      - -c
+      - python -m amesh.migrations && exec python -m amesh.compact
+    environment:
+      APP_ENV: development
+      APP_HOST: 0.0.0.0
+      APP_PORT: "8000"
+      DATABASE_URL: postgresql+asyncpg://amesh:amesh@postgres:5432/amesh
+      DATABASE_TLS_MODE: disable
+      OBJECT_STORAGE_BACKEND: local
+      OBJECT_STORAGE_LOCAL_ROOT: /var/lib/amesh/storage
+      AUTH_MODE: development
+      AUTH_POLICY: local
+      SERVICE_INSTANCE_NAME: compact-webserver
+      SERVICE_CYCLE_SECONDS: "1"
+      READINESS_CHECK_STORAGE: "true"
+      PLUGIN_INSTALL_ROOT: /var/lib/amesh/plugins
+      PLUGIN_REGISTRY_ROOT: /var/lib/amesh/plugins/registry
+      PLUGIN_REGISTRY_SIGNING_KEY_ID: compact-local
+      PLUGIN_REGISTRY_SIGNING_KEY: amesh-compact-registry-signing-key-change-me
+      EXECUTION_RUNNER_MODE: local
+      LOCAL_PROCESS_RUNNER_ENABLED: "true"
+      PRODUCT_TELEMETRY_ENABLED: "false"
+    ports:
+      - "${AMESH_COMPACT_PORT:-8100}:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      compact-volume-init:
+        condition: service_completed_successfully
+    read_only: true
+    volumes:
+      - compact-storage:/var/lib/amesh/storage
+      - compact-plugins:/var/lib/amesh/plugins
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/ready', timeout=2)"]
+      interval: 10s
+      timeout: 5s
+      start_period: 15s
+      retries: 6
+    stop_grace_period: 45s
+
+  compact-volume-init:
+    image: alpine:3.22
+    command: ["sh", "-c", "chown -R 100:101 /var/lib/amesh/storage /var/lib/amesh/plugins"]
+    volumes:
+      - compact-storage:/var/lib/amesh/storage
+      - compact-plugins:/var/lib/amesh/plugins
+    security_opt:
+      - no-new-privileges:true
+
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: amesh
+      POSTGRES_USER: amesh
+      POSTGRES_PASSWORD: amesh
+    volumes:
+      - compact-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U amesh -d amesh"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  compact-postgres:
+  compact-storage:
+  compact-plugins:

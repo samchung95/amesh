@@ -28,13 +28,15 @@ class ReadinessResponse(BaseModel):
     ReadinessResponse
     """ # noqa: E501
     database: StrictStr
+    degraded_dependencies: Optional[List[StrictStr]] = None
+    dependencies: Optional[Dict[str, StrictStr]] = None
     error: Optional[StrictStr] = None
     latest_migration: Optional[StrictStr] = None
     migrations_applied: StrictInt
     migrations_expected: StrictInt
     status: StrictStr
     version: StrictStr
-    __properties: ClassVar[List[str]] = ["database", "error", "latest_migration", "migrations_applied", "migrations_expected", "status", "version"]
+    __properties: ClassVar[List[str]] = ["database", "degraded_dependencies", "dependencies", "error", "latest_migration", "migrations_applied", "migrations_expected", "status", "version"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -98,6 +100,8 @@ class ReadinessResponse(BaseModel):
 
         _obj = cls.model_validate({
             "database": obj.get("database"),
+            "degraded_dependencies": obj.get("degraded_dependencies"),
+            "dependencies": obj.get("dependencies"),
             "error": obj.get("error"),
             "latest_migration": obj.get("latest_migration"),
             "migrations_applied": obj.get("migrations_applied"),

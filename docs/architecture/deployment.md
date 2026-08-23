@@ -18,6 +18,11 @@ Development is not a durability or availability qualification environment.
 
 A single deployable may host webserver, executor, scheduler, trigger, projector, maintenance and worker roles. PostgreSQL remains external or separately supervised, and S3-compatible object storage is recommended. Local-process and Docker runners are supported.
 
+The implemented `amesh-compact` supervisor hosts webserver, executor, scheduler, worker, indexer and
+maintenance roles in one process, gates startup on dependency preflight and drains all registered
+roles on termination. `compose.compact.yaml` is the dependency-minimal PostgreSQL plus local-storage
+reference. See the [compact runbook](../operations/compact-deployment.md).
+
 This profile is secondary and is not the v1 performance reference.
 
 ### On-premises Kubernetes production

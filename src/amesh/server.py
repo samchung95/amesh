@@ -11,15 +11,24 @@ from amesh.adapters.postgres import (
     PostgresTenantRepository,
 )
 from amesh.app import get_trusted_plugin_runtime
-from amesh.config import get_settings
+from amesh.config import Settings, get_settings
 from amesh.database import create_database_engine
 from amesh.domain import ServiceRole
 from amesh.observability import configure_structured_logging
 from amesh.service_runtime import RegisteredService
 
 
-async def run_server() -> None:
-    settings = get_settings()
+class _ExternallyStoppedServer(uvicorn.Server):
+    def install_signal_handlers(self) -> None:
+        pass
+
+
+async def run_server(
+    settings: Settings | None = None,
+    *,
+    stop_event: asyncio.Event | None = None,
+) -> None:
+    settings = settings or get_settings()
     engine = create_database_engine(settings)
     repository = PostgresServiceRegistryRepository(
         engine,
@@ -28,7 +37,8 @@ async def run_server() -> None:
     service = RegisteredService(repository, settings, ServiceRole.WEBSERVER)
     controls = PostgresOperationalControlRepository(engine)
     tenants = PostgresTenantRepository(engine)
-    server = uvicorn.Server(
+    server_type = _ExternallyStoppedServer if stop_event is not None else uvicorn.Server
+    server = server_type(
         uvicorn.Config(
             "amesh.app:app",
             host=settings.app_host,
@@ -37,7 +47,7 @@ async def run_server() -> None:
             access_log=True,
         )
     )
-    stop = asyncio.Event()
+    stop = stop_event or asyncio.Event()
     heartbeat_task: asyncio.Task[None] | None = None
     try:
         await service.register()

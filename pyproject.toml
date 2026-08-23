@@ -69,12 +69,18 @@ dev = [
 
 [project.scripts]
 amesh = "amesh.cli:main"
+amesh-compact = "amesh.compact:main"
+amesh-migrate = "amesh.migrations:main"
+amesh-preflight = "amesh.preflight:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
 
 [tool.setuptools.package-data]
 amesh = ["web/*.html", "web/assets/*"]
+
+[tool.setuptools.data-files]
+"share/amesh/migrations" = ["migrations/*.sql", "migrations/manifest.json"]
 
 [tool.pytest.ini_options]
 addopts = "-q --strict-markers"

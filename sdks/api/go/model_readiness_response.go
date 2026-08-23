@@ -22,6 +22,8 @@ var _ MappedNullable = &ReadinessResponse{}
 // ReadinessResponse struct for ReadinessResponse
 type ReadinessResponse struct {
 	Database string `json:"database"`
+	DegradedDependencies []string `json:"degraded_dependencies,omitempty"`
+	Dependencies map[string]string `json:"dependencies,omitempty"`
 	Error NullableString `json:"error,omitempty"`
 	LatestMigration NullableString `json:"latest_migration,omitempty"`
 	MigrationsApplied int32 `json:"migrations_applied"`
@@ -76,6 +78,70 @@ func (o *ReadinessResponse) GetDatabaseOk() (*string, bool) {
 // SetDatabase sets field value
 func (o *ReadinessResponse) SetDatabase(v string) {
 	o.Database = v
+}
+
+// GetDegradedDependencies returns the DegradedDependencies field value if set, zero value otherwise.
+func (o *ReadinessResponse) GetDegradedDependencies() []string {
+	if o == nil || IsNil(o.DegradedDependencies) {
+		var ret []string
+		return ret
+	}
+	return o.DegradedDependencies
+}
+
+// GetDegradedDependenciesOk returns a tuple with the DegradedDependencies field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *ReadinessResponse) GetDegradedDependenciesOk() ([]string, bool) {
+	if o == nil || IsNil(o.DegradedDependencies) {
+		return nil, false
+	}
+	return o.DegradedDependencies, true
+}
+
+// HasDegradedDependencies returns a boolean if a field has been set.
+func (o *ReadinessResponse) HasDegradedDependencies() bool {
+	if o != nil && !IsNil(o.DegradedDependencies) {
+		return true
+	}
+
+	return false
+}
+
+// SetDegradedDependencies gets a reference to the given []string and assigns it to the DegradedDependencies field.
+func (o *ReadinessResponse) SetDegradedDependencies(v []string) {
+	o.DegradedDependencies = v
+}
+
+// GetDependencies returns the Dependencies field value if set, zero value otherwise.
+func (o *ReadinessResponse) GetDependencies() map[string]string {
+	if o == nil || IsNil(o.Dependencies) {
+		var ret map[string]string
+		return ret
+	}
+	return o.Dependencies
+}
+
+// GetDependenciesOk returns a tuple with the Dependencies field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *ReadinessResponse) GetDependenciesOk() (map[string]string, bool) {
+	if o == nil || IsNil(o.Dependencies) {
+		return map[string]string{}, false
+	}
+	return o.Dependencies, true
+}
+
+// HasDependencies returns a boolean if a field has been set.
+func (o *ReadinessResponse) HasDependencies() bool {
+	if o != nil && !IsNil(o.Dependencies) {
+		return true
+	}
+
+	return false
+}
+
+// SetDependencies gets a reference to the given map[string]string and assigns it to the Dependencies field.
+func (o *ReadinessResponse) SetDependencies(v map[string]string) {
+	o.Dependencies = v
 }
 
 // GetError returns the Error field value if set, zero value otherwise (both if not set or set to explicit null).
@@ -269,6 +335,12 @@ func (o ReadinessResponse) MarshalJSON() ([]byte, error) {
 func (o ReadinessResponse) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
 	toSerialize["database"] = o.Database
+	if !IsNil(o.DegradedDependencies) {
+		toSerialize["degraded_dependencies"] = o.DegradedDependencies
+	}
+	if !IsNil(o.Dependencies) {
+		toSerialize["dependencies"] = o.Dependencies
+	}
 	if o.Error.IsSet() {
 		toSerialize["error"] = o.Error.Get()
 	}

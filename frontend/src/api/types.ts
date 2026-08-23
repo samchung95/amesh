@@ -1016,6 +1016,8 @@ export interface ReadinessResponse extends HealthResponse {
   migrations_applied: number
   migrations_expected: number
   latest_migration: string | null
+  dependencies?: Record<string, string>
+  degraded_dependencies?: string[]
   error: string | null
 }
 

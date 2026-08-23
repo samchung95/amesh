@@ -349,12 +349,10 @@ from amesh.federation import (
 from amesh.flow_testing import FlowTestService
 from amesh.frontend import SpaStaticFiles, find_frontend_dist
 from amesh.human_tasks import HumanTaskService, approval_task_handler
-from amesh.migrations import migration_directory
 from amesh.observability import (
     HTTP_REQUEST_DURATION,
     HTTP_REQUESTS,
     configure_structured_logging,
-    database_readiness,
     instrument_database,
 )
 from amesh.plugin_sdk import (
@@ -430,6 +428,7 @@ from amesh.ports.federation_repository import (
     FederationStateRejected,
 )
 from amesh.ports.search_repository import SearchCursorError, SearchUnavailableError
+from amesh.preflight import DependencyCondition, run_preflight
 from amesh.realtime import (
     ProvisionedWebhookSubscription,
     RealtimeEvent,
@@ -1666,7 +1665,13 @@ async def ready(
     settings: SettingsDependency,
     service_registry: ServiceRegistryRepositoryDependency,
 ) -> ReadinessResponse:
-    readiness = await database_readiness(database_engine(), migration_directory())
+    readiness = await run_preflight(
+        settings,
+        engine=database_engine(),
+        check_storage=settings.readiness_check_storage,
+    )
+    dependencies = readiness.dependency_states
+    registered_ready = True
     if readiness.ready and settings.service_instance_name is not None:
         topology = await service_registry.topology()
         registered_ready = any(
@@ -1676,27 +1681,38 @@ async def ready(
             and instance.state is ServiceState.READY
             for instance in topology.instances
         )
-        if not registered_ready:
-            response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
-            return ReadinessResponse(
-                status="not-ready",
-                version=__version__,
-                database="ready",
-                migrations_applied=readiness.applied,
-                migrations_expected=readiness.expected,
-                latest_migration=readiness.latest_migration,
-                error="service instance is not ready",
-            )
-    if not readiness.ready:
+        dependencies = {
+            **dependencies,
+            "service-registry": (
+                DependencyCondition.READY.value
+                if registered_ready
+                else DependencyCondition.UNAVAILABLE.value
+            ),
+        }
+    if not readiness.ready or not registered_ready:
         response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
     return ReadinessResponse(
-        status="ready" if readiness.ready else "not-ready",
+        status=(
+            "not-ready"
+            if not readiness.ready or not registered_ready
+            else readiness.status
+        ),
         version=__version__,
-        database="ready" if readiness.ready else "unavailable",
-        migrations_applied=readiness.applied,
-        migrations_expected=readiness.expected,
+        database=(
+            "ready"
+            if dependencies.get("database") == DependencyCondition.READY.value
+            else "unavailable"
+        ),
+        migrations_applied=readiness.migrations_applied,
+        migrations_expected=readiness.migrations_expected,
         latest_migration=readiness.latest_migration,
-        error=readiness.error,
+        dependencies=dependencies,
+        degraded_dependencies=readiness.degraded_dependencies,
+        error=(
+            "service instance is not ready"
+            if not registered_ready
+            else readiness.error
+        ),
     )
 
 

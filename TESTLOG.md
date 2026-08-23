@@ -1,5 +1,46 @@
 # Test Log
 
+## EPIC-600: Standalone server and compact deployment — 2026-08-23
+
+Spec source: Agent Hotel card `c75` and canonical `backlog/epics.json` EPIC-600 DoD.
+
+Verified with `uv`, Python 3.13, PostgreSQL 17, React/TypeScript and Docker Compose:
+
+- [x] `amesh-compact` starts webserver, executor, scheduler, worker, indexer and maintenance as
+  supervised tasks in one process. The distributed Compose profile starts the same six roles as
+  independent services; both use PostgreSQL for authoritative state, leases and queueing.
+- [x] The configurable local filesystem adapter provides immutable SHA-256 object versions,
+  tenant-scoped opaque URIs, ranges, lifecycle metadata, reload and deletion. The existing
+  S3-compatible adapter remains selectable through configuration.
+- [x] `amesh-preflight` fails startup before admission for invalid configuration, credentials,
+  database, migration or storage state. `/health` remains a distinct liveness signal while `/ready`
+  reports READY, DEGRADED or UNAVAILABLE dependencies and exact migration parity.
+- [x] `uv build --wheel --out-dir dist/epic600` succeeded. Wheel inspection found the compact and
+  preflight modules, all 51 migration SQL files and the `amesh`, `amesh-compact`, `amesh-migrate` and
+  `amesh-preflight` console scripts. Both Compose files pass `docker compose config --quiet`.
+- [x] Twenty-six focused compact, preflight, local-storage and deployment tests passed. The expanded
+  affected-path run passed 28 tests before the pre-existing shared-live-database final-admin test
+  contamination recorded on board card `c95`; its new readiness assertions passed before that
+  unrelated failure. Ruff, strict mypy across 194 source files, generated-contract checks and
+  `git diff --check` passed.
+- [x] Frontend client and blueprint unit suites passed 20 assertions, the production frontend build
+  passed, and OpenAPI plus Python, TypeScript, Java and Go SDKs are current.
+- [x] Live compact deployment on port 8100 reported 51/51 migrations and all six roles live, ready
+  and AVAILABLE. `examples/hello-world.yaml` completed SUCCESS with `Hello World`; restart retained
+  the flow. SIGTERM stopped admission, drained the process in 1.46 seconds and persisted all six
+  roles as STOPPED before a healthy restart.
+- [x] Live distributed deployment on port 8000 reported every readiness dependency READY at 51/51,
+  and all six service roles were live, ready and AVAILABLE through the authenticated topology API.
+- [x] No LLM behavior was involved, so no billable OpenRouter call was required. Applicable LLM tests
+  remain pinned to `openai/gpt-5.6-luna`.
+
+Qualification boundary: the local compact and distributed reference paths are qualified. The shared
+`URS-NFR-AVAILABILITY-001` 99.9% monthly SLO requires an external production-profile soak, and
+`URS-NFR-USABILITY-003` requires the scheduled external contributor study; neither is claimed here.
+
+Verdict: PASS — EPIC-600 functional requirements URS-F-0582 through URS-F-0589 and the locally
+qualifiable health-model requirement URS-NFR-OPERABILITY-001 are verified.
+
 ## EPIC-510: Flow unit tests and quality gates — 2026-08-23
 
 Spec source: Agent Hotel card `c74` and canonical `backlog/epics.json` EPIC-510 DoD.

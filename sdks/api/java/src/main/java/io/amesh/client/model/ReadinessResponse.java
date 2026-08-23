@@ -24,7 +24,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.openapitools.jackson.nullable.JsonNullable;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.openapitools.jackson.nullable.JsonNullable;
@@ -38,6 +42,8 @@ import io.amesh.client.ApiClient;
  */
 @JsonPropertyOrder({
   ReadinessResponse.JSON_PROPERTY_DATABASE,
+  ReadinessResponse.JSON_PROPERTY_DEGRADED_DEPENDENCIES,
+  ReadinessResponse.JSON_PROPERTY_DEPENDENCIES,
   ReadinessResponse.JSON_PROPERTY_ERROR,
   ReadinessResponse.JSON_PROPERTY_LATEST_MIGRATION,
   ReadinessResponse.JSON_PROPERTY_MIGRATIONS_APPLIED,
@@ -50,6 +56,14 @@ public class ReadinessResponse {
   public static final String JSON_PROPERTY_DATABASE = "database";
   @javax.annotation.Nonnull
   private String database;
+
+  public static final String JSON_PROPERTY_DEGRADED_DEPENDENCIES = "degraded_dependencies";
+  @javax.annotation.Nullable
+  private List<String> degradedDependencies = new ArrayList<>();
+
+  public static final String JSON_PROPERTY_DEPENDENCIES = "dependencies";
+  @javax.annotation.Nullable
+  private Map<String, String> dependencies = new HashMap<>();
 
   public static final String JSON_PROPERTY_ERROR = "error";
   private JsonNullable<String> error = JsonNullable.<String>undefined();
@@ -97,6 +111,70 @@ public class ReadinessResponse {
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public void setDatabase(@javax.annotation.Nonnull String database) {
     this.database = database;
+  }
+
+
+  public ReadinessResponse degradedDependencies(@javax.annotation.Nullable List<String> degradedDependencies) {
+    this.degradedDependencies = degradedDependencies;
+    return this;
+  }
+
+  public ReadinessResponse addDegradedDependenciesItem(String degradedDependenciesItem) {
+    if (this.degradedDependencies == null) {
+      this.degradedDependencies = new ArrayList<>();
+    }
+    this.degradedDependencies.add(degradedDependenciesItem);
+    return this;
+  }
+
+  /**
+   * Get degradedDependencies
+   * @return degradedDependencies
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_DEGRADED_DEPENDENCIES, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public List<String> getDegradedDependencies() {
+    return degradedDependencies;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_DEGRADED_DEPENDENCIES, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setDegradedDependencies(@javax.annotation.Nullable List<String> degradedDependencies) {
+    this.degradedDependencies = degradedDependencies;
+  }
+
+
+  public ReadinessResponse dependencies(@javax.annotation.Nullable Map<String, String> dependencies) {
+    this.dependencies = dependencies;
+    return this;
+  }
+
+  public ReadinessResponse putDependenciesItem(String key, String dependenciesItem) {
+    if (this.dependencies == null) {
+      this.dependencies = new HashMap<>();
+    }
+    this.dependencies.put(key, dependenciesItem);
+    return this;
+  }
+
+  /**
+   * Get dependencies
+   * @return dependencies
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_DEPENDENCIES, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public Map<String, String> getDependencies() {
+    return dependencies;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_DEPENDENCIES, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setDependencies(@javax.annotation.Nullable Map<String, String> dependencies) {
+    this.dependencies = dependencies;
   }
 
 
@@ -273,6 +351,8 @@ public class ReadinessResponse {
     }
     ReadinessResponse readinessResponse = (ReadinessResponse) o;
     return Objects.equals(this.database, readinessResponse.database) &&
+        Objects.equals(this.degradedDependencies, readinessResponse.degradedDependencies) &&
+        Objects.equals(this.dependencies, readinessResponse.dependencies) &&
         equalsNullable(this.error, readinessResponse.error) &&
         equalsNullable(this.latestMigration, readinessResponse.latestMigration) &&
         Objects.equals(this.migrationsApplied, readinessResponse.migrationsApplied) &&
@@ -287,7 +367,7 @@ public class ReadinessResponse {
 
   @Override
   public int hashCode() {
-    return Objects.hash(database, hashCodeNullable(error), hashCodeNullable(latestMigration), migrationsApplied, migrationsExpected, status, version);
+    return Objects.hash(database, degradedDependencies, dependencies, hashCodeNullable(error), hashCodeNullable(latestMigration), migrationsApplied, migrationsExpected, status, version);
   }
 
   private static <T> int hashCodeNullable(JsonNullable<T> a) {
@@ -302,6 +382,8 @@ public class ReadinessResponse {
     StringBuilder sb = new StringBuilder();
     sb.append("class ReadinessResponse {\n");
     sb.append("    database: ").append(toIndentedString(database)).append("\n");
+    sb.append("    degradedDependencies: ").append(toIndentedString(degradedDependencies)).append("\n");
+    sb.append("    dependencies: ").append(toIndentedString(dependencies)).append("\n");
     sb.append("    error: ").append(toIndentedString(error)).append("\n");
     sb.append("    latestMigration: ").append(toIndentedString(latestMigration)).append("\n");
     sb.append("    migrationsApplied: ").append(toIndentedString(migrationsApplied)).append("\n");
@@ -355,6 +437,24 @@ public class ReadinessResponse {
     // add `database` to the URL query string
     if (getDatabase() != null) {
       joiner.add(String.format(java.util.Locale.ROOT, "%sdatabase%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getDatabase()))));
+    }
+
+    // add `degraded_dependencies` to the URL query string
+    if (getDegradedDependencies() != null) {
+      for (int i = 0; i < getDegradedDependencies().size(); i++) {
+        joiner.add(String.format(java.util.Locale.ROOT, "%sdegraded_dependencies%s%s=%s", prefix, suffix,
+            "".equals(suffix) ? "" : String.format(java.util.Locale.ROOT, "%s%d%s", containerPrefix, i, containerSuffix),
+            ApiClient.urlEncode(ApiClient.valueToString(getDegradedDependencies().get(i)))));
+      }
+    }
+
+    // add `dependencies` to the URL query string
+    if (getDependencies() != null) {
+      for (String _key : getDependencies().keySet()) {
+        joiner.add(String.format(java.util.Locale.ROOT, "%sdependencies%s%s=%s", prefix, suffix,
+            "".equals(suffix) ? "" : String.format(java.util.Locale.ROOT, "%s%d%s", containerPrefix, _key, containerSuffix),
+            getDependencies().get(_key), ApiClient.urlEncode(ApiClient.valueToString(getDependencies().get(_key)))));
+      }
     }
 
     // add `error` to the URL query string

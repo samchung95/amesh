@@ -16900,7 +16900,7 @@
       "id": "URS-F-0582",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M6",
       "wave": 6,
       "epic_id": "EPIC-600",
@@ -16922,13 +16922,18 @@
         "EPIC-008",
         "EPIC-009",
         "EPIC-010"
+      ],
+      "evidence": [
+        "tests/test_compact.py",
+        "tests/test_compact_deployment.py",
+        "src/amesh/compact.py"
       ]
     },
     {
       "id": "URS-F-0583",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M6",
       "wave": 6,
       "epic_id": "EPIC-600",
@@ -16950,13 +16955,18 @@
         "EPIC-008",
         "EPIC-009",
         "EPIC-010"
+      ],
+      "evidence": [
+        "tests/test_compact.py",
+        "tests/test_compact_deployment.py",
+        "compose.compact.yaml"
       ]
     },
     {
       "id": "URS-F-0584",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M6",
       "wave": 6,
       "epic_id": "EPIC-600",
@@ -16978,13 +16988,18 @@
         "EPIC-008",
         "EPIC-009",
         "EPIC-010"
+      ],
+      "evidence": [
+        "tests/storage/test_local_object_store.py",
+        "src/amesh/adapters/local/object_store.py",
+        "docs/operations/object-storage.md"
       ]
     },
     {
       "id": "URS-F-0585",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M6",
       "wave": 6,
       "epic_id": "EPIC-600",
@@ -17006,13 +17021,18 @@
         "EPIC-008",
         "EPIC-009",
         "EPIC-010"
+      ],
+      "evidence": [
+        "tests/test_compact_deployment.py",
+        "pyproject.toml",
+        "compose.compact.yaml"
       ]
     },
     {
       "id": "URS-F-0586",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M6",
       "wave": 6,
       "epic_id": "EPIC-600",
@@ -17034,13 +17054,18 @@
         "EPIC-008",
         "EPIC-009",
         "EPIC-010"
+      ],
+      "evidence": [
+        "tests/test_preflight.py",
+        "src/amesh/preflight.py",
+        "docs/operations/compact-deployment.md"
       ]
     },
     {
       "id": "URS-F-0587",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M6",
       "wave": 6,
       "epic_id": "EPIC-600",
@@ -17062,13 +17087,18 @@
         "EPIC-008",
         "EPIC-009",
         "EPIC-010"
+      ],
+      "evidence": [
+        "tests/test_preflight.py",
+        "tests/api/test_authorization_api.py",
+        "docs/operations/metadata-storage.md"
       ]
     },
     {
       "id": "URS-F-0588",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M6",
       "wave": 6,
       "epic_id": "EPIC-600",
@@ -17090,13 +17120,18 @@
         "EPIC-008",
         "EPIC-009",
         "EPIC-010"
+      ],
+      "evidence": [
+        "tests/test_compact.py",
+        "src/amesh/compact.py",
+        "docs/operations/compact-deployment.md"
       ]
     },
     {
       "id": "URS-F-0589",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M6",
       "wave": 6,
       "epic_id": "EPIC-600",
@@ -17118,6 +17153,10 @@
         "EPIC-008",
         "EPIC-009",
         "EPIC-010"
+      ],
+      "evidence": [
+        "tests/test_compact_deployment.py",
+        "docs/operations/compact-deployment.md"
       ]
     },
     {
@@ -24381,7 +24420,13 @@
         "EPIC-606"
       ],
       "priority": "Must",
-      "status": "In Progress"
+      "status": "Verified",
+      "evidence": [
+        "tests/test_compact_deployment.py",
+        "tests/test_preflight.py",
+        "tests/api/test_authorization_api.py",
+        "docs/operations/compact-deployment.md"
+      ]
     },
     {
       "id": "URS-NFR-OPERABILITY-002",

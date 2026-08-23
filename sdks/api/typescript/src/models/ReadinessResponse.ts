@@ -27,6 +27,18 @@ export interface ReadinessResponse {
     database: string;
     /**
      *
+     * @type {Array<string>}
+     * @memberof ReadinessResponse
+     */
+    degradedDependencies?: Array<string>;
+    /**
+     *
+     * @type {{ [key: string]: string; }}
+     * @memberof ReadinessResponse
+     */
+    dependencies?: { [key: string]: string; };
+    /**
+     *
      * @type {string}
      * @memberof ReadinessResponse
      */
@@ -86,6 +98,8 @@ export function ReadinessResponseFromJSONTyped(json: any, ignoreDiscriminator: b
     return {
 
         'database': json['database'],
+        'degradedDependencies': json['degraded_dependencies'] == null ? undefined : json['degraded_dependencies'],
+        'dependencies': json['dependencies'] == null ? undefined : json['dependencies'],
         'error': json['error'] === undefined ? undefined : json['error'] === null ? null : json['error'],
         'latestMigration': json['latest_migration'] === undefined ? undefined : json['latest_migration'] === null ? null : json['latest_migration'],
         'migrationsApplied': json['migrations_applied'],
@@ -107,6 +121,8 @@ export function ReadinessResponseToJSONTyped(value?: ReadinessResponse | null, i
     return {
 
         'database': value['database'],
+        'degraded_dependencies': value['degradedDependencies'],
+        'dependencies': value['dependencies'],
         'error': value['error'],
         'latest_migration': value['latestMigration'],
         'migrations_applied': value['migrationsApplied'],

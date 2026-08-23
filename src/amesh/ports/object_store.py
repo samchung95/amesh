@@ -9,6 +9,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 class StorageBackend(StrEnum):
+    LOCAL = "local"
     S3 = "s3"
     AZURE = "azure"
     GCS = "gcs"
