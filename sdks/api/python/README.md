@@ -93,12 +93,16 @@ Class | Method | HTTP request | Description
 *AdministrationApi* | [**list_administration_audit_api_v1_admin_audit_get**](docs/AdministrationApi.md#list_administration_audit_api_v1_admin_audit_get) | **GET** /api/v1/admin/audit | List Administration Audit
 *AdministrationApi* | [**list_administration_controls_api_v1_admin_controls_get**](docs/AdministrationApi.md#list_administration_controls_api_v1_admin_controls_get) | **GET** /api/v1/admin/controls | List Administration Controls
 *AdministrationApi* | [**preview_administration_control_api_v1_admin_controls_preview_post**](docs/AdministrationApi.md#preview_administration_control_api_v1_admin_controls_preview_post) | **POST** /api/v1/admin/controls/preview | Preview Administration Control
+*AuthenticationApi* | [**begin_federated_login_api_v1_auth_federated_provider_id_start_get**](docs/AuthenticationApi.md#begin_federated_login_api_v1_auth_federated_provider_id_start_get) | **GET** /api/v1/auth/federated/{provider_id}/start | Begin Federated Login
 *AuthenticationApi* | [**change_local_password_api_v1_auth_password_post**](docs/AuthenticationApi.md#change_local_password_api_v1_auth_password_post) | **POST** /api/v1/auth/password | Change Local Password
+*AuthenticationApi* | [**complete_oidc_login_api_v1_auth_federated_provider_id_callback_get**](docs/AuthenticationApi.md#complete_oidc_login_api_v1_auth_federated_provider_id_callback_get) | **GET** /api/v1/auth/federated/{provider_id}/callback | Complete Oidc Login
+*AuthenticationApi* | [**complete_saml_login_api_v1_auth_federated_provider_id_callback_post**](docs/AuthenticationApi.md#complete_saml_login_api_v1_auth_federated_provider_id_callback_post) | **POST** /api/v1/auth/federated/{provider_id}/callback | Complete Saml Login
 *AuthenticationApi* | [**list_authentication_providers_api_v1_auth_providers_get**](docs/AuthenticationApi.md#list_authentication_providers_api_v1_auth_providers_get) | **GET** /api/v1/auth/providers | List Authentication Providers
 *AuthenticationApi* | [**login_api_v1_auth_login_post**](docs/AuthenticationApi.md#login_api_v1_auth_login_post) | **POST** /api/v1/auth/login | Login
 *AuthenticationApi* | [**logout_all_api_v1_auth_logout_all_post**](docs/AuthenticationApi.md#logout_all_api_v1_auth_logout_all_post) | **POST** /api/v1/auth/logout-all | Logout All
 *AuthenticationApi* | [**logout_api_v1_auth_logout_post**](docs/AuthenticationApi.md#logout_api_v1_auth_logout_post) | **POST** /api/v1/auth/logout | Logout
 *AuthenticationApi* | [**revoke_principal_sessions_api_v1_admin_principals_principal_id_sessions_delete**](docs/AuthenticationApi.md#revoke_principal_sessions_api_v1_admin_principals_principal_id_sessions_delete) | **DELETE** /api/v1/admin/principals/{principal_id}/sessions | Revoke Principal Sessions
+*AuthenticationApi* | [**saml_service_provider_metadata_api_v1_auth_federated_provider_id_saml_metadata_get**](docs/AuthenticationApi.md#saml_service_provider_metadata_api_v1_auth_federated_provider_id_saml_metadata_get) | **GET** /api/v1/auth/federated/{provider_id}/saml/metadata | Saml Service Provider Metadata
 *AuthenticationApi* | [**set_local_password_api_v1_admin_principals_principal_id_local_password_put**](docs/AuthenticationApi.md#set_local_password_api_v1_admin_principals_principal_id_local_password_put) | **PUT** /api/v1/admin/principals/{principal_id}/local-password | Set Local Password
 *AuthorizationApi* | [**add_group_member_api_v1_admin_groups_group_id_members_member_id_put**](docs/AuthorizationApi.md#add_group_member_api_v1_admin_groups_group_id_members_member_id_put) | **PUT** /api/v1/admin/groups/{group_id}/members/{member_id} | Add Group Member
 *AuthorizationApi* | [**create_principal_api_v1_admin_principals_post**](docs/AuthorizationApi.md#create_principal_api_v1_admin_principals_post) | **POST** /api/v1/admin/principals | Create Principal
@@ -226,6 +230,17 @@ Class | Method | HTTP request | Description
 *RealtimeApi* | [**rotate_webhook_subscription_secret_api_v1_webhook_subscriptions_subscription_id_rotate_secret_post**](docs/RealtimeApi.md#rotate_webhook_subscription_secret_api_v1_webhook_subscriptions_subscription_id_rotate_secret_post) | **POST** /api/v1/webhook-subscriptions/{subscription_id}/rotate-secret | Rotate Webhook Subscription Secret
 *RealtimeApi* | [**stream_realtime_events_api_v1_realtime_stream_get**](docs/RealtimeApi.md#stream_realtime_events_api_v1_realtime_stream_get) | **GET** /api/v1/realtime/stream | Stream Realtime Events
 *RealtimeApi* | [**test_webhook_subscription_api_v1_webhook_subscriptions_subscription_id_test_post**](docs/RealtimeApi.md#test_webhook_subscription_api_v1_webhook_subscriptions_subscription_id_test_post) | **POST** /api/v1/webhook-subscriptions/{subscription_id}/test | Test Webhook Subscription
+*ScimApi* | [**create_scim_group_scim_v2_groups_post**](docs/ScimApi.md#create_scim_group_scim_v2_groups_post) | **POST** /scim/v2/Groups | Create Scim Group
+*ScimApi* | [**create_scim_user_scim_v2_users_post**](docs/ScimApi.md#create_scim_user_scim_v2_users_post) | **POST** /scim/v2/Users | Create Scim User
+*ScimApi* | [**delete_scim_group_scim_v2_groups_group_id_delete**](docs/ScimApi.md#delete_scim_group_scim_v2_groups_group_id_delete) | **DELETE** /scim/v2/Groups/{group_id} | Delete Scim Group
+*ScimApi* | [**delete_scim_user_scim_v2_users_user_id_delete**](docs/ScimApi.md#delete_scim_user_scim_v2_users_user_id_delete) | **DELETE** /scim/v2/Users/{user_id} | Delete Scim User
+*ScimApi* | [**get_scim_group_scim_v2_groups_group_id_get**](docs/ScimApi.md#get_scim_group_scim_v2_groups_group_id_get) | **GET** /scim/v2/Groups/{group_id} | Get Scim Group
+*ScimApi* | [**get_scim_user_scim_v2_users_user_id_get**](docs/ScimApi.md#get_scim_user_scim_v2_users_user_id_get) | **GET** /scim/v2/Users/{user_id} | Get Scim User
+*ScimApi* | [**list_scim_groups_scim_v2_groups_get**](docs/ScimApi.md#list_scim_groups_scim_v2_groups_get) | **GET** /scim/v2/Groups | List Scim Groups
+*ScimApi* | [**list_scim_users_scim_v2_users_get**](docs/ScimApi.md#list_scim_users_scim_v2_users_get) | **GET** /scim/v2/Users | List Scim Users
+*ScimApi* | [**patch_scim_group_scim_v2_groups_group_id_patch**](docs/ScimApi.md#patch_scim_group_scim_v2_groups_group_id_patch) | **PATCH** /scim/v2/Groups/{group_id} | Patch Scim Group
+*ScimApi* | [**patch_scim_user_scim_v2_users_user_id_patch**](docs/ScimApi.md#patch_scim_user_scim_v2_users_user_id_patch) | **PATCH** /scim/v2/Users/{user_id} | Patch Scim User
+*ScimApi* | [**scim_service_provider_config_scim_v2_service_provider_config_get**](docs/ScimApi.md#scim_service_provider_config_scim_v2_service_provider_config_get) | **GET** /scim/v2/ServiceProviderConfig | Scim Service Provider Config
 *SearchApi* | [**get_search_status_api_v1_search_status_get**](docs/SearchApi.md#get_search_status_api_v1_search_status_get) | **GET** /api/v1/search/status | Get Search Status
 *SearchApi* | [**rebuild_search_projection_api_v1_search_rebuild_post**](docs/SearchApi.md#rebuild_search_projection_api_v1_search_rebuild_post) | **POST** /api/v1/search/rebuild | Rebuild Search Projection
 *SearchApi* | [**search_resources_api_v1_search_post**](docs/SearchApi.md#search_resources_api_v1_search_post) | **POST** /api/v1/search | Search Resources
@@ -452,6 +467,7 @@ Class | Method | HTTP request | Description
  - [ReduceExecutionResponse](docs/ReduceExecutionResponse.md)
  - [ResourceLifecycle](docs/ResourceLifecycle.md)
  - [ResourceMetadata](docs/ResourceMetadata.md)
+ - [ResourcesInner](docs/ResourcesInner.md)
  - [ResumeTaskRequest](docs/ResumeTaskRequest.md)
  - [RevokedCredentialsResponse](docs/RevokedCredentialsResponse.md)
  - [RevokedSessionsResponse](docs/RevokedSessionsResponse.md)
@@ -463,6 +479,15 @@ Class | Method | HTTP request | Description
  - [RunnerMode](docs/RunnerMode.md)
  - [RunnerNetworkAccess](docs/RunnerNetworkAccess.md)
  - [SchedulePreview](docs/SchedulePreview.md)
+ - [ScimGroupRequest](docs/ScimGroupRequest.md)
+ - [ScimGroupResource](docs/ScimGroupResource.md)
+ - [ScimListResponse](docs/ScimListResponse.md)
+ - [ScimMember](docs/ScimMember.md)
+ - [ScimPatchOperation](docs/ScimPatchOperation.md)
+ - [ScimPatchRequest](docs/ScimPatchRequest.md)
+ - [ScimResourceMeta](docs/ScimResourceMeta.md)
+ - [ScimUserRequest](docs/ScimUserRequest.md)
+ - [ScimUserResource](docs/ScimUserResource.md)
  - [SearchDocument](docs/SearchDocument.md)
  - [SearchDocumentType](docs/SearchDocumentType.md)
  - [SearchProjectionCondition](docs/SearchProjectionCondition.md)

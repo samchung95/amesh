@@ -4,14 +4,86 @@ All URIs are relative to *http://localhost*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
+[**begin_federated_login_api_v1_auth_federated_provider_id_start_get**](AuthenticationApi.md#begin_federated_login_api_v1_auth_federated_provider_id_start_get) | **GET** /api/v1/auth/federated/{provider_id}/start | Begin Federated Login
 [**change_local_password_api_v1_auth_password_post**](AuthenticationApi.md#change_local_password_api_v1_auth_password_post) | **POST** /api/v1/auth/password | Change Local Password
+[**complete_oidc_login_api_v1_auth_federated_provider_id_callback_get**](AuthenticationApi.md#complete_oidc_login_api_v1_auth_federated_provider_id_callback_get) | **GET** /api/v1/auth/federated/{provider_id}/callback | Complete Oidc Login
+[**complete_saml_login_api_v1_auth_federated_provider_id_callback_post**](AuthenticationApi.md#complete_saml_login_api_v1_auth_federated_provider_id_callback_post) | **POST** /api/v1/auth/federated/{provider_id}/callback | Complete Saml Login
 [**list_authentication_providers_api_v1_auth_providers_get**](AuthenticationApi.md#list_authentication_providers_api_v1_auth_providers_get) | **GET** /api/v1/auth/providers | List Authentication Providers
 [**login_api_v1_auth_login_post**](AuthenticationApi.md#login_api_v1_auth_login_post) | **POST** /api/v1/auth/login | Login
 [**logout_all_api_v1_auth_logout_all_post**](AuthenticationApi.md#logout_all_api_v1_auth_logout_all_post) | **POST** /api/v1/auth/logout-all | Logout All
 [**logout_api_v1_auth_logout_post**](AuthenticationApi.md#logout_api_v1_auth_logout_post) | **POST** /api/v1/auth/logout | Logout
 [**revoke_principal_sessions_api_v1_admin_principals_principal_id_sessions_delete**](AuthenticationApi.md#revoke_principal_sessions_api_v1_admin_principals_principal_id_sessions_delete) | **DELETE** /api/v1/admin/principals/{principal_id}/sessions | Revoke Principal Sessions
+[**saml_service_provider_metadata_api_v1_auth_federated_provider_id_saml_metadata_get**](AuthenticationApi.md#saml_service_provider_metadata_api_v1_auth_federated_provider_id_saml_metadata_get) | **GET** /api/v1/auth/federated/{provider_id}/saml/metadata | Saml Service Provider Metadata
 [**set_local_password_api_v1_admin_principals_principal_id_local_password_put**](AuthenticationApi.md#set_local_password_api_v1_admin_principals_principal_id_local_password_put) | **PUT** /api/v1/admin/principals/{principal_id}/local-password | Set Local Password
 
+
+# **begin_federated_login_api_v1_auth_federated_provider_id_start_get**
+> begin_federated_login_api_v1_auth_federated_provider_id_start_get(provider_id, tenant=tenant, return_to=return_to)
+
+Begin Federated Login
+
+### Example
+
+
+```python
+import amesh_client
+from amesh_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to http://localhost
+# See configuration.py for a list of all supported configuration parameters.
+configuration = amesh_client.Configuration(
+    host = "http://localhost"
+)
+
+
+# Enter a context with an instance of the API client
+with amesh_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = amesh_client.AuthenticationApi(api_client)
+    provider_id = 'provider_id_example' # str |
+    tenant = 'tenant_example' # str |  (optional)
+    return_to = '/' # str |  (optional) (default to '/')
+
+    try:
+        # Begin Federated Login
+        api_instance.begin_federated_login_api_v1_auth_federated_provider_id_start_get(provider_id, tenant=tenant, return_to=return_to)
+    except Exception as e:
+        print("Exception when calling AuthenticationApi->begin_federated_login_api_v1_auth_federated_provider_id_start_get: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **provider_id** | **str**|  |
+ **tenant** | **str**|  | [optional]
+ **return_to** | **str**|  | [optional] [default to &#39;/&#39;]
+
+### Return type
+
+void (empty response body)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**307** | Successful Response |  -  |
+**422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **change_local_password_api_v1_auth_password_post**
 > RevokedSessionsResponse change_local_password_api_v1_auth_password_post(change_local_password_request, authorization=authorization, x_amesh_csrf=x_amesh_csrf)
@@ -85,8 +157,142 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **complete_oidc_login_api_v1_auth_federated_provider_id_callback_get**
+> complete_oidc_login_api_v1_auth_federated_provider_id_callback_get(provider_id, state, code=code, error=error)
+
+Complete Oidc Login
+
+### Example
+
+
+```python
+import amesh_client
+from amesh_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to http://localhost
+# See configuration.py for a list of all supported configuration parameters.
+configuration = amesh_client.Configuration(
+    host = "http://localhost"
+)
+
+
+# Enter a context with an instance of the API client
+with amesh_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = amesh_client.AuthenticationApi(api_client)
+    provider_id = 'provider_id_example' # str |
+    state = 'state_example' # str |
+    code = 'code_example' # str |  (optional)
+    error = 'error_example' # str |  (optional)
+
+    try:
+        # Complete Oidc Login
+        api_instance.complete_oidc_login_api_v1_auth_federated_provider_id_callback_get(provider_id, state, code=code, error=error)
+    except Exception as e:
+        print("Exception when calling AuthenticationApi->complete_oidc_login_api_v1_auth_federated_provider_id_callback_get: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **provider_id** | **str**|  |
+ **state** | **str**|  |
+ **code** | **str**|  | [optional]
+ **error** | **str**|  | [optional]
+
+### Return type
+
+void (empty response body)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**307** | Successful Response |  -  |
+**422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **complete_saml_login_api_v1_auth_federated_provider_id_callback_post**
+> complete_saml_login_api_v1_auth_federated_provider_id_callback_post(provider_id)
+
+Complete Saml Login
+
+### Example
+
+
+```python
+import amesh_client
+from amesh_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to http://localhost
+# See configuration.py for a list of all supported configuration parameters.
+configuration = amesh_client.Configuration(
+    host = "http://localhost"
+)
+
+
+# Enter a context with an instance of the API client
+with amesh_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = amesh_client.AuthenticationApi(api_client)
+    provider_id = 'provider_id_example' # str |
+
+    try:
+        # Complete Saml Login
+        api_instance.complete_saml_login_api_v1_auth_federated_provider_id_callback_post(provider_id)
+    except Exception as e:
+        print("Exception when calling AuthenticationApi->complete_saml_login_api_v1_auth_federated_provider_id_callback_post: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **provider_id** | **str**|  |
+
+### Return type
+
+void (empty response body)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**307** | Successful Response |  -  |
+**422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **list_authentication_providers_api_v1_auth_providers_get**
-> List[AuthenticationProviderDescriptor] list_authentication_providers_api_v1_auth_providers_get()
+> List[AuthenticationProviderDescriptor] list_authentication_providers_api_v1_auth_providers_get(identifier=identifier, tenant=tenant)
 
 List Authentication Providers
 
@@ -110,10 +316,12 @@ configuration = amesh_client.Configuration(
 with amesh_client.ApiClient(configuration) as api_client:
     # Create an instance of the API class
     api_instance = amesh_client.AuthenticationApi(api_client)
+    identifier = 'identifier_example' # str |  (optional)
+    tenant = 'tenant_example' # str |  (optional)
 
     try:
         # List Authentication Providers
-        api_response = api_instance.list_authentication_providers_api_v1_auth_providers_get()
+        api_response = api_instance.list_authentication_providers_api_v1_auth_providers_get(identifier=identifier, tenant=tenant)
         print("The response of AuthenticationApi->list_authentication_providers_api_v1_auth_providers_get:\n")
         pprint(api_response)
     except Exception as e:
@@ -124,7 +332,11 @@ with amesh_client.ApiClient(configuration) as api_client:
 
 ### Parameters
 
-This endpoint does not need any parameter.
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **identifier** | **str**|  | [optional]
+ **tenant** | **str**|  | [optional]
 
 ### Return type
 
@@ -144,6 +356,7 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 **200** | Successful Response |  -  |
+**422** | Validation Error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -411,6 +624,72 @@ No authorization required
 
  - **Content-Type**: Not defined
  - **Accept**: application/json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Successful Response |  -  |
+**422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **saml_service_provider_metadata_api_v1_auth_federated_provider_id_saml_metadata_get**
+> str saml_service_provider_metadata_api_v1_auth_federated_provider_id_saml_metadata_get(provider_id)
+
+Saml Service Provider Metadata
+
+### Example
+
+
+```python
+import amesh_client
+from amesh_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to http://localhost
+# See configuration.py for a list of all supported configuration parameters.
+configuration = amesh_client.Configuration(
+    host = "http://localhost"
+)
+
+
+# Enter a context with an instance of the API client
+with amesh_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = amesh_client.AuthenticationApi(api_client)
+    provider_id = 'provider_id_example' # str |
+
+    try:
+        # Saml Service Provider Metadata
+        api_response = api_instance.saml_service_provider_metadata_api_v1_auth_federated_provider_id_saml_metadata_get(provider_id)
+        print("The response of AuthenticationApi->saml_service_provider_metadata_api_v1_auth_federated_provider_id_saml_metadata_get:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling AuthenticationApi->saml_service_provider_metadata_api_v1_auth_federated_provider_id_saml_metadata_get: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **provider_id** | **str**|  |
+
+### Return type
+
+**str**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: text/plain, application/json
 
 ### HTTP response details
 

@@ -16,6 +16,7 @@ export * from './NamespacesApi';
 export * from './OperationsApi';
 export * from './PluginsApi';
 export * from './RealtimeApi';
+export * from './ScimApi';
 export * from './SearchApi';
 export * from './SystemApi';
 export * from './TaskCacheApi';

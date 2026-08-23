@@ -159,6 +159,11 @@ projection state and immutable rebuild/failure events with transactional outbox 
 additive; stop optional projection cycles and forward-fix or rebuild these rows while authoritative
 resources and orchestration continue.
 
+Migration `0045_identity_federation.sql` adds immutable provider-subject identity links, one-time
+OIDC/SAML state and replay fences, provider-owned group memberships, and tenant-bound SCIM resource
+ownership. It is additive; disable the affected identity provider during a forward fix while existing
+local authentication and previously provisioned principals remain available.
+
 ## Migration modes
 
 - `bootstrap` creates the initial schema and is only safe for an empty database.

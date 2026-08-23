@@ -170,6 +170,135 @@ public class AuthenticationApi {
   }
 
   /**
+   * Begin Federated Login
+   *
+   * @param providerId  (required)
+   * @param tenant  (optional)
+   * @param returnTo  (optional, default to /)
+   * @throws ApiException if fails to make API call
+   */
+  public void beginFederatedLoginApiV1AuthFederatedProviderIdStartGet(@javax.annotation.Nonnull String providerId, @javax.annotation.Nullable String tenant, @javax.annotation.Nullable String returnTo) throws ApiException {
+    beginFederatedLoginApiV1AuthFederatedProviderIdStartGet(providerId, tenant, returnTo, null);
+  }
+
+  /**
+   * Begin Federated Login
+   *
+   * @param providerId  (required)
+   * @param tenant  (optional)
+   * @param returnTo  (optional, default to /)
+   * @param headers Optional headers to include in the request
+   * @throws ApiException if fails to make API call
+   */
+  public void beginFederatedLoginApiV1AuthFederatedProviderIdStartGet(@javax.annotation.Nonnull String providerId, @javax.annotation.Nullable String tenant, @javax.annotation.Nullable String returnTo, Map<String, String> headers) throws ApiException {
+    beginFederatedLoginApiV1AuthFederatedProviderIdStartGetWithHttpInfo(providerId, tenant, returnTo, headers);
+  }
+
+  /**
+   * Begin Federated Login
+   *
+   * @param providerId  (required)
+   * @param tenant  (optional)
+   * @param returnTo  (optional, default to /)
+   * @return ApiResponse&lt;Void&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<Void> beginFederatedLoginApiV1AuthFederatedProviderIdStartGetWithHttpInfo(@javax.annotation.Nonnull String providerId, @javax.annotation.Nullable String tenant, @javax.annotation.Nullable String returnTo) throws ApiException {
+    return beginFederatedLoginApiV1AuthFederatedProviderIdStartGetWithHttpInfo(providerId, tenant, returnTo, null);
+  }
+
+  /**
+   * Begin Federated Login
+   *
+   * @param providerId  (required)
+   * @param tenant  (optional)
+   * @param returnTo  (optional, default to /)
+   * @param headers Optional headers to include in the request
+   * @return ApiResponse&lt;Void&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<Void> beginFederatedLoginApiV1AuthFederatedProviderIdStartGetWithHttpInfo(@javax.annotation.Nonnull String providerId, @javax.annotation.Nullable String tenant, @javax.annotation.Nullable String returnTo, Map<String, String> headers) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = beginFederatedLoginApiV1AuthFederatedProviderIdStartGetRequestBuilder(providerId, tenant, returnTo, headers);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      InputStream localVarResponseBody = null;
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("beginFederatedLoginApiV1AuthFederatedProviderIdStartGet", localVarResponse);
+        }
+        localVarResponseBody = ApiClient.getResponseBody(localVarResponse);
+        if (localVarResponseBody != null) {
+          localVarResponseBody.readAllBytes();
+        }
+        return new ApiResponse<>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            null
+        );
+      } finally {
+        if (localVarResponseBody != null) {
+          localVarResponseBody.close();
+        }
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder beginFederatedLoginApiV1AuthFederatedProviderIdStartGetRequestBuilder(@javax.annotation.Nonnull String providerId, @javax.annotation.Nullable String tenant, @javax.annotation.Nullable String returnTo, Map<String, String> headers) throws ApiException {
+    // verify the required parameter 'providerId' is set
+    if (providerId == null) {
+      throw new ApiException(400, "Missing the required parameter 'providerId' when calling beginFederatedLoginApiV1AuthFederatedProviderIdStartGet");
+    }
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/api/v1/auth/federated/{provider_id}/start"
+        .replace("{provider_id}", ApiClient.urlEncode(providerId.toString()));
+
+    List<Pair> localVarQueryParams = new ArrayList<>();
+    StringJoiner localVarQueryStringJoiner = new StringJoiner("&");
+    String localVarQueryParameterBaseName;
+    localVarQueryParameterBaseName = "tenant";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("tenant", tenant));
+    localVarQueryParameterBaseName = "returnTo";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("returnTo", returnTo));
+
+    if (!localVarQueryParams.isEmpty() || localVarQueryStringJoiner.length() != 0) {
+      StringJoiner queryJoiner = new StringJoiner("&");
+      localVarQueryParams.forEach(p -> queryJoiner.add(p.getName() + '=' + p.getValue()));
+      if (localVarQueryStringJoiner.length() != 0) {
+        queryJoiner.add(localVarQueryStringJoiner.toString());
+      }
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath + '?' + queryJoiner.toString()));
+    } else {
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+    }
+
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    localVarRequestBuilder.method("GET", HttpRequest.BodyPublishers.noBody());
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    // Add custom headers if provided
+    localVarRequestBuilder = HttpRequestBuilderExtensions.withAdditionalHeaders(localVarRequestBuilder, headers);
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
+  }
+
+  /**
    * Change Local Password
    *
    * @param changeLocalPasswordRequest  (required)
@@ -307,46 +436,297 @@ public class AuthenticationApi {
   }
 
   /**
-   * List Authentication Providers
+   * Complete Oidc Login
    *
-   * @return List&lt;AuthenticationProviderDescriptor&gt;
+   * @param providerId  (required)
+   * @param state  (required)
+   * @param code  (optional)
+   * @param error  (optional)
    * @throws ApiException if fails to make API call
    */
-  public List<AuthenticationProviderDescriptor> listAuthenticationProvidersApiV1AuthProvidersGet() throws ApiException {
-    return listAuthenticationProvidersApiV1AuthProvidersGet(null);
+  public void completeOidcLoginApiV1AuthFederatedProviderIdCallbackGet(@javax.annotation.Nonnull String providerId, @javax.annotation.Nonnull String state, @javax.annotation.Nullable String code, @javax.annotation.Nullable String error) throws ApiException {
+    completeOidcLoginApiV1AuthFederatedProviderIdCallbackGet(providerId, state, code, error, null);
+  }
+
+  /**
+   * Complete Oidc Login
+   *
+   * @param providerId  (required)
+   * @param state  (required)
+   * @param code  (optional)
+   * @param error  (optional)
+   * @param headers Optional headers to include in the request
+   * @throws ApiException if fails to make API call
+   */
+  public void completeOidcLoginApiV1AuthFederatedProviderIdCallbackGet(@javax.annotation.Nonnull String providerId, @javax.annotation.Nonnull String state, @javax.annotation.Nullable String code, @javax.annotation.Nullable String error, Map<String, String> headers) throws ApiException {
+    completeOidcLoginApiV1AuthFederatedProviderIdCallbackGetWithHttpInfo(providerId, state, code, error, headers);
+  }
+
+  /**
+   * Complete Oidc Login
+   *
+   * @param providerId  (required)
+   * @param state  (required)
+   * @param code  (optional)
+   * @param error  (optional)
+   * @return ApiResponse&lt;Void&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<Void> completeOidcLoginApiV1AuthFederatedProviderIdCallbackGetWithHttpInfo(@javax.annotation.Nonnull String providerId, @javax.annotation.Nonnull String state, @javax.annotation.Nullable String code, @javax.annotation.Nullable String error) throws ApiException {
+    return completeOidcLoginApiV1AuthFederatedProviderIdCallbackGetWithHttpInfo(providerId, state, code, error, null);
+  }
+
+  /**
+   * Complete Oidc Login
+   *
+   * @param providerId  (required)
+   * @param state  (required)
+   * @param code  (optional)
+   * @param error  (optional)
+   * @param headers Optional headers to include in the request
+   * @return ApiResponse&lt;Void&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<Void> completeOidcLoginApiV1AuthFederatedProviderIdCallbackGetWithHttpInfo(@javax.annotation.Nonnull String providerId, @javax.annotation.Nonnull String state, @javax.annotation.Nullable String code, @javax.annotation.Nullable String error, Map<String, String> headers) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = completeOidcLoginApiV1AuthFederatedProviderIdCallbackGetRequestBuilder(providerId, state, code, error, headers);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      InputStream localVarResponseBody = null;
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("completeOidcLoginApiV1AuthFederatedProviderIdCallbackGet", localVarResponse);
+        }
+        localVarResponseBody = ApiClient.getResponseBody(localVarResponse);
+        if (localVarResponseBody != null) {
+          localVarResponseBody.readAllBytes();
+        }
+        return new ApiResponse<>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            null
+        );
+      } finally {
+        if (localVarResponseBody != null) {
+          localVarResponseBody.close();
+        }
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder completeOidcLoginApiV1AuthFederatedProviderIdCallbackGetRequestBuilder(@javax.annotation.Nonnull String providerId, @javax.annotation.Nonnull String state, @javax.annotation.Nullable String code, @javax.annotation.Nullable String error, Map<String, String> headers) throws ApiException {
+    // verify the required parameter 'providerId' is set
+    if (providerId == null) {
+      throw new ApiException(400, "Missing the required parameter 'providerId' when calling completeOidcLoginApiV1AuthFederatedProviderIdCallbackGet");
+    }
+    // verify the required parameter 'state' is set
+    if (state == null) {
+      throw new ApiException(400, "Missing the required parameter 'state' when calling completeOidcLoginApiV1AuthFederatedProviderIdCallbackGet");
+    }
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/api/v1/auth/federated/{provider_id}/callback"
+        .replace("{provider_id}", ApiClient.urlEncode(providerId.toString()));
+
+    List<Pair> localVarQueryParams = new ArrayList<>();
+    StringJoiner localVarQueryStringJoiner = new StringJoiner("&");
+    String localVarQueryParameterBaseName;
+    localVarQueryParameterBaseName = "state";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("state", state));
+    localVarQueryParameterBaseName = "code";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("code", code));
+    localVarQueryParameterBaseName = "error";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("error", error));
+
+    if (!localVarQueryParams.isEmpty() || localVarQueryStringJoiner.length() != 0) {
+      StringJoiner queryJoiner = new StringJoiner("&");
+      localVarQueryParams.forEach(p -> queryJoiner.add(p.getName() + '=' + p.getValue()));
+      if (localVarQueryStringJoiner.length() != 0) {
+        queryJoiner.add(localVarQueryStringJoiner.toString());
+      }
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath + '?' + queryJoiner.toString()));
+    } else {
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+    }
+
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    localVarRequestBuilder.method("GET", HttpRequest.BodyPublishers.noBody());
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    // Add custom headers if provided
+    localVarRequestBuilder = HttpRequestBuilderExtensions.withAdditionalHeaders(localVarRequestBuilder, headers);
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
+  }
+
+  /**
+   * Complete Saml Login
+   *
+   * @param providerId  (required)
+   * @throws ApiException if fails to make API call
+   */
+  public void completeSamlLoginApiV1AuthFederatedProviderIdCallbackPost(@javax.annotation.Nonnull String providerId) throws ApiException {
+    completeSamlLoginApiV1AuthFederatedProviderIdCallbackPost(providerId, null);
+  }
+
+  /**
+   * Complete Saml Login
+   *
+   * @param providerId  (required)
+   * @param headers Optional headers to include in the request
+   * @throws ApiException if fails to make API call
+   */
+  public void completeSamlLoginApiV1AuthFederatedProviderIdCallbackPost(@javax.annotation.Nonnull String providerId, Map<String, String> headers) throws ApiException {
+    completeSamlLoginApiV1AuthFederatedProviderIdCallbackPostWithHttpInfo(providerId, headers);
+  }
+
+  /**
+   * Complete Saml Login
+   *
+   * @param providerId  (required)
+   * @return ApiResponse&lt;Void&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<Void> completeSamlLoginApiV1AuthFederatedProviderIdCallbackPostWithHttpInfo(@javax.annotation.Nonnull String providerId) throws ApiException {
+    return completeSamlLoginApiV1AuthFederatedProviderIdCallbackPostWithHttpInfo(providerId, null);
+  }
+
+  /**
+   * Complete Saml Login
+   *
+   * @param providerId  (required)
+   * @param headers Optional headers to include in the request
+   * @return ApiResponse&lt;Void&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<Void> completeSamlLoginApiV1AuthFederatedProviderIdCallbackPostWithHttpInfo(@javax.annotation.Nonnull String providerId, Map<String, String> headers) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = completeSamlLoginApiV1AuthFederatedProviderIdCallbackPostRequestBuilder(providerId, headers);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      InputStream localVarResponseBody = null;
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("completeSamlLoginApiV1AuthFederatedProviderIdCallbackPost", localVarResponse);
+        }
+        localVarResponseBody = ApiClient.getResponseBody(localVarResponse);
+        if (localVarResponseBody != null) {
+          localVarResponseBody.readAllBytes();
+        }
+        return new ApiResponse<>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            null
+        );
+      } finally {
+        if (localVarResponseBody != null) {
+          localVarResponseBody.close();
+        }
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder completeSamlLoginApiV1AuthFederatedProviderIdCallbackPostRequestBuilder(@javax.annotation.Nonnull String providerId, Map<String, String> headers) throws ApiException {
+    // verify the required parameter 'providerId' is set
+    if (providerId == null) {
+      throw new ApiException(400, "Missing the required parameter 'providerId' when calling completeSamlLoginApiV1AuthFederatedProviderIdCallbackPost");
+    }
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/api/v1/auth/federated/{provider_id}/callback"
+        .replace("{provider_id}", ApiClient.urlEncode(providerId.toString()));
+
+    localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    localVarRequestBuilder.method("POST", HttpRequest.BodyPublishers.noBody());
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    // Add custom headers if provided
+    localVarRequestBuilder = HttpRequestBuilderExtensions.withAdditionalHeaders(localVarRequestBuilder, headers);
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
   }
 
   /**
    * List Authentication Providers
    *
+   * @param identifier  (optional)
+   * @param tenant  (optional)
+   * @return List&lt;AuthenticationProviderDescriptor&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public List<AuthenticationProviderDescriptor> listAuthenticationProvidersApiV1AuthProvidersGet(@javax.annotation.Nullable String identifier, @javax.annotation.Nullable String tenant) throws ApiException {
+    return listAuthenticationProvidersApiV1AuthProvidersGet(identifier, tenant, null);
+  }
+
+  /**
+   * List Authentication Providers
+   *
+   * @param identifier  (optional)
+   * @param tenant  (optional)
    * @param headers Optional headers to include in the request
    * @return List&lt;AuthenticationProviderDescriptor&gt;
    * @throws ApiException if fails to make API call
    */
-  public List<AuthenticationProviderDescriptor> listAuthenticationProvidersApiV1AuthProvidersGet(Map<String, String> headers) throws ApiException {
-    ApiResponse<List<AuthenticationProviderDescriptor>> localVarResponse = listAuthenticationProvidersApiV1AuthProvidersGetWithHttpInfo(headers);
+  public List<AuthenticationProviderDescriptor> listAuthenticationProvidersApiV1AuthProvidersGet(@javax.annotation.Nullable String identifier, @javax.annotation.Nullable String tenant, Map<String, String> headers) throws ApiException {
+    ApiResponse<List<AuthenticationProviderDescriptor>> localVarResponse = listAuthenticationProvidersApiV1AuthProvidersGetWithHttpInfo(identifier, tenant, headers);
     return localVarResponse.getData();
   }
 
   /**
    * List Authentication Providers
    *
+   * @param identifier  (optional)
+   * @param tenant  (optional)
    * @return ApiResponse&lt;List&lt;AuthenticationProviderDescriptor&gt;&gt;
    * @throws ApiException if fails to make API call
    */
-  public ApiResponse<List<AuthenticationProviderDescriptor>> listAuthenticationProvidersApiV1AuthProvidersGetWithHttpInfo() throws ApiException {
-    return listAuthenticationProvidersApiV1AuthProvidersGetWithHttpInfo(null);
+  public ApiResponse<List<AuthenticationProviderDescriptor>> listAuthenticationProvidersApiV1AuthProvidersGetWithHttpInfo(@javax.annotation.Nullable String identifier, @javax.annotation.Nullable String tenant) throws ApiException {
+    return listAuthenticationProvidersApiV1AuthProvidersGetWithHttpInfo(identifier, tenant, null);
   }
 
   /**
    * List Authentication Providers
    *
+   * @param identifier  (optional)
+   * @param tenant  (optional)
    * @param headers Optional headers to include in the request
    * @return ApiResponse&lt;List&lt;AuthenticationProviderDescriptor&gt;&gt;
    * @throws ApiException if fails to make API call
    */
-  public ApiResponse<List<AuthenticationProviderDescriptor>> listAuthenticationProvidersApiV1AuthProvidersGetWithHttpInfo(Map<String, String> headers) throws ApiException {
-    HttpRequest.Builder localVarRequestBuilder = listAuthenticationProvidersApiV1AuthProvidersGetRequestBuilder(headers);
+  public ApiResponse<List<AuthenticationProviderDescriptor>> listAuthenticationProvidersApiV1AuthProvidersGetWithHttpInfo(@javax.annotation.Nullable String identifier, @javax.annotation.Nullable String tenant, Map<String, String> headers) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = listAuthenticationProvidersApiV1AuthProvidersGetRequestBuilder(identifier, tenant, headers);
     try {
       HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
           localVarRequestBuilder.build(),
@@ -393,13 +773,30 @@ public class AuthenticationApi {
     }
   }
 
-  private HttpRequest.Builder listAuthenticationProvidersApiV1AuthProvidersGetRequestBuilder(Map<String, String> headers) throws ApiException {
+  private HttpRequest.Builder listAuthenticationProvidersApiV1AuthProvidersGetRequestBuilder(@javax.annotation.Nullable String identifier, @javax.annotation.Nullable String tenant, Map<String, String> headers) throws ApiException {
 
     HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
 
     String localVarPath = "/api/v1/auth/providers";
 
-    localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+    List<Pair> localVarQueryParams = new ArrayList<>();
+    StringJoiner localVarQueryStringJoiner = new StringJoiner("&");
+    String localVarQueryParameterBaseName;
+    localVarQueryParameterBaseName = "identifier";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("identifier", identifier));
+    localVarQueryParameterBaseName = "tenant";
+    localVarQueryParams.addAll(ApiClient.parameterToPairs("tenant", tenant));
+
+    if (!localVarQueryParams.isEmpty() || localVarQueryStringJoiner.length() != 0) {
+      StringJoiner queryJoiner = new StringJoiner("&");
+      localVarQueryParams.forEach(p -> queryJoiner.add(p.getName() + '=' + p.getValue()));
+      if (localVarQueryStringJoiner.length() != 0) {
+        queryJoiner.add(localVarQueryStringJoiner.toString());
+      }
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath + '?' + queryJoiner.toString()));
+    } else {
+      localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+    }
 
     localVarRequestBuilder.header("Accept", "application/json");
 
@@ -891,6 +1288,118 @@ public class AuthenticationApi {
     localVarRequestBuilder.header("Accept", "application/json");
 
     localVarRequestBuilder.method("DELETE", HttpRequest.BodyPublishers.noBody());
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    // Add custom headers if provided
+    localVarRequestBuilder = HttpRequestBuilderExtensions.withAdditionalHeaders(localVarRequestBuilder, headers);
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
+  }
+
+  /**
+   * Saml Service Provider Metadata
+   *
+   * @param providerId  (required)
+   * @return String
+   * @throws ApiException if fails to make API call
+   */
+  public String samlServiceProviderMetadataApiV1AuthFederatedProviderIdSamlMetadataGet(@javax.annotation.Nonnull String providerId) throws ApiException {
+    return samlServiceProviderMetadataApiV1AuthFederatedProviderIdSamlMetadataGet(providerId, null);
+  }
+
+  /**
+   * Saml Service Provider Metadata
+   *
+   * @param providerId  (required)
+   * @param headers Optional headers to include in the request
+   * @return String
+   * @throws ApiException if fails to make API call
+   */
+  public String samlServiceProviderMetadataApiV1AuthFederatedProviderIdSamlMetadataGet(@javax.annotation.Nonnull String providerId, Map<String, String> headers) throws ApiException {
+    ApiResponse<String> localVarResponse = samlServiceProviderMetadataApiV1AuthFederatedProviderIdSamlMetadataGetWithHttpInfo(providerId, headers);
+    return localVarResponse.getData();
+  }
+
+  /**
+   * Saml Service Provider Metadata
+   *
+   * @param providerId  (required)
+   * @return ApiResponse&lt;String&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<String> samlServiceProviderMetadataApiV1AuthFederatedProviderIdSamlMetadataGetWithHttpInfo(@javax.annotation.Nonnull String providerId) throws ApiException {
+    return samlServiceProviderMetadataApiV1AuthFederatedProviderIdSamlMetadataGetWithHttpInfo(providerId, null);
+  }
+
+  /**
+   * Saml Service Provider Metadata
+   *
+   * @param providerId  (required)
+   * @param headers Optional headers to include in the request
+   * @return ApiResponse&lt;String&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<String> samlServiceProviderMetadataApiV1AuthFederatedProviderIdSamlMetadataGetWithHttpInfo(@javax.annotation.Nonnull String providerId, Map<String, String> headers) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = samlServiceProviderMetadataApiV1AuthFederatedProviderIdSamlMetadataGetRequestBuilder(providerId, headers);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      InputStream localVarResponseBody = null;
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("samlServiceProviderMetadataApiV1AuthFederatedProviderIdSamlMetadataGet", localVarResponse);
+        }
+        // for plain text response
+        if (localVarResponse.headers().map().containsKey("Content-Type") &&
+                "text/plain".equalsIgnoreCase(localVarResponse.headers().map().get("Content-Type").get(0).split(";")[0].trim())) {
+          localVarResponseBody = ApiClient.getResponseBody(localVarResponse);
+          java.util.Scanner s = new java.util.Scanner(localVarResponseBody == null ? InputStream.nullInputStream() : localVarResponseBody).useDelimiter("\\A");
+          String responseBodyText = s.hasNext() ? s.next() : "";
+          return new ApiResponse<String>(
+                  localVarResponse.statusCode(),
+                  localVarResponse.headers().map(),
+                  responseBodyText
+          );
+        } else {
+            throw new RuntimeException("Error! The response Content-Type is supposed to be `text/plain` but it's not: " + localVarResponse);
+        }
+      } finally {
+        if (localVarResponseBody != null) {
+          localVarResponseBody.close();
+        }
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder samlServiceProviderMetadataApiV1AuthFederatedProviderIdSamlMetadataGetRequestBuilder(@javax.annotation.Nonnull String providerId, Map<String, String> headers) throws ApiException {
+    // verify the required parameter 'providerId' is set
+    if (providerId == null) {
+      throw new ApiException(400, "Missing the required parameter 'providerId' when calling samlServiceProviderMetadataApiV1AuthFederatedProviderIdSamlMetadataGet");
+    }
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/api/v1/auth/federated/{provider_id}/saml/metadata"
+        .replace("{provider_id}", ApiClient.urlEncode(providerId.toString()));
+
+    localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+
+    localVarRequestBuilder.header("Accept", "text/plain, application/json");
+
+    localVarRequestBuilder.method("GET", HttpRequest.BodyPublishers.noBody());
     if (memberVarReadTimeout != null) {
       localVarRequestBuilder.timeout(memberVarReadTimeout);
     }

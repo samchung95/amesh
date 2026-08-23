@@ -18,6 +18,7 @@ classifiers = [
   "Topic :: System :: Distributed Computing",
 ]
 dependencies = [
+  "authlib>=1.7.2,<2",
   "croniter>=6.2.4,<7",
   # fastapi, pydantic and pydantic-settings are pinned exactly because
   # tests/test_generated_contracts.py asserts byte-stable generated schemas
@@ -28,6 +29,7 @@ dependencies = [
   "fastapi==0.141.1",
   "httpx>=0.28,<1",
   "jinja2>=3.1.6,<4",
+  "ldap3>=2.9.1,<3",
   "jsonschema>=4.25,<5",
   "keyring>=25.7,<26",
   "kubernetes>=36.0.3,<37",
@@ -35,6 +37,7 @@ dependencies = [
   "prometheus-client>=0.25,<1",
   "psutil>=7.2.2,<8",
   "pwdlib[argon2]>=0.3,<1",
+  "python3-saml>=1.16,<2",
   "pydantic==2.13.4",
   "pydantic-settings==2.15.0",
   "PyYAML>=6.0.2,<7",

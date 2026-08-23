@@ -1,8 +1,9 @@
-import { type FormEvent, useState } from 'react'
+import { type FormEvent, useEffect, useState } from 'react'
 import { ArrowRight, KeyRound, Network, UserRound } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { ApiError } from '../api/client'
+import type { AuthenticationProvider } from '../api/types'
 import { useApiClient } from '../app/queries'
 import { useAppSettings } from '../app/settings'
 
@@ -21,6 +22,21 @@ export function ConnectionGate({ onConnected }: ConnectionGateProps) {
   const [tenant, setTenant] = useState(settings.tenant)
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
+  const [providers, setProviders] = useState<AuthenticationProvider[]>([])
+  const [providerId, setProviderId] = useState('local')
+
+  useEffect(() => {
+    const timeout = window.setTimeout(() => {
+      void api.routedProviders(identifier.trim() || undefined, tenant || undefined).then((available) => {
+        setProviders(available)
+        if (!available.some((provider) => provider.id === providerId)) {
+          const passwordProvider = available.find((provider) => provider.login_mode !== 'redirect')
+          if (passwordProvider) setProviderId(passwordProvider.id)
+        }
+      }).catch(() => setProviders([]))
+    }, 200)
+    return () => window.clearTimeout(timeout)
+  }, [api, identifier, providerId, tenant])
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -36,7 +52,7 @@ export function ConnectionGate({ onConnected }: ConnectionGateProps) {
     setBusy(true)
     try {
       if (mode === 'session') {
-        await api.login(identifier.trim(), password)
+        await api.login(identifier.trim(), password, providerId)
         connectSession(tenant)
       } else {
         connectToken(token, tenant)
@@ -103,6 +119,30 @@ export function ConnectionGate({ onConnected }: ConnectionGateProps) {
         <form onSubmit={(event) => void submit(event)} noValidate>
           {mode === 'session' ? (
             <>
+              {providers.length ? (
+                <div className="identity-provider-list" aria-label={t('identityProvider')}>
+                  {providers.map((provider) => (
+                    <button
+                      key={provider.id}
+                      type="button"
+                      className={provider.id === providerId ? 'identity-provider active' : 'identity-provider'}
+                      aria-pressed={provider.login_mode !== 'redirect' ? provider.id === providerId : undefined}
+                      onClick={() => {
+                        if (provider.login_mode === 'redirect') {
+                          const params = new URLSearchParams({ tenant, returnTo: window.location.pathname })
+                          window.location.assign(`/api/v1/auth/federated/${encodeURIComponent(provider.id)}/start?${params.toString()}`)
+                        } else {
+                          setProviderId(provider.id)
+                        }
+                      }}
+                    >
+                      {provider.login_mode === 'redirect'
+                        ? t('continueWithProvider', { provider: provider.display_name })
+                        : provider.display_name}
+                    </button>
+                  ))}
+                </div>
+              ) : null}
               <label htmlFor="user-handle">{t('userHandle')}</label>
               <div className="input-with-icon">
                 <UserRound size={18} aria-hidden="true" />

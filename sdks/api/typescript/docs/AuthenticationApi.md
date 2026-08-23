@@ -4,14 +4,90 @@ All URIs are relative to *http://localhost*
 
 | Method | HTTP request | Description |
 |------------- | ------------- | -------------|
+| [**beginFederatedLoginApiV1AuthFederatedProviderIdStartGet**](AuthenticationApi.md#beginfederatedloginapiv1authfederatedprovideridstartget) | **GET** /api/v1/auth/federated/{provider_id}/start | Begin Federated Login |
 | [**changeLocalPasswordApiV1AuthPasswordPost**](AuthenticationApi.md#changelocalpasswordapiv1authpasswordpost) | **POST** /api/v1/auth/password | Change Local Password |
+| [**completeOidcLoginApiV1AuthFederatedProviderIdCallbackGet**](AuthenticationApi.md#completeoidcloginapiv1authfederatedprovideridcallbackget) | **GET** /api/v1/auth/federated/{provider_id}/callback | Complete Oidc Login |
+| [**completeSamlLoginApiV1AuthFederatedProviderIdCallbackPost**](AuthenticationApi.md#completesamlloginapiv1authfederatedprovideridcallbackpost) | **POST** /api/v1/auth/federated/{provider_id}/callback | Complete Saml Login |
 | [**listAuthenticationProvidersApiV1AuthProvidersGet**](AuthenticationApi.md#listauthenticationprovidersapiv1authprovidersget) | **GET** /api/v1/auth/providers | List Authentication Providers |
 | [**loginApiV1AuthLoginPost**](AuthenticationApi.md#loginapiv1authloginpost) | **POST** /api/v1/auth/login | Login |
 | [**logoutAllApiV1AuthLogoutAllPost**](AuthenticationApi.md#logoutallapiv1authlogoutallpost) | **POST** /api/v1/auth/logout-all | Logout All |
 | [**logoutApiV1AuthLogoutPost**](AuthenticationApi.md#logoutapiv1authlogoutpost) | **POST** /api/v1/auth/logout | Logout |
 | [**revokePrincipalSessionsApiV1AdminPrincipalsPrincipalIdSessionsDelete**](AuthenticationApi.md#revokeprincipalsessionsapiv1adminprincipalsprincipalidsessionsdelete) | **DELETE** /api/v1/admin/principals/{principal_id}/sessions | Revoke Principal Sessions |
+| [**samlServiceProviderMetadataApiV1AuthFederatedProviderIdSamlMetadataGet**](AuthenticationApi.md#samlserviceprovidermetadataapiv1authfederatedprovideridsamlmetadataget) | **GET** /api/v1/auth/federated/{provider_id}/saml/metadata | Saml Service Provider Metadata |
 | [**setLocalPasswordApiV1AdminPrincipalsPrincipalIdLocalPasswordPut**](AuthenticationApi.md#setlocalpasswordapiv1adminprincipalsprincipalidlocalpasswordput) | **PUT** /api/v1/admin/principals/{principal_id}/local-password | Set Local Password |
 
+
+
+## beginFederatedLoginApiV1AuthFederatedProviderIdStartGet
+
+> beginFederatedLoginApiV1AuthFederatedProviderIdStartGet(providerId, tenant, returnTo)
+
+Begin Federated Login
+
+### Example
+
+```ts
+import {
+  Configuration,
+  AuthenticationApi,
+} from '@amesh/client';
+import type { BeginFederatedLoginApiV1AuthFederatedProviderIdStartGetRequest } from '@amesh/client';
+
+async function example() {
+  console.log("🚀 Testing @amesh/client SDK...");
+  const api = new AuthenticationApi();
+
+  const body = {
+    // string
+    providerId: providerId_example,
+    // string (optional)
+    tenant: tenant_example,
+    // string (optional)
+    returnTo: returnTo_example,
+  } satisfies BeginFederatedLoginApiV1AuthFederatedProviderIdStartGetRequest;
+
+  try {
+    const data = await api.beginFederatedLoginApiV1AuthFederatedProviderIdStartGet(body);
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// Run the test
+example().catch(console.error);
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **providerId** | `string` |  | [Defaults to `undefined`] |
+| **tenant** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **returnTo** | `string` |  | [Optional] [Defaults to `&#39;/&#39;`] |
+
+### Return type
+
+`void` (Empty response body)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: `application/json`
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **307** | Successful Response |  -  |
+| **422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 
 
 ## changeLocalPasswordApiV1AuthPasswordPost
@@ -86,9 +162,150 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 
 
+## completeOidcLoginApiV1AuthFederatedProviderIdCallbackGet
+
+> completeOidcLoginApiV1AuthFederatedProviderIdCallbackGet(providerId, state, code, error)
+
+Complete Oidc Login
+
+### Example
+
+```ts
+import {
+  Configuration,
+  AuthenticationApi,
+} from '@amesh/client';
+import type { CompleteOidcLoginApiV1AuthFederatedProviderIdCallbackGetRequest } from '@amesh/client';
+
+async function example() {
+  console.log("🚀 Testing @amesh/client SDK...");
+  const api = new AuthenticationApi();
+
+  const body = {
+    // string
+    providerId: providerId_example,
+    // string
+    state: state_example,
+    // string (optional)
+    code: code_example,
+    // string (optional)
+    error: error_example,
+  } satisfies CompleteOidcLoginApiV1AuthFederatedProviderIdCallbackGetRequest;
+
+  try {
+    const data = await api.completeOidcLoginApiV1AuthFederatedProviderIdCallbackGet(body);
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// Run the test
+example().catch(console.error);
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **providerId** | `string` |  | [Defaults to `undefined`] |
+| **state** | `string` |  | [Defaults to `undefined`] |
+| **code** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **error** | `string` |  | [Optional] [Defaults to `undefined`] |
+
+### Return type
+
+`void` (Empty response body)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: `application/json`
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **307** | Successful Response |  -  |
+| **422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
+
+
+## completeSamlLoginApiV1AuthFederatedProviderIdCallbackPost
+
+> completeSamlLoginApiV1AuthFederatedProviderIdCallbackPost(providerId)
+
+Complete Saml Login
+
+### Example
+
+```ts
+import {
+  Configuration,
+  AuthenticationApi,
+} from '@amesh/client';
+import type { CompleteSamlLoginApiV1AuthFederatedProviderIdCallbackPostRequest } from '@amesh/client';
+
+async function example() {
+  console.log("🚀 Testing @amesh/client SDK...");
+  const api = new AuthenticationApi();
+
+  const body = {
+    // string
+    providerId: providerId_example,
+  } satisfies CompleteSamlLoginApiV1AuthFederatedProviderIdCallbackPostRequest;
+
+  try {
+    const data = await api.completeSamlLoginApiV1AuthFederatedProviderIdCallbackPost(body);
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// Run the test
+example().catch(console.error);
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **providerId** | `string` |  | [Defaults to `undefined`] |
+
+### Return type
+
+`void` (Empty response body)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: `application/json`
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **307** | Successful Response |  -  |
+| **422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
+
+
 ## listAuthenticationProvidersApiV1AuthProvidersGet
 
-> Array&lt;AuthenticationProviderDescriptor&gt; listAuthenticationProvidersApiV1AuthProvidersGet()
+> Array&lt;AuthenticationProviderDescriptor&gt; listAuthenticationProvidersApiV1AuthProvidersGet(identifier, tenant)
 
 List Authentication Providers
 
@@ -105,8 +322,15 @@ async function example() {
   console.log("🚀 Testing @amesh/client SDK...");
   const api = new AuthenticationApi();
 
+  const body = {
+    // string (optional)
+    identifier: identifier_example,
+    // string (optional)
+    tenant: tenant_example,
+  } satisfies ListAuthenticationProvidersApiV1AuthProvidersGetRequest;
+
   try {
-    const data = await api.listAuthenticationProvidersApiV1AuthProvidersGet();
+    const data = await api.listAuthenticationProvidersApiV1AuthProvidersGet(body);
     console.log(data);
   } catch (error) {
     console.error(error);
@@ -119,7 +343,11 @@ example().catch(console.error);
 
 ### Parameters
 
-This endpoint does not need any parameter.
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **identifier** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **tenant** | `string` |  | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
@@ -139,6 +367,7 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **200** | Successful Response |  -  |
+| **422** | Validation Error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 
@@ -408,6 +637,72 @@ No authorization required
 
 - **Content-Type**: Not defined
 - **Accept**: `application/json`
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful Response |  -  |
+| **422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
+
+
+## samlServiceProviderMetadataApiV1AuthFederatedProviderIdSamlMetadataGet
+
+> string samlServiceProviderMetadataApiV1AuthFederatedProviderIdSamlMetadataGet(providerId)
+
+Saml Service Provider Metadata
+
+### Example
+
+```ts
+import {
+  Configuration,
+  AuthenticationApi,
+} from '@amesh/client';
+import type { SamlServiceProviderMetadataApiV1AuthFederatedProviderIdSamlMetadataGetRequest } from '@amesh/client';
+
+async function example() {
+  console.log("🚀 Testing @amesh/client SDK...");
+  const api = new AuthenticationApi();
+
+  const body = {
+    // string
+    providerId: providerId_example,
+  } satisfies SamlServiceProviderMetadataApiV1AuthFederatedProviderIdSamlMetadataGetRequest;
+
+  try {
+    const data = await api.samlServiceProviderMetadataApiV1AuthFederatedProviderIdSamlMetadataGet(body);
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// Run the test
+example().catch(console.error);
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **providerId** | `string` |  | [Defaults to `undefined`] |
+
+### Return type
+
+**string**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: `text/plain`, `application/json`
 
 
 ### HTTP response details

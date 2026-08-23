@@ -49,10 +49,32 @@ import {
     SetLocalPasswordRequestToJSON,
 } from '../models/SetLocalPasswordRequest';
 
+export interface BeginFederatedLoginApiV1AuthFederatedProviderIdStartGetRequest {
+    providerId: string;
+    tenant?: string | null;
+    returnTo?: string;
+}
+
 export interface ChangeLocalPasswordApiV1AuthPasswordPostRequest {
     changeLocalPasswordRequest: ChangeLocalPasswordRequest;
     authorization?: string | null;
     xAmeshCSRF?: string | null;
+}
+
+export interface CompleteOidcLoginApiV1AuthFederatedProviderIdCallbackGetRequest {
+    providerId: string;
+    state: string;
+    code?: string | null;
+    error?: string | null;
+}
+
+export interface CompleteSamlLoginApiV1AuthFederatedProviderIdCallbackPostRequest {
+    providerId: string;
+}
+
+export interface ListAuthenticationProvidersApiV1AuthProvidersGetRequest {
+    identifier?: string | null;
+    tenant?: string | null;
 }
 
 export interface LoginApiV1AuthLoginPostRequest {
@@ -75,6 +97,10 @@ export interface RevokePrincipalSessionsApiV1AdminPrincipalsPrincipalIdSessionsD
     xAmeshCSRF?: string | null;
 }
 
+export interface SamlServiceProviderMetadataApiV1AuthFederatedProviderIdSamlMetadataGetRequest {
+    providerId: string;
+}
+
 export interface SetLocalPasswordApiV1AdminPrincipalsPrincipalIdLocalPasswordPutRequest {
     principalId: string;
     setLocalPasswordRequest: SetLocalPasswordRequest;
@@ -86,6 +112,58 @@ export interface SetLocalPasswordApiV1AdminPrincipalsPrincipalIdLocalPasswordPut
  *
  */
 export class AuthenticationApi extends runtime.BaseAPI {
+
+    /**
+     * Creates request options for beginFederatedLoginApiV1AuthFederatedProviderIdStartGet without sending the request
+     */
+    async beginFederatedLoginApiV1AuthFederatedProviderIdStartGetRequestOpts(requestParameters: BeginFederatedLoginApiV1AuthFederatedProviderIdStartGetRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['providerId'] == null) {
+            throw new runtime.RequiredError(
+                'providerId',
+                'Required parameter "providerId" was null or undefined when calling beginFederatedLoginApiV1AuthFederatedProviderIdStartGet().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        if (requestParameters['tenant'] != null) {
+            queryParameters['tenant'] = requestParameters['tenant'];
+        }
+
+        if (requestParameters['returnTo'] != null) {
+            queryParameters['returnTo'] = requestParameters['returnTo'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+
+        let urlPath = `/api/v1/auth/federated/{provider_id}/start`;
+        urlPath = urlPath.replace('{provider_id}', encodeURIComponent(String(requestParameters['providerId'])));
+
+        return {
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     * Begin Federated Login
+     */
+    async beginFederatedLoginApiV1AuthFederatedProviderIdStartGetRaw(requestParameters: BeginFederatedLoginApiV1AuthFederatedProviderIdStartGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        const requestOptions = await this.beginFederatedLoginApiV1AuthFederatedProviderIdStartGetRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.VoidApiResponse(response);
+    }
+
+    /**
+     * Begin Federated Login
+     */
+    async beginFederatedLoginApiV1AuthFederatedProviderIdStartGet(requestParameters: BeginFederatedLoginApiV1AuthFederatedProviderIdStartGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+        await this.beginFederatedLoginApiV1AuthFederatedProviderIdStartGetRaw(requestParameters, initOverrides);
+    }
 
     /**
      * Creates request options for changeLocalPasswordApiV1AuthPasswordPost without sending the request
@@ -143,10 +221,125 @@ export class AuthenticationApi extends runtime.BaseAPI {
     }
 
     /**
+     * Creates request options for completeOidcLoginApiV1AuthFederatedProviderIdCallbackGet without sending the request
+     */
+    async completeOidcLoginApiV1AuthFederatedProviderIdCallbackGetRequestOpts(requestParameters: CompleteOidcLoginApiV1AuthFederatedProviderIdCallbackGetRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['providerId'] == null) {
+            throw new runtime.RequiredError(
+                'providerId',
+                'Required parameter "providerId" was null or undefined when calling completeOidcLoginApiV1AuthFederatedProviderIdCallbackGet().'
+            );
+        }
+
+        if (requestParameters['state'] == null) {
+            throw new runtime.RequiredError(
+                'state',
+                'Required parameter "state" was null or undefined when calling completeOidcLoginApiV1AuthFederatedProviderIdCallbackGet().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        if (requestParameters['state'] != null) {
+            queryParameters['state'] = requestParameters['state'];
+        }
+
+        if (requestParameters['code'] != null) {
+            queryParameters['code'] = requestParameters['code'];
+        }
+
+        if (requestParameters['error'] != null) {
+            queryParameters['error'] = requestParameters['error'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+
+        let urlPath = `/api/v1/auth/federated/{provider_id}/callback`;
+        urlPath = urlPath.replace('{provider_id}', encodeURIComponent(String(requestParameters['providerId'])));
+
+        return {
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     * Complete Oidc Login
+     */
+    async completeOidcLoginApiV1AuthFederatedProviderIdCallbackGetRaw(requestParameters: CompleteOidcLoginApiV1AuthFederatedProviderIdCallbackGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        const requestOptions = await this.completeOidcLoginApiV1AuthFederatedProviderIdCallbackGetRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.VoidApiResponse(response);
+    }
+
+    /**
+     * Complete Oidc Login
+     */
+    async completeOidcLoginApiV1AuthFederatedProviderIdCallbackGet(requestParameters: CompleteOidcLoginApiV1AuthFederatedProviderIdCallbackGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+        await this.completeOidcLoginApiV1AuthFederatedProviderIdCallbackGetRaw(requestParameters, initOverrides);
+    }
+
+    /**
+     * Creates request options for completeSamlLoginApiV1AuthFederatedProviderIdCallbackPost without sending the request
+     */
+    async completeSamlLoginApiV1AuthFederatedProviderIdCallbackPostRequestOpts(requestParameters: CompleteSamlLoginApiV1AuthFederatedProviderIdCallbackPostRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['providerId'] == null) {
+            throw new runtime.RequiredError(
+                'providerId',
+                'Required parameter "providerId" was null or undefined when calling completeSamlLoginApiV1AuthFederatedProviderIdCallbackPost().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+
+        let urlPath = `/api/v1/auth/federated/{provider_id}/callback`;
+        urlPath = urlPath.replace('{provider_id}', encodeURIComponent(String(requestParameters['providerId'])));
+
+        return {
+            path: urlPath,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     * Complete Saml Login
+     */
+    async completeSamlLoginApiV1AuthFederatedProviderIdCallbackPostRaw(requestParameters: CompleteSamlLoginApiV1AuthFederatedProviderIdCallbackPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        const requestOptions = await this.completeSamlLoginApiV1AuthFederatedProviderIdCallbackPostRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.VoidApiResponse(response);
+    }
+
+    /**
+     * Complete Saml Login
+     */
+    async completeSamlLoginApiV1AuthFederatedProviderIdCallbackPost(requestParameters: CompleteSamlLoginApiV1AuthFederatedProviderIdCallbackPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+        await this.completeSamlLoginApiV1AuthFederatedProviderIdCallbackPostRaw(requestParameters, initOverrides);
+    }
+
+    /**
      * Creates request options for listAuthenticationProvidersApiV1AuthProvidersGet without sending the request
      */
-    async listAuthenticationProvidersApiV1AuthProvidersGetRequestOpts(): Promise<runtime.RequestOpts> {
+    async listAuthenticationProvidersApiV1AuthProvidersGetRequestOpts(requestParameters: ListAuthenticationProvidersApiV1AuthProvidersGetRequest): Promise<runtime.RequestOpts> {
         const queryParameters: any = {};
+
+        if (requestParameters['identifier'] != null) {
+            queryParameters['identifier'] = requestParameters['identifier'];
+        }
+
+        if (requestParameters['tenant'] != null) {
+            queryParameters['tenant'] = requestParameters['tenant'];
+        }
 
         const headerParameters: runtime.HTTPHeaders = {};
 
@@ -164,8 +357,8 @@ export class AuthenticationApi extends runtime.BaseAPI {
     /**
      * List Authentication Providers
      */
-    async listAuthenticationProvidersApiV1AuthProvidersGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<AuthenticationProviderDescriptor>>> {
-        const requestOptions = await this.listAuthenticationProvidersApiV1AuthProvidersGetRequestOpts();
+    async listAuthenticationProvidersApiV1AuthProvidersGetRaw(requestParameters: ListAuthenticationProvidersApiV1AuthProvidersGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<AuthenticationProviderDescriptor>>> {
+        const requestOptions = await this.listAuthenticationProvidersApiV1AuthProvidersGetRequestOpts(requestParameters);
         const response = await this.request(requestOptions, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(AuthenticationProviderDescriptorFromJSON));
@@ -174,8 +367,8 @@ export class AuthenticationApi extends runtime.BaseAPI {
     /**
      * List Authentication Providers
      */
-    async listAuthenticationProvidersApiV1AuthProvidersGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<AuthenticationProviderDescriptor>> {
-        const response = await this.listAuthenticationProvidersApiV1AuthProvidersGetRaw(initOverrides);
+    async listAuthenticationProvidersApiV1AuthProvidersGet(requestParameters: ListAuthenticationProvidersApiV1AuthProvidersGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<AuthenticationProviderDescriptor>> {
+        const response = await this.listAuthenticationProvidersApiV1AuthProvidersGetRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
@@ -365,6 +558,55 @@ export class AuthenticationApi extends runtime.BaseAPI {
      */
     async revokePrincipalSessionsApiV1AdminPrincipalsPrincipalIdSessionsDelete(requestParameters: RevokePrincipalSessionsApiV1AdminPrincipalsPrincipalIdSessionsDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<RevokedSessionsResponse> {
         const response = await this.revokePrincipalSessionsApiV1AdminPrincipalsPrincipalIdSessionsDeleteRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Creates request options for samlServiceProviderMetadataApiV1AuthFederatedProviderIdSamlMetadataGet without sending the request
+     */
+    async samlServiceProviderMetadataApiV1AuthFederatedProviderIdSamlMetadataGetRequestOpts(requestParameters: SamlServiceProviderMetadataApiV1AuthFederatedProviderIdSamlMetadataGetRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['providerId'] == null) {
+            throw new runtime.RequiredError(
+                'providerId',
+                'Required parameter "providerId" was null or undefined when calling samlServiceProviderMetadataApiV1AuthFederatedProviderIdSamlMetadataGet().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+
+        let urlPath = `/api/v1/auth/federated/{provider_id}/saml/metadata`;
+        urlPath = urlPath.replace('{provider_id}', encodeURIComponent(String(requestParameters['providerId'])));
+
+        return {
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     * Saml Service Provider Metadata
+     */
+    async samlServiceProviderMetadataApiV1AuthFederatedProviderIdSamlMetadataGetRaw(requestParameters: SamlServiceProviderMetadataApiV1AuthFederatedProviderIdSamlMetadataGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<string>> {
+        const requestOptions = await this.samlServiceProviderMetadataApiV1AuthFederatedProviderIdSamlMetadataGetRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        if (this.isJsonMime(response.headers.get('content-type'))) {
+            return new runtime.JSONApiResponse<string>(response);
+        } else {
+            return new runtime.TextApiResponse(response) as any;
+        }
+    }
+
+    /**
+     * Saml Service Provider Metadata
+     */
+    async samlServiceProviderMetadataApiV1AuthFederatedProviderIdSamlMetadataGet(requestParameters: SamlServiceProviderMetadataApiV1AuthFederatedProviderIdSamlMetadataGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<string> {
+        const response = await this.samlServiceProviderMetadataApiV1AuthFederatedProviderIdSamlMetadataGetRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

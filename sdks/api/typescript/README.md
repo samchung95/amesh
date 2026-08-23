@@ -62,12 +62,16 @@ All URIs are relative to *http://localhost*
 *AdministrationApi* | [**listAdministrationAuditApiV1AdminAuditGet**](docs/AdministrationApi.md#listadministrationauditapiv1adminauditget) | **GET** /api/v1/admin/audit | List Administration Audit
 *AdministrationApi* | [**listAdministrationControlsApiV1AdminControlsGet**](docs/AdministrationApi.md#listadministrationcontrolsapiv1admincontrolsget) | **GET** /api/v1/admin/controls | List Administration Controls
 *AdministrationApi* | [**previewAdministrationControlApiV1AdminControlsPreviewPost**](docs/AdministrationApi.md#previewadministrationcontrolapiv1admincontrolspreviewpost) | **POST** /api/v1/admin/controls/preview | Preview Administration Control
+*AuthenticationApi* | [**beginFederatedLoginApiV1AuthFederatedProviderIdStartGet**](docs/AuthenticationApi.md#beginfederatedloginapiv1authfederatedprovideridstartget) | **GET** /api/v1/auth/federated/{provider_id}/start | Begin Federated Login
 *AuthenticationApi* | [**changeLocalPasswordApiV1AuthPasswordPost**](docs/AuthenticationApi.md#changelocalpasswordapiv1authpasswordpost) | **POST** /api/v1/auth/password | Change Local Password
+*AuthenticationApi* | [**completeOidcLoginApiV1AuthFederatedProviderIdCallbackGet**](docs/AuthenticationApi.md#completeoidcloginapiv1authfederatedprovideridcallbackget) | **GET** /api/v1/auth/federated/{provider_id}/callback | Complete Oidc Login
+*AuthenticationApi* | [**completeSamlLoginApiV1AuthFederatedProviderIdCallbackPost**](docs/AuthenticationApi.md#completesamlloginapiv1authfederatedprovideridcallbackpost) | **POST** /api/v1/auth/federated/{provider_id}/callback | Complete Saml Login
 *AuthenticationApi* | [**listAuthenticationProvidersApiV1AuthProvidersGet**](docs/AuthenticationApi.md#listauthenticationprovidersapiv1authprovidersget) | **GET** /api/v1/auth/providers | List Authentication Providers
 *AuthenticationApi* | [**loginApiV1AuthLoginPost**](docs/AuthenticationApi.md#loginapiv1authloginpost) | **POST** /api/v1/auth/login | Login
 *AuthenticationApi* | [**logoutAllApiV1AuthLogoutAllPost**](docs/AuthenticationApi.md#logoutallapiv1authlogoutallpost) | **POST** /api/v1/auth/logout-all | Logout All
 *AuthenticationApi* | [**logoutApiV1AuthLogoutPost**](docs/AuthenticationApi.md#logoutapiv1authlogoutpost) | **POST** /api/v1/auth/logout | Logout
 *AuthenticationApi* | [**revokePrincipalSessionsApiV1AdminPrincipalsPrincipalIdSessionsDelete**](docs/AuthenticationApi.md#revokeprincipalsessionsapiv1adminprincipalsprincipalidsessionsdelete) | **DELETE** /api/v1/admin/principals/{principal_id}/sessions | Revoke Principal Sessions
+*AuthenticationApi* | [**samlServiceProviderMetadataApiV1AuthFederatedProviderIdSamlMetadataGet**](docs/AuthenticationApi.md#samlserviceprovidermetadataapiv1authfederatedprovideridsamlmetadataget) | **GET** /api/v1/auth/federated/{provider_id}/saml/metadata | Saml Service Provider Metadata
 *AuthenticationApi* | [**setLocalPasswordApiV1AdminPrincipalsPrincipalIdLocalPasswordPut**](docs/AuthenticationApi.md#setlocalpasswordapiv1adminprincipalsprincipalidlocalpasswordput) | **PUT** /api/v1/admin/principals/{principal_id}/local-password | Set Local Password
 *AuthorizationApi* | [**addGroupMemberApiV1AdminGroupsGroupIdMembersMemberIdPut**](docs/AuthorizationApi.md#addgroupmemberapiv1admingroupsgroupidmembersmemberidput) | **PUT** /api/v1/admin/groups/{group_id}/members/{member_id} | Add Group Member
 *AuthorizationApi* | [**createPrincipalApiV1AdminPrincipalsPost**](docs/AuthorizationApi.md#createprincipalapiv1adminprincipalspost) | **POST** /api/v1/admin/principals | Create Principal
@@ -195,6 +199,17 @@ All URIs are relative to *http://localhost*
 *RealtimeApi* | [**rotateWebhookSubscriptionSecretApiV1WebhookSubscriptionsSubscriptionIdRotateSecretPost**](docs/RealtimeApi.md#rotatewebhooksubscriptionsecretapiv1webhooksubscriptionssubscriptionidrotatesecretpost) | **POST** /api/v1/webhook-subscriptions/{subscription_id}/rotate-secret | Rotate Webhook Subscription Secret
 *RealtimeApi* | [**streamRealtimeEventsApiV1RealtimeStreamGet**](docs/RealtimeApi.md#streamrealtimeeventsapiv1realtimestreamget) | **GET** /api/v1/realtime/stream | Stream Realtime Events
 *RealtimeApi* | [**testWebhookSubscriptionApiV1WebhookSubscriptionsSubscriptionIdTestPost**](docs/RealtimeApi.md#testwebhooksubscriptionapiv1webhooksubscriptionssubscriptionidtestpost) | **POST** /api/v1/webhook-subscriptions/{subscription_id}/test | Test Webhook Subscription
+*ScimApi* | [**createScimGroupScimV2GroupsPost**](docs/ScimApi.md#createscimgroupscimv2groupspost) | **POST** /scim/v2/Groups | Create Scim Group
+*ScimApi* | [**createScimUserScimV2UsersPost**](docs/ScimApi.md#createscimuserscimv2userspost) | **POST** /scim/v2/Users | Create Scim User
+*ScimApi* | [**deleteScimGroupScimV2GroupsGroupIdDelete**](docs/ScimApi.md#deletescimgroupscimv2groupsgroupiddelete) | **DELETE** /scim/v2/Groups/{group_id} | Delete Scim Group
+*ScimApi* | [**deleteScimUserScimV2UsersUserIdDelete**](docs/ScimApi.md#deletescimuserscimv2usersuseriddelete) | **DELETE** /scim/v2/Users/{user_id} | Delete Scim User
+*ScimApi* | [**getScimGroupScimV2GroupsGroupIdGet**](docs/ScimApi.md#getscimgroupscimv2groupsgroupidget) | **GET** /scim/v2/Groups/{group_id} | Get Scim Group
+*ScimApi* | [**getScimUserScimV2UsersUserIdGet**](docs/ScimApi.md#getscimuserscimv2usersuseridget) | **GET** /scim/v2/Users/{user_id} | Get Scim User
+*ScimApi* | [**listScimGroupsScimV2GroupsGet**](docs/ScimApi.md#listscimgroupsscimv2groupsget) | **GET** /scim/v2/Groups | List Scim Groups
+*ScimApi* | [**listScimUsersScimV2UsersGet**](docs/ScimApi.md#listscimusersscimv2usersget) | **GET** /scim/v2/Users | List Scim Users
+*ScimApi* | [**patchScimGroupScimV2GroupsGroupIdPatch**](docs/ScimApi.md#patchscimgroupscimv2groupsgroupidpatch) | **PATCH** /scim/v2/Groups/{group_id} | Patch Scim Group
+*ScimApi* | [**patchScimUserScimV2UsersUserIdPatch**](docs/ScimApi.md#patchscimuserscimv2usersuseridpatch) | **PATCH** /scim/v2/Users/{user_id} | Patch Scim User
+*ScimApi* | [**scimServiceProviderConfigScimV2ServiceProviderConfigGet**](docs/ScimApi.md#scimserviceproviderconfigscimv2serviceproviderconfigget) | **GET** /scim/v2/ServiceProviderConfig | Scim Service Provider Config
 *SearchApi* | [**getSearchStatusApiV1SearchStatusGet**](docs/SearchApi.md#getsearchstatusapiv1searchstatusget) | **GET** /api/v1/search/status | Get Search Status
 *SearchApi* | [**rebuildSearchProjectionApiV1SearchRebuildPost**](docs/SearchApi.md#rebuildsearchprojectionapiv1searchrebuildpost) | **POST** /api/v1/search/rebuild | Rebuild Search Projection
 *SearchApi* | [**searchResourcesApiV1SearchPost**](docs/SearchApi.md#searchresourcesapiv1searchpost) | **POST** /api/v1/search | Search Resources
@@ -421,6 +436,7 @@ All URIs are relative to *http://localhost*
 - [ReduceExecutionResponse](docs/ReduceExecutionResponse.md)
 - [ResourceLifecycle](docs/ResourceLifecycle.md)
 - [ResourceMetadata](docs/ResourceMetadata.md)
+- [ResourcesInner](docs/ResourcesInner.md)
 - [ResumeTaskRequest](docs/ResumeTaskRequest.md)
 - [RevokedCredentialsResponse](docs/RevokedCredentialsResponse.md)
 - [RevokedSessionsResponse](docs/RevokedSessionsResponse.md)
@@ -432,6 +448,15 @@ All URIs are relative to *http://localhost*
 - [RunnerMode](docs/RunnerMode.md)
 - [RunnerNetworkAccess](docs/RunnerNetworkAccess.md)
 - [SchedulePreview](docs/SchedulePreview.md)
+- [ScimGroupRequest](docs/ScimGroupRequest.md)
+- [ScimGroupResource](docs/ScimGroupResource.md)
+- [ScimListResponse](docs/ScimListResponse.md)
+- [ScimMember](docs/ScimMember.md)
+- [ScimPatchOperation](docs/ScimPatchOperation.md)
+- [ScimPatchRequest](docs/ScimPatchRequest.md)
+- [ScimResourceMeta](docs/ScimResourceMeta.md)
+- [ScimUserRequest](docs/ScimUserRequest.md)
+- [ScimUserResource](docs/ScimUserResource.md)
 - [SearchDocument](docs/SearchDocument.md)
 - [SearchDocumentType](docs/SearchDocumentType.md)
 - [SearchProjectionCondition](docs/SearchProjectionCondition.md)

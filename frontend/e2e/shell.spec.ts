@@ -121,7 +121,11 @@ async function mockApi(page: Page, overrides = session) {
   const adminAudit: Array<Record<string, unknown>> = []
   await page.route('**/api/v1/ui/session**', (route) => route.fulfill({ json: overrides }))
   await page.route('**/ready', (route) => route.fulfill({ json: { status: 'ready', version: '0.2.0', database: 'ready', migrations_applied: 44, migrations_expected: 44, latest_migration: '0044_search_projection.sql', error: null } }))
-  await page.route('**/api/v1/auth/providers', (route) => route.fulfill({ json: [{ id: 'local', kind: 'LOCAL', display_name: 'Local account', interactive: true }] }))
+  await page.route('**/api/v1/auth/providers**', (route) => route.fulfill({ json: [
+    { id: 'local', kind: 'local', display_name: 'Local account', interactive: true, login_mode: 'password', domains: [], tenants: [] },
+    { id: 'corporate-oidc', kind: 'oidc', display_name: 'Corporate OIDC', interactive: true, login_mode: 'redirect', domains: ['example.com'], tenants: ['default'] },
+    { id: 'directory', kind: 'ldap', display_name: 'Corporate directory', interactive: true, login_mode: 'password', domains: ['example.com'], tenants: ['default'] },
+  ] }))
   await page.route('**/api/v1/admin/controls**', (route) => {
     const request = route.request()
     const path = new URL(request.url()).pathname
@@ -249,6 +253,18 @@ async function connect(page: Page) {
 
 test.beforeEach(async ({ page }) => {
   await mockApi(page)
+})
+
+test('routes local, redirect and directory identity providers before login', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name === 'tablet', 'desktop identity routing acceptance')
+  await page.goto('/')
+  const providers = page.locator('.identity-provider-list')
+  await expect(providers.getByRole('button', { name: 'Local account', exact: true })).toBeVisible()
+  await expect(providers.getByRole('button', { name: 'Continue with Corporate OIDC' })).toBeVisible()
+  await expect(providers.getByRole('button', { name: 'Corporate directory' })).toBeVisible()
+  await page.getByLabel('User handle').fill('ada@example.com')
+  await providers.getByRole('button', { name: 'Corporate directory' }).click()
+  await expect(providers.getByRole('button', { name: 'Corporate directory' })).toHaveAttribute('aria-pressed', 'true')
 })
 
 test('connects, navigates resources, preserves deep links and opens the command palette', async ({ page }, testInfo) => {

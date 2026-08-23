@@ -22,9 +22,12 @@ var _ MappedNullable = &AuthenticationProviderDescriptor{}
 // AuthenticationProviderDescriptor struct for AuthenticationProviderDescriptor
 type AuthenticationProviderDescriptor struct {
 	DisplayName string `json:"display_name"`
+	Domains []string `json:"domains,omitempty"`
 	Id string `json:"id" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
 	Interactive *bool `json:"interactive,omitempty"`
 	Kind AuthenticationProviderKind `json:"kind"`
+	LoginMode *string `json:"login_mode,omitempty"`
+	Tenants []string `json:"tenants,omitempty"`
 }
 
 type _AuthenticationProviderDescriptor AuthenticationProviderDescriptor
@@ -40,6 +43,8 @@ func NewAuthenticationProviderDescriptor(displayName string, id string, kind Aut
 	var interactive bool = true
 	this.Interactive = &interactive
 	this.Kind = kind
+	var loginMode string = "password"
+	this.LoginMode = &loginMode
 	return &this
 }
 
@@ -50,6 +55,8 @@ func NewAuthenticationProviderDescriptorWithDefaults() *AuthenticationProviderDe
 	this := AuthenticationProviderDescriptor{}
 	var interactive bool = true
 	this.Interactive = &interactive
+	var loginMode string = "password"
+	this.LoginMode = &loginMode
 	return &this
 }
 
@@ -75,6 +82,38 @@ func (o *AuthenticationProviderDescriptor) GetDisplayNameOk() (*string, bool) {
 // SetDisplayName sets field value
 func (o *AuthenticationProviderDescriptor) SetDisplayName(v string) {
 	o.DisplayName = v
+}
+
+// GetDomains returns the Domains field value if set, zero value otherwise.
+func (o *AuthenticationProviderDescriptor) GetDomains() []string {
+	if o == nil || IsNil(o.Domains) {
+		var ret []string
+		return ret
+	}
+	return o.Domains
+}
+
+// GetDomainsOk returns a tuple with the Domains field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *AuthenticationProviderDescriptor) GetDomainsOk() ([]string, bool) {
+	if o == nil || IsNil(o.Domains) {
+		return nil, false
+	}
+	return o.Domains, true
+}
+
+// HasDomains returns a boolean if a field has been set.
+func (o *AuthenticationProviderDescriptor) HasDomains() bool {
+	if o != nil && !IsNil(o.Domains) {
+		return true
+	}
+
+	return false
+}
+
+// SetDomains gets a reference to the given []string and assigns it to the Domains field.
+func (o *AuthenticationProviderDescriptor) SetDomains(v []string) {
+	o.Domains = v
 }
 
 // GetId returns the Id field value
@@ -157,6 +196,70 @@ func (o *AuthenticationProviderDescriptor) SetKind(v AuthenticationProviderKind)
 	o.Kind = v
 }
 
+// GetLoginMode returns the LoginMode field value if set, zero value otherwise.
+func (o *AuthenticationProviderDescriptor) GetLoginMode() string {
+	if o == nil || IsNil(o.LoginMode) {
+		var ret string
+		return ret
+	}
+	return *o.LoginMode
+}
+
+// GetLoginModeOk returns a tuple with the LoginMode field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *AuthenticationProviderDescriptor) GetLoginModeOk() (*string, bool) {
+	if o == nil || IsNil(o.LoginMode) {
+		return nil, false
+	}
+	return o.LoginMode, true
+}
+
+// HasLoginMode returns a boolean if a field has been set.
+func (o *AuthenticationProviderDescriptor) HasLoginMode() bool {
+	if o != nil && !IsNil(o.LoginMode) {
+		return true
+	}
+
+	return false
+}
+
+// SetLoginMode gets a reference to the given string and assigns it to the LoginMode field.
+func (o *AuthenticationProviderDescriptor) SetLoginMode(v string) {
+	o.LoginMode = &v
+}
+
+// GetTenants returns the Tenants field value if set, zero value otherwise.
+func (o *AuthenticationProviderDescriptor) GetTenants() []string {
+	if o == nil || IsNil(o.Tenants) {
+		var ret []string
+		return ret
+	}
+	return o.Tenants
+}
+
+// GetTenantsOk returns a tuple with the Tenants field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *AuthenticationProviderDescriptor) GetTenantsOk() ([]string, bool) {
+	if o == nil || IsNil(o.Tenants) {
+		return nil, false
+	}
+	return o.Tenants, true
+}
+
+// HasTenants returns a boolean if a field has been set.
+func (o *AuthenticationProviderDescriptor) HasTenants() bool {
+	if o != nil && !IsNil(o.Tenants) {
+		return true
+	}
+
+	return false
+}
+
+// SetTenants gets a reference to the given []string and assigns it to the Tenants field.
+func (o *AuthenticationProviderDescriptor) SetTenants(v []string) {
+	o.Tenants = v
+}
+
 func (o AuthenticationProviderDescriptor) MarshalJSON() ([]byte, error) {
 	toSerialize,err := o.ToMap()
 	if err != nil {
@@ -168,11 +271,20 @@ func (o AuthenticationProviderDescriptor) MarshalJSON() ([]byte, error) {
 func (o AuthenticationProviderDescriptor) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
 	toSerialize["display_name"] = o.DisplayName
+	if !IsNil(o.Domains) {
+		toSerialize["domains"] = o.Domains
+	}
 	toSerialize["id"] = o.Id
 	if !IsNil(o.Interactive) {
 		toSerialize["interactive"] = o.Interactive
 	}
 	toSerialize["kind"] = o.Kind
+	if !IsNil(o.LoginMode) {
+		toSerialize["login_mode"] = o.LoginMode
+	}
+	if !IsNil(o.Tenants) {
+		toSerialize["tenants"] = o.Tenants
+	}
 	return toSerialize, nil
 }
 

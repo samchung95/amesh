@@ -40,6 +40,18 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           env:
             {{- include "amesh.runtimeEnv" . | nindent 12 }}
+            {{- if .Values.identity.providerConfigExistingSecret }}
+            - name: IDENTITY_PROVIDERS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.identity.providerConfigExistingSecret | quote }}
+                  key: {{ .Values.identity.providerConfigKey | quote }}
+            - name: SCIM_PROVIDERS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.identity.providerConfigExistingSecret | quote }}
+                  key: {{ .Values.identity.scimConfigKey | quote }}
+            {{- end }}
             - name: SERVICE_ROLE
               value: webserver
             - name: SERVICE_INSTANCE_NAME
@@ -68,6 +80,18 @@ spec:
                 command: ["python", "-m", "amesh.role", "--drain"]
           resources:
             {{- toYaml .Values.server.resources | nindent 12 }}
+          {{- if .Values.identity.credentialSecret }}
+          volumeMounts:
+            - name: identity-credentials
+              mountPath: {{ .Values.identity.mountPath | quote }}
+              readOnly: true
+          {{- end }}
+      {{- if .Values.identity.credentialSecret }}
+      volumes:
+        - name: identity-credentials
+          secret:
+            secretName: {{ .Values.identity.credentialSecret | quote }}
+      {{- end }}
       nodeSelector:
         {{- toYaml .Values.nodeSelector | nindent 8 }}
       affinity:

@@ -209,6 +209,7 @@ from amesh_client.models.reduce_execution_request import ReduceExecutionRequest
 from amesh_client.models.reduce_execution_response import ReduceExecutionResponse
 from amesh_client.models.resource_lifecycle import ResourceLifecycle
 from amesh_client.models.resource_metadata import ResourceMetadata
+from amesh_client.models.resources_inner import ResourcesInner
 from amesh_client.models.resume_task_request import ResumeTaskRequest
 from amesh_client.models.revoked_credentials_response import RevokedCredentialsResponse
 from amesh_client.models.revoked_sessions_response import RevokedSessionsResponse
@@ -220,6 +221,15 @@ from amesh_client.models.runner_id import RunnerId
 from amesh_client.models.runner_mode import RunnerMode
 from amesh_client.models.runner_network_access import RunnerNetworkAccess
 from amesh_client.models.schedule_preview import SchedulePreview
+from amesh_client.models.scim_group_request import ScimGroupRequest
+from amesh_client.models.scim_group_resource import ScimGroupResource
+from amesh_client.models.scim_list_response import ScimListResponse
+from amesh_client.models.scim_member import ScimMember
+from amesh_client.models.scim_patch_operation import ScimPatchOperation
+from amesh_client.models.scim_patch_request import ScimPatchRequest
+from amesh_client.models.scim_resource_meta import ScimResourceMeta
+from amesh_client.models.scim_user_request import ScimUserRequest
+from amesh_client.models.scim_user_resource import ScimUserResource
 from amesh_client.models.search_document import SearchDocument
 from amesh_client.models.search_document_type import SearchDocumentType
 from amesh_client.models.search_projection_condition import SearchProjectionCondition

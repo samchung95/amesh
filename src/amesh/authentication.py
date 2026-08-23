@@ -219,6 +219,15 @@ class AuthenticationService:
         if identity is None:
             AUTHENTICATION_ATTEMPTS.labels(provider=provider.id, outcome="invalid").inc()
             raise InvalidAuthentication("authentication failed")
+        return await self.issue_federated_session(identity, now=now)
+
+    async def issue_federated_session(
+        self,
+        identity: ProviderIdentity,
+        *,
+        now: datetime | None = None,
+    ) -> IssuedBrowserSession:
+        now = now or datetime.now(UTC)
         session = BrowserSession(
             principal_id=identity.principal_id,
             issued_credential_version=identity.credential_version,
@@ -235,7 +244,7 @@ class AuthenticationService:
             csrf_hash=token_digest(csrf_token, self._token_pepper),
             provider=identity.provider,
         )
-        AUTHENTICATION_ATTEMPTS.labels(provider=provider.id, outcome="success").inc()
+        AUTHENTICATION_ATTEMPTS.labels(provider=identity.provider, outcome="success").inc()
         return IssuedBrowserSession(
             actor=actor,
             session_id=session.id,

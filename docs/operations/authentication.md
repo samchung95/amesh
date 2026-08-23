@@ -45,8 +45,10 @@ API and CLI clients continue to use the scoped, expiring bearer credentials docu
 
 ## Configure policy and limits
 
-`AUTH_POLICY=local` enables local login; `hybrid` reserves the same provider boundary for EPIC-502;
-`federated-only` removes the local provider and rejects local login or bootstrap. Configure inactivity,
+`AUTH_POLICY=local` enables local login; `hybrid` enables local accounts and configured enterprise
+identity providers; `federated-only` removes the local provider and rejects local login or bootstrap.
+Configure OIDC, SAML, LDAP and SCIM integrations through the
+[identity federation runbook](identity-federation.md). Configure inactivity,
 absolute lifetime, rotation, overlap, source rate, account failure and lockout limits with the
 `AUTH_SESSION_*` and `AUTH_LOGIN_*` settings shown in `.env.example` and the Helm `auth` values.
 

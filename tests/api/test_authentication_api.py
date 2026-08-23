@@ -135,6 +135,9 @@ def test_local_multi_user_browser_sessions_are_cookie_csrf_and_policy_bound() ->
                         "kind": "local",
                         "display_name": "Local account",
                         "interactive": True,
+                        "login_mode": "password",
+                        "domains": [],
+                        "tenants": [],
                     }
                 ]
 

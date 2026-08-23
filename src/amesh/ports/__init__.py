@@ -80,6 +80,12 @@ from .execution_repository import (
     TaskStateConflictError,
 )
 from .feature_flags import FeatureFlagRepository, FeatureFlagVersionConflict
+from .federation_repository import (
+    AmbiguousFederatedIdentity,
+    FederationReplayRejected,
+    FederationRepository,
+    FederationStateRejected,
+)
 from .metadata_repository import (
     AssetMetadata,
     ExecutionArtifact,
@@ -177,6 +183,7 @@ from .worker_repository import (
 
 __all__ = [
     "WORKER_PROTOCOL_VERSION",
+    "AmbiguousFederatedIdentity",
     "AssetMetadata",
     "AuthenticationProvider",
     "AuthenticationRepository",
@@ -219,6 +226,9 @@ __all__ = [
     "ExecutionStateConflictError",
     "FeatureFlagRepository",
     "FeatureFlagVersionConflict",
+    "FederationReplayRejected",
+    "FederationRepository",
+    "FederationStateRejected",
     "KubernetesJobRunnerExtension",
     "KubernetesJobTemplate",
     "KubernetesRunnerProfile",

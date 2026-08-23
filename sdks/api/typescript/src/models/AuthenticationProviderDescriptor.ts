@@ -35,6 +35,12 @@ export interface AuthenticationProviderDescriptor {
     displayName: string;
     /**
      *
+     * @type {Array<string>}
+     * @memberof AuthenticationProviderDescriptor
+     */
+    domains?: Array<string>;
+    /**
+     *
      * @type {string}
      * @memberof AuthenticationProviderDescriptor
      */
@@ -51,6 +57,18 @@ export interface AuthenticationProviderDescriptor {
      * @memberof AuthenticationProviderDescriptor
      */
     kind: AuthenticationProviderKind;
+    /**
+     *
+     * @type {string}
+     * @memberof AuthenticationProviderDescriptor
+     */
+    loginMode?: string;
+    /**
+     *
+     * @type {Array<string>}
+     * @memberof AuthenticationProviderDescriptor
+     */
+    tenants?: Array<string>;
 }
 
 
@@ -76,9 +94,12 @@ export function AuthenticationProviderDescriptorFromJSONTyped(json: any, ignoreD
     return {
 
         'displayName': json['display_name'],
+        'domains': json['domains'] == null ? undefined : json['domains'],
         'id': json['id'],
         'interactive': json['interactive'] == null ? undefined : json['interactive'],
         'kind': AuthenticationProviderKindFromJSON(json['kind']),
+        'loginMode': json['login_mode'] == null ? undefined : json['login_mode'],
+        'tenants': json['tenants'] == null ? undefined : json['tenants'],
     };
 }
 
@@ -94,8 +115,11 @@ export function AuthenticationProviderDescriptorToJSONTyped(value?: Authenticati
     return {
 
         'display_name': value['displayName'],
+        'domains': value['domains'],
         'id': value['id'],
         'interactive': value['interactive'],
         'kind': AuthenticationProviderKindToJSON(value['kind']),
+        'login_mode': value['loginMode'],
+        'tenants': value['tenants'],
     };
 }

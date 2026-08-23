@@ -939,6 +939,9 @@ export interface AuthenticationProvider {
   kind: string
   display_name: string
   interactive: boolean
+  login_mode?: 'password' | 'redirect'
+  domains?: string[]
+  tenants?: string[]
 }
 
 export interface LoginResponse {

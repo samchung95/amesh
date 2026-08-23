@@ -529,6 +529,9 @@ details pre { max-width: 480px; overflow: auto; padding: 10px; background: var(-
 .authentication-modes button.active { color: var(--ink); background: var(--surface); border-color: var(--line-strong); }
 .authentication-modes button:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 .connection-panel form { display: grid; gap: 7px; }
+.identity-provider-list { display: grid; gap: 7px; margin: 6px 0 8px; }
+.identity-provider { min-height: 42px; padding: 0 12px; color: var(--ink); text-align: left; background: var(--paper); border: 1px solid var(--line-strong); border-radius: var(--radius-control); cursor: pointer; }
+.identity-provider:hover, .identity-provider.active { color: var(--signal-ink); border-color: var(--signal); box-shadow: inset 3px 0 0 var(--signal); }
 .connection-panel form label { margin-top: 8px; color: var(--muted); font-weight: 600; }
 .connection-panel input { width: 100%; height: 46px; padding: 0 12px; color: var(--ink); background: var(--paper); border: 1px solid var(--line-strong); border-radius: var(--radius-control); }
 .input-with-icon { position: relative; }

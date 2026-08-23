@@ -163,6 +163,13 @@ export function createApiClient(connection: ApiConnection) {
     health: async () => request<HealthResponse>('/health'),
     readiness: async () => request<ReadinessResponse>('/ready'),
     providers: async () => request<AuthenticationProvider[]>('/api/v1/auth/providers'),
+    routedProviders: async (identifier?: string, tenant?: string) => {
+      const params = new URLSearchParams()
+      if (identifier) params.set('identifier', identifier)
+      if (tenant) params.set('tenant', tenant)
+      const suffix = params.size ? `?${params.toString()}` : ''
+      return request<AuthenticationProvider[]>(`/api/v1/auth/providers${suffix}`)
+    },
     login: async (identifier: string, password: string, provider = 'local') =>
       request<LoginResponse>('/api/v1/auth/login', {
         method: 'POST',

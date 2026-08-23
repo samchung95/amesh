@@ -18,6 +18,7 @@ docs/NamespacesApi.md
 docs/OperationsApi.md
 docs/PluginsApi.md
 docs/RealtimeApi.md
+docs/ScimApi.md
 docs/SearchApi.md
 docs/SystemApi.md
 docs/TaskCacheApi.md
@@ -42,6 +43,7 @@ src/apis/NamespacesApi.ts
 src/apis/OperationsApi.ts
 src/apis/PluginsApi.ts
 src/apis/RealtimeApi.ts
+src/apis/ScimApi.ts
 src/apis/SearchApi.ts
 src/apis/SystemApi.ts
 src/apis/TaskCacheApi.ts
@@ -247,6 +249,7 @@ src/models/ReduceExecutionRequest.ts
 src/models/ReduceExecutionResponse.ts
 src/models/ResourceLifecycle.ts
 src/models/ResourceMetadata.ts
+src/models/ResourcesInner.ts
 src/models/ResumeTaskRequest.ts
 src/models/RevokedCredentialsResponse.ts
 src/models/RevokedSessionsResponse.ts
@@ -258,6 +261,15 @@ src/models/RunnerId.ts
 src/models/RunnerMode.ts
 src/models/RunnerNetworkAccess.ts
 src/models/SchedulePreview.ts
+src/models/ScimGroupRequest.ts
+src/models/ScimGroupResource.ts
+src/models/ScimListResponse.ts
+src/models/ScimMember.ts
+src/models/ScimPatchOperation.ts
+src/models/ScimPatchRequest.ts
+src/models/ScimResourceMeta.ts
+src/models/ScimUserRequest.ts
+src/models/ScimUserResource.ts
 src/models/SearchDocument.ts
 src/models/SearchDocumentType.ts
 src/models/SearchProjectionCondition.ts

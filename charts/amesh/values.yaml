@@ -16,6 +16,13 @@ auth:
   loginMaxFailures: 5
   loginLockSeconds: 900
 
+identity:
+  providerConfigExistingSecret: ""
+  providerConfigKey: identity-providers
+  scimConfigKey: scim-providers
+  credentialSecret: ""
+  mountPath: /var/run/secrets/amesh/identity
+
 server:
   replicas: 2
   resources: {}

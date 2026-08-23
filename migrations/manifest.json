@@ -264,6 +264,12 @@
       "mode": "expand",
       "onlineCompatible": true,
       "rollbackGuidance": "Stop optional search projection cycles and forward-fix or rebuild the disposable tenant-scoped documents and checkpoints; authoritative resources, events, logs and orchestration remain available."
+    },
+    {
+      "file": "0045_identity_federation.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Disable federated login and SCIM writes, preserve identity links and replay evidence, and forward-fix the additive federation tables before re-enabling providers."
     }
   ]
 }

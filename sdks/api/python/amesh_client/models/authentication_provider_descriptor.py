@@ -17,7 +17,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictBool, field_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr, field_validator
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from amesh_client.models.authentication_provider_kind import AuthenticationProviderKind
@@ -30,10 +30,13 @@ class AuthenticationProviderDescriptor(BaseModel):
     AuthenticationProviderDescriptor
     """ # noqa: E501
     display_name: Annotated[str, Field(min_length=1, strict=True, max_length=255)]
+    domains: Optional[List[StrictStr]] = None
     id: Annotated[str, Field(min_length=1, strict=True, max_length=128)]
     interactive: Optional[StrictBool] = True
     kind: AuthenticationProviderKind
-    __properties: ClassVar[List[str]] = ["display_name", "id", "interactive", "kind"]
+    login_mode: Optional[StrictStr] = 'password'
+    tenants: Optional[List[StrictStr]] = None
+    __properties: ClassVar[List[str]] = ["display_name", "domains", "id", "interactive", "kind", "login_mode", "tenants"]
 
     @field_validator('id', mode="before")
     def id_validate_regular_expression(cls, value):
@@ -94,8 +97,11 @@ class AuthenticationProviderDescriptor(BaseModel):
 
         _obj = cls.model_validate({
             "display_name": obj.get("display_name"),
+            "domains": obj.get("domains"),
             "id": obj.get("id"),
             "interactive": obj.get("interactive") if obj.get("interactive") is not None else True,
-            "kind": obj.get("kind")
+            "kind": obj.get("kind"),
+            "login_mode": obj.get("login_mode") if obj.get("login_mode") is not None else 'password',
+            "tenants": obj.get("tenants")
         })
         return _obj

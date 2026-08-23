@@ -25,7 +25,9 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import io.amesh.client.model.AuthenticationProviderKind;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
@@ -35,15 +37,22 @@ import io.amesh.client.ApiClient;
  */
 @JsonPropertyOrder({
   AuthenticationProviderDescriptor.JSON_PROPERTY_DISPLAY_NAME,
+  AuthenticationProviderDescriptor.JSON_PROPERTY_DOMAINS,
   AuthenticationProviderDescriptor.JSON_PROPERTY_ID,
   AuthenticationProviderDescriptor.JSON_PROPERTY_INTERACTIVE,
-  AuthenticationProviderDescriptor.JSON_PROPERTY_KIND
+  AuthenticationProviderDescriptor.JSON_PROPERTY_KIND,
+  AuthenticationProviderDescriptor.JSON_PROPERTY_LOGIN_MODE,
+  AuthenticationProviderDescriptor.JSON_PROPERTY_TENANTS
 })
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.24.0")
 public class AuthenticationProviderDescriptor {
   public static final String JSON_PROPERTY_DISPLAY_NAME = "display_name";
   @javax.annotation.Nonnull
   private String displayName;
+
+  public static final String JSON_PROPERTY_DOMAINS = "domains";
+  @javax.annotation.Nullable
+  private List<String> domains = new ArrayList<>();
 
   public static final String JSON_PROPERTY_ID = "id";
   @javax.annotation.Nonnull
@@ -56,6 +65,14 @@ public class AuthenticationProviderDescriptor {
   public static final String JSON_PROPERTY_KIND = "kind";
   @javax.annotation.Nonnull
   private AuthenticationProviderKind kind;
+
+  public static final String JSON_PROPERTY_LOGIN_MODE = "login_mode";
+  @javax.annotation.Nullable
+  private String loginMode = "password";
+
+  public static final String JSON_PROPERTY_TENANTS = "tenants";
+  @javax.annotation.Nullable
+  private List<String> tenants = new ArrayList<>();
 
   public AuthenticationProviderDescriptor() {
   }
@@ -81,6 +98,38 @@ public class AuthenticationProviderDescriptor {
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public void setDisplayName(@javax.annotation.Nonnull String displayName) {
     this.displayName = displayName;
+  }
+
+
+  public AuthenticationProviderDescriptor domains(@javax.annotation.Nullable List<String> domains) {
+    this.domains = domains;
+    return this;
+  }
+
+  public AuthenticationProviderDescriptor addDomainsItem(String domainsItem) {
+    if (this.domains == null) {
+      this.domains = new ArrayList<>();
+    }
+    this.domains.add(domainsItem);
+    return this;
+  }
+
+  /**
+   * Get domains
+   * @return domains
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_DOMAINS, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public List<String> getDomains() {
+    return domains;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_DOMAINS, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setDomains(@javax.annotation.Nullable List<String> domains) {
+    this.domains = domains;
   }
 
 
@@ -156,6 +205,62 @@ public class AuthenticationProviderDescriptor {
   }
 
 
+  public AuthenticationProviderDescriptor loginMode(@javax.annotation.Nullable String loginMode) {
+    this.loginMode = loginMode;
+    return this;
+  }
+
+  /**
+   * Get loginMode
+   * @return loginMode
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_LOGIN_MODE, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public String getLoginMode() {
+    return loginMode;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_LOGIN_MODE, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setLoginMode(@javax.annotation.Nullable String loginMode) {
+    this.loginMode = loginMode;
+  }
+
+
+  public AuthenticationProviderDescriptor tenants(@javax.annotation.Nullable List<String> tenants) {
+    this.tenants = tenants;
+    return this;
+  }
+
+  public AuthenticationProviderDescriptor addTenantsItem(String tenantsItem) {
+    if (this.tenants == null) {
+      this.tenants = new ArrayList<>();
+    }
+    this.tenants.add(tenantsItem);
+    return this;
+  }
+
+  /**
+   * Get tenants
+   * @return tenants
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_TENANTS, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public List<String> getTenants() {
+    return tenants;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_TENANTS, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setTenants(@javax.annotation.Nullable List<String> tenants) {
+    this.tenants = tenants;
+  }
+
+
   /**
    * Return true if this AuthenticationProviderDescriptor object is equal to o.
    */
@@ -169,14 +274,17 @@ public class AuthenticationProviderDescriptor {
     }
     AuthenticationProviderDescriptor authenticationProviderDescriptor = (AuthenticationProviderDescriptor) o;
     return Objects.equals(this.displayName, authenticationProviderDescriptor.displayName) &&
+        Objects.equals(this.domains, authenticationProviderDescriptor.domains) &&
         Objects.equals(this.id, authenticationProviderDescriptor.id) &&
         Objects.equals(this.interactive, authenticationProviderDescriptor.interactive) &&
-        Objects.equals(this.kind, authenticationProviderDescriptor.kind);
+        Objects.equals(this.kind, authenticationProviderDescriptor.kind) &&
+        Objects.equals(this.loginMode, authenticationProviderDescriptor.loginMode) &&
+        Objects.equals(this.tenants, authenticationProviderDescriptor.tenants);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(displayName, id, interactive, kind);
+    return Objects.hash(displayName, domains, id, interactive, kind, loginMode, tenants);
   }
 
   @Override
@@ -184,9 +292,12 @@ public class AuthenticationProviderDescriptor {
     StringBuilder sb = new StringBuilder();
     sb.append("class AuthenticationProviderDescriptor {\n");
     sb.append("    displayName: ").append(toIndentedString(displayName)).append("\n");
+    sb.append("    domains: ").append(toIndentedString(domains)).append("\n");
     sb.append("    id: ").append(toIndentedString(id)).append("\n");
     sb.append("    interactive: ").append(toIndentedString(interactive)).append("\n");
     sb.append("    kind: ").append(toIndentedString(kind)).append("\n");
+    sb.append("    loginMode: ").append(toIndentedString(loginMode)).append("\n");
+    sb.append("    tenants: ").append(toIndentedString(tenants)).append("\n");
     sb.append("}");
     return sb.toString();
   }
@@ -236,6 +347,15 @@ public class AuthenticationProviderDescriptor {
       joiner.add(String.format(java.util.Locale.ROOT, "%sdisplay_name%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getDisplayName()))));
     }
 
+    // add `domains` to the URL query string
+    if (getDomains() != null) {
+      for (int i = 0; i < getDomains().size(); i++) {
+        joiner.add(String.format(java.util.Locale.ROOT, "%sdomains%s%s=%s", prefix, suffix,
+            "".equals(suffix) ? "" : String.format(java.util.Locale.ROOT, "%s%d%s", containerPrefix, i, containerSuffix),
+            ApiClient.urlEncode(ApiClient.valueToString(getDomains().get(i)))));
+      }
+    }
+
     // add `id` to the URL query string
     if (getId() != null) {
       joiner.add(String.format(java.util.Locale.ROOT, "%sid%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getId()))));
@@ -249,6 +369,20 @@ public class AuthenticationProviderDescriptor {
     // add `kind` to the URL query string
     if (getKind() != null) {
       joiner.add(String.format(java.util.Locale.ROOT, "%skind%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getKind()))));
+    }
+
+    // add `login_mode` to the URL query string
+    if (getLoginMode() != null) {
+      joiner.add(String.format(java.util.Locale.ROOT, "%slogin_mode%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getLoginMode()))));
+    }
+
+    // add `tenants` to the URL query string
+    if (getTenants() != null) {
+      for (int i = 0; i < getTenants().size(); i++) {
+        joiner.add(String.format(java.util.Locale.ROOT, "%stenants%s%s=%s", prefix, suffix,
+            "".equals(suffix) ? "" : String.format(java.util.Locale.ROOT, "%s%d%s", containerPrefix, i, containerSuffix),
+            ApiClient.urlEncode(ApiClient.valueToString(getTenants().get(i)))));
+      }
     }
 
     return joiner.toString();

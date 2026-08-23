@@ -132,6 +132,7 @@ describe('API client', () => {
     const api = createApiClient({ token: 'token', tenant: 'default', namespace: '' })
 
     await api.providers()
+    await api.routedProviders('ada@example.com', 'tenant-a')
     await api.triggers('team/data')
     await api.triggers()
     await api.triggerOccurrences('team/data')
@@ -144,6 +145,7 @@ describe('API client', () => {
 
     expect(fetchMock.mock.calls.map((call) => call[0] as string)).toEqual([
       '/api/v1/auth/providers',
+      '/api/v1/auth/providers?identifier=ada%40example.com&tenant=tenant-a',
       '/api/v1/triggers?namespace=team%2Fdata',
       '/api/v1/triggers',
       '/api/v1/trigger-occurrences?limit=200&namespace=team%2Fdata',

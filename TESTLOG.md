@@ -1,5 +1,50 @@
 # Test Log
 
+## EPIC-502: SSO, OIDC, SAML, LDAP and SCIM — 2026-08-23
+
+Spec source: Agent Hotel card `c68` and canonical `backlog/epics.json` EPIC-502 DoD.
+
+Verified with `uv`, Python 3.13, PostgreSQL 17, React/TypeScript, Chromium and Docker Compose:
+
+- [x] Locally signed OIDC tokens exercised authorization code plus PKCE S256, state, nonce,
+  configurable claims, asymmetric algorithm allowlisting, issuer/audience/expiry validation, 60-second
+  clock skew, live JWKS signing-key rotation, one-time replay rejection, domain/tenant routing, provider
+  denial and outage behavior. Rotating the mounted client-secret file changed the next token request.
+- [x] Strict SAML service-provider configuration produced signed AuthnRequests and metadata containing
+  current and next certificates. The runtime requires signed assertions, signed requests/logout,
+  non-deprecated algorithms, replay-fenced response/assertion identifiers and configured IdP
+  certificate bundles.
+- [x] LDAP/AD configuration rejected cleartext transport, required verified TLS for LDAPS or StartTLS,
+  performed user-bind/group lookup, and mapped the authenticated claims through the same federated
+  identity boundary.
+- [x] PostgreSQL integration verified one-time state, replay fences, immutable provider/subject links,
+  ambiguous-email rejection, explicit tenant role and provider-owned group mapping, and SCIM lifecycle.
+  The SCIM API test covered token rotation, bearer/provider isolation, user/group create/list/filter,
+  PATCH, disable/reactivate, session fencing, membership changes and deprovision/delete.
+- [x] Ruff and strict mypy across 174 source files passed. The eight focused domain, PostgreSQL and API
+  tests passed; generated-contract and SDK-manifest tests passed; OpenAPI/schema generation was
+  deterministic and all four SDKs were current across 1,428 files. Python bytecode, TypeScript targets
+  and Java sources compiled. Go was not installed locally and its compile check is not claimed.
+- [x] Fifteen focused frontend client assertions, targeted ESLint, the production build and the
+  Chromium provider-routing workflow passed. The isolated client-test command still reports the
+  existing global branch/function coverage threshold tracked on card `c94`; all selected assertions
+  passed and the production artifact was generated.
+- [x] Compose validation and image build passed. Helm identity values and templates were inspected, but
+  the workstation has no Helm executable, so render qualification is deferred and not claimed.
+- [x] API, executor, scheduler and indexer containers are healthy. Live readiness reports 45/45
+  migrations with `0045_identity_federation.sql`; the new identity tables exist, the UI returns 200,
+  provider discovery returns the configured local provider, missing SCIM bearer returns 401, and
+  Authlib, ldap3, python3-saml and xmlsec import inside the production image.
+- [x] No LLM behavior was involved, so no OpenRouter call was required. OpenRouter remains configured
+  for `openai/gpt-5.6-luna` when an applicable LLM epic requires it.
+
+Qualification boundary: no external enterprise IdP account is needed for local protocol conformance;
+operators must supply their own issuer/directory endpoints and mounted credentials for live vendor
+interoperability. Shared `URS-NFR-SECURITY-006` remains In Progress until its EPIC-506 and EPIC-613
+component/certificate work is complete.
+
+Verdict: PASS — EPIC-502 functional requirements URS-F-0510 through URS-F-0517 are verified.
+
 ## EPIC-411: Blueprints, playground and onboarding — 2026-08-23
 
 Spec source: Agent Hotel card `c67` and canonical `backlog/epics.json` EPIC-411 DoD.

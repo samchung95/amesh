@@ -1744,6 +1744,154 @@ paths:
       summary: Reconcile Admissions
       tags:
       - operations
+  /api/v1/auth/federated/{provider_id}/callback:
+    get:
+      operationId: complete_oidc_login_api_v1_auth_federated__provider_id__callback_get
+      parameters:
+      - explode: false
+        in: path
+        name: provider_id
+        required: true
+        schema:
+          title: Provider Id
+          type: string
+        style: simple
+      - explode: true
+        in: query
+        name: state
+        required: true
+        schema:
+          maxLength: 2048
+          minLength: 1
+          title: State
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: code
+        required: false
+        schema:
+          maxLength: 4096
+          nullable: true
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: error
+        required: false
+        schema:
+          maxLength: 255
+          nullable: true
+          type: string
+        style: form
+      responses:
+        "307":
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Complete Oidc Login
+      tags:
+      - authentication
+    post:
+      operationId: complete_saml_login_api_v1_auth_federated__provider_id__callback_post
+      parameters:
+      - explode: false
+        in: path
+        name: provider_id
+        required: true
+        schema:
+          title: Provider Id
+          type: string
+        style: simple
+      responses:
+        "307":
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Complete Saml Login
+      tags:
+      - authentication
+  /api/v1/auth/federated/{provider_id}/saml/metadata:
+    get:
+      operationId: saml_service_provider_metadata_api_v1_auth_federated__provider_id__saml_metadata_get
+      parameters:
+      - explode: false
+        in: path
+        name: provider_id
+        required: true
+        schema:
+          title: Provider Id
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            text/plain:
+              schema:
+                description: Opaque cursor from the prior page
+                nullable: true
+                type: string
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Saml Service Provider Metadata
+      tags:
+      - authentication
+  /api/v1/auth/federated/{provider_id}/start:
+    get:
+      operationId: begin_federated_login_api_v1_auth_federated__provider_id__start_get
+      parameters:
+      - explode: false
+        in: path
+        name: provider_id
+        required: true
+        schema:
+          title: Provider Id
+          type: string
+        style: simple
+      - explode: true
+        in: query
+        name: tenant
+        required: false
+        schema:
+          maxLength: 128
+          nullable: true
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: returnTo
+        required: false
+        schema:
+          default: /
+          maxLength: 2048
+          title: Returnto
+          type: string
+        style: form
+      responses:
+        "307":
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Begin Federated Login
+      tags:
+      - authentication
   /api/v1/auth/login:
     post:
       operationId: login_api_v1_auth_login_post
@@ -1882,6 +2030,25 @@ paths:
   /api/v1/auth/providers:
     get:
       operationId: list_authentication_providers_api_v1_auth_providers_get
+      parameters:
+      - explode: true
+        in: query
+        name: identifier
+        required: false
+        schema:
+          maxLength: 255
+          nullable: true
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: tenant
+        required: false
+        schema:
+          maxLength: 128
+          nullable: true
+          type: string
+        style: form
       responses:
         "200":
           content:
@@ -1894,6 +2061,12 @@ paths:
                 type: array
                 default: null
           description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
       summary: List Authentication Providers
       tags:
       - authentication
@@ -9690,6 +9863,441 @@ paths:
       summary: Ready
       tags:
       - system
+  /scim/v2/Groups:
+    get:
+      operationId: list_scim_groups_scim_v2_Groups_get
+      parameters:
+      - explode: true
+        in: query
+        name: filter
+        required: false
+        schema:
+          maxLength: 1024
+          nullable: true
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: startIndex
+        required: false
+        schema:
+          default: 1
+          minimum: 1
+          title: Startindex
+          type: integer
+        style: form
+      - explode: true
+        in: query
+        name: count
+        required: false
+        schema:
+          default: 100
+          maximum: 200
+          minimum: 0
+          title: Count
+          type: integer
+        style: form
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScimListResponse"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: List Scim Groups
+      tags:
+      - scim
+    post:
+      operationId: create_scim_group_scim_v2_Groups_post
+      parameters:
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ScimGroupRequest"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScimGroupResource"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Create Scim Group
+      tags:
+      - scim
+  /scim/v2/Groups/{group_id}:
+    delete:
+      operationId: delete_scim_group_scim_v2_Groups__group_id__delete
+      parameters:
+      - explode: false
+        in: path
+        name: group_id
+        required: true
+        schema:
+          format: uuid
+          title: Group Id
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "204":
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Delete Scim Group
+      tags:
+      - scim
+    get:
+      operationId: get_scim_group_scim_v2_Groups__group_id__get
+      parameters:
+      - explode: false
+        in: path
+        name: group_id
+        required: true
+        schema:
+          format: uuid
+          title: Group Id
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScimGroupResource"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Get Scim Group
+      tags:
+      - scim
+    patch:
+      operationId: patch_scim_group_scim_v2_Groups__group_id__patch
+      parameters:
+      - explode: false
+        in: path
+        name: group_id
+        required: true
+        schema:
+          format: uuid
+          title: Group Id
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ScimPatchRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScimGroupResource"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Patch Scim Group
+      tags:
+      - scim
+  /scim/v2/ServiceProviderConfig:
+    get:
+      operationId: scim_service_provider_config_scim_v2_ServiceProviderConfig_get
+      parameters:
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  nullable: true
+                title: Response Scim Service Provider Config Scim V2 Serviceproviderconfig
+                  Get
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Scim Service Provider Config
+      tags:
+      - scim
+  /scim/v2/Users:
+    get:
+      operationId: list_scim_users_scim_v2_Users_get
+      parameters:
+      - explode: true
+        in: query
+        name: filter
+        required: false
+        schema:
+          maxLength: 1024
+          nullable: true
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: startIndex
+        required: false
+        schema:
+          default: 1
+          minimum: 1
+          title: Startindex
+          type: integer
+        style: form
+      - explode: true
+        in: query
+        name: count
+        required: false
+        schema:
+          default: 100
+          maximum: 200
+          minimum: 0
+          title: Count
+          type: integer
+        style: form
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScimListResponse"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: List Scim Users
+      tags:
+      - scim
+    post:
+      operationId: create_scim_user_scim_v2_Users_post
+      parameters:
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ScimUserRequest"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScimUserResource"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Create Scim User
+      tags:
+      - scim
+  /scim/v2/Users/{user_id}:
+    delete:
+      operationId: delete_scim_user_scim_v2_Users__user_id__delete
+      parameters:
+      - explode: false
+        in: path
+        name: user_id
+        required: true
+        schema:
+          format: uuid
+          title: User Id
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "204":
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Delete Scim User
+      tags:
+      - scim
+    get:
+      operationId: get_scim_user_scim_v2_Users__user_id__get
+      parameters:
+      - explode: false
+        in: path
+        name: user_id
+        required: true
+        schema:
+          format: uuid
+          title: User Id
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScimUserResource"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Get Scim User
+      tags:
+      - scim
+    patch:
+      operationId: patch_scim_user_scim_v2_Users__user_id__patch
+      parameters:
+      - explode: false
+        in: path
+        name: user_id
+        required: true
+        schema:
+          format: uuid
+          title: User Id
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ScimPatchRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScimUserResource"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Patch Scim User
+      tags:
+      - scim
 components:
   schemas:
     AdministrationApplyRequest:
@@ -10042,15 +10650,28 @@ components:
     AuthenticationProviderDescriptor:
       example:
         display_name: display_name
+        domains:
+        - domains
+        - domains
         id: id
         interactive: true
         kind: local
+        login_mode: password
+        tenants:
+        - tenants
+        - tenants
       properties:
         display_name:
           maxLength: 255
           minLength: 1
           title: Display Name
           type: string
+        domains:
+          default: []
+          items:
+            type: string
+          title: Domains
+          type: array
         id:
           maxLength: 128
           minLength: 1
@@ -10063,6 +10684,16 @@ components:
           type: boolean
         kind:
           $ref: "#/components/schemas/AuthenticationProviderKind"
+        login_mode:
+          default: password
+          title: Login Mode
+          type: string
+        tenants:
+          default: []
+          items:
+            type: string
+          title: Tenants
+          type: array
       required:
       - display_name
       - id
@@ -18006,6 +18637,346 @@ components:
       - occurrences
       - trigger_id
       title: SchedulePreview
+    ScimGroupRequest:
+      example:
+        displayName: displayName
+        externalId: externalId
+        members:
+        - display: display
+          value: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        - display: display
+          value: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        schemas:
+        - schemas
+        - schemas
+      properties:
+        displayName:
+          maxLength: 255
+          minLength: 1
+          title: Displayname
+          type: string
+        externalId:
+          maxLength: 2048
+          nullable: true
+          type: string
+        members:
+          default: []
+          items:
+            $ref: "#/components/schemas/ScimMember"
+          title: Members
+          type: array
+        schemas:
+          default:
+          - urn:ietf:params:scim:schemas:core:2.0:Group
+          items:
+            type: string
+          title: Schemas
+          type: array
+      required:
+      - displayName
+      title: ScimGroupRequest
+    ScimGroupResource:
+      example:
+        displayName: displayName
+        externalId: externalId
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        members:
+        - display: display
+          value: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        - display: display
+          value: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        meta:
+          created: 2000-01-23T04:56:07.000+00:00
+          lastModified: 2000-01-23T04:56:07.000+00:00
+          location: location
+          resourceType: resourceType
+          version: version
+        schemas:
+        - schemas
+        - schemas
+      properties:
+        displayName:
+          title: Displayname
+          type: string
+        externalId:
+          nullable: true
+          type: string
+        id:
+          format: uuid
+          title: Id
+          type: string
+        members:
+          default: []
+          items:
+            $ref: "#/components/schemas/ScimMember"
+          title: Members
+          type: array
+        meta:
+          $ref: "#/components/schemas/ScimResourceMeta"
+        schemas:
+          default:
+          - urn:ietf:params:scim:schemas:core:2.0:Group
+          items:
+            type: string
+          title: Schemas
+          type: array
+      required:
+      - displayName
+      - id
+      - meta
+      title: ScimGroupResource
+    ScimListResponse:
+      example:
+        Resources:
+        - active: true
+          displayName: displayName
+          externalId: externalId
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          meta:
+            created: 2000-01-23T04:56:07.000+00:00
+            lastModified: 2000-01-23T04:56:07.000+00:00
+            location: location
+            resourceType: resourceType
+            version: version
+          schemas:
+          - schemas
+          - schemas
+          userName: userName
+        - active: true
+          displayName: displayName
+          externalId: externalId
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          meta:
+            created: 2000-01-23T04:56:07.000+00:00
+            lastModified: 2000-01-23T04:56:07.000+00:00
+            location: location
+            resourceType: resourceType
+            version: version
+          schemas:
+          - schemas
+          - schemas
+          userName: userName
+        itemsPerPage: 0
+        schemas:
+        - schemas
+        - schemas
+        startIndex: 1
+        totalResults: 0
+      properties:
+        Resources:
+          items:
+            $ref: "#/components/schemas/Resources_inner"
+          title: Resources
+          type: array
+          default: null
+        itemsPerPage:
+          minimum: 0.0
+          title: Itemsperpage
+          type: integer
+        schemas:
+          default:
+          - urn:ietf:params:scim:api:messages:2.0:ListResponse
+          items:
+            type: string
+          title: Schemas
+          type: array
+        startIndex:
+          default: 1
+          minimum: 1.0
+          title: Startindex
+          type: integer
+        totalResults:
+          minimum: 0.0
+          title: Totalresults
+          type: integer
+      required:
+      - Resources
+      - itemsPerPage
+      - totalResults
+      title: ScimListResponse
+    ScimMember:
+      example:
+        display: display
+        value: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        display:
+          nullable: true
+          type: string
+        value:
+          format: uuid
+          title: Value
+          type: string
+      required:
+      - value
+      title: ScimMember
+    ScimPatchOperation:
+      example:
+        op: op
+        path: path
+        value: ""
+      properties:
+        op:
+          maxLength: 16
+          minLength: 3
+          title: Op
+          type: string
+        path:
+          maxLength: 255
+          nullable: true
+          type: string
+        value:
+          title: Value
+      required:
+      - op
+      title: ScimPatchOperation
+    ScimPatchRequest:
+      example:
+        Operations:
+        - op: op
+          path: path
+          value: ""
+        - op: op
+          path: path
+          value: ""
+        schemas:
+        - schemas
+        - schemas
+      properties:
+        Operations:
+          items:
+            $ref: "#/components/schemas/ScimPatchOperation"
+          minItems: 1
+          title: Operations
+          type: array
+          default: null
+        schemas:
+          default:
+          - urn:ietf:params:scim:api:messages:2.0:PatchOp
+          items:
+            type: string
+          title: Schemas
+          type: array
+      required:
+      - Operations
+      title: ScimPatchRequest
+    ScimResourceMeta:
+      example:
+        created: 2000-01-23T04:56:07.000+00:00
+        lastModified: 2000-01-23T04:56:07.000+00:00
+        location: location
+        resourceType: resourceType
+        version: version
+      properties:
+        created:
+          format: date-time
+          title: Created
+          type: string
+        lastModified:
+          format: date-time
+          title: Lastmodified
+          type: string
+        location:
+          title: Location
+          type: string
+        resourceType:
+          title: Resourcetype
+          type: string
+        version:
+          title: Version
+          type: string
+      required:
+      - created
+      - lastModified
+      - location
+      - resourceType
+      - version
+      title: ScimResourceMeta
+    ScimUserRequest:
+      example:
+        active: true
+        displayName: displayName
+        externalId: externalId
+        schemas:
+        - schemas
+        - schemas
+        userName: userName
+      properties:
+        active:
+          default: true
+          title: Active
+          type: boolean
+        displayName:
+          maxLength: 255
+          nullable: true
+          type: string
+        externalId:
+          maxLength: 2048
+          nullable: true
+          type: string
+        schemas:
+          default:
+          - urn:ietf:params:scim:schemas:core:2.0:User
+          items:
+            type: string
+          title: Schemas
+          type: array
+        userName:
+          maxLength: 128
+          minLength: 1
+          title: Username
+          type: string
+      required:
+      - userName
+      title: ScimUserRequest
+    ScimUserResource:
+      example:
+        active: true
+        displayName: displayName
+        externalId: externalId
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        meta:
+          created: 2000-01-23T04:56:07.000+00:00
+          lastModified: 2000-01-23T04:56:07.000+00:00
+          location: location
+          resourceType: resourceType
+          version: version
+        schemas:
+        - schemas
+        - schemas
+        userName: userName
+      properties:
+        active:
+          title: Active
+          type: boolean
+        displayName:
+          title: Displayname
+          type: string
+        externalId:
+          nullable: true
+          type: string
+        id:
+          format: uuid
+          title: Id
+          type: string
+        meta:
+          $ref: "#/components/schemas/ScimResourceMeta"
+        schemas:
+          default:
+          - urn:ietf:params:scim:schemas:core:2.0:User
+          items:
+            type: string
+          title: Schemas
+          type: array
+        userName:
+          title: Username
+          type: string
+      required:
+      - active
+      - displayName
+      - id
+      - meta
+      - userName
+      title: ScimUserResource
     SearchDocument:
       additionalProperties: {}
       example:
@@ -20693,6 +21664,10 @@ components:
       - $ref: "#/components/schemas/PermissionAction"
       - type: string
       title: Action
+    Resources_inner:
+      anyOf:
+      - $ref: "#/components/schemas/ScimUserResource"
+      - $ref: "#/components/schemas/ScimGroupResource"
     Gte:
       anyOf:
       - format: date-time

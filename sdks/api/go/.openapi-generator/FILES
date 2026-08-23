@@ -19,6 +19,7 @@ api_namespaces.go
 api_operations.go
 api_plugins.go
 api_realtime.go
+api_scim.go
 api_search.go
 api_system.go
 api_task_cache.go
@@ -44,6 +45,7 @@ docs/NamespacesAPI.md
 docs/OperationsAPI.md
 docs/PluginsAPI.md
 docs/RealtimeAPI.md
+docs/ScimAPI.md
 docs/SearchAPI.md
 docs/SystemAPI.md
 docs/TaskCacheAPI.md
@@ -250,6 +252,7 @@ model_reduce_execution_request.go
 model_reduce_execution_response.go
 model_resource_lifecycle.go
 model_resource_metadata.go
+model_resources_inner.go
 model_resume_task_request.go
 model_revoked_credentials_response.go
 model_revoked_sessions_response.go
@@ -261,6 +264,15 @@ model_runner_id.go
 model_runner_mode.go
 model_runner_network_access.go
 model_schedule_preview.go
+model_scim_group_request.go
+model_scim_group_resource.go
+model_scim_list_response.go
+model_scim_member.go
+model_scim_patch_operation.go
+model_scim_patch_request.go
+model_scim_resource_meta.go
+model_scim_user_request.go
+model_scim_user_resource.go
 model_search_document.go
 model_search_document_type.go
 model_search_projection_condition.go

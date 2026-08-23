@@ -508,14 +508,14 @@ URS-F-0506,Functional,Must,EPIC-501,"Service accounts, API tokens and credential
 URS-F-0507,Functional,Must,EPIC-501,"Service accounts, API tokens and credentials",M5,5,"Authorization, audit and administrative end-to-end tests",Verified
 URS-F-0508,Functional,Must,EPIC-501,"Service accounts, API tokens and credentials",M5,5,"Authorization, audit and administrative end-to-end tests",Verified
 URS-F-0509,Functional,Must,EPIC-501,"Service accounts, API tokens and credentials",M5,5,"Authorization, audit and administrative end-to-end tests",Verified
-URS-F-0510,Functional,Must,EPIC-502,"SSO, OIDC, SAML, LDAP and SCIM",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
-URS-F-0511,Functional,Must,EPIC-502,"SSO, OIDC, SAML, LDAP and SCIM",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
-URS-F-0512,Functional,Must,EPIC-502,"SSO, OIDC, SAML, LDAP and SCIM",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
-URS-F-0513,Functional,Must,EPIC-502,"SSO, OIDC, SAML, LDAP and SCIM",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
-URS-F-0514,Functional,Must,EPIC-502,"SSO, OIDC, SAML, LDAP and SCIM",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
-URS-F-0515,Functional,Must,EPIC-502,"SSO, OIDC, SAML, LDAP and SCIM",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
-URS-F-0516,Functional,Must,EPIC-502,"SSO, OIDC, SAML, LDAP and SCIM",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
-URS-F-0517,Functional,Must,EPIC-502,"SSO, OIDC, SAML, LDAP and SCIM",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0510,Functional,Must,EPIC-502,"SSO, OIDC, SAML, LDAP and SCIM",M5,5,"Authorization, audit and administrative end-to-end tests",Verified
+URS-F-0511,Functional,Must,EPIC-502,"SSO, OIDC, SAML, LDAP and SCIM",M5,5,"Authorization, audit and administrative end-to-end tests",Verified
+URS-F-0512,Functional,Must,EPIC-502,"SSO, OIDC, SAML, LDAP and SCIM",M5,5,"Authorization, audit and administrative end-to-end tests",Verified
+URS-F-0513,Functional,Must,EPIC-502,"SSO, OIDC, SAML, LDAP and SCIM",M5,5,"Authorization, audit and administrative end-to-end tests",Verified
+URS-F-0514,Functional,Must,EPIC-502,"SSO, OIDC, SAML, LDAP and SCIM",M5,5,"Authorization, audit and administrative end-to-end tests",Verified
+URS-F-0515,Functional,Must,EPIC-502,"SSO, OIDC, SAML, LDAP and SCIM",M5,5,"Authorization, audit and administrative end-to-end tests",Verified
+URS-F-0516,Functional,Must,EPIC-502,"SSO, OIDC, SAML, LDAP and SCIM",M5,5,"Authorization, audit and administrative end-to-end tests",Verified
+URS-F-0517,Functional,Must,EPIC-502,"SSO, OIDC, SAML, LDAP and SCIM",M5,5,"Authorization, audit and administrative end-to-end tests",Verified
 URS-F-0518,Functional,Must,EPIC-503,Multi-tenancy and resource isolation,M5,5,"Authorization, audit and administrative end-to-end tests",Verified
 URS-F-0519,Functional,Must,EPIC-503,Multi-tenancy and resource isolation,M5,5,"Authorization, audit and administrative end-to-end tests",Verified
 URS-F-0520,Functional,Must,EPIC-503,Multi-tenancy and resource isolation,M5,5,"Authorization, audit and administrative end-to-end tests",Verified

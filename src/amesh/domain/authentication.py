@@ -28,6 +28,9 @@ class AuthenticationProviderDescriptor(BaseModel):
     kind: AuthenticationProviderKind
     display_name: str = Field(min_length=1, max_length=255)
     interactive: bool = True
+    login_mode: str = "password"
+    domains: tuple[str, ...] = ()
+    tenants: tuple[str, ...] = ()
 
 
 class AuthenticationRequest(BaseModel):

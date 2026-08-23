@@ -14582,7 +14582,7 @@
       "id": "URS-F-0510",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M5",
       "wave": 5,
       "epic_id": "EPIC-502",
@@ -14604,13 +14604,17 @@
       "dependencies": [
         "EPIC-500",
         "EPIC-403"
+      ],
+      "evidence": [
+        "src/amesh/federation.py",
+        "tests/domain/test_federation.py::test_oidc_pkce_rotation_clock_skew_replay_routing_and_outage"
       ]
     },
     {
       "id": "URS-F-0511",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M5",
       "wave": 5,
       "epic_id": "EPIC-502",
@@ -14632,13 +14636,17 @@
       "dependencies": [
         "EPIC-500",
         "EPIC-403"
+      ],
+      "evidence": [
+        "src/amesh/federation.py",
+        "tests/domain/test_federation.py::test_saml_metadata_publishes_key_rotation_and_signed_request"
       ]
     },
     {
       "id": "URS-F-0512",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M5",
       "wave": 5,
       "epic_id": "EPIC-502",
@@ -14660,13 +14668,17 @@
       "dependencies": [
         "EPIC-500",
         "EPIC-403"
+      ],
+      "evidence": [
+        "src/amesh/federation.py",
+        "tests/domain/test_federation.py::test_ldap_provider_maps_tls_authenticated_claims"
       ]
     },
     {
       "id": "URS-F-0513",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M5",
       "wave": 5,
       "epic_id": "EPIC-502",
@@ -14688,13 +14700,17 @@
       "dependencies": [
         "EPIC-500",
         "EPIC-403"
+      ],
+      "evidence": [
+        "src/amesh/adapters/postgres/federation_repository.py",
+        "tests/api/test_federation_api.py::test_scim_bearer_tenant_isolation_user_group_patch_disable_and_deprovision"
       ]
     },
     {
       "id": "URS-F-0514",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M5",
       "wave": 5,
       "epic_id": "EPIC-502",
@@ -14716,13 +14732,17 @@
       "dependencies": [
         "EPIC-500",
         "EPIC-403"
+      ],
+      "evidence": [
+        "src/amesh/adapters/postgres/federation_repository.py",
+        "tests/adapters/postgres/test_federation_repository.py::test_federated_identity_state_mapping_replay_and_scim_lifecycle"
       ]
     },
     {
       "id": "URS-F-0515",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M5",
       "wave": 5,
       "epic_id": "EPIC-502",
@@ -14744,13 +14764,17 @@
       "dependencies": [
         "EPIC-500",
         "EPIC-403"
+      ],
+      "evidence": [
+        "migrations/0045_identity_federation.sql",
+        "tests/adapters/postgres/test_federation_repository.py::test_federated_identity_state_mapping_replay_and_scim_lifecycle"
       ]
     },
     {
       "id": "URS-F-0516",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M5",
       "wave": 5,
       "epic_id": "EPIC-502",
@@ -14772,13 +14796,17 @@
       "dependencies": [
         "EPIC-500",
         "EPIC-403"
+      ],
+      "evidence": [
+        "tests/domain/test_federation.py",
+        "tests/api/test_authentication_api.py::test_local_multi_user_browser_sessions_are_cookie_csrf_and_policy_bound"
       ]
     },
     {
       "id": "URS-F-0517",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M5",
       "wave": 5,
       "epic_id": "EPIC-502",
@@ -14800,6 +14828,10 @@
       "dependencies": [
         "EPIC-500",
         "EPIC-403"
+      ],
+      "evidence": [
+        "tests/domain/test_federation.py::test_oidc_pkce_rotation_clock_skew_replay_routing_and_outage",
+        "frontend/e2e/shell.spec.ts"
       ]
     },
     {
@@ -24712,7 +24744,10 @@
         "src/amesh/config.py",
         "charts/amesh/templates/_helpers.tpl",
         "docs/operations/credentials.md",
-        "tests/adapters/postgres/test_credential_repository.py"
+        "tests/adapters/postgres/test_credential_repository.py",
+        "docs/operations/identity-federation.md",
+        "tests/domain/test_federation.py",
+        "tests/api/test_federation_api.py"
       ]
     },
     {

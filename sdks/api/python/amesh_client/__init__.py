@@ -34,6 +34,7 @@ __all__ = [
     "OperationsApi",
     "PluginsApi",
     "RealtimeApi",
+    "ScimApi",
     "SearchApi",
     "SystemApi",
     "TaskCacheApi",
@@ -246,6 +247,7 @@ __all__ = [
     "ReduceExecutionResponse",
     "ResourceLifecycle",
     "ResourceMetadata",
+    "ResourcesInner",
     "ResumeTaskRequest",
     "RevokedCredentialsResponse",
     "RevokedSessionsResponse",
@@ -257,6 +259,15 @@ __all__ = [
     "RunnerMode",
     "RunnerNetworkAccess",
     "SchedulePreview",
+    "ScimGroupRequest",
+    "ScimGroupResource",
+    "ScimListResponse",
+    "ScimMember",
+    "ScimPatchOperation",
+    "ScimPatchRequest",
+    "ScimResourceMeta",
+    "ScimUserRequest",
+    "ScimUserResource",
     "SearchDocument",
     "SearchDocumentType",
     "SearchProjectionCondition",
@@ -345,6 +356,7 @@ from amesh_client.api.namespaces_api import NamespacesApi as NamespacesApi
 from amesh_client.api.operations_api import OperationsApi as OperationsApi
 from amesh_client.api.plugins_api import PluginsApi as PluginsApi
 from amesh_client.api.realtime_api import RealtimeApi as RealtimeApi
+from amesh_client.api.scim_api import ScimApi as ScimApi
 from amesh_client.api.search_api import SearchApi as SearchApi
 from amesh_client.api.system_api import SystemApi as SystemApi
 from amesh_client.api.task_cache_api import TaskCacheApi as TaskCacheApi
@@ -561,6 +573,7 @@ from amesh_client.models.reduce_execution_request import ReduceExecutionRequest 
 from amesh_client.models.reduce_execution_response import ReduceExecutionResponse as ReduceExecutionResponse
 from amesh_client.models.resource_lifecycle import ResourceLifecycle as ResourceLifecycle
 from amesh_client.models.resource_metadata import ResourceMetadata as ResourceMetadata
+from amesh_client.models.resources_inner import ResourcesInner as ResourcesInner
 from amesh_client.models.resume_task_request import ResumeTaskRequest as ResumeTaskRequest
 from amesh_client.models.revoked_credentials_response import RevokedCredentialsResponse as RevokedCredentialsResponse
 from amesh_client.models.revoked_sessions_response import RevokedSessionsResponse as RevokedSessionsResponse
@@ -572,6 +585,15 @@ from amesh_client.models.runner_id import RunnerId as RunnerId
 from amesh_client.models.runner_mode import RunnerMode as RunnerMode
 from amesh_client.models.runner_network_access import RunnerNetworkAccess as RunnerNetworkAccess
 from amesh_client.models.schedule_preview import SchedulePreview as SchedulePreview
+from amesh_client.models.scim_group_request import ScimGroupRequest as ScimGroupRequest
+from amesh_client.models.scim_group_resource import ScimGroupResource as ScimGroupResource
+from amesh_client.models.scim_list_response import ScimListResponse as ScimListResponse
+from amesh_client.models.scim_member import ScimMember as ScimMember
+from amesh_client.models.scim_patch_operation import ScimPatchOperation as ScimPatchOperation
+from amesh_client.models.scim_patch_request import ScimPatchRequest as ScimPatchRequest
+from amesh_client.models.scim_resource_meta import ScimResourceMeta as ScimResourceMeta
+from amesh_client.models.scim_user_request import ScimUserRequest as ScimUserRequest
+from amesh_client.models.scim_user_resource import ScimUserResource as ScimUserResource
 from amesh_client.models.search_document import SearchDocument as SearchDocument
 from amesh_client.models.search_document_type import SearchDocumentType as SearchDocumentType
 from amesh_client.models.search_projection_condition import SearchProjectionCondition as SearchProjectionCondition

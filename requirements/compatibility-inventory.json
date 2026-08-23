@@ -7528,105 +7528,129 @@
       "requirement_id": "URS-F-0510",
       "epic_id": "EPIC-502",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-enterprise-docs-v1.3.30",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "src/amesh/federation.py",
+        "tests/domain/test_federation.py::test_oidc_pkce_rotation_clock_skew_replay_routing_and_outage"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0511",
       "epic_id": "EPIC-502",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-enterprise-docs-v1.3.30",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "src/amesh/federation.py",
+        "tests/domain/test_federation.py::test_saml_metadata_publishes_key_rotation_and_signed_request"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0512",
       "epic_id": "EPIC-502",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-enterprise-docs-v1.3.30",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "src/amesh/federation.py",
+        "tests/domain/test_federation.py::test_ldap_provider_maps_tls_authenticated_claims"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0513",
       "epic_id": "EPIC-502",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-enterprise-docs-v1.3.30",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "src/amesh/adapters/postgres/federation_repository.py",
+        "tests/api/test_federation_api.py::test_scim_bearer_tenant_isolation_user_group_patch_disable_and_deprovision"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0514",
       "epic_id": "EPIC-502",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-enterprise-docs-v1.3.30",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "src/amesh/adapters/postgres/federation_repository.py",
+        "tests/adapters/postgres/test_federation_repository.py::test_federated_identity_state_mapping_replay_and_scim_lifecycle"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0515",
       "epic_id": "EPIC-502",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-enterprise-docs-v1.3.30",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "migrations/0045_identity_federation.sql",
+        "tests/adapters/postgres/test_federation_repository.py::test_federated_identity_state_mapping_replay_and_scim_lifecycle"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0516",
       "epic_id": "EPIC-502",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-enterprise-docs-v1.3.30",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/domain/test_federation.py",
+        "tests/api/test_authentication_api.py::test_local_multi_user_browser_sessions_are_cookie_csrf_and_policy_bound"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0517",
       "epic_id": "EPIC-502",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-enterprise-docs-v1.3.30",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/domain/test_federation.py::test_oidc_pkce_rotation_clock_skew_replay_routing_and_outage",
+        "frontend/e2e/shell.spec.ts"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0518",

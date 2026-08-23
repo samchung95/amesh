@@ -22,6 +22,7 @@ amesh_client/api/namespaces_api.py
 amesh_client/api/operations_api.py
 amesh_client/api/plugins_api.py
 amesh_client/api/realtime_api.py
+amesh_client/api/scim_api.py
 amesh_client/api/search_api.py
 amesh_client/api/system_api.py
 amesh_client/api/task_cache_api.py
@@ -230,6 +231,7 @@ amesh_client/models/reduce_execution_request.py
 amesh_client/models/reduce_execution_response.py
 amesh_client/models/resource_lifecycle.py
 amesh_client/models/resource_metadata.py
+amesh_client/models/resources_inner.py
 amesh_client/models/resume_task_request.py
 amesh_client/models/revoked_credentials_response.py
 amesh_client/models/revoked_sessions_response.py
@@ -241,6 +243,15 @@ amesh_client/models/runner_id.py
 amesh_client/models/runner_mode.py
 amesh_client/models/runner_network_access.py
 amesh_client/models/schedule_preview.py
+amesh_client/models/scim_group_request.py
+amesh_client/models/scim_group_resource.py
+amesh_client/models/scim_list_response.py
+amesh_client/models/scim_member.py
+amesh_client/models/scim_patch_operation.py
+amesh_client/models/scim_patch_request.py
+amesh_client/models/scim_resource_meta.py
+amesh_client/models/scim_user_request.py
+amesh_client/models/scim_user_resource.py
 amesh_client/models/search_document.py
 amesh_client/models/search_document_type.py
 amesh_client/models/search_projection_condition.py
@@ -328,6 +339,7 @@ docs/NamespacesApi.md
 docs/OperationsApi.md
 docs/PluginsApi.md
 docs/RealtimeApi.md
+docs/ScimApi.md
 docs/SearchApi.md
 docs/SystemApi.md
 docs/TaskCacheApi.md

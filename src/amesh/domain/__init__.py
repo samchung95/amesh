@@ -135,6 +135,7 @@ from .feature_flags import (
     FeatureFlagScope,
     resolve_feature_flag,
 )
+from .federation import FederatedClaims, FederationProtocol, FederationState, ScimResourceRecord
 from .flow_revisions import (
     FlowLifecycle,
     FlowRevisionDiff,
@@ -322,6 +323,9 @@ __all__ = [
     "FeatureFlag",
     "FeatureFlagDecision",
     "FeatureFlagScope",
+    "FederatedClaims",
+    "FederationProtocol",
+    "FederationState",
     "FlowKey",
     "FlowLifecycle",
     "FlowRevisionDiff",
@@ -370,6 +374,7 @@ __all__ = [
     "RoleDefinition",
     "RuntimeIdentity",
     "RuntimeResourceType",
+    "ScimResourceRecord",
     "SearchDocument",
     "SearchDocumentType",
     "SearchProjectionCondition",
