@@ -9,6 +9,13 @@ tenant requests and tenant-aware worker routing; see the
 The worker performs bounded durable-state reconciliation every 60 seconds by default; tune the three
 `worker.reconciliation*` values using the [reconciliation runbook](../../docs/operations/reconciliation.md).
 
+Set `operator.enabled=true` to install the opt-in API-driven Kubernetes operator and nine
+`platform.amesh.io/v1alpha1` configuration CRDs. Watches and RBAC are namespace-scoped by default;
+credentials are read from named existing Secrets and never copied into CR status. Configure
+multi-tenant targets with `operator.targets`, and see the
+[Kubernetes operator guide](../../docs/operations/kubernetes-operator.md) for examples, deletion
+policy, metrics, drift correction and CRD upgrade rules.
+
 Prometheus/Grafana reference assets are included in the observability ConfigMap. Configure bounded
 JSON log shipping and optional OTLP/HTTP trace export through `observability.*`; collector credentials
 come from an existing Secret. See the

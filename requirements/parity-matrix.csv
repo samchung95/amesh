@@ -90,7 +90,7 @@ EPIC-612,Security hardening and software supply chain,M6,Kestra v1.3.30 public b
 EPIC-613,"TLS, networking, proxy and private connectivity",M6,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,10,
 EPIC-700,Git synchronization and CI/CD helpers,M7,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,8,
 EPIC-701,Terraform and OpenTofu provider,M7,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,8,
-EPIC-702,Kubernetes operator and declarative resources,M7,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,8,
+EPIC-702,Kubernetes operator and declarative resources,M7,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Verified,8,TESTLOG.md; backlog/epics/epic-702-kubernetes-operator-and-declarative-resources.md; tests/operator/test_reconciler.py; tests/test_helm_operator.py; docs/operations/kubernetes-operator.md
 EPIC-703,Public SDKs and embedded integration libraries,M7,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,8,
 EPIC-704,Kestra migration importer and conformance suite,M7,Kestra v1.3.30 public behavior and architecture parity baseline,P1 selected configuration,Planned,19,
 EPIC-705,"Documentation, examples and community governance",M7,Kestra v1.3.30 public behavior and architecture parity baseline,P0 capability,Planned,10,

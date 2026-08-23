@@ -110,6 +110,31 @@ jobs:
           test "$(jq '.provider_schemas["registry.terraform.io/amesh/amesh"].resource_schemas | length' <<<"$schema")" = 14
           test "$(jq '.provider_schemas["registry.terraform.io/amesh/amesh"].data_source_schemas | length' <<<"$schema")" = 14
 
+  kubernetes-operator:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: |
+          python -m pip install uv
+          uv pip install --system -e '.[dev,runtime]'
+      - name: Verify generated CRDs and operator contracts
+        run: |
+          python scripts/generate_operator_crds.py
+          git diff --exit-code -- charts/amesh/crds/platform.amesh.io_resources.yaml
+          pytest -q tests/operator tests/test_helm_operator.py
+      - name: Validate opt-in Helm profile
+        run: |
+          docker run --rm -v "$PWD:/workspace" -w /workspace \
+            alpine/helm:3.19.0 lint charts/amesh --set operator.enabled=true
+          docker run --rm -v "$PWD:/workspace" -w /workspace \
+            alpine/helm:3.19.0 template amesh charts/amesh \
+            --namespace amesh-system --set operator.enabled=true >/dev/null
+
   postgres-compatibility:
     runs-on: ubuntu-latest
     timeout-minutes: 15

@@ -1,0 +1,21 @@
+{{- if .Values.operator.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "amesh.fullname" . }}-operator-metrics
+  labels:
+    {{- include "amesh.labels" . | nindent 4 }}
+    app.kubernetes.io/component: operator
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/path: /metrics
+    prometheus.io/port: {{ .Values.operator.metricsPort | quote }}
+spec:
+  selector:
+    {{- include "amesh.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: operator
+  ports:
+    - name: metrics
+      port: {{ .Values.operator.metricsPort }}
+      targetPort: metrics
+{{- end }}

@@ -1,0 +1,79 @@
+{{- if .Values.operator.enabled }}
+{{- $watchNamespaces := .Values.operator.watchNamespaces | default (list .Release.Namespace) }}
+{{- $credentialSecret := default .Values.adminToken.existingSecret .Values.operator.credentialExistingSecret }}
+{{- $endpoint := default (printf "http://%s:%v" (include "amesh.fullname" .) .Values.service.port) .Values.operator.endpoint }}
+{{- $defaultTarget := dict "tenant" .Values.tenancy.singleTenantSlug "endpoint" $endpoint "credentialSecretRef" (dict "namespace" .Release.Namespace "name" $credentialSecret "key" .Values.operator.credentialKey) }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "amesh.fullname" . }}-operator
+  labels:
+    {{- include "amesh.labels" . | nindent 4 }}
+    app.kubernetes.io/component: operator
+spec:
+  replicas: {{ .Values.operator.replicas }}
+  selector:
+    matchLabels:
+      {{- include "amesh.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: operator
+  template:
+    metadata:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: /metrics
+        prometheus.io/port: {{ .Values.operator.metricsPort | quote }}
+        {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      labels:
+        {{- include "amesh.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: operator
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      serviceAccountName: {{ include "amesh.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: operator
+          image: {{ include "amesh.image" . | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["python", "-m", "amesh.operator"]
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          env:
+            - name: AMESH_OPERATOR_WATCH_NAMESPACES
+              value: {{ toJson $watchNamespaces | quote }}
+            - name: AMESH_OPERATOR_TARGETS
+              value: {{ ternary (toJson .Values.operator.targets) (toJson (list $defaultTarget)) (not (empty .Values.operator.targets)) | quote }}
+            - name: AMESH_OPERATOR_LABEL_SELECTOR
+              value: {{ .Values.operator.labelSelector | quote }}
+            - name: AMESH_OPERATOR_RESYNC_SECONDS
+              value: {{ .Values.operator.resyncSeconds | quote }}
+            - name: AMESH_OPERATOR_WATCH_TIMEOUT_SECONDS
+              value: {{ .Values.operator.watchTimeoutSeconds | quote }}
+            - name: AMESH_OPERATOR_RETRY_INITIAL_SECONDS
+              value: {{ .Values.operator.retryInitialSeconds | quote }}
+            - name: AMESH_OPERATOR_RETRY_MAX_SECONDS
+              value: {{ .Values.operator.retryMaxSeconds | quote }}
+            - name: AMESH_OPERATOR_METRICS_PORT
+              value: {{ .Values.operator.metricsPort | quote }}
+          ports:
+            - name: metrics
+              containerPort: {{ .Values.operator.metricsPort }}
+          readinessProbe:
+            tcpSocket:
+              port: metrics
+          livenessProbe:
+            tcpSocket:
+              port: metrics
+          resources:
+            {{- toYaml .Values.operator.resources | nindent 12 }}
+      nodeSelector:
+        {{- toYaml .Values.nodeSelector | nindent 8 }}
+      affinity:
+        {{- toYaml .Values.affinity | nindent 8 }}
+      tolerations:
+        {{- toYaml .Values.tolerations | nindent 8 }}
+{{- end }}

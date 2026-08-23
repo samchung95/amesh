@@ -3040,3 +3040,36 @@ repository plus its production GPG private key. Local qualification verifies the
 manifest, checksum and detached-signature path without making an external publication claim.
 
 Verdict: PASS — EPIC-701 closed.
+
+## 2026-08-23 — EPIC-702 Kubernetes operator and declarative resources
+
+Scope: `URS-F-0710` through `URS-F-0717`.
+
+- [x] Nine generated `platform.amesh.io/v1alpha1` CRDs cover flows, namespace bundles, files,
+  key-values, dashboards, apps, roles, bindings and plugin policies. Every version is served/stored,
+  has structural OpenAPI schema and exposes the status subresource.
+- [x] The Python operator uses only public AMESH API/SCIM contracts. Status records observed
+  generation, safe remote identifiers/digests and `Ready`/`DriftDetected` conditions; PostgreSQL,
+  not Kubernetes etcd, remains authoritative for platform and execution runtime state.
+- [x] Namespace and label watches, tenant-target selection and one-deployment-per-cluster operation
+  are explicit. Named Kubernetes Secrets are read at reconciliation time for rotation; plaintext did
+  not appear in status, events, environment variables or response-body errors.
+- [x] Bounded retry/backoff, periodic drift detection and `Delete`/`Retain` finalizers passed focused
+  tests. Server-added key-value defaults are comparison-normalized, and live resource, event and
+  remote revision counts stayed unchanged across repeated resync intervals.
+- [x] Sixteen focused operator/Helm tests, Ruff and strict mypy passed. All nine CRDs passed live
+  Kubernetes server-side dry-run; Helm 3.19.0 lint and template passed for the opt-in operator profile.
+- [x] A live kind deployment passed create, `Ready=True`, Prometheus scrape, Kubernetes events,
+  out-of-band drift repair, remote Delete and remote Retain. Acceptance resources were removed after
+  verification; the operator, current server/worker image and established CRDs remain available.
+- [x] CI regenerates CRDs, rejects schema drift, runs focused contracts and validates the Helm
+  profile. ADR-043, the operator runbook and an apply-ready key-value example document scope,
+  credentials, version migration and recovery boundaries.
+- [x] Planning artifacts regenerated and the canonical backlog validator passed.
+
+Qualification boundary: production multi-cluster failure testing requires operated clusters. The
+local contract verifies scoped per-cluster deployment configuration and per-tenant Secret targets.
+`v1alpha1` is the only served/storage version, so no conversion webhook is installed until a second
+breaking version exists; ADR-043 requires conversion or storage migration before removal.
+
+Verdict: PASS — EPIC-702 closed.

@@ -708,14 +708,14 @@ URS-F-0706,Functional,Must,EPIC-701,Terraform and OpenTofu provider,M7,7,"Declar
 URS-F-0707,Functional,Must,EPIC-701,Terraform and OpenTofu provider,M7,7,"Declarative apply, drift and CI integration tests",Verified
 URS-F-0708,Functional,Must,EPIC-701,Terraform and OpenTofu provider,M7,7,"Declarative apply, drift and CI integration tests",Verified
 URS-F-0709,Functional,Must,EPIC-701,Terraform and OpenTofu provider,M7,7,"Declarative apply, drift and CI integration tests",Verified
-URS-F-0710,Functional,Must,EPIC-702,Kubernetes operator and declarative resources,M7,7,"Declarative apply, drift and CI integration tests",Proposed
-URS-F-0711,Functional,Must,EPIC-702,Kubernetes operator and declarative resources,M7,7,"Declarative apply, drift and CI integration tests",Proposed
-URS-F-0712,Functional,Must,EPIC-702,Kubernetes operator and declarative resources,M7,7,"Declarative apply, drift and CI integration tests",Proposed
-URS-F-0713,Functional,Must,EPIC-702,Kubernetes operator and declarative resources,M7,7,"Declarative apply, drift and CI integration tests",Proposed
-URS-F-0714,Functional,Must,EPIC-702,Kubernetes operator and declarative resources,M7,7,"Declarative apply, drift and CI integration tests",Proposed
-URS-F-0715,Functional,Must,EPIC-702,Kubernetes operator and declarative resources,M7,7,"Declarative apply, drift and CI integration tests",Proposed
-URS-F-0716,Functional,Must,EPIC-702,Kubernetes operator and declarative resources,M7,7,"Declarative apply, drift and CI integration tests",Proposed
-URS-F-0717,Functional,Must,EPIC-702,Kubernetes operator and declarative resources,M7,7,"Declarative apply, drift and CI integration tests",Proposed
+URS-F-0710,Functional,Must,EPIC-702,Kubernetes operator and declarative resources,M7,7,"Declarative apply, drift and CI integration tests",Verified
+URS-F-0711,Functional,Must,EPIC-702,Kubernetes operator and declarative resources,M7,7,"Declarative apply, drift and CI integration tests",Verified
+URS-F-0712,Functional,Must,EPIC-702,Kubernetes operator and declarative resources,M7,7,"Declarative apply, drift and CI integration tests",Verified
+URS-F-0713,Functional,Must,EPIC-702,Kubernetes operator and declarative resources,M7,7,"Declarative apply, drift and CI integration tests",Verified
+URS-F-0714,Functional,Must,EPIC-702,Kubernetes operator and declarative resources,M7,7,"Declarative apply, drift and CI integration tests",Verified
+URS-F-0715,Functional,Must,EPIC-702,Kubernetes operator and declarative resources,M7,7,"Declarative apply, drift and CI integration tests",Verified
+URS-F-0716,Functional,Must,EPIC-702,Kubernetes operator and declarative resources,M7,7,"Declarative apply, drift and CI integration tests",Verified
+URS-F-0717,Functional,Must,EPIC-702,Kubernetes operator and declarative resources,M7,7,"Declarative apply, drift and CI integration tests",Verified
 URS-F-0718,Functional,Must,EPIC-703,Public SDKs and embedded integration libraries,M7,7,OpenAPI contract and authenticated end-to-end API tests,Proposed
 URS-F-0719,Functional,Must,EPIC-703,Public SDKs and embedded integration libraries,M7,7,OpenAPI contract and authenticated end-to-end API tests,Proposed
 URS-F-0720,Functional,Must,EPIC-703,Public SDKs and embedded integration libraries,M7,7,OpenAPI contract and authenticated end-to-end API tests,Proposed

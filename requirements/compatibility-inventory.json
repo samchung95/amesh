@@ -10512,97 +10512,145 @@
       "requirement_id": "URS-F-0710",
       "epic_id": "EPIC-702",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-702-kubernetes-operator-and-declarative-resources.md",
+        "tests/operator/test_reconciler.py",
+        "tests/test_helm_operator.py",
+        "docs/operations/kubernetes-operator.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0711",
       "epic_id": "EPIC-702",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-702-kubernetes-operator-and-declarative-resources.md",
+        "tests/operator/test_reconciler.py",
+        "tests/test_helm_operator.py",
+        "docs/operations/kubernetes-operator.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0712",
       "epic_id": "EPIC-702",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-702-kubernetes-operator-and-declarative-resources.md",
+        "tests/operator/test_reconciler.py",
+        "tests/test_helm_operator.py",
+        "docs/operations/kubernetes-operator.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0713",
       "epic_id": "EPIC-702",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-702-kubernetes-operator-and-declarative-resources.md",
+        "tests/operator/test_reconciler.py",
+        "tests/test_helm_operator.py",
+        "docs/operations/kubernetes-operator.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0714",
       "epic_id": "EPIC-702",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-702-kubernetes-operator-and-declarative-resources.md",
+        "tests/operator/test_reconciler.py",
+        "tests/test_helm_operator.py",
+        "docs/operations/kubernetes-operator.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0715",
       "epic_id": "EPIC-702",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-702-kubernetes-operator-and-declarative-resources.md",
+        "tests/operator/test_reconciler.py",
+        "tests/test_helm_operator.py",
+        "docs/operations/kubernetes-operator.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0716",
       "epic_id": "EPIC-702",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-702-kubernetes-operator-and-declarative-resources.md",
+        "tests/operator/test_reconciler.py",
+        "tests/test_helm_operator.py",
+        "docs/operations/kubernetes-operator.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0717",
       "epic_id": "EPIC-702",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-702-kubernetes-operator-and-declarative-resources.md",
+        "tests/operator/test_reconciler.py",
+        "tests/test_helm_operator.py",
+        "docs/operations/kubernetes-operator.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0718",
