@@ -1506,3 +1506,79 @@ export interface PluginPolicyImpactPreview {
   affectedFlows: Array<Record<string, unknown>>
   runningExecutions: Array<Record<string, unknown>>
 }
+
+export type LifecycleResourceType = 'EXECUTION' | 'LOG' | 'METRIC' | 'ARTIFACT' | 'CACHE'
+export type LifecycleScope = 'INSTANCE' | 'TENANT' | 'NAMESPACE' | 'LABEL'
+
+export interface LifecyclePolicyDraft {
+  resourceType: LifecycleResourceType
+  scope: LifecycleScope
+  namespace?: string | null
+  labelSelector: Record<string, string>
+  retentionDays: number
+  batchSize: number
+  scheduleIntervalMinutes?: number | null
+  enabled: boolean
+  reason: string
+}
+
+export interface LifecyclePolicy extends LifecyclePolicyDraft {
+  id: string
+  tenantId: string | null
+  nextRunAt: string | null
+  createdBy: string
+  createdAt: string
+  updatedBy: string
+  updatedAt: string
+  version: number
+}
+
+export interface LifecycleLegalHoldDraft {
+  name: string
+  reason: string
+  resourceType?: LifecycleResourceType | null
+  resourceId?: string | null
+  namespace?: string | null
+  labelSelector: Record<string, string>
+  dataFrom?: string | null
+  dataTo?: string | null
+}
+
+export interface LifecycleLegalHold extends LifecycleLegalHoldDraft {
+  id: string
+  tenantId: string
+  active: boolean
+  createdBy: string
+  createdAt: string
+  releasedBy: string | null
+  releasedAt: string | null
+}
+
+export interface LifecycleJob {
+  id: string
+  tenantId: string
+  policyId: string
+  trigger: 'MANUAL' | 'SCHEDULED'
+  state: 'PREVIEWED' | 'READY' | 'RUNNING' | 'WAITING_EXTERNAL' | 'SUCCEEDED' | 'FAILED'
+  cutoff: string
+  policySnapshot: LifecyclePolicyDraft & { id: string; version: number }
+  estimatedRecords: number
+  estimatedBytes: number
+  protectedRecords: number
+  activeRecords: number
+  processedRecords: number
+  processedBytes: number
+  batchSize: number
+  cursor: string | null
+  retryCount: number
+  lastError: string | null
+  evidence: Record<string, unknown>
+  reason: string
+  actorId: string
+  previewExpiresAt: string
+  startedAt: string | null
+  completedAt: string | null
+  createdAt: string
+  updatedAt: string
+  confirmationPhrase: string
+}

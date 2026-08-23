@@ -264,6 +264,7 @@ BUILT_IN_ROLES: tuple[RoleDefinition, ...] = (
             Permission(resource_type="execution", action=PermissionAction.EXECUTE),
             Permission(resource_type="execution", action=PermissionAction.MANAGE),
             Permission(resource_type="worker", action=PermissionAction.VIEW),
+            Permission(resource_type="lifecycle", action=PermissionAction.MANAGE),
         ),
     ),
     RoleDefinition(

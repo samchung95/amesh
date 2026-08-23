@@ -8,7 +8,7 @@ Generated from `build_parser()`.
 usage: amesh [-h] [--version] [--api-url API_URL] [--token TOKEN]
              [--tenant TENANT] [--profile PROFILE] [--config-path CONFIG_PATH]
              [--output {human,json,quiet}] [--quiet]
-             {validate,apply,flows,executions,run,execution,logs,webhook,plugins,namespace,auth,config,flow,admin,completion,command-docs,storage,recovery,tenant-transfer} ...
+             {validate,apply,flows,executions,run,execution,logs,webhook,plugins,namespace,auth,config,flow,admin,lifecycle,completion,command-docs,storage,recovery,tenant-transfer} ...
 ```
 
 ## `amesh admin`
@@ -232,6 +232,79 @@ usage: amesh flow test [-h] --revision REVISION [--test-id TEST_ID]
 
 ```text
 usage: amesh flows [-h]
+```
+
+## `amesh lifecycle`
+
+```text
+usage: amesh lifecycle [-h]
+                       {policies,create-policy,preview,jobs,execute,resume,holds,hold,release-hold} ...
+```
+
+## `amesh lifecycle create-policy`
+
+```text
+usage: amesh lifecycle create-policy [-h]
+                                     --resource-type {EXECUTION,LOG,METRIC,ARTIFACT,CACHE}
+                                     --scope {INSTANCE,TENANT,NAMESPACE,LABEL}
+                                     [--namespace NAMESPACE] [--label LABEL]
+                                     --retention-days RETENTION_DAYS
+                                     [--batch-size BATCH_SIZE]
+                                     [--schedule-minutes SCHEDULE_MINUTES]
+                                     --reason REASON
+```
+
+## `amesh lifecycle execute`
+
+```text
+usage: amesh lifecycle execute [-h] [--force] job_id
+```
+
+## `amesh lifecycle hold`
+
+```text
+usage: amesh lifecycle hold [-h] --reason REASON
+                            [--resource-type {EXECUTION,LOG,METRIC,ARTIFACT,CACHE}]
+                            [--resource-id RESOURCE_ID]
+                            [--namespace NAMESPACE] [--label LABEL]
+                            [--data-from DATA_FROM] [--data-to DATA_TO]
+                            name
+```
+
+## `amesh lifecycle holds`
+
+```text
+usage: amesh lifecycle holds [-h]
+```
+
+## `amesh lifecycle jobs`
+
+```text
+usage: amesh lifecycle jobs [-h]
+```
+
+## `amesh lifecycle policies`
+
+```text
+usage: amesh lifecycle policies [-h]
+```
+
+## `amesh lifecycle preview`
+
+```text
+usage: amesh lifecycle preview [-h] --reason REASON policy_id
+```
+
+## `amesh lifecycle release-hold`
+
+```text
+usage: amesh lifecycle release-hold [-h] hold_id
+```
+
+## `amesh lifecycle resume`
+
+```text
+usage: amesh lifecycle resume [-h] job_id
 ```
 
 ## `amesh logs`

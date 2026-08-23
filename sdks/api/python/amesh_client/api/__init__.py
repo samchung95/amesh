@@ -17,6 +17,7 @@ from amesh_client.api.executions_api import ExecutionsApi
 from amesh_client.api.flow_tests_api import FlowTestsApi
 from amesh_client.api.flows_api import FlowsApi
 from amesh_client.api.human_tasks_api import HumanTasksApi
+from amesh_client.api.lifecycle_api import LifecycleApi
 from amesh_client.api.namespace_resources_api import NamespaceResourcesApi
 from amesh_client.api.namespaces_api import NamespacesApi
 from amesh_client.api.operations_api import OperationsApi

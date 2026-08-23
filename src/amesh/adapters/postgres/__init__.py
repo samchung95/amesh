@@ -25,6 +25,7 @@ from .operations_repository import (
 from .plugin_policy_repository import PostgresPluginPolicyRepository
 from .realtime_repository import PostgresRealtimeRepository
 from .reconciliation_repository import PostgresReconciliationRepository
+from .retention_repository import LifecycleVersionConflict, PostgresRetentionRepository
 from .scheduler_repository import PostgresSchedulerRepository
 from .search_repository import PostgresSearchRepository
 from .service_registry import PostgresServiceRegistryRepository
@@ -36,6 +37,7 @@ from .worker_repository import PostgresWorkerRepository
 
 __all__ = [
     "BackupCheckpoint",
+    "LifecycleVersionConflict",
     "OperationalControlVersionConflict",
     "PostgresAuditRepository",
     "PostgresAuthenticationRepository",
@@ -56,6 +58,7 @@ __all__ = [
     "PostgresPluginPolicyRepository",
     "PostgresRealtimeRepository",
     "PostgresReconciliationRepository",
+    "PostgresRetentionRepository",
     "PostgresSchedulerRepository",
     "PostgresSearchRepository",
     "PostgresServiceRegistryRepository",

@@ -4,7 +4,7 @@ Open **Administration** in the control room with `administration.manage`. The ro
 unauthorized navigation and a direct request still receives the server-authoritative permission
 decision.
 
-The workbench has six views:
+The workbench has seven views:
 
 - **Namespaces** shows dotted hierarchy scopes, the selected namespace's files, typed values and
   secret-reference counts, plus inherited workflow metadata and plugin-default provenance.
@@ -12,6 +12,8 @@ The workbench has six views:
   and reports configured identity providers. Issued token material is displayed once.
 - **Operations** refreshes readiness, services, workers, queue admission, storage, migrations and
   search health every ten seconds.
+- **Lifecycle** defines scoped workflow-data retention and legal holds, previews records and bytes,
+  requires an exact destructive confirmation phrase, and resumes bounded purge or object retries.
 - **Controls** publishes scheduled announcements, activates scoped maintenance or kill switches,
   exposes component acknowledgements, and retains the four guarded tenant controls and ordinary
   scoped feature flags.
@@ -35,8 +37,8 @@ Do not bypass this workflow by editing reserved `admin-` feature flags directly.
 ## Safety notes
 
 - The execution kill switch stops new admission; it does not silently terminate already-running work.
-- Retention configures policy intent. Actual lifecycle sweeps and restoration follow the retention and
-  backup runbooks delivered by their owning epics.
+- Retention policy, manual previews and scheduled lifecycle sweeps follow the
+  [retention runbook](retention.md); hard-purged data requires the qualified backup restore path.
 - Secret values remain redacted in effective configuration regardless of browser rendering.
 - A successful control and its audit record commit atomically. Rejected guarded requests produce an
   audit decision but no control change.

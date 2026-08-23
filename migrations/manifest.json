@@ -318,6 +318,12 @@
       "mode": "expand",
       "onlineCompatible": true,
       "rollbackGuidance": "Disable optional OTLP export and continue core orchestration; preserve execution and task-run events with their additive trace carriers, then forward-fix propagation or exporter configuration before re-enabling external collection."
+    },
+    {
+      "file": "0054_retention_lifecycle.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Disable scheduled lifecycle processing, preserve policy, preview, job, item and event evidence, and forward-fix the additive coordinator tables before resuming manual or scheduled purge batches."
     }
   ]
 }

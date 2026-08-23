@@ -201,6 +201,17 @@ Class | Method | HTTP request | Description
 *HumanTasksAPI* | [**ActOnHumanTaskApiV1HumanTasksHumanTaskIdActionsPost**](docs/HumanTasksAPI.md#actonhumantaskapiv1humantaskshumantaskidactionspost) | **Post** /api/v1/human-tasks/{human_task_id}/actions | Act On Human Task
 *HumanTasksAPI* | [**ListHumanTaskNotificationsApiV1HumanTaskNotificationsGet**](docs/HumanTasksAPI.md#listhumantasknotificationsapiv1humantasknotificationsget) | **Get** /api/v1/human-task-notifications | List Human Task Notifications
 *HumanTasksAPI* | [**ListHumanTasksApiV1HumanTasksGet**](docs/HumanTasksAPI.md#listhumantasksapiv1humantasksget) | **Get** /api/v1/human-tasks | List Human Tasks
+*LifecycleAPI* | [**CreateLifecycleLegalHoldApiV1LifecycleLegalHoldsPost**](docs/LifecycleAPI.md#createlifecyclelegalholdapiv1lifecyclelegalholdspost) | **Post** /api/v1/lifecycle/legal-holds | Create Lifecycle Legal Hold
+*LifecycleAPI* | [**CreateLifecyclePolicyApiV1LifecyclePoliciesPost**](docs/LifecycleAPI.md#createlifecyclepolicyapiv1lifecyclepoliciespost) | **Post** /api/v1/lifecycle/policies | Create Lifecycle Policy
+*LifecycleAPI* | [**ExecuteLifecycleJobApiV1LifecycleJobsJobIdExecutePost**](docs/LifecycleAPI.md#executelifecyclejobapiv1lifecyclejobsjobidexecutepost) | **Post** /api/v1/lifecycle/jobs/{job_id}/execute | Execute Lifecycle Job
+*LifecycleAPI* | [**GetLifecycleJobApiV1LifecycleJobsJobIdGet**](docs/LifecycleAPI.md#getlifecyclejobapiv1lifecyclejobsjobidget) | **Get** /api/v1/lifecycle/jobs/{job_id} | Get Lifecycle Job
+*LifecycleAPI* | [**ListLifecycleJobsApiV1LifecycleJobsGet**](docs/LifecycleAPI.md#listlifecyclejobsapiv1lifecyclejobsget) | **Get** /api/v1/lifecycle/jobs | List Lifecycle Jobs
+*LifecycleAPI* | [**ListLifecycleLegalHoldsApiV1LifecycleLegalHoldsGet**](docs/LifecycleAPI.md#listlifecyclelegalholdsapiv1lifecyclelegalholdsget) | **Get** /api/v1/lifecycle/legal-holds | List Lifecycle Legal Holds
+*LifecycleAPI* | [**ListLifecyclePoliciesApiV1LifecyclePoliciesGet**](docs/LifecycleAPI.md#listlifecyclepoliciesapiv1lifecyclepoliciesget) | **Get** /api/v1/lifecycle/policies | List Lifecycle Policies
+*LifecycleAPI* | [**PreviewLifecyclePurgeApiV1LifecyclePreviewsPost**](docs/LifecycleAPI.md#previewlifecyclepurgeapiv1lifecyclepreviewspost) | **Post** /api/v1/lifecycle/previews | Preview Lifecycle Purge
+*LifecycleAPI* | [**ReleaseLifecycleLegalHoldApiV1LifecycleLegalHoldsHoldIdReleasePost**](docs/LifecycleAPI.md#releaselifecyclelegalholdapiv1lifecyclelegalholdsholdidreleasepost) | **Post** /api/v1/lifecycle/legal-holds/{hold_id}/release | Release Lifecycle Legal Hold
+*LifecycleAPI* | [**ResumeLifecycleJobApiV1LifecycleJobsJobIdResumePost**](docs/LifecycleAPI.md#resumelifecyclejobapiv1lifecyclejobsjobidresumepost) | **Post** /api/v1/lifecycle/jobs/{job_id}/resume | Resume Lifecycle Job
+*LifecycleAPI* | [**UpdateLifecyclePolicyApiV1LifecyclePoliciesPolicyIdPut**](docs/LifecycleAPI.md#updatelifecyclepolicyapiv1lifecyclepoliciespolicyidput) | **Put** /api/v1/lifecycle/policies/{policy_id} | Update Lifecycle Policy
 *NamespaceResourcesAPI* | [**DeleteNamespaceFileApiV1NamespacesNamespaceFilesPathDelete**](docs/NamespaceResourcesAPI.md#deletenamespacefileapiv1namespacesnamespacefilespathdelete) | **Delete** /api/v1/namespaces/{namespace}/files/{path} | Delete Namespace File
 *NamespaceResourcesAPI* | [**DeleteNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyDelete**](docs/NamespaceResourcesAPI.md#deletenamespacekeyvalueapiv1namespacesnamespacekeyvalueskeydelete) | **Delete** /api/v1/namespaces/{namespace}/key-values/{key} | Delete Namespace Key Value
 *NamespaceResourcesAPI* | [**DeleteNamespaceSecretBindingApiV1NamespacesNamespaceSecretBindingsKeyDelete**](docs/NamespaceResourcesAPI.md#deletenamespacesecretbindingapiv1namespacesnamespacesecretbindingskeydelete) | **Delete** /api/v1/namespaces/{namespace}/secret-bindings/{key} | Delete Namespace Secret Binding
@@ -478,6 +489,17 @@ Class | Method | HTTP request | Description
  - [KeyValueType](docs/KeyValueType.md)
  - [KeyValueWrite](docs/KeyValueWrite.md)
  - [LabelNormalization](docs/LabelNormalization.md)
+ - [LifecycleExecuteRequest](docs/LifecycleExecuteRequest.md)
+ - [LifecycleJob](docs/LifecycleJob.md)
+ - [LifecycleJobState](docs/LifecycleJobState.md)
+ - [LifecycleLegalHold](docs/LifecycleLegalHold.md)
+ - [LifecycleLegalHoldDraft](docs/LifecycleLegalHoldDraft.md)
+ - [LifecyclePolicy](docs/LifecyclePolicy.md)
+ - [LifecyclePolicyDraft](docs/LifecyclePolicyDraft.md)
+ - [LifecyclePreviewRequest](docs/LifecyclePreviewRequest.md)
+ - [LifecycleResourceType](docs/LifecycleResourceType.md)
+ - [LifecycleScope](docs/LifecycleScope.md)
+ - [LifecycleTrigger](docs/LifecycleTrigger.md)
  - [LineageEvidenceKind](docs/LineageEvidenceKind.md)
  - [LocationInner](docs/LocationInner.md)
  - [LogLevel](docs/LogLevel.md)

@@ -1,5 +1,41 @@
 # Test Log
 
+## EPIC-608: Retention, purge and data lifecycle — 2026-08-23
+
+Spec source: Agent Hotel card `c78` and
+`backlog/epics/epic-608-retention-purge-and-data-lifecycle.md`.
+
+Verified with `uv`, Python 3.13, PostgreSQL 17, React/TypeScript and Docker Compose:
+
+- [x] Migration `0054_retention_lifecycle.sql` adds tenant-protected versioned policies, legal
+  holds, purge jobs/items/evidence and transactional lifecycle events. A fresh database applied all
+  54 migrations and PostgreSQL integration covered policy ownership and scope precedence.
+- [x] Execution, log, metric, artifact and cache policies support instance, tenant, namespace and
+  label scopes. Preview snapshots expose eligible bytes/records plus protected and active counts;
+  API, CLI and UI execution require the exact `PURGE N` confirmation phrase.
+- [x] Terminal execution data is scrubbed in bounded resumable batches while an execution/task-run
+  tombstone preserves referential integrity. Events, logs, metrics, artifacts, caches and search
+  projections are removed in authoritative order, and active orchestration is excluded.
+- [x] Legal holds exclude matching metadata during preview and provider object-retention state is
+  rechecked after the database decision. A simulated provider hold produced durable `FAILED` state
+  and retry evidence; releasing it and resuming completed the object deletion and job.
+- [x] Manual and scheduled policy paths, progress/failure/resume APIs, the `amesh lifecycle` CLI and
+  the Administration Lifecycle view pass integration and interaction tests. Generated OpenAPI plus
+  Python, TypeScript, Java and Go clients are current; retention and data-inventory docs are linked.
+- [x] Fifteen focused backend/API/CLI/migration/role checks and all 46 frontend tests passed. Ruff
+  passed `src`, `tests` and `scripts`; strict mypy passed all 198 source files; the production UI built.
+- [x] Distributed and compact deployments are ready at migration 54. Live distributed HTTP created a
+  tenant policy, previewed zero records/bytes, required `PURGE 0` and completed a `SUCCEEDED` job.
+- [x] No LLM behavior was involved, so no billable OpenRouter call was required. Applicable LLM tests
+  remain pinned to `openai/gpt-5.6-luna`.
+
+Qualification boundary: external object-store provider qualification and long-duration high-volume
+purge soak remain deferred. A broad shared-database run stopped on pre-existing authorization/queue
+test contamination and a stale migration-51 assertion outside this epic; the fresh-database lifecycle
+suite is green. Existing frontend lint and global coverage baselines remain deferred and unchanged.
+
+Verdict: PASS — EPIC-608 functional requirements URS-F-0646 through URS-F-0653 are verified.
+
 ## EPIC-607: OpenTelemetry, Prometheus and log shipping — 2026-08-23
 
 Spec source: Agent Hotel card `c77` and

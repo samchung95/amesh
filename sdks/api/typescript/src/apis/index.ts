@@ -16,6 +16,7 @@ export * from './ExecutionsApi';
 export * from './FlowTestsApi';
 export * from './FlowsApi';
 export * from './HumanTasksApi';
+export * from './LifecycleApi';
 export * from './NamespaceResourcesApi';
 export * from './NamespacesApi';
 export * from './OperationsApi';

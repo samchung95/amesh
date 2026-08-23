@@ -22,6 +22,7 @@ amesh_client/api/executions_api.py
 amesh_client/api/flow_tests_api.py
 amesh_client/api/flows_api.py
 amesh_client/api/human_tasks_api.py
+amesh_client/api/lifecycle_api.py
 amesh_client/api/namespace_resources_api.py
 amesh_client/api/namespaces_api.py
 amesh_client/api/operations_api.py
@@ -213,6 +214,17 @@ amesh_client/models/key_value_export.py
 amesh_client/models/key_value_type.py
 amesh_client/models/key_value_write.py
 amesh_client/models/label_normalization.py
+amesh_client/models/lifecycle_execute_request.py
+amesh_client/models/lifecycle_job.py
+amesh_client/models/lifecycle_job_state.py
+amesh_client/models/lifecycle_legal_hold.py
+amesh_client/models/lifecycle_legal_hold_draft.py
+amesh_client/models/lifecycle_policy.py
+amesh_client/models/lifecycle_policy_draft.py
+amesh_client/models/lifecycle_preview_request.py
+amesh_client/models/lifecycle_resource_type.py
+amesh_client/models/lifecycle_scope.py
+amesh_client/models/lifecycle_trigger.py
 amesh_client/models/lineage_evidence_kind.py
 amesh_client/models/location_inner.py
 amesh_client/models/log_level.py
@@ -434,6 +446,7 @@ docs/ExecutionsApi.md
 docs/FlowTestsApi.md
 docs/FlowsApi.md
 docs/HumanTasksApi.md
+docs/LifecycleApi.md
 docs/NamespaceResourcesApi.md
 docs/NamespacesApi.md
 docs/OperationsApi.md

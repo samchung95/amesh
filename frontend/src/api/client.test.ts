@@ -167,6 +167,53 @@ describe('API client', () => {
     expect(JSON.parse(applyInit.body as string)).toMatchObject({ action: 'PAUSE', expectedVersion: 4, expectedEpoch: 2, reason: 'maintenance' })
   })
 
+  it('builds lifecycle policy, hold, preview and resumable purge requests', async () => {
+    const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(new Response('{}', { status: 200 })))
+    vi.stubGlobal('fetch', fetchMock)
+    const api = createApiClient({ token: 'token', tenant: 'default', namespace: '' })
+    const policy = {
+      resourceType: 'EXECUTION' as const,
+      scope: 'NAMESPACE' as const,
+      namespace: 'team/data',
+      labelSelector: {},
+      retentionDays: 30,
+      batchSize: 100,
+      scheduleIntervalMinutes: 60,
+      enabled: true,
+      reason: 'scheduled retention policy',
+    }
+    const hold = {
+      name: 'case-608', reason: 'preserve investigation evidence',
+      resourceType: 'EXECUTION' as const, resourceId: 'run/one',
+      namespace: 'team/data', labelSelector: {},
+    }
+
+    await api.lifecyclePolicies()
+    await api.createLifecyclePolicy(policy)
+    await api.lifecycleLegalHolds()
+    await api.createLifecycleLegalHold(hold)
+    await api.releaseLifecycleLegalHold('hold/one')
+    await api.lifecycleJobs()
+    await api.previewLifecyclePurge('policy/one', 'manual preview')
+    await api.executeLifecycleJob('job/one', 'PURGE 12')
+    await api.resumeLifecycleJob('job/one')
+
+    expect(fetchMock.mock.calls.map((call) => call[0] as string)).toEqual([
+      '/api/v1/lifecycle/policies',
+      '/api/v1/lifecycle/policies',
+      '/api/v1/lifecycle/legal-holds',
+      '/api/v1/lifecycle/legal-holds',
+      '/api/v1/lifecycle/legal-holds/hold%2Fone/release',
+      '/api/v1/lifecycle/jobs',
+      '/api/v1/lifecycle/previews',
+      '/api/v1/lifecycle/jobs/job%2Fone/execute',
+      '/api/v1/lifecycle/jobs/job%2Fone/resume',
+    ])
+    expect(JSON.parse((fetchMock.mock.calls[1]?.[1] as RequestInit).body as string)).toEqual(policy)
+    expect(JSON.parse((fetchMock.mock.calls[6]?.[1] as RequestInit).body as string)).toEqual({ policyId: 'policy/one', reason: 'manual preview' })
+    expect(JSON.parse((fetchMock.mock.calls[7]?.[1] as RequestInit).body as string)).toEqual({ confirmation: 'PURGE 12' })
+  })
+
   it('uses a deterministic fallback when JSON detail is not text', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify({ detail: 42 }), { status: 500 })))
     const api = createApiClient({ token: 'token', tenant: 'default', namespace: '' })

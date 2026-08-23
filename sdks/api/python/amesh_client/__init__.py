@@ -34,6 +34,7 @@ __all__ = [
     "FlowTestsApi",
     "FlowsApi",
     "HumanTasksApi",
+    "LifecycleApi",
     "NamespaceResourcesApi",
     "NamespacesApi",
     "OperationsApi",
@@ -229,6 +230,17 @@ __all__ = [
     "KeyValueType",
     "KeyValueWrite",
     "LabelNormalization",
+    "LifecycleExecuteRequest",
+    "LifecycleJob",
+    "LifecycleJobState",
+    "LifecycleLegalHold",
+    "LifecycleLegalHoldDraft",
+    "LifecyclePolicy",
+    "LifecyclePolicyDraft",
+    "LifecyclePreviewRequest",
+    "LifecycleResourceType",
+    "LifecycleScope",
+    "LifecycleTrigger",
     "LineageEvidenceKind",
     "LocationInner",
     "LogLevel",
@@ -451,6 +463,7 @@ from amesh_client.api.executions_api import ExecutionsApi as ExecutionsApi
 from amesh_client.api.flow_tests_api import FlowTestsApi as FlowTestsApi
 from amesh_client.api.flows_api import FlowsApi as FlowsApi
 from amesh_client.api.human_tasks_api import HumanTasksApi as HumanTasksApi
+from amesh_client.api.lifecycle_api import LifecycleApi as LifecycleApi
 from amesh_client.api.namespace_resources_api import NamespaceResourcesApi as NamespaceResourcesApi
 from amesh_client.api.namespaces_api import NamespacesApi as NamespacesApi
 from amesh_client.api.operations_api import OperationsApi as OperationsApi
@@ -650,6 +663,17 @@ from amesh_client.models.key_value_export import KeyValueExport as KeyValueExpor
 from amesh_client.models.key_value_type import KeyValueType as KeyValueType
 from amesh_client.models.key_value_write import KeyValueWrite as KeyValueWrite
 from amesh_client.models.label_normalization import LabelNormalization as LabelNormalization
+from amesh_client.models.lifecycle_execute_request import LifecycleExecuteRequest as LifecycleExecuteRequest
+from amesh_client.models.lifecycle_job import LifecycleJob as LifecycleJob
+from amesh_client.models.lifecycle_job_state import LifecycleJobState as LifecycleJobState
+from amesh_client.models.lifecycle_legal_hold import LifecycleLegalHold as LifecycleLegalHold
+from amesh_client.models.lifecycle_legal_hold_draft import LifecycleLegalHoldDraft as LifecycleLegalHoldDraft
+from amesh_client.models.lifecycle_policy import LifecyclePolicy as LifecyclePolicy
+from amesh_client.models.lifecycle_policy_draft import LifecyclePolicyDraft as LifecyclePolicyDraft
+from amesh_client.models.lifecycle_preview_request import LifecyclePreviewRequest as LifecyclePreviewRequest
+from amesh_client.models.lifecycle_resource_type import LifecycleResourceType as LifecycleResourceType
+from amesh_client.models.lifecycle_scope import LifecycleScope as LifecycleScope
+from amesh_client.models.lifecycle_trigger import LifecycleTrigger as LifecycleTrigger
 from amesh_client.models.lineage_evidence_kind import LineageEvidenceKind as LineageEvidenceKind
 from amesh_client.models.location_inner import LocationInner as LocationInner
 from amesh_client.models.log_level import LogLevel as LogLevel

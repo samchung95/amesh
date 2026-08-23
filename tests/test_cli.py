@@ -234,6 +234,60 @@ def test_namespace_file_cli_uploads_and_downloads(
     )
 
 
+class FakeLifecycleClient:
+    posts: ClassVar[list[tuple[str, dict[str, Any]]]] = []
+
+    def __init__(self, **kwargs: Any) -> None:
+        del kwargs
+
+    def __enter__(self) -> FakeLifecycleClient:
+        return self
+
+    def __exit__(self, *args: object) -> None:
+        return None
+
+    def get(self, path: str, **kwargs: Any) -> httpx.Response:
+        del kwargs
+        assert path == "/api/v1/lifecycle/jobs/job-608"
+        return httpx.Response(
+            200,
+            request=httpx.Request("GET", path),
+            json={
+                "id": "job-608",
+                "policySnapshot": {"scope": "TENANT", "resourceType": "LOG"},
+                "estimatedRecords": 12,
+                "estimatedBytes": 4096,
+                "protectedRecords": 2,
+                "activeRecords": 1,
+                "confirmationPhrase": "PURGE 12",
+            },
+        )
+
+    def post(self, path: str, **kwargs: Any) -> httpx.Response:
+        type(self).posts.append((path, kwargs["json"]))
+        return httpx.Response(200, request=httpx.Request("POST", path), json={"state": "READY"})
+
+
+def test_lifecycle_cli_previews_destructive_impact_before_force(
+    monkeypatch: Any,
+    capsys: Any,
+) -> None:
+    FakeLifecycleClient.posts.clear()
+    monkeypatch.setattr(httpx, "Client", FakeLifecycleClient)
+
+    assert main(["lifecycle", "execute", "job-608"]) == 3
+    preview = capsys.readouterr().out
+    assert '"affectedRecords": 12' in preview
+    assert '"requiredFlag": "--force"' in preview
+    assert main(["lifecycle", "execute", "job-608", "--force"]) == 0
+    assert FakeLifecycleClient.posts == [
+        (
+            "/api/v1/lifecycle/jobs/job-608/execute",
+            {"confirmation": "PURGE 12"},
+        )
+    ]
+
+
 class FakeStorage:
     def __init__(self, backend: StorageBackend) -> None:
         self.backend = backend

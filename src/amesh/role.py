@@ -18,6 +18,7 @@ from amesh.adapters.postgres import (
     PostgresPluginPolicyRepository,
     PostgresRealtimeRepository,
     PostgresReconciliationRepository,
+    PostgresRetentionRepository,
     PostgresSchedulerRepository,
     PostgresSearchRepository,
     PostgresServiceRegistryRepository,
@@ -44,7 +45,9 @@ from amesh.plugins import (
 )
 from amesh.ports import SearchProjector, SearchUnavailableError, ServiceFenceError, WorkerLossPolicy
 from amesh.realtime import WebhookDispatcher
+from amesh.retention import RetentionService
 from amesh.service_runtime import RegisteredService, service_instance_name
+from amesh.storage.factory import build_object_store
 from amesh.tasks import HttpTaskPolicy
 from amesh.worker import (
     backfill_once,
@@ -79,6 +82,7 @@ async def _run_cycle(
     trusted_runtime: TrustedPluginRuntime | None = None,
     webhook_dispatcher: WebhookDispatcher | None = None,
     search_projector: SearchProjector | None = None,
+    retention_service: RetentionService | None = None,
 ) -> int:
     trace.get_current_span().set_attribute("amesh.role", role.value)
     if role is ServiceRole.SCHEDULER:
@@ -173,7 +177,11 @@ async def _run_cycle(
                     await search_projector.record_failure(tenant_id=tenant_id, error=str(exc))
         return outbox_work + webhook_work + search_work
     if role is ServiceRole.MAINTENANCE:
-        return await reconcile_once(reconciliations, settings, tenant_ids=tenant_ids)
+        reconciled = await reconcile_once(reconciliations, settings, tenant_ids=tenant_ids)
+        if retention_service is None:
+            return reconciled
+        lifecycle = await retention_service.run_scheduled_once(tuple(tenant_ids))
+        return reconciled + lifecycle.records_processed
     raise ValueError(f"role {role.value!r} must run through amesh.server")
 
 
@@ -211,6 +219,10 @@ async def run_role(settings: Settings, *, stop_event: asyncio.Event | None = Non
     trusted_runtime = build_trusted_runtime(settings, plugin_catalog)
     realtime = PostgresRealtimeRepository(engine)
     search_projector = PostgresSearchRepository(engine)
+    retention_service = RetentionService(
+        PostgresRetentionRepository(engine),
+        build_object_store(settings),
+    )
     webhook_dispatcher = WebhookDispatcher(
         realtime,
         signing_key=settings.webhook_signing_key.get_secret_value(),
@@ -265,6 +277,7 @@ async def run_role(settings: Settings, *, stop_event: asyncio.Event | None = Non
                     trusted_runtime=trusted_runtime,
                     webhook_dispatcher=webhook_dispatcher,
                     search_projector=search_projector,
+                    retention_service=retention_service,
                 )
             except (DBAPIError, OSError, LookupError):
                 LOGGER.exception("service role cycle interrupted; retrying")

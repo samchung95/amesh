@@ -22,6 +22,7 @@ docs/ExecutionsApi.md
 docs/FlowTestsApi.md
 docs/FlowsApi.md
 docs/HumanTasksApi.md
+docs/LifecycleApi.md
 docs/NamespaceResourcesApi.md
 docs/NamespacesApi.md
 docs/OperationsApi.md
@@ -71,6 +72,7 @@ src/main/java/io/amesh/client/api/ExecutionsApi.java
 src/main/java/io/amesh/client/api/FlowTestsApi.java
 src/main/java/io/amesh/client/api/FlowsApi.java
 src/main/java/io/amesh/client/api/HumanTasksApi.java
+src/main/java/io/amesh/client/api/LifecycleApi.java
 src/main/java/io/amesh/client/api/NamespaceResourcesApi.java
 src/main/java/io/amesh/client/api/NamespacesApi.java
 src/main/java/io/amesh/client/api/OperationsApi.java
@@ -258,6 +260,17 @@ src/main/java/io/amesh/client/model/KeyValueExport.java
 src/main/java/io/amesh/client/model/KeyValueType.java
 src/main/java/io/amesh/client/model/KeyValueWrite.java
 src/main/java/io/amesh/client/model/LabelNormalization.java
+src/main/java/io/amesh/client/model/LifecycleExecuteRequest.java
+src/main/java/io/amesh/client/model/LifecycleJob.java
+src/main/java/io/amesh/client/model/LifecycleJobState.java
+src/main/java/io/amesh/client/model/LifecycleLegalHold.java
+src/main/java/io/amesh/client/model/LifecycleLegalHoldDraft.java
+src/main/java/io/amesh/client/model/LifecyclePolicy.java
+src/main/java/io/amesh/client/model/LifecyclePolicyDraft.java
+src/main/java/io/amesh/client/model/LifecyclePreviewRequest.java
+src/main/java/io/amesh/client/model/LifecycleResourceType.java
+src/main/java/io/amesh/client/model/LifecycleScope.java
+src/main/java/io/amesh/client/model/LifecycleTrigger.java
 src/main/java/io/amesh/client/model/LineageEvidenceKind.java
 src/main/java/io/amesh/client/model/LocationInner.java
 src/main/java/io/amesh/client/model/LogLevel.java

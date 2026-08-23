@@ -309,6 +309,58 @@ def build_parser() -> argparse.ArgumentParser:
     admin_tenant_delete.add_argument("slug")
     admin_tenant_delete.add_argument("--force", action="store_true")
 
+    lifecycle = subcommands.add_parser("lifecycle", help="Manage retention and purge jobs")
+    lifecycle_commands = lifecycle.add_subparsers(dest="lifecycle_command", required=True)
+    lifecycle_commands.add_parser("policies", help="List effective lifecycle policies")
+    lifecycle_policy = lifecycle_commands.add_parser(
+        "create-policy", help="Create a scoped lifecycle policy"
+    )
+    lifecycle_policy.add_argument(
+        "--resource-type",
+        required=True,
+        choices=("EXECUTION", "LOG", "METRIC", "ARTIFACT", "CACHE"),
+    )
+    lifecycle_policy.add_argument(
+        "--scope", required=True, choices=("INSTANCE", "TENANT", "NAMESPACE", "LABEL")
+    )
+    lifecycle_policy.add_argument("--namespace")
+    lifecycle_policy.add_argument("--label", action="append", default=[])
+    lifecycle_policy.add_argument("--retention-days", required=True, type=int)
+    lifecycle_policy.add_argument("--batch-size", type=int, default=100)
+    lifecycle_policy.add_argument("--schedule-minutes", type=int)
+    lifecycle_policy.add_argument("--reason", required=True)
+    lifecycle_preview = lifecycle_commands.add_parser(
+        "preview", help="Preview records and bytes affected by a policy"
+    )
+    lifecycle_preview.add_argument("policy_id")
+    lifecycle_preview.add_argument("--reason", required=True)
+    lifecycle_commands.add_parser("jobs", help="List lifecycle job progress and evidence")
+    lifecycle_execute = lifecycle_commands.add_parser(
+        "execute", help="Execute one previewed purge batch"
+    )
+    lifecycle_execute.add_argument("job_id")
+    lifecycle_execute.add_argument("--force", action="store_true")
+    lifecycle_resume = lifecycle_commands.add_parser(
+        "resume", help="Resume one bounded purge or external deletion retry"
+    )
+    lifecycle_resume.add_argument("job_id")
+    lifecycle_commands.add_parser("holds", help="List lifecycle legal holds")
+    lifecycle_hold = lifecycle_commands.add_parser("hold", help="Create a lifecycle legal hold")
+    lifecycle_hold.add_argument("name")
+    lifecycle_hold.add_argument("--reason", required=True)
+    lifecycle_hold.add_argument(
+        "--resource-type", choices=("EXECUTION", "LOG", "METRIC", "ARTIFACT", "CACHE")
+    )
+    lifecycle_hold.add_argument("--resource-id")
+    lifecycle_hold.add_argument("--namespace")
+    lifecycle_hold.add_argument("--label", action="append", default=[])
+    lifecycle_hold.add_argument("--data-from")
+    lifecycle_hold.add_argument("--data-to")
+    lifecycle_release = lifecycle_commands.add_parser(
+        "release-hold", help="Release a lifecycle legal hold"
+    )
+    lifecycle_release.add_argument("hold_id")
+
     completion = subcommands.add_parser(
         "completion", help="Generate shell completion from the command model"
     )
@@ -596,6 +648,11 @@ def main(argv: Sequence[str] | None = None) -> int:
                 if isinstance(admin_result, int):
                     return admin_result
                 response = admin_result
+            elif args.command == "lifecycle":
+                lifecycle_result = _lifecycle_request(client, args, output_mode)
+                if isinstance(lifecycle_result, int):
+                    return lifecycle_result
+                response = lifecycle_result
             else:
                 return EXIT_ERROR
         if response.is_error:
@@ -742,6 +799,7 @@ def _uses_api(args: argparse.Namespace) -> bool:
         "namespace",
         "flow",
         "admin",
+        "lifecycle",
     }:
         return True
     return args.command == "plugins" and args.plugin_command in {"list", "refresh", "install"}
@@ -902,6 +960,85 @@ def _admin_request(
             return EXIT_CONFIRMATION_REQUIRED
         return client.delete(path)
     return client.post(f"{path}/{action}s" if action == "export" else f"{path}/{action}")
+
+
+def _lifecycle_request(
+    client: httpx.Client,
+    args: argparse.Namespace,
+    output_mode: str,
+) -> httpx.Response | int:
+    root = "/api/v1/lifecycle"
+    action = args.lifecycle_command
+    if action == "policies":
+        return client.get(f"{root}/policies")
+    if action == "create-policy":
+        return client.post(
+            f"{root}/policies",
+            json={
+                "resourceType": args.resource_type,
+                "scope": args.scope,
+                "namespace": args.namespace,
+                "labelSelector": _parse_inputs(args.label),
+                "retentionDays": args.retention_days,
+                "batchSize": args.batch_size,
+                "scheduleIntervalMinutes": args.schedule_minutes,
+                "reason": args.reason,
+            },
+        )
+    if action == "preview":
+        return client.post(
+            f"{root}/previews",
+            json={"policyId": args.policy_id, "reason": args.reason},
+        )
+    if action == "jobs":
+        return client.get(f"{root}/jobs")
+    if action == "execute":
+        job = client.get(f"{root}/jobs/{quote(args.job_id, safe='')}")
+        job.raise_for_status()
+        preview = job.json()
+        if not args.force:
+            _emit(
+                {
+                    "action": "purge retained lifecycle data",
+                    "scope": preview["policySnapshot"],
+                    "affectedRecords": preview["estimatedRecords"],
+                    "affectedBytes": preview["estimatedBytes"],
+                    "protectedRecords": preview["protectedRecords"],
+                    "activeRecordsExcluded": preview["activeRecords"],
+                    "recovery": "purged data requires a qualified backup restore",
+                    "requiredFlag": "--force",
+                },
+                output_mode,
+                human=(
+                    f"Would purge {preview['estimatedRecords']} record(s) and "
+                    f"{preview['estimatedBytes']} byte(s). Recovery requires a qualified "
+                    "backup restore; rerun with --force."
+                ),
+            )
+            return EXIT_CONFIRMATION_REQUIRED
+        return client.post(
+            f"{root}/jobs/{quote(args.job_id, safe='')}/execute",
+            json={"confirmation": preview["confirmationPhrase"]},
+        )
+    if action == "resume":
+        return client.post(f"{root}/jobs/{quote(args.job_id, safe='')}/resume")
+    if action == "holds":
+        return client.get(f"{root}/legal-holds")
+    if action == "hold":
+        return client.post(
+            f"{root}/legal-holds",
+            json={
+                "name": args.name,
+                "reason": args.reason,
+                "resourceType": args.resource_type,
+                "resourceId": args.resource_id,
+                "namespace": args.namespace,
+                "labelSelector": _parse_inputs(args.label),
+                "dataFrom": args.data_from,
+                "dataTo": args.data_to,
+            },
+        )
+    return client.post(f"{root}/legal-holds/{quote(args.hold_id, safe='')}/release")
 
 
 def _command_paths(parser: argparse.ArgumentParser) -> tuple[str, ...]:

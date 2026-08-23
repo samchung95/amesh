@@ -63,6 +63,7 @@ from amesh.adapters.postgres import (
     PostgresPluginPolicyRepository,
     PostgresRealtimeRepository,
     PostgresReconciliationRepository,
+    PostgresRetentionRepository,
     PostgresSearchRepository,
     PostgresServiceRegistryRepository,
     PostgresSharedResourceRepository,
@@ -319,6 +320,16 @@ from amesh.domain.human_tasks import (
     WorkflowAppUpsertRequest,
     form_from_flow,
 )
+from amesh.domain.retention import (
+    LifecycleExecuteRequest,
+    LifecycleJob,
+    LifecycleLegalHold,
+    LifecycleLegalHoldDraft,
+    LifecyclePolicy,
+    LifecyclePolicyDraft,
+    LifecyclePreviewRequest,
+    LifecycleScope,
+)
 from amesh.domain.runner import RunnerId, RunnerPolicySet, RunnerPolicyViolation
 from amesh.dsl import (
     FlowDefinition,
@@ -451,6 +462,7 @@ from amesh.realtime import (
     redact_realtime_payload,
 )
 from amesh.reconciliation import ReconciliationService
+from amesh.retention import RetentionService
 from amesh.scheduler import CronScheduler, SchedulePreview
 from amesh.storage.factory import build_object_store
 from amesh.tasks import (
@@ -819,6 +831,29 @@ def get_task_cache_repository() -> PostgresTaskCacheRepository:
 TaskCacheRepositoryDependency = Annotated[
     PostgresTaskCacheRepository,
     Depends(get_task_cache_repository),
+]
+
+
+@lru_cache
+def get_retention_repository() -> PostgresRetentionRepository:
+    return PostgresRetentionRepository(database_engine())
+
+
+@lru_cache
+def get_retention_service() -> RetentionService:
+    return RetentionService(
+        get_retention_repository(),
+        build_object_store(get_settings()),
+    )
+
+
+RetentionRepositoryDependency = Annotated[
+    PostgresRetentionRepository,
+    Depends(get_retention_repository),
+]
+RetentionServiceDependency = Annotated[
+    RetentionService,
+    Depends(get_retention_service),
 ]
 
 
@@ -7219,6 +7254,300 @@ async def get_reconciliation(
         return await service.get(run_id, tenant_id=tenant_id)
     except LookupError as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+
+
+@app.get(
+    "/api/v1/lifecycle/policies",
+    response_model=tuple[LifecyclePolicy, ...],
+    tags=["lifecycle"],
+)
+async def list_lifecycle_policies(
+    repository: RetentionRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> tuple[LifecyclePolicy, ...]:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="lifecycle",
+        action=PermissionAction.MANAGE,
+        tenant_id=tenant_id,
+    )
+    return await repository.list_policies(tenant_id)
+
+
+@app.post(
+    "/api/v1/lifecycle/policies",
+    response_model=LifecyclePolicy,
+    status_code=status.HTTP_201_CREATED,
+    tags=["lifecycle"],
+)
+async def create_lifecycle_policy(
+    request: LifecyclePolicyDraft,
+    repository: RetentionRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> LifecyclePolicy:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="instance" if request.scope is LifecycleScope.INSTANCE else "lifecycle",
+        action=PermissionAction.MANAGE,
+        tenant_id=None if request.scope is LifecycleScope.INSTANCE else tenant_id,
+        namespace=request.namespace,
+    )
+    return await repository.save_policy(
+        tenant_id,
+        request,
+        actor_id=str(actor.principal_id),
+    )
+
+
+@app.put(
+    "/api/v1/lifecycle/policies/{policy_id}",
+    response_model=LifecyclePolicy,
+    tags=["lifecycle"],
+)
+async def update_lifecycle_policy(
+    policy_id: UUID,
+    request: LifecyclePolicyDraft,
+    repository: RetentionRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    expected_version: Annotated[int | None, Query(alias="expectedVersion", ge=1)] = None,
+) -> LifecyclePolicy:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="instance" if request.scope is LifecycleScope.INSTANCE else "lifecycle",
+        action=PermissionAction.MANAGE,
+        tenant_id=None if request.scope is LifecycleScope.INSTANCE else tenant_id,
+        namespace=request.namespace,
+    )
+    try:
+        return await repository.save_policy(
+            tenant_id,
+            request,
+            actor_id=str(actor.principal_id),
+            policy_id=policy_id,
+            expected_version=expected_version,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
+
+
+@app.get(
+    "/api/v1/lifecycle/legal-holds",
+    response_model=tuple[LifecycleLegalHold, ...],
+    tags=["lifecycle"],
+)
+async def list_lifecycle_legal_holds(
+    repository: RetentionRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> tuple[LifecycleLegalHold, ...]:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="lifecycle",
+        action=PermissionAction.MANAGE,
+        tenant_id=tenant_id,
+    )
+    return await repository.list_holds(tenant_id)
+
+
+@app.post(
+    "/api/v1/lifecycle/legal-holds",
+    response_model=LifecycleLegalHold,
+    status_code=status.HTTP_201_CREATED,
+    tags=["lifecycle"],
+)
+async def create_lifecycle_legal_hold(
+    request: LifecycleLegalHoldDraft,
+    repository: RetentionRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> LifecycleLegalHold:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="lifecycle",
+        action=PermissionAction.MANAGE,
+        tenant_id=tenant_id,
+        namespace=request.namespace,
+    )
+    return await repository.create_hold(
+        tenant_id,
+        request,
+        actor_id=str(actor.principal_id),
+    )
+
+
+@app.post(
+    "/api/v1/lifecycle/legal-holds/{hold_id}/release",
+    response_model=LifecycleLegalHold,
+    tags=["lifecycle"],
+)
+async def release_lifecycle_legal_hold(
+    hold_id: UUID,
+    repository: RetentionRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> LifecycleLegalHold:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="lifecycle",
+        action=PermissionAction.MANAGE,
+        tenant_id=tenant_id,
+    )
+    try:
+        return await repository.release_hold(
+            tenant_id,
+            hold_id,
+            actor_id=str(actor.principal_id),
+        )
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+
+
+@app.post(
+    "/api/v1/lifecycle/previews",
+    response_model=LifecycleJob,
+    status_code=status.HTTP_201_CREATED,
+    tags=["lifecycle"],
+)
+async def preview_lifecycle_purge(
+    request: LifecyclePreviewRequest,
+    repository: RetentionRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> LifecycleJob:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="lifecycle",
+        action=PermissionAction.MANAGE,
+        tenant_id=tenant_id,
+    )
+    try:
+        return await repository.preview(
+            tenant_id,
+            request.policy_id,
+            actor_id=str(actor.principal_id),
+            reason=request.reason,
+        )
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+
+
+@app.get(
+    "/api/v1/lifecycle/jobs",
+    response_model=tuple[LifecycleJob, ...],
+    tags=["lifecycle"],
+)
+async def list_lifecycle_jobs(
+    repository: RetentionRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    limit: Annotated[int, Query(ge=1, le=200)] = 50,
+) -> tuple[LifecycleJob, ...]:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="lifecycle",
+        action=PermissionAction.MANAGE,
+        tenant_id=tenant_id,
+    )
+    return await repository.list_jobs(tenant_id, limit=limit)
+
+
+@app.get(
+    "/api/v1/lifecycle/jobs/{job_id}",
+    response_model=LifecycleJob,
+    tags=["lifecycle"],
+)
+async def get_lifecycle_job(
+    job_id: UUID,
+    repository: RetentionRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> LifecycleJob:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="lifecycle",
+        action=PermissionAction.MANAGE,
+        tenant_id=tenant_id,
+    )
+    try:
+        return await repository.get_job(tenant_id, job_id)
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+
+
+@app.post(
+    "/api/v1/lifecycle/jobs/{job_id}/execute",
+    response_model=LifecycleJob,
+    tags=["lifecycle"],
+)
+async def execute_lifecycle_job(
+    job_id: UUID,
+    request: LifecycleExecuteRequest,
+    service: RetentionServiceDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> LifecycleJob:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="lifecycle",
+        action=PermissionAction.MANAGE,
+        tenant_id=tenant_id,
+    )
+    try:
+        return await service.confirm_and_process(tenant_id, job_id, request.confirmation)
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
+
+
+@app.post(
+    "/api/v1/lifecycle/jobs/{job_id}/resume",
+    response_model=LifecycleJob,
+    tags=["lifecycle"],
+)
+async def resume_lifecycle_job(
+    job_id: UUID,
+    service: RetentionServiceDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> LifecycleJob:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="lifecycle",
+        action=PermissionAction.MANAGE,
+        tenant_id=tenant_id,
+    )
+    try:
+        return await service.process_once(tenant_id, job_id)
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
 
 
 @app.get(

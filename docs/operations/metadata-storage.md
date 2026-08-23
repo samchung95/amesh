@@ -69,11 +69,16 @@ backup-consistent WAL/object checkpoints are defined in the [PostgreSQL operatio
 | Execution metrics | tenant, execution/task identity, name, kind, numeric value, unit, labels, timestamp | Execution performance and outcome analysis | Internal operational metadata | Tenant retention policy; EPIC-608 defines purge enforcement |
 | Assets | tenant, provider key, type, display name, metadata, resource version, actor/timestamps | Catalog identity and current metadata | Classification is provider-defined and may be sensitive | Asset lifecycle; EPIC-507/608 define lineage and purge |
 | Audit evidence | tenant, actor/delegated actor, resource/action/outcome/reason, source, correlation/trace, event time, retention time and hash chain | Security investigation, change accountability and compliance evidence | Security-sensitive metadata; protected values are recursively redacted | Independent tenant audit policy and legal holds; enforced by EPIC-504 purge |
+| Lifecycle policies | policy and optional tenant identity, resource type, scope selector, retention days, batch/schedule controls, enabled state, reason, actor/timestamps and version | Resolve and schedule bounded workflow-data retention | Internal policy metadata; reasons may contain operational context | Retained while active and through dependent job evidence; disabled policies are removed only by administrative lifecycle |
+| Lifecycle legal holds | hold and tenant identity, type/resource/namespace/label/time selectors, active/release state, reasons, actors and timestamps | Prevent eligible workflow data from entering purge selection | Compliance-sensitive investigation metadata | Independent of ordinary workflow retention; retained after release as hold evidence |
+| Lifecycle jobs and items | job/policy/tenant identity, trigger/state/cutoff, policy snapshot, record/byte estimates and progress, cursor, retries/errors, actor/reason/timestamps, per-resource decision, object URI and size | Resume bounded purges, retry external deletes and prove authoritative deletion order | Operationally sensitive; object URIs and errors may expose resource names but never object content | Job evidence is not governed by the job's target policy; retained under operator/compliance evidence policy |
+| Lifecycle events | tenant/policy/job/event identity, type, actor, reason, payload and timestamp | Immutable policy, preview, confirmation, batch, retry and completion evidence with transactional outbox publication | Audit-adjacent operational metadata; payload contains counts and IDs, not retained content | Retained independently from target workflow data and exported through ordinary event transport policy |
 | Compliance evidence | tenant, category, title, source, event/creation time, redacted payload and checksum | Package access-review, change, backup/restore, vulnerability, incident and provenance evidence | Operator-supplied evidence; protected values are recursively redacted | Evidence-period policy and tenant legal process |
 
-Tenant ID is present on every metadata row and forced row-level security applies to all four new
-tables. The database stores no raw service credential in these resources. Retention execution remains
-open under EPIC-608, so the shared privacy requirement remains In Progress.
+Tenant ID is present on every tenant-owned metadata row; forced row-level security also permits
+read-only inheritance of instance lifecycle policies. The database stores no raw service credential
+in these resources. EPIC-608 lifecycle jobs now enforce workflow-data retention while audit evidence
+continues under its independent policy and legal holds.
 
 ## Repeatable ephemeral databases
 

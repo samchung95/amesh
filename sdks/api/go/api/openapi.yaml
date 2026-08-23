@@ -8199,6 +8199,597 @@ paths:
       summary: Act On Human Task
       tags:
       - human-tasks
+  /api/v1/lifecycle/jobs:
+    get:
+      operationId: list_lifecycle_jobs_api_v1_lifecycle_jobs_get
+      parameters:
+      - explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 50
+          maximum: 200
+          minimum: 1
+          title: Limit
+          type: integer
+        style: form
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/LifecycleJob"
+                title: Response List Lifecycle Jobs Api V1 Lifecycle Jobs Get
+                type: array
+                default: null
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: List Lifecycle Jobs
+      tags:
+      - lifecycle
+  /api/v1/lifecycle/jobs/{job_id}:
+    get:
+      operationId: get_lifecycle_job_api_v1_lifecycle_jobs__job_id__get
+      parameters:
+      - explode: false
+        in: path
+        name: job_id
+        required: true
+        schema:
+          format: uuid
+          title: Job Id
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LifecycleJob"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Get Lifecycle Job
+      tags:
+      - lifecycle
+  /api/v1/lifecycle/jobs/{job_id}/execute:
+    post:
+      operationId: execute_lifecycle_job_api_v1_lifecycle_jobs__job_id__execute_post
+      parameters:
+      - explode: false
+        in: path
+        name: job_id
+        required: true
+        schema:
+          format: uuid
+          title: Job Id
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LifecycleExecuteRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LifecycleJob"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Execute Lifecycle Job
+      tags:
+      - lifecycle
+  /api/v1/lifecycle/jobs/{job_id}/resume:
+    post:
+      operationId: resume_lifecycle_job_api_v1_lifecycle_jobs__job_id__resume_post
+      parameters:
+      - explode: false
+        in: path
+        name: job_id
+        required: true
+        schema:
+          format: uuid
+          title: Job Id
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LifecycleJob"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Resume Lifecycle Job
+      tags:
+      - lifecycle
+  /api/v1/lifecycle/legal-holds:
+    get:
+      operationId: list_lifecycle_legal_holds_api_v1_lifecycle_legal_holds_get
+      parameters:
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/LifecycleLegalHold"
+                title: Response List Lifecycle Legal Holds Api V1 Lifecycle Legal
+                  Holds Get
+                type: array
+                default: null
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: List Lifecycle Legal Holds
+      tags:
+      - lifecycle
+    post:
+      operationId: create_lifecycle_legal_hold_api_v1_lifecycle_legal_holds_post
+      parameters:
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LifecycleLegalHoldDraft"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LifecycleLegalHold"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Create Lifecycle Legal Hold
+      tags:
+      - lifecycle
+  /api/v1/lifecycle/legal-holds/{hold_id}/release:
+    post:
+      operationId: release_lifecycle_legal_hold_api_v1_lifecycle_legal_holds__hold_id__release_post
+      parameters:
+      - explode: false
+        in: path
+        name: hold_id
+        required: true
+        schema:
+          format: uuid
+          title: Hold Id
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LifecycleLegalHold"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Release Lifecycle Legal Hold
+      tags:
+      - lifecycle
+  /api/v1/lifecycle/policies:
+    get:
+      operationId: list_lifecycle_policies_api_v1_lifecycle_policies_get
+      parameters:
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/LifecyclePolicy"
+                title: Response List Lifecycle Policies Api V1 Lifecycle Policies
+                  Get
+                type: array
+                default: null
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: List Lifecycle Policies
+      tags:
+      - lifecycle
+    post:
+      operationId: create_lifecycle_policy_api_v1_lifecycle_policies_post
+      parameters:
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LifecyclePolicyDraft"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LifecyclePolicy"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Create Lifecycle Policy
+      tags:
+      - lifecycle
+  /api/v1/lifecycle/policies/{policy_id}:
+    put:
+      operationId: update_lifecycle_policy_api_v1_lifecycle_policies__policy_id__put
+      parameters:
+      - explode: false
+        in: path
+        name: policy_id
+        required: true
+        schema:
+          format: uuid
+          title: Policy Id
+          type: string
+        style: simple
+      - explode: true
+        in: query
+        name: expectedVersion
+        required: false
+        schema:
+          minimum: 1
+          nullable: true
+          type: integer
+        style: form
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LifecyclePolicyDraft"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LifecyclePolicy"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Update Lifecycle Policy
+      tags:
+      - lifecycle
+  /api/v1/lifecycle/previews:
+    post:
+      operationId: preview_lifecycle_purge_api_v1_lifecycle_previews_post
+      parameters:
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LifecyclePreviewRequest"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LifecycleJob"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Preview Lifecycle Purge
+      tags:
+      - lifecycle
   /api/v1/namespaces/{namespace}/files:
     get:
       operationId: list_namespace_files_api_v1_namespaces__namespace__files_get
@@ -21252,6 +21843,519 @@ components:
       - LOWERCASE
       - UPPERCASE
       title: LabelNormalization
+      type: string
+    LifecycleExecuteRequest:
+      additionalProperties: false
+      example:
+        confirmation: confirmation
+      properties:
+        confirmation:
+          maxLength: 128
+          minLength: 1
+          title: Confirmation
+          type: string
+      required:
+      - confirmation
+      title: LifecycleExecuteRequest
+    LifecycleJob:
+      example:
+        activeRecords: 0
+        actorId: actorId
+        batchSize: 603
+        completedAt: 2000-01-23T04:56:07.000+00:00
+        confirmationPhrase: confirmationPhrase
+        createdAt: 2000-01-23T04:56:07.000+00:00
+        cursor: cursor
+        cutoff: 2000-01-23T04:56:07.000+00:00
+        estimatedBytes: 0
+        estimatedRecords: 0
+        evidence:
+          key: ""
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        lastError: lastError
+        policyId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        policySnapshot:
+          key: ""
+        previewExpiresAt: 2000-01-23T04:56:07.000+00:00
+        processedBytes: 0
+        processedRecords: 0
+        protectedRecords: 0
+        reason: reason
+        retryCount: 0
+        startedAt: 2000-01-23T04:56:07.000+00:00
+        state: PREVIEWED
+        tenantId: tenantId
+        trigger: MANUAL
+        updatedAt: 2000-01-23T04:56:07.000+00:00
+      properties:
+        activeRecords:
+          minimum: 0.0
+          title: Activerecords
+          type: integer
+        actorId:
+          title: Actorid
+          type: string
+        batchSize:
+          maximum: 1000.0
+          minimum: 1.0
+          title: Batchsize
+          type: integer
+        completedAt:
+          format: date-time
+          nullable: true
+          type: string
+        confirmationPhrase:
+          title: Confirmationphrase
+          type: string
+        createdAt:
+          format: date-time
+          title: Createdat
+          type: string
+        cursor:
+          nullable: true
+          type: string
+        cutoff:
+          format: date-time
+          title: Cutoff
+          type: string
+        estimatedBytes:
+          minimum: 0.0
+          title: Estimatedbytes
+          type: integer
+        estimatedRecords:
+          minimum: 0.0
+          title: Estimatedrecords
+          type: integer
+        evidence:
+          additionalProperties: true
+          title: Evidence
+          type: object
+        id:
+          format: uuid
+          title: Id
+          type: string
+        lastError:
+          nullable: true
+          type: string
+        policyId:
+          format: uuid
+          title: Policyid
+          type: string
+        policySnapshot:
+          additionalProperties: true
+          title: Policysnapshot
+          type: object
+        previewExpiresAt:
+          format: date-time
+          title: Previewexpiresat
+          type: string
+        processedBytes:
+          minimum: 0.0
+          title: Processedbytes
+          type: integer
+        processedRecords:
+          minimum: 0.0
+          title: Processedrecords
+          type: integer
+        protectedRecords:
+          minimum: 0.0
+          title: Protectedrecords
+          type: integer
+        reason:
+          title: Reason
+          type: string
+        retryCount:
+          minimum: 0.0
+          title: Retrycount
+          type: integer
+        startedAt:
+          format: date-time
+          nullable: true
+          type: string
+        state:
+          $ref: "#/components/schemas/LifecycleJobState"
+        tenantId:
+          title: Tenantid
+          type: string
+        trigger:
+          $ref: "#/components/schemas/LifecycleTrigger"
+        updatedAt:
+          format: date-time
+          title: Updatedat
+          type: string
+      required:
+      - activeRecords
+      - actorId
+      - batchSize
+      - confirmationPhrase
+      - createdAt
+      - cutoff
+      - estimatedBytes
+      - estimatedRecords
+      - evidence
+      - id
+      - policyId
+      - policySnapshot
+      - previewExpiresAt
+      - processedBytes
+      - processedRecords
+      - protectedRecords
+      - reason
+      - retryCount
+      - state
+      - tenantId
+      - trigger
+      - updatedAt
+      title: LifecycleJob
+    LifecycleJobState:
+      enum:
+      - PREVIEWED
+      - READY
+      - RUNNING
+      - WAITING_EXTERNAL
+      - SUCCEEDED
+      - FAILED
+      title: LifecycleJobState
+      type: string
+    LifecycleLegalHold:
+      additionalProperties: false
+      example:
+        active: true
+        createdAt: 2000-01-23T04:56:07.000+00:00
+        createdBy: createdBy
+        dataFrom: 2000-01-23T04:56:07.000+00:00
+        dataTo: 2000-01-23T04:56:07.000+00:00
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        labelSelector:
+          key: labelSelector
+        name: name
+        namespace: namespace
+        reason: reason
+        releasedAt: 2000-01-23T04:56:07.000+00:00
+        releasedBy: releasedBy
+        resourceId: resourceId
+        resourceType: ""
+        tenantId: tenantId
+      properties:
+        active:
+          title: Active
+          type: boolean
+        createdAt:
+          format: date-time
+          title: Createdat
+          type: string
+        createdBy:
+          title: Createdby
+          type: string
+        dataFrom:
+          format: date-time
+          nullable: true
+          type: string
+        dataTo:
+          format: date-time
+          nullable: true
+          type: string
+        id:
+          format: uuid
+          title: Id
+          type: string
+        labelSelector:
+          additionalProperties:
+            type: string
+          title: Labelselector
+        name:
+          maxLength: 128
+          minLength: 1
+          title: Name
+          type: string
+        namespace:
+          maxLength: 255
+          nullable: true
+          type: string
+        reason:
+          maxLength: 2048
+          minLength: 3
+          title: Reason
+          type: string
+        releasedAt:
+          format: date-time
+          nullable: true
+          type: string
+        releasedBy:
+          nullable: true
+          type: string
+        resourceId:
+          maxLength: 255
+          nullable: true
+          type: string
+        resourceType:
+          allOf:
+          - $ref: "#/components/schemas/LifecycleResourceType"
+          nullable: true
+        tenantId:
+          title: Tenantid
+          type: string
+      required:
+      - active
+      - createdAt
+      - createdBy
+      - id
+      - name
+      - reason
+      - tenantId
+      title: LifecycleLegalHold
+    LifecycleLegalHoldDraft:
+      additionalProperties: false
+      example:
+        dataFrom: 2000-01-23T04:56:07.000+00:00
+        dataTo: 2000-01-23T04:56:07.000+00:00
+        labelSelector:
+          key: labelSelector
+        name: name
+        namespace: namespace
+        reason: reason
+        resourceId: resourceId
+        resourceType: ""
+      properties:
+        dataFrom:
+          format: date-time
+          nullable: true
+          type: string
+        dataTo:
+          format: date-time
+          nullable: true
+          type: string
+        labelSelector:
+          additionalProperties:
+            type: string
+          title: Labelselector
+        name:
+          maxLength: 128
+          minLength: 1
+          title: Name
+          type: string
+        namespace:
+          maxLength: 255
+          nullable: true
+          type: string
+        reason:
+          maxLength: 2048
+          minLength: 3
+          title: Reason
+          type: string
+        resourceId:
+          maxLength: 255
+          nullable: true
+          type: string
+        resourceType:
+          allOf:
+          - $ref: "#/components/schemas/LifecycleResourceType"
+          nullable: true
+      required:
+      - name
+      - reason
+      title: LifecycleLegalHoldDraft
+    LifecyclePolicy:
+      additionalProperties: false
+      example:
+        batchSize: 81
+        createdAt: 2000-01-23T04:56:07.000+00:00
+        createdBy: createdBy
+        enabled: true
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        labelSelector:
+          key: labelSelector
+        namespace: namespace
+        nextRunAt: 2000-01-23T04:56:07.000+00:00
+        reason: reason
+        resourceType: EXECUTION
+        retentionDays: 22000
+        scheduleIntervalMinutes: 77047
+        scope: INSTANCE
+        tenantId: tenantId
+        updatedAt: 2000-01-23T04:56:07.000+00:00
+        updatedBy: updatedBy
+        version: 1
+      properties:
+        batchSize:
+          default: 100
+          maximum: 1000.0
+          minimum: 1.0
+          title: Batchsize
+          type: integer
+        createdAt:
+          format: date-time
+          title: Createdat
+          type: string
+        createdBy:
+          title: Createdby
+          type: string
+        enabled:
+          default: true
+          title: Enabled
+          type: boolean
+        id:
+          format: uuid
+          title: Id
+          type: string
+        labelSelector:
+          additionalProperties:
+            type: string
+          title: Labelselector
+        namespace:
+          maxLength: 255
+          minLength: 1
+          nullable: true
+          type: string
+        nextRunAt:
+          format: date-time
+          nullable: true
+          type: string
+        reason:
+          maxLength: 2048
+          minLength: 3
+          title: Reason
+          type: string
+        resourceType:
+          $ref: "#/components/schemas/LifecycleResourceType"
+        retentionDays:
+          maximum: 36500.0
+          minimum: 1.0
+          title: Retentiondays
+          type: integer
+        scheduleIntervalMinutes:
+          maximum: 525600.0
+          minimum: 5.0
+          nullable: true
+          type: integer
+        scope:
+          $ref: "#/components/schemas/LifecycleScope"
+        tenantId:
+          nullable: true
+          type: string
+        updatedAt:
+          format: date-time
+          title: Updatedat
+          type: string
+        updatedBy:
+          title: Updatedby
+          type: string
+        version:
+          minimum: 1.0
+          title: Version
+          type: integer
+      required:
+      - createdAt
+      - createdBy
+      - id
+      - reason
+      - resourceType
+      - retentionDays
+      - scope
+      - tenantId
+      - updatedAt
+      - updatedBy
+      - version
+      title: LifecyclePolicy
+    LifecyclePolicyDraft:
+      additionalProperties: false
+      example:
+        batchSize: 81
+        enabled: true
+        labelSelector:
+          key: labelSelector
+        namespace: namespace
+        reason: reason
+        resourceType: EXECUTION
+        retentionDays: 22000
+        scheduleIntervalMinutes: 77047
+        scope: INSTANCE
+      properties:
+        batchSize:
+          default: 100
+          maximum: 1000.0
+          minimum: 1.0
+          title: Batchsize
+          type: integer
+        enabled:
+          default: true
+          title: Enabled
+          type: boolean
+        labelSelector:
+          additionalProperties:
+            type: string
+          title: Labelselector
+        namespace:
+          maxLength: 255
+          minLength: 1
+          nullable: true
+          type: string
+        reason:
+          maxLength: 2048
+          minLength: 3
+          title: Reason
+          type: string
+        resourceType:
+          $ref: "#/components/schemas/LifecycleResourceType"
+        retentionDays:
+          maximum: 36500.0
+          minimum: 1.0
+          title: Retentiondays
+          type: integer
+        scheduleIntervalMinutes:
+          maximum: 525600.0
+          minimum: 5.0
+          nullable: true
+          type: integer
+        scope:
+          $ref: "#/components/schemas/LifecycleScope"
+      required:
+      - reason
+      - resourceType
+      - retentionDays
+      - scope
+      title: LifecyclePolicyDraft
+    LifecyclePreviewRequest:
+      additionalProperties: false
+      example:
+        policyId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        reason: reason
+      properties:
+        policyId:
+          format: uuid
+          title: Policyid
+          type: string
+        reason:
+          maxLength: 2048
+          minLength: 3
+          title: Reason
+          type: string
+      required:
+      - policyId
+      - reason
+      title: LifecyclePreviewRequest
+    LifecycleResourceType:
+      enum:
+      - EXECUTION
+      - LOG
+      - METRIC
+      - ARTIFACT
+      - CACHE
+      title: LifecycleResourceType
+      type: string
+    LifecycleScope:
+      enum:
+      - INSTANCE
+      - TENANT
+      - NAMESPACE
+      - LABEL
+      title: LifecycleScope
+      type: string
+    LifecycleTrigger:
+      enum:
+      - MANUAL
+      - SCHEDULED
+      title: LifecycleTrigger
       type: string
     LineageEvidenceKind:
       enum:

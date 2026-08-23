@@ -54,6 +54,11 @@ assets, lineage_edges
 retention_jobs, reconciliation_jobs
 ```
 
+`lifecycle_policies`, `lifecycle_legal_holds`, `lifecycle_jobs`, `lifecycle_job_items` and
+`lifecycle_events` implement `retention_jobs`: previews snapshot the policy and impact, execution
+purge retains compact tombstones, external object decisions remain retryable, and lifecycle events
+publish through the transactional outbox. See [ADR-039](../adr/039-authoritative-resumable-retention-lifecycle.md).
+
 ## Event storage
 
 Events are append-only and include aggregate ID, aggregate version, event type, schema version, tenant,

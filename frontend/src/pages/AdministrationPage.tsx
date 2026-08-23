@@ -25,6 +25,11 @@ import type {
   Announcement,
   AnnouncementAudience,
   AnnouncementSeverity,
+  LifecycleJob,
+  LifecycleLegalHold,
+  LifecyclePolicy,
+  LifecycleResourceType,
+  LifecycleScope,
   OperationalBoundary,
   OperationalControl,
   OperationalControlScope,
@@ -45,12 +50,13 @@ import {
 } from '../components/administrationModel'
 import { StatusBadge } from '../components/StatusBadge'
 
-type AdministrationView = 'namespaces' | 'access' | 'operations' | 'controls' | 'configuration' | 'audit'
+type AdministrationView = 'namespaces' | 'access' | 'operations' | 'lifecycle' | 'controls' | 'configuration' | 'audit'
 
 const views: Array<{ id: AdministrationView; label: string; icon: typeof FolderTree }> = [
   { id: 'namespaces', label: 'Namespaces', icon: FolderTree },
   { id: 'access', label: 'Access', icon: UserRoundCog },
   { id: 'operations', label: 'Operations', icon: Activity },
+  { id: 'lifecycle', label: 'Lifecycle', icon: Database },
   { id: 'controls', label: 'Controls', icon: Wrench },
   { id: 'configuration', label: 'Configuration', icon: Settings2 },
   { id: 'audit', label: 'Audit', icon: ScrollText },
@@ -98,6 +104,10 @@ export function AdministrationPage({ session }: { session: UiSession }) {
   const admission = useQuery({ queryKey: ['admin', 'admission'], queryFn: api.admissionDiagnostics, enabled: view === 'operations', refetchInterval: 10_000 })
   const search = useQuery({ queryKey: ['admin', 'search'], queryFn: api.searchStatus, enabled: view === 'operations', refetchInterval: 10_000 })
 
+  const lifecyclePolicies = useQuery({ queryKey: ['admin', 'lifecycle', 'policies', settings.tenant], queryFn: api.lifecyclePolicies, enabled: view === 'lifecycle' })
+  const lifecycleHolds = useQuery({ queryKey: ['admin', 'lifecycle', 'holds', settings.tenant], queryFn: api.lifecycleLegalHolds, enabled: view === 'lifecycle' })
+  const lifecycleJobs = useQuery({ queryKey: ['admin', 'lifecycle', 'jobs', settings.tenant], queryFn: api.lifecycleJobs, enabled: view === 'lifecycle', refetchInterval: 10_000 })
+
   const controls = useQuery({ queryKey: ['admin', 'controls'], queryFn: api.administrationControls, enabled: view === 'controls' })
   const flags = useQuery({ queryKey: ['admin', 'flags', settings.tenant, settings.namespace], queryFn: api.featureFlags, enabled: view === 'controls' })
   const announcements = useQuery({ queryKey: ['admin', 'announcements', settings.tenant, settings.namespace], queryFn: () => api.announcements(settings.namespace || undefined, true), enabled: view === 'controls' })
@@ -132,6 +142,7 @@ export function AdministrationPage({ session }: { session: UiSession }) {
       {view === 'namespaces' ? <NamespaceAdministration flows={flows.data || []} metadata={namespaceMetadata.data} files={namespaceFiles.data?.length || 0} keys={namespaceKeys.data?.length || 0} secrets={namespaceSecrets.data?.length || 0} namespace={settings.namespace} pending={flows.isPending} error={flows.error?.message} /> : null}
       {view === 'access' ? <AccessAdministration api={api} tenant={settings.tenant} principals={principals.data || []} roles={roles.data || []} bindings={bindings.data || []} providers={providers.data || []} pending={principals.isPending || roles.isPending || bindings.isPending || providers.isPending} mutate={(operation, message) => action.mutate(async () => { const result = await operation(); setNotice(message); return result })} /> : null}
       {view === 'operations' ? <OperationsAdministration readiness={readiness.data} topology={topology.data} workers={workers.data || []} admission={admission.data} search={search.data} pending={readiness.isPending || topology.isPending || admission.isPending || search.isPending} /> : null}
+      {view === 'lifecycle' ? <LifecycleAdministration api={api} tenant={settings.tenant} namespace={settings.namespace} policies={lifecyclePolicies.data || []} holds={lifecycleHolds.data || []} jobs={lifecycleJobs.data || []} pending={lifecyclePolicies.isPending || lifecycleHolds.isPending || lifecycleJobs.isPending} onChanged={async (message) => { setNotice(message); setFailure(''); await queryClient.invalidateQueries({ queryKey: ['admin', 'lifecycle'] }) }} onFailure={setFailure} /> : null}
       {view === 'controls' ? <ControlsAdministration controls={controls.data || []} flags={flags.data || []} announcements={announcements.data || []} operationalControls={operationalControls.data || []} api={api} tenant={settings.tenant} namespace={settings.namespace} pending={controls.isPending || flags.isPending || announcements.isPending || operationalControls.isPending} onChanged={async (message) => { setNotice(message); setFailure(''); await queryClient.invalidateQueries({ queryKey: ['admin'] }) }} onFailure={setFailure} /> : null}
       {view === 'configuration' ? <ConfigurationAdministration snapshot={configuration.data} pending={configuration.isPending} onReload={() => action.mutate(async () => { const result = await api.reloadConfiguration(); setNotice(`Configuration reloaded at version ${String(result.version)}`); return result })} /> : null}
       {view === 'audit' ? <AuditAdministration direct={controlAudit.data || []} indexed={indexedAudit.data?.items || []} pending={controlAudit.isPending || indexedAudit.isPending} settings={settings} /> : null}
@@ -195,6 +206,126 @@ function OperationsAdministration({ readiness, topology, workers, admission, sea
     <section className="admin-health-strip"><article><Database aria-hidden="true" /><div><strong>PostgreSQL</strong><span>{readiness?.database || 'unknown'} · {readiness?.migrations_applied || 0}/{readiness?.migrations_expected || 0} migrations</span></div></article><article><Boxes aria-hidden="true" /><div><strong>Object storage</strong><span>{storage}</span></div></article><article><Network aria-hidden="true" /><div><strong>Queue</strong><span>{admission?.queued_requests || 0} queued · {admission?.active_reservations || 0} active</span></div></article><article><FileKey aria-hidden="true" /><div><strong>Search</strong><span>{search?.condition || 'unknown'} · {Math.round((search?.progress || 0) * 100)}% projected</span></div></article></section>
     <section className="admin-panel"><div className="section-heading"><div><p className="eyebrow">SERVICES</p><h3>Component topology</h3></div><span>{topology?.currentVersion || 'unknown'} · {topology?.coordination}</span></div><div className="admin-card-grid">{topology?.roles.map((role) => <article key={role.role}><div className={`health-dot health-${role.failoverStatus.toLowerCase()}`} /><div><strong>{role.role}</strong><small>{role.readyInstances}/{role.totalInstances} ready · {role.staleInstances} stale</small></div><b>{role.failoverStatus}</b></article>)}</div></section>
     <div className="admin-split equal"><section className="admin-panel"><div className="section-heading"><div><p className="eyebrow">WORKERS</p><h3>Capacity</h3></div><span>{workers.length} workers</span></div>{workers.length ? <div className="compact-table"><table><thead><tr><th>Worker</th><th>Group</th><th>Utilization</th><th>State</th></tr></thead><tbody>{workers.map((worker) => <tr key={worker.worker_id}><td><strong>{worker.instance_name}</strong><small>{worker.version}</small></td><td>{worker.worker_group}</td><td>{Math.round(worker.utilization * 100)}%</td><td>{worker.liveness}</td></tr>)}</tbody></table></div> : <EmptyState title="No external workers" body="The local executor owns the current runnable workload." />}</section><section className="admin-panel"><div className="section-heading"><div><p className="eyebrow">DATABASE / SEARCH</p><h3>Freshness</h3></div></div><dl className="admin-facts"><div><dt>Latest migration</dt><dd>{readiness?.latest_migration || 'none'}</dd></div><div><dt>Search documents</dt><dd>{formatNumber(search?.documentsIndexed || 0, 'en')}</dd></div><div><dt>Search source rows</dt><dd>{formatNumber(search?.sourceDocuments || 0, 'en')}</dd></div><div><dt>Search lag</dt><dd>{search?.lagSeconds == null ? 'unknown' : `${search.lagSeconds.toFixed(2)}s`}</dd></div><div><dt>Oldest queue age</dt><dd>{(admission?.oldest_queue_age_seconds || 0).toFixed(2)}s</dd></div></dl></section></div>
+  </div>
+}
+
+function LifecycleAdministration({ api, tenant, namespace, policies, holds, jobs, pending, onChanged, onFailure }: { api: ReturnType<typeof useApiClient>; tenant: string; namespace: string; policies: LifecyclePolicy[]; holds: LifecycleLegalHold[]; jobs: LifecycleJob[]; pending: boolean; onChanged: (message: string) => Promise<void>; onFailure: (message: string) => void }) {
+  const [resourceType, setResourceType] = useState<LifecycleResourceType>('EXECUTION')
+  const [scope, setScope] = useState<LifecycleScope>('TENANT')
+  const [policyNamespace, setPolicyNamespace] = useState(namespace)
+  const [labelKey, setLabelKey] = useState('environment')
+  const [labelValue, setLabelValue] = useState('production')
+  const [retentionDays, setRetentionDays] = useState('30')
+  const [batchSize, setBatchSize] = useState('100')
+  const [scheduleMinutes, setScheduleMinutes] = useState('')
+  const [policyReason, setPolicyReason] = useState('Apply the configured workflow data lifecycle')
+  const [preview, setPreview] = useState<LifecycleJob | null>(null)
+  const [confirmation, setConfirmation] = useState('')
+  const [holdName, setHoldName] = useState('')
+  const [holdReason, setHoldReason] = useState('')
+  const [holdResourceId, setHoldResourceId] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+
+  if (pending) return <LoadingState label="Loading lifecycle policies and purge evidence" />
+
+  const createPolicy = async (event: FormEvent) => {
+    event.preventDefault()
+    setSubmitting(true)
+    try {
+      await api.createLifecyclePolicy({
+        resourceType,
+        scope,
+        namespace: scope === 'NAMESPACE' ? policyNamespace.trim() : null,
+        labelSelector: scope === 'LABEL' ? { [labelKey.trim()]: labelValue.trim() } : {},
+        retentionDays: Number(retentionDays),
+        batchSize: Number(batchSize),
+        scheduleIntervalMinutes: scheduleMinutes ? Number(scheduleMinutes) : null,
+        enabled: true,
+        reason: policyReason.trim(),
+      })
+      await onChanged('Lifecycle policy created')
+    } catch (error) {
+      onFailure(error instanceof Error ? error.message : String(error))
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  const previewPolicy = async (policy: LifecyclePolicy) => {
+    try {
+      const result = await api.previewLifecyclePurge(policy.id, `Manual ${policy.resourceType.toLowerCase()} lifecycle preview`)
+      setPreview(result)
+      setConfirmation('')
+    } catch (error) {
+      onFailure(error instanceof Error ? error.message : String(error))
+    }
+  }
+
+  const executePreview = async () => {
+    if (!preview) return
+    setSubmitting(true)
+    try {
+      const result = await api.executeLifecycleJob(preview.id, confirmation)
+      setPreview(null)
+      setConfirmation('')
+      await onChanged(`Lifecycle job ${result.state.toLowerCase()}`)
+    } catch (error) {
+      onFailure(error instanceof Error ? error.message : String(error))
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  const resumeJob = async (job: LifecycleJob) => {
+    try {
+      const result = await api.resumeLifecycleJob(job.id)
+      await onChanged(`Lifecycle job resumed: ${result.state.toLowerCase()}`)
+    } catch (error) {
+      onFailure(error instanceof Error ? error.message : String(error))
+    }
+  }
+
+  const createHold = async (event: FormEvent) => {
+    event.preventDefault()
+    try {
+      await api.createLifecycleLegalHold({
+        name: holdName.trim(),
+        reason: holdReason.trim(),
+        resourceType,
+        resourceId: holdResourceId.trim() || null,
+        namespace: scope === 'NAMESPACE' ? policyNamespace.trim() : null,
+        labelSelector: scope === 'LABEL' ? { [labelKey.trim()]: labelValue.trim() } : {},
+      })
+      setHoldName('')
+      setHoldReason('')
+      setHoldResourceId('')
+      await onChanged('Lifecycle legal hold created')
+    } catch (error) {
+      onFailure(error instanceof Error ? error.message : String(error))
+    }
+  }
+
+  return <div className="admin-section-stack">
+    <section className="admin-panel">
+      <div className="section-heading"><div><p className="eyebrow">POLICY / SCHEDULE</p><h3>Retention boundaries</h3><p>Specific namespace and label policies override broader operator intent during selection.</p></div><span>{tenant} · {policies.length} policies</span></div>
+      <form className="admin-form" onSubmit={(event) => void createPolicy(event)}>
+        <label>Resource<select value={resourceType} onChange={(event) => setResourceType(event.target.value as LifecycleResourceType)}><option>EXECUTION</option><option>LOG</option><option>METRIC</option><option>ARTIFACT</option><option>CACHE</option></select></label>
+        <label>Scope<select value={scope} onChange={(event) => setScope(event.target.value as LifecycleScope)}><option>INSTANCE</option><option>TENANT</option><option>NAMESPACE</option><option>LABEL</option></select></label>
+        {scope === 'NAMESPACE' ? <label>Namespace<input value={policyNamespace} onChange={(event) => setPolicyNamespace(event.target.value)} required /></label> : null}
+        {scope === 'LABEL' ? <><label>Label key<input value={labelKey} onChange={(event) => setLabelKey(event.target.value)} required /></label><label>Label value<input value={labelValue} onChange={(event) => setLabelValue(event.target.value)} required /></label></> : null}
+        <label>Retention days<input type="number" min="1" max="36500" value={retentionDays} onChange={(event) => setRetentionDays(event.target.value)} required /></label>
+        <label>Batch size<input type="number" min="1" max="1000" value={batchSize} onChange={(event) => setBatchSize(event.target.value)} required /></label>
+        <label>Schedule minutes<input type="number" min="5" max="525600" value={scheduleMinutes} onChange={(event) => setScheduleMinutes(event.target.value)} placeholder="Manual only" /></label>
+        <label className="span-two">Reason<input minLength={3} maxLength={2048} value={policyReason} onChange={(event) => setPolicyReason(event.target.value)} required /></label>
+        <button className="button button-primary" type="submit" disabled={submitting}>Create policy</button>
+      </form>
+      {policies.length ? <div className="table-shell"><table><thead><tr><th>Resource</th><th>Scope</th><th>Retention</th><th>Batch / schedule</th><th>Next run</th><th>Action</th></tr></thead><tbody>{policies.map((policy) => <tr key={policy.id}><td><strong>{policy.resourceType}</strong><small>{policy.reason}</small></td><td>{policy.scope}<small>{policy.namespace || Object.entries(policy.labelSelector).map(([key, value]) => `${key}=${value}`).join(', ') || policy.tenantId || 'instance'}</small></td><td>{policy.retentionDays} days</td><td>{policy.batchSize}<small>{policy.scheduleIntervalMinutes ? `every ${policy.scheduleIntervalMinutes}m` : 'manual'}</small></td><td>{policy.nextRunAt ? formatDate(policy.nextRunAt, 'en', 'UTC') : '—'}</td><td><button className="button button-secondary" type="button" onClick={() => void previewPolicy(policy)}>Preview purge</button></td></tr>)}</tbody></table></div> : <EmptyState title="No lifecycle policies" body="Create a resource-scoped policy before previewing a purge." />}
+    </section>
+    <div className="admin-split equal">
+      <section className="admin-panel"><div className="section-heading"><div><p className="eyebrow">LEGAL HOLDS</p><h3>Protected evidence</h3></div><span>{holds.filter((hold) => hold.active).length} active</span></div><form className="admin-form" onSubmit={(event) => void createHold(event)}><label>Name<input value={holdName} onChange={(event) => setHoldName(event.target.value)} required /></label><label>Resource ID<input value={holdResourceId} onChange={(event) => setHoldResourceId(event.target.value)} placeholder="Optional execution or record ID" /></label><label className="span-two">Reason<input value={holdReason} onChange={(event) => setHoldReason(event.target.value)} minLength={3} required /></label><button className="button button-primary" type="submit">Create hold</button></form><div className="chip-list">{holds.map((hold) => <span key={hold.id}><strong>{hold.name}</strong>{hold.resourceType || 'ALL'} · {hold.active ? 'active' : 'released'}{hold.active ? <button className="button button-quiet" type="button" onClick={() => void api.releaseLifecycleLegalHold(hold.id).then(() => onChanged('Lifecycle legal hold released')).catch((error: Error) => onFailure(error.message))}>Release</button> : null}</span>)}</div></section>
+      <section className="admin-panel"><div className="section-heading"><div><p className="eyebrow">PROGRESS / EVIDENCE</p><h3>Purge jobs</h3></div><span>{jobs.length} recent</span></div>{jobs.length ? <div className="compact-table"><table><thead><tr><th>Job</th><th>Progress</th><th>State</th><th>Action</th></tr></thead><tbody>{jobs.map((job) => <tr key={job.id}><td><strong>{job.policySnapshot.resourceType}</strong><small>{job.trigger} · {formatDate(job.createdAt, 'en', 'UTC')}</small></td><td>{formatNumber(job.processedRecords, 'en')} / {formatNumber(job.estimatedRecords, 'en')}<small>{formatNumber(job.processedBytes, 'en')} bytes · {job.retryCount} retries</small></td><td><StatusBadge state={job.state} />{job.lastError ? <small>{job.lastError}</small> : null}</td><td>{['READY', 'RUNNING', 'WAITING_EXTERNAL', 'FAILED'].includes(job.state) ? <button className="button button-secondary" type="button" onClick={() => void resumeJob(job)}>Resume batch</button> : '—'}</td></tr>)}</tbody></table></div> : <EmptyState title="No purge jobs" body="Impact previews and scheduled sweeps appear here with durable progress evidence." />}</section>
+    </div>
+    {preview ? <div className="modal-backdrop"><section className="confirmation-dialog admin-impact-dialog" role="dialog" aria-modal="true" aria-labelledby="lifecycle-impact-title"><p className="eyebrow">DESTRUCTIVE IMPACT PREVIEW</p><h2 id="lifecycle-impact-title">Confirm {preview.policySnapshot.resourceType.toLowerCase()} purge</h2><div className="impact-grid"><article><strong>Impact</strong><ul><li>{formatNumber(preview.estimatedRecords, 'en')} records</li><li>{formatNumber(preview.estimatedBytes, 'en')} bytes</li><li>{formatNumber(preview.activeRecords, 'en')} active records excluded</li><li>{formatNumber(preview.protectedRecords, 'en')} legal-held records protected</li></ul></article><article><strong>Recovery consequences</strong><p>Authoritative metadata decisions, object deletions and search projection removal are irreversible without a qualified backup restore.</p></article></div><p className="approval-expiry"><AlertTriangle size={16} aria-hidden="true" />Preview expires {new Date(preview.previewExpiresAt).toLocaleTimeString()}.</p><label>Type <code>{preview.confirmationPhrase}</code><input autoFocus value={confirmation} onChange={(event) => setConfirmation(event.target.value)} /></label><div><button className="button button-secondary" type="button" onClick={() => setPreview(null)}>Cancel</button><button className="button button-danger" type="button" disabled={confirmation !== preview.confirmationPhrase || submitting} onClick={() => void executePreview()}>Purge one bounded batch</button></div></section></div> : null}
   </div>
 }
 

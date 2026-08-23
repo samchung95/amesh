@@ -186,6 +186,17 @@ from amesh_client.models.key_value_export import KeyValueExport
 from amesh_client.models.key_value_type import KeyValueType
 from amesh_client.models.key_value_write import KeyValueWrite
 from amesh_client.models.label_normalization import LabelNormalization
+from amesh_client.models.lifecycle_execute_request import LifecycleExecuteRequest
+from amesh_client.models.lifecycle_job import LifecycleJob
+from amesh_client.models.lifecycle_job_state import LifecycleJobState
+from amesh_client.models.lifecycle_legal_hold import LifecycleLegalHold
+from amesh_client.models.lifecycle_legal_hold_draft import LifecycleLegalHoldDraft
+from amesh_client.models.lifecycle_policy import LifecyclePolicy
+from amesh_client.models.lifecycle_policy_draft import LifecyclePolicyDraft
+from amesh_client.models.lifecycle_preview_request import LifecyclePreviewRequest
+from amesh_client.models.lifecycle_resource_type import LifecycleResourceType
+from amesh_client.models.lifecycle_scope import LifecycleScope
+from amesh_client.models.lifecycle_trigger import LifecycleTrigger
 from amesh_client.models.lineage_evidence_kind import LineageEvidenceKind
 from amesh_client.models.location_inner import LocationInner
 from amesh_client.models.log_level import LogLevel

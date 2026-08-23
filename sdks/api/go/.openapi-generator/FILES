@@ -19,6 +19,7 @@ api_executions.go
 api_flow_tests.go
 api_flows.go
 api_human_tasks.go
+api_lifecycle.go
 api_namespace_resources.go
 api_namespaces.go
 api_operations.go
@@ -50,6 +51,7 @@ docs/ExecutionsAPI.md
 docs/FlowTestsAPI.md
 docs/FlowsAPI.md
 docs/HumanTasksAPI.md
+docs/LifecycleAPI.md
 docs/NamespaceResourcesAPI.md
 docs/NamespacesAPI.md
 docs/OperationsAPI.md
@@ -239,6 +241,17 @@ model_key_value_export.go
 model_key_value_type.go
 model_key_value_write.go
 model_label_normalization.go
+model_lifecycle_execute_request.go
+model_lifecycle_job.go
+model_lifecycle_job_state.go
+model_lifecycle_legal_hold.go
+model_lifecycle_legal_hold_draft.go
+model_lifecycle_policy.go
+model_lifecycle_policy_draft.go
+model_lifecycle_preview_request.go
+model_lifecycle_resource_type.go
+model_lifecycle_scope.go
+model_lifecycle_trigger.go
 model_lineage_evidence_kind.go
 model_location_inner.go
 model_log_level.go

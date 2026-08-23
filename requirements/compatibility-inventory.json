@@ -9624,97 +9624,121 @@
       "requirement_id": "URS-F-0646",
       "epic_id": "EPIC-608",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-608-retention-purge-and-data-lifecycle.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0647",
       "epic_id": "EPIC-608",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-608-retention-purge-and-data-lifecycle.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0648",
       "epic_id": "EPIC-608",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-608-retention-purge-and-data-lifecycle.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0649",
       "epic_id": "EPIC-608",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-608-retention-purge-and-data-lifecycle.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0650",
       "epic_id": "EPIC-608",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-608-retention-purge-and-data-lifecycle.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0651",
       "epic_id": "EPIC-608",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-608-retention-purge-and-data-lifecycle.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0652",
       "epic_id": "EPIC-608",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-608-retention-purge-and-data-lifecycle.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0653",
       "epic_id": "EPIC-608",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-architecture-docs-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-608-retention-purge-and-data-lifecycle.md"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0654",

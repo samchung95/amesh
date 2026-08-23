@@ -644,14 +644,14 @@ URS-F-0642,Functional,Must,EPIC-607,"OpenTelemetry, Prometheus and log shipping"
 URS-F-0643,Functional,Must,EPIC-607,"OpenTelemetry, Prometheus and log shipping",M6,6,Telemetry contract and outage tests,Verified
 URS-F-0644,Functional,Must,EPIC-607,"OpenTelemetry, Prometheus and log shipping",M6,6,Telemetry contract and outage tests,Verified
 URS-F-0645,Functional,Must,EPIC-607,"OpenTelemetry, Prometheus and log shipping",M6,6,Telemetry contract and outage tests,Verified
-URS-F-0646,Functional,Must,EPIC-608,"Retention, purge and data lifecycle",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
-URS-F-0647,Functional,Must,EPIC-608,"Retention, purge and data lifecycle",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
-URS-F-0648,Functional,Must,EPIC-608,"Retention, purge and data lifecycle",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
-URS-F-0649,Functional,Must,EPIC-608,"Retention, purge and data lifecycle",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
-URS-F-0650,Functional,Must,EPIC-608,"Retention, purge and data lifecycle",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
-URS-F-0651,Functional,Must,EPIC-608,"Retention, purge and data lifecycle",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
-URS-F-0652,Functional,Must,EPIC-608,"Retention, purge and data lifecycle",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
-URS-F-0653,Functional,Must,EPIC-608,"Retention, purge and data lifecycle",M6,6,"Reference deployment, upgrade and failure-recovery tests",Proposed
+URS-F-0646,Functional,Must,EPIC-608,"Retention, purge and data lifecycle",M6,6,"Reference deployment, upgrade and failure-recovery tests",Verified
+URS-F-0647,Functional,Must,EPIC-608,"Retention, purge and data lifecycle",M6,6,"Reference deployment, upgrade and failure-recovery tests",Verified
+URS-F-0648,Functional,Must,EPIC-608,"Retention, purge and data lifecycle",M6,6,"Reference deployment, upgrade and failure-recovery tests",Verified
+URS-F-0649,Functional,Must,EPIC-608,"Retention, purge and data lifecycle",M6,6,"Reference deployment, upgrade and failure-recovery tests",Verified
+URS-F-0650,Functional,Must,EPIC-608,"Retention, purge and data lifecycle",M6,6,"Reference deployment, upgrade and failure-recovery tests",Verified
+URS-F-0651,Functional,Must,EPIC-608,"Retention, purge and data lifecycle",M6,6,"Reference deployment, upgrade and failure-recovery tests",Verified
+URS-F-0652,Functional,Must,EPIC-608,"Retention, purge and data lifecycle",M6,6,"Reference deployment, upgrade and failure-recovery tests",Verified
+URS-F-0653,Functional,Must,EPIC-608,"Retention, purge and data lifecycle",M6,6,"Reference deployment, upgrade and failure-recovery tests",Verified
 URS-F-0654,Functional,Must,EPIC-609,"Backup, restore and disaster recovery",M6,6,"Fault-injection, replay and invariant tests",Verified
 URS-F-0655,Functional,Must,EPIC-609,"Backup, restore and disaster recovery",M6,6,"Fault-injection, replay and invariant tests",Verified
 URS-F-0656,Functional,Must,EPIC-609,"Backup, restore and disaster recovery",M6,6,"Fault-injection, replay and invariant tests",Verified

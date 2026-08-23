@@ -219,6 +219,17 @@ Class | Method | HTTP request | Description
 *HumanTasksApi* | [**act_on_human_task_api_v1_human_tasks_human_task_id_actions_post**](docs/HumanTasksApi.md#act_on_human_task_api_v1_human_tasks_human_task_id_actions_post) | **POST** /api/v1/human-tasks/{human_task_id}/actions | Act On Human Task
 *HumanTasksApi* | [**list_human_task_notifications_api_v1_human_task_notifications_get**](docs/HumanTasksApi.md#list_human_task_notifications_api_v1_human_task_notifications_get) | **GET** /api/v1/human-task-notifications | List Human Task Notifications
 *HumanTasksApi* | [**list_human_tasks_api_v1_human_tasks_get**](docs/HumanTasksApi.md#list_human_tasks_api_v1_human_tasks_get) | **GET** /api/v1/human-tasks | List Human Tasks
+*LifecycleApi* | [**create_lifecycle_legal_hold_api_v1_lifecycle_legal_holds_post**](docs/LifecycleApi.md#create_lifecycle_legal_hold_api_v1_lifecycle_legal_holds_post) | **POST** /api/v1/lifecycle/legal-holds | Create Lifecycle Legal Hold
+*LifecycleApi* | [**create_lifecycle_policy_api_v1_lifecycle_policies_post**](docs/LifecycleApi.md#create_lifecycle_policy_api_v1_lifecycle_policies_post) | **POST** /api/v1/lifecycle/policies | Create Lifecycle Policy
+*LifecycleApi* | [**execute_lifecycle_job_api_v1_lifecycle_jobs_job_id_execute_post**](docs/LifecycleApi.md#execute_lifecycle_job_api_v1_lifecycle_jobs_job_id_execute_post) | **POST** /api/v1/lifecycle/jobs/{job_id}/execute | Execute Lifecycle Job
+*LifecycleApi* | [**get_lifecycle_job_api_v1_lifecycle_jobs_job_id_get**](docs/LifecycleApi.md#get_lifecycle_job_api_v1_lifecycle_jobs_job_id_get) | **GET** /api/v1/lifecycle/jobs/{job_id} | Get Lifecycle Job
+*LifecycleApi* | [**list_lifecycle_jobs_api_v1_lifecycle_jobs_get**](docs/LifecycleApi.md#list_lifecycle_jobs_api_v1_lifecycle_jobs_get) | **GET** /api/v1/lifecycle/jobs | List Lifecycle Jobs
+*LifecycleApi* | [**list_lifecycle_legal_holds_api_v1_lifecycle_legal_holds_get**](docs/LifecycleApi.md#list_lifecycle_legal_holds_api_v1_lifecycle_legal_holds_get) | **GET** /api/v1/lifecycle/legal-holds | List Lifecycle Legal Holds
+*LifecycleApi* | [**list_lifecycle_policies_api_v1_lifecycle_policies_get**](docs/LifecycleApi.md#list_lifecycle_policies_api_v1_lifecycle_policies_get) | **GET** /api/v1/lifecycle/policies | List Lifecycle Policies
+*LifecycleApi* | [**preview_lifecycle_purge_api_v1_lifecycle_previews_post**](docs/LifecycleApi.md#preview_lifecycle_purge_api_v1_lifecycle_previews_post) | **POST** /api/v1/lifecycle/previews | Preview Lifecycle Purge
+*LifecycleApi* | [**release_lifecycle_legal_hold_api_v1_lifecycle_legal_holds_hold_id_release_post**](docs/LifecycleApi.md#release_lifecycle_legal_hold_api_v1_lifecycle_legal_holds_hold_id_release_post) | **POST** /api/v1/lifecycle/legal-holds/{hold_id}/release | Release Lifecycle Legal Hold
+*LifecycleApi* | [**resume_lifecycle_job_api_v1_lifecycle_jobs_job_id_resume_post**](docs/LifecycleApi.md#resume_lifecycle_job_api_v1_lifecycle_jobs_job_id_resume_post) | **POST** /api/v1/lifecycle/jobs/{job_id}/resume | Resume Lifecycle Job
+*LifecycleApi* | [**update_lifecycle_policy_api_v1_lifecycle_policies_policy_id_put**](docs/LifecycleApi.md#update_lifecycle_policy_api_v1_lifecycle_policies_policy_id_put) | **PUT** /api/v1/lifecycle/policies/{policy_id} | Update Lifecycle Policy
 *NamespaceResourcesApi* | [**delete_namespace_file_api_v1_namespaces_namespace_files_path_delete**](docs/NamespaceResourcesApi.md#delete_namespace_file_api_v1_namespaces_namespace_files_path_delete) | **DELETE** /api/v1/namespaces/{namespace}/files/{path} | Delete Namespace File
 *NamespaceResourcesApi* | [**delete_namespace_key_value_api_v1_namespaces_namespace_key_values_key_delete**](docs/NamespaceResourcesApi.md#delete_namespace_key_value_api_v1_namespaces_namespace_key_values_key_delete) | **DELETE** /api/v1/namespaces/{namespace}/key-values/{key} | Delete Namespace Key Value
 *NamespaceResourcesApi* | [**delete_namespace_secret_binding_api_v1_namespaces_namespace_secret_bindings_key_delete**](docs/NamespaceResourcesApi.md#delete_namespace_secret_binding_api_v1_namespaces_namespace_secret_bindings_key_delete) | **DELETE** /api/v1/namespaces/{namespace}/secret-bindings/{key} | Delete Namespace Secret Binding
@@ -496,6 +507,17 @@ Class | Method | HTTP request | Description
  - [KeyValueType](docs/KeyValueType.md)
  - [KeyValueWrite](docs/KeyValueWrite.md)
  - [LabelNormalization](docs/LabelNormalization.md)
+ - [LifecycleExecuteRequest](docs/LifecycleExecuteRequest.md)
+ - [LifecycleJob](docs/LifecycleJob.md)
+ - [LifecycleJobState](docs/LifecycleJobState.md)
+ - [LifecycleLegalHold](docs/LifecycleLegalHold.md)
+ - [LifecycleLegalHoldDraft](docs/LifecycleLegalHoldDraft.md)
+ - [LifecyclePolicy](docs/LifecyclePolicy.md)
+ - [LifecyclePolicyDraft](docs/LifecyclePolicyDraft.md)
+ - [LifecyclePreviewRequest](docs/LifecyclePreviewRequest.md)
+ - [LifecycleResourceType](docs/LifecycleResourceType.md)
+ - [LifecycleScope](docs/LifecycleScope.md)
+ - [LifecycleTrigger](docs/LifecycleTrigger.md)
  - [LineageEvidenceKind](docs/LineageEvidenceKind.md)
  - [LocationInner](docs/LocationInner.md)
  - [LogLevel](docs/LogLevel.md)

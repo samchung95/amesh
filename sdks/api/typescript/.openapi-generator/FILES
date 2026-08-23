@@ -18,6 +18,7 @@ docs/ExecutionsApi.md
 docs/FlowTestsApi.md
 docs/FlowsApi.md
 docs/HumanTasksApi.md
+docs/LifecycleApi.md
 docs/NamespaceResourcesApi.md
 docs/NamespacesApi.md
 docs/OperationsApi.md
@@ -48,6 +49,7 @@ src/apis/ExecutionsApi.ts
 src/apis/FlowTestsApi.ts
 src/apis/FlowsApi.ts
 src/apis/HumanTasksApi.ts
+src/apis/LifecycleApi.ts
 src/apis/NamespaceResourcesApi.ts
 src/apis/NamespacesApi.ts
 src/apis/OperationsApi.ts
@@ -236,6 +238,17 @@ src/models/KeyValueExport.ts
 src/models/KeyValueType.ts
 src/models/KeyValueWrite.ts
 src/models/LabelNormalization.ts
+src/models/LifecycleExecuteRequest.ts
+src/models/LifecycleJob.ts
+src/models/LifecycleJobState.ts
+src/models/LifecycleLegalHold.ts
+src/models/LifecycleLegalHoldDraft.ts
+src/models/LifecyclePolicy.ts
+src/models/LifecyclePolicyDraft.ts
+src/models/LifecyclePreviewRequest.ts
+src/models/LifecycleResourceType.ts
+src/models/LifecycleScope.ts
+src/models/LifecycleTrigger.ts
 src/models/LineageEvidenceKind.ts
 src/models/LocationInner.ts
 src/models/LogLevel.ts

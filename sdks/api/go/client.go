@@ -81,6 +81,8 @@ type APIClient struct {
 
 	HumanTasksAPI *HumanTasksAPIService
 
+	LifecycleAPI *LifecycleAPIService
+
 	NamespaceResourcesAPI *NamespaceResourcesAPIService
 
 	NamespacesAPI *NamespacesAPIService
@@ -140,6 +142,7 @@ func NewAPIClient(cfg *Configuration) *APIClient {
 	c.FlowTestsAPI = (*FlowTestsAPIService)(&c.common)
 	c.FlowsAPI = (*FlowsAPIService)(&c.common)
 	c.HumanTasksAPI = (*HumanTasksAPIService)(&c.common)
+	c.LifecycleAPI = (*LifecycleAPIService)(&c.common)
 	c.NamespaceResourcesAPI = (*NamespaceResourcesAPIService)(&c.common)
 	c.NamespacesAPI = (*NamespacesAPIService)(&c.common)
 	c.OperationsAPI = (*OperationsAPIService)(&c.common)

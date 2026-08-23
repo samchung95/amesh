@@ -71,6 +71,11 @@ import type {
   PluginRegistryIndex,
   KeyValueEntry,
   KeyValueType,
+  LifecycleJob,
+  LifecycleLegalHold,
+  LifecycleLegalHoldDraft,
+  LifecyclePolicy,
+  LifecyclePolicyDraft,
   PersistedExecution,
   PersistedFlow,
   PersistedSubflow,
@@ -547,6 +552,42 @@ export function createApiClient(connection: ApiConnection) {
       if (namespace) params.set('namespace', namespace)
       return request<CheckComplianceSummary[]>(`/api/v1/check-compliance?${params.toString()}`)
     },
+    lifecyclePolicies: async () => request<LifecyclePolicy[]>('/api/v1/lifecycle/policies'),
+    createLifecyclePolicy: async (draft: LifecyclePolicyDraft) =>
+      request<LifecyclePolicy>('/api/v1/lifecycle/policies', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(draft),
+      }),
+    lifecycleLegalHolds: async () =>
+      request<LifecycleLegalHold[]>('/api/v1/lifecycle/legal-holds'),
+    createLifecycleLegalHold: async (draft: LifecycleLegalHoldDraft) =>
+      request<LifecycleLegalHold>('/api/v1/lifecycle/legal-holds', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(draft),
+      }),
+    releaseLifecycleLegalHold: async (holdId: string) =>
+      request<LifecycleLegalHold>(`/api/v1/lifecycle/legal-holds/${encodeURIComponent(holdId)}/release`, {
+        method: 'POST',
+      }),
+    lifecycleJobs: async () => request<LifecycleJob[]>('/api/v1/lifecycle/jobs'),
+    previewLifecyclePurge: async (policyId: string, reason: string) =>
+      request<LifecycleJob>('/api/v1/lifecycle/previews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ policyId, reason }),
+      }),
+    executeLifecycleJob: async (jobId: string, confirmation: string) =>
+      request<LifecycleJob>(`/api/v1/lifecycle/jobs/${encodeURIComponent(jobId)}/execute`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ confirmation }),
+      }),
+    resumeLifecycleJob: async (jobId: string) =>
+      request<LifecycleJob>(`/api/v1/lifecycle/jobs/${encodeURIComponent(jobId)}/resume`, {
+        method: 'POST',
+      }),
     namespaceFiles: async (namespace: string) =>
       request<NamespaceFile[]>(`${namespaceRoot(namespace)}/files`),
     namespaceWorkflowMetadata: async (namespace: string) =>
