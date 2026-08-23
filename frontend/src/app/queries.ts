@@ -56,6 +56,39 @@ export function useAssets(enabled = true) {
   })
 }
 
+export function useWorkflowApps(enabled = true) {
+  const api = useApiClient()
+  const { settings } = useAppSettings()
+  return useQuery({
+    queryKey: ['apps', settings.tenant, settings.namespace],
+    queryFn: () => api.apps(settings.namespace || undefined),
+    enabled,
+    staleTime: 10_000,
+  })
+}
+
+export function useWorkflowApp(namespace: string | undefined, appId: string | undefined) {
+  const api = useApiClient()
+  const { settings } = useAppSettings()
+  return useQuery({
+    queryKey: ['app', settings.tenant, namespace, appId],
+    queryFn: () => api.app(namespace || '', appId || ''),
+    enabled: Boolean(namespace && appId),
+    staleTime: 10_000,
+  })
+}
+
+export function useHumanTasks(enabled = true) {
+  const api = useApiClient()
+  const { settings } = useAppSettings()
+  return useQuery({
+    queryKey: ['human-tasks', settings.tenant, settings.namespace],
+    queryFn: () => api.humanTasks(settings.namespace || undefined, true),
+    enabled,
+    refetchInterval: 10_000,
+  })
+}
+
 export function useAsset(assetId: string | null, enabled = true) {
   const api = useApiClient()
   const { settings } = useAppSettings()

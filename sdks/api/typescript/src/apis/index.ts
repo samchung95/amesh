@@ -1,6 +1,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export * from './AdministrationApi';
+export * from './AppsApi';
 export * from './AssetsApi';
 export * from './AuditApi';
 export * from './AuthenticationApi';
@@ -13,6 +14,7 @@ export * from './CredentialsApi';
 export * from './DashboardsApi';
 export * from './ExecutionsApi';
 export * from './FlowsApi';
+export * from './HumanTasksApi';
 export * from './NamespaceResourcesApi';
 export * from './NamespacesApi';
 export * from './OperationsApi';

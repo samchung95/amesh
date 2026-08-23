@@ -55,6 +55,7 @@ from amesh.adapters.postgres import (
     PostgresExecutionRepository,
     PostgresFeatureFlagRepository,
     PostgresFederationRepository,
+    PostgresHumanTaskRepository,
     PostgresMetadataRepository,
     PostgresPluginPolicyRepository,
     PostgresRealtimeRepository,
@@ -66,6 +67,10 @@ from amesh.adapters.postgres import (
     PostgresTenantRepository,
     PostgresTriggerRuntimeRepository,
     PostgresWorkerRepository,
+)
+from amesh.adapters.postgres.human_task_repository import (
+    HumanTaskConflict,
+    WorkflowAppVersionConflict,
 )
 from amesh.api.contracts import (
     CollectionQuery,
@@ -280,6 +285,16 @@ from amesh.domain import (
     AuthenticationRequest as ProviderAuthenticationRequest,
 )
 from amesh.domain.flow_revisions import compare_flow_revisions
+from amesh.domain.human_tasks import (
+    HumanTask,
+    HumanTaskActionRequest,
+    HumanTaskNotification,
+    WorkflowApp,
+    WorkflowAppLaunchRequest,
+    WorkflowAppSpec,
+    WorkflowAppUpsertRequest,
+    form_from_flow,
+)
 from amesh.domain.runner import RunnerId, RunnerPolicySet, RunnerPolicyViolation
 from amesh.dsl import (
     FlowDefinition,
@@ -311,6 +326,7 @@ from amesh.federation import (
     LdapAuthenticationProvider,
 )
 from amesh.frontend import SpaStaticFiles, find_frontend_dist
+from amesh.human_tasks import HumanTaskService, approval_task_handler
 from amesh.migrations import migration_directory
 from amesh.observability import (
     HTTP_REQUEST_DURATION,
@@ -827,6 +843,32 @@ def get_shared_resource_repository() -> PostgresSharedResourceRepository:
 SharedResourceRepositoryDependency = Annotated[
     PostgresSharedResourceRepository,
     Depends(get_shared_resource_repository),
+]
+
+
+@lru_cache
+def get_human_task_repository() -> PostgresHumanTaskRepository:
+    return PostgresHumanTaskRepository(database_engine())
+
+
+HumanTaskRepositoryDependency = Annotated[
+    PostgresHumanTaskRepository,
+    Depends(get_human_task_repository),
+]
+
+
+@lru_cache
+def get_human_task_service() -> HumanTaskService:
+    return HumanTaskService(
+        get_human_task_repository(),
+        get_repository(),
+        token_pepper=get_settings().amesh_token_pepper.get_secret_value(),
+    )
+
+
+HumanTaskServiceDependency = Annotated[
+    HumanTaskService,
+    Depends(get_human_task_service),
 ]
 
 
@@ -1573,6 +1615,11 @@ async def get_ui_session(
         "executions.view": ("execution", PermissionAction.VIEW),
         "executions.execute": ("execution", PermissionAction.EXECUTE),
         "executions.manage": ("execution", PermissionAction.MANAGE),
+        "apps.view": ("app", PermissionAction.VIEW),
+        "apps.manage": ("app", PermissionAction.UPDATE),
+        "apps.execute": ("app", PermissionAction.EXECUTE),
+        "humanTasks.view": ("human_task", PermissionAction.VIEW),
+        "humanTasks.update": ("human_task", PermissionAction.UPDATE),
         "dashboards.view": ("dashboard", PermissionAction.VIEW),
         "dashboards.manage": ("dashboard", PermissionAction.UPDATE),
         "search.view": ("search", PermissionAction.VIEW),
@@ -4179,6 +4226,355 @@ async def preview_flow_expression(
         result=result,
         redactedContext=context,
         compatibilityVersion=engine.compatibility_version,
+    )
+
+
+@app.get(
+    "/api/v1/apps",
+    response_model=list[WorkflowApp],
+    tags=["apps"],
+)
+async def list_workflow_apps(
+    repository: HumanTaskRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    namespace: str | None = None,
+) -> list[WorkflowApp]:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="app",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    return list(await repository.list_apps(tenant_id=tenant_id, namespace=namespace))
+
+
+@app.get(
+    "/api/v1/apps/{namespace}/{app_id}",
+    response_model=WorkflowApp,
+    tags=["apps"],
+)
+async def get_workflow_app(
+    namespace: str,
+    app_id: str,
+    repository: HumanTaskRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    revision: Annotated[int | None, Query(ge=1)] = None,
+) -> WorkflowApp:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="app",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    try:
+        return await repository.get_app(
+            namespace,
+            app_id,
+            tenant_id=tenant_id,
+            revision=revision,
+        )
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+
+
+@app.put(
+    "/api/v1/apps/{namespace}/{app_id}",
+    response_model=WorkflowApp,
+    tags=["apps"],
+)
+async def upsert_workflow_app(
+    namespace: str,
+    app_id: Annotated[str, PathParameter(pattern=r"^[a-z][a-z0-9_.-]{0,127}$")],
+    request: WorkflowAppUpsertRequest,
+    repository: HumanTaskRepositoryDependency,
+    execution_repository: RepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> WorkflowApp:
+    try:
+        await repository.get_app(namespace, app_id, tenant_id=tenant_id)
+    except LookupError:
+        action = PermissionAction.CREATE
+    else:
+        action = PermissionAction.UPDATE
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="app",
+        action=action,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="flow",
+        action=PermissionAction.USE,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    try:
+        flow = await execution_repository.get_flow(
+            namespace,
+            request.flow_id,
+            tenant_id=tenant_id,
+            revision=request.flow_revision,
+        )
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    form = request.form or form_from_flow(flow)
+    flow_input_ids = {definition.id for definition in flow.inputs}
+    form_input_ids = {field.id for field in form.fields}
+    unknown = sorted(form_input_ids - flow_input_ids)
+    required_missing = sorted(
+        definition.id
+        for definition in flow.inputs
+        if definition.required and not definition.has_default and definition.id not in form_input_ids
+    )
+    if unknown or required_missing:
+        details = []
+        if unknown:
+            details.append("unknown form fields: " + ", ".join(unknown))
+        if required_missing:
+            details.append("required flow inputs missing from form: " + ", ".join(required_missing))
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="; ".join(details),
+        )
+    resolved = WorkflowAppSpec.model_validate(
+        {
+            **request.model_dump(mode="json", by_alias=True, exclude={"expected_version"}),
+            "flowRevision": flow.revision,
+            "form": form.model_dump(mode="json", by_alias=True),
+        }
+    )
+    try:
+        return await repository.upsert_app(
+            namespace,
+            app_id,
+            resolved,
+            tenant_id=tenant_id,
+            actor_id=str(actor.principal_id),
+            expected_version=request.expected_version,
+        )
+    except WorkflowAppVersionConflict as exc:
+        raise HTTPException(
+            status_code=status.HTTP_412_PRECONDITION_FAILED,
+            detail=str(exc),
+        ) from exc
+
+
+@app.post(
+    "/api/v1/apps/{namespace}/{app_id}/launch",
+    response_model=ExecutionDetail,
+    tags=["apps"],
+)
+async def launch_workflow_app(
+    namespace: str,
+    app_id: str,
+    request: WorkflowAppLaunchRequest,
+    background_tasks: BackgroundTasks,
+    repository: HumanTaskRepositoryDependency,
+    execution_repository: RepositoryDependency,
+    task_cache: TaskCacheRepositoryDependency,
+    shared_resources: SharedResourceRepositoryDependency,
+    settings: SettingsDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> ExecutionDetail:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="app",
+        action=PermissionAction.EXECUTE,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="execution",
+        action=PermissionAction.EXECUTE,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    try:
+        workflow_app = await repository.get_app(namespace, app_id, tenant_id=tenant_id)
+        flow = await execution_repository.get_flow(
+            namespace,
+            workflow_app.flow_id,
+            tenant_id=tenant_id,
+            revision=workflow_app.flow_revision,
+        )
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    launch_request = CreateExecutionRequest(
+        namespace=namespace,
+        flowId=workflow_app.flow_id,
+        inputs=request.inputs,
+        idempotencyKey=request.idempotency_key,
+    )
+    return await _execute_flow(
+        execution_repository,
+        task_cache,
+        flow,
+        launch_request,
+        settings,
+        shared_resources=shared_resources,
+        tenant_id=tenant_id,
+        actor_id=str(actor.principal_id),
+        actor=actor,
+        authorization_service=authorization_service,
+        background_tasks=background_tasks,
+        launch_source=ExecutionLaunchSource.API,
+        idempotency_key=request.idempotency_key,
+        respond_async=True,
+    )
+
+
+@app.get(
+    "/api/v1/human-tasks",
+    response_model=list[HumanTask],
+    tags=["human-tasks"],
+)
+async def list_human_tasks(
+    repository: HumanTaskRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    namespace: str | None = None,
+    include_closed: Annotated[bool, Query(alias="includeClosed")] = False,
+) -> list[HumanTask]:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="human_task",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    manage = await authorization_service.decide(
+        AuthorizationRequest(
+            actor=actor,
+            tenant_id=tenant_id,
+            namespace=namespace,
+            resource_type="human_task",
+            action=PermissionAction.MANAGE,
+        )
+    )
+    return list(
+        await repository.list_tasks(
+            actor.principal_id,
+            tenant_id=tenant_id,
+            namespace=namespace,
+            include_closed=include_closed,
+            include_all=manage.allowed,
+        )
+    )
+
+
+@app.post(
+    "/api/v1/human-tasks/{human_task_id}/actions",
+    response_model=HumanTask,
+    tags=["human-tasks"],
+)
+async def act_on_human_task(
+    human_task_id: UUID,
+    request: HumanTaskActionRequest,
+    repository: HumanTaskRepositoryDependency,
+    service: HumanTaskServiceDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> HumanTask:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="human_task",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+    )
+    try:
+        task = await repository.get_task(
+            human_task_id,
+            actor.principal_id,
+            tenant_id=tenant_id,
+            include_all=True,
+        )
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="human_task",
+        action=PermissionAction.UPDATE,
+        tenant_id=tenant_id,
+        namespace=task.namespace,
+    )
+    manage = await authorization_service.decide(
+        AuthorizationRequest(
+            actor=actor,
+            tenant_id=tenant_id,
+            namespace=task.namespace,
+            resource_type="human_task",
+            action=PermissionAction.MANAGE,
+        )
+    )
+    if not manage.allowed:
+        try:
+            await repository.get_task(
+                human_task_id,
+                actor.principal_id,
+                tenant_id=tenant_id,
+            )
+        except LookupError as exc:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    try:
+        return await service.apply_action(
+            human_task_id,
+            request,
+            tenant_id=tenant_id,
+            actor_id=actor.principal_id,
+        )
+    except (HumanTaskConflict, TaskStateConflictError, ValueError) as exc:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
+
+
+@app.get(
+    "/api/v1/human-task-notifications",
+    response_model=list[HumanTaskNotification],
+    tags=["human-tasks"],
+)
+async def list_human_task_notifications(
+    repository: HumanTaskRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    limit: Annotated[int, Query(ge=1, le=500)] = 100,
+) -> list[HumanTaskNotification]:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="human_task",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+    )
+    return list(
+        await repository.list_notifications(
+            actor.principal_id,
+            tenant_id=tenant_id,
+            limit=limit,
+        )
     )
 
 
@@ -8001,6 +8397,11 @@ async def _execute_flow(
         "core.shell": shell_handler,
         "agent.llm": agent_llm_handler(),
         "agent.mcp": agent_mcp_handler(),
+        "core.approval": approval_task_handler(
+            get_human_task_repository(),
+            repository,
+            token_pepper=settings.amesh_token_pepper.get_secret_value(),
+        ),
         **core_utility_handlers(workspace_manager, http_policy=http_policy),
         **script_task_handlers(shell_handler, settings.script_task_policy),
     }

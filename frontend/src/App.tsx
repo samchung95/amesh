@@ -21,6 +21,7 @@ import { TriggersPage } from './pages/TriggersPage'
 import { ChecksPage } from './pages/ChecksPage'
 import { AdministrationPage } from './pages/AdministrationPage'
 import { AssetsPage } from './pages/AssetsPage'
+import { AppsPage } from './pages/AppsPage'
 import { BlueprintsPage } from './pages/BlueprintsPage'
 
 export function App() {
@@ -67,6 +68,7 @@ function CapabilityRoute({ session, capability, title, children }: { session: Ui
 function WorkspaceRoutes({ session }: { session: UiSession }) {
   return (
     <Routes>
+      <Route path="embed/apps/:namespace/:appId" element={<CapabilityRoute session={session} capability="apps.view" title="App"><AppsPage session={session} embedded /></CapabilityRoute>} />
       <Route element={<AppShell session={session} />}>
         <Route index element={<CapabilityRoute session={session} capability="dashboards.view" title="Dashboard"><DashboardPage session={session} /></CapabilityRoute>} />
         <Route path="search" element={<CapabilityRoute session={session} capability="search.view" title="Search"><SearchPage session={session} /></CapabilityRoute>} />
@@ -81,7 +83,8 @@ function WorkspaceRoutes({ session }: { session: UiSession }) {
         <Route path="checks" element={<CapabilityRoute session={session} capability="checks.view" title="Checks"><ChecksPage session={session} /></CapabilityRoute>} />
         <Route path="namespaces" element={<CapabilityRoute session={session} capability="namespaceResources.read" title="Namespaces"><NamespaceResourcesPage session={session} /></CapabilityRoute>} />
         <Route path="assets" element={<CapabilityRoute session={session} capability="assets.view" title="Assets"><AssetsPage session={session} /></CapabilityRoute>} />
-        <Route path="apps" element={<PlaceholderPage title="Apps" />} />
+        <Route path="apps" element={<CapabilityRoute session={session} capability="apps.view" title="Apps"><AppsPage session={session} /></CapabilityRoute>} />
+        <Route path="apps/:namespace/:appId" element={<CapabilityRoute session={session} capability="apps.view" title="App"><AppsPage session={session} /></CapabilityRoute>} />
         <Route path="plugins" element={<CapabilityRoute session={session} capability="plugins.view" title="Plugins"><PluginsPage session={session} /></CapabilityRoute>} />
         <Route path="administration" element={<CapabilityRoute session={session} capability="administration.manage" title="Administration"><AdministrationPage session={session} /></CapabilityRoute>} />
         <Route path="*" element={<Navigate to="/" replace />} />

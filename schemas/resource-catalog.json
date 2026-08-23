@@ -1378,6 +1378,98 @@
       "configurationSchema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "additionalProperties": false,
+        "anyOf": [
+          {
+            "required": [
+              "assigneeIds"
+            ]
+          },
+          {
+            "required": [
+              "groupIds"
+            ]
+          }
+        ],
+        "properties": {
+          "assigneeIds": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "type": "array",
+            "uniqueItems": true
+          },
+          "deadlineAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "deadlineSeconds": {
+            "exclusiveMinimum": 0,
+            "maximum": 31536000,
+            "type": "number"
+          },
+          "description": {
+            "maxLength": 4096,
+            "type": "string"
+          },
+          "escalationAssigneeIds": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "type": "array",
+            "uniqueItems": true
+          },
+          "escalationGroupIds": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "type": "array",
+            "uniqueItems": true
+          },
+          "form": {
+            "type": "object"
+          },
+          "groupIds": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "type": "array",
+            "uniqueItems": true
+          },
+          "title": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "editor": {
+        "category": "Core",
+        "description": "Pause durably until an assigned participant records a decision.",
+        "propertyOrder": [
+          "title",
+          "description",
+          "form",
+          "assigneeIds",
+          "groupIds",
+          "deadlineAt",
+          "deadlineSeconds",
+          "escalationAssigneeIds",
+          "escalationGroupIds"
+        ],
+        "title": "Human approval"
+      },
+      "kind": "task",
+      "type": "core.approval"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
         "properties": {
           "message": {
             "minLength": 1,

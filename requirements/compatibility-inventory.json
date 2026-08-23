@@ -8278,105 +8278,137 @@
       "requirement_id": "URS-F-0558",
       "epic_id": "EPIC-508",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-enterprise-docs-v1.3.30",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/adapters/postgres/test_workflow_apps_human_tasks.py::test_versioned_apps_and_durable_human_approval_resume_exactly_once",
+        "tests/api/test_apps_human_tasks_api.py::test_apps_and_human_task_api_expose_versioned_forms_and_decisions",
+        "frontend/e2e/apps.spec.ts::launches a versioned app and completes an approval"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0559",
       "epic_id": "EPIC-508",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-enterprise-docs-v1.3.30",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/adapters/postgres/test_workflow_apps_human_tasks.py::test_versioned_apps_and_durable_human_approval_resume_exactly_once",
+        "tests/api/test_apps_human_tasks_api.py::test_apps_and_human_task_api_expose_versioned_forms_and_decisions",
+        "frontend/e2e/apps.spec.ts::launches a versioned app and completes an approval"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0560",
       "epic_id": "EPIC-508",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-enterprise-docs-v1.3.30",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/adapters/postgres/test_workflow_apps_human_tasks.py::test_versioned_apps_and_durable_human_approval_resume_exactly_once",
+        "tests/api/test_apps_human_tasks_api.py::test_apps_and_human_task_api_expose_versioned_forms_and_decisions",
+        "frontend/e2e/apps.spec.ts::launches a versioned app and completes an approval"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0561",
       "epic_id": "EPIC-508",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-enterprise-docs-v1.3.30",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/adapters/postgres/test_workflow_apps_human_tasks.py::test_versioned_apps_and_durable_human_approval_resume_exactly_once",
+        "tests/api/test_apps_human_tasks_api.py::test_apps_and_human_task_api_expose_versioned_forms_and_decisions",
+        "frontend/e2e/apps.spec.ts::launches a versioned app and completes an approval"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0562",
       "epic_id": "EPIC-508",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-enterprise-docs-v1.3.30",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/adapters/postgres/test_workflow_apps_human_tasks.py::test_versioned_apps_and_durable_human_approval_resume_exactly_once",
+        "tests/api/test_apps_human_tasks_api.py::test_apps_and_human_task_api_expose_versioned_forms_and_decisions",
+        "frontend/e2e/apps.spec.ts::launches a versioned app and completes an approval"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0563",
       "epic_id": "EPIC-508",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-enterprise-docs-v1.3.30",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/adapters/postgres/test_workflow_apps_human_tasks.py::test_versioned_apps_and_durable_human_approval_resume_exactly_once",
+        "tests/api/test_apps_human_tasks_api.py::test_apps_and_human_task_api_expose_versioned_forms_and_decisions",
+        "frontend/e2e/apps.spec.ts::launches a versioned app and completes an approval"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0564",
       "epic_id": "EPIC-508",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-enterprise-docs-v1.3.30",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/adapters/postgres/test_workflow_apps_human_tasks.py::test_versioned_apps_and_durable_human_approval_resume_exactly_once",
+        "tests/api/test_apps_human_tasks_api.py::test_apps_and_human_task_api_expose_versioned_forms_and_decisions",
+        "frontend/e2e/apps.spec.ts::launches a versioned app and completes an approval"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0565",
       "epic_id": "EPIC-508",
       "compatibility_level": "P0 capability",
-      "implementation_status": "Proposed",
-      "disposition": "gap",
+      "implementation_status": "Verified",
+      "disposition": "verified",
       "source_ids": [
         "kestra-enterprise-docs-v1.3.30",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
-      "notes": "Direct implementation or compatibility evidence remains open."
+      "evidence": [
+        "tests/adapters/postgres/test_workflow_apps_human_tasks.py::test_versioned_apps_and_durable_human_approval_resume_exactly_once",
+        "tests/api/test_apps_human_tasks_api.py::test_apps_and_human_task_api_expose_versioned_forms_and_decisions",
+        "frontend/e2e/apps.spec.ts::launches a versioned app and completes an approval"
+      ],
+      "notes": ""
     },
     {
       "requirement_id": "URS-F-0566",

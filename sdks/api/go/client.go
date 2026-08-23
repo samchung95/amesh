@@ -51,6 +51,8 @@ type APIClient struct {
 
 	AdministrationAPI *AdministrationAPIService
 
+	AppsAPI *AppsAPIService
+
 	AssetsAPI *AssetsAPIService
 
 	AuditAPI *AuditAPIService
@@ -74,6 +76,8 @@ type APIClient struct {
 	ExecutionsAPI *ExecutionsAPIService
 
 	FlowsAPI *FlowsAPIService
+
+	HumanTasksAPI *HumanTasksAPIService
 
 	NamespaceResourcesAPI *NamespaceResourcesAPIService
 
@@ -119,6 +123,7 @@ func NewAPIClient(cfg *Configuration) *APIClient {
 
 	// API Services
 	c.AdministrationAPI = (*AdministrationAPIService)(&c.common)
+	c.AppsAPI = (*AppsAPIService)(&c.common)
 	c.AssetsAPI = (*AssetsAPIService)(&c.common)
 	c.AuditAPI = (*AuditAPIService)(&c.common)
 	c.AuthenticationAPI = (*AuthenticationAPIService)(&c.common)
@@ -131,6 +136,7 @@ func NewAPIClient(cfg *Configuration) *APIClient {
 	c.DashboardsAPI = (*DashboardsAPIService)(&c.common)
 	c.ExecutionsAPI = (*ExecutionsAPIService)(&c.common)
 	c.FlowsAPI = (*FlowsAPIService)(&c.common)
+	c.HumanTasksAPI = (*HumanTasksAPIService)(&c.common)
 	c.NamespaceResourcesAPI = (*NamespaceResourcesAPIService)(&c.common)
 	c.NamespacesAPI = (*NamespacesAPIService)(&c.common)
 	c.OperationsAPI = (*OperationsAPIService)(&c.common)

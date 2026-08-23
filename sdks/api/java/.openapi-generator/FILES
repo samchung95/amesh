@@ -7,6 +7,7 @@ api/openapi.yaml
 build.gradle
 build.sbt
 docs/AdministrationApi.md
+docs/AppsApi.md
 docs/AssetsApi.md
 docs/AuditApi.md
 docs/AuthenticationApi.md
@@ -19,6 +20,7 @@ docs/CredentialsApi.md
 docs/DashboardsApi.md
 docs/ExecutionsApi.md
 docs/FlowsApi.md
+docs/HumanTasksApi.md
 docs/NamespaceResourcesApi.md
 docs/NamespacesApi.md
 docs/OperationsApi.md
@@ -53,6 +55,7 @@ src/main/java/io/amesh/client/RFC3339JavaTimeModule.java
 src/main/java/io/amesh/client/ServerConfiguration.java
 src/main/java/io/amesh/client/ServerVariable.java
 src/main/java/io/amesh/client/api/AdministrationApi.java
+src/main/java/io/amesh/client/api/AppsApi.java
 src/main/java/io/amesh/client/api/AssetsApi.java
 src/main/java/io/amesh/client/api/AuditApi.java
 src/main/java/io/amesh/client/api/AuthenticationApi.java
@@ -65,6 +68,7 @@ src/main/java/io/amesh/client/api/CredentialsApi.java
 src/main/java/io/amesh/client/api/DashboardsApi.java
 src/main/java/io/amesh/client/api/ExecutionsApi.java
 src/main/java/io/amesh/client/api/FlowsApi.java
+src/main/java/io/amesh/client/api/HumanTasksApi.java
 src/main/java/io/amesh/client/api/NamespaceResourcesApi.java
 src/main/java/io/amesh/client/api/NamespacesApi.java
 src/main/java/io/amesh/client/api/OperationsApi.java
@@ -91,6 +95,7 @@ src/main/java/io/amesh/client/model/AdmissionDiagnostics.java
 src/main/java/io/amesh/client/model/AdmissionOutcome.java
 src/main/java/io/amesh/client/model/AdmissionResourceType.java
 src/main/java/io/amesh/client/model/AdmissionScope.java
+src/main/java/io/amesh/client/model/AppForm.java
 src/main/java/io/amesh/client/model/AssetAccessMode.java
 src/main/java/io/amesh/client/model/AssetCatalogEntry.java
 src/main/java/io/amesh/client/model/AssetCatalogExport.java
@@ -211,9 +216,17 @@ src/main/java/io/amesh/client/model/FlowRevisionLifecycleRequest.java
 src/main/java/io/amesh/client/model/FlowRevisionRecord.java
 src/main/java/io/amesh/client/model/FlowRevisionRestoreRequest.java
 src/main/java/io/amesh/client/model/FlowValidationResult.java
+src/main/java/io/amesh/client/model/FormField.java
+src/main/java/io/amesh/client/model/FormSection.java
 src/main/java/io/amesh/client/model/Gte.java
 src/main/java/io/amesh/client/model/HTTPValidationError.java
 src/main/java/io/amesh/client/model/HealthResponse.java
+src/main/java/io/amesh/client/model/HumanTask.java
+src/main/java/io/amesh/client/model/HumanTaskAction.java
+src/main/java/io/amesh/client/model/HumanTaskActionKind.java
+src/main/java/io/amesh/client/model/HumanTaskActionRequest.java
+src/main/java/io/amesh/client/model/HumanTaskNotification.java
+src/main/java/io/amesh/client/model/HumanTaskState.java
 src/main/java/io/amesh/client/model/IsolatedPluginRuntimeSnapshot.java
 src/main/java/io/amesh/client/model/IsolatedPluginRuntimeStatus.java
 src/main/java/io/amesh/client/model/IsolatedPluginState.java
@@ -409,4 +422,7 @@ src/main/java/io/amesh/client/model/WorkerCompatibility.java
 src/main/java/io/amesh/client/model/WorkerInventory.java
 src/main/java/io/amesh/client/model/WorkerLiveness.java
 src/main/java/io/amesh/client/model/WorkerStatus.java
+src/main/java/io/amesh/client/model/WorkflowApp.java
+src/main/java/io/amesh/client/model/WorkflowAppLaunchRequest.java
+src/main/java/io/amesh/client/model/WorkflowAppUpsertRequest.java
 src/main/java/io/amesh/client/model/WorkflowMetadataPolicy.java

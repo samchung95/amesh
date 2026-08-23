@@ -25,6 +25,7 @@ from amesh_client.models.admission_diagnostics import AdmissionDiagnostics
 from amesh_client.models.admission_outcome import AdmissionOutcome
 from amesh_client.models.admission_resource_type import AdmissionResourceType
 from amesh_client.models.admission_scope import AdmissionScope
+from amesh_client.models.app_form import AppForm
 from amesh_client.models.asset_access_mode import AssetAccessMode
 from amesh_client.models.asset_catalog_entry import AssetCatalogEntry
 from amesh_client.models.asset_catalog_export import AssetCatalogExport
@@ -145,9 +146,17 @@ from amesh_client.models.flow_revision_lifecycle_request import FlowRevisionLife
 from amesh_client.models.flow_revision_record import FlowRevisionRecord
 from amesh_client.models.flow_revision_restore_request import FlowRevisionRestoreRequest
 from amesh_client.models.flow_validation_result import FlowValidationResult
+from amesh_client.models.form_field import FormField
+from amesh_client.models.form_section import FormSection
 from amesh_client.models.gte import Gte
 from amesh_client.models.http_validation_error import HTTPValidationError
 from amesh_client.models.health_response import HealthResponse
+from amesh_client.models.human_task import HumanTask
+from amesh_client.models.human_task_action import HumanTaskAction
+from amesh_client.models.human_task_action_kind import HumanTaskActionKind
+from amesh_client.models.human_task_action_request import HumanTaskActionRequest
+from amesh_client.models.human_task_notification import HumanTaskNotification
+from amesh_client.models.human_task_state import HumanTaskState
 from amesh_client.models.isolated_plugin_runtime_snapshot import IsolatedPluginRuntimeSnapshot
 from amesh_client.models.isolated_plugin_runtime_status import IsolatedPluginRuntimeStatus
 from amesh_client.models.isolated_plugin_state import IsolatedPluginState
@@ -343,4 +352,7 @@ from amesh_client.models.worker_compatibility import WorkerCompatibility
 from amesh_client.models.worker_inventory import WorkerInventory
 from amesh_client.models.worker_liveness import WorkerLiveness
 from amesh_client.models.worker_status import WorkerStatus
+from amesh_client.models.workflow_app import WorkflowApp
+from amesh_client.models.workflow_app_launch_request import WorkflowAppLaunchRequest
+from amesh_client.models.workflow_app_upsert_request import WorkflowAppUpsertRequest
 from amesh_client.models.workflow_metadata_policy import WorkflowMetadataPolicy

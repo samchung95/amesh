@@ -19,6 +19,7 @@ __version__ = "0.2.0"
 # Define package exports
 __all__ = [
     "AdministrationApi",
+    "AppsApi",
     "AssetsApi",
     "AuditApi",
     "AuthenticationApi",
@@ -31,6 +32,7 @@ __all__ = [
     "DashboardsApi",
     "ExecutionsApi",
     "FlowsApi",
+    "HumanTasksApi",
     "NamespaceResourcesApi",
     "NamespacesApi",
     "OperationsApi",
@@ -65,6 +67,7 @@ __all__ = [
     "AdmissionOutcome",
     "AdmissionResourceType",
     "AdmissionScope",
+    "AppForm",
     "AssetAccessMode",
     "AssetCatalogEntry",
     "AssetCatalogExport",
@@ -185,9 +188,17 @@ __all__ = [
     "FlowRevisionRecord",
     "FlowRevisionRestoreRequest",
     "FlowValidationResult",
+    "FormField",
+    "FormSection",
     "Gte",
     "HTTPValidationError",
     "HealthResponse",
+    "HumanTask",
+    "HumanTaskAction",
+    "HumanTaskActionKind",
+    "HumanTaskActionRequest",
+    "HumanTaskNotification",
+    "HumanTaskState",
     "IsolatedPluginRuntimeSnapshot",
     "IsolatedPluginRuntimeStatus",
     "IsolatedPluginState",
@@ -383,11 +394,15 @@ __all__ = [
     "WorkerInventory",
     "WorkerLiveness",
     "WorkerStatus",
+    "WorkflowApp",
+    "WorkflowAppLaunchRequest",
+    "WorkflowAppUpsertRequest",
     "WorkflowMetadataPolicy",
 ]
 
 # import apis into sdk package
 from amesh_client.api.administration_api import AdministrationApi as AdministrationApi
+from amesh_client.api.apps_api import AppsApi as AppsApi
 from amesh_client.api.assets_api import AssetsApi as AssetsApi
 from amesh_client.api.audit_api import AuditApi as AuditApi
 from amesh_client.api.authentication_api import AuthenticationApi as AuthenticationApi
@@ -400,6 +415,7 @@ from amesh_client.api.credentials_api import CredentialsApi as CredentialsApi
 from amesh_client.api.dashboards_api import DashboardsApi as DashboardsApi
 from amesh_client.api.executions_api import ExecutionsApi as ExecutionsApi
 from amesh_client.api.flows_api import FlowsApi as FlowsApi
+from amesh_client.api.human_tasks_api import HumanTasksApi as HumanTasksApi
 from amesh_client.api.namespace_resources_api import NamespaceResourcesApi as NamespaceResourcesApi
 from amesh_client.api.namespaces_api import NamespacesApi as NamespacesApi
 from amesh_client.api.operations_api import OperationsApi as OperationsApi
@@ -438,6 +454,7 @@ from amesh_client.models.admission_diagnostics import AdmissionDiagnostics as Ad
 from amesh_client.models.admission_outcome import AdmissionOutcome as AdmissionOutcome
 from amesh_client.models.admission_resource_type import AdmissionResourceType as AdmissionResourceType
 from amesh_client.models.admission_scope import AdmissionScope as AdmissionScope
+from amesh_client.models.app_form import AppForm as AppForm
 from amesh_client.models.asset_access_mode import AssetAccessMode as AssetAccessMode
 from amesh_client.models.asset_catalog_entry import AssetCatalogEntry as AssetCatalogEntry
 from amesh_client.models.asset_catalog_export import AssetCatalogExport as AssetCatalogExport
@@ -558,9 +575,17 @@ from amesh_client.models.flow_revision_lifecycle_request import FlowRevisionLife
 from amesh_client.models.flow_revision_record import FlowRevisionRecord as FlowRevisionRecord
 from amesh_client.models.flow_revision_restore_request import FlowRevisionRestoreRequest as FlowRevisionRestoreRequest
 from amesh_client.models.flow_validation_result import FlowValidationResult as FlowValidationResult
+from amesh_client.models.form_field import FormField as FormField
+from amesh_client.models.form_section import FormSection as FormSection
 from amesh_client.models.gte import Gte as Gte
 from amesh_client.models.http_validation_error import HTTPValidationError as HTTPValidationError
 from amesh_client.models.health_response import HealthResponse as HealthResponse
+from amesh_client.models.human_task import HumanTask as HumanTask
+from amesh_client.models.human_task_action import HumanTaskAction as HumanTaskAction
+from amesh_client.models.human_task_action_kind import HumanTaskActionKind as HumanTaskActionKind
+from amesh_client.models.human_task_action_request import HumanTaskActionRequest as HumanTaskActionRequest
+from amesh_client.models.human_task_notification import HumanTaskNotification as HumanTaskNotification
+from amesh_client.models.human_task_state import HumanTaskState as HumanTaskState
 from amesh_client.models.isolated_plugin_runtime_snapshot import IsolatedPluginRuntimeSnapshot as IsolatedPluginRuntimeSnapshot
 from amesh_client.models.isolated_plugin_runtime_status import IsolatedPluginRuntimeStatus as IsolatedPluginRuntimeStatus
 from amesh_client.models.isolated_plugin_state import IsolatedPluginState as IsolatedPluginState
@@ -756,4 +781,7 @@ from amesh_client.models.worker_compatibility import WorkerCompatibility as Work
 from amesh_client.models.worker_inventory import WorkerInventory as WorkerInventory
 from amesh_client.models.worker_liveness import WorkerLiveness as WorkerLiveness
 from amesh_client.models.worker_status import WorkerStatus as WorkerStatus
+from amesh_client.models.workflow_app import WorkflowApp as WorkflowApp
+from amesh_client.models.workflow_app_launch_request import WorkflowAppLaunchRequest as WorkflowAppLaunchRequest
+from amesh_client.models.workflow_app_upsert_request import WorkflowAppUpsertRequest as WorkflowAppUpsertRequest
 from amesh_client.models.workflow_metadata_policy import WorkflowMetadataPolicy as WorkflowMetadataPolicy

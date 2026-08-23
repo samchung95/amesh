@@ -2,6 +2,7 @@
 
 # import apis into api package
 from amesh_client.api.administration_api import AdministrationApi
+from amesh_client.api.apps_api import AppsApi
 from amesh_client.api.assets_api import AssetsApi
 from amesh_client.api.audit_api import AuditApi
 from amesh_client.api.authentication_api import AuthenticationApi
@@ -14,6 +15,7 @@ from amesh_client.api.credentials_api import CredentialsApi
 from amesh_client.api.dashboards_api import DashboardsApi
 from amesh_client.api.executions_api import ExecutionsApi
 from amesh_client.api.flows_api import FlowsApi
+from amesh_client.api.human_tasks_api import HumanTasksApi
 from amesh_client.api.namespace_resources_api import NamespaceResourcesApi
 from amesh_client.api.namespaces_api import NamespacesApi
 from amesh_client.api.operations_api import OperationsApi

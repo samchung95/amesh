@@ -62,6 +62,10 @@ All URIs are relative to *http://localhost*
 *AdministrationApi* | [**listAdministrationAuditApiV1AdminAuditGet**](docs/AdministrationApi.md#listadministrationauditapiv1adminauditget) | **GET** /api/v1/admin/audit | List Administration Audit
 *AdministrationApi* | [**listAdministrationControlsApiV1AdminControlsGet**](docs/AdministrationApi.md#listadministrationcontrolsapiv1admincontrolsget) | **GET** /api/v1/admin/controls | List Administration Controls
 *AdministrationApi* | [**previewAdministrationControlApiV1AdminControlsPreviewPost**](docs/AdministrationApi.md#previewadministrationcontrolapiv1admincontrolspreviewpost) | **POST** /api/v1/admin/controls/preview | Preview Administration Control
+*AppsApi* | [**getWorkflowAppApiV1AppsNamespaceAppIdGet**](docs/AppsApi.md#getworkflowappapiv1appsnamespaceappidget) | **GET** /api/v1/apps/{namespace}/{app_id} | Get Workflow App
+*AppsApi* | [**launchWorkflowAppApiV1AppsNamespaceAppIdLaunchPost**](docs/AppsApi.md#launchworkflowappapiv1appsnamespaceappidlaunchpost) | **POST** /api/v1/apps/{namespace}/{app_id}/launch | Launch Workflow App
+*AppsApi* | [**listWorkflowAppsApiV1AppsGet**](docs/AppsApi.md#listworkflowappsapiv1appsget) | **GET** /api/v1/apps | List Workflow Apps
+*AppsApi* | [**upsertWorkflowAppApiV1AppsNamespaceAppIdPut**](docs/AppsApi.md#upsertworkflowappapiv1appsnamespaceappidput) | **PUT** /api/v1/apps/{namespace}/{app_id} | Upsert Workflow App
 *AssetsApi* | [**declareAssetLineageApiV1AssetsLineagePost**](docs/AssetsApi.md#declareassetlineageapiv1assetslineagepost) | **POST** /api/v1/assets/lineage | Declare Asset Lineage
 *AssetsApi* | [**exportAssetCatalogApiV1AssetsExportOpenlineageGet**](docs/AssetsApi.md#exportassetcatalogapiv1assetsexportopenlineageget) | **GET** /api/v1/assets/export/openlineage | Export Asset Catalog
 *AssetsApi* | [**getAssetCatalogEntryApiV1AssetsAssetIdGet**](docs/AssetsApi.md#getassetcatalogentryapiv1assetsassetidget) | **GET** /api/v1/assets/{asset_id} | Get Asset Catalog Entry
@@ -174,6 +178,9 @@ All URIs are relative to *http://localhost*
 *FlowsApi* | [**promoteFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionLifecyclePut**](docs/FlowsApi.md#promoteflowrevisionapiv1flowsnamespaceflowidrevisionsrevisionlifecycleput) | **PUT** /api/v1/flows/{namespace}/{flow_id}/revisions/{revision}/lifecycle | Promote Flow Revision
 *FlowsApi* | [**restoreFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionRestorePost**](docs/FlowsApi.md#restoreflowrevisionapiv1flowsnamespaceflowidrevisionsrevisionrestorepost) | **POST** /api/v1/flows/{namespace}/{flow_id}/revisions/{revision}/restore | Restore Flow Revision
 *FlowsApi* | [**validateFlowApiV1FlowsValidatePost**](docs/FlowsApi.md#validateflowapiv1flowsvalidatepost) | **POST** /api/v1/flows/validate | Validate Flow
+*HumanTasksApi* | [**actOnHumanTaskApiV1HumanTasksHumanTaskIdActionsPost**](docs/HumanTasksApi.md#actonhumantaskapiv1humantaskshumantaskidactionspost) | **POST** /api/v1/human-tasks/{human_task_id}/actions | Act On Human Task
+*HumanTasksApi* | [**listHumanTaskNotificationsApiV1HumanTaskNotificationsGet**](docs/HumanTasksApi.md#listhumantasknotificationsapiv1humantasknotificationsget) | **GET** /api/v1/human-task-notifications | List Human Task Notifications
+*HumanTasksApi* | [**listHumanTasksApiV1HumanTasksGet**](docs/HumanTasksApi.md#listhumantasksapiv1humantasksget) | **GET** /api/v1/human-tasks | List Human Tasks
 *NamespaceResourcesApi* | [**deleteNamespaceFileApiV1NamespacesNamespaceFilesPathDelete**](docs/NamespaceResourcesApi.md#deletenamespacefileapiv1namespacesnamespacefilespathdelete) | **DELETE** /api/v1/namespaces/{namespace}/files/{path} | Delete Namespace File
 *NamespaceResourcesApi* | [**deleteNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyDelete**](docs/NamespaceResourcesApi.md#deletenamespacekeyvalueapiv1namespacesnamespacekeyvalueskeydelete) | **DELETE** /api/v1/namespaces/{namespace}/key-values/{key} | Delete Namespace Key Value
 *NamespaceResourcesApi* | [**deleteNamespaceSecretBindingApiV1NamespacesNamespaceSecretBindingsKeyDelete**](docs/NamespaceResourcesApi.md#deletenamespacesecretbindingapiv1namespacesnamespacesecretbindingskeydelete) | **DELETE** /api/v1/namespaces/{namespace}/secret-bindings/{key} | Delete Namespace Secret Binding
@@ -281,6 +288,7 @@ All URIs are relative to *http://localhost*
 - [AdmissionOutcome](docs/AdmissionOutcome.md)
 - [AdmissionResourceType](docs/AdmissionResourceType.md)
 - [AdmissionScope](docs/AdmissionScope.md)
+- [AppForm](docs/AppForm.md)
 - [AssetAccessMode](docs/AssetAccessMode.md)
 - [AssetCatalogEntry](docs/AssetCatalogEntry.md)
 - [AssetCatalogExport](docs/AssetCatalogExport.md)
@@ -401,9 +409,17 @@ All URIs are relative to *http://localhost*
 - [FlowRevisionRecord](docs/FlowRevisionRecord.md)
 - [FlowRevisionRestoreRequest](docs/FlowRevisionRestoreRequest.md)
 - [FlowValidationResult](docs/FlowValidationResult.md)
+- [FormField](docs/FormField.md)
+- [FormSection](docs/FormSection.md)
 - [Gte](docs/Gte.md)
 - [HTTPValidationError](docs/HTTPValidationError.md)
 - [HealthResponse](docs/HealthResponse.md)
+- [HumanTask](docs/HumanTask.md)
+- [HumanTaskAction](docs/HumanTaskAction.md)
+- [HumanTaskActionKind](docs/HumanTaskActionKind.md)
+- [HumanTaskActionRequest](docs/HumanTaskActionRequest.md)
+- [HumanTaskNotification](docs/HumanTaskNotification.md)
+- [HumanTaskState](docs/HumanTaskState.md)
 - [IsolatedPluginRuntimeSnapshot](docs/IsolatedPluginRuntimeSnapshot.md)
 - [IsolatedPluginRuntimeStatus](docs/IsolatedPluginRuntimeStatus.md)
 - [IsolatedPluginState](docs/IsolatedPluginState.md)
@@ -599,6 +615,9 @@ All URIs are relative to *http://localhost*
 - [WorkerInventory](docs/WorkerInventory.md)
 - [WorkerLiveness](docs/WorkerLiveness.md)
 - [WorkerStatus](docs/WorkerStatus.md)
+- [WorkflowApp](docs/WorkflowApp.md)
+- [WorkflowAppLaunchRequest](docs/WorkflowAppLaunchRequest.md)
+- [WorkflowAppUpsertRequest](docs/WorkflowAppUpsertRequest.md)
 - [WorkflowMetadataPolicy](docs/WorkflowMetadataPolicy.md)
 
 ### Authorization

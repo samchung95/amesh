@@ -544,6 +544,58 @@ def _core_descriptors() -> tuple[ResourceSchemaDescriptor, ...]:
             property_order=("seconds",),
         ),
         _descriptor(
+            "core.approval",
+            ResourceKind.TASK,
+            _object_schema(
+                {
+                    "title": {"type": "string", "minLength": 1, "maxLength": 256},
+                    "description": {"type": "string", "maxLength": 4096},
+                    "form": {"type": "object"},
+                    "assigneeIds": {
+                        "type": "array",
+                        "uniqueItems": True,
+                        "items": {"type": "string", "format": "uuid"},
+                    },
+                    "groupIds": {
+                        "type": "array",
+                        "uniqueItems": True,
+                        "items": {"type": "string", "format": "uuid"},
+                    },
+                    "deadlineAt": {"type": "string", "format": "date-time"},
+                    "deadlineSeconds": {
+                        "type": "number",
+                        "exclusiveMinimum": 0,
+                        "maximum": 31_536_000,
+                    },
+                    "escalationAssigneeIds": {
+                        "type": "array",
+                        "uniqueItems": True,
+                        "items": {"type": "string", "format": "uuid"},
+                    },
+                    "escalationGroupIds": {
+                        "type": "array",
+                        "uniqueItems": True,
+                        "items": {"type": "string", "format": "uuid"},
+                    },
+                },
+                any_of=({"required": ["assigneeIds"]}, {"required": ["groupIds"]}),
+            ),
+            title="Human approval",
+            description="Pause durably until an assigned participant records a decision.",
+            category="Core",
+            property_order=(
+                "title",
+                "description",
+                "form",
+                "assigneeIds",
+                "groupIds",
+                "deadlineAt",
+                "deadlineSeconds",
+                "escalationAssigneeIds",
+                "escalationGroupIds",
+            ),
+        ),
+        _descriptor(
             "core.fail",
             ResourceKind.TASK,
             _object_schema({"message": {"type": "string", "minLength": 1}}),

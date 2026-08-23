@@ -9,6 +9,7 @@ from .durable_transport import PostgresDurableTransport
 from .execution_repository import PostgresExecutionRepository
 from .feature_flags import PostgresFeatureFlagRepository
 from .federation_repository import PostgresFederationRepository
+from .human_task_repository import PostgresHumanTaskRepository
 from .metadata_repository import PostgresMetadataRepository
 from .operations_repository import (
     BackupCheckpoint,
@@ -41,6 +42,7 @@ __all__ = [
     "PostgresExecutionRepository",
     "PostgresFeatureFlagRepository",
     "PostgresFederationRepository",
+    "PostgresHumanTaskRepository",
     "PostgresMetadataRepository",
     "PostgresOperationsRepository",
     "PostgresPluginPolicyRepository",

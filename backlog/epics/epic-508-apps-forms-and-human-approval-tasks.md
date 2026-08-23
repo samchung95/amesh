@@ -12,14 +12,18 @@ Build governed human-in-the-loop experiences on top of durable workflows.
 
 ## In scope
 
-- [ ] **URS-F-0558** — The system shall define versioned apps with forms, validation, display, permissions and flow launch behavior.
-- [ ] **URS-F-0559** — The system shall generate forms from flow inputs while allowing explicit layout and help text.
-- [ ] **URS-F-0560** — The system shall create durable approval tasks with assignees, groups, deadlines, escalation and delegation.
-- [ ] **URS-F-0561** — The system shall support approve, reject, request changes, comment and attach artifact actions.
-- [ ] **URS-F-0562** — The system shall resume waiting workflows exactly once after an authorized decision.
-- [ ] **URS-F-0563** — The system shall record decision identity, time, reason and form values in audit and execution history.
-- [ ] **URS-F-0564** — The system shall notify participants without exposing inaccessible execution data.
-- [ ] **URS-F-0565** — The system shall provide embeddable or linkable app views protected by the same authorization model.
+- [x] **URS-F-0558** — The system shall define versioned apps with forms, validation, display, permissions and flow launch behavior.
+- [x] **URS-F-0559** — The system shall generate forms from flow inputs while allowing explicit layout and help text.
+- [x] **URS-F-0560** — The system shall create durable approval tasks with assignees, groups, deadlines, escalation and delegation.
+- [x] **URS-F-0561** — The system shall support approve, reject, request changes, comment and attach artifact actions.
+- [x] **URS-F-0562** — The system shall resume waiting workflows exactly once after an authorized decision.
+- [x] **URS-F-0563** — The system shall record decision identity, time, reason and form values in audit and execution history.
+- [x] **URS-F-0564** — The system shall notify participants without exposing inaccessible execution data.
+- [x] **URS-F-0565** — The system shall provide embeddable or linkable app views protected by the same authorization model.
+
+## Implementation completion evidence
+
+- 2026-08-23 — EPIC-508 is complete. Migration 0049 adds immutable workflow-app revisions and tenant-isolated durable human tasks, actions, notifications and resume state. App forms are generated from pinned flow inputs with optional explicit layout and help, and launch validation rejects missing or unknown values. Approval tasks support users, groups, deadlines, escalation, delegation, comments, attachments and terminal decisions; a server-derived token and persisted pending-resume state make workflow continuation idempotent across retries. Decision evidence records the actor, time, reason and submitted values, while notification payloads omit execution data and form values. The Apps UI provides authorized catalog, launch, direct-link, shell-free embed and approval-inbox views. Evidence: [`workflow-apps-and-human-tasks.md`](../../docs/api/workflow-apps-and-human-tasks.md), [`0049_workflow_apps_human_tasks.sql`](../../migrations/0049_workflow_apps_human_tasks.sql), [`test_workflow_apps_human_tasks.py`](../../tests/adapters/postgres/test_workflow_apps_human_tasks.py), [`test_apps_human_tasks_api.py`](../../tests/api/test_apps_human_tasks_api.py), and [`apps.spec.ts`](../../frontend/e2e/apps.spec.ts).
 
 ## Non-functional requirements
 
@@ -46,13 +50,13 @@ Build governed human-in-the-loop experiences on top of durable workflows.
 
 ## Definition of done
 
-- [ ] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
-- [ ] Public API, DSL, event and plugin contract changes pass compatibility checks.
-- [ ] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
-- [ ] Security, tenant isolation, redaction and audit behavior are reviewed.
-- [ ] Documentation, examples, migration notes and operational runbooks are updated.
-- [ ] Performance and recovery budgets are measured when this epic is on a critical path.
-- [ ] `python scripts/validate_backlog.py` passes.
+- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
+- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.
+- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
+- [x] Security, tenant isolation, redaction and audit behavior are reviewed.
+- [x] Documentation, examples, migration notes and operational runbooks are updated.
+- [x] Performance and recovery budgets are measured when this epic is on a critical path.
+- [x] `python scripts/validate_backlog.py` passes.
 
 ## Risks and unknowns
 

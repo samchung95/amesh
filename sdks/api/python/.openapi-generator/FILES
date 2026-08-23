@@ -7,6 +7,7 @@ README.md
 amesh_client/__init__.py
 amesh_client/api/__init__.py
 amesh_client/api/administration_api.py
+amesh_client/api/apps_api.py
 amesh_client/api/assets_api.py
 amesh_client/api/audit_api.py
 amesh_client/api/authentication_api.py
@@ -19,6 +20,7 @@ amesh_client/api/credentials_api.py
 amesh_client/api/dashboards_api.py
 amesh_client/api/executions_api.py
 amesh_client/api/flows_api.py
+amesh_client/api/human_tasks_api.py
 amesh_client/api/namespace_resources_api.py
 amesh_client/api/namespaces_api.py
 amesh_client/api/operations_api.py
@@ -49,6 +51,7 @@ amesh_client/models/admission_diagnostics.py
 amesh_client/models/admission_outcome.py
 amesh_client/models/admission_resource_type.py
 amesh_client/models/admission_scope.py
+amesh_client/models/app_form.py
 amesh_client/models/asset_access_mode.py
 amesh_client/models/asset_catalog_entry.py
 amesh_client/models/asset_catalog_export.py
@@ -169,9 +172,17 @@ amesh_client/models/flow_revision_lifecycle_request.py
 amesh_client/models/flow_revision_record.py
 amesh_client/models/flow_revision_restore_request.py
 amesh_client/models/flow_validation_result.py
+amesh_client/models/form_field.py
+amesh_client/models/form_section.py
 amesh_client/models/gte.py
 amesh_client/models/health_response.py
 amesh_client/models/http_validation_error.py
+amesh_client/models/human_task.py
+amesh_client/models/human_task_action.py
+amesh_client/models/human_task_action_kind.py
+amesh_client/models/human_task_action_request.py
+amesh_client/models/human_task_notification.py
+amesh_client/models/human_task_state.py
 amesh_client/models/isolated_plugin_runtime_snapshot.py
 amesh_client/models/isolated_plugin_runtime_status.py
 amesh_client/models/isolated_plugin_state.py
@@ -367,10 +378,14 @@ amesh_client/models/worker_compatibility.py
 amesh_client/models/worker_inventory.py
 amesh_client/models/worker_liveness.py
 amesh_client/models/worker_status.py
+amesh_client/models/workflow_app.py
+amesh_client/models/workflow_app_launch_request.py
+amesh_client/models/workflow_app_upsert_request.py
 amesh_client/models/workflow_metadata_policy.py
 amesh_client/py.typed
 amesh_client/rest.py
 docs/AdministrationApi.md
+docs/AppsApi.md
 docs/AssetsApi.md
 docs/AuditApi.md
 docs/AuthenticationApi.md
@@ -383,6 +398,7 @@ docs/CredentialsApi.md
 docs/DashboardsApi.md
 docs/ExecutionsApi.md
 docs/FlowsApi.md
+docs/HumanTasksApi.md
 docs/NamespaceResourcesApi.md
 docs/NamespacesApi.md
 docs/OperationsApi.md

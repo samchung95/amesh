@@ -7,6 +7,11 @@ export type Capability =
   | 'executions.view'
   | 'executions.execute'
   | 'executions.manage'
+  | 'apps.view'
+  | 'apps.manage'
+  | 'apps.execute'
+  | 'humanTasks.view'
+  | 'humanTasks.update'
   | 'dashboards.view'
   | 'dashboards.manage'
   | 'search.view'
@@ -31,6 +36,95 @@ export interface UiSession {
   capabilities: Record<Capability, boolean>
   telemetryEnabled: boolean
   serverVersion: string
+}
+
+export interface AppFormField {
+  id: string
+  type: string
+  label: string
+  helpText: string
+  required: boolean
+  sensitive: boolean
+  placeholder: string | null
+  default: unknown
+  options: unknown[]
+  validation: Record<string, unknown>
+  schema: Record<string, unknown>
+}
+
+export interface AppFormSection {
+  title: string
+  helpText: string
+  columns: number
+  fields: string[]
+}
+
+export interface AppForm {
+  fields: AppFormField[]
+  layout: AppFormSection[]
+}
+
+export interface WorkflowApp {
+  namespace: string
+  appId: string
+  title: string
+  description: string
+  flowId: string
+  flowRevision: number
+  form: AppForm
+  embedEnabled: boolean
+  launchLabel: string
+  revision: number
+  resourceVersion: number
+  createdBy: string
+  createdAt: string
+}
+
+export type HumanTaskState = 'OPEN' | 'ESCALATED' | 'APPROVED' | 'REJECTED' | 'CHANGES_REQUESTED'
+export type HumanTaskActionKind = 'APPROVE' | 'REJECT' | 'REQUEST_CHANGES' | 'COMMENT' | 'ATTACH' | 'DELEGATE' | 'ESCALATE'
+
+export interface HumanTaskAction {
+  actionId: string
+  action: HumanTaskActionKind
+  actorId: string | null
+  reason: string
+  formValues: Record<string, unknown>
+  comment: string
+  artifactUri: string | null
+  occurredAt: string
+}
+
+export interface HumanTask {
+  humanTaskId: string
+  namespace: string
+  executionId: string
+  taskRunId: string
+  attempt: number
+  title: string
+  description: string
+  form: AppForm
+  assigneeIds: string[]
+  groupIds: string[]
+  deadlineAt: string | null
+  state: HumanTaskState
+  version: number
+  createdAt: string
+  decidedBy: string | null
+  decidedAt: string | null
+  reason: string
+  formValues: Record<string, unknown>
+  actions: HumanTaskAction[]
+}
+
+export interface HumanTaskNotification {
+  notificationId: string
+  humanTaskId: string
+  kind: string
+  title: string
+  message: string
+  deadlineAt: string | null
+  createdAt: string
+  readAt: string | null
 }
 
 export type AssetAccessMode = 'READ' | 'WRITE'

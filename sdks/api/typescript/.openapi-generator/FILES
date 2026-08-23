@@ -3,6 +3,7 @@
 .openapi-generator-ignore
 README.md
 docs/AdministrationApi.md
+docs/AppsApi.md
 docs/AssetsApi.md
 docs/AuditApi.md
 docs/AuthenticationApi.md
@@ -15,6 +16,7 @@ docs/CredentialsApi.md
 docs/DashboardsApi.md
 docs/ExecutionsApi.md
 docs/FlowsApi.md
+docs/HumanTasksApi.md
 docs/NamespaceResourcesApi.md
 docs/NamespacesApi.md
 docs/OperationsApi.md
@@ -30,6 +32,7 @@ docs/UiApi.md
 docs/WorkersApi.md
 package.json
 src/apis/AdministrationApi.ts
+src/apis/AppsApi.ts
 src/apis/AssetsApi.ts
 src/apis/AuditApi.ts
 src/apis/AuthenticationApi.ts
@@ -42,6 +45,7 @@ src/apis/CredentialsApi.ts
 src/apis/DashboardsApi.ts
 src/apis/ExecutionsApi.ts
 src/apis/FlowsApi.ts
+src/apis/HumanTasksApi.ts
 src/apis/NamespaceResourcesApi.ts
 src/apis/NamespacesApi.ts
 src/apis/OperationsApi.ts
@@ -69,6 +73,7 @@ src/models/AdmissionDiagnostics.ts
 src/models/AdmissionOutcome.ts
 src/models/AdmissionResourceType.ts
 src/models/AdmissionScope.ts
+src/models/AppForm.ts
 src/models/AssetAccessMode.ts
 src/models/AssetCatalogEntry.ts
 src/models/AssetCatalogExport.ts
@@ -189,9 +194,17 @@ src/models/FlowRevisionLifecycleRequest.ts
 src/models/FlowRevisionRecord.ts
 src/models/FlowRevisionRestoreRequest.ts
 src/models/FlowValidationResult.ts
+src/models/FormField.ts
+src/models/FormSection.ts
 src/models/Gte.ts
 src/models/HTTPValidationError.ts
 src/models/HealthResponse.ts
+src/models/HumanTask.ts
+src/models/HumanTaskAction.ts
+src/models/HumanTaskActionKind.ts
+src/models/HumanTaskActionRequest.ts
+src/models/HumanTaskNotification.ts
+src/models/HumanTaskState.ts
 src/models/IsolatedPluginRuntimeSnapshot.ts
 src/models/IsolatedPluginRuntimeStatus.ts
 src/models/IsolatedPluginState.ts
@@ -387,6 +400,9 @@ src/models/WorkerCompatibility.ts
 src/models/WorkerInventory.ts
 src/models/WorkerLiveness.ts
 src/models/WorkerStatus.ts
+src/models/WorkflowApp.ts
+src/models/WorkflowAppLaunchRequest.ts
+src/models/WorkflowAppUpsertRequest.ts
 src/models/WorkflowMetadataPolicy.ts
 src/models/index.ts
 src/runtime.ts

@@ -16,6 +16,7 @@ from amesh.adapters.postgres import (
     PostgresBackfillRepository,
     PostgresCheckRepository,
     PostgresExecutionRepository,
+    PostgresHumanTaskRepository,
     PostgresPluginPolicyRepository,
     PostgresReconciliationRepository,
     PostgresSchedulerRepository,
@@ -44,6 +45,7 @@ from amesh.executor import (
     required_runner_ids,
     selecting_runner_handler,
 )
+from amesh.human_tasks import HumanTaskService, approval_task_handler
 from amesh.observability import configure_structured_logging
 from amesh.plugins import (
     IsolatedPluginRuntime,
@@ -280,6 +282,7 @@ async def recover_once(
     tenant_ids: Sequence[str],
     task_cache: TaskCacheRepository | None = None,
     shared_resources: PostgresSharedResourceRepository | None = None,
+    human_tasks: PostgresHumanTaskRepository | None = None,
     trusted_runtime: TrustedPluginRuntime | None = None,
     isolated_runtime: IsolatedPluginRuntime | None = None,
 ) -> int:
@@ -368,6 +371,12 @@ async def recover_once(
                 **core_utility_handlers(workspace_manager, http_policy=http_policy),
                 **script_task_handlers(shell_handler, settings.script_task_policy),
             }
+            if human_tasks is not None:
+                handlers["core.approval"] = approval_task_handler(
+                    human_tasks,
+                    repository,
+                    token_pepper=settings.amesh_token_pepper.get_secret_value(),
+                )
             if settings.trusted_plugin_approvals or settings.isolated_plugin_services:
                 revisions = await repository.list_flow_revisions(
                     execution.namespace,
@@ -516,6 +525,12 @@ async def run_worker(settings: Settings) -> None:
     backfill_repository = PostgresBackfillRepository(engine)
     reconciliation_repository = PostgresReconciliationRepository(engine)
     shared_resources = PostgresSharedResourceRepository(engine)
+    human_tasks = PostgresHumanTaskRepository(engine)
+    human_task_service = HumanTaskService(
+        human_tasks,
+        repository,
+        token_pepper=settings.amesh_token_pepper.get_secret_value(),
+    )
     tenant_repository = PostgresTenantRepository(engine)
     next_reconciliation_at = 0.0
     trusted_runtime = build_trusted_runtime(settings, plugin_catalog)
@@ -556,9 +571,12 @@ async def run_worker(settings: Settings) -> None:
                     settings,
                     tenant_ids=tenant_ids,
                     shared_resources=shared_resources,
+                    human_tasks=human_tasks,
                     trusted_runtime=trusted_runtime,
                     isolated_runtime=isolated_runtime,
                 )
+                for tenant_id in tenant_ids:
+                    await human_task_service.reconcile(tenant_id=tenant_id)
                 current_time = monotonic()
                 if current_time >= next_reconciliation_at:
                     await reconcile_once(

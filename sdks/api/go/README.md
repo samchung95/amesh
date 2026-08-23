@@ -75,6 +75,10 @@ Class | Method | HTTP request | Description
 *AdministrationAPI* | [**ListAdministrationAuditApiV1AdminAuditGet**](docs/AdministrationAPI.md#listadministrationauditapiv1adminauditget) | **Get** /api/v1/admin/audit | List Administration Audit
 *AdministrationAPI* | [**ListAdministrationControlsApiV1AdminControlsGet**](docs/AdministrationAPI.md#listadministrationcontrolsapiv1admincontrolsget) | **Get** /api/v1/admin/controls | List Administration Controls
 *AdministrationAPI* | [**PreviewAdministrationControlApiV1AdminControlsPreviewPost**](docs/AdministrationAPI.md#previewadministrationcontrolapiv1admincontrolspreviewpost) | **Post** /api/v1/admin/controls/preview | Preview Administration Control
+*AppsAPI* | [**GetWorkflowAppApiV1AppsNamespaceAppIdGet**](docs/AppsAPI.md#getworkflowappapiv1appsnamespaceappidget) | **Get** /api/v1/apps/{namespace}/{app_id} | Get Workflow App
+*AppsAPI* | [**LaunchWorkflowAppApiV1AppsNamespaceAppIdLaunchPost**](docs/AppsAPI.md#launchworkflowappapiv1appsnamespaceappidlaunchpost) | **Post** /api/v1/apps/{namespace}/{app_id}/launch | Launch Workflow App
+*AppsAPI* | [**ListWorkflowAppsApiV1AppsGet**](docs/AppsAPI.md#listworkflowappsapiv1appsget) | **Get** /api/v1/apps | List Workflow Apps
+*AppsAPI* | [**UpsertWorkflowAppApiV1AppsNamespaceAppIdPut**](docs/AppsAPI.md#upsertworkflowappapiv1appsnamespaceappidput) | **Put** /api/v1/apps/{namespace}/{app_id} | Upsert Workflow App
 *AssetsAPI* | [**DeclareAssetLineageApiV1AssetsLineagePost**](docs/AssetsAPI.md#declareassetlineageapiv1assetslineagepost) | **Post** /api/v1/assets/lineage | Declare Asset Lineage
 *AssetsAPI* | [**ExportAssetCatalogApiV1AssetsExportOpenlineageGet**](docs/AssetsAPI.md#exportassetcatalogapiv1assetsexportopenlineageget) | **Get** /api/v1/assets/export/openlineage | Export Asset Catalog
 *AssetsAPI* | [**GetAssetCatalogEntryApiV1AssetsAssetIdGet**](docs/AssetsAPI.md#getassetcatalogentryapiv1assetsassetidget) | **Get** /api/v1/assets/{asset_id} | Get Asset Catalog Entry
@@ -187,6 +191,9 @@ Class | Method | HTTP request | Description
 *FlowsAPI* | [**PromoteFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionLifecyclePut**](docs/FlowsAPI.md#promoteflowrevisionapiv1flowsnamespaceflowidrevisionsrevisionlifecycleput) | **Put** /api/v1/flows/{namespace}/{flow_id}/revisions/{revision}/lifecycle | Promote Flow Revision
 *FlowsAPI* | [**RestoreFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionRestorePost**](docs/FlowsAPI.md#restoreflowrevisionapiv1flowsnamespaceflowidrevisionsrevisionrestorepost) | **Post** /api/v1/flows/{namespace}/{flow_id}/revisions/{revision}/restore | Restore Flow Revision
 *FlowsAPI* | [**ValidateFlowApiV1FlowsValidatePost**](docs/FlowsAPI.md#validateflowapiv1flowsvalidatepost) | **Post** /api/v1/flows/validate | Validate Flow
+*HumanTasksAPI* | [**ActOnHumanTaskApiV1HumanTasksHumanTaskIdActionsPost**](docs/HumanTasksAPI.md#actonhumantaskapiv1humantaskshumantaskidactionspost) | **Post** /api/v1/human-tasks/{human_task_id}/actions | Act On Human Task
+*HumanTasksAPI* | [**ListHumanTaskNotificationsApiV1HumanTaskNotificationsGet**](docs/HumanTasksAPI.md#listhumantasknotificationsapiv1humantasknotificationsget) | **Get** /api/v1/human-task-notifications | List Human Task Notifications
+*HumanTasksAPI* | [**ListHumanTasksApiV1HumanTasksGet**](docs/HumanTasksAPI.md#listhumantasksapiv1humantasksget) | **Get** /api/v1/human-tasks | List Human Tasks
 *NamespaceResourcesAPI* | [**DeleteNamespaceFileApiV1NamespacesNamespaceFilesPathDelete**](docs/NamespaceResourcesAPI.md#deletenamespacefileapiv1namespacesnamespacefilespathdelete) | **Delete** /api/v1/namespaces/{namespace}/files/{path} | Delete Namespace File
 *NamespaceResourcesAPI* | [**DeleteNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyDelete**](docs/NamespaceResourcesAPI.md#deletenamespacekeyvalueapiv1namespacesnamespacekeyvalueskeydelete) | **Delete** /api/v1/namespaces/{namespace}/key-values/{key} | Delete Namespace Key Value
 *NamespaceResourcesAPI* | [**DeleteNamespaceSecretBindingApiV1NamespacesNamespaceSecretBindingsKeyDelete**](docs/NamespaceResourcesAPI.md#deletenamespacesecretbindingapiv1namespacesnamespacesecretbindingskeydelete) | **Delete** /api/v1/namespaces/{namespace}/secret-bindings/{key} | Delete Namespace Secret Binding
@@ -294,6 +301,7 @@ Class | Method | HTTP request | Description
  - [AdmissionOutcome](docs/AdmissionOutcome.md)
  - [AdmissionResourceType](docs/AdmissionResourceType.md)
  - [AdmissionScope](docs/AdmissionScope.md)
+ - [AppForm](docs/AppForm.md)
  - [AssetAccessMode](docs/AssetAccessMode.md)
  - [AssetCatalogEntry](docs/AssetCatalogEntry.md)
  - [AssetCatalogExport](docs/AssetCatalogExport.md)
@@ -414,9 +422,17 @@ Class | Method | HTTP request | Description
  - [FlowRevisionRecord](docs/FlowRevisionRecord.md)
  - [FlowRevisionRestoreRequest](docs/FlowRevisionRestoreRequest.md)
  - [FlowValidationResult](docs/FlowValidationResult.md)
+ - [FormField](docs/FormField.md)
+ - [FormSection](docs/FormSection.md)
  - [Gte](docs/Gte.md)
  - [HTTPValidationError](docs/HTTPValidationError.md)
  - [HealthResponse](docs/HealthResponse.md)
+ - [HumanTask](docs/HumanTask.md)
+ - [HumanTaskAction](docs/HumanTaskAction.md)
+ - [HumanTaskActionKind](docs/HumanTaskActionKind.md)
+ - [HumanTaskActionRequest](docs/HumanTaskActionRequest.md)
+ - [HumanTaskNotification](docs/HumanTaskNotification.md)
+ - [HumanTaskState](docs/HumanTaskState.md)
  - [IsolatedPluginRuntimeSnapshot](docs/IsolatedPluginRuntimeSnapshot.md)
  - [IsolatedPluginRuntimeStatus](docs/IsolatedPluginRuntimeStatus.md)
  - [IsolatedPluginState](docs/IsolatedPluginState.md)
@@ -612,6 +628,9 @@ Class | Method | HTTP request | Description
  - [WorkerInventory](docs/WorkerInventory.md)
  - [WorkerLiveness](docs/WorkerLiveness.md)
  - [WorkerStatus](docs/WorkerStatus.md)
+ - [WorkflowApp](docs/WorkflowApp.md)
+ - [WorkflowAppLaunchRequest](docs/WorkflowAppLaunchRequest.md)
+ - [WorkflowAppUpsertRequest](docs/WorkflowAppUpsertRequest.md)
  - [WorkflowMetadataPolicy](docs/WorkflowMetadataPolicy.md)
 
 

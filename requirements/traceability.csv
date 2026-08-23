@@ -556,14 +556,14 @@ URS-F-0554,Functional,Must,EPIC-507,"Assets, lineage and catalog",M5,5,"Authoriz
 URS-F-0555,Functional,Must,EPIC-507,"Assets, lineage and catalog",M5,5,"Authorization, audit and administrative end-to-end tests",Verified
 URS-F-0556,Functional,Must,EPIC-507,"Assets, lineage and catalog",M5,5,"Authorization, audit and administrative end-to-end tests",Verified
 URS-F-0557,Functional,Must,EPIC-507,"Assets, lineage and catalog",M5,5,"Authorization, audit and administrative end-to-end tests",Verified
-URS-F-0558,Functional,Must,EPIC-508,"Apps, forms and human approval tasks",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
-URS-F-0559,Functional,Must,EPIC-508,"Apps, forms and human approval tasks",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
-URS-F-0560,Functional,Must,EPIC-508,"Apps, forms and human approval tasks",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
-URS-F-0561,Functional,Must,EPIC-508,"Apps, forms and human approval tasks",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
-URS-F-0562,Functional,Must,EPIC-508,"Apps, forms and human approval tasks",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
-URS-F-0563,Functional,Must,EPIC-508,"Apps, forms and human approval tasks",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
-URS-F-0564,Functional,Must,EPIC-508,"Apps, forms and human approval tasks",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
-URS-F-0565,Functional,Must,EPIC-508,"Apps, forms and human approval tasks",M5,5,"Authorization, audit and administrative end-to-end tests",Proposed
+URS-F-0558,Functional,Must,EPIC-508,"Apps, forms and human approval tasks",M5,5,"Authorization, audit and administrative end-to-end tests",Verified
+URS-F-0559,Functional,Must,EPIC-508,"Apps, forms and human approval tasks",M5,5,"Authorization, audit and administrative end-to-end tests",Verified
+URS-F-0560,Functional,Must,EPIC-508,"Apps, forms and human approval tasks",M5,5,"Authorization, audit and administrative end-to-end tests",Verified
+URS-F-0561,Functional,Must,EPIC-508,"Apps, forms and human approval tasks",M5,5,"Authorization, audit and administrative end-to-end tests",Verified
+URS-F-0562,Functional,Must,EPIC-508,"Apps, forms and human approval tasks",M5,5,"Authorization, audit and administrative end-to-end tests",Verified
+URS-F-0563,Functional,Must,EPIC-508,"Apps, forms and human approval tasks",M5,5,"Authorization, audit and administrative end-to-end tests",Verified
+URS-F-0564,Functional,Must,EPIC-508,"Apps, forms and human approval tasks",M5,5,"Authorization, audit and administrative end-to-end tests",Verified
+URS-F-0565,Functional,Must,EPIC-508,"Apps, forms and human approval tasks",M5,5,"Authorization, audit and administrative end-to-end tests",Verified
 URS-F-0566,Functional,Must,EPIC-509,"Announcements, maintenance mode and kill switch",M5,5,"Reference deployment, upgrade and failure-recovery tests",Proposed
 URS-F-0567,Functional,Must,EPIC-509,"Announcements, maintenance mode and kill switch",M5,5,"Reference deployment, upgrade and failure-recovery tests",Proposed
 URS-F-0568,Functional,Must,EPIC-509,"Announcements, maintenance mode and kill switch",M5,5,"Reference deployment, upgrade and failure-recovery tests",Proposed

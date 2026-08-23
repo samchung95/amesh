@@ -181,6 +181,11 @@ link READ/WRITE evidence to flows, executions, task runs and artifacts; declared
 inferred asset edges retain confidence and provenance. The migration is additive; pause catalog
 writes during a forward fix while preserving existing asset and execution history.
 
+Migration `0049_workflow_apps_human_tasks.sql` adds immutable, flow-revision-pinned workflow-app
+revisions plus durable participant-scoped approval tasks, actions and redacted notifications. Human
+decisions enter a pending-resume state before the existing idempotent task-deferral contract resumes
+execution, so worker reconciliation can finish safely after a process interruption.
+
 ## Migration modes
 
 - `bootstrap` creates the initial schema and is only safe for an empty database.

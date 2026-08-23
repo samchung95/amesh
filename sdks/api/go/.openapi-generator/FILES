@@ -4,6 +4,7 @@
 README.md
 api/openapi.yaml
 api_administration.go
+api_apps.go
 api_assets.go
 api_audit.go
 api_authentication.go
@@ -16,6 +17,7 @@ api_credentials.go
 api_dashboards.go
 api_executions.go
 api_flows.go
+api_human_tasks.go
 api_namespace_resources.go
 api_namespaces.go
 api_operations.go
@@ -32,6 +34,7 @@ api_workers.go
 client.go
 configuration.go
 docs/AdministrationAPI.md
+docs/AppsAPI.md
 docs/AssetsAPI.md
 docs/AuditAPI.md
 docs/AuthenticationAPI.md
@@ -44,6 +47,7 @@ docs/CredentialsAPI.md
 docs/DashboardsAPI.md
 docs/ExecutionsAPI.md
 docs/FlowsAPI.md
+docs/HumanTasksAPI.md
 docs/NamespaceResourcesAPI.md
 docs/NamespacesAPI.md
 docs/OperationsAPI.md
@@ -72,6 +76,7 @@ model_admission_diagnostics.go
 model_admission_outcome.go
 model_admission_resource_type.go
 model_admission_scope.go
+model_app_form.go
 model_asset_access_mode.go
 model_asset_catalog_entry.go
 model_asset_catalog_export.go
@@ -192,9 +197,17 @@ model_flow_revision_lifecycle_request.go
 model_flow_revision_record.go
 model_flow_revision_restore_request.go
 model_flow_validation_result.go
+model_form_field.go
+model_form_section.go
 model_gte.go
 model_health_response.go
 model_http_validation_error.go
+model_human_task.go
+model_human_task_action.go
+model_human_task_action_kind.go
+model_human_task_action_request.go
+model_human_task_notification.go
+model_human_task_state.go
 model_isolated_plugin_runtime_snapshot.go
 model_isolated_plugin_runtime_status.go
 model_isolated_plugin_state.go
@@ -390,6 +403,9 @@ model_worker_compatibility.go
 model_worker_inventory.go
 model_worker_liveness.go
 model_worker_status.go
+model_workflow_app.go
+model_workflow_app_launch_request.go
+model_workflow_app_upsert_request.go
 model_workflow_metadata_policy.go
 response.go
 utils.go

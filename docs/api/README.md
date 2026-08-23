@@ -57,5 +57,7 @@
   [plugin governance API](plugin-governance.md).
 - Declare or observe data and infrastructure assets, traverse permission-filtered lineage and export
   OpenLineage events through the [asset catalog and lineage API](asset-catalog-and-lineage.md).
+- Publish pinned workflow forms, launch them from authenticated links or embeds, and operate durable
+  participant approvals through the [workflow apps and human tasks API](workflow-apps-and-human-tasks.md).
 
 Future generated SDKs must consume the supported API contract, not internal Python classes.

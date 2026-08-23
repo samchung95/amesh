@@ -34,6 +34,9 @@ import type {
   FlowEditorSchema,
   FlowFormatResponse,
   FlowMetadata,
+  HumanTask,
+  HumanTaskActionKind,
+  HumanTaskNotification,
   AuthenticationProvider,
   ConfigurationSnapshot,
   CredentialMetadata,
@@ -75,6 +78,7 @@ import type {
   TriggerRuntimeState,
   UiSession,
   WorkerInventory,
+  WorkflowApp,
   IssuedCredential,
 } from './types'
 
@@ -192,6 +196,32 @@ export function createApiClient(connection: ApiConnection) {
       const suffix = params.size ? `?${params.toString()}` : ''
       return request<UiSession>(`/api/v1/ui/session${suffix}`)
     },
+    apps: async (namespace?: string) =>
+      request<WorkflowApp[]>(`/api/v1/apps${namespace ? `?namespace=${encodeURIComponent(namespace)}` : ''}`),
+    app: async (namespace: string, appId: string) =>
+      request<WorkflowApp>(`/api/v1/apps/${encodeURIComponent(namespace)}/${encodeURIComponent(appId)}`),
+    launchApp: async (namespace: string, appId: string, inputs: Record<string, unknown>) =>
+      request<ExecutionDetail>(`/api/v1/apps/${encodeURIComponent(namespace)}/${encodeURIComponent(appId)}/launch`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ inputs, idempotencyKey: crypto.randomUUID() }),
+      }),
+    humanTasks: async (namespace?: string, includeClosed = false) => {
+      const params = new URLSearchParams({ includeClosed: String(includeClosed) })
+      if (namespace) params.set('namespace', namespace)
+      return request<HumanTask[]>(`/api/v1/human-tasks?${params.toString()}`)
+    },
+    actOnHumanTask: async (
+      humanTaskId: string,
+      action: HumanTaskActionKind,
+      payload: { reason?: string; formValues?: Record<string, unknown>; comment?: string; artifactUri?: string },
+    ) => request<HumanTask>(`/api/v1/human-tasks/${encodeURIComponent(humanTaskId)}/actions`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action, idempotencyKey: crypto.randomUUID(), ...payload }),
+    }),
+    humanTaskNotifications: async () =>
+      request<HumanTaskNotification[]>('/api/v1/human-task-notifications'),
     assets: async (namespace?: string) =>
       request<AssetRecord[]>(`/api/v1/assets${namespace ? `?namespace=${encodeURIComponent(namespace)}` : ''}`),
     asset: async (assetId: string) =>

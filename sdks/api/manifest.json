@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "apiVersion": "0.2.0",
   "compatibleApiVersions": ">=0.2.0,<0.3.0",
-  "openapiSha256": "7ef83b6eac1ef4ea11f8b7001a472605bef0f503b3b2c10d65b5f9b9af8641d6",
+  "openapiSha256": "b63c706ea6cdd4708d2eb1b19f658edf164e38c364bb22f689897ed17952e15e",
   "generatorImage": "openapitools/openapi-generator-cli@sha256:5bf3dc75f764c584da8e3344c51b2f3f1e74703461d46a035b5ac1d31515cc88",
   "clients": [
     {

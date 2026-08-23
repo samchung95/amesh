@@ -1,5 +1,41 @@
 # Test Log
 
+## EPIC-508: Apps, forms and human approval tasks — 2026-08-23
+
+Spec source: Agent Hotel card `c72` and canonical `backlog/epics.json` EPIC-508 DoD.
+
+Verified with `uv`, Python 3.13, PostgreSQL 17, React/TypeScript, Chromium and Docker Compose:
+
+- [x] Migration `0049_workflow_apps_human_tasks.sql` applies to a fresh database and adds immutable
+  app revisions plus tenant-RLS-protected human-task, action and participant-notification ledgers.
+- [x] Apps pin a flow revision, retain optimistic resource versions, reload historical revisions and
+  generate controls from flow display, help, placeholder, default, values, validation and schema
+  metadata. Explicit layouts reject unknown fields or missing required inputs.
+- [x] `core.approval` durably defers execution without retaining a worker, accepts user/group
+  participants, deadlines and escalation participants, and creates its task idempotently across
+  executor recovery. Delegation, comment and artifact actions share the durable action ledger.
+- [x] Fresh-PostgreSQL coverage proved outsider filtering, deadline escalation, terminal decision
+  audit/evidence, process-safe pending resume and duplicate decision convergence to one successful
+  task result and one successful execution.
+- [x] Authorized API coverage created/listed/read immutable app revisions, generated an app form,
+  rejected a stale update, listed an assigned approval, approved it and proved participant notices do
+  not contain execution IDs or submitted form values.
+- [x] The Apps UI launches a dynamic form, operates the approval inbox and serves both direct and
+  shell-free embed links. Targeted Chromium acceptance and the production frontend build passed.
+- [x] Ruff passed on affected paths and strict mypy passed across 186 source files. Focused migration,
+  executor, worker, repository and API regression tests passed; generated OpenAPI and four SDKs are
+  current across 1,688 files.
+- [x] API, executor, scheduler and indexer images rebuilt successfully and are healthy. Live readiness
+  reports 49/49 with `0049_workflow_apps_human_tasks.sql`. A live sample app launched, exposed its
+  approval, recorded `APPROVED` and completed its execution `SUCCESS` with decision evidence.
+- [x] No LLM behavior was involved, so no billable OpenRouter call was required. Applicable LLM tests
+  remain pinned to `openai/gpt-5.6-luna`.
+
+Qualification boundary: app authoring is API-first in this epic; the graphical surface covers app
+launch, link/embed use and participant approval operations.
+
+Verdict: PASS — EPIC-508 functional requirements URS-F-0558 through URS-F-0565 are verified.
+
 ## EPIC-507: Assets, lineage and catalog — 2026-08-23
 
 Spec source: Agent Hotel card `c71` and canonical `backlog/epics.json` EPIC-507 DoD.

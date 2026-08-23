@@ -16108,7 +16108,7 @@
       "id": "URS-F-0558",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M5",
       "wave": 5,
       "epic_id": "EPIC-508",
@@ -16131,13 +16131,18 @@
         "EPIC-205",
         "EPIC-401",
         "EPIC-500"
+      ],
+      "evidence": [
+        "tests/adapters/postgres/test_workflow_apps_human_tasks.py::test_versioned_apps_and_durable_human_approval_resume_exactly_once",
+        "tests/api/test_apps_human_tasks_api.py::test_apps_and_human_task_api_expose_versioned_forms_and_decisions",
+        "frontend/e2e/apps.spec.ts::launches a versioned app and completes an approval"
       ]
     },
     {
       "id": "URS-F-0559",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M5",
       "wave": 5,
       "epic_id": "EPIC-508",
@@ -16160,13 +16165,18 @@
         "EPIC-205",
         "EPIC-401",
         "EPIC-500"
+      ],
+      "evidence": [
+        "tests/adapters/postgres/test_workflow_apps_human_tasks.py::test_versioned_apps_and_durable_human_approval_resume_exactly_once",
+        "tests/api/test_apps_human_tasks_api.py::test_apps_and_human_task_api_expose_versioned_forms_and_decisions",
+        "frontend/e2e/apps.spec.ts::launches a versioned app and completes an approval"
       ]
     },
     {
       "id": "URS-F-0560",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M5",
       "wave": 5,
       "epic_id": "EPIC-508",
@@ -16189,13 +16199,18 @@
         "EPIC-205",
         "EPIC-401",
         "EPIC-500"
+      ],
+      "evidence": [
+        "tests/adapters/postgres/test_workflow_apps_human_tasks.py::test_versioned_apps_and_durable_human_approval_resume_exactly_once",
+        "tests/api/test_apps_human_tasks_api.py::test_apps_and_human_task_api_expose_versioned_forms_and_decisions",
+        "frontend/e2e/apps.spec.ts::launches a versioned app and completes an approval"
       ]
     },
     {
       "id": "URS-F-0561",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M5",
       "wave": 5,
       "epic_id": "EPIC-508",
@@ -16218,13 +16233,18 @@
         "EPIC-205",
         "EPIC-401",
         "EPIC-500"
+      ],
+      "evidence": [
+        "tests/adapters/postgres/test_workflow_apps_human_tasks.py::test_versioned_apps_and_durable_human_approval_resume_exactly_once",
+        "tests/api/test_apps_human_tasks_api.py::test_apps_and_human_task_api_expose_versioned_forms_and_decisions",
+        "frontend/e2e/apps.spec.ts::launches a versioned app and completes an approval"
       ]
     },
     {
       "id": "URS-F-0562",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M5",
       "wave": 5,
       "epic_id": "EPIC-508",
@@ -16247,13 +16267,18 @@
         "EPIC-205",
         "EPIC-401",
         "EPIC-500"
+      ],
+      "evidence": [
+        "tests/adapters/postgres/test_workflow_apps_human_tasks.py::test_versioned_apps_and_durable_human_approval_resume_exactly_once",
+        "tests/api/test_apps_human_tasks_api.py::test_apps_and_human_task_api_expose_versioned_forms_and_decisions",
+        "frontend/e2e/apps.spec.ts::launches a versioned app and completes an approval"
       ]
     },
     {
       "id": "URS-F-0563",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M5",
       "wave": 5,
       "epic_id": "EPIC-508",
@@ -16276,13 +16301,18 @@
         "EPIC-205",
         "EPIC-401",
         "EPIC-500"
+      ],
+      "evidence": [
+        "tests/adapters/postgres/test_workflow_apps_human_tasks.py::test_versioned_apps_and_durable_human_approval_resume_exactly_once",
+        "tests/api/test_apps_human_tasks_api.py::test_apps_and_human_task_api_expose_versioned_forms_and_decisions",
+        "frontend/e2e/apps.spec.ts::launches a versioned app and completes an approval"
       ]
     },
     {
       "id": "URS-F-0564",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M5",
       "wave": 5,
       "epic_id": "EPIC-508",
@@ -16305,13 +16335,18 @@
         "EPIC-205",
         "EPIC-401",
         "EPIC-500"
+      ],
+      "evidence": [
+        "tests/adapters/postgres/test_workflow_apps_human_tasks.py::test_versioned_apps_and_durable_human_approval_resume_exactly_once",
+        "tests/api/test_apps_human_tasks_api.py::test_apps_and_human_task_api_expose_versioned_forms_and_decisions",
+        "frontend/e2e/apps.spec.ts::launches a versioned app and completes an approval"
       ]
     },
     {
       "id": "URS-F-0565",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M5",
       "wave": 5,
       "epic_id": "EPIC-508",
@@ -16334,6 +16369,11 @@
         "EPIC-205",
         "EPIC-401",
         "EPIC-500"
+      ],
+      "evidence": [
+        "tests/adapters/postgres/test_workflow_apps_human_tasks.py::test_versioned_apps_and_durable_human_approval_resume_exactly_once",
+        "tests/api/test_apps_human_tasks_api.py::test_apps_and_human_task_api_expose_versioned_forms_and_decisions",
+        "frontend/e2e/apps.spec.ts::launches a versioned app and completes an approval"
       ]
     },
     {

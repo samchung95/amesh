@@ -93,6 +93,10 @@ Class | Method | HTTP request | Description
 *AdministrationApi* | [**list_administration_audit_api_v1_admin_audit_get**](docs/AdministrationApi.md#list_administration_audit_api_v1_admin_audit_get) | **GET** /api/v1/admin/audit | List Administration Audit
 *AdministrationApi* | [**list_administration_controls_api_v1_admin_controls_get**](docs/AdministrationApi.md#list_administration_controls_api_v1_admin_controls_get) | **GET** /api/v1/admin/controls | List Administration Controls
 *AdministrationApi* | [**preview_administration_control_api_v1_admin_controls_preview_post**](docs/AdministrationApi.md#preview_administration_control_api_v1_admin_controls_preview_post) | **POST** /api/v1/admin/controls/preview | Preview Administration Control
+*AppsApi* | [**get_workflow_app_api_v1_apps_namespace_app_id_get**](docs/AppsApi.md#get_workflow_app_api_v1_apps_namespace_app_id_get) | **GET** /api/v1/apps/{namespace}/{app_id} | Get Workflow App
+*AppsApi* | [**launch_workflow_app_api_v1_apps_namespace_app_id_launch_post**](docs/AppsApi.md#launch_workflow_app_api_v1_apps_namespace_app_id_launch_post) | **POST** /api/v1/apps/{namespace}/{app_id}/launch | Launch Workflow App
+*AppsApi* | [**list_workflow_apps_api_v1_apps_get**](docs/AppsApi.md#list_workflow_apps_api_v1_apps_get) | **GET** /api/v1/apps | List Workflow Apps
+*AppsApi* | [**upsert_workflow_app_api_v1_apps_namespace_app_id_put**](docs/AppsApi.md#upsert_workflow_app_api_v1_apps_namespace_app_id_put) | **PUT** /api/v1/apps/{namespace}/{app_id} | Upsert Workflow App
 *AssetsApi* | [**declare_asset_lineage_api_v1_assets_lineage_post**](docs/AssetsApi.md#declare_asset_lineage_api_v1_assets_lineage_post) | **POST** /api/v1/assets/lineage | Declare Asset Lineage
 *AssetsApi* | [**export_asset_catalog_api_v1_assets_export_openlineage_get**](docs/AssetsApi.md#export_asset_catalog_api_v1_assets_export_openlineage_get) | **GET** /api/v1/assets/export/openlineage | Export Asset Catalog
 *AssetsApi* | [**get_asset_catalog_entry_api_v1_assets_asset_id_get**](docs/AssetsApi.md#get_asset_catalog_entry_api_v1_assets_asset_id_get) | **GET** /api/v1/assets/{asset_id} | Get Asset Catalog Entry
@@ -205,6 +209,9 @@ Class | Method | HTTP request | Description
 *FlowsApi* | [**promote_flow_revision_api_v1_flows_namespace_flow_id_revisions_revision_lifecycle_put**](docs/FlowsApi.md#promote_flow_revision_api_v1_flows_namespace_flow_id_revisions_revision_lifecycle_put) | **PUT** /api/v1/flows/{namespace}/{flow_id}/revisions/{revision}/lifecycle | Promote Flow Revision
 *FlowsApi* | [**restore_flow_revision_api_v1_flows_namespace_flow_id_revisions_revision_restore_post**](docs/FlowsApi.md#restore_flow_revision_api_v1_flows_namespace_flow_id_revisions_revision_restore_post) | **POST** /api/v1/flows/{namespace}/{flow_id}/revisions/{revision}/restore | Restore Flow Revision
 *FlowsApi* | [**validate_flow_api_v1_flows_validate_post**](docs/FlowsApi.md#validate_flow_api_v1_flows_validate_post) | **POST** /api/v1/flows/validate | Validate Flow
+*HumanTasksApi* | [**act_on_human_task_api_v1_human_tasks_human_task_id_actions_post**](docs/HumanTasksApi.md#act_on_human_task_api_v1_human_tasks_human_task_id_actions_post) | **POST** /api/v1/human-tasks/{human_task_id}/actions | Act On Human Task
+*HumanTasksApi* | [**list_human_task_notifications_api_v1_human_task_notifications_get**](docs/HumanTasksApi.md#list_human_task_notifications_api_v1_human_task_notifications_get) | **GET** /api/v1/human-task-notifications | List Human Task Notifications
+*HumanTasksApi* | [**list_human_tasks_api_v1_human_tasks_get**](docs/HumanTasksApi.md#list_human_tasks_api_v1_human_tasks_get) | **GET** /api/v1/human-tasks | List Human Tasks
 *NamespaceResourcesApi* | [**delete_namespace_file_api_v1_namespaces_namespace_files_path_delete**](docs/NamespaceResourcesApi.md#delete_namespace_file_api_v1_namespaces_namespace_files_path_delete) | **DELETE** /api/v1/namespaces/{namespace}/files/{path} | Delete Namespace File
 *NamespaceResourcesApi* | [**delete_namespace_key_value_api_v1_namespaces_namespace_key_values_key_delete**](docs/NamespaceResourcesApi.md#delete_namespace_key_value_api_v1_namespaces_namespace_key_values_key_delete) | **DELETE** /api/v1/namespaces/{namespace}/key-values/{key} | Delete Namespace Key Value
 *NamespaceResourcesApi* | [**delete_namespace_secret_binding_api_v1_namespaces_namespace_secret_bindings_key_delete**](docs/NamespaceResourcesApi.md#delete_namespace_secret_binding_api_v1_namespaces_namespace_secret_bindings_key_delete) | **DELETE** /api/v1/namespaces/{namespace}/secret-bindings/{key} | Delete Namespace Secret Binding
@@ -312,6 +319,7 @@ Class | Method | HTTP request | Description
  - [AdmissionOutcome](docs/AdmissionOutcome.md)
  - [AdmissionResourceType](docs/AdmissionResourceType.md)
  - [AdmissionScope](docs/AdmissionScope.md)
+ - [AppForm](docs/AppForm.md)
  - [AssetAccessMode](docs/AssetAccessMode.md)
  - [AssetCatalogEntry](docs/AssetCatalogEntry.md)
  - [AssetCatalogExport](docs/AssetCatalogExport.md)
@@ -432,9 +440,17 @@ Class | Method | HTTP request | Description
  - [FlowRevisionRecord](docs/FlowRevisionRecord.md)
  - [FlowRevisionRestoreRequest](docs/FlowRevisionRestoreRequest.md)
  - [FlowValidationResult](docs/FlowValidationResult.md)
+ - [FormField](docs/FormField.md)
+ - [FormSection](docs/FormSection.md)
  - [Gte](docs/Gte.md)
  - [HTTPValidationError](docs/HTTPValidationError.md)
  - [HealthResponse](docs/HealthResponse.md)
+ - [HumanTask](docs/HumanTask.md)
+ - [HumanTaskAction](docs/HumanTaskAction.md)
+ - [HumanTaskActionKind](docs/HumanTaskActionKind.md)
+ - [HumanTaskActionRequest](docs/HumanTaskActionRequest.md)
+ - [HumanTaskNotification](docs/HumanTaskNotification.md)
+ - [HumanTaskState](docs/HumanTaskState.md)
  - [IsolatedPluginRuntimeSnapshot](docs/IsolatedPluginRuntimeSnapshot.md)
  - [IsolatedPluginRuntimeStatus](docs/IsolatedPluginRuntimeStatus.md)
  - [IsolatedPluginState](docs/IsolatedPluginState.md)
@@ -630,6 +646,9 @@ Class | Method | HTTP request | Description
  - [WorkerInventory](docs/WorkerInventory.md)
  - [WorkerLiveness](docs/WorkerLiveness.md)
  - [WorkerStatus](docs/WorkerStatus.md)
+ - [WorkflowApp](docs/WorkflowApp.md)
+ - [WorkflowAppLaunchRequest](docs/WorkflowAppLaunchRequest.md)
+ - [WorkflowAppUpsertRequest](docs/WorkflowAppUpsertRequest.md)
  - [WorkflowMetadataPolicy](docs/WorkflowMetadataPolicy.md)
 
 
