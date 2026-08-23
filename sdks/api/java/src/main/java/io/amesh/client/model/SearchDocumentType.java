@@ -34,7 +34,11 @@ public enum SearchDocumentType {
 
   EXECUTION("EXECUTION"),
 
+  TASK_RUN("TASK_RUN"),
+
   LOG("LOG"),
+
+  METRIC("METRIC"),
 
   ASSET("ASSET"),
 

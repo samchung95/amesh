@@ -22,6 +22,151 @@ import (
 // SearchAPIService SearchAPI service
 type SearchAPIService service
 
+type ApiControlSearchProjectionApiV1SearchControlPostRequest struct {
+	ctx context.Context
+	ApiService *SearchAPIService
+	searchProjectionControlRequest *SearchProjectionControlRequest
+	authorization *string
+	xAmeshCSRF *string
+	xAmeshTenant *string
+}
+
+func (r ApiControlSearchProjectionApiV1SearchControlPostRequest) SearchProjectionControlRequest(searchProjectionControlRequest SearchProjectionControlRequest) ApiControlSearchProjectionApiV1SearchControlPostRequest {
+	r.searchProjectionControlRequest = &searchProjectionControlRequest
+	return r
+}
+
+func (r ApiControlSearchProjectionApiV1SearchControlPostRequest) Authorization(authorization string) ApiControlSearchProjectionApiV1SearchControlPostRequest {
+	r.authorization = &authorization
+	return r
+}
+
+func (r ApiControlSearchProjectionApiV1SearchControlPostRequest) XAmeshCSRF(xAmeshCSRF string) ApiControlSearchProjectionApiV1SearchControlPostRequest {
+	r.xAmeshCSRF = &xAmeshCSRF
+	return r
+}
+
+func (r ApiControlSearchProjectionApiV1SearchControlPostRequest) XAmeshTenant(xAmeshTenant string) ApiControlSearchProjectionApiV1SearchControlPostRequest {
+	r.xAmeshTenant = &xAmeshTenant
+	return r
+}
+
+func (r ApiControlSearchProjectionApiV1SearchControlPostRequest) Execute() (*SearchProjectionStatus, *http.Response, error) {
+	return r.ApiService.ControlSearchProjectionApiV1SearchControlPostExecute(r)
+}
+
+/*
+ControlSearchProjectionApiV1SearchControlPost Control Search Projection
+
+ @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+ @return ApiControlSearchProjectionApiV1SearchControlPostRequest
+*/
+func (a *SearchAPIService) ControlSearchProjectionApiV1SearchControlPost(ctx context.Context) ApiControlSearchProjectionApiV1SearchControlPostRequest {
+	return ApiControlSearchProjectionApiV1SearchControlPostRequest{
+		ApiService: a,
+		ctx: ctx,
+	}
+}
+
+// Execute executes the request
+//  @return SearchProjectionStatus
+func (a *SearchAPIService) ControlSearchProjectionApiV1SearchControlPostExecute(r ApiControlSearchProjectionApiV1SearchControlPostRequest) (*SearchProjectionStatus, *http.Response, error) {
+	var (
+		localVarHTTPMethod   = http.MethodPost
+		localVarPostBody     interface{}
+		formFiles            []formFile
+		localVarReturnValue  *SearchProjectionStatus
+	)
+
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "SearchAPIService.ControlSearchProjectionApiV1SearchControlPost")
+	if err != nil {
+		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
+	}
+
+	localVarPath := localBasePath + "/api/v1/search/control"
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+	if r.searchProjectionControlRequest == nil {
+		return localVarReturnValue, nil, reportError("searchProjectionControlRequest is required and must be specified")
+	}
+
+	// to determine the Content-Type header
+	localVarHTTPContentTypes := []string{"application/json"}
+
+	// set Content-Type header
+	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
+	if localVarHTTPContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHTTPContentType
+	}
+
+	// to determine the Accept header
+	localVarHTTPHeaderAccepts := []string{"application/json"}
+
+	// set Accept header
+	localVarHTTPHeaderAccept := selectHeaderAccept(localVarHTTPHeaderAccepts)
+	if localVarHTTPHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
+	}
+	if r.authorization != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "authorization", r.authorization, "simple", "")
+	}
+	if r.xAmeshCSRF != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "X-Amesh-CSRF", r.xAmeshCSRF, "simple", "")
+	}
+	if r.xAmeshTenant != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "X-Amesh-Tenant", r.xAmeshTenant, "simple", "")
+	}
+	// body params
+	localVarPostBody = r.searchProjectionControlRequest
+	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
+	if err != nil {
+		return localVarReturnValue, nil, err
+	}
+
+	localVarHTTPResponse, err := a.client.callAPI(req)
+	if err != nil || localVarHTTPResponse == nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	localVarBody, err := io.ReadAll(localVarHTTPResponse.Body)
+	localVarHTTPResponse.Body.Close()
+	localVarHTTPResponse.Body = io.NopCloser(bytes.NewBuffer(localVarBody))
+	if err != nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	if localVarHTTPResponse.StatusCode >= 300 {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: localVarHTTPResponse.Status,
+		}
+		if localVarHTTPResponse.StatusCode == 422 {
+			var v HTTPValidationError
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+					newErr.model = v
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	err = a.client.decode(&localVarReturnValue, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+	if err != nil {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: err.Error(),
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	return localVarReturnValue, localVarHTTPResponse, nil
+}
+
 type ApiGetSearchStatusApiV1SearchStatusGetRequest struct {
 	ctx context.Context
 	ApiService *SearchAPIService
@@ -399,6 +544,140 @@ func (a *SearchAPIService) SearchResourcesApiV1SearchPostExecute(r ApiSearchReso
 	}
 	// body params
 	localVarPostBody = r.searchRequest
+	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
+	if err != nil {
+		return localVarReturnValue, nil, err
+	}
+
+	localVarHTTPResponse, err := a.client.callAPI(req)
+	if err != nil || localVarHTTPResponse == nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	localVarBody, err := io.ReadAll(localVarHTTPResponse.Body)
+	localVarHTTPResponse.Body.Close()
+	localVarHTTPResponse.Body = io.NopCloser(bytes.NewBuffer(localVarBody))
+	if err != nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	if localVarHTTPResponse.StatusCode >= 300 {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: localVarHTTPResponse.Status,
+		}
+		if localVarHTTPResponse.StatusCode == 422 {
+			var v HTTPValidationError
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+					newErr.model = v
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	err = a.client.decode(&localVarReturnValue, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+	if err != nil {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: err.Error(),
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	return localVarReturnValue, localVarHTTPResponse, nil
+}
+
+type ApiVerifySearchProjectionApiV1SearchVerifyGetRequest struct {
+	ctx context.Context
+	ApiService *SearchAPIService
+	authorization *string
+	xAmeshCSRF *string
+	xAmeshTenant *string
+}
+
+func (r ApiVerifySearchProjectionApiV1SearchVerifyGetRequest) Authorization(authorization string) ApiVerifySearchProjectionApiV1SearchVerifyGetRequest {
+	r.authorization = &authorization
+	return r
+}
+
+func (r ApiVerifySearchProjectionApiV1SearchVerifyGetRequest) XAmeshCSRF(xAmeshCSRF string) ApiVerifySearchProjectionApiV1SearchVerifyGetRequest {
+	r.xAmeshCSRF = &xAmeshCSRF
+	return r
+}
+
+func (r ApiVerifySearchProjectionApiV1SearchVerifyGetRequest) XAmeshTenant(xAmeshTenant string) ApiVerifySearchProjectionApiV1SearchVerifyGetRequest {
+	r.xAmeshTenant = &xAmeshTenant
+	return r
+}
+
+func (r ApiVerifySearchProjectionApiV1SearchVerifyGetRequest) Execute() (*SearchProjectionVerification, *http.Response, error) {
+	return r.ApiService.VerifySearchProjectionApiV1SearchVerifyGetExecute(r)
+}
+
+/*
+VerifySearchProjectionApiV1SearchVerifyGet Verify Search Projection
+
+ @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+ @return ApiVerifySearchProjectionApiV1SearchVerifyGetRequest
+*/
+func (a *SearchAPIService) VerifySearchProjectionApiV1SearchVerifyGet(ctx context.Context) ApiVerifySearchProjectionApiV1SearchVerifyGetRequest {
+	return ApiVerifySearchProjectionApiV1SearchVerifyGetRequest{
+		ApiService: a,
+		ctx: ctx,
+	}
+}
+
+// Execute executes the request
+//  @return SearchProjectionVerification
+func (a *SearchAPIService) VerifySearchProjectionApiV1SearchVerifyGetExecute(r ApiVerifySearchProjectionApiV1SearchVerifyGetRequest) (*SearchProjectionVerification, *http.Response, error) {
+	var (
+		localVarHTTPMethod   = http.MethodGet
+		localVarPostBody     interface{}
+		formFiles            []formFile
+		localVarReturnValue  *SearchProjectionVerification
+	)
+
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "SearchAPIService.VerifySearchProjectionApiV1SearchVerifyGet")
+	if err != nil {
+		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
+	}
+
+	localVarPath := localBasePath + "/api/v1/search/verify"
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+
+	// to determine the Content-Type header
+	localVarHTTPContentTypes := []string{}
+
+	// set Content-Type header
+	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
+	if localVarHTTPContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHTTPContentType
+	}
+
+	// to determine the Accept header
+	localVarHTTPHeaderAccepts := []string{"application/json"}
+
+	// set Accept header
+	localVarHTTPHeaderAccept := selectHeaderAccept(localVarHTTPHeaderAccepts)
+	if localVarHTTPHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
+	}
+	if r.authorization != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "authorization", r.authorization, "simple", "")
+	}
+	if r.xAmeshCSRF != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "X-Amesh-CSRF", r.xAmeshCSRF, "simple", "")
+	}
+	if r.xAmeshTenant != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "X-Amesh-Tenant", r.xAmeshTenant, "simple", "")
+	}
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err

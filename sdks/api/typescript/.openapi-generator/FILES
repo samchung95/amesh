@@ -365,7 +365,10 @@ src/models/ScimUserResource.ts
 src/models/SearchDocument.ts
 src/models/SearchDocumentType.ts
 src/models/SearchProjectionCondition.ts
+src/models/SearchProjectionControlRequest.ts
 src/models/SearchProjectionStatus.ts
+src/models/SearchProjectionVerification.ts
+src/models/SearchProjectionVerificationItem.ts
 src/models/SearchRange.ts
 src/models/SearchRangeField.ts
 src/models/SearchRebuildRequest.ts

@@ -21,6 +21,7 @@ var _ MappedNullable = &SearchResponse{}
 
 // SearchResponse struct for SearchResponse
 type SearchResponse struct {
+	AuthoritativeFallback *bool `json:"authoritativeFallback,omitempty"`
 	DeniedTypes []SearchDocumentType `json:"deniedTypes"`
 	Items []SearchDocument `json:"items"`
 	NextCursor NullableString `json:"nextCursor"`
@@ -36,6 +37,8 @@ type _SearchResponse SearchResponse
 // will change when the set of required properties is changed
 func NewSearchResponse(deniedTypes []SearchDocumentType, items []SearchDocument, nextCursor NullableString, projectionCondition SearchProjectionCondition, projectionVersion int32) *SearchResponse {
 	this := SearchResponse{}
+	var authoritativeFallback bool = false
+	this.AuthoritativeFallback = &authoritativeFallback
 	this.DeniedTypes = deniedTypes
 	this.Items = items
 	this.NextCursor = nextCursor
@@ -49,7 +52,41 @@ func NewSearchResponse(deniedTypes []SearchDocumentType, items []SearchDocument,
 // but it doesn't guarantee that properties required by API are set
 func NewSearchResponseWithDefaults() *SearchResponse {
 	this := SearchResponse{}
+	var authoritativeFallback bool = false
+	this.AuthoritativeFallback = &authoritativeFallback
 	return &this
+}
+
+// GetAuthoritativeFallback returns the AuthoritativeFallback field value if set, zero value otherwise.
+func (o *SearchResponse) GetAuthoritativeFallback() bool {
+	if o == nil || IsNil(o.AuthoritativeFallback) {
+		var ret bool
+		return ret
+	}
+	return *o.AuthoritativeFallback
+}
+
+// GetAuthoritativeFallbackOk returns a tuple with the AuthoritativeFallback field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *SearchResponse) GetAuthoritativeFallbackOk() (*bool, bool) {
+	if o == nil || IsNil(o.AuthoritativeFallback) {
+		return nil, false
+	}
+	return o.AuthoritativeFallback, true
+}
+
+// HasAuthoritativeFallback returns a boolean if a field has been set.
+func (o *SearchResponse) HasAuthoritativeFallback() bool {
+	if o != nil && !IsNil(o.AuthoritativeFallback) {
+		return true
+	}
+
+	return false
+}
+
+// SetAuthoritativeFallback gets a reference to the given bool and assigns it to the AuthoritativeFallback field.
+func (o *SearchResponse) SetAuthoritativeFallback(v bool) {
+	o.AuthoritativeFallback = &v
 }
 
 // GetDeniedTypes returns the DeniedTypes field value
@@ -184,6 +221,9 @@ func (o SearchResponse) MarshalJSON() ([]byte, error) {
 
 func (o SearchResponse) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
+	if !IsNil(o.AuthoritativeFallback) {
+		toSerialize["authoritativeFallback"] = o.AuthoritativeFallback
+	}
 	toSerialize["deniedTypes"] = o.DeniedTypes
 	toSerialize["items"] = o.Items
 	toSerialize["nextCursor"] = o.NextCursor.Get()

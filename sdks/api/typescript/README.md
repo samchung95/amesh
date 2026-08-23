@@ -260,9 +260,11 @@ All URIs are relative to *http://localhost*
 *ScimApi* | [**patchScimGroupScimV2GroupsGroupIdPatch**](docs/ScimApi.md#patchscimgroupscimv2groupsgroupidpatch) | **PATCH** /scim/v2/Groups/{group_id} | Patch Scim Group
 *ScimApi* | [**patchScimUserScimV2UsersUserIdPatch**](docs/ScimApi.md#patchscimuserscimv2usersuseridpatch) | **PATCH** /scim/v2/Users/{user_id} | Patch Scim User
 *ScimApi* | [**scimServiceProviderConfigScimV2ServiceProviderConfigGet**](docs/ScimApi.md#scimserviceproviderconfigscimv2serviceproviderconfigget) | **GET** /scim/v2/ServiceProviderConfig | Scim Service Provider Config
+*SearchApi* | [**controlSearchProjectionApiV1SearchControlPost**](docs/SearchApi.md#controlsearchprojectionapiv1searchcontrolpost) | **POST** /api/v1/search/control | Control Search Projection
 *SearchApi* | [**getSearchStatusApiV1SearchStatusGet**](docs/SearchApi.md#getsearchstatusapiv1searchstatusget) | **GET** /api/v1/search/status | Get Search Status
 *SearchApi* | [**rebuildSearchProjectionApiV1SearchRebuildPost**](docs/SearchApi.md#rebuildsearchprojectionapiv1searchrebuildpost) | **POST** /api/v1/search/rebuild | Rebuild Search Projection
 *SearchApi* | [**searchResourcesApiV1SearchPost**](docs/SearchApi.md#searchresourcesapiv1searchpost) | **POST** /api/v1/search | Search Resources
+*SearchApi* | [**verifySearchProjectionApiV1SearchVerifyGet**](docs/SearchApi.md#verifysearchprojectionapiv1searchverifyget) | **GET** /api/v1/search/verify | Verify Search Projection
 *SystemApi* | [**healthHealthGet**](docs/SystemApi.md#healthhealthget) | **GET** /health | Health
 *SystemApi* | [**readyReadyGet**](docs/SystemApi.md#readyreadyget) | **GET** /ready | Ready
 *TaskCacheApi* | [**listTaskCacheEntriesApiV1TaskCacheGet**](docs/TaskCacheApi.md#listtaskcacheentriesapiv1taskcacheget) | **GET** /api/v1/task-cache | List Task Cache Entries
@@ -592,7 +594,10 @@ All URIs are relative to *http://localhost*
 - [SearchDocument](docs/SearchDocument.md)
 - [SearchDocumentType](docs/SearchDocumentType.md)
 - [SearchProjectionCondition](docs/SearchProjectionCondition.md)
+- [SearchProjectionControlRequest](docs/SearchProjectionControlRequest.md)
 - [SearchProjectionStatus](docs/SearchProjectionStatus.md)
+- [SearchProjectionVerification](docs/SearchProjectionVerification.md)
+- [SearchProjectionVerificationItem](docs/SearchProjectionVerificationItem.md)
 - [SearchRange](docs/SearchRange.md)
 - [SearchRangeField](docs/SearchRangeField.md)
 - [SearchRebuildRequest](docs/SearchRebuildRequest.md)

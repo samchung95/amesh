@@ -29,14 +29,16 @@ describe('search model', () => {
   it('maps every projected resource to its public route', () => {
     expect(searchResultPath(document)).toBe('/flows/team.data/daily')
     expect(searchResultPath({ ...document, documentType: 'EXECUTION', fields: { executionId: 'run/1' } })).toBe('/executions/run%2F1')
+    expect(searchResultPath({ ...document, documentType: 'TASK_RUN', fields: { executionId: 'run-1' } })).toBe('/executions/run-1')
     expect(searchResultPath({ ...document, documentType: 'LOG', fields: { executionId: 'run-1' } })).toBe('/executions/run-1?view=logs')
+    expect(searchResultPath({ ...document, documentType: 'METRIC', fields: { executionId: 'run-1' } })).toBe('/executions/run-1')
     expect(searchResultPath({ ...document, documentType: 'ASSET' })).toBe('/assets?asset=flow-uuid')
     expect(searchResultPath({ ...document, documentType: 'AUDIT' })).toBe('/administration?view=audit&event=flow-uuid')
   })
 
   it('provides readable labels for all document types', () => {
-    expect(['FLOW', 'EXECUTION', 'LOG', 'ASSET', 'AUDIT'].map((type) => searchTypeLabel(type as never))).toEqual([
-      'Flow', 'Execution', 'Log', 'Asset', 'Audit',
+    expect(['FLOW', 'EXECUTION', 'TASK_RUN', 'LOG', 'METRIC', 'ASSET', 'AUDIT'].map((type) => searchTypeLabel(type as never))).toEqual([
+      'Flow', 'Execution', 'Task run', 'Log', 'Metric', 'Asset', 'Audit',
     ])
   })
 })

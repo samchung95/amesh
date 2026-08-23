@@ -45,7 +45,7 @@ class SearchRequest(BaseModel):
     sort: Optional[SearchSortField] = None
     states: Optional[Annotated[List[StrictStr], Field(max_length=20)]] = None
     to: Optional[datetime] = None
-    types: Optional[Annotated[List[SearchDocumentType], Field(max_length=5)]] = None
+    types: Optional[Annotated[List[SearchDocumentType], Field(max_length=7)]] = None
     __properties: ClassVar[List[str]] = ["cursor", "direction", "fields", "from", "labels", "limit", "namespace", "query", "ranges", "sort", "states", "to", "types"]
 
     model_config = ConfigDict(

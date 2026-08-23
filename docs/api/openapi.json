@@ -12633,7 +12633,9 @@
         "enum": [
           "FLOW",
           "EXECUTION",
+          "TASK_RUN",
           "LOG",
+          "METRIC",
           "ASSET",
           "AUDIT"
         ],
@@ -12644,14 +12646,64 @@
         "enum": [
           "READY",
           "REBUILDING",
-          "DEGRADED"
+          "DEGRADED",
+          "DISABLED"
         ],
         "title": "SearchProjectionCondition",
         "type": "string"
       },
+      "SearchProjectionControlRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "enabled": {
+            "title": "Enabled",
+            "type": "boolean"
+          },
+          "reason": {
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "enabled",
+          "reason"
+        ],
+        "title": "SearchProjectionControlRequest",
+        "type": "object"
+      },
       "SearchProjectionStatus": {
         "additionalProperties": false,
         "properties": {
+          "activeChecksum": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Activechecksum"
+          },
+          "buildingVersion": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Buildingversion"
+          },
+          "checkpointsVerified": {
+            "default": false,
+            "title": "Checkpointsverified",
+            "type": "boolean"
+          },
           "condition": {
             "$ref": "#/components/schemas/SearchProjectionCondition"
           },
@@ -12659,6 +12711,11 @@
             "minimum": 0.0,
             "title": "Documentsindexed",
             "type": "integer"
+          },
+          "enabled": {
+            "default": true,
+            "title": "Enabled",
+            "type": "boolean"
           },
           "failures": {
             "minimum": 0.0,
@@ -12747,6 +12804,12 @@
             ],
             "title": "Rebuildstartedat"
           },
+          "schemaVersion": {
+            "default": 2,
+            "minimum": 1.0,
+            "title": "Schemaversion",
+            "type": "integer"
+          },
           "sourceDocuments": {
             "minimum": 0.0,
             "title": "Sourcedocuments",
@@ -12768,6 +12831,96 @@
           "lastError"
         ],
         "title": "SearchProjectionStatus",
+        "type": "object"
+      },
+      "SearchProjectionVerification": {
+        "additionalProperties": false,
+        "properties": {
+          "checksum": {
+            "title": "Checksum",
+            "type": "string"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/SearchProjectionVerificationItem"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "projectionVersion": {
+            "minimum": 1.0,
+            "title": "Projectionversion",
+            "type": "integer"
+          },
+          "schemaVersion": {
+            "minimum": 1.0,
+            "title": "Schemaversion",
+            "type": "integer"
+          },
+          "verified": {
+            "title": "Verified",
+            "type": "boolean"
+          },
+          "verifiedAt": {
+            "format": "date-time",
+            "title": "Verifiedat",
+            "type": "string"
+          }
+        },
+        "required": [
+          "projectionVersion",
+          "schemaVersion",
+          "verified",
+          "checksum",
+          "items",
+          "verifiedAt"
+        ],
+        "title": "SearchProjectionVerification",
+        "type": "object"
+      },
+      "SearchProjectionVerificationItem": {
+        "additionalProperties": false,
+        "properties": {
+          "documentType": {
+            "$ref": "#/components/schemas/SearchDocumentType"
+          },
+          "lastPosition": {
+            "additionalProperties": true,
+            "title": "Lastposition",
+            "type": "object"
+          },
+          "projectedChecksum": {
+            "title": "Projectedchecksum",
+            "type": "string"
+          },
+          "projectedCount": {
+            "minimum": 0.0,
+            "title": "Projectedcount",
+            "type": "integer"
+          },
+          "sourceChecksum": {
+            "title": "Sourcechecksum",
+            "type": "string"
+          },
+          "sourceCount": {
+            "minimum": 0.0,
+            "title": "Sourcecount",
+            "type": "integer"
+          },
+          "verified": {
+            "title": "Verified",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "documentType",
+          "sourceCount",
+          "projectedCount",
+          "sourceChecksum",
+          "projectedChecksum",
+          "verified"
+        ],
+        "title": "SearchProjectionVerificationItem",
         "type": "object"
       },
       "SearchRange": {
@@ -12825,11 +12978,44 @@
       "SearchRebuildRequest": {
         "additionalProperties": false,
         "properties": {
+          "from": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "From"
+          },
           "reason": {
             "maxLength": 500,
             "minLength": 1,
             "title": "Reason",
             "type": "string"
+          },
+          "to": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "To"
+          },
+          "types": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/SearchDocumentType"
+            },
+            "maxItems": 7,
+            "title": "Types",
+            "type": "array"
           }
         },
         "required": [
@@ -12950,7 +13136,7 @@
             "items": {
               "$ref": "#/components/schemas/SearchDocumentType"
             },
-            "maxItems": 5,
+            "maxItems": 7,
             "title": "Types",
             "type": "array"
           }
@@ -12961,6 +13147,11 @@
       "SearchResponse": {
         "additionalProperties": false,
         "properties": {
+          "authoritativeFallback": {
+            "default": false,
+            "title": "Authoritativefallback",
+            "type": "boolean"
+          },
           "deniedTypes": {
             "items": {
               "$ref": "#/components/schemas/SearchDocumentType"
@@ -35359,6 +35550,97 @@
         ]
       }
     },
+    "/api/v1/search/control": {
+      "post": {
+        "operationId": "control_search_projection_api_v1_search_control_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchProjectionControlRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchProjectionStatus"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Control Search Projection",
+        "tags": [
+          "search"
+        ]
+      }
+    },
     "/api/v1/search/rebuild": {
       "post": {
         "operationId": "rebuild_search_projection_api_v1_search_rebuild_post",
@@ -35526,6 +35808,87 @@
           }
         },
         "summary": "Get Search Status",
+        "tags": [
+          "search"
+        ]
+      }
+    },
+    "/api/v1/search/verify": {
+      "get": {
+        "operationId": "verify_search_projection_api_v1_search_verify_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchProjectionVerification"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Verify Search Projection",
         "tags": [
           "search"
         ]

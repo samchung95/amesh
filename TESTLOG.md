@@ -1,5 +1,45 @@
 # Test Log
 
+## EPIC-604: Search and analytics projection backend — 2026-08-23
+
+Spec source: Agent Hotel card `c76` and canonical `backlog/epics.json` EPIC-604 DoD.
+
+Verified with `uv`, Python 3.13, PostgreSQL 17, React/TypeScript and Docker Compose:
+
+- [x] Migration `0052_search_projection_backend.sql` adds a tenant-protected, eight-way
+  hash-partitioned v2 projection for flows, executions, task runs, logs, metrics, assets and audits;
+  schema/table/index/materialized-view/rollup component versions; durable per-type checkpoints;
+  retention archives; daily rollups; forced RLS; grants; and seed-forward from v1.
+- [x] The indexer performs bounded incremental projection into versioned generations. Exact per-type
+  identity/version counts and checksums gate an atomic generation switch. Projector failure state,
+  durable resume, scoped tenant/type/time rebuild and a concurrent non-selected source write during a
+  scoped rebuild all pass on a fresh PostgreSQL database while the active generation remains readable.
+- [x] Tenant-isolation tests prove disjoint source and search results. Deleted source rows move into a
+  tenant-protected archive with source-retention policy and purge time before leaving the projection;
+  verified checkpoints and daily rollups persist for the active generation.
+- [x] Authorized status, exact verification, scoped rebuild and enable/disable APIs pass positive and
+  negative tests. Disabled projection serves bounded authoritative flow/execution queries, marks
+  `authoritativeFallback`, and explicitly denies projection-only resource types.
+- [x] A 50,000-row structured/full-text projection query returned 50 bounded results across 20 measured
+  calls with the integration test's p95 below 0.5 seconds. The separate external 10-million-document
+  qualification remains deferred and is not claimed.
+- [x] Thirteen affected backend, API, migration, role, compact/preflight and generated-contract tests
+  passed. Ruff passed affected paths, strict mypy passed all 194 source files, 20 frontend assertions
+  passed, the production frontend built, and Python/TypeScript/Java/Go SDK checks covered 1,828 files.
+- [x] The distributed deployment rebuilt API/indexer images, completed a live scoped blue-green switch
+  to generation 2 at approximately 388,000 authoritative documents, kept orchestration roles healthy,
+  and passed live disable → authoritative flow fallback with projected log denial → enable. The compact
+  deployment is healthy on port 8100 with 52/52 migrations and schema version 2.
+- [x] No LLM behavior was involved, so no billable OpenRouter call was required. Applicable LLM tests
+  remain pinned to `openai/gpt-5.6-luna`.
+
+Qualification boundary: the EPIC-604 search contribution to graceful degradation and tenant isolation
+is locally exercised. Shared `URS-NFR-RELIABILITY-005` still requires the remaining optional-service
+outage/latency work mapped to EPIC-401/409/607, and shared `URS-NFR-SECURITY-001` still requires the
+independent pre-GA penetration test. Neither shared NFR is promoted here.
+
+Verdict: PASS — EPIC-604 functional requirements URS-F-0614 through URS-F-0621 are verified.
+
 ## EPIC-600: Standalone server and compact deployment — 2026-08-23
 
 Spec source: Agent Hotel card `c75` and canonical `backlog/epics.json` EPIC-600 DoD.

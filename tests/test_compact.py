@@ -26,7 +26,7 @@ def _report(*, ready: bool) -> PreflightReport:
         ),
         migrationsApplied=51 if ready else 0,
         migrationsExpected=51,
-        latestMigration="0051_flow_tests_quality_gates.sql" if ready else None,
+        latestMigration="0052_search_projection_backend.sql" if ready else None,
     )
 
 

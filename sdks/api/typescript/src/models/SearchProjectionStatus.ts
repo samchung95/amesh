@@ -29,6 +29,24 @@ import {
 export interface SearchProjectionStatus {
     /**
      *
+     * @type {string}
+     * @memberof SearchProjectionStatus
+     */
+    activeChecksum?: string | null;
+    /**
+     *
+     * @type {number}
+     * @memberof SearchProjectionStatus
+     */
+    buildingVersion?: number | null;
+    /**
+     *
+     * @type {boolean}
+     * @memberof SearchProjectionStatus
+     */
+    checkpointsVerified?: boolean;
+    /**
+     *
      * @type {SearchProjectionCondition}
      * @memberof SearchProjectionStatus
      */
@@ -39,6 +57,12 @@ export interface SearchProjectionStatus {
      * @memberof SearchProjectionStatus
      */
     documentsIndexed: number;
+    /**
+     *
+     * @type {boolean}
+     * @memberof SearchProjectionStatus
+     */
+    enabled?: boolean;
     /**
      *
      * @type {number}
@@ -98,6 +122,12 @@ export interface SearchProjectionStatus {
      * @type {number}
      * @memberof SearchProjectionStatus
      */
+    schemaVersion?: number;
+    /**
+     *
+     * @type {number}
+     * @memberof SearchProjectionStatus
+     */
     sourceDocuments: number;
 }
 
@@ -132,8 +162,12 @@ export function SearchProjectionStatusFromJSONTyped(json: any, ignoreDiscriminat
     }
     return {
 
+        'activeChecksum': json['activeChecksum'] === undefined ? undefined : json['activeChecksum'] === null ? null : json['activeChecksum'],
+        'buildingVersion': json['buildingVersion'] === undefined ? undefined : json['buildingVersion'] === null ? null : json['buildingVersion'],
+        'checkpointsVerified': json['checkpointsVerified'] == null ? undefined : json['checkpointsVerified'],
         'condition': SearchProjectionConditionFromJSON(json['condition']),
         'documentsIndexed': json['documentsIndexed'],
+        'enabled': json['enabled'] == null ? undefined : json['enabled'],
         'failures': json['failures'],
         'lagSeconds': json['lagSeconds'],
         'lastError': json['lastError'],
@@ -143,6 +177,7 @@ export function SearchProjectionStatusFromJSONTyped(json: any, ignoreDiscriminat
         'projectionVersion': json['projectionVersion'],
         'rebuildCompletedAt': (json['rebuildCompletedAt'] == null ? null : new Date(json['rebuildCompletedAt'])),
         'rebuildStartedAt': (json['rebuildStartedAt'] == null ? null : new Date(json['rebuildStartedAt'])),
+        'schemaVersion': json['schemaVersion'] == null ? undefined : json['schemaVersion'],
         'sourceDocuments': json['sourceDocuments'],
     };
 }
@@ -158,8 +193,12 @@ export function SearchProjectionStatusToJSONTyped(value?: SearchProjectionStatus
 
     return {
 
+        'activeChecksum': value['activeChecksum'],
+        'buildingVersion': value['buildingVersion'],
+        'checkpointsVerified': value['checkpointsVerified'],
         'condition': SearchProjectionConditionToJSON(value['condition']),
         'documentsIndexed': value['documentsIndexed'],
+        'enabled': value['enabled'],
         'failures': value['failures'],
         'lagSeconds': value['lagSeconds'],
         'lastError': value['lastError'],
@@ -169,6 +208,7 @@ export function SearchProjectionStatusToJSONTyped(value?: SearchProjectionStatus
         'projectionVersion': value['projectionVersion'],
         'rebuildCompletedAt': value['rebuildCompletedAt'] == null ? value['rebuildCompletedAt'] : value['rebuildCompletedAt'].toISOString(),
         'rebuildStartedAt': value['rebuildStartedAt'] == null ? value['rebuildStartedAt'] : value['rebuildStartedAt'].toISOString(),
+        'schemaVersion': value['schemaVersion'],
         'sourceDocuments': value['sourceDocuments'],
     };
 }

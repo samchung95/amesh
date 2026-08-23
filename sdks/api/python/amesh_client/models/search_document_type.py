@@ -28,7 +28,9 @@ class SearchDocumentType(str, Enum):
     """
     FLOW = 'FLOW'
     EXECUTION = 'EXECUTION'
+    TASK_RUN = 'TASK_RUN'
     LOG = 'LOG'
+    METRIC = 'METRIC'
     ASSET = 'ASSET'
     AUDIT = 'AUDIT'
 

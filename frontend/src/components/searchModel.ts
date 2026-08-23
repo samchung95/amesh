@@ -1,6 +1,8 @@
 import type { SearchDocument, SearchDocumentType } from '../api/types'
 
-export const SEARCH_TYPES: SearchDocumentType[] = ['FLOW', 'EXECUTION', 'LOG', 'ASSET', 'AUDIT']
+export const SEARCH_TYPES: SearchDocumentType[] = [
+  'FLOW', 'EXECUTION', 'TASK_RUN', 'LOG', 'METRIC', 'ASSET', 'AUDIT',
+]
 
 export function parseSearchPairs(value: string): Record<string, string> {
   const result: Record<string, string> = {}
@@ -20,7 +22,10 @@ export function searchResultPath(document: SearchDocument): string {
   if (document.documentType === 'FLOW' && document.namespace && flowId) {
     return `/flows/${encodeURIComponent(document.namespace)}/${encodeURIComponent(flowId)}`
   }
-  if ((document.documentType === 'EXECUTION' || document.documentType === 'LOG') && executionId) {
+  if (
+    ['EXECUTION', 'TASK_RUN', 'LOG', 'METRIC'].includes(document.documentType)
+    && executionId
+  ) {
     const suffix = document.documentType === 'LOG' ? '?view=logs' : ''
     return `/executions/${encodeURIComponent(executionId)}${suffix}`
   }
@@ -30,5 +35,8 @@ export function searchResultPath(document: SearchDocument): string {
 }
 
 export function searchTypeLabel(type: SearchDocumentType): string {
-  return ({ FLOW: 'Flow', EXECUTION: 'Execution', LOG: 'Log', ASSET: 'Asset', AUDIT: 'Audit' })[type]
+  return ({
+    FLOW: 'Flow', EXECUTION: 'Execution', TASK_RUN: 'Task run', LOG: 'Log',
+    METRIC: 'Metric', ASSET: 'Asset', AUDIT: 'Audit',
+  })[type]
 }

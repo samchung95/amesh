@@ -23,6 +23,7 @@ const (
 	SEARCHPROJECTIONCONDITION_READY SearchProjectionCondition = "READY"
 	SEARCHPROJECTIONCONDITION_REBUILDING SearchProjectionCondition = "REBUILDING"
 	SEARCHPROJECTIONCONDITION_DEGRADED SearchProjectionCondition = "DEGRADED"
+	SEARCHPROJECTIONCONDITION_DISABLED SearchProjectionCondition = "DISABLED"
 )
 
 // All allowed values of SearchProjectionCondition enum
@@ -30,6 +31,7 @@ var AllowedSearchProjectionConditionEnumValues = []SearchProjectionCondition{
 	"READY",
 	"REBUILDING",
 	"DEGRADED",
+	"DISABLED",
 }
 
 func (v *SearchProjectionCondition) UnmarshalJSON(src []byte) error {

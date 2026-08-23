@@ -126,7 +126,7 @@ def test_search_projection_failure_does_not_block_other_indexer_work() -> None:
 
     class FailedSearch:
         async def project_once(self, *, tenant_id: str, limit: int) -> int:
-            del limit
+            assert limit == 5_000
             calls.append(f"search:{tenant_id}")
             raise SearchUnavailableError("projection table unavailable")
 

@@ -20,7 +20,8 @@
 export const SearchProjectionCondition = {
     Ready: 'READY',
     Rebuilding: 'REBUILDING',
-    Degraded: 'DEGRADED'
+    Degraded: 'DEGRADED',
+    Disabled: 'DISABLED'
 } as const;
 export type SearchProjectionCondition = typeof SearchProjectionCondition[keyof typeof SearchProjectionCondition];
 

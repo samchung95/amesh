@@ -275,7 +275,9 @@ from amesh.domain import (
     RoleDefinition,
     ScimResourceRecord,
     SearchDocumentType,
+    SearchProjectionControlRequest,
     SearchProjectionStatus,
+    SearchProjectionVerification,
     SearchRebuildRequest,
     SearchRequest,
     SearchResponse,
@@ -2351,7 +2353,9 @@ async def export_dashboard(
 _SEARCH_DATA_RESOURCES = {
     SearchDocumentType.FLOW: "flow",
     SearchDocumentType.EXECUTION: "execution",
+    SearchDocumentType.TASK_RUN: "execution",
     SearchDocumentType.LOG: "execution",
+    SearchDocumentType.METRIC: "execution",
     SearchDocumentType.ASSET: "asset",
     SearchDocumentType.AUDIT: "audit",
 }
@@ -2465,6 +2469,69 @@ async def rebuild_search_projection(
         return await repository.request_rebuild(
             tenant_id=tenant_id,
             actor_id=str(actor.principal_id),
+            reason=request.reason,
+            document_types=request.types,
+            from_time=request.from_time,
+            to_time=request.to_time,
+        )
+    except SearchUnavailableError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=str(exc),
+        ) from exc
+
+
+@app.get(
+    "/api/v1/search/verify",
+    response_model=SearchProjectionVerification,
+    tags=["search"],
+)
+async def verify_search_projection(
+    repository: SearchRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> SearchProjectionVerification:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="search",
+        action=PermissionAction.MANAGE,
+        tenant_id=tenant_id,
+    )
+    try:
+        return await repository.verify(tenant_id=tenant_id)
+    except SearchUnavailableError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=str(exc),
+        ) from exc
+
+
+@app.post(
+    "/api/v1/search/control",
+    response_model=SearchProjectionStatus,
+    tags=["search"],
+)
+async def control_search_projection(
+    request: SearchProjectionControlRequest,
+    repository: SearchRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> SearchProjectionStatus:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="search",
+        action=PermissionAction.MANAGE,
+        tenant_id=tenant_id,
+    )
+    try:
+        return await repository.set_enabled(
+            tenant_id=tenant_id,
+            actor_id=str(actor.principal_id),
+            enabled=request.enabled,
             reason=request.reason,
         )
     except SearchUnavailableError as exc:

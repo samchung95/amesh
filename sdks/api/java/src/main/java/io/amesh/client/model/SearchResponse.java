@@ -38,6 +38,7 @@ import io.amesh.client.ApiClient;
  * SearchResponse
  */
 @JsonPropertyOrder({
+  SearchResponse.JSON_PROPERTY_AUTHORITATIVE_FALLBACK,
   SearchResponse.JSON_PROPERTY_DENIED_TYPES,
   SearchResponse.JSON_PROPERTY_ITEMS,
   SearchResponse.JSON_PROPERTY_NEXT_CURSOR,
@@ -46,6 +47,10 @@ import io.amesh.client.ApiClient;
 })
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.24.0")
 public class SearchResponse {
+  public static final String JSON_PROPERTY_AUTHORITATIVE_FALLBACK = "authoritativeFallback";
+  @javax.annotation.Nullable
+  private Boolean authoritativeFallback = false;
+
   public static final String JSON_PROPERTY_DENIED_TYPES = "deniedTypes";
   @javax.annotation.Nonnull
   private List<SearchDocumentType> deniedTypes = new ArrayList<>();
@@ -68,6 +73,30 @@ public class SearchResponse {
 
   public SearchResponse() {
   }
+
+  public SearchResponse authoritativeFallback(@javax.annotation.Nullable Boolean authoritativeFallback) {
+    this.authoritativeFallback = authoritativeFallback;
+    return this;
+  }
+
+  /**
+   * Get authoritativeFallback
+   * @return authoritativeFallback
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_AUTHORITATIVE_FALLBACK, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public Boolean getAuthoritativeFallback() {
+    return authoritativeFallback;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_AUTHORITATIVE_FALLBACK, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setAuthoritativeFallback(@javax.annotation.Nullable Boolean authoritativeFallback) {
+    this.authoritativeFallback = authoritativeFallback;
+  }
+
 
   public SearchResponse deniedTypes(@javax.annotation.Nonnull List<SearchDocumentType> deniedTypes) {
     this.deniedTypes = deniedTypes;
@@ -218,7 +247,8 @@ public class SearchResponse {
       return false;
     }
     SearchResponse searchResponse = (SearchResponse) o;
-    return Objects.equals(this.deniedTypes, searchResponse.deniedTypes) &&
+    return Objects.equals(this.authoritativeFallback, searchResponse.authoritativeFallback) &&
+        Objects.equals(this.deniedTypes, searchResponse.deniedTypes) &&
         Objects.equals(this.items, searchResponse.items) &&
         Objects.equals(this.nextCursor, searchResponse.nextCursor) &&
         Objects.equals(this.projectionCondition, searchResponse.projectionCondition) &&
@@ -227,13 +257,14 @@ public class SearchResponse {
 
   @Override
   public int hashCode() {
-    return Objects.hash(deniedTypes, items, nextCursor, projectionCondition, projectionVersion);
+    return Objects.hash(authoritativeFallback, deniedTypes, items, nextCursor, projectionCondition, projectionVersion);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class SearchResponse {\n");
+    sb.append("    authoritativeFallback: ").append(toIndentedString(authoritativeFallback)).append("\n");
     sb.append("    deniedTypes: ").append(toIndentedString(deniedTypes)).append("\n");
     sb.append("    items: ").append(toIndentedString(items)).append("\n");
     sb.append("    nextCursor: ").append(toIndentedString(nextCursor)).append("\n");
@@ -282,6 +313,11 @@ public class SearchResponse {
     }
 
     StringJoiner joiner = new StringJoiner("&");
+
+    // add `authoritativeFallback` to the URL query string
+    if (getAuthoritativeFallback() != null) {
+      joiner.add(String.format(java.util.Locale.ROOT, "%sauthoritativeFallback%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getAuthoritativeFallback()))));
+    }
 
     // add `deniedTypes` to the URL query string
     if (getDeniedTypes() != null) {

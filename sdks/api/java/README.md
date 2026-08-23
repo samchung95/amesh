@@ -515,12 +515,16 @@ Class | Method | HTTP request | Description
 *ScimApi* | [**patchScimUserScimV2UsersUserIdPatchWithHttpInfo**](docs/ScimApi.md#patchScimUserScimV2UsersUserIdPatchWithHttpInfo) | **PATCH** /scim/v2/Users/{user_id} | Patch Scim User
 *ScimApi* | [**scimServiceProviderConfigScimV2ServiceProviderConfigGet**](docs/ScimApi.md#scimServiceProviderConfigScimV2ServiceProviderConfigGet) | **GET** /scim/v2/ServiceProviderConfig | Scim Service Provider Config
 *ScimApi* | [**scimServiceProviderConfigScimV2ServiceProviderConfigGetWithHttpInfo**](docs/ScimApi.md#scimServiceProviderConfigScimV2ServiceProviderConfigGetWithHttpInfo) | **GET** /scim/v2/ServiceProviderConfig | Scim Service Provider Config
+*SearchApi* | [**controlSearchProjectionApiV1SearchControlPost**](docs/SearchApi.md#controlSearchProjectionApiV1SearchControlPost) | **POST** /api/v1/search/control | Control Search Projection
+*SearchApi* | [**controlSearchProjectionApiV1SearchControlPostWithHttpInfo**](docs/SearchApi.md#controlSearchProjectionApiV1SearchControlPostWithHttpInfo) | **POST** /api/v1/search/control | Control Search Projection
 *SearchApi* | [**getSearchStatusApiV1SearchStatusGet**](docs/SearchApi.md#getSearchStatusApiV1SearchStatusGet) | **GET** /api/v1/search/status | Get Search Status
 *SearchApi* | [**getSearchStatusApiV1SearchStatusGetWithHttpInfo**](docs/SearchApi.md#getSearchStatusApiV1SearchStatusGetWithHttpInfo) | **GET** /api/v1/search/status | Get Search Status
 *SearchApi* | [**rebuildSearchProjectionApiV1SearchRebuildPost**](docs/SearchApi.md#rebuildSearchProjectionApiV1SearchRebuildPost) | **POST** /api/v1/search/rebuild | Rebuild Search Projection
 *SearchApi* | [**rebuildSearchProjectionApiV1SearchRebuildPostWithHttpInfo**](docs/SearchApi.md#rebuildSearchProjectionApiV1SearchRebuildPostWithHttpInfo) | **POST** /api/v1/search/rebuild | Rebuild Search Projection
 *SearchApi* | [**searchResourcesApiV1SearchPost**](docs/SearchApi.md#searchResourcesApiV1SearchPost) | **POST** /api/v1/search | Search Resources
 *SearchApi* | [**searchResourcesApiV1SearchPostWithHttpInfo**](docs/SearchApi.md#searchResourcesApiV1SearchPostWithHttpInfo) | **POST** /api/v1/search | Search Resources
+*SearchApi* | [**verifySearchProjectionApiV1SearchVerifyGet**](docs/SearchApi.md#verifySearchProjectionApiV1SearchVerifyGet) | **GET** /api/v1/search/verify | Verify Search Projection
+*SearchApi* | [**verifySearchProjectionApiV1SearchVerifyGetWithHttpInfo**](docs/SearchApi.md#verifySearchProjectionApiV1SearchVerifyGetWithHttpInfo) | **GET** /api/v1/search/verify | Verify Search Projection
 *SystemApi* | [**healthHealthGet**](docs/SystemApi.md#healthHealthGet) | **GET** /health | Health
 *SystemApi* | [**healthHealthGetWithHttpInfo**](docs/SystemApi.md#healthHealthGetWithHttpInfo) | **GET** /health | Health
 *SystemApi* | [**readyReadyGet**](docs/SystemApi.md#readyReadyGet) | **GET** /ready | Ready
@@ -873,7 +877,10 @@ Class | Method | HTTP request | Description
  - [SearchDocument](docs/SearchDocument.md)
  - [SearchDocumentType](docs/SearchDocumentType.md)
  - [SearchProjectionCondition](docs/SearchProjectionCondition.md)
+ - [SearchProjectionControlRequest](docs/SearchProjectionControlRequest.md)
  - [SearchProjectionStatus](docs/SearchProjectionStatus.md)
+ - [SearchProjectionVerification](docs/SearchProjectionVerification.md)
+ - [SearchProjectionVerificationItem](docs/SearchProjectionVerificationItem.md)
  - [SearchRange](docs/SearchRange.md)
  - [SearchRangeField](docs/SearchRangeField.md)
  - [SearchRebuildRequest](docs/SearchRebuildRequest.md)

@@ -74,8 +74,8 @@ in depth, not the sole authorization layer.
 - Metadata database: identifiers, state, structured small outputs and object references.
 - Object storage: files, artifacts, large outputs, import/export bundles and plugin packages.
 - Event bus: bounded messages and references, never large files.
-- Search: the tenant-hash-partitioned `search_documents` table contains denormalized authorized
-  metadata, generated weighted full-text vectors and structured JSON fields. Indexer-owned
-  `search_projection_state` records version, lag, failures and rebuild progress. Both can be deleted
-  and rebuilt without changing source resources or orchestration; rebuild/failure evidence remains in
-  the immutable `search_projection_events` stream and transactional outbox.
+- Search: tenant-hash-partitioned `search_documents_v2` stores multiple projection generations with
+  denormalized metadata, weighted full-text vectors and structured JSON fields. Indexer-owned state,
+  per-type position/checksum checkpoints, protected retention archives and daily rollups are all
+  tenant-scoped. A scoped generation builds beside the active one and switches only after verification;
+  rebuild, failure and control evidence remains in the immutable event stream and transactional outbox.

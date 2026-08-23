@@ -12,7 +12,9 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 class SearchDocumentType(StrEnum):
     FLOW = "FLOW"
     EXECUTION = "EXECUTION"
+    TASK_RUN = "TASK_RUN"
     LOG = "LOG"
+    METRIC = "METRIC"
     ASSET = "ASSET"
     AUDIT = "AUDIT"
 
@@ -41,6 +43,7 @@ class SearchProjectionCondition(StrEnum):
     READY = "READY"
     REBUILDING = "REBUILDING"
     DEGRADED = "DEGRADED"
+    DISABLED = "DISABLED"
 
 
 class SearchRange(BaseModel):
@@ -72,7 +75,7 @@ class SearchRequest(BaseModel):
     model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
 
     query: str = Field(default="", max_length=500)
-    types: tuple[SearchDocumentType, ...] = Field(default=(), max_length=5)
+    types: tuple[SearchDocumentType, ...] = Field(default=(), max_length=7)
     namespace: str | None = Field(default=None, min_length=1, max_length=255)
     states: tuple[str, ...] = Field(default=(), max_length=20)
     labels: dict[str, str] = Field(default_factory=dict, max_length=20)
@@ -99,6 +102,9 @@ class SearchRequest(BaseModel):
             "flowId",
             "executionId",
             "taskRunId",
+            "metricName",
+            "metricKind",
+            "unit",
             "level",
             "logger",
             "provider",
@@ -162,13 +168,17 @@ class SearchResponse(BaseModel):
     denied_types: tuple[SearchDocumentType, ...] = Field(alias="deniedTypes")
     projection_version: int = Field(alias="projectionVersion", ge=1)
     projection_condition: SearchProjectionCondition = Field(alias="projectionCondition")
+    authoritative_fallback: bool = Field(default=False, alias="authoritativeFallback")
 
 
 class SearchProjectionStatus(BaseModel):
     model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
 
     projection_version: int = Field(alias="projectionVersion", ge=1)
+    schema_version: int = Field(default=2, alias="schemaVersion", ge=1)
+    building_version: int | None = Field(default=None, alias="buildingVersion", ge=1)
     condition: SearchProjectionCondition
+    enabled: bool = True
     documents_indexed: int = Field(alias="documentsIndexed", ge=0)
     source_documents: int = Field(alias="sourceDocuments", ge=0)
     progress: float = Field(ge=0, le=1)
@@ -179,6 +189,8 @@ class SearchProjectionStatus(BaseModel):
     rebuild_completed_at: datetime | None = Field(alias="rebuildCompletedAt")
     failures: int = Field(ge=0)
     last_error: str | None = Field(alias="lastError")
+    checkpoints_verified: bool = Field(default=False, alias="checkpointsVerified")
+    active_checksum: str | None = Field(default=None, alias="activeChecksum")
 
 
 class SearchRebuildAccepted(BaseModel):
@@ -193,3 +205,55 @@ class SearchRebuildRequest(BaseModel):
     model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
 
     reason: str = Field(min_length=1, max_length=500)
+    types: tuple[SearchDocumentType, ...] = Field(default=(), max_length=7)
+    from_time: datetime | None = Field(default=None, alias="from")
+    to_time: datetime | None = Field(default=None, alias="to")
+
+    @field_validator("types")
+    @classmethod
+    def unique_types(
+        cls, value: tuple[SearchDocumentType, ...]
+    ) -> tuple[SearchDocumentType, ...]:
+        if len(value) != len(set(value)):
+            raise ValueError("search rebuild types must be unique")
+        return value
+
+    @model_validator(mode="after")
+    def validate_window(self) -> SearchRebuildRequest:
+        if (
+            self.from_time is not None
+            and self.to_time is not None
+            and self.from_time > self.to_time
+        ):
+            raise ValueError("search rebuild 'from' cannot be later than 'to'")
+        return self
+
+
+class SearchProjectionControlRequest(BaseModel):
+    model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
+
+    enabled: bool
+    reason: str = Field(min_length=1, max_length=500)
+
+
+class SearchProjectionVerificationItem(BaseModel):
+    model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
+
+    document_type: SearchDocumentType = Field(alias="documentType")
+    source_count: int = Field(alias="sourceCount", ge=0)
+    projected_count: int = Field(alias="projectedCount", ge=0)
+    source_checksum: str = Field(alias="sourceChecksum")
+    projected_checksum: str = Field(alias="projectedChecksum")
+    last_position: dict[str, Any] = Field(default_factory=dict, alias="lastPosition")
+    verified: bool
+
+
+class SearchProjectionVerification(BaseModel):
+    model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
+
+    projection_version: int = Field(alias="projectionVersion", ge=1)
+    schema_version: int = Field(alias="schemaVersion", ge=1)
+    verified: bool
+    checksum: str
+    items: tuple[SearchProjectionVerificationItem, ...]
+    verified_at: datetime = Field(alias="verifiedAt")

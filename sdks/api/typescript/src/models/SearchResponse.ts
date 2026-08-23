@@ -43,6 +43,12 @@ import {
 export interface SearchResponse {
     /**
      *
+     * @type {boolean}
+     * @memberof SearchResponse
+     */
+    authoritativeFallback?: boolean;
+    /**
+     *
      * @type {Array<SearchDocumentType>}
      * @memberof SearchResponse
      */
@@ -97,6 +103,7 @@ export function SearchResponseFromJSONTyped(json: any, ignoreDiscriminator: bool
     }
     return {
 
+        'authoritativeFallback': json['authoritativeFallback'] == null ? undefined : json['authoritativeFallback'],
         'deniedTypes': ((json['deniedTypes'] as Array<any>).map(SearchDocumentTypeFromJSON)),
         'items': ((json['items'] as Array<any>).map(SearchDocumentFromJSON)),
         'nextCursor': json['nextCursor'],
@@ -116,6 +123,7 @@ export function SearchResponseToJSONTyped(value?: SearchResponse | null, ignoreD
 
     return {
 
+        'authoritativeFallback': value['authoritativeFallback'],
         'deniedTypes': ((value['deniedTypes'] as Array<any>).map(SearchDocumentTypeToJSON)),
         'items': ((value['items'] as Array<any>).map(SearchDocumentToJSON)),
         'nextCursor': value['nextCursor'],

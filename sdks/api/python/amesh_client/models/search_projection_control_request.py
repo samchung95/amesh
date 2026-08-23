@@ -17,24 +17,20 @@ import pprint
 import re  # noqa: F401
 import json
 
-from datetime import datetime
-from pydantic import BaseModel, ConfigDict, Field
-from typing import Any, ClassVar, Dict, List, Optional
+from pydantic import BaseModel, ConfigDict, Field, StrictBool
+from typing import Any, ClassVar, Dict, List
 from typing_extensions import Annotated
-from amesh_client.models.search_document_type import SearchDocumentType
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
 
-class SearchRebuildRequest(BaseModel):
+class SearchProjectionControlRequest(BaseModel):
     """
-    SearchRebuildRequest
+    SearchProjectionControlRequest
     """ # noqa: E501
-    var_from: Optional[datetime] = Field(default=None, alias="from")
+    enabled: StrictBool
     reason: Annotated[str, Field(min_length=1, strict=True, max_length=500)]
-    to: Optional[datetime] = None
-    types: Optional[Annotated[List[SearchDocumentType], Field(max_length=7)]] = None
-    __properties: ClassVar[List[str]] = ["from", "reason", "to", "types"]
+    __properties: ClassVar[List[str]] = ["enabled", "reason"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -54,7 +50,7 @@ class SearchRebuildRequest(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Optional[Self]:
-        """Create an instance of SearchRebuildRequest from a JSON string"""
+        """Create an instance of SearchProjectionControlRequest from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -75,21 +71,11 @@ class SearchRebuildRequest(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # set to None if var_from (nullable) is None
-        # and model_fields_set contains the field
-        if self.var_from is None and "var_from" in self.model_fields_set:
-            _dict['from'] = None
-
-        # set to None if to (nullable) is None
-        # and model_fields_set contains the field
-        if self.to is None and "to" in self.model_fields_set:
-            _dict['to'] = None
-
         return _dict
 
     @classmethod
     def from_dict(cls, obj: Optional[Dict[str, Any]]) -> Optional[Self]:
-        """Create an instance of SearchRebuildRequest from a dict"""
+        """Create an instance of SearchProjectionControlRequest from a dict"""
         if obj is None:
             return None
 
@@ -97,9 +83,7 @@ class SearchRebuildRequest(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
-            "from": obj.get("from"),
-            "reason": obj.get("reason"),
-            "to": obj.get("to"),
-            "types": obj.get("types")
+            "enabled": obj.get("enabled"),
+            "reason": obj.get("reason")
         })
         return _obj

@@ -19,10 +19,20 @@ import {
     HTTPValidationErrorToJSON,
 } from '../models/HTTPValidationError';
 import {
+    type SearchProjectionControlRequest,
+    SearchProjectionControlRequestFromJSON,
+    SearchProjectionControlRequestToJSON,
+} from '../models/SearchProjectionControlRequest';
+import {
     type SearchProjectionStatus,
     SearchProjectionStatusFromJSON,
     SearchProjectionStatusToJSON,
 } from '../models/SearchProjectionStatus';
+import {
+    type SearchProjectionVerification,
+    SearchProjectionVerificationFromJSON,
+    SearchProjectionVerificationToJSON,
+} from '../models/SearchProjectionVerification';
 import {
     type SearchRebuildRequest,
     SearchRebuildRequestFromJSON,
@@ -38,6 +48,13 @@ import {
     SearchResponseFromJSON,
     SearchResponseToJSON,
 } from '../models/SearchResponse';
+
+export interface ControlSearchProjectionApiV1SearchControlPostRequest {
+    searchProjectionControlRequest: SearchProjectionControlRequest;
+    authorization?: string | null;
+    xAmeshCSRF?: string | null;
+    xAmeshTenant?: string | null;
+}
 
 export interface GetSearchStatusApiV1SearchStatusGetRequest {
     authorization?: string | null;
@@ -59,10 +76,75 @@ export interface SearchResourcesApiV1SearchPostRequest {
     xAmeshTenant?: string | null;
 }
 
+export interface VerifySearchProjectionApiV1SearchVerifyGetRequest {
+    authorization?: string | null;
+    xAmeshCSRF?: string | null;
+    xAmeshTenant?: string | null;
+}
+
 /**
  *
  */
 export class SearchApi extends runtime.BaseAPI {
+
+    /**
+     * Creates request options for controlSearchProjectionApiV1SearchControlPost without sending the request
+     */
+    async controlSearchProjectionApiV1SearchControlPostRequestOpts(requestParameters: ControlSearchProjectionApiV1SearchControlPostRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['searchProjectionControlRequest'] == null) {
+            throw new runtime.RequiredError(
+                'searchProjectionControlRequest',
+                'Required parameter "searchProjectionControlRequest" was null or undefined when calling controlSearchProjectionApiV1SearchControlPost().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        if (requestParameters['authorization'] != null) {
+            headerParameters['authorization'] = String(requestParameters['authorization']);
+        }
+
+        if (requestParameters['xAmeshCSRF'] != null) {
+            headerParameters['X-Amesh-CSRF'] = String(requestParameters['xAmeshCSRF']);
+        }
+
+        if (requestParameters['xAmeshTenant'] != null) {
+            headerParameters['X-Amesh-Tenant'] = String(requestParameters['xAmeshTenant']);
+        }
+
+
+        let urlPath = `/api/v1/search/control`;
+
+        return {
+            path: urlPath,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: SearchProjectionControlRequestToJSON(requestParameters['searchProjectionControlRequest']),
+        };
+    }
+
+    /**
+     * Control Search Projection
+     */
+    async controlSearchProjectionApiV1SearchControlPostRaw(requestParameters: ControlSearchProjectionApiV1SearchControlPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SearchProjectionStatus>> {
+        const requestOptions = await this.controlSearchProjectionApiV1SearchControlPostRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => SearchProjectionStatusFromJSON(jsonValue));
+    }
+
+    /**
+     * Control Search Projection
+     */
+    async controlSearchProjectionApiV1SearchControlPost(requestParameters: ControlSearchProjectionApiV1SearchControlPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SearchProjectionStatus> {
+        const response = await this.controlSearchProjectionApiV1SearchControlPostRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
 
     /**
      * Creates request options for getSearchStatusApiV1SearchStatusGet without sending the request
@@ -228,6 +310,55 @@ export class SearchApi extends runtime.BaseAPI {
      */
     async searchResourcesApiV1SearchPost(requestParameters: SearchResourcesApiV1SearchPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SearchResponse> {
         const response = await this.searchResourcesApiV1SearchPostRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Creates request options for verifySearchProjectionApiV1SearchVerifyGet without sending the request
+     */
+    async verifySearchProjectionApiV1SearchVerifyGetRequestOpts(requestParameters: VerifySearchProjectionApiV1SearchVerifyGetRequest): Promise<runtime.RequestOpts> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (requestParameters['authorization'] != null) {
+            headerParameters['authorization'] = String(requestParameters['authorization']);
+        }
+
+        if (requestParameters['xAmeshCSRF'] != null) {
+            headerParameters['X-Amesh-CSRF'] = String(requestParameters['xAmeshCSRF']);
+        }
+
+        if (requestParameters['xAmeshTenant'] != null) {
+            headerParameters['X-Amesh-Tenant'] = String(requestParameters['xAmeshTenant']);
+        }
+
+
+        let urlPath = `/api/v1/search/verify`;
+
+        return {
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     * Verify Search Projection
+     */
+    async verifySearchProjectionApiV1SearchVerifyGetRaw(requestParameters: VerifySearchProjectionApiV1SearchVerifyGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SearchProjectionVerification>> {
+        const requestOptions = await this.verifySearchProjectionApiV1SearchVerifyGetRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => SearchProjectionVerificationFromJSON(jsonValue));
+    }
+
+    /**
+     * Verify Search Projection
+     */
+    async verifySearchProjectionApiV1SearchVerifyGet(requestParameters: VerifySearchProjectionApiV1SearchVerifyGetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SearchProjectionVerification> {
+        const response = await this.verifySearchProjectionApiV1SearchVerifyGetRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

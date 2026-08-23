@@ -13,6 +13,14 @@
  */
 
 import { mapValues } from '../runtime';
+import type { SearchDocumentType } from './SearchDocumentType';
+import {
+    SearchDocumentTypeFromJSON,
+    SearchDocumentTypeFromJSONTyped,
+    SearchDocumentTypeToJSON,
+    SearchDocumentTypeToJSONTyped,
+} from './SearchDocumentType';
+
 /**
  *
  * @export
@@ -21,10 +29,28 @@ import { mapValues } from '../runtime';
 export interface SearchRebuildRequest {
     /**
      *
+     * @type {Date}
+     * @memberof SearchRebuildRequest
+     */
+    from?: Date | null;
+    /**
+     *
      * @type {string}
      * @memberof SearchRebuildRequest
      */
     reason: string;
+    /**
+     *
+     * @type {Date}
+     * @memberof SearchRebuildRequest
+     */
+    to?: Date | null;
+    /**
+     *
+     * @type {Array<SearchDocumentType>}
+     * @memberof SearchRebuildRequest
+     */
+    types?: Array<SearchDocumentType>;
 }
 
 /**
@@ -45,7 +71,10 @@ export function SearchRebuildRequestFromJSONTyped(json: any, ignoreDiscriminator
     }
     return {
 
+        'from': json['from'] === undefined ? undefined : json['from'] === null ? null : (new Date(json['from'])),
         'reason': json['reason'],
+        'to': json['to'] === undefined ? undefined : json['to'] === null ? null : (new Date(json['to'])),
+        'types': json['types'] == null ? undefined : ((json['types'] as Array<any>).map(SearchDocumentTypeFromJSON)),
     };
 }
 
@@ -60,6 +89,9 @@ export function SearchRebuildRequestToJSONTyped(value?: SearchRebuildRequest | n
 
     return {
 
+        'from': value['from'] == null ? value['from'] : value['from'].toISOString(),
         'reason': value['reason'],
+        'to': value['to'] == null ? value['to'] : value['to'].toISOString(),
+        'types': value['types'] == null ? undefined : ((value['types'] as Array<any>).map(SearchDocumentTypeToJSON)),
     };
 }

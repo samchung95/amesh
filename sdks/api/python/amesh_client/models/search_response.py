@@ -17,7 +17,7 @@ import pprint
 import re  # noqa: F401
 import json
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from amesh_client.models.search_document import SearchDocument
@@ -31,12 +31,13 @@ class SearchResponse(BaseModel):
     """
     SearchResponse
     """ # noqa: E501
+    authoritative_fallback: Optional[StrictBool] = Field(default=False, alias="authoritativeFallback")
     denied_types: List[SearchDocumentType] = Field(alias="deniedTypes")
     items: List[SearchDocument]
     next_cursor: Optional[StrictStr] = Field(alias="nextCursor")
     projection_condition: SearchProjectionCondition = Field(alias="projectionCondition")
     projection_version: Annotated[int, Field(strict=True, ge=1)] = Field(alias="projectionVersion")
-    __properties: ClassVar[List[str]] = ["deniedTypes", "items", "nextCursor", "projectionCondition", "projectionVersion"]
+    __properties: ClassVar[List[str]] = ["authoritativeFallback", "deniedTypes", "items", "nextCursor", "projectionCondition", "projectionVersion"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -101,6 +102,7 @@ class SearchResponse(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
+            "authoritativeFallback": obj.get("authoritativeFallback") if obj.get("authoritativeFallback") is not None else False,
             "deniedTypes": obj.get("deniedTypes"),
             "items": [SearchDocument.from_dict(_item) for _item in obj["items"]] if obj.get("items") is not None else None,
             "nextCursor": obj.get("nextCursor"),

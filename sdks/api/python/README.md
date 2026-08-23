@@ -291,9 +291,11 @@ Class | Method | HTTP request | Description
 *ScimApi* | [**patch_scim_group_scim_v2_groups_group_id_patch**](docs/ScimApi.md#patch_scim_group_scim_v2_groups_group_id_patch) | **PATCH** /scim/v2/Groups/{group_id} | Patch Scim Group
 *ScimApi* | [**patch_scim_user_scim_v2_users_user_id_patch**](docs/ScimApi.md#patch_scim_user_scim_v2_users_user_id_patch) | **PATCH** /scim/v2/Users/{user_id} | Patch Scim User
 *ScimApi* | [**scim_service_provider_config_scim_v2_service_provider_config_get**](docs/ScimApi.md#scim_service_provider_config_scim_v2_service_provider_config_get) | **GET** /scim/v2/ServiceProviderConfig | Scim Service Provider Config
+*SearchApi* | [**control_search_projection_api_v1_search_control_post**](docs/SearchApi.md#control_search_projection_api_v1_search_control_post) | **POST** /api/v1/search/control | Control Search Projection
 *SearchApi* | [**get_search_status_api_v1_search_status_get**](docs/SearchApi.md#get_search_status_api_v1_search_status_get) | **GET** /api/v1/search/status | Get Search Status
 *SearchApi* | [**rebuild_search_projection_api_v1_search_rebuild_post**](docs/SearchApi.md#rebuild_search_projection_api_v1_search_rebuild_post) | **POST** /api/v1/search/rebuild | Rebuild Search Projection
 *SearchApi* | [**search_resources_api_v1_search_post**](docs/SearchApi.md#search_resources_api_v1_search_post) | **POST** /api/v1/search | Search Resources
+*SearchApi* | [**verify_search_projection_api_v1_search_verify_get**](docs/SearchApi.md#verify_search_projection_api_v1_search_verify_get) | **GET** /api/v1/search/verify | Verify Search Projection
 *SystemApi* | [**health_health_get**](docs/SystemApi.md#health_health_get) | **GET** /health | Health
 *SystemApi* | [**ready_ready_get**](docs/SystemApi.md#ready_ready_get) | **GET** /ready | Ready
 *TaskCacheApi* | [**list_task_cache_entries_api_v1_task_cache_get**](docs/TaskCacheApi.md#list_task_cache_entries_api_v1_task_cache_get) | **GET** /api/v1/task-cache | List Task Cache Entries
@@ -623,7 +625,10 @@ Class | Method | HTTP request | Description
  - [SearchDocument](docs/SearchDocument.md)
  - [SearchDocumentType](docs/SearchDocumentType.md)
  - [SearchProjectionCondition](docs/SearchProjectionCondition.md)
+ - [SearchProjectionControlRequest](docs/SearchProjectionControlRequest.md)
  - [SearchProjectionStatus](docs/SearchProjectionStatus.md)
+ - [SearchProjectionVerification](docs/SearchProjectionVerification.md)
+ - [SearchProjectionVerificationItem](docs/SearchProjectionVerificationItem.md)
  - [SearchRange](docs/SearchRange.md)
  - [SearchRangeField](docs/SearchRangeField.md)
  - [SearchRebuildRequest](docs/SearchRebuildRequest.md)

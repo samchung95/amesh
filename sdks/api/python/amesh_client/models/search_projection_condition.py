@@ -29,6 +29,7 @@ class SearchProjectionCondition(str, Enum):
     READY = 'READY'
     REBUILDING = 'REBUILDING'
     DEGRADED = 'DEGRADED'
+    DISABLED = 'DISABLED'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

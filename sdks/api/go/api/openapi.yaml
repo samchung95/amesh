@@ -11427,6 +11427,56 @@ paths:
       summary: Search Resources
       tags:
       - search
+  /api/v1/search/control:
+    post:
+      operationId: control_search_projection_api_v1_search_control_post
+      parameters:
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SearchProjectionControlRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SearchProjectionStatus"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Control Search Projection
+      tags:
+      - search
   /api/v1/search/rebuild:
     post:
       operationId: rebuild_search_projection_api_v1_search_rebuild_post
@@ -11519,6 +11569,50 @@ paths:
                 $ref: "#/components/schemas/HTTPValidationError"
           description: Validation Error
       summary: Get Search Status
+      tags:
+      - search
+  /api/v1/search/verify:
+    get:
+      operationId: verify_search_projection_api_v1_search_verify_get
+      parameters:
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SearchProjectionVerification"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Verify Search Projection
       tags:
       - search
   /api/v1/task-cache:
@@ -26089,7 +26183,9 @@ components:
       enum:
       - FLOW
       - EXECUTION
+      - TASK_RUN
       - LOG
+      - METRIC
       - ASSET
       - AUDIT
       title: SearchDocumentType
@@ -26099,30 +26195,69 @@ components:
       - READY
       - REBUILDING
       - DEGRADED
+      - DISABLED
       title: SearchProjectionCondition
       type: string
+    SearchProjectionControlRequest:
+      additionalProperties: false
+      example:
+        enabled: true
+        reason: reason
+      properties:
+        enabled:
+          title: Enabled
+          type: boolean
+        reason:
+          maxLength: 500
+          minLength: 1
+          title: Reason
+          type: string
+      required:
+      - enabled
+      - reason
+      title: SearchProjectionControlRequest
     SearchProjectionStatus:
       additionalProperties: false
       example:
+        activeChecksum: activeChecksum
+        buildingVersion: 1
+        checkpointsVerified: false
         condition: READY
         documentsIndexed: 0
+        enabled: true
         failures: 0
-        lagSeconds: 0.14658129805029452
+        lagSeconds: 0.5962133916683182
         lastError: lastError
         lastProjectedAt: 2000-01-23T04:56:07.000+00:00
         latestSourceAt: 2000-01-23T04:56:07.000+00:00
-        progress: 0.5962133916683182
+        progress: 0.5637376656633328
         projectionVersion: 1
         rebuildCompletedAt: 2000-01-23T04:56:07.000+00:00
         rebuildStartedAt: 2000-01-23T04:56:07.000+00:00
+        schemaVersion: 1
         sourceDocuments: 0
       properties:
+        activeChecksum:
+          nullable: true
+          type: string
+        buildingVersion:
+          minimum: 1.0
+          nullable: true
+          type: integer
+        checkpointsVerified:
+          default: false
+          title: Checkpointsverified
+          type: boolean
         condition:
           $ref: "#/components/schemas/SearchProjectionCondition"
         documentsIndexed:
           minimum: 0.0
           title: Documentsindexed
           type: integer
+        enabled:
+          default: true
+          title: Enabled
+          type: boolean
         failures:
           minimum: 0.0
           title: Failures
@@ -26159,6 +26294,11 @@ components:
           format: date-time
           nullable: true
           type: string
+        schemaVersion:
+          default: 2
+          minimum: 1.0
+          title: Schemaversion
+          type: integer
         sourceDocuments:
           minimum: 0.0
           title: Sourcedocuments
@@ -26177,6 +26317,107 @@ components:
       - rebuildStartedAt
       - sourceDocuments
       title: SearchProjectionStatus
+    SearchProjectionVerification:
+      additionalProperties: false
+      example:
+        checksum: checksum
+        items:
+        - documentType: FLOW
+          lastPosition:
+            key: ""
+          projectedChecksum: projectedChecksum
+          projectedCount: 0
+          sourceChecksum: sourceChecksum
+          sourceCount: 0
+          verified: true
+        - documentType: FLOW
+          lastPosition:
+            key: ""
+          projectedChecksum: projectedChecksum
+          projectedCount: 0
+          sourceChecksum: sourceChecksum
+          sourceCount: 0
+          verified: true
+        projectionVersion: 1
+        schemaVersion: 1
+        verified: true
+        verifiedAt: 2000-01-23T04:56:07.000+00:00
+      properties:
+        checksum:
+          title: Checksum
+          type: string
+        items:
+          items:
+            $ref: "#/components/schemas/SearchProjectionVerificationItem"
+          title: Items
+          type: array
+          default: null
+        projectionVersion:
+          minimum: 1.0
+          title: Projectionversion
+          type: integer
+        schemaVersion:
+          minimum: 1.0
+          title: Schemaversion
+          type: integer
+        verified:
+          title: Verified
+          type: boolean
+        verifiedAt:
+          format: date-time
+          title: Verifiedat
+          type: string
+      required:
+      - checksum
+      - items
+      - projectionVersion
+      - schemaVersion
+      - verified
+      - verifiedAt
+      title: SearchProjectionVerification
+    SearchProjectionVerificationItem:
+      additionalProperties: {}
+      example:
+        documentType: FLOW
+        lastPosition:
+          key: ""
+        projectedChecksum: projectedChecksum
+        projectedCount: 0
+        sourceChecksum: sourceChecksum
+        sourceCount: 0
+        verified: true
+      properties:
+        documentType:
+          $ref: "#/components/schemas/SearchDocumentType"
+        lastPosition:
+          additionalProperties: true
+          title: Lastposition
+          type: object
+        projectedChecksum:
+          title: Projectedchecksum
+          type: string
+        projectedCount:
+          minimum: 0.0
+          title: Projectedcount
+          type: integer
+        sourceChecksum:
+          title: Sourcechecksum
+          type: string
+        sourceCount:
+          minimum: 0.0
+          title: Sourcecount
+          type: integer
+        verified:
+          title: Verified
+          type: boolean
+      required:
+      - documentType
+      - projectedChecksum
+      - projectedCount
+      - sourceChecksum
+      - sourceCount
+      - verified
+      title: SearchProjectionVerificationItem
     SearchRange:
       additionalProperties: false
       example:
@@ -26203,13 +26444,36 @@ components:
     SearchRebuildRequest:
       additionalProperties: false
       example:
+        from: 2000-01-23T04:56:07.000+00:00
         reason: reason
+        to: 2000-01-23T04:56:07.000+00:00
+        types:
+        - FLOW
+        - FLOW
+        - FLOW
+        - FLOW
+        - FLOW
       properties:
+        from:
+          format: date-time
+          nullable: true
+          type: string
         reason:
           maxLength: 500
           minLength: 1
           title: Reason
           type: string
+        to:
+          format: date-time
+          nullable: true
+          type: string
+        types:
+          default: []
+          items:
+            $ref: "#/components/schemas/SearchDocumentType"
+          maxItems: 7
+          title: Types
+          type: array
       required:
       - reason
       title: SearchRebuildRequest
@@ -26315,13 +26579,14 @@ components:
           default: []
           items:
             $ref: "#/components/schemas/SearchDocumentType"
-          maxItems: 5
+          maxItems: 7
           title: Types
           type: array
       title: SearchRequest
     SearchResponse:
       additionalProperties: false
       example:
+        authoritativeFallback: false
         deniedTypes:
         - FLOW
         - FLOW
@@ -26358,6 +26623,10 @@ components:
         projectionCondition: READY
         projectionVersion: 1
       properties:
+        authoritativeFallback:
+          default: false
+          title: Authoritativefallback
+          type: boolean
         deniedTypes:
           items:
             $ref: "#/components/schemas/SearchDocumentType"

@@ -18,7 +18,7 @@ import re  # noqa: F401
 import json
 
 from datetime import datetime
-from pydantic import BaseModel, ConfigDict, Field, StrictStr
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional, Union
 from typing_extensions import Annotated
 from amesh_client.models.search_projection_condition import SearchProjectionCondition
@@ -30,8 +30,12 @@ class SearchProjectionStatus(BaseModel):
     """
     SearchProjectionStatus
     """ # noqa: E501
+    active_checksum: Optional[StrictStr] = Field(default=None, alias="activeChecksum")
+    building_version: Optional[Annotated[int, Field(strict=True, ge=1)]] = Field(default=None, alias="buildingVersion")
+    checkpoints_verified: Optional[StrictBool] = Field(default=False, alias="checkpointsVerified")
     condition: SearchProjectionCondition
     documents_indexed: Annotated[int, Field(strict=True, ge=0)] = Field(alias="documentsIndexed")
+    enabled: Optional[StrictBool] = True
     failures: Annotated[int, Field(strict=True, ge=0)]
     lag_seconds: Optional[Union[Annotated[float, Field(strict=True, ge=0.0)], Annotated[int, Field(strict=True, ge=0)]]] = Field(alias="lagSeconds")
     last_error: Optional[StrictStr] = Field(alias="lastError")
@@ -41,8 +45,9 @@ class SearchProjectionStatus(BaseModel):
     projection_version: Annotated[int, Field(strict=True, ge=1)] = Field(alias="projectionVersion")
     rebuild_completed_at: Optional[datetime] = Field(alias="rebuildCompletedAt")
     rebuild_started_at: Optional[datetime] = Field(alias="rebuildStartedAt")
+    schema_version: Optional[Annotated[int, Field(strict=True, ge=1)]] = Field(default=2, alias="schemaVersion")
     source_documents: Annotated[int, Field(strict=True, ge=0)] = Field(alias="sourceDocuments")
-    __properties: ClassVar[List[str]] = ["condition", "documentsIndexed", "failures", "lagSeconds", "lastError", "lastProjectedAt", "latestSourceAt", "progress", "projectionVersion", "rebuildCompletedAt", "rebuildStartedAt", "sourceDocuments"]
+    __properties: ClassVar[List[str]] = ["activeChecksum", "buildingVersion", "checkpointsVerified", "condition", "documentsIndexed", "enabled", "failures", "lagSeconds", "lastError", "lastProjectedAt", "latestSourceAt", "progress", "projectionVersion", "rebuildCompletedAt", "rebuildStartedAt", "schemaVersion", "sourceDocuments"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -83,6 +88,16 @@ class SearchProjectionStatus(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # set to None if active_checksum (nullable) is None
+        # and model_fields_set contains the field
+        if self.active_checksum is None and "active_checksum" in self.model_fields_set:
+            _dict['activeChecksum'] = None
+
+        # set to None if building_version (nullable) is None
+        # and model_fields_set contains the field
+        if self.building_version is None and "building_version" in self.model_fields_set:
+            _dict['buildingVersion'] = None
+
         # set to None if lag_seconds (nullable) is None
         # and model_fields_set contains the field
         if self.lag_seconds is None and "lag_seconds" in self.model_fields_set:
@@ -125,8 +140,12 @@ class SearchProjectionStatus(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
+            "activeChecksum": obj.get("activeChecksum"),
+            "buildingVersion": obj.get("buildingVersion"),
+            "checkpointsVerified": obj.get("checkpointsVerified") if obj.get("checkpointsVerified") is not None else False,
             "condition": obj.get("condition"),
             "documentsIndexed": obj.get("documentsIndexed"),
+            "enabled": obj.get("enabled") if obj.get("enabled") is not None else True,
             "failures": obj.get("failures"),
             "lagSeconds": obj.get("lagSeconds"),
             "lastError": obj.get("lastError"),
@@ -136,6 +155,7 @@ class SearchProjectionStatus(BaseModel):
             "projectionVersion": obj.get("projectionVersion"),
             "rebuildCompletedAt": obj.get("rebuildCompletedAt"),
             "rebuildStartedAt": obj.get("rebuildStartedAt"),
+            "schemaVersion": obj.get("schemaVersion") if obj.get("schemaVersion") is not None else 2,
             "sourceDocuments": obj.get("sourceDocuments")
         })
         return _obj

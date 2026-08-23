@@ -23,6 +23,8 @@ from amesh.domain import (
     SearchDocumentType,
     SearchProjectionCondition,
     SearchProjectionStatus,
+    SearchProjectionVerification,
+    SearchProjectionVerificationItem,
     SearchRequest,
     SearchResponse,
 )
@@ -57,6 +59,8 @@ class SearchRepositoryStub:
         self.authorized: tuple[SearchDocumentType, ...] = ()
         self.denied: tuple[SearchDocumentType, ...] = ()
         self.rebuild_reason: str | None = None
+        self.rebuild_types: tuple[SearchDocumentType, ...] = ()
+        self.enabled = True
 
     async def search(
         self,
@@ -117,11 +121,59 @@ class SearchRepositoryStub:
         tenant_id: str,
         actor_id: str,
         reason: str,
+        document_types: tuple[SearchDocumentType, ...] = (),
+        from_time: datetime | None = None,
+        to_time: datetime | None = None,
     ) -> SearchProjectionStatus:
-        del tenant_id, actor_id
+        del tenant_id, actor_id, from_time, to_time
         self.rebuild_reason = reason
+        self.rebuild_types = document_types
         status = await self.status(tenant_id="default")
         return status.model_copy(update={"condition": SearchProjectionCondition.REBUILDING})
+
+    async def set_enabled(
+        self,
+        *,
+        tenant_id: str,
+        actor_id: str,
+        enabled: bool,
+        reason: str,
+    ) -> SearchProjectionStatus:
+        del tenant_id, actor_id, reason
+        self.enabled = enabled
+        status = await self.status(tenant_id="default")
+        return status.model_copy(
+            update={
+                "enabled": enabled,
+                "condition": (
+                    SearchProjectionCondition.READY
+                    if enabled
+                    else SearchProjectionCondition.DISABLED
+                ),
+            }
+        )
+
+    async def verify(self, *, tenant_id: str) -> SearchProjectionVerification:
+        del tenant_id
+        now = datetime(2026, 8, 23, tzinfo=UTC)
+        return SearchProjectionVerification(
+            projectionVersion=3,
+            schemaVersion=2,
+            verified=True,
+            checksum="verified",
+            items=(
+                SearchProjectionVerificationItem(
+                    documentType=SearchDocumentType.FLOW,
+                    sourceCount=1,
+                    projectedCount=1,
+                    sourceChecksum="same",
+                    projectedChecksum="same",
+                    lastPosition={"documentId": "flow-1"},
+                    verified=True,
+                ),
+            ),
+            verifiedAt=now,
+        )
 
 
 class TenantQuotaStub:
@@ -169,7 +221,9 @@ def test_search_api_filters_types_by_underlying_permissions_and_controls_rebuild
             assert repository.authorized == (
                 SearchDocumentType.FLOW,
                 SearchDocumentType.EXECUTION,
+                SearchDocumentType.TASK_RUN,
                 SearchDocumentType.LOG,
+                SearchDocumentType.METRIC,
             )
             assert repository.denied == (
                 SearchDocumentType.ASSET,
@@ -186,11 +240,35 @@ def test_search_api_filters_types_by_underlying_permissions_and_controls_rebuild
             rebuild = await client.post(
                 "/api/v1/search/rebuild",
                 headers={"X-Amesh-Tenant": "default"},
-                json={"reason": "repair projection drift"},
+                json={
+                    "reason": "repair projection drift",
+                    "types": ["TASK_RUN", "METRIC"],
+                    "from": "2026-08-01T00:00:00Z",
+                },
             )
             assert rebuild.status_code == 202
             assert rebuild.json()["condition"] == "REBUILDING"
             assert repository.rebuild_reason == "repair projection drift"
+            assert repository.rebuild_types == (
+                SearchDocumentType.TASK_RUN,
+                SearchDocumentType.METRIC,
+            )
+
+            verification = await client.get(
+                "/api/v1/search/verify",
+                headers={"X-Amesh-Tenant": "default"},
+            )
+            assert verification.status_code == 200
+            assert verification.json()["verified"] is True
+
+            disabled = await client.post(
+                "/api/v1/search/control",
+                headers={"X-Amesh-Tenant": "default"},
+                json={"enabled": False, "reason": "exercise authoritative fallback"},
+            )
+            assert disabled.status_code == 200
+            assert disabled.json()["condition"] == "DISABLED"
+            assert repository.enabled is False
 
             invalid = await client.post(
                 "/api/v1/search",

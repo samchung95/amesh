@@ -20,7 +20,9 @@
 export const SearchDocumentType = {
     Flow: 'FLOW',
     Execution: 'EXECUTION',
+    TaskRun: 'TASK_RUN',
     Log: 'LOG',
+    Metric: 'METRIC',
     Asset: 'ASSET',
     Audit: 'AUDIT'
 } as const;

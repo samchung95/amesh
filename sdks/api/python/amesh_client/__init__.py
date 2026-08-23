@@ -358,7 +358,10 @@ __all__ = [
     "SearchDocument",
     "SearchDocumentType",
     "SearchProjectionCondition",
+    "SearchProjectionControlRequest",
     "SearchProjectionStatus",
+    "SearchProjectionVerification",
+    "SearchProjectionVerificationItem",
     "SearchRange",
     "SearchRangeField",
     "SearchRebuildRequest",
@@ -776,7 +779,10 @@ from amesh_client.models.scim_user_resource import ScimUserResource as ScimUserR
 from amesh_client.models.search_document import SearchDocument as SearchDocument
 from amesh_client.models.search_document_type import SearchDocumentType as SearchDocumentType
 from amesh_client.models.search_projection_condition import SearchProjectionCondition as SearchProjectionCondition
+from amesh_client.models.search_projection_control_request import SearchProjectionControlRequest as SearchProjectionControlRequest
 from amesh_client.models.search_projection_status import SearchProjectionStatus as SearchProjectionStatus
+from amesh_client.models.search_projection_verification import SearchProjectionVerification as SearchProjectionVerification
+from amesh_client.models.search_projection_verification_item import SearchProjectionVerificationItem as SearchProjectionVerificationItem
 from amesh_client.models.search_range import SearchRange as SearchRange
 from amesh_client.models.search_range_field import SearchRangeField as SearchRangeField
 from amesh_client.models.search_rebuild_request import SearchRebuildRequest as SearchRebuildRequest

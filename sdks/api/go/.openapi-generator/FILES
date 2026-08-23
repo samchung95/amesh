@@ -368,7 +368,10 @@ model_scim_user_resource.go
 model_search_document.go
 model_search_document_type.go
 model_search_projection_condition.go
+model_search_projection_control_request.go
 model_search_projection_status.go
+model_search_projection_verification.go
+model_search_projection_verification_item.go
 model_search_range.go
 model_search_range_field.go
 model_search_rebuild_request.go

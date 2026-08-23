@@ -22,7 +22,9 @@ type SearchDocumentType string
 const (
 	SEARCHDOCUMENTTYPE_FLOW SearchDocumentType = "FLOW"
 	SEARCHDOCUMENTTYPE_EXECUTION SearchDocumentType = "EXECUTION"
+	SEARCHDOCUMENTTYPE_TASK_RUN SearchDocumentType = "TASK_RUN"
 	SEARCHDOCUMENTTYPE_LOG SearchDocumentType = "LOG"
+	SEARCHDOCUMENTTYPE_METRIC SearchDocumentType = "METRIC"
 	SEARCHDOCUMENTTYPE_ASSET SearchDocumentType = "ASSET"
 	SEARCHDOCUMENTTYPE_AUDIT SearchDocumentType = "AUDIT"
 )
@@ -31,7 +33,9 @@ const (
 var AllowedSearchDocumentTypeEnumValues = []SearchDocumentType{
 	"FLOW",
 	"EXECUTION",
+	"TASK_RUN",
 	"LOG",
+	"METRIC",
 	"ASSET",
 	"AUDIT",
 }

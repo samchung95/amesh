@@ -109,14 +109,38 @@ export function SearchPage({ session }: { session: UiSession }) {
     setParams(next)
   }
   const rebuild = async () => {
-    if (!window.confirm('Delete and rebuild this tenant search projection from authoritative data?')) return
+    if (!window.confirm('Build and atomically activate a new tenant search projection generation?')) return
     try {
-      await api.rebuildSearch('operator requested an authoritative projection rebuild')
-      setRebuildNotice('Rebuild accepted. The indexer is repopulating this tenant projection.')
+      await api.rebuildSearch('operator requested an authoritative projection rebuild', {
+        types: types.length === SEARCH_TYPES.length ? undefined : types,
+        from: iso(from),
+        to: iso(to),
+      })
+      setRebuildNotice('Blue-green rebuild accepted. The active generation remains queryable until verification passes.')
       await status.refetch()
       await results.refetch()
     } catch (caught) {
       setRebuildNotice(caught instanceof Error ? caught.message : 'Search rebuild failed')
+    }
+  }
+  const verify = async () => {
+    try {
+      const result = await api.verifySearch()
+      setRebuildNotice(result.verified ? `Projection verified: ${result.checksum.slice(0, 12)}` : 'Projection drift detected. Review per-type checksums through the API.')
+      await status.refetch()
+    } catch (caught) {
+      setRebuildNotice(caught instanceof Error ? caught.message : 'Search verification failed')
+    }
+  }
+  const toggleProjection = async () => {
+    const enabled = !(status.data?.enabled ?? true)
+    try {
+      await api.controlSearch(enabled, enabled ? 'operator resumed projected search' : 'operator selected bounded authoritative fallback')
+      setRebuildNotice(enabled ? 'Projected search enabled.' : 'Projection disabled. Flow and execution searches use bounded authoritative fallback.')
+      await status.refetch()
+      await results.refetch()
+    } catch (caught) {
+      setRebuildNotice(caught instanceof Error ? caught.message : 'Search control failed')
     }
   }
 
@@ -124,11 +148,11 @@ export function SearchPage({ session }: { session: UiSession }) {
     <div className="page-stack search-workbench">
       <header className="page-heading">
         <div><p className="eyebrow">DISCOVER / PROJECTION</p><h1>Search</h1><p>Authorized full-text and structured retrieval across rebuildable tenant data.</p></div>
-        {session.capabilities['search.manage'] ? <button className="button button-secondary" type="button" onClick={() => void rebuild()}><RefreshCw size={17} aria-hidden="true" />Rebuild index</button> : null}
+        {session.capabilities['search.manage'] ? <div className="resource-heading-actions"><button className="button button-secondary" type="button" onClick={() => void verify()}>Verify</button><button className="button button-secondary" type="button" onClick={() => void toggleProjection()}>{status.data?.enabled === false ? 'Enable projection' : 'Use fallback'}</button><button className="button button-secondary" type="button" onClick={() => void rebuild()}><RefreshCw size={17} aria-hidden="true" />Rebuild index</button></div> : null}
       </header>
       <section className={`search-health search-health-${(status.data?.condition || 'ready').toLowerCase()}`} aria-label="Search projection status">
         <Database size={20} aria-hidden="true" />
-        <div><strong>{status.data?.condition || 'Loading'} · projection v{status.data?.projectionVersion || '—'}</strong><span>{status.data ? `${formatNumber(status.data.documentsIndexed, settings.locale)} / ${formatNumber(status.data.sourceDocuments, settings.locale)} documents · ${Math.round(status.data.progress * 100)}% · lag ${status.data.lagSeconds === null ? 'unknown' : `${status.data.lagSeconds.toFixed(1)}s`}` : 'Reading projection health…'}</span></div>
+        <div><strong>{status.data?.condition || 'Loading'} · schema v{status.data?.schemaVersion || '—'} · projection v{status.data?.projectionVersion || '—'}{status.data?.buildingVersion ? ` → v${status.data.buildingVersion}` : ''}</strong><span>{status.data ? `${formatNumber(status.data.documentsIndexed, settings.locale)} / ${formatNumber(status.data.sourceDocuments, settings.locale)} documents · ${Math.round(status.data.progress * 100)}% · ${status.data.checkpointsVerified ? 'checksums verified' : 'verification pending'} · lag ${status.data.lagSeconds === null ? 'unknown' : `${status.data.lagSeconds.toFixed(1)}s`}` : 'Reading projection health…'}</span></div>
         {status.data?.failures ? <span className="search-failures"><AlertTriangle size={15} aria-hidden="true" />{status.data.failures} failures</span> : null}
       </section>
       {rebuildNotice ? <p className="inline-notice" role="status">{rebuildNotice}</p> : null}
@@ -152,7 +176,7 @@ export function SearchPage({ session }: { session: UiSession }) {
       {results.data && !results.data.items.length ? <EmptyState title="No authorized results" body="Change the text or structured filters. Rebuilding projections may be temporarily incomplete." /> : null}
       {results.data?.items.length ? (
         <section className="search-results" aria-label="Search results">
-          <header><strong>{results.data.items.length} results on this page</strong><span>{results.data.projectionCondition} · v{results.data.projectionVersion}</span></header>
+          <header><strong>{results.data.items.length} results on this page</strong><span>{results.data.authoritativeFallback ? 'AUTHORITATIVE FALLBACK' : results.data.projectionCondition} · v{results.data.projectionVersion}</span></header>
           <ol>{results.data.items.map((item) => <li key={`${item.documentType}:${item.documentId}`}><Link to={searchResultPath(item)}><span className={`search-type search-type-${item.documentType.toLowerCase()}`}>{searchTypeLabel(item.documentType)}</span><div><strong>{item.title}</strong><p>{item.summary || 'No indexed summary'}</p><small>{item.namespace || 'Tenant-wide'}{item.state ? ` · ${item.state}` : ''} · updated {formatDate(item.updatedAt, settings.locale, settings.timezone)}</small></div><span className="search-score">{item.relevance.toFixed(2)}</span></Link></li>)}</ol>
           <footer><button className="button button-secondary" type="button" disabled={!cursorHistory.length} onClick={previousPage}><ArrowLeft size={16} aria-hidden="true" />Previous</button><button className="button button-secondary" type="button" disabled={!results.data.nextCursor} onClick={nextPage}>Next<ArrowRight size={16} aria-hidden="true" /></button></footer>
         </section>

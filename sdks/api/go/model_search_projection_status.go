@@ -22,8 +22,12 @@ var _ MappedNullable = &SearchProjectionStatus{}
 
 // SearchProjectionStatus struct for SearchProjectionStatus
 type SearchProjectionStatus struct {
+	ActiveChecksum NullableString `json:"activeChecksum,omitempty"`
+	BuildingVersion NullableInt32 `json:"buildingVersion,omitempty"`
+	CheckpointsVerified *bool `json:"checkpointsVerified,omitempty"`
 	Condition SearchProjectionCondition `json:"condition"`
 	DocumentsIndexed int32 `json:"documentsIndexed"`
+	Enabled *bool `json:"enabled,omitempty"`
 	Failures int32 `json:"failures"`
 	LagSeconds NullableFloat32 `json:"lagSeconds"`
 	LastError NullableString `json:"lastError"`
@@ -33,6 +37,7 @@ type SearchProjectionStatus struct {
 	ProjectionVersion int32 `json:"projectionVersion"`
 	RebuildCompletedAt NullableTime `json:"rebuildCompletedAt"`
 	RebuildStartedAt NullableTime `json:"rebuildStartedAt"`
+	SchemaVersion *int32 `json:"schemaVersion,omitempty"`
 	SourceDocuments int32 `json:"sourceDocuments"`
 }
 
@@ -44,8 +49,12 @@ type _SearchProjectionStatus SearchProjectionStatus
 // will change when the set of required properties is changed
 func NewSearchProjectionStatus(condition SearchProjectionCondition, documentsIndexed int32, failures int32, lagSeconds NullableFloat32, lastError NullableString, lastProjectedAt NullableTime, latestSourceAt NullableTime, progress float32, projectionVersion int32, rebuildCompletedAt NullableTime, rebuildStartedAt NullableTime, sourceDocuments int32) *SearchProjectionStatus {
 	this := SearchProjectionStatus{}
+	var checkpointsVerified bool = false
+	this.CheckpointsVerified = &checkpointsVerified
 	this.Condition = condition
 	this.DocumentsIndexed = documentsIndexed
+	var enabled bool = true
+	this.Enabled = &enabled
 	this.Failures = failures
 	this.LagSeconds = lagSeconds
 	this.LastError = lastError
@@ -55,6 +64,8 @@ func NewSearchProjectionStatus(condition SearchProjectionCondition, documentsInd
 	this.ProjectionVersion = projectionVersion
 	this.RebuildCompletedAt = rebuildCompletedAt
 	this.RebuildStartedAt = rebuildStartedAt
+	var schemaVersion int32 = 2
+	this.SchemaVersion = &schemaVersion
 	this.SourceDocuments = sourceDocuments
 	return &this
 }
@@ -64,7 +75,129 @@ func NewSearchProjectionStatus(condition SearchProjectionCondition, documentsInd
 // but it doesn't guarantee that properties required by API are set
 func NewSearchProjectionStatusWithDefaults() *SearchProjectionStatus {
 	this := SearchProjectionStatus{}
+	var checkpointsVerified bool = false
+	this.CheckpointsVerified = &checkpointsVerified
+	var enabled bool = true
+	this.Enabled = &enabled
+	var schemaVersion int32 = 2
+	this.SchemaVersion = &schemaVersion
 	return &this
+}
+
+// GetActiveChecksum returns the ActiveChecksum field value if set, zero value otherwise (both if not set or set to explicit null).
+func (o *SearchProjectionStatus) GetActiveChecksum() string {
+	if o == nil || IsNil(o.ActiveChecksum.Get()) {
+		var ret string
+		return ret
+	}
+	return *o.ActiveChecksum.Get()
+}
+
+// GetActiveChecksumOk returns a tuple with the ActiveChecksum field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
+func (o *SearchProjectionStatus) GetActiveChecksumOk() (*string, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return o.ActiveChecksum.Get(), o.ActiveChecksum.IsSet()
+}
+
+// HasActiveChecksum returns a boolean if a field has been set.
+func (o *SearchProjectionStatus) HasActiveChecksum() bool {
+	if o != nil && o.ActiveChecksum.IsSet() {
+		return true
+	}
+
+	return false
+}
+
+// SetActiveChecksum gets a reference to the given NullableString and assigns it to the ActiveChecksum field.
+func (o *SearchProjectionStatus) SetActiveChecksum(v string) {
+	o.ActiveChecksum.Set(&v)
+}
+// SetActiveChecksumNil sets the value for ActiveChecksum to be an explicit nil
+func (o *SearchProjectionStatus) SetActiveChecksumNil() {
+	o.ActiveChecksum.Set(nil)
+}
+
+// UnsetActiveChecksum ensures that no value is present for ActiveChecksum, not even an explicit nil
+func (o *SearchProjectionStatus) UnsetActiveChecksum() {
+	o.ActiveChecksum.Unset()
+}
+
+// GetBuildingVersion returns the BuildingVersion field value if set, zero value otherwise (both if not set or set to explicit null).
+func (o *SearchProjectionStatus) GetBuildingVersion() int32 {
+	if o == nil || IsNil(o.BuildingVersion.Get()) {
+		var ret int32
+		return ret
+	}
+	return *o.BuildingVersion.Get()
+}
+
+// GetBuildingVersionOk returns a tuple with the BuildingVersion field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
+func (o *SearchProjectionStatus) GetBuildingVersionOk() (*int32, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return o.BuildingVersion.Get(), o.BuildingVersion.IsSet()
+}
+
+// HasBuildingVersion returns a boolean if a field has been set.
+func (o *SearchProjectionStatus) HasBuildingVersion() bool {
+	if o != nil && o.BuildingVersion.IsSet() {
+		return true
+	}
+
+	return false
+}
+
+// SetBuildingVersion gets a reference to the given NullableInt32 and assigns it to the BuildingVersion field.
+func (o *SearchProjectionStatus) SetBuildingVersion(v int32) {
+	o.BuildingVersion.Set(&v)
+}
+// SetBuildingVersionNil sets the value for BuildingVersion to be an explicit nil
+func (o *SearchProjectionStatus) SetBuildingVersionNil() {
+	o.BuildingVersion.Set(nil)
+}
+
+// UnsetBuildingVersion ensures that no value is present for BuildingVersion, not even an explicit nil
+func (o *SearchProjectionStatus) UnsetBuildingVersion() {
+	o.BuildingVersion.Unset()
+}
+
+// GetCheckpointsVerified returns the CheckpointsVerified field value if set, zero value otherwise.
+func (o *SearchProjectionStatus) GetCheckpointsVerified() bool {
+	if o == nil || IsNil(o.CheckpointsVerified) {
+		var ret bool
+		return ret
+	}
+	return *o.CheckpointsVerified
+}
+
+// GetCheckpointsVerifiedOk returns a tuple with the CheckpointsVerified field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *SearchProjectionStatus) GetCheckpointsVerifiedOk() (*bool, bool) {
+	if o == nil || IsNil(o.CheckpointsVerified) {
+		return nil, false
+	}
+	return o.CheckpointsVerified, true
+}
+
+// HasCheckpointsVerified returns a boolean if a field has been set.
+func (o *SearchProjectionStatus) HasCheckpointsVerified() bool {
+	if o != nil && !IsNil(o.CheckpointsVerified) {
+		return true
+	}
+
+	return false
+}
+
+// SetCheckpointsVerified gets a reference to the given bool and assigns it to the CheckpointsVerified field.
+func (o *SearchProjectionStatus) SetCheckpointsVerified(v bool) {
+	o.CheckpointsVerified = &v
 }
 
 // GetCondition returns the Condition field value
@@ -113,6 +246,38 @@ func (o *SearchProjectionStatus) GetDocumentsIndexedOk() (*int32, bool) {
 // SetDocumentsIndexed sets field value
 func (o *SearchProjectionStatus) SetDocumentsIndexed(v int32) {
 	o.DocumentsIndexed = v
+}
+
+// GetEnabled returns the Enabled field value if set, zero value otherwise.
+func (o *SearchProjectionStatus) GetEnabled() bool {
+	if o == nil || IsNil(o.Enabled) {
+		var ret bool
+		return ret
+	}
+	return *o.Enabled
+}
+
+// GetEnabledOk returns a tuple with the Enabled field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *SearchProjectionStatus) GetEnabledOk() (*bool, bool) {
+	if o == nil || IsNil(o.Enabled) {
+		return nil, false
+	}
+	return o.Enabled, true
+}
+
+// HasEnabled returns a boolean if a field has been set.
+func (o *SearchProjectionStatus) HasEnabled() bool {
+	if o != nil && !IsNil(o.Enabled) {
+		return true
+	}
+
+	return false
+}
+
+// SetEnabled gets a reference to the given bool and assigns it to the Enabled field.
+func (o *SearchProjectionStatus) SetEnabled(v bool) {
+	o.Enabled = &v
 }
 
 // GetFailures returns the Failures field value
@@ -343,6 +508,38 @@ func (o *SearchProjectionStatus) SetRebuildStartedAt(v time.Time) {
 	o.RebuildStartedAt.Set(&v)
 }
 
+// GetSchemaVersion returns the SchemaVersion field value if set, zero value otherwise.
+func (o *SearchProjectionStatus) GetSchemaVersion() int32 {
+	if o == nil || IsNil(o.SchemaVersion) {
+		var ret int32
+		return ret
+	}
+	return *o.SchemaVersion
+}
+
+// GetSchemaVersionOk returns a tuple with the SchemaVersion field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *SearchProjectionStatus) GetSchemaVersionOk() (*int32, bool) {
+	if o == nil || IsNil(o.SchemaVersion) {
+		return nil, false
+	}
+	return o.SchemaVersion, true
+}
+
+// HasSchemaVersion returns a boolean if a field has been set.
+func (o *SearchProjectionStatus) HasSchemaVersion() bool {
+	if o != nil && !IsNil(o.SchemaVersion) {
+		return true
+	}
+
+	return false
+}
+
+// SetSchemaVersion gets a reference to the given int32 and assigns it to the SchemaVersion field.
+func (o *SearchProjectionStatus) SetSchemaVersion(v int32) {
+	o.SchemaVersion = &v
+}
+
 // GetSourceDocuments returns the SourceDocuments field value
 func (o *SearchProjectionStatus) GetSourceDocuments() int32 {
 	if o == nil {
@@ -377,8 +574,20 @@ func (o SearchProjectionStatus) MarshalJSON() ([]byte, error) {
 
 func (o SearchProjectionStatus) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
+	if o.ActiveChecksum.IsSet() {
+		toSerialize["activeChecksum"] = o.ActiveChecksum.Get()
+	}
+	if o.BuildingVersion.IsSet() {
+		toSerialize["buildingVersion"] = o.BuildingVersion.Get()
+	}
+	if !IsNil(o.CheckpointsVerified) {
+		toSerialize["checkpointsVerified"] = o.CheckpointsVerified
+	}
 	toSerialize["condition"] = o.Condition
 	toSerialize["documentsIndexed"] = o.DocumentsIndexed
+	if !IsNil(o.Enabled) {
+		toSerialize["enabled"] = o.Enabled
+	}
 	toSerialize["failures"] = o.Failures
 	toSerialize["lagSeconds"] = o.LagSeconds.Get()
 	toSerialize["lastError"] = o.LastError.Get()
@@ -388,6 +597,9 @@ func (o SearchProjectionStatus) ToMap() (map[string]interface{}, error) {
 	toSerialize["projectionVersion"] = o.ProjectionVersion
 	toSerialize["rebuildCompletedAt"] = o.RebuildCompletedAt.Get()
 	toSerialize["rebuildStartedAt"] = o.RebuildStartedAt.Get()
+	if !IsNil(o.SchemaVersion) {
+		toSerialize["schemaVersion"] = o.SchemaVersion
+	}
 	toSerialize["sourceDocuments"] = o.SourceDocuments
 	return toSerialize, nil
 }

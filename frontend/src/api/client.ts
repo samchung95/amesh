@@ -81,6 +81,7 @@ import type {
   RoleDefinition,
   SecretBinding,
   SearchProjectionStatus,
+  SearchProjectionVerification,
   SearchRequest,
   SearchResponse,
   ServiceTopology,
@@ -506,11 +507,21 @@ export function createApiClient(connection: ApiConnection) {
         body: JSON.stringify(searchRequest),
       }),
     searchStatus: async () => request<SearchProjectionStatus>('/api/v1/search/status'),
-    rebuildSearch: async (reason: string) =>
+    rebuildSearch: async (
+      reason: string,
+      scope: { types?: string[]; from?: string; to?: string } = {},
+    ) =>
       request<SearchProjectionStatus>('/api/v1/search/rebuild', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reason }),
+        body: JSON.stringify({ reason, ...scope }),
+      }),
+    verifySearch: async () => request<SearchProjectionVerification>('/api/v1/search/verify'),
+    controlSearch: async (enabled: boolean, reason: string) =>
+      request<SearchProjectionStatus>('/api/v1/search/control', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ enabled, reason }),
       }),
     triggers: async (namespace?: string) => {
       const suffix = namespace ? `?namespace=${encodeURIComponent(namespace)}` : ''

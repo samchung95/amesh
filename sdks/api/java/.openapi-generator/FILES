@@ -387,7 +387,10 @@ src/main/java/io/amesh/client/model/ScimUserResource.java
 src/main/java/io/amesh/client/model/SearchDocument.java
 src/main/java/io/amesh/client/model/SearchDocumentType.java
 src/main/java/io/amesh/client/model/SearchProjectionCondition.java
+src/main/java/io/amesh/client/model/SearchProjectionControlRequest.java
 src/main/java/io/amesh/client/model/SearchProjectionStatus.java
+src/main/java/io/amesh/client/model/SearchProjectionVerification.java
+src/main/java/io/amesh/client/model/SearchProjectionVerificationItem.java
 src/main/java/io/amesh/client/model/SearchRange.java
 src/main/java/io/amesh/client/model/SearchRangeField.java
 src/main/java/io/amesh/client/model/SearchRebuildRequest.java

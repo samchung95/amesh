@@ -34,7 +34,9 @@ public enum SearchProjectionCondition {
 
   REBUILDING("REBUILDING"),
 
-  DEGRADED("DEGRADED");
+  DEGRADED("DEGRADED"),
+
+  DISABLED("DISABLED");
 
   private String value;
 

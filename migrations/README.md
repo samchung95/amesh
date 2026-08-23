@@ -196,6 +196,12 @@ definitions and immutable result records plus namespace promotion gates. Results
 plugin-set and simulator-version pins; definitions, runs and gate changes write audit evidence. The
 migration is additive; disable affected gates before a forward fix so lifecycle promotion can resume.
 
+Migration `0052_search_projection_backend.sql` adds the v2 blue-green PostgreSQL search backend.
+Tenant generations can rebuild beside the active projection, while durable per-type checkpoints,
+checksums, archive rows, versioned components and daily rollups make recovery and drift observable.
+The v1 table remains available during rollout, so search can be disabled or forward-fixed without
+placing authoritative orchestration state at risk.
+
 ## Migration modes
 
 - `bootstrap` creates the initial schema and is only safe for an empty database.

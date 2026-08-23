@@ -287,11 +287,11 @@ export interface DashboardRender {
   renderedAt: string
 }
 
-export type SearchDocumentType = 'FLOW' | 'EXECUTION' | 'LOG' | 'ASSET' | 'AUDIT'
+export type SearchDocumentType = 'FLOW' | 'EXECUTION' | 'TASK_RUN' | 'LOG' | 'METRIC' | 'ASSET' | 'AUDIT'
 export type SearchSortField = 'RELEVANCE' | 'TITLE' | 'OCCURRED_AT' | 'UPDATED_AT' | 'TYPE' | 'STATE'
 export type SearchSortDirection = 'ASC' | 'DESC'
 export type SearchRangeField = 'OCCURRED_AT' | 'UPDATED_AT' | 'SOURCE_VERSION'
-export type SearchProjectionCondition = 'READY' | 'REBUILDING' | 'DEGRADED'
+export type SearchProjectionCondition = 'READY' | 'REBUILDING' | 'DEGRADED' | 'DISABLED'
 
 export interface SearchRange {
   field: SearchRangeField
@@ -336,11 +336,15 @@ export interface SearchResponse {
   deniedTypes: SearchDocumentType[]
   projectionVersion: number
   projectionCondition: SearchProjectionCondition
+  authoritativeFallback: boolean
 }
 
 export interface SearchProjectionStatus {
   projectionVersion: number
+  schemaVersion: number
+  buildingVersion: number | null
   condition: SearchProjectionCondition
+  enabled: boolean
   documentsIndexed: number
   sourceDocuments: number
   progress: number
@@ -351,6 +355,27 @@ export interface SearchProjectionStatus {
   rebuildCompletedAt: string | null
   failures: number
   lastError: string | null
+  checkpointsVerified: boolean
+  activeChecksum: string | null
+}
+
+export interface SearchProjectionVerificationItem {
+  documentType: SearchDocumentType
+  sourceCount: number
+  projectedCount: number
+  sourceChecksum: string
+  projectedChecksum: string
+  lastPosition: Record<string, unknown>
+  verified: boolean
+}
+
+export interface SearchProjectionVerification {
+  projectionVersion: number
+  schemaVersion: number
+  verified: boolean
+  checksum: string
+  items: SearchProjectionVerificationItem[]
+  verifiedAt: string
 }
 
 export interface PersistedFlow {

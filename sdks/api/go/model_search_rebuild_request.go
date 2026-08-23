@@ -12,6 +12,7 @@ package ameshclient
 
 import (
 	"encoding/json"
+	"time"
 	"bytes"
 	"fmt"
 )
@@ -21,7 +22,10 @@ var _ MappedNullable = &SearchRebuildRequest{}
 
 // SearchRebuildRequest struct for SearchRebuildRequest
 type SearchRebuildRequest struct {
+	From NullableTime `json:"from,omitempty"`
 	Reason string `json:"reason"`
+	To NullableTime `json:"to,omitempty"`
+	Types []SearchDocumentType `json:"types,omitempty"`
 }
 
 type _SearchRebuildRequest SearchRebuildRequest
@@ -42,6 +46,48 @@ func NewSearchRebuildRequest(reason string) *SearchRebuildRequest {
 func NewSearchRebuildRequestWithDefaults() *SearchRebuildRequest {
 	this := SearchRebuildRequest{}
 	return &this
+}
+
+// GetFrom returns the From field value if set, zero value otherwise (both if not set or set to explicit null).
+func (o *SearchRebuildRequest) GetFrom() time.Time {
+	if o == nil || IsNil(o.From.Get()) {
+		var ret time.Time
+		return ret
+	}
+	return *o.From.Get()
+}
+
+// GetFromOk returns a tuple with the From field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
+func (o *SearchRebuildRequest) GetFromOk() (*time.Time, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return o.From.Get(), o.From.IsSet()
+}
+
+// HasFrom returns a boolean if a field has been set.
+func (o *SearchRebuildRequest) HasFrom() bool {
+	if o != nil && o.From.IsSet() {
+		return true
+	}
+
+	return false
+}
+
+// SetFrom gets a reference to the given NullableTime and assigns it to the From field.
+func (o *SearchRebuildRequest) SetFrom(v time.Time) {
+	o.From.Set(&v)
+}
+// SetFromNil sets the value for From to be an explicit nil
+func (o *SearchRebuildRequest) SetFromNil() {
+	o.From.Set(nil)
+}
+
+// UnsetFrom ensures that no value is present for From, not even an explicit nil
+func (o *SearchRebuildRequest) UnsetFrom() {
+	o.From.Unset()
 }
 
 // GetReason returns the Reason field value
@@ -68,6 +114,80 @@ func (o *SearchRebuildRequest) SetReason(v string) {
 	o.Reason = v
 }
 
+// GetTo returns the To field value if set, zero value otherwise (both if not set or set to explicit null).
+func (o *SearchRebuildRequest) GetTo() time.Time {
+	if o == nil || IsNil(o.To.Get()) {
+		var ret time.Time
+		return ret
+	}
+	return *o.To.Get()
+}
+
+// GetToOk returns a tuple with the To field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
+func (o *SearchRebuildRequest) GetToOk() (*time.Time, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return o.To.Get(), o.To.IsSet()
+}
+
+// HasTo returns a boolean if a field has been set.
+func (o *SearchRebuildRequest) HasTo() bool {
+	if o != nil && o.To.IsSet() {
+		return true
+	}
+
+	return false
+}
+
+// SetTo gets a reference to the given NullableTime and assigns it to the To field.
+func (o *SearchRebuildRequest) SetTo(v time.Time) {
+	o.To.Set(&v)
+}
+// SetToNil sets the value for To to be an explicit nil
+func (o *SearchRebuildRequest) SetToNil() {
+	o.To.Set(nil)
+}
+
+// UnsetTo ensures that no value is present for To, not even an explicit nil
+func (o *SearchRebuildRequest) UnsetTo() {
+	o.To.Unset()
+}
+
+// GetTypes returns the Types field value if set, zero value otherwise.
+func (o *SearchRebuildRequest) GetTypes() []SearchDocumentType {
+	if o == nil || IsNil(o.Types) {
+		var ret []SearchDocumentType
+		return ret
+	}
+	return o.Types
+}
+
+// GetTypesOk returns a tuple with the Types field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *SearchRebuildRequest) GetTypesOk() ([]SearchDocumentType, bool) {
+	if o == nil || IsNil(o.Types) {
+		return nil, false
+	}
+	return o.Types, true
+}
+
+// HasTypes returns a boolean if a field has been set.
+func (o *SearchRebuildRequest) HasTypes() bool {
+	if o != nil && !IsNil(o.Types) {
+		return true
+	}
+
+	return false
+}
+
+// SetTypes gets a reference to the given []SearchDocumentType and assigns it to the Types field.
+func (o *SearchRebuildRequest) SetTypes(v []SearchDocumentType) {
+	o.Types = v
+}
+
 func (o SearchRebuildRequest) MarshalJSON() ([]byte, error) {
 	toSerialize,err := o.ToMap()
 	if err != nil {
@@ -78,7 +198,16 @@ func (o SearchRebuildRequest) MarshalJSON() ([]byte, error) {
 
 func (o SearchRebuildRequest) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
+	if o.From.IsSet() {
+		toSerialize["from"] = o.From.Get()
+	}
 	toSerialize["reason"] = o.Reason
+	if o.To.IsSet() {
+		toSerialize["to"] = o.To.Get()
+	}
+	if !IsNil(o.Types) {
+		toSerialize["types"] = o.Types
+	}
 	return toSerialize, nil
 }
 

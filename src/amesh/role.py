@@ -158,7 +158,7 @@ async def _run_cycle(
                 try:
                     search_work += await search_projector.project_once(
                         tenant_id=tenant_id,
-                        limit=500,
+                        limit=5_000,
                     )
                 except SearchUnavailableError as exc:
                     LOGGER.exception("optional search projection cycle failed")

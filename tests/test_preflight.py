@@ -18,9 +18,9 @@ def test_preflight_checks_database_migrations_credentials_and_storage(
         del args, kwargs
         return SimpleNamespace(
             ready=True,
-            applied=51,
-            expected=51,
-            latest_migration="0051_flow_tests_quality_gates.sql",
+            applied=52,
+            expected=52,
+            latest_migration="0052_search_projection_backend.sql",
             error=None,
         )
 
@@ -45,7 +45,7 @@ def test_preflight_checks_database_migrations_credentials_and_storage(
             "migrations": "READY",
             "object-storage": "READY",
         }
-        assert report.migrations_applied == report.migrations_expected == 51
+        assert report.migrations_applied == report.migrations_expected == 52
         assert not list((tmp_path / "metadata").glob("*.json"))
 
     asyncio.run(scenario())
