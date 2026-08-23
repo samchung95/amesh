@@ -26,6 +26,7 @@ from amesh_client.api.plugins_api import PluginsApi
 from amesh_client.api.realtime_api import RealtimeApi
 from amesh_client.api.scim_api import ScimApi
 from amesh_client.api.search_api import SearchApi
+from amesh_client.api.simulations_api import SimulationsApi
 from amesh_client.api.system_api import SystemApi
 from amesh_client.api.task_cache_api import TaskCacheApi
 from amesh_client.api.tenants_api import TenantsApi

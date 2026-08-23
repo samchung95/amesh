@@ -568,6 +568,63 @@ export interface FlowTestQualityGate {
   updatedAt: string
 }
 
+export interface SimulationTaskPlan {
+  taskId: string
+  taskType: string
+  order: number
+  parentId: string | null
+  dependencies: string[]
+  lifecyclePhase: string
+  substitution: 'FLOWABLE' | 'DETERMINISTIC' | 'MOCK' | 'RECORDED' | 'SCHEMA_ONLY' | 'UNKNOWN'
+  state: 'SUCCESS' | 'FAILED' | 'SKIPPED' | 'UNKNOWN'
+  attempts: number
+  maxAttempts: number
+  output: Record<string, unknown> | null
+  runner: string | null
+  concurrencyBuckets: string[]
+  expressionStatus: string
+  reason: string
+}
+
+export interface SimulationPlan {
+  schemaVersion: string
+  simulatorVersion: string
+  reducerSemanticsVersion: string
+  expressionVersion: string
+  planId: string
+  namespace: string
+  flowId: string
+  revision: number
+  semanticHash: string
+  pluginSetHash: string
+  inputHash: string
+  tasks: SimulationTaskPlan[]
+  estimates: {
+    taskCount: number
+    criticalPathSeconds: number | null
+    runnerDemand: Record<string, number>
+    storageBytes: number
+    apiCalls: number
+    costUsd: number
+    modeledTaskCount: number
+  }
+  policyDecisions: Array<{
+    category: string
+    policyId: string
+    allowed: boolean
+    reason: string
+    details: Record<string, unknown>
+  }>
+  unknowns: Array<{ code: string; path: string; reason: string }>
+  sideEffectsSuppressed: boolean
+  evidence: {
+    algorithm: string
+    keyId: string
+    payloadDigest: string
+    signature: string
+  } | null
+}
+
 export interface FlowFormatResponse {
   document: string | null
   validation: FlowValidationResult

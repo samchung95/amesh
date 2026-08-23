@@ -193,7 +193,8 @@ usage: amesh executions [-h] [--limit LIMIT]
 ## `amesh flow`
 
 ```text
-usage: amesh flow [-h] {apply,diff,export,delete,test} ...
+usage: amesh flow [-h]
+                  {apply,diff,export,delete,test,simulate,simulation-diff} ...
 ```
 
 ## `amesh flow apply`
@@ -218,6 +219,31 @@ usage: amesh flow diff [-h] [path]
 
 ```text
 usage: amesh flow export [-h] [--revision REVISION] namespace flow_id [path]
+```
+
+## `amesh flow simulate`
+
+```text
+usage: amesh flow simulate [-h] --revision REVISION [--input INPUT]
+                           [--variable VARIABLE] [--trigger TRIGGER]
+                           [--fixture FIXTURE]
+                           [--estimate-model ESTIMATE_MODEL]
+                           [--default-runner {local,docker,kubernetes}]
+                           [--unsigned]
+                           namespace flow_id
+```
+
+## `amesh flow simulation-diff`
+
+```text
+usage: amesh flow simulation-diff [-h] --from-revision FROM_REVISION
+                                  --to-revision TO_REVISION [--input INPUT]
+                                  [--variable VARIABLE] [--trigger TRIGGER]
+                                  [--fixture FIXTURE]
+                                  [--estimate-model ESTIMATE_MODEL]
+                                  [--default-runner {local,docker,kubernetes}]
+                                  [--unsigned]
+                                  namespace flow_id
 ```
 
 ## `amesh flow test`

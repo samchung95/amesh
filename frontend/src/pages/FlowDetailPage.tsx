@@ -8,6 +8,7 @@ import { useApiClient } from '../app/queries'
 import { useAppSettings } from '../app/settings'
 import { ErrorState, LoadingState } from '../components/AsyncState'
 import { FlowGraphView } from '../components/FlowGraphView'
+import { StatusBadge } from '../components/StatusBadge'
 
 type FormValues = Record<string, unknown>
 
@@ -56,6 +57,7 @@ export function FlowDetailPage({ session }: { session: UiSession }) {
   const { settings } = useAppSettings()
   const [values, setValues] = useState<FormValues>({})
   const [formError, setFormError] = useState<string | null>(null)
+  const [simulationError, setSimulationError] = useState<string | null>(null)
   const graph = useQuery({
     queryKey: ['flow-graph', namespace, flowId, settings.tenant],
     queryFn: () => api.flowGraph(namespace, flowId),
@@ -75,6 +77,11 @@ export function FlowDetailPage({ session }: { session: UiSession }) {
     mutationFn: (inputs: FormValues) => api.executeFlow(namespace, flowId, inputs),
     onSuccess: (detail) => void navigate(`/executions/${detail.execution.execution_id}`),
     onError: (error) => setFormError(error.message),
+  })
+  const simulate = useMutation({
+    mutationFn: (inputs: FormValues) => api.simulateFlow(namespace, flowId, graph.data?.revision || 1, inputs),
+    onSuccess: () => setSimulationError(null),
+    onError: (error) => setSimulationError(error.message),
   })
 
   if (graph.isPending || contract.isPending || metadata.isPending) return <LoadingState label="Loading workflow contract" />
@@ -146,6 +153,31 @@ export function FlowDetailPage({ session }: { session: UiSession }) {
           </form>
         </section>
       ) : null}
+      <section className="data-section" aria-labelledby="simulate-flow-heading">
+        <div className="section-heading">
+          <div><p className="eyebrow">SIDE-EFFECT-FREE PREVIEW</p><h2 id="simulate-flow-heading">Deterministic simulation</h2></div>
+          <button className="button button-secondary" type="button" disabled={simulate.isPending} onClick={() => simulate.mutate({ ...initialValues(properties), ...values })}><Beaker size={16} aria-hidden="true" />{simulate.isPending ? 'Compiling…' : 'Preview plan'}</button>
+        </div>
+        <p>Compile this revision with the current sample inputs. External tasks remain unknown until a mock, recording, or schema placeholder is supplied through the API or CLI.</p>
+        {simulationError ? <p className="field-error" role="alert">{simulationError}</p> : null}
+        {simulate.data ? (
+          <div className="page-stack" aria-live="polite">
+            <section className="metric-strip" aria-label="Simulation estimates">
+              <article><span>Expanded tasks</span><strong>{simulate.data.estimates.taskCount}</strong><small>{simulate.data.estimates.modeledTaskCount} modeled</small></article>
+              <article><span>Critical path</span><strong>{simulate.data.estimates.criticalPathSeconds === null ? 'Unknown' : `${simulate.data.estimates.criticalPathSeconds}s`}</strong><small>declared duration models</small></article>
+              <article><span>API calls</span><strong>{simulate.data.estimates.apiCalls}</strong><small>modeled calls only</small></article>
+              <article className={simulate.data.unknowns.length ? 'metric-alert' : ''}><span>Unknowns</span><strong>{simulate.data.unknowns.length}</strong><small>{simulate.data.evidence ? 'signed evidence' : 'unsigned preview'}</small></article>
+            </section>
+            <div className="table-shell">
+              <table><thead><tr><th>Task</th><th>State</th><th>Substitution</th><th>Attempts</th><th>Decision</th></tr></thead><tbody>
+                {simulate.data.tasks.map((task) => <tr key={task.taskId}><td><strong>{task.taskId}</strong><small className="cell-subtitle">{task.taskType}</small></td><td><StatusBadge state={task.state} /></td><td>{task.substitution.replace('_', ' ')}</td><td>{task.attempts} / {task.maxAttempts}</td><td>{task.reason}</td></tr>)}
+              </tbody></table>
+            </div>
+            {simulate.data.unknowns.length ? <ul className="state-history">{simulate.data.unknowns.map((unknown) => <li key={`${unknown.code}:${unknown.path}`}><span className="state-marker" aria-hidden="true" /><div><strong>{unknown.code}</strong><p>{unknown.reason}</p><code>{unknown.path}</code></div></li>)}</ul> : <p className="inline-notice" role="status">All reached behavior was resolved from deterministic tasks and declared fixtures.</p>}
+            <small>Plan <code>{simulate.data.planId}</code> · {simulate.data.simulatorVersion} · side effects suppressed</small>
+          </div>
+        ) : null}
+      </section>
       <FlowGraphView graph={graph.data} />
     </div>
   )

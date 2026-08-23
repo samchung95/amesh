@@ -31,6 +31,7 @@ amesh_client/api/plugins_api.py
 amesh_client/api/realtime_api.py
 amesh_client/api/scim_api.py
 amesh_client/api/search_api.py
+amesh_client/api/simulations_api.py
 amesh_client/api/system_api.py
 amesh_client/api/task_cache_api.py
 amesh_client/api/tenants_api.py
@@ -395,6 +396,20 @@ amesh_client/models/service_state.py
 amesh_client/models/service_topology.py
 amesh_client/models/set_local_password_request.py
 amesh_client/models/simulated_task_result.py
+amesh_client/models/simulation_comparison.py
+amesh_client/models/simulation_estimate_model.py
+amesh_client/models/simulation_estimates.py
+amesh_client/models/simulation_evidence.py
+amesh_client/models/simulation_fixture.py
+amesh_client/models/simulation_fixture_source.py
+amesh_client/models/simulation_plan.py
+amesh_client/models/simulation_plan_diff.py
+amesh_client/models/simulation_policy_decision.py
+amesh_client/models/simulation_request.py
+amesh_client/models/simulation_substitution.py
+amesh_client/models/simulation_task_plan.py
+amesh_client/models/simulation_task_state.py
+amesh_client/models/simulation_unknown.py
 amesh_client/models/source_position.py
 amesh_client/models/source_range.py
 amesh_client/models/subflow_mode.py
@@ -481,6 +496,7 @@ docs/PluginsApi.md
 docs/RealtimeApi.md
 docs/ScimApi.md
 docs/SearchApi.md
+docs/SimulationsApi.md
 docs/SystemApi.md
 docs/TaskCacheApi.md
 docs/TenantsApi.md

@@ -25,6 +25,7 @@ export * from './PluginsApi';
 export * from './RealtimeApi';
 export * from './ScimApi';
 export * from './SearchApi';
+export * from './SimulationsApi';
 export * from './SystemApi';
 export * from './TaskCacheApi';
 export * from './TenantsApi';

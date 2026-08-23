@@ -11144,104 +11144,128 @@
       "requirement_id": "URS-F-0750",
       "epic_id": "EPIC-800",
       "compatibility_level": "Intentional difference",
-      "implementation_status": "Proposed",
+      "implementation_status": "Verified",
       "disposition": "intentional-difference",
       "source_ids": [
         "amesh-product-baseline",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-800-deterministic-simulation-and-dry-run-engine.md"
+      ],
       "notes": "Preview workflow behavior and policy impact without performing undeclared external side effects."
     },
     {
       "requirement_id": "URS-F-0751",
       "epic_id": "EPIC-800",
       "compatibility_level": "Intentional difference",
-      "implementation_status": "Proposed",
+      "implementation_status": "Verified",
       "disposition": "intentional-difference",
       "source_ids": [
         "amesh-product-baseline",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-800-deterministic-simulation-and-dry-run-engine.md"
+      ],
       "notes": "Preview workflow behavior and policy impact without performing undeclared external side effects."
     },
     {
       "requirement_id": "URS-F-0752",
       "epic_id": "EPIC-800",
       "compatibility_level": "Intentional difference",
-      "implementation_status": "Proposed",
+      "implementation_status": "Verified",
       "disposition": "intentional-difference",
       "source_ids": [
         "amesh-product-baseline",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-800-deterministic-simulation-and-dry-run-engine.md"
+      ],
       "notes": "Preview workflow behavior and policy impact without performing undeclared external side effects."
     },
     {
       "requirement_id": "URS-F-0753",
       "epic_id": "EPIC-800",
       "compatibility_level": "Intentional difference",
-      "implementation_status": "Proposed",
+      "implementation_status": "Verified",
       "disposition": "intentional-difference",
       "source_ids": [
         "amesh-product-baseline",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-800-deterministic-simulation-and-dry-run-engine.md"
+      ],
       "notes": "Preview workflow behavior and policy impact without performing undeclared external side effects."
     },
     {
       "requirement_id": "URS-F-0754",
       "epic_id": "EPIC-800",
       "compatibility_level": "Intentional difference",
-      "implementation_status": "Proposed",
+      "implementation_status": "Verified",
       "disposition": "intentional-difference",
       "source_ids": [
         "amesh-product-baseline",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-800-deterministic-simulation-and-dry-run-engine.md"
+      ],
       "notes": "Preview workflow behavior and policy impact without performing undeclared external side effects."
     },
     {
       "requirement_id": "URS-F-0755",
       "epic_id": "EPIC-800",
       "compatibility_level": "Intentional difference",
-      "implementation_status": "Proposed",
+      "implementation_status": "Verified",
       "disposition": "intentional-difference",
       "source_ids": [
         "amesh-product-baseline",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-800-deterministic-simulation-and-dry-run-engine.md"
+      ],
       "notes": "Preview workflow behavior and policy impact without performing undeclared external side effects."
     },
     {
       "requirement_id": "URS-F-0756",
       "epic_id": "EPIC-800",
       "compatibility_level": "Intentional difference",
-      "implementation_status": "Proposed",
+      "implementation_status": "Verified",
       "disposition": "intentional-difference",
       "source_ids": [
         "amesh-product-baseline",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-800-deterministic-simulation-and-dry-run-engine.md"
+      ],
       "notes": "Preview workflow behavior and policy impact without performing undeclared external side effects."
     },
     {
       "requirement_id": "URS-F-0757",
       "epic_id": "EPIC-800",
       "compatibility_level": "Intentional difference",
-      "implementation_status": "Proposed",
+      "implementation_status": "Verified",
       "disposition": "intentional-difference",
       "source_ids": [
         "amesh-product-baseline",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
+      "evidence": [
+        "TESTLOG.md",
+        "backlog/epics/epic-800-deterministic-simulation-and-dry-run-engine.md"
+      ],
       "notes": "Preview workflow behavior and policy impact without performing undeclared external side effects."
     },
     {

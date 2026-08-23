@@ -484,6 +484,14 @@ from amesh.realtime import (
 from amesh.reconciliation import ReconciliationService
 from amesh.retention import RetentionService
 from amesh.scheduler import CronScheduler, SchedulePreview
+from amesh.simulation import (
+    SimulationComparison,
+    SimulationPlan,
+    SimulationPolicyDecision,
+    SimulationRequest,
+    compare_simulation_plans,
+    simulate_flow,
+)
 from amesh.storage.factory import build_object_store
 from amesh.tasks import (
     HttpTaskPolicy,
@@ -6388,6 +6396,153 @@ async def diff_flow_draft(
     )
 
 
+@app.post(
+    "/api/v1/flows/{namespace}/{flow_id}/revisions/{revision}/simulate",
+    response_model=SimulationPlan,
+    tags=["simulations"],
+)
+async def simulate_flow_revision(
+    namespace: str,
+    flow_id: str,
+    revision: int,
+    request: SimulationRequest,
+    repository: ReadRepositoryDependency,
+    policy: PluginPolicyServiceDependency,
+    settings: SettingsDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> SimulationPlan:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="flow",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    try:
+        flow = await repository.get_flow(
+            namespace,
+            flow_id,
+            tenant_id=tenant_id,
+            revision=revision,
+        )
+        revisions = await repository.list_flow_revisions(
+            namespace,
+            flow_id,
+            tenant_id=tenant_id,
+        )
+        record = next(item for item in revisions if item.revision == revision)
+        plugin_decision = await policy.preview_flow(
+            flow,
+            tenant_id=tenant_id,
+            stage=PluginPolicyStage.EXECUTION,
+            resolution_payload=record.plugin_resolution,
+        )
+    except (LookupError, StopIteration) as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    return simulate_flow(
+        flow,
+        request,
+        semantic_hash=record.semantic_hash,
+        plugin_set=record.plugin_resolution,
+        tenant_id=tenant_id,
+        policy_decisions=(_simulation_plugin_policy(plugin_decision),),
+        signing_key=_simulation_signing_key(settings),
+        signing_key_id="amesh-server/simulation-v1",
+    )
+
+
+@app.post(
+    "/api/v1/flows/{namespace}/{flow_id}/simulations/compare",
+    response_model=SimulationComparison,
+    tags=["simulations"],
+)
+async def compare_flow_simulations(
+    namespace: str,
+    flow_id: str,
+    request: SimulationRequest,
+    repository: ReadRepositoryDependency,
+    policy: PluginPolicyServiceDependency,
+    settings: SettingsDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    from_revision: Annotated[int, Query(alias="from", ge=1)],
+    to_revision: Annotated[int, Query(alias="to", ge=1)],
+) -> SimulationComparison:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="flow",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    try:
+        before_flow = await repository.get_flow(
+            namespace,
+            flow_id,
+            tenant_id=tenant_id,
+            revision=from_revision,
+        )
+        after_flow = await repository.get_flow(
+            namespace,
+            flow_id,
+            tenant_id=tenant_id,
+            revision=to_revision,
+        )
+        revisions = await repository.list_flow_revisions(
+            namespace,
+            flow_id,
+            tenant_id=tenant_id,
+        )
+        records = {item.revision: item for item in revisions}
+        before_record = records[from_revision]
+        after_record = records[to_revision]
+        before_policy = await policy.preview_flow(
+            before_flow,
+            tenant_id=tenant_id,
+            stage=PluginPolicyStage.EXECUTION,
+            resolution_payload=before_record.plugin_resolution,
+        )
+        after_policy = await policy.preview_flow(
+            after_flow,
+            tenant_id=tenant_id,
+            stage=PluginPolicyStage.EXECUTION,
+            resolution_payload=after_record.plugin_resolution,
+        )
+    except (KeyError, LookupError) as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    signing_key = _simulation_signing_key(settings)
+    before = simulate_flow(
+        before_flow,
+        request,
+        semantic_hash=before_record.semantic_hash,
+        plugin_set=before_record.plugin_resolution,
+        tenant_id=tenant_id,
+        policy_decisions=(_simulation_plugin_policy(before_policy),),
+        signing_key=signing_key,
+        signing_key_id="amesh-server/simulation-v1",
+    )
+    after = simulate_flow(
+        after_flow,
+        request,
+        semantic_hash=after_record.semantic_hash,
+        plugin_set=after_record.plugin_resolution,
+        tenant_id=tenant_id,
+        policy_decisions=(_simulation_plugin_policy(after_policy),),
+        signing_key=signing_key,
+        signing_key_id="amesh-server/simulation-v1",
+    )
+    return SimulationComparison(
+        before=before,
+        after=after,
+        diff=compare_simulation_plans(before, after),
+    )
+
+
 @app.put(
     "/api/v1/flows/{namespace}/{flow_id}/revisions/{revision}/lifecycle",
     response_model=PersistedFlow,
@@ -9589,6 +9744,30 @@ def _sse_event(event_type: str, cursor: str, payload: dict[str, object]) -> str:
     safe_event_type = event_type.replace("\r", "").replace("\n", "")
     data = json.dumps(payload, separators=(",", ":"), sort_keys=True)
     return f"id: {cursor}\nevent: {safe_event_type}\ndata: {data}\n\n"
+
+
+def _simulation_signing_key(settings: Settings) -> bytes:
+    source = settings.webhook_signing_key.get_secret_value().encode("utf-8")
+    return hashlib.sha256(b"amesh-simulation-signing-v1\0" + source).digest()
+
+
+def _simulation_plugin_policy(decision: PluginPolicyDecision) -> SimulationPolicyDecision:
+    return SimulationPolicyDecision(
+        category="PLUGIN",
+        policyId=str(decision.decision_id),
+        allowed=decision.allowed,
+        reason=(
+            "resolved plugin set is allowed by execution policy"
+            if decision.allowed
+            else "resolved plugin set is denied by execution policy"
+        ),
+        details={
+            "stage": decision.stage.value,
+            "subjects": [
+                item.model_dump(mode="json", by_alias=True) for item in decision.subjects
+            ],
+        },
+    )
 
 
 def _resolve_idempotency_key(body_value: str | None, header_value: str | None) -> str | None:

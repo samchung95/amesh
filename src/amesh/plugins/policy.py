@@ -91,6 +91,32 @@ class PluginPolicyService:
             raise PluginPolicyDenied(decision)
         return decision
 
+    async def preview_flow(
+        self,
+        flow: FlowDefinition,
+        *,
+        tenant_id: str,
+        stage: PluginPolicyStage,
+        resolution_payload: dict[str, object] | None = None,
+    ) -> PluginPolicyDecision:
+        """Evaluate policy without recording a decision or mutating runtime state."""
+
+        resolved = resolution_payload or (
+            PluginResolver(self._catalog.snapshot).resolve_flow(flow).revision_payload()
+        )
+        effective = await self.effective_policy(tenant_id, namespace=flow.namespace)
+        return evaluate_plugin_policy(
+            self.subjects_from_resolution(resolved),
+            effective.rules,
+            effective.quarantines,
+            tenant_id=tenant_id,
+            namespace=flow.namespace,
+            stage=stage,
+            default_allow=self._default_allow,
+            flow_id=flow.id,
+            flow_revision=flow.revision,
+        )
+
     async def enforce_flow(
         self,
         flow: FlowDefinition,

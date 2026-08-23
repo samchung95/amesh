@@ -290,6 +290,23 @@ def build_parser() -> argparse.ArgumentParser:
     flow_test.add_argument("--revision", type=int, required=True)
     flow_test.add_argument("--test-id", action="append", default=[])
     flow_test.add_argument("--fail-fast", action="store_true")
+    flow_simulate = flow_commands.add_parser(
+        "simulate",
+        help="Compile a signed side-effect-free simulation plan",
+    )
+    flow_simulate.add_argument("namespace")
+    flow_simulate.add_argument("flow_id")
+    flow_simulate.add_argument("--revision", type=int, required=True)
+    _add_simulation_arguments(flow_simulate)
+    flow_simulation_diff = flow_commands.add_parser(
+        "simulation-diff",
+        help="Compare deterministic plans for two flow revisions",
+    )
+    flow_simulation_diff.add_argument("namespace")
+    flow_simulation_diff.add_argument("flow_id")
+    flow_simulation_diff.add_argument("--from-revision", type=int, required=True)
+    flow_simulation_diff.add_argument("--to-revision", type=int, required=True)
+    _add_simulation_arguments(flow_simulation_diff)
 
     admin = subcommands.add_parser("admin", help="Perform instance administration")
     admin_commands = admin.add_subparsers(dest="admin_command", required=True)
@@ -978,6 +995,17 @@ def _flow_request(
             params={"revision": args.revision},
             json={"testIds": args.test_id, "failFast": args.fail_fast},
         )
+    if args.flow_command == "simulate":
+        return client.post(
+            f"{root}/revisions/{args.revision}/simulate",
+            json=_simulation_request(args),
+        )
+    if args.flow_command == "simulation-diff":
+        return client.post(
+            f"{root}/simulations/compare",
+            params={"from": args.from_revision, "to": args.to_revision},
+            json=_simulation_request(args),
+        )
     if not args.force:
         _emit(
             {
@@ -1341,6 +1369,48 @@ def _parse_inputs(values: Sequence[str]) -> dict[str, Any]:
             raise ValueError(f"input {value!r} must use key=value")
         inputs[key] = yaml.safe_load(encoded)
     return inputs
+
+
+def _add_simulation_arguments(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument("--input", action="append", default=[])
+    parser.add_argument("--variable", action="append", default=[])
+    parser.add_argument("--trigger", action="append", default=[])
+    parser.add_argument(
+        "--fixture",
+        action="append",
+        default=[],
+        help="Task fixture as task_id={JSON or YAML mapping}",
+    )
+    parser.add_argument(
+        "--estimate-model",
+        action="append",
+        default=[],
+        help="Estimate model as task_type={JSON or YAML mapping}",
+    )
+    parser.add_argument(
+        "--default-runner",
+        choices=("local", "docker", "kubernetes"),
+        default="kubernetes",
+    )
+    parser.add_argument("--unsigned", action="store_true")
+
+
+def _simulation_request(args: argparse.Namespace) -> dict[str, Any]:
+    fixtures = _parse_inputs(args.fixture)
+    estimate_models = _parse_inputs(args.estimate_model)
+    if any(not isinstance(value, dict) for value in fixtures.values()):
+        raise ValueError("simulation fixtures must be JSON or YAML objects")
+    if any(not isinstance(value, dict) for value in estimate_models.values()):
+        raise ValueError("simulation estimate models must be JSON or YAML objects")
+    return {
+        "inputs": _parse_inputs(args.input),
+        "variables": _parse_inputs(args.variable),
+        "triggerContext": _parse_inputs(args.trigger),
+        "fixtures": fixtures,
+        "estimateModels": estimate_models,
+        "defaultRunner": args.default_runner,
+        "signEvidence": not args.unsigned,
+    }
 
 
 def _load_mapping(path: Path) -> dict[str, Any]:

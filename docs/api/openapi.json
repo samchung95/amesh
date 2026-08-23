@@ -15088,6 +15088,635 @@
         "title": "SimulatedTaskResult",
         "type": "object"
       },
+      "SimulationComparison": {
+        "properties": {
+          "after": {
+            "$ref": "#/components/schemas/SimulationPlan"
+          },
+          "before": {
+            "$ref": "#/components/schemas/SimulationPlan"
+          },
+          "diff": {
+            "$ref": "#/components/schemas/SimulationPlanDiff"
+          }
+        },
+        "required": [
+          "before",
+          "after",
+          "diff"
+        ],
+        "title": "SimulationComparison",
+        "type": "object"
+      },
+      "SimulationEstimateModel": {
+        "additionalProperties": false,
+        "properties": {
+          "apiCalls": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Apicalls",
+            "type": "integer"
+          },
+          "costUsd": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Costusd",
+            "type": "number"
+          },
+          "durationSeconds": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Durationseconds",
+            "type": "number"
+          },
+          "storageBytes": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Storagebytes",
+            "type": "integer"
+          }
+        },
+        "title": "SimulationEstimateModel",
+        "type": "object"
+      },
+      "SimulationEstimates": {
+        "properties": {
+          "apiCalls": {
+            "minimum": 0.0,
+            "title": "Apicalls",
+            "type": "integer"
+          },
+          "costUsd": {
+            "minimum": 0.0,
+            "title": "Costusd",
+            "type": "number"
+          },
+          "criticalPathSeconds": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Criticalpathseconds"
+          },
+          "modeledTaskCount": {
+            "minimum": 0.0,
+            "title": "Modeledtaskcount",
+            "type": "integer"
+          },
+          "runnerDemand": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Runnerdemand",
+            "type": "object"
+          },
+          "storageBytes": {
+            "minimum": 0.0,
+            "title": "Storagebytes",
+            "type": "integer"
+          },
+          "taskCount": {
+            "minimum": 0.0,
+            "title": "Taskcount",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "taskCount",
+          "criticalPathSeconds",
+          "storageBytes",
+          "apiCalls",
+          "costUsd",
+          "modeledTaskCount"
+        ],
+        "title": "SimulationEstimates",
+        "type": "object"
+      },
+      "SimulationEvidence": {
+        "properties": {
+          "algorithm": {
+            "default": "HMAC-SHA256",
+            "title": "Algorithm",
+            "type": "string"
+          },
+          "keyId": {
+            "title": "Keyid",
+            "type": "string"
+          },
+          "payloadDigest": {
+            "title": "Payloaddigest",
+            "type": "string"
+          },
+          "signature": {
+            "title": "Signature",
+            "type": "string"
+          }
+        },
+        "required": [
+          "keyId",
+          "payloadDigest",
+          "signature"
+        ],
+        "title": "SimulationEvidence",
+        "type": "object"
+      },
+      "SimulationFixture": {
+        "additionalProperties": false,
+        "properties": {
+          "error": {
+            "anyOf": [
+              {
+                "maxLength": 4000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          },
+          "failuresBeforeSuccess": {
+            "default": 0,
+            "maximum": 99.0,
+            "minimum": 0.0,
+            "title": "Failuresbeforesuccess",
+            "type": "integer"
+          },
+          "output": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/JsonValue"
+            },
+            "title": "Output",
+            "type": "object"
+          },
+          "outputSchema": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/JsonValue"
+            },
+            "title": "Outputschema",
+            "type": "object"
+          },
+          "recordedAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recordedat"
+          },
+          "source": {
+            "$ref": "#/components/schemas/SimulationFixtureSource",
+            "default": "MOCK"
+          }
+        },
+        "title": "SimulationFixture",
+        "type": "object"
+      },
+      "SimulationFixtureSource": {
+        "enum": [
+          "MOCK",
+          "RECORDED",
+          "SCHEMA_ONLY"
+        ],
+        "title": "SimulationFixtureSource",
+        "type": "string"
+      },
+      "SimulationPlan": {
+        "properties": {
+          "estimates": {
+            "$ref": "#/components/schemas/SimulationEstimates"
+          },
+          "evidence": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SimulationEvidence"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "expressionVersion": {
+            "title": "Expressionversion",
+            "type": "string"
+          },
+          "flowId": {
+            "title": "Flowid",
+            "type": "string"
+          },
+          "inputHash": {
+            "title": "Inputhash",
+            "type": "string"
+          },
+          "namespace": {
+            "title": "Namespace",
+            "type": "string"
+          },
+          "planId": {
+            "title": "Planid",
+            "type": "string"
+          },
+          "pluginSetHash": {
+            "title": "Pluginsethash",
+            "type": "string"
+          },
+          "policyDecisions": {
+            "items": {
+              "$ref": "#/components/schemas/SimulationPolicyDecision"
+            },
+            "title": "Policydecisions",
+            "type": "array"
+          },
+          "reducerSemanticsVersion": {
+            "default": "amesh.reducer/v1",
+            "title": "Reducersemanticsversion",
+            "type": "string"
+          },
+          "revision": {
+            "minimum": 1.0,
+            "title": "Revision",
+            "type": "integer"
+          },
+          "schemaVersion": {
+            "default": "amesh.simulation-plan/v1",
+            "title": "Schemaversion",
+            "type": "string"
+          },
+          "semanticHash": {
+            "title": "Semantichash",
+            "type": "string"
+          },
+          "sideEffectsSuppressed": {
+            "default": true,
+            "title": "Sideeffectssuppressed",
+            "type": "boolean"
+          },
+          "simulatorVersion": {
+            "default": "amesh.simulator/v1",
+            "title": "Simulatorversion",
+            "type": "string"
+          },
+          "tasks": {
+            "items": {
+              "$ref": "#/components/schemas/SimulationTaskPlan"
+            },
+            "title": "Tasks",
+            "type": "array"
+          },
+          "unknowns": {
+            "items": {
+              "$ref": "#/components/schemas/SimulationUnknown"
+            },
+            "title": "Unknowns",
+            "type": "array"
+          }
+        },
+        "required": [
+          "expressionVersion",
+          "planId",
+          "namespace",
+          "flowId",
+          "revision",
+          "semanticHash",
+          "pluginSetHash",
+          "inputHash",
+          "tasks",
+          "estimates",
+          "policyDecisions",
+          "unknowns"
+        ],
+        "title": "SimulationPlan",
+        "type": "object"
+      },
+      "SimulationPlanDiff": {
+        "properties": {
+          "addedTasks": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Addedtasks",
+            "type": "array"
+          },
+          "afterPlanId": {
+            "title": "Afterplanid",
+            "type": "string"
+          },
+          "beforePlanId": {
+            "title": "Beforeplanid",
+            "type": "string"
+          },
+          "changedTasks": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Changedtasks",
+            "type": "array"
+          },
+          "estimateDelta": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "title": "Estimatedelta",
+            "type": "object"
+          },
+          "pluginSetChanged": {
+            "title": "Pluginsetchanged",
+            "type": "boolean"
+          },
+          "removedTasks": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Removedtasks",
+            "type": "array"
+          },
+          "schemaVersion": {
+            "default": "amesh.simulation-diff/v1",
+            "title": "Schemaversion",
+            "type": "string"
+          },
+          "unknownsAdded": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Unknownsadded",
+            "type": "array"
+          },
+          "unknownsResolved": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Unknownsresolved",
+            "type": "array"
+          }
+        },
+        "required": [
+          "beforePlanId",
+          "afterPlanId",
+          "pluginSetChanged",
+          "addedTasks",
+          "removedTasks",
+          "changedTasks",
+          "estimateDelta",
+          "unknownsAdded",
+          "unknownsResolved"
+        ],
+        "title": "SimulationPlanDiff",
+        "type": "object"
+      },
+      "SimulationPolicyDecision": {
+        "properties": {
+          "allowed": {
+            "title": "Allowed",
+            "type": "boolean"
+          },
+          "category": {
+            "title": "Category",
+            "type": "string"
+          },
+          "details": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/JsonValue"
+            },
+            "title": "Details",
+            "type": "object"
+          },
+          "policyId": {
+            "title": "Policyid",
+            "type": "string"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "category",
+          "policyId",
+          "allowed",
+          "reason"
+        ],
+        "title": "SimulationPolicyDecision",
+        "type": "object"
+      },
+      "SimulationRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "defaultRunner": {
+            "default": "kubernetes",
+            "minLength": 1,
+            "title": "Defaultrunner",
+            "type": "string"
+          },
+          "estimateModels": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/SimulationEstimateModel"
+            },
+            "title": "Estimatemodels",
+            "type": "object"
+          },
+          "fixtures": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/SimulationFixture"
+            },
+            "title": "Fixtures",
+            "type": "object"
+          },
+          "inputs": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/JsonValue"
+            },
+            "title": "Inputs",
+            "type": "object"
+          },
+          "signEvidence": {
+            "default": true,
+            "title": "Signevidence",
+            "type": "boolean"
+          },
+          "triggerContext": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/JsonValue"
+            },
+            "title": "Triggercontext",
+            "type": "object"
+          },
+          "variables": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/JsonValue"
+            },
+            "title": "Variables",
+            "type": "object"
+          }
+        },
+        "title": "SimulationRequest",
+        "type": "object"
+      },
+      "SimulationSubstitution": {
+        "enum": [
+          "FLOWABLE",
+          "DETERMINISTIC",
+          "MOCK",
+          "RECORDED",
+          "SCHEMA_ONLY",
+          "UNKNOWN"
+        ],
+        "title": "SimulationSubstitution",
+        "type": "string"
+      },
+      "SimulationTaskPlan": {
+        "properties": {
+          "attempts": {
+            "minimum": 0.0,
+            "title": "Attempts",
+            "type": "integer"
+          },
+          "concurrencyBuckets": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Concurrencybuckets",
+            "type": "array"
+          },
+          "dependencies": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Dependencies",
+            "type": "array"
+          },
+          "expressionStatus": {
+            "title": "Expressionstatus",
+            "type": "string"
+          },
+          "lifecyclePhase": {
+            "title": "Lifecyclephase",
+            "type": "string"
+          },
+          "maxAttempts": {
+            "minimum": 1.0,
+            "title": "Maxattempts",
+            "type": "integer"
+          },
+          "order": {
+            "minimum": 0.0,
+            "title": "Order",
+            "type": "integer"
+          },
+          "output": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/JsonValue"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Output"
+          },
+          "parentId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parentid"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          },
+          "runner": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Runner"
+          },
+          "state": {
+            "$ref": "#/components/schemas/SimulationTaskState"
+          },
+          "substitution": {
+            "$ref": "#/components/schemas/SimulationSubstitution"
+          },
+          "taskId": {
+            "title": "Taskid",
+            "type": "string"
+          },
+          "taskType": {
+            "title": "Tasktype",
+            "type": "string"
+          }
+        },
+        "required": [
+          "taskId",
+          "taskType",
+          "order",
+          "lifecyclePhase",
+          "substitution",
+          "state",
+          "attempts",
+          "maxAttempts",
+          "expressionStatus",
+          "reason"
+        ],
+        "title": "SimulationTaskPlan",
+        "type": "object"
+      },
+      "SimulationTaskState": {
+        "enum": [
+          "SUCCESS",
+          "FAILED",
+          "SKIPPED",
+          "UNKNOWN"
+        ],
+        "title": "SimulationTaskState",
+        "type": "string"
+      },
+      "SimulationUnknown": {
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "path": {
+            "title": "Path",
+            "type": "string"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "path",
+          "reason"
+        ],
+        "title": "SimulationUnknown",
+        "type": "object"
+      },
       "SourcePosition": {
         "properties": {
           "column": {
@@ -30857,6 +31486,124 @@
         ]
       }
     },
+    "/api/v1/flows/{namespace}/{flow_id}/revisions/{revision}/simulate": {
+      "post": {
+        "operationId": "simulate_flow_revision_api_v1_flows__namespace___flow_id__revisions__revision__simulate_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "namespace",
+            "required": true,
+            "schema": {
+              "title": "Namespace",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "flow_id",
+            "required": true,
+            "schema": {
+              "title": "Flow Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "revision",
+            "required": true,
+            "schema": {
+              "title": "Revision",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SimulationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SimulationPlan"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Simulate Flow Revision",
+        "tags": [
+          "simulations"
+        ]
+      }
+    },
     "/api/v1/flows/{namespace}/{flow_id}/schedules/{trigger_id}/preview": {
       "get": {
         "operationId": "preview_schedule_api_v1_flows__namespace___flow_id__schedules__trigger_id__preview_get",
@@ -30989,6 +31736,135 @@
         "summary": "Preview Schedule",
         "tags": [
           "triggers"
+        ]
+      }
+    },
+    "/api/v1/flows/{namespace}/{flow_id}/simulations/compare": {
+      "post": {
+        "operationId": "compare_flow_simulations_api_v1_flows__namespace___flow_id__simulations_compare_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "namespace",
+            "required": true,
+            "schema": {
+              "title": "Namespace",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "flow_id",
+            "required": true,
+            "schema": {
+              "title": "Flow Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "from",
+            "required": true,
+            "schema": {
+              "minimum": 1,
+              "title": "From",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "to",
+            "required": true,
+            "schema": {
+              "minimum": 1,
+              "title": "To",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SimulationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SimulationComparison"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Compare Flow Simulations",
+        "tags": [
+          "simulations"
         ]
       }
     },

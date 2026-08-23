@@ -28,6 +28,7 @@ api_plugins.go
 api_realtime.go
 api_scim.go
 api_search.go
+api_simulations.go
 api_system.go
 api_task_cache.go
 api_tenants.go
@@ -62,6 +63,7 @@ docs/PluginsAPI.md
 docs/RealtimeAPI.md
 docs/ScimAPI.md
 docs/SearchAPI.md
+docs/SimulationsAPI.md
 docs/SystemAPI.md
 docs/TaskCacheAPI.md
 docs/TenantsAPI.md
@@ -424,6 +426,20 @@ model_service_state.go
 model_service_topology.go
 model_set_local_password_request.go
 model_simulated_task_result.go
+model_simulation_comparison.go
+model_simulation_estimate_model.go
+model_simulation_estimates.go
+model_simulation_evidence.go
+model_simulation_fixture.go
+model_simulation_fixture_source.go
+model_simulation_plan.go
+model_simulation_plan_diff.go
+model_simulation_policy_decision.go
+model_simulation_request.go
+model_simulation_substitution.go
+model_simulation_task_plan.go
+model_simulation_task_state.go
+model_simulation_unknown.go
 model_source_position.go
 model_source_range.go
 model_subflow_mode.go

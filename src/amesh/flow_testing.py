@@ -50,6 +50,8 @@ class FlowTestSimulator:
         self,
         flow: FlowDefinition,
         definition: FlowTestDefinition,
+        *,
+        trigger_context: dict[str, Any] | None = None,
     ) -> FlowTestCaseResult:
         _reject_sensitive_test_values(
             {
@@ -109,6 +111,7 @@ class FlowTestSimulator:
                 outputs=outputs,
                 fixtures=definition.fixtures,
                 iteration={},
+                trigger_context=trigger_context or {},
                 counters=counters,
             )
             results.append(task_result)
@@ -152,6 +155,7 @@ class FlowTestSimulator:
                 outputs=outputs,
                 fixtures=definition.fixtures,
                 iteration={},
+                trigger_context=trigger_context or {},
                 counters=counters,
             )
             results.append(task_result)
@@ -209,9 +213,17 @@ class FlowTestSimulator:
         outputs: dict[str, Any],
         fixtures: dict[str, FlowTestFixture],
         iteration: dict[str, Any],
+        trigger_context: dict[str, Any],
         counters: _CoverageCounters,
     ) -> tuple[SimulatedTaskResult, tuple[SimulatedTaskResult, ...], str | None]:
-        context = _expression_context(flow, inputs, variables, outputs, iteration)
+        context = _expression_context(
+            flow,
+            inputs,
+            variables,
+            outputs,
+            iteration,
+            trigger_context,
+        )
         if task.run_if is not None:
             counters.conditions_covered += 1
             try:
@@ -299,6 +311,7 @@ class FlowTestSimulator:
                         outputs={**outputs, **current_outputs},
                         fixtures=fixtures,
                         iteration={"index": index, "value": value},
+                        trigger_context=trigger_context,
                         counters=counters,
                     )
                     generated.append(child_result)
@@ -480,6 +493,7 @@ def _expression_context(
     variables: dict[str, Any],
     outputs: dict[str, Any],
     iteration: dict[str, Any],
+    trigger_context: dict[str, Any] | None = None,
 ) -> ExpressionContext:
     return ExpressionContext(
         flow={"id": flow.id, "namespace": flow.namespace, "revision": flow.revision},
@@ -487,6 +501,7 @@ def _expression_context(
         variables=variables,
         outputs=outputs,
         iteration=iteration,
+        trigger=trigger_context or {},
     )
 
 

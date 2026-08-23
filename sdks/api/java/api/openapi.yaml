@@ -7977,6 +7977,83 @@ paths:
       x-content-type: application/json
       x-accepts:
       - application/json
+  /api/v1/flows/{namespace}/{flow_id}/revisions/{revision}/simulate:
+    post:
+      operationId: simulate_flow_revision_api_v1_flows__namespace___flow_id__revisions__revision__simulate_post
+      parameters:
+      - explode: false
+        in: path
+        name: namespace
+        required: true
+        schema:
+          title: Namespace
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: flow_id
+        required: true
+        schema:
+          title: Flow Id
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: revision
+        required: true
+        schema:
+          title: Revision
+          type: integer
+        style: simple
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SimulationRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SimulationPlan"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Simulate Flow Revision
+      tags:
+      - simulations
+      x-content-type: application/json
+      x-accepts:
+      - application/json
   /api/v1/flows/{namespace}/{flow_id}/schedules/{trigger_id}/preview:
     get:
       operationId: preview_schedule_api_v1_flows__namespace___flow_id__schedules__trigger_id__preview_get
@@ -8063,6 +8140,93 @@ paths:
       summary: Preview Schedule
       tags:
       - triggers
+      x-accepts:
+      - application/json
+  /api/v1/flows/{namespace}/{flow_id}/simulations/compare:
+    post:
+      operationId: compare_flow_simulations_api_v1_flows__namespace___flow_id__simulations_compare_post
+      parameters:
+      - explode: false
+        in: path
+        name: namespace
+        required: true
+        schema:
+          title: Namespace
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: flow_id
+        required: true
+        schema:
+          title: Flow Id
+          type: string
+        style: simple
+      - explode: true
+        in: query
+        name: from
+        required: true
+        schema:
+          minimum: 1
+          title: From
+          type: integer
+        style: form
+      - explode: true
+        in: query
+        name: to
+        required: true
+        schema:
+          minimum: 1
+          title: To
+          type: integer
+        style: form
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SimulationRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SimulationComparison"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Compare Flow Simulations
+      tags:
+      - simulations
+      x-content-type: application/json
       x-accepts:
       - application/json
   /api/v1/flows/{namespace}/{flow_id}/tests:
@@ -21129,8 +21293,6 @@ components:
         dependencies:
           default: []
           items:
-            description: Opaque cursor from the prior page
-            nullable: true
             type: string
           title: Dependencies
           type: array
@@ -29957,6 +30119,814 @@ components:
       - taskId
       - taskType
       title: SimulatedTaskResult
+    SimulationComparison:
+      example:
+        after:
+          estimates:
+            apiCalls: 0
+            costUsd: 0.6027456183070403
+            criticalPathSeconds: 0.14658129805029452
+            modeledTaskCount: 0
+            runnerDemand:
+              key: 5
+            storageBytes: 0
+            taskCount: 0
+          evidence: ""
+          expressionVersion: expressionVersion
+          flowId: flowId
+          inputHash: inputHash
+          namespace: namespace
+          planId: planId
+          pluginSetHash: pluginSetHash
+          policyDecisions:
+          - allowed: true
+            category: category
+            details:
+              key: ""
+            policyId: policyId
+            reason: reason
+          - allowed: true
+            category: category
+            details:
+              key: ""
+            policyId: policyId
+            reason: reason
+          reducerSemanticsVersion: amesh.reducer/v1
+          revision: 1
+          schemaVersion: amesh.simulation-plan/v1
+          semanticHash: semanticHash
+          sideEffectsSuppressed: true
+          simulatorVersion: amesh.simulator/v1
+          tasks:
+          - attempts: 0
+            concurrencyBuckets:
+            - concurrencyBuckets
+            - concurrencyBuckets
+            dependencies:
+            - dependencies
+            - dependencies
+            expressionStatus: expressionStatus
+            lifecyclePhase: lifecyclePhase
+            maxAttempts: 1
+            order: 0
+            output:
+              key: ""
+            parentId: parentId
+            reason: reason
+            runner: runner
+            state: SUCCESS
+            substitution: FLOWABLE
+            taskId: taskId
+            taskType: taskType
+          - attempts: 0
+            concurrencyBuckets:
+            - concurrencyBuckets
+            - concurrencyBuckets
+            dependencies:
+            - dependencies
+            - dependencies
+            expressionStatus: expressionStatus
+            lifecyclePhase: lifecyclePhase
+            maxAttempts: 1
+            order: 0
+            output:
+              key: ""
+            parentId: parentId
+            reason: reason
+            runner: runner
+            state: SUCCESS
+            substitution: FLOWABLE
+            taskId: taskId
+            taskType: taskType
+          unknowns:
+          - code: code
+            path: path
+            reason: reason
+          - code: code
+            path: path
+            reason: reason
+        before:
+          estimates:
+            apiCalls: 0
+            costUsd: 0.6027456183070403
+            criticalPathSeconds: 0.14658129805029452
+            modeledTaskCount: 0
+            runnerDemand:
+              key: 5
+            storageBytes: 0
+            taskCount: 0
+          evidence: ""
+          expressionVersion: expressionVersion
+          flowId: flowId
+          inputHash: inputHash
+          namespace: namespace
+          planId: planId
+          pluginSetHash: pluginSetHash
+          policyDecisions:
+          - allowed: true
+            category: category
+            details:
+              key: ""
+            policyId: policyId
+            reason: reason
+          - allowed: true
+            category: category
+            details:
+              key: ""
+            policyId: policyId
+            reason: reason
+          reducerSemanticsVersion: amesh.reducer/v1
+          revision: 1
+          schemaVersion: amesh.simulation-plan/v1
+          semanticHash: semanticHash
+          sideEffectsSuppressed: true
+          simulatorVersion: amesh.simulator/v1
+          tasks:
+          - attempts: 0
+            concurrencyBuckets:
+            - concurrencyBuckets
+            - concurrencyBuckets
+            dependencies:
+            - dependencies
+            - dependencies
+            expressionStatus: expressionStatus
+            lifecyclePhase: lifecyclePhase
+            maxAttempts: 1
+            order: 0
+            output:
+              key: ""
+            parentId: parentId
+            reason: reason
+            runner: runner
+            state: SUCCESS
+            substitution: FLOWABLE
+            taskId: taskId
+            taskType: taskType
+          - attempts: 0
+            concurrencyBuckets:
+            - concurrencyBuckets
+            - concurrencyBuckets
+            dependencies:
+            - dependencies
+            - dependencies
+            expressionStatus: expressionStatus
+            lifecyclePhase: lifecyclePhase
+            maxAttempts: 1
+            order: 0
+            output:
+              key: ""
+            parentId: parentId
+            reason: reason
+            runner: runner
+            state: SUCCESS
+            substitution: FLOWABLE
+            taskId: taskId
+            taskType: taskType
+          unknowns:
+          - code: code
+            path: path
+            reason: reason
+          - code: code
+            path: path
+            reason: reason
+        diff:
+          addedTasks:
+          - addedTasks
+          - addedTasks
+          afterPlanId: afterPlanId
+          beforePlanId: beforePlanId
+          changedTasks:
+          - changedTasks
+          - changedTasks
+          estimateDelta:
+            key: 0.8008281904610115
+          pluginSetChanged: true
+          removedTasks:
+          - removedTasks
+          - removedTasks
+          schemaVersion: amesh.simulation-diff/v1
+          unknownsAdded:
+          - unknownsAdded
+          - unknownsAdded
+          unknownsResolved:
+          - unknownsResolved
+          - unknownsResolved
+      properties:
+        after:
+          $ref: "#/components/schemas/SimulationPlan"
+        before:
+          $ref: "#/components/schemas/SimulationPlan"
+        diff:
+          $ref: "#/components/schemas/SimulationPlanDiff"
+      required:
+      - after
+      - before
+      - diff
+      title: SimulationComparison
+    SimulationEstimateModel:
+      additionalProperties: false
+      example:
+        apiCalls: 0
+        costUsd: 0.6027456183070403
+        durationSeconds: 0.14658129805029452
+        storageBytes: 0
+      properties:
+        apiCalls:
+          default: 0
+          minimum: 0.0
+          title: Apicalls
+          type: integer
+        costUsd:
+          default: 0
+          minimum: 0.0
+          title: Costusd
+          type: number
+        durationSeconds:
+          default: 0
+          minimum: 0.0
+          title: Durationseconds
+          type: number
+        storageBytes:
+          default: 0
+          minimum: 0.0
+          title: Storagebytes
+          type: integer
+      title: SimulationEstimateModel
+    SimulationEstimates:
+      example:
+        apiCalls: 0
+        costUsd: 0.6027456183070403
+        criticalPathSeconds: 0.14658129805029452
+        modeledTaskCount: 0
+        runnerDemand:
+          key: 5
+        storageBytes: 0
+        taskCount: 0
+      properties:
+        apiCalls:
+          minimum: 0.0
+          title: Apicalls
+          type: integer
+        costUsd:
+          minimum: 0.0
+          title: Costusd
+          type: number
+        criticalPathSeconds:
+          minimum: 0.0
+          nullable: true
+          type: number
+        modeledTaskCount:
+          minimum: 0.0
+          title: Modeledtaskcount
+          type: integer
+        runnerDemand:
+          additionalProperties:
+            type: integer
+          title: Runnerdemand
+        storageBytes:
+          minimum: 0.0
+          title: Storagebytes
+          type: integer
+        taskCount:
+          minimum: 0.0
+          title: Taskcount
+          type: integer
+      required:
+      - apiCalls
+      - costUsd
+      - criticalPathSeconds
+      - modeledTaskCount
+      - storageBytes
+      - taskCount
+      title: SimulationEstimates
+    SimulationEvidence:
+      properties:
+        algorithm:
+          default: HMAC-SHA256
+          title: Algorithm
+          type: string
+        keyId:
+          title: Keyid
+          type: string
+        payloadDigest:
+          title: Payloaddigest
+          type: string
+        signature:
+          title: Signature
+          type: string
+      required:
+      - keyId
+      - payloadDigest
+      - signature
+      title: SimulationEvidence
+    SimulationFixture:
+      additionalProperties: false
+      example:
+        error: error
+        failuresBeforeSuccess: 55
+        output:
+          key: ""
+        outputSchema:
+          key: ""
+        recordedAt: 2000-01-23T04:56:07.000+00:00
+        source: ""
+      properties:
+        error:
+          maxLength: 4000
+          nullable: true
+          type: string
+        failuresBeforeSuccess:
+          default: 0
+          maximum: 99.0
+          minimum: 0.0
+          title: Failuresbeforesuccess
+          type: integer
+        output:
+          additionalProperties:
+            nullable: true
+          title: Output
+        outputSchema:
+          additionalProperties:
+            nullable: true
+          title: Outputschema
+        recordedAt:
+          format: date-time
+          nullable: true
+          type: string
+        source:
+          allOf:
+          - $ref: "#/components/schemas/SimulationFixtureSource"
+          default: MOCK
+      title: SimulationFixture
+    SimulationFixtureSource:
+      enum:
+      - MOCK
+      - RECORDED
+      - SCHEMA_ONLY
+      title: SimulationFixtureSource
+      type: string
+    SimulationPlan:
+      example:
+        estimates:
+          apiCalls: 0
+          costUsd: 0.6027456183070403
+          criticalPathSeconds: 0.14658129805029452
+          modeledTaskCount: 0
+          runnerDemand:
+            key: 5
+          storageBytes: 0
+          taskCount: 0
+        evidence: ""
+        expressionVersion: expressionVersion
+        flowId: flowId
+        inputHash: inputHash
+        namespace: namespace
+        planId: planId
+        pluginSetHash: pluginSetHash
+        policyDecisions:
+        - allowed: true
+          category: category
+          details:
+            key: ""
+          policyId: policyId
+          reason: reason
+        - allowed: true
+          category: category
+          details:
+            key: ""
+          policyId: policyId
+          reason: reason
+        reducerSemanticsVersion: amesh.reducer/v1
+        revision: 1
+        schemaVersion: amesh.simulation-plan/v1
+        semanticHash: semanticHash
+        sideEffectsSuppressed: true
+        simulatorVersion: amesh.simulator/v1
+        tasks:
+        - attempts: 0
+          concurrencyBuckets:
+          - concurrencyBuckets
+          - concurrencyBuckets
+          dependencies:
+          - dependencies
+          - dependencies
+          expressionStatus: expressionStatus
+          lifecyclePhase: lifecyclePhase
+          maxAttempts: 1
+          order: 0
+          output:
+            key: ""
+          parentId: parentId
+          reason: reason
+          runner: runner
+          state: SUCCESS
+          substitution: FLOWABLE
+          taskId: taskId
+          taskType: taskType
+        - attempts: 0
+          concurrencyBuckets:
+          - concurrencyBuckets
+          - concurrencyBuckets
+          dependencies:
+          - dependencies
+          - dependencies
+          expressionStatus: expressionStatus
+          lifecyclePhase: lifecyclePhase
+          maxAttempts: 1
+          order: 0
+          output:
+            key: ""
+          parentId: parentId
+          reason: reason
+          runner: runner
+          state: SUCCESS
+          substitution: FLOWABLE
+          taskId: taskId
+          taskType: taskType
+        unknowns:
+        - code: code
+          path: path
+          reason: reason
+        - code: code
+          path: path
+          reason: reason
+      properties:
+        estimates:
+          $ref: "#/components/schemas/SimulationEstimates"
+        evidence:
+          allOf:
+          - $ref: "#/components/schemas/SimulationEvidence"
+          nullable: true
+        expressionVersion:
+          title: Expressionversion
+          type: string
+        flowId:
+          title: Flowid
+          type: string
+        inputHash:
+          title: Inputhash
+          type: string
+        namespace:
+          title: Namespace
+          type: string
+        planId:
+          title: Planid
+          type: string
+        pluginSetHash:
+          title: Pluginsethash
+          type: string
+        policyDecisions:
+          items:
+            $ref: "#/components/schemas/SimulationPolicyDecision"
+          title: Policydecisions
+          type: array
+          default: null
+        reducerSemanticsVersion:
+          default: amesh.reducer/v1
+          title: Reducersemanticsversion
+          type: string
+        revision:
+          minimum: 1.0
+          title: Revision
+          type: integer
+        schemaVersion:
+          default: amesh.simulation-plan/v1
+          title: Schemaversion
+          type: string
+        semanticHash:
+          title: Semantichash
+          type: string
+        sideEffectsSuppressed:
+          default: true
+          title: Sideeffectssuppressed
+          type: boolean
+        simulatorVersion:
+          default: amesh.simulator/v1
+          title: Simulatorversion
+          type: string
+        tasks:
+          items:
+            $ref: "#/components/schemas/SimulationTaskPlan"
+          title: Tasks
+          type: array
+          default: null
+        unknowns:
+          items:
+            $ref: "#/components/schemas/SimulationUnknown"
+          title: Unknowns
+          type: array
+          default: null
+      required:
+      - estimates
+      - expressionVersion
+      - flowId
+      - inputHash
+      - namespace
+      - planId
+      - pluginSetHash
+      - policyDecisions
+      - revision
+      - semanticHash
+      - tasks
+      - unknowns
+      title: SimulationPlan
+    SimulationPlanDiff:
+      example:
+        addedTasks:
+        - addedTasks
+        - addedTasks
+        afterPlanId: afterPlanId
+        beforePlanId: beforePlanId
+        changedTasks:
+        - changedTasks
+        - changedTasks
+        estimateDelta:
+          key: 0.8008281904610115
+        pluginSetChanged: true
+        removedTasks:
+        - removedTasks
+        - removedTasks
+        schemaVersion: amesh.simulation-diff/v1
+        unknownsAdded:
+        - unknownsAdded
+        - unknownsAdded
+        unknownsResolved:
+        - unknownsResolved
+        - unknownsResolved
+      properties:
+        addedTasks:
+          items:
+            type: string
+          title: Addedtasks
+          type: array
+          default: null
+        afterPlanId:
+          title: Afterplanid
+          type: string
+        beforePlanId:
+          title: Beforeplanid
+          type: string
+        changedTasks:
+          items:
+            type: string
+          title: Changedtasks
+          type: array
+          default: null
+        estimateDelta:
+          additionalProperties:
+            type: number
+          title: Estimatedelta
+        pluginSetChanged:
+          title: Pluginsetchanged
+          type: boolean
+        removedTasks:
+          items:
+            type: string
+          title: Removedtasks
+          type: array
+          default: null
+        schemaVersion:
+          default: amesh.simulation-diff/v1
+          title: Schemaversion
+          type: string
+        unknownsAdded:
+          items:
+            type: string
+          title: Unknownsadded
+          type: array
+          default: null
+        unknownsResolved:
+          items:
+            type: string
+          title: Unknownsresolved
+          type: array
+          default: null
+      required:
+      - addedTasks
+      - afterPlanId
+      - beforePlanId
+      - changedTasks
+      - estimateDelta
+      - pluginSetChanged
+      - removedTasks
+      - unknownsAdded
+      - unknownsResolved
+      title: SimulationPlanDiff
+    SimulationPolicyDecision:
+      example:
+        allowed: true
+        category: category
+        details:
+          key: ""
+        policyId: policyId
+        reason: reason
+      properties:
+        allowed:
+          title: Allowed
+          type: boolean
+        category:
+          title: Category
+          type: string
+        details:
+          additionalProperties:
+            nullable: true
+          title: Details
+        policyId:
+          title: Policyid
+          type: string
+        reason:
+          title: Reason
+          type: string
+      required:
+      - allowed
+      - category
+      - policyId
+      - reason
+      title: SimulationPolicyDecision
+    SimulationRequest:
+      additionalProperties: false
+      example:
+        defaultRunner: kubernetes
+        estimateModels:
+          key:
+            apiCalls: 0
+            costUsd: 0.6027456183070403
+            durationSeconds: 0.14658129805029452
+            storageBytes: 0
+        fixtures:
+          key:
+            error: error
+            failuresBeforeSuccess: 55
+            output:
+              key: ""
+            outputSchema:
+              key: ""
+            recordedAt: 2000-01-23T04:56:07.000+00:00
+            source: ""
+        inputs:
+          key: ""
+        signEvidence: true
+        triggerContext:
+          key: ""
+        variables:
+          key: ""
+      properties:
+        defaultRunner:
+          default: kubernetes
+          minLength: 1
+          title: Defaultrunner
+          type: string
+        estimateModels:
+          additionalProperties:
+            $ref: "#/components/schemas/SimulationEstimateModel"
+          title: Estimatemodels
+        fixtures:
+          additionalProperties:
+            $ref: "#/components/schemas/SimulationFixture"
+          title: Fixtures
+        inputs:
+          additionalProperties:
+            nullable: true
+          title: Inputs
+        signEvidence:
+          default: true
+          title: Signevidence
+          type: boolean
+        triggerContext:
+          additionalProperties:
+            nullable: true
+          title: Triggercontext
+        variables:
+          additionalProperties:
+            nullable: true
+          title: Variables
+      title: SimulationRequest
+    SimulationSubstitution:
+      enum:
+      - FLOWABLE
+      - DETERMINISTIC
+      - MOCK
+      - RECORDED
+      - SCHEMA_ONLY
+      - UNKNOWN
+      title: SimulationSubstitution
+      type: string
+    SimulationTaskPlan:
+      example:
+        attempts: 0
+        concurrencyBuckets:
+        - concurrencyBuckets
+        - concurrencyBuckets
+        dependencies:
+        - dependencies
+        - dependencies
+        expressionStatus: expressionStatus
+        lifecyclePhase: lifecyclePhase
+        maxAttempts: 1
+        order: 0
+        output:
+          key: ""
+        parentId: parentId
+        reason: reason
+        runner: runner
+        state: SUCCESS
+        substitution: FLOWABLE
+        taskId: taskId
+        taskType: taskType
+      properties:
+        attempts:
+          minimum: 0.0
+          title: Attempts
+          type: integer
+        concurrencyBuckets:
+          default: []
+          items:
+            type: string
+          title: Concurrencybuckets
+          type: array
+        dependencies:
+          default: []
+          items:
+            type: string
+          title: Dependencies
+          type: array
+        expressionStatus:
+          title: Expressionstatus
+          type: string
+        lifecyclePhase:
+          title: Lifecyclephase
+          type: string
+        maxAttempts:
+          minimum: 1.0
+          title: Maxattempts
+          type: integer
+        order:
+          minimum: 0.0
+          title: Order
+          type: integer
+        output:
+          additionalProperties:
+            nullable: true
+          nullable: true
+        parentId:
+          nullable: true
+          type: string
+        reason:
+          title: Reason
+          type: string
+        runner:
+          nullable: true
+          type: string
+        state:
+          $ref: "#/components/schemas/SimulationTaskState"
+        substitution:
+          $ref: "#/components/schemas/SimulationSubstitution"
+        taskId:
+          title: Taskid
+          type: string
+        taskType:
+          title: Tasktype
+          type: string
+      required:
+      - attempts
+      - expressionStatus
+      - lifecyclePhase
+      - maxAttempts
+      - order
+      - reason
+      - state
+      - substitution
+      - taskId
+      - taskType
+      title: SimulationTaskPlan
+    SimulationTaskState:
+      enum:
+      - SUCCESS
+      - FAILED
+      - SKIPPED
+      - UNKNOWN
+      title: SimulationTaskState
+      type: string
+    SimulationUnknown:
+      example:
+        code: code
+        path: path
+        reason: reason
+      properties:
+        code:
+          title: Code
+          type: string
+        path:
+          title: Path
+          type: string
+        reason:
+          title: Reason
+          type: string
+      required:
+      - code
+      - path
+      - reason
+      title: SimulationUnknown
     SourcePosition:
       properties:
         column:

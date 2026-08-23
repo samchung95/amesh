@@ -43,6 +43,7 @@ __all__ = [
     "RealtimeApi",
     "ScimApi",
     "SearchApi",
+    "SimulationsApi",
     "SystemApi",
     "TaskCacheApi",
     "TenantsApi",
@@ -411,6 +412,20 @@ __all__ = [
     "ServiceTopology",
     "SetLocalPasswordRequest",
     "SimulatedTaskResult",
+    "SimulationComparison",
+    "SimulationEstimateModel",
+    "SimulationEstimates",
+    "SimulationEvidence",
+    "SimulationFixture",
+    "SimulationFixtureSource",
+    "SimulationPlan",
+    "SimulationPlanDiff",
+    "SimulationPolicyDecision",
+    "SimulationRequest",
+    "SimulationSubstitution",
+    "SimulationTaskPlan",
+    "SimulationTaskState",
+    "SimulationUnknown",
     "SourcePosition",
     "SourceRange",
     "SubflowMode",
@@ -498,6 +513,7 @@ from amesh_client.api.plugins_api import PluginsApi as PluginsApi
 from amesh_client.api.realtime_api import RealtimeApi as RealtimeApi
 from amesh_client.api.scim_api import ScimApi as ScimApi
 from amesh_client.api.search_api import SearchApi as SearchApi
+from amesh_client.api.simulations_api import SimulationsApi as SimulationsApi
 from amesh_client.api.system_api import SystemApi as SystemApi
 from amesh_client.api.task_cache_api import TaskCacheApi as TaskCacheApi
 from amesh_client.api.tenants_api import TenantsApi as TenantsApi
@@ -870,6 +886,20 @@ from amesh_client.models.service_state import ServiceState as ServiceState
 from amesh_client.models.service_topology import ServiceTopology as ServiceTopology
 from amesh_client.models.set_local_password_request import SetLocalPasswordRequest as SetLocalPasswordRequest
 from amesh_client.models.simulated_task_result import SimulatedTaskResult as SimulatedTaskResult
+from amesh_client.models.simulation_comparison import SimulationComparison as SimulationComparison
+from amesh_client.models.simulation_estimate_model import SimulationEstimateModel as SimulationEstimateModel
+from amesh_client.models.simulation_estimates import SimulationEstimates as SimulationEstimates
+from amesh_client.models.simulation_evidence import SimulationEvidence as SimulationEvidence
+from amesh_client.models.simulation_fixture import SimulationFixture as SimulationFixture
+from amesh_client.models.simulation_fixture_source import SimulationFixtureSource as SimulationFixtureSource
+from amesh_client.models.simulation_plan import SimulationPlan as SimulationPlan
+from amesh_client.models.simulation_plan_diff import SimulationPlanDiff as SimulationPlanDiff
+from amesh_client.models.simulation_policy_decision import SimulationPolicyDecision as SimulationPolicyDecision
+from amesh_client.models.simulation_request import SimulationRequest as SimulationRequest
+from amesh_client.models.simulation_substitution import SimulationSubstitution as SimulationSubstitution
+from amesh_client.models.simulation_task_plan import SimulationTaskPlan as SimulationTaskPlan
+from amesh_client.models.simulation_task_state import SimulationTaskState as SimulationTaskState
+from amesh_client.models.simulation_unknown import SimulationUnknown as SimulationUnknown
 from amesh_client.models.source_position import SourcePosition as SourcePosition
 from amesh_client.models.source_range import SourceRange as SourceRange
 from amesh_client.models.subflow_mode import SubflowMode as SubflowMode

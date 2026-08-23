@@ -170,6 +170,16 @@ owner, and `handles` edges connect local error groups to their primary graph own
 `GET /api/v1/executions/{execution_id}/graph` returns the pinned revision with current durable task
 states and results. The control room renders both contracts on flow and execution detail pages.
 
+### Deterministic simulation
+
+`amesh.simulator/v1` wraps the same graph compiler and bounded expression/flow-test semantics and
+declares conformance with `amesh.reducer/v1`. It accepts sample inputs and trigger context, resolves
+conditions, retries and concurrency buckets, and substitutes external tasks only through mocks,
+recordings or schema-only placeholders. Missing behavior is a typed unknown, never an inferred
+success. Plan estimates exist only for declared task-type models. Stored-revision API responses pin
+semantic, plugin-set and input hashes and carry domain-separated signed evidence; no execution,
+runner dispatch, secret lookup or artifact write occurs.
+
 ### Durable loops
 
 `core.foreach` consumes one array, deterministically key-sorted map, integer range or streamed JSONL

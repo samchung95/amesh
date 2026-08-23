@@ -3140,3 +3140,30 @@ a Windows asyncpg event-loop teardown and a load-sensitive one-second DSL perfor
 They were not changed under the active epic's scope lock.
 
 Verdict: PASS — EPIC-704 closed for the manifest-declared surface.
+
+## 2026-08-23 — EPIC-800 deterministic simulation and dry-run engine
+
+Scope: `URS-F-0750` through `URS-F-0757`.
+
+- [x] Revision-pinned plans expanded the canonical task graph with supplied inputs and trigger
+  context, evaluated conditions, retries and concurrency keys, and included a non-persisting plugin
+  execution-policy preview.
+- [x] Mocks, recorded fixtures and schema-only placeholders suppressed external task dispatch.
+  Missing fixtures, iteration counts, expressions and estimate models remained typed unknowns rather
+  than fabricated success values.
+- [x] Declared models produced task-count, critical-path, runner-demand, storage, API-call and cost
+  estimates. Plan comparison detected task, plugin-set, estimate and unknown changes.
+- [x] Canonical plan evidence used domain-separated HMAC-SHA256; deterministic verification accepted
+  the original payload and rejected a modified semantic hash.
+- [x] `amesh.simulator/v1` and `amesh.reducer/v1` are emitted in every plan. A focused conformance
+  scenario produced the same initial runnable task order as the real production reducer.
+- [x] Sixteen focused Python simulation/API/CLI/flow-test scenarios passed with Ruff and strict
+  mypy. Twenty-one frontend API-client tests and the production TypeScript/Vite build passed.
+- [x] ADR-046, the simulation API/CLI guide, generated OpenAPI/SDK contracts and the flow detail
+  preview document and expose the same side-effect-free behavior.
+
+Qualification boundary: estimates are present only for declared models and are not billing or
+scheduling guarantees. Plans with unknowns remain useful previews but are not complete-execution
+claims. No epic-specific performance or recovery NFR is mapped.
+
+Verdict: PASS — EPIC-800 closed.

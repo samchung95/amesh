@@ -557,6 +557,10 @@ Class | Method | HTTP request | Description
 *SearchApi* | [**searchResourcesApiV1SearchPostWithHttpInfo**](docs/SearchApi.md#searchResourcesApiV1SearchPostWithHttpInfo) | **POST** /api/v1/search | Search Resources
 *SearchApi* | [**verifySearchProjectionApiV1SearchVerifyGet**](docs/SearchApi.md#verifySearchProjectionApiV1SearchVerifyGet) | **GET** /api/v1/search/verify | Verify Search Projection
 *SearchApi* | [**verifySearchProjectionApiV1SearchVerifyGetWithHttpInfo**](docs/SearchApi.md#verifySearchProjectionApiV1SearchVerifyGetWithHttpInfo) | **GET** /api/v1/search/verify | Verify Search Projection
+*SimulationsApi* | [**compareFlowSimulationsApiV1FlowsNamespaceFlowIdSimulationsComparePost**](docs/SimulationsApi.md#compareFlowSimulationsApiV1FlowsNamespaceFlowIdSimulationsComparePost) | **POST** /api/v1/flows/{namespace}/{flow_id}/simulations/compare | Compare Flow Simulations
+*SimulationsApi* | [**compareFlowSimulationsApiV1FlowsNamespaceFlowIdSimulationsComparePostWithHttpInfo**](docs/SimulationsApi.md#compareFlowSimulationsApiV1FlowsNamespaceFlowIdSimulationsComparePostWithHttpInfo) | **POST** /api/v1/flows/{namespace}/{flow_id}/simulations/compare | Compare Flow Simulations
+*SimulationsApi* | [**simulateFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionSimulatePost**](docs/SimulationsApi.md#simulateFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionSimulatePost) | **POST** /api/v1/flows/{namespace}/{flow_id}/revisions/{revision}/simulate | Simulate Flow Revision
+*SimulationsApi* | [**simulateFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionSimulatePostWithHttpInfo**](docs/SimulationsApi.md#simulateFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionSimulatePostWithHttpInfo) | **POST** /api/v1/flows/{namespace}/{flow_id}/revisions/{revision}/simulate | Simulate Flow Revision
 *SystemApi* | [**healthHealthGet**](docs/SystemApi.md#healthHealthGet) | **GET** /health | Health
 *SystemApi* | [**healthHealthGetWithHttpInfo**](docs/SystemApi.md#healthHealthGetWithHttpInfo) | **GET** /health | Health
 *SystemApi* | [**readyReadyGet**](docs/SystemApi.md#readyReadyGet) | **GET** /ready | Ready
@@ -971,6 +975,20 @@ Class | Method | HTTP request | Description
  - [ServiceTopology](docs/ServiceTopology.md)
  - [SetLocalPasswordRequest](docs/SetLocalPasswordRequest.md)
  - [SimulatedTaskResult](docs/SimulatedTaskResult.md)
+ - [SimulationComparison](docs/SimulationComparison.md)
+ - [SimulationEstimateModel](docs/SimulationEstimateModel.md)
+ - [SimulationEstimates](docs/SimulationEstimates.md)
+ - [SimulationEvidence](docs/SimulationEvidence.md)
+ - [SimulationFixture](docs/SimulationFixture.md)
+ - [SimulationFixtureSource](docs/SimulationFixtureSource.md)
+ - [SimulationPlan](docs/SimulationPlan.md)
+ - [SimulationPlanDiff](docs/SimulationPlanDiff.md)
+ - [SimulationPolicyDecision](docs/SimulationPolicyDecision.md)
+ - [SimulationRequest](docs/SimulationRequest.md)
+ - [SimulationSubstitution](docs/SimulationSubstitution.md)
+ - [SimulationTaskPlan](docs/SimulationTaskPlan.md)
+ - [SimulationTaskState](docs/SimulationTaskState.md)
+ - [SimulationUnknown](docs/SimulationUnknown.md)
  - [SourcePosition](docs/SourcePosition.md)
  - [SourceRange](docs/SourceRange.md)
  - [SubflowMode](docs/SubflowMode.md)

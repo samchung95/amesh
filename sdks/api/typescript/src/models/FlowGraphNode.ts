@@ -27,10 +27,10 @@ export interface FlowGraphNode {
     children?: Array<string | null>;
     /**
      *
-     * @type {Array<string | null>}
+     * @type {Array<string>}
      * @memberof FlowGraphNode
      */
-    dependencies?: Array<string | null>;
+    dependencies?: Array<string>;
     /**
      *
      * @type {number}

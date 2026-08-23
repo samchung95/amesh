@@ -92,6 +92,7 @@ import type {
   SearchRequest,
   SearchResponse,
   ServiceTopology,
+  SimulationPlan,
   TriggerOccurrence,
   TriggerRuntimeState,
   UiSession,
@@ -478,6 +479,16 @@ export function createApiClient(connection: ApiConnection) {
       request<FlowDataContract>(`/api/v1/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/data-contract`),
     flowMetadata: async (namespace: string, flowId: string) =>
       request<FlowMetadata>(`/api/v1/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/metadata`),
+    simulateFlow: async (
+      namespace: string,
+      flowId: string,
+      revision: number,
+      inputs: Record<string, unknown>,
+    ) => request<SimulationPlan>(`/api/v1/flows/${encodeURIComponent(namespace)}/${encodeURIComponent(flowId)}/revisions/${String(revision)}/simulate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ inputs, fixtures: {}, estimateModels: {}, signEvidence: true }),
+    }),
     executeFlow: async (namespace: string, flowId: string, inputs: Record<string, unknown>) =>
       request<ExecutionDetail>('/api/v1/executions', {
         method: 'POST',

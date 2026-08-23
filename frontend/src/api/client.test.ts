@@ -253,6 +253,24 @@ describe('API client', () => {
     await expect(api.flows()).rejects.toMatchObject({ message: 'Request failed with status 500' })
   })
 
+  it('posts revision-pinned side-effect-free simulation inputs', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response('{}', { status: 200 }))
+    vi.stubGlobal('fetch', fetchMock)
+    const api = createApiClient({ token: 'token', tenant: 'default', namespace: '' })
+
+    await api.simulateFlow('team/data', 'daily flow', 7, { customer: 'acme' })
+
+    const [path, init] = fetchMock.mock.calls[0] as [string, RequestInit]
+    expect(path).toBe('/api/v1/flows/team%2Fdata/daily%20flow/revisions/7/simulate')
+    expect(init.method).toBe('POST')
+    expect(JSON.parse(init.body as string)).toEqual({
+      inputs: { customer: 'acme' },
+      fixtures: {},
+      estimateModels: {},
+      signEvidence: true,
+    })
+  })
+
   it('builds revision-pinned flow-test and quality-gate requests', async () => {
     const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(new Response('{}', { status: 200 })))
     vi.stubGlobal('fetch', fetchMock)

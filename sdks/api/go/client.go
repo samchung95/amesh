@@ -99,6 +99,8 @@ type APIClient struct {
 
 	SearchAPI *SearchAPIService
 
+	SimulationsAPI *SimulationsAPIService
+
 	SystemAPI *SystemAPIService
 
 	TaskCacheAPI *TaskCacheAPIService
@@ -155,6 +157,7 @@ func NewAPIClient(cfg *Configuration) *APIClient {
 	c.RealtimeAPI = (*RealtimeAPIService)(&c.common)
 	c.ScimAPI = (*ScimAPIService)(&c.common)
 	c.SearchAPI = (*SearchAPIService)(&c.common)
+	c.SimulationsAPI = (*SimulationsAPIService)(&c.common)
 	c.SystemAPI = (*SystemAPIService)(&c.common)
 	c.TaskCacheAPI = (*TaskCacheAPIService)(&c.common)
 	c.TenantsAPI = (*TenantsAPIService)(&c.common)

@@ -22,7 +22,7 @@ var _ MappedNullable = &FlowGraphNode{}
 // FlowGraphNode struct for FlowGraphNode
 type FlowGraphNode struct {
 	Children []*string `json:"children,omitempty"`
-	Dependencies []*string `json:"dependencies,omitempty"`
+	Dependencies []string `json:"dependencies,omitempty"`
 	Depth int32 `json:"depth"`
 	FailurePolicy string `json:"failurePolicy"`
 	HandlerOwnerId NullableString `json:"handlerOwnerId,omitempty"`
@@ -101,9 +101,9 @@ func (o *FlowGraphNode) SetChildren(v []*string) {
 }
 
 // GetDependencies returns the Dependencies field value if set, zero value otherwise.
-func (o *FlowGraphNode) GetDependencies() []*string {
+func (o *FlowGraphNode) GetDependencies() []string {
 	if o == nil || IsNil(o.Dependencies) {
-		var ret []*string
+		var ret []string
 		return ret
 	}
 	return o.Dependencies
@@ -111,7 +111,7 @@ func (o *FlowGraphNode) GetDependencies() []*string {
 
 // GetDependenciesOk returns a tuple with the Dependencies field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *FlowGraphNode) GetDependenciesOk() ([]*string, bool) {
+func (o *FlowGraphNode) GetDependenciesOk() ([]string, bool) {
 	if o == nil || IsNil(o.Dependencies) {
 		return nil, false
 	}
@@ -127,8 +127,8 @@ func (o *FlowGraphNode) HasDependencies() bool {
 	return false
 }
 
-// SetDependencies gets a reference to the given []*string and assigns it to the Dependencies field.
-func (o *FlowGraphNode) SetDependencies(v []*string) {
+// SetDependencies gets a reference to the given []string and assigns it to the Dependencies field.
+func (o *FlowGraphNode) SetDependencies(v []string) {
 	o.Dependencies = v
 }
 

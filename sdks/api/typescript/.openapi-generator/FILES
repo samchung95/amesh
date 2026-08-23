@@ -27,6 +27,7 @@ docs/PluginsApi.md
 docs/RealtimeApi.md
 docs/ScimApi.md
 docs/SearchApi.md
+docs/SimulationsApi.md
 docs/SystemApi.md
 docs/TaskCacheApi.md
 docs/TenantsApi.md
@@ -60,6 +61,7 @@ src/apis/PluginsApi.ts
 src/apis/RealtimeApi.ts
 src/apis/ScimApi.ts
 src/apis/SearchApi.ts
+src/apis/SimulationsApi.ts
 src/apis/SystemApi.ts
 src/apis/TaskCacheApi.ts
 src/apis/TenantsApi.ts
@@ -421,6 +423,20 @@ src/models/ServiceState.ts
 src/models/ServiceTopology.ts
 src/models/SetLocalPasswordRequest.ts
 src/models/SimulatedTaskResult.ts
+src/models/SimulationComparison.ts
+src/models/SimulationEstimateModel.ts
+src/models/SimulationEstimates.ts
+src/models/SimulationEvidence.ts
+src/models/SimulationFixture.ts
+src/models/SimulationFixtureSource.ts
+src/models/SimulationPlan.ts
+src/models/SimulationPlanDiff.ts
+src/models/SimulationPolicyDecision.ts
+src/models/SimulationRequest.ts
+src/models/SimulationSubstitution.ts
+src/models/SimulationTaskPlan.ts
+src/models/SimulationTaskState.ts
+src/models/SimulationUnknown.ts
 src/models/SourcePosition.ts
 src/models/SourceRange.ts
 src/models/SubflowMode.ts

@@ -11,6 +11,8 @@
 - They are not the complete compatibility API; gaps remain explicit until the version-pinned ADR-009 façade epics are verified.
 - Generated Python, TypeScript, Java and Go packages and their high-level execution facade are
   documented in the [public SDK guide](sdks.md).
+- Compile signed revision-pinned plans, declare side-effect substitutions and compare plan/plugin
+  changes through the [deterministic simulation API](simulations.md).
 
 ## v1 conventions
 

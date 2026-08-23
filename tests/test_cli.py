@@ -155,6 +155,68 @@ def test_flow_test_command_is_machine_readable_and_ci_fails(monkeypatch: Any) ->
     )
 
 
+class FakeSimulationClient:
+    request: ClassVar[tuple[str, dict[str, Any]] | None] = None
+
+    def __init__(self, **kwargs: Any) -> None:
+        del kwargs
+
+    def __enter__(self) -> FakeSimulationClient:
+        return self
+
+    def __exit__(self, *args: object) -> None:
+        return None
+
+    def post(self, path: str, **kwargs: Any) -> httpx.Response:
+        type(self).request = (path, kwargs["json"])
+        return httpx.Response(
+            200,
+            request=httpx.Request("POST", path),
+            json={"planId": "plan-1", "sideEffectsSuppressed": True},
+        )
+
+
+def test_flow_simulation_command_sends_declared_context_and_models(monkeypatch: Any) -> None:
+    monkeypatch.setattr(httpx, "Client", FakeSimulationClient)
+
+    exit_code = main(
+        [
+            "--token",
+            "test-token",
+            "flow",
+            "simulate",
+            "examples",
+            "forecast",
+            "--revision",
+            "4",
+            "--input",
+            "customer=acme",
+            "--trigger",
+            "kind=primary",
+            "--fixture",
+            'lookup={source: MOCK, output: {status: approved}}',
+            "--estimate-model",
+            'vendor.lookup={durationSeconds: 0.5, apiCalls: 1}',
+        ]
+    )
+
+    assert exit_code == 0
+    assert FakeSimulationClient.request == (
+        "/api/v1/flows/examples/forecast/revisions/4/simulate",
+        {
+            "inputs": {"customer": "acme"},
+            "variables": {},
+            "triggerContext": {"kind": "primary"},
+            "fixtures": {"lookup": {"source": "MOCK", "output": {"status": "approved"}}},
+            "estimateModels": {
+                "vendor.lookup": {"durationSeconds": 0.5, "apiCalls": 1}
+            },
+            "defaultRunner": "kubernetes",
+            "signEvidence": True,
+        },
+    )
+
+
 class FakeNamespaceClient:
     calls: ClassVar[list[tuple[str, str, dict[str, Any]]]] = []
 

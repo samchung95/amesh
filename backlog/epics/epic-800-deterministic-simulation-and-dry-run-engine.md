@@ -12,14 +12,18 @@ Preview workflow behavior and policy impact without performing undeclared extern
 
 ## In scope
 
-- [ ] **URS-F-0750** — The system shall compile a flow revision into an expanded execution plan using supplied sample inputs and trigger context.
-- [ ] **URS-F-0751** — The system shall evaluate expressions, conditions, task graph, retries, concurrency keys and policy decisions in simulation mode.
-- [ ] **URS-F-0752** — The system shall replace external tasks with declared mocks, recorded fixtures or schema-only placeholders.
-- [ ] **URS-F-0753** — The system shall estimate task count, critical path, runner demand, storage, API calls and cost where models exist.
-- [ ] **URS-F-0754** — The system shall show unknown or nondeterministic behavior explicitly rather than fabricating results.
-- [ ] **URS-F-0755** — The system shall compare simulation plans between flow revisions and plugin sets.
-- [ ] **URS-F-0756** — The system shall sign simulation evidence used by promotion gates.
-- [ ] **URS-F-0757** — The system shall keep simulator semantics versioned and conformance-tested against the real reducer.
+- [x] **URS-F-0750** — The system shall compile a flow revision into an expanded execution plan using supplied sample inputs and trigger context.
+- [x] **URS-F-0751** — The system shall evaluate expressions, conditions, task graph, retries, concurrency keys and policy decisions in simulation mode.
+- [x] **URS-F-0752** — The system shall replace external tasks with declared mocks, recorded fixtures or schema-only placeholders.
+- [x] **URS-F-0753** — The system shall estimate task count, critical path, runner demand, storage, API calls and cost where models exist.
+- [x] **URS-F-0754** — The system shall show unknown or nondeterministic behavior explicitly rather than fabricating results.
+- [x] **URS-F-0755** — The system shall compare simulation plans between flow revisions and plugin sets.
+- [x] **URS-F-0756** — The system shall sign simulation evidence used by promotion gates.
+- [x] **URS-F-0757** — The system shall keep simulator semantics versioned and conformance-tested against the real reducer.
+
+## Implementation completion evidence
+
+- 2026-08-23 — EPIC-800 is complete. `amesh.simulator/v1` compiles revision-pinned, side-effect-free plans through the canonical graph compiler and established flow-test/expression semantics; evaluates trigger context, conditions, retries, concurrency and plugin policy; substitutes mocks, recordings or schema-only placeholders; reports typed unknowns; calculates declared task/resource/cost models; compares flow/plugin revisions; and signs canonical evidence. API, CLI and flow-detail UI paths passed focused tests and the production frontend build. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`simulations.md`](../../docs/api/simulations.md), [`046-versioned-side-effect-free-simulation-plans.md`](../../docs/adr/046-versioned-side-effect-free-simulation-plans.md), and [`test_simulation.py`](../../tests/simulation/test_simulation.py).
 
 ## Non-functional requirements
 
@@ -46,13 +50,13 @@ Preview workflow behavior and policy impact without performing undeclared extern
 
 ## Definition of done
 
-- [ ] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
-- [ ] Public API, DSL, event and plugin contract changes pass compatibility checks.
-- [ ] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
-- [ ] Security, tenant isolation, redaction and audit behavior are reviewed.
-- [ ] Documentation, examples, migration notes and operational runbooks are updated.
-- [ ] Performance and recovery budgets are measured when this epic is on a critical path.
-- [ ] `python scripts/validate_backlog.py` passes.
+- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
+- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.
+- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
+- [x] Security, tenant isolation, redaction and audit behavior are reviewed.
+- [x] Documentation, examples, migration notes and operational runbooks are updated.
+- [x] Performance and recovery budgets are measured when this epic is on a critical path.
+- [x] `python scripts/validate_backlog.py` passes.
 
 ## Risks and unknowns
 

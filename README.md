@@ -173,6 +173,10 @@ Apply `examples/nested-flowables.yaml`, then open **Flows → Open graph** to in
 sequential, bounded-parallel and DAG plan before execution. Execution details show the same graph with
 live task states.
 
+On any flow detail page, choose **Preview plan** to compile a signed, side-effect-free simulation with
+the current sample inputs. External tasks remain explicit unknowns until mocks, recordings or schemas
+are supplied through the [simulation API or CLI](docs/api/simulations.md).
+
 Apply `examples/loops.yaml` to try bounded foreach, while and until execution. The live graph shows one
 aggregated node per loop child and its completed iteration count instead of rendering every generated
 task run.

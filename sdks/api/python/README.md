@@ -312,6 +312,8 @@ Class | Method | HTTP request | Description
 *SearchApi* | [**rebuild_search_projection_api_v1_search_rebuild_post**](docs/SearchApi.md#rebuild_search_projection_api_v1_search_rebuild_post) | **POST** /api/v1/search/rebuild | Rebuild Search Projection
 *SearchApi* | [**search_resources_api_v1_search_post**](docs/SearchApi.md#search_resources_api_v1_search_post) | **POST** /api/v1/search | Search Resources
 *SearchApi* | [**verify_search_projection_api_v1_search_verify_get**](docs/SearchApi.md#verify_search_projection_api_v1_search_verify_get) | **GET** /api/v1/search/verify | Verify Search Projection
+*SimulationsApi* | [**compare_flow_simulations_api_v1_flows_namespace_flow_id_simulations_compare_post**](docs/SimulationsApi.md#compare_flow_simulations_api_v1_flows_namespace_flow_id_simulations_compare_post) | **POST** /api/v1/flows/{namespace}/{flow_id}/simulations/compare | Compare Flow Simulations
+*SimulationsApi* | [**simulate_flow_revision_api_v1_flows_namespace_flow_id_revisions_revision_simulate_post**](docs/SimulationsApi.md#simulate_flow_revision_api_v1_flows_namespace_flow_id_revisions_revision_simulate_post) | **POST** /api/v1/flows/{namespace}/{flow_id}/revisions/{revision}/simulate | Simulate Flow Revision
 *SystemApi* | [**health_health_get**](docs/SystemApi.md#health_health_get) | **GET** /health | Health
 *SystemApi* | [**ready_ready_get**](docs/SystemApi.md#ready_ready_get) | **GET** /ready | Ready
 *TaskCacheApi* | [**list_task_cache_entries_api_v1_task_cache_get**](docs/TaskCacheApi.md#list_task_cache_entries_api_v1_task_cache_get) | **GET** /api/v1/task-cache | List Task Cache Entries
@@ -697,6 +699,20 @@ Class | Method | HTTP request | Description
  - [ServiceTopology](docs/ServiceTopology.md)
  - [SetLocalPasswordRequest](docs/SetLocalPasswordRequest.md)
  - [SimulatedTaskResult](docs/SimulatedTaskResult.md)
+ - [SimulationComparison](docs/SimulationComparison.md)
+ - [SimulationEstimateModel](docs/SimulationEstimateModel.md)
+ - [SimulationEstimates](docs/SimulationEstimates.md)
+ - [SimulationEvidence](docs/SimulationEvidence.md)
+ - [SimulationFixture](docs/SimulationFixture.md)
+ - [SimulationFixtureSource](docs/SimulationFixtureSource.md)
+ - [SimulationPlan](docs/SimulationPlan.md)
+ - [SimulationPlanDiff](docs/SimulationPlanDiff.md)
+ - [SimulationPolicyDecision](docs/SimulationPolicyDecision.md)
+ - [SimulationRequest](docs/SimulationRequest.md)
+ - [SimulationSubstitution](docs/SimulationSubstitution.md)
+ - [SimulationTaskPlan](docs/SimulationTaskPlan.md)
+ - [SimulationTaskState](docs/SimulationTaskState.md)
+ - [SimulationUnknown](docs/SimulationUnknown.md)
  - [SourcePosition](docs/SourcePosition.md)
  - [SourceRange](docs/SourceRange.md)
  - [SubflowMode](docs/SubflowMode.md)

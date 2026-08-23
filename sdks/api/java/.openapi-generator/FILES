@@ -31,6 +31,7 @@ docs/PluginsApi.md
 docs/RealtimeApi.md
 docs/ScimApi.md
 docs/SearchApi.md
+docs/SimulationsApi.md
 docs/SystemApi.md
 docs/TaskCacheApi.md
 docs/TenantsApi.md
@@ -83,6 +84,7 @@ src/main/java/io/amesh/client/api/PluginsApi.java
 src/main/java/io/amesh/client/api/RealtimeApi.java
 src/main/java/io/amesh/client/api/ScimApi.java
 src/main/java/io/amesh/client/api/SearchApi.java
+src/main/java/io/amesh/client/api/SimulationsApi.java
 src/main/java/io/amesh/client/api/SystemApi.java
 src/main/java/io/amesh/client/api/TaskCacheApi.java
 src/main/java/io/amesh/client/api/TenantsApi.java
@@ -443,6 +445,20 @@ src/main/java/io/amesh/client/model/ServiceState.java
 src/main/java/io/amesh/client/model/ServiceTopology.java
 src/main/java/io/amesh/client/model/SetLocalPasswordRequest.java
 src/main/java/io/amesh/client/model/SimulatedTaskResult.java
+src/main/java/io/amesh/client/model/SimulationComparison.java
+src/main/java/io/amesh/client/model/SimulationEstimateModel.java
+src/main/java/io/amesh/client/model/SimulationEstimates.java
+src/main/java/io/amesh/client/model/SimulationEvidence.java
+src/main/java/io/amesh/client/model/SimulationFixture.java
+src/main/java/io/amesh/client/model/SimulationFixtureSource.java
+src/main/java/io/amesh/client/model/SimulationPlan.java
+src/main/java/io/amesh/client/model/SimulationPlanDiff.java
+src/main/java/io/amesh/client/model/SimulationPolicyDecision.java
+src/main/java/io/amesh/client/model/SimulationRequest.java
+src/main/java/io/amesh/client/model/SimulationSubstitution.java
+src/main/java/io/amesh/client/model/SimulationTaskPlan.java
+src/main/java/io/amesh/client/model/SimulationTaskState.java
+src/main/java/io/amesh/client/model/SimulationUnknown.java
 src/main/java/io/amesh/client/model/SourcePosition.java
 src/main/java/io/amesh/client/model/SourceRange.java
 src/main/java/io/amesh/client/model/SubflowMode.java

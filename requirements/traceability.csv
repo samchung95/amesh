@@ -748,14 +748,14 @@ URS-F-0746,Functional,Must,EPIC-706,Reference integration environments and certi
 URS-F-0747,Functional,Must,EPIC-706,Reference integration environments and certification,M7,7,Release-gate evidence review,Proposed
 URS-F-0748,Functional,Must,EPIC-706,Reference integration environments and certification,M7,7,Release-gate evidence review,Proposed
 URS-F-0749,Functional,Must,EPIC-706,Reference integration environments and certification,M7,7,Release-gate evidence review,Proposed
-URS-F-0750,Functional,Must,EPIC-800,Deterministic simulation and dry-run engine,M8,8,Feature-specific end-to-end and policy tests,Proposed
-URS-F-0751,Functional,Must,EPIC-800,Deterministic simulation and dry-run engine,M8,8,Feature-specific end-to-end and policy tests,Proposed
-URS-F-0752,Functional,Must,EPIC-800,Deterministic simulation and dry-run engine,M8,8,Feature-specific end-to-end and policy tests,Proposed
-URS-F-0753,Functional,Must,EPIC-800,Deterministic simulation and dry-run engine,M8,8,Feature-specific end-to-end and policy tests,Proposed
-URS-F-0754,Functional,Must,EPIC-800,Deterministic simulation and dry-run engine,M8,8,Feature-specific end-to-end and policy tests,Proposed
-URS-F-0755,Functional,Must,EPIC-800,Deterministic simulation and dry-run engine,M8,8,Feature-specific end-to-end and policy tests,Proposed
-URS-F-0756,Functional,Must,EPIC-800,Deterministic simulation and dry-run engine,M8,8,Feature-specific end-to-end and policy tests,Proposed
-URS-F-0757,Functional,Must,EPIC-800,Deterministic simulation and dry-run engine,M8,8,Feature-specific end-to-end and policy tests,Proposed
+URS-F-0750,Functional,Must,EPIC-800,Deterministic simulation and dry-run engine,M8,8,Feature-specific end-to-end and policy tests,Verified
+URS-F-0751,Functional,Must,EPIC-800,Deterministic simulation and dry-run engine,M8,8,Feature-specific end-to-end and policy tests,Verified
+URS-F-0752,Functional,Must,EPIC-800,Deterministic simulation and dry-run engine,M8,8,Feature-specific end-to-end and policy tests,Verified
+URS-F-0753,Functional,Must,EPIC-800,Deterministic simulation and dry-run engine,M8,8,Feature-specific end-to-end and policy tests,Verified
+URS-F-0754,Functional,Must,EPIC-800,Deterministic simulation and dry-run engine,M8,8,Feature-specific end-to-end and policy tests,Verified
+URS-F-0755,Functional,Must,EPIC-800,Deterministic simulation and dry-run engine,M8,8,Feature-specific end-to-end and policy tests,Verified
+URS-F-0756,Functional,Must,EPIC-800,Deterministic simulation and dry-run engine,M8,8,Feature-specific end-to-end and policy tests,Verified
+URS-F-0757,Functional,Must,EPIC-800,Deterministic simulation and dry-run engine,M8,8,Feature-specific end-to-end and policy tests,Verified
 URS-F-0758,Functional,Must,EPIC-801,Agentic authoring and operational assistant,M8,8,Feature-specific end-to-end and policy tests,Proposed
 URS-F-0759,Functional,Must,EPIC-801,Agentic authoring and operational assistant,M8,8,Feature-specific end-to-end and policy tests,Proposed
 URS-F-0760,Functional,Must,EPIC-801,Agentic authoring and operational assistant,M8,8,Feature-specific end-to-end and policy tests,Proposed
