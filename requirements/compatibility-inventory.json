@@ -11918,7 +11918,7 @@
     },
     {
       "requirement_id": "URS-F-0806",
-      "epic_id": "EPIC-806",
+      "epic_id": "EPIC-807",
       "compatibility_level": "Intentional difference",
       "implementation_status": "Proposed",
       "disposition": "intentional-difference",
@@ -11927,11 +11927,11 @@
         "kestra-docs-index-v1.3.30"
       ],
       "evidence": [],
-      "notes": "Run durable, governed multi-agent meshes with typed hand-offs, bounded autonomy, provider portability and complete execution evidence."
+      "notes": "Define reusable, versioned agent resources whose model, prompt, skill, tool, permission, environment, budget and output-contract revisions resolve and pin before execution."
     },
     {
       "requirement_id": "URS-F-0807",
-      "epic_id": "EPIC-806",
+      "epic_id": "EPIC-807",
       "compatibility_level": "Intentional difference",
       "implementation_status": "Proposed",
       "disposition": "intentional-difference",
@@ -11940,7 +11940,7 @@
         "kestra-docs-index-v1.3.30"
       ],
       "evidence": [],
-      "notes": "Run durable, governed multi-agent meshes with typed hand-offs, bounded autonomy, provider portability and complete execution evidence."
+      "notes": "Define reusable, versioned agent resources whose model, prompt, skill, tool, permission, environment, budget and output-contract revisions resolve and pin before execution."
     },
     {
       "requirement_id": "URS-F-0808",
@@ -11953,11 +11953,11 @@
         "kestra-docs-index-v1.3.30"
       ],
       "evidence": [],
-      "notes": "Run durable, governed multi-agent meshes with typed hand-offs, bounded autonomy, provider portability and complete execution evidence."
+      "notes": "Coordinate multiple already-bounded agent sessions through typed hand-offs and explainable routing without creating a second execution engine."
     },
     {
       "requirement_id": "URS-F-0809",
-      "epic_id": "EPIC-806",
+      "epic_id": "EPIC-808",
       "compatibility_level": "Intentional difference",
       "implementation_status": "Proposed",
       "disposition": "intentional-difference",
@@ -11966,7 +11966,7 @@
         "kestra-docs-index-v1.3.30"
       ],
       "evidence": [],
-      "notes": "Run durable, governed multi-agent meshes with typed hand-offs, bounded autonomy, provider portability and complete execution evidence."
+      "notes": "Run one supervised agent as a durable workflow task whose model turns and tool proposals are mediated by AMESH and cannot succeed until structured-output and policy gates pass."
     },
     {
       "requirement_id": "URS-F-0810",
@@ -11979,7 +11979,7 @@
         "kestra-docs-index-v1.3.30"
       ],
       "evidence": [],
-      "notes": "Run durable, governed multi-agent meshes with typed hand-offs, bounded autonomy, provider portability and complete execution evidence."
+      "notes": "Coordinate multiple already-bounded agent sessions through typed hand-offs and explainable routing without creating a second execution engine."
     },
     {
       "requirement_id": "URS-F-0811",
@@ -11992,11 +11992,11 @@
         "kestra-docs-index-v1.3.30"
       ],
       "evidence": [],
-      "notes": "Run durable, governed multi-agent meshes with typed hand-offs, bounded autonomy, provider portability and complete execution evidence."
+      "notes": "Coordinate multiple already-bounded agent sessions through typed hand-offs and explainable routing without creating a second execution engine."
     },
     {
       "requirement_id": "URS-F-0812",
-      "epic_id": "EPIC-806",
+      "epic_id": "EPIC-809",
       "compatibility_level": "Intentional difference",
       "implementation_status": "Proposed",
       "disposition": "intentional-difference",
@@ -12005,11 +12005,11 @@
         "kestra-docs-index-v1.3.30"
       ],
       "evidence": [],
-      "notes": "Run durable, governed multi-agent meshes with typed hand-offs, bounded autonomy, provider portability and complete execution evidence."
+      "notes": "Make bounded agents safe to adopt through isolated memory, versioned evaluations, human-readable traces and evidence-backed promotion gates in the existing workflow experience."
     },
     {
       "requirement_id": "URS-F-0813",
-      "epic_id": "EPIC-806",
+      "epic_id": "EPIC-808",
       "compatibility_level": "Intentional difference",
       "implementation_status": "Proposed",
       "disposition": "intentional-difference",
@@ -12018,11 +12018,11 @@
         "kestra-docs-index-v1.3.30"
       ],
       "evidence": [],
-      "notes": "Run durable, governed multi-agent meshes with typed hand-offs, bounded autonomy, provider portability and complete execution evidence."
+      "notes": "Run one supervised agent as a durable workflow task whose model turns and tool proposals are mediated by AMESH and cannot succeed until structured-output and policy gates pass."
     },
     {
       "requirement_id": "URS-F-0814",
-      "epic_id": "EPIC-806",
+      "epic_id": "EPIC-808",
       "compatibility_level": "Intentional difference",
       "implementation_status": "Proposed",
       "disposition": "intentional-difference",
@@ -12031,11 +12031,11 @@
         "kestra-docs-index-v1.3.30"
       ],
       "evidence": [],
-      "notes": "Run durable, governed multi-agent meshes with typed hand-offs, bounded autonomy, provider portability and complete execution evidence."
+      "notes": "Run one supervised agent as a durable workflow task whose model turns and tool proposals are mediated by AMESH and cannot succeed until structured-output and policy gates pass."
     },
     {
       "requirement_id": "URS-F-0815",
-      "epic_id": "EPIC-806",
+      "epic_id": "EPIC-807",
       "compatibility_level": "Intentional difference",
       "implementation_status": "Proposed",
       "disposition": "intentional-difference",
@@ -12044,11 +12044,11 @@
         "kestra-docs-index-v1.3.30"
       ],
       "evidence": [],
-      "notes": "Run durable, governed multi-agent meshes with typed hand-offs, bounded autonomy, provider portability and complete execution evidence."
+      "notes": "Define reusable, versioned agent resources whose model, prompt, skill, tool, permission, environment, budget and output-contract revisions resolve and pin before execution."
     },
     {
       "requirement_id": "URS-F-0816",
-      "epic_id": "EPIC-806",
+      "epic_id": "EPIC-809",
       "compatibility_level": "Intentional difference",
       "implementation_status": "Proposed",
       "disposition": "intentional-difference",
@@ -12057,11 +12057,11 @@
         "kestra-docs-index-v1.3.30"
       ],
       "evidence": [],
-      "notes": "Run durable, governed multi-agent meshes with typed hand-offs, bounded autonomy, provider portability and complete execution evidence."
+      "notes": "Make bounded agents safe to adopt through isolated memory, versioned evaluations, human-readable traces and evidence-backed promotion gates in the existing workflow experience."
     },
     {
       "requirement_id": "URS-F-0817",
-      "epic_id": "EPIC-806",
+      "epic_id": "EPIC-808",
       "compatibility_level": "Intentional difference",
       "implementation_status": "Proposed",
       "disposition": "intentional-difference",
@@ -12070,11 +12070,11 @@
         "kestra-docs-index-v1.3.30"
       ],
       "evidence": [],
-      "notes": "Run durable, governed multi-agent meshes with typed hand-offs, bounded autonomy, provider portability and complete execution evidence."
+      "notes": "Run one supervised agent as a durable workflow task whose model turns and tool proposals are mediated by AMESH and cannot succeed until structured-output and policy gates pass."
     },
     {
       "requirement_id": "URS-F-0818",
-      "epic_id": "EPIC-806",
+      "epic_id": "EPIC-807",
       "compatibility_level": "Intentional difference",
       "implementation_status": "Proposed",
       "disposition": "intentional-difference",
@@ -12083,11 +12083,11 @@
         "kestra-docs-index-v1.3.30"
       ],
       "evidence": [],
-      "notes": "Run durable, governed multi-agent meshes with typed hand-offs, bounded autonomy, provider portability and complete execution evidence."
+      "notes": "Define reusable, versioned agent resources whose model, prompt, skill, tool, permission, environment, budget and output-contract revisions resolve and pin before execution."
     },
     {
       "requirement_id": "URS-F-0819",
-      "epic_id": "EPIC-806",
+      "epic_id": "EPIC-809",
       "compatibility_level": "Intentional difference",
       "implementation_status": "Proposed",
       "disposition": "intentional-difference",
@@ -12096,7 +12096,7 @@
         "kestra-docs-index-v1.3.30"
       ],
       "evidence": [],
-      "notes": "Run durable, governed multi-agent meshes with typed hand-offs, bounded autonomy, provider portability and complete execution evidence."
+      "notes": "Make bounded agents safe to adopt through isolated memory, versioned evaluations, human-readable traces and evidence-backed promotion gates in the existing workflow experience."
     },
     {
       "requirement_id": "URS-F-0820",

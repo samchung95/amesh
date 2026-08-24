@@ -1,6 +1,6 @@
 # Epic backlog
 
-This backlog contains 103 epics and is generated from `backlog/epics.json`.
+This backlog contains 106 epics and is generated from `backlog/epics.json`.
 
 | Epic | Milestone | Domain | Requirements | Goal |
 |---|---|---|---:|---|
@@ -54,7 +54,7 @@ This backlog contains 103 epics and is generated from `backlog/epics.json`.
 | [EPIC-309](epics/epic-309-cloud-and-infrastructure-plugin-pack.md) | M3 | plugins | 8 | Automate cloud and infrastructure services with scoped identity and normalized behavior. |
 | [EPIC-310](epics/epic-310-messaging-and-event-stream-plugin-pack.md) | M3 | plugins | 8 | Publish, consume and trigger workflows from common messaging systems. |
 | [EPIC-311](epics/epic-311-notification-and-collaboration-plugin-pack.md) | M3 | plugins | 7 | Deliver human and machine notifications through common communication platforms. |
-| [EPIC-312](epics/epic-312-ai-agent-and-mcp-plugin-pack.md) | M3 | plugins | 8 | Integrate model calls and tool-using agents without making the core engine provider-specific. |
+| [EPIC-312](epics/epic-312-provider-neutral-model-structured-output-and-mcp-primitives.md) | M3 | plugins | 8 | Provide bounded provider-neutral model and MCP task primitives with structured results, explicit policy, complete provenance and no autonomous session state. |
 | [EPIC-313](epics/epic-313-plugin-developer-portal-and-certification-suite.md) | M3 | plugins | 7 | Reduce plugin development friction and define transparent quality levels. |
 | [EPIC-400](epics/epic-400-versioned-rest-api-and-openapi-contract.md) | M4 | api | 11 | Expose the complete supported control plane through a stable, documented and automatable API. |
 | [EPIC-401](epics/epic-401-realtime-api-webhooks-and-event-subscriptions.md) | M4 | api | 9 | Deliver state, log and audit changes to clients without fragile polling. |
@@ -106,4 +106,7 @@ This backlog contains 103 epics and is generated from `backlog/epics.json`.
 | [EPIC-803](epics/epic-803-multi-region-and-edge-worker-topology.md) | M8 | differentiation | 8 | Place execution near private infrastructure while maintaining centralized governance and durable control. |
 | [EPIC-804](epics/epic-804-open-enterprise-distribution-and-packaging.md) | M8 | differentiation | 10 | Ship every production capability under an OSI-approved license without artificial feature gates. |
 | [EPIC-805](epics/epic-805-general-availability-quality-and-launch-readiness.md) | M8 | quality | 12 | Define objective evidence required before declaring the first stable release. |
-| [EPIC-806](epics/epic-806-first-class-agent-mesh-runtime-and-governance.md) | M8 | differentiation | 18 | Run durable, governed multi-agent meshes with typed hand-offs, bounded autonomy, provider portability and complete execution evidence. |
+| [EPIC-806](epics/epic-806-first-class-agent-mesh-runtime-and-governance.md) | M8 | differentiation | 7 | Coordinate multiple already-bounded agent sessions through typed hand-offs and explainable routing without creating a second execution engine. |
+| [EPIC-807](epics/epic-807-versioned-agent-definitions-and-capability-envelopes.md) | M8 | differentiation | 6 | Define reusable, versioned agent resources whose model, prompt, skill, tool, permission, environment, budget and output-contract revisions resolve and pin before execution. |
+| [EPIC-808](epics/epic-808-durable-bounded-single-agent-sessions.md) | M8 | differentiation | 7 | Run one supervised agent as a durable workflow task whose model turns and tool proposals are mediated by AMESH and cannot succeed until structured-output and policy gates pass. |
+| [EPIC-809](epics/epic-809-agent-memory-evaluation-and-release-gates.md) | M8 | differentiation | 6 | Make bounded agents safe to adopt through isolated memory, versioned evaluations, human-readable traces and evidence-backed promotion gates in the existing workflow experience. |

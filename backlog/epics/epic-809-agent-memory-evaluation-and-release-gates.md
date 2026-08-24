@@ -1,4 +1,4 @@
-# EPIC-806 — Multi-agent topology, typed hand-offs and routing
+# EPIC-809 — Agent memory, evaluation and release gates
 
 - **Milestone:** M8 — Differentiation and general availability
 - **Priority:** Must
@@ -8,33 +8,32 @@
 
 ## Outcome
 
-Coordinate multiple already-bounded agent sessions through typed hand-offs and explainable routing without creating a second execution engine.
+Make bounded agents safe to adopt through isolated memory, versioned evaluations, human-readable traces and evidence-backed promotion gates in the existing workflow experience.
 
 ## In scope
 
-- [ ] **URS-F-0808** — The system shall support supervisor, router, peer-to-peer, hierarchical and swarm mesh topologies without creating a second execution engine.
-- [ ] **URS-F-0810** — The system shall validate agent-to-agent hand-offs against typed schemas and preserve source, destination, rationale and context provenance.
-- [ ] **URS-F-0811** — The system shall route work by declared capability, policy, cost, latency, availability and evaluation score with an explainable decision record.
+- [ ] **URS-F-0812** — The system shall provide isolated private memory and policy-controlled shared memory with retention, redaction, size and tenant boundaries.
+- [ ] **URS-F-0816** — The system shall evaluate agent and mesh outcomes against versioned tests, rubrics, judges and business assertions.
+- [ ] **URS-F-0819** — The system shall interleave agent sessions, ordinary tasks and human approval tasks in one state machine, timeline and audit trail.
 
 ## Explicit non-goals
 
-- Giving models direct access to orchestration state or plaintext secrets
-- Claiming deterministic model output
-- Maintaining agent or mesh state outside the existing execution reducer
+- Using an LLM judge as the sole authority for high-impact release or tool decisions
+- Storing unrestricted conversation history without retention and redaction policy
 
 ## Non-functional requirements
 
-- [ ] **URS-NFR-AGENT-001** — Agent and mesh budgets shall be enforced by the platform independently of model compliance. Target: No test mesh exceeds its configured hard cost, token, duration or tool-call limit beyond one explicitly bounded in-flight operation.
 - [ ] **URS-NFR-AGENT-002** — Every agent message, routing decision, tool call, hand-off, approval and model response shall be traceable to pinned policy and execution context. Target: All catalogued mesh scenarios produce a complete provenance graph with no orphan tool effects.
 - [ ] **URS-NFR-AGENT-003** — Agent memory, tools and credentials shall be isolated by tenant, namespace, execution and delegated capability. Target: Zero cross-boundary disclosure or unauthorised tool invocation in adversarial mesh tests.
 - [ ] **URS-NFR-AGENT-004** — Core mesh state and policy shall remain usable when a model provider is disabled or replaced. Target: Reference meshes migrate between two conforming model adapters with documented output nondeterminism and no state-schema change.
 
 ## Dependencies
 
-- EPIC-503
-- EPIC-802
+- EPIC-407
+- EPIC-508
+- EPIC-510
+- EPIC-800
 - EPIC-808
-- EPIC-809
 
 ## Architecture impact
 
@@ -45,8 +44,7 @@ Coordinate multiple already-bounded agent sessions through typed hand-offs and e
 
 ## Verification plan
 
-- Multi-agent topology, typed hand-off, routing, budget, provenance and failover end-to-end tests.
-- Adversarial runaway-loop and concurrent tool-call tests.
+- Agent memory-isolation, evaluation, trace, approval-interleaving and release-gate end-to-end tests.
 - Provenance graph completeness tests.
 - Cross-tenant, prompt-injection and capability-confusion tests.
 - Provider substitution and outage tests.
@@ -65,13 +63,12 @@ Coordinate multiple already-bounded agent sessions through typed hand-offs and e
 
 ## Risks and unknowns
 
-- Concurrent routing can amplify cost and side effects across otherwise bounded sessions
-- A schema-valid hand-off can still be semantically wrong or malicious
-- Shared-memory and capability confusion can cross agent or tenant boundaries
-- Model nondeterminism can be mistaken for deterministic workflow replay
+- Shared memory can disclose information across executions, namespaces or tenants
+- LLM judges can be nondeterministic, biased or correlated with the model under test
+- A passing format or rubric score can be mistaken for business correctness
 
 ## Traceability
 
-- Functional requirements: URS-F-0808, URS-F-0810, URS-F-0811
-- Non-functional requirements: URS-NFR-AGENT-001, URS-NFR-AGENT-002, URS-NFR-AGENT-003, URS-NFR-AGENT-004
+- Functional requirements: URS-F-0812, URS-F-0816, URS-F-0819
+- Non-functional requirements: URS-NFR-AGENT-002, URS-NFR-AGENT-003, URS-NFR-AGENT-004
 - Source scope: AMESH Agent Mesh differentiator; not a Kestra-parity claim

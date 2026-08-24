@@ -1,4 +1,4 @@
-# EPIC-312 — AI, agent and MCP plugin pack
+# EPIC-312 — Provider-neutral model, structured-output and MCP primitives
 
 - **Milestone:** M3 — Plugin platform and integration packs
 - **Priority:** Must
@@ -8,7 +8,7 @@
 
 ## Outcome
 
-Integrate model calls and tool-using agents without making the core engine provider-specific.
+Provide bounded provider-neutral model and MCP task primitives with structured results, explicit policy, complete provenance and no autonomous session state.
 
 ## In scope
 
@@ -24,6 +24,11 @@ Integrate model calls and tool-using agents without making the core engine provi
 ## MVP implementation progress
 
 - 2026-08-21 — W6 verified OpenAI-compatible `agent.llm` with OpenRouter `openai/gpt-5.6-luna` as the default live-test model and `agent.mcp` tool invocation through the official MCP v2 client. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`test_handlers.py`](../../tests/tasks/test_handlers.py), [`test_openrouter_smoke.py`](../../tests/llm/test_openrouter_smoke.py), and [`test_agent_shell_http.py`](../../tests/e2e/test_agent_shell_http.py). Provider breadth, agent loops and the broader plugin epic remain open.
+
+## Explicit non-goals
+
+- Owning long-running autonomous agent-session state or multi-agent routing
+- Allowing a model or MCP server to mutate orchestration state directly
 
 ## Non-functional requirements
 
@@ -59,8 +64,8 @@ Integrate model calls and tool-using agents without making the core engine provi
 
 ## Risks and unknowns
 
-- Compatibility is version-pinned; gaps must remain explicit and release-scoped.
-- Qualification claims are valid only for the published profile, topology, configuration and evidence set.
+- Provider output remains nondeterministic even when model, prompt and parameters are pinned
+- MCP tools can create external side effects that require explicit authorization and idempotency evidence
 
 ## Traceability
 

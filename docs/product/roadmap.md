@@ -79,7 +79,7 @@ The roadmap is dependency-oriented rather than calendar-based. AI engineering ca
 - `EPIC-309` Cloud and infrastructure plugin pack
 - `EPIC-310` Messaging and event-stream plugin pack
 - `EPIC-311` Notification and collaboration plugin pack
-- `EPIC-312` AI, agent and MCP plugin pack
+- `EPIC-312` Provider-neutral model, structured-output and MCP primitives
 - `EPIC-313` Plugin developer portal and certification suite
 
 ## M4 — API, UI and self-service
@@ -158,7 +158,7 @@ The roadmap is dependency-oriented rather than calendar-based. AI engineering ca
 
 **Exit condition:** Differentiating features and GA quality targets are proven under reference workloads.
 
-**Epic count:** 7
+**Epic count:** 10
 
 - `EPIC-800` Deterministic simulation and dry-run engine
 - `EPIC-801` Agentic authoring and operational assistant
@@ -166,4 +166,7 @@ The roadmap is dependency-oriented rather than calendar-based. AI engineering ca
 - `EPIC-803` Multi-region and edge worker topology
 - `EPIC-804` Open enterprise distribution and packaging
 - `EPIC-805` General availability quality and launch readiness
-- `EPIC-806` First-class agent mesh runtime and governance
+- `EPIC-806` Multi-agent topology, typed hand-offs and routing
+- `EPIC-807` Versioned agent definitions and capability envelopes
+- `EPIC-808` Durable bounded single-agent sessions
+- `EPIC-809` Agent memory, evaluation and release gates

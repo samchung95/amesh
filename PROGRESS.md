@@ -3,11 +3,18 @@
 ## Current state
 
 - What works: the locally qualified MVP foundation is deployed through the current migration set. Sprint UX-01 adds the responsive visual audit, discoverable selectors, Mission Control and the default simple execution trace while preserving expert evidence and visual/YAML authoring.
-- What's in flight: no Sprint UX-01 implementation remains; cards `c97`, `c98`, `c99`, `c102`, and `c104` are verified and Done on the Agent Hotel board.
-- Known broken / TODO: guided workflow creation (`c100`), production determinism qualification (`c101`) and umbrella-overhaul closure (`c103`) are deferred beyond this sprint. Previously recorded unrelated deferred cards remain untouched.
+- What's in flight: the bounded-agent roadmap is defined on To-Do cards `c105`–`c109`; implementation has not started. EPIC-312 is the first dependency-ready stage, followed by EPIC-807, EPIC-808, EPIC-809 and the final EPIC-806 multi-agent layer.
+- Known broken / TODO: the deployed product still has only one-shot `agent.llm` and explicit `agent.mcp` tasks. Provider structured output, versioned prompts/skills/connections, durable agent sessions, memory/evaluation gates and multi-agent routing remain open on `c105`–`c109`; guided creation (`c100`), determinism qualification (`c101`) and umbrella-overhaul closure (`c103`) remain separate.
 - How to run/test: frontend checks run from `frontend/` with `npm test`, `npm run build` and `npm run test:e2e`; backend checks use `uv run --extra runtime --extra dev pytest`. The local Compose product is served at `http://localhost:8000`.
 
 ## Session log
+
+### 2026-08-25 (bounded-agent epic decomposition)
+
+- Did: refined EPIC-312 into the bounded provider/model/MCP prerequisite; split the prior broad EPIC-806 requirements into EPIC-807 versioned agent definitions, EPIC-808 durable bounded single-agent sessions, EPIC-809 memory/evaluation/release gates and a narrowed EPIC-806 multi-agent topology layer; recorded ADR-049; regenerated canonical backlog, roadmap, URS, compatibility, traceability and GitHub-issue projections; and created board cards `c105`–`c109` with staged Definitions of Done.
+- Verification: `uv run --extra runtime --extra dev python scripts/validate_backlog.py` reports 106 epics, 837 functional requirements, 63 non-functional requirements and 1,000 exact traceability links. The 900-requirement corpus is unchanged; URS-F-0806–0819 and agent NFRs were reassigned across the new durable boundaries.
+- Deviations from plan: no runtime, dependency, UI, service or deployment change was made. The roadmap deliberately completes single-agent safety before multi-agent coordination and keeps all agent state inside the existing execution reducer.
+- Next step when resuming: select `c105` and complete EPIC-312 before starting EPIC-807.
 
 ### 2026-08-24 (Sprint UX-01 complete)
 

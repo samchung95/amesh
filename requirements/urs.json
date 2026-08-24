@@ -17,7 +17,7 @@
     "functional_requirement_count": 837,
     "nonfunctional_requirement_count": 63,
     "total_requirement_count": 900,
-    "epic_count": 103,
+    "epic_count": 106,
     "status_values": [
       "Proposed",
       "Approved",
@@ -10993,12 +10993,12 @@
       "milestone": "M3",
       "wave": 3,
       "epic_id": "EPIC-312",
-      "epic_title": "AI, agent and MCP plugin pack",
+      "epic_title": "Provider-neutral model, structured-output and MCP primitives",
       "domain": "plugins",
       "persona": "Workflow author",
       "statement": "The system shall provide provider-neutral chat, embedding, structured-output and tool-call tasks.",
       "user_story": "As a workflow author, I need AMESH to provide provider-neutral chat, embedding, structured-output and tool-call tasks, so AMESH can integrate model calls and tool-using agents without making the core engine provider-specific.",
-      "rationale": "Integrate model calls and tool-using agents without making the core engine provider-specific.",
+      "rationale": "Provide bounded provider-neutral model and MCP task primitives with structured results, explicit policy, complete provenance and no autonomous session state.",
       "acceptance_criteria": [
         "A positive conformance scenario demonstrates that the platform can provide provider-neutral chat, embedding, structured-output and tool-call tasks.",
         "At least one invalid, denied, unavailable or recovery path is tested and yields a documented deterministic outcome.",
@@ -11020,12 +11020,12 @@
       "milestone": "M3",
       "wave": 3,
       "epic_id": "EPIC-312",
-      "epic_title": "AI, agent and MCP plugin pack",
+      "epic_title": "Provider-neutral model, structured-output and MCP primitives",
       "domain": "plugins",
       "persona": "Workflow author",
       "statement": "The system shall support model endpoint, credential, budget, timeout, retry and data-handling policy.",
       "user_story": "As a workflow author, I need AMESH to support model endpoint, credential, budget, timeout, retry and data-handling policy, so AMESH can integrate model calls and tool-using agents without making the core engine provider-specific.",
-      "rationale": "Integrate model calls and tool-using agents without making the core engine provider-specific.",
+      "rationale": "Provide bounded provider-neutral model and MCP task primitives with structured results, explicit policy, complete provenance and no autonomous session state.",
       "acceptance_criteria": [
         "A positive conformance scenario demonstrates that the platform can support model endpoint, credential, budget, timeout, retry and data-handling policy.",
         "At least one invalid, denied, unavailable or recovery path is tested and yields a documented deterministic outcome.",
@@ -11047,12 +11047,12 @@
       "milestone": "M3",
       "wave": 3,
       "epic_id": "EPIC-312",
-      "epic_title": "AI, agent and MCP plugin pack",
+      "epic_title": "Provider-neutral model, structured-output and MCP primitives",
       "domain": "plugins",
       "persona": "Workflow author",
       "statement": "The system shall expose workflows and approved operations through an authenticated MCP server.",
       "user_story": "As a workflow author, I need AMESH to expose workflows and approved operations through an authenticated MCP server, so AMESH can integrate model calls and tool-using agents without making the core engine provider-specific.",
-      "rationale": "Integrate model calls and tool-using agents without making the core engine provider-specific.",
+      "rationale": "Provide bounded provider-neutral model and MCP task primitives with structured results, explicit policy, complete provenance and no autonomous session state.",
       "acceptance_criteria": [
         "A positive conformance scenario demonstrates that the platform can expose workflows and approved operations through an authenticated MCP server.",
         "At least one invalid, denied, unavailable or recovery path is tested and yields a documented deterministic outcome.",
@@ -11074,12 +11074,12 @@
       "milestone": "M3",
       "wave": 3,
       "epic_id": "EPIC-312",
-      "epic_title": "AI, agent and MCP plugin pack",
+      "epic_title": "Provider-neutral model, structured-output and MCP primitives",
       "domain": "plugins",
       "persona": "Workflow author",
       "statement": "The system shall invoke external MCP tools through scoped allowlists and auditable tool calls.",
       "user_story": "As a workflow author, I need AMESH to invoke external MCP tools through scoped allowlists and auditable tool calls, so AMESH can integrate model calls and tool-using agents without making the core engine provider-specific.",
-      "rationale": "Integrate model calls and tool-using agents without making the core engine provider-specific.",
+      "rationale": "Provide bounded provider-neutral model and MCP task primitives with structured results, explicit policy, complete provenance and no autonomous session state.",
       "acceptance_criteria": [
         "A positive conformance scenario demonstrates that the platform can invoke external MCP tools through scoped allowlists and auditable tool calls.",
         "At least one invalid, denied, unavailable or recovery path is tested and yields a documented deterministic outcome.",
@@ -11101,12 +11101,12 @@
       "milestone": "M3",
       "wave": 3,
       "epic_id": "EPIC-312",
-      "epic_title": "AI, agent and MCP plugin pack",
+      "epic_title": "Provider-neutral model, structured-output and MCP primitives",
       "domain": "plugins",
       "persona": "Workflow author",
       "statement": "The system shall store prompts, model parameters, usage, cost and response provenance subject to redaction policy.",
       "user_story": "As a workflow author, I need AMESH to store prompts, model parameters, usage, cost and response provenance subject to redaction policy, so AMESH can integrate model calls and tool-using agents without making the core engine provider-specific.",
-      "rationale": "Integrate model calls and tool-using agents without making the core engine provider-specific.",
+      "rationale": "Provide bounded provider-neutral model and MCP task primitives with structured results, explicit policy, complete provenance and no autonomous session state.",
       "acceptance_criteria": [
         "A positive conformance scenario demonstrates that the platform can store prompts, model parameters, usage, cost and response provenance subject to redaction policy.",
         "At least one invalid, denied, unavailable or recovery path is tested and yields a documented deterministic outcome.",
@@ -11128,12 +11128,12 @@
       "milestone": "M3",
       "wave": 3,
       "epic_id": "EPIC-312",
-      "epic_title": "AI, agent and MCP plugin pack",
+      "epic_title": "Provider-neutral model, structured-output and MCP primitives",
       "domain": "plugins",
       "persona": "Workflow author",
       "statement": "The system shall validate structured outputs against JSON Schema before downstream use.",
       "user_story": "As a workflow author, I need AMESH to validate structured outputs against JSON Schema before downstream use, so AMESH can integrate model calls and tool-using agents without making the core engine provider-specific.",
-      "rationale": "Integrate model calls and tool-using agents without making the core engine provider-specific.",
+      "rationale": "Provide bounded provider-neutral model and MCP task primitives with structured results, explicit policy, complete provenance and no autonomous session state.",
       "acceptance_criteria": [
         "A positive conformance scenario demonstrates that the platform can validate structured outputs against JSON Schema before downstream use.",
         "At least one invalid, denied, unavailable or recovery path is tested and yields a documented deterministic outcome.",
@@ -11155,12 +11155,12 @@
       "milestone": "M3",
       "wave": 3,
       "epic_id": "EPIC-312",
-      "epic_title": "AI, agent and MCP plugin pack",
+      "epic_title": "Provider-neutral model, structured-output and MCP primitives",
       "domain": "plugins",
       "persona": "Workflow author",
       "statement": "The system shall require approval or policy checks for high-impact tools and sensitive data movement.",
       "user_story": "As a workflow author, I need AMESH to require approval or policy checks for high-impact tools and sensitive data movement, so AMESH can integrate model calls and tool-using agents without making the core engine provider-specific.",
-      "rationale": "Integrate model calls and tool-using agents without making the core engine provider-specific.",
+      "rationale": "Provide bounded provider-neutral model and MCP task primitives with structured results, explicit policy, complete provenance and no autonomous session state.",
       "acceptance_criteria": [
         "A positive conformance scenario demonstrates that the platform can require approval or policy checks for high-impact tools and sensitive data movement.",
         "At least one invalid, denied, unavailable or recovery path is tested and yields a documented deterministic outcome.",
@@ -11182,12 +11182,12 @@
       "milestone": "M3",
       "wave": 3,
       "epic_id": "EPIC-312",
-      "epic_title": "AI, agent and MCP plugin pack",
+      "epic_title": "Provider-neutral model, structured-output and MCP primitives",
       "domain": "plugins",
       "persona": "Workflow author",
       "statement": "The system shall support replay with pinned model and prompt metadata while acknowledging provider nondeterminism.",
       "user_story": "As a workflow author, I need AMESH to support replay with pinned model and prompt metadata while acknowledging provider nondeterminism, so AMESH can integrate model calls and tool-using agents without making the core engine provider-specific.",
-      "rationale": "Integrate model calls and tool-using agents without making the core engine provider-specific.",
+      "rationale": "Provide bounded provider-neutral model and MCP task primitives with structured results, explicit policy, complete provenance and no autonomous session state.",
       "acceptance_criteria": [
         "A positive conformance scenario demonstrates that the platform can support replay with pinned model and prompt metadata while acknowledging provider nondeterminism.",
         "At least one invalid, denied, unavailable or recovery path is tested and yields a documented deterministic outcome.",
@@ -23201,27 +23201,27 @@
       "status": "Proposed",
       "milestone": "M8",
       "wave": 8,
-      "epic_id": "EPIC-806",
-      "epic_title": "First-class agent mesh runtime and governance",
+      "epic_id": "EPIC-807",
+      "epic_title": "Versioned agent definitions and capability envelopes",
       "domain": "differentiation",
       "persona": "AI workflow developer",
       "statement": "The system shall define versioned agent resources containing model routing, instructions, tools, skills, memory policy, permissions, budgets and evaluation policy.",
-      "user_story": "As an AI workflow developer, I need AMESH to define versioned agent resources containing model routing, instructions, tools, skills, memory policy, permissions, budgets and evaluation policy, so AMESH can run durable, governed multi-agent meshes with typed hand-offs, bounded autonomy, provider portability and complete execution evidence.",
-      "rationale": "Run durable, governed multi-agent meshes with typed hand-offs, bounded autonomy, provider portability and complete execution evidence.",
+      "user_story": "As an AI workflow developer, I need AMESH to define versioned agent resources containing model routing, instructions, tools, skills, memory policy, permissions, budgets and evaluation policy, so agents execute from a reviewable capability envelope rather than mutable ambient configuration.",
+      "rationale": "Define reusable, versioned agent resources whose model, prompt, skill, tool, permission, environment, budget and output-contract revisions resolve and pin before execution.",
       "acceptance_criteria": [
         "A positive conformance scenario demonstrates the required behavior: define versioned agent resources containing model routing, instructions, tools, skills, memory policy, permissions, budgets and evaluation policy.",
         "At least one invalid, denied, unavailable or recovery path is tested and yields a documented deterministic outcome.",
         "The resulting state, error or decision is observable through an authorized API, audit event or operational signal where applicable.",
         "Restart, duplicate-delivery or stale-owner behavior is covered where the capability changes durable runtime state."
       ],
-      "verification": "Agent mesh state, budget, policy, failover and evaluation end-to-end tests",
+      "verification": "Agent resource schema, resolution, authorization, pinning and provider-adapter contract tests",
       "source_scope": "AMESH Agent Mesh differentiator; not a Kestra-parity claim",
       "local_sequence": 1,
       "dependencies": [
+        "EPIC-207",
         "EPIC-303",
         "EPIC-312",
-        "EPIC-508",
-        "EPIC-800",
+        "EPIC-505",
         "EPIC-802"
       ]
     },
@@ -23232,27 +23232,27 @@
       "status": "Proposed",
       "milestone": "M8",
       "wave": 8,
-      "epic_id": "EPIC-806",
-      "epic_title": "First-class agent mesh runtime and governance",
+      "epic_id": "EPIC-807",
+      "epic_title": "Versioned agent definitions and capability envelopes",
       "domain": "differentiation",
       "persona": "AI workflow developer",
       "statement": "The system shall pin resolved agent, model-policy, tool and prompt revisions to every agent session and workflow execution.",
-      "user_story": "As an AI workflow developer, I need AMESH to pin resolved agent, model-policy, tool and prompt revisions to every agent session and workflow execution, so AMESH can run durable, governed multi-agent meshes with typed hand-offs, bounded autonomy, provider portability and complete execution evidence.",
-      "rationale": "Run durable, governed multi-agent meshes with typed hand-offs, bounded autonomy, provider portability and complete execution evidence.",
+      "user_story": "As an AI workflow developer, I need AMESH to pin resolved agent, model-policy, tool and prompt revisions to every agent session and workflow execution, so later inspection can reconstruct the exact capability envelope that was authorized.",
+      "rationale": "Define reusable, versioned agent resources whose model, prompt, skill, tool, permission, environment, budget and output-contract revisions resolve and pin before execution.",
       "acceptance_criteria": [
         "A positive conformance scenario demonstrates the required behavior: pin resolved agent, model-policy, tool and prompt revisions to every agent session and workflow execution.",
         "At least one invalid, denied, unavailable or recovery path is tested and yields a documented deterministic outcome.",
         "The resulting state, error or decision is observable through an authorized API, audit event or operational signal where applicable.",
         "Restart, duplicate-delivery or stale-owner behavior is covered where the capability changes durable runtime state."
       ],
-      "verification": "Agent mesh state, budget, policy, failover and evaluation end-to-end tests",
+      "verification": "Agent resource schema, resolution, authorization, pinning and provider-adapter contract tests",
       "source_scope": "AMESH Agent Mesh differentiator; not a Kestra-parity claim",
       "local_sequence": 2,
       "dependencies": [
+        "EPIC-207",
         "EPIC-303",
         "EPIC-312",
-        "EPIC-508",
-        "EPIC-800",
+        "EPIC-505",
         "EPIC-802"
       ]
     },
@@ -23264,27 +23264,26 @@
       "milestone": "M8",
       "wave": 8,
       "epic_id": "EPIC-806",
-      "epic_title": "First-class agent mesh runtime and governance",
+      "epic_title": "Multi-agent topology, typed hand-offs and routing",
       "domain": "differentiation",
       "persona": "AI workflow developer",
       "statement": "The system shall support supervisor, router, peer-to-peer, hierarchical and swarm mesh topologies without creating a second execution engine.",
-      "user_story": "As an AI workflow developer, I need AMESH to support supervisor, router, peer-to-peer, hierarchical and swarm mesh topologies without creating a second execution engine, so AMESH can run durable, governed multi-agent meshes with typed hand-offs, bounded autonomy, provider portability and complete execution evidence.",
-      "rationale": "Run durable, governed multi-agent meshes with typed hand-offs, bounded autonomy, provider portability and complete execution evidence.",
+      "user_story": "As an AI workflow developer, I need AMESH to support supervisor, router, peer-to-peer, hierarchical and swarm mesh topologies without creating a second execution engine, so multiple bounded agents coordinate through the same durable workflow state machine.",
+      "rationale": "Coordinate multiple already-bounded agent sessions through typed hand-offs and explainable routing without creating a second execution engine.",
       "acceptance_criteria": [
         "A positive conformance scenario demonstrates the required behavior: support supervisor, router, peer-to-peer, hierarchical and swarm mesh topologies without creating a second execution engine.",
         "At least one invalid, denied, unavailable or recovery path is tested and yields a documented deterministic outcome.",
         "The resulting state, error or decision is observable through an authorized API, audit event or operational signal where applicable.",
         "Restart, duplicate-delivery or stale-owner behavior is covered where the capability changes durable runtime state."
       ],
-      "verification": "Agent mesh state, budget, policy, failover and evaluation end-to-end tests",
+      "verification": "Multi-agent topology, typed hand-off, routing, budget, provenance and failover end-to-end tests",
       "source_scope": "AMESH Agent Mesh differentiator; not a Kestra-parity claim",
-      "local_sequence": 3,
+      "local_sequence": 1,
       "dependencies": [
-        "EPIC-303",
-        "EPIC-312",
-        "EPIC-508",
-        "EPIC-800",
-        "EPIC-802"
+        "EPIC-503",
+        "EPIC-802",
+        "EPIC-808",
+        "EPIC-809"
       ]
     },
     {
@@ -23294,28 +23293,29 @@
       "status": "Proposed",
       "milestone": "M8",
       "wave": 8,
-      "epic_id": "EPIC-806",
-      "epic_title": "First-class agent mesh runtime and governance",
+      "epic_id": "EPIC-808",
+      "epic_title": "Durable bounded single-agent sessions",
       "domain": "differentiation",
       "persona": "AI workflow developer",
-      "statement": "The system shall persist agent sessions, messages, tool calls, hand-offs, checkpoints and approvals as durable execution evidence.",
-      "user_story": "As an AI workflow developer, I need AMESH to persist agent sessions, messages, tool calls, hand-offs, checkpoints and approvals as durable execution evidence, so AMESH can run durable, governed multi-agent meshes with typed hand-offs, bounded autonomy, provider portability and complete execution evidence.",
-      "rationale": "Run durable, governed multi-agent meshes with typed hand-offs, bounded autonomy, provider portability and complete execution evidence.",
+      "statement": "The system shall persist agent sessions, messages, tool calls, checkpoints and approvals as durable execution evidence.",
+      "user_story": "As an AI workflow developer, I need AMESH to persist agent sessions, messages, tool calls, hand-offs, checkpoints and approvals as durable execution evidence, so a supervised agent can recover and be diagnosed without relying on in-memory conversation state.",
+      "rationale": "Run one supervised agent as a durable workflow task whose model turns and tool proposals are mediated by AMESH and cannot succeed until structured-output and policy gates pass.",
       "acceptance_criteria": [
-        "A positive conformance scenario demonstrates the required behavior: persist agent sessions, messages, tool calls, hand-offs, checkpoints and approvals as durable execution evidence.",
+        "A positive conformance scenario demonstrates the required behavior: persist agent sessions, messages, tool calls, checkpoints and approvals as durable execution evidence.",
         "At least one invalid, denied, unavailable or recovery path is tested and yields a documented deterministic outcome.",
         "The resulting state, error or decision is observable through an authorized API, audit event or operational signal where applicable.",
         "Restart, duplicate-delivery or stale-owner behavior is covered where the capability changes durable runtime state."
       ],
-      "verification": "Agent mesh state, budget, policy, failover and evaluation end-to-end tests",
+      "verification": "Single-agent session state, budget, tool mediation, approval, checkpoint and recovery end-to-end tests",
       "source_scope": "AMESH Agent Mesh differentiator; not a Kestra-parity claim",
-      "local_sequence": 4,
+      "local_sequence": 1,
       "dependencies": [
-        "EPIC-303",
+        "EPIC-104",
+        "EPIC-108",
         "EPIC-312",
         "EPIC-508",
-        "EPIC-800",
-        "EPIC-802"
+        "EPIC-802",
+        "EPIC-807"
       ]
     },
     {
@@ -23326,27 +23326,26 @@
       "milestone": "M8",
       "wave": 8,
       "epic_id": "EPIC-806",
-      "epic_title": "First-class agent mesh runtime and governance",
+      "epic_title": "Multi-agent topology, typed hand-offs and routing",
       "domain": "differentiation",
       "persona": "AI workflow developer",
       "statement": "The system shall validate agent-to-agent hand-offs against typed schemas and preserve source, destination, rationale and context provenance.",
-      "user_story": "As an AI workflow developer, I need AMESH to validate agent-to-agent hand-offs against typed schemas and preserve source, destination, rationale and context provenance, so AMESH can run durable, governed multi-agent meshes with typed hand-offs, bounded autonomy, provider portability and complete execution evidence.",
-      "rationale": "Run durable, governed multi-agent meshes with typed hand-offs, bounded autonomy, provider portability and complete execution evidence.",
+      "user_story": "As an AI workflow developer, I need AMESH to validate agent-to-agent hand-offs against typed schemas and preserve source, destination, rationale and context provenance, so no agent can silently pass ambiguous or unauthorized context to another.",
+      "rationale": "Coordinate multiple already-bounded agent sessions through typed hand-offs and explainable routing without creating a second execution engine.",
       "acceptance_criteria": [
         "A positive conformance scenario demonstrates the required behavior: validate agent-to-agent hand-offs against typed schemas and preserve source, destination, rationale and context provenance.",
         "At least one invalid, denied, unavailable or recovery path is tested and yields a documented deterministic outcome.",
         "The resulting state, error or decision is observable through an authorized API, audit event or operational signal where applicable.",
         "Restart, duplicate-delivery or stale-owner behavior is covered where the capability changes durable runtime state."
       ],
-      "verification": "Agent mesh state, budget, policy, failover and evaluation end-to-end tests",
+      "verification": "Multi-agent topology, typed hand-off, routing, budget, provenance and failover end-to-end tests",
       "source_scope": "AMESH Agent Mesh differentiator; not a Kestra-parity claim",
-      "local_sequence": 5,
+      "local_sequence": 2,
       "dependencies": [
-        "EPIC-303",
-        "EPIC-312",
-        "EPIC-508",
-        "EPIC-800",
-        "EPIC-802"
+        "EPIC-503",
+        "EPIC-802",
+        "EPIC-808",
+        "EPIC-809"
       ]
     },
     {
@@ -23357,27 +23356,26 @@
       "milestone": "M8",
       "wave": 8,
       "epic_id": "EPIC-806",
-      "epic_title": "First-class agent mesh runtime and governance",
+      "epic_title": "Multi-agent topology, typed hand-offs and routing",
       "domain": "differentiation",
       "persona": "AI workflow developer",
       "statement": "The system shall route work by declared capability, policy, cost, latency, availability and evaluation score with an explainable decision record.",
-      "user_story": "As an AI workflow developer, I need AMESH to route work by declared capability, policy, cost, latency, availability and evaluation score with an explainable decision record, so AMESH can run durable, governed multi-agent meshes with typed hand-offs, bounded autonomy, provider portability and complete execution evidence.",
-      "rationale": "Run durable, governed multi-agent meshes with typed hand-offs, bounded autonomy, provider portability and complete execution evidence.",
+      "user_story": "As an AI workflow developer, I need AMESH to route work by declared capability, policy, cost, latency, availability and evaluation score with an explainable decision record, so routing remains governed and diagnosable rather than hidden inside a model response.",
+      "rationale": "Coordinate multiple already-bounded agent sessions through typed hand-offs and explainable routing without creating a second execution engine.",
       "acceptance_criteria": [
         "A positive conformance scenario demonstrates the required behavior: route work by declared capability, policy, cost, latency, availability and evaluation score with an explainable decision record.",
         "At least one invalid, denied, unavailable or recovery path is tested and yields a documented deterministic outcome.",
         "The resulting state, error or decision is observable through an authorized API, audit event or operational signal where applicable.",
         "Restart, duplicate-delivery or stale-owner behavior is covered where the capability changes durable runtime state."
       ],
-      "verification": "Agent mesh state, budget, policy, failover and evaluation end-to-end tests",
+      "verification": "Multi-agent topology, typed hand-off, routing, budget, provenance and failover end-to-end tests",
       "source_scope": "AMESH Agent Mesh differentiator; not a Kestra-parity claim",
-      "local_sequence": 6,
+      "local_sequence": 3,
       "dependencies": [
-        "EPIC-303",
-        "EPIC-312",
-        "EPIC-508",
-        "EPIC-800",
-        "EPIC-802"
+        "EPIC-503",
+        "EPIC-802",
+        "EPIC-808",
+        "EPIC-809"
       ]
     },
     {
@@ -23387,28 +23385,28 @@
       "status": "Proposed",
       "milestone": "M8",
       "wave": 8,
-      "epic_id": "EPIC-806",
-      "epic_title": "First-class agent mesh runtime and governance",
+      "epic_id": "EPIC-809",
+      "epic_title": "Agent memory, evaluation and release gates",
       "domain": "differentiation",
       "persona": "AI workflow developer",
       "statement": "The system shall provide isolated private memory and policy-controlled shared memory with retention, redaction, size and tenant boundaries.",
-      "user_story": "As an AI workflow developer, I need AMESH to provide isolated private memory and policy-controlled shared memory with retention, redaction, size and tenant boundaries, so AMESH can run durable, governed multi-agent meshes with typed hand-offs, bounded autonomy, provider portability and complete execution evidence.",
-      "rationale": "Run durable, governed multi-agent meshes with typed hand-offs, bounded autonomy, provider portability and complete execution evidence.",
+      "user_story": "As an AI workflow developer, I need AMESH to provide isolated private memory and policy-controlled shared memory with retention, redaction, size and tenant boundaries, so useful context can persist without becoming an uncontrolled disclosure channel.",
+      "rationale": "Make bounded agents safe to adopt through isolated memory, versioned evaluations, human-readable traces and evidence-backed promotion gates in the existing workflow experience.",
       "acceptance_criteria": [
         "A positive conformance scenario demonstrates the required behavior: provide isolated private memory and policy-controlled shared memory with retention, redaction, size and tenant boundaries.",
         "At least one invalid, denied, unavailable or recovery path is tested and yields a documented deterministic outcome.",
         "The resulting state, error or decision is observable through an authorized API, audit event or operational signal where applicable.",
         "Restart, duplicate-delivery or stale-owner behavior is covered where the capability changes durable runtime state."
       ],
-      "verification": "Agent mesh state, budget, policy, failover and evaluation end-to-end tests",
+      "verification": "Agent memory-isolation, evaluation, trace, approval-interleaving and release-gate end-to-end tests",
       "source_scope": "AMESH Agent Mesh differentiator; not a Kestra-parity claim",
-      "local_sequence": 7,
+      "local_sequence": 1,
       "dependencies": [
-        "EPIC-303",
-        "EPIC-312",
+        "EPIC-407",
         "EPIC-508",
+        "EPIC-510",
         "EPIC-800",
-        "EPIC-802"
+        "EPIC-808"
       ]
     },
     {
@@ -23418,28 +23416,29 @@
       "status": "Proposed",
       "milestone": "M8",
       "wave": 8,
-      "epic_id": "EPIC-806",
-      "epic_title": "First-class agent mesh runtime and governance",
+      "epic_id": "EPIC-808",
+      "epic_title": "Durable bounded single-agent sessions",
       "domain": "differentiation",
       "persona": "AI workflow developer",
       "statement": "The system shall enforce loop, recursion, concurrency, token, cost, duration and tool-call limits with circuit breakers.",
-      "user_story": "As an AI workflow developer, I need AMESH to enforce loop, recursion, concurrency, token, cost, duration and tool-call limits with circuit breakers, so AMESH can run durable, governed multi-agent meshes with typed hand-offs, bounded autonomy, provider portability and complete execution evidence.",
-      "rationale": "Run durable, governed multi-agent meshes with typed hand-offs, bounded autonomy, provider portability and complete execution evidence.",
+      "user_story": "As an AI workflow developer, I need AMESH to enforce loop, recursion, concurrency, token, cost, duration and tool-call limits with circuit breakers, so a model cannot exceed its delegated budget even when it ignores instructions.",
+      "rationale": "Run one supervised agent as a durable workflow task whose model turns and tool proposals are mediated by AMESH and cannot succeed until structured-output and policy gates pass.",
       "acceptance_criteria": [
         "A positive conformance scenario demonstrates the required behavior: enforce loop, recursion, concurrency, token, cost, duration and tool-call limits with circuit breakers.",
         "At least one invalid, denied, unavailable or recovery path is tested and yields a documented deterministic outcome.",
         "The resulting state, error or decision is observable through an authorized API, audit event or operational signal where applicable.",
         "Restart, duplicate-delivery or stale-owner behavior is covered where the capability changes durable runtime state."
       ],
-      "verification": "Agent mesh state, budget, policy, failover and evaluation end-to-end tests",
+      "verification": "Single-agent session state, budget, tool mediation, approval, checkpoint and recovery end-to-end tests",
       "source_scope": "AMESH Agent Mesh differentiator; not a Kestra-parity claim",
-      "local_sequence": 8,
+      "local_sequence": 2,
       "dependencies": [
-        "EPIC-303",
+        "EPIC-104",
+        "EPIC-108",
         "EPIC-312",
         "EPIC-508",
-        "EPIC-800",
-        "EPIC-802"
+        "EPIC-802",
+        "EPIC-807"
       ]
     },
     {
@@ -23449,28 +23448,29 @@
       "status": "Proposed",
       "milestone": "M8",
       "wave": 8,
-      "epic_id": "EPIC-806",
-      "epic_title": "First-class agent mesh runtime and governance",
+      "epic_id": "EPIC-808",
+      "epic_title": "Durable bounded single-agent sessions",
       "domain": "differentiation",
       "persona": "AI workflow developer",
       "statement": "The system shall require policy or human approval before agents invoke high-impact tools, move sensitive data or exceed delegated authority.",
-      "user_story": "As an AI workflow developer, I need AMESH to require policy or human approval before agents invoke high-impact tools, move sensitive data or exceed delegated authority, so AMESH can run durable, governed multi-agent meshes with typed hand-offs, bounded autonomy, provider portability and complete execution evidence.",
-      "rationale": "Run durable, governed multi-agent meshes with typed hand-offs, bounded autonomy, provider portability and complete execution evidence.",
+      "user_story": "As an AI workflow developer, I need AMESH to require policy or human approval before agents invoke high-impact tools, move sensitive data or exceed delegated authority, so autonomous reasoning never implies autonomous permission.",
+      "rationale": "Run one supervised agent as a durable workflow task whose model turns and tool proposals are mediated by AMESH and cannot succeed until structured-output and policy gates pass.",
       "acceptance_criteria": [
         "A positive conformance scenario demonstrates the required behavior: require policy or human approval before agents invoke high-impact tools, move sensitive data or exceed delegated authority.",
         "At least one invalid, denied, unavailable or recovery path is tested and yields a documented deterministic outcome.",
         "The resulting state, error or decision is observable through an authorized API, audit event or operational signal where applicable.",
         "Restart, duplicate-delivery or stale-owner behavior is covered where the capability changes durable runtime state."
       ],
-      "verification": "Agent mesh state, budget, policy, failover and evaluation end-to-end tests",
+      "verification": "Single-agent session state, budget, tool mediation, approval, checkpoint and recovery end-to-end tests",
       "source_scope": "AMESH Agent Mesh differentiator; not a Kestra-parity claim",
-      "local_sequence": 9,
+      "local_sequence": 3,
       "dependencies": [
-        "EPIC-303",
+        "EPIC-104",
+        "EPIC-108",
         "EPIC-312",
         "EPIC-508",
-        "EPIC-800",
-        "EPIC-802"
+        "EPIC-802",
+        "EPIC-807"
       ]
     },
     {
@@ -23480,27 +23480,27 @@
       "status": "Proposed",
       "milestone": "M8",
       "wave": 8,
-      "epic_id": "EPIC-806",
-      "epic_title": "First-class agent mesh runtime and governance",
+      "epic_id": "EPIC-807",
+      "epic_title": "Versioned agent definitions and capability envelopes",
       "domain": "differentiation",
       "persona": "AI workflow developer",
       "statement": "The system shall provide provider-neutral model adapters, fallback policies and migration diagnostics without changing workflow semantics silently.",
-      "user_story": "As an AI workflow developer, I need AMESH to provide provider-neutral model adapters, fallback policies and migration diagnostics without changing workflow semantics silently, so AMESH can run durable, governed multi-agent meshes with typed hand-offs, bounded autonomy, provider portability and complete execution evidence.",
-      "rationale": "Run durable, governed multi-agent meshes with typed hand-offs, bounded autonomy, provider portability and complete execution evidence.",
+      "user_story": "As an AI workflow developer, I need AMESH to provide provider-neutral model adapters, fallback policies and migration diagnostics without changing workflow semantics silently, so one durable agent contract can survive a provider change with the nondeterminism disclosed.",
+      "rationale": "Define reusable, versioned agent resources whose model, prompt, skill, tool, permission, environment, budget and output-contract revisions resolve and pin before execution.",
       "acceptance_criteria": [
         "A positive conformance scenario demonstrates the required behavior: provide provider-neutral model adapters, fallback policies and migration diagnostics without changing workflow semantics silently.",
         "At least one invalid, denied, unavailable or recovery path is tested and yields a documented deterministic outcome.",
         "The resulting state, error or decision is observable through an authorized API, audit event or operational signal where applicable.",
         "Restart, duplicate-delivery or stale-owner behavior is covered where the capability changes durable runtime state."
       ],
-      "verification": "Agent mesh state, budget, policy, failover and evaluation end-to-end tests",
+      "verification": "Agent resource schema, resolution, authorization, pinning and provider-adapter contract tests",
       "source_scope": "AMESH Agent Mesh differentiator; not a Kestra-parity claim",
-      "local_sequence": 10,
+      "local_sequence": 3,
       "dependencies": [
+        "EPIC-207",
         "EPIC-303",
         "EPIC-312",
-        "EPIC-508",
-        "EPIC-800",
+        "EPIC-505",
         "EPIC-802"
       ]
     },
@@ -23511,28 +23511,28 @@
       "status": "Proposed",
       "milestone": "M8",
       "wave": 8,
-      "epic_id": "EPIC-806",
-      "epic_title": "First-class agent mesh runtime and governance",
+      "epic_id": "EPIC-809",
+      "epic_title": "Agent memory, evaluation and release gates",
       "domain": "differentiation",
       "persona": "AI workflow developer",
       "statement": "The system shall evaluate agent and mesh outcomes against versioned tests, rubrics, judges and business assertions.",
-      "user_story": "As an AI workflow developer, I need AMESH to evaluate agent and mesh outcomes against versioned tests, rubrics, judges and business assertions, so AMESH can run durable, governed multi-agent meshes with typed hand-offs, bounded autonomy, provider portability and complete execution evidence.",
-      "rationale": "Run durable, governed multi-agent meshes with typed hand-offs, bounded autonomy, provider portability and complete execution evidence.",
+      "user_story": "As an AI workflow developer, I need AMESH to evaluate agent outcomes against versioned tests, rubrics, judges and business assertions, so a schema-valid result is not mistaken for a correct or releasable result.",
+      "rationale": "Make bounded agents safe to adopt through isolated memory, versioned evaluations, human-readable traces and evidence-backed promotion gates in the existing workflow experience.",
       "acceptance_criteria": [
         "A positive conformance scenario demonstrates the required behavior: evaluate agent and mesh outcomes against versioned tests, rubrics, judges and business assertions.",
         "At least one invalid, denied, unavailable or recovery path is tested and yields a documented deterministic outcome.",
         "The resulting state, error or decision is observable through an authorized API, audit event or operational signal where applicable.",
         "Restart, duplicate-delivery or stale-owner behavior is covered where the capability changes durable runtime state."
       ],
-      "verification": "Agent mesh state, budget, policy, failover and evaluation end-to-end tests",
+      "verification": "Agent memory-isolation, evaluation, trace, approval-interleaving and release-gate end-to-end tests",
       "source_scope": "AMESH Agent Mesh differentiator; not a Kestra-parity claim",
-      "local_sequence": 11,
+      "local_sequence": 2,
       "dependencies": [
-        "EPIC-303",
-        "EPIC-312",
+        "EPIC-407",
         "EPIC-508",
+        "EPIC-510",
         "EPIC-800",
-        "EPIC-802"
+        "EPIC-808"
       ]
     },
     {
@@ -23542,28 +23542,29 @@
       "status": "Proposed",
       "milestone": "M8",
       "wave": 8,
-      "epic_id": "EPIC-806",
-      "epic_title": "First-class agent mesh runtime and governance",
+      "epic_id": "EPIC-808",
+      "epic_title": "Durable bounded single-agent sessions",
       "domain": "differentiation",
       "persona": "AI workflow developer",
-      "statement": "The system shall resume an interrupted mesh from a durable checkpoint while disclosing which model outputs cannot be reproduced deterministically.",
-      "user_story": "As an AI workflow developer, I need AMESH to resume an interrupted mesh from a durable checkpoint while disclosing which model outputs cannot be reproduced deterministically, so AMESH can run durable, governed multi-agent meshes with typed hand-offs, bounded autonomy, provider portability and complete execution evidence.",
-      "rationale": "Run durable, governed multi-agent meshes with typed hand-offs, bounded autonomy, provider portability and complete execution evidence.",
+      "statement": "The system shall resume an interrupted agent session from a durable checkpoint while disclosing which model outputs cannot be reproduced deterministically.",
+      "user_story": "As an AI workflow developer, I need AMESH to resume an interrupted agent session from a durable checkpoint while disclosing which model outputs cannot be reproduced deterministically, so recovery reuses accepted evidence and never pretends that model generation is replayable.",
+      "rationale": "Run one supervised agent as a durable workflow task whose model turns and tool proposals are mediated by AMESH and cannot succeed until structured-output and policy gates pass.",
       "acceptance_criteria": [
-        "A positive conformance scenario demonstrates the required behavior: resume an interrupted mesh from a durable checkpoint while disclosing which model outputs cannot be reproduced deterministically.",
+        "A positive conformance scenario demonstrates the required behavior: resume an interrupted agent session from a durable checkpoint while disclosing which model outputs cannot be reproduced deterministically.",
         "At least one invalid, denied, unavailable or recovery path is tested and yields a documented deterministic outcome.",
         "The resulting state, error or decision is observable through an authorized API, audit event or operational signal where applicable.",
         "Restart, duplicate-delivery or stale-owner behavior is covered where the capability changes durable runtime state."
       ],
-      "verification": "Agent mesh state, budget, policy, failover and evaluation end-to-end tests",
+      "verification": "Single-agent session state, budget, tool mediation, approval, checkpoint and recovery end-to-end tests",
       "source_scope": "AMESH Agent Mesh differentiator; not a Kestra-parity claim",
-      "local_sequence": 12,
+      "local_sequence": 4,
       "dependencies": [
-        "EPIC-303",
+        "EPIC-104",
+        "EPIC-108",
         "EPIC-312",
         "EPIC-508",
-        "EPIC-800",
-        "EPIC-802"
+        "EPIC-802",
+        "EPIC-807"
       ]
     },
     {
@@ -23573,27 +23574,27 @@
       "status": "Proposed",
       "milestone": "M8",
       "wave": 8,
-      "epic_id": "EPIC-806",
-      "epic_title": "First-class agent mesh runtime and governance",
+      "epic_id": "EPIC-807",
+      "epic_title": "Versioned agent definitions and capability envelopes",
       "domain": "differentiation",
       "persona": "AI workflow developer",
       "statement": "The system shall expose approved workflows, agents and tools through authenticated MCP and other versioned agent-protocol adapters.",
-      "user_story": "As an AI workflow developer, I need AMESH to expose approved workflows, agents and tools through authenticated MCP and other versioned agent-protocol adapters, so AMESH can run durable, governed multi-agent meshes with typed hand-offs, bounded autonomy, provider portability and complete execution evidence.",
-      "rationale": "Run durable, governed multi-agent meshes with typed hand-offs, bounded autonomy, provider portability and complete execution evidence.",
+      "user_story": "As an AI workflow developer, I need AMESH to expose approved workflows, agents and tools through authenticated MCP and other versioned agent-protocol adapters, so external clients discover only explicitly governed capabilities with stable schemas.",
+      "rationale": "Define reusable, versioned agent resources whose model, prompt, skill, tool, permission, environment, budget and output-contract revisions resolve and pin before execution.",
       "acceptance_criteria": [
         "A positive conformance scenario demonstrates the required behavior: expose approved workflows, agents and tools through authenticated MCP and other versioned agent-protocol adapters.",
         "At least one invalid, denied, unavailable or recovery path is tested and yields a documented deterministic outcome.",
         "The resulting state, error or decision is observable through an authorized API, audit event or operational signal where applicable.",
         "Restart, duplicate-delivery or stale-owner behavior is covered where the capability changes durable runtime state."
       ],
-      "verification": "Agent mesh state, budget, policy, failover and evaluation end-to-end tests",
+      "verification": "Agent resource schema, resolution, authorization, pinning and provider-adapter contract tests",
       "source_scope": "AMESH Agent Mesh differentiator; not a Kestra-parity claim",
-      "local_sequence": 13,
+      "local_sequence": 4,
       "dependencies": [
+        "EPIC-207",
         "EPIC-303",
         "EPIC-312",
-        "EPIC-508",
-        "EPIC-800",
+        "EPIC-505",
         "EPIC-802"
       ]
     },
@@ -23604,28 +23605,28 @@
       "status": "Proposed",
       "milestone": "M8",
       "wave": 8,
-      "epic_id": "EPIC-806",
-      "epic_title": "First-class agent mesh runtime and governance",
+      "epic_id": "EPIC-809",
+      "epic_title": "Agent memory, evaluation and release gates",
       "domain": "differentiation",
       "persona": "AI workflow developer",
       "statement": "The system shall interleave agent sessions, ordinary tasks and human approval tasks in one state machine, timeline and audit trail.",
-      "user_story": "As an AI workflow developer, I need AMESH to interleave agent sessions, ordinary tasks and human approval tasks in one state machine, timeline and audit trail, so AMESH can run durable, governed multi-agent meshes with typed hand-offs, bounded autonomy, provider portability and complete execution evidence.",
-      "rationale": "Run durable, governed multi-agent meshes with typed hand-offs, bounded autonomy, provider portability and complete execution evidence.",
+      "user_story": "As an AI workflow developer, I need AMESH to interleave agent sessions, ordinary tasks and human approval tasks in one state machine, timeline and audit trail, so operators can understand and govern the complete execution without switching to a separate agent console.",
+      "rationale": "Make bounded agents safe to adopt through isolated memory, versioned evaluations, human-readable traces and evidence-backed promotion gates in the existing workflow experience.",
       "acceptance_criteria": [
         "A positive conformance scenario demonstrates the required behavior: interleave agent sessions, ordinary tasks and human approval tasks in one state machine, timeline and audit trail.",
         "At least one invalid, denied, unavailable or recovery path is tested and yields a documented deterministic outcome.",
         "The resulting state, error or decision is observable through an authorized API, audit event or operational signal where applicable.",
         "Restart, duplicate-delivery or stale-owner behavior is covered where the capability changes durable runtime state."
       ],
-      "verification": "Agent mesh state, budget, policy, failover and evaluation end-to-end tests",
+      "verification": "Agent memory-isolation, evaluation, trace, approval-interleaving and release-gate end-to-end tests",
       "source_scope": "AMESH Agent Mesh differentiator; not a Kestra-parity claim",
-      "local_sequence": 14,
+      "local_sequence": 3,
       "dependencies": [
-        "EPIC-303",
-        "EPIC-312",
+        "EPIC-407",
         "EPIC-508",
+        "EPIC-510",
         "EPIC-800",
-        "EPIC-802"
+        "EPIC-808"
       ]
     },
     {
@@ -24123,7 +24124,8 @@
       "target": "No test mesh exceeds its configured hard cost, token, duration or tool-call limit beyond one explicitly bounded in-flight operation.",
       "verification": "Adversarial runaway-loop and concurrent tool-call tests.",
       "epic_ids": [
-        "EPIC-806"
+        "EPIC-806",
+        "EPIC-808"
       ],
       "priority": "Must",
       "status": "Proposed"
@@ -24136,7 +24138,9 @@
       "target": "All catalogued mesh scenarios produce a complete provenance graph with no orphan tool effects.",
       "verification": "Provenance graph completeness tests.",
       "epic_ids": [
-        "EPIC-806"
+        "EPIC-806",
+        "EPIC-808",
+        "EPIC-809"
       ],
       "priority": "Must",
       "status": "Proposed"
@@ -24149,7 +24153,10 @@
       "target": "Zero cross-boundary disclosure or unauthorised tool invocation in adversarial mesh tests.",
       "verification": "Cross-tenant, prompt-injection and capability-confusion tests.",
       "epic_ids": [
-        "EPIC-806"
+        "EPIC-806",
+        "EPIC-807",
+        "EPIC-808",
+        "EPIC-809"
       ],
       "priority": "Must",
       "status": "Proposed"
@@ -24162,7 +24169,9 @@
       "target": "Reference meshes migrate between two conforming model adapters with documented output nondeterminism and no state-schema change.",
       "verification": "Provider substitution and outage tests.",
       "epic_ids": [
-        "EPIC-806"
+        "EPIC-806",
+        "EPIC-807",
+        "EPIC-809"
       ],
       "priority": "Must",
       "status": "Proposed"

@@ -1,5 +1,33 @@
 # Test Log
 
+## Bounded-agent roadmap definition — 2026-08-25
+
+Spec source: product-owner request, ADR-049 and Agent Hotel cards `c105`–`c109`.
+
+Verified with `uv` and the canonical planning generator:
+
+- [x] EPIC-312, EPIC-807, EPIC-808, EPIC-809 and EPIC-806 form a dependency-ordered path from
+  bounded model/MCP primitives through versioned capability envelopes, one durable agent session,
+  memory/evaluation gates and final multi-agent routing.
+- [x] URS-F-0806 through URS-F-0819 and all four agent NFRs map exactly to the new durable contract
+  boundaries; the frozen corpus remains 837 functional plus 63 non-functional requirements.
+- [x] `uv run python scripts/regenerate_planning_artifacts.py` reproduced the same diff hash on a
+  second run, generated 106 epic projections and retained exactly 1,000 trace links.
+- [x] `uv run --extra runtime --extra dev python scripts/validate_backlog.py` passed canonical JSON,
+  Markdown bodies, issue export, parity, compatibility-inventory and exact traceability checks.
+- [x] A scoped dependency reachability check found no cycle introduced by the five agent epics; the
+  renamed EPIC-312 projection exists and its stale prior filename is absent.
+- [x] Board revision 296 contains five To-Do cards with explicit dependencies, acceptance gates,
+  verification requirements and non-goals; no card was represented as implemented.
+- [x] `git diff --check` passed before publication.
+
+Adversarial pass: checked duplicate/missing epic IDs, stale generated bodies, unmapped requirements,
+trace-link count drift, regeneration nondeterminism, backward dependency reachability and accidental
+runtime/dependency changes. Runtime tests and live deployment were not run because this milestone
+changes planning artifacts only.
+
+Verdict: PASS — roadmap definition is complete; implementation remains open on `c105`–`c109`.
+
 ## EPIC-608: Retention, purge and data lifecycle — 2026-08-23
 
 Spec source: Agent Hotel card `c78` and

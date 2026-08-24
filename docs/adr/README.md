@@ -1,6 +1,6 @@
 # Architecture decision records
 
-Accepted ADRs record product-owner decisions supplied through 2026-08-19. No foundational ADR remains proposed. Replacing an accepted decision requires a superseding ADR rather than silent edits.
+Accepted ADRs record product-owner decisions. No foundational ADR remains proposed. Replacing an accepted decision requires a superseding ADR rather than silent edits.
 
 | ADR | Status | Decision | Question |
 |---|---|---|---|
@@ -48,3 +48,4 @@ Accepted ADRs record product-owner decisions supplied through 2026-08-19. No fou
 | [ADR-046: Versioned side-effect-free simulation plans](046-versioned-side-effect-free-simulation-plans.md) | Accepted | Compile reducer-aligned plans with explicit unknowns, modeled estimates, revision diffs and signed evidence without dispatching external work. | EPIC-800 |
 | [ADR-047: Versioned declarative admission policy](047-versioned-declarative-admission-policy.md) | Accepted | Evaluate immutable scoped `amesh.policy/v1` rules at authoring and execution boundaries with bounded, pinned and redaction-safe evidence. | EPIC-802 |
 | [ADR-048: Human-first operational UI projections](048-human-first-operational-ui.md) | Accepted | Lead with Mission Control and a persisted-evidence trace, use authorized selectors, and preserve expert surfaces under progressive disclosure. | UX-01 |
+| [ADR-049: Bounded agent sessions inside one execution engine](049-bounded-agent-sessions-inside-one-execution-engine.md) | Accepted | Supervise agent turns and tool proposals inside the existing durable execution engine; require pinned capability envelopes and validated outputs. | EPIC-312, EPIC-806–809 |

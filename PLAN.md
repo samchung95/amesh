@@ -2,11 +2,13 @@
 
 ## Goal
 
-Complete the 50 currently open epics whose implementation and directly relevant verification can run on the local development environment. Execute one dependency-ready epic at a time, keep the Compose product deployable at epic boundaries, and close an epic only when its acceptance criteria and mapped requirements have verified evidence in the canonical backlog.
+Preserve the completed 50-epic local MVP foundation and execute each new product program one dependency-ready epic at a time. Keep the Compose product deployable at epic boundaries, and close an epic only when its acceptance criteria and mapped requirements have verified evidence in the canonical backlog.
+
+The next defined product program turns the existing one-shot LLM/MCP seed into bounded agent execution through EPIC-312, EPIC-807, EPIC-808, EPIC-809 and EPIC-806. This planning change defines those boundaries; implementation advances one board card at a time from the prerequisite-ready stage.
 
 ## Out of scope
 
-External-cloud, external-SaaS, hosted-release, independent-certification, multi-region and long-duration qualification gates are deferred for EPIC-001, 011, 223, 308–312, 506, 606, 611–612, 700, 705–706, 801 and 803–806. Their smallest locally implementable contract may be added only when it directly blocks one of the 50 selected epics. Opportunistic refactors, adjacent defects, cards `c15`/`c29` and broader production claims remain excluded.
+External-cloud, external-SaaS, hosted-release, independent-certification, multi-region and long-duration qualification gates are deferred for EPIC-001, 011, 223, 308–311, 506, 606, 611–612, 700, 705–706, 801 and 803–805. Their smallest locally implementable contract may be added only when it directly blocks a selected epic. Opportunistic refactors, adjacent defects, cards `c15`/`c29` and broader production claims remain excluded.
 
 ## Open questions
 
@@ -31,3 +33,4 @@ None currently. Expensive framework or identity-provider choices will be surface
 - 2026-08-22 — Register the 50 locally closeable open epics as Agent Hotel cards `c37`–`c86` and execute them dependency-first. Defer the 20 external qualification epics and unrelated failures; implement only a minimum local prerequisite contract when a selected epic cannot otherwise be completed or verified.
 - 2026-08-24 — Commit Sprint UX-01 to cards `c102`, `c97`, `c98` and `c99`, integrated by `c104`: audit first, then selectors, Mission Control and the simple execution trace. Preserve advanced operational and authoring surfaces; defer guided creation and production determinism qualification to their existing cards.
 - 2026-08-24 — Complete Sprint UX-01 without a new dependency: use native accessible selectors for bounded catalogs, pure server-evidence projections for Mission Control and trace, cap Needs attention to 12 prioritized items, and retain the complete history through its dedicated route.
+- 2026-08-25 — Decompose bounded agent execution into dependency-ordered EPIC-312, EPIC-807, EPIC-808, EPIC-809 and EPIC-806. Keep one execution engine, mediate every model/tool action through pinned capabilities, and require structured-output plus policy/evaluation gates before success. Reassign URS-F-0806–0819 across these boundaries rather than expanding the frozen 900-requirement corpus.

@@ -3004,9 +3004,9 @@ The system shall provide notification system-flow examples for failure, SLA, app
 _Verification:_ Plugin SDK contract, sandbox and integration tests.
 _Source scope:_ Kestra v1.3.30 public behavior and architecture parity baseline.
 
-#### EPIC-312 — AI, agent and MCP plugin pack
+#### EPIC-312 — Provider-neutral model, structured-output and MCP primitives
 
-Integrate model calls and tool-using agents without making the core engine provider-specific.
+Provide bounded provider-neutral model and MCP task primitives with structured results, explicit policy, complete provenance and no autonomous session state.
 
 **URS-F-0383 — Must**
 
@@ -6249,106 +6249,118 @@ The system shall freeze public API, event, DSL and plugin contracts for the supp
 _Verification:_ Release-gate evidence review.
 _Source scope:_ AMESH differentiator; not a Kestra-parity claim.
 
-#### EPIC-806 — First-class agent mesh runtime and governance
+#### EPIC-806 — Multi-agent topology, typed hand-offs and routing
 
-Run durable, governed multi-agent meshes with typed hand-offs, bounded autonomy, provider portability and complete execution evidence.
-
-**URS-F-0806 — Must**
-
-The system shall define versioned agent resources containing model routing, instructions, tools, skills, memory policy, permissions, budgets and evaluation policy.
-
-_Verification:_ Agent mesh state, budget, policy, failover and evaluation end-to-end tests.
-_Source scope:_ AMESH Agent Mesh differentiator; not a Kestra-parity claim.
-
-**URS-F-0807 — Must**
-
-The system shall pin resolved agent, model-policy, tool and prompt revisions to every agent session and workflow execution.
-
-_Verification:_ Agent mesh state, budget, policy, failover and evaluation end-to-end tests.
-_Source scope:_ AMESH Agent Mesh differentiator; not a Kestra-parity claim.
+Coordinate multiple already-bounded agent sessions through typed hand-offs and explainable routing without creating a second execution engine.
 
 **URS-F-0808 — Must**
 
 The system shall support supervisor, router, peer-to-peer, hierarchical and swarm mesh topologies without creating a second execution engine.
 
-_Verification:_ Agent mesh state, budget, policy, failover and evaluation end-to-end tests.
-_Source scope:_ AMESH Agent Mesh differentiator; not a Kestra-parity claim.
-
-**URS-F-0809 — Must**
-
-The system shall persist agent sessions, messages, tool calls, hand-offs, checkpoints and approvals as durable execution evidence.
-
-_Verification:_ Agent mesh state, budget, policy, failover and evaluation end-to-end tests.
+_Verification:_ Multi-agent topology, typed hand-off, routing, budget, provenance and failover end-to-end tests.
 _Source scope:_ AMESH Agent Mesh differentiator; not a Kestra-parity claim.
 
 **URS-F-0810 — Must**
 
 The system shall validate agent-to-agent hand-offs against typed schemas and preserve source, destination, rationale and context provenance.
 
-_Verification:_ Agent mesh state, budget, policy, failover and evaluation end-to-end tests.
+_Verification:_ Multi-agent topology, typed hand-off, routing, budget, provenance and failover end-to-end tests.
 _Source scope:_ AMESH Agent Mesh differentiator; not a Kestra-parity claim.
 
 **URS-F-0811 — Must**
 
 The system shall route work by declared capability, policy, cost, latency, availability and evaluation score with an explainable decision record.
 
-_Verification:_ Agent mesh state, budget, policy, failover and evaluation end-to-end tests.
+_Verification:_ Multi-agent topology, typed hand-off, routing, budget, provenance and failover end-to-end tests.
 _Source scope:_ AMESH Agent Mesh differentiator; not a Kestra-parity claim.
 
-**URS-F-0812 — Must**
+#### EPIC-807 — Versioned agent definitions and capability envelopes
 
-The system shall provide isolated private memory and policy-controlled shared memory with retention, redaction, size and tenant boundaries.
+Define reusable, versioned agent resources whose model, prompt, skill, tool, permission, environment, budget and output-contract revisions resolve and pin before execution.
 
-_Verification:_ Agent mesh state, budget, policy, failover and evaluation end-to-end tests.
+**URS-F-0806 — Must**
+
+The system shall define versioned agent resources containing model routing, instructions, tools, skills, memory policy, permissions, budgets and evaluation policy.
+
+_Verification:_ Agent resource schema, resolution, authorization, pinning and provider-adapter contract tests.
 _Source scope:_ AMESH Agent Mesh differentiator; not a Kestra-parity claim.
 
-**URS-F-0813 — Must**
+**URS-F-0807 — Must**
 
-The system shall enforce loop, recursion, concurrency, token, cost, duration and tool-call limits with circuit breakers.
+The system shall pin resolved agent, model-policy, tool and prompt revisions to every agent session and workflow execution.
 
-_Verification:_ Agent mesh state, budget, policy, failover and evaluation end-to-end tests.
-_Source scope:_ AMESH Agent Mesh differentiator; not a Kestra-parity claim.
-
-**URS-F-0814 — Must**
-
-The system shall require policy or human approval before agents invoke high-impact tools, move sensitive data or exceed delegated authority.
-
-_Verification:_ Agent mesh state, budget, policy, failover and evaluation end-to-end tests.
+_Verification:_ Agent resource schema, resolution, authorization, pinning and provider-adapter contract tests.
 _Source scope:_ AMESH Agent Mesh differentiator; not a Kestra-parity claim.
 
 **URS-F-0815 — Must**
 
 The system shall provide provider-neutral model adapters, fallback policies and migration diagnostics without changing workflow semantics silently.
 
-_Verification:_ Agent mesh state, budget, policy, failover and evaluation end-to-end tests.
-_Source scope:_ AMESH Agent Mesh differentiator; not a Kestra-parity claim.
-
-**URS-F-0816 — Must**
-
-The system shall evaluate agent and mesh outcomes against versioned tests, rubrics, judges and business assertions.
-
-_Verification:_ Agent mesh state, budget, policy, failover and evaluation end-to-end tests.
-_Source scope:_ AMESH Agent Mesh differentiator; not a Kestra-parity claim.
-
-**URS-F-0817 — Must**
-
-The system shall resume an interrupted mesh from a durable checkpoint while disclosing which model outputs cannot be reproduced deterministically.
-
-_Verification:_ Agent mesh state, budget, policy, failover and evaluation end-to-end tests.
+_Verification:_ Agent resource schema, resolution, authorization, pinning and provider-adapter contract tests.
 _Source scope:_ AMESH Agent Mesh differentiator; not a Kestra-parity claim.
 
 **URS-F-0818 — Must**
 
 The system shall expose approved workflows, agents and tools through authenticated MCP and other versioned agent-protocol adapters.
 
-_Verification:_ Agent mesh state, budget, policy, failover and evaluation end-to-end tests.
+_Verification:_ Agent resource schema, resolution, authorization, pinning and provider-adapter contract tests.
+_Source scope:_ AMESH Agent Mesh differentiator; not a Kestra-parity claim.
+
+#### EPIC-808 — Durable bounded single-agent sessions
+
+Run one supervised agent as a durable workflow task whose model turns and tool proposals are mediated by AMESH and cannot succeed until structured-output and policy gates pass.
+
+**URS-F-0809 — Must**
+
+The system shall persist agent sessions, messages, tool calls, checkpoints and approvals as durable execution evidence.
+
+_Verification:_ Single-agent session state, budget, tool mediation, approval, checkpoint and recovery end-to-end tests.
+_Source scope:_ AMESH Agent Mesh differentiator; not a Kestra-parity claim.
+
+**URS-F-0813 — Must**
+
+The system shall enforce loop, recursion, concurrency, token, cost, duration and tool-call limits with circuit breakers.
+
+_Verification:_ Single-agent session state, budget, tool mediation, approval, checkpoint and recovery end-to-end tests.
+_Source scope:_ AMESH Agent Mesh differentiator; not a Kestra-parity claim.
+
+**URS-F-0814 — Must**
+
+The system shall require policy or human approval before agents invoke high-impact tools, move sensitive data or exceed delegated authority.
+
+_Verification:_ Single-agent session state, budget, tool mediation, approval, checkpoint and recovery end-to-end tests.
+_Source scope:_ AMESH Agent Mesh differentiator; not a Kestra-parity claim.
+
+**URS-F-0817 — Must**
+
+The system shall resume an interrupted agent session from a durable checkpoint while disclosing which model outputs cannot be reproduced deterministically.
+
+_Verification:_ Single-agent session state, budget, tool mediation, approval, checkpoint and recovery end-to-end tests.
+_Source scope:_ AMESH Agent Mesh differentiator; not a Kestra-parity claim.
+
+#### EPIC-809 — Agent memory, evaluation and release gates
+
+Make bounded agents safe to adopt through isolated memory, versioned evaluations, human-readable traces and evidence-backed promotion gates in the existing workflow experience.
+
+**URS-F-0812 — Must**
+
+The system shall provide isolated private memory and policy-controlled shared memory with retention, redaction, size and tenant boundaries.
+
+_Verification:_ Agent memory-isolation, evaluation, trace, approval-interleaving and release-gate end-to-end tests.
+_Source scope:_ AMESH Agent Mesh differentiator; not a Kestra-parity claim.
+
+**URS-F-0816 — Must**
+
+The system shall evaluate agent and mesh outcomes against versioned tests, rubrics, judges and business assertions.
+
+_Verification:_ Agent memory-isolation, evaluation, trace, approval-interleaving and release-gate end-to-end tests.
 _Source scope:_ AMESH Agent Mesh differentiator; not a Kestra-parity claim.
 
 **URS-F-0819 — Must**
 
 The system shall interleave agent sessions, ordinary tasks and human approval tasks in one state machine, timeline and audit trail.
 
-_Verification:_ Agent mesh state, budget, policy, failover and evaluation end-to-end tests.
+_Verification:_ Agent memory-isolation, evaluation, trace, approval-interleaving and release-gate end-to-end tests.
 _Source scope:_ AMESH Agent Mesh differentiator; not a Kestra-parity claim.
 
 ## 5. Non-functional requirements
@@ -6361,7 +6373,7 @@ Agent and mesh budgets shall be enforced by the platform independently of model 
 
 _Target:_ No test mesh exceeds its configured hard cost, token, duration or tool-call limit beyond one explicitly bounded in-flight operation.
 _Verification:_ Adversarial runaway-loop and concurrent tool-call tests.
-_Mapped epics:_ `EPIC-806`.
+_Mapped epics:_ `EPIC-806`, `EPIC-808`.
 
 **URS-NFR-AGENT-002 — Must — Complete agent provenance**
 
@@ -6369,7 +6381,7 @@ Every agent message, routing decision, tool call, hand-off, approval and model r
 
 _Target:_ All catalogued mesh scenarios produce a complete provenance graph with no orphan tool effects.
 _Verification:_ Provenance graph completeness tests.
-_Mapped epics:_ `EPIC-806`.
+_Mapped epics:_ `EPIC-806`, `EPIC-808`, `EPIC-809`.
 
 **URS-NFR-AGENT-003 — Must — Memory and tool isolation**
 
@@ -6377,7 +6389,7 @@ Agent memory, tools and credentials shall be isolated by tenant, namespace, exec
 
 _Target:_ Zero cross-boundary disclosure or unauthorised tool invocation in adversarial mesh tests.
 _Verification:_ Cross-tenant, prompt-injection and capability-confusion tests.
-_Mapped epics:_ `EPIC-806`.
+_Mapped epics:_ `EPIC-806`, `EPIC-807`, `EPIC-808`, `EPIC-809`.
 
 **URS-NFR-AGENT-004 — Must — Provider portability**
 
@@ -6385,7 +6397,7 @@ Core mesh state and policy shall remain usable when a model provider is disabled
 
 _Target:_ Reference meshes migrate between two conforming model adapters with documented output nondeterminism and no state-schema change.
 _Verification:_ Provider substitution and outage tests.
-_Mapped epics:_ `EPIC-806`.
+_Mapped epics:_ `EPIC-806`, `EPIC-807`, `EPIC-809`.
 
 ### Ai Engineering
 
