@@ -16,6 +16,9 @@ Each phase includes a machine-readable `manifest.json` with route, viewport, sta
 axe result and discovery-budget metadata. The checked-in `before/` directory is immutable baseline
 evidence; the sprint's final verification writes the matching `after/` directory.
 
+Open the [complete HTML contact sheet](index.html) to review all 50 before, after and live captures on
+one page without opening each file individually.
+
 ## Screenshot inventory
 
 | Surface | Desktop | Tablet | Mobile |
@@ -57,6 +60,15 @@ corrected.
 4. **Constrained fields look unconstrained.** Namespace, flow, state lists, identifiers, and other catalog-backed values frequently appear as blank text inputs, requiring users to know internal values in advance.
 5. **Responsive layouts preserve content but not task priority.** Mobile users scroll through view libraries and configuration before operational answers; execution tabs clip horizontally; graph canvases dominate the trace and authoring journeys.
 6. **System vocabulary arrives before human explanation.** Terms such as epoch, contract, evidence stream, bounded page, semantic hash, flow, and execution need plain-language labels or progressive disclosure.
+
+| Rank | Finding and screenshot evidence | User impact | Testable recommendation |
+|---|---|---|---|
+| P0 | [Dashboard analytics precede active work](screenshots/before/desktop-mission-control.png) | Operators must interpret charts before finding a running or failed execution. | Show Running now and Needs attention above analytics; open an active run in at most three interactions. |
+| P0 | [Expert tabs split the run story](screenshots/before/desktop-execution-trace.png) | A failure cannot be explained without switching among topology, logs and data. | Default to one ordered trace with the causal step deep-linked; retain expert views under Advanced. |
+| P1 | [Mobile preserves configuration ahead of answers](screenshots/before/mobile-execution-trace.png) | The current or failed step appears only after substantial scrolling and horizontally constrained tabs. | Put the simple trace before expert evidence and stack its state/timing/outcome fields at 390 px. |
+| P1 | [Constrained choices look like blank text](screenshots/before/desktop-executions.png) | Users must know namespace, flow and state identifiers before filtering. | Use authorized namespace/dependent-flow selectors and finite state choices in the normal path. |
+| P1 | [Creation starts at implementation detail](screenshots/before/desktop-workflow-editor.png) | First-time authors face graph and schema vocabulary before choosing a desired outcome. | Start guided creation from intent or a reviewed starter; keep the expert editor available afterward. |
+| P2 | [System terms lack a plain-language layer](screenshots/before/tablet-execution-trace.png) | Epoch, evidence stream and bounded views add cognitive load during triage. | Keep immutable evidence visible but lead with human explanations and progressive disclosure. |
 
 ## Proposed product hierarchy
 
