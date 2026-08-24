@@ -149,7 +149,7 @@ function TaskCanvasNode({ data, selected }: NodeProps<CanvasNode>) {
     : null
   return (
     <article className={`visual-task-node${selected ? ' visual-task-node-selected' : ''}`}>
-      <Handle type="target" position={Position.Left} aria-label={`Connect dependency to ${task.taskId}`} />
+      <Handle type="target" position={Position.Left} />
       <div className="visual-task-node-heading">
         <span>{task.category}</span>
         <code>{task.taskType}</code>
@@ -159,7 +159,7 @@ function TaskCanvasNode({ data, selected }: NodeProps<CanvasNode>) {
       <div className="visual-task-badges">
         {taskBadges(task).map((badge) => <span key={badge}>{badge}</span>)}
       </div>
-      <Handle type="source" position={Position.Right} aria-label={`Connect ${task.taskId} to a dependent task`} />
+      <Handle type="source" position={Position.Right} />
     </article>
   )
 }

@@ -18,8 +18,9 @@ import { NavLink, Outlet } from 'react-router-dom'
 
 import type { UiSession } from '../api/types'
 import { groupIcons, navigationItems, type NavigationGroup } from '../app/navigation'
-import { useApiClient } from '../app/queries'
+import { useApiClient, useFlows } from '../app/queries'
 import { useAppSettings } from '../app/settings'
+import { CatalogSelect } from './CatalogSelect'
 import { CommandPalette } from './CommandPalette'
 
 const groups: NavigationGroup[] = ['build', 'operate', 'govern']
@@ -39,6 +40,11 @@ export function AppShell({ session }: { session: UiSession }) {
     enabled: session.capabilities['announcements.view'],
     refetchInterval: 10_000,
   })
+  const flows = useFlows(session.capabilities['flows.view'])
+  const contextNamespaces = Array.from(new Set([
+    ...(settings.namespace ? [settings.namespace] : []),
+    ...(flows.data || []).map((flow) => flow.namespace),
+  ])).sort()
 
   useEffect(() => {
     void i18n.changeLanguage(settings.locale)
@@ -90,7 +96,7 @@ export function AppShell({ session }: { session: UiSession }) {
                   const Icon = item.icon
                   if (!allowed) {
                     return (
-                      <span key={item.id} className="rail-link rail-link-disabled" aria-label={t(item.labelKey)} aria-disabled="true" title={t('permissionDenied')}>
+                      <span key={item.id} className="rail-link rail-link-disabled" role="link" aria-label={t(item.labelKey)} aria-disabled="true" title={t('permissionDenied')}>
                         <Icon size={19} aria-hidden="true" />
                         <span>{t(item.labelKey)}</span>
                         <LockKeyhole className="rail-lock" size={13} aria-hidden="true" />
@@ -126,9 +132,9 @@ export function AppShell({ session }: { session: UiSession }) {
             <ChevronDown size={16} aria-hidden="true" />
           </button>
           {contextOpen ? (
-            <ContextPopover tenant={settings.tenant} namespace={settings.namespace} onApply={(tenant, namespace) => { updateContext(tenant, namespace); setContextOpen(false) }} />
+            <ContextPopover tenant={settings.tenant} namespace={settings.namespace} namespaces={contextNamespaces} loading={flows.isPending} onApply={(tenant, namespace) => { updateContext(tenant, namespace); setContextOpen(false) }} />
           ) : null}
-          <button className="command-trigger" type="button" onClick={() => setCommandOpen(true)}>
+          <button className="command-trigger" type="button" onClick={() => setCommandOpen(true)} aria-label={t('search')}>
             <Search size={18} aria-hidden="true" />
             <span>{t('search')}</span>
             <kbd><CommandIcon size={12} aria-hidden="true" />K</kbd>
@@ -180,7 +186,7 @@ export function AppShell({ session }: { session: UiSession }) {
   )
 }
 
-function ContextPopover({ tenant, namespace, onApply }: { tenant: string; namespace: string; onApply: (tenant: string, namespace: string) => void }) {
+function ContextPopover({ tenant, namespace, namespaces, loading, onApply }: { tenant: string; namespace: string; namespaces: string[]; loading: boolean; onApply: (tenant: string, namespace: string) => void }) {
   const [nextTenant, setNextTenant] = useState(tenant)
   const [nextNamespace, setNextNamespace] = useState(namespace)
   const submit = (event: FormEvent<HTMLFormElement>) => {
@@ -190,10 +196,8 @@ function ContextPopover({ tenant, namespace, onApply }: { tenant: string; namesp
   return (
     <form id="workspace-context-popover" className="popover context-popover" onSubmit={submit}>
       <p className="popover-title"><ServerCog size={17} aria-hidden="true" />Workspace context</p>
-      <label htmlFor="context-tenant">Tenant</label>
-      <input id="context-tenant" value={nextTenant} onChange={(event) => setNextTenant(event.target.value)} />
-      <label htmlFor="context-namespace">Namespace filter</label>
-      <input id="context-namespace" value={nextNamespace} onChange={(event) => setNextNamespace(event.target.value)} placeholder="All namespaces" />
+      <CatalogSelect label="Tenant" value={nextTenant} options={[{ value: tenant, label: `${tenant} · current tenant` }]} onChange={setNextTenant} emptyLabel="Select tenant" required />
+      <CatalogSelect label="Namespace filter" value={nextNamespace} options={namespaces.map((item) => ({ value: item, label: item }))} onChange={setNextNamespace} emptyLabel="All namespaces" loading={loading} />
       <button className="button button-primary" type="submit">Apply context</button>
     </form>
   )

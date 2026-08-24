@@ -187,7 +187,8 @@ task run.
 
 The production container also serves the graphical control room at `http://localhost:8000`. Sign in
 with the bootstrapped local user and tenant `default`; the development-only `development-token` remains
-available through the UI's API-token mode. See the
+available through the UI's API-token mode. Mission Control leads with running and unhealthy work, and
+each row opens a simple trace with expert evidence one disclosure away. See the
 [frontend guide](frontend/README.md) for the Vite workflow, supported browsers and accessibility
 qualification boundary.
 

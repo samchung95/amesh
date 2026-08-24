@@ -5,9 +5,10 @@ import { Link, useSearchParams } from 'react-router-dom'
 
 import type { UiSession } from '../api/types'
 import { compactId, formatDate } from '../app/format'
-import { useExecutions } from '../app/queries'
+import { useExecutions, useFlows } from '../app/queries'
 import { useAppSettings } from '../app/settings'
 import { EmptyState, ErrorState, LoadingState } from '../components/AsyncState'
+import { CatalogSelect } from '../components/CatalogSelect'
 import { StatusBadge } from '../components/StatusBadge'
 
 export function ExecutionsPage({ session }: { session: UiSession }) {
@@ -16,9 +17,14 @@ export function ExecutionsPage({ session }: { session: UiSession }) {
   const [params, setParams] = useSearchParams()
   const [savedNotice, setSavedNotice] = useState(false)
   const executions = useExecutions(session.capabilities['executions.view'])
+  const flows = useFlows(session.capabilities['flows.view'])
   const state = params.get('state') || ''
+  const namespace = params.get('namespace') || ''
+  const flowId = params.get('flow') || ''
   const query = params.get('q') || ''
-  const visible = useMemo(() => (executions.data || []).filter((execution) => (!state || execution.state === state) && `${execution.namespace}.${execution.flow_id} ${execution.execution_id}`.toLowerCase().includes(query.toLowerCase())), [executions.data, query, state])
+  const namespaces = useMemo(() => Array.from(new Set((flows.data || []).map((flow) => flow.namespace))).sort(), [flows.data])
+  const flowOptions = useMemo(() => (flows.data || []).filter((flow) => !namespace || flow.namespace === namespace), [flows.data, namespace])
+  const visible = useMemo(() => (executions.data || []).filter((execution) => (!state || execution.state === state) && (!namespace || execution.namespace === namespace) && (!flowId || execution.flow_id === flowId) && `${execution.namespace}.${execution.flow_id} ${execution.execution_id}`.toLowerCase().includes(query.toLowerCase())), [executions.data, flowId, namespace, query, state])
   const update = (key: string, value: string) => { const next = new URLSearchParams(params); if (value) next.set(key, value); else next.delete(key); setParams(next) }
   const save = () => { const path = `/executions${params.size ? `?${params.toString()}` : ''}`; saveView({ id: `executions:${params.toString() || 'all'}`, label: state ? `Executions · ${state}` : 'Executions · All', path }); setSavedNotice(true); window.setTimeout(() => setSavedNotice(false), 1600) }
 
@@ -28,7 +34,9 @@ export function ExecutionsPage({ session }: { session: UiSession }) {
       <div className="sr-live" aria-live="polite">{savedNotice ? t('saved') : ''}</div>
       <section className="toolbar" aria-label="Execution filters">
         <label className="search-field"><Search size={17} aria-hidden="true" /><span className="sr-only">Search executions</span><input value={query} onChange={(event) => update('q', event.target.value)} placeholder="Search flow or execution ID" /></label>
-        <label className="filter-select"><span>State</span><select value={state} onChange={(event) => update('state', event.target.value)}><option value="">{t('allStates')}</option><option value="RUNNING">Running</option><option value="SUCCESS">Success</option><option value="FAILED">Failed</option></select></label>
+        <CatalogSelect label="Namespace" value={namespace} options={namespaces.map((item) => ({ value: item, label: item }))} onChange={(value) => { const next = new URLSearchParams(params); if (value) next.set('namespace', value); else next.delete('namespace'); next.delete('flow'); setParams(next) }} emptyLabel="All namespaces" loading={flows.isPending} className="filter-select" />
+        <CatalogSelect label="Flow" value={flowId} options={flowOptions.map((flow) => ({ value: flow.flow_id, label: `${flow.flow_id} · ${flow.namespace}` }))} onChange={(value) => update('flow', value)} emptyLabel="All flows" loading={flows.isPending} className="filter-select" />
+        <CatalogSelect label="State" value={state} options={['CREATED', 'QUEUED', 'RUNNING', 'PAUSED', 'CANCELLING', 'RESTARTING', 'SUCCESS', 'WARNING', 'FAILED', 'CANCELLED'].map((value) => ({ value, label: value.replaceAll('_', ' ') }))} onChange={(value) => update('state', value)} emptyLabel={t('allStates')} className="filter-select" />
         <span className="result-count">{visible.length} / {executions.data?.length || 0} runs</span>
       </section>
       {executions.isPending ? <LoadingState label="Loading execution history" /> : null}

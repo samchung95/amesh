@@ -9,7 +9,7 @@ export const TASK_RUN_PAGE_SIZE = 100
 export const EVIDENCE_BUFFER_LIMIT = 5_000
 export const LARGE_GRAPH_THRESHOLD = 1_000
 
-export type DebugView = 'topology' | 'gantt' | 'logs' | 'data' | 'history'
+export type DebugView = 'trace' | 'topology' | 'gantt' | 'logs' | 'data' | 'history'
 
 export interface LogFilters {
   task: string

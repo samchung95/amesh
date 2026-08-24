@@ -17,9 +17,10 @@ import type {
   BlueprintCatalogSource,
   UiSession,
 } from '../api/types'
-import { useApiClient } from '../app/queries'
+import { useApiClient, useFlows } from '../app/queries'
 import { useAppSettings } from '../app/settings'
 import { ErrorState, LoadingState } from '../components/AsyncState'
+import { CatalogSelect } from '../components/CatalogSelect'
 import {
   blueprintDraftTransferKey,
   onboardingProgressKey,
@@ -68,6 +69,7 @@ function CatalogView({ session }: { session: UiSession }) {
   const api = useApiClient()
   const navigate = useNavigate()
   const { settings } = useAppSettings()
+  const flows = useFlows(session.capabilities['flows.view'])
   const [query, setQuery] = useState('')
   const [source, setSource] = useState<BlueprintCatalogSource | 'ALL'>('ALL')
   const [selectedKey, setSelectedKey] = useState('')
@@ -90,6 +92,10 @@ function CatalogView({ session }: { session: UiSession }) {
       values[parameter.name] ?? parameter.default ?? '',
     ]),
   )
+  const namespaces = Array.from(new Set([
+    ...(settings.namespace ? [settings.namespace] : []),
+    ...(flows.data || []).map((flow) => flow.namespace),
+  ])).sort()
   const instantiate = useMutation({
     mutationFn: () => api.instantiateBlueprint(selected?.blueprintId || '', selected?.version || '', parameterValues),
     onSuccess: (draft) => {
@@ -145,7 +151,9 @@ function CatalogView({ session }: { session: UiSession }) {
           </dl>
           <form className="blueprint-parameters" onSubmit={(event) => { event.preventDefault(); instantiate.mutate() }}>
             <h3>Draft parameters</h3>
-            {preview.data.parameters.map((parameter) => <label key={parameter.name}>{parameter.title}<small>{parameter.description}</small><input required={parameter.required} value={parameterValues[parameter.name] || ''} onChange={(event) => setValues((current) => ({ ...current, [parameter.name]: event.target.value }))} /></label>)}
+            {preview.data.parameters.map((parameter) => parameter.kind === 'NAMESPACE' ? (
+              <CatalogSelect key={parameter.name} label={parameter.title} helpText={parameter.description} value={parameterValues[parameter.name] || ''} options={namespaces.map((namespace) => ({ value: namespace, label: namespace }))} onChange={(value) => setValues((current) => ({ ...current, [parameter.name]: value }))} emptyLabel="Select namespace" loading={flows.isPending} allowCustom customLabel="Create in a new namespace…" required={parameter.required} />
+            ) : <label key={parameter.name}>{parameter.title}<small>{parameter.description}</small><input required={parameter.required} value={parameterValues[parameter.name] || ''} onChange={(event) => setValues((current) => ({ ...current, [parameter.name]: event.target.value }))} /></label>)}
             <p className="blueprint-draft-warning"><CircleDashed size={16} aria-hidden="true" />Draft only. Nothing executes until you save it and manually run it.</p>
             <button className="button button-primary" type="submit" disabled={!session.capabilities['flows.create'] || instantiate.isPending}><Play size={16} aria-hidden="true" />{instantiate.isPending ? 'Preparing draft…' : 'Open unsaved draft'}</button>
             {instantiate.error ? <p className="resource-failure" role="alert">{instantiate.error.message}</p> : null}

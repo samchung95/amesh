@@ -55,6 +55,12 @@ export function ExecutionDetailPage({ session }: { session: UiSession }) {
   const subflows = useQuery({ queryKey: ['execution-subflows', executionId, settings.tenant], queryFn: () => api.executionSubflows(executionId), enabled: Boolean(executionId), refetchInterval: 5_000 })
   const parent = useQuery({ queryKey: ['execution-parent', executionId, settings.tenant], queryFn: () => api.executionParentSubflow(executionId), enabled: Boolean(executionId), staleTime: 10_000 })
   const interventions = useQuery({ queryKey: ['execution-interventions', executionId, settings.tenant], queryFn: () => api.executionInterventions(executionId), enabled: Boolean(executionId), refetchInterval: 5_000 })
+  const humanTasks = useQuery({
+    queryKey: ['execution-human-tasks', executionId, settings.tenant],
+    queryFn: () => api.humanTasks(detail.data!.execution.namespace, true),
+    enabled: detail.isSuccess && session.capabilities['humanTasks.view'],
+    refetchInterval: 5_000,
+  })
   const [streamedEvidence, setStreamedEvidence] = useState<ExecutionEvidenceEvent[]>([])
   const [streamState, setStreamState] = useState<'connecting' | 'live' | 'reconnecting' | 'complete'>('connecting')
   const seededCursor = useRef<{ executionId: string; cursor: string | null } | null>(null)
@@ -144,6 +150,7 @@ export function ExecutionDetailPage({ session }: { session: UiSession }) {
         subflows={subflows.data ?? []}
         parent={parent.data ?? null}
         interventions={interventions.data ?? []}
+        humanTasks={(humanTasks.data ?? []).filter((task) => task.executionId === executionId)}
         locale={settings.locale}
         timezone={settings.timezone}
         canManage={session.capabilities['executions.manage']}

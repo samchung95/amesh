@@ -1,8 +1,9 @@
 # AMESH web control room
 
-The React/TypeScript control room is the graphical entry point for the current AMESH API. It provides
-permission-aware navigation, flow and execution lists, execution task-run detail, tenant/namespace
-context, trigger health, execution-check compliance and evidence, global resource search,
+The React/TypeScript control room is the graphical entry point for the current AMESH API. It opens on
+Mission Control for running and unhealthy work, uses discoverable authorized selectors, and opens each
+execution on a simple ordered trace. It also provides permission-aware navigation, flow and execution
+lists, tenant/namespace context, trigger health, execution-check compliance and evidence, global resource search,
 locale/time-zone controls and retryable offline states. Routes reserved for later UI epics remain
 visibly labelled and inactive.
 
@@ -75,9 +76,11 @@ redirect. Operator configuration and rotation are covered by the
 
 ## Debug executions
 
-Open an execution to inspect its identity, revision, inputs, labels, trigger, duration and related
-parent or child executions. The debugger keeps topology, Gantt, logs, data and history in one
-shareable route. The selected task, active tab, log filters and task-page offset are URL parameters,
+Open an execution to read its ordered task story, including state, attempt, timing, runner, outcome,
+branches, iterations, approvals, retries and child executions. Active, waiting and failed steps are
+visually dominant and deep-linkable. Copy actions provide the execution ID, stable URL or a redacted
+support summary. Topology, Gantt, logs, data and history remain under **Advanced evidence** in the same
+shareable route. The selected step/task, active view, log filters and task-page offset are URL parameters,
 so reloading or sharing the link preserves the investigation context.
 
 Task runs are fetched in pages of 100 with a server-computed state summary. Topology renders directly
@@ -93,8 +96,10 @@ changes to the recorded actor and causative event.
 
 ## Build dashboards
 
-Open **Dashboard** to switch among the built-in instance, tenant, namespace, flow, worker and SLA
-views. The filter bar applies time, label, namespace, flow, state, worker-group and custom-dimension
+Open **Dashboard** to see Mission Control: current state counts, Running now and Needs attention. Its
+namespace, dependent flow and state selectors persist in the URL, and every execution row opens the
+simple trace at the relevant step. Expand **Analytics and saved dashboards** to switch among the
+built-in instance, tenant, namespace, flow, worker and SLA views. The analytics filter bar applies time, label, namespace, flow, state, worker-group and custom-dimension
 filters without changing the saved definition. Every widget exposes its freshness and complete,
 partial, sampled, authorized or redacted state.
 
@@ -124,7 +129,8 @@ npx playwright install chromium
 npm run test:e2e
 ```
 
-The browser suite covers connection, API-backed navigation, direct/reloaded deep links, the keyboard
+The browser suite covers Mission Control triage, failed-step deep links, the simple trace, exported
+desktop/tablet/mobile screenshots, constrained selectors, connection, API-backed navigation, direct/reloaded deep links, the keyboard
 command menu, server-authoritative denied routes, Simplified Chinese switching, locale formatting,
 retry recovery, same-origin/offline privacy, a 768 px compact tablet layout and WCAG 2.2 AA axe rules.
 Trigger and check monitor fixtures cover durable occurrence and policy-evaluation evidence. The flow

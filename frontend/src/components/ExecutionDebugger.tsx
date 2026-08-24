@@ -12,6 +12,7 @@ import {
   GitBranch,
   History,
   ListFilter,
+  ListTree,
   Pause,
   Play,
   RefreshCcw,
@@ -34,6 +35,7 @@ import type {
   ExecutionInterventionPreview,
   ExecutionInterventionRecord,
   FlowGraph,
+  HumanTask,
   PersistedSubflow,
 } from '../api/types'
 import { compactId, formatDate, formatNumber } from '../app/format'
@@ -50,9 +52,11 @@ import {
   type LogFilters,
 } from './executionDebugModel'
 import { FlowGraphView } from './FlowGraphView'
+import { SimpleExecutionTrace } from './SimpleExecutionTrace'
 import { StatusBadge } from './StatusBadge'
 
 const views: Array<{ id: DebugView; label: string; icon: typeof Workflow }> = [
+  { id: 'trace', label: 'Simple trace', icon: ListTree },
   { id: 'topology', label: 'Topology', icon: Workflow },
   { id: 'gantt', label: 'Gantt', icon: BarChart3 },
   { id: 'logs', label: 'Logs', icon: ScrollText },
@@ -74,6 +78,7 @@ interface Props {
   subflows: PersistedSubflow[]
   parent: PersistedSubflow | null
   interventions: ExecutionInterventionRecord[]
+  humanTasks: HumanTask[]
   locale: string
   timezone: string
   canManage: boolean
@@ -122,6 +127,7 @@ export function ExecutionDebugger({
   subflows,
   parent,
   interventions,
+  humanTasks,
   locale,
   timezone,
   canManage,
@@ -136,8 +142,9 @@ export function ExecutionDebugger({
   const { execution, taskRuns, taskRunSummary } = detail
   const [searchParams, setSearchParams] = useSearchParams()
   const requestedView = searchParams.get('view') as DebugView | null
-  const view = views.some((item) => item.id === requestedView) ? requestedView! : 'topology'
+  const view = views.some((item) => item.id === requestedView) ? requestedView! : 'trace'
   const selectedTask = searchParams.get('task') || ''
+  const selectedStep = searchParams.get('step') || ''
   const offset = Math.max(0, Number(searchParams.get('offset') || detail.taskRunOffset || 0))
   const [confirmation, setConfirmation] = useState<Confirmation | null>(null)
   const [reason, setReason] = useState('Operator requested this execution action')
@@ -289,9 +296,30 @@ export function ExecutionDebugger({
         <div><small>Failed / cancelled</small><strong>{formatNumber(summary.failed + summary.cancelled, locale)}</strong></div>
       </section>
 
-      <nav className="debug-tabs" aria-label="Execution debugging views">
-        {views.map(({ id, label, icon: Icon }) => <button key={id} type="button" aria-current={view === id ? 'page' : undefined} onClick={() => updateParams({ view: id })}><Icon size={15} aria-hidden="true" />{label}</button>)}
-      </nav>
+      <div className="debug-navigation">
+        <button className="trace-view-button" type="button" aria-current={view === 'trace' ? 'page' : undefined} onClick={() => updateParams({ view: null })}><ListTree size={16} aria-hidden="true" />Simple trace</button>
+        <details className="advanced-evidence" open={view !== 'trace'}>
+          <summary>Advanced evidence <small>Topology, timing, raw logs, data and audit history</small></summary>
+          <nav className="debug-tabs" aria-label="Advanced execution evidence">
+            {views.filter(({ id }) => id !== 'trace').map(({ id, label, icon: Icon }) => <button key={id} type="button" aria-current={view === id ? 'page' : undefined} onClick={() => updateParams({ view: id })}><Icon size={15} aria-hidden="true" />{label}</button>)}
+          </nav>
+        </details>
+      </div>
+
+      {view === 'trace' ? <SimpleExecutionTrace
+        execution={execution}
+        taskRuns={taskRuns}
+        evidence={evidence}
+        graph={graph}
+        subflows={subflows}
+        humanTasks={humanTasks}
+        interventions={interventions}
+        selectedStep={selectedStep}
+        locale={locale}
+        timezone={timezone}
+        nowMs={Math.max(Date.parse(execution.updated_at), ...evidence.map((event) => Date.parse(event.occurred_at)).filter(Number.isFinite))}
+        onSelectStep={(step) => updateParams({ step: step || null })}
+      /> : null}
 
       {view === 'topology' ? <div className="debug-view">
         {summary.total > LARGE_GRAPH_THRESHOLD ? <section className="data-section aggregate-notice"><Box size={20} aria-hidden="true" /><div><h2>Aggregated topology</h2><p>{formatNumber(summary.total, locale)} task runs exceed the {formatNumber(LARGE_GRAPH_THRESHOLD, locale)}-node interactive canvas threshold. Use the bounded task pages and Gantt filters below.</p></div></section> : null}

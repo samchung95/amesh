@@ -18,6 +18,11 @@ healthy. Open
 `http://localhost:8000`, choose **API token**, enter `development-token`, and keep tenant `default`.
 The development token is deliberately disabled outside the development profile.
 
+After sign-in, **Mission Control** should show persisted counts for Running, Queued, Retrying, Paused,
+Waiting approval, Failed recently and Completed recently. Open a row under **Running now** or **Needs
+attention** to verify the simple trace. Use **Advanced evidence** only when you need topology, Gantt,
+logs, data or audit history.
+
 For the smaller one-process path, run `docker compose -f compose.compact.yaml up -d --build` and
 open `http://localhost:8100`. It includes all six runtime roles, PostgreSQL and local object storage;
 the [compact deployment guide](compact-deployment.md) covers preflight and shutdown.

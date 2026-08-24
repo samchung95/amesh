@@ -8,6 +8,7 @@ import { useApiClient, usePluginPolicy, usePluginRegistry } from '../app/queries
 import { useAppSettings } from '../app/settings'
 import { EmptyState, ErrorState, LoadingState } from '../components/AsyncState'
 import { AdmissionPolicyPanel } from '../components/AdmissionPolicyPanel'
+import { CatalogSelect } from '../components/CatalogSelect'
 import { StatusBadge } from '../components/StatusBadge'
 
 const POLICY_STAGES: PluginPolicyStage[] = ['AUTHORING', 'VALIDATION', 'EXECUTION', 'ADMINISTRATION']
@@ -50,6 +51,8 @@ export function PluginsPage({ session }: { session: UiSession }) {
     onSuccess: async () => { setImpact(null); setNotice('Plugin version disabled. Historical pins are retained.'); await refreshPolicy() },
   })
   const packages = registry.data?.packages || []
+  const packageNames = Array.from(new Set(packages.reduce<string[]>((items, item) => item.name ? [...items, item.name] : items, []))).sort()
+  const quarantineVersions = packages.reduce<string[]>((items, item) => item.name === quarantineDraft.package && item.version ? [...items, item.version] : items, []).sort()
   const totals = packages.reduce(
     (current, release) => ({
       active: current.active + (release.yanked ? 0 : 1),
@@ -119,8 +122,8 @@ export function PluginsPage({ session }: { session: UiSession }) {
               <h3>Add allow or deny rule</h3>
               <label>Effect<select value={ruleDraft.effect} onChange={(event) => setRuleDraft({ ...ruleDraft, effect: event.target.value as 'ALLOW' | 'DENY' })}><option>ALLOW</option><option>DENY</option></select></label>
               <label>Scope<select value={ruleDraft.scope} onChange={(event) => setRuleDraft({ ...ruleDraft, scope: event.target.value as PluginPolicyRuleDraft['scope'] })}><option>INSTANCE</option><option>TENANT</option><option disabled={!settings.namespace}>NAMESPACE</option></select></label>
-              <label>Package<input required value={ruleDraft.selector.package} onChange={(event) => setRuleDraft({ ...ruleDraft, selector: { ...ruleDraft.selector, package: event.target.value } })} placeholder="vendor.package or *" /></label>
-              <label>Version range<input required value={ruleDraft.selector.versionRange} onChange={(event) => setRuleDraft({ ...ruleDraft, selector: { ...ruleDraft.selector, versionRange: event.target.value } })} placeholder=">=1.2.0,&lt;2.0.0" /></label>
+              <CatalogSelect label="Package" value={ruleDraft.selector.package} options={[{ value: '*', label: 'Any package · *' }, ...packageNames.map((name) => ({ value: name, label: name }))]} onChange={(value) => setRuleDraft({ ...ruleDraft, selector: { ...ruleDraft.selector, package: value, versionRange: '*' } })} emptyLabel="Select package" loading={registry.isPending} allowCustom customLabel="Enter another package pattern…" required />
+              <CatalogSelect label="Version range" value={ruleDraft.selector.versionRange} options={[{ value: '*', label: 'Any version · *' }, ...packages.filter((item) => item.name === ruleDraft.selector.package && item.version).map((item) => ({ value: item.version!, label: `Exactly ${item.version!}` }))]} onChange={(value) => setRuleDraft({ ...ruleDraft, selector: { ...ruleDraft.selector, versionRange: value } })} emptyLabel="Select version" loading={registry.isPending} allowCustom customLabel="Enter a semantic version range…" required />
               <label>Stage<select value={ruleDraft.stages[0]} onChange={(event) => setRuleDraft({ ...ruleDraft, stages: [event.target.value as PluginPolicyStage] })}>{POLICY_STAGES.map((stage) => <option key={stage}>{stage}</option>)}</select></label>
               <label>Reason<input required value={ruleDraft.reason} onChange={(event) => setRuleDraft({ ...ruleDraft, reason: event.target.value })} /></label>
               <button className="button button-primary" type="submit" disabled={createRule.isPending}>Save rule</button>
@@ -128,8 +131,8 @@ export function PluginsPage({ session }: { session: UiSession }) {
             <form onSubmit={(event: FormEvent) => { event.preventDefault(); previewQuarantine.mutate({ ...quarantineDraft, namespace: quarantineDraft.scope === 'NAMESPACE' ? settings.namespace : null }) }}>
               <h3>Emergency version disable</h3>
               <label>Scope<select value={quarantineDraft.scope} onChange={(event) => { setImpact(null); setQuarantineDraft({ ...quarantineDraft, scope: event.target.value as PluginQuarantineDraft['scope'] }) }}><option>INSTANCE</option><option>TENANT</option><option disabled={!settings.namespace}>NAMESPACE</option></select></label>
-              <label>Package<input required value={quarantineDraft.package} onChange={(event) => { setImpact(null); setQuarantineDraft({ ...quarantineDraft, package: event.target.value }) }} placeholder="vendor.package" /></label>
-              <label>Exact version<input required value={quarantineDraft.version} onChange={(event) => { setImpact(null); setQuarantineDraft({ ...quarantineDraft, version: event.target.value }) }} placeholder="1.2.3" /></label>
+              <CatalogSelect label="Package" value={quarantineDraft.package} options={packageNames.map((name) => ({ value: name, label: name }))} onChange={(value) => { setImpact(null); setQuarantineDraft({ ...quarantineDraft, package: value, version: '' }) }} emptyLabel="Select installed package" loading={registry.isPending} required />
+              <CatalogSelect label="Exact version" value={quarantineDraft.version} options={quarantineVersions.map((version) => ({ value: version, label: version }))} onChange={(value) => { setImpact(null); setQuarantineDraft({ ...quarantineDraft, version: value }) }} emptyLabel={quarantineDraft.package ? 'Select installed version' : 'Select a package first'} disabled={!quarantineDraft.package} loading={registry.isPending} required />
               <label>Reason<input required value={quarantineDraft.reason} onChange={(event) => setQuarantineDraft({ ...quarantineDraft, reason: event.target.value })} /></label>
               <button className="button button-secondary" type="submit" disabled={previewQuarantine.isPending}>Preview impact</button>
               {impact ? <div className="quarantine-impact"><strong>{impact.affectedFlows.length} flow revisions</strong><span>{impact.runningExecutions.length} running executions</span><button className="button button-danger" type="button" onClick={() => createQuarantine.mutate({ ...quarantineDraft, namespace: quarantineDraft.scope === 'NAMESPACE' ? settings.namespace : null })} disabled={createQuarantine.isPending}>Confirm disable</button></div> : null}

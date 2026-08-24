@@ -2,12 +2,19 @@
 
 ## Current state
 
-- What works: the original post-MVP foundation plus the first eleven cards of the 50-epic local program are implemented, evidence-linked and deployed through migration 0040, including isolated/shared task workspaces, the runner-neutral contract and the fully qualified local process runner.
-- What's in flight: the 50-epic local completion program is tracked on Agent Hotel cards `c37`–`c86`; cards `c37`–`c47` are complete and EPIC-221 on card `c48` is next. The local Docker Compose deployment is healthy at migration 40/40 on `http://localhost:8000`.
-- Known broken / TODO: 20 external-cloud, SaaS, hosted-release, independent-certification, multi-region or long-duration epics are deferred. Cards `c15` and `c29` preserve unrelated backend test failures; `c87` records missing fresh-Compose mounts for migrations 0033–0036; and `c88` records seven pre-existing frontend lint errors. None blocks the current local program path.
-- How to run/test: use `uv run --extra runtime --extra dev pytest`; set `AMESH_TEST_DATABASE_URL` for PostgreSQL integration tests and `OPENROUTER_API_KEY` for live LLM tests.
+- What works: the locally qualified MVP foundation is deployed through the current migration set. Sprint UX-01 adds the responsive visual audit, discoverable selectors, Mission Control and the default simple execution trace while preserving expert evidence and visual/YAML authoring.
+- What's in flight: no Sprint UX-01 implementation remains; the verified sprint cards are ready to close on the Agent Hotel board.
+- Known broken / TODO: guided workflow creation (`c100`), production determinism qualification (`c101`) and umbrella-overhaul closure (`c103`) are deferred beyond this sprint. Previously recorded unrelated deferred cards remain untouched.
+- How to run/test: frontend checks run from `frontend/` with `npm test`, `npm run build` and `npm run test:e2e`; backend checks use `uv run --extra runtime --extra dev pytest`. The local Compose product is served at `http://localhost:8000`.
 
 ## Session log
+
+### 2026-08-24 (Sprint UX-01 complete)
+
+- Did: completed cards `c102`, `c97`, `c98` and `c99` under sprint card `c104`; recorded ADR-048 and the input inventory; replaced constrained text fields with authorized selectors; made Mission Control the operational home; added prioritized Running now/Needs attention views; made the redacted ordered trace the execution default; preserved topology, Gantt, logs, data, history, analytics and YAML; and exported before/after/live visual evidence.
+- Verification: 12 focused selector/Mission/trace model tests pass; the production frontend build passes; all 22 applicable Playwright tests pass with 24 intentional project skips; 19 populated after-state captures, five non-happy states and the authenticated live Mission Control/trace report zero critical/serious axe findings, console errors or failed API requests. The live Compose gate proves one running, 94 failed-recently and 105 completed-recently executions, and the rebuilt API is healthy at `http://localhost:8000`.
+- Deviations from plan: no dependency or backend service was added. The 58-test complete frontend unit suite passes functionally but the command retains its pre-existing nonzero exit because global branch/function coverage is below 75%, already tracked on deferred card `c94`. Guided creation (`c100`) and production determinism qualification (`c101`) remain separate follow-ons.
+- Next step when resuming: start guided workflow creation on `c100`; Sprint UX-01 itself has no remaining work.
 
 ### 2026-08-22 (50-epic local completion program, EPIC-220 completion)
 

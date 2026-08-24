@@ -1,0 +1,226 @@
+{
+  "schemaVersion": "amesh.ui-audit/v1",
+  "phase": "after",
+  "capturedAt": "2026-08-24T00:00:00.000Z",
+  "source": "deterministic Playwright fixtures",
+  "discoveryScenario": {
+    "goal": "Open an active execution from the control room",
+    "interactions": 2,
+    "targetInteractions": 3,
+    "targetElapsedMs": 30000,
+    "passed": true
+  },
+  "captures": [
+    {
+      "fileName": "desktop-login.png",
+      "route": "/",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "state": "signed-out",
+      "criticalOrSeriousAxeFindings": 0
+    },
+    {
+      "fileName": "desktop-mission-control.png",
+      "route": "/",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "state": "populated",
+      "criticalOrSeriousAxeFindings": 0
+    },
+    {
+      "fileName": "desktop-executions.png",
+      "route": "/executions",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "state": "populated",
+      "criticalOrSeriousAxeFindings": 0
+    },
+    {
+      "fileName": "desktop-execution-trace.png",
+      "route": "/executions/00000000-0000-7000-8000-000000000101",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "state": "populated",
+      "criticalOrSeriousAxeFindings": 0
+    },
+    {
+      "fileName": "desktop-flows.png",
+      "route": "/flows",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "state": "populated",
+      "criticalOrSeriousAxeFindings": 0
+    },
+    {
+      "fileName": "desktop-workflow-starters.png",
+      "route": "/blueprints",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "state": "populated",
+      "criticalOrSeriousAxeFindings": 0
+    },
+    {
+      "fileName": "desktop-workflow-editor.png",
+      "route": "/flows/new",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "state": "populated",
+      "criticalOrSeriousAxeFindings": 0
+    },
+    {
+      "fileName": "tablet-mission-control.png",
+      "route": "/",
+      "viewport": {
+        "name": "tablet",
+        "width": 768,
+        "height": 1024
+      },
+      "state": "populated",
+      "criticalOrSeriousAxeFindings": 0
+    },
+    {
+      "fileName": "tablet-executions.png",
+      "route": "/executions",
+      "viewport": {
+        "name": "tablet",
+        "width": 768,
+        "height": 1024
+      },
+      "state": "populated",
+      "criticalOrSeriousAxeFindings": 0
+    },
+    {
+      "fileName": "tablet-execution-trace.png",
+      "route": "/executions/00000000-0000-7000-8000-000000000101",
+      "viewport": {
+        "name": "tablet",
+        "width": 768,
+        "height": 1024
+      },
+      "state": "populated",
+      "criticalOrSeriousAxeFindings": 0
+    },
+    {
+      "fileName": "tablet-flows.png",
+      "route": "/flows",
+      "viewport": {
+        "name": "tablet",
+        "width": 768,
+        "height": 1024
+      },
+      "state": "populated",
+      "criticalOrSeriousAxeFindings": 0
+    },
+    {
+      "fileName": "tablet-workflow-starters.png",
+      "route": "/blueprints",
+      "viewport": {
+        "name": "tablet",
+        "width": 768,
+        "height": 1024
+      },
+      "state": "populated",
+      "criticalOrSeriousAxeFindings": 0
+    },
+    {
+      "fileName": "tablet-workflow-editor.png",
+      "route": "/flows/new",
+      "viewport": {
+        "name": "tablet",
+        "width": 768,
+        "height": 1024
+      },
+      "state": "populated",
+      "criticalOrSeriousAxeFindings": 0
+    },
+    {
+      "fileName": "mobile-mission-control.png",
+      "route": "/",
+      "viewport": {
+        "name": "mobile",
+        "width": 390,
+        "height": 844
+      },
+      "state": "populated",
+      "criticalOrSeriousAxeFindings": 0
+    },
+    {
+      "fileName": "mobile-executions.png",
+      "route": "/executions",
+      "viewport": {
+        "name": "mobile",
+        "width": 390,
+        "height": 844
+      },
+      "state": "populated",
+      "criticalOrSeriousAxeFindings": 0
+    },
+    {
+      "fileName": "mobile-execution-trace.png",
+      "route": "/executions/00000000-0000-7000-8000-000000000101",
+      "viewport": {
+        "name": "mobile",
+        "width": 390,
+        "height": 844
+      },
+      "state": "populated",
+      "criticalOrSeriousAxeFindings": 0
+    },
+    {
+      "fileName": "mobile-flows.png",
+      "route": "/flows",
+      "viewport": {
+        "name": "mobile",
+        "width": 390,
+        "height": 844
+      },
+      "state": "populated",
+      "criticalOrSeriousAxeFindings": 0
+    },
+    {
+      "fileName": "mobile-workflow-starters.png",
+      "route": "/blueprints",
+      "viewport": {
+        "name": "mobile",
+        "width": 390,
+        "height": 844
+      },
+      "state": "populated",
+      "criticalOrSeriousAxeFindings": 0
+    },
+    {
+      "fileName": "mobile-workflow-editor.png",
+      "route": "/flows/new",
+      "viewport": {
+        "name": "mobile",
+        "width": 390,
+        "height": 844
+      },
+      "state": "populated",
+      "criticalOrSeriousAxeFindings": 0
+    }
+  ],
+  "consoleErrors": [],
+  "failedRequests": []
+}

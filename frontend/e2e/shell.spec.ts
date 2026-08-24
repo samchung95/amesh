@@ -1,5 +1,7 @@
 import AxeBuilder from '@axe-core/playwright'
 import { expect, test, type Page } from '@playwright/test'
+import { mkdir, writeFile } from 'node:fs/promises'
+import { resolve } from 'node:path'
 
 const session = {
   principalId: '00000000-0000-7000-8000-000000000002',
@@ -16,6 +18,8 @@ const session = {
     'executions.view': true,
     'executions.execute': true,
     'executions.manage': true,
+    'humanTasks.view': true,
+    'humanTasks.update': true,
     'dashboards.view': true,
     'dashboards.manage': true,
     'search.view': true,
@@ -43,6 +47,7 @@ const flows = [
 const executions = [
   { execution_id: '00000000-0000-7000-8000-000000000101', tenant_id: 'default', state: 'RUNNING', epoch: 1, version: 2, namespace: 'examples.engine', flow_id: 'hello_world', flow_revision: 3, inputs: { message: 'hello' }, outputs: {}, labels: { environment: 'test' }, trigger: { type: 'manual' }, created_by: 'operator', created_at: '2026-08-21T12:00:00Z', updated_at: '2026-08-21T12:01:00Z', timeout_at: null, cancel_deadline_at: null, lifecycle_evidence: {} },
   { execution_id: '00000000-0000-7000-8000-000000000102', tenant_id: 'default', state: 'SUCCESS', epoch: 1, version: 4, namespace: 'examples.agent', flow_id: 'luna_research', flow_revision: 1, inputs: {}, outputs: {}, labels: {}, trigger: { type: 'cron' }, created_by: 'scheduler', created_at: '2026-08-21T11:00:00Z', updated_at: '2026-08-21T11:02:00Z', timeout_at: null, cancel_deadline_at: null, lifecycle_evidence: {} },
+  { execution_id: '00000000-0000-7000-8000-000000000103', tenant_id: 'default', state: 'FAILED', epoch: 1, version: 3, namespace: 'examples.engine', flow_id: 'publish_report', flow_revision: 2, inputs: {}, outputs: {}, labels: { environment: 'test' }, trigger: { type: 'webhook' }, created_by: 'webhook', created_at: '2026-08-21T10:00:00Z', updated_at: '2026-08-21T10:00:20Z', timeout_at: null, cancel_deadline_at: null, lifecycle_evidence: {} },
 ]
 
 const searchDocuments = [
@@ -96,6 +101,14 @@ const namespaceKeyValues = [
 const namespaceSecrets = [
   { namespace: 'team.data', key: 'API_KEY', provider: 'env', providerReference: 'PRODUCTION_API_KEY', metadata: {}, resourceVersion: 1, inherited: false, originNamespace: 'team.data', createdAt: '2026-08-21T10:00:00Z', updatedAt: '2026-08-21T10:00:00Z' },
 ]
+
+const pluginPackages = [{
+  name: 'acme.reviewed', version: '1.4.0', bundle: 's3://plugins/acme.reviewed/1.4.0.zip', contentDigest: `sha256:${'d'.repeat(64)}`,
+  manifest: { vendor: 'Acme', license: 'Apache-2.0', description: 'Reviewed workflow tasks.' },
+  metadata: { license: 'Apache-2.0', sourceUrl: 'https://example.test/source', documentationUrl: 'https://example.test/docs', supportedPlatformRange: '>=0.2.0', sdkRange: '>=0.2.0', changelogUrl: 'https://example.test/changelog' },
+  attachments: [], signals: { downloads: 42, lastMaintainedAt: '2026-08-23T09:00:00Z', certification: 'verified', security: 'current', trustDisclaimer: 'Verify signed evidence.' },
+  artifactSignature: null, metadataSignature: null, publishedAt: '2026-08-23T09:00:00Z', yanked: false, yankedAt: null, yankReason: null,
+}]
 
 const catalogAssets = [
   { assetId: '00000000-0000-7000-8000-000000000601', tenantId: 'default', namespace: 'team.data', provider: 'postgresql', account: 'analytics', location: 'warehouse.internal:5432', externalKey: 'raw.orders', assetType: 'table', displayName: 'Raw orders', description: 'Unmodified order intake.', owner: 'data-platform', contacts: ['data@example.test'], domainGroup: 'commerce', tags: ['qualified', 'raw'], customMetadata: { classification: 'internal' }, labels: {}, health: 'UNKNOWN', lastMaterializationAt: null, source: 'PLUGIN_EVENT', resourceVersion: 2, createdBy: 'plugin:warehouse', updatedBy: 'plugin:warehouse', createdAt: '2026-08-23T09:00:00Z', updatedAt: '2026-08-23T09:01:00Z' },
@@ -246,18 +259,20 @@ async function mockApi(page: Page, overrides = session) {
   } }))
   await page.route('**/api/v1/flows/validate', (route) => route.fulfill({ json: { valid: true, irVersion: 'amesh.flow/v1', semantic_hash: 'editor-hash', canonical: {}, issues: [] } }))
   await page.route('**/api/v1/executions?limit=200', (route) => route.fulfill({ json: executions }))
+  await page.route('**/api/v1/human-tasks?*', (route) => route.fulfill({ json: [{ humanTaskId: '00000000-0000-7000-8000-000000000701', namespace: 'examples.engine', executionId: executions[0].execution_id, taskRunId: '00000000-0000-7000-8000-000000000201', attempt: 1, title: 'Approve cached result', description: 'Confirm that the cached output may continue.', form: { fields: [], layout: [] }, assigneeIds: [session.principalId], groupIds: [], deadlineAt: '2026-08-21T13:00:00Z', state: 'OPEN', version: 1, createdAt: '2026-08-21T12:00:03Z', decidedBy: null, decidedAt: null, reason: '', formValues: {}, actions: [] }] }))
   await page.route('**/api/v1/triggers', (route) => route.fulfill({ json: triggers }))
   await page.route('**/api/v1/trigger-occurrences?limit=200', (route) => route.fulfill({ json: triggerOccurrences }))
   await page.route('**/api/v1/check-evaluations?*', (route) => route.fulfill({ json: checkEvaluations }))
   await page.route('**/api/v1/check-compliance?*', (route) => route.fulfill({ json: checkCompliance }))
   await page.route('**/api/v1/check-policies?*', (route) => route.fulfill({ json: checkPolicies }))
-  await page.route('**/api/v1/plugin-registry/index', (route) => route.fulfill({ json: { schemaVersion: 'amesh.plugin-registry/v1', generatedAt: '2026-08-23T09:00:00Z', packages: [], signature: null } }))
+  await page.route('**/api/v1/plugin-registry/index', (route) => route.fulfill({ json: { schemaVersion: 'amesh.plugin-registry/v1', generatedAt: '2026-08-23T09:00:00Z', packages: pluginPackages, signature: null } }))
   await page.route('**/api/v1/plugin-policy/effective**', (route) => route.fulfill({ json: { tenantId: 'default', namespace: null, defaultEffect: 'DENY', rules: [{ id: '00000000-0000-7000-8000-000000000505', tenantId: 'default', scope: 'TENANT', namespace: null, effect: 'ALLOW', stages: ['AUTHORING', 'VALIDATION', 'EXECUTION'], selector: { package: 'acme.reviewed', versionRange: '>=1.0.0,<2.0.0', vendor: 'Acme *', pluginTypes: [], capabilities: [] }, priority: 100, reason: 'Security review SEC-142', enabled: true, createdBy: session.principalId, createdAt: '2026-08-23T09:00:00Z', updatedBy: session.principalId, updatedAt: '2026-08-23T09:00:00Z' }], quarantines: [] } }))
   await page.route('**/api/v1/plugin-policy/quarantines/preview', (route) => route.fulfill({ json: { package: 'acme.reviewed', version: '1.4.0', affectedFlows: [{ namespace: 'team.data', flow_key: 'warehouse' }], runningExecutions: [] } }))
   await page.route('**/api/v1/namespaces/team.data/files', (route) => route.fulfill({ json: namespaceFiles }))
   await page.route('**/api/v1/namespaces/team.data/key-values', (route) => route.fulfill({ json: namespaceKeyValues }))
   await page.route('**/api/v1/namespaces/team.data/secret-bindings', (route) => route.fulfill({ json: namespaceSecrets }))
   const taskRun = { task_run_id: '00000000-0000-7000-8000-000000000201', execution_id: executions[0].execution_id, task_id: 'return', state: 'SUCCESS', current_attempt: 1, version: 2, retry_at: null, result: { value: 'cached' }, iteration_key: null, labels: {}, failure_category: null, lifecycle_phase: 'MAIN', evidence: { cache: { decision: 'HIT', reason: 'reused a matching result', keyHash: 'abc123', sourceExecutionId: executions[1].execution_id, sourceTaskRunId: '00000000-0000-7000-8000-000000000202', sourceAttempt: 1, expiresAt: '2026-08-21T13:00:00Z' } } }
+  const failedTaskRun = { task_run_id: '00000000-0000-7000-8000-000000000203', execution_id: executions[2].execution_id, task_id: 'publish', state: 'FAILED', current_attempt: 2, version: 3, retry_at: null, result: null, iteration_key: null, labels: {}, failure_category: 'HTTP_503', lifecycle_phase: 'MAIN', evidence: { workerGroup: 'local' } }
   const evidence = [
     { cursor: 1, event_id: 'evidence-1', execution_id: executions[0].execution_id, task_run_id: null, kind: 'STATE', event_type: 'execution.executioncreated', payload: { entity: 'execution', eventType: 'ExecutionCreated', actorId: 'operator', reason: 'manual launch' }, occurred_at: '2026-08-21T12:00:00Z', ingested_at: '2026-08-21T12:00:00Z' },
     { cursor: 2, event_id: 'evidence-2', execution_id: executions[0].execution_id, task_run_id: taskRun.task_run_id, kind: 'STATE', event_type: 'task.taskruncreated', payload: { entity: 'task', eventType: 'TaskRunCreated', actorId: 'executor', payload: {} }, occurred_at: '2026-08-21T12:00:01Z', ingested_at: '2026-08-21T12:00:01Z' },
@@ -268,6 +283,8 @@ async function mockApi(page: Page, overrides = session) {
   await page.route('**/api/v1/executions/**', (route) => {
     const request = route.request()
     const path = new URL(request.url()).pathname
+    const executionId = path.split('/')[4]
+    const isFailed = executionId === executions[2].execution_id
     if (path.endsWith('/graph')) return route.fulfill({ json: { namespace: 'examples.engine', flowId: 'hello_world', revision: 3, nodes: [{ taskId: 'return', label: 'return', taskType: 'core.return', order: 0, depth: 0, parentId: null, dependencies: [], children: [], mode: null, failurePolicy: 'FAIL_FAST', maxConcurrency: null, state: 'SUCCESS', result: { value: 'cached' }, iterationCount: null, lifecyclePhase: 'MAIN', handlerOwnerId: null }], edges: [] } })
     if (path.endsWith('/evidence')) return route.fulfill({ json: { items: evidence, nextCursor: 'cursor-5' } })
     if (path.endsWith('/evidence/stream')) return route.fulfill({ body: '', contentType: 'application/x-ndjson' })
@@ -276,7 +293,9 @@ async function mockApi(page: Page, overrides = session) {
     if (path.endsWith('/parent-subflow')) return route.fulfill({ json: null })
     if (path.endsWith('/interventions/preview')) return route.fulfill({ json: { execution_id: executions[0].execution_id, action: 'PAUSE', current_state: 'RUNNING', predicted_state: 'PAUSED', current_version: 2, current_epoch: 1, checkpoint_task_id: null, impacted_task_ids: ['return'], preserved_task_ids: [], invalidates_active_claims: false, destructive: false, force_available_at: null, consequences: ['new task claims stop'] } })
     if (path.endsWith('/interventions')) return route.fulfill({ json: request.method() === 'GET' ? [] : { execution: executions[0], taskRuns: [taskRun], taskRunSummary: { total: 1, waiting: 0, running: 0, retry_delay: 0, succeeded: 1, failed: 0, cancelled: 0 }, taskRunOffset: 0 } })
-    return route.fulfill({ json: { execution: executions[0], taskRuns: [taskRun], taskRunSummary: { total: 1, waiting: 0, running: 0, retry_delay: 0, succeeded: 1, failed: 0, cancelled: 0 }, taskRunOffset: 0 } })
+    return route.fulfill({ json: isFailed
+      ? { execution: executions[2], taskRuns: [failedTaskRun], taskRunSummary: { total: 1, waiting: 0, running: 0, retry_delay: 0, succeeded: 0, failed: 1, cancelled: 0 }, taskRunOffset: 0 }
+      : { execution: executions[0], taskRuns: [taskRun], taskRunSummary: { total: 1, waiting: 0, running: 0, retry_delay: 0, succeeded: 1, failed: 0, cancelled: 0 }, taskRunOffset: 0 } })
   })
   await page.route('**/api/v1/backfills/preview', (route) => route.fulfill({ json: { selectionKind: 'REPLAY', executionCount: 1, estimatedTaskRuns: 1, estimatedCostUnits: 1, idempotencyKeyTemplate: 'replay:{sourceExecutionId}', warnings: [] } }))
   await page.route('**/api/v1/backfills', (route) => route.fulfill({ json: { backfillId: 'backfill-1', state: 'RUNNING', total: 1 } }))
@@ -287,7 +306,7 @@ async function connect(page: Page) {
   await page.getByRole('button', { name: 'API token' }).click()
   await page.getByLabel('API token').fill('test-token')
   await page.getByRole('button', { name: 'Open control room' }).click()
-  await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Mission Control' })).toBeVisible()
 }
 
 test.beforeEach(async ({ page }) => {
@@ -309,14 +328,18 @@ test('routes local, redirect and directory identity providers before login', asy
 test('connects, navigates resources, preserves deep links and opens the command palette', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name === 'tablet', 'desktop interaction acceptance')
   await connect(page)
-  await expect(page.getByText('2', { exact: true }).first()).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Running now' })).toBeVisible()
   await page.getByRole('link', { name: 'Executions' }).click()
   await expect(page).toHaveURL(/\/executions$/)
   await page.getByRole('link', { name: '…0101' }).click()
   await expect(page.getByRole('heading', { name: 'hello_world' })).toBeVisible()
 
   await page.reload()
-  await expect(page.getByRole('heading', { name: 'Task runs' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Simple execution trace' })).toBeVisible()
+  await expect(page.getByRole('article', { name: 'return, SUCCESS' })).toBeVisible()
+  await page.getByRole('button', { name: 'Copy support summary' }).click()
+  await expect(page.getByText('Support summary copied')).toBeVisible()
+  await page.locator('summary').filter({ hasText: 'Advanced evidence' }).click()
   await page.getByRole('button', { name: 'Data' }).click()
   await expect(page.getByText('Selected results and cache')).toBeVisible()
   await page.getByText('return · attempt 1').click()
@@ -347,13 +370,14 @@ test('connects, navigates resources, preserves deep links and opens the command 
 test('filters, creates, permissions and exports typed dashboards', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name === 'tablet', 'desktop dashboard authoring acceptance')
   await connect(page)
+  await page.getByText('Analytics and saved dashboards').click()
   await expect(page.getByRole('heading', { name: 'Instance overview' })).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Execution states' })).toBeVisible()
   await expect(page.getByText('Partial · limit 8')).toBeVisible()
   await expect(page.getByText('Sampled 25%')).toBeVisible()
 
   const renderRequest = page.waitForRequest((request) => request.url().includes('/builtin.instance/render') && request.method() === 'POST' && request.postData()?.includes('examples.engine') === true)
-  await page.getByRole('textbox', { name: 'Namespace' }).fill('examples.engine')
+  await page.getByRole('region', { name: 'Dashboard canvas' }).getByLabel('Namespace', { exact: true }).selectOption('examples.engine')
   await page.getByRole('button', { name: 'Apply' }).click()
   await renderRequest
 
@@ -362,14 +386,50 @@ test('filters, creates, permissions and exports typed dashboards', async ({ page
   await editor.getByLabel('Dashboard ID').fill('ops.team')
   await editor.getByLabel('Title', { exact: true }).fill('Team operations')
   await editor.getByLabel('Visibility').selectOption('TENANT')
-  await editor.getByLabel('Viewer IDs').fill('viewer-a')
-  await editor.getByLabel('Editor IDs').fill('editor-a')
+  const viewers = editor.getByRole('group', { name: 'Viewers' })
+  await viewers.getByText('Any value').click()
+  await viewers.getByRole('checkbox', { name: /Operator/ }).check()
+  const editors = editor.getByRole('group', { name: 'Editors' })
+  await editors.getByText('Any value').click()
+  await editors.getByRole('checkbox', { name: /Operator/ }).check()
   await editor.getByRole('button', { name: 'Save dashboard' }).click()
   await expect(page).toHaveURL(/dashboard=ops.team/)
   await expect(page.getByRole('heading', { name: 'Team operations' })).toBeVisible()
   const download = page.waitForEvent('download')
   await page.getByRole('button', { name: 'Export' }).click()
   expect((await download).suggestedFilename()).toBe('ops.team.yaml')
+})
+
+test('finds active and unhealthy work from Mission Control', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name === 'tablet', 'desktop Mission Control interaction acceptance')
+  await connect(page)
+
+  const summary = page.getByLabel('Execution state summary')
+  await expect(summary.getByRole('button', { name: /1 Running/ })).toBeVisible()
+  await expect(summary.getByRole('button', { name: /1 Waiting approval/ })).toBeVisible()
+  await expect(summary.getByRole('button', { name: /1 Failed recently/ })).toBeVisible()
+  await expect(summary.getByRole('button', { name: /1 Completed recently/ })).toBeVisible()
+  const runningNow = page.getByRole('region', { name: 'Running now' })
+  await expect(runningNow.getByText('hello_world', { exact: true })).toBeVisible()
+  const attention = page.getByRole('region', { name: 'Needs attention' })
+  await expect(attention.getByText(/publish failed: HTTP_503/)).toBeVisible()
+  await expect(attention.getByText('Approve cached result')).toBeVisible()
+
+  const filters = page.getByRole('form', { name: 'Mission Control filters' })
+  await filters.getByLabel('Namespace').selectOption('examples.engine')
+  await expect(page).toHaveURL(/mcNamespace=examples.engine/)
+  await filters.getByLabel('Flow').selectOption('hello_world')
+  await expect(page).toHaveURL(/mcFlow=hello_world/)
+  await filters.getByRole('button', { name: 'Clear filters' }).click()
+
+  await runningNow.getByRole('link', { name: /hello_world/ }).click()
+  await expect(page).toHaveURL(/\/executions\/00000000-0000-7000-8000-000000000101\?step=/)
+  await expect(page.getByRole('heading', { name: 'Simple execution trace' })).toBeVisible()
+  await expect(page.getByRole('article', { name: 'return, SUCCESS' })).toBeFocused()
+  await page.goBack()
+  await page.getByRole('region', { name: 'Needs attention' }).getByRole('link', { name: /publish failed: HTTP_503/ }).click()
+  await expect(page).toHaveURL(/\/executions\/00000000-0000-7000-8000-000000000103\?step=/)
+  await expect(page.getByRole('article', { name: 'publish, FAILED' })).toContainText('Failed: HTTP_503')
 })
 
 test('searches, filters, paginates and rebuilds the tenant projection', async ({ page }, testInfo) => {
@@ -381,11 +441,11 @@ test('searches, filters, paginates and rebuilds the tenant projection', async ({
   await page.getByText('View all indexed results').click()
   await expect(page).toHaveURL(/\/search\?q=diagnostic/)
   await expect(page.getByRole('heading', { name: 'Search' })).toBeVisible()
-  await expect(page.getByText('READY · projection v4')).toBeVisible()
+  await expect(page.getByText(/READY.*projection v4/).first()).toBeVisible()
   await expect(page.getByText('examples.engine.hello_world')).toBeVisible()
 
   const filtered = page.waitForRequest((request) => request.url().endsWith('/api/v1/search') && request.method() === 'POST' && request.postData()?.includes('examples.engine') === true && request.postData()?.includes('team') === true)
-  await page.getByRole('textbox', { name: 'Namespace' }).fill('examples.engine')
+  await page.getByLabel('Namespace', { exact: true }).selectOption('examples.engine')
   await page.getByLabel('Labels').fill('team=platform')
   await page.getByLabel('Field', { exact: true }).selectOption('level')
   await page.getByLabel('Field value', { exact: true }).fill('ERROR')
@@ -399,7 +459,7 @@ test('searches, filters, paginates and rebuilds the tenant projection', async ({
 
   page.once('dialog', (dialog) => void dialog.accept())
   await page.getByRole('button', { name: 'Rebuild index' }).click()
-  await expect(page.getByText(/Rebuild accepted/)).toBeVisible()
+  await expect(page.getByText(/rebuild accepted/i)).toBeVisible()
 })
 
 test('uses server permissions for navigation and direct routes', async ({ page }, testInfo) => {
@@ -447,8 +507,8 @@ test('explains plugin policy and previews emergency disable before mutation', as
   await expect(page.getByText('Security review SEC-142')).toBeVisible()
   await expect(page.locator('.policy-summary strong')).toHaveText('DENY')
   const emergency = page.getByRole('heading', { name: 'Emergency version disable' }).locator('..')
-  await emergency.getByLabel('Package').fill('acme.reviewed')
-  await emergency.getByLabel('Exact version').fill('1.4.0')
+  await emergency.getByLabel('Package').selectOption('acme.reviewed')
+  await emergency.getByLabel('Exact version').selectOption('1.4.0')
   await emergency.getByLabel('Reason').fill('security incident')
   await emergency.getByRole('button', { name: 'Preview impact' }).click()
   await expect(emergency.getByText('1 flow revisions')).toBeVisible()
@@ -577,7 +637,7 @@ test('switches locale and has no critical or serious automated accessibility fin
   test.skip(testInfo.project.name === 'tablet', 'desktop accessibility acceptance')
   await connect(page)
   await page.getByLabel('Language').selectOption('zh-CN')
-  await expect(page.getByRole('heading', { name: '仪表板' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: '任务控制台' })).toBeVisible()
   await expect(page.locator('html')).toHaveAttribute('lang', 'zh-CN')
   await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur())
   await page.keyboard.press('Tab')
@@ -662,4 +722,161 @@ test('authors a flow visually and falls back to the accessible YAML workbench', 
     .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'])
     .analyze()
   expect(results.violations.filter((violation) => ['critical', 'serious'].includes(violation.impact || ''))).toEqual([])
+})
+
+test('exports the primary UX surfaces for visual review', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'chromium', 'one project captures all audit viewports')
+
+  const phase = process.env.AMESH_UI_AUDIT_PHASE || 'after'
+  const outputDirectory = resolve(process.cwd(), '..', 'docs', 'product', 'ui-audit', 'screenshots', phase)
+  await mkdir(outputDirectory, { recursive: true })
+  const consoleErrors: string[] = []
+  const failedRequests: string[] = []
+  const captures: Array<Record<string, unknown>> = []
+  page.on('console', (message) => {
+    if (message.type() === 'error') consoleErrors.push(message.text())
+  })
+  page.on('response', (response) => {
+    if (response.status() >= 400 && response.url().includes('/api/')) {
+      failedRequests.push(`${String(response.status())} ${new URL(response.url()).pathname}`)
+    }
+  })
+
+  const capture = async (name: string, route: string, viewport: { name: string; width: number; height: number }, state = 'populated') => {
+    const fileName = `${viewport.name}-${name}.png`
+    await page.screenshot({
+      path: resolve(outputDirectory, fileName),
+      fullPage: true,
+      animations: 'disabled',
+    })
+    const results = await new AxeBuilder({ page })
+      .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'])
+      .analyze()
+    const severe = results.violations.filter((violation) => ['critical', 'serious'].includes(violation.impact || ''))
+    expect(severe, `${route} has critical or serious accessibility findings`).toEqual([])
+    captures.push({ fileName, route, viewport, state, criticalOrSeriousAxeFindings: severe.length })
+  }
+
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto('/')
+  await expect(page.getByRole('heading', { name: 'Sign in to AMESH' })).toBeVisible()
+  await capture('login', '/', { name: 'desktop', width: 1440, height: 900 }, 'signed-out')
+  await page.getByRole('button', { name: 'API token' }).click()
+  await page.getByLabel('API token').fill('test-token')
+  await page.getByRole('button', { name: 'Open control room' }).click()
+
+  const viewports = [
+    { name: 'desktop', width: 1440, height: 900 },
+    { name: 'tablet', width: 768, height: 1024 },
+    { name: 'mobile', width: 390, height: 844 },
+  ] as const
+  const surfaces = [
+    { name: 'mission-control', path: '/', heading: 'Mission Control' },
+    { name: 'executions', path: '/executions', heading: 'Executions' },
+    { name: 'execution-trace', path: `/executions/${executions[0].execution_id}`, heading: 'hello_world' },
+    { name: 'flows', path: '/flows', heading: 'Flows' },
+    { name: 'workflow-starters', path: '/blueprints', heading: 'Blueprints' },
+    { name: 'workflow-editor', path: '/flows/new', heading: 'Create flow' },
+  ] as const
+
+  for (const viewport of viewports) {
+    await page.setViewportSize({ width: viewport.width, height: viewport.height })
+    for (const surface of surfaces) {
+      await page.goto(surface.path)
+      await expect(page.getByRole('heading', { name: surface.heading }).first()).toBeVisible()
+      await capture(surface.name, surface.path, viewport)
+    }
+  }
+
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto('/')
+  const discoveryStartedAt = Date.now()
+  await page.getByRole('link', { name: 'Executions' }).click()
+  await page.getByRole('link', { name: '…0101' }).click()
+  await expect(page.getByRole('heading', { name: 'hello_world' })).toBeVisible()
+  const discoveryElapsedMs = Date.now() - discoveryStartedAt
+  expect(discoveryElapsedMs).toBeLessThan(30_000)
+
+  const manifest = {
+    schemaVersion: 'amesh.ui-audit/v1',
+    phase,
+    capturedAt: process.env.AMESH_UI_AUDIT_CAPTURED_AT || '2026-08-24T00:00:00.000Z',
+    source: 'deterministic Playwright fixtures',
+    discoveryScenario: {
+      goal: 'Open an active execution from the control room',
+      interactions: 2,
+      targetInteractions: 3,
+      targetElapsedMs: 30_000,
+      passed: discoveryElapsedMs < 30_000,
+    },
+    captures,
+    consoleErrors,
+    failedRequests,
+  }
+  await writeFile(resolve(outputDirectory, 'manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`, 'utf8')
+  expect(consoleErrors).toEqual([])
+  expect(failedRequests).toEqual([])
+})
+
+test('exports representative non-happy UI states for visual review', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'chromium', 'one project captures deterministic UI states')
+
+  const phase = process.env.AMESH_UI_AUDIT_PHASE || 'after'
+  const outputDirectory = resolve(process.cwd(), '..', 'docs', 'product', 'ui-audit', 'screenshots', phase, 'states')
+  await mkdir(outputDirectory, { recursive: true })
+  await page.setViewportSize({ width: 1440, height: 900 })
+
+  const captures: Array<Record<string, unknown>> = []
+  const capture = async (name: string, route: string, state: string) => {
+    const fileName = `${name}.png`
+    await page.screenshot({ path: resolve(outputDirectory, fileName), fullPage: true, animations: 'disabled' })
+    const results = await new AxeBuilder({ page })
+      .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'])
+      .analyze()
+    const severe = results.violations.filter((violation) => ['critical', 'serious'].includes(violation.impact || ''))
+    captures.push({ fileName, route, viewport: { name: 'desktop', width: 1440, height: 900 }, state, criticalOrSeriousAxeFindings: severe.length })
+  }
+
+  await connect(page)
+
+  await page.route('**/api/v1/executions?limit=200', (route) => route.fulfill({ json: [] }))
+  await page.goto('/executions')
+  await expect(page.getByRole('heading', { name: 'No executions match' })).toBeVisible()
+  await capture('empty-executions', '/executions', 'empty')
+
+  await page.goto('/administration')
+  await expect(page.getByRole('heading', { name: 'Permission required' })).toBeVisible()
+  await capture('permission-denied-administration', '/administration', 'permission-denied')
+
+  await page.route('**/api/v1/flows', async (route) => {
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 1_000))
+    await route.fulfill({ json: flows })
+  })
+  await page.goto('/flows')
+  await expect(page.getByText('Loading flow catalog')).toBeVisible()
+  await capture('loading-flows', '/flows', 'loading')
+
+  await page.route('**/api/v1/flows', (route) => route.fulfill({ status: 503, json: { detail: 'Catalog temporarily unavailable' } }))
+  await page.reload()
+  await expect(page.getByRole('heading', { name: 'Unable to load this view' })).toBeVisible()
+  await capture('failed-flows', '/flows', 'failure')
+
+  await page.route('**/api/v1/flows/validate', (route) => route.fulfill({ json: {
+    valid: false,
+    irVersion: null,
+    semantic_hash: null,
+    canonical: null,
+    issues: [{ code: 'missing_task_id', message: 'Every task needs an ID.', path: 'tasks[0].id', hint: 'Choose a unique task ID.', sourceRange: null, severity: 'error' }],
+  } }))
+  await page.goto('/flows/new')
+  await expect(page.getByText('Every task needs an ID.')).toBeVisible()
+  await capture('workflow-validation', '/flows/new', 'validation-error')
+
+  await writeFile(resolve(outputDirectory, 'manifest.json'), `${JSON.stringify({
+    schemaVersion: 'amesh.ui-audit/v1',
+    phase,
+    capturedAt: process.env.AMESH_UI_AUDIT_CAPTURED_AT || '2026-08-24T00:00:00.000Z',
+    source: 'deterministic Playwright fixtures',
+    captures,
+  }, null, 2)}\n`, 'utf8')
 })

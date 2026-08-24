@@ -5,9 +5,10 @@ import { Link, useSearchParams } from 'react-router-dom'
 
 import type { SearchDocumentType, SearchRequest, SearchSortDirection, SearchSortField, UiSession } from '../api/types'
 import { formatDate, formatNumber } from '../app/format'
-import { useApiClient } from '../app/queries'
+import { useApiClient, useFlows } from '../app/queries'
 import { useAppSettings } from '../app/settings'
 import { EmptyState, ErrorState, LoadingState } from '../components/AsyncState'
+import { CatalogSelect } from '../components/CatalogSelect'
 import { parseSearchPairs, SEARCH_TYPES, searchResultPath, searchTypeLabel } from '../components/searchModel'
 
 const FIELD_OPTIONS = [
@@ -17,12 +18,15 @@ const FIELD_OPTIONS = [
   ['outcome', 'Audit outcome'], ['actorId', 'Actor ID'],
 ] as const
 
+const SEARCH_STATES = ['RUNNING', 'QUEUED', 'PAUSED', 'RESTARTING', 'SUCCESS', 'WARNING', 'FAILED', 'CANCELLED', 'OPEN', 'ACTIVE', 'DISABLED']
+
 function iso(value: string): string | undefined {
   return value ? new Date(value).toISOString() : undefined
 }
 
 export function SearchPage({ session }: { session: UiSession }) {
   const api = useApiClient()
+  const flows = useFlows(session.capabilities['flows.view'])
   const { settings } = useAppSettings()
   const [params, setParams] = useSearchParams()
   const [query, setQuery] = useState(params.get('q') || '')
@@ -42,6 +46,10 @@ export function SearchPage({ session }: { session: UiSession }) {
   const [cursorHistory, setCursorHistory] = useState<string[]>([])
   const [rebuildNotice, setRebuildNotice] = useState('')
   const cursor = params.get('cursor') || undefined
+  const namespaces = useMemo(() => Array.from(new Set([
+    ...(settings.namespace ? [settings.namespace] : []),
+    ...(flows.data || []).map((flow) => flow.namespace),
+  ])).sort(), [flows.data, settings.namespace])
 
   const request = useMemo<SearchRequest>(() => {
     const selectedField = params.get('field')
@@ -158,8 +166,8 @@ export function SearchPage({ session }: { session: UiSession }) {
       {rebuildNotice ? <p className="inline-notice" role="status">{rebuildNotice}</p> : null}
       <form className="search-filters" onSubmit={apply} aria-label="Search filters">
         <label className="search-query"><span>Full text</span><span><Search size={17} aria-hidden="true" /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Flow, execution, log message, asset or audit record" /></span></label>
-        <label><span>Namespace</span><input value={namespace} onChange={(event) => setNamespace(event.target.value)} placeholder="All namespaces" /></label>
-        <label><span>State</span><input value={state} onChange={(event) => setState(event.target.value)} placeholder="RUNNING, ERROR…" /></label>
+        <CatalogSelect label="Namespace" value={namespace} options={namespaces.map((item) => ({ value: item, label: item }))} onChange={setNamespace} emptyLabel="All namespaces" loading={flows.isPending} />
+        <CatalogSelect label="State" value={state} options={SEARCH_STATES.map((item) => ({ value: item, label: item.replaceAll('_', ' ') }))} onChange={setState} emptyLabel="Any state" allowCustom customLabel="Search another state…" />
         <label><span>Labels</span><input value={labels} onChange={(event) => setLabels(event.target.value)} placeholder="team=platform, env=prod" /></label>
         <label><span>Field</span><select aria-label="Field" value={field} onChange={(event) => setField(event.target.value)}><option value="">No field filter</option>{FIELD_OPTIONS.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
         <label><span>Field value</span><input aria-label="Field value" value={fieldValue} onChange={(event) => setFieldValue(event.target.value)} disabled={!field} /></label>

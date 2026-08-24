@@ -32,6 +32,16 @@ grid.
   active, disabled and busy states.
 - Data surfaces: bordered sections with square internal dividers; reserve cards for discrete summaries,
   not every block. Tables remain the default for operational collections.
+- Mission Control: the dashboard leads with state counts, running work and needs-attention rows. A row
+  must answer what is running, where it is, how long it has run and what changed before analytics or
+  dashboard configuration appears.
+- Resource selectors: finite and authorized catalog values use labelled select or multi-select controls
+  with loading, empty and denied states. Show a human label with the stable identifier; reserve open text
+  for authored values, expressions and an explicit custom-value path.
+- Simple execution trace: the default execution view is a stable trigger-to-result sequence. Current,
+  failed and waiting steps dominate visually; attempts, runner, duration, branch/loop/subflow context and
+  outcome are readable without opening raw data. Topology, Gantt, logs, data and history live in an
+  Advanced disclosure and keep their existing capability.
 - Status: icon, label and shape accompany color. Running uses blue, success green, warning amber,
   failure red and unknown gray.
 - Flow graph: lifecycle nodes retain the primary graph geometry while showing `ERROR`, `FINALLY` or
@@ -61,6 +71,8 @@ grid.
 
 - Desktop is optimized at 1440 px, tablet at 1024/768 px and phone at 390 px. Information priority,
   not merely width, determines what collapses.
+- On phone, active/failed work and its next action precede state summaries, analytics, topology and
+  authoring detail. Operational navigation may wrap, but it may not clip an unreachable control.
 - Semantic landmarks, real controls, bound labels, live regions and announced route headings are
   mandatory. Never use color alone, and never suppress a focus outline without the shared replacement.
 - Body text and controls meet 4.5:1 contrast; large text and non-text boundaries meet 3:1. Touch
