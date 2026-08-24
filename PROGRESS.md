@@ -3,7 +3,7 @@
 ## Current state
 
 - What works: the locally qualified MVP foundation is deployed through the current migration set. Sprint UX-01 adds the responsive visual audit, discoverable selectors, Mission Control and the default simple execution trace while preserving expert evidence and visual/YAML authoring.
-- What's in flight: no Sprint UX-01 implementation remains; the verified sprint cards are ready to close on the Agent Hotel board.
+- What's in flight: no Sprint UX-01 implementation remains; cards `c97`, `c98`, `c99`, `c102`, and `c104` are verified and Done on the Agent Hotel board.
 - Known broken / TODO: guided workflow creation (`c100`), production determinism qualification (`c101`) and umbrella-overhaul closure (`c103`) are deferred beyond this sprint. Previously recorded unrelated deferred cards remain untouched.
 - How to run/test: frontend checks run from `frontend/` with `npm test`, `npm run build` and `npm run test:e2e`; backend checks use `uv run --extra runtime --extra dev pytest`. The local Compose product is served at `http://localhost:8000`.
 
