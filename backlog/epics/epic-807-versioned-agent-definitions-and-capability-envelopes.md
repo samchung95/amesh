@@ -12,10 +12,14 @@ Define reusable, versioned agent resources whose model, prompt, skill, tool, per
 
 ## In scope
 
-- [ ] **URS-F-0806** — The system shall define versioned agent resources containing model routing, instructions, tools, skills, memory policy, permissions, budgets and evaluation policy.
-- [ ] **URS-F-0807** — The system shall pin resolved agent, model-policy, tool and prompt revisions to every agent session and workflow execution.
-- [ ] **URS-F-0815** — The system shall provide provider-neutral model adapters, fallback policies and migration diagnostics without changing workflow semantics silently.
-- [ ] **URS-F-0818** — The system shall expose approved workflows, agents and tools through authenticated MCP and other versioned agent-protocol adapters.
+- [x] **URS-F-0806** — The system shall define versioned agent resources containing model routing, instructions, tools, skills, memory policy, permissions, budgets and evaluation policy.
+- [x] **URS-F-0807** — The system shall pin resolved agent, model-policy, tool and prompt revisions to every agent session and workflow execution.
+- [x] **URS-F-0815** — The system shall provide provider-neutral model adapters, fallback policies and migration diagnostics without changing workflow semantics silently.
+- [x] **URS-F-0818** — The system shall expose approved workflows, agents and tools through authenticated MCP and other versioned agent-protocol adapters.
+
+## Implementation completion evidence
+
+- 2026-08-25 — EPIC-807 is complete. One tenant- and namespace-isolated immutable ledger now versions prompt, declarative skill, model-policy and agent resources. Exact resolution verifies every resource and governed MCP tool revision, schema digest, credential reference, network host, delegated capability, high-impact permission, schema and hard boundary before atomically attaching a content-addressed `amesh.agent-envelope/v1` pin to a session or workflow-execution subject. The guided Agents page, REST API and CLI create, inspect, compare, resolve and explain revisions without raw configuration being mandatory. Provider migrations require a new reviewed revision and always disclose model-output nondeterminism. Authenticated MCP adds read-only agent discovery and exact inspection without returning credential values. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`agent-primitives.md`](../../docs/api/agent-primitives.md), [`define-agent-capability-envelope.md`](../../docs/how-to/define-agent-capability-envelope.md), [`052-typed-agent-resource-ledger-and-atomic-capability-pins.md`](../../docs/adr/052-typed-agent-resource-ledger-and-atomic-capability-pins.md), [`test_agent_resources.py`](../../tests/domain/test_agent_resources.py), and [`test_agent_resource_repository.py`](../../tests/adapters/postgres/test_agent_resource_repository.py).
 
 ## Explicit non-goals
 
@@ -53,13 +57,13 @@ Define reusable, versioned agent resources whose model, prompt, skill, tool, per
 
 ## Definition of done
 
-- [ ] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
-- [ ] Public API, DSL, event and plugin contract changes pass compatibility checks.
-- [ ] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
-- [ ] Security, tenant isolation, redaction and audit behavior are reviewed.
-- [ ] Documentation, examples, migration notes and operational runbooks are updated.
-- [ ] Performance and recovery budgets are measured when this epic is on a critical path.
-- [ ] `python scripts/validate_backlog.py` passes.
+- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
+- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.
+- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
+- [x] Security, tenant isolation, redaction and audit behavior are reviewed.
+- [x] Documentation, examples, migration notes and operational runbooks are updated.
+- [x] Performance and recovery budgets are measured when this epic is on a critical path.
+- [x] `python scripts/validate_backlog.py` passes.
 
 ## Risks and unknowns
 

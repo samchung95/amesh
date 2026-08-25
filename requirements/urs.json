@@ -23198,7 +23198,7 @@
       "id": "URS-F-0806",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M8",
       "wave": 8,
       "epic_id": "EPIC-807",
@@ -23217,6 +23217,15 @@
       "verification": "Agent resource schema, resolution, authorization, pinning and provider-adapter contract tests",
       "source_scope": "AMESH Agent Mesh differentiator; not a Kestra-parity claim",
       "local_sequence": 1,
+      "evidence": [
+        "src/amesh/domain/agent_resources.py",
+        "src/amesh/adapters/postgres/agent_resources.py",
+        "tests/domain/test_agent_resources.py",
+        "tests/adapters/postgres/test_agent_resource_repository.py",
+        "frontend/e2e/shell.spec.ts",
+        "docs/api/agent-primitives.md",
+        "TESTLOG.md"
+      ],
       "dependencies": [
         "EPIC-207",
         "EPIC-303",
@@ -23229,7 +23238,7 @@
       "id": "URS-F-0807",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M8",
       "wave": 8,
       "epic_id": "EPIC-807",
@@ -23248,6 +23257,14 @@
       "verification": "Agent resource schema, resolution, authorization, pinning and provider-adapter contract tests",
       "source_scope": "AMESH Agent Mesh differentiator; not a Kestra-parity claim",
       "local_sequence": 2,
+      "evidence": [
+        "migrations/0057_agent_resources.sql",
+        "src/amesh/adapters/postgres/agent_resources.py",
+        "tests/adapters/postgres/test_agent_resource_repository.py::test_resource_revisions_resolve_atomically_and_remain_tenant_scoped",
+        "tests/api/test_agent_resources_api.py",
+        "docs/adr/052-typed-agent-resource-ledger-and-atomic-capability-pins.md",
+        "TESTLOG.md"
+      ],
       "dependencies": [
         "EPIC-207",
         "EPIC-303",
@@ -23477,7 +23494,7 @@
       "id": "URS-F-0815",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M8",
       "wave": 8,
       "epic_id": "EPIC-807",
@@ -23496,6 +23513,13 @@
       "verification": "Agent resource schema, resolution, authorization, pinning and provider-adapter contract tests",
       "source_scope": "AMESH Agent Mesh differentiator; not a Kestra-parity claim",
       "local_sequence": 3,
+      "evidence": [
+        "src/amesh/domain/agent_resources.py::provider_migration_diagnostic",
+        "tests/domain/test_agent_resources.py::test_revision_and_provider_comparison_never_claim_durable_semantic_parity",
+        "tests/api/test_agent_resources_api.py",
+        "docs/how-to/define-agent-capability-envelope.md",
+        "TESTLOG.md"
+      ],
       "dependencies": [
         "EPIC-207",
         "EPIC-303",
@@ -23571,7 +23595,7 @@
       "id": "URS-F-0818",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
       "milestone": "M8",
       "wave": 8,
       "epic_id": "EPIC-807",
@@ -23590,6 +23614,13 @@
       "verification": "Agent resource schema, resolution, authorization, pinning and provider-adapter contract tests",
       "source_scope": "AMESH Agent Mesh differentiator; not a Kestra-parity claim",
       "local_sequence": 4,
+      "evidence": [
+        "src/amesh/mcp_server.py",
+        "tests/test_mcp_server.py",
+        "tests/api/test_agent_connections_api.py",
+        "docs/api/agent-primitives.md",
+        "TESTLOG.md"
+      ],
       "dependencies": [
         "EPIC-207",
         "EPIC-303",
@@ -24159,7 +24190,14 @@
         "EPIC-809"
       ],
       "priority": "Must",
-      "status": "Proposed"
+      "status": "In Progress",
+      "evidence": [
+        "migrations/0057_agent_resources.sql",
+        "src/amesh/adapters/postgres/agent_resources.py",
+        "tests/adapters/postgres/test_agent_resource_repository.py",
+        "tests/api/test_agent_resources_api.py",
+        "TESTLOG.md"
+      ]
     },
     {
       "id": "URS-NFR-AGENT-004",
@@ -24174,7 +24212,13 @@
         "EPIC-809"
       ],
       "priority": "Must",
-      "status": "Proposed"
+      "status": "In Progress",
+      "evidence": [
+        "src/amesh/domain/agent_resources.py::provider_migration_diagnostic",
+        "tests/domain/test_agent_resources.py::test_revision_and_provider_comparison_never_claim_durable_semantic_parity",
+        "docs/how-to/define-agent-capability-envelope.md",
+        "TESTLOG.md"
+      ]
     },
     {
       "id": "URS-NFR-AIENGINEERING-001",

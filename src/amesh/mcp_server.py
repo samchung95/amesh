@@ -15,8 +15,15 @@ from starlette.applications import Starlette
 
 from amesh.authorization import AuthorizationService
 from amesh.credentials import CredentialService, InvalidCredential
-from amesh.domain import ActorContext, AuthorizationRequest, PermissionAction, PrincipalType
-from amesh.ports import CredentialRateLimitExceeded, ExecutionRepository
+from amesh.domain import (
+    ActorContext,
+    AgentDefinitionSpec,
+    AgentResourceKind,
+    AuthorizationRequest,
+    PermissionAction,
+    PrincipalType,
+)
+from amesh.ports import AgentResourceRepository, CredentialRateLimitExceeded, ExecutionRepository
 
 
 class AmeshMcpTokenVerifier:
@@ -55,9 +62,11 @@ class AmeshMcpReadGateway:
     def __init__(
         self,
         executions: ExecutionRepository,
+        agent_resources: AgentResourceRepository,
         authorization: AuthorizationService,
     ) -> None:
         self._executions = executions
+        self._agent_resources = agent_resources
         self._authorization = authorization
 
     async def list_workflows(
@@ -144,10 +153,89 @@ class AmeshMcpReadGateway:
             ],
         }
 
+    async def list_agents(
+        self,
+        tenant: str,
+        namespace: str,
+        limit: int = 100,
+    ) -> dict[str, Any]:
+        if limit < 1 or limit > 1000:
+            raise ValueError("limit must be between 1 and 1000")
+        actor = _authenticated_actor()
+        await self._authorization.require(
+            AuthorizationRequest(
+                actor=actor,
+                tenant_id=tenant,
+                namespace=namespace,
+                resource_type="agent",
+                action=PermissionAction.LIST,
+                audience="amesh-mcp",
+            )
+        )
+        resources = await self._agent_resources.list_resources(
+            tenant,
+            namespace,
+            kind=AgentResourceKind.AGENT,
+        )
+        return {
+            "tenant": tenant,
+            "namespace": namespace,
+            "agents": [
+                {
+                    "key": item.key,
+                    "revision": item.revision,
+                    "digest": item.digest,
+                    "title": item.spec.title,
+                }
+                for item in resources[:limit]
+                if isinstance(item.spec, AgentDefinitionSpec)
+            ],
+        }
+
+    async def inspect_agent(
+        self,
+        tenant: str,
+        namespace: str,
+        key: str,
+        revision: int,
+    ) -> dict[str, Any]:
+        actor = _authenticated_actor()
+        await self._authorization.require(
+            AuthorizationRequest(
+                actor=actor,
+                tenant_id=tenant,
+                namespace=namespace,
+                resource_type="agent",
+                action=PermissionAction.VIEW,
+                audience="amesh-mcp",
+            )
+        )
+        try:
+            resource = await self._agent_resources.get_resource(
+                tenant,
+                namespace,
+                AgentResourceKind.AGENT,
+                key,
+                revision=revision,
+            )
+        except LookupError as exc:
+            raise LookupError("agent definition unavailable") from exc
+        if not isinstance(resource.spec, AgentDefinitionSpec):
+            raise LookupError("agent definition unavailable")
+        return {
+            "tenant": tenant,
+            "namespace": namespace,
+            "key": resource.key,
+            "revision": resource.revision,
+            "digest": resource.digest,
+            "definition": resource.spec.model_dump(mode="json", by_alias=True),
+        }
+
 
 def create_amesh_mcp_server(
     credentials: CredentialService,
     executions: ExecutionRepository,
+    agent_resources: AgentResourceRepository,
     authorization: AuthorizationService,
     *,
     base_url: str,
@@ -155,7 +243,9 @@ def create_amesh_mcp_server(
     root = base_url.rstrip("/")
     server = MCPServer(
         "amesh",
-        description="Read-only, authorization-checked AMESH workflow and execution inspection.",
+        description=(
+            "Read-only, authorization-checked AMESH workflow, execution, and agent inspection."
+        ),
         version="1",
         token_verifier=AmeshMcpTokenVerifier(credentials),
         auth=AuthSettings(
@@ -164,7 +254,7 @@ def create_amesh_mcp_server(
             required_scopes=[],
         ),
     )
-    gateway = AmeshMcpReadGateway(executions, authorization)
+    gateway = AmeshMcpReadGateway(executions, agent_resources, authorization)
     read_only = ToolAnnotations(
         read_only_hint=True,
         destructive_hint=False,
@@ -187,6 +277,27 @@ def create_amesh_mcp_server(
         """Inspect one authorized execution and its task-run states without payload data."""
 
         return await gateway.inspect_execution(tenant, execution_id)
+
+    @server.tool(annotations=read_only, structured_output=True)
+    async def list_agents(
+        tenant: str,
+        namespace: str,
+        limit: int = 100,
+    ) -> dict[str, Any]:
+        """List authorized latest agent-definition revisions in one namespace."""
+
+        return await gateway.list_agents(tenant, namespace, limit)
+
+    @server.tool(annotations=read_only, structured_output=True)
+    async def inspect_agent(
+        tenant: str,
+        namespace: str,
+        key: str,
+        revision: int,
+    ) -> dict[str, Any]:
+        """Inspect one exact authorized agent revision and its pinned references."""
+
+        return await gateway.inspect_agent(tenant, namespace, key, revision)
 
     return server
 

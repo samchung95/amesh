@@ -2,6 +2,7 @@ import {
   Boxes,
   Braces,
   BookOpenCheck,
+  Bot,
   Cable,
   ChartNoAxesCombined,
   CircleGauge,
@@ -78,6 +79,7 @@ export const navigationItems: NavigationItem[] = [
     capability: 'namespaceResources.read',
   },
   { id: 'assets', labelKey: 'assets', path: '/assets', group: 'build', icon: DatabaseZap, capability: 'assets.view' },
+  { id: 'agents', labelKey: 'agents', path: '/agents', group: 'build', icon: Bot, capability: 'agents.view' },
   { id: 'apps', labelKey: 'apps', path: '/apps', group: 'build', icon: LayoutGrid, capability: 'apps.view' },
   {
     id: 'plugins',

@@ -1,6 +1,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export * from './AdministrationApi';
+export * from './AgentsApi';
 export * from './AppsApi';
 export * from './AssetsApi';
 export * from './AuditApi';

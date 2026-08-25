@@ -93,6 +93,17 @@ Class | Method | HTTP request | Description
 *AdministrationApi* | [**list_administration_audit_api_v1_admin_audit_get**](docs/AdministrationApi.md#list_administration_audit_api_v1_admin_audit_get) | **GET** /api/v1/admin/audit | List Administration Audit
 *AdministrationApi* | [**list_administration_controls_api_v1_admin_controls_get**](docs/AdministrationApi.md#list_administration_controls_api_v1_admin_controls_get) | **GET** /api/v1/admin/controls | List Administration Controls
 *AdministrationApi* | [**preview_administration_control_api_v1_admin_controls_preview_post**](docs/AdministrationApi.md#preview_administration_control_api_v1_admin_controls_preview_post) | **POST** /api/v1/admin/controls/preview | Preview Administration Control
+*AgentsApi* | [**compare_agent_definition_revisions_api_v1_namespaces_namespace_agent_definitions_key_compare_get**](docs/AgentsApi.md#compare_agent_definition_revisions_api_v1_namespaces_namespace_agent_definitions_key_compare_get) | **GET** /api/v1/namespaces/{namespace}/agent/definitions/{key}/compare | Compare Agent Definition Revisions
+*AgentsApi* | [**create_agent_mcp_connection_revision_api_v1_namespaces_namespace_agent_mcp_connections_post**](docs/AgentsApi.md#create_agent_mcp_connection_revision_api_v1_namespaces_namespace_agent_mcp_connections_post) | **POST** /api/v1/namespaces/{namespace}/agent/mcp-connections | Create Agent Mcp Connection Revision
+*AgentsApi* | [**create_agent_resource_revision_api_v1_namespaces_namespace_agent_resources_post**](docs/AgentsApi.md#create_agent_resource_revision_api_v1_namespaces_namespace_agent_resources_post) | **POST** /api/v1/namespaces/{namespace}/agent/resources | Create Agent Resource Revision
+*AgentsApi* | [**diagnose_model_policy_migration_api_v1_namespaces_namespace_agent_model_policies_key_migration_get**](docs/AgentsApi.md#diagnose_model_policy_migration_api_v1_namespaces_namespace_agent_model_policies_key_migration_get) | **GET** /api/v1/namespaces/{namespace}/agent/model-policies/{key}/migration | Diagnose Model Policy Migration
+*AgentsApi* | [**discover_agent_mcp_connection_api_v1_namespaces_namespace_agent_mcp_connections_discover_post**](docs/AgentsApi.md#discover_agent_mcp_connection_api_v1_namespaces_namespace_agent_mcp_connections_discover_post) | **POST** /api/v1/namespaces/{namespace}/agent/mcp-connections/discover | Discover Agent Mcp Connection
+*AgentsApi* | [**get_agent_mcp_connection_api_v1_namespaces_namespace_agent_mcp_connections_key_get**](docs/AgentsApi.md#get_agent_mcp_connection_api_v1_namespaces_namespace_agent_mcp_connections_key_get) | **GET** /api/v1/namespaces/{namespace}/agent/mcp-connections/{key} | Get Agent Mcp Connection
+*AgentsApi* | [**get_agent_resource_api_v1_namespaces_namespace_agent_resources_kind_key_get**](docs/AgentsApi.md#get_agent_resource_api_v1_namespaces_namespace_agent_resources_kind_key_get) | **GET** /api/v1/namespaces/{namespace}/agent/resources/{kind}/{key} | Get Agent Resource
+*AgentsApi* | [**list_agent_mcp_connection_tools_api_v1_namespaces_namespace_agent_mcp_connections_key_tools_get**](docs/AgentsApi.md#list_agent_mcp_connection_tools_api_v1_namespaces_namespace_agent_mcp_connections_key_tools_get) | **GET** /api/v1/namespaces/{namespace}/agent/mcp-connections/{key}/tools | List Agent Mcp Connection Tools
+*AgentsApi* | [**list_agent_mcp_connections_api_v1_namespaces_namespace_agent_mcp_connections_get**](docs/AgentsApi.md#list_agent_mcp_connections_api_v1_namespaces_namespace_agent_mcp_connections_get) | **GET** /api/v1/namespaces/{namespace}/agent/mcp-connections | List Agent Mcp Connections
+*AgentsApi* | [**list_agent_resources_api_v1_namespaces_namespace_agent_resources_get**](docs/AgentsApi.md#list_agent_resources_api_v1_namespaces_namespace_agent_resources_get) | **GET** /api/v1/namespaces/{namespace}/agent/resources | List Agent Resources
+*AgentsApi* | [**resolve_agent_definition_api_v1_namespaces_namespace_agent_definitions_key_resolve_post**](docs/AgentsApi.md#resolve_agent_definition_api_v1_namespaces_namespace_agent_definitions_key_resolve_post) | **POST** /api/v1/namespaces/{namespace}/agent/definitions/{key}/resolve | Resolve Agent Definition
 *AppsApi* | [**get_workflow_app_api_v1_apps_namespace_app_id_get**](docs/AppsApi.md#get_workflow_app_api_v1_apps_namespace_app_id_get) | **GET** /api/v1/apps/{namespace}/{app_id} | Get Workflow App
 *AppsApi* | [**launch_workflow_app_api_v1_apps_namespace_app_id_launch_post**](docs/AppsApi.md#launch_workflow_app_api_v1_apps_namespace_app_id_launch_post) | **POST** /api/v1/apps/{namespace}/{app_id}/launch | Launch Workflow App
 *AppsApi* | [**list_workflow_apps_api_v1_apps_get**](docs/AppsApi.md#list_workflow_apps_api_v1_apps_get) | **GET** /api/v1/apps | List Workflow Apps
@@ -367,6 +378,21 @@ Class | Method | HTTP request | Description
  - [AdmissionOutcome](docs/AdmissionOutcome.md)
  - [AdmissionResourceType](docs/AdmissionResourceType.md)
  - [AdmissionScope](docs/AdmissionScope.md)
+ - [AgentCapabilityPin](docs/AgentCapabilityPin.md)
+ - [AgentDefinitionSpecInput](docs/AgentDefinitionSpecInput.md)
+ - [AgentDefinitionSpecOutput](docs/AgentDefinitionSpecOutput.md)
+ - [AgentEvaluationPolicy](docs/AgentEvaluationPolicy.md)
+ - [AgentHardLimitsInput](docs/AgentHardLimitsInput.md)
+ - [AgentHardLimitsOutput](docs/AgentHardLimitsOutput.md)
+ - [AgentMemoryPolicy](docs/AgentMemoryPolicy.md)
+ - [AgentMemoryScope](docs/AgentMemoryScope.md)
+ - [AgentPermissions](docs/AgentPermissions.md)
+ - [AgentResolutionRequest](docs/AgentResolutionRequest.md)
+ - [AgentResourceKind](docs/AgentResourceKind.md)
+ - [AgentResourceRef](docs/AgentResourceRef.md)
+ - [AgentResourceRevision](docs/AgentResourceRevision.md)
+ - [AgentRevisionComparison](docs/AgentRevisionComparison.md)
+ - [AgentToolRef](docs/AgentToolRef.md)
  - [Announcement](docs/Announcement.md)
  - [AnnouncementAudience](docs/AnnouncementAudience.md)
  - [AnnouncementCreateRequest](docs/AnnouncementCreateRequest.md)
@@ -460,6 +486,7 @@ Class | Method | HTTP request | Description
  - [DashboardWidget](docs/DashboardWidget.md)
  - [DashboardWidgetResult](docs/DashboardWidgetResult.md)
  - [DnsDiagnostic](docs/DnsDiagnostic.md)
+ - [EffectiveCapabilityEnvelope](docs/EffectiveCapabilityEnvelope.md)
  - [EffectivePluginPolicy](docs/EffectivePluginPolicy.md)
  - [ExchangeCredentialRequest](docs/ExchangeCredentialRequest.md)
  - [ExecutionArtifact](docs/ExecutionArtifact.md)
@@ -524,6 +551,7 @@ Class | Method | HTTP request | Description
  - [HumanTaskActionRequest](docs/HumanTaskActionRequest.md)
  - [HumanTaskNotification](docs/HumanTaskNotification.md)
  - [HumanTaskState](docs/HumanTaskState.md)
+ - [InstructionFragment](docs/InstructionFragment.md)
  - [IsolatedPluginRuntimeSnapshot](docs/IsolatedPluginRuntimeSnapshot.md)
  - [IsolatedPluginRuntimeStatus](docs/IsolatedPluginRuntimeStatus.md)
  - [IsolatedPluginState](docs/IsolatedPluginState.md)
@@ -556,8 +584,19 @@ Class | Method | HTTP request | Description
  - [LoginResponse](docs/LoginResponse.md)
  - [Lte](docs/Lte.md)
  - [MappingDisposition](docs/MappingDisposition.md)
+ - [Maxcostusd](docs/Maxcostusd.md)
+ - [McpConnectionDiscoveryRequest](docs/McpConnectionDiscoveryRequest.md)
+ - [McpConnectionRevision](docs/McpConnectionRevision.md)
+ - [McpConnectionSpec](docs/McpConnectionSpec.md)
+ - [McpDiscoveryResult](docs/McpDiscoveryResult.md)
+ - [McpToolImpact](docs/McpToolImpact.md)
+ - [McpToolPin](docs/McpToolPin.md)
  - [MetricKind](docs/MetricKind.md)
  - [MigrationPatch](docs/MigrationPatch.md)
+ - [ModelFallbackMode](docs/ModelFallbackMode.md)
+ - [ModelPolicySpec](docs/ModelPolicySpec.md)
+ - [ModelProviderSpec](docs/ModelProviderSpec.md)
+ - [ModelRoute](docs/ModelRoute.md)
  - [NamespaceAuthorizationBoundary](docs/NamespaceAuthorizationBoundary.md)
  - [NamespaceCheckPolicy](docs/NamespaceCheckPolicy.md)
  - [NamespaceFile](docs/NamespaceFile.md)
@@ -580,6 +619,7 @@ Class | Method | HTTP request | Description
  - [OperationalControlKind](docs/OperationalControlKind.md)
  - [OperationalControlScope](docs/OperationalControlScope.md)
  - [OperationalControlState](docs/OperationalControlState.md)
+ - [OrderedPromptRef](docs/OrderedPromptRef.md)
  - [Permission](docs/Permission.md)
  - [PermissionAction](docs/PermissionAction.md)
  - [PermissionEffect](docs/PermissionEffect.md)
@@ -667,6 +707,8 @@ Class | Method | HTTP request | Description
  - [PrincipalDefinition](docs/PrincipalDefinition.md)
  - [PrincipalType](docs/PrincipalType.md)
  - [ProblemDetail](docs/ProblemDetail.md)
+ - [PromptSpec](docs/PromptSpec.md)
+ - [ProviderMigrationDiagnostic](docs/ProviderMigrationDiagnostic.md)
  - [ProvisionedWebhookSubscription](docs/ProvisionedWebhookSubscription.md)
  - [ReadinessResponse](docs/ReadinessResponse.md)
  - [RealtimeEvent](docs/RealtimeEvent.md)
@@ -683,6 +725,8 @@ Class | Method | HTTP request | Description
  - [ReconciliationTargetType](docs/ReconciliationTargetType.md)
  - [ReduceExecutionRequest](docs/ReduceExecutionRequest.md)
  - [ReduceExecutionResponse](docs/ReduceExecutionResponse.md)
+ - [ResolvedResourcePin](docs/ResolvedResourcePin.md)
+ - [ResolvedToolPin](docs/ResolvedToolPin.md)
  - [ResourceLifecycle](docs/ResourceLifecycle.md)
  - [ResourceMetadata](docs/ResourceMetadata.md)
  - [ResourcesInner](docs/ResourcesInner.md)
@@ -749,8 +793,11 @@ Class | Method | HTTP request | Description
  - [SimulationTaskPlan](docs/SimulationTaskPlan.md)
  - [SimulationTaskState](docs/SimulationTaskState.md)
  - [SimulationUnknown](docs/SimulationUnknown.md)
+ - [SkillSpec](docs/SkillSpec.md)
  - [SourcePosition](docs/SourcePosition.md)
  - [SourceRange](docs/SourceRange.md)
+ - [Spec](docs/Spec.md)
+ - [Spec1](docs/Spec1.md)
  - [SubflowMode](docs/SubflowMode.md)
  - [SubflowPropagation](docs/SubflowPropagation.md)
  - [TaskArtifactRecord](docs/TaskArtifactRecord.md)

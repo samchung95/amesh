@@ -75,6 +75,17 @@ Class | Method | HTTP request | Description
 *AdministrationAPI* | [**ListAdministrationAuditApiV1AdminAuditGet**](docs/AdministrationAPI.md#listadministrationauditapiv1adminauditget) | **Get** /api/v1/admin/audit | List Administration Audit
 *AdministrationAPI* | [**ListAdministrationControlsApiV1AdminControlsGet**](docs/AdministrationAPI.md#listadministrationcontrolsapiv1admincontrolsget) | **Get** /api/v1/admin/controls | List Administration Controls
 *AdministrationAPI* | [**PreviewAdministrationControlApiV1AdminControlsPreviewPost**](docs/AdministrationAPI.md#previewadministrationcontrolapiv1admincontrolspreviewpost) | **Post** /api/v1/admin/controls/preview | Preview Administration Control
+*AgentsAPI* | [**CompareAgentDefinitionRevisionsApiV1NamespacesNamespaceAgentDefinitionsKeyCompareGet**](docs/AgentsAPI.md#compareagentdefinitionrevisionsapiv1namespacesnamespaceagentdefinitionskeycompareget) | **Get** /api/v1/namespaces/{namespace}/agent/definitions/{key}/compare | Compare Agent Definition Revisions
+*AgentsAPI* | [**CreateAgentMcpConnectionRevisionApiV1NamespacesNamespaceAgentMcpConnectionsPost**](docs/AgentsAPI.md#createagentmcpconnectionrevisionapiv1namespacesnamespaceagentmcpconnectionspost) | **Post** /api/v1/namespaces/{namespace}/agent/mcp-connections | Create Agent Mcp Connection Revision
+*AgentsAPI* | [**CreateAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPost**](docs/AgentsAPI.md#createagentresourcerevisionapiv1namespacesnamespaceagentresourcespost) | **Post** /api/v1/namespaces/{namespace}/agent/resources | Create Agent Resource Revision
+*AgentsAPI* | [**DiagnoseModelPolicyMigrationApiV1NamespacesNamespaceAgentModelPoliciesKeyMigrationGet**](docs/AgentsAPI.md#diagnosemodelpolicymigrationapiv1namespacesnamespaceagentmodelpolicieskeymigrationget) | **Get** /api/v1/namespaces/{namespace}/agent/model-policies/{key}/migration | Diagnose Model Policy Migration
+*AgentsAPI* | [**DiscoverAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsDiscoverPost**](docs/AgentsAPI.md#discoveragentmcpconnectionapiv1namespacesnamespaceagentmcpconnectionsdiscoverpost) | **Post** /api/v1/namespaces/{namespace}/agent/mcp-connections/discover | Discover Agent Mcp Connection
+*AgentsAPI* | [**GetAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyGet**](docs/AgentsAPI.md#getagentmcpconnectionapiv1namespacesnamespaceagentmcpconnectionskeyget) | **Get** /api/v1/namespaces/{namespace}/agent/mcp-connections/{key} | Get Agent Mcp Connection
+*AgentsAPI* | [**GetAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGet**](docs/AgentsAPI.md#getagentresourceapiv1namespacesnamespaceagentresourceskindkeyget) | **Get** /api/v1/namespaces/{namespace}/agent/resources/{kind}/{key} | Get Agent Resource
+*AgentsAPI* | [**ListAgentMcpConnectionToolsApiV1NamespacesNamespaceAgentMcpConnectionsKeyToolsGet**](docs/AgentsAPI.md#listagentmcpconnectiontoolsapiv1namespacesnamespaceagentmcpconnectionskeytoolsget) | **Get** /api/v1/namespaces/{namespace}/agent/mcp-connections/{key}/tools | List Agent Mcp Connection Tools
+*AgentsAPI* | [**ListAgentMcpConnectionsApiV1NamespacesNamespaceAgentMcpConnectionsGet**](docs/AgentsAPI.md#listagentmcpconnectionsapiv1namespacesnamespaceagentmcpconnectionsget) | **Get** /api/v1/namespaces/{namespace}/agent/mcp-connections | List Agent Mcp Connections
+*AgentsAPI* | [**ListAgentResourcesApiV1NamespacesNamespaceAgentResourcesGet**](docs/AgentsAPI.md#listagentresourcesapiv1namespacesnamespaceagentresourcesget) | **Get** /api/v1/namespaces/{namespace}/agent/resources | List Agent Resources
+*AgentsAPI* | [**ResolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePost**](docs/AgentsAPI.md#resolveagentdefinitionapiv1namespacesnamespaceagentdefinitionskeyresolvepost) | **Post** /api/v1/namespaces/{namespace}/agent/definitions/{key}/resolve | Resolve Agent Definition
 *AppsAPI* | [**GetWorkflowAppApiV1AppsNamespaceAppIdGet**](docs/AppsAPI.md#getworkflowappapiv1appsnamespaceappidget) | **Get** /api/v1/apps/{namespace}/{app_id} | Get Workflow App
 *AppsAPI* | [**LaunchWorkflowAppApiV1AppsNamespaceAppIdLaunchPost**](docs/AppsAPI.md#launchworkflowappapiv1appsnamespaceappidlaunchpost) | **Post** /api/v1/apps/{namespace}/{app_id}/launch | Launch Workflow App
 *AppsAPI* | [**ListWorkflowAppsApiV1AppsGet**](docs/AppsAPI.md#listworkflowappsapiv1appsget) | **Get** /api/v1/apps | List Workflow Apps
@@ -349,6 +360,21 @@ Class | Method | HTTP request | Description
  - [AdmissionOutcome](docs/AdmissionOutcome.md)
  - [AdmissionResourceType](docs/AdmissionResourceType.md)
  - [AdmissionScope](docs/AdmissionScope.md)
+ - [AgentCapabilityPin](docs/AgentCapabilityPin.md)
+ - [AgentDefinitionSpecInput](docs/AgentDefinitionSpecInput.md)
+ - [AgentDefinitionSpecOutput](docs/AgentDefinitionSpecOutput.md)
+ - [AgentEvaluationPolicy](docs/AgentEvaluationPolicy.md)
+ - [AgentHardLimitsInput](docs/AgentHardLimitsInput.md)
+ - [AgentHardLimitsOutput](docs/AgentHardLimitsOutput.md)
+ - [AgentMemoryPolicy](docs/AgentMemoryPolicy.md)
+ - [AgentMemoryScope](docs/AgentMemoryScope.md)
+ - [AgentPermissions](docs/AgentPermissions.md)
+ - [AgentResolutionRequest](docs/AgentResolutionRequest.md)
+ - [AgentResourceKind](docs/AgentResourceKind.md)
+ - [AgentResourceRef](docs/AgentResourceRef.md)
+ - [AgentResourceRevision](docs/AgentResourceRevision.md)
+ - [AgentRevisionComparison](docs/AgentRevisionComparison.md)
+ - [AgentToolRef](docs/AgentToolRef.md)
  - [Announcement](docs/Announcement.md)
  - [AnnouncementAudience](docs/AnnouncementAudience.md)
  - [AnnouncementCreateRequest](docs/AnnouncementCreateRequest.md)
@@ -442,6 +468,7 @@ Class | Method | HTTP request | Description
  - [DashboardWidget](docs/DashboardWidget.md)
  - [DashboardWidgetResult](docs/DashboardWidgetResult.md)
  - [DnsDiagnostic](docs/DnsDiagnostic.md)
+ - [EffectiveCapabilityEnvelope](docs/EffectiveCapabilityEnvelope.md)
  - [EffectivePluginPolicy](docs/EffectivePluginPolicy.md)
  - [ExchangeCredentialRequest](docs/ExchangeCredentialRequest.md)
  - [ExecutionArtifact](docs/ExecutionArtifact.md)
@@ -506,6 +533,7 @@ Class | Method | HTTP request | Description
  - [HumanTaskActionRequest](docs/HumanTaskActionRequest.md)
  - [HumanTaskNotification](docs/HumanTaskNotification.md)
  - [HumanTaskState](docs/HumanTaskState.md)
+ - [InstructionFragment](docs/InstructionFragment.md)
  - [IsolatedPluginRuntimeSnapshot](docs/IsolatedPluginRuntimeSnapshot.md)
  - [IsolatedPluginRuntimeStatus](docs/IsolatedPluginRuntimeStatus.md)
  - [IsolatedPluginState](docs/IsolatedPluginState.md)
@@ -538,8 +566,19 @@ Class | Method | HTTP request | Description
  - [LoginResponse](docs/LoginResponse.md)
  - [Lte](docs/Lte.md)
  - [MappingDisposition](docs/MappingDisposition.md)
+ - [Maxcostusd](docs/Maxcostusd.md)
+ - [McpConnectionDiscoveryRequest](docs/McpConnectionDiscoveryRequest.md)
+ - [McpConnectionRevision](docs/McpConnectionRevision.md)
+ - [McpConnectionSpec](docs/McpConnectionSpec.md)
+ - [McpDiscoveryResult](docs/McpDiscoveryResult.md)
+ - [McpToolImpact](docs/McpToolImpact.md)
+ - [McpToolPin](docs/McpToolPin.md)
  - [MetricKind](docs/MetricKind.md)
  - [MigrationPatch](docs/MigrationPatch.md)
+ - [ModelFallbackMode](docs/ModelFallbackMode.md)
+ - [ModelPolicySpec](docs/ModelPolicySpec.md)
+ - [ModelProviderSpec](docs/ModelProviderSpec.md)
+ - [ModelRoute](docs/ModelRoute.md)
  - [NamespaceAuthorizationBoundary](docs/NamespaceAuthorizationBoundary.md)
  - [NamespaceCheckPolicy](docs/NamespaceCheckPolicy.md)
  - [NamespaceFile](docs/NamespaceFile.md)
@@ -562,6 +601,7 @@ Class | Method | HTTP request | Description
  - [OperationalControlKind](docs/OperationalControlKind.md)
  - [OperationalControlScope](docs/OperationalControlScope.md)
  - [OperationalControlState](docs/OperationalControlState.md)
+ - [OrderedPromptRef](docs/OrderedPromptRef.md)
  - [Permission](docs/Permission.md)
  - [PermissionAction](docs/PermissionAction.md)
  - [PermissionEffect](docs/PermissionEffect.md)
@@ -649,6 +689,8 @@ Class | Method | HTTP request | Description
  - [PrincipalDefinition](docs/PrincipalDefinition.md)
  - [PrincipalType](docs/PrincipalType.md)
  - [ProblemDetail](docs/ProblemDetail.md)
+ - [PromptSpec](docs/PromptSpec.md)
+ - [ProviderMigrationDiagnostic](docs/ProviderMigrationDiagnostic.md)
  - [ProvisionedWebhookSubscription](docs/ProvisionedWebhookSubscription.md)
  - [ReadinessResponse](docs/ReadinessResponse.md)
  - [RealtimeEvent](docs/RealtimeEvent.md)
@@ -665,6 +707,8 @@ Class | Method | HTTP request | Description
  - [ReconciliationTargetType](docs/ReconciliationTargetType.md)
  - [ReduceExecutionRequest](docs/ReduceExecutionRequest.md)
  - [ReduceExecutionResponse](docs/ReduceExecutionResponse.md)
+ - [ResolvedResourcePin](docs/ResolvedResourcePin.md)
+ - [ResolvedToolPin](docs/ResolvedToolPin.md)
  - [ResourceLifecycle](docs/ResourceLifecycle.md)
  - [ResourceMetadata](docs/ResourceMetadata.md)
  - [ResourcesInner](docs/ResourcesInner.md)
@@ -731,8 +775,11 @@ Class | Method | HTTP request | Description
  - [SimulationTaskPlan](docs/SimulationTaskPlan.md)
  - [SimulationTaskState](docs/SimulationTaskState.md)
  - [SimulationUnknown](docs/SimulationUnknown.md)
+ - [SkillSpec](docs/SkillSpec.md)
  - [SourcePosition](docs/SourcePosition.md)
  - [SourceRange](docs/SourceRange.md)
+ - [Spec](docs/Spec.md)
+ - [Spec1](docs/Spec1.md)
  - [SubflowMode](docs/SubflowMode.md)
  - [SubflowPropagation](docs/SubflowPropagation.md)
  - [TaskArtifactRecord](docs/TaskArtifactRecord.md)

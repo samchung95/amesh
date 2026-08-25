@@ -75,5 +75,8 @@
   [operational controls API](operational-controls.md).
 - Define isolated revision-pinned simulations, inspect observed coverage and enforce namespace
   promotion policy through the [flow tests API](flow-tests.md).
+- Define immutable prompt, skill, model-policy and agent resources; inspect exact dependencies; and
+  atomically pin effective capability envelopes through the
+  [agent primitive API](agent-primitives.md).
 
 Future generated SDKs must consume the supported API contract, not internal Python classes.

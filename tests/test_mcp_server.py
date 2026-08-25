@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 from datetime import UTC, datetime
+from decimal import Decimal
 from types import SimpleNamespace
 from uuid import uuid4
 
@@ -11,12 +12,21 @@ from mcp.client.streamable_http import streamable_http_client
 
 from amesh.domain import (
     ActorContext,
+    AgentDefinitionSpec,
+    AgentEvaluationPolicy,
+    AgentHardLimits,
+    AgentMemoryPolicy,
+    AgentPermissions,
+    AgentResourceKind,
+    AgentResourceRef,
+    AgentResourceRevision,
     AuthorizationDecision,
     AuthorizationRequest,
     ExecutionState,
     FlowLifecycle,
     PrincipalType,
     TaskRunState,
+    agent_resource_digest,
 )
 from amesh.mcp_server import create_amesh_mcp_application, create_amesh_mcp_server
 
@@ -110,6 +120,77 @@ class _Executions:
         ]
 
 
+class _AgentResources:
+    def __init__(self) -> None:
+        spec = AgentDefinitionSpec(
+            key="researcher",
+            namespace="agents.demo",
+            title="Researcher",
+            instructions="Return structured evidence.",
+            inputSchema={"type": "object"},
+            outputSchema={"type": "object"},
+            modelPolicy=AgentResourceRef(key="openrouter-luna", revision=2),
+            memoryPolicy=AgentMemoryPolicy(),
+            permissions=AgentPermissions(
+                secretScopes=("openrouter-api-key",),
+                networkHosts=("openrouter.ai",),
+            ),
+            hardLimits=AgentHardLimits(
+                maxTotalTokens=4000,
+                maxCostUsd=Decimal("0.20"),
+                maxDurationSeconds=120,
+                maxToolCalls=0,
+                maxTurns=3,
+                maxLoopIterations=0,
+                maxRecursionDepth=0,
+                maxConcurrency=1,
+            ),
+            evaluationPolicy=AgentEvaluationPolicy(requiredEvaluations=("schema",)),
+        )
+        self.resource = AgentResourceRevision(
+            tenantId="default",
+            namespace=spec.namespace,
+            kind=spec.kind,
+            key=spec.key,
+            revision=3,
+            digest=agent_resource_digest(spec),
+            spec=spec,
+            createdBy="author",
+            createdAt=datetime.now(UTC),
+        )
+        self.reads: list[tuple[str, str]] = []
+
+    async def list_resources(
+        self,
+        tenant_id: str,
+        namespace: str,
+        *,
+        kind: AgentResourceKind | None = None,
+    ) -> tuple[AgentResourceRevision, ...]:
+        self.reads.append(("list_resources", tenant_id))
+        assert namespace == "agents.demo"
+        assert kind is AgentResourceKind.AGENT
+        return (self.resource,)
+
+    async def get_resource(
+        self,
+        tenant_id: str,
+        namespace: str,
+        kind: AgentResourceKind,
+        key: str,
+        *,
+        revision: int | None = None,
+    ) -> AgentResourceRevision:
+        self.reads.append(("get_resource", tenant_id))
+        if (
+            namespace != "agents.demo"
+            or kind is not AgentResourceKind.AGENT
+            or key != "researcher"
+            or revision != 3
+        ):
+            raise LookupError("missing")
+        return self.resource
+
 def test_amesh_mcp_requires_workload_token_and_exposes_read_only_authorized_tools() -> None:
     actor = ActorContext(
         principal_id=uuid4(),
@@ -122,9 +203,11 @@ def test_amesh_mcp_requires_workload_token_and_exposes_read_only_authorized_tool
     credentials = _Credentials(actor)
     authorization = _Authorization()
     executions = _Executions()
+    agent_resources = _AgentResources()
     server = create_amesh_mcp_server(
         credentials,  # type: ignore[arg-type]
         executions,  # type: ignore[arg-type]
+        agent_resources,  # type: ignore[arg-type]
         authorization,  # type: ignore[arg-type]
         base_url="http://amesh.test",
     )
@@ -158,6 +241,8 @@ def test_amesh_mcp_requires_workload_token_and_exposes_read_only_authorized_tool
                     assert [tool.name for tool in catalog.tools] == [
                         "list_workflows",
                         "inspect_execution",
+                        "list_agents",
+                        "inspect_agent",
                     ]
                     assert all(
                         tool.annotations is not None
@@ -187,15 +272,46 @@ def test_amesh_mcp_requires_workload_token_and_exposes_read_only_authorized_tool
                     assert "inputs" not in inspected.structured_content
                     assert "outputs" not in inspected.structured_content
 
+                    agents = await client.call_tool(
+                        "list_agents",
+                        {"tenant": "default", "namespace": "agents.demo"},
+                    )
+                    assert agents.structured_content is not None
+                    assert agents.structured_content["agents"][0]["revision"] == 3
+
+                    definition = await client.call_tool(
+                        "inspect_agent",
+                        {
+                            "tenant": "default",
+                            "namespace": "agents.demo",
+                            "key": "researcher",
+                            "revision": 3,
+                        },
+                    )
+                    assert definition.structured_content is not None
+                    assert definition.structured_content["definition"]["modelPolicy"] == {
+                        "key": "openrouter-luna",
+                        "revision": 2,
+                    }
+                    assert "actual-openrouter-secret" not in str(
+                        definition.structured_content
+                    )
+
     asyncio.run(scenario())
     assert credentials.requests
     assert set(credentials.requests) == {("Bearer mcp-token", "amesh-mcp")}
     assert [(request.resource_type, request.audience) for request in authorization.requests] == [
         ("flow", "amesh-mcp"),
         ("execution", "amesh-mcp"),
+        ("agent", "amesh-mcp"),
+        ("agent", "amesh-mcp"),
     ]
     assert executions.reads == [
         ("list_flows", "default"),
         ("get_execution", "default"),
         ("list_task_runs", "default"),
+    ]
+    assert agent_resources.reads == [
+        ("list_resources", "default"),
+        ("get_resource", "default"),
     ]

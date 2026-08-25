@@ -1,5 +1,6 @@
 from .admission_policy_repository import PostgresAdmissionPolicyRepository
 from .agent_primitives import PostgresAgentPrimitiveRepository
+from .agent_resources import PostgresAgentResourceRepository
 from .audit_repository import PostgresAuditRepository
 from .authentication_repository import PostgresAuthenticationRepository
 from .authorization_repository import PostgresAuthorizationRepository
@@ -44,6 +45,7 @@ __all__ = [
     "OperationalControlVersionConflict",
     "PostgresAdmissionPolicyRepository",
     "PostgresAgentPrimitiveRepository",
+    "PostgresAgentResourceRepository",
     "PostgresAuditRepository",
     "PostgresAuthenticationRepository",
     "PostgresAuthorizationRepository",

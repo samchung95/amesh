@@ -50,6 +50,7 @@ from amesh.adapters.local import LocalProcessRunner
 from amesh.adapters.postgres import (
     PostgresAdmissionPolicyRepository,
     PostgresAgentPrimitiveRepository,
+    PostgresAgentResourceRepository,
     PostgresAuditRepository,
     PostgresAuthenticationRepository,
     PostgresAuthorizationRepository,
@@ -199,6 +200,12 @@ from amesh.domain import (
     AdmissionDecision,
     AdmissionDiagnostics,
     AdmissionResourceType,
+    AgentCapabilityPin,
+    AgentResolutionRequest,
+    AgentResourceKind,
+    AgentResourceRevision,
+    AgentResourceSpec,
+    AgentRevisionComparison,
     Announcement,
     AnnouncementAudience,
     AnnouncementCreateRequest,
@@ -262,6 +269,7 @@ from amesh.domain import (
     McpConnectionRevision,
     McpConnectionSpec,
     McpDiscoveryResult,
+    ModelPolicySpec,
     NamespaceAuthorizationBoundary,
     NamespaceFile,
     NamespaceFileVersion,
@@ -293,6 +301,7 @@ from amesh.domain import (
     PolicyStage,
     PrincipalDefinition,
     PrincipalType,
+    ProviderMigrationDiagnostic,
     ReconciliationRequest,
     ReconciliationRun,
     ResourceVersionConflict,
@@ -324,11 +333,13 @@ from amesh.domain import (
     administration_control_flag,
     administration_controls,
     canonical_hash,
+    compare_agent_revisions,
     get_blueprint,
     instantiate_blueprint,
     issue_administration_preview,
     list_blueprints,
     new_runtime_id,
+    provider_migration_diagnostic,
     reduce_execution,
     verify_administration_approval,
 )
@@ -1052,6 +1063,17 @@ def get_agent_primitive_repository() -> PostgresAgentPrimitiveRepository:
 AgentPrimitiveRepositoryDependency = Annotated[
     PostgresAgentPrimitiveRepository,
     Depends(get_agent_primitive_repository),
+]
+
+
+@lru_cache
+def get_agent_resource_repository() -> PostgresAgentResourceRepository:
+    return PostgresAgentResourceRepository(database_engine())
+
+
+AgentResourceRepositoryDependency = Annotated[
+    PostgresAgentResourceRepository,
+    Depends(get_agent_resource_repository),
 ]
 
 
@@ -2116,6 +2138,299 @@ async def get_agent_mcp_connection(
         ) from exc
 
 
+@app.get(
+    "/api/v1/namespaces/{namespace}/agent/mcp-connections/{key}/tools",
+    response_model=list[dict[str, object]],
+    tags=["agents"],
+)
+async def list_agent_mcp_connection_tools(
+    namespace: str,
+    key: str,
+    repository: AgentPrimitiveRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    revision: Annotated[int | None, Query(ge=1)] = None,
+) -> list[dict[str, object]]:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="agent_connection",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    try:
+        connection = await repository.get_mcp_connection(
+            tenant_id,
+            namespace,
+            key,
+            revision=revision,
+        )
+    except LookupError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="MCP connection unavailable",
+        ) from exc
+    return [
+        {
+            "connectionKey": connection.spec.key,
+            "connectionRevision": connection.revision,
+            "connectionDigest": connection.digest,
+            "credentialRef": connection.spec.credential_ref,
+            "endpoint": connection.spec.endpoint,
+            "toolName": tool.name,
+            "description": tool.description,
+            "schemaDigest": tool.schema_digest,
+            "impact": tool.impact.value,
+        }
+        for tool in connection.spec.tools
+    ]
+
+
+@app.post(
+    "/api/v1/namespaces/{namespace}/agent/resources",
+    response_model=AgentResourceRevision,
+    status_code=status.HTTP_201_CREATED,
+    tags=["agents"],
+)
+async def create_agent_resource_revision(
+    namespace: str,
+    spec: AgentResourceSpec,
+    repository: AgentResourceRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> AgentResourceRevision:
+    if spec.namespace != namespace:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="resource namespace must match the route namespace",
+        )
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="agent",
+        action=PermissionAction.MANAGE,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    return await repository.save_resource(
+        tenant_id,
+        spec,
+        actor_id=str(actor.principal_id),
+    )
+
+
+@app.get(
+    "/api/v1/namespaces/{namespace}/agent/resources",
+    response_model=list[AgentResourceRevision],
+    tags=["agents"],
+)
+async def list_agent_resources(
+    namespace: str,
+    repository: AgentResourceRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    kind: AgentResourceKind | None = None,
+) -> list[AgentResourceRevision]:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="agent",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    return list(await repository.list_resources(tenant_id, namespace, kind=kind))
+
+
+async def _agent_resource_or_404(
+    repository: PostgresAgentResourceRepository,
+    tenant_id: str,
+    namespace: str,
+    kind: AgentResourceKind,
+    key: str,
+    revision: int | None,
+) -> AgentResourceRevision:
+    try:
+        return await repository.get_resource(
+            tenant_id,
+            namespace,
+            kind,
+            key,
+            revision=revision,
+        )
+    except LookupError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="agent resource unavailable",
+        ) from exc
+
+
+@app.get(
+    "/api/v1/namespaces/{namespace}/agent/resources/{kind}/{key}",
+    response_model=AgentResourceRevision,
+    tags=["agents"],
+)
+async def get_agent_resource(
+    namespace: str,
+    kind: AgentResourceKind,
+    key: str,
+    repository: AgentResourceRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    revision: Annotated[int | None, Query(ge=1)] = None,
+) -> AgentResourceRevision:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="agent",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    return await _agent_resource_or_404(
+        repository,
+        tenant_id,
+        namespace,
+        kind,
+        key,
+        revision,
+    )
+
+
+@app.post(
+    "/api/v1/namespaces/{namespace}/agent/definitions/{key}/resolve",
+    response_model=AgentCapabilityPin,
+    tags=["agents"],
+)
+async def resolve_agent_definition(
+    namespace: str,
+    key: str,
+    request: AgentResolutionRequest,
+    repository: AgentResourceRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> AgentCapabilityPin:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="agent",
+        action=PermissionAction.EXECUTE,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    try:
+        return await repository.resolve_agent(
+            tenant_id,
+            namespace,
+            key,
+            request,
+            actor_id=str(actor.principal_id),
+        )
+    except (LookupError, PermissionError, ValueError) as exc:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=str(exc),
+        ) from exc
+
+
+@app.get(
+    "/api/v1/namespaces/{namespace}/agent/definitions/{key}/compare",
+    response_model=AgentRevisionComparison,
+    tags=["agents"],
+)
+async def compare_agent_definition_revisions(
+    namespace: str,
+    key: str,
+    repository: AgentResourceRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    from_revision: Annotated[int, Query(alias="fromRevision", ge=1)],
+    to_revision: Annotated[int, Query(alias="toRevision", ge=1)],
+) -> AgentRevisionComparison:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="agent",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    previous = await _agent_resource_or_404(
+        repository,
+        tenant_id,
+        namespace,
+        AgentResourceKind.AGENT,
+        key,
+        from_revision,
+    )
+    current = await _agent_resource_or_404(
+        repository,
+        tenant_id,
+        namespace,
+        AgentResourceKind.AGENT,
+        key,
+        to_revision,
+    )
+    return compare_agent_revisions(previous, current)
+
+
+@app.get(
+    "/api/v1/namespaces/{namespace}/agent/model-policies/{key}/migration",
+    response_model=ProviderMigrationDiagnostic,
+    tags=["agents"],
+)
+async def diagnose_model_policy_migration(
+    namespace: str,
+    key: str,
+    repository: AgentResourceRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    from_revision: Annotated[int, Query(alias="fromRevision", ge=1)],
+    to_revision: Annotated[int, Query(alias="toRevision", ge=1)],
+) -> ProviderMigrationDiagnostic:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="agent",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    previous = await _agent_resource_or_404(
+        repository,
+        tenant_id,
+        namespace,
+        AgentResourceKind.MODEL_POLICY,
+        key,
+        from_revision,
+    )
+    current = await _agent_resource_or_404(
+        repository,
+        tenant_id,
+        namespace,
+        AgentResourceKind.MODEL_POLICY,
+        key,
+        to_revision,
+    )
+    if not isinstance(previous.spec, ModelPolicySpec) or not isinstance(
+        current.spec,
+        ModelPolicySpec,
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="model-policy revisions have incompatible resource kinds",
+        )
+    return provider_migration_diagnostic(previous.spec, current.spec)
+
+
 @app.get("/health", response_model=HealthResponse, tags=["system"])
 async def health() -> HealthResponse:
     return HealthResponse(status="ok", version=__version__)
@@ -2181,6 +2496,9 @@ async def get_ui_session(
     requested_capabilities = {
         "assets.view": ("asset", PermissionAction.VIEW),
         "assets.manage": ("asset", PermissionAction.UPDATE),
+        "agents.view": ("agent", PermissionAction.VIEW),
+        "agents.manage": ("agent", PermissionAction.MANAGE),
+        "agents.execute": ("agent", PermissionAction.EXECUTE),
         "flows.view": ("flow", PermissionAction.VIEW),
         "flows.create": ("flow", PermissionAction.CREATE),
         "flows.update": ("flow", PermissionAction.UPDATE),
@@ -12088,6 +12406,7 @@ _mcp_base_url = _mcp_settings.network_external_base_url or "http://localhost:800
 _mcp_server = create_amesh_mcp_server(
     get_credential_service(),
     get_repository(),
+    get_agent_resource_repository(),
     get_authorization_service(),
     base_url=_mcp_base_url,
 )

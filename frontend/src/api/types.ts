@@ -1,6 +1,9 @@
 export type Capability =
   | 'assets.view'
   | 'assets.manage'
+  | 'agents.view'
+  | 'agents.manage'
+  | 'agents.execute'
   | 'flows.view'
   | 'flows.create'
   | 'flows.update'
@@ -1804,4 +1807,192 @@ export interface PersistedEventMigration {
   confirmationPhrase: string
   applied: boolean
   evidenceEventId: string | null
+}
+
+export type AgentResourceKind = 'PROMPT' | 'SKILL' | 'MODEL_POLICY' | 'AGENT'
+
+export interface AgentResourceRef {
+  key: string
+  revision: number
+}
+
+export interface OrderedPromptRef extends AgentResourceRef {
+  order: number
+}
+
+export interface PromptSpec {
+  kind: 'PROMPT'
+  key: string
+  namespace: string
+  title: string
+  content: string
+  variables: Record<string, string>
+}
+
+export interface SkillSpec {
+  kind: 'SKILL'
+  key: string
+  namespace: string
+  title: string
+  description: string
+  instructions: string
+  requestedCapabilities: string[]
+}
+
+export interface ModelRoute {
+  routeId: string
+  provider: {
+    adapter: string
+    endpoint: string
+    embeddingEndpoint: string | null
+    credentialRef: string
+  }
+  model: string
+  requiredFeatures: string[]
+  parameters: Record<string, unknown>
+}
+
+export interface ModelPolicySpec {
+  kind: 'MODEL_POLICY'
+  key: string
+  namespace: string
+  title: string
+  routes: ModelRoute[]
+  fallbackMode: 'DISABLED' | 'ORDERED'
+  outputNondeterminismDisclosure: string
+}
+
+export interface AgentDefinitionSpec {
+  kind: 'AGENT'
+  key: string
+  namespace: string
+  title: string
+  description: string
+  instructions: string
+  inputSchema: Record<string, unknown>
+  outputSchema: Record<string, unknown>
+  modelPolicy: AgentResourceRef
+  prompts: OrderedPromptRef[]
+  skills: AgentResourceRef[]
+  tools: Array<{
+    connectionKey: string
+    connectionRevision: number
+    toolName: string
+    schemaDigest: string
+  }>
+  memoryPolicy: {
+    scope: 'NONE' | 'EXECUTION' | 'PRIVATE' | 'SHARED'
+    maxBytes: number
+    retentionSeconds: number
+    redact: boolean
+  }
+  permissions: {
+    delegatedCapabilities: string[]
+    toolAllowlist: string[]
+    secretScopes: string[]
+    networkHosts: string[]
+    filesystemReadRoots: string[]
+    filesystemWriteRoots: string[]
+    allowHighImpactTools: boolean
+  }
+  hardLimits: {
+    maxTotalTokens: number
+    maxCostUsd: string
+    maxDurationSeconds: number
+    maxToolCalls: number
+    maxTurns: number
+    maxLoopIterations: number
+    maxRecursionDepth: number
+    maxConcurrency: number
+  }
+  evaluationPolicy: {
+    requiredEvaluations: string[]
+    requireHumanRelease: boolean
+  }
+}
+
+export type AgentResourceSpec = PromptSpec | SkillSpec | ModelPolicySpec | AgentDefinitionSpec
+
+export interface AgentResourceRevision {
+  resourceId: string
+  tenantId: string
+  namespace: string
+  kind: AgentResourceKind
+  key: string
+  revision: number
+  digest: string
+  spec: AgentResourceSpec
+  createdBy: string
+  createdAt: string
+}
+
+export interface AgentCapabilityPin {
+  pinId: string
+  tenantId: string
+  namespace: string
+  subjectRef: string
+  envelopeDigest: string
+  envelope: {
+    schemaVersion: string
+    agent: { key: string; revision: number; digest: string }
+    resources: Array<{ kind: AgentResourceKind; key: string; revision: number; digest: string }>
+    instructions: Array<{ sourceKind: string; sourceKey: string; order: number; content: string }>
+    promptVariables: Record<string, string>
+    modelRoutes: ModelRoute[]
+    fallbackMode: string
+    outputNondeterminismDisclosure: string
+    tools: Array<Record<string, unknown>>
+    inputSchema: Record<string, unknown>
+    outputSchema: Record<string, unknown>
+    memoryPolicy: AgentDefinitionSpec['memoryPolicy']
+    permissions: AgentDefinitionSpec['permissions']
+    hardLimits: AgentDefinitionSpec['hardLimits']
+    evaluationPolicy: AgentDefinitionSpec['evaluationPolicy']
+  }
+  createdBy: string
+  createdAt: string
+}
+
+export interface AgentRevisionComparison {
+  fromRevision: number
+  toRevision: number
+  sameInputSchema: boolean
+  sameOutputSchema: boolean
+  addedPrompts: string[]
+  removedPrompts: string[]
+  addedSkills: string[]
+  removedSkills: string[]
+  addedTools: string[]
+  removedTools: string[]
+  modelPolicyChanged: boolean
+  nondeterminismDisclosure: string
+}
+
+export interface AgentMcpConnectionRevision {
+  connectionId: string
+  tenantId: string
+  revision: number
+  digest: string
+  spec: {
+    key: string
+    namespace: string
+    endpoint: string
+    credentialRef: string
+    toolAllowlist: string[]
+    tools: Array<{ name: string; description: string; impact: string }>
+  }
+  createdBy: string
+  createdAt: string
+}
+
+export interface AgentMcpToolCatalogEntry {
+  connectionKey: string
+  connectionRevision: number
+  connectionDigest: string
+  credentialRef: string
+  endpoint: string
+  toolName: string
+  description: string
+  schemaDigest: string
+  impact: 'READ_ONLY' | 'IDEMPOTENT_WRITE' | 'HIGH_IMPACT'
 }

@@ -62,6 +62,17 @@ All URIs are relative to *http://localhost*
 *AdministrationApi* | [**listAdministrationAuditApiV1AdminAuditGet**](docs/AdministrationApi.md#listadministrationauditapiv1adminauditget) | **GET** /api/v1/admin/audit | List Administration Audit
 *AdministrationApi* | [**listAdministrationControlsApiV1AdminControlsGet**](docs/AdministrationApi.md#listadministrationcontrolsapiv1admincontrolsget) | **GET** /api/v1/admin/controls | List Administration Controls
 *AdministrationApi* | [**previewAdministrationControlApiV1AdminControlsPreviewPost**](docs/AdministrationApi.md#previewadministrationcontrolapiv1admincontrolspreviewpost) | **POST** /api/v1/admin/controls/preview | Preview Administration Control
+*AgentsApi* | [**compareAgentDefinitionRevisionsApiV1NamespacesNamespaceAgentDefinitionsKeyCompareGet**](docs/AgentsApi.md#compareagentdefinitionrevisionsapiv1namespacesnamespaceagentdefinitionskeycompareget) | **GET** /api/v1/namespaces/{namespace}/agent/definitions/{key}/compare | Compare Agent Definition Revisions
+*AgentsApi* | [**createAgentMcpConnectionRevisionApiV1NamespacesNamespaceAgentMcpConnectionsPost**](docs/AgentsApi.md#createagentmcpconnectionrevisionapiv1namespacesnamespaceagentmcpconnectionspost) | **POST** /api/v1/namespaces/{namespace}/agent/mcp-connections | Create Agent Mcp Connection Revision
+*AgentsApi* | [**createAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPost**](docs/AgentsApi.md#createagentresourcerevisionapiv1namespacesnamespaceagentresourcespost) | **POST** /api/v1/namespaces/{namespace}/agent/resources | Create Agent Resource Revision
+*AgentsApi* | [**diagnoseModelPolicyMigrationApiV1NamespacesNamespaceAgentModelPoliciesKeyMigrationGet**](docs/AgentsApi.md#diagnosemodelpolicymigrationapiv1namespacesnamespaceagentmodelpolicieskeymigrationget) | **GET** /api/v1/namespaces/{namespace}/agent/model-policies/{key}/migration | Diagnose Model Policy Migration
+*AgentsApi* | [**discoverAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsDiscoverPost**](docs/AgentsApi.md#discoveragentmcpconnectionapiv1namespacesnamespaceagentmcpconnectionsdiscoverpost) | **POST** /api/v1/namespaces/{namespace}/agent/mcp-connections/discover | Discover Agent Mcp Connection
+*AgentsApi* | [**getAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyGet**](docs/AgentsApi.md#getagentmcpconnectionapiv1namespacesnamespaceagentmcpconnectionskeyget) | **GET** /api/v1/namespaces/{namespace}/agent/mcp-connections/{key} | Get Agent Mcp Connection
+*AgentsApi* | [**getAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGet**](docs/AgentsApi.md#getagentresourceapiv1namespacesnamespaceagentresourceskindkeyget) | **GET** /api/v1/namespaces/{namespace}/agent/resources/{kind}/{key} | Get Agent Resource
+*AgentsApi* | [**listAgentMcpConnectionToolsApiV1NamespacesNamespaceAgentMcpConnectionsKeyToolsGet**](docs/AgentsApi.md#listagentmcpconnectiontoolsapiv1namespacesnamespaceagentmcpconnectionskeytoolsget) | **GET** /api/v1/namespaces/{namespace}/agent/mcp-connections/{key}/tools | List Agent Mcp Connection Tools
+*AgentsApi* | [**listAgentMcpConnectionsApiV1NamespacesNamespaceAgentMcpConnectionsGet**](docs/AgentsApi.md#listagentmcpconnectionsapiv1namespacesnamespaceagentmcpconnectionsget) | **GET** /api/v1/namespaces/{namespace}/agent/mcp-connections | List Agent Mcp Connections
+*AgentsApi* | [**listAgentResourcesApiV1NamespacesNamespaceAgentResourcesGet**](docs/AgentsApi.md#listagentresourcesapiv1namespacesnamespaceagentresourcesget) | **GET** /api/v1/namespaces/{namespace}/agent/resources | List Agent Resources
+*AgentsApi* | [**resolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePost**](docs/AgentsApi.md#resolveagentdefinitionapiv1namespacesnamespaceagentdefinitionskeyresolvepost) | **POST** /api/v1/namespaces/{namespace}/agent/definitions/{key}/resolve | Resolve Agent Definition
 *AppsApi* | [**getWorkflowAppApiV1AppsNamespaceAppIdGet**](docs/AppsApi.md#getworkflowappapiv1appsnamespaceappidget) | **GET** /api/v1/apps/{namespace}/{app_id} | Get Workflow App
 *AppsApi* | [**launchWorkflowAppApiV1AppsNamespaceAppIdLaunchPost**](docs/AppsApi.md#launchworkflowappapiv1appsnamespaceappidlaunchpost) | **POST** /api/v1/apps/{namespace}/{app_id}/launch | Launch Workflow App
 *AppsApi* | [**listWorkflowAppsApiV1AppsGet**](docs/AppsApi.md#listworkflowappsapiv1appsget) | **GET** /api/v1/apps | List Workflow Apps
@@ -336,6 +347,21 @@ All URIs are relative to *http://localhost*
 - [AdmissionOutcome](docs/AdmissionOutcome.md)
 - [AdmissionResourceType](docs/AdmissionResourceType.md)
 - [AdmissionScope](docs/AdmissionScope.md)
+- [AgentCapabilityPin](docs/AgentCapabilityPin.md)
+- [AgentDefinitionSpecInput](docs/AgentDefinitionSpecInput.md)
+- [AgentDefinitionSpecOutput](docs/AgentDefinitionSpecOutput.md)
+- [AgentEvaluationPolicy](docs/AgentEvaluationPolicy.md)
+- [AgentHardLimitsInput](docs/AgentHardLimitsInput.md)
+- [AgentHardLimitsOutput](docs/AgentHardLimitsOutput.md)
+- [AgentMemoryPolicy](docs/AgentMemoryPolicy.md)
+- [AgentMemoryScope](docs/AgentMemoryScope.md)
+- [AgentPermissions](docs/AgentPermissions.md)
+- [AgentResolutionRequest](docs/AgentResolutionRequest.md)
+- [AgentResourceKind](docs/AgentResourceKind.md)
+- [AgentResourceRef](docs/AgentResourceRef.md)
+- [AgentResourceRevision](docs/AgentResourceRevision.md)
+- [AgentRevisionComparison](docs/AgentRevisionComparison.md)
+- [AgentToolRef](docs/AgentToolRef.md)
 - [Announcement](docs/Announcement.md)
 - [AnnouncementAudience](docs/AnnouncementAudience.md)
 - [AnnouncementCreateRequest](docs/AnnouncementCreateRequest.md)
@@ -429,6 +455,7 @@ All URIs are relative to *http://localhost*
 - [DashboardWidget](docs/DashboardWidget.md)
 - [DashboardWidgetResult](docs/DashboardWidgetResult.md)
 - [DnsDiagnostic](docs/DnsDiagnostic.md)
+- [EffectiveCapabilityEnvelope](docs/EffectiveCapabilityEnvelope.md)
 - [EffectivePluginPolicy](docs/EffectivePluginPolicy.md)
 - [ExchangeCredentialRequest](docs/ExchangeCredentialRequest.md)
 - [ExecutionArtifact](docs/ExecutionArtifact.md)
@@ -493,6 +520,7 @@ All URIs are relative to *http://localhost*
 - [HumanTaskActionRequest](docs/HumanTaskActionRequest.md)
 - [HumanTaskNotification](docs/HumanTaskNotification.md)
 - [HumanTaskState](docs/HumanTaskState.md)
+- [InstructionFragment](docs/InstructionFragment.md)
 - [IsolatedPluginRuntimeSnapshot](docs/IsolatedPluginRuntimeSnapshot.md)
 - [IsolatedPluginRuntimeStatus](docs/IsolatedPluginRuntimeStatus.md)
 - [IsolatedPluginState](docs/IsolatedPluginState.md)
@@ -525,8 +553,19 @@ All URIs are relative to *http://localhost*
 - [LoginResponse](docs/LoginResponse.md)
 - [Lte](docs/Lte.md)
 - [MappingDisposition](docs/MappingDisposition.md)
+- [Maxcostusd](docs/Maxcostusd.md)
+- [McpConnectionDiscoveryRequest](docs/McpConnectionDiscoveryRequest.md)
+- [McpConnectionRevision](docs/McpConnectionRevision.md)
+- [McpConnectionSpec](docs/McpConnectionSpec.md)
+- [McpDiscoveryResult](docs/McpDiscoveryResult.md)
+- [McpToolImpact](docs/McpToolImpact.md)
+- [McpToolPin](docs/McpToolPin.md)
 - [MetricKind](docs/MetricKind.md)
 - [MigrationPatch](docs/MigrationPatch.md)
+- [ModelFallbackMode](docs/ModelFallbackMode.md)
+- [ModelPolicySpec](docs/ModelPolicySpec.md)
+- [ModelProviderSpec](docs/ModelProviderSpec.md)
+- [ModelRoute](docs/ModelRoute.md)
 - [NamespaceAuthorizationBoundary](docs/NamespaceAuthorizationBoundary.md)
 - [NamespaceCheckPolicy](docs/NamespaceCheckPolicy.md)
 - [NamespaceFile](docs/NamespaceFile.md)
@@ -549,6 +588,7 @@ All URIs are relative to *http://localhost*
 - [OperationalControlKind](docs/OperationalControlKind.md)
 - [OperationalControlScope](docs/OperationalControlScope.md)
 - [OperationalControlState](docs/OperationalControlState.md)
+- [OrderedPromptRef](docs/OrderedPromptRef.md)
 - [Permission](docs/Permission.md)
 - [PermissionAction](docs/PermissionAction.md)
 - [PermissionEffect](docs/PermissionEffect.md)
@@ -636,6 +676,8 @@ All URIs are relative to *http://localhost*
 - [PrincipalDefinition](docs/PrincipalDefinition.md)
 - [PrincipalType](docs/PrincipalType.md)
 - [ProblemDetail](docs/ProblemDetail.md)
+- [PromptSpec](docs/PromptSpec.md)
+- [ProviderMigrationDiagnostic](docs/ProviderMigrationDiagnostic.md)
 - [ProvisionedWebhookSubscription](docs/ProvisionedWebhookSubscription.md)
 - [ReadinessResponse](docs/ReadinessResponse.md)
 - [RealtimeEvent](docs/RealtimeEvent.md)
@@ -652,6 +694,8 @@ All URIs are relative to *http://localhost*
 - [ReconciliationTargetType](docs/ReconciliationTargetType.md)
 - [ReduceExecutionRequest](docs/ReduceExecutionRequest.md)
 - [ReduceExecutionResponse](docs/ReduceExecutionResponse.md)
+- [ResolvedResourcePin](docs/ResolvedResourcePin.md)
+- [ResolvedToolPin](docs/ResolvedToolPin.md)
 - [ResourceLifecycle](docs/ResourceLifecycle.md)
 - [ResourceMetadata](docs/ResourceMetadata.md)
 - [ResourcesInner](docs/ResourcesInner.md)
@@ -718,8 +762,11 @@ All URIs are relative to *http://localhost*
 - [SimulationTaskPlan](docs/SimulationTaskPlan.md)
 - [SimulationTaskState](docs/SimulationTaskState.md)
 - [SimulationUnknown](docs/SimulationUnknown.md)
+- [SkillSpec](docs/SkillSpec.md)
 - [SourcePosition](docs/SourcePosition.md)
 - [SourceRange](docs/SourceRange.md)
+- [Spec](docs/Spec.md)
+- [Spec1](docs/Spec1.md)
 - [SubflowMode](docs/SubflowMode.md)
 - [SubflowPropagation](docs/SubflowPropagation.md)
 - [TaskArtifactRecord](docs/TaskArtifactRecord.md)

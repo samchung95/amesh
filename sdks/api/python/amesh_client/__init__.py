@@ -19,6 +19,7 @@ __version__ = "0.2.0"
 # Define package exports
 __all__ = [
     "AdministrationApi",
+    "AgentsApi",
     "AppsApi",
     "AssetsApi",
     "AuditApi",
@@ -73,6 +74,21 @@ __all__ = [
     "AdmissionOutcome",
     "AdmissionResourceType",
     "AdmissionScope",
+    "AgentCapabilityPin",
+    "AgentDefinitionSpecInput",
+    "AgentDefinitionSpecOutput",
+    "AgentEvaluationPolicy",
+    "AgentHardLimitsInput",
+    "AgentHardLimitsOutput",
+    "AgentMemoryPolicy",
+    "AgentMemoryScope",
+    "AgentPermissions",
+    "AgentResolutionRequest",
+    "AgentResourceKind",
+    "AgentResourceRef",
+    "AgentResourceRevision",
+    "AgentRevisionComparison",
+    "AgentToolRef",
     "Announcement",
     "AnnouncementAudience",
     "AnnouncementCreateRequest",
@@ -166,6 +182,7 @@ __all__ = [
     "DashboardWidget",
     "DashboardWidgetResult",
     "DnsDiagnostic",
+    "EffectiveCapabilityEnvelope",
     "EffectivePluginPolicy",
     "ExchangeCredentialRequest",
     "ExecutionArtifact",
@@ -230,6 +247,7 @@ __all__ = [
     "HumanTaskActionRequest",
     "HumanTaskNotification",
     "HumanTaskState",
+    "InstructionFragment",
     "IsolatedPluginRuntimeSnapshot",
     "IsolatedPluginRuntimeStatus",
     "IsolatedPluginState",
@@ -262,8 +280,19 @@ __all__ = [
     "LoginResponse",
     "Lte",
     "MappingDisposition",
+    "Maxcostusd",
+    "McpConnectionDiscoveryRequest",
+    "McpConnectionRevision",
+    "McpConnectionSpec",
+    "McpDiscoveryResult",
+    "McpToolImpact",
+    "McpToolPin",
     "MetricKind",
     "MigrationPatch",
+    "ModelFallbackMode",
+    "ModelPolicySpec",
+    "ModelProviderSpec",
+    "ModelRoute",
     "NamespaceAuthorizationBoundary",
     "NamespaceCheckPolicy",
     "NamespaceFile",
@@ -286,6 +315,7 @@ __all__ = [
     "OperationalControlKind",
     "OperationalControlScope",
     "OperationalControlState",
+    "OrderedPromptRef",
     "Permission",
     "PermissionAction",
     "PermissionEffect",
@@ -373,6 +403,8 @@ __all__ = [
     "PrincipalDefinition",
     "PrincipalType",
     "ProblemDetail",
+    "PromptSpec",
+    "ProviderMigrationDiagnostic",
     "ProvisionedWebhookSubscription",
     "ReadinessResponse",
     "RealtimeEvent",
@@ -389,6 +421,8 @@ __all__ = [
     "ReconciliationTargetType",
     "ReduceExecutionRequest",
     "ReduceExecutionResponse",
+    "ResolvedResourcePin",
+    "ResolvedToolPin",
     "ResourceLifecycle",
     "ResourceMetadata",
     "ResourcesInner",
@@ -455,8 +489,11 @@ __all__ = [
     "SimulationTaskPlan",
     "SimulationTaskState",
     "SimulationUnknown",
+    "SkillSpec",
     "SourcePosition",
     "SourceRange",
+    "Spec",
+    "Spec1",
     "SubflowMode",
     "SubflowPropagation",
     "TaskArtifactRecord",
@@ -518,6 +555,7 @@ __all__ = [
 
 # import apis into sdk package
 from amesh_client.api.administration_api import AdministrationApi as AdministrationApi
+from amesh_client.api.agents_api import AgentsApi as AgentsApi
 from amesh_client.api.apps_api import AppsApi as AppsApi
 from amesh_client.api.assets_api import AssetsApi as AssetsApi
 from amesh_client.api.audit_api import AuditApi as AuditApi
@@ -576,6 +614,21 @@ from amesh_client.models.admission_diagnostics import AdmissionDiagnostics as Ad
 from amesh_client.models.admission_outcome import AdmissionOutcome as AdmissionOutcome
 from amesh_client.models.admission_resource_type import AdmissionResourceType as AdmissionResourceType
 from amesh_client.models.admission_scope import AdmissionScope as AdmissionScope
+from amesh_client.models.agent_capability_pin import AgentCapabilityPin as AgentCapabilityPin
+from amesh_client.models.agent_definition_spec_input import AgentDefinitionSpecInput as AgentDefinitionSpecInput
+from amesh_client.models.agent_definition_spec_output import AgentDefinitionSpecOutput as AgentDefinitionSpecOutput
+from amesh_client.models.agent_evaluation_policy import AgentEvaluationPolicy as AgentEvaluationPolicy
+from amesh_client.models.agent_hard_limits_input import AgentHardLimitsInput as AgentHardLimitsInput
+from amesh_client.models.agent_hard_limits_output import AgentHardLimitsOutput as AgentHardLimitsOutput
+from amesh_client.models.agent_memory_policy import AgentMemoryPolicy as AgentMemoryPolicy
+from amesh_client.models.agent_memory_scope import AgentMemoryScope as AgentMemoryScope
+from amesh_client.models.agent_permissions import AgentPermissions as AgentPermissions
+from amesh_client.models.agent_resolution_request import AgentResolutionRequest as AgentResolutionRequest
+from amesh_client.models.agent_resource_kind import AgentResourceKind as AgentResourceKind
+from amesh_client.models.agent_resource_ref import AgentResourceRef as AgentResourceRef
+from amesh_client.models.agent_resource_revision import AgentResourceRevision as AgentResourceRevision
+from amesh_client.models.agent_revision_comparison import AgentRevisionComparison as AgentRevisionComparison
+from amesh_client.models.agent_tool_ref import AgentToolRef as AgentToolRef
 from amesh_client.models.announcement import Announcement as Announcement
 from amesh_client.models.announcement_audience import AnnouncementAudience as AnnouncementAudience
 from amesh_client.models.announcement_create_request import AnnouncementCreateRequest as AnnouncementCreateRequest
@@ -669,6 +722,7 @@ from amesh_client.models.dashboard_visualization import DashboardVisualization a
 from amesh_client.models.dashboard_widget import DashboardWidget as DashboardWidget
 from amesh_client.models.dashboard_widget_result import DashboardWidgetResult as DashboardWidgetResult
 from amesh_client.models.dns_diagnostic import DnsDiagnostic as DnsDiagnostic
+from amesh_client.models.effective_capability_envelope import EffectiveCapabilityEnvelope as EffectiveCapabilityEnvelope
 from amesh_client.models.effective_plugin_policy import EffectivePluginPolicy as EffectivePluginPolicy
 from amesh_client.models.exchange_credential_request import ExchangeCredentialRequest as ExchangeCredentialRequest
 from amesh_client.models.execution_artifact import ExecutionArtifact as ExecutionArtifact
@@ -733,6 +787,7 @@ from amesh_client.models.human_task_action_kind import HumanTaskActionKind as Hu
 from amesh_client.models.human_task_action_request import HumanTaskActionRequest as HumanTaskActionRequest
 from amesh_client.models.human_task_notification import HumanTaskNotification as HumanTaskNotification
 from amesh_client.models.human_task_state import HumanTaskState as HumanTaskState
+from amesh_client.models.instruction_fragment import InstructionFragment as InstructionFragment
 from amesh_client.models.isolated_plugin_runtime_snapshot import IsolatedPluginRuntimeSnapshot as IsolatedPluginRuntimeSnapshot
 from amesh_client.models.isolated_plugin_runtime_status import IsolatedPluginRuntimeStatus as IsolatedPluginRuntimeStatus
 from amesh_client.models.isolated_plugin_state import IsolatedPluginState as IsolatedPluginState
@@ -765,8 +820,19 @@ from amesh_client.models.login_request import LoginRequest as LoginRequest
 from amesh_client.models.login_response import LoginResponse as LoginResponse
 from amesh_client.models.lte import Lte as Lte
 from amesh_client.models.mapping_disposition import MappingDisposition as MappingDisposition
+from amesh_client.models.maxcostusd import Maxcostusd as Maxcostusd
+from amesh_client.models.mcp_connection_discovery_request import McpConnectionDiscoveryRequest as McpConnectionDiscoveryRequest
+from amesh_client.models.mcp_connection_revision import McpConnectionRevision as McpConnectionRevision
+from amesh_client.models.mcp_connection_spec import McpConnectionSpec as McpConnectionSpec
+from amesh_client.models.mcp_discovery_result import McpDiscoveryResult as McpDiscoveryResult
+from amesh_client.models.mcp_tool_impact import McpToolImpact as McpToolImpact
+from amesh_client.models.mcp_tool_pin import McpToolPin as McpToolPin
 from amesh_client.models.metric_kind import MetricKind as MetricKind
 from amesh_client.models.migration_patch import MigrationPatch as MigrationPatch
+from amesh_client.models.model_fallback_mode import ModelFallbackMode as ModelFallbackMode
+from amesh_client.models.model_policy_spec import ModelPolicySpec as ModelPolicySpec
+from amesh_client.models.model_provider_spec import ModelProviderSpec as ModelProviderSpec
+from amesh_client.models.model_route import ModelRoute as ModelRoute
 from amesh_client.models.namespace_authorization_boundary import NamespaceAuthorizationBoundary as NamespaceAuthorizationBoundary
 from amesh_client.models.namespace_check_policy import NamespaceCheckPolicy as NamespaceCheckPolicy
 from amesh_client.models.namespace_file import NamespaceFile as NamespaceFile
@@ -789,6 +855,7 @@ from amesh_client.models.operational_control_event import OperationalControlEven
 from amesh_client.models.operational_control_kind import OperationalControlKind as OperationalControlKind
 from amesh_client.models.operational_control_scope import OperationalControlScope as OperationalControlScope
 from amesh_client.models.operational_control_state import OperationalControlState as OperationalControlState
+from amesh_client.models.ordered_prompt_ref import OrderedPromptRef as OrderedPromptRef
 from amesh_client.models.permission import Permission as Permission
 from amesh_client.models.permission_action import PermissionAction as PermissionAction
 from amesh_client.models.permission_effect import PermissionEffect as PermissionEffect
@@ -876,6 +943,8 @@ from amesh_client.models.policy_tenant_context import PolicyTenantContext as Pol
 from amesh_client.models.principal_definition import PrincipalDefinition as PrincipalDefinition
 from amesh_client.models.principal_type import PrincipalType as PrincipalType
 from amesh_client.models.problem_detail import ProblemDetail as ProblemDetail
+from amesh_client.models.prompt_spec import PromptSpec as PromptSpec
+from amesh_client.models.provider_migration_diagnostic import ProviderMigrationDiagnostic as ProviderMigrationDiagnostic
 from amesh_client.models.provisioned_webhook_subscription import ProvisionedWebhookSubscription as ProvisionedWebhookSubscription
 from amesh_client.models.readiness_response import ReadinessResponse as ReadinessResponse
 from amesh_client.models.realtime_event import RealtimeEvent as RealtimeEvent
@@ -892,6 +961,8 @@ from amesh_client.models.reconciliation_run_state import ReconciliationRunState 
 from amesh_client.models.reconciliation_target_type import ReconciliationTargetType as ReconciliationTargetType
 from amesh_client.models.reduce_execution_request import ReduceExecutionRequest as ReduceExecutionRequest
 from amesh_client.models.reduce_execution_response import ReduceExecutionResponse as ReduceExecutionResponse
+from amesh_client.models.resolved_resource_pin import ResolvedResourcePin as ResolvedResourcePin
+from amesh_client.models.resolved_tool_pin import ResolvedToolPin as ResolvedToolPin
 from amesh_client.models.resource_lifecycle import ResourceLifecycle as ResourceLifecycle
 from amesh_client.models.resource_metadata import ResourceMetadata as ResourceMetadata
 from amesh_client.models.resources_inner import ResourcesInner as ResourcesInner
@@ -958,8 +1029,11 @@ from amesh_client.models.simulation_substitution import SimulationSubstitution a
 from amesh_client.models.simulation_task_plan import SimulationTaskPlan as SimulationTaskPlan
 from amesh_client.models.simulation_task_state import SimulationTaskState as SimulationTaskState
 from amesh_client.models.simulation_unknown import SimulationUnknown as SimulationUnknown
+from amesh_client.models.skill_spec import SkillSpec as SkillSpec
 from amesh_client.models.source_position import SourcePosition as SourcePosition
 from amesh_client.models.source_range import SourceRange as SourceRange
+from amesh_client.models.spec import Spec as Spec
+from amesh_client.models.spec1 import Spec1 as Spec1
 from amesh_client.models.subflow_mode import SubflowMode as SubflowMode
 from amesh_client.models.subflow_propagation import SubflowPropagation as SubflowPropagation
 from amesh_client.models.task_artifact_record import TaskArtifactRecord as TaskArtifactRecord

@@ -13,6 +13,9 @@ const session = {
   capabilities: {
     'assets.view': true,
     'assets.manage': true,
+    'agents.view': true,
+    'agents.manage': true,
+    'agents.execute': true,
     'flows.view': true,
     'flows.create': true,
     'flows.update': true,
@@ -145,6 +148,10 @@ async function mockApi(page: Page, overrides = session) {
     { key: 'KILL_SWITCH', flagKey: 'admin-execution-kill-switch', enabled: false, value: null, version: null, updatedBy: null, updatedAt: null },
   ]
   const adminAudit: Array<Record<string, unknown>> = []
+  let agentResources: Array<Record<string, unknown>> = [{
+    resourceId: 'agent-policy-1', tenantId: 'default', namespace: 'examples.agent', kind: 'MODEL_POLICY', key: 'openrouter-luna', revision: 1, digest: `sha256:${'a'.repeat(64)}`, createdBy: session.principalId, createdAt: '2026-08-25T01:00:00Z',
+    spec: { kind: 'MODEL_POLICY', key: 'openrouter-luna', namespace: 'examples.agent', title: 'OpenRouter Luna', routes: [{ routeId: 'primary', provider: { adapter: 'openai-compatible', endpoint: 'https://openrouter.ai/api/v1', embeddingEndpoint: null, credentialRef: 'openrouter' }, model: 'openai/gpt-5.6-luna', requiredFeatures: ['structured-output'], parameters: {} }], fallbackMode: 'DISABLED', outputNondeterminismDisclosure: 'Model output can vary.' },
+  }]
   await page.route('**/api/v1/ui/session**', (route) => route.fulfill({ json: overrides }))
   await page.route('**/ready', (route) => route.fulfill({ json: { status: 'ready', version: '0.2.0', database: 'ready', migrations_applied: 44, migrations_expected: 44, latest_migration: '0044_search_projection.sql', error: null } }))
   await page.route('**/api/v1/auth/providers**', (route) => route.fulfill({ json: [
@@ -293,6 +300,21 @@ async function mockApi(page: Page, overrides = session) {
     return route.fulfill({ json: [] })
   })
   await page.route('**/api/v1/namespaces/*/secret-bindings', (route) => route.fulfill({ json: [{ namespace: 'examples.guided', key: 'openrouter', provider: 'env', providerReference: 'OPENROUTER_API_KEY', metadata: {}, resourceVersion: 1, inherited: false, originNamespace: 'examples.guided', createdAt: '2026-08-25T01:00:00Z', updatedAt: '2026-08-25T01:00:00Z' }] }))
+  await page.route('**/api/v1/namespaces/*/agent/mcp-connections', (route) => route.fulfill({ json: [] }))
+  await page.route('**/api/v1/namespaces/*/agent/resources', (route) => {
+    if (route.request().method() === 'POST') {
+      const spec = route.request().postDataJSON() as Record<string, unknown>
+      const previous = agentResources.filter((item) => item.key === spec.key && item.kind === spec.kind)
+      const created = { resourceId: previous[0]?.resourceId || 'agent-resource-new', tenantId: 'default', namespace: 'examples.agent', kind: spec.kind, key: spec.key, revision: previous.length + 1, digest: `sha256:${'b'.repeat(64)}`, spec, createdBy: session.principalId, createdAt: '2026-08-25T01:01:00Z' }
+      agentResources = [...agentResources.filter((item) => item.key !== spec.key || item.kind !== spec.kind), created]
+      return route.fulfill({ status: 201, json: created })
+    }
+    return route.fulfill({ json: agentResources })
+  })
+  await page.route('**/api/v1/namespaces/*/agent/definitions/*/resolve', (route) => route.fulfill({ json: {
+    pinId: 'pin-1', tenantId: 'default', namespace: 'examples.agent', subjectRef: 'ui-preview:test', envelopeDigest: `sha256:${'c'.repeat(64)}`, createdBy: session.principalId, createdAt: '2026-08-25T01:01:01Z',
+    envelope: { schemaVersion: 'amesh.agent-envelope/v1', agent: { key: 'researcher', revision: 1, digest: `sha256:${'b'.repeat(64)}` }, resources: [{ kind: 'MODEL_POLICY', key: 'openrouter-luna', revision: 1, digest: `sha256:${'a'.repeat(64)}` }], instructions: [{ sourceKind: 'AGENT', sourceKey: 'researcher', order: -1, content: 'Return structured evidence.' }], promptVariables: {}, modelRoutes: [{ routeId: 'primary', provider: { adapter: 'openai-compatible', endpoint: 'https://openrouter.ai/api/v1', embeddingEndpoint: null, credentialRef: 'openrouter' }, model: 'openai/gpt-5.6-luna', requiredFeatures: ['structured-output'], parameters: {} }], fallbackMode: 'DISABLED', outputNondeterminismDisclosure: 'Model output can vary.', tools: [], inputSchema: { type: 'object' }, outputSchema: { type: 'object' }, memoryPolicy: { scope: 'NONE', maxBytes: 0, retentionSeconds: 0, redact: true }, permissions: { delegatedCapabilities: [], toolAllowlist: [], secretScopes: ['openrouter'], networkHosts: ['openrouter.ai'], filesystemReadRoots: [], filesystemWriteRoots: [], allowHighImpactTools: false }, hardLimits: { maxTotalTokens: 4000, maxCostUsd: '0.20', maxDurationSeconds: 120, maxToolCalls: 0, maxTurns: 3, maxLoopIterations: 0, maxRecursionDepth: 0, maxConcurrency: 1 }, evaluationPolicy: { requiredEvaluations: ['schema'], requireHumanRelease: false } },
+  } }))
   await page.route('**/api/v1/executions?limit=200', (route) => route.fulfill({ json: executions }))
   await page.route('**/api/v1/executions', (route) => {
     if (route.request().method() !== 'POST') return route.fulfill({ json: executions })
@@ -762,6 +784,35 @@ test('guides a new user from intent to a tested two-step execution trace', async
   await expect(page.getByRole('heading', { name: 'guided_first_run' })).toBeVisible()
   expect(Date.now() - startedAt).toBeLessThan(600_000)
 
+  const results = await new AxeBuilder({ page })
+    .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'])
+    .analyze()
+  expect(results.violations.filter((violation) => ['critical', 'serious'].includes(violation.impact || ''))).toEqual([])
+})
+
+test('composes an agent from exact catalogs and explains its pinned envelope', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name === 'tablet', 'desktop agent builder acceptance')
+  await page.goto('/')
+  await page.evaluate(() => localStorage.setItem('amesh.ui.settings.v1', JSON.stringify({
+    tenant: 'default', namespace: 'examples.agent', locale: 'en', timezone: 'UTC', savedViews: [], authenticationMode: 'token',
+  })))
+  await page.reload()
+  await page.getByRole('button', { name: 'API token' }).click()
+  await page.getByLabel('API token').fill('test-token')
+  await page.getByRole('button', { name: 'Open control room' }).click()
+  await page.getByRole('link', { name: 'Agents' }).click()
+  await expect(page.getByRole('heading', { name: 'Agents', level: 1 })).toBeVisible()
+  await page.getByRole('button', { name: 'New resource' }).click()
+  await page.getByLabel('Resource key').fill('researcher')
+  await page.getByLabel('Display name').fill('Evidence researcher')
+  await page.getByLabel('Model policy revision').selectOption('openrouter-luna@1')
+  await page.getByLabel('Agent instructions').fill('Return structured evidence.')
+  await page.getByRole('button', { name: 'Save immutable revision' }).click()
+  await expect(page.getByText('Agent researcher revision 1 saved.')).toBeVisible()
+  await page.getByRole('button', { name: 'Explain effective envelope' }).click()
+  await expect(page.getByRole('heading', { name: 'Effective capability envelope' })).toBeVisible()
+  await expect(page.getByText('4000', { exact: true })).toBeVisible()
+  await expect(page.getByText('Model output can vary.')).toBeVisible()
   const results = await new AxeBuilder({ page })
     .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'])
     .analyze()

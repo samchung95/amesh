@@ -11944,26 +11944,41 @@
       "requirement_id": "URS-F-0806",
       "epic_id": "EPIC-807",
       "compatibility_level": "Intentional difference",
-      "implementation_status": "Proposed",
+      "implementation_status": "Verified",
       "disposition": "intentional-difference",
       "source_ids": [
         "amesh-product-baseline",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
+      "evidence": [
+        "src/amesh/domain/agent_resources.py",
+        "src/amesh/adapters/postgres/agent_resources.py",
+        "tests/domain/test_agent_resources.py",
+        "tests/adapters/postgres/test_agent_resource_repository.py",
+        "frontend/e2e/shell.spec.ts",
+        "docs/api/agent-primitives.md",
+        "TESTLOG.md"
+      ],
       "notes": "Define reusable, versioned agent resources whose model, prompt, skill, tool, permission, environment, budget and output-contract revisions resolve and pin before execution."
     },
     {
       "requirement_id": "URS-F-0807",
       "epic_id": "EPIC-807",
       "compatibility_level": "Intentional difference",
-      "implementation_status": "Proposed",
+      "implementation_status": "Verified",
       "disposition": "intentional-difference",
       "source_ids": [
         "amesh-product-baseline",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
+      "evidence": [
+        "migrations/0057_agent_resources.sql",
+        "src/amesh/adapters/postgres/agent_resources.py",
+        "tests/adapters/postgres/test_agent_resource_repository.py::test_resource_revisions_resolve_atomically_and_remain_tenant_scoped",
+        "tests/api/test_agent_resources_api.py",
+        "docs/adr/052-typed-agent-resource-ledger-and-atomic-capability-pins.md",
+        "TESTLOG.md"
+      ],
       "notes": "Define reusable, versioned agent resources whose model, prompt, skill, tool, permission, environment, budget and output-contract revisions resolve and pin before execution."
     },
     {
@@ -12061,13 +12076,19 @@
       "requirement_id": "URS-F-0815",
       "epic_id": "EPIC-807",
       "compatibility_level": "Intentional difference",
-      "implementation_status": "Proposed",
+      "implementation_status": "Verified",
       "disposition": "intentional-difference",
       "source_ids": [
         "amesh-product-baseline",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
+      "evidence": [
+        "src/amesh/domain/agent_resources.py::provider_migration_diagnostic",
+        "tests/domain/test_agent_resources.py::test_revision_and_provider_comparison_never_claim_durable_semantic_parity",
+        "tests/api/test_agent_resources_api.py",
+        "docs/how-to/define-agent-capability-envelope.md",
+        "TESTLOG.md"
+      ],
       "notes": "Define reusable, versioned agent resources whose model, prompt, skill, tool, permission, environment, budget and output-contract revisions resolve and pin before execution."
     },
     {
@@ -12100,13 +12121,19 @@
       "requirement_id": "URS-F-0818",
       "epic_id": "EPIC-807",
       "compatibility_level": "Intentional difference",
-      "implementation_status": "Proposed",
+      "implementation_status": "Verified",
       "disposition": "intentional-difference",
       "source_ids": [
         "amesh-product-baseline",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
+      "evidence": [
+        "src/amesh/mcp_server.py",
+        "tests/test_mcp_server.py",
+        "tests/api/test_agent_connections_api.py",
+        "docs/api/agent-primitives.md",
+        "TESTLOG.md"
+      ],
       "notes": "Define reusable, versioned agent resources whose model, prompt, skill, tool, permission, environment, budget and output-contract revisions resolve and pin before execution."
     },
     {

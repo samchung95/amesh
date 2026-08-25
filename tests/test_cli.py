@@ -296,6 +296,98 @@ def test_namespace_file_cli_uploads_and_downloads(
     )
 
 
+class FakeAgentClient:
+    calls: ClassVar[list[tuple[str, str, dict[str, Any]]]] = []
+
+    def __init__(self, **kwargs: Any) -> None:
+        del kwargs
+
+    def __enter__(self) -> FakeAgentClient:
+        return self
+
+    def __exit__(self, *args: object) -> None:
+        return None
+
+    def post(self, path: str, **kwargs: Any) -> httpx.Response:
+        self.calls.append(("POST", path, kwargs))
+        return httpx.Response(200, request=httpx.Request("POST", path), json={"ok": True})
+
+    def get(self, path: str, **kwargs: Any) -> httpx.Response:
+        self.calls.append(("GET", path, kwargs))
+        return httpx.Response(200, request=httpx.Request("GET", path), json={"ok": True})
+
+
+def test_agent_cli_applies_resolves_and_compares_exact_revisions(
+    monkeypatch: Any,
+    tmp_path: Path,
+) -> None:
+    FakeAgentClient.calls.clear()
+    monkeypatch.setattr(httpx, "Client", FakeAgentClient)
+    spec = tmp_path / "prompt.json"
+    spec.write_text(
+        json.dumps(
+            {
+                "kind": "PROMPT",
+                "key": "house-style",
+                "namespace": "agents.demo",
+                "title": "House style",
+                "content": "Be concise.",
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    assert main(["agent", "apply", "agents.demo", str(spec)]) == 0
+    assert (
+        main(
+            [
+                "agent",
+                "resolve",
+                "agents.demo",
+                "researcher",
+                "--revision",
+                "3",
+                "--subject-ref",
+                "session:test-1",
+            ]
+        )
+        == 0
+    )
+    assert (
+        main(
+            [
+                "agent",
+                "compare",
+                "agents.demo",
+                "researcher",
+                "--from-revision",
+                "2",
+                "--to-revision",
+                "3",
+            ]
+        )
+        == 0
+    )
+
+    assert FakeAgentClient.calls == [
+        (
+            "POST",
+            "/api/v1/namespaces/agents.demo/agent/resources",
+            {"json": json.loads(spec.read_text(encoding="utf-8"))},
+        ),
+        (
+            "POST",
+            "/api/v1/namespaces/agents.demo/agent/definitions/researcher/resolve",
+            {"json": {"agentRevision": 3, "subjectRef": "session:test-1"}},
+        ),
+        (
+            "GET",
+            "/api/v1/namespaces/agents.demo/agent/definitions/researcher/compare",
+            {"params": {"fromRevision": 2, "toRevision": 3}},
+        ),
+    ]
+
+
 class FakeLifecycleClient:
     posts: ClassVar[list[tuple[str, dict[str, Any]]]] = []
 

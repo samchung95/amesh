@@ -1,7 +1,7 @@
 # Agent primitive API and task reference
 
-This reference defines the bounded model tasks, governed MCP connections, and AMESH MCP read surface
-introduced by EPIC-312.
+This reference defines the bounded model tasks, governed MCP connections, versioned agent resources,
+and AMESH MCP read surface introduced by EPIC-312 and EPIC-807.
 
 ## Model task types
 
@@ -54,12 +54,40 @@ it never stores the credential value.
 | `POST /api/v1/namespaces/{namespace}/agent/mcp-connections` | Verify live schemas and create the next immutable revision. |
 | `GET /api/v1/namespaces/{namespace}/agent/mcp-connections` | List the latest revision of each key. |
 | `GET /api/v1/namespaces/{namespace}/agent/mcp-connections/{key}?revision=N` | Read one latest or pinned revision. |
+| `GET /api/v1/namespaces/{namespace}/agent/mcp-connections/{key}/tools?revision=N` | List the exact tool catalog and schema digests for an approved revision. |
 
 `agent.mcp` accepts `connection`, optional `revision`, `tool`, `arguments`, `dataHandling`,
 `allowWrite`, and `approvalTask`. It validates arguments against the pin, rediscovers the live server,
 rejects schema drift, applies impact approval, validates structured output, and journals the call.
 Legacy `endpoint` tasks remain available for compatibility but do not provide governed connection
 semantics.
+
+## Versioned agent resources
+
+Prompt, skill, model-policy, and agent definitions share one tenant- and namespace-scoped immutable
+revision ledger. Creating an existing key adds a revision; references inside an agent definition must
+always name an exact revision.
+
+| Method and path | Purpose |
+|---|---|
+| `POST /api/v1/namespaces/{namespace}/agent/resources` | Create the next immutable resource revision. |
+| `GET /api/v1/namespaces/{namespace}/agent/resources?kind=AGENT` | List the latest resources, optionally by kind. |
+| `GET /api/v1/namespaces/{namespace}/agent/resources/{kind}/{key}?revision=N` | Inspect an exact resource revision. |
+| `POST /api/v1/namespaces/{namespace}/agent/definitions/{key}/resolve` | Resolve exact dependencies and atomically pin the effective capability envelope to a subject. |
+| `GET /api/v1/namespaces/{namespace}/agent/definitions/{key}/compare?fromRevision=A&toRevision=B` | Explain agent revision changes. |
+| `GET /api/v1/namespaces/{namespace}/agent/model-policies/{key}/migration?fromRevision=A&toRevision=B` | Explain provider-route migration and output nondeterminism. |
+
+The resolved `amesh.agent-envelope/v1` pin contains the exact prompt, skill, model-policy and MCP
+tool revisions, composed instructions, schemas, memory policy, delegated permissions, hard limits and
+evaluation policy. Resolution rejects missing revisions, schema drift, undelegated skill
+capabilities, undeclared secret/network access, and unapproved high-impact tools. A `subjectRef` is
+content-addressed: retrying the same resolution is idempotent, while trying to attach a different
+envelope to the same subject is rejected.
+
+The envelope is deterministic configuration evidence, not a claim that model output is deterministic.
+Provider substitution creates a new model-policy revision and the migration endpoint always reports
+that output remains nondeterministic. See
+[Define and pin an agent](../how-to/define-agent-capability-envelope.md) for an end-to-end example.
 
 ## AMESH MCP server
 
@@ -72,6 +100,9 @@ The server exposes only read-only, non-destructive tools:
 - `list_workflows(tenant, namespace, limit=100)` returns authorized revision identifiers and hashes.
 - `inspect_execution(tenant, execution_id)` returns authorized execution and task-run states without
   inputs or outputs.
+- `list_agents(tenant, namespace, limit=100)` returns authorized latest agent-definition revisions.
+- `inspect_agent(tenant, namespace, key, revision=None)` returns one authorized exact definition and
+  its credential references, never credential values.
 
 Each call uses the same role/binding/credential-scope authorization service as the REST API with
 audience `amesh-mcp`. The MCP server cannot create executions or mutate orchestration state.

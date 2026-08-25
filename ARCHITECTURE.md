@@ -56,6 +56,20 @@ the tool allowlist and impact policy, then journals the call. The model and MCP 
 execution state. AMESH's own authenticated MCP server exposes only authorization-checked application
 operations; its first surface is read-only workflow and execution inspection.
 
+## Versioned agent resource boundary
+
+Prompts, skills, model policies and agent definitions share one tenant-and-namespace-scoped immutable
+revision ledger. Each revision is validated by a kind-specific domain contract before persistence;
+plaintext credentials and executable skill payloads are not valid resource fields. Agent definitions
+refer to exact prompt, skill and model-policy revisions plus exact MCP connection revisions.
+
+One resolver loads those revisions in a single PostgreSQL transaction, verifies authorization and
+cross-resource invariants, intersects requested tools/skills with the declared permission boundary,
+and persists a content-addressed capability-envelope pin. Future agent sessions consume only that
+pin. Provider fallback order is data inside the pinned model policy; changing provider/model policy
+creates a new revision and an explicit nondeterminism/migration diagnostic rather than silently
+changing durable workflow semantics.
+
 ## Guided workflow authoring boundary
 
 Guided creation, the visual editor and the code editor are projections over one canonical YAML

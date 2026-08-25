@@ -9,6 +9,13 @@ import type {
   AdministrationControl,
   AdministrationControlDraft,
   AdministrationImpactPreview,
+  AgentCapabilityPin,
+  AgentMcpConnectionRevision,
+  AgentMcpToolCatalogEntry,
+  AgentResourceKind,
+  AgentResourceRevision,
+  AgentResourceSpec,
+  AgentRevisionComparison,
   Announcement,
   AnnouncementDraft,
   AdmissionDiagnostics,
@@ -674,6 +681,32 @@ export function createApiClient(connection: ApiConnection) {
       request<void>(`${namespaceRoot(namespace)}/key-values/${encodeURIComponent(key)}?expectedVersion=${String(expectedVersion)}`, { method: 'DELETE' }),
     namespaceSecretBindings: async (namespace: string) =>
       request<SecretBinding[]>(`${namespaceRoot(namespace)}/secret-bindings`),
+    agentResources: async (namespace: string, kind?: AgentResourceKind) => {
+      const suffix = kind ? `?kind=${encodeURIComponent(kind)}` : ''
+      return request<AgentResourceRevision[]>(`${namespaceRoot(namespace)}/agent/resources${suffix}`)
+    },
+    agentMcpConnections: async (namespace: string) =>
+      request<AgentMcpConnectionRevision[]>(`${namespaceRoot(namespace)}/agent/mcp-connections`),
+    agentMcpTools: async (namespace: string, key: string, revision: number) =>
+      request<AgentMcpToolCatalogEntry[]>(`${namespaceRoot(namespace)}/agent/mcp-connections/${encodeURIComponent(key)}/tools?revision=${String(revision)}`),
+    createAgentResource: async (namespace: string, spec: AgentResourceSpec) =>
+      request<AgentResourceRevision>(`${namespaceRoot(namespace)}/agent/resources`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(spec),
+      }),
+    agentResource: async (namespace: string, kind: AgentResourceKind, key: string, revision?: number) => {
+      const suffix = revision ? `?revision=${String(revision)}` : ''
+      return request<AgentResourceRevision>(`${namespaceRoot(namespace)}/agent/resources/${kind}/${encodeURIComponent(key)}${suffix}`)
+    },
+    resolveAgent: async (namespace: string, key: string, revision: number, subjectRef: string) =>
+      request<AgentCapabilityPin>(`${namespaceRoot(namespace)}/agent/definitions/${encodeURIComponent(key)}/resolve`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ agentRevision: revision, subjectRef }),
+      }),
+    compareAgent: async (namespace: string, key: string, fromRevision: number, toRevision: number) =>
+      request<AgentRevisionComparison>(`${namespaceRoot(namespace)}/agent/definitions/${encodeURIComponent(key)}/compare?fromRevision=${String(fromRevision)}&toRevision=${String(toRevision)}`),
     putNamespaceSecretBinding: async (namespace: string, key: string, providerReference: string) =>
       request<SecretBinding>(`${namespaceRoot(namespace)}/secret-bindings/${encodeURIComponent(key)}`, {
         method: 'PUT',

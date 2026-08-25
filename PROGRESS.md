@@ -2,12 +2,25 @@
 
 ## Current state
 
-- What works: the locally qualified MVP foundation is deployed through migration 56. Guided creation now takes a new user from six intent starters through catalog-backed YAML authoring, validation, policy, simulation, isolated testing and a traceable first run. EPIC-312 supplies bounded model/MCP primitives, including the checked-in live Luna example.
-- What's in flight: `c100` is complete and the next selected implementation boundary is `c106` / EPIC-807. EPIC-808 through EPIC-806 remain To-Do on `c107`–`c109` and must be selected one at a time.
-- Known broken / TODO: production determinism qualification remains on `c101`; durable agent definitions/sessions, memory/evaluation gates and multi-agent routing remain separate on `c106`–`c109`. Existing deferred baseline and external-qualification cards remain unchanged.
+- What works: the locally qualified MVP foundation is deployed through migration 57. Guided creation supports a traceable first workflow run, EPIC-312 supplies bounded Luna/OpenRouter and MCP primitives, and EPIC-807 adds immutable prompt, declarative skill, model-policy and agent resources with guided composition, exact envelope resolution, atomic subject pins, migration diagnostics and authenticated MCP discovery.
+- What's in flight: `c100` and `c106` are complete. The next dependency-ordered implementation boundary is `c107` / EPIC-808; EPIC-809 and EPIC-806 remain To-Do on `c108`–`c109` and must be selected one at a time.
+- Known broken / TODO: production determinism qualification remains on `c101`; durable agent turn execution/checkpoint resume, memory/evaluation gates and multi-agent routing remain separate on `c107`–`c109`. Existing deferred baseline and external-qualification cards remain unchanged.
 - How to run/test: frontend checks run from `frontend/` with `npm test`, `npm run build` and `npm run test:e2e`; backend checks use `uv run --extra runtime --extra dev pytest`. The local Compose product is served at `http://localhost:8000`.
 
 ## Session log
+
+### 2026-08-25 (EPIC-807 complete)
+
+- Did: completed versioned prompt, declarative skill, provider-neutral model-policy and agent resources; exact prompt/skill/model/MCP-tool references; deterministic instruction composition; typed input/output schemas; isolated memory declarations; delegated capability, secret, network and filesystem boundaries; hard budget/turn/tool/loop/recursion/concurrency limits; evaluation policy; atomic content-addressed subject pins; revision comparison; provider migration diagnostics; guided Agents UI; REST/CLI operations; MCP tool catalog plus authenticated `list_agents` and `inspect_agent`; migration 0057; ADR-052; API/how-to documentation; and regenerated four-language SDKs.
+- Verification: 19 focused domain, PostgreSQL repository, API, MCP, CLI and generated-contract tests pass; the PostgreSQL test proves restart-idempotent pins, conflicting-envelope rejection, tenant isolation and secret-free audit evidence. Ruff passes and strict mypy passes all 225 source files. Two focused frontend unit assertions, changed-file ESLint, the production build and the focused Chromium agent-composition acceptance pass. Deterministic SDK generation matches 2,335 files; Python/TypeScript/Java/Go clients compile or test successfully. Rebuilt Compose is healthy at migration 57/57, and live HTTP acceptance created Luna policy/prompt/agent revision 1 and returned the same persisted pin on retry for envelope `sha256:668c8e99814b8444bd95ca16ba97bbe72f4d84568bf648c5c6b62a4a77609f2b`.
+- Deviations from plan: the generated Go tree, including pre-existing files, is reported by `gofmt`; its containerized `go test ./...` gate passes and generator formatting was not changed under this epic. Durable model turns, tool mediation and checkpoint resume intentionally remain EPIC-808 consumers of the EPIC-807 pin. Model output is explicitly nondeterministic.
+- Next step when resuming: close and publish `c106`, select `c107` / EPIC-808, and implement bounded durable single-agent sessions against the exact capability pin.
+
+### 2026-08-25 (EPIC-807 start)
+
+- Did: closed and published guided-creation card `c100` as `8aae515`; selected `c106` / EPIC-807; compared workflow embedding, per-kind tables and a typed shared revision ledger; and accepted ADR-052 for exact immutable resource references plus one transactionally persisted capability-envelope pin.
+- Deviations from plan: none. This epic defines and resolves agents but does not run an autonomous loop, execute skill code or persist ambient credentials.
+- Next step when resuming: implement typed prompt, skill, model-policy, agent and envelope contracts, then add migration 0057 and the transactional resolver repository.
 
 ### 2026-08-25 (guided workflow creation complete)
 

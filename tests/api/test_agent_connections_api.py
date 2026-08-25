@@ -288,6 +288,15 @@ def test_agent_mcp_connection_discovery_versioning_and_tenant_scope(
             assert loaded.status_code == 200
             assert loaded.json()["tenantId"] == "default"
 
+            tool_catalog = await client.get(
+                "/api/v1/namespaces/agents.demo/agent/mcp-connections/catalog/tools",
+                headers=headers,
+                params={"revision": 1},
+            )
+            assert tool_catalog.status_code == 200
+            assert tool_catalog.json()[0]["schemaDigest"] == tool.schema_digest
+            assert "outbound-secret" not in tool_catalog.text
+
     try:
         asyncio.run(scenario())
         assert shared_resources.requests == [

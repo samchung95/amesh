@@ -336,6 +336,12 @@
       "mode": "expand",
       "onlineCompatible": true,
       "rollbackGuidance": "Disable new model and MCP task dispatch, preserve connection revisions and invocation evidence, then forward-fix the additive primitive tables before restoring external calls."
+    },
+    {
+      "file": "0057_agent_resources.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Disable agent-definition writes and new capability-envelope resolution, preserve immutable revisions and pins, then forward-fix the additive resource tables before restoring resolution."
     }
   ]
 }

@@ -9436,6 +9436,769 @@ paths:
       - compatibility
       x-accepts:
       - application/json
+  /api/v1/namespaces/{namespace}/agent/definitions/{key}/compare:
+    get:
+      operationId: compare_agent_definition_revisions_api_v1_namespaces__namespace__agent_definitions__key__compare_get
+      parameters:
+      - explode: false
+        in: path
+        name: namespace
+        required: true
+        schema:
+          title: Namespace
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: key
+        required: true
+        schema:
+          title: Key
+          type: string
+        style: simple
+      - explode: true
+        in: query
+        name: fromRevision
+        required: true
+        schema:
+          minimum: 1
+          title: Fromrevision
+          type: integer
+        style: form
+      - explode: true
+        in: query
+        name: toRevision
+        required: true
+        schema:
+          minimum: 1
+          title: Torevision
+          type: integer
+        style: form
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentRevisionComparison"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Compare Agent Definition Revisions
+      tags:
+      - agents
+      x-accepts:
+      - application/json
+  /api/v1/namespaces/{namespace}/agent/definitions/{key}/resolve:
+    post:
+      operationId: resolve_agent_definition_api_v1_namespaces__namespace__agent_definitions__key__resolve_post
+      parameters:
+      - explode: false
+        in: path
+        name: namespace
+        required: true
+        schema:
+          title: Namespace
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: key
+        required: true
+        schema:
+          title: Key
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AgentResolutionRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentCapabilityPin"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Resolve Agent Definition
+      tags:
+      - agents
+      x-content-type: application/json
+      x-accepts:
+      - application/json
+  /api/v1/namespaces/{namespace}/agent/mcp-connections:
+    get:
+      operationId: list_agent_mcp_connections_api_v1_namespaces__namespace__agent_mcp_connections_get
+      parameters:
+      - explode: false
+        in: path
+        name: namespace
+        required: true
+        schema:
+          title: Namespace
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/McpConnectionRevision"
+                title: Response List Agent Mcp Connections Api V1 Namespaces  Namespace  Agent
+                  Mcp Connections Get
+                type: array
+                default: null
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: List Agent Mcp Connections
+      tags:
+      - agents
+      x-accepts:
+      - application/json
+    post:
+      operationId: create_agent_mcp_connection_revision_api_v1_namespaces__namespace__agent_mcp_connections_post
+      parameters:
+      - explode: false
+        in: path
+        name: namespace
+        required: true
+        schema:
+          title: Namespace
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/McpConnectionSpec"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/McpConnectionRevision"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Create Agent Mcp Connection Revision
+      tags:
+      - agents
+      x-content-type: application/json
+      x-accepts:
+      - application/json
+  /api/v1/namespaces/{namespace}/agent/mcp-connections/discover:
+    post:
+      operationId: discover_agent_mcp_connection_api_v1_namespaces__namespace__agent_mcp_connections_discover_post
+      parameters:
+      - explode: false
+        in: path
+        name: namespace
+        required: true
+        schema:
+          title: Namespace
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/McpConnectionDiscoveryRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/McpDiscoveryResult"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Discover Agent Mcp Connection
+      tags:
+      - agents
+      x-content-type: application/json
+      x-accepts:
+      - application/json
+  /api/v1/namespaces/{namespace}/agent/mcp-connections/{key}:
+    get:
+      operationId: get_agent_mcp_connection_api_v1_namespaces__namespace__agent_mcp_connections__key__get
+      parameters:
+      - explode: false
+        in: path
+        name: namespace
+        required: true
+        schema:
+          title: Namespace
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: key
+        required: true
+        schema:
+          title: Key
+          type: string
+        style: simple
+      - explode: true
+        in: query
+        name: revision
+        required: false
+        schema:
+          minimum: 1
+          nullable: true
+          type: integer
+        style: form
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/McpConnectionRevision"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Get Agent Mcp Connection
+      tags:
+      - agents
+      x-accepts:
+      - application/json
+  /api/v1/namespaces/{namespace}/agent/mcp-connections/{key}/tools:
+    get:
+      operationId: list_agent_mcp_connection_tools_api_v1_namespaces__namespace__agent_mcp_connections__key__tools_get
+      parameters:
+      - explode: false
+        in: path
+        name: namespace
+        required: true
+        schema:
+          title: Namespace
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: key
+        required: true
+        schema:
+          title: Key
+          type: string
+        style: simple
+      - explode: true
+        in: query
+        name: revision
+        required: false
+        schema:
+          minimum: 1
+          nullable: true
+          type: integer
+        style: form
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  additionalProperties: true
+                  type: object
+                title: Response List Agent Mcp Connection Tools Api V1 Namespaces  Namespace  Agent
+                  Mcp Connections  Key  Tools Get
+                type: array
+                default: null
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: List Agent Mcp Connection Tools
+      tags:
+      - agents
+      x-accepts:
+      - application/json
+  /api/v1/namespaces/{namespace}/agent/model-policies/{key}/migration:
+    get:
+      operationId: diagnose_model_policy_migration_api_v1_namespaces__namespace__agent_model_policies__key__migration_get
+      parameters:
+      - explode: false
+        in: path
+        name: namespace
+        required: true
+        schema:
+          title: Namespace
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: key
+        required: true
+        schema:
+          title: Key
+          type: string
+        style: simple
+      - explode: true
+        in: query
+        name: fromRevision
+        required: true
+        schema:
+          minimum: 1
+          title: Fromrevision
+          type: integer
+        style: form
+      - explode: true
+        in: query
+        name: toRevision
+        required: true
+        schema:
+          minimum: 1
+          title: Torevision
+          type: integer
+        style: form
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProviderMigrationDiagnostic"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Diagnose Model Policy Migration
+      tags:
+      - agents
+      x-accepts:
+      - application/json
+  /api/v1/namespaces/{namespace}/agent/resources:
+    get:
+      operationId: list_agent_resources_api_v1_namespaces__namespace__agent_resources_get
+      parameters:
+      - explode: false
+        in: path
+        name: namespace
+        required: true
+        schema:
+          title: Namespace
+          type: string
+        style: simple
+      - explode: true
+        in: query
+        name: kind
+        required: false
+        schema:
+          allOf:
+          - $ref: "#/components/schemas/AgentResourceKind"
+          nullable: true
+        style: form
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/AgentResourceRevision"
+                title: Response List Agent Resources Api V1 Namespaces  Namespace  Agent
+                  Resources Get
+                type: array
+                default: null
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: List Agent Resources
+      tags:
+      - agents
+      x-accepts:
+      - application/json
+    post:
+      operationId: create_agent_resource_revision_api_v1_namespaces__namespace__agent_resources_post
+      parameters:
+      - explode: false
+        in: path
+        name: namespace
+        required: true
+        schema:
+          title: Namespace
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Spec"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentResourceRevision"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Create Agent Resource Revision
+      tags:
+      - agents
+      x-content-type: application/json
+      x-accepts:
+      - application/json
+  /api/v1/namespaces/{namespace}/agent/resources/{kind}/{key}:
+    get:
+      operationId: get_agent_resource_api_v1_namespaces__namespace__agent_resources__kind___key__get
+      parameters:
+      - explode: false
+        in: path
+        name: namespace
+        required: true
+        schema:
+          title: Namespace
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: kind
+        required: true
+        schema:
+          $ref: "#/components/schemas/AgentResourceKind"
+        style: simple
+      - explode: false
+        in: path
+        name: key
+        required: true
+        schema:
+          title: Key
+          type: string
+        style: simple
+      - explode: true
+        in: query
+        name: revision
+        required: false
+        schema:
+          minimum: 1
+          nullable: true
+          type: integer
+        style: form
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentResourceRevision"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Get Agent Resource
+      tags:
+      - agents
+      x-accepts:
+      - application/json
   /api/v1/namespaces/{namespace}/files:
     get:
       operationId: list_namespace_files_api_v1_namespaces__namespace__files_get
@@ -15947,6 +16710,814 @@ components:
       - KEY
       title: AdmissionScope
       type: string
+    AgentCapabilityPin:
+      example:
+        createdAt: 2000-01-23T04:56:07.000+00:00
+        createdBy: createdBy
+        envelope:
+          agent:
+            digest: digest
+            key: key
+            kind: PROMPT
+            resourceId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            revision: 1
+          evaluationPolicy:
+            requireHumanRelease: false
+            requiredEvaluations:
+            - requiredEvaluations
+            - requiredEvaluations
+          fallbackMode: DISABLED
+          hardLimits:
+            maxConcurrency: 603
+            maxCostUsd: maxCostUsd
+            maxDurationSeconds: 12665
+            maxLoopIterations: 5962
+            maxRecursionDepth: 56
+            maxToolCalls: 2302
+            maxTotalTokens: 1
+            maxTurns: 9301
+          inputSchema:
+            key: ""
+          instructions:
+          - content: content
+            order: 3
+            sourceKey: sourceKey
+            sourceKind: sourceKind
+          - content: content
+            order: 3
+            sourceKey: sourceKey
+            sourceKind: sourceKind
+          memoryPolicy:
+            maxBytes: 20271230
+            redact: true
+            retentionSeconds: 13073589
+            scope: ""
+          modelRoutes:
+          - model: model
+            parameters:
+              key: ""
+            provider:
+              adapter: openai-compatible
+              credentialRef: credentialRef
+              embeddingEndpoint: embeddingEndpoint
+              endpoint: endpoint
+            requiredFeatures:
+            - requiredFeatures
+            - requiredFeatures
+            routeId: routeId
+          - model: model
+            parameters:
+              key: ""
+            provider:
+              adapter: openai-compatible
+              credentialRef: credentialRef
+              embeddingEndpoint: embeddingEndpoint
+              endpoint: endpoint
+            requiredFeatures:
+            - requiredFeatures
+            - requiredFeatures
+            routeId: routeId
+          outputNondeterminismDisclosure: outputNondeterminismDisclosure
+          outputSchema:
+            key: ""
+          permissions:
+            allowHighImpactTools: false
+            delegatedCapabilities:
+            - delegatedCapabilities
+            - delegatedCapabilities
+            filesystemReadRoots:
+            - filesystemReadRoots
+            - filesystemReadRoots
+            filesystemWriteRoots:
+            - filesystemWriteRoots
+            - filesystemWriteRoots
+            networkHosts:
+            - networkHosts
+            - networkHosts
+            secretScopes:
+            - secretScopes
+            - secretScopes
+            toolAllowlist:
+            - toolAllowlist
+            - toolAllowlist
+          promptVariables:
+            key: promptVariables
+          resources:
+          - digest: digest
+            key: key
+            kind: PROMPT
+            resourceId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            revision: 1
+          - digest: digest
+            key: key
+            kind: PROMPT
+            resourceId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            revision: 1
+          schemaVersion: amesh.agent-envelope/v1
+          tools:
+          - connectionDigest: connectionDigest
+            connectionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            connectionKey: connectionKey
+            connectionRevision: 1
+            impact: READ_ONLY
+            schemaDigest: schemaDigest
+            toolName: toolName
+          - connectionDigest: connectionDigest
+            connectionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            connectionKey: connectionKey
+            connectionRevision: 1
+            impact: READ_ONLY
+            schemaDigest: schemaDigest
+            toolName: toolName
+        envelopeDigest: envelopeDigest
+        namespace: namespace
+        pinId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        subjectRef: subjectRef
+        tenantId: tenantId
+      properties:
+        createdAt:
+          format: date-time
+          title: Createdat
+          type: string
+        createdBy:
+          title: Createdby
+          type: string
+        envelope:
+          $ref: "#/components/schemas/EffectiveCapabilityEnvelope"
+        envelopeDigest:
+          pattern: "^sha256:[0-9a-f]{64}$"
+          title: Envelopedigest
+          type: string
+        namespace:
+          maxLength: 255
+          minLength: 1
+          title: Namespace
+          type: string
+        pinId:
+          format: uuid
+          title: Pinid
+          type: string
+        subjectRef:
+          title: Subjectref
+          type: string
+        tenantId:
+          title: Tenantid
+          type: string
+      required:
+      - createdAt
+      - createdBy
+      - envelope
+      - envelopeDigest
+      - namespace
+      - subjectRef
+      - tenantId
+      title: AgentCapabilityPin
+    AgentDefinitionSpec-Input:
+      additionalProperties: {}
+      properties:
+        description:
+          default: ""
+          maxLength: 4096
+          title: Description
+          type: string
+        evaluationPolicy:
+          $ref: "#/components/schemas/AgentEvaluationPolicy"
+        hardLimits:
+          $ref: "#/components/schemas/AgentHardLimits-Input"
+        inputSchema:
+          additionalProperties: true
+          title: Inputschema
+          type: object
+        instructions:
+          maxLength: 131072
+          minLength: 1
+          title: Instructions
+          type: string
+        key:
+          maxLength: 128
+          minLength: 1
+          pattern: "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+          title: Key
+          type: string
+        kind:
+          default: AGENT
+          enum:
+          - AGENT
+          title: Kind
+          type: string
+        memoryPolicy:
+          $ref: "#/components/schemas/AgentMemoryPolicy"
+        modelPolicy:
+          $ref: "#/components/schemas/AgentResourceRef"
+        namespace:
+          maxLength: 255
+          minLength: 1
+          title: Namespace
+          type: string
+        outputSchema:
+          additionalProperties: true
+          title: Outputschema
+          type: object
+        permissions:
+          $ref: "#/components/schemas/AgentPermissions"
+        prompts:
+          default: []
+          items:
+            $ref: "#/components/schemas/OrderedPromptRef"
+          title: Prompts
+          type: array
+        skills:
+          default: []
+          items:
+            $ref: "#/components/schemas/AgentResourceRef"
+          title: Skills
+          type: array
+        title:
+          maxLength: 256
+          minLength: 1
+          title: Title
+          type: string
+        tools:
+          default: []
+          items:
+            $ref: "#/components/schemas/AgentToolRef"
+          title: Tools
+          type: array
+      required:
+      - evaluationPolicy
+      - hardLimits
+      - inputSchema
+      - instructions
+      - key
+      - memoryPolicy
+      - modelPolicy
+      - namespace
+      - outputSchema
+      - permissions
+      - title
+      title: AgentDefinitionSpec
+    AgentDefinitionSpec-Output:
+      additionalProperties: {}
+      properties:
+        description:
+          default: ""
+          maxLength: 4096
+          title: Description
+          type: string
+        evaluationPolicy:
+          $ref: "#/components/schemas/AgentEvaluationPolicy"
+        hardLimits:
+          $ref: "#/components/schemas/AgentHardLimits-Output"
+        inputSchema:
+          additionalProperties: true
+          title: Inputschema
+          type: object
+        instructions:
+          maxLength: 131072
+          minLength: 1
+          title: Instructions
+          type: string
+        key:
+          maxLength: 128
+          minLength: 1
+          pattern: "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+          title: Key
+          type: string
+        kind:
+          default: AGENT
+          enum:
+          - AGENT
+          title: Kind
+          type: string
+        memoryPolicy:
+          $ref: "#/components/schemas/AgentMemoryPolicy"
+        modelPolicy:
+          $ref: "#/components/schemas/AgentResourceRef"
+        namespace:
+          maxLength: 255
+          minLength: 1
+          title: Namespace
+          type: string
+        outputSchema:
+          additionalProperties: true
+          title: Outputschema
+          type: object
+        permissions:
+          $ref: "#/components/schemas/AgentPermissions"
+        prompts:
+          default: []
+          items:
+            $ref: "#/components/schemas/OrderedPromptRef"
+          title: Prompts
+          type: array
+        skills:
+          default: []
+          items:
+            $ref: "#/components/schemas/AgentResourceRef"
+          title: Skills
+          type: array
+        title:
+          maxLength: 256
+          minLength: 1
+          title: Title
+          type: string
+        tools:
+          default: []
+          items:
+            $ref: "#/components/schemas/AgentToolRef"
+          title: Tools
+          type: array
+      required:
+      - evaluationPolicy
+      - hardLimits
+      - inputSchema
+      - instructions
+      - key
+      - memoryPolicy
+      - modelPolicy
+      - namespace
+      - outputSchema
+      - permissions
+      - title
+      title: AgentDefinitionSpec
+    AgentEvaluationPolicy:
+      additionalProperties: false
+      example:
+        requireHumanRelease: false
+        requiredEvaluations:
+        - requiredEvaluations
+        - requiredEvaluations
+      properties:
+        requireHumanRelease:
+          default: false
+          title: Requirehumanrelease
+          type: boolean
+        requiredEvaluations:
+          default: []
+          items:
+            maxLength: 128
+            minLength: 1
+            pattern: "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+            type: string
+          title: Requiredevaluations
+          type: array
+      title: AgentEvaluationPolicy
+    AgentHardLimits-Input:
+      additionalProperties: false
+      properties:
+        maxConcurrency:
+          maximum: 1000.0
+          minimum: 1.0
+          title: Maxconcurrency
+          type: integer
+        maxCostUsd:
+          $ref: "#/components/schemas/Maxcostusd"
+        maxDurationSeconds:
+          maximum: 86400.0
+          minimum: 1.0
+          title: Maxdurationseconds
+          type: integer
+        maxLoopIterations:
+          maximum: 10000.0
+          minimum: 0.0
+          title: Maxloopiterations
+          type: integer
+        maxRecursionDepth:
+          maximum: 100.0
+          minimum: 0.0
+          title: Maxrecursiondepth
+          type: integer
+        maxToolCalls:
+          maximum: 10000.0
+          minimum: 0.0
+          title: Maxtoolcalls
+          type: integer
+        maxTotalTokens:
+          minimum: 1.0
+          title: Maxtotaltokens
+          type: integer
+        maxTurns:
+          maximum: 10000.0
+          minimum: 1.0
+          title: Maxturns
+          type: integer
+      required:
+      - maxConcurrency
+      - maxCostUsd
+      - maxDurationSeconds
+      - maxLoopIterations
+      - maxRecursionDepth
+      - maxToolCalls
+      - maxTotalTokens
+      - maxTurns
+      title: AgentHardLimits
+    AgentHardLimits-Output:
+      additionalProperties: false
+      example:
+        maxConcurrency: 603
+        maxCostUsd: maxCostUsd
+        maxDurationSeconds: 12665
+        maxLoopIterations: 5962
+        maxRecursionDepth: 56
+        maxToolCalls: 2302
+        maxTotalTokens: 1
+        maxTurns: 9301
+      properties:
+        maxConcurrency:
+          maximum: 1000.0
+          minimum: 1.0
+          title: Maxconcurrency
+          type: integer
+        maxCostUsd:
+          pattern: "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+          title: Maxcostusd
+          type: string
+        maxDurationSeconds:
+          maximum: 86400.0
+          minimum: 1.0
+          title: Maxdurationseconds
+          type: integer
+        maxLoopIterations:
+          maximum: 10000.0
+          minimum: 0.0
+          title: Maxloopiterations
+          type: integer
+        maxRecursionDepth:
+          maximum: 100.0
+          minimum: 0.0
+          title: Maxrecursiondepth
+          type: integer
+        maxToolCalls:
+          maximum: 10000.0
+          minimum: 0.0
+          title: Maxtoolcalls
+          type: integer
+        maxTotalTokens:
+          minimum: 1.0
+          title: Maxtotaltokens
+          type: integer
+        maxTurns:
+          maximum: 10000.0
+          minimum: 1.0
+          title: Maxturns
+          type: integer
+      required:
+      - maxConcurrency
+      - maxCostUsd
+      - maxDurationSeconds
+      - maxLoopIterations
+      - maxRecursionDepth
+      - maxToolCalls
+      - maxTotalTokens
+      - maxTurns
+      title: AgentHardLimits
+    AgentMemoryPolicy:
+      additionalProperties: {}
+      example:
+        maxBytes: 20271230
+        redact: true
+        retentionSeconds: 13073589
+        scope: ""
+      properties:
+        maxBytes:
+          default: 0
+          maximum: 100000000
+          minimum: 0.0
+          title: Maxbytes
+          type: integer
+        redact:
+          default: true
+          title: Redact
+          type: boolean
+        retentionSeconds:
+          default: 0
+          maximum: 31536000
+          minimum: 0.0
+          title: Retentionseconds
+          type: integer
+        scope:
+          allOf:
+          - $ref: "#/components/schemas/AgentMemoryScope"
+          default: NONE
+      title: AgentMemoryPolicy
+    AgentMemoryScope:
+      enum:
+      - NONE
+      - EXECUTION
+      - PRIVATE
+      - SHARED
+      title: AgentMemoryScope
+      type: string
+    AgentPermissions:
+      additionalProperties: false
+      example:
+        allowHighImpactTools: false
+        delegatedCapabilities:
+        - delegatedCapabilities
+        - delegatedCapabilities
+        filesystemReadRoots:
+        - filesystemReadRoots
+        - filesystemReadRoots
+        filesystemWriteRoots:
+        - filesystemWriteRoots
+        - filesystemWriteRoots
+        networkHosts:
+        - networkHosts
+        - networkHosts
+        secretScopes:
+        - secretScopes
+        - secretScopes
+        toolAllowlist:
+        - toolAllowlist
+        - toolAllowlist
+      properties:
+        allowHighImpactTools:
+          default: false
+          title: Allowhighimpacttools
+          type: boolean
+        delegatedCapabilities:
+          default: []
+          items:
+            maxLength: 128
+            minLength: 1
+            pattern: "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+            type: string
+          title: Delegatedcapabilities
+          type: array
+        filesystemReadRoots:
+          default: []
+          items:
+            type: string
+          title: Filesystemreadroots
+          type: array
+        filesystemWriteRoots:
+          default: []
+          items:
+            type: string
+          title: Filesystemwriteroots
+          type: array
+        networkHosts:
+          default: []
+          items:
+            type: string
+          title: Networkhosts
+          type: array
+        secretScopes:
+          default: []
+          items:
+            maxLength: 128
+            minLength: 1
+            pattern: "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+            type: string
+          title: Secretscopes
+          type: array
+        toolAllowlist:
+          default: []
+          items:
+            maxLength: 128
+            minLength: 1
+            pattern: "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+            type: string
+          title: Toolallowlist
+          type: array
+      title: AgentPermissions
+    AgentResolutionRequest:
+      additionalProperties: false
+      example:
+        agentRevision: 1
+        subjectRef: subjectRef
+      properties:
+        agentRevision:
+          minimum: 1.0
+          title: Agentrevision
+          type: integer
+        subjectRef:
+          maxLength: 512
+          minLength: 1
+          title: Subjectref
+          type: string
+      required:
+      - agentRevision
+      - subjectRef
+      title: AgentResolutionRequest
+    AgentResourceKind:
+      enum:
+      - PROMPT
+      - SKILL
+      - MODEL_POLICY
+      - AGENT
+      title: AgentResourceKind
+      type: string
+    AgentResourceRef:
+      additionalProperties: false
+      properties:
+        key:
+          maxLength: 128
+          minLength: 1
+          pattern: "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+          title: Key
+          type: string
+        revision:
+          minimum: 1.0
+          title: Revision
+          type: integer
+      required:
+      - key
+      - revision
+      title: AgentResourceRef
+    AgentResourceRevision:
+      example:
+        createdAt: 2000-01-23T04:56:07.000+00:00
+        createdBy: createdBy
+        digest: digest
+        key: key
+        kind: PROMPT
+        namespace: namespace
+        resourceId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        revision: 1
+        spec:
+          content: content
+          key: key
+          kind: PROMPT
+          namespace: namespace
+          title: title
+          variables: "{}"
+        tenantId: tenantId
+      properties:
+        createdAt:
+          format: date-time
+          title: Createdat
+          type: string
+        createdBy:
+          maxLength: 255
+          minLength: 1
+          title: Createdby
+          type: string
+        digest:
+          pattern: "^sha256:[0-9a-f]{64}$"
+          title: Digest
+          type: string
+        key:
+          maxLength: 128
+          minLength: 1
+          pattern: "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+          title: Key
+          type: string
+        kind:
+          $ref: "#/components/schemas/AgentResourceKind"
+        namespace:
+          maxLength: 255
+          minLength: 1
+          title: Namespace
+          type: string
+        resourceId:
+          format: uuid
+          title: Resourceid
+          type: string
+        revision:
+          minimum: 1.0
+          title: Revision
+          type: integer
+        spec:
+          $ref: "#/components/schemas/Spec_1"
+        tenantId:
+          title: Tenantid
+          type: string
+      required:
+      - createdAt
+      - createdBy
+      - digest
+      - key
+      - kind
+      - namespace
+      - revision
+      - spec
+      - tenantId
+      title: AgentResourceRevision
+    AgentRevisionComparison:
+      example:
+        addedPrompts:
+        - addedPrompts
+        - addedPrompts
+        addedSkills:
+        - addedSkills
+        - addedSkills
+        addedTools:
+        - addedTools
+        - addedTools
+        fromRevision: 0
+        modelPolicyChanged: true
+        nondeterminismDisclosure: nondeterminismDisclosure
+        removedPrompts:
+        - removedPrompts
+        - removedPrompts
+        removedSkills:
+        - removedSkills
+        - removedSkills
+        removedTools:
+        - removedTools
+        - removedTools
+        sameInputSchema: true
+        sameOutputSchema: true
+        toRevision: 6
+      properties:
+        addedPrompts:
+          items:
+            type: string
+          title: Addedprompts
+          type: array
+          default: null
+        addedSkills:
+          items:
+            type: string
+          title: Addedskills
+          type: array
+          default: null
+        addedTools:
+          items:
+            type: string
+          title: Addedtools
+          type: array
+          default: null
+        fromRevision:
+          title: Fromrevision
+          type: integer
+        modelPolicyChanged:
+          title: Modelpolicychanged
+          type: boolean
+        nondeterminismDisclosure:
+          title: Nondeterminismdisclosure
+          type: string
+        removedPrompts:
+          items:
+            type: string
+          title: Removedprompts
+          type: array
+          default: null
+        removedSkills:
+          items:
+            type: string
+          title: Removedskills
+          type: array
+          default: null
+        removedTools:
+          items:
+            type: string
+          title: Removedtools
+          type: array
+          default: null
+        sameInputSchema:
+          title: Sameinputschema
+          type: boolean
+        sameOutputSchema:
+          title: Sameoutputschema
+          type: boolean
+        toRevision:
+          title: Torevision
+          type: integer
+      required:
+      - addedPrompts
+      - addedSkills
+      - addedTools
+      - fromRevision
+      - modelPolicyChanged
+      - nondeterminismDisclosure
+      - removedPrompts
+      - removedSkills
+      - removedTools
+      - sameInputSchema
+      - sameOutputSchema
+      - toRevision
+      title: AgentRevisionComparison
+    AgentToolRef:
+      additionalProperties: false
+      properties:
+        connectionKey:
+          maxLength: 128
+          minLength: 1
+          pattern: "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+          title: Connectionkey
+          type: string
+        connectionRevision:
+          minimum: 1.0
+          title: Connectionrevision
+          type: integer
+        schemaDigest:
+          pattern: "^sha256:[0-9a-f]{64}$"
+          title: Schemadigest
+          type: string
+        toolName:
+          maxLength: 128
+          minLength: 1
+          pattern: "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+          title: Toolname
+          type: string
+      required:
+      - connectionKey
+      - connectionRevision
+      - schemaDigest
+      - toolName
+      title: AgentToolRef
     Announcement:
       example:
         active: true
@@ -20502,6 +22073,196 @@ components:
       - host
       - status
       title: DnsDiagnostic
+    EffectiveCapabilityEnvelope:
+      example:
+        agent:
+          digest: digest
+          key: key
+          kind: PROMPT
+          resourceId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          revision: 1
+        evaluationPolicy:
+          requireHumanRelease: false
+          requiredEvaluations:
+          - requiredEvaluations
+          - requiredEvaluations
+        fallbackMode: DISABLED
+        hardLimits:
+          maxConcurrency: 603
+          maxCostUsd: maxCostUsd
+          maxDurationSeconds: 12665
+          maxLoopIterations: 5962
+          maxRecursionDepth: 56
+          maxToolCalls: 2302
+          maxTotalTokens: 1
+          maxTurns: 9301
+        inputSchema:
+          key: ""
+        instructions:
+        - content: content
+          order: 3
+          sourceKey: sourceKey
+          sourceKind: sourceKind
+        - content: content
+          order: 3
+          sourceKey: sourceKey
+          sourceKind: sourceKind
+        memoryPolicy:
+          maxBytes: 20271230
+          redact: true
+          retentionSeconds: 13073589
+          scope: ""
+        modelRoutes:
+        - model: model
+          parameters:
+            key: ""
+          provider:
+            adapter: openai-compatible
+            credentialRef: credentialRef
+            embeddingEndpoint: embeddingEndpoint
+            endpoint: endpoint
+          requiredFeatures:
+          - requiredFeatures
+          - requiredFeatures
+          routeId: routeId
+        - model: model
+          parameters:
+            key: ""
+          provider:
+            adapter: openai-compatible
+            credentialRef: credentialRef
+            embeddingEndpoint: embeddingEndpoint
+            endpoint: endpoint
+          requiredFeatures:
+          - requiredFeatures
+          - requiredFeatures
+          routeId: routeId
+        outputNondeterminismDisclosure: outputNondeterminismDisclosure
+        outputSchema:
+          key: ""
+        permissions:
+          allowHighImpactTools: false
+          delegatedCapabilities:
+          - delegatedCapabilities
+          - delegatedCapabilities
+          filesystemReadRoots:
+          - filesystemReadRoots
+          - filesystemReadRoots
+          filesystemWriteRoots:
+          - filesystemWriteRoots
+          - filesystemWriteRoots
+          networkHosts:
+          - networkHosts
+          - networkHosts
+          secretScopes:
+          - secretScopes
+          - secretScopes
+          toolAllowlist:
+          - toolAllowlist
+          - toolAllowlist
+        promptVariables:
+          key: promptVariables
+        resources:
+        - digest: digest
+          key: key
+          kind: PROMPT
+          resourceId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          revision: 1
+        - digest: digest
+          key: key
+          kind: PROMPT
+          resourceId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          revision: 1
+        schemaVersion: amesh.agent-envelope/v1
+        tools:
+        - connectionDigest: connectionDigest
+          connectionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          connectionKey: connectionKey
+          connectionRevision: 1
+          impact: READ_ONLY
+          schemaDigest: schemaDigest
+          toolName: toolName
+        - connectionDigest: connectionDigest
+          connectionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          connectionKey: connectionKey
+          connectionRevision: 1
+          impact: READ_ONLY
+          schemaDigest: schemaDigest
+          toolName: toolName
+      properties:
+        agent:
+          $ref: "#/components/schemas/ResolvedResourcePin"
+        evaluationPolicy:
+          $ref: "#/components/schemas/AgentEvaluationPolicy"
+        fallbackMode:
+          $ref: "#/components/schemas/ModelFallbackMode"
+        hardLimits:
+          $ref: "#/components/schemas/AgentHardLimits-Output"
+        inputSchema:
+          additionalProperties: true
+          title: Inputschema
+          type: object
+        instructions:
+          items:
+            $ref: "#/components/schemas/InstructionFragment"
+          title: Instructions
+          type: array
+          default: null
+        memoryPolicy:
+          $ref: "#/components/schemas/AgentMemoryPolicy"
+        modelRoutes:
+          items:
+            $ref: "#/components/schemas/ModelRoute"
+          title: Modelroutes
+          type: array
+          default: null
+        outputNondeterminismDisclosure:
+          title: Outputnondeterminismdisclosure
+          type: string
+        outputSchema:
+          additionalProperties: true
+          title: Outputschema
+          type: object
+        permissions:
+          $ref: "#/components/schemas/AgentPermissions"
+        promptVariables:
+          additionalProperties:
+            type: string
+          title: Promptvariables
+        resources:
+          items:
+            $ref: "#/components/schemas/ResolvedResourcePin"
+          title: Resources
+          type: array
+          default: null
+        schemaVersion:
+          default: amesh.agent-envelope/v1
+          enum:
+          - amesh.agent-envelope/v1
+          title: Schemaversion
+          type: string
+        tools:
+          items:
+            $ref: "#/components/schemas/ResolvedToolPin"
+          title: Tools
+          type: array
+          default: null
+      required:
+      - agent
+      - evaluationPolicy
+      - fallbackMode
+      - hardLimits
+      - inputSchema
+      - instructions
+      - memoryPolicy
+      - modelRoutes
+      - outputNondeterminismDisclosure
+      - outputSchema
+      - permissions
+      - promptVariables
+      - resources
+      - tools
+      title: EffectiveCapabilityEnvelope
     EffectivePluginPolicy:
       example:
         defaultEffect: ALLOW
@@ -23344,6 +25105,31 @@ components:
       - CHANGES_REQUESTED
       title: HumanTaskState
       type: string
+    InstructionFragment:
+      example:
+        content: content
+        order: 3
+        sourceKey: sourceKey
+        sourceKind: sourceKind
+      properties:
+        content:
+          title: Content
+          type: string
+        order:
+          title: Order
+          type: integer
+        sourceKey:
+          title: Sourcekey
+          type: string
+        sourceKind:
+          title: Sourcekind
+          type: string
+      required:
+      - content
+      - order
+      - sourceKey
+      - sourceKind
+      title: InstructionFragment
     IsolatedPluginRuntimeSnapshot:
       example:
         catalogGeneration: 1
@@ -24421,6 +26207,265 @@ components:
       - blocked
       title: MappingDisposition
       type: string
+    McpConnectionDiscoveryRequest:
+      additionalProperties: false
+      example:
+        credentialRef: credentialRef
+        endpoint: endpoint
+        timeoutSeconds: 24.024845713830345
+      properties:
+        credentialRef:
+          maxLength: 255
+          minLength: 1
+          title: Credentialref
+          type: string
+        endpoint:
+          maxLength: 4096
+          minLength: 1
+          title: Endpoint
+          type: string
+        timeoutSeconds:
+          default: 30
+          exclusiveMinimum: true
+          maximum: 300.0
+          minimum: 0.0
+          title: Timeoutseconds
+          type: number
+      required:
+      - credentialRef
+      - endpoint
+      title: McpConnectionDiscoveryRequest
+    McpConnectionRevision:
+      example:
+        connectionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        createdAt: 2000-01-23T04:56:07.000+00:00
+        createdBy: createdBy
+        digest: digest
+        revision: 1
+        spec:
+          credentialRef: credentialRef
+          endpoint: endpoint
+          key: key
+          namespace: namespace
+          toolAllowlist:
+          - toolAllowlist
+          - toolAllowlist
+          tools:
+          - description: ""
+            impact: ""
+            inputSchema:
+              key: ""
+            name: name
+            outputSchema:
+              key: ""
+          - description: ""
+            impact: ""
+            inputSchema:
+              key: ""
+            name: name
+            outputSchema:
+              key: ""
+        tenantId: tenantId
+      properties:
+        connectionId:
+          format: uuid
+          title: Connectionid
+          type: string
+        createdAt:
+          format: date-time
+          title: Createdat
+          type: string
+        createdBy:
+          maxLength: 255
+          minLength: 1
+          title: Createdby
+          type: string
+        digest:
+          pattern: "^sha256:[0-9a-f]{64}$"
+          title: Digest
+          type: string
+        revision:
+          minimum: 1.0
+          title: Revision
+          type: integer
+        spec:
+          $ref: "#/components/schemas/McpConnectionSpec"
+        tenantId:
+          title: Tenantid
+          type: string
+      required:
+      - connectionId
+      - createdAt
+      - createdBy
+      - digest
+      - revision
+      - spec
+      - tenantId
+      title: McpConnectionRevision
+    McpConnectionSpec:
+      additionalProperties: false
+      example:
+        credentialRef: credentialRef
+        endpoint: endpoint
+        key: key
+        namespace: namespace
+        toolAllowlist:
+        - toolAllowlist
+        - toolAllowlist
+        tools:
+        - description: ""
+          impact: ""
+          inputSchema:
+            key: ""
+          name: name
+          outputSchema:
+            key: ""
+        - description: ""
+          impact: ""
+          inputSchema:
+            key: ""
+          name: name
+          outputSchema:
+            key: ""
+      properties:
+        credentialRef:
+          maxLength: 128
+          minLength: 1
+          pattern: "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+          title: Credentialref
+          type: string
+        endpoint:
+          maxLength: 4096
+          minLength: 1
+          title: Endpoint
+          type: string
+        key:
+          maxLength: 128
+          minLength: 1
+          pattern: "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+          title: Key
+          type: string
+        namespace:
+          maxLength: 255
+          minLength: 1
+          title: Namespace
+          type: string
+        toolAllowlist:
+          items:
+            maxLength: 128
+            minLength: 1
+            pattern: "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+            type: string
+          minItems: 1
+          title: Toolallowlist
+          type: array
+          default: null
+        tools:
+          items:
+            $ref: "#/components/schemas/McpToolPin"
+          minItems: 1
+          title: Tools
+          type: array
+          default: null
+      required:
+      - credentialRef
+      - endpoint
+      - key
+      - namespace
+      - toolAllowlist
+      - tools
+      title: McpConnectionSpec
+    McpDiscoveryResult:
+      example:
+        digest: digest
+        serverName: serverName
+        serverVersion: ""
+        tools:
+        - description: ""
+          impact: ""
+          inputSchema:
+            key: ""
+          name: name
+          outputSchema:
+            key: ""
+        - description: ""
+          impact: ""
+          inputSchema:
+            key: ""
+          name: name
+          outputSchema:
+            key: ""
+      properties:
+        digest:
+          pattern: "^sha256:[0-9a-f]{64}$"
+          title: Digest
+          type: string
+        serverName:
+          maxLength: 512
+          minLength: 1
+          title: Servername
+          type: string
+        serverVersion:
+          default: ""
+          maxLength: 128
+          title: Serverversion
+          type: string
+        tools:
+          items:
+            $ref: "#/components/schemas/McpToolPin"
+          title: Tools
+          type: array
+          default: null
+      required:
+      - digest
+      - serverName
+      - tools
+      title: McpDiscoveryResult
+    McpToolImpact:
+      enum:
+      - READ_ONLY
+      - IDEMPOTENT_WRITE
+      - HIGH_IMPACT
+      title: McpToolImpact
+      type: string
+    McpToolPin:
+      additionalProperties: {}
+      example:
+        description: ""
+        impact: ""
+        inputSchema:
+          key: ""
+        name: name
+        outputSchema:
+          key: ""
+      properties:
+        description:
+          default: ""
+          maxLength: 4096
+          title: Description
+          type: string
+        impact:
+          allOf:
+          - $ref: "#/components/schemas/McpToolImpact"
+          default: HIGH_IMPACT
+        inputSchema:
+          additionalProperties: true
+          title: Inputschema
+          type: object
+        name:
+          maxLength: 128
+          minLength: 1
+          pattern: "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+          title: Name
+          type: string
+        outputSchema:
+          additionalProperties: true
+          nullable: true
+          type: object
+      required:
+      - inputSchema
+      - name
+      title: McpToolPin
     MetricKind:
       enum:
       - COUNTER
@@ -24461,6 +26506,140 @@ components:
       - reason
       - targetPath
       title: MigrationPatch
+    ModelFallbackMode:
+      enum:
+      - DISABLED
+      - ORDERED
+      title: ModelFallbackMode
+      type: string
+    ModelPolicySpec:
+      additionalProperties: false
+      properties:
+        fallbackMode:
+          allOf:
+          - $ref: "#/components/schemas/ModelFallbackMode"
+          default: DISABLED
+        key:
+          maxLength: 128
+          minLength: 1
+          pattern: "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+          title: Key
+          type: string
+        kind:
+          default: MODEL_POLICY
+          enum:
+          - MODEL_POLICY
+          title: Kind
+          type: string
+        namespace:
+          maxLength: 255
+          minLength: 1
+          title: Namespace
+          type: string
+        outputNondeterminismDisclosure:
+          maxLength: 4096
+          minLength: 1
+          title: Outputnondeterminismdisclosure
+          type: string
+        routes:
+          items:
+            $ref: "#/components/schemas/ModelRoute"
+          minItems: 1
+          title: Routes
+          type: array
+          default: null
+        title:
+          maxLength: 256
+          minLength: 1
+          title: Title
+          type: string
+      required:
+      - key
+      - namespace
+      - outputNondeterminismDisclosure
+      - routes
+      - title
+      title: ModelPolicySpec
+    ModelProviderSpec:
+      additionalProperties: false
+      example:
+        adapter: openai-compatible
+        credentialRef: credentialRef
+        embeddingEndpoint: embeddingEndpoint
+        endpoint: endpoint
+      properties:
+        adapter:
+          default: openai-compatible
+          pattern: "^[a-z][a-z0-9.-]*$"
+          title: Adapter
+          type: string
+        credentialRef:
+          maxLength: 128
+          minLength: 1
+          pattern: "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+          title: Credentialref
+          type: string
+        embeddingEndpoint:
+          maxLength: 4096
+          minLength: 1
+          nullable: true
+          type: string
+        endpoint:
+          maxLength: 4096
+          minLength: 1
+          title: Endpoint
+          type: string
+      required:
+      - credentialRef
+      - endpoint
+      title: ModelProviderSpec
+    ModelRoute:
+      additionalProperties: {}
+      example:
+        model: model
+        parameters:
+          key: ""
+        provider:
+          adapter: openai-compatible
+          credentialRef: credentialRef
+          embeddingEndpoint: embeddingEndpoint
+          endpoint: endpoint
+        requiredFeatures:
+        - requiredFeatures
+        - requiredFeatures
+        routeId: routeId
+      properties:
+        model:
+          maxLength: 512
+          minLength: 1
+          title: Model
+          type: string
+        parameters:
+          additionalProperties: true
+          title: Parameters
+          type: object
+        provider:
+          $ref: "#/components/schemas/ModelProviderSpec"
+        requiredFeatures:
+          default: []
+          items:
+            maxLength: 128
+            minLength: 1
+            pattern: "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+            type: string
+          title: Requiredfeatures
+          type: array
+        routeId:
+          maxLength: 128
+          minLength: 1
+          pattern: "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+          title: Routeid
+          type: string
+      required:
+      - model
+      - provider
+      - routeId
+      title: ModelRoute
     NamespaceAuthorizationBoundary:
       example:
         namespace: namespace
@@ -25566,6 +27745,29 @@ components:
       - EXPIRED
       title: OperationalControlState
       type: string
+    OrderedPromptRef:
+      additionalProperties: false
+      properties:
+        key:
+          maxLength: 128
+          minLength: 1
+          pattern: "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+          title: Key
+          type: string
+        order:
+          maximum: 10000.0
+          minimum: 0.0
+          title: Order
+          type: integer
+        revision:
+          minimum: 1.0
+          title: Revision
+          type: integer
+      required:
+      - key
+      - order
+      - revision
+      title: OrderedPromptRef
     Permission:
       example:
         action: view
@@ -29380,6 +31582,97 @@ components:
       - title
       - type
       title: ProblemDetail
+    PromptSpec:
+      additionalProperties: false
+      example:
+        content: content
+        key: key
+        kind: PROMPT
+        namespace: namespace
+        title: title
+        variables: "{}"
+      properties:
+        content:
+          maxLength: 131072
+          minLength: 1
+          title: Content
+          type: string
+        key:
+          maxLength: 128
+          minLength: 1
+          pattern: "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+          title: Key
+          type: string
+        kind:
+          default: PROMPT
+          enum:
+          - PROMPT
+          title: Kind
+          type: string
+        namespace:
+          maxLength: 255
+          minLength: 1
+          title: Namespace
+          type: string
+        title:
+          maxLength: 256
+          minLength: 1
+          title: Title
+          type: string
+        variables:
+          title: Variables
+          type: object
+      required:
+      - content
+      - key
+      - namespace
+      - title
+      title: PromptSpec
+    ProviderMigrationDiagnostic:
+      example:
+        addedRoutes:
+        - addedRoutes
+        - addedRoutes
+        disclosure: disclosure
+        outputNondeterministic: true
+        providerRoutesChanged: true
+        removedRoutes:
+        - removedRoutes
+        - removedRoutes
+        stateSchemaChanged: false
+      properties:
+        addedRoutes:
+          items:
+            type: string
+          title: Addedroutes
+          type: array
+          default: null
+        disclosure:
+          title: Disclosure
+          type: string
+        outputNondeterministic:
+          default: true
+          title: Outputnondeterministic
+          type: boolean
+        providerRoutesChanged:
+          title: Providerrouteschanged
+          type: boolean
+        removedRoutes:
+          items:
+            type: string
+          title: Removedroutes
+          type: array
+          default: null
+        stateSchemaChanged:
+          default: false
+          title: Stateschemachanged
+          type: boolean
+      required:
+      - addedRoutes
+      - disclosure
+      - providerRoutesChanged
+      - removedRoutes
+      title: ProviderMigrationDiagnostic
     ProvisionedWebhookSubscription:
       example:
         signingSecret: signingSecret
@@ -30028,6 +32321,90 @@ components:
       required:
       - snapshot
       title: ReduceExecutionResponse
+    ResolvedResourcePin:
+      example:
+        digest: digest
+        key: key
+        kind: PROMPT
+        resourceId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        revision: 1
+      properties:
+        digest:
+          pattern: "^sha256:[0-9a-f]{64}$"
+          title: Digest
+          type: string
+        key:
+          maxLength: 128
+          minLength: 1
+          pattern: "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+          title: Key
+          type: string
+        kind:
+          $ref: "#/components/schemas/AgentResourceKind"
+        resourceId:
+          format: uuid
+          title: Resourceid
+          type: string
+        revision:
+          minimum: 1.0
+          title: Revision
+          type: integer
+      required:
+      - digest
+      - key
+      - kind
+      - resourceId
+      - revision
+      title: ResolvedResourcePin
+    ResolvedToolPin:
+      example:
+        connectionDigest: connectionDigest
+        connectionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        connectionKey: connectionKey
+        connectionRevision: 1
+        impact: READ_ONLY
+        schemaDigest: schemaDigest
+        toolName: toolName
+      properties:
+        connectionDigest:
+          pattern: "^sha256:[0-9a-f]{64}$"
+          title: Connectiondigest
+          type: string
+        connectionId:
+          format: uuid
+          title: Connectionid
+          type: string
+        connectionKey:
+          maxLength: 128
+          minLength: 1
+          pattern: "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+          title: Connectionkey
+          type: string
+        connectionRevision:
+          minimum: 1.0
+          title: Connectionrevision
+          type: integer
+        impact:
+          $ref: "#/components/schemas/McpToolImpact"
+        schemaDigest:
+          pattern: "^sha256:[0-9a-f]{64}$"
+          title: Schemadigest
+          type: string
+        toolName:
+          maxLength: 128
+          minLength: 1
+          pattern: "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+          title: Toolname
+          type: string
+      required:
+      - connectionDigest
+      - connectionId
+      - connectionKey
+      - connectionRevision
+      - impact
+      - schemaDigest
+      - toolName
+      title: ResolvedToolPin
     ResourceLifecycle:
       enum:
       - ACTIVE
@@ -32812,6 +35189,56 @@ components:
       - path
       - reason
       title: SimulationUnknown
+    SkillSpec:
+      additionalProperties: false
+      properties:
+        description:
+          default: ""
+          maxLength: 4096
+          title: Description
+          type: string
+        instructions:
+          maxLength: 131072
+          minLength: 1
+          title: Instructions
+          type: string
+        key:
+          maxLength: 128
+          minLength: 1
+          pattern: "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+          title: Key
+          type: string
+        kind:
+          default: SKILL
+          enum:
+          - SKILL
+          title: Kind
+          type: string
+        namespace:
+          maxLength: 255
+          minLength: 1
+          title: Namespace
+          type: string
+        requestedCapabilities:
+          default: []
+          items:
+            maxLength: 128
+            minLength: 1
+            pattern: "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+            type: string
+          title: Requestedcapabilities
+          type: array
+        title:
+          maxLength: 256
+          minLength: 1
+          title: Title
+          type: string
+      required:
+      - instructions
+      - key
+      - namespace
+      - title
+      title: SkillSpec
     SourcePosition:
       properties:
         column:
@@ -35372,12 +37799,47 @@ components:
             type: string
           title: Requiredlabels
       title: WorkflowMetadataPolicy
+    Spec:
+      discriminator:
+        mapping:
+          AGENT: "#/components/schemas/AgentDefinitionSpec-Input"
+          MODEL_POLICY: "#/components/schemas/ModelPolicySpec"
+          PROMPT: "#/components/schemas/PromptSpec"
+          SKILL: "#/components/schemas/SkillSpec"
+        propertyName: kind
+      oneOf:
+      - $ref: "#/components/schemas/PromptSpec"
+      - $ref: "#/components/schemas/SkillSpec"
+      - $ref: "#/components/schemas/ModelPolicySpec"
+      - $ref: "#/components/schemas/AgentDefinitionSpec-Input"
+      title: Spec
     Value:
       anyOf:
       - type: integer
       - type: string
       nullable: true
       title: Value
+    Maxcostusd:
+      anyOf:
+      - minimum: 0.0
+        type: number
+      - pattern: "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+        type: string
+      title: Maxcostusd
+    Spec_1:
+      discriminator:
+        mapping:
+          AGENT: "#/components/schemas/AgentDefinitionSpec-Output"
+          MODEL_POLICY: "#/components/schemas/ModelPolicySpec"
+          PROMPT: "#/components/schemas/PromptSpec"
+          SKILL: "#/components/schemas/SkillSpec"
+        propertyName: kind
+      oneOf:
+      - $ref: "#/components/schemas/PromptSpec"
+      - $ref: "#/components/schemas/SkillSpec"
+      - $ref: "#/components/schemas/ModelPolicySpec"
+      - $ref: "#/components/schemas/AgentDefinitionSpec-Output"
+      title: Spec
     Action:
       anyOf:
       - $ref: "#/components/schemas/PermissionAction"

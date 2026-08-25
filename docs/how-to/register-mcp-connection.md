@@ -52,6 +52,15 @@ a workflow.
    AMESH rediscovers the server before saving. If the live schemas differ, the request returns `409`
    and no revision is stored.
 
+4. Use the pinned tool catalog when composing an agent definition. It returns the `schemaDigest`
+   required by an exact agent tool reference.
+
+   ```http
+   GET /api/v1/namespaces/agents.demo/agent/mcp-connections/catalog/tools?revision=1
+   Authorization: Bearer <amesh-token>
+   X-Amesh-Tenant: default
+   ```
+
 ## Call a pinned tool
 
 Reference the connection key from `agent.mcp`; declare its credential in `contract.secretScopes`.
@@ -77,4 +86,5 @@ attempt is reused; an unfinished journal entry fails as an ambiguous external ou
 repeating a possibly side-effecting call.
 
 See the [agent primitive contract](../api/agent-primitives.md) for connection endpoints and failure
-semantics.
+semantics. To attach the pinned tool to a reusable agent, continue with
+[Define and pin an agent](define-agent-capability-envelope.md).

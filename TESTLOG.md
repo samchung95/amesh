@@ -3302,3 +3302,42 @@ Kestra policy-language compatibility claim. External identity/provider qualifica
 by its owning epics and does not block this local policy lifecycle.
 
 Verdict: PASS — EPIC-802 closed.
+
+## 2026-08-25 — EPIC-807 versioned agent definitions and capability envelopes
+
+Scope: `URS-F-0806`, `URS-F-0807`, `URS-F-0815`, and `URS-F-0818`; incremental evidence for
+`URS-NFR-AGENT-003` and `URS-NFR-AGENT-004`.
+
+- [x] Prompt, declarative skill, model-policy and agent resources share one tenant- and namespace-
+  scoped immutable revision ledger. Agent definitions use exact resource and governed MCP tool
+  revisions, not mutable latest references.
+- [x] Resolution validated schema digests, credentials, network hosts, delegated capabilities,
+  tool impact, typed input/output schemas, memory declarations, hard limits and evaluation policy;
+  it then persisted one content-addressed `amesh.agent-envelope/v1` pin atomically per subject.
+- [x] Restart-idempotent retry returned the original pin. A different envelope for the same subject,
+  a missing exact revision, an undelegated skill, an unapproved high-impact tool and cross-tenant
+  access all failed closed. Audit evidence omitted credential references and values.
+- [x] Provider policy supports ordered fallback routes behind the provider-neutral OpenAI-compatible
+  adapter. Revision and migration diagnostics disclose route changes, preserve the durable state
+  schema and never claim deterministic provider output.
+- [x] The guided Agents page exposes kind, exact-resource, MCP-tool, schema, memory and limit
+  selectors; the REST API and CLI create/list/get/resolve/compare/diagnose the same resources.
+  Authenticated MCP adds read-only agent discovery and exact inspection without credential values.
+- [x] Nineteen focused domain, PostgreSQL repository, API, MCP, CLI and generated-contract tests
+  passed. Ruff passed and strict mypy passed all 225 source files. Two frontend unit assertions,
+  changed-file ESLint, the production build and one Chromium acceptance passed.
+- [x] OpenAPI and all four generated SDKs are deterministic across 2,335 files. Python and Go tests,
+  TypeScript compilation/execution-client acceptance and Java compilation passed.
+- [x] Rebuilt Compose applied migration 57 and reports 57/57 dependencies ready. Live HTTP acceptance
+  created OpenRouter `openai/gpt-5.6-luna` policy, prompt and agent revision 1 and proved an
+  idempotent persisted workflow-execution pin with envelope
+  `sha256:668c8e99814b8444bd95ca16ba97bbe72f4d84568bf648c5c6b62a4a77609f2b`.
+
+Qualification boundary: the envelope makes configuration resolution deterministic and inspectable;
+it does not make model output deterministic. EPIC-808 consumes the pin for durable turns, tool
+mediation and checkpoint resume. The shared agent isolation and provider-portability NFRs remain
+In Progress until the later single-agent, memory/evaluation and multi-agent epics complete their
+adversarial scenarios. The generated Go tree has a pre-existing formatting baseline, while its
+containerized test suite passes; that unrelated generator cleanup was not included.
+
+Verdict: PASS — EPIC-807 closed.

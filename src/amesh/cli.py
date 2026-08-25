@@ -231,6 +231,44 @@ def build_parser() -> argparse.ArgumentParser:
     resources_import.add_argument("namespace")
     resources_import.add_argument("path", type=Path)
 
+    agents = subcommands.add_parser("agent", help="Manage versioned agent definitions")
+    agent_commands = agents.add_subparsers(dest="agent_command", required=True)
+    agent_apply = agent_commands.add_parser("apply", help="Create a resource revision")
+    agent_apply.add_argument("namespace")
+    agent_apply.add_argument("path", type=Path)
+    agent_list = agent_commands.add_parser("list", help="List latest resource revisions")
+    agent_list.add_argument("namespace")
+    agent_list.add_argument(
+        "--kind",
+        choices=("PROMPT", "SKILL", "MODEL_POLICY", "AGENT"),
+    )
+    agent_get = agent_commands.add_parser("get", help="Get one exact resource revision")
+    agent_get.add_argument("namespace")
+    agent_get.add_argument("kind", choices=("PROMPT", "SKILL", "MODEL_POLICY", "AGENT"))
+    agent_get.add_argument("key")
+    agent_get.add_argument("--revision", type=int)
+    agent_resolve = agent_commands.add_parser(
+        "resolve",
+        help="Resolve and pin an effective capability envelope",
+    )
+    agent_resolve.add_argument("namespace")
+    agent_resolve.add_argument("key")
+    agent_resolve.add_argument("--revision", type=int, required=True)
+    agent_resolve.add_argument("--subject-ref", required=True)
+    agent_compare = agent_commands.add_parser("compare", help="Compare agent revisions")
+    agent_compare.add_argument("namespace")
+    agent_compare.add_argument("key")
+    agent_compare.add_argument("--from-revision", type=int, required=True)
+    agent_compare.add_argument("--to-revision", type=int, required=True)
+    agent_migration = agent_commands.add_parser(
+        "model-migration",
+        help="Explain provider-route migration semantics",
+    )
+    agent_migration.add_argument("namespace")
+    agent_migration.add_argument("key")
+    agent_migration.add_argument("--from-revision", type=int, required=True)
+    agent_migration.add_argument("--to-revision", type=int, required=True)
+
     auth = subcommands.add_parser("auth", help="Manage interactive authentication")
     auth_commands = auth.add_subparsers(dest="auth_command", required=True)
     bootstrap_admin = auth_commands.add_parser(
@@ -738,6 +776,8 @@ def main(argv: Sequence[str] | None = None) -> int:
                     )
             elif args.command == "namespace":
                 response = _namespace_request(client, args)
+            elif args.command == "agent":
+                response = _agent_request(client, args)
             elif args.command == "flow":
                 flow_result = _flow_request(client, args, output_mode)
                 if isinstance(flow_result, int):
@@ -904,6 +944,7 @@ def _uses_api(args: argparse.Namespace) -> bool:
         "logs",
         "webhook",
         "namespace",
+        "agent",
         "flow",
         "admin",
         "lifecycle",
@@ -1513,6 +1554,37 @@ def _namespace_request(client: httpx.Client, args: argparse.Namespace) -> httpx.
     if args.resource_command == "export":
         return client.get(root)
     return client.post(root, json=json.loads(args.path.read_text(encoding="utf-8")))
+
+
+def _agent_request(client: httpx.Client, args: argparse.Namespace) -> httpx.Response:
+    root = _resource_path(args.namespace, "agent")
+    if args.agent_command == "apply":
+        return client.post(f"{root}/resources", json=_load_mapping(args.path))
+    if args.agent_command == "list":
+        params = {"kind": args.kind} if args.kind is not None else None
+        return client.get(f"{root}/resources", params=params)
+    if args.agent_command == "get":
+        path = f"{root}/resources/{args.kind}/{quote(args.key, safe='')}"
+        params = {"revision": args.revision} if args.revision is not None else None
+        return client.get(path, params=params)
+    if args.agent_command == "resolve":
+        return client.post(
+            f"{root}/definitions/{quote(args.key, safe='')}/resolve",
+            json={"agentRevision": args.revision, "subjectRef": args.subject_ref},
+        )
+    params = {
+        "fromRevision": args.from_revision,
+        "toRevision": args.to_revision,
+    }
+    if args.agent_command == "compare":
+        return client.get(
+            f"{root}/definitions/{quote(args.key, safe='')}/compare",
+            params=params,
+        )
+    return client.get(
+        f"{root}/model-policies/{quote(args.key, safe='')}/migration",
+        params=params,
+    )
 
 
 def _write_namespace_response(
