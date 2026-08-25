@@ -267,7 +267,7 @@ class AgentRubricCriterion(BaseModel):
     key: NaturalId
     description: str = Field(min_length=1, max_length=4096)
     assertion: dict[str, Any]
-    weight: Decimal = Field(default=Decimal("1"), gt=0, le=1000)
+    weight: Decimal = Field(default_factory=lambda: Decimal("1"), gt=0, le=1000)
 
     @field_validator("assertion")
     @classmethod
@@ -296,7 +296,7 @@ class AgentEvaluationSpec(BaseModel):
     assertions: tuple[dict[str, Any], ...] = ()
     rubric: tuple[AgentRubricCriterion, ...] = ()
     minimum_rubric_score: Decimal = Field(
-        default=Decimal("1"), alias="minimumRubricScore", ge=0, le=1
+        default_factory=lambda: Decimal("1"), alias="minimumRubricScore", ge=0, le=1
     )
     fixtures: tuple[AgentEvaluationFixture, ...] = ()
     judge: AgentJudgePolicy | None = None

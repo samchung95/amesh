@@ -212,6 +212,8 @@ from amesh.domain import (
     AgentResourceRevision,
     AgentResourceSpec,
     AgentRevisionComparison,
+    AgentRouteDecision,
+    AgentRouteRequest,
     AgentSessionRecord,
     Announcement,
     AnnouncementAudience,
@@ -349,6 +351,7 @@ from amesh.domain import (
     new_runtime_id,
     provider_migration_diagnostic,
     reduce_execution,
+    route_agent,
     verify_administration_approval,
 )
 from amesh.domain import (
@@ -535,6 +538,7 @@ from amesh.tasks import (
     HttpTaskPolicy,
     agent_llm_handler,
     agent_mcp_handler,
+    agent_mesh_handlers,
     agent_session_handler,
     core_utility_handlers,
     discover_mcp_server,
@@ -2402,6 +2406,35 @@ async def preview_agent_definition(
     except (LookupError, PermissionError, ValueError) as exc:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
+            detail=str(exc),
+        ) from exc
+
+
+@app.post(
+    "/api/v1/namespaces/{namespace}/agent/mesh/routes/preview",
+    response_model=AgentRouteDecision,
+    tags=["agents"],
+)
+async def preview_agent_mesh_route(
+    namespace: str,
+    request: AgentRouteRequest,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> AgentRouteDecision:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="agent",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+        namespace=namespace,
+    )
+    try:
+        return route_agent(request)
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail=str(exc),
         ) from exc
 
@@ -11140,6 +11173,7 @@ async def _execute_flow(
             )
         },
         "agent.mcp": mcp_handler,
+        **agent_mesh_handlers(agent_resources),
         "agent.session": agent_session_handler(
             resources=agent_resources,
             sessions=agent_sessions,

@@ -18,6 +18,7 @@ Method | HTTP request | Description
 [**ListAgentResourcesApiV1NamespacesNamespaceAgentResourcesGet**](AgentsAPI.md#ListAgentResourcesApiV1NamespacesNamespaceAgentResourcesGet) | **Get** /api/v1/namespaces/{namespace}/agent/resources | List Agent Resources
 [**PreviewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGet**](AgentsAPI.md#PreviewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGet) | **Get** /api/v1/namespaces/{namespace}/agent/definitions/{key}/preview | Preview Agent Definition
 [**PreviewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGet**](AgentsAPI.md#PreviewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGet) | **Get** /api/v1/namespaces/{namespace}/agent/evaluations/{key}/fixtures/{fixture_key}/preview | Preview Agent Evaluation Fixture
+[**PreviewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPost**](AgentsAPI.md#PreviewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPost) | **Post** /api/v1/namespaces/{namespace}/agent/mesh/routes/preview | Preview Agent Mesh Route
 [**ResolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePost**](AgentsAPI.md#ResolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePost) | **Post** /api/v1/namespaces/{namespace}/agent/definitions/{key}/resolve | Resolve Agent Definition
 
 
@@ -1111,6 +1112,83 @@ No authorization required
 ### HTTP request headers
 
 - **Content-Type**: Not defined
+- **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
+[[Back to Model list]](../README.md#documentation-for-models)
+[[Back to README]](../README.md)
+
+
+## PreviewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPost
+
+> AgentRouteDecision PreviewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPost(ctx, namespace).AgentRouteRequest(agentRouteRequest).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
+
+Preview Agent Mesh Route
+
+### Example
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"os"
+    "time"
+	openapiclient "github.com/amesh/amesh-client-go"
+)
+
+func main() {
+	namespace := "namespace_example" // string |
+	agentRouteRequest := *openapiclient.NewAgentRouteRequest([]openapiclient.AgentRouteCandidate{*openapiclient.NewAgentRouteCandidate("Agent_example", int32(123), *openapiclient.NewAgentRouteAvailabilitySignal(false, time.Now(), "Source_example"), []string{"Capabilities_example"}, *openapiclient.NewAgentRouteEvaluationSignal("Key_example", int32(123), *openapiclient.NewScore()), "MemberId_example", *openapiclient.NewAgentRoutePolicySignal("DecisionId_example", "Outcome_example", "PolicyDigest_example"), *openapiclient.NewProjectedcostusd(), int32(123), "Task_example")}, []string{"RequiredCapabilities_example"}) // AgentRouteRequest |
+	authorization := "authorization_example" // string |  (optional)
+	xAmeshCSRF := "xAmeshCSRF_example" // string |  (optional)
+	xAmeshTenant := "xAmeshTenant_example" // string |  (optional)
+
+	configuration := openapiclient.NewConfiguration()
+	apiClient := openapiclient.NewAPIClient(configuration)
+	resp, r, err := apiClient.AgentsAPI.PreviewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPost(context.Background(), namespace).AgentRouteRequest(agentRouteRequest).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error when calling `AgentsAPI.PreviewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPost``: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+	}
+	// response from `PreviewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPost`: AgentRouteDecision
+	fmt.Fprintf(os.Stdout, "Response from `AgentsAPI.PreviewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPost`: %v\n", resp)
+}
+```
+
+### Path Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+**ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
+**namespace** | **string** |  |
+
+### Other Parameters
+
+Other parameters are passed through a pointer to a apiPreviewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPostRequest struct via the builder pattern
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+
+ **agentRouteRequest** | [**AgentRouteRequest**](AgentRouteRequest.md) |  |
+ **authorization** | **string** |  |
+ **xAmeshCSRF** | **string** |  |
+ **xAmeshTenant** | **string** |  |
+
+### Return type
+
+[**AgentRouteDecision**](AgentRouteDecision.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: application/json
 - **Accept**: application/json
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)

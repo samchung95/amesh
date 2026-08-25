@@ -1609,6 +1609,155 @@
       "configurationSchema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "additionalProperties": false,
+        "properties": {
+          "contextKeys": {
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 100,
+            "type": "array",
+            "uniqueItems": true
+          },
+          "destination": {
+            "additionalProperties": false,
+            "properties": {
+              "agent": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "agentRevision": {
+                "minimum": 1,
+                "type": "integer"
+              },
+              "task": {
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "task",
+              "agent",
+              "agentRevision"
+            ],
+            "type": "object"
+          },
+          "payload": {
+            "type": "object"
+          },
+          "policy": {
+            "additionalProperties": false,
+            "properties": {
+              "decisionId": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "outcome": {
+                "enum": [
+                  "ALLOW",
+                  "DENY"
+                ],
+                "type": "string"
+              },
+              "policyDigest": {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              }
+            },
+            "required": [
+              "outcome",
+              "decisionId",
+              "policyDigest"
+            ],
+            "type": "object"
+          },
+          "rationale": {
+            "maxLength": 4096,
+            "minLength": 1,
+            "type": "string"
+          },
+          "redactKeys": {
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 100,
+            "type": "array",
+            "uniqueItems": true
+          },
+          "requiredCapabilities": {
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "type": "array",
+            "uniqueItems": true
+          },
+          "schema": {
+            "type": "object"
+          },
+          "source": {
+            "additionalProperties": false,
+            "properties": {
+              "agent": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "agentRevision": {
+                "minimum": 1,
+                "type": "integer"
+              },
+              "task": {
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "task",
+              "agent",
+              "agentRevision"
+            ],
+            "type": "object"
+          },
+          "timeoutSeconds": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "source",
+          "destination",
+          "payload",
+          "schema",
+          "rationale",
+          "policy"
+        ],
+        "type": "object"
+      },
+      "editor": {
+        "category": "Agents",
+        "description": "Validate, authorize and redact context before another agent sees it.",
+        "propertyOrder": [
+          "source",
+          "destination",
+          "payload",
+          "schema",
+          "rationale",
+          "contextKeys",
+          "redactKeys",
+          "requiredCapabilities",
+          "policy",
+          "timeoutSeconds"
+        ],
+        "title": "Typed agent hand-off"
+      },
+      "kind": "task",
+      "type": "agent.handoff"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
         "anyOf": [
           {
             "required": [
@@ -1747,6 +1896,330 @@
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "additionalProperties": false,
         "properties": {
+          "budget": {
+            "additionalProperties": false,
+            "properties": {
+              "maxConcurrency": {
+                "maximum": 1000,
+                "minimum": 1,
+                "type": "integer"
+              },
+              "maxCostUsd": {
+                "type": [
+                  "number",
+                  "string"
+                ]
+              },
+              "maxDurationSeconds": {
+                "maximum": 86400,
+                "minimum": 1,
+                "type": "integer"
+              },
+              "maxSessions": {
+                "maximum": 1000,
+                "minimum": 1,
+                "type": "integer"
+              },
+              "maxToolCalls": {
+                "maximum": 10000,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "maxTotalTokens": {
+                "minimum": 1,
+                "type": "integer"
+              }
+            },
+            "required": [
+              "maxTotalTokens",
+              "maxCostUsd",
+              "maxDurationSeconds",
+              "maxToolCalls",
+              "maxSessions",
+              "maxConcurrency"
+            ],
+            "type": "object"
+          },
+          "failurePolicy": {
+            "enum": [
+              "FAIL_FAST",
+              "CONTINUE_ON_ERROR",
+              "COLLECT_ALL"
+            ],
+            "type": "string"
+          },
+          "maxConcurrency": {
+            "maximum": 1000,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "members": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "agent": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "agentRevision": {
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                "capabilities": {
+                  "items": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "type": "array",
+                  "uniqueItems": true
+                },
+                "memberId": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "parentMemberId": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "role": {
+                  "enum": [
+                    "SUPERVISOR",
+                    "ROUTER",
+                    "WORKER",
+                    "PEER"
+                  ],
+                  "type": "string"
+                },
+                "task": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "memberId",
+                "task",
+                "agent",
+                "agentRevision",
+                "role"
+              ],
+              "type": "object"
+            },
+            "maxItems": 1000,
+            "minItems": 1,
+            "type": "array"
+          },
+          "timeoutSeconds": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          },
+          "topology": {
+            "enum": [
+              "SUPERVISOR",
+              "ROUTER",
+              "PEER_TO_PEER",
+              "HIERARCHICAL",
+              "SWARM"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "topology",
+          "members",
+          "budget",
+          "maxConcurrency"
+        ],
+        "type": "object"
+      },
+      "editor": {
+        "category": "Agents",
+        "description": "Run a statically bounded multi-agent topology on the durable reducer.",
+        "propertyOrder": [
+          "topology",
+          "members",
+          "budget",
+          "failurePolicy",
+          "maxConcurrency",
+          "timeoutSeconds"
+        ],
+        "title": "Agent mesh"
+      },
+      "kind": "task",
+      "type": "agent.mesh"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "candidates": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "agent": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "agentRevision": {
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                "availability": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "available": {
+                      "type": "boolean"
+                    },
+                    "checkedAt": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "source": {
+                      "minLength": 1,
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "available",
+                    "source",
+                    "checkedAt"
+                  ],
+                  "type": "object"
+                },
+                "capabilities": {
+                  "items": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "type": "array",
+                  "uniqueItems": true
+                },
+                "evaluation": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "key": {
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "revision": {
+                      "minimum": 1,
+                      "type": "integer"
+                    },
+                    "score": {
+                      "type": [
+                        "number",
+                        "string"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "key",
+                    "revision",
+                    "score"
+                  ],
+                  "type": "object"
+                },
+                "memberId": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "policy": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "decisionId": {
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "outcome": {
+                      "enum": [
+                        "ALLOW",
+                        "DENY"
+                      ],
+                      "type": "string"
+                    },
+                    "policyDigest": {
+                      "pattern": "^sha256:[0-9a-f]{64}$",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "outcome",
+                    "decisionId",
+                    "policyDigest"
+                  ],
+                  "type": "object"
+                },
+                "projectedCostUsd": {
+                  "type": [
+                    "number",
+                    "string"
+                  ]
+                },
+                "projectedLatencyMs": {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "task": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "memberId",
+                "task",
+                "agent",
+                "agentRevision",
+                "capabilities",
+                "policy",
+                "projectedCostUsd",
+                "projectedLatencyMs",
+                "availability",
+                "evaluation"
+              ],
+              "type": "object"
+            },
+            "maxItems": 1000,
+            "minItems": 1,
+            "type": "array"
+          },
+          "requiredCapabilities": {
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "minItems": 1,
+            "type": "array",
+            "uniqueItems": true
+          },
+          "timeoutSeconds": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "requiredCapabilities",
+          "candidates"
+        ],
+        "type": "object"
+      },
+      "editor": {
+        "category": "Agents",
+        "description": "Choose an eligible mesh member using durable, explainable signals.",
+        "propertyOrder": [
+          "requiredCapabilities",
+          "candidates",
+          "timeoutSeconds"
+        ],
+        "title": "Agent route"
+      },
+      "kind": "task",
+      "type": "agent.route"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
           "agent": {
             "minLength": 1,
             "type": "string"
@@ -1789,6 +2262,10 @@
             "minimum": 0,
             "type": "integer"
           },
+          "memberId": {
+            "minLength": 1,
+            "type": "string"
+          },
           "memoryReadKeys": {
             "items": {
               "minLength": 1,
@@ -1799,6 +2276,42 @@
             "uniqueItems": true
           },
           "memoryWriteKey": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "meshBudget": {
+            "additionalProperties": false,
+            "properties": {
+              "maxCostUsd": {
+                "type": [
+                  "number",
+                  "string"
+                ]
+              },
+              "maxDurationSeconds": {
+                "maximum": 86400,
+                "minimum": 1,
+                "type": "integer"
+              },
+              "maxToolCalls": {
+                "maximum": 10000,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "maxTotalTokens": {
+                "minimum": 1,
+                "type": "integer"
+              }
+            },
+            "required": [
+              "maxTotalTokens",
+              "maxCostUsd",
+              "maxDurationSeconds",
+              "maxToolCalls"
+            ],
+            "type": "object"
+          },
+          "meshId": {
             "minLength": 1,
             "type": "string"
           },
@@ -1826,6 +2339,9 @@
           "businessAssertions",
           "memoryReadKeys",
           "memoryWriteKey",
+          "meshId",
+          "memberId",
+          "meshBudget",
           "approvalTask",
           "dataHandling",
           "timeoutSeconds"

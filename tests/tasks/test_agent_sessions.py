@@ -235,6 +235,37 @@ class FallbackJudgeModel:
         )
 
 
+class FallbackSessionModel:
+    def __init__(self) -> None:
+        self.calls: list[TaskDefinition] = []
+
+    async def __call__(
+        self,
+        task: TaskDefinition,
+        context: TaskExecutionContext,
+    ) -> TaskCompletion:
+        del context
+        self.calls.append(task)
+        assert task.model_extra is not None
+        invocation_key = str(task.model_extra["invocationKey"])
+        if invocation_key.endswith(":route:primary"):
+            raise TaskExecutionFailure("provider unavailable", FailureCategory.RETRYABLE)
+        return TaskCompletion(
+            output={
+                "structuredOutput": {
+                    "action": "final",
+                    "tool": "lookup",
+                    "arguments": None,
+                    "output": {"answer": "portable result"},
+                    "rationale": "Done",
+                },
+                "model": task.model_extra["model"],
+                "usage": {"total_tokens": 5},
+                "costUsd": "0.001",
+            }
+        )
+
+
 class SimulatedWorkerCrash(BaseException):
     pass
 
@@ -463,6 +494,23 @@ def _task(
     return TaskDefinition.model_validate(payload)
 
 
+def _mesh_task(*, max_total_tokens: int) -> TaskDefinition:
+    payload = _task().model_dump(mode="python", by_alias=True, exclude_none=True)
+    payload.update(
+        {
+            "meshId": "test-mesh",
+            "memberId": "helper",
+            "meshBudget": {
+                "maxTotalTokens": max_total_tokens,
+                "maxCostUsd": "0.50",
+                "maxDurationSeconds": 30,
+                "maxToolCalls": 1,
+            },
+        }
+    )
+    return TaskDefinition.model_validate(payload)
+
+
 def _governed_pin(*, judge_fallback: bool = False) -> AgentCapabilityPin:
     pin = _pin()
     evaluation_pin = ResolvedResourcePin(
@@ -530,6 +578,97 @@ def _governed_pin(*, judge_fallback: bool = False) -> AgentCapabilityPin:
             "envelope": envelope,
         }
     )
+
+
+def test_mesh_budget_is_enforced_and_recorded_by_the_agent_session() -> None:
+    async def scenario() -> None:
+        pin = _pin()
+        sessions = MemorySessions()
+        model = ScriptedModel(
+            [
+                {
+                    "action": "final",
+                    "tool": "lookup",
+                    "arguments": None,
+                    "output": {"answer": "bounded"},
+                    "rationale": "Done",
+                }
+            ]
+        )
+        handler = agent_session_handler(
+            resources=MemoryResources(pin),
+            sessions=sessions,
+            model_handler=model,
+            mcp_handler=ScriptedMcp(),
+        )
+        context = _context()
+
+        with pytest.raises(TaskExecutionFailure, match="exceeded maxTotalTokens"):
+            await handler(_mesh_task(max_total_tokens=4), context)
+
+        detail = await sessions.get_session("default", context.task_run_id, 1)
+        assert detail.events[0].payload["hardLimits"]["maxTotalTokens"] == 4
+        assert detail.events[0].payload["mesh"] == {
+            "meshId": "test-mesh",
+            "memberId": "helper",
+            "budget": {
+                "maxTotalTokens": 4,
+                "maxCostUsd": "0.50",
+                "maxDurationSeconds": 30,
+                "maxToolCalls": 1,
+            },
+        }
+
+    asyncio.run(scenario())
+
+
+def test_session_provider_outage_uses_pinned_substitute_without_state_schema_change() -> None:
+    async def scenario() -> None:
+        pin = _pin()
+        primary = pin.envelope.model_routes[0].model_copy(update={"route_id": "primary"})
+        substitute = primary.model_copy(
+            update={
+                "route_id": "substitute",
+                "provider": ModelProviderSpec(
+                    endpoint="https://alternate.example/v1/chat/completions",
+                    credentialRef="openrouter",
+                ),
+                "model": "alternate/conforming-model",
+            }
+        )
+        envelope = pin.envelope.model_copy(
+            update={
+                "model_routes": (primary, substitute),
+                "fallback_mode": ModelFallbackMode.ORDERED,
+            }
+        )
+        portable_pin = pin.model_copy(
+            update={"envelope": envelope, "envelope_digest": envelope.digest}
+        )
+        sessions = MemorySessions()
+        model = FallbackSessionModel()
+        handler = agent_session_handler(
+            resources=MemoryResources(portable_pin),
+            sessions=sessions,
+            model_handler=model,
+            mcp_handler=ScriptedMcp(),
+        )
+        context = _context()
+
+        completed = await handler(_task(), context)
+
+        assert isinstance(completed, TaskCompletion)
+        assert completed.output["result"] == {"answer": "portable result"}
+        assert len(model.calls) == 2
+        assert model.calls[0].model_extra["invocationKey"].endswith(":route:primary")
+        assert model.calls[1].model_extra["invocationKey"].endswith(":route:substitute")
+        detail = await sessions.get_session("default", context.task_run_id, 1)
+        response = next(event for event in detail.events if event.event_type == "model.response")
+        assert response.payload["model"] == "alternate/conforming-model"
+        assert response.payload["nondeterministic"] is True
+        assert completed.output["session"]["envelopeDigest"] == portable_pin.envelope_digest
+
+    asyncio.run(scenario())
 
 
 def test_session_resumes_pending_tool_without_repeating_accepted_model_turn() -> None:

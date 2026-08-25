@@ -107,6 +107,7 @@ Class | Method | HTTP request | Description
 *AgentsApi* | [**list_agent_resources_api_v1_namespaces_namespace_agent_resources_get**](docs/AgentsApi.md#list_agent_resources_api_v1_namespaces_namespace_agent_resources_get) | **GET** /api/v1/namespaces/{namespace}/agent/resources | List Agent Resources
 *AgentsApi* | [**preview_agent_definition_api_v1_namespaces_namespace_agent_definitions_key_preview_get**](docs/AgentsApi.md#preview_agent_definition_api_v1_namespaces_namespace_agent_definitions_key_preview_get) | **GET** /api/v1/namespaces/{namespace}/agent/definitions/{key}/preview | Preview Agent Definition
 *AgentsApi* | [**preview_agent_evaluation_fixture_api_v1_namespaces_namespace_agent_evaluations_key_fixtures_fixture_key_preview_get**](docs/AgentsApi.md#preview_agent_evaluation_fixture_api_v1_namespaces_namespace_agent_evaluations_key_fixtures_fixture_key_preview_get) | **GET** /api/v1/namespaces/{namespace}/agent/evaluations/{key}/fixtures/{fixture_key}/preview | Preview Agent Evaluation Fixture
+*AgentsApi* | [**preview_agent_mesh_route_api_v1_namespaces_namespace_agent_mesh_routes_preview_post**](docs/AgentsApi.md#preview_agent_mesh_route_api_v1_namespaces_namespace_agent_mesh_routes_preview_post) | **POST** /api/v1/namespaces/{namespace}/agent/mesh/routes/preview | Preview Agent Mesh Route
 *AgentsApi* | [**resolve_agent_definition_api_v1_namespaces_namespace_agent_definitions_key_resolve_post**](docs/AgentsApi.md#resolve_agent_definition_api_v1_namespaces_namespace_agent_definitions_key_resolve_post) | **POST** /api/v1/namespaces/{namespace}/agent/definitions/{key}/resolve | Resolve Agent Definition
 *AppsApi* | [**get_workflow_app_api_v1_apps_namespace_app_id_get**](docs/AppsApi.md#get_workflow_app_api_v1_apps_namespace_app_id_get) | **GET** /api/v1/apps/{namespace}/{app_id} | Get Workflow App
 *AppsApi* | [**launch_workflow_app_api_v1_apps_namespace_app_id_launch_post**](docs/AppsApi.md#launch_workflow_app_api_v1_apps_namespace_app_id_launch_post) | **POST** /api/v1/apps/{namespace}/{app_id}/launch | Launch Workflow App
@@ -407,6 +408,13 @@ Class | Method | HTTP request | Description
  - [AgentResourceRef](docs/AgentResourceRef.md)
  - [AgentResourceRevision](docs/AgentResourceRevision.md)
  - [AgentRevisionComparison](docs/AgentRevisionComparison.md)
+ - [AgentRouteAssessment](docs/AgentRouteAssessment.md)
+ - [AgentRouteAvailabilitySignal](docs/AgentRouteAvailabilitySignal.md)
+ - [AgentRouteCandidate](docs/AgentRouteCandidate.md)
+ - [AgentRouteDecision](docs/AgentRouteDecision.md)
+ - [AgentRouteEvaluationSignal](docs/AgentRouteEvaluationSignal.md)
+ - [AgentRoutePolicySignal](docs/AgentRoutePolicySignal.md)
+ - [AgentRouteRequest](docs/AgentRouteRequest.md)
  - [AgentRubricCriterionInput](docs/AgentRubricCriterionInput.md)
  - [AgentRubricCriterionOutput](docs/AgentRubricCriterionOutput.md)
  - [AgentSessionCheckpoint](docs/AgentSessionCheckpoint.md)
@@ -732,6 +740,7 @@ Class | Method | HTTP request | Description
  - [PrincipalDefinition](docs/PrincipalDefinition.md)
  - [PrincipalType](docs/PrincipalType.md)
  - [ProblemDetail](docs/ProblemDetail.md)
+ - [Projectedcostusd](docs/Projectedcostusd.md)
  - [PromptSpec](docs/PromptSpec.md)
  - [ProviderMigrationDiagnostic](docs/ProviderMigrationDiagnostic.md)
  - [ProvisionedWebhookSubscription](docs/ProvisionedWebhookSubscription.md)
@@ -778,6 +787,7 @@ Class | Method | HTTP request | Description
  - [ScimResourceMeta](docs/ScimResourceMeta.md)
  - [ScimUserRequest](docs/ScimUserRequest.md)
  - [ScimUserResource](docs/ScimUserResource.md)
+ - [Score](docs/Score.md)
  - [SearchDocument](docs/SearchDocument.md)
  - [SearchDocumentType](docs/SearchDocumentType.md)
  - [SearchProjectionCondition](docs/SearchProjectionCondition.md)

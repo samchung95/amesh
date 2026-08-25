@@ -76,6 +76,7 @@ All URIs are relative to *http://localhost*
 *AgentsApi* | [**listAgentResourcesApiV1NamespacesNamespaceAgentResourcesGet**](docs/AgentsApi.md#listagentresourcesapiv1namespacesnamespaceagentresourcesget) | **GET** /api/v1/namespaces/{namespace}/agent/resources | List Agent Resources
 *AgentsApi* | [**previewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGet**](docs/AgentsApi.md#previewagentdefinitionapiv1namespacesnamespaceagentdefinitionskeypreviewget) | **GET** /api/v1/namespaces/{namespace}/agent/definitions/{key}/preview | Preview Agent Definition
 *AgentsApi* | [**previewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGet**](docs/AgentsApi.md#previewagentevaluationfixtureapiv1namespacesnamespaceagentevaluationskeyfixturesfixturekeypreviewget) | **GET** /api/v1/namespaces/{namespace}/agent/evaluations/{key}/fixtures/{fixture_key}/preview | Preview Agent Evaluation Fixture
+*AgentsApi* | [**previewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPost**](docs/AgentsApi.md#previewagentmeshrouteapiv1namespacesnamespaceagentmeshroutespreviewpost) | **POST** /api/v1/namespaces/{namespace}/agent/mesh/routes/preview | Preview Agent Mesh Route
 *AgentsApi* | [**resolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePost**](docs/AgentsApi.md#resolveagentdefinitionapiv1namespacesnamespaceagentdefinitionskeyresolvepost) | **POST** /api/v1/namespaces/{namespace}/agent/definitions/{key}/resolve | Resolve Agent Definition
 *AppsApi* | [**getWorkflowAppApiV1AppsNamespaceAppIdGet**](docs/AppsApi.md#getworkflowappapiv1appsnamespaceappidget) | **GET** /api/v1/apps/{namespace}/{app_id} | Get Workflow App
 *AppsApi* | [**launchWorkflowAppApiV1AppsNamespaceAppIdLaunchPost**](docs/AppsApi.md#launchworkflowappapiv1appsnamespaceappidlaunchpost) | **POST** /api/v1/apps/{namespace}/{app_id}/launch | Launch Workflow App
@@ -376,6 +377,13 @@ All URIs are relative to *http://localhost*
 - [AgentResourceRef](docs/AgentResourceRef.md)
 - [AgentResourceRevision](docs/AgentResourceRevision.md)
 - [AgentRevisionComparison](docs/AgentRevisionComparison.md)
+- [AgentRouteAssessment](docs/AgentRouteAssessment.md)
+- [AgentRouteAvailabilitySignal](docs/AgentRouteAvailabilitySignal.md)
+- [AgentRouteCandidate](docs/AgentRouteCandidate.md)
+- [AgentRouteDecision](docs/AgentRouteDecision.md)
+- [AgentRouteEvaluationSignal](docs/AgentRouteEvaluationSignal.md)
+- [AgentRoutePolicySignal](docs/AgentRoutePolicySignal.md)
+- [AgentRouteRequest](docs/AgentRouteRequest.md)
 - [AgentRubricCriterionInput](docs/AgentRubricCriterionInput.md)
 - [AgentRubricCriterionOutput](docs/AgentRubricCriterionOutput.md)
 - [AgentSessionCheckpoint](docs/AgentSessionCheckpoint.md)
@@ -701,6 +709,7 @@ All URIs are relative to *http://localhost*
 - [PrincipalDefinition](docs/PrincipalDefinition.md)
 - [PrincipalType](docs/PrincipalType.md)
 - [ProblemDetail](docs/ProblemDetail.md)
+- [Projectedcostusd](docs/Projectedcostusd.md)
 - [PromptSpec](docs/PromptSpec.md)
 - [ProviderMigrationDiagnostic](docs/ProviderMigrationDiagnostic.md)
 - [ProvisionedWebhookSubscription](docs/ProvisionedWebhookSubscription.md)
@@ -747,6 +756,7 @@ All URIs are relative to *http://localhost*
 - [ScimResourceMeta](docs/ScimResourceMeta.md)
 - [ScimUserRequest](docs/ScimUserRequest.md)
 - [ScimUserResource](docs/ScimUserResource.md)
+- [Score](docs/Score.md)
 - [SearchDocument](docs/SearchDocument.md)
 - [SearchDocumentType](docs/SearchDocumentType.md)
 - [SearchProjectionCondition](docs/SearchProjectionCondition.md)

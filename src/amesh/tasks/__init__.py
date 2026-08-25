@@ -8,6 +8,7 @@ from .files import core_file_handlers
 from .http import HttpTaskPolicy, core_download_handler, core_http_handler
 from .llm import OpenAICompatibleConfig, agent_llm_handler
 from .mcp import agent_mcp_handler, discover_mcp_server
+from .mesh import agent_mesh_handlers
 from .notifications import EmailSender, SmtpDelivery, core_notification_handlers
 from .scripts import script_task_handlers
 from .session import InvalidAgentOutputPolicy, agent_session_handler
@@ -39,6 +40,7 @@ __all__ = [
     "SmtpDelivery",
     "agent_llm_handler",
     "agent_mcp_handler",
+    "agent_mesh_handlers",
     "agent_session_handler",
     "core_control_handlers",
     "core_data_handlers",

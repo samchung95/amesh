@@ -147,6 +147,8 @@ Class | Method | HTTP request | Description
 *AgentsApi* | [**previewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGetWithHttpInfo**](docs/AgentsApi.md#previewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGetWithHttpInfo) | **GET** /api/v1/namespaces/{namespace}/agent/definitions/{key}/preview | Preview Agent Definition
 *AgentsApi* | [**previewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGet**](docs/AgentsApi.md#previewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGet) | **GET** /api/v1/namespaces/{namespace}/agent/evaluations/{key}/fixtures/{fixture_key}/preview | Preview Agent Evaluation Fixture
 *AgentsApi* | [**previewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGetWithHttpInfo**](docs/AgentsApi.md#previewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGetWithHttpInfo) | **GET** /api/v1/namespaces/{namespace}/agent/evaluations/{key}/fixtures/{fixture_key}/preview | Preview Agent Evaluation Fixture
+*AgentsApi* | [**previewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPost**](docs/AgentsApi.md#previewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPost) | **POST** /api/v1/namespaces/{namespace}/agent/mesh/routes/preview | Preview Agent Mesh Route
+*AgentsApi* | [**previewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPostWithHttpInfo**](docs/AgentsApi.md#previewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPostWithHttpInfo) | **POST** /api/v1/namespaces/{namespace}/agent/mesh/routes/preview | Preview Agent Mesh Route
 *AgentsApi* | [**resolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePost**](docs/AgentsApi.md#resolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePost) | **POST** /api/v1/namespaces/{namespace}/agent/definitions/{key}/resolve | Resolve Agent Definition
 *AgentsApi* | [**resolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePostWithHttpInfo**](docs/AgentsApi.md#resolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePostWithHttpInfo) | **POST** /api/v1/namespaces/{namespace}/agent/definitions/{key}/resolve | Resolve Agent Definition
 *AppsApi* | [**getWorkflowAppApiV1AppsNamespaceAppIdGet**](docs/AppsApi.md#getWorkflowAppApiV1AppsNamespaceAppIdGet) | **GET** /api/v1/apps/{namespace}/{app_id} | Get Workflow App
@@ -707,6 +709,13 @@ Class | Method | HTTP request | Description
  - [AgentResourceRef](docs/AgentResourceRef.md)
  - [AgentResourceRevision](docs/AgentResourceRevision.md)
  - [AgentRevisionComparison](docs/AgentRevisionComparison.md)
+ - [AgentRouteAssessment](docs/AgentRouteAssessment.md)
+ - [AgentRouteAvailabilitySignal](docs/AgentRouteAvailabilitySignal.md)
+ - [AgentRouteCandidate](docs/AgentRouteCandidate.md)
+ - [AgentRouteDecision](docs/AgentRouteDecision.md)
+ - [AgentRouteEvaluationSignal](docs/AgentRouteEvaluationSignal.md)
+ - [AgentRoutePolicySignal](docs/AgentRoutePolicySignal.md)
+ - [AgentRouteRequest](docs/AgentRouteRequest.md)
  - [AgentRubricCriterionInput](docs/AgentRubricCriterionInput.md)
  - [AgentRubricCriterionOutput](docs/AgentRubricCriterionOutput.md)
  - [AgentSessionCheckpoint](docs/AgentSessionCheckpoint.md)
@@ -1032,6 +1041,7 @@ Class | Method | HTTP request | Description
  - [PrincipalDefinition](docs/PrincipalDefinition.md)
  - [PrincipalType](docs/PrincipalType.md)
  - [ProblemDetail](docs/ProblemDetail.md)
+ - [Projectedcostusd](docs/Projectedcostusd.md)
  - [PromptSpec](docs/PromptSpec.md)
  - [ProviderMigrationDiagnostic](docs/ProviderMigrationDiagnostic.md)
  - [ProvisionedWebhookSubscription](docs/ProvisionedWebhookSubscription.md)
@@ -1078,6 +1088,7 @@ Class | Method | HTTP request | Description
  - [ScimResourceMeta](docs/ScimResourceMeta.md)
  - [ScimUserRequest](docs/ScimUserRequest.md)
  - [ScimUserResource](docs/ScimUserResource.md)
+ - [Score](docs/Score.md)
  - [SearchDocument](docs/SearchDocument.md)
  - [SearchDocumentType](docs/SearchDocumentType.md)
  - [SearchProjectionCondition](docs/SearchProjectionCondition.md)

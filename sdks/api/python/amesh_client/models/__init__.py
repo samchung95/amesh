@@ -49,6 +49,13 @@ from amesh_client.models.agent_resource_kind import AgentResourceKind
 from amesh_client.models.agent_resource_ref import AgentResourceRef
 from amesh_client.models.agent_resource_revision import AgentResourceRevision
 from amesh_client.models.agent_revision_comparison import AgentRevisionComparison
+from amesh_client.models.agent_route_assessment import AgentRouteAssessment
+from amesh_client.models.agent_route_availability_signal import AgentRouteAvailabilitySignal
+from amesh_client.models.agent_route_candidate import AgentRouteCandidate
+from amesh_client.models.agent_route_decision import AgentRouteDecision
+from amesh_client.models.agent_route_evaluation_signal import AgentRouteEvaluationSignal
+from amesh_client.models.agent_route_policy_signal import AgentRoutePolicySignal
+from amesh_client.models.agent_route_request import AgentRouteRequest
 from amesh_client.models.agent_rubric_criterion_input import AgentRubricCriterionInput
 from amesh_client.models.agent_rubric_criterion_output import AgentRubricCriterionOutput
 from amesh_client.models.agent_session_checkpoint import AgentSessionCheckpoint
@@ -374,6 +381,7 @@ from amesh_client.models.policy_tenant_context import PolicyTenantContext
 from amesh_client.models.principal_definition import PrincipalDefinition
 from amesh_client.models.principal_type import PrincipalType
 from amesh_client.models.problem_detail import ProblemDetail
+from amesh_client.models.projectedcostusd import Projectedcostusd
 from amesh_client.models.prompt_spec import PromptSpec
 from amesh_client.models.provider_migration_diagnostic import ProviderMigrationDiagnostic
 from amesh_client.models.provisioned_webhook_subscription import ProvisionedWebhookSubscription
@@ -420,6 +428,7 @@ from amesh_client.models.scim_patch_request import ScimPatchRequest
 from amesh_client.models.scim_resource_meta import ScimResourceMeta
 from amesh_client.models.scim_user_request import ScimUserRequest
 from amesh_client.models.scim_user_resource import ScimUserResource
+from amesh_client.models.score import Score
 from amesh_client.models.search_document import SearchDocument
 from amesh_client.models.search_document_type import SearchDocumentType
 from amesh_client.models.search_projection_condition import SearchProjectionCondition

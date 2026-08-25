@@ -23277,7 +23277,14 @@
       "id": "URS-F-0808",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/domain/test_agent_mesh_domain.py::test_supported_mesh_topologies_are_explicit_and_bounded",
+        "tests/test_agent_mesh_flow.py::test_agent_mesh_compiles_to_existing_durable_task_plan",
+        "tests/executor/test_agent_mesh_aggregation.py",
+        "examples/live-agent-mesh-luna.yaml",
+        "TESTLOG.md"
+      ],
       "milestone": "M8",
       "wave": 8,
       "epic_id": "EPIC-806",
@@ -23345,7 +23352,14 @@
       "id": "URS-F-0810",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/domain/test_agent_mesh_domain.py::test_handoff_enforces_source_schema_capabilities_policy_and_redaction",
+        "tests/tasks/test_agent_mesh_tasks.py::test_handoff_handler_uses_exact_source_and_redacts_before_persisting",
+        "frontend/src/components/executionTraceModel.test.ts",
+        "examples/live-agent-mesh-luna.yaml",
+        "TESTLOG.md"
+      ],
       "milestone": "M8",
       "wave": 8,
       "epic_id": "EPIC-806",
@@ -23375,7 +23389,14 @@
       "id": "URS-F-0811",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/domain/test_agent_mesh_domain.py::test_route_agent_gates_then_ranks_with_a_durable_explanation",
+        "tests/tasks/test_agent_mesh_tasks.py::test_route_handler_returns_durable_explainable_evidence",
+        "tests/api/test_agent_resources_api.py",
+        "frontend/src/components/executionTraceModel.test.ts",
+        "TESTLOG.md"
+      ],
       "milestone": "M8",
       "wave": 8,
       "epic_id": "EPIC-806",
@@ -24198,7 +24219,13 @@
         "EPIC-808"
       ],
       "priority": "Must",
-      "status": "Proposed"
+      "status": "Verified",
+      "evidence": [
+        "tests/tasks/test_agent_sessions.py::test_mesh_budget_is_enforced_and_recorded_by_the_agent_session",
+        "tests/executor/test_agent_mesh_aggregation.py::test_mesh_parent_fails_closed_if_persisted_usage_exceeds_its_budget",
+        "examples/live-agent-mesh-luna.yaml",
+        "TESTLOG.md"
+      ]
     },
     {
       "id": "URS-NFR-AGENT-002",
@@ -24213,7 +24240,14 @@
         "EPIC-809"
       ],
       "priority": "Must",
-      "status": "Proposed"
+      "status": "Verified",
+      "evidence": [
+        "tests/test_agent_mesh_flow.py",
+        "tests/tasks/test_agent_mesh_tasks.py",
+        "tests/tasks/test_agent_sessions.py",
+        "frontend/src/components/executionTraceModel.test.ts",
+        "TESTLOG.md"
+      ]
     },
     {
       "id": "URS-NFR-AGENT-003",
@@ -24229,12 +24263,14 @@
         "EPIC-809"
       ],
       "priority": "Must",
-      "status": "In Progress",
+      "status": "Verified",
       "evidence": [
         "migrations/0057_agent_resources.sql",
         "src/amesh/adapters/postgres/agent_resources.py",
         "tests/adapters/postgres/test_agent_resource_repository.py",
         "tests/api/test_agent_resources_api.py",
+        "tests/domain/test_agent_mesh_domain.py::test_handoff_enforces_source_schema_capabilities_policy_and_redaction",
+        "tests/tasks/test_agent_mesh_tasks.py::test_handoff_handler_uses_exact_source_and_redacts_before_persisting",
         "TESTLOG.md"
       ]
     },
@@ -24251,10 +24287,12 @@
         "EPIC-809"
       ],
       "priority": "Must",
-      "status": "In Progress",
+      "status": "Verified",
       "evidence": [
         "src/amesh/domain/agent_resources.py::provider_migration_diagnostic",
         "tests/domain/test_agent_resources.py::test_revision_and_provider_comparison_never_claim_durable_semantic_parity",
+        "tests/tasks/test_agent_sessions.py::test_session_provider_outage_uses_pinned_substitute_without_state_schema_change",
+        "examples/live-agent-mesh-luna.yaml",
         "docs/how-to/define-agent-capability-envelope.md",
         "TESTLOG.md"
       ]

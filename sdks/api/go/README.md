@@ -89,6 +89,7 @@ Class | Method | HTTP request | Description
 *AgentsAPI* | [**ListAgentResourcesApiV1NamespacesNamespaceAgentResourcesGet**](docs/AgentsAPI.md#listagentresourcesapiv1namespacesnamespaceagentresourcesget) | **Get** /api/v1/namespaces/{namespace}/agent/resources | List Agent Resources
 *AgentsAPI* | [**PreviewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGet**](docs/AgentsAPI.md#previewagentdefinitionapiv1namespacesnamespaceagentdefinitionskeypreviewget) | **Get** /api/v1/namespaces/{namespace}/agent/definitions/{key}/preview | Preview Agent Definition
 *AgentsAPI* | [**PreviewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGet**](docs/AgentsAPI.md#previewagentevaluationfixtureapiv1namespacesnamespaceagentevaluationskeyfixturesfixturekeypreviewget) | **Get** /api/v1/namespaces/{namespace}/agent/evaluations/{key}/fixtures/{fixture_key}/preview | Preview Agent Evaluation Fixture
+*AgentsAPI* | [**PreviewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPost**](docs/AgentsAPI.md#previewagentmeshrouteapiv1namespacesnamespaceagentmeshroutespreviewpost) | **Post** /api/v1/namespaces/{namespace}/agent/mesh/routes/preview | Preview Agent Mesh Route
 *AgentsAPI* | [**ResolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePost**](docs/AgentsAPI.md#resolveagentdefinitionapiv1namespacesnamespaceagentdefinitionskeyresolvepost) | **Post** /api/v1/namespaces/{namespace}/agent/definitions/{key}/resolve | Resolve Agent Definition
 *AppsAPI* | [**GetWorkflowAppApiV1AppsNamespaceAppIdGet**](docs/AppsAPI.md#getworkflowappapiv1appsnamespaceappidget) | **Get** /api/v1/apps/{namespace}/{app_id} | Get Workflow App
 *AppsAPI* | [**LaunchWorkflowAppApiV1AppsNamespaceAppIdLaunchPost**](docs/AppsAPI.md#launchworkflowappapiv1appsnamespaceappidlaunchpost) | **Post** /api/v1/apps/{namespace}/{app_id}/launch | Launch Workflow App
@@ -389,6 +390,13 @@ Class | Method | HTTP request | Description
  - [AgentResourceRef](docs/AgentResourceRef.md)
  - [AgentResourceRevision](docs/AgentResourceRevision.md)
  - [AgentRevisionComparison](docs/AgentRevisionComparison.md)
+ - [AgentRouteAssessment](docs/AgentRouteAssessment.md)
+ - [AgentRouteAvailabilitySignal](docs/AgentRouteAvailabilitySignal.md)
+ - [AgentRouteCandidate](docs/AgentRouteCandidate.md)
+ - [AgentRouteDecision](docs/AgentRouteDecision.md)
+ - [AgentRouteEvaluationSignal](docs/AgentRouteEvaluationSignal.md)
+ - [AgentRoutePolicySignal](docs/AgentRoutePolicySignal.md)
+ - [AgentRouteRequest](docs/AgentRouteRequest.md)
  - [AgentRubricCriterionInput](docs/AgentRubricCriterionInput.md)
  - [AgentRubricCriterionOutput](docs/AgentRubricCriterionOutput.md)
  - [AgentSessionCheckpoint](docs/AgentSessionCheckpoint.md)
@@ -714,6 +722,7 @@ Class | Method | HTTP request | Description
  - [PrincipalDefinition](docs/PrincipalDefinition.md)
  - [PrincipalType](docs/PrincipalType.md)
  - [ProblemDetail](docs/ProblemDetail.md)
+ - [Projectedcostusd](docs/Projectedcostusd.md)
  - [PromptSpec](docs/PromptSpec.md)
  - [ProviderMigrationDiagnostic](docs/ProviderMigrationDiagnostic.md)
  - [ProvisionedWebhookSubscription](docs/ProvisionedWebhookSubscription.md)
@@ -760,6 +769,7 @@ Class | Method | HTTP request | Description
  - [ScimResourceMeta](docs/ScimResourceMeta.md)
  - [ScimUserRequest](docs/ScimUserRequest.md)
  - [ScimUserResource](docs/ScimUserResource.md)
+ - [Score](docs/Score.md)
  - [SearchDocument](docs/SearchDocument.md)
  - [SearchDocumentType](docs/SearchDocumentType.md)
  - [SearchProjectionCondition](docs/SearchProjectionCondition.md)

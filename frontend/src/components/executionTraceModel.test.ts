@@ -123,4 +123,21 @@ describe('buildExecutionTrace', () => {
     expect(annotations).toContain('Memory written: latest · PRIVATE')
     expect(annotations).toContain('Output accepted · schema valid · 2 business gates')
   })
+
+  it('renders routing, typed hand-offs and mesh budgets as a readable story', () => {
+    const route = task('route', 'SUCCESS')
+    const handoff = task('handoff', 'SUCCESS')
+    const mesh = task('mesh', 'SUCCESS')
+    const evidence = [
+      event(1, route.task_run_id, 'TaskRunSucceeded', { agentRoute: { selectedMemberId: 'analyst', selectedAgent: 'incident-helper', selectedAgentRevision: 3 } }),
+      event(2, handoff.task_run_id, 'TaskRunSucceeded', { agentHandoff: { source: { task: 'analyst-session' }, destination: { task: 'supervisor-session' }, context: { finding: 'validated' }, policy: { outcome: 'ALLOW' } } }),
+      event(3, mesh.task_run_id, 'TaskRunSucceeded', { agentMesh: { topology: 'SUPERVISOR', usage: { sessions: 2, totalTokens: 828, costUsd: '0.0005' } } }),
+    ]
+
+    const model = buildExecutionTrace({ taskRuns: [route, handoff, mesh], evidence, subflows: [], humanTasks: [], interventions: [], nowMs: 0 })
+
+    expect(model.groups[2].steps[0].annotations).toContain('Routed to analyst · incident-helper@3')
+    expect(model.groups[0].steps[0].annotations).toContain('Hand-off analyst-session → supervisor-session · 1 context fields · policy ALLOW')
+    expect(model.groups[1].steps[0].annotations).toContain('Mesh SUPERVISOR completed · 2 sessions · 828 tokens · $0.0005')
+  })
 })

@@ -114,6 +114,13 @@ model_agent_resource_kind.go
 model_agent_resource_ref.go
 model_agent_resource_revision.go
 model_agent_revision_comparison.go
+model_agent_route_assessment.go
+model_agent_route_availability_signal.go
+model_agent_route_candidate.go
+model_agent_route_decision.go
+model_agent_route_evaluation_signal.go
+model_agent_route_policy_signal.go
+model_agent_route_request.go
 model_agent_rubric_criterion_input.go
 model_agent_rubric_criterion_output.go
 model_agent_session_checkpoint.go
@@ -439,6 +446,7 @@ model_policy_tenant_context.go
 model_principal_definition.go
 model_principal_type.go
 model_problem_detail.go
+model_projectedcostusd.go
 model_prompt_spec.go
 model_provider_migration_diagnostic.go
 model_provisioned_webhook_subscription.go
@@ -485,6 +493,7 @@ model_scim_patch_request.go
 model_scim_resource_meta.go
 model_scim_user_request.go
 model_scim_user_resource.go
+model_score.go
 model_search_document.go
 model_search_document_type.go
 model_search_projection_condition.go

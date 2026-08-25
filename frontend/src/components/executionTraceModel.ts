@@ -70,6 +70,23 @@ function terminalEvent(name: string): boolean {
 function readableEvent(event: ExecutionEvidenceEvent): string | null {
   if (event.event_type.startsWith('agent.')) return readableAgentEvent(event)
   const name = eventName(event)
+  const payload = nestedPayload(event)
+  if (name === 'TaskRunSucceeded' && typeof payload.agentRoute === 'object' && payload.agentRoute !== null) {
+    const route = payload.agentRoute as Record<string, unknown>
+    return `Routed to ${text(route.selectedMemberId) ?? 'unknown member'} · ${text(route.selectedAgent) ?? 'unknown agent'}@${text(route.selectedAgentRevision) ?? '?'}`
+  }
+  if (name === 'TaskRunSucceeded' && typeof payload.agentHandoff === 'object' && payload.agentHandoff !== null) {
+    const handoff = payload.agentHandoff as Record<string, unknown>
+    const source = typeof handoff.source === 'object' && handoff.source !== null ? handoff.source as Record<string, unknown> : {}
+    const destination = typeof handoff.destination === 'object' && handoff.destination !== null ? handoff.destination as Record<string, unknown> : {}
+    const context = typeof handoff.context === 'object' && handoff.context !== null ? handoff.context as Record<string, unknown> : {}
+    return `Hand-off ${text(source.task) ?? '?'} → ${text(destination.task) ?? '?'} · ${String(Object.keys(context).length)} context fields · policy ${text((handoff.policy as Record<string, unknown> | undefined)?.outcome) ?? 'checked'}`
+  }
+  if (name === 'TaskRunSucceeded' && typeof payload.agentMesh === 'object' && payload.agentMesh !== null) {
+    const mesh = payload.agentMesh as Record<string, unknown>
+    const usage = typeof mesh.usage === 'object' && mesh.usage !== null ? mesh.usage as Record<string, unknown> : {}
+    return `Mesh ${text(mesh.topology) ?? 'topology'} completed · ${text(usage.sessions) ?? '0'} sessions · ${text(usage.totalTokens) ?? '0'} tokens · $${text(usage.costUsd) ?? '0'}`
+  }
   if (/RetryScheduled/i.test(name)) return `Retry scheduled${text(event.payload.reason) ? `: ${text(event.payload.reason)}` : ''}`
   if (/Paused/i.test(name)) return `Paused${text(event.payload.reason) ? `: ${text(event.payload.reason)}` : ''}`
   if (/Cancel/i.test(name)) return `Cancellation: ${name.replaceAll(/([a-z])([A-Z])/g, '$1 $2')}`

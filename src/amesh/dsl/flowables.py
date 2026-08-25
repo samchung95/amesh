@@ -6,6 +6,7 @@ from enum import StrEnum
 from .models import FlowableFailurePolicy, FlowDefinition, TaskDefinition
 
 FLOWABLE_MODES = {
+    "agent.mesh": "AGENT_MESH",
     "core.sequential": "SEQUENTIAL",
     "core.parallel": "PARALLEL",
     "core.dag": "DAG",

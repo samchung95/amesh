@@ -56,7 +56,7 @@ public class AgentRubricCriterionOutput {
 
   public static final String JSON_PROPERTY_WEIGHT = "weight";
   @javax.annotation.Nullable
-  private String weight = "1";
+  private String weight;
 
   public AgentRubricCriterionOutput() {
   }

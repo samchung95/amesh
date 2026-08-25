@@ -46,8 +46,6 @@ func NewAgentEvaluationSpecOutput(key string, namespace string, title string) *A
 	this.Key = key
 	var kind string = "EVALUATION"
 	this.Kind = &kind
-	var minimumRubricScore string = "1"
-	this.MinimumRubricScore = &minimumRubricScore
 	this.Namespace = namespace
 	this.Title = title
 	return &this
@@ -62,8 +60,6 @@ func NewAgentEvaluationSpecOutputWithDefaults() *AgentEvaluationSpecOutput {
 	this.Description = &description
 	var kind string = "EVALUATION"
 	this.Kind = &kind
-	var minimumRubricScore string = "1"
-	this.MinimumRubricScore = &minimumRubricScore
 	return &this
 }
 

@@ -26,6 +26,8 @@ import io.amesh.client.model.AgentResolutionRequest;
 import io.amesh.client.model.AgentResourceKind;
 import io.amesh.client.model.AgentResourceRevision;
 import io.amesh.client.model.AgentRevisionComparison;
+import io.amesh.client.model.AgentRouteDecision;
+import io.amesh.client.model.AgentRouteRequest;
 import io.amesh.client.model.HTTPValidationError;
 import io.amesh.client.model.McpConnectionDiscoveryRequest;
 import io.amesh.client.model.McpConnectionRevision;
@@ -2457,6 +2459,159 @@ public class AgentsApi {
     localVarRequestBuilder.header("Accept", "application/json");
 
     localVarRequestBuilder.method("GET", HttpRequest.BodyPublishers.noBody());
+    if (memberVarReadTimeout != null) {
+      localVarRequestBuilder.timeout(memberVarReadTimeout);
+    }
+    // Add custom headers if provided
+    localVarRequestBuilder = HttpRequestBuilderExtensions.withAdditionalHeaders(localVarRequestBuilder, headers);
+    if (memberVarInterceptor != null) {
+      memberVarInterceptor.accept(localVarRequestBuilder);
+    }
+    return localVarRequestBuilder;
+  }
+
+  /**
+   * Preview Agent Mesh Route
+   *
+   * @param namespace  (required)
+   * @param agentRouteRequest  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return AgentRouteDecision
+   * @throws ApiException if fails to make API call
+   */
+  public AgentRouteDecision previewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPost(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull AgentRouteRequest agentRouteRequest, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return previewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPost(namespace, agentRouteRequest, authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * Preview Agent Mesh Route
+   *
+   * @param namespace  (required)
+   * @param agentRouteRequest  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return AgentRouteDecision
+   * @throws ApiException if fails to make API call
+   */
+  public AgentRouteDecision previewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPost(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull AgentRouteRequest agentRouteRequest, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    ApiResponse<AgentRouteDecision> localVarResponse = previewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPostWithHttpInfo(namespace, agentRouteRequest, authorization, xAmeshCSRF, xAmeshTenant, headers);
+    return localVarResponse.getData();
+  }
+
+  /**
+   * Preview Agent Mesh Route
+   *
+   * @param namespace  (required)
+   * @param agentRouteRequest  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @return ApiResponse&lt;AgentRouteDecision&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<AgentRouteDecision> previewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPostWithHttpInfo(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull AgentRouteRequest agentRouteRequest, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return previewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPostWithHttpInfo(namespace, agentRouteRequest, authorization, xAmeshCSRF, xAmeshTenant, null);
+  }
+
+  /**
+   * Preview Agent Mesh Route
+   *
+   * @param namespace  (required)
+   * @param agentRouteRequest  (required)
+   * @param authorization  (optional)
+   * @param xAmeshCSRF  (optional)
+   * @param xAmeshTenant  (optional)
+   * @param headers Optional headers to include in the request
+   * @return ApiResponse&lt;AgentRouteDecision&gt;
+   * @throws ApiException if fails to make API call
+   */
+  public ApiResponse<AgentRouteDecision> previewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPostWithHttpInfo(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull AgentRouteRequest agentRouteRequest, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = previewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPostRequestBuilder(namespace, agentRouteRequest, authorization, xAmeshCSRF, xAmeshTenant, headers);
+    try {
+      HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
+          localVarRequestBuilder.build(),
+          HttpResponse.BodyHandlers.ofInputStream());
+      if (memberVarResponseInterceptor != null) {
+        memberVarResponseInterceptor.accept(localVarResponse);
+      }
+      InputStream localVarResponseBody = null;
+      try {
+        if (localVarResponse.statusCode()/ 100 != 2) {
+          throw getApiException("previewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPost", localVarResponse);
+        }
+        localVarResponseBody = ApiClient.getResponseBody(localVarResponse);
+        if (localVarResponseBody == null) {
+          return new ApiResponse<AgentRouteDecision>(
+              localVarResponse.statusCode(),
+              localVarResponse.headers().map(),
+              null
+          );
+        }
+
+
+
+        String responseBody = new String(localVarResponseBody.readAllBytes());
+        AgentRouteDecision responseValue = responseBody.isBlank()? null: memberVarObjectMapper.readValue(responseBody, new TypeReference<AgentRouteDecision>() {});
+
+
+        return new ApiResponse<AgentRouteDecision>(
+            localVarResponse.statusCode(),
+            localVarResponse.headers().map(),
+            responseValue
+        );
+      } finally {
+        if (localVarResponseBody != null) {
+          localVarResponseBody.close();
+        }
+      }
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(e);
+    }
+  }
+
+  private HttpRequest.Builder previewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPostRequestBuilder(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull AgentRouteRequest agentRouteRequest, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    // verify the required parameter 'namespace' is set
+    if (namespace == null) {
+      throw new ApiException(400, "Missing the required parameter 'namespace' when calling previewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPost");
+    }
+    // verify the required parameter 'agentRouteRequest' is set
+    if (agentRouteRequest == null) {
+      throw new ApiException(400, "Missing the required parameter 'agentRouteRequest' when calling previewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPost");
+    }
+
+    HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+
+    String localVarPath = "/api/v1/namespaces/{namespace}/agent/mesh/routes/preview"
+        .replace("{namespace}", ApiClient.urlEncode(namespace.toString()));
+
+    localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+
+    if (authorization != null) {
+      localVarRequestBuilder.header("authorization", authorization.toString());
+    }
+    if (xAmeshCSRF != null) {
+      localVarRequestBuilder.header("X-Amesh-CSRF", xAmeshCSRF.toString());
+    }
+    if (xAmeshTenant != null) {
+      localVarRequestBuilder.header("X-Amesh-Tenant", xAmeshTenant.toString());
+    }
+    localVarRequestBuilder.header("Content-Type", "application/json");
+    localVarRequestBuilder.header("Accept", "application/json");
+
+    try {
+      byte[] localVarPostBody = memberVarObjectMapper.writeValueAsBytes(agentRouteRequest);
+      localVarRequestBuilder.method("POST", HttpRequest.BodyPublishers.ofByteArray(localVarPostBody));
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
     if (memberVarReadTimeout != null) {
       localVarRequestBuilder.timeout(memberVarReadTimeout);
     }

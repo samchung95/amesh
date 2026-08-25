@@ -439,3 +439,59 @@ def test_agent_resource_api_authorization_denial_is_closed() -> None:
         assert repository.saved == []
     finally:
         app.dependency_overrides.clear()
+
+
+def test_agent_mesh_route_preview_is_side_effect_free_and_explainable() -> None:
+    repository = _Repository()
+    authorization = _Authorization()
+    _overrides(repository, authorization)
+
+    async def scenario() -> None:
+        async with httpx.AsyncClient(
+            transport=httpx.ASGITransport(app=app),
+            base_url="http://amesh.test",
+        ) as client:
+            response = await client.post(
+                "/api/v1/namespaces/agents.demo/agent/mesh/routes/preview",
+                headers={"X-Amesh-Tenant": "default"},
+                json={
+                    "requiredCapabilities": ["incident-response"],
+                    "candidates": [
+                        {
+                            "memberId": "supervisor",
+                            "task": "supervisor-session",
+                            "agent": "supervisor",
+                            "agentRevision": 4,
+                            "capabilities": ["incident-response"],
+                            "policy": {
+                                "outcome": "ALLOW",
+                                "decisionId": "route-policy-1",
+                                "policyDigest": "sha256:" + "a" * 64,
+                            },
+                            "projectedCostUsd": "0.10",
+                            "projectedLatencyMs": 500,
+                            "availability": {
+                                "available": True,
+                                "source": "worker-heartbeat",
+                                "checkedAt": "2026-08-25T00:00:00Z",
+                            },
+                            "evaluation": {
+                                "key": "quality",
+                                "revision": 3,
+                                "score": "0.9",
+                            },
+                        }
+                    ],
+                },
+            )
+
+            assert response.status_code == 200, response.text
+            assert response.json()["selectedMemberId"] == "supervisor"
+            assert response.json()["decisionDigest"].startswith("sha256:")
+            assert repository.saved == []
+
+    try:
+        asyncio.run(scenario())
+        assert authorization.requests[-1].action.value == "view"
+    finally:
+        app.dependency_overrides.clear()

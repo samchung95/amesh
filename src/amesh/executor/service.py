@@ -9,6 +9,7 @@ from contextlib import suppress
 from copy import deepcopy
 from dataclasses import dataclass, field, replace
 from datetime import UTC, datetime, timedelta
+from decimal import Decimal
 from typing import Any
 from uuid import UUID, uuid5
 
@@ -19,6 +20,8 @@ from amesh.admission_policy import AdmissionPolicyDenied, policy_decision_metada
 from amesh.domain import (
     AdmissionOutcome,
     AdmissionResourceType,
+    AgentMeshDefinition,
+    AgentMeshSessionBudget,
     ExecutionState,
     FailureCategory,
     PolicyDecision,
@@ -1051,21 +1054,22 @@ class InProcessExecutor:
                     if child.state in {TaskRunState.FAILED, TaskRunState.CANCELLED}
                 ]
                 terminal = all(_task_run_is_terminal(child) for child in children)
+                mesh_budget_error = _agent_mesh_budget_error(node, children) if terminal else None
                 workspace_output: dict[str, object] = {}
                 workspace_evidence: dict[str, object] = {}
                 should_finalize_workspace = node.task.type == "core.workingDirectory" and (
-                    terminal
-                    or (failed and node.failure_policy is FlowableFailurePolicy.FAIL_FAST)
+                    terminal or (failed and node.failure_policy is FlowableFailurePolicy.FAIL_FAST)
                 )
                 if should_finalize_workspace:
                     try:
-                        workspace_output, workspace_evidence = (
-                            await self._finalize_working_directory(
-                                execution,
-                                node,
-                                task_run,
-                                failed=bool(failed),
-                            )
+                        (
+                            workspace_output,
+                            workspace_evidence,
+                        ) = await self._finalize_working_directory(
+                            execution,
+                            node,
+                            task_run,
+                            failed=bool(failed),
                         )
                     except Exception as exc:
                         reason = f"working directory finalization failed: {exc}"
@@ -1096,6 +1100,20 @@ class InProcessExecutor:
                             workspace_evidence,
                             task_run.evidence,
                         ),
+                    )
+                    changed = True
+                elif mesh_budget_error is not None:
+                    by_task_id[node.task.id] = await self._repository.fail_task(
+                        task_run.task_run_id,
+                        task_run.current_attempt,
+                        mesh_budget_error,
+                        tenant_id=tenant_id,
+                        failure_category=FailureCategory.NON_RETRYABLE,
+                        result={
+                            **_aggregate_flowable_result(node, children),
+                            "error": mesh_budget_error,
+                        },
+                        evidence=task_run.evidence,
                     )
                     changed = True
                 elif terminal and (
@@ -3069,7 +3087,7 @@ def _aggregate_flowable_result(
     node: PlannedTask,
     children: list[PersistedTaskRun],
 ) -> dict[str, Any]:
-    return {
+    result: dict[str, Any] = {
         "mode": node.mode,
         "failurePolicy": node.failure_policy.value,
         "childOrder": [child.task_id for child in children],
@@ -3086,6 +3104,114 @@ def _aggregate_flowable_result(
             for child in children
         },
     }
+    if node.mode == "AGENT_MESH":
+        definition = _agent_mesh_definition(node)
+        usage = _agent_mesh_usage(node, definition, children)
+        result["agentMesh"] = {
+            "schemaVersion": "amesh.agent-mesh/v1",
+            "topology": definition.topology.value,
+            "members": [
+                member.model_dump(mode="json", by_alias=True) for member in definition.members
+            ],
+            "budget": definition.budget.model_dump(mode="json", by_alias=True),
+            "usage": usage,
+            "routing": [
+                child.result["agentRoute"]
+                for child in children
+                if child.result is not None and "agentRoute" in child.result
+            ],
+            "handoffs": [
+                child.result["agentHandoff"]
+                for child in children
+                if child.result is not None and "agentHandoff" in child.result
+            ],
+            "nondeterministic": True,
+            "nondeterminismDisclosure": (
+                "Topology, routing, policy and budgets are deterministic; model outputs are not."
+            ),
+        }
+    return result
+
+
+def _agent_mesh_definition(node: PlannedTask) -> AgentMeshDefinition:
+    extra = node.task.model_extra or {}
+    return AgentMeshDefinition.model_validate(
+        {
+            "topology": extra.get("topology"),
+            "members": extra.get("members"),
+            "budget": extra.get("budget"),
+        }
+    )
+
+
+def _agent_mesh_usage(
+    node: PlannedTask,
+    definition: AgentMeshDefinition,
+    children: list[PersistedTaskRun],
+) -> dict[str, object]:
+    member_tasks = {member.task for member in definition.members}
+    sessions = 0
+    total_tokens = 0
+    total_cost = Decimal(0)
+    tool_calls = 0
+    for child in children:
+        if child.task_id not in member_tasks:
+            continue
+        counters: object | None = None
+        if child.result is not None:
+            session = child.result.get("session")
+            if isinstance(session, dict):
+                counters = session.get("counters")
+        if counters is None:
+            failure = child.evidence.get("agentSession")
+            if isinstance(failure, dict):
+                counters = failure.get("counters")
+        if not isinstance(counters, dict):
+            continue
+        sessions += 1
+        total_tokens += _mesh_counter_int(counters, "totalTokens")
+        total_cost += Decimal(str(counters.get("costUsd", "0")))
+        tool_calls += _mesh_counter_int(counters, "toolCalls")
+    return {
+        "sessions": sessions,
+        "totalTokens": total_tokens,
+        "costUsd": str(total_cost),
+        "toolCalls": tool_calls,
+        "reservedDurationSeconds": sum(
+            AgentMeshSessionBudget.model_validate(
+                (child.model_extra or {}).get("meshBudget")
+            ).max_duration_seconds
+            for child in node.task.tasks
+            if child.id in member_tasks
+        ),
+    }
+
+
+def _mesh_counter_int(counters: Mapping[str, object], key: str) -> int:
+    value = counters.get(key, 0)
+    return value if isinstance(value, int) and not isinstance(value, bool) else 0
+
+
+def _agent_mesh_budget_error(
+    node: PlannedTask,
+    children: list[PersistedTaskRun],
+) -> str | None:
+    if node.mode != "AGENT_MESH":
+        return None
+    definition = _agent_mesh_definition(node)
+    usage = _agent_mesh_usage(node, definition, children)
+    exceeded: list[str] = []
+    if _mesh_counter_int(usage, "sessions") > definition.budget.max_sessions:
+        exceeded.append("maxSessions")
+    if _mesh_counter_int(usage, "totalTokens") > definition.budget.max_total_tokens:
+        exceeded.append("maxTotalTokens")
+    if Decimal(str(usage["costUsd"])) > definition.budget.max_cost_usd:
+        exceeded.append("maxCostUsd")
+    if _mesh_counter_int(usage, "toolCalls") > definition.budget.max_tool_calls:
+        exceeded.append("maxToolCalls")
+    if exceeded:
+        return "agent.mesh exceeded parent budget: " + ", ".join(exceeded)
+    return None
 
 
 def _template_visible_output_ids(

@@ -82,6 +82,13 @@ amesh_client/models/agent_resource_kind.py
 amesh_client/models/agent_resource_ref.py
 amesh_client/models/agent_resource_revision.py
 amesh_client/models/agent_revision_comparison.py
+amesh_client/models/agent_route_assessment.py
+amesh_client/models/agent_route_availability_signal.py
+amesh_client/models/agent_route_candidate.py
+amesh_client/models/agent_route_decision.py
+amesh_client/models/agent_route_evaluation_signal.py
+amesh_client/models/agent_route_policy_signal.py
+amesh_client/models/agent_route_request.py
 amesh_client/models/agent_rubric_criterion_input.py
 amesh_client/models/agent_rubric_criterion_output.py
 amesh_client/models/agent_session_checkpoint.py
@@ -407,6 +414,7 @@ amesh_client/models/policy_tenant_context.py
 amesh_client/models/principal_definition.py
 amesh_client/models/principal_type.py
 amesh_client/models/problem_detail.py
+amesh_client/models/projectedcostusd.py
 amesh_client/models/prompt_spec.py
 amesh_client/models/provider_migration_diagnostic.py
 amesh_client/models/provisioned_webhook_subscription.py
@@ -453,6 +461,7 @@ amesh_client/models/scim_patch_request.py
 amesh_client/models/scim_resource_meta.py
 amesh_client/models/scim_user_request.py
 amesh_client/models/scim_user_resource.py
+amesh_client/models/score.py
 amesh_client/models/search_document.py
 amesh_client/models/search_document_type.py
 amesh_client/models/search_projection_condition.py

@@ -11985,13 +11985,19 @@
       "requirement_id": "URS-F-0808",
       "epic_id": "EPIC-806",
       "compatibility_level": "Intentional difference",
-      "implementation_status": "Proposed",
+      "implementation_status": "Verified",
       "disposition": "intentional-difference",
       "source_ids": [
         "amesh-product-baseline",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
+      "evidence": [
+        "tests/domain/test_agent_mesh_domain.py::test_supported_mesh_topologies_are_explicit_and_bounded",
+        "tests/test_agent_mesh_flow.py::test_agent_mesh_compiles_to_existing_durable_task_plan",
+        "tests/executor/test_agent_mesh_aggregation.py",
+        "examples/live-agent-mesh-luna.yaml",
+        "TESTLOG.md"
+      ],
       "notes": "Coordinate multiple already-bounded agent sessions through typed hand-offs and explainable routing without creating a second execution engine."
     },
     {
@@ -12016,26 +12022,38 @@
       "requirement_id": "URS-F-0810",
       "epic_id": "EPIC-806",
       "compatibility_level": "Intentional difference",
-      "implementation_status": "Proposed",
+      "implementation_status": "Verified",
       "disposition": "intentional-difference",
       "source_ids": [
         "amesh-product-baseline",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
+      "evidence": [
+        "tests/domain/test_agent_mesh_domain.py::test_handoff_enforces_source_schema_capabilities_policy_and_redaction",
+        "tests/tasks/test_agent_mesh_tasks.py::test_handoff_handler_uses_exact_source_and_redacts_before_persisting",
+        "frontend/src/components/executionTraceModel.test.ts",
+        "examples/live-agent-mesh-luna.yaml",
+        "TESTLOG.md"
+      ],
       "notes": "Coordinate multiple already-bounded agent sessions through typed hand-offs and explainable routing without creating a second execution engine."
     },
     {
       "requirement_id": "URS-F-0811",
       "epic_id": "EPIC-806",
       "compatibility_level": "Intentional difference",
-      "implementation_status": "Proposed",
+      "implementation_status": "Verified",
       "disposition": "intentional-difference",
       "source_ids": [
         "amesh-product-baseline",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
+      "evidence": [
+        "tests/domain/test_agent_mesh_domain.py::test_route_agent_gates_then_ranks_with_a_durable_explanation",
+        "tests/tasks/test_agent_mesh_tasks.py::test_route_handler_returns_durable_explainable_evidence",
+        "tests/api/test_agent_resources_api.py",
+        "frontend/src/components/executionTraceModel.test.ts",
+        "TESTLOG.md"
+      ],
       "notes": "Coordinate multiple already-bounded agent sessions through typed hand-offs and explainable routing without creating a second execution engine."
     },
     {

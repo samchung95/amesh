@@ -114,7 +114,7 @@ public class AgentEvaluationSpecOutput {
 
   public static final String JSON_PROPERTY_MINIMUM_RUBRIC_SCORE = "minimumRubricScore";
   @javax.annotation.Nullable
-  private String minimumRubricScore = "1";
+  private String minimumRubricScore;
 
   public static final String JSON_PROPERTY_NAMESPACE = "namespace";
   @javax.annotation.Nonnull

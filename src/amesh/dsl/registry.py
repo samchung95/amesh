@@ -234,6 +234,42 @@ def _core_descriptors() -> tuple[ResourceSchemaDescriptor, ...]:
         "required": ["egress", "promptRetention"],
         "additionalProperties": False,
     }
+    mesh_session_budget: dict[str, Any] = {
+        "type": "object",
+        "properties": {
+            "maxTotalTokens": {"type": "integer", "minimum": 1},
+            "maxCostUsd": {"type": ["number", "string"]},
+            "maxDurationSeconds": {"type": "integer", "minimum": 1, "maximum": 86_400},
+            "maxToolCalls": {"type": "integer", "minimum": 0, "maximum": 10_000},
+        },
+        "required": [
+            "maxTotalTokens",
+            "maxCostUsd",
+            "maxDurationSeconds",
+            "maxToolCalls",
+        ],
+        "additionalProperties": False,
+    }
+    agent_endpoint = {
+        "type": "object",
+        "properties": {
+            "task": {"type": "string", "minLength": 1},
+            "agent": {"type": "string", "minLength": 1},
+            "agentRevision": {"type": "integer", "minimum": 1},
+        },
+        "required": ["task", "agent", "agentRevision"],
+        "additionalProperties": False,
+    }
+    route_policy = {
+        "type": "object",
+        "properties": {
+            "outcome": {"type": "string", "enum": ["ALLOW", "DENY"]},
+            "decisionId": {"type": "string", "minLength": 1},
+            "policyDigest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+        },
+        "required": ["outcome", "decisionId", "policyDigest"],
+        "additionalProperties": False,
+    }
     model_parameters = {
         "type": "object",
         "properties": {
@@ -1302,6 +1338,228 @@ def _core_descriptors() -> tuple[ResourceSchemaDescriptor, ...]:
             ),
         ),
         _descriptor(
+            "agent.mesh",
+            ResourceKind.TASK,
+            _object_schema(
+                {
+                    "topology": {
+                        "type": "string",
+                        "enum": [
+                            "SUPERVISOR",
+                            "ROUTER",
+                            "PEER_TO_PEER",
+                            "HIERARCHICAL",
+                            "SWARM",
+                        ],
+                    },
+                    "members": {
+                        "type": "array",
+                        "minItems": 1,
+                        "maxItems": 1_000,
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "memberId": {"type": "string", "minLength": 1},
+                                "task": {"type": "string", "minLength": 1},
+                                "agent": {"type": "string", "minLength": 1},
+                                "agentRevision": {"type": "integer", "minimum": 1},
+                                "role": {
+                                    "type": "string",
+                                    "enum": ["SUPERVISOR", "ROUTER", "WORKER", "PEER"],
+                                },
+                                "capabilities": {
+                                    "type": "array",
+                                    "uniqueItems": True,
+                                    "items": {"type": "string", "minLength": 1},
+                                },
+                                "parentMemberId": {"type": "string", "minLength": 1},
+                            },
+                            "required": [
+                                "memberId",
+                                "task",
+                                "agent",
+                                "agentRevision",
+                                "role",
+                            ],
+                            "additionalProperties": False,
+                        },
+                    },
+                    "budget": {
+                        **mesh_session_budget,
+                        "properties": {
+                            **mesh_session_budget["properties"],
+                            "maxSessions": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 1_000,
+                            },
+                            "maxConcurrency": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 1_000,
+                            },
+                        },
+                        "required": [
+                            *mesh_session_budget["required"],
+                            "maxSessions",
+                            "maxConcurrency",
+                        ],
+                    },
+                    "failurePolicy": {
+                        "type": "string",
+                        "enum": ["FAIL_FAST", "CONTINUE_ON_ERROR", "COLLECT_ALL"],
+                    },
+                    "maxConcurrency": {"type": "integer", "minimum": 1, "maximum": 1_000},
+                    "timeoutSeconds": timeout,
+                },
+                required=("topology", "members", "budget", "maxConcurrency"),
+            ),
+            title="Agent mesh",
+            description="Run a statically bounded multi-agent topology on the durable reducer.",
+            category="Agents",
+            property_order=(
+                "topology",
+                "members",
+                "budget",
+                "failurePolicy",
+                "maxConcurrency",
+                "timeoutSeconds",
+            ),
+        ),
+        _descriptor(
+            "agent.route",
+            ResourceKind.TASK,
+            _object_schema(
+                {
+                    "requiredCapabilities": {
+                        "type": "array",
+                        "minItems": 1,
+                        "uniqueItems": True,
+                        "items": {"type": "string", "minLength": 1},
+                    },
+                    "candidates": {
+                        "type": "array",
+                        "minItems": 1,
+                        "maxItems": 1_000,
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "memberId": {"type": "string", "minLength": 1},
+                                "task": {"type": "string", "minLength": 1},
+                                "agent": {"type": "string", "minLength": 1},
+                                "agentRevision": {"type": "integer", "minimum": 1},
+                                "capabilities": {
+                                    "type": "array",
+                                    "uniqueItems": True,
+                                    "items": {"type": "string", "minLength": 1},
+                                },
+                                "policy": route_policy,
+                                "projectedCostUsd": {"type": ["number", "string"]},
+                                "projectedLatencyMs": {"type": "integer", "minimum": 0},
+                                "availability": {
+                                    "type": "object",
+                                    "properties": {
+                                        "available": {"type": "boolean"},
+                                        "source": {"type": "string", "minLength": 1},
+                                        "checkedAt": {
+                                            "type": "string",
+                                            "format": "date-time",
+                                        },
+                                    },
+                                    "required": ["available", "source", "checkedAt"],
+                                    "additionalProperties": False,
+                                },
+                                "evaluation": {
+                                    "type": "object",
+                                    "properties": {
+                                        "key": {"type": "string", "minLength": 1},
+                                        "revision": {"type": "integer", "minimum": 1},
+                                        "score": {"type": ["number", "string"]},
+                                    },
+                                    "required": ["key", "revision", "score"],
+                                    "additionalProperties": False,
+                                },
+                            },
+                            "required": [
+                                "memberId",
+                                "task",
+                                "agent",
+                                "agentRevision",
+                                "capabilities",
+                                "policy",
+                                "projectedCostUsd",
+                                "projectedLatencyMs",
+                                "availability",
+                                "evaluation",
+                            ],
+                            "additionalProperties": False,
+                        },
+                    },
+                    "timeoutSeconds": timeout,
+                },
+                required=("requiredCapabilities", "candidates"),
+            ),
+            title="Agent route",
+            description="Choose an eligible mesh member using durable, explainable signals.",
+            category="Agents",
+            property_order=("requiredCapabilities", "candidates", "timeoutSeconds"),
+        ),
+        _descriptor(
+            "agent.handoff",
+            ResourceKind.TASK,
+            _object_schema(
+                {
+                    "source": agent_endpoint,
+                    "destination": agent_endpoint,
+                    "payload": {"type": "object"},
+                    "schema": {"type": "object"},
+                    "rationale": {"type": "string", "minLength": 1, "maxLength": 4096},
+                    "contextKeys": {
+                        "type": "array",
+                        "uniqueItems": True,
+                        "maxItems": 100,
+                        "items": {"type": "string", "minLength": 1},
+                    },
+                    "redactKeys": {
+                        "type": "array",
+                        "uniqueItems": True,
+                        "maxItems": 100,
+                        "items": {"type": "string", "minLength": 1},
+                    },
+                    "requiredCapabilities": {
+                        "type": "array",
+                        "uniqueItems": True,
+                        "items": {"type": "string", "minLength": 1},
+                    },
+                    "policy": route_policy,
+                    "timeoutSeconds": timeout,
+                },
+                required=(
+                    "source",
+                    "destination",
+                    "payload",
+                    "schema",
+                    "rationale",
+                    "policy",
+                ),
+            ),
+            title="Typed agent hand-off",
+            description="Validate, authorize and redact context before another agent sees it.",
+            category="Agents",
+            property_order=(
+                "source",
+                "destination",
+                "payload",
+                "schema",
+                "rationale",
+                "contextKeys",
+                "redactKeys",
+                "requiredCapabilities",
+                "policy",
+                "timeoutSeconds",
+            ),
+        ),
+        _descriptor(
             "agent.session",
             ResourceKind.TASK,
             _object_schema(
@@ -1335,6 +1593,9 @@ def _core_descriptors() -> tuple[ResourceSchemaDescriptor, ...]:
                         "items": {"type": "string", "minLength": 1},
                     },
                     "memoryWriteKey": {"type": "string", "minLength": 1},
+                    "meshId": {"type": "string", "minLength": 1},
+                    "memberId": {"type": "string", "minLength": 1},
+                    "meshBudget": mesh_session_budget,
                     "timeoutSeconds": timeout,
                 },
                 required=("agent", "agentRevision", "input"),
@@ -1353,6 +1614,9 @@ def _core_descriptors() -> tuple[ResourceSchemaDescriptor, ...]:
                 "businessAssertions",
                 "memoryReadKeys",
                 "memoryWriteKey",
+                "meshId",
+                "memberId",
+                "meshBudget",
                 "approvalTask",
                 "dataHandling",
                 "timeoutSeconds",

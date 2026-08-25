@@ -18,6 +18,7 @@ All URIs are relative to *http://localhost*
 | [**listAgentResourcesApiV1NamespacesNamespaceAgentResourcesGet**](AgentsApi.md#listagentresourcesapiv1namespacesnamespaceagentresourcesget) | **GET** /api/v1/namespaces/{namespace}/agent/resources | List Agent Resources |
 | [**previewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGet**](AgentsApi.md#previewagentdefinitionapiv1namespacesnamespaceagentdefinitionskeypreviewget) | **GET** /api/v1/namespaces/{namespace}/agent/definitions/{key}/preview | Preview Agent Definition |
 | [**previewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGet**](AgentsApi.md#previewagentevaluationfixtureapiv1namespacesnamespaceagentevaluationskeyfixturesfixturekeypreviewget) | **GET** /api/v1/namespaces/{namespace}/agent/evaluations/{key}/fixtures/{fixture_key}/preview | Preview Agent Evaluation Fixture |
+| [**previewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPost**](AgentsApi.md#previewagentmeshrouteapiv1namespacesnamespaceagentmeshroutespreviewpost) | **POST** /api/v1/namespaces/{namespace}/agent/mesh/routes/preview | Preview Agent Mesh Route |
 | [**resolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePost**](AgentsApi.md#resolveagentdefinitionapiv1namespacesnamespaceagentdefinitionskeyresolvepost) | **POST** /api/v1/namespaces/{namespace}/agent/definitions/{key}/resolve | Resolve Agent Definition |
 
 
@@ -1135,6 +1136,84 @@ No authorization required
 ### HTTP request headers
 
 - **Content-Type**: Not defined
+- **Accept**: `application/json`
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful Response |  -  |
+| **422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
+
+
+## previewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPost
+
+> AgentRouteDecision previewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPost(namespace, agentRouteRequest, authorization, xAmeshCSRF, xAmeshTenant)
+
+Preview Agent Mesh Route
+
+### Example
+
+```ts
+import {
+  Configuration,
+  AgentsApi,
+} from '@amesh/client';
+import type { PreviewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPostRequest } from '@amesh/client';
+
+async function example() {
+  console.log("🚀 Testing @amesh/client SDK...");
+  const api = new AgentsApi();
+
+  const body = {
+    // string
+    namespace: namespace_example,
+    // AgentRouteRequest
+    agentRouteRequest: ...,
+    // string (optional)
+    authorization: authorization_example,
+    // string (optional)
+    xAmeshCSRF: xAmeshCSRF_example,
+    // string (optional)
+    xAmeshTenant: xAmeshTenant_example,
+  } satisfies PreviewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPostRequest;
+
+  try {
+    const data = await api.previewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPost(body);
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// Run the test
+example().catch(console.error);
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **namespace** | `string` |  | [Defaults to `undefined`] |
+| **agentRouteRequest** | [AgentRouteRequest](AgentRouteRequest.md) |  | |
+| **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
+
+### Return type
+
+[**AgentRouteDecision**](AgentRouteDecision.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: `application/json`
 - **Accept**: `application/json`
 
 

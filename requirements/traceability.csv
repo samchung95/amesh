@@ -806,10 +806,10 @@ URS-F-0804,Functional,Must,EPIC-011,AI-native engineering factory and autonomous
 URS-F-0805,Functional,Must,EPIC-011,AI-native engineering factory and autonomous contribution controls,M0,0,"AI engineering workflow, isolation and evidence-gate tests",Proposed
 URS-F-0806,Functional,Must,EPIC-807,Versioned agent definitions and capability envelopes,M8,8,"Agent resource schema, resolution, authorization, pinning and provider-adapter contract tests",Verified
 URS-F-0807,Functional,Must,EPIC-807,Versioned agent definitions and capability envelopes,M8,8,"Agent resource schema, resolution, authorization, pinning and provider-adapter contract tests",Verified
-URS-F-0808,Functional,Must,EPIC-806,"Multi-agent topology, typed hand-offs and routing",M8,8,"Multi-agent topology, typed hand-off, routing, budget, provenance and failover end-to-end tests",Proposed
+URS-F-0808,Functional,Must,EPIC-806,"Multi-agent topology, typed hand-offs and routing",M8,8,"Multi-agent topology, typed hand-off, routing, budget, provenance and failover end-to-end tests",Verified
 URS-F-0809,Functional,Must,EPIC-808,Durable bounded single-agent sessions,M8,8,"Single-agent session state, budget, tool mediation, approval, checkpoint and recovery end-to-end tests",Verified
-URS-F-0810,Functional,Must,EPIC-806,"Multi-agent topology, typed hand-offs and routing",M8,8,"Multi-agent topology, typed hand-off, routing, budget, provenance and failover end-to-end tests",Proposed
-URS-F-0811,Functional,Must,EPIC-806,"Multi-agent topology, typed hand-offs and routing",M8,8,"Multi-agent topology, typed hand-off, routing, budget, provenance and failover end-to-end tests",Proposed
+URS-F-0810,Functional,Must,EPIC-806,"Multi-agent topology, typed hand-offs and routing",M8,8,"Multi-agent topology, typed hand-off, routing, budget, provenance and failover end-to-end tests",Verified
+URS-F-0811,Functional,Must,EPIC-806,"Multi-agent topology, typed hand-offs and routing",M8,8,"Multi-agent topology, typed hand-off, routing, budget, provenance and failover end-to-end tests",Verified
 URS-F-0812,Functional,Must,EPIC-809,"Agent memory, evaluation and release gates",M8,8,"Agent memory-isolation, evaluation, trace, approval-interleaving and release-gate end-to-end tests",Verified
 URS-F-0813,Functional,Must,EPIC-808,Durable bounded single-agent sessions,M8,8,"Single-agent session state, budget, tool mediation, approval, checkpoint and recovery end-to-end tests",Verified
 URS-F-0814,Functional,Must,EPIC-808,Durable bounded single-agent sessions,M8,8,"Single-agent session state, budget, tool mediation, approval, checkpoint and recovery end-to-end tests",Verified
@@ -836,18 +836,18 @@ URS-F-0834,Functional,Must,EPIC-612,Security hardening and software supply chain
 URS-F-0835,Functional,Must,EPIC-504,Immutable audit log and evidence export,M5,5,"Compliance evidence export, redaction and authorization tests",Verified
 URS-F-0836,Functional,Must,EPIC-011,AI-native engineering factory and autonomous contribution controls,M0,0,"AI merge-policy, quorum and evidence-replay tests",Proposed
 URS-F-0837,Functional,Must,EPIC-011,AI-native engineering factory and autonomous contribution controls,M0,0,Protected-branch and release-authority policy tests,Proposed
-URS-NFR-AGENT-001,Non-functional,Must,EPIC-806,"Multi-agent topology, typed hand-offs and routing",M8,8,Adversarial runaway-loop and concurrent tool-call tests.,Proposed
-URS-NFR-AGENT-001,Non-functional,Must,EPIC-808,Durable bounded single-agent sessions,M8,8,Adversarial runaway-loop and concurrent tool-call tests.,Proposed
-URS-NFR-AGENT-002,Non-functional,Must,EPIC-806,"Multi-agent topology, typed hand-offs and routing",M8,8,Provenance graph completeness tests.,Proposed
-URS-NFR-AGENT-002,Non-functional,Must,EPIC-808,Durable bounded single-agent sessions,M8,8,Provenance graph completeness tests.,Proposed
-URS-NFR-AGENT-002,Non-functional,Must,EPIC-809,"Agent memory, evaluation and release gates",M8,8,Provenance graph completeness tests.,Proposed
-URS-NFR-AGENT-003,Non-functional,Must,EPIC-806,"Multi-agent topology, typed hand-offs and routing",M8,8,"Cross-tenant, prompt-injection and capability-confusion tests.",In Progress
-URS-NFR-AGENT-003,Non-functional,Must,EPIC-807,Versioned agent definitions and capability envelopes,M8,8,"Cross-tenant, prompt-injection and capability-confusion tests.",In Progress
-URS-NFR-AGENT-003,Non-functional,Must,EPIC-808,Durable bounded single-agent sessions,M8,8,"Cross-tenant, prompt-injection and capability-confusion tests.",In Progress
-URS-NFR-AGENT-003,Non-functional,Must,EPIC-809,"Agent memory, evaluation and release gates",M8,8,"Cross-tenant, prompt-injection and capability-confusion tests.",In Progress
-URS-NFR-AGENT-004,Non-functional,Must,EPIC-806,"Multi-agent topology, typed hand-offs and routing",M8,8,Provider substitution and outage tests.,In Progress
-URS-NFR-AGENT-004,Non-functional,Must,EPIC-807,Versioned agent definitions and capability envelopes,M8,8,Provider substitution and outage tests.,In Progress
-URS-NFR-AGENT-004,Non-functional,Must,EPIC-809,"Agent memory, evaluation and release gates",M8,8,Provider substitution and outage tests.,In Progress
+URS-NFR-AGENT-001,Non-functional,Must,EPIC-806,"Multi-agent topology, typed hand-offs and routing",M8,8,Adversarial runaway-loop and concurrent tool-call tests.,Verified
+URS-NFR-AGENT-001,Non-functional,Must,EPIC-808,Durable bounded single-agent sessions,M8,8,Adversarial runaway-loop and concurrent tool-call tests.,Verified
+URS-NFR-AGENT-002,Non-functional,Must,EPIC-806,"Multi-agent topology, typed hand-offs and routing",M8,8,Provenance graph completeness tests.,Verified
+URS-NFR-AGENT-002,Non-functional,Must,EPIC-808,Durable bounded single-agent sessions,M8,8,Provenance graph completeness tests.,Verified
+URS-NFR-AGENT-002,Non-functional,Must,EPIC-809,"Agent memory, evaluation and release gates",M8,8,Provenance graph completeness tests.,Verified
+URS-NFR-AGENT-003,Non-functional,Must,EPIC-806,"Multi-agent topology, typed hand-offs and routing",M8,8,"Cross-tenant, prompt-injection and capability-confusion tests.",Verified
+URS-NFR-AGENT-003,Non-functional,Must,EPIC-807,Versioned agent definitions and capability envelopes,M8,8,"Cross-tenant, prompt-injection and capability-confusion tests.",Verified
+URS-NFR-AGENT-003,Non-functional,Must,EPIC-808,Durable bounded single-agent sessions,M8,8,"Cross-tenant, prompt-injection and capability-confusion tests.",Verified
+URS-NFR-AGENT-003,Non-functional,Must,EPIC-809,"Agent memory, evaluation and release gates",M8,8,"Cross-tenant, prompt-injection and capability-confusion tests.",Verified
+URS-NFR-AGENT-004,Non-functional,Must,EPIC-806,"Multi-agent topology, typed hand-offs and routing",M8,8,Provider substitution and outage tests.,Verified
+URS-NFR-AGENT-004,Non-functional,Must,EPIC-807,Versioned agent definitions and capability envelopes,M8,8,Provider substitution and outage tests.,Verified
+URS-NFR-AGENT-004,Non-functional,Must,EPIC-809,"Agent memory, evaluation and release gates",M8,8,Provider substitution and outage tests.,Verified
 URS-NFR-AIENGINEERING-001,Non-functional,Must,EPIC-011,AI-native engineering factory and autonomous contribution controls,M0,0,Repository policy and pull-request evidence audit.,Proposed
 URS-NFR-AIENGINEERING-002,Non-functional,Must,EPIC-011,AI-native engineering factory and autonomous contribution controls,M0,0,"Provenance-schema, secret-scan and clean-room gate tests.",Proposed
 URS-NFR-AIENGINEERING-003,Non-functional,Must,EPIC-011,AI-native engineering factory and autonomous contribution controls,M0,0,Credential canary and branch-protection integration tests.,Proposed

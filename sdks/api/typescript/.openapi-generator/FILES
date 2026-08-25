@@ -111,6 +111,13 @@ src/models/AgentResourceKind.ts
 src/models/AgentResourceRef.ts
 src/models/AgentResourceRevision.ts
 src/models/AgentRevisionComparison.ts
+src/models/AgentRouteAssessment.ts
+src/models/AgentRouteAvailabilitySignal.ts
+src/models/AgentRouteCandidate.ts
+src/models/AgentRouteDecision.ts
+src/models/AgentRouteEvaluationSignal.ts
+src/models/AgentRoutePolicySignal.ts
+src/models/AgentRouteRequest.ts
 src/models/AgentRubricCriterionInput.ts
 src/models/AgentRubricCriterionOutput.ts
 src/models/AgentSessionCheckpoint.ts
@@ -436,6 +443,7 @@ src/models/PolicyTenantContext.ts
 src/models/PrincipalDefinition.ts
 src/models/PrincipalType.ts
 src/models/ProblemDetail.ts
+src/models/Projectedcostusd.ts
 src/models/PromptSpec.ts
 src/models/ProviderMigrationDiagnostic.ts
 src/models/ProvisionedWebhookSubscription.ts
@@ -482,6 +490,7 @@ src/models/ScimPatchRequest.ts
 src/models/ScimResourceMeta.ts
 src/models/ScimUserRequest.ts
 src/models/ScimUserResource.ts
+src/models/Score.ts
 src/models/SearchDocument.ts
 src/models/SearchDocumentType.ts
 src/models/SearchProjectionCondition.ts

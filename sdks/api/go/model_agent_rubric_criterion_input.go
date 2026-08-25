@@ -38,8 +38,6 @@ func NewAgentRubricCriterionInput(assertion map[string]interface{}, description 
 	this.Assertion = assertion
 	this.Description = description
 	this.Key = key
-	var weight Weight = 1
-	this.Weight = &weight
 	return &this
 }
 
@@ -48,8 +46,6 @@ func NewAgentRubricCriterionInput(assertion map[string]interface{}, description 
 // but it doesn't guarantee that properties required by API are set
 func NewAgentRubricCriterionInputWithDefaults() *AgentRubricCriterionInput {
 	this := AgentRubricCriterionInput{}
-	var weight Weight = 1
-	this.Weight = &weight
 	return &this
 }
 

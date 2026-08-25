@@ -98,6 +98,13 @@ __all__ = [
     "AgentResourceRef",
     "AgentResourceRevision",
     "AgentRevisionComparison",
+    "AgentRouteAssessment",
+    "AgentRouteAvailabilitySignal",
+    "AgentRouteCandidate",
+    "AgentRouteDecision",
+    "AgentRouteEvaluationSignal",
+    "AgentRoutePolicySignal",
+    "AgentRouteRequest",
     "AgentRubricCriterionInput",
     "AgentRubricCriterionOutput",
     "AgentSessionCheckpoint",
@@ -423,6 +430,7 @@ __all__ = [
     "PrincipalDefinition",
     "PrincipalType",
     "ProblemDetail",
+    "Projectedcostusd",
     "PromptSpec",
     "ProviderMigrationDiagnostic",
     "ProvisionedWebhookSubscription",
@@ -469,6 +477,7 @@ __all__ = [
     "ScimResourceMeta",
     "ScimUserRequest",
     "ScimUserResource",
+    "Score",
     "SearchDocument",
     "SearchDocumentType",
     "SearchProjectionCondition",
@@ -660,6 +669,13 @@ from amesh_client.models.agent_resource_kind import AgentResourceKind as AgentRe
 from amesh_client.models.agent_resource_ref import AgentResourceRef as AgentResourceRef
 from amesh_client.models.agent_resource_revision import AgentResourceRevision as AgentResourceRevision
 from amesh_client.models.agent_revision_comparison import AgentRevisionComparison as AgentRevisionComparison
+from amesh_client.models.agent_route_assessment import AgentRouteAssessment as AgentRouteAssessment
+from amesh_client.models.agent_route_availability_signal import AgentRouteAvailabilitySignal as AgentRouteAvailabilitySignal
+from amesh_client.models.agent_route_candidate import AgentRouteCandidate as AgentRouteCandidate
+from amesh_client.models.agent_route_decision import AgentRouteDecision as AgentRouteDecision
+from amesh_client.models.agent_route_evaluation_signal import AgentRouteEvaluationSignal as AgentRouteEvaluationSignal
+from amesh_client.models.agent_route_policy_signal import AgentRoutePolicySignal as AgentRoutePolicySignal
+from amesh_client.models.agent_route_request import AgentRouteRequest as AgentRouteRequest
 from amesh_client.models.agent_rubric_criterion_input import AgentRubricCriterionInput as AgentRubricCriterionInput
 from amesh_client.models.agent_rubric_criterion_output import AgentRubricCriterionOutput as AgentRubricCriterionOutput
 from amesh_client.models.agent_session_checkpoint import AgentSessionCheckpoint as AgentSessionCheckpoint
@@ -985,6 +1001,7 @@ from amesh_client.models.policy_tenant_context import PolicyTenantContext as Pol
 from amesh_client.models.principal_definition import PrincipalDefinition as PrincipalDefinition
 from amesh_client.models.principal_type import PrincipalType as PrincipalType
 from amesh_client.models.problem_detail import ProblemDetail as ProblemDetail
+from amesh_client.models.projectedcostusd import Projectedcostusd as Projectedcostusd
 from amesh_client.models.prompt_spec import PromptSpec as PromptSpec
 from amesh_client.models.provider_migration_diagnostic import ProviderMigrationDiagnostic as ProviderMigrationDiagnostic
 from amesh_client.models.provisioned_webhook_subscription import ProvisionedWebhookSubscription as ProvisionedWebhookSubscription
@@ -1031,6 +1048,7 @@ from amesh_client.models.scim_patch_request import ScimPatchRequest as ScimPatch
 from amesh_client.models.scim_resource_meta import ScimResourceMeta as ScimResourceMeta
 from amesh_client.models.scim_user_request import ScimUserRequest as ScimUserRequest
 from amesh_client.models.scim_user_resource import ScimUserResource as ScimUserResource
+from amesh_client.models.score import Score as Score
 from amesh_client.models.search_document import SearchDocument as SearchDocument
 from amesh_client.models.search_document_type import SearchDocumentType as SearchDocumentType
 from amesh_client.models.search_projection_condition import SearchProjectionCondition as SearchProjectionCondition

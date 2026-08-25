@@ -10265,6 +10265,67 @@ paths:
       - agents
       x-accepts:
       - application/json
+  /api/v1/namespaces/{namespace}/agent/mesh/routes/preview:
+    post:
+      operationId: preview_agent_mesh_route_api_v1_namespaces__namespace__agent_mesh_routes_preview_post
+      parameters:
+      - explode: false
+        in: path
+        name: namespace
+        required: true
+        schema:
+          title: Namespace
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AgentRouteRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AgentRouteDecision"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Preview Agent Mesh Route
+      tags:
+      - agents
+      x-content-type: application/json
+      x-accepts:
+      - application/json
   /api/v1/namespaces/{namespace}/agent/model-policies/{key}/migration:
     get:
       operationId: diagnose_model_policy_migration_api_v1_namespaces__namespace__agent_model_policies__key__migration_get
@@ -17138,19 +17199,19 @@ components:
               judge: ""
               key: key
               kind: EVALUATION
-              minimumRubricScore: "1"
+              minimumRubricScore: minimumRubricScore
               namespace: namespace
               rubric:
               - assertion:
                   key: ""
                 description: description
                 key: key
-                weight: "1"
+                weight: weight
               - assertion:
                   key: ""
                 description: description
                 key: key
-                weight: "1"
+                weight: weight
               title: title
           - judgeFallbackMode: ""
             judgeModelRoutes:
@@ -17206,19 +17267,19 @@ components:
               judge: ""
               key: key
               kind: EVALUATION
-              minimumRubricScore: "1"
+              minimumRubricScore: minimumRubricScore
               namespace: namespace
               rubric:
               - assertion:
                   key: ""
                 description: description
                 key: key
-                weight: "1"
+                weight: weight
               - assertion:
                   key: ""
                 description: description
                 key: key
-                weight: "1"
+                weight: weight
               title: title
           fallbackMode: DISABLED
           hardLimits:
@@ -17650,19 +17711,19 @@ components:
               judge: ""
               key: key
               kind: EVALUATION
-              minimumRubricScore: "1"
+              minimumRubricScore: minimumRubricScore
               namespace: namespace
               rubric:
               - assertion:
                   key: ""
                 description: description
                 key: key
-                weight: "1"
+                weight: weight
               - assertion:
                   key: ""
                 description: description
                 key: key
-                weight: "1"
+                weight: weight
               title: title
           - judgeFallbackMode: ""
             judgeModelRoutes:
@@ -17718,19 +17779,19 @@ components:
               judge: ""
               key: key
               kind: EVALUATION
-              minimumRubricScore: "1"
+              minimumRubricScore: minimumRubricScore
               namespace: namespace
               rubric:
               - assertion:
                   key: ""
                 description: description
                 key: key
-                weight: "1"
+                weight: weight
               - assertion:
                   key: ""
                 description: description
                 key: key
-                weight: "1"
+                weight: weight
               title: title
           fallbackMode: DISABLED
           hardLimits:
@@ -18112,19 +18173,19 @@ components:
         judge: ""
         key: key
         kind: EVALUATION
-        minimumRubricScore: "1"
+        minimumRubricScore: minimumRubricScore
         namespace: namespace
         rubric:
         - assertion:
             key: ""
           description: description
           key: key
-          weight: "1"
+          weight: weight
         - assertion:
             key: ""
           description: description
           key: key
-          weight: "1"
+          weight: weight
         title: title
       properties:
         assertions:
@@ -18162,7 +18223,6 @@ components:
           title: Kind
           type: string
         minimumRubricScore:
-          default: "1"
           pattern: "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
           title: Minimumrubricscore
           type: string
@@ -18800,6 +18860,467 @@ components:
       - sameOutputSchema
       - toRevision
       title: AgentRevisionComparison
+    AgentRouteAssessment:
+      example:
+        available: true
+        eligible: true
+        evaluationScore: evaluationScore
+        memberId: memberId
+        policyOutcome: policyOutcome
+        projectedCostUsd: projectedCostUsd
+        projectedLatencyMs: 0
+        reasons:
+        - reasons
+        - reasons
+      properties:
+        available:
+          title: Available
+          type: boolean
+        eligible:
+          title: Eligible
+          type: boolean
+        evaluationScore:
+          pattern: "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+          title: Evaluationscore
+          type: string
+        memberId:
+          maxLength: 128
+          minLength: 1
+          pattern: "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+          title: Memberid
+          type: string
+        policyOutcome:
+          title: Policyoutcome
+          type: string
+        projectedCostUsd:
+          pattern: "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+          title: Projectedcostusd
+          type: string
+        projectedLatencyMs:
+          title: Projectedlatencyms
+          type: integer
+        reasons:
+          items:
+            type: string
+          title: Reasons
+          type: array
+          default: null
+      required:
+      - available
+      - eligible
+      - evaluationScore
+      - memberId
+      - policyOutcome
+      - projectedCostUsd
+      - projectedLatencyMs
+      - reasons
+      title: AgentRouteAssessment
+    AgentRouteAvailabilitySignal:
+      additionalProperties: false
+      example:
+        available: true
+        checkedAt: 2000-01-23T04:56:07.000+00:00
+        source: source
+      properties:
+        available:
+          title: Available
+          type: boolean
+        checkedAt:
+          format: date-time
+          title: Checkedat
+          type: string
+        source:
+          maxLength: 256
+          minLength: 1
+          title: Source
+          type: string
+      required:
+      - available
+      - checkedAt
+      - source
+      title: AgentRouteAvailabilitySignal
+    AgentRouteCandidate:
+      additionalProperties: false
+      example:
+        agent: agent
+        agentRevision: 1
+        availability:
+          available: true
+          checkedAt: 2000-01-23T04:56:07.000+00:00
+          source: source
+        capabilities:
+        - capabilities
+        - capabilities
+        evaluation:
+          key: key
+          revision: 1
+          score: 0.14658129805029452
+        memberId: memberId
+        policy:
+          decisionId: decisionId
+          outcome: ALLOW
+          policyDigest: policyDigest
+        projectedCostUsd: 0.5962133916683182
+        projectedLatencyMs: 0
+        task: task
+      properties:
+        agent:
+          maxLength: 128
+          minLength: 1
+          pattern: "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+          title: Agent
+          type: string
+        agentRevision:
+          minimum: 1.0
+          title: Agentrevision
+          type: integer
+        availability:
+          $ref: "#/components/schemas/AgentRouteAvailabilitySignal"
+        capabilities:
+          items:
+            maxLength: 128
+            minLength: 1
+            pattern: "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+            type: string
+          title: Capabilities
+          type: array
+          default: null
+        evaluation:
+          $ref: "#/components/schemas/AgentRouteEvaluationSignal"
+        memberId:
+          maxLength: 128
+          minLength: 1
+          pattern: "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+          title: Memberid
+          type: string
+        policy:
+          $ref: "#/components/schemas/AgentRoutePolicySignal"
+        projectedCostUsd:
+          $ref: "#/components/schemas/Projectedcostusd"
+        projectedLatencyMs:
+          minimum: 0.0
+          title: Projectedlatencyms
+          type: integer
+        task:
+          maxLength: 128
+          minLength: 1
+          pattern: "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+          title: Task
+          type: string
+      required:
+      - agent
+      - agentRevision
+      - availability
+      - capabilities
+      - evaluation
+      - memberId
+      - policy
+      - projectedCostUsd
+      - projectedLatencyMs
+      - task
+      title: AgentRouteCandidate
+    AgentRouteDecision:
+      example:
+        assessments:
+        - available: true
+          eligible: true
+          evaluationScore: evaluationScore
+          memberId: memberId
+          policyOutcome: policyOutcome
+          projectedCostUsd: projectedCostUsd
+          projectedLatencyMs: 0
+          reasons:
+          - reasons
+          - reasons
+        - available: true
+          eligible: true
+          evaluationScore: evaluationScore
+          memberId: memberId
+          policyOutcome: policyOutcome
+          projectedCostUsd: projectedCostUsd
+          projectedLatencyMs: 0
+          reasons:
+          - reasons
+          - reasons
+        decisionDigest: decisionDigest
+        explanation: explanation
+        factorOrder:
+        - factorOrder
+        - factorOrder
+        rankedMemberIds:
+        - rankedMemberIds
+        - rankedMemberIds
+        requiredCapabilities:
+        - requiredCapabilities
+        - requiredCapabilities
+        schemaVersion: amesh.agent-route/v1
+        selectedAgent: selectedAgent
+        selectedAgentRevision: 6
+        selectedMemberId: selectedMemberId
+        selectedTask: selectedTask
+      properties:
+        assessments:
+          items:
+            $ref: "#/components/schemas/AgentRouteAssessment"
+          title: Assessments
+          type: array
+          default: null
+        decisionDigest:
+          pattern: "^sha256:[0-9a-f]{64}$"
+          title: Decisiondigest
+          type: string
+        explanation:
+          title: Explanation
+          type: string
+        factorOrder:
+          items:
+            type: string
+          title: Factororder
+          type: array
+          default: null
+        rankedMemberIds:
+          items:
+            maxLength: 128
+            minLength: 1
+            pattern: "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+            type: string
+          title: Rankedmemberids
+          type: array
+          default: null
+        requiredCapabilities:
+          items:
+            maxLength: 128
+            minLength: 1
+            pattern: "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+            type: string
+          title: Requiredcapabilities
+          type: array
+          default: null
+        schemaVersion:
+          default: amesh.agent-route/v1
+          enum:
+          - amesh.agent-route/v1
+          title: Schemaversion
+          type: string
+        selectedAgent:
+          maxLength: 128
+          minLength: 1
+          pattern: "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+          title: Selectedagent
+          type: string
+        selectedAgentRevision:
+          title: Selectedagentrevision
+          type: integer
+        selectedMemberId:
+          maxLength: 128
+          minLength: 1
+          pattern: "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+          title: Selectedmemberid
+          type: string
+        selectedTask:
+          maxLength: 128
+          minLength: 1
+          pattern: "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+          title: Selectedtask
+          type: string
+      required:
+      - assessments
+      - decisionDigest
+      - explanation
+      - factorOrder
+      - rankedMemberIds
+      - requiredCapabilities
+      - selectedAgent
+      - selectedAgentRevision
+      - selectedMemberId
+      - selectedTask
+      title: AgentRouteDecision
+    AgentRouteEvaluationSignal:
+      additionalProperties: false
+      example:
+        key: key
+        revision: 1
+        score: 0.14658129805029452
+      properties:
+        key:
+          maxLength: 128
+          minLength: 1
+          pattern: "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+          title: Key
+          type: string
+        revision:
+          minimum: 1.0
+          title: Revision
+          type: integer
+        score:
+          $ref: "#/components/schemas/Score"
+      required:
+      - key
+      - revision
+      - score
+      title: AgentRouteEvaluationSignal
+    AgentRoutePolicySignal:
+      additionalProperties: false
+      example:
+        decisionId: decisionId
+        outcome: ALLOW
+        policyDigest: policyDigest
+      properties:
+        decisionId:
+          maxLength: 256
+          minLength: 1
+          title: Decisionid
+          type: string
+        outcome:
+          enum:
+          - ALLOW
+          - DENY
+          title: Outcome
+          type: string
+        policyDigest:
+          pattern: "^sha256:[0-9a-f]{64}$"
+          title: Policydigest
+          type: string
+      required:
+      - decisionId
+      - outcome
+      - policyDigest
+      title: AgentRoutePolicySignal
+    AgentRouteRequest:
+      additionalProperties: false
+      example:
+        candidates:
+        - agent: agent
+          agentRevision: 1
+          availability:
+            available: true
+            checkedAt: 2000-01-23T04:56:07.000+00:00
+            source: source
+          capabilities:
+          - capabilities
+          - capabilities
+          evaluation:
+            key: key
+            revision: 1
+            score: 0.14658129805029452
+          memberId: memberId
+          policy:
+            decisionId: decisionId
+            outcome: ALLOW
+            policyDigest: policyDigest
+          projectedCostUsd: 0.5962133916683182
+          projectedLatencyMs: 0
+          task: task
+        - agent: agent
+          agentRevision: 1
+          availability:
+            available: true
+            checkedAt: 2000-01-23T04:56:07.000+00:00
+            source: source
+          capabilities:
+          - capabilities
+          - capabilities
+          evaluation:
+            key: key
+            revision: 1
+            score: 0.14658129805029452
+          memberId: memberId
+          policy:
+            decisionId: decisionId
+            outcome: ALLOW
+            policyDigest: policyDigest
+          projectedCostUsd: 0.5962133916683182
+          projectedLatencyMs: 0
+          task: task
+        - agent: agent
+          agentRevision: 1
+          availability:
+            available: true
+            checkedAt: 2000-01-23T04:56:07.000+00:00
+            source: source
+          capabilities:
+          - capabilities
+          - capabilities
+          evaluation:
+            key: key
+            revision: 1
+            score: 0.14658129805029452
+          memberId: memberId
+          policy:
+            decisionId: decisionId
+            outcome: ALLOW
+            policyDigest: policyDigest
+          projectedCostUsd: 0.5962133916683182
+          projectedLatencyMs: 0
+          task: task
+        - agent: agent
+          agentRevision: 1
+          availability:
+            available: true
+            checkedAt: 2000-01-23T04:56:07.000+00:00
+            source: source
+          capabilities:
+          - capabilities
+          - capabilities
+          evaluation:
+            key: key
+            revision: 1
+            score: 0.14658129805029452
+          memberId: memberId
+          policy:
+            decisionId: decisionId
+            outcome: ALLOW
+            policyDigest: policyDigest
+          projectedCostUsd: 0.5962133916683182
+          projectedLatencyMs: 0
+          task: task
+        - agent: agent
+          agentRevision: 1
+          availability:
+            available: true
+            checkedAt: 2000-01-23T04:56:07.000+00:00
+            source: source
+          capabilities:
+          - capabilities
+          - capabilities
+          evaluation:
+            key: key
+            revision: 1
+            score: 0.14658129805029452
+          memberId: memberId
+          policy:
+            decisionId: decisionId
+            outcome: ALLOW
+            policyDigest: policyDigest
+          projectedCostUsd: 0.5962133916683182
+          projectedLatencyMs: 0
+          task: task
+        requiredCapabilities:
+        - requiredCapabilities
+        - requiredCapabilities
+      properties:
+        candidates:
+          items:
+            $ref: "#/components/schemas/AgentRouteCandidate"
+          maxItems: 1000
+          minItems: 1
+          title: Candidates
+          type: array
+          default: null
+        requiredCapabilities:
+          items:
+            maxLength: 128
+            minLength: 1
+            pattern: "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+            type: string
+          minItems: 1
+          title: Requiredcapabilities
+          type: array
+          default: null
+      required:
+      - candidates
+      - requiredCapabilities
+      title: AgentRouteRequest
     AgentRubricCriterion-Input:
       additionalProperties: {}
       properties:
@@ -18832,7 +19353,7 @@ components:
           key: ""
         description: description
         key: key
-        weight: "1"
+        weight: weight
       properties:
         assertion:
           additionalProperties: true
@@ -18850,7 +19371,6 @@ components:
           title: Key
           type: string
         weight:
-          default: "1"
           pattern: "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
           title: Weight
           type: string
@@ -23767,19 +24287,19 @@ components:
             judge: ""
             key: key
             kind: EVALUATION
-            minimumRubricScore: "1"
+            minimumRubricScore: minimumRubricScore
             namespace: namespace
             rubric:
             - assertion:
                 key: ""
               description: description
               key: key
-              weight: "1"
+              weight: weight
             - assertion:
                 key: ""
               description: description
               key: key
-              weight: "1"
+              weight: weight
             title: title
         - judgeFallbackMode: ""
           judgeModelRoutes:
@@ -23835,19 +24355,19 @@ components:
             judge: ""
             key: key
             kind: EVALUATION
-            minimumRubricScore: "1"
+            minimumRubricScore: minimumRubricScore
             namespace: namespace
             rubric:
             - assertion:
                 key: ""
               description: description
               key: key
-              weight: "1"
+              weight: weight
             - assertion:
                 key: ""
               description: description
               key: key
-              weight: "1"
+              weight: weight
             title: title
         fallbackMode: DISABLED
         hardLimits:
@@ -34147,19 +34667,19 @@ components:
           judge: ""
           key: key
           kind: EVALUATION
-          minimumRubricScore: "1"
+          minimumRubricScore: minimumRubricScore
           namespace: namespace
           rubric:
           - assertion:
               key: ""
             description: description
             key: key
-            weight: "1"
+            weight: weight
           - assertion:
               key: ""
             description: description
             key: key
-            weight: "1"
+            weight: weight
           title: title
       properties:
         judgeFallbackMode:
@@ -39690,7 +40210,6 @@ components:
         type: number
       - pattern: "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
         type: string
-      default: "1"
       title: Minimumrubricscore
     Maxcostusd:
       anyOf:
@@ -39731,6 +40250,21 @@ components:
       - $ref: "#/components/schemas/AgentEvaluationSpec-Output"
       - $ref: "#/components/schemas/AgentDefinitionSpec-Output"
       title: Spec
+    Projectedcostusd:
+      anyOf:
+      - minimum: 0.0
+        type: number
+      - pattern: "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+        type: string
+      title: Projectedcostusd
+    Score:
+      anyOf:
+      - maximum: 1.0
+        minimum: 0.0
+        type: number
+      - pattern: "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+        type: string
+      title: Score
     Weight:
       anyOf:
       - exclusiveMinimum: true
@@ -39739,7 +40273,6 @@ components:
         type: number
       - pattern: "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
         type: string
-      default: "1"
       title: Weight
     Action:
       anyOf:

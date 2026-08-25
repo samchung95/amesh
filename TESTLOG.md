@@ -1,5 +1,46 @@
 # Test Log
 
+## EPIC-806: Multi-agent topology, typed hand-offs and routing — 2026-08-25
+
+Spec source: Agent Hotel card `c109`, ADR-055 and
+`backlog/epics/epic-806-first-class-agent-mesh-runtime-and-governance.md`.
+
+Verified with `uv`, PostgreSQL 17, Docker Compose, OpenRouter `openai/gpt-5.6-luna`, React and the
+four generated SDKs:
+
+- [x] `agent.mesh` compiles supervisor, router, peer-to-peer, hierarchical and swarm declarations
+  into the existing durable task plan, rejects cycles and exact-member/session mismatches, and
+  bounds parent concurrency, sessions, tokens, cost, duration and tool calls.
+- [x] `agent.route` gates declared capability, policy and availability before deterministically
+  ranking evaluation score, projected cost, latency and stable member ID. The authorized preview
+  and persisted result expose every admitted and rejected assessment plus a decision digest.
+- [x] `agent.handoff` requires exact source and destination agent revisions, direct graph
+  dependencies, destination capabilities, an allow policy and a typed payload. It redacts secrets
+  before recording source, destination, rationale, context, schema, policy and hand-off digests.
+- [x] Session and parent reducers enforce the tighter member/agent limits and fail closed on
+  persisted aggregate overrun. A pinned ordered provider-substitution test survives primary
+  outage without changing the session state contract and preserves nondeterminism disclosure.
+- [x] Twenty-eight focused Python tests and five focused frontend assertions passed. Ruff, strict
+  mypy over 235 source files, the production frontend build, checked generated contracts and
+  `git diff --check` passed.
+- [x] OpenAPI, the resource catalog and all four SDKs regenerated. Rebuilt Compose is ready at
+  migration 59/59.
+- [x] Deployed execution `01a0374f-5746-7c4c-b983-19fb47fa244e` completed `SUCCESS` with two Luna
+  sessions and one typed hand-off. It recorded 1,172 session tokens, `$0.0007354` cost, zero tool
+  calls, both deterministic and pinned-judge gates, exact member budgets, a hand-off digest and the
+  parent mesh provenance graph.
+
+Adversarial pass: exercised topology cycles, unregistered members, reservation overcommit,
+unwired hand-offs, capability and policy denial, schema failure, secret redaction, parent budget
+overrun and primary-provider outage. Deployed revision 1 failed closed because required business
+assertions were absent; revision 2 supplied them and passed without weakening the gate.
+
+Qualification boundary: graph topology, routing, hand-offs, budgets and evidence are deterministic;
+model and judge text remain explicitly nondeterministic.
+
+Verdict: PASS — EPIC-806, `URS-F-0808`, `URS-F-0810`, `URS-F-0811` and
+`URS-NFR-AGENT-001` through `URS-NFR-AGENT-004` are verified.
+
 ## EPIC-809: Agent memory, evaluation and release gates — 2026-08-25
 
 Spec source: Agent Hotel card `c108`, ADR-054 and

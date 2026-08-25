@@ -137,6 +137,33 @@ See [Run a bounded agent session](../how-to/run-bounded-agent-session.md) and
 [Configure memory, evaluations and release](../how-to/configure-agent-memory-evaluations.md) for
 workflow and trace inspection steps.
 
+## Agent mesh tasks and route preview
+
+`agent.mesh` is a static flowable with `topology`, exact `members`, a parent `budget`, bounded
+`maxConcurrency` and ordinary child tasks. Every member names one exact `agent.session` child and a
+complete `meshBudget`; validation rejects identity mismatches, unregistered sessions, cycles,
+unwired hand-offs and reservation overcommit. The session runtime uses the tighter member or agent
+limit, and the parent emits `amesh.agent-mesh/v1` topology, member, aggregate-usage, routing,
+hand-off and nondeterminism evidence.
+
+`agent.route` accepts `requiredCapabilities` and exact candidates with policy decision/digest,
+availability source/time, projected cost/latency and evaluation key/revision/score. It emits an
+`amesh.agent-route/v1` decision after deterministic gates and ranking. The same pure operation is
+available without persistence or external calls:
+
+| Method and path | Purpose |
+|---|---|
+| `POST /api/v1/namespaces/{namespace}/agent/mesh/routes/preview` | Authorize and preview an explainable route without creating a run. |
+
+`agent.handoff` requires exact source/destination task and agent revisions, a rendered object
+`payload`, Draft 2020-12 `schema`, non-empty `rationale`, optional `contextKeys`/`redactKeys`, required
+delegated capabilities and an exact policy decision. It accepts only a direct completed source and
+publishes selected redacted context plus `amesh.agent-handoff/v1` source, destination, rationale,
+schema/context/policy and redaction provenance.
+
+See [Coordinate a bounded agent mesh](../how-to/coordinate-agent-mesh.md) for topology and workflow
+examples. Mesh policy and state are provider-neutral; all model output remains nondeterministic.
+
 ## AMESH MCP server
 
 Streamable HTTP is available at `/mcp`. It accepts only AMESH workload credentials issued with

@@ -2,12 +2,19 @@
 
 ## Current state
 
-- What works: the locally qualified MVP foundation is deployed through migration 59. Guided creation supports a traceable first workflow run; EPIC-312 supplies bounded Luna/OpenRouter and MCP primitives; EPIC-807 supplies immutable capability envelopes; EPIC-808 runs recoverable bounded sessions; and EPIC-809 adds isolated exact-key memory, deterministic-first evaluations, optional pinned judges and ordinary human release gates in the same execution trace.
-- What's in flight: `c100`, `c106`, `c107` and EPIC-809 on `c108` are complete. EPIC-806 remains To-Do on `c109` and must be selected next.
-- Known broken / TODO: production determinism qualification remains on `c101`; multi-agent topology, typed hand-offs and explainable routing remain on `c109`. Existing deferred baseline and external-qualification cards remain unchanged.
+- What works: the locally qualified MVP foundation is deployed through migration 59. Guided creation supports a traceable first workflow run; EPIC-312 supplies bounded Luna/OpenRouter and MCP primitives; EPIC-807 supplies immutable capability envelopes; EPIC-808 runs recoverable bounded sessions; EPIC-809 adds isolated memory and evaluation/release gates; and EPIC-806 coordinates statically bounded agent meshes through explainable routes and typed hand-offs on the same durable task graph.
+- What's in flight: `c100` and `c106` through `c109` are complete in code and verification. EPIC-806 documentation and publication are being closed before selecting `c101`.
+- Known broken / TODO: production determinism qualification remains on `c101`. Existing deferred baseline and external-qualification cards remain unchanged.
 - How to run/test: frontend checks run from `frontend/` with `npm test`, `npm run build` and `npm run test:e2e`; backend checks use `uv run --extra runtime --extra dev pytest`. The local Compose product is served at `http://localhost:8000`.
 
 ## Session log
+
+### 2026-08-25 (EPIC-806 complete)
+
+- Did: implemented five explicit mesh topologies on the ordinary durable task graph; exact member/session and acyclic-topology validation; deterministic capability/policy/availability/evaluation/cost/latency routing; typed policy-gated and secret-redacted hand-offs; tighter member budgets and fail-closed parent aggregation; authorized route preview; readable mesh/route/handoff trace annotations; ADR-055; API/how-to documentation; generic and live Luna examples; and regenerated API, catalog and SDK contracts.
+- Verification: 28 focused Python tests and five frontend assertions pass; Ruff and strict mypy over 235 source files pass; the production frontend build and generated-contract gate pass. Rebuilt Compose is ready at 59/59. OpenRouter Luna execution `01a0374f-5746-7c4c-b983-19fb47fa244e` completed two governed sessions and a typed hand-off with both deterministic and judge gates, 1,172 tokens, `$0.0007354` cost, zero tools, exact member/parent budget evidence and immutable provenance digests.
+- Deviations from plan: deployed revision 1 correctly failed closed because its agent resource required business assertions; revision 2 added the declared assertion and passed. Generated Go clients also required Pydantic decimal defaults to omit invalid integer literals from constructors while retaining the same runtime defaults. Agent/model output remains explicitly nondeterministic while topology, route ordering, typed boundaries, policy and budgets are deterministic.
+- Next step when resuming: close and publish `c109`, then select `c101` and execute the production-determinism qualification card.
 
 ### 2026-08-25 (EPIC-809 complete)
 

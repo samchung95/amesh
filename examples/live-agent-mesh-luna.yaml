@@ -1,0 +1,106 @@
+id: epic806_live_mesh
+namespace: agents.demo
+description: Live two-member EPIC-806 mesh using the qualified OpenRouter Luna agent revision.
+labels:
+  team: platform
+tasks:
+  - id: incident_mesh
+    type: agent.mesh
+    topology: SUPERVISOR
+    failurePolicy: FAIL_FAST
+    maxConcurrency: 1
+    budget:
+      maxSessions: 2
+      maxConcurrency: 1
+      maxTotalTokens: 4000
+      maxCostUsd: "0.50"
+      maxDurationSeconds: 240
+      maxToolCalls: 0
+    members:
+      - memberId: analyst
+        task: analyst_session
+        agent: epic807-incident-helper
+        agentRevision: 3
+        role: WORKER
+      - memberId: supervisor
+        task: supervisor_session
+        agent: epic807-incident-helper
+        agentRevision: 3
+        role: SUPERVISOR
+    tasks:
+      - id: analyst_session
+        type: agent.session
+        agent: epic807-incident-helper
+        agentRevision: 3
+        meshId: incident_mesh
+        memberId: analyst
+        meshBudget:
+          maxTotalTokens: 2000
+          maxCostUsd: "0.25"
+          maxDurationSeconds: 120
+          maxToolCalls: 0
+        input:
+          incident: API latency exceeded the objective for eight minutes. Identify the key issue.
+        businessAssertions:
+          - type: object
+            required: [summary]
+            properties:
+              summary:
+                type: string
+                minLength: 5
+        contract:
+          secretScopes: [openrouter-api-key]
+        timeoutSeconds: 120
+      - id: validated_handoff
+        type: agent.handoff
+        dependsOn: [analyst_session]
+        source:
+          task: analyst_session
+          agent: epic807-incident-helper
+          agentRevision: 3
+        destination:
+          task: supervisor_session
+          agent: epic807-incident-helper
+          agentRevision: 3
+        payload:
+          incident: "{{ outputs.analyst_session.result.summary }}"
+        schema:
+          type: object
+          required: [incident]
+          properties:
+            incident:
+              type: string
+              minLength: 5
+          additionalProperties: false
+        rationale: Transfer only the validated summary into the supervisor session.
+        contextKeys: [incident]
+        policy:
+          outcome: ALLOW
+          decisionId: epic806-live-handoff-policy-1
+          policyDigest: sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+      - id: supervisor_session
+        type: agent.session
+        dependsOn: [validated_handoff]
+        agent: epic807-incident-helper
+        agentRevision: 3
+        meshId: incident_mesh
+        memberId: supervisor
+        meshBudget:
+          maxTotalTokens: 2000
+          maxCostUsd: "0.25"
+          maxDurationSeconds: 120
+          maxToolCalls: 0
+        input:
+          incident: "{{ outputs.validated_handoff.payload.incident }}"
+        businessAssertions:
+          - type: object
+            required: [summary]
+            properties:
+              summary:
+                type: string
+                minLength: 5
+        contract:
+          secretScopes: [openrouter-api-key]
+        timeoutSeconds: 120
+outputs:
+  finalReview: "{{ outputs.incident_mesh.children.supervisor_session.output.result }}"

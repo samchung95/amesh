@@ -133,6 +133,13 @@ src/main/java/io/amesh/client/model/AgentResourceKind.java
 src/main/java/io/amesh/client/model/AgentResourceRef.java
 src/main/java/io/amesh/client/model/AgentResourceRevision.java
 src/main/java/io/amesh/client/model/AgentRevisionComparison.java
+src/main/java/io/amesh/client/model/AgentRouteAssessment.java
+src/main/java/io/amesh/client/model/AgentRouteAvailabilitySignal.java
+src/main/java/io/amesh/client/model/AgentRouteCandidate.java
+src/main/java/io/amesh/client/model/AgentRouteDecision.java
+src/main/java/io/amesh/client/model/AgentRouteEvaluationSignal.java
+src/main/java/io/amesh/client/model/AgentRoutePolicySignal.java
+src/main/java/io/amesh/client/model/AgentRouteRequest.java
 src/main/java/io/amesh/client/model/AgentRubricCriterionInput.java
 src/main/java/io/amesh/client/model/AgentRubricCriterionOutput.java
 src/main/java/io/amesh/client/model/AgentSessionCheckpoint.java
@@ -458,6 +465,7 @@ src/main/java/io/amesh/client/model/PolicyTenantContext.java
 src/main/java/io/amesh/client/model/PrincipalDefinition.java
 src/main/java/io/amesh/client/model/PrincipalType.java
 src/main/java/io/amesh/client/model/ProblemDetail.java
+src/main/java/io/amesh/client/model/Projectedcostusd.java
 src/main/java/io/amesh/client/model/PromptSpec.java
 src/main/java/io/amesh/client/model/ProviderMigrationDiagnostic.java
 src/main/java/io/amesh/client/model/ProvisionedWebhookSubscription.java
@@ -504,6 +512,7 @@ src/main/java/io/amesh/client/model/ScimPatchRequest.java
 src/main/java/io/amesh/client/model/ScimResourceMeta.java
 src/main/java/io/amesh/client/model/ScimUserRequest.java
 src/main/java/io/amesh/client/model/ScimUserResource.java
+src/main/java/io/amesh/client/model/Score.java
 src/main/java/io/amesh/client/model/SearchDocument.java
 src/main/java/io/amesh/client/model/SearchDocumentType.java
 src/main/java/io/amesh/client/model/SearchProjectionCondition.java

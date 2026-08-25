@@ -54,6 +54,16 @@ import {
     AgentRevisionComparisonToJSON,
 } from '../models/AgentRevisionComparison';
 import {
+    type AgentRouteDecision,
+    AgentRouteDecisionFromJSON,
+    AgentRouteDecisionToJSON,
+} from '../models/AgentRouteDecision';
+import {
+    type AgentRouteRequest,
+    AgentRouteRequestFromJSON,
+    AgentRouteRequestToJSON,
+} from '../models/AgentRouteRequest';
+import {
     type HTTPValidationError,
     HTTPValidationErrorFromJSON,
     HTTPValidationErrorToJSON,
@@ -207,6 +217,14 @@ export interface PreviewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvalu
     key: string;
     fixtureKey: string;
     revision: number;
+    authorization?: string | null;
+    xAmeshCSRF?: string | null;
+    xAmeshTenant?: string | null;
+}
+
+export interface PreviewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPostRequest {
+    namespace: string;
+    agentRouteRequest: AgentRouteRequest;
     authorization?: string | null;
     xAmeshCSRF?: string | null;
     xAmeshTenant?: string | null;
@@ -1221,6 +1239,73 @@ export class AgentsApi extends runtime.BaseAPI {
      */
     async previewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGet(requestParameters: PreviewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AgentEvaluationPreview> {
         const response = await this.previewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGetRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Creates request options for previewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPost without sending the request
+     */
+    async previewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPostRequestOpts(requestParameters: PreviewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPostRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['namespace'] == null) {
+            throw new runtime.RequiredError(
+                'namespace',
+                'Required parameter "namespace" was null or undefined when calling previewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPost().'
+            );
+        }
+
+        if (requestParameters['agentRouteRequest'] == null) {
+            throw new runtime.RequiredError(
+                'agentRouteRequest',
+                'Required parameter "agentRouteRequest" was null or undefined when calling previewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPost().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        if (requestParameters['authorization'] != null) {
+            headerParameters['authorization'] = String(requestParameters['authorization']);
+        }
+
+        if (requestParameters['xAmeshCSRF'] != null) {
+            headerParameters['X-Amesh-CSRF'] = String(requestParameters['xAmeshCSRF']);
+        }
+
+        if (requestParameters['xAmeshTenant'] != null) {
+            headerParameters['X-Amesh-Tenant'] = String(requestParameters['xAmeshTenant']);
+        }
+
+
+        let urlPath = `/api/v1/namespaces/{namespace}/agent/mesh/routes/preview`;
+        urlPath = urlPath.replace('{namespace}', encodeURIComponent(String(requestParameters['namespace'])));
+
+        return {
+            path: urlPath,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: AgentRouteRequestToJSON(requestParameters['agentRouteRequest']),
+        };
+    }
+
+    /**
+     * Preview Agent Mesh Route
+     */
+    async previewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPostRaw(requestParameters: PreviewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<AgentRouteDecision>> {
+        const requestOptions = await this.previewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPostRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => AgentRouteDecisionFromJSON(jsonValue));
+    }
+
+    /**
+     * Preview Agent Mesh Route
+     */
+    async previewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPost(requestParameters: PreviewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AgentRouteDecision> {
+        const response = await this.previewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPostRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

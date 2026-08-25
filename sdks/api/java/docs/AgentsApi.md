@@ -32,6 +32,8 @@ All URIs are relative to *http://localhost*
 | [**previewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGetWithHttpInfo**](AgentsApi.md#previewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGetWithHttpInfo) | **GET** /api/v1/namespaces/{namespace}/agent/definitions/{key}/preview | Preview Agent Definition |
 | [**previewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGet**](AgentsApi.md#previewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGet) | **GET** /api/v1/namespaces/{namespace}/agent/evaluations/{key}/fixtures/{fixture_key}/preview | Preview Agent Evaluation Fixture |
 | [**previewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGetWithHttpInfo**](AgentsApi.md#previewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGetWithHttpInfo) | **GET** /api/v1/namespaces/{namespace}/agent/evaluations/{key}/fixtures/{fixture_key}/preview | Preview Agent Evaluation Fixture |
+| [**previewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPost**](AgentsApi.md#previewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPost) | **POST** /api/v1/namespaces/{namespace}/agent/mesh/routes/preview | Preview Agent Mesh Route |
+| [**previewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPostWithHttpInfo**](AgentsApi.md#previewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPostWithHttpInfo) | **POST** /api/v1/namespaces/{namespace}/agent/mesh/routes/preview | Preview Agent Mesh Route |
 | [**resolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePost**](AgentsApi.md#resolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePost) | **POST** /api/v1/namespaces/{namespace}/agent/definitions/{key}/resolve | Resolve Agent Definition |
 | [**resolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePostWithHttpInfo**](AgentsApi.md#resolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePostWithHttpInfo) | **POST** /api/v1/namespaces/{namespace}/agent/definitions/{key}/resolve | Resolve Agent Definition |
 
@@ -2144,6 +2146,154 @@ No authorization required
 ### HTTP request headers
 
 - **Content-Type**: Not defined
+- **Accept**: application/json
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful Response |  -  |
+| **422** | Validation Error |  -  |
+
+
+## previewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPost
+
+> AgentRouteDecision previewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPost(namespace, agentRouteRequest, authorization, xAmeshCSRF, xAmeshTenant)
+
+Preview Agent Mesh Route
+
+### Example
+
+```java
+// Import classes:
+import io.amesh.client.ApiClient;
+import io.amesh.client.ApiException;
+import io.amesh.client.Configuration;
+import io.amesh.client.models.*;
+import io.amesh.client.api.AgentsApi;
+
+public class Example {
+    public static void main(String[] args) {
+        ApiClient defaultClient = Configuration.getDefaultApiClient();
+        defaultClient.setBasePath("http://localhost");
+
+        AgentsApi apiInstance = new AgentsApi(defaultClient);
+        String namespace = "namespace_example"; // String |
+        AgentRouteRequest agentRouteRequest = new AgentRouteRequest(); // AgentRouteRequest |
+        String authorization = "authorization_example"; // String |
+        String xAmeshCSRF = "xAmeshCSRF_example"; // String |
+        String xAmeshTenant = "xAmeshTenant_example"; // String |
+        try {
+            AgentRouteDecision result = apiInstance.previewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPost(namespace, agentRouteRequest, authorization, xAmeshCSRF, xAmeshTenant);
+            System.out.println(result);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling AgentsApi#previewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPost");
+            System.err.println("Status code: " + e.getCode());
+            System.err.println("Reason: " + e.getResponseBody());
+            System.err.println("Response headers: " + e.getResponseHeaders());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **namespace** | **String**|  | |
+| **agentRouteRequest** | [**AgentRouteRequest**](AgentRouteRequest.md)|  | |
+| **authorization** | **String**|  | [optional] |
+| **xAmeshCSRF** | **String**|  | [optional] |
+| **xAmeshTenant** | **String**|  | [optional] |
+
+### Return type
+
+[**AgentRouteDecision**](AgentRouteDecision.md)
+
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: application/json
+- **Accept**: application/json
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful Response |  -  |
+| **422** | Validation Error |  -  |
+
+## previewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPostWithHttpInfo
+
+> ApiResponse<AgentRouteDecision> previewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPostWithHttpInfo(namespace, agentRouteRequest, authorization, xAmeshCSRF, xAmeshTenant)
+
+Preview Agent Mesh Route
+
+### Example
+
+```java
+// Import classes:
+import io.amesh.client.ApiClient;
+import io.amesh.client.ApiException;
+import io.amesh.client.ApiResponse;
+import io.amesh.client.Configuration;
+import io.amesh.client.models.*;
+import io.amesh.client.api.AgentsApi;
+
+public class Example {
+    public static void main(String[] args) {
+        ApiClient defaultClient = Configuration.getDefaultApiClient();
+        defaultClient.setBasePath("http://localhost");
+
+        AgentsApi apiInstance = new AgentsApi(defaultClient);
+        String namespace = "namespace_example"; // String |
+        AgentRouteRequest agentRouteRequest = new AgentRouteRequest(); // AgentRouteRequest |
+        String authorization = "authorization_example"; // String |
+        String xAmeshCSRF = "xAmeshCSRF_example"; // String |
+        String xAmeshTenant = "xAmeshTenant_example"; // String |
+        try {
+            ApiResponse<AgentRouteDecision> response = apiInstance.previewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPostWithHttpInfo(namespace, agentRouteRequest, authorization, xAmeshCSRF, xAmeshTenant);
+            System.out.println("Status code: " + response.getStatusCode());
+            System.out.println("Response headers: " + response.getHeaders());
+            System.out.println("Response body: " + response.getData());
+        } catch (ApiException e) {
+            System.err.println("Exception when calling AgentsApi#previewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPost");
+            System.err.println("Status code: " + e.getCode());
+            System.err.println("Response headers: " + e.getResponseHeaders());
+            System.err.println("Reason: " + e.getResponseBody());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **namespace** | **String**|  | |
+| **agentRouteRequest** | [**AgentRouteRequest**](AgentRouteRequest.md)|  | |
+| **authorization** | **String**|  | [optional] |
+| **xAmeshCSRF** | **String**|  | [optional] |
+| **xAmeshTenant** | **String**|  | [optional] |
+
+### Return type
+
+ApiResponse<[**AgentRouteDecision**](AgentRouteDecision.md)>
+
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: application/json
 - **Accept**: application/json
 
 ### HTTP response details

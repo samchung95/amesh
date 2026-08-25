@@ -95,6 +95,20 @@ untrusted user data, never system instruction. Deterministic assertions gate opt
 and an ordinary durable approval task remains the human release authority. See
 [ADR-054](docs/adr/054-agent-memory-evaluation-and-release-evidence.md).
 
+## Agent mesh boundary
+
+`agent.mesh` is a static flowable over the existing durable task graph. Its declared supervisor,
+router, peer-to-peer, hierarchical or swarm members map one-to-one to exact `agent.session` children;
+ordinary dependencies and conditions define execution order. Parent and member reservations compose
+with pinned agent limits, so the tighter token, cost, duration and tool ceiling always wins.
+
+`agent.route` gates exact candidates by capability, policy and availability before deterministic
+evaluation/cost/latency ordering. `agent.handoff` validates and redacts selected context between an
+exact completed source and directly dependent destination. Both publish ordinary task results and
+the mesh parent aggregates their provenance and session usage. Models cannot mutate the task graph,
+route policy or budgets. See
+[ADR-055](docs/adr/055-static-agent-mesh-on-durable-task-graph.md).
+
 ## Guided workflow authoring boundary
 
 Guided creation, the visual editor and the code editor are projections over one canonical YAML

@@ -12,9 +12,9 @@ Coordinate multiple already-bounded agent sessions through typed hand-offs and e
 
 ## In scope
 
-- [ ] **URS-F-0808** — The system shall support supervisor, router, peer-to-peer, hierarchical and swarm mesh topologies without creating a second execution engine.
-- [ ] **URS-F-0810** — The system shall validate agent-to-agent hand-offs against typed schemas and preserve source, destination, rationale and context provenance.
-- [ ] **URS-F-0811** — The system shall route work by declared capability, policy, cost, latency, availability and evaluation score with an explainable decision record.
+- [x] **URS-F-0808** — The system shall support supervisor, router, peer-to-peer, hierarchical and swarm mesh topologies without creating a second execution engine.
+- [x] **URS-F-0810** — The system shall validate agent-to-agent hand-offs against typed schemas and preserve source, destination, rationale and context provenance.
+- [x] **URS-F-0811** — The system shall route work by declared capability, policy, cost, latency, availability and evaluation score with an explainable decision record.
 
 ## Explicit non-goals
 

@@ -92,6 +92,7 @@ from amesh.tasks import (
     HttpTaskPolicy,
     agent_llm_handler,
     agent_mcp_handler,
+    agent_mesh_handlers,
     agent_session_handler,
     core_utility_handlers,
     script_task_handlers,
@@ -516,6 +517,7 @@ async def recover_once(
                 **script_task_handlers(shell_handler, settings.script_task_policy),
             }
             if agent_resources is not None and agent_sessions is not None:
+                handlers.update(agent_mesh_handlers(agent_resources))
                 handlers["agent.session"] = agent_session_handler(
                     resources=agent_resources,
                     sessions=agent_sessions,

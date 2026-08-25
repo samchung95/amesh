@@ -37,7 +37,7 @@ class AgentEvaluationSpecOutput(BaseModel):
     judge: Optional[AgentJudgePolicyOutput] = None
     key: Annotated[str, Field(min_length=1, strict=True, max_length=128)]
     kind: Optional[StrictStr] = 'EVALUATION'
-    minimum_rubric_score: Optional[Annotated[str, Field(strict=True)]] = Field(default='1', alias="minimumRubricScore")
+    minimum_rubric_score: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, alias="minimumRubricScore")
     namespace: Annotated[str, Field(min_length=1, strict=True, max_length=255)]
     rubric: Optional[List[AgentRubricCriterionOutput]] = None
     title: Annotated[str, Field(min_length=1, strict=True, max_length=256)]
@@ -157,7 +157,7 @@ class AgentEvaluationSpecOutput(BaseModel):
             "judge": AgentJudgePolicyOutput.from_dict(obj["judge"]) if obj.get("judge") is not None else None,
             "key": obj.get("key"),
             "kind": obj.get("kind") if obj.get("kind") is not None else 'EVALUATION',
-            "minimumRubricScore": obj.get("minimumRubricScore") if obj.get("minimumRubricScore") is not None else '1',
+            "minimumRubricScore": obj.get("minimumRubricScore"),
             "namespace": obj.get("namespace"),
             "rubric": [AgentRubricCriterionOutput.from_dict(_item) for _item in obj["rubric"]] if obj.get("rubric") is not None else None,
             "title": obj.get("title")

@@ -9,16 +9,18 @@ from typing import Any, cast
 from jsonschema import Draft202012Validator
 from jsonschema.exceptions import SchemaError
 from jsonschema.exceptions import ValidationError as JsonSchemaValidationError
-from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator, model_validator
 
 from amesh.domain import (
     AgentCapabilityPin,
     AgentEvaluationOutcome,
+    AgentHardLimits,
     AgentJudgeEvidence,
     AgentMemoryContext,
     AgentMemoryEntry,
     AgentMemoryScope,
     AgentMemoryWrite,
+    AgentMeshSessionBudget,
     AgentResolutionRequest,
     AgentSessionCheckpoint,
     AgentSessionCounters,
@@ -32,6 +34,7 @@ from amesh.domain import (
     ModelDataEgress,
     ModelFallbackMode,
     ResolvedAgentEvaluation,
+    effective_agent_limits,
     evaluate_deterministic_output,
 )
 from amesh.dsl.models import TaskDefinition
@@ -78,6 +81,18 @@ class _AgentSessionTaskSpec(BaseModel):
         min_length=1,
         max_length=128,
     )
+    mesh_id: str | None = Field(default=None, alias="meshId", min_length=1, max_length=128)
+    member_id: str | None = Field(default=None, alias="memberId", min_length=1, max_length=128)
+    mesh_budget: AgentMeshSessionBudget | None = Field(default=None, alias="meshBudget")
+
+    @model_validator(mode="after")
+    def validate_mesh_membership(self) -> _AgentSessionTaskSpec:
+        membership = (self.mesh_id, self.member_id, self.mesh_budget)
+        if any(item is not None for item in membership) and not all(
+            item is not None for item in membership
+        ):
+            raise ValueError("meshId, memberId and meshBudget must be provided together")
+        return self
 
     @field_validator("business_assertions")
     @classmethod
@@ -136,7 +151,7 @@ def agent_session_handler(
                 )
             )
             if record.state is AgentSessionState.SUCCEEDED and record.final_result is not None:
-                return _completion(record, pin, record.final_result)
+                return _completion(record, pin, spec, record.final_result)
             if record.state is AgentSessionState.FAILED:
                 raise TaskExecutionFailure(
                     record.error or "agent session previously failed",
@@ -244,7 +259,8 @@ async def _drive_session(
                 payload={
                     "agentRevision": spec.agent_revision,
                     "envelopeDigest": pin.envelope_digest,
-                    "hardLimits": envelope.hard_limits.model_dump(mode="json", by_alias=True),
+                    "hardLimits": _limits(pin, spec).model_dump(mode="json", by_alias=True),
+                    "mesh": _mesh_evidence(spec),
                     "memoryPolicy": envelope.memory_policy.model_dump(mode="json", by_alias=True),
                     "memoryReads": list(memory_metadata),
                     "evaluations": [
@@ -261,7 +277,7 @@ async def _drive_session(
 
     while True:
         await _check_cancellation(context)
-        _check_limits(record, pin)
+        _check_limits(record, pin, spec)
         action: dict[str, Any]
         if record.checkpoint.pending_action is not None:
             action = record.checkpoint.pending_action
@@ -273,6 +289,7 @@ async def _drive_session(
             model_output = await _invoke_model_turn(
                 task,
                 context,
+                spec,
                 pin,
                 record,
                 model_handler,
@@ -281,7 +298,7 @@ async def _drive_session(
             if not isinstance(raw_action, dict):
                 raise ValueError("agent model turn did not return a structured action")
             action = _normalize_action(raw_action)
-            counters = _consume_model_budget(record.counters, model_output, pin)
+            counters = _consume_model_budget(record.counters, model_output, pin, spec)
             safe_action = cast(
                 dict[str, Any],
                 _redact(action, tuple(context.secrets.values())),
@@ -394,7 +411,7 @@ async def _drive_session(
                         finalResult=output,
                     ),
                 )
-                return _completion(record, pin, output)
+                return _completion(record, pin, spec, output)
             record = await _handle_invalid_output(
                 context,
                 spec,
@@ -423,11 +440,12 @@ async def _drive_session(
 async def _invoke_model_turn(
     task: TaskDefinition,
     context: TaskExecutionContext,
+    spec: _AgentSessionTaskSpec,
     pin: AgentCapabilityPin,
     record: AgentSessionRecord,
     model_handler: TaskHandler,
 ) -> dict[str, Any]:
-    limits = pin.envelope.hard_limits
+    limits = _limits(pin, spec)
     remaining_tokens = limits.max_total_tokens - record.counters.total_tokens
     remaining_cost = limits.max_cost_usd - record.counters.cost_usd
     remaining_seconds = limits.max_duration_seconds - _elapsed_seconds(record)
@@ -595,8 +613,9 @@ async def _invoke_judge(
     judge_policy = evaluation.spec.judge
     if judge_policy is None:
         raise RuntimeError("judge invocation requires a judge policy")
-    remaining_tokens = pin.envelope.hard_limits.max_total_tokens - record.counters.total_tokens
-    remaining_cost = pin.envelope.hard_limits.max_cost_usd - record.counters.cost_usd
+    limits = _limits(pin, spec)
+    remaining_tokens = limits.max_total_tokens - record.counters.total_tokens
+    remaining_cost = limits.max_cost_usd - record.counters.cost_usd
     if remaining_tokens < 1 or remaining_cost < 0:
         raise ValueError("agent session exhausted its judge budget")
     last_error: TaskExecutionFailure | None = None
@@ -656,7 +675,7 @@ async def _invoke_judge(
                 },
                 "timeoutSeconds": min(
                     task.timeout_seconds or 60,
-                    float(_remaining_seconds(record, pin)),
+                    float(_remaining_seconds(record, pin, spec)),
                 ),
                 "invocationKey": (
                     f"session:{record.session_id}:turn:{turn}:evaluation:"
@@ -678,7 +697,7 @@ async def _invoke_judge(
             rationale = result.get("rationale")
             if not isinstance(rationale, str):
                 raise ValueError("judge rationale is unavailable")
-            counters = _consume_judge_budget(record.counters, completion.output, pin)
+            counters = _consume_judge_budget(record.counters, completion.output, pin, spec)
             cost = Decimal(str(completion.output.get("costUsd")))
             return (
                 AgentJudgeEvidence(
@@ -817,7 +836,7 @@ async def _dispatch_tool(
     turn: int,
     action: dict[str, Any],
 ) -> AgentSessionRecord:
-    limits = pin.envelope.hard_limits
+    limits = _limits(pin, spec)
     if record.counters.tool_calls >= limits.max_tool_calls:
         raise ValueError("agent session exhausted maxToolCalls")
     tool_name = action.get("tool")
@@ -856,7 +875,7 @@ async def _dispatch_tool(
         ),
     )
     await _check_cancellation(context)
-    if _remaining_seconds(record, pin) <= 0:
+    if _remaining_seconds(record, pin, spec) <= 0:
         raise TaskExecutionFailure(
             "agent session exhausted maxDurationSeconds",
             FailureCategory.TIMED_OUT,
@@ -875,7 +894,8 @@ async def _dispatch_tool(
             "approvalTask": spec.approval_task,
             "invocationKey": f"session:{record.session_id}:turn:{turn}:tool:{tool.tool_name}",
             "timeoutSeconds": min(
-                task.timeout_seconds or 30, float(_remaining_seconds(record, pin))
+                task.timeout_seconds or 30,
+                float(_remaining_seconds(record, pin, spec)),
             ),
             "contract": {
                 "secretScopes": list(pin.envelope.permissions.secret_scopes),
@@ -1159,6 +1179,7 @@ def _consume_model_budget(
     counters: AgentSessionCounters,
     output: dict[str, Any],
     pin: AgentCapabilityPin,
+    spec: _AgentSessionTaskSpec,
 ) -> AgentSessionCounters:
     usage = output.get("usage")
     if not isinstance(usage, dict):
@@ -1178,7 +1199,7 @@ def _consume_model_budget(
         costUsd=counters.cost_usd + cost,
         repairAttempts=counters.repair_attempts,
     )
-    limits = pin.envelope.hard_limits
+    limits = _limits(pin, spec)
     if updated.total_tokens > limits.max_total_tokens:
         raise ValueError("agent session exceeded maxTotalTokens")
     if updated.cost_usd > limits.max_cost_usd:
@@ -1190,6 +1211,7 @@ def _consume_judge_budget(
     counters: AgentSessionCounters,
     output: dict[str, Any],
     pin: AgentCapabilityPin,
+    spec: _AgentSessionTaskSpec,
 ) -> AgentSessionCounters:
     usage = output.get("usage")
     if not isinstance(usage, dict):
@@ -1207,7 +1229,7 @@ def _consume_judge_budget(
             "cost_usd": counters.cost_usd + cost,
         }
     )
-    limits = pin.envelope.hard_limits
+    limits = _limits(pin, spec)
     if updated.total_tokens > limits.max_total_tokens:
         raise ValueError("agent session exceeded maxTotalTokens during evaluation")
     if updated.cost_usd > limits.max_cost_usd:
@@ -1215,8 +1237,12 @@ def _consume_judge_budget(
     return updated
 
 
-def _check_limits(record: AgentSessionRecord, pin: AgentCapabilityPin) -> None:
-    limits = pin.envelope.hard_limits
+def _check_limits(
+    record: AgentSessionRecord,
+    pin: AgentCapabilityPin,
+    spec: _AgentSessionTaskSpec,
+) -> None:
+    limits = _limits(pin, spec)
     counters = record.counters
     if counters.turns >= limits.max_turns:
         raise ValueError("agent session exhausted maxTurns")
@@ -1228,7 +1254,7 @@ def _check_limits(record: AgentSessionRecord, pin: AgentCapabilityPin) -> None:
         raise ValueError("agent session exhausted maxTotalTokens")
     if counters.cost_usd > limits.max_cost_usd:
         raise ValueError("agent session exceeded maxCostUsd")
-    if _remaining_seconds(record, pin) <= 0:
+    if _remaining_seconds(record, pin, spec) <= 0:
         raise TaskExecutionFailure(
             "agent session exhausted maxDurationSeconds", FailureCategory.TIMED_OUT
         )
@@ -1238,8 +1264,12 @@ def _elapsed_seconds(record: AgentSessionRecord) -> float:
     return max(0.0, (datetime.now(UTC) - record.created_at).total_seconds())
 
 
-def _remaining_seconds(record: AgentSessionRecord, pin: AgentCapabilityPin) -> int:
-    return int(pin.envelope.hard_limits.max_duration_seconds - _elapsed_seconds(record))
+def _remaining_seconds(
+    record: AgentSessionRecord,
+    pin: AgentCapabilityPin,
+    spec: _AgentSessionTaskSpec,
+) -> int:
+    return int(_limits(pin, spec).max_duration_seconds - _elapsed_seconds(record))
 
 
 async def _check_cancellation(context: TaskExecutionContext) -> None:
@@ -1280,6 +1310,7 @@ def _require_approval(
 def _completion(
     record: AgentSessionRecord,
     pin: AgentCapabilityPin,
+    spec: _AgentSessionTaskSpec,
     output: dict[str, Any],
 ) -> TaskCompletion:
     counters = record.counters
@@ -1289,6 +1320,8 @@ def _completion(
             "sessionId": str(record.session_id),
             "state": record.state.value,
             "phase": record.phase.value,
+            "agentKey": pin.envelope.agent.key,
+            "agentRevision": pin.envelope.agent.revision,
             "capabilityPinId": str(record.capability_pin_id),
             "envelopeDigest": pin.envelope_digest,
             "counters": counters.model_dump(mode="json", by_alias=True),
@@ -1298,6 +1331,7 @@ def _completion(
             "memoryWrite": record.checkpoint.memory_write,
             "nondeterministic": True,
             "nondeterminismDisclosure": pin.envelope.output_nondeterminism_disclosure,
+            "mesh": _mesh_evidence(spec),
         },
     }
     return TaskCompletion(
@@ -1319,6 +1353,20 @@ def _completion(
             TaskMetricRecord(name="agent.session.cost", value=counters.cost_usd, unit="USD"),
         ),
     )
+
+
+def _limits(pin: AgentCapabilityPin, spec: _AgentSessionTaskSpec) -> AgentHardLimits:
+    return effective_agent_limits(pin.envelope.hard_limits, spec.mesh_budget)
+
+
+def _mesh_evidence(spec: _AgentSessionTaskSpec) -> dict[str, object] | None:
+    if spec.mesh_id is None or spec.member_id is None or spec.mesh_budget is None:
+        return None
+    return {
+        "meshId": spec.mesh_id,
+        "memberId": spec.member_id,
+        "budget": spec.mesh_budget.model_dump(mode="json", by_alias=True),
+    }
 
 
 def _failure_evidence(

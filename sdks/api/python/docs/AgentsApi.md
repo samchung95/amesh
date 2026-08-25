@@ -18,6 +18,7 @@ Method | HTTP request | Description
 [**list_agent_resources_api_v1_namespaces_namespace_agent_resources_get**](AgentsApi.md#list_agent_resources_api_v1_namespaces_namespace_agent_resources_get) | **GET** /api/v1/namespaces/{namespace}/agent/resources | List Agent Resources
 [**preview_agent_definition_api_v1_namespaces_namespace_agent_definitions_key_preview_get**](AgentsApi.md#preview_agent_definition_api_v1_namespaces_namespace_agent_definitions_key_preview_get) | **GET** /api/v1/namespaces/{namespace}/agent/definitions/{key}/preview | Preview Agent Definition
 [**preview_agent_evaluation_fixture_api_v1_namespaces_namespace_agent_evaluations_key_fixtures_fixture_key_preview_get**](AgentsApi.md#preview_agent_evaluation_fixture_api_v1_namespaces_namespace_agent_evaluations_key_fixtures_fixture_key_preview_get) | **GET** /api/v1/namespaces/{namespace}/agent/evaluations/{key}/fixtures/{fixture_key}/preview | Preview Agent Evaluation Fixture
+[**preview_agent_mesh_route_api_v1_namespaces_namespace_agent_mesh_routes_preview_post**](AgentsApi.md#preview_agent_mesh_route_api_v1_namespaces_namespace_agent_mesh_routes_preview_post) | **POST** /api/v1/namespaces/{namespace}/agent/mesh/routes/preview | Preview Agent Mesh Route
 [**resolve_agent_definition_api_v1_namespaces_namespace_agent_definitions_key_resolve_post**](AgentsApi.md#resolve_agent_definition_api_v1_namespaces_namespace_agent_definitions_key_resolve_post) | **POST** /api/v1/namespaces/{namespace}/agent/definitions/{key}/resolve | Resolve Agent Definition
 
 
@@ -1085,6 +1086,82 @@ No authorization required
 ### HTTP request headers
 
  - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Successful Response |  -  |
+**422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **preview_agent_mesh_route_api_v1_namespaces_namespace_agent_mesh_routes_preview_post**
+> AgentRouteDecision preview_agent_mesh_route_api_v1_namespaces_namespace_agent_mesh_routes_preview_post(namespace, agent_route_request, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
+
+Preview Agent Mesh Route
+
+### Example
+
+
+```python
+import amesh_client
+from amesh_client.models.agent_route_decision import AgentRouteDecision
+from amesh_client.models.agent_route_request import AgentRouteRequest
+from amesh_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to http://localhost
+# See configuration.py for a list of all supported configuration parameters.
+configuration = amesh_client.Configuration(
+    host = "http://localhost"
+)
+
+
+# Enter a context with an instance of the API client
+with amesh_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = amesh_client.AgentsApi(api_client)
+    namespace = 'namespace_example' # str |
+    agent_route_request = amesh_client.AgentRouteRequest() # AgentRouteRequest |
+    authorization = 'authorization_example' # str |  (optional)
+    x_amesh_csrf = 'x_amesh_csrf_example' # str |  (optional)
+    x_amesh_tenant = 'x_amesh_tenant_example' # str |  (optional)
+
+    try:
+        # Preview Agent Mesh Route
+        api_response = api_instance.preview_agent_mesh_route_api_v1_namespaces_namespace_agent_mesh_routes_preview_post(namespace, agent_route_request, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
+        print("The response of AgentsApi->preview_agent_mesh_route_api_v1_namespaces_namespace_agent_mesh_routes_preview_post:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling AgentsApi->preview_agent_mesh_route_api_v1_namespaces_namespace_agent_mesh_routes_preview_post: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **namespace** | **str**|  |
+ **agent_route_request** | [**AgentRouteRequest**](AgentRouteRequest.md)|  |
+ **authorization** | **str**|  | [optional]
+ **x_amesh_csrf** | **str**|  | [optional]
+ **x_amesh_tenant** | **str**|  | [optional]
+
+### Return type
+
+[**AgentRouteDecision**](AgentRouteDecision.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
  - **Accept**: application/json
 
 ### HTTP response details

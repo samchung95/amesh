@@ -1015,7 +1015,6 @@
                 "type": "string"
               }
             ],
-            "default": "1",
             "title": "Minimumrubricscore"
           },
           "namespace": {
@@ -1097,7 +1096,6 @@
             "type": "string"
           },
           "minimumRubricScore": {
-            "default": "1",
             "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
             "title": "Minimumrubricscore",
             "type": "string"
@@ -1850,6 +1848,363 @@
         "title": "AgentRevisionComparison",
         "type": "object"
       },
+      "AgentRouteAssessment": {
+        "properties": {
+          "available": {
+            "title": "Available",
+            "type": "boolean"
+          },
+          "eligible": {
+            "title": "Eligible",
+            "type": "boolean"
+          },
+          "evaluationScore": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Evaluationscore",
+            "type": "string"
+          },
+          "memberId": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+            "title": "Memberid",
+            "type": "string"
+          },
+          "policyOutcome": {
+            "title": "Policyoutcome",
+            "type": "string"
+          },
+          "projectedCostUsd": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Projectedcostusd",
+            "type": "string"
+          },
+          "projectedLatencyMs": {
+            "title": "Projectedlatencyms",
+            "type": "integer"
+          },
+          "reasons": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Reasons",
+            "type": "array"
+          }
+        },
+        "required": [
+          "memberId",
+          "eligible",
+          "reasons",
+          "evaluationScore",
+          "projectedCostUsd",
+          "projectedLatencyMs",
+          "policyOutcome",
+          "available"
+        ],
+        "title": "AgentRouteAssessment",
+        "type": "object"
+      },
+      "AgentRouteAvailabilitySignal": {
+        "additionalProperties": false,
+        "properties": {
+          "available": {
+            "title": "Available",
+            "type": "boolean"
+          },
+          "checkedAt": {
+            "format": "date-time",
+            "title": "Checkedat",
+            "type": "string"
+          },
+          "source": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Source",
+            "type": "string"
+          }
+        },
+        "required": [
+          "available",
+          "source",
+          "checkedAt"
+        ],
+        "title": "AgentRouteAvailabilitySignal",
+        "type": "object"
+      },
+      "AgentRouteCandidate": {
+        "additionalProperties": false,
+        "properties": {
+          "agent": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+            "title": "Agent",
+            "type": "string"
+          },
+          "agentRevision": {
+            "minimum": 1.0,
+            "title": "Agentrevision",
+            "type": "integer"
+          },
+          "availability": {
+            "$ref": "#/components/schemas/AgentRouteAvailabilitySignal"
+          },
+          "capabilities": {
+            "items": {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+              "type": "string"
+            },
+            "title": "Capabilities",
+            "type": "array"
+          },
+          "evaluation": {
+            "$ref": "#/components/schemas/AgentRouteEvaluationSignal"
+          },
+          "memberId": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+            "title": "Memberid",
+            "type": "string"
+          },
+          "policy": {
+            "$ref": "#/components/schemas/AgentRoutePolicySignal"
+          },
+          "projectedCostUsd": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "title": "Projectedcostusd"
+          },
+          "projectedLatencyMs": {
+            "minimum": 0.0,
+            "title": "Projectedlatencyms",
+            "type": "integer"
+          },
+          "task": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+            "title": "Task",
+            "type": "string"
+          }
+        },
+        "required": [
+          "memberId",
+          "task",
+          "agent",
+          "agentRevision",
+          "capabilities",
+          "policy",
+          "projectedCostUsd",
+          "projectedLatencyMs",
+          "availability",
+          "evaluation"
+        ],
+        "title": "AgentRouteCandidate",
+        "type": "object"
+      },
+      "AgentRouteDecision": {
+        "properties": {
+          "assessments": {
+            "items": {
+              "$ref": "#/components/schemas/AgentRouteAssessment"
+            },
+            "title": "Assessments",
+            "type": "array"
+          },
+          "decisionDigest": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Decisiondigest",
+            "type": "string"
+          },
+          "explanation": {
+            "title": "Explanation",
+            "type": "string"
+          },
+          "factorOrder": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Factororder",
+            "type": "array"
+          },
+          "rankedMemberIds": {
+            "items": {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+              "type": "string"
+            },
+            "title": "Rankedmemberids",
+            "type": "array"
+          },
+          "requiredCapabilities": {
+            "items": {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+              "type": "string"
+            },
+            "title": "Requiredcapabilities",
+            "type": "array"
+          },
+          "schemaVersion": {
+            "const": "amesh.agent-route/v1",
+            "default": "amesh.agent-route/v1",
+            "title": "Schemaversion",
+            "type": "string"
+          },
+          "selectedAgent": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+            "title": "Selectedagent",
+            "type": "string"
+          },
+          "selectedAgentRevision": {
+            "title": "Selectedagentrevision",
+            "type": "integer"
+          },
+          "selectedMemberId": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+            "title": "Selectedmemberid",
+            "type": "string"
+          },
+          "selectedTask": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+            "title": "Selectedtask",
+            "type": "string"
+          }
+        },
+        "required": [
+          "selectedMemberId",
+          "selectedTask",
+          "selectedAgent",
+          "selectedAgentRevision",
+          "rankedMemberIds",
+          "requiredCapabilities",
+          "assessments",
+          "factorOrder",
+          "explanation",
+          "decisionDigest"
+        ],
+        "title": "AgentRouteDecision",
+        "type": "object"
+      },
+      "AgentRouteEvaluationSignal": {
+        "additionalProperties": false,
+        "properties": {
+          "key": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+            "title": "Key",
+            "type": "string"
+          },
+          "revision": {
+            "minimum": 1.0,
+            "title": "Revision",
+            "type": "integer"
+          },
+          "score": {
+            "anyOf": [
+              {
+                "maximum": 1.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "title": "Score"
+          }
+        },
+        "required": [
+          "key",
+          "revision",
+          "score"
+        ],
+        "title": "AgentRouteEvaluationSignal",
+        "type": "object"
+      },
+      "AgentRoutePolicySignal": {
+        "additionalProperties": false,
+        "properties": {
+          "decisionId": {
+            "maxLength": 256,
+            "minLength": 1,
+            "title": "Decisionid",
+            "type": "string"
+          },
+          "outcome": {
+            "enum": [
+              "ALLOW",
+              "DENY"
+            ],
+            "title": "Outcome",
+            "type": "string"
+          },
+          "policyDigest": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Policydigest",
+            "type": "string"
+          }
+        },
+        "required": [
+          "outcome",
+          "decisionId",
+          "policyDigest"
+        ],
+        "title": "AgentRoutePolicySignal",
+        "type": "object"
+      },
+      "AgentRouteRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "candidates": {
+            "items": {
+              "$ref": "#/components/schemas/AgentRouteCandidate"
+            },
+            "maxItems": 1000,
+            "minItems": 1,
+            "title": "Candidates",
+            "type": "array"
+          },
+          "requiredCapabilities": {
+            "items": {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Requiredcapabilities",
+            "type": "array"
+          }
+        },
+        "required": [
+          "requiredCapabilities",
+          "candidates"
+        ],
+        "title": "AgentRouteRequest",
+        "type": "object"
+      },
       "AgentRubricCriterion-Input": {
         "additionalProperties": false,
         "properties": {
@@ -1883,7 +2238,6 @@
                 "type": "string"
               }
             ],
-            "default": "1",
             "title": "Weight"
           }
         },
@@ -1917,7 +2271,6 @@
             "type": "string"
           },
           "weight": {
-            "default": "1",
             "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
             "title": "Weight",
             "type": "string"
@@ -38604,6 +38957,106 @@
           }
         },
         "summary": "Delete Agent Memory Entry",
+        "tags": [
+          "agents"
+        ]
+      }
+    },
+    "/api/v1/namespaces/{namespace}/agent/mesh/routes/preview": {
+      "post": {
+        "operationId": "preview_agent_mesh_route_api_v1_namespaces__namespace__agent_mesh_routes_preview_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "namespace",
+            "required": true,
+            "schema": {
+              "title": "Namespace",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AgentRouteRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentRouteDecision"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Preview Agent Mesh Route",
         "tags": [
           "agents"
         ]

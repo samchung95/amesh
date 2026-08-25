@@ -31,7 +31,7 @@ class AgentRubricCriterionOutput(BaseModel):
     assertion: Dict[str, Any]
     description: Annotated[str, Field(min_length=1, strict=True, max_length=4096)]
     key: Annotated[str, Field(min_length=1, strict=True, max_length=128)]
-    weight: Optional[Annotated[str, Field(strict=True)]] = '1'
+    weight: Optional[Annotated[str, Field(strict=True)]] = None
     additional_properties: Dict[str, Any] = {}
     __properties: ClassVar[List[str]] = ["assertion", "description", "key", "weight"]
 
@@ -113,7 +113,7 @@ class AgentRubricCriterionOutput(BaseModel):
             "assertion": obj.get("assertion"),
             "description": obj.get("description"),
             "key": obj.get("key"),
-            "weight": obj.get("weight") if obj.get("weight") is not None else '1'
+            "weight": obj.get("weight")
         })
         # store additional fields in additional_properties
         for _key in obj.keys():

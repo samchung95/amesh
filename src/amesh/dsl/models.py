@@ -10,6 +10,13 @@ from croniter import croniter
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, field_validator, model_validator
 
 from amesh.domain.admission import ConcurrencyLimit
+from amesh.domain.agent_mesh import (
+    AgentHandoffEndpoint,
+    AgentMeshDefinition,
+    AgentMeshSessionBudget,
+    AgentRoutePolicySignal,
+    AgentRouteRequest,
+)
 from amesh.domain.identity import NamespaceId, NaturalId
 from amesh.domain.runner import RunnerExtension, RunnerNetworkPolicy, RunnerSecurityPolicy
 
@@ -416,6 +423,7 @@ class TaskDefinition(BaseModel):
                 "core.while",
                 "core.until",
                 "core.workingDirectory",
+                "agent.mesh",
             }
             and not self.tasks
         ):
@@ -462,13 +470,130 @@ class TaskDefinition(BaseModel):
             "core.if",
             "core.switch",
             "core.workingDirectory",
+            "agent.mesh",
         }:
             raise ValueError("local errors require a flowable task")
         if self.type == "core.workingDirectory" and self.max_concurrency not in {None, 1}:
             raise ValueError(
                 "core.workingDirectory children are sequential; maxConcurrency must be 1"
             )
+        if self.type == "agent.mesh":
+            self._validate_agent_mesh()
         return self
+
+    def _validate_agent_mesh(self) -> None:
+        extra = self.model_extra or {}
+        definition = AgentMeshDefinition.model_validate(
+            {
+                "topology": extra.get("topology"),
+                "members": extra.get("members"),
+                "budget": extra.get("budget"),
+            }
+        )
+        if self.max_concurrency is None:
+            raise ValueError("agent.mesh requires maxConcurrency")
+        if self.max_concurrency > definition.budget.max_concurrency:
+            raise ValueError("agent.mesh maxConcurrency exceeds budget.maxConcurrency")
+
+        children = {child.id: child for child in self.tasks}
+        member_by_id = {member.member_id: member for member in definition.members}
+        member_by_task = {member.task: member for member in definition.members}
+        unregistered_sessions = sorted(
+            child.id
+            for child in self.tasks
+            if child.type == "agent.session" and child.id not in member_by_task
+        )
+        if unregistered_sessions:
+            raise ValueError(
+                "agent.mesh session children must be declared members: "
+                + ", ".join(unregistered_sessions)
+            )
+        reservations: list[AgentMeshSessionBudget] = []
+        for member in definition.members:
+            child = children.get(member.task)
+            if child is None or child.type != "agent.session":
+                raise ValueError(
+                    f"mesh member {member.member_id!r} must reference an agent.session child"
+                )
+            child_extra = child.model_extra or {}
+            expected = {
+                "agent": member.agent,
+                "agentRevision": member.agent_revision,
+                "meshId": self.id,
+                "memberId": member.member_id,
+            }
+            mismatched = [key for key, value in expected.items() if child_extra.get(key) != value]
+            if mismatched:
+                raise ValueError(
+                    f"mesh member {member.member_id!r} session identity mismatch: "
+                    + ", ".join(mismatched)
+                )
+            reservations.append(
+                AgentMeshSessionBudget.model_validate(child_extra.get("meshBudget"))
+            )
+
+        overcommitted: list[str] = []
+        if sum(item.max_total_tokens for item in reservations) > definition.budget.max_total_tokens:
+            overcommitted.append("maxTotalTokens")
+        if sum((item.max_cost_usd for item in reservations), start=0) > (
+            definition.budget.max_cost_usd
+        ):
+            overcommitted.append("maxCostUsd")
+        if sum(item.max_duration_seconds for item in reservations) > (
+            definition.budget.max_duration_seconds
+        ):
+            overcommitted.append("maxDurationSeconds")
+        if sum(item.max_tool_calls for item in reservations) > definition.budget.max_tool_calls:
+            overcommitted.append("maxToolCalls")
+        if overcommitted:
+            raise ValueError(
+                "agent.mesh session reservations exceed parent budget: " + ", ".join(overcommitted)
+            )
+
+        route_tasks = [child for child in self.tasks if child.type == "agent.route"]
+        if definition.topology.value == "ROUTER" and not route_tasks:
+            raise ValueError("ROUTER agent.mesh requires an agent.route child")
+        for route_task in route_tasks:
+            request = AgentRouteRequest.model_validate(route_task.model_extra or {})
+            for candidate in request.candidates:
+                route_member = member_by_id.get(candidate.member_id)
+                if route_member is None or (
+                    candidate.task,
+                    candidate.agent,
+                    candidate.agent_revision,
+                    candidate.capabilities,
+                ) != (
+                    route_member.task,
+                    route_member.agent,
+                    route_member.agent_revision,
+                    route_member.capabilities,
+                ):
+                    raise ValueError(
+                        f"agent.route candidate {candidate.member_id!r} must exactly match a mesh member"
+                    )
+
+        for handoff_task in (child for child in self.tasks if child.type == "agent.handoff"):
+            handoff_extra = handoff_task.model_extra or {}
+            source = AgentHandoffEndpoint.model_validate(handoff_extra.get("source"))
+            destination = AgentHandoffEndpoint.model_validate(handoff_extra.get("destination"))
+            AgentRoutePolicySignal.model_validate(handoff_extra.get("policy"))
+            source_member = member_by_task.get(source.task)
+            destination_member = member_by_task.get(destination.task)
+            if source_member is None or (
+                source.agent,
+                source.agent_revision,
+            ) != (source_member.agent, source_member.agent_revision):
+                raise ValueError("agent.handoff source must exactly match a mesh member")
+            if destination_member is None or (
+                destination.agent,
+                destination.agent_revision,
+            ) != (destination_member.agent, destination_member.agent_revision):
+                raise ValueError("agent.handoff destination must exactly match a mesh member")
+            if source.task not in handoff_task.depends_on:
+                raise ValueError("agent.handoff must directly depend on its source session")
+            destination_task = children[destination.task]
+            if handoff_task.id not in destination_task.depends_on:
+                raise ValueError("agent.handoff destination must directly depend on the hand-off")
 
     @field_validator("input_files")
     @classmethod
