@@ -20,8 +20,8 @@ type PluginSecurityStatus string
 
 // List of PluginSecurityStatus
 const (
-	PLUGINSECURITYSTATUS_UNKNOWN PluginSecurityStatus = "unknown"
-	PLUGINSECURITYSTATUS_CURRENT PluginSecurityStatus = "current"
+	PLUGINSECURITYSTATUS_UNKNOWN  PluginSecurityStatus = "unknown"
+	PLUGINSECURITYSTATUS_CURRENT  PluginSecurityStatus = "current"
 	PLUGINSECURITYSTATUS_ADVISORY PluginSecurityStatus = "advisory"
 	PLUGINSECURITYSTATUS_CRITICAL PluginSecurityStatus = "critical"
 )

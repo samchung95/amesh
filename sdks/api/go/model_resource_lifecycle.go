@@ -20,8 +20,8 @@ type ResourceLifecycle string
 
 // List of ResourceLifecycle
 const (
-	RESOURCELIFECYCLE_ACTIVE ResourceLifecycle = "ACTIVE"
-	RESOURCELIFECYCLE_ARCHIVED ResourceLifecycle = "ARCHIVED"
+	RESOURCELIFECYCLE_ACTIVE     ResourceLifecycle = "ACTIVE"
+	RESOURCELIFECYCLE_ARCHIVED   ResourceLifecycle = "ARCHIVED"
 	RESOURCELIFECYCLE_TOMBSTONED ResourceLifecycle = "TOMBSTONED"
 )
 

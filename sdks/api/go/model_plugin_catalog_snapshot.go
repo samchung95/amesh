@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the PluginCatalogSnapshot type satisfies the MappedNullable interface at compile time
@@ -22,11 +22,11 @@ var _ MappedNullable = &PluginCatalogSnapshot{}
 
 // PluginCatalogSnapshot struct for PluginCatalogSnapshot
 type PluginCatalogSnapshot struct {
-	CatalogDigest string `json:"catalogDigest" validate:"regexp=^sha256:[0-9a-f]{64}$"`
-	GeneratedAt time.Time `json:"generatedAt"`
-	Generation int32 `json:"generation"`
-	Packages []PluginPackageRecord `json:"packages"`
-	SchemaVersion *string `json:"schemaVersion,omitempty"`
+	CatalogDigest string                `json:"catalogDigest" validate:"regexp=^sha256:[0-9a-f]{64}$"`
+	GeneratedAt   time.Time             `json:"generatedAt"`
+	Generation    int32                 `json:"generation"`
+	Packages      []PluginPackageRecord `json:"packages"`
+	SchemaVersion *string               `json:"schemaVersion,omitempty"`
 }
 
 type _PluginCatalogSnapshot PluginCatalogSnapshot
@@ -185,7 +185,7 @@ func (o *PluginCatalogSnapshot) SetSchemaVersion(v string) {
 }
 
 func (o PluginCatalogSnapshot) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -220,10 +220,10 @@ func (o *PluginCatalogSnapshot) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

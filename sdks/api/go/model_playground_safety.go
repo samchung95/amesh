@@ -19,10 +19,10 @@ var _ MappedNullable = &PlaygroundSafety{}
 
 // PlaygroundSafety struct for PlaygroundSafety
 type PlaygroundSafety struct {
-	CredentialAccess *bool `json:"credentialAccess,omitempty"`
-	Executed *bool `json:"executed,omitempty"`
+	CredentialAccess     *bool `json:"credentialAccess,omitempty"`
+	Executed             *bool `json:"executed,omitempty"`
 	InfrastructureAccess *bool `json:"infrastructureAccess,omitempty"`
-	Persisted *bool `json:"persisted,omitempty"`
+	Persisted            *bool `json:"persisted,omitempty"`
 }
 
 // NewPlaygroundSafety instantiates a new PlaygroundSafety object
@@ -187,7 +187,7 @@ func (o *PlaygroundSafety) SetPersisted(v bool) {
 }
 
 func (o PlaygroundSafety) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}

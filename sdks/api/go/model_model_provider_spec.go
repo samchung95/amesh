@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,10 +21,11 @@ var _ MappedNullable = &ModelProviderSpec{}
 
 // ModelProviderSpec struct for ModelProviderSpec
 type ModelProviderSpec struct {
-	Adapter *string `json:"adapter,omitempty" validate:"regexp=^[a-z][a-z0-9.-]*$"`
-	CredentialRef string `json:"credentialRef" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
+	Adapter           *string        `json:"adapter,omitempty" validate:"regexp=^[a-z][a-z0-9.-]*$"`
+	CredentialRef     string         `json:"credentialRef" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
 	EmbeddingEndpoint NullableString `json:"embeddingEndpoint,omitempty"`
-	Endpoint string `json:"endpoint"`
+	Endpoint          string         `json:"endpoint"`
+	Revision          NullableString `json:"revision,omitempty"`
 }
 
 type _ModelProviderSpec ModelProviderSpec
@@ -140,6 +141,7 @@ func (o *ModelProviderSpec) HasEmbeddingEndpoint() bool {
 func (o *ModelProviderSpec) SetEmbeddingEndpoint(v string) {
 	o.EmbeddingEndpoint.Set(&v)
 }
+
 // SetEmbeddingEndpointNil sets the value for EmbeddingEndpoint to be an explicit nil
 func (o *ModelProviderSpec) SetEmbeddingEndpointNil() {
 	o.EmbeddingEndpoint.Set(nil)
@@ -174,8 +176,51 @@ func (o *ModelProviderSpec) SetEndpoint(v string) {
 	o.Endpoint = v
 }
 
+// GetRevision returns the Revision field value if set, zero value otherwise (both if not set or set to explicit null).
+func (o *ModelProviderSpec) GetRevision() string {
+	if o == nil || IsNil(o.Revision.Get()) {
+		var ret string
+		return ret
+	}
+	return *o.Revision.Get()
+}
+
+// GetRevisionOk returns a tuple with the Revision field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
+func (o *ModelProviderSpec) GetRevisionOk() (*string, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return o.Revision.Get(), o.Revision.IsSet()
+}
+
+// HasRevision returns a boolean if a field has been set.
+func (o *ModelProviderSpec) HasRevision() bool {
+	if o != nil && o.Revision.IsSet() {
+		return true
+	}
+
+	return false
+}
+
+// SetRevision gets a reference to the given NullableString and assigns it to the Revision field.
+func (o *ModelProviderSpec) SetRevision(v string) {
+	o.Revision.Set(&v)
+}
+
+// SetRevisionNil sets the value for Revision to be an explicit nil
+func (o *ModelProviderSpec) SetRevisionNil() {
+	o.Revision.Set(nil)
+}
+
+// UnsetRevision ensures that no value is present for Revision, not even an explicit nil
+func (o *ModelProviderSpec) UnsetRevision() {
+	o.Revision.Unset()
+}
+
 func (o ModelProviderSpec) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -192,6 +237,9 @@ func (o ModelProviderSpec) ToMap() (map[string]interface{}, error) {
 		toSerialize["embeddingEndpoint"] = o.EmbeddingEndpoint.Get()
 	}
 	toSerialize["endpoint"] = o.Endpoint
+	if o.Revision.IsSet() {
+		toSerialize["revision"] = o.Revision.Get()
+	}
 	return toSerialize, nil
 }
 
@@ -209,10 +257,10 @@ func (o *ModelProviderSpec) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

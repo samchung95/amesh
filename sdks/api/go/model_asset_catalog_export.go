@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the AssetCatalogExport type satisfies the MappedNullable interface at compile time
@@ -22,10 +22,10 @@ var _ MappedNullable = &AssetCatalogExport{}
 
 // AssetCatalogExport struct for AssetCatalogExport
 type AssetCatalogExport struct {
-	Events []*map[string]interface{} `json:"events"`
-	Format *string `json:"format,omitempty"`
-	GeneratedAt time.Time `json:"generatedAt"`
-	Producer string `json:"producer"`
+	Events      []*map[string]interface{} `json:"events"`
+	Format      *string                   `json:"format,omitempty"`
+	GeneratedAt time.Time                 `json:"generatedAt"`
+	Producer    string                    `json:"producer"`
 }
 
 type _AssetCatalogExport AssetCatalogExport
@@ -159,7 +159,7 @@ func (o *AssetCatalogExport) SetProducer(v string) {
 }
 
 func (o AssetCatalogExport) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -192,10 +192,10 @@ func (o *AssetCatalogExport) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

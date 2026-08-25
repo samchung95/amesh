@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,11 +21,11 @@ var _ MappedNullable = &TaskCachePurgeRequest{}
 
 // TaskCachePurgeRequest struct for TaskCachePurgeRequest
 type TaskCachePurgeRequest struct {
-	FlowId NullableString `json:"flowId,omitempty"`
+	FlowId    NullableString `json:"flowId,omitempty"`
 	KeyPrefix NullableString `json:"keyPrefix,omitempty"`
 	Namespace NullableString `json:"namespace,omitempty"`
-	Reason string `json:"reason"`
-	TaskId NullableString `json:"taskId,omitempty"`
+	Reason    string         `json:"reason"`
+	TaskId    NullableString `json:"taskId,omitempty"`
 }
 
 type _TaskCachePurgeRequest TaskCachePurgeRequest
@@ -80,6 +80,7 @@ func (o *TaskCachePurgeRequest) HasFlowId() bool {
 func (o *TaskCachePurgeRequest) SetFlowId(v string) {
 	o.FlowId.Set(&v)
 }
+
 // SetFlowIdNil sets the value for FlowId to be an explicit nil
 func (o *TaskCachePurgeRequest) SetFlowIdNil() {
 	o.FlowId.Set(nil)
@@ -122,6 +123,7 @@ func (o *TaskCachePurgeRequest) HasKeyPrefix() bool {
 func (o *TaskCachePurgeRequest) SetKeyPrefix(v string) {
 	o.KeyPrefix.Set(&v)
 }
+
 // SetKeyPrefixNil sets the value for KeyPrefix to be an explicit nil
 func (o *TaskCachePurgeRequest) SetKeyPrefixNil() {
 	o.KeyPrefix.Set(nil)
@@ -164,6 +166,7 @@ func (o *TaskCachePurgeRequest) HasNamespace() bool {
 func (o *TaskCachePurgeRequest) SetNamespace(v string) {
 	o.Namespace.Set(&v)
 }
+
 // SetNamespaceNil sets the value for Namespace to be an explicit nil
 func (o *TaskCachePurgeRequest) SetNamespaceNil() {
 	o.Namespace.Set(nil)
@@ -230,6 +233,7 @@ func (o *TaskCachePurgeRequest) HasTaskId() bool {
 func (o *TaskCachePurgeRequest) SetTaskId(v string) {
 	o.TaskId.Set(&v)
 }
+
 // SetTaskIdNil sets the value for TaskId to be an explicit nil
 func (o *TaskCachePurgeRequest) SetTaskIdNil() {
 	o.TaskId.Set(nil)
@@ -241,7 +245,7 @@ func (o *TaskCachePurgeRequest) UnsetTaskId() {
 }
 
 func (o TaskCachePurgeRequest) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -279,10 +283,10 @@ func (o *TaskCachePurgeRequest) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

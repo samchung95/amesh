@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,10 +21,10 @@ var _ MappedNullable = &BulkExecutionItemResult{}
 
 // BulkExecutionItemResult struct for BulkExecutionItemResult
 type BulkExecutionItemResult struct {
-	Error NullableProblemDetail `json:"error,omitempty"`
+	Error     NullableProblemDetail   `json:"error,omitempty"`
 	Execution NullableExecutionDetail `json:"execution,omitempty"`
-	Index int32 `json:"index"`
-	Status int32 `json:"status"`
+	Index     int32                   `json:"index"`
+	Status    int32                   `json:"status"`
 }
 
 type _BulkExecutionItemResult BulkExecutionItemResult
@@ -80,6 +80,7 @@ func (o *BulkExecutionItemResult) HasError() bool {
 func (o *BulkExecutionItemResult) SetError(v ProblemDetail) {
 	o.Error.Set(&v)
 }
+
 // SetErrorNil sets the value for Error to be an explicit nil
 func (o *BulkExecutionItemResult) SetErrorNil() {
 	o.Error.Set(nil)
@@ -122,6 +123,7 @@ func (o *BulkExecutionItemResult) HasExecution() bool {
 func (o *BulkExecutionItemResult) SetExecution(v ExecutionDetail) {
 	o.Execution.Set(&v)
 }
+
 // SetExecutionNil sets the value for Execution to be an explicit nil
 func (o *BulkExecutionItemResult) SetExecutionNil() {
 	o.Execution.Set(nil)
@@ -181,7 +183,7 @@ func (o *BulkExecutionItemResult) SetStatus(v int32) {
 }
 
 func (o BulkExecutionItemResult) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -215,10 +217,10 @@ func (o *BulkExecutionItemResult) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

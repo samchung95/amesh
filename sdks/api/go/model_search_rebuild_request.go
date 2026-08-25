@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the SearchRebuildRequest type satisfies the MappedNullable interface at compile time
@@ -22,10 +22,10 @@ var _ MappedNullable = &SearchRebuildRequest{}
 
 // SearchRebuildRequest struct for SearchRebuildRequest
 type SearchRebuildRequest struct {
-	From NullableTime `json:"from,omitempty"`
-	Reason string `json:"reason"`
-	To NullableTime `json:"to,omitempty"`
-	Types []SearchDocumentType `json:"types,omitempty"`
+	From   NullableTime         `json:"from,omitempty"`
+	Reason string               `json:"reason"`
+	To     NullableTime         `json:"to,omitempty"`
+	Types  []SearchDocumentType `json:"types,omitempty"`
 }
 
 type _SearchRebuildRequest SearchRebuildRequest
@@ -80,6 +80,7 @@ func (o *SearchRebuildRequest) HasFrom() bool {
 func (o *SearchRebuildRequest) SetFrom(v time.Time) {
 	o.From.Set(&v)
 }
+
 // SetFromNil sets the value for From to be an explicit nil
 func (o *SearchRebuildRequest) SetFromNil() {
 	o.From.Set(nil)
@@ -146,6 +147,7 @@ func (o *SearchRebuildRequest) HasTo() bool {
 func (o *SearchRebuildRequest) SetTo(v time.Time) {
 	o.To.Set(&v)
 }
+
 // SetToNil sets the value for To to be an explicit nil
 func (o *SearchRebuildRequest) SetToNil() {
 	o.To.Set(nil)
@@ -189,7 +191,7 @@ func (o *SearchRebuildRequest) SetTypes(v []SearchDocumentType) {
 }
 
 func (o SearchRebuildRequest) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -224,10 +226,10 @@ func (o *SearchRebuildRequest) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

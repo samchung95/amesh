@@ -20,9 +20,9 @@ type BlueprintParameterKind string
 
 // List of BlueprintParameterKind
 const (
-	BLUEPRINTPARAMETERKIND_STRING BlueprintParameterKind = "STRING"
+	BLUEPRINTPARAMETERKIND_STRING    BlueprintParameterKind = "STRING"
 	BLUEPRINTPARAMETERKIND_NAMESPACE BlueprintParameterKind = "NAMESPACE"
-	BLUEPRINTPARAMETERKIND_FLOW_ID BlueprintParameterKind = "FLOW_ID"
+	BLUEPRINTPARAMETERKIND_FLOW_ID   BlueprintParameterKind = "FLOW_ID"
 )
 
 // All allowed values of BlueprintParameterKind enum

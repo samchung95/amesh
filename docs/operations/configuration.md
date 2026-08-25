@@ -97,6 +97,15 @@ restart-required secret with at least 32 bytes and must be externally supplied o
 `WEBHOOK_DELIVERY_BATCH_SIZE` bounds each isolated indexer cycle. See the
 [realtime API guide](../api/realtime.md).
 
+Model-provider continuation state uses application-side authenticated encryption.
+`MODEL_CONTINUATION_KEY_ID` names the current write key,
+`MODEL_CONTINUATION_ENCRYPTION_KEY` is a secret-typed URL-safe Fernet key, and
+`MODEL_CONTINUATION_PREVIOUS_KEY_ID` plus the secret-typed
+`MODEL_CONTINUATION_PREVIOUS_ENCRYPTION_KEY` optionally overlap the prior key during rotation. A
+provider continuation fails closed when protected storage is not
+configured; plaintext reasoning state is never written to invocation results, session checkpoints
+or evidence bundles. See [the provider authoring guide](../how-to/add-model-provider.md).
+
 ## Feature flags
 
 Boolean flags are versioned and audited in PostgreSQL. Resolution order is namespace, tenant,

@@ -20,9 +20,9 @@ var _ MappedNullable = &AuditRetentionPolicy{}
 
 // AuditRetentionPolicy struct for AuditRetentionPolicy
 type AuditRetentionPolicy struct {
-	RetentionDays *int32 `json:"retentionDays,omitempty"`
-	UpdatedAt *time.Time `json:"updatedAt,omitempty"`
-	UpdatedBy *string `json:"updatedBy,omitempty"`
+	RetentionDays *int32     `json:"retentionDays,omitempty"`
+	UpdatedAt     *time.Time `json:"updatedAt,omitempty"`
+	UpdatedBy     *string    `json:"updatedBy,omitempty"`
 }
 
 // NewAuditRetentionPolicy instantiates a new AuditRetentionPolicy object
@@ -147,7 +147,7 @@ func (o *AuditRetentionPolicy) SetUpdatedBy(v string) {
 }
 
 func (o AuditRetentionPolicy) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}

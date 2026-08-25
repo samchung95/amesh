@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the PersistedExecution type satisfies the MappedNullable interface at compile time
@@ -22,24 +22,24 @@ var _ MappedNullable = &PersistedExecution{}
 
 // PersistedExecution struct for PersistedExecution
 type PersistedExecution struct {
-	CancelDeadlineAt NullableTime `json:"cancel_deadline_at,omitempty"`
-	CreatedAt time.Time `json:"created_at"`
-	CreatedBy *string `json:"created_by,omitempty"`
-	Epoch int32 `json:"epoch"`
-	ExecutionId string `json:"execution_id"`
-	FlowId string `json:"flow_id"`
-	FlowRevision *int32 `json:"flow_revision,omitempty"`
-	Inputs map[string]interface{} `json:"inputs,omitempty"`
-	Labels map[string]string `json:"labels,omitempty"`
+	CancelDeadlineAt  NullableTime           `json:"cancel_deadline_at,omitempty"`
+	CreatedAt         time.Time              `json:"created_at"`
+	CreatedBy         *string                `json:"created_by,omitempty"`
+	Epoch             int32                  `json:"epoch"`
+	ExecutionId       string                 `json:"execution_id"`
+	FlowId            string                 `json:"flow_id"`
+	FlowRevision      *int32                 `json:"flow_revision,omitempty"`
+	Inputs            map[string]interface{} `json:"inputs,omitempty"`
+	Labels            map[string]string      `json:"labels,omitempty"`
 	LifecycleEvidence map[string]interface{} `json:"lifecycle_evidence,omitempty"`
-	Namespace string `json:"namespace"`
-	Outputs map[string]interface{} `json:"outputs,omitempty"`
-	State ExecutionState `json:"state"`
-	TenantId string `json:"tenant_id"`
-	TimeoutAt NullableTime `json:"timeout_at,omitempty"`
-	Trigger map[string]interface{} `json:"trigger,omitempty"`
-	UpdatedAt time.Time `json:"updated_at"`
-	Version int32 `json:"version"`
+	Namespace         string                 `json:"namespace"`
+	Outputs           map[string]interface{} `json:"outputs,omitempty"`
+	State             ExecutionState         `json:"state"`
+	TenantId          string                 `json:"tenant_id"`
+	TimeoutAt         NullableTime           `json:"timeout_at,omitempty"`
+	Trigger           map[string]interface{} `json:"trigger,omitempty"`
+	UpdatedAt         time.Time              `json:"updated_at"`
+	Version           int32                  `json:"version"`
 }
 
 type _PersistedExecution PersistedExecution
@@ -110,6 +110,7 @@ func (o *PersistedExecution) HasCancelDeadlineAt() bool {
 func (o *PersistedExecution) SetCancelDeadlineAt(v time.Time) {
 	o.CancelDeadlineAt.Set(&v)
 }
+
 // SetCancelDeadlineAtNil sets the value for CancelDeadlineAt to be an explicit nil
 func (o *PersistedExecution) SetCancelDeadlineAtNil() {
 	o.CancelDeadlineAt.Set(nil)
@@ -512,6 +513,7 @@ func (o *PersistedExecution) HasTimeoutAt() bool {
 func (o *PersistedExecution) SetTimeoutAt(v time.Time) {
 	o.TimeoutAt.Set(&v)
 }
+
 // SetTimeoutAtNil sets the value for TimeoutAt to be an explicit nil
 func (o *PersistedExecution) SetTimeoutAtNil() {
 	o.TimeoutAt.Set(nil)
@@ -603,7 +605,7 @@ func (o *PersistedExecution) SetVersion(v int32) {
 }
 
 func (o PersistedExecution) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -672,10 +674,10 @@ func (o *PersistedExecution) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

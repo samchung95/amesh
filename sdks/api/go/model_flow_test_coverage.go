@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,16 +21,16 @@ var _ MappedNullable = &FlowTestCoverage{}
 
 // FlowTestCoverage struct for FlowTestCoverage
 type FlowTestCoverage struct {
-	BranchesCovered int32 `json:"branchesCovered"`
-	BranchesTotal int32 `json:"branchesTotal"`
-	ConditionsCovered int32 `json:"conditionsCovered"`
-	ConditionsTotal int32 `json:"conditionsTotal"`
-	Disclaimer *string `json:"disclaimer,omitempty"`
-	HandlersCovered int32 `json:"handlersCovered"`
-	HandlersTotal int32 `json:"handlersTotal"`
-	Percentage float32 `json:"percentage"`
-	TasksCovered int32 `json:"tasksCovered"`
-	TasksTotal int32 `json:"tasksTotal"`
+	BranchesCovered   int32   `json:"branchesCovered"`
+	BranchesTotal     int32   `json:"branchesTotal"`
+	ConditionsCovered int32   `json:"conditionsCovered"`
+	ConditionsTotal   int32   `json:"conditionsTotal"`
+	Disclaimer        *string `json:"disclaimer,omitempty"`
+	HandlersCovered   int32   `json:"handlersCovered"`
+	HandlersTotal     int32   `json:"handlersTotal"`
+	Percentage        float32 `json:"percentage"`
+	TasksCovered      int32   `json:"tasksCovered"`
+	TasksTotal        int32   `json:"tasksTotal"`
 }
 
 type _FlowTestCoverage FlowTestCoverage
@@ -314,7 +314,7 @@ func (o *FlowTestCoverage) SetTasksTotal(v int32) {
 }
 
 func (o FlowTestCoverage) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -359,10 +359,10 @@ func (o *FlowTestCoverage) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

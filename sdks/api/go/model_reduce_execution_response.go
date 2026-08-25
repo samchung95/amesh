@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,8 +21,8 @@ var _ MappedNullable = &ReduceExecutionResponse{}
 
 // ReduceExecutionResponse struct for ReduceExecutionResponse
 type ReduceExecutionResponse struct {
-	DuplicateEventsIgnored *int32 `json:"duplicate_events_ignored,omitempty"`
-	Snapshot ExecutionSnapshot `json:"snapshot"`
+	DuplicateEventsIgnored *int32            `json:"duplicate_events_ignored,omitempty"`
+	Snapshot               ExecutionSnapshot `json:"snapshot"`
 }
 
 type _ReduceExecutionResponse ReduceExecutionResponse
@@ -106,7 +106,7 @@ func (o *ReduceExecutionResponse) SetSnapshot(v ExecutionSnapshot) {
 }
 
 func (o ReduceExecutionResponse) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -135,10 +135,10 @@ func (o *ReduceExecutionResponse) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

@@ -20,11 +20,11 @@ type RealtimeSeverity string
 
 // List of RealtimeSeverity
 const (
-	REALTIMESEVERITY_TRACE RealtimeSeverity = "TRACE"
-	REALTIMESEVERITY_DEBUG RealtimeSeverity = "DEBUG"
-	REALTIMESEVERITY_INFO RealtimeSeverity = "INFO"
+	REALTIMESEVERITY_TRACE   RealtimeSeverity = "TRACE"
+	REALTIMESEVERITY_DEBUG   RealtimeSeverity = "DEBUG"
+	REALTIMESEVERITY_INFO    RealtimeSeverity = "INFO"
 	REALTIMESEVERITY_WARNING RealtimeSeverity = "WARNING"
-	REALTIMESEVERITY_ERROR RealtimeSeverity = "ERROR"
+	REALTIMESEVERITY_ERROR   RealtimeSeverity = "ERROR"
 )
 
 // All allowed values of RealtimeSeverity enum

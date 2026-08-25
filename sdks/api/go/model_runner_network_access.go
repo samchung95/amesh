@@ -20,8 +20,8 @@ type RunnerNetworkAccess string
 
 // List of RunnerNetworkAccess
 const (
-	RUNNERNETWORKACCESS_INHERIT RunnerNetworkAccess = "inherit"
-	RUNNERNETWORKACCESS_NONE RunnerNetworkAccess = "none"
+	RUNNERNETWORKACCESS_INHERIT    RunnerNetworkAccess = "inherit"
+	RUNNERNETWORKACCESS_NONE       RunnerNetworkAccess = "none"
 	RUNNERNETWORKACCESS_RESTRICTED RunnerNetworkAccess = "restricted"
 )
 

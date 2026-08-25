@@ -19,7 +19,7 @@ var _ MappedNullable = &AppForm{}
 
 // AppForm struct for AppForm
 type AppForm struct {
-	Fields []FormField `json:"fields,omitempty"`
+	Fields []FormField   `json:"fields,omitempty"`
 	Layout []FormSection `json:"layout,omitempty"`
 }
 
@@ -105,7 +105,7 @@ func (o *AppForm) SetLayout(v []FormSection) {
 }
 
 func (o AppForm) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}

@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,14 +21,14 @@ var _ MappedNullable = &PluginPolicyRuleCreate{}
 
 // PluginPolicyRuleCreate struct for PluginPolicyRuleCreate
 type PluginPolicyRuleCreate struct {
-	Effect PluginPolicyEffect `json:"effect"`
-	Enabled *bool `json:"enabled,omitempty"`
-	Namespace NullableString `json:"namespace,omitempty"`
-	Priority *int32 `json:"priority,omitempty"`
-	Reason string `json:"reason"`
-	Scope PluginPolicyScope `json:"scope"`
-	Selector *PluginPolicySelector `json:"selector,omitempty"`
-	Stages []PluginPolicyStage `json:"stages"`
+	Effect    PluginPolicyEffect    `json:"effect"`
+	Enabled   *bool                 `json:"enabled,omitempty"`
+	Namespace NullableString        `json:"namespace,omitempty"`
+	Priority  *int32                `json:"priority,omitempty"`
+	Reason    string                `json:"reason"`
+	Scope     PluginPolicyScope     `json:"scope"`
+	Selector  *PluginPolicySelector `json:"selector,omitempty"`
+	Stages    []PluginPolicyStage   `json:"stages"`
 }
 
 type _PluginPolicyRuleCreate PluginPolicyRuleCreate
@@ -150,6 +150,7 @@ func (o *PluginPolicyRuleCreate) HasNamespace() bool {
 func (o *PluginPolicyRuleCreate) SetNamespace(v string) {
 	o.Namespace.Set(&v)
 }
+
 // SetNamespaceNil sets the value for Namespace to be an explicit nil
 func (o *PluginPolicyRuleCreate) SetNamespaceNil() {
 	o.Namespace.Set(nil)
@@ -297,7 +298,7 @@ func (o *PluginPolicyRuleCreate) SetStages(v []PluginPolicyStage) {
 }
 
 func (o PluginPolicyRuleCreate) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -341,10 +342,10 @@ func (o *PluginPolicyRuleCreate) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

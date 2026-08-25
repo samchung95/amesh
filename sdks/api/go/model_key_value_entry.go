@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the KeyValueEntry type satisfies the MappedNullable interface at compile time
@@ -22,15 +22,15 @@ var _ MappedNullable = &KeyValueEntry{}
 
 // KeyValueEntry struct for KeyValueEntry
 type KeyValueEntry struct {
-	CreatedAt time.Time `json:"createdAt"`
-	ExpiresAt NullableTime `json:"expiresAt,omitempty"`
-	Key string `json:"key"`
-	Metadata map[string]interface{} `json:"metadata,omitempty"`
-	Namespace string `json:"namespace"`
-	ResourceVersion int32 `json:"resourceVersion"`
-	Type KeyValueType `json:"type"`
-	UpdatedAt time.Time `json:"updatedAt"`
-	Value interface{} `json:"value"`
+	CreatedAt       time.Time              `json:"createdAt"`
+	ExpiresAt       NullableTime           `json:"expiresAt,omitempty"`
+	Key             string                 `json:"key"`
+	Metadata        map[string]interface{} `json:"metadata,omitempty"`
+	Namespace       string                 `json:"namespace"`
+	ResourceVersion int32                  `json:"resourceVersion"`
+	Type            KeyValueType           `json:"type"`
+	UpdatedAt       time.Time              `json:"updatedAt"`
+	Value           interface{}            `json:"value"`
 }
 
 type _KeyValueEntry KeyValueEntry
@@ -115,6 +115,7 @@ func (o *KeyValueEntry) HasExpiresAt() bool {
 func (o *KeyValueEntry) SetExpiresAt(v time.Time) {
 	o.ExpiresAt.Set(&v)
 }
+
 // SetExpiresAtNil sets the value for ExpiresAt to be an explicit nil
 func (o *KeyValueEntry) SetExpiresAtNil() {
 	o.ExpiresAt.Set(nil)
@@ -304,7 +305,7 @@ func (o *KeyValueEntry) SetValue(v interface{}) {
 }
 
 func (o KeyValueEntry) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -350,10 +351,10 @@ func (o *KeyValueEntry) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

@@ -20,7 +20,7 @@ type SearchSortDirection string
 
 // List of SearchSortDirection
 const (
-	SEARCHSORTDIRECTION_ASC SearchSortDirection = "ASC"
+	SEARCHSORTDIRECTION_ASC  SearchSortDirection = "ASC"
 	SEARCHSORTDIRECTION_DESC SearchSortDirection = "DESC"
 )
 

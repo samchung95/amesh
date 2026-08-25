@@ -13,6 +13,14 @@
  */
 
 import { mapValues } from '../runtime';
+import type { ToolProviderKind } from './ToolProviderKind';
+import {
+    ToolProviderKindFromJSON,
+    ToolProviderKindFromJSONTyped,
+    ToolProviderKindToJSON,
+    ToolProviderKindToJSONTyped,
+} from './ToolProviderKind';
+
 /**
  *
  * @export
@@ -24,13 +32,31 @@ export interface AgentToolRef {
      * @type {string}
      * @memberof AgentToolRef
      */
-    connectionKey: string;
+    connectionKey?: string | null;
     /**
      *
      * @type {number}
      * @memberof AgentToolRef
      */
-    connectionRevision: number;
+    connectionRevision?: number | null;
+    /**
+     *
+     * @type {string}
+     * @memberof AgentToolRef
+     */
+    providerKey?: string | null;
+    /**
+     *
+     * @type {ToolProviderKind}
+     * @memberof AgentToolRef
+     */
+    providerKind?: ToolProviderKind;
+    /**
+     *
+     * @type {number}
+     * @memberof AgentToolRef
+     */
+    providerRevision?: number | null;
     /**
      *
      * @type {string}
@@ -45,12 +71,12 @@ export interface AgentToolRef {
     toolName: string;
 }
 
+
+
 /**
  * Check if a given object implements the AgentToolRef interface.
  */
 export function instanceOfAgentToolRef(value: object): value is AgentToolRef {
-    if (!('connectionKey' in value) || value['connectionKey'] === undefined) return false;
-    if (!('connectionRevision' in value) || value['connectionRevision'] === undefined) return false;
     if (!('schemaDigest' in value) || value['schemaDigest'] === undefined) return false;
     if (!('toolName' in value) || value['toolName'] === undefined) return false;
     return true;
@@ -66,8 +92,11 @@ export function AgentToolRefFromJSONTyped(json: any, ignoreDiscriminator: boolea
     }
     return {
 
-        'connectionKey': json['connectionKey'],
-        'connectionRevision': json['connectionRevision'],
+        'connectionKey': json['connectionKey'] === undefined ? undefined : json['connectionKey'] === null ? null : json['connectionKey'],
+        'connectionRevision': json['connectionRevision'] === undefined ? undefined : json['connectionRevision'] === null ? null : json['connectionRevision'],
+        'providerKey': json['providerKey'] === undefined ? undefined : json['providerKey'] === null ? null : json['providerKey'],
+        'providerKind': json['providerKind'] == null ? undefined : ToolProviderKindFromJSON(json['providerKind']),
+        'providerRevision': json['providerRevision'] === undefined ? undefined : json['providerRevision'] === null ? null : json['providerRevision'],
         'schemaDigest': json['schemaDigest'],
         'toolName': json['toolName'],
     };
@@ -86,6 +115,9 @@ export function AgentToolRefToJSONTyped(value?: AgentToolRef | null, ignoreDiscr
 
         'connectionKey': value['connectionKey'],
         'connectionRevision': value['connectionRevision'],
+        'providerKey': value['providerKey'],
+        'providerKind': ToolProviderKindToJSON(value['providerKind']),
+        'providerRevision': value['providerRevision'],
         'schemaDigest': value['schemaDigest'],
         'toolName': value['toolName'],
     };

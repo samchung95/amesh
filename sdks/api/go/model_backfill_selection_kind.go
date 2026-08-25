@@ -20,10 +20,10 @@ type BackfillSelectionKind string
 
 // List of BackfillSelectionKind
 const (
-	BACKFILLSELECTIONKIND_TIME_RANGE BackfillSelectionKind = "TIME_RANGE"
-	BACKFILLSELECTIONKIND_PARTITIONS BackfillSelectionKind = "PARTITIONS"
+	BACKFILLSELECTIONKIND_TIME_RANGE  BackfillSelectionKind = "TIME_RANGE"
+	BACKFILLSELECTIONKIND_PARTITIONS  BackfillSelectionKind = "PARTITIONS"
 	BACKFILLSELECTIONKIND_OCCURRENCES BackfillSelectionKind = "OCCURRENCES"
-	BACKFILLSELECTIONKIND_REPLAY BackfillSelectionKind = "REPLAY"
+	BACKFILLSELECTIONKIND_REPLAY      BackfillSelectionKind = "REPLAY"
 )
 
 // All allowed values of BackfillSelectionKind enum

@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the SearchProjectionVerification type satisfies the MappedNullable interface at compile time
@@ -22,12 +22,12 @@ var _ MappedNullable = &SearchProjectionVerification{}
 
 // SearchProjectionVerification struct for SearchProjectionVerification
 type SearchProjectionVerification struct {
-	Checksum string `json:"checksum"`
-	Items []SearchProjectionVerificationItem `json:"items"`
-	ProjectionVersion int32 `json:"projectionVersion"`
-	SchemaVersion int32 `json:"schemaVersion"`
-	Verified bool `json:"verified"`
-	VerifiedAt time.Time `json:"verifiedAt"`
+	Checksum          string                             `json:"checksum"`
+	Items             []SearchProjectionVerificationItem `json:"items"`
+	ProjectionVersion int32                              `json:"projectionVersion"`
+	SchemaVersion     int32                              `json:"schemaVersion"`
+	Verified          bool                               `json:"verified"`
+	VerifiedAt        time.Time                          `json:"verifiedAt"`
 }
 
 type _SearchProjectionVerification SearchProjectionVerification
@@ -200,7 +200,7 @@ func (o *SearchProjectionVerification) SetVerifiedAt(v time.Time) {
 }
 
 func (o SearchProjectionVerification) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -236,10 +236,10 @@ func (o *SearchProjectionVerification) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

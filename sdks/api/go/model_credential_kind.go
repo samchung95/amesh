@@ -20,7 +20,7 @@ type CredentialKind string
 
 // List of CredentialKind
 const (
-	CREDENTIALKIND_API_TOKEN CredentialKind = "API_TOKEN"
+	CREDENTIALKIND_API_TOKEN     CredentialKind = "API_TOKEN"
 	CREDENTIALKIND_DERIVED_TOKEN CredentialKind = "DERIVED_TOKEN"
 )
 

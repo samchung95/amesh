@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,10 +21,10 @@ var _ MappedNullable = &CheckPolicyUpsertRequest{}
 
 // CheckPolicyUpsertRequest struct for CheckPolicyUpsertRequest
 type CheckPolicyUpsertRequest struct {
-	Definition CheckDefinition `json:"definition"`
-	Enabled *bool `json:"enabled,omitempty"`
-	Source *CheckPolicySource `json:"source,omitempty"`
-	TaskType NullableString `json:"taskType,omitempty"`
+	Definition CheckDefinition    `json:"definition"`
+	Enabled    *bool              `json:"enabled,omitempty"`
+	Source     *CheckPolicySource `json:"source,omitempty"`
+	TaskType   NullableString     `json:"taskType,omitempty"`
 }
 
 type _CheckPolicyUpsertRequest CheckPolicyUpsertRequest
@@ -175,6 +175,7 @@ func (o *CheckPolicyUpsertRequest) HasTaskType() bool {
 func (o *CheckPolicyUpsertRequest) SetTaskType(v string) {
 	o.TaskType.Set(&v)
 }
+
 // SetTaskTypeNil sets the value for TaskType to be an explicit nil
 func (o *CheckPolicyUpsertRequest) SetTaskTypeNil() {
 	o.TaskType.Set(nil)
@@ -186,7 +187,7 @@ func (o *CheckPolicyUpsertRequest) UnsetTaskType() {
 }
 
 func (o CheckPolicyUpsertRequest) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -221,10 +222,10 @@ func (o *CheckPolicyUpsertRequest) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

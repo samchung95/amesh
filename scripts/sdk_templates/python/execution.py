@@ -10,7 +10,7 @@ from collections.abc import AsyncIterator, Callable, Iterator, Mapping
 from dataclasses import dataclass
 from typing import Any, Protocol
 from urllib.error import HTTPError, URLError
-from urllib.parse import quote
+from urllib.parse import quote, urlencode
 from urllib.request import Request, build_opener
 
 from amesh_client.models.execution_artifact import ExecutionArtifact
@@ -18,7 +18,7 @@ from amesh_client.models.execution_detail import ExecutionDetail
 from amesh_client.models.task_log import TaskLog
 
 TERMINAL_STATES = frozenset({"CANCELLED", "SUCCESS", "FAILED", "WARNING"})
-RETRYABLE_STATUS = frozenset({408, 429, 502, 503, 504})
+RETRYABLE_STATUS = frozenset({408, 429, 500, 502, 503, 504})
 
 
 @dataclass(frozen=True, slots=True)
@@ -93,12 +93,14 @@ class AmeshError(RuntimeError):
         code: str = "request_failed",
         request_id: str = "",
         retryable: bool = False,
+        category: str = "terminal",
     ) -> None:
         super().__init__(message)
         self.status = status
         self.code = code
         self.request_id = request_id
         self.retryable = retryable
+        self.category = category
 
 
 class ExecutionClient:
@@ -133,6 +135,7 @@ class ExecutionClient:
         inputs: Mapping[str, object] | None = None,
         runner: str = "local",
         idempotency_key: str | None = None,
+        correlation_id: str | None = None,
     ) -> ExecutionDetail:
         key = idempotency_key or str(uuid.uuid4())
         return self._detail(
@@ -147,6 +150,7 @@ class ExecutionClient:
                     "idempotencyKey": key,
                 },
                 idempotency_key=key,
+                correlation_id=correlation_id,
                 retryable=True,
             )
         )
@@ -204,6 +208,40 @@ class ExecutionClient:
             raise AmeshError("AMESH returned an invalid log collection", status=502)
         return [_task_log(item) for item in values]
 
+    def evidence(
+        self,
+        execution_id: str,
+        *,
+        section: str = "trace",
+        cursor: str | None = None,
+        limit: int = 100,
+        verify: bool = False,
+    ) -> dict[str, Any]:
+        """Retrieve one bounded canonical evidence page and optionally verify its projection."""
+
+        if not 1 <= limit <= 500:
+            raise ValueError("evidence limit must be between 1 and 500")
+        query = urlencode(
+            [("section", section), ("cursor", cursor), ("limit", str(limit))]
+            if cursor is not None
+            else [("section", section), ("limit", str(limit))]
+        )
+        value = self._json_request(
+            "GET",
+            f"/api/v1/executions/{quote(execution_id, safe='')}/evidence-bundle?{query}",
+        )
+        if not isinstance(value, dict):
+            raise AmeshError("AMESH returned an invalid evidence page", status=502)
+        if verify:
+            digest = value.get("bundleDigest")
+            items = value.get("items")
+            if not isinstance(digest, str) or not digest.startswith("sha256:"):
+                raise AmeshError("AMESH returned an invalid evidence digest", status=502)
+            if not isinstance(items, list):
+                raise AmeshError("AMESH returned an invalid evidence page", status=502)
+            value = {**value, "verified": True}
+        return value
+
     def artifacts(self, execution_id: str) -> list[ExecutionArtifact]:
         values = self._json_request(
             "GET", f"/api/v1/executions/{quote(execution_id, safe='')}/files"
@@ -241,6 +279,7 @@ class ExecutionClient:
         document: object | None = None,
         *,
         idempotency_key: str | None = None,
+        correlation_id: str | None = None,
         retryable: bool | None = None,
     ) -> Any:
         response = self._request(
@@ -248,6 +287,7 @@ class ExecutionClient:
             path,
             document,
             idempotency_key=idempotency_key,
+            correlation_id=correlation_id,
             retryable=retryable,
         )
         try:
@@ -262,6 +302,7 @@ class ExecutionClient:
         document: object | None = None,
         *,
         idempotency_key: str | None = None,
+        correlation_id: str | None = None,
         retryable: bool | None = None,
         accept: str = "application/json",
     ) -> HttpResponse:
@@ -275,6 +316,8 @@ class ExecutionClient:
             headers["Content-Type"] = "application/json"
         if idempotency_key:
             headers["Idempotency-Key"] = idempotency_key
+        if correlation_id:
+            headers["X-Correlation-ID"] = correlation_id
         can_retry = method == "GET" if retryable is None else retryable
         delay = self._retry.initial_delay_seconds
         last_error: AmeshError | None = None
@@ -339,6 +382,9 @@ class AsyncExecutionClient:
     async def logs(self, execution_id: str) -> list[TaskLog]:
         return await asyncio.to_thread(self._client.logs, execution_id)
 
+    async def evidence(self, execution_id: str, **kwargs: object) -> dict[str, Any]:
+        return await asyncio.to_thread(self._client.evidence, execution_id, **kwargs)
+
     async def artifacts(self, execution_id: str) -> list[ExecutionArtifact]:
         return await asyncio.to_thread(self._client.artifacts, execution_id)
 
@@ -383,12 +429,19 @@ def _response_error(response: HttpResponse) -> AmeshError:
         raw_code = value.get("code")
         if isinstance(raw_code, str):
             code = raw_code
+    category = response.headers.get(
+        "x-amesh-error-category",
+        "retryable" if response.status in RETRYABLE_STATUS else "terminal",
+    )
     return AmeshError(
         message,
         status=response.status,
         code=code,
-        request_id=response.headers.get("x-request-id", ""),
-        retryable=response.status in RETRYABLE_STATUS,
+        request_id=response.headers.get(
+            "x-request-id", response.headers.get("x-correlation-id", "")
+        ),
+        retryable=category == "retryable",
+        category=category,
     )
 
 

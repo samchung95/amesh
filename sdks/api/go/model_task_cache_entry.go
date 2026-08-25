@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the TaskCacheEntry type satisfies the MappedNullable interface at compile time
@@ -22,26 +22,26 @@ var _ MappedNullable = &TaskCacheEntry{}
 
 // TaskCacheEntry struct for TaskCacheEntry
 type TaskCacheEntry struct {
-	CacheNamespace string `json:"cache_namespace"`
-	CreatedAt time.Time `json:"created_at"`
-	EntryId string `json:"entry_id"`
-	ExpiresAt NullableTime `json:"expires_at,omitempty"`
-	FlowId string `json:"flow_id"`
-	FlowRevision int32 `json:"flow_revision"`
-	HitCount *int32 `json:"hit_count,omitempty"`
+	CacheNamespace     string         `json:"cache_namespace"`
+	CreatedAt          time.Time      `json:"created_at"`
+	EntryId            string         `json:"entry_id"`
+	ExpiresAt          NullableTime   `json:"expires_at,omitempty"`
+	FlowId             string         `json:"flow_id"`
+	FlowRevision       int32          `json:"flow_revision"`
+	HitCount           *int32         `json:"hit_count,omitempty"`
 	InvalidationReason NullableString `json:"invalidation_reason,omitempty"`
-	KeyHash string `json:"key_hash"`
-	KeyPrefix string `json:"key_prefix"`
-	LastHitAt NullableTime `json:"last_hit_at,omitempty"`
-	Namespace string `json:"namespace"`
-	Scope string `json:"scope"`
-	SourceAttempt NullableInt32 `json:"source_attempt,omitempty"`
-	SourceExecutionId NullableString `json:"source_execution_id,omitempty"`
-	SourceTaskRunId NullableString `json:"source_task_run_id,omitempty"`
-	State string `json:"state"`
-	TaskId string `json:"task_id"`
-	TaskType string `json:"task_type"`
-	UpdatedAt time.Time `json:"updated_at"`
+	KeyHash            string         `json:"key_hash"`
+	KeyPrefix          string         `json:"key_prefix"`
+	LastHitAt          NullableTime   `json:"last_hit_at,omitempty"`
+	Namespace          string         `json:"namespace"`
+	Scope              string         `json:"scope"`
+	SourceAttempt      NullableInt32  `json:"source_attempt,omitempty"`
+	SourceExecutionId  NullableString `json:"source_execution_id,omitempty"`
+	SourceTaskRunId    NullableString `json:"source_task_run_id,omitempty"`
+	State              string         `json:"state"`
+	TaskId             string         `json:"task_id"`
+	TaskType           string         `json:"task_type"`
+	UpdatedAt          time.Time      `json:"updated_at"`
 }
 
 type _TaskCacheEntry TaskCacheEntry
@@ -184,6 +184,7 @@ func (o *TaskCacheEntry) HasExpiresAt() bool {
 func (o *TaskCacheEntry) SetExpiresAt(v time.Time) {
 	o.ExpiresAt.Set(&v)
 }
+
 // SetExpiresAtNil sets the value for ExpiresAt to be an explicit nil
 func (o *TaskCacheEntry) SetExpiresAtNil() {
 	o.ExpiresAt.Set(nil)
@@ -306,6 +307,7 @@ func (o *TaskCacheEntry) HasInvalidationReason() bool {
 func (o *TaskCacheEntry) SetInvalidationReason(v string) {
 	o.InvalidationReason.Set(&v)
 }
+
 // SetInvalidationReasonNil sets the value for InvalidationReason to be an explicit nil
 func (o *TaskCacheEntry) SetInvalidationReasonNil() {
 	o.InvalidationReason.Set(nil)
@@ -396,6 +398,7 @@ func (o *TaskCacheEntry) HasLastHitAt() bool {
 func (o *TaskCacheEntry) SetLastHitAt(v time.Time) {
 	o.LastHitAt.Set(&v)
 }
+
 // SetLastHitAtNil sets the value for LastHitAt to be an explicit nil
 func (o *TaskCacheEntry) SetLastHitAtNil() {
 	o.LastHitAt.Set(nil)
@@ -486,6 +489,7 @@ func (o *TaskCacheEntry) HasSourceAttempt() bool {
 func (o *TaskCacheEntry) SetSourceAttempt(v int32) {
 	o.SourceAttempt.Set(&v)
 }
+
 // SetSourceAttemptNil sets the value for SourceAttempt to be an explicit nil
 func (o *TaskCacheEntry) SetSourceAttemptNil() {
 	o.SourceAttempt.Set(nil)
@@ -528,6 +532,7 @@ func (o *TaskCacheEntry) HasSourceExecutionId() bool {
 func (o *TaskCacheEntry) SetSourceExecutionId(v string) {
 	o.SourceExecutionId.Set(&v)
 }
+
 // SetSourceExecutionIdNil sets the value for SourceExecutionId to be an explicit nil
 func (o *TaskCacheEntry) SetSourceExecutionIdNil() {
 	o.SourceExecutionId.Set(nil)
@@ -570,6 +575,7 @@ func (o *TaskCacheEntry) HasSourceTaskRunId() bool {
 func (o *TaskCacheEntry) SetSourceTaskRunId(v string) {
 	o.SourceTaskRunId.Set(&v)
 }
+
 // SetSourceTaskRunIdNil sets the value for SourceTaskRunId to be an explicit nil
 func (o *TaskCacheEntry) SetSourceTaskRunIdNil() {
 	o.SourceTaskRunId.Set(nil)
@@ -677,7 +683,7 @@ func (o *TaskCacheEntry) SetUpdatedAt(v time.Time) {
 }
 
 func (o TaskCacheEntry) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -748,10 +754,10 @@ func (o *TaskCacheEntry) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

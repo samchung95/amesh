@@ -39,6 +39,16 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- printf "%s:%s" .Values.image.repository (.Values.image.tag | default .Chart.AppVersion) }}
 {{- end }}
 
+{{- define "amesh.enabledRolesJson" -}}
+{{- $enabled := list "webserver" -}}
+{{- range $role, $config := .Values.serviceRoles -}}
+{{- if $config.enabled -}}
+{{- $enabled = append $enabled $role -}}
+{{- end -}}
+{{- end -}}
+{{- toJson $enabled -}}
+{{- end }}
+
 {{- define "amesh.runtimeEnv" -}}
 - name: APP_ENV
   value: {{ .Values.appEnv | quote }}
@@ -214,6 +224,8 @@ app.kubernetes.io/instance: {{ .Release.Name }}
   value: {{ .Values.serviceStaleAfterSeconds | quote }}
 - name: SERVICE_CYCLE_SECONDS
   value: {{ .Values.serviceCycleSeconds | quote }}
+- name: SERVICE_ENABLED_ROLES
+  value: {{ include "amesh.enabledRolesJson" . | quote }}
 - name: NETWORK_TOPOLOGY
   value: {{ .Values.network.topology | quote }}
 - name: NETWORK_PRIVATE_ENDPOINT

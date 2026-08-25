@@ -18,6 +18,8 @@ All URIs are relative to *http://localhost*
 | [**getExecutionApiV1ExecutionsExecutionIdGetWithHttpInfo**](ExecutionsApi.md#getExecutionApiV1ExecutionsExecutionIdGetWithHttpInfo) | **GET** /api/v1/executions/{execution_id} | Get Execution |
 | [**getExecutionEvidenceApiV1ExecutionsExecutionIdEvidenceGet**](ExecutionsApi.md#getExecutionEvidenceApiV1ExecutionsExecutionIdEvidenceGet) | **GET** /api/v1/executions/{execution_id}/evidence | Get Execution Evidence |
 | [**getExecutionEvidenceApiV1ExecutionsExecutionIdEvidenceGetWithHttpInfo**](ExecutionsApi.md#getExecutionEvidenceApiV1ExecutionsExecutionIdEvidenceGetWithHttpInfo) | **GET** /api/v1/executions/{execution_id}/evidence | Get Execution Evidence |
+| [**getExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGet**](ExecutionsApi.md#getExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGet) | **GET** /api/v1/executions/{execution_id}/evidence-bundle | Get Execution Evidence Bundle |
+| [**getExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGetWithHttpInfo**](ExecutionsApi.md#getExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGetWithHttpInfo) | **GET** /api/v1/executions/{execution_id}/evidence-bundle | Get Execution Evidence Bundle |
 | [**getExecutionGraphApiV1ExecutionsExecutionIdGraphGet**](ExecutionsApi.md#getExecutionGraphApiV1ExecutionsExecutionIdGraphGet) | **GET** /api/v1/executions/{execution_id}/graph | Get Execution Graph |
 | [**getExecutionGraphApiV1ExecutionsExecutionIdGraphGetWithHttpInfo**](ExecutionsApi.md#getExecutionGraphApiV1ExecutionsExecutionIdGraphGetWithHttpInfo) | **GET** /api/v1/executions/{execution_id}/graph | Get Execution Graph |
 | [**getExecutionLogsApiV1ExecutionsExecutionIdLogsGet**](ExecutionsApi.md#getExecutionLogsApiV1ExecutionsExecutionIdLogsGet) | **GET** /api/v1/executions/{execution_id}/logs | Get Execution Logs |
@@ -199,7 +201,7 @@ No authorization required
 
 ## createExecutionApiV1ExecutionsPost
 
-> ExecutionDetail createExecutionApiV1ExecutionsPost(createExecutionRequest, prefer, idempotencyKey, authorization, xAmeshCSRF, xAmeshTenant)
+> ExecutionDetail createExecutionApiV1ExecutionsPost(createExecutionRequest, prefer, idempotencyKey, xCorrelationID, authorization, xAmeshCSRF, xAmeshTenant)
 
 Create Execution
 
@@ -222,11 +224,12 @@ public class Example {
         CreateExecutionRequest createExecutionRequest = new CreateExecutionRequest(); // CreateExecutionRequest |
         String prefer = "prefer_example"; // String |
         String idempotencyKey = "idempotencyKey_example"; // String |
+        String xCorrelationID = "xCorrelationID_example"; // String |
         String authorization = "authorization_example"; // String |
         String xAmeshCSRF = "xAmeshCSRF_example"; // String |
         String xAmeshTenant = "xAmeshTenant_example"; // String |
         try {
-            ExecutionDetail result = apiInstance.createExecutionApiV1ExecutionsPost(createExecutionRequest, prefer, idempotencyKey, authorization, xAmeshCSRF, xAmeshTenant);
+            ExecutionDetail result = apiInstance.createExecutionApiV1ExecutionsPost(createExecutionRequest, prefer, idempotencyKey, xCorrelationID, authorization, xAmeshCSRF, xAmeshTenant);
             System.out.println(result);
         } catch (ApiException e) {
             System.err.println("Exception when calling ExecutionsApi#createExecutionApiV1ExecutionsPost");
@@ -247,6 +250,7 @@ public class Example {
 | **createExecutionRequest** | [**CreateExecutionRequest**](CreateExecutionRequest.md)|  | |
 | **prefer** | **String**|  | [optional] |
 | **idempotencyKey** | **String**|  | [optional] |
+| **xCorrelationID** | **String**|  | [optional] |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
@@ -274,7 +278,7 @@ No authorization required
 
 ## createExecutionApiV1ExecutionsPostWithHttpInfo
 
-> ApiResponse<ExecutionDetail> createExecutionApiV1ExecutionsPostWithHttpInfo(createExecutionRequest, prefer, idempotencyKey, authorization, xAmeshCSRF, xAmeshTenant)
+> ApiResponse<ExecutionDetail> createExecutionApiV1ExecutionsPostWithHttpInfo(createExecutionRequest, prefer, idempotencyKey, xCorrelationID, authorization, xAmeshCSRF, xAmeshTenant)
 
 Create Execution
 
@@ -298,11 +302,12 @@ public class Example {
         CreateExecutionRequest createExecutionRequest = new CreateExecutionRequest(); // CreateExecutionRequest |
         String prefer = "prefer_example"; // String |
         String idempotencyKey = "idempotencyKey_example"; // String |
+        String xCorrelationID = "xCorrelationID_example"; // String |
         String authorization = "authorization_example"; // String |
         String xAmeshCSRF = "xAmeshCSRF_example"; // String |
         String xAmeshTenant = "xAmeshTenant_example"; // String |
         try {
-            ApiResponse<ExecutionDetail> response = apiInstance.createExecutionApiV1ExecutionsPostWithHttpInfo(createExecutionRequest, prefer, idempotencyKey, authorization, xAmeshCSRF, xAmeshTenant);
+            ApiResponse<ExecutionDetail> response = apiInstance.createExecutionApiV1ExecutionsPostWithHttpInfo(createExecutionRequest, prefer, idempotencyKey, xCorrelationID, authorization, xAmeshCSRF, xAmeshTenant);
             System.out.println("Status code: " + response.getStatusCode());
             System.out.println("Response headers: " + response.getHeaders());
             System.out.println("Response body: " + response.getData());
@@ -325,6 +330,7 @@ public class Example {
 | **createExecutionRequest** | [**CreateExecutionRequest**](CreateExecutionRequest.md)|  | |
 | **prefer** | **String**|  | [optional] |
 | **idempotencyKey** | **String**|  | [optional] |
+| **xCorrelationID** | **String**|  | [optional] |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
@@ -353,7 +359,7 @@ No authorization required
 
 ## createExecutionsBulkApiV1ExecutionsBulkPost
 
-> List<BulkExecutionItemResult> createExecutionsBulkApiV1ExecutionsBulkPost(bulkExecutionRequest, prefer, authorization, xAmeshCSRF, xAmeshTenant)
+> List<BulkExecutionItemResult> createExecutionsBulkApiV1ExecutionsBulkPost(bulkExecutionRequest, prefer, xCorrelationID, authorization, xAmeshCSRF, xAmeshTenant)
 
 Create Executions Bulk
 
@@ -375,11 +381,12 @@ public class Example {
         ExecutionsApi apiInstance = new ExecutionsApi(defaultClient);
         BulkExecutionRequest bulkExecutionRequest = new BulkExecutionRequest(); // BulkExecutionRequest |
         String prefer = "prefer_example"; // String |
+        String xCorrelationID = "xCorrelationID_example"; // String |
         String authorization = "authorization_example"; // String |
         String xAmeshCSRF = "xAmeshCSRF_example"; // String |
         String xAmeshTenant = "xAmeshTenant_example"; // String |
         try {
-            List<BulkExecutionItemResult> result = apiInstance.createExecutionsBulkApiV1ExecutionsBulkPost(bulkExecutionRequest, prefer, authorization, xAmeshCSRF, xAmeshTenant);
+            List<BulkExecutionItemResult> result = apiInstance.createExecutionsBulkApiV1ExecutionsBulkPost(bulkExecutionRequest, prefer, xCorrelationID, authorization, xAmeshCSRF, xAmeshTenant);
             System.out.println(result);
         } catch (ApiException e) {
             System.err.println("Exception when calling ExecutionsApi#createExecutionsBulkApiV1ExecutionsBulkPost");
@@ -399,6 +406,7 @@ public class Example {
 |------------- | ------------- | ------------- | -------------|
 | **bulkExecutionRequest** | [**BulkExecutionRequest**](BulkExecutionRequest.md)|  | |
 | **prefer** | **String**|  | [optional] |
+| **xCorrelationID** | **String**|  | [optional] |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
@@ -425,7 +433,7 @@ No authorization required
 
 ## createExecutionsBulkApiV1ExecutionsBulkPostWithHttpInfo
 
-> ApiResponse<List<BulkExecutionItemResult>> createExecutionsBulkApiV1ExecutionsBulkPostWithHttpInfo(bulkExecutionRequest, prefer, authorization, xAmeshCSRF, xAmeshTenant)
+> ApiResponse<List<BulkExecutionItemResult>> createExecutionsBulkApiV1ExecutionsBulkPostWithHttpInfo(bulkExecutionRequest, prefer, xCorrelationID, authorization, xAmeshCSRF, xAmeshTenant)
 
 Create Executions Bulk
 
@@ -448,11 +456,12 @@ public class Example {
         ExecutionsApi apiInstance = new ExecutionsApi(defaultClient);
         BulkExecutionRequest bulkExecutionRequest = new BulkExecutionRequest(); // BulkExecutionRequest |
         String prefer = "prefer_example"; // String |
+        String xCorrelationID = "xCorrelationID_example"; // String |
         String authorization = "authorization_example"; // String |
         String xAmeshCSRF = "xAmeshCSRF_example"; // String |
         String xAmeshTenant = "xAmeshTenant_example"; // String |
         try {
-            ApiResponse<List<BulkExecutionItemResult>> response = apiInstance.createExecutionsBulkApiV1ExecutionsBulkPostWithHttpInfo(bulkExecutionRequest, prefer, authorization, xAmeshCSRF, xAmeshTenant);
+            ApiResponse<List<BulkExecutionItemResult>> response = apiInstance.createExecutionsBulkApiV1ExecutionsBulkPostWithHttpInfo(bulkExecutionRequest, prefer, xCorrelationID, authorization, xAmeshCSRF, xAmeshTenant);
             System.out.println("Status code: " + response.getStatusCode());
             System.out.println("Response headers: " + response.getHeaders());
             System.out.println("Response body: " + response.getData());
@@ -474,6 +483,7 @@ public class Example {
 |------------- | ------------- | ------------- | -------------|
 | **bulkExecutionRequest** | [**BulkExecutionRequest**](BulkExecutionRequest.md)|  | |
 | **prefer** | **String**|  | [optional] |
+| **xCorrelationID** | **String**|  | [optional] |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
@@ -1075,6 +1085,166 @@ public class Example {
 ### Return type
 
 ApiResponse<[**ExecutionEvidencePage**](ExecutionEvidencePage.md)>
+
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful Response |  -  |
+| **422** | Validation Error |  -  |
+
+
+## getExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGet
+
+> EvidenceBundlePageResponse getExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGet(executionId, section, cursor, limit, authorization, xAmeshCSRF, xAmeshTenant)
+
+Get Execution Evidence Bundle
+
+Return a verified, bounded, tenant-scoped canonical evidence projection.
+
+### Example
+
+```java
+// Import classes:
+import io.amesh.client.ApiClient;
+import io.amesh.client.ApiException;
+import io.amesh.client.Configuration;
+import io.amesh.client.models.*;
+import io.amesh.client.api.ExecutionsApi;
+
+public class Example {
+    public static void main(String[] args) {
+        ApiClient defaultClient = Configuration.getDefaultApiClient();
+        defaultClient.setBasePath("http://localhost");
+
+        ExecutionsApi apiInstance = new ExecutionsApi(defaultClient);
+        UUID executionId = UUID.randomUUID(); // UUID |
+        String section = "trace"; // String | Canonical evidence section
+        String cursor = "cursor_example"; // String | Opaque section cursor
+        Integer limit = 100; // Integer |
+        String authorization = "authorization_example"; // String |
+        String xAmeshCSRF = "xAmeshCSRF_example"; // String |
+        String xAmeshTenant = "xAmeshTenant_example"; // String |
+        try {
+            EvidenceBundlePageResponse result = apiInstance.getExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGet(executionId, section, cursor, limit, authorization, xAmeshCSRF, xAmeshTenant);
+            System.out.println(result);
+        } catch (ApiException e) {
+            System.err.println("Exception when calling ExecutionsApi#getExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGet");
+            System.err.println("Status code: " + e.getCode());
+            System.err.println("Reason: " + e.getResponseBody());
+            System.err.println("Response headers: " + e.getResponseHeaders());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **executionId** | **UUID**|  | |
+| **section** | **String**| Canonical evidence section | [optional] [default to trace] |
+| **cursor** | **String**| Opaque section cursor | [optional] |
+| **limit** | **Integer**|  | [optional] [default to 100] |
+| **authorization** | **String**|  | [optional] |
+| **xAmeshCSRF** | **String**|  | [optional] |
+| **xAmeshTenant** | **String**|  | [optional] |
+
+### Return type
+
+[**EvidenceBundlePageResponse**](EvidenceBundlePageResponse.md)
+
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful Response |  -  |
+| **422** | Validation Error |  -  |
+
+## getExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGetWithHttpInfo
+
+> ApiResponse<EvidenceBundlePageResponse> getExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGetWithHttpInfo(executionId, section, cursor, limit, authorization, xAmeshCSRF, xAmeshTenant)
+
+Get Execution Evidence Bundle
+
+Return a verified, bounded, tenant-scoped canonical evidence projection.
+
+### Example
+
+```java
+// Import classes:
+import io.amesh.client.ApiClient;
+import io.amesh.client.ApiException;
+import io.amesh.client.ApiResponse;
+import io.amesh.client.Configuration;
+import io.amesh.client.models.*;
+import io.amesh.client.api.ExecutionsApi;
+
+public class Example {
+    public static void main(String[] args) {
+        ApiClient defaultClient = Configuration.getDefaultApiClient();
+        defaultClient.setBasePath("http://localhost");
+
+        ExecutionsApi apiInstance = new ExecutionsApi(defaultClient);
+        UUID executionId = UUID.randomUUID(); // UUID |
+        String section = "trace"; // String | Canonical evidence section
+        String cursor = "cursor_example"; // String | Opaque section cursor
+        Integer limit = 100; // Integer |
+        String authorization = "authorization_example"; // String |
+        String xAmeshCSRF = "xAmeshCSRF_example"; // String |
+        String xAmeshTenant = "xAmeshTenant_example"; // String |
+        try {
+            ApiResponse<EvidenceBundlePageResponse> response = apiInstance.getExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGetWithHttpInfo(executionId, section, cursor, limit, authorization, xAmeshCSRF, xAmeshTenant);
+            System.out.println("Status code: " + response.getStatusCode());
+            System.out.println("Response headers: " + response.getHeaders());
+            System.out.println("Response body: " + response.getData());
+        } catch (ApiException e) {
+            System.err.println("Exception when calling ExecutionsApi#getExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGet");
+            System.err.println("Status code: " + e.getCode());
+            System.err.println("Response headers: " + e.getResponseHeaders());
+            System.err.println("Reason: " + e.getResponseBody());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **executionId** | **UUID**|  | |
+| **section** | **String**| Canonical evidence section | [optional] [default to trace] |
+| **cursor** | **String**| Opaque section cursor | [optional] |
+| **limit** | **Integer**|  | [optional] [default to 100] |
+| **authorization** | **String**|  | [optional] |
+| **xAmeshCSRF** | **String**|  | [optional] |
+| **xAmeshTenant** | **String**|  | [optional] |
+
+### Return type
+
+ApiResponse<[**EvidenceBundlePageResponse**](EvidenceBundlePageResponse.md)>
 
 
 ### Authorization

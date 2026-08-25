@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the SecretBinding type satisfies the MappedNullable interface at compile time
@@ -22,16 +22,16 @@ var _ MappedNullable = &SecretBinding{}
 
 // SecretBinding struct for SecretBinding
 type SecretBinding struct {
-	CreatedAt time.Time `json:"createdAt"`
-	Inherited *bool `json:"inherited,omitempty"`
-	Key string `json:"key"`
-	Metadata map[string]interface{} `json:"metadata,omitempty"`
-	Namespace string `json:"namespace"`
-	OriginNamespace string `json:"originNamespace"`
-	Provider string `json:"provider"`
-	ProviderReference string `json:"providerReference"`
-	ResourceVersion int32 `json:"resourceVersion"`
-	UpdatedAt time.Time `json:"updatedAt"`
+	CreatedAt         time.Time              `json:"createdAt"`
+	Inherited         *bool                  `json:"inherited,omitempty"`
+	Key               string                 `json:"key"`
+	Metadata          map[string]interface{} `json:"metadata,omitempty"`
+	Namespace         string                 `json:"namespace"`
+	OriginNamespace   string                 `json:"originNamespace"`
+	Provider          string                 `json:"provider"`
+	ProviderReference string                 `json:"providerReference"`
+	ResourceVersion   int32                  `json:"resourceVersion"`
+	UpdatedAt         time.Time              `json:"updatedAt"`
 }
 
 type _SecretBinding SecretBinding
@@ -322,7 +322,7 @@ func (o *SecretBinding) SetUpdatedAt(v time.Time) {
 }
 
 func (o SecretBinding) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -368,10 +368,10 @@ func (o *SecretBinding) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

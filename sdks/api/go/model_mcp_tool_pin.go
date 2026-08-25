@@ -20,11 +20,11 @@ var _ MappedNullable = &McpToolPin{}
 
 // McpToolPin struct for McpToolPin
 type McpToolPin struct {
-	Description *string `json:"description,omitempty"`
-	Impact *McpToolImpact `json:"impact,omitempty"`
-	InputSchema map[string]interface{} `json:"inputSchema"`
-	Name string `json:"name" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
-	OutputSchema map[string]interface{} `json:"outputSchema,omitempty"`
+	Description          *string                `json:"description,omitempty"`
+	Impact               *McpToolImpact         `json:"impact,omitempty"`
+	InputSchema          map[string]interface{} `json:"inputSchema"`
+	Name                 string                 `json:"name" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
+	OutputSchema         map[string]interface{} `json:"outputSchema,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -203,7 +203,7 @@ func (o *McpToolPin) SetOutputSchema(v map[string]interface{}) {
 }
 
 func (o McpToolPin) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -245,10 +245,10 @@ func (o *McpToolPin) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

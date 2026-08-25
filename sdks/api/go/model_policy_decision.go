@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the PolicyDecision type satisfies the MappedNullable interface at compile time
@@ -22,25 +22,25 @@ var _ MappedNullable = &PolicyDecision{}
 
 // PolicyDecision struct for PolicyDecision
 type PolicyDecision struct {
-	ActorId string `json:"actorId"`
-	Allowed bool `json:"allowed"`
-	DecidedAt *time.Time `json:"decidedAt,omitempty"`
-	EngineVersion *string `json:"engineVersion,omitempty"`
-	EvaluationDurationMs float32 `json:"evaluationDurationMs"`
-	EvaluationLimitMs int32 `json:"evaluationLimitMs"`
-	FlowId string `json:"flowId"`
-	FlowRevision int32 `json:"flowRevision"`
-	Id *string `json:"id,omitempty"`
-	InputHash string `json:"inputHash"`
-	MatchedRules []PolicyRuleEvidence `json:"matchedRules"`
-	Mutations []PolicyMutation `json:"mutations,omitempty"`
-	Namespace string `json:"namespace"`
-	Outcome PolicyOutcome `json:"outcome"`
-	PinnedPolicies []PolicyPin `json:"pinnedPolicies"`
-	RequiredApprovals []string `json:"requiredApprovals,omitempty"`
-	Stage PolicyStage `json:"stage"`
-	TenantId string `json:"tenantId"`
-	Warnings []string `json:"warnings,omitempty"`
+	ActorId              string               `json:"actorId"`
+	Allowed              bool                 `json:"allowed"`
+	DecidedAt            *time.Time           `json:"decidedAt,omitempty"`
+	EngineVersion        *string              `json:"engineVersion,omitempty"`
+	EvaluationDurationMs float32              `json:"evaluationDurationMs"`
+	EvaluationLimitMs    int32                `json:"evaluationLimitMs"`
+	FlowId               string               `json:"flowId"`
+	FlowRevision         int32                `json:"flowRevision"`
+	Id                   *string              `json:"id,omitempty"`
+	InputHash            string               `json:"inputHash"`
+	MatchedRules         []PolicyRuleEvidence `json:"matchedRules"`
+	Mutations            []PolicyMutation     `json:"mutations,omitempty"`
+	Namespace            string               `json:"namespace"`
+	Outcome              PolicyOutcome        `json:"outcome"`
+	PinnedPolicies       []PolicyPin          `json:"pinnedPolicies"`
+	RequiredApprovals    []string             `json:"requiredApprovals,omitempty"`
+	Stage                PolicyStage          `json:"stage"`
+	TenantId             string               `json:"tenantId"`
+	Warnings             []string             `json:"warnings,omitempty"`
 }
 
 type _PolicyDecision PolicyDecision
@@ -584,7 +584,7 @@ func (o *PolicyDecision) SetWarnings(v []string) {
 }
 
 func (o PolicyDecision) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -652,10 +652,10 @@ func (o *PolicyDecision) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

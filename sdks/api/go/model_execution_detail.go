@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,10 +21,10 @@ var _ MappedNullable = &ExecutionDetail{}
 
 // ExecutionDetail struct for ExecutionDetail
 type ExecutionDetail struct {
-	Execution PersistedExecution `json:"execution"`
-	TaskRunOffset *int32 `json:"taskRunOffset,omitempty"`
+	Execution      PersistedExecution              `json:"execution"`
+	TaskRunOffset  *int32                          `json:"taskRunOffset,omitempty"`
 	TaskRunSummary NullablePersistedTaskRunSummary `json:"taskRunSummary,omitempty"`
-	TaskRuns []PersistedTaskRun `json:"taskRuns"`
+	TaskRuns       []PersistedTaskRun              `json:"taskRuns"`
 }
 
 type _ExecutionDetail ExecutionDetail
@@ -140,6 +140,7 @@ func (o *ExecutionDetail) HasTaskRunSummary() bool {
 func (o *ExecutionDetail) SetTaskRunSummary(v PersistedTaskRunSummary) {
 	o.TaskRunSummary.Set(&v)
 }
+
 // SetTaskRunSummaryNil sets the value for TaskRunSummary to be an explicit nil
 func (o *ExecutionDetail) SetTaskRunSummaryNil() {
 	o.TaskRunSummary.Set(nil)
@@ -175,7 +176,7 @@ func (o *ExecutionDetail) SetTaskRuns(v []PersistedTaskRun) {
 }
 
 func (o ExecutionDetail) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -209,10 +210,10 @@ func (o *ExecutionDetail) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

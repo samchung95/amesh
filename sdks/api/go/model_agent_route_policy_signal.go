@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,8 +21,8 @@ var _ MappedNullable = &AgentRoutePolicySignal{}
 
 // AgentRoutePolicySignal struct for AgentRoutePolicySignal
 type AgentRoutePolicySignal struct {
-	DecisionId string `json:"decisionId"`
-	Outcome string `json:"outcome"`
+	DecisionId   string `json:"decisionId"`
+	Outcome      string `json:"outcome"`
 	PolicyDigest string `json:"policyDigest" validate:"regexp=^sha256:[0-9a-f]{64}$"`
 }
 
@@ -121,7 +121,7 @@ func (o *AgentRoutePolicySignal) SetPolicyDigest(v string) {
 }
 
 func (o AgentRoutePolicySignal) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -151,10 +151,10 @@ func (o *AgentRoutePolicySignal) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

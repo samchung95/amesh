@@ -19,10 +19,10 @@ var _ MappedNullable = &SimulationEstimateModel{}
 
 // SimulationEstimateModel struct for SimulationEstimateModel
 type SimulationEstimateModel struct {
-	ApiCalls *int32 `json:"apiCalls,omitempty"`
-	CostUsd *float32 `json:"costUsd,omitempty"`
+	ApiCalls        *int32   `json:"apiCalls,omitempty"`
+	CostUsd         *float32 `json:"costUsd,omitempty"`
 	DurationSeconds *float32 `json:"durationSeconds,omitempty"`
-	StorageBytes *int32 `json:"storageBytes,omitempty"`
+	StorageBytes    *int32   `json:"storageBytes,omitempty"`
 }
 
 // NewSimulationEstimateModel instantiates a new SimulationEstimateModel object
@@ -187,7 +187,7 @@ func (o *SimulationEstimateModel) SetStorageBytes(v int32) {
 }
 
 func (o SimulationEstimateModel) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}

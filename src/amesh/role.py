@@ -34,7 +34,7 @@ from amesh.adapters.postgres import (
     PostgresWorkerRepository,
 )
 from amesh.admission_policy import AdmissionPolicyService
-from amesh.config import Settings, get_settings
+from amesh.config import Settings, get_settings, redact_runtime_text
 from amesh.database import create_database_engine
 from amesh.domain import ServiceLiveness, ServiceRole, ServiceState
 from amesh.observability import (
@@ -43,6 +43,7 @@ from amesh.observability import (
     instrument_async_operation,
     shutdown_observability,
 )
+from amesh.plugin_sdk import PluginResolver
 from amesh.plugins import (
     PluginPolicyService,
     TrustedPluginRuntime,
@@ -218,6 +219,9 @@ async def run_role(settings: Settings, *, stop_event: asyncio.Event | None = Non
     admission_policy = AdmissionPolicyService(PostgresAdmissionPolicyRepository(engine))
     executions = PostgresExecutionRepository(
         engine,
+        plugin_resolution_provider=lambda flow: (
+            PluginResolver(plugin_catalog.snapshot).resolve_flow(flow).revision_payload()
+        ),
         plugin_policy_enforcer=plugin_policy.enforce_flow,
         admission_policy_enforcer=admission_policy.enforce_repository,
     )
@@ -284,6 +288,7 @@ async def run_role(settings: Settings, *, stop_event: asyncio.Event | None = Non
                         "workerGroup": settings.worker_group,
                     },
                     dependencies={"postgresql": "READY"},
+                    ready=None,
                 )
                 if current.state is ServiceState.DRAINING:
                     break
@@ -318,8 +323,39 @@ async def run_role(settings: Settings, *, stop_event: asyncio.Event | None = Non
                     agent_sessions=agent_sessions,
                     agent_memory=agent_memory,
                 )
-            except (DBAPIError, OSError, LookupError):
-                LOGGER.exception("service role cycle interrupted; retrying")
+                current = await service.heartbeat(
+                    ownership={"lastCycleWork": work_count},
+                    partitions={
+                        "strategy": "postgresql-durable-partitions",
+                        "workerGroup": settings.worker_group,
+                    },
+                    dependencies={"postgresql": "READY"},
+                    ready=True,
+                )
+                if current.state is ServiceState.DRAINING:
+                    break
+            except ServiceFenceError:
+                break
+            except Exception as exc:
+                failure = redact_runtime_text(f"{type(exc).__name__}: {exc}")[:2048]
+                LOGGER.exception("service role cycle failed; readiness degraded")
+                try:
+                    current = await service.heartbeat(
+                        ownership={"lastCycleWork": work_count},
+                        partitions={
+                            "strategy": "postgresql-durable-partitions",
+                            "workerGroup": settings.worker_group,
+                        },
+                        dependencies={"postgresql": "DEGRADED"},
+                        ready=False,
+                        failure=failure,
+                    )
+                    if current.state is ServiceState.DRAINING:
+                        break
+                except ServiceFenceError:
+                    break
+                except (DBAPIError, OSError):
+                    LOGGER.exception("failed to persist degraded service-role health")
             with suppress(TimeoutError):
                 await asyncio.wait_for(stop.wait(), timeout=settings.service_cycle_seconds)
     finally:

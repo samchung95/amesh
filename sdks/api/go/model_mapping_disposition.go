@@ -20,9 +20,9 @@ type MappingDisposition string
 
 // List of MappingDisposition
 const (
-	MAPPINGDISPOSITION_EXACT MappingDisposition = "exact"
+	MAPPINGDISPOSITION_EXACT                 MappingDisposition = "exact"
 	MAPPINGDISPOSITION_COMPATIBILITY_ADAPTED MappingDisposition = "compatibility-adapted"
-	MAPPINGDISPOSITION_BLOCKED MappingDisposition = "blocked"
+	MAPPINGDISPOSITION_BLOCKED               MappingDisposition = "blocked"
 )
 
 // All allowed values of MappingDisposition enum

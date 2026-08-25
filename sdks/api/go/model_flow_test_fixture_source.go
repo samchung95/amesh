@@ -20,8 +20,8 @@ type FlowTestFixtureSource string
 
 // List of FlowTestFixtureSource
 const (
-	FLOWTESTFIXTURESOURCE_INLINE FlowTestFixtureSource = "INLINE"
-	FLOWTESTFIXTURESOURCE_PLUGIN FlowTestFixtureSource = "PLUGIN"
+	FLOWTESTFIXTURESOURCE_INLINE   FlowTestFixtureSource = "INLINE"
+	FLOWTESTFIXTURESOURCE_PLUGIN   FlowTestFixtureSource = "PLUGIN"
 	FLOWTESTFIXTURESOURCE_RECORDED FlowTestFixtureSource = "RECORDED"
 )
 

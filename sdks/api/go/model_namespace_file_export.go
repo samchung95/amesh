@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,10 +21,10 @@ var _ MappedNullable = &NamespaceFileExport{}
 
 // NamespaceFileExport struct for NamespaceFileExport
 type NamespaceFileExport struct {
-	ContentBase64 string `json:"contentBase64"`
-	ContentType NullableString `json:"contentType,omitempty"`
-	Metadata map[string]interface{} `json:"metadata,omitempty"`
-	Path string `json:"path"`
+	ContentBase64 string                 `json:"contentBase64"`
+	ContentType   NullableString         `json:"contentType,omitempty"`
+	Metadata      map[string]interface{} `json:"metadata,omitempty"`
+	Path          string                 `json:"path"`
 }
 
 type _NamespaceFileExport NamespaceFileExport
@@ -104,6 +104,7 @@ func (o *NamespaceFileExport) HasContentType() bool {
 func (o *NamespaceFileExport) SetContentType(v string) {
 	o.ContentType.Set(&v)
 }
+
 // SetContentTypeNil sets the value for ContentType to be an explicit nil
 func (o *NamespaceFileExport) SetContentTypeNil() {
 	o.ContentType.Set(nil)
@@ -171,7 +172,7 @@ func (o *NamespaceFileExport) SetPath(v string) {
 }
 
 func (o NamespaceFileExport) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -205,10 +206,10 @@ func (o *NamespaceFileExport) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

@@ -173,14 +173,15 @@ public class CompatibilityApi {
    * @param kestraExecutionRequest  (required)
    * @param prefer  (optional)
    * @param idempotencyKey  (optional)
+   * @param xCorrelationID  (optional)
    * @param authorization  (optional)
    * @param xAmeshCSRF  (optional)
    * @param xAmeshTenant  (optional)
    * @return ExecutionDetail
    * @throws ApiException if fails to make API call
    */
-  public ExecutionDetail createKestraExecutionApiV1ExecutionsNamespaceFlowIdPost(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull String flowId, @javax.annotation.Nonnull KestraExecutionRequest kestraExecutionRequest, @javax.annotation.Nullable String prefer, @javax.annotation.Nullable String idempotencyKey, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
-    return createKestraExecutionApiV1ExecutionsNamespaceFlowIdPost(namespace, flowId, kestraExecutionRequest, prefer, idempotencyKey, authorization, xAmeshCSRF, xAmeshTenant, null);
+  public ExecutionDetail createKestraExecutionApiV1ExecutionsNamespaceFlowIdPost(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull String flowId, @javax.annotation.Nonnull KestraExecutionRequest kestraExecutionRequest, @javax.annotation.Nullable String prefer, @javax.annotation.Nullable String idempotencyKey, @javax.annotation.Nullable String xCorrelationID, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return createKestraExecutionApiV1ExecutionsNamespaceFlowIdPost(namespace, flowId, kestraExecutionRequest, prefer, idempotencyKey, xCorrelationID, authorization, xAmeshCSRF, xAmeshTenant, null);
   }
 
   /**
@@ -191,6 +192,7 @@ public class CompatibilityApi {
    * @param kestraExecutionRequest  (required)
    * @param prefer  (optional)
    * @param idempotencyKey  (optional)
+   * @param xCorrelationID  (optional)
    * @param authorization  (optional)
    * @param xAmeshCSRF  (optional)
    * @param xAmeshTenant  (optional)
@@ -198,8 +200,8 @@ public class CompatibilityApi {
    * @return ExecutionDetail
    * @throws ApiException if fails to make API call
    */
-  public ExecutionDetail createKestraExecutionApiV1ExecutionsNamespaceFlowIdPost(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull String flowId, @javax.annotation.Nonnull KestraExecutionRequest kestraExecutionRequest, @javax.annotation.Nullable String prefer, @javax.annotation.Nullable String idempotencyKey, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
-    ApiResponse<ExecutionDetail> localVarResponse = createKestraExecutionApiV1ExecutionsNamespaceFlowIdPostWithHttpInfo(namespace, flowId, kestraExecutionRequest, prefer, idempotencyKey, authorization, xAmeshCSRF, xAmeshTenant, headers);
+  public ExecutionDetail createKestraExecutionApiV1ExecutionsNamespaceFlowIdPost(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull String flowId, @javax.annotation.Nonnull KestraExecutionRequest kestraExecutionRequest, @javax.annotation.Nullable String prefer, @javax.annotation.Nullable String idempotencyKey, @javax.annotation.Nullable String xCorrelationID, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    ApiResponse<ExecutionDetail> localVarResponse = createKestraExecutionApiV1ExecutionsNamespaceFlowIdPostWithHttpInfo(namespace, flowId, kestraExecutionRequest, prefer, idempotencyKey, xCorrelationID, authorization, xAmeshCSRF, xAmeshTenant, headers);
     return localVarResponse.getData();
   }
 
@@ -211,14 +213,15 @@ public class CompatibilityApi {
    * @param kestraExecutionRequest  (required)
    * @param prefer  (optional)
    * @param idempotencyKey  (optional)
+   * @param xCorrelationID  (optional)
    * @param authorization  (optional)
    * @param xAmeshCSRF  (optional)
    * @param xAmeshTenant  (optional)
    * @return ApiResponse&lt;ExecutionDetail&gt;
    * @throws ApiException if fails to make API call
    */
-  public ApiResponse<ExecutionDetail> createKestraExecutionApiV1ExecutionsNamespaceFlowIdPostWithHttpInfo(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull String flowId, @javax.annotation.Nonnull KestraExecutionRequest kestraExecutionRequest, @javax.annotation.Nullable String prefer, @javax.annotation.Nullable String idempotencyKey, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
-    return createKestraExecutionApiV1ExecutionsNamespaceFlowIdPostWithHttpInfo(namespace, flowId, kestraExecutionRequest, prefer, idempotencyKey, authorization, xAmeshCSRF, xAmeshTenant, null);
+  public ApiResponse<ExecutionDetail> createKestraExecutionApiV1ExecutionsNamespaceFlowIdPostWithHttpInfo(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull String flowId, @javax.annotation.Nonnull KestraExecutionRequest kestraExecutionRequest, @javax.annotation.Nullable String prefer, @javax.annotation.Nullable String idempotencyKey, @javax.annotation.Nullable String xCorrelationID, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant) throws ApiException {
+    return createKestraExecutionApiV1ExecutionsNamespaceFlowIdPostWithHttpInfo(namespace, flowId, kestraExecutionRequest, prefer, idempotencyKey, xCorrelationID, authorization, xAmeshCSRF, xAmeshTenant, null);
   }
 
   /**
@@ -229,6 +232,7 @@ public class CompatibilityApi {
    * @param kestraExecutionRequest  (required)
    * @param prefer  (optional)
    * @param idempotencyKey  (optional)
+   * @param xCorrelationID  (optional)
    * @param authorization  (optional)
    * @param xAmeshCSRF  (optional)
    * @param xAmeshTenant  (optional)
@@ -236,8 +240,8 @@ public class CompatibilityApi {
    * @return ApiResponse&lt;ExecutionDetail&gt;
    * @throws ApiException if fails to make API call
    */
-  public ApiResponse<ExecutionDetail> createKestraExecutionApiV1ExecutionsNamespaceFlowIdPostWithHttpInfo(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull String flowId, @javax.annotation.Nonnull KestraExecutionRequest kestraExecutionRequest, @javax.annotation.Nullable String prefer, @javax.annotation.Nullable String idempotencyKey, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
-    HttpRequest.Builder localVarRequestBuilder = createKestraExecutionApiV1ExecutionsNamespaceFlowIdPostRequestBuilder(namespace, flowId, kestraExecutionRequest, prefer, idempotencyKey, authorization, xAmeshCSRF, xAmeshTenant, headers);
+  public ApiResponse<ExecutionDetail> createKestraExecutionApiV1ExecutionsNamespaceFlowIdPostWithHttpInfo(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull String flowId, @javax.annotation.Nonnull KestraExecutionRequest kestraExecutionRequest, @javax.annotation.Nullable String prefer, @javax.annotation.Nullable String idempotencyKey, @javax.annotation.Nullable String xCorrelationID, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+    HttpRequest.Builder localVarRequestBuilder = createKestraExecutionApiV1ExecutionsNamespaceFlowIdPostRequestBuilder(namespace, flowId, kestraExecutionRequest, prefer, idempotencyKey, xCorrelationID, authorization, xAmeshCSRF, xAmeshTenant, headers);
     try {
       HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
           localVarRequestBuilder.build(),
@@ -284,7 +288,7 @@ public class CompatibilityApi {
     }
   }
 
-  private HttpRequest.Builder createKestraExecutionApiV1ExecutionsNamespaceFlowIdPostRequestBuilder(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull String flowId, @javax.annotation.Nonnull KestraExecutionRequest kestraExecutionRequest, @javax.annotation.Nullable String prefer, @javax.annotation.Nullable String idempotencyKey, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
+  private HttpRequest.Builder createKestraExecutionApiV1ExecutionsNamespaceFlowIdPostRequestBuilder(@javax.annotation.Nonnull String namespace, @javax.annotation.Nonnull String flowId, @javax.annotation.Nonnull KestraExecutionRequest kestraExecutionRequest, @javax.annotation.Nullable String prefer, @javax.annotation.Nullable String idempotencyKey, @javax.annotation.Nullable String xCorrelationID, @javax.annotation.Nullable String authorization, @javax.annotation.Nullable String xAmeshCSRF, @javax.annotation.Nullable String xAmeshTenant, Map<String, String> headers) throws ApiException {
     // verify the required parameter 'namespace' is set
     if (namespace == null) {
       throw new ApiException(400, "Missing the required parameter 'namespace' when calling createKestraExecutionApiV1ExecutionsNamespaceFlowIdPost");
@@ -311,6 +315,9 @@ public class CompatibilityApi {
     }
     if (idempotencyKey != null) {
       localVarRequestBuilder.header("Idempotency-Key", idempotencyKey.toString());
+    }
+    if (xCorrelationID != null) {
+      localVarRequestBuilder.header("X-Correlation-ID", xCorrelationID.toString());
     }
     if (authorization != null) {
       localVarRequestBuilder.header("authorization", authorization.toString());

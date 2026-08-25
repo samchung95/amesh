@@ -19,12 +19,12 @@ var _ MappedNullable = &AgentSessionCounters{}
 
 // AgentSessionCounters struct for AgentSessionCounters
 type AgentSessionCounters struct {
-	CostUsd *string `json:"costUsd,omitempty" validate:"regexp=^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"`
-	LoopIterations *int32 `json:"loopIterations,omitempty"`
-	RepairAttempts *int32 `json:"repairAttempts,omitempty"`
-	ToolCalls *int32 `json:"toolCalls,omitempty"`
-	TotalTokens *int32 `json:"totalTokens,omitempty"`
-	Turns *int32 `json:"turns,omitempty"`
+	CostUsd        *string `json:"costUsd,omitempty" validate:"regexp=^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"`
+	LoopIterations *int32  `json:"loopIterations,omitempty"`
+	RepairAttempts *int32  `json:"repairAttempts,omitempty"`
+	ToolCalls      *int32  `json:"toolCalls,omitempty"`
+	TotalTokens    *int32  `json:"totalTokens,omitempty"`
+	Turns          *int32  `json:"turns,omitempty"`
 }
 
 // NewAgentSessionCounters instantiates a new AgentSessionCounters object
@@ -261,7 +261,7 @@ func (o *AgentSessionCounters) SetTurns(v int32) {
 }
 
 func (o AgentSessionCounters) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}

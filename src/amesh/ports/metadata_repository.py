@@ -46,6 +46,14 @@ class ExecutionEvidenceKind(StrEnum):
     METRIC = "METRIC"
     OUTPUT = "OUTPUT"
     ARTIFACT = "ARTIFACT"
+    AGENT = "AGENT"
+    MODEL = "MODEL"
+    TOOL = "TOOL"
+    ERROR = "ERROR"
+    APPROVAL = "APPROVAL"
+    INTERVENTION = "INTERVENTION"
+    CONTROL = "CONTROL"
+    DECISION = "DECISION"
 
 
 class AssetAccessMode(StrEnum):

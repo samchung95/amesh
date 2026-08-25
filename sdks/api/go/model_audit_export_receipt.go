@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the AuditExportReceipt type satisfies the MappedNullable interface at compile time
@@ -22,17 +22,17 @@ var _ MappedNullable = &AuditExportReceipt{}
 
 // AuditExportReceipt struct for AuditExportReceipt
 type AuditExportReceipt struct {
-	ArtifactKind AuditArtifactKind `json:"artifactKind"`
-	ChecksumSha256 string `json:"checksumSha256" validate:"regexp=^[0-9a-f]{64}$"`
-	CreatedAt *time.Time `json:"createdAt,omitempty"`
-	CreatedBy string `json:"createdBy"`
-	Destination AuditExportDestination `json:"destination"`
-	EventCount int32 `json:"eventCount"`
-	Format string `json:"format"`
-	Id *string `json:"id,omitempty"`
-	ObjectUri NullableString `json:"objectUri,omitempty"`
-	Signature string `json:"signature"`
-	TenantId string `json:"tenantId"`
+	ArtifactKind   AuditArtifactKind      `json:"artifactKind"`
+	ChecksumSha256 string                 `json:"checksumSha256" validate:"regexp=^[0-9a-f]{64}$"`
+	CreatedAt      *time.Time             `json:"createdAt,omitempty"`
+	CreatedBy      string                 `json:"createdBy"`
+	Destination    AuditExportDestination `json:"destination"`
+	EventCount     int32                  `json:"eventCount"`
+	Format         string                 `json:"format"`
+	Id             *string                `json:"id,omitempty"`
+	ObjectUri      NullableString         `json:"objectUri,omitempty"`
+	Signature      string                 `json:"signature"`
+	TenantId       string                 `json:"tenantId"`
 }
 
 type _AuditExportReceipt AuditExportReceipt
@@ -302,6 +302,7 @@ func (o *AuditExportReceipt) HasObjectUri() bool {
 func (o *AuditExportReceipt) SetObjectUri(v string) {
 	o.ObjectUri.Set(&v)
 }
+
 // SetObjectUriNil sets the value for ObjectUri to be an explicit nil
 func (o *AuditExportReceipt) SetObjectUriNil() {
 	o.ObjectUri.Set(nil)
@@ -361,7 +362,7 @@ func (o *AuditExportReceipt) SetTenantId(v string) {
 }
 
 func (o AuditExportReceipt) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -410,10 +411,10 @@ func (o *AuditExportReceipt) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

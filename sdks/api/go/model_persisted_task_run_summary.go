@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,13 +21,13 @@ var _ MappedNullable = &PersistedTaskRunSummary{}
 
 // PersistedTaskRunSummary struct for PersistedTaskRunSummary
 type PersistedTaskRunSummary struct {
-	Cancelled int32 `json:"cancelled"`
-	Failed int32 `json:"failed"`
+	Cancelled  int32 `json:"cancelled"`
+	Failed     int32 `json:"failed"`
 	RetryDelay int32 `json:"retry_delay"`
-	Running int32 `json:"running"`
-	Succeeded int32 `json:"succeeded"`
-	Total int32 `json:"total"`
-	Waiting int32 `json:"waiting"`
+	Running    int32 `json:"running"`
+	Succeeded  int32 `json:"succeeded"`
+	Total      int32 `json:"total"`
+	Waiting    int32 `json:"waiting"`
 }
 
 type _PersistedTaskRunSummary PersistedTaskRunSummary
@@ -225,7 +225,7 @@ func (o *PersistedTaskRunSummary) SetWaiting(v int32) {
 }
 
 func (o PersistedTaskRunSummary) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -263,10 +263,10 @@ func (o *PersistedTaskRunSummary) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

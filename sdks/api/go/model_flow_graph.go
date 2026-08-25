@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,11 +21,11 @@ var _ MappedNullable = &FlowGraph{}
 
 // FlowGraph struct for FlowGraph
 type FlowGraph struct {
-	Edges []FlowGraphEdge `json:"edges"`
-	FlowId string `json:"flowId"`
-	Namespace string `json:"namespace"`
-	Nodes []FlowGraphNode `json:"nodes"`
-	Revision int32 `json:"revision"`
+	Edges     []FlowGraphEdge `json:"edges"`
+	FlowId    string          `json:"flowId"`
+	Namespace string          `json:"namespace"`
+	Nodes     []FlowGraphNode `json:"nodes"`
+	Revision  int32           `json:"revision"`
 }
 
 type _FlowGraph FlowGraph
@@ -173,7 +173,7 @@ func (o *FlowGraph) SetRevision(v int32) {
 }
 
 func (o FlowGraph) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -207,10 +207,10 @@ func (o *FlowGraph) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

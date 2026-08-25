@@ -123,6 +123,39 @@ creates the ordinary immutable revision. “Run now” launches that saved revis
 persisted execution trace, so the guided path cannot bypass revision, authorization, policy or
 execution evidence contracts.
 
+## External orchestration and qualification boundary
+
+AMESH owns durable schedule evaluation and occurrence launching. A client declares the schedule and
+may reference a plugin-provided domain calendar, but it does not own occurrence persistence,
+deduplication, retry or scheduler health. Every enabled service role publishes persisted progress
+health; a caught background failure can keep a process live while making that role unready. A role
+that is intentionally disabled is reported as disabled rather than failed.
+
+External clients use one versioned orchestration profile over the existing REST, realtime, webhook,
+CLI and generated-SDK surfaces. Exact workflow revisions, client correlation keys and launch
+idempotency keys are durable contract data. The corresponding evidence bundle is a canonical,
+bounded projection of pins, state transitions, attempts, sessions, invocations, files, approvals and
+usage. Large records are content-addressed outside the response body, cost has explicit billed,
+unpriced or unavailable states, and neither credentials nor hidden model rationale are evidence.
+
+Model and tool integrations are replaceable provider ports. Capability negotiation happens before
+provider I/O and the selected provider revision is pinned. Opaque continuation state may be stored
+for provider-supported resumption but is never exposed as chain-of-thought. MCP and isolated plugin
+tools share one ToolProvider policy, schema, journal, timeout, cancellation and ambiguous-outcome
+contract; core ships no domain connector merely to support a client use case.
+
+Qualification uses an isolated PostgreSQL/object-storage harness. Restart matrices prove stable
+occurrence, invocation, checkpoint and final-output identities. Differential runs pin two exact
+configurations and frozen inputs, deny uncontrolled effects and compare deterministic structure
+separately from declared model nondeterminism. Promotion binds a client-defined policy to fresh,
+immutable evidence and an exact configuration digest; AMESH enforces preview, apply, rollback and
+kill-switch authority but does not choose the client's thresholds or perform its external cutover.
+
+The hardened client-driven local profile is loopback-only, uses real scoped authentication, has no
+Docker socket or Docker runner, and contains no client-domain credentials. It is a specifically
+qualified local boundary, not a claim of public-cloud, multi-region or independent production
+certification.
+
 ## MVP executor boundary
 
 The executor derives runnable tasks from the validated top-level DAG and persisted task-run states; it does not keep authoritative progress in memory. The execution repository creates one stable task-run identity per execution/task path, records every attempt separately and stores task results before dependants become eligible. In-process MVP handlers prove orchestration with `core.return` and `core.log`; W3 replaces the handler edge with fenced runner dispatch without changing DAG readiness or persisted state. Dropping an executor process loses no scheduler state: a replacement reloads successful task runs, skips them and continues the remaining graph.

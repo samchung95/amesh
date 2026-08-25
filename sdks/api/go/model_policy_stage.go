@@ -21,9 +21,9 @@ type PolicyStage string
 // List of PolicyStage
 const (
 	POLICYSTAGE_VALIDATE PolicyStage = "VALIDATE"
-	POLICYSTAGE_SAVE PolicyStage = "SAVE"
-	POLICYSTAGE_PROMOTE PolicyStage = "PROMOTE"
-	POLICYSTAGE_LAUNCH PolicyStage = "LAUNCH"
+	POLICYSTAGE_SAVE     PolicyStage = "SAVE"
+	POLICYSTAGE_PROMOTE  PolicyStage = "PROMOTE"
+	POLICYSTAGE_LAUNCH   PolicyStage = "LAUNCH"
 	POLICYSTAGE_DISPATCH PolicyStage = "DISPATCH"
 )
 

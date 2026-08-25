@@ -76,6 +76,16 @@ def test_checked_in_migration_manifest_is_complete_and_ordered() -> None:
             (54, "retention_lifecycle"),
             (55, "admission_policy"),
             (56, "agent_primitives"),
+            (57, "agent_resources"),
+            (58, "agent_sessions"),
+            (59, "agent_memory"),
+            (60, "service_role_health"),
+            (61, "canonical_evidence_bundles"),
+            (62, "tool_provider_invocations"),
+            (63, "protected_model_continuations"),
+            (64, "promotion_release_gates"),
+            (65, "differential_shadow"),
+            (66, "evidence_event_kinds"),
         )
     ]
     assert all(item.rollback_guidance for item in plan)

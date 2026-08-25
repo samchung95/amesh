@@ -19,9 +19,9 @@ var _ MappedNullable = &PlaygroundSimulationRequest{}
 
 // PlaygroundSimulationRequest struct for PlaygroundSimulationRequest
 type PlaygroundSimulationRequest struct {
-	Context map[string]interface{} `json:"context,omitempty"`
-	Expression NullableString `json:"expression,omitempty"`
-	Fragment NullableString `json:"fragment,omitempty"`
+	Context    map[string]interface{} `json:"context,omitempty"`
+	Expression NullableString         `json:"expression,omitempty"`
+	Fragment   NullableString         `json:"fragment,omitempty"`
 }
 
 // NewPlaygroundSimulationRequest instantiates a new PlaygroundSimulationRequest object
@@ -105,6 +105,7 @@ func (o *PlaygroundSimulationRequest) HasExpression() bool {
 func (o *PlaygroundSimulationRequest) SetExpression(v string) {
 	o.Expression.Set(&v)
 }
+
 // SetExpressionNil sets the value for Expression to be an explicit nil
 func (o *PlaygroundSimulationRequest) SetExpressionNil() {
 	o.Expression.Set(nil)
@@ -147,6 +148,7 @@ func (o *PlaygroundSimulationRequest) HasFragment() bool {
 func (o *PlaygroundSimulationRequest) SetFragment(v string) {
 	o.Fragment.Set(&v)
 }
+
 // SetFragmentNil sets the value for Fragment to be an explicit nil
 func (o *PlaygroundSimulationRequest) SetFragmentNil() {
 	o.Fragment.Set(nil)
@@ -158,7 +160,7 @@ func (o *PlaygroundSimulationRequest) UnsetFragment() {
 }
 
 func (o PlaygroundSimulationRequest) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}

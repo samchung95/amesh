@@ -20,7 +20,7 @@ type AssetAccessMode string
 
 // List of AssetAccessMode
 const (
-	ASSETACCESSMODE_READ AssetAccessMode = "READ"
+	ASSETACCESSMODE_READ  AssetAccessMode = "READ"
 	ASSETACCESSMODE_WRITE AssetAccessMode = "WRITE"
 )
 

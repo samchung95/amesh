@@ -14,6 +14,13 @@ from pydantic import BaseModel, ConfigDict, Field, TypeAdapter, field_validator,
 from .agent_primitives import McpConnectionRevision, McpToolImpact, ModelProviderSpec
 from .identity import NamespaceId, NaturalId, new_runtime_id
 from .resources import canonical_hash
+from .tool_provider import (
+    ProviderKey,
+    ToolImpact,
+    ToolName,
+    ToolProviderKind,
+    ToolProviderRevision,
+)
 
 
 class AgentResourceKind(StrEnum):
@@ -121,10 +128,37 @@ class ModelPolicySpec(BaseModel):
 class AgentToolRef(BaseModel):
     model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
 
-    connection_key: NaturalId = Field(alias="connectionKey")
-    connection_revision: int = Field(alias="connectionRevision", ge=1)
-    tool_name: NaturalId = Field(alias="toolName")
+    provider_kind: ToolProviderKind = Field(default=ToolProviderKind.MCP, alias="providerKind")
+    provider_key: ProviderKey | None = Field(default=None, alias="providerKey")
+    provider_revision: int | None = Field(default=None, alias="providerRevision", ge=1)
+    connection_key: NaturalId | None = Field(default=None, alias="connectionKey")
+    connection_revision: int | None = Field(default=None, alias="connectionRevision", ge=1)
+    tool_name: ToolName = Field(alias="toolName")
     schema_digest: str = Field(alias="schemaDigest", pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def validate_provider_pin(self) -> AgentToolRef:
+        if self.provider_kind is not ToolProviderKind.MCP and (
+            self.provider_key is None or self.provider_revision is None
+        ):
+            raise ValueError("non-MCP tool references require providerKey/providerRevision")
+        key = self.provider_key or self.connection_key
+        revision = self.provider_revision or self.connection_revision
+        if key is None or revision is None:
+            raise ValueError("tool references require providerKey/providerRevision")
+        if self.provider_kind is ToolProviderKind.MCP and (
+            self.connection_key != key or self.connection_revision != revision
+        ):
+            raise ValueError("MCP tool references require compatible connectionKey pins")
+        return self
+
+    @property
+    def effective_provider_key(self) -> ProviderKey:
+        return self.provider_key or self.connection_key  # type: ignore[return-value]
+
+    @property
+    def effective_provider_revision(self) -> int:
+        return self.provider_revision or self.connection_revision  # type: ignore[return-value]
 
 
 class AgentMemoryPolicy(BaseModel):
@@ -350,7 +384,13 @@ class AgentDefinitionSpec(BaseModel):
         skill_keys = tuple((ref.key, ref.revision) for ref in self.skills)
         orders = tuple(ref.order for ref in self.prompts)
         tools = tuple(
-            (ref.connection_key, ref.connection_revision, ref.tool_name) for ref in self.tools
+            (
+                ref.provider_kind,
+                ref.effective_provider_key,
+                ref.effective_provider_revision,
+                ref.tool_name,
+            )
+            for ref in self.tools
         )
         if len(set(prompt_keys)) != len(prompt_keys):
             raise ValueError("prompt revision references must be unique")
@@ -408,11 +448,17 @@ class ResolvedResourcePin(BaseModel):
 class ResolvedToolPin(BaseModel):
     model_config = ConfigDict(frozen=True, populate_by_name=True)
 
-    connection_id: UUID = Field(alias="connectionId")
-    connection_key: NaturalId = Field(alias="connectionKey")
-    connection_revision: int = Field(alias="connectionRevision", ge=1)
-    connection_digest: str = Field(alias="connectionDigest", pattern=r"^sha256:[0-9a-f]{64}$")
-    tool_name: NaturalId = Field(alias="toolName")
+    provider_kind: ToolProviderKind = Field(default=ToolProviderKind.MCP, alias="providerKind")
+    provider_key: ProviderKey = Field(alias="providerKey")
+    provider_revision: int = Field(alias="providerRevision", ge=1)
+    provider_digest: str = Field(alias="providerDigest", pattern=r"^sha256:[0-9a-f]{64}$")
+    connection_id: UUID | None = Field(default=None, alias="connectionId")
+    connection_key: NaturalId | None = Field(default=None, alias="connectionKey")
+    connection_revision: int | None = Field(default=None, alias="connectionRevision", ge=1)
+    connection_digest: str | None = Field(
+        default=None, alias="connectionDigest", pattern=r"^sha256:[0-9a-f]{64}$"
+    )
+    tool_name: ToolName = Field(alias="toolName")
     schema_digest: str = Field(alias="schemaDigest", pattern=r"^sha256:[0-9a-f]{64}$")
     impact: McpToolImpact
 
@@ -566,6 +612,7 @@ def resolve_capability_envelope(
     connections: tuple[McpConnectionRevision, ...],
     evaluations: tuple[AgentResourceRevision, ...] = (),
     judge_model_policies: tuple[AgentResourceRevision, ...] = (),
+    tool_providers: tuple[ToolProviderRevision, ...] = (),
 ) -> EffectiveCapabilityEnvelope:
     if not isinstance(agent.spec, AgentDefinitionSpec):
         raise ValueError("agent resource must contain an AGENT definition")
@@ -582,6 +629,10 @@ def resolve_capability_envelope(
     evaluation_by_ref = {(item.key, item.revision): item for item in evaluations}
     judge_policy_by_ref = {(item.key, item.revision): item for item in judge_model_policies}
     connection_by_ref = {(item.spec.key, item.revision): item for item in connections}
+    provider_by_ref = {
+        (item.provider.kind, item.provider.key, item.provider.revision): item
+        for item in tool_providers
+    }
     if set(prompt_by_ref) != {(ref.key, ref.revision) for ref in definition.prompts}:
         raise LookupError("one or more exact prompt revisions are unavailable")
     if set(skill_by_ref) != {(ref.key, ref.revision) for ref in definition.skills}:
@@ -696,13 +747,66 @@ def resolve_capability_envelope(
 
     resolved_tools: list[ResolvedToolPin] = []
     for tool_reference in definition.tools:
+        if tool_reference.provider_kind is not ToolProviderKind.MCP:
+            provider = provider_by_ref.get(
+                (
+                    tool_reference.provider_kind,
+                    tool_reference.effective_provider_key,
+                    tool_reference.effective_provider_revision,
+                )
+            )
+            if provider is None:
+                raise LookupError(
+                    f"tool provider {tool_reference.effective_provider_key}@"
+                    f"{tool_reference.effective_provider_revision} unavailable"
+                )
+            if provider.tenant_id != agent.tenant_id or provider.namespace != agent.namespace:
+                raise PermissionError("tool provider is outside the agent tenant/namespace")
+            provider_tool = provider.tool(tool_reference.tool_name)
+            if provider_tool.schema_digest != tool_reference.schema_digest:
+                raise ValueError(f"tool schema pin changed for {tool_reference.tool_name!r}")
+            if set(provider_tool.secret_scopes) - allowed_secrets:
+                raise PermissionError(
+                    f"tool {provider_tool.name!r} secret scopes are outside secretScopes"
+                )
+            tool_hosts = {
+                urlsplit(value if "://" in value else f"https://{value}").hostname
+                for value in provider_tool.allowed_egress
+            }
+            if tool_hosts - allowed_hosts:
+                raise PermissionError(f"tool {provider_tool.name!r} egress is outside networkHosts")
+            if set(provider_tool.filesystem_read_roots) - set(
+                definition.permissions.filesystem_read_roots
+            ):
+                raise PermissionError(f"tool {provider_tool.name!r} read roots are not delegated")
+            if set(provider_tool.filesystem_write_roots) - set(
+                definition.permissions.filesystem_write_roots
+            ):
+                raise PermissionError(f"tool {provider_tool.name!r} write roots are not delegated")
+            if (
+                provider_tool.impact is ToolImpact.HIGH_IMPACT
+                and not definition.permissions.allow_high_impact_tools
+            ):
+                raise PermissionError(f"high-impact tool {provider_tool.name!r} is not delegated")
+            resolved_tools.append(
+                ResolvedToolPin(
+                    providerKind=tool_reference.provider_kind,
+                    providerKey=provider.provider.key,
+                    providerRevision=provider.provider.revision,
+                    providerDigest=provider.digest,
+                    toolName=provider_tool.name,
+                    schemaDigest=provider_tool.schema_digest,
+                    impact=McpToolImpact(provider_tool.impact.value),
+                )
+            )
+            continue
         connection = connection_by_ref.get(
-            (tool_reference.connection_key, tool_reference.connection_revision)
+            (tool_reference.effective_provider_key, tool_reference.effective_provider_revision)
         )
         if connection is None:
             raise LookupError(
-                f"MCP connection {tool_reference.connection_key}@"
-                f"{tool_reference.connection_revision} unavailable"
+                f"MCP connection {tool_reference.effective_provider_key}@"
+                f"{tool_reference.effective_provider_revision} unavailable"
             )
         if connection.spec.credential_ref not in definition.permissions.secret_scopes:
             raise PermissionError(
@@ -724,6 +828,10 @@ def resolve_capability_envelope(
         resolved_tools.append(
             ResolvedToolPin(
                 connectionId=connection.connection_id,
+                providerKind=tool_reference.provider_kind,
+                providerKey=connection.spec.key,
+                providerRevision=connection.revision,
+                providerDigest=connection.digest,
                 connectionKey=connection.spec.key,
                 connectionRevision=connection.revision,
                 connectionDigest=connection.digest,
@@ -778,11 +886,13 @@ def compare_agent_revisions(
     old_skills = {f"{item.key}@{item.revision}" for item in previous.spec.skills}
     new_skills = {f"{item.key}@{item.revision}" for item in current.spec.skills}
     old_tools = {
-        f"{item.connection_key}@{item.connection_revision}:{item.tool_name}"
+        f"{item.provider_kind.value}:{item.effective_provider_key}@"
+        f"{item.effective_provider_revision}:{item.tool_name}"
         for item in previous.spec.tools
     }
     new_tools = {
-        f"{item.connection_key}@{item.connection_revision}:{item.tool_name}"
+        f"{item.provider_kind.value}:{item.effective_provider_key}@"
+        f"{item.effective_provider_revision}:{item.tool_name}"
         for item in current.spec.tools
     }
     old_evaluations = {

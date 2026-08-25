@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,23 +21,23 @@ var _ MappedNullable = &FlowGraphNode{}
 
 // FlowGraphNode struct for FlowGraphNode
 type FlowGraphNode struct {
-	BranchId NullableString `json:"branchId,omitempty"`
-	Children []*string `json:"children,omitempty"`
-	Dependencies []string `json:"dependencies,omitempty"`
-	Depth int32 `json:"depth"`
-	FailurePolicy string `json:"failurePolicy"`
-	HandlerOwnerId NullableString `json:"handlerOwnerId,omitempty"`
-	IterationCount NullableInt32 `json:"iterationCount,omitempty"`
-	Label string `json:"label"`
-	LifecyclePhase *string `json:"lifecyclePhase,omitempty"`
-	MaxConcurrency NullableInt32 `json:"maxConcurrency,omitempty"`
-	Mode NullableString `json:"mode,omitempty"`
-	Order int32 `json:"order"`
-	ParentId NullableString `json:"parentId,omitempty"`
-	Result map[string]interface{} `json:"result,omitempty"`
-	State NullableString `json:"state,omitempty"`
-	TaskId string `json:"taskId"`
-	TaskType string `json:"taskType"`
+	BranchId       NullableString         `json:"branchId,omitempty"`
+	Children       []*string              `json:"children,omitempty"`
+	Dependencies   []string               `json:"dependencies,omitempty"`
+	Depth          int32                  `json:"depth"`
+	FailurePolicy  string                 `json:"failurePolicy"`
+	HandlerOwnerId NullableString         `json:"handlerOwnerId,omitempty"`
+	IterationCount NullableInt32          `json:"iterationCount,omitempty"`
+	Label          string                 `json:"label"`
+	LifecyclePhase *string                `json:"lifecyclePhase,omitempty"`
+	MaxConcurrency NullableInt32          `json:"maxConcurrency,omitempty"`
+	Mode           NullableString         `json:"mode,omitempty"`
+	Order          int32                  `json:"order"`
+	ParentId       NullableString         `json:"parentId,omitempty"`
+	Result         map[string]interface{} `json:"result,omitempty"`
+	State          NullableString         `json:"state,omitempty"`
+	TaskId         string                 `json:"taskId"`
+	TaskType       string                 `json:"taskType"`
 }
 
 type _FlowGraphNode FlowGraphNode
@@ -101,6 +101,7 @@ func (o *FlowGraphNode) HasBranchId() bool {
 func (o *FlowGraphNode) SetBranchId(v string) {
 	o.BranchId.Set(&v)
 }
+
 // SetBranchIdNil sets the value for BranchId to be an explicit nil
 func (o *FlowGraphNode) SetBranchIdNil() {
 	o.BranchId.Set(nil)
@@ -255,6 +256,7 @@ func (o *FlowGraphNode) HasHandlerOwnerId() bool {
 func (o *FlowGraphNode) SetHandlerOwnerId(v string) {
 	o.HandlerOwnerId.Set(&v)
 }
+
 // SetHandlerOwnerIdNil sets the value for HandlerOwnerId to be an explicit nil
 func (o *FlowGraphNode) SetHandlerOwnerIdNil() {
 	o.HandlerOwnerId.Set(nil)
@@ -297,6 +299,7 @@ func (o *FlowGraphNode) HasIterationCount() bool {
 func (o *FlowGraphNode) SetIterationCount(v int32) {
 	o.IterationCount.Set(&v)
 }
+
 // SetIterationCountNil sets the value for IterationCount to be an explicit nil
 func (o *FlowGraphNode) SetIterationCountNil() {
 	o.IterationCount.Set(nil)
@@ -395,6 +398,7 @@ func (o *FlowGraphNode) HasMaxConcurrency() bool {
 func (o *FlowGraphNode) SetMaxConcurrency(v int32) {
 	o.MaxConcurrency.Set(&v)
 }
+
 // SetMaxConcurrencyNil sets the value for MaxConcurrency to be an explicit nil
 func (o *FlowGraphNode) SetMaxConcurrencyNil() {
 	o.MaxConcurrency.Set(nil)
@@ -437,6 +441,7 @@ func (o *FlowGraphNode) HasMode() bool {
 func (o *FlowGraphNode) SetMode(v string) {
 	o.Mode.Set(&v)
 }
+
 // SetModeNil sets the value for Mode to be an explicit nil
 func (o *FlowGraphNode) SetModeNil() {
 	o.Mode.Set(nil)
@@ -503,6 +508,7 @@ func (o *FlowGraphNode) HasParentId() bool {
 func (o *FlowGraphNode) SetParentId(v string) {
 	o.ParentId.Set(&v)
 }
+
 // SetParentIdNil sets the value for ParentId to be an explicit nil
 func (o *FlowGraphNode) SetParentIdNil() {
 	o.ParentId.Set(nil)
@@ -578,6 +584,7 @@ func (o *FlowGraphNode) HasState() bool {
 func (o *FlowGraphNode) SetState(v string) {
 	o.State.Set(&v)
 }
+
 // SetStateNil sets the value for State to be an explicit nil
 func (o *FlowGraphNode) SetStateNil() {
 	o.State.Set(nil)
@@ -637,7 +644,7 @@ func (o *FlowGraphNode) SetTaskType(v string) {
 }
 
 func (o FlowGraphNode) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -706,10 +713,10 @@ func (o *FlowGraphNode) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

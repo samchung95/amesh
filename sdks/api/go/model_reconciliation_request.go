@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the ReconciliationRequest type satisfies the MappedNullable interface at compile time
@@ -22,17 +22,17 @@ var _ MappedNullable = &ReconciliationRequest{}
 
 // ReconciliationRequest struct for ReconciliationRequest
 type ReconciliationRequest struct {
-	ExecutionId NullableString `json:"executionId,omitempty"`
-	IdempotencyKey string `json:"idempotencyKey"`
-	MaxFindings *int32 `json:"maxFindings,omitempty"`
-	MaxRepairs *int32 `json:"maxRepairs,omitempty"`
-	Mode *ReconciliationMode `json:"mode,omitempty"`
-	Reason string `json:"reason"`
-	Since NullableTime `json:"since,omitempty"`
-	StaleAfterSeconds *int32 `json:"staleAfterSeconds,omitempty"`
-	TriggerDefinitionId NullableString `json:"triggerDefinitionId,omitempty"`
-	Until NullableTime `json:"until,omitempty"`
-	WorkerId NullableString `json:"workerId,omitempty"`
+	ExecutionId         NullableString      `json:"executionId,omitempty"`
+	IdempotencyKey      string              `json:"idempotencyKey"`
+	MaxFindings         *int32              `json:"maxFindings,omitempty"`
+	MaxRepairs          *int32              `json:"maxRepairs,omitempty"`
+	Mode                *ReconciliationMode `json:"mode,omitempty"`
+	Reason              string              `json:"reason"`
+	Since               NullableTime        `json:"since,omitempty"`
+	StaleAfterSeconds   *int32              `json:"staleAfterSeconds,omitempty"`
+	TriggerDefinitionId NullableString      `json:"triggerDefinitionId,omitempty"`
+	Until               NullableTime        `json:"until,omitempty"`
+	WorkerId            NullableString      `json:"workerId,omitempty"`
 }
 
 type _ReconciliationRequest ReconciliationRequest
@@ -104,6 +104,7 @@ func (o *ReconciliationRequest) HasExecutionId() bool {
 func (o *ReconciliationRequest) SetExecutionId(v string) {
 	o.ExecutionId.Set(&v)
 }
+
 // SetExecutionIdNil sets the value for ExecutionId to be an explicit nil
 func (o *ReconciliationRequest) SetExecutionIdNil() {
 	o.ExecutionId.Set(nil)
@@ -290,6 +291,7 @@ func (o *ReconciliationRequest) HasSince() bool {
 func (o *ReconciliationRequest) SetSince(v time.Time) {
 	o.Since.Set(&v)
 }
+
 // SetSinceNil sets the value for Since to be an explicit nil
 func (o *ReconciliationRequest) SetSinceNil() {
 	o.Since.Set(nil)
@@ -364,6 +366,7 @@ func (o *ReconciliationRequest) HasTriggerDefinitionId() bool {
 func (o *ReconciliationRequest) SetTriggerDefinitionId(v string) {
 	o.TriggerDefinitionId.Set(&v)
 }
+
 // SetTriggerDefinitionIdNil sets the value for TriggerDefinitionId to be an explicit nil
 func (o *ReconciliationRequest) SetTriggerDefinitionIdNil() {
 	o.TriggerDefinitionId.Set(nil)
@@ -406,6 +409,7 @@ func (o *ReconciliationRequest) HasUntil() bool {
 func (o *ReconciliationRequest) SetUntil(v time.Time) {
 	o.Until.Set(&v)
 }
+
 // SetUntilNil sets the value for Until to be an explicit nil
 func (o *ReconciliationRequest) SetUntilNil() {
 	o.Until.Set(nil)
@@ -448,6 +452,7 @@ func (o *ReconciliationRequest) HasWorkerId() bool {
 func (o *ReconciliationRequest) SetWorkerId(v string) {
 	o.WorkerId.Set(&v)
 }
+
 // SetWorkerIdNil sets the value for WorkerId to be an explicit nil
 func (o *ReconciliationRequest) SetWorkerIdNil() {
 	o.WorkerId.Set(nil)
@@ -459,7 +464,7 @@ func (o *ReconciliationRequest) UnsetWorkerId() {
 }
 
 func (o ReconciliationRequest) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -514,10 +519,10 @@ func (o *ReconciliationRequest) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

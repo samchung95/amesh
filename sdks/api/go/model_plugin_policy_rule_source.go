@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,11 +21,11 @@ var _ MappedNullable = &PluginPolicyRuleSource{}
 
 // PluginPolicyRuleSource struct for PluginPolicyRuleSource
 type PluginPolicyRuleSource struct {
-	Effect PluginPolicyEffect `json:"effect"`
-	Kind string `json:"kind"`
-	Reason string `json:"reason"`
-	Scope NullablePluginPolicyScope `json:"scope,omitempty"`
-	SourceId string `json:"sourceId"`
+	Effect   PluginPolicyEffect        `json:"effect"`
+	Kind     string                    `json:"kind"`
+	Reason   string                    `json:"reason"`
+	Scope    NullablePluginPolicyScope `json:"scope,omitempty"`
+	SourceId string                    `json:"sourceId"`
 }
 
 type _PluginPolicyRuleSource PluginPolicyRuleSource
@@ -155,6 +155,7 @@ func (o *PluginPolicyRuleSource) HasScope() bool {
 func (o *PluginPolicyRuleSource) SetScope(v PluginPolicyScope) {
 	o.Scope.Set(&v)
 }
+
 // SetScopeNil sets the value for Scope to be an explicit nil
 func (o *PluginPolicyRuleSource) SetScopeNil() {
 	o.Scope.Set(nil)
@@ -190,7 +191,7 @@ func (o *PluginPolicyRuleSource) SetSourceId(v string) {
 }
 
 func (o PluginPolicyRuleSource) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -225,10 +226,10 @@ func (o *PluginPolicyRuleSource) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

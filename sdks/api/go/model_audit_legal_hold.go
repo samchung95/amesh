@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the AuditLegalHold type satisfies the MappedNullable interface at compile time
@@ -22,17 +22,17 @@ var _ MappedNullable = &AuditLegalHold{}
 
 // AuditLegalHold struct for AuditLegalHold
 type AuditLegalHold struct {
-	Active *bool `json:"active,omitempty"`
-	CreatedAt *time.Time `json:"createdAt,omitempty"`
-	CreatedBy string `json:"createdBy"`
-	EndsAt NullableTime `json:"endsAt,omitempty"`
-	Id *string `json:"id,omitempty"`
-	Name string `json:"name"`
-	Reason string `json:"reason"`
-	ReleasedAt NullableTime `json:"releasedAt,omitempty"`
+	Active     *bool          `json:"active,omitempty"`
+	CreatedAt  *time.Time     `json:"createdAt,omitempty"`
+	CreatedBy  string         `json:"createdBy"`
+	EndsAt     NullableTime   `json:"endsAt,omitempty"`
+	Id         *string        `json:"id,omitempty"`
+	Name       string         `json:"name"`
+	Reason     string         `json:"reason"`
+	ReleasedAt NullableTime   `json:"releasedAt,omitempty"`
 	ReleasedBy NullableString `json:"releasedBy,omitempty"`
-	StartsAt time.Time `json:"startsAt"`
-	TenantId string `json:"tenantId"`
+	StartsAt   time.Time      `json:"startsAt"`
+	TenantId   string         `json:"tenantId"`
 }
 
 type _AuditLegalHold AuditLegalHold
@@ -183,6 +183,7 @@ func (o *AuditLegalHold) HasEndsAt() bool {
 func (o *AuditLegalHold) SetEndsAt(v time.Time) {
 	o.EndsAt.Set(&v)
 }
+
 // SetEndsAtNil sets the value for EndsAt to be an explicit nil
 func (o *AuditLegalHold) SetEndsAtNil() {
 	o.EndsAt.Set(nil)
@@ -305,6 +306,7 @@ func (o *AuditLegalHold) HasReleasedAt() bool {
 func (o *AuditLegalHold) SetReleasedAt(v time.Time) {
 	o.ReleasedAt.Set(&v)
 }
+
 // SetReleasedAtNil sets the value for ReleasedAt to be an explicit nil
 func (o *AuditLegalHold) SetReleasedAtNil() {
 	o.ReleasedAt.Set(nil)
@@ -347,6 +349,7 @@ func (o *AuditLegalHold) HasReleasedBy() bool {
 func (o *AuditLegalHold) SetReleasedBy(v string) {
 	o.ReleasedBy.Set(&v)
 }
+
 // SetReleasedByNil sets the value for ReleasedBy to be an explicit nil
 func (o *AuditLegalHold) SetReleasedByNil() {
 	o.ReleasedBy.Set(nil)
@@ -406,7 +409,7 @@ func (o *AuditLegalHold) SetTenantId(v string) {
 }
 
 func (o AuditLegalHold) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -458,10 +461,10 @@ func (o *AuditLegalHold) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

@@ -20,11 +20,11 @@ type WebhookDeliveryStatus string
 
 // List of WebhookDeliveryStatus
 const (
-	WEBHOOKDELIVERYSTATUS_PENDING WebhookDeliveryStatus = "PENDING"
+	WEBHOOKDELIVERYSTATUS_PENDING    WebhookDeliveryStatus = "PENDING"
 	WEBHOOKDELIVERYSTATUS_DELIVERING WebhookDeliveryStatus = "DELIVERING"
-	WEBHOOKDELIVERYSTATUS_RETRY WebhookDeliveryStatus = "RETRY"
-	WEBHOOKDELIVERYSTATUS_DELIVERED WebhookDeliveryStatus = "DELIVERED"
-	WEBHOOKDELIVERYSTATUS_FAILED WebhookDeliveryStatus = "FAILED"
+	WEBHOOKDELIVERYSTATUS_RETRY      WebhookDeliveryStatus = "RETRY"
+	WEBHOOKDELIVERYSTATUS_DELIVERED  WebhookDeliveryStatus = "DELIVERED"
+	WEBHOOKDELIVERYSTATUS_FAILED     WebhookDeliveryStatus = "FAILED"
 )
 
 // All allowed values of WebhookDeliveryStatus enum

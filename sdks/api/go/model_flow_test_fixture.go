@@ -20,14 +20,14 @@ var _ MappedNullable = &FlowTestFixture{}
 
 // FlowTestFixture struct for FlowTestFixture
 type FlowTestFixture struct {
-	Error NullableString `json:"error,omitempty"`
-	FailuresBeforeSuccess *int32 `json:"failuresBeforeSuccess,omitempty"`
-	Iterations []interface{} `json:"iterations,omitempty"`
-	Output map[string]interface{} `json:"output,omitempty"`
-	PluginId NullableString `json:"pluginId,omitempty"`
-	PluginVersion NullableString `json:"pluginVersion,omitempty"`
-	RecordedAt NullableTime `json:"recordedAt,omitempty"`
-	Source *FlowTestFixtureSource `json:"source,omitempty"`
+	Error                 NullableString         `json:"error,omitempty"`
+	FailuresBeforeSuccess *int32                 `json:"failuresBeforeSuccess,omitempty"`
+	Iterations            []interface{}          `json:"iterations,omitempty"`
+	Output                map[string]interface{} `json:"output,omitempty"`
+	PluginId              NullableString         `json:"pluginId,omitempty"`
+	PluginVersion         NullableString         `json:"pluginVersion,omitempty"`
+	RecordedAt            NullableTime           `json:"recordedAt,omitempty"`
+	Source                *FlowTestFixtureSource `json:"source,omitempty"`
 }
 
 // NewFlowTestFixture instantiates a new FlowTestFixture object
@@ -87,6 +87,7 @@ func (o *FlowTestFixture) HasError() bool {
 func (o *FlowTestFixture) SetError(v string) {
 	o.Error.Set(&v)
 }
+
 // SetErrorNil sets the value for Error to be an explicit nil
 func (o *FlowTestFixture) SetErrorNil() {
 	o.Error.Set(nil)
@@ -226,6 +227,7 @@ func (o *FlowTestFixture) HasPluginId() bool {
 func (o *FlowTestFixture) SetPluginId(v string) {
 	o.PluginId.Set(&v)
 }
+
 // SetPluginIdNil sets the value for PluginId to be an explicit nil
 func (o *FlowTestFixture) SetPluginIdNil() {
 	o.PluginId.Set(nil)
@@ -268,6 +270,7 @@ func (o *FlowTestFixture) HasPluginVersion() bool {
 func (o *FlowTestFixture) SetPluginVersion(v string) {
 	o.PluginVersion.Set(&v)
 }
+
 // SetPluginVersionNil sets the value for PluginVersion to be an explicit nil
 func (o *FlowTestFixture) SetPluginVersionNil() {
 	o.PluginVersion.Set(nil)
@@ -310,6 +313,7 @@ func (o *FlowTestFixture) HasRecordedAt() bool {
 func (o *FlowTestFixture) SetRecordedAt(v time.Time) {
 	o.RecordedAt.Set(&v)
 }
+
 // SetRecordedAtNil sets the value for RecordedAt to be an explicit nil
 func (o *FlowTestFixture) SetRecordedAtNil() {
 	o.RecordedAt.Set(nil)
@@ -353,7 +357,7 @@ func (o *FlowTestFixture) SetSource(v FlowTestFixtureSource) {
 }
 
 func (o FlowTestFixture) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}

@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,15 +21,16 @@ var _ MappedNullable = &ServiceRoleStatus{}
 
 // ServiceRoleStatus struct for ServiceRoleStatus
 type ServiceRoleStatus struct {
-	DrainingInstances int32 `json:"drainingInstances"`
-	FailoverStatus FailoverStatus `json:"failoverStatus"`
-	FailureZones []string `json:"failureZones"`
-	LiveInstances int32 `json:"liveInstances"`
-	ReadyInstances int32 `json:"readyInstances"`
-	Role ServiceRole `json:"role"`
-	StaleInstances int32 `json:"staleInstances"`
-	TotalInstances int32 `json:"totalInstances"`
-	Versions []string `json:"versions"`
+	DegradedInstances int32          `json:"degradedInstances"`
+	DrainingInstances int32          `json:"drainingInstances"`
+	FailoverStatus    FailoverStatus `json:"failoverStatus"`
+	FailureZones      []string       `json:"failureZones"`
+	LiveInstances     int32          `json:"liveInstances"`
+	ReadyInstances    int32          `json:"readyInstances"`
+	Role              ServiceRole    `json:"role"`
+	StaleInstances    int32          `json:"staleInstances"`
+	TotalInstances    int32          `json:"totalInstances"`
+	Versions          []string       `json:"versions"`
 }
 
 type _ServiceRoleStatus ServiceRoleStatus
@@ -38,8 +39,9 @@ type _ServiceRoleStatus ServiceRoleStatus
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewServiceRoleStatus(drainingInstances int32, failoverStatus FailoverStatus, failureZones []string, liveInstances int32, readyInstances int32, role ServiceRole, staleInstances int32, totalInstances int32, versions []string) *ServiceRoleStatus {
+func NewServiceRoleStatus(degradedInstances int32, drainingInstances int32, failoverStatus FailoverStatus, failureZones []string, liveInstances int32, readyInstances int32, role ServiceRole, staleInstances int32, totalInstances int32, versions []string) *ServiceRoleStatus {
 	this := ServiceRoleStatus{}
+	this.DegradedInstances = degradedInstances
 	this.DrainingInstances = drainingInstances
 	this.FailoverStatus = failoverStatus
 	this.FailureZones = failureZones
@@ -58,6 +60,30 @@ func NewServiceRoleStatus(drainingInstances int32, failoverStatus FailoverStatus
 func NewServiceRoleStatusWithDefaults() *ServiceRoleStatus {
 	this := ServiceRoleStatus{}
 	return &this
+}
+
+// GetDegradedInstances returns the DegradedInstances field value
+func (o *ServiceRoleStatus) GetDegradedInstances() int32 {
+	if o == nil {
+		var ret int32
+		return ret
+	}
+
+	return o.DegradedInstances
+}
+
+// GetDegradedInstancesOk returns a tuple with the DegradedInstances field value
+// and a boolean to check if the value has been set.
+func (o *ServiceRoleStatus) GetDegradedInstancesOk() (*int32, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return &o.DegradedInstances, true
+}
+
+// SetDegradedInstances sets field value
+func (o *ServiceRoleStatus) SetDegradedInstances(v int32) {
+	o.DegradedInstances = v
 }
 
 // GetDrainingInstances returns the DrainingInstances field value
@@ -277,7 +303,7 @@ func (o *ServiceRoleStatus) SetVersions(v []string) {
 }
 
 func (o ServiceRoleStatus) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -286,6 +312,7 @@ func (o ServiceRoleStatus) MarshalJSON() ([]byte, error) {
 
 func (o ServiceRoleStatus) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
+	toSerialize["degradedInstances"] = o.DegradedInstances
 	toSerialize["drainingInstances"] = o.DrainingInstances
 	toSerialize["failoverStatus"] = o.FailoverStatus
 	toSerialize["failureZones"] = o.FailureZones
@@ -303,6 +330,7 @@ func (o *ServiceRoleStatus) UnmarshalJSON(data []byte) (err error) {
 	// by unmarshalling the object into a generic map with string keys and checking
 	// that every required field exists as a key in the generic map.
 	requiredProperties := []string{
+		"degradedInstances",
 		"drainingInstances",
 		"failoverStatus",
 		"failureZones",
@@ -319,10 +347,10 @@ func (o *ServiceRoleStatus) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

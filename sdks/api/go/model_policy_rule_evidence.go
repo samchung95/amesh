@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,14 +21,14 @@ var _ MappedNullable = &PolicyRuleEvidence{}
 
 // PolicyRuleEvidence struct for PolicyRuleEvidence
 type PolicyRuleEvidence struct {
-	ApprovalKey NullableString `json:"approvalKey,omitempty"`
-	Conditions []PolicyConditionEvidence `json:"conditions,omitempty"`
-	Outcome PolicyOutcome `json:"outcome"`
-	PolicyId string `json:"policyId"`
-	PolicyKey string `json:"policyKey"`
-	PolicyRevision int32 `json:"policyRevision"`
-	Reason string `json:"reason"`
-	RuleId string `json:"ruleId"`
+	ApprovalKey    NullableString            `json:"approvalKey,omitempty"`
+	Conditions     []PolicyConditionEvidence `json:"conditions,omitempty"`
+	Outcome        PolicyOutcome             `json:"outcome"`
+	PolicyId       string                    `json:"policyId"`
+	PolicyKey      string                    `json:"policyKey"`
+	PolicyRevision int32                     `json:"policyRevision"`
+	Reason         string                    `json:"reason"`
+	RuleId         string                    `json:"ruleId"`
 }
 
 type _PolicyRuleEvidence PolicyRuleEvidence
@@ -88,6 +88,7 @@ func (o *PolicyRuleEvidence) HasApprovalKey() bool {
 func (o *PolicyRuleEvidence) SetApprovalKey(v string) {
 	o.ApprovalKey.Set(&v)
 }
+
 // SetApprovalKeyNil sets the value for ApprovalKey to be an explicit nil
 func (o *PolicyRuleEvidence) SetApprovalKeyNil() {
 	o.ApprovalKey.Set(nil)
@@ -275,7 +276,7 @@ func (o *PolicyRuleEvidence) SetRuleId(v string) {
 }
 
 func (o PolicyRuleEvidence) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -317,10 +318,10 @@ func (o *PolicyRuleEvidence) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

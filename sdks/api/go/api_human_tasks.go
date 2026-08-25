@@ -19,18 +19,17 @@ import (
 	"strings"
 )
 
-
 // HumanTasksAPIService HumanTasksAPI service
 type HumanTasksAPIService service
 
 type ApiActOnHumanTaskApiV1HumanTasksHumanTaskIdActionsPostRequest struct {
-	ctx context.Context
-	ApiService *HumanTasksAPIService
-	humanTaskId string
+	ctx                    context.Context
+	ApiService             *HumanTasksAPIService
+	humanTaskId            string
 	humanTaskActionRequest *HumanTaskActionRequest
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization          *string
+	xAmeshCSRF             *string
+	xAmeshTenant           *string
 }
 
 func (r ApiActOnHumanTaskApiV1HumanTasksHumanTaskIdActionsPostRequest) HumanTaskActionRequest(humanTaskActionRequest HumanTaskActionRequest) ApiActOnHumanTaskApiV1HumanTasksHumanTaskIdActionsPostRequest {
@@ -60,26 +59,27 @@ func (r ApiActOnHumanTaskApiV1HumanTasksHumanTaskIdActionsPostRequest) Execute()
 /*
 ActOnHumanTaskApiV1HumanTasksHumanTaskIdActionsPost Act On Human Task
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param humanTaskId
- @return ApiActOnHumanTaskApiV1HumanTasksHumanTaskIdActionsPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param humanTaskId
+	@return ApiActOnHumanTaskApiV1HumanTasksHumanTaskIdActionsPostRequest
 */
 func (a *HumanTasksAPIService) ActOnHumanTaskApiV1HumanTasksHumanTaskIdActionsPost(ctx context.Context, humanTaskId string) ApiActOnHumanTaskApiV1HumanTasksHumanTaskIdActionsPostRequest {
 	return ApiActOnHumanTaskApiV1HumanTasksHumanTaskIdActionsPostRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:  a,
+		ctx:         ctx,
 		humanTaskId: humanTaskId,
 	}
 }
 
 // Execute executes the request
-//  @return HumanTask
+//
+//	@return HumanTask
 func (a *HumanTasksAPIService) ActOnHumanTaskApiV1HumanTasksHumanTaskIdActionsPostExecute(r ApiActOnHumanTaskApiV1HumanTasksHumanTaskIdActionsPostRequest) (*HumanTask, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *HumanTask
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *HumanTask
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "HumanTasksAPIService.ActOnHumanTaskApiV1HumanTasksHumanTaskIdActionsPost")
@@ -154,8 +154,8 @@ func (a *HumanTasksAPIService) ActOnHumanTaskApiV1HumanTasksHumanTaskIdActionsPo
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -173,12 +173,12 @@ func (a *HumanTasksAPIService) ActOnHumanTaskApiV1HumanTasksHumanTaskIdActionsPo
 }
 
 type ApiListHumanTaskNotificationsApiV1HumanTaskNotificationsGetRequest struct {
-	ctx context.Context
-	ApiService *HumanTasksAPIService
-	limit *int32
+	ctx           context.Context
+	ApiService    *HumanTasksAPIService
+	limit         *int32
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiListHumanTaskNotificationsApiV1HumanTaskNotificationsGetRequest) Limit(limit int32) ApiListHumanTaskNotificationsApiV1HumanTaskNotificationsGetRequest {
@@ -208,24 +208,25 @@ func (r ApiListHumanTaskNotificationsApiV1HumanTaskNotificationsGetRequest) Exec
 /*
 ListHumanTaskNotificationsApiV1HumanTaskNotificationsGet List Human Task Notifications
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiListHumanTaskNotificationsApiV1HumanTaskNotificationsGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiListHumanTaskNotificationsApiV1HumanTaskNotificationsGetRequest
 */
 func (a *HumanTasksAPIService) ListHumanTaskNotificationsApiV1HumanTaskNotificationsGet(ctx context.Context) ApiListHumanTaskNotificationsApiV1HumanTaskNotificationsGetRequest {
 	return ApiListHumanTaskNotificationsApiV1HumanTaskNotificationsGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return []HumanTaskNotification
+//
+//	@return []HumanTaskNotification
 func (a *HumanTasksAPIService) ListHumanTaskNotificationsApiV1HumanTaskNotificationsGetExecute(r ApiListHumanTaskNotificationsApiV1HumanTaskNotificationsGetRequest) ([]HumanTaskNotification, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  []HumanTaskNotification
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []HumanTaskNotification
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "HumanTasksAPIService.ListHumanTaskNotificationsApiV1HumanTaskNotificationsGet")
@@ -301,8 +302,8 @@ func (a *HumanTasksAPIService) ListHumanTaskNotificationsApiV1HumanTaskNotificat
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -320,13 +321,13 @@ func (a *HumanTasksAPIService) ListHumanTaskNotificationsApiV1HumanTaskNotificat
 }
 
 type ApiListHumanTasksApiV1HumanTasksGetRequest struct {
-	ctx context.Context
-	ApiService *HumanTasksAPIService
-	namespace *string
+	ctx           context.Context
+	ApiService    *HumanTasksAPIService
+	namespace     *string
 	includeClosed *bool
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiListHumanTasksApiV1HumanTasksGetRequest) Namespace(namespace string) ApiListHumanTasksApiV1HumanTasksGetRequest {
@@ -361,24 +362,25 @@ func (r ApiListHumanTasksApiV1HumanTasksGetRequest) Execute() ([]HumanTask, *htt
 /*
 ListHumanTasksApiV1HumanTasksGet List Human Tasks
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiListHumanTasksApiV1HumanTasksGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiListHumanTasksApiV1HumanTasksGetRequest
 */
 func (a *HumanTasksAPIService) ListHumanTasksApiV1HumanTasksGet(ctx context.Context) ApiListHumanTasksApiV1HumanTasksGetRequest {
 	return ApiListHumanTasksApiV1HumanTasksGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return []HumanTask
+//
+//	@return []HumanTask
 func (a *HumanTasksAPIService) ListHumanTasksApiV1HumanTasksGetExecute(r ApiListHumanTasksApiV1HumanTasksGetRequest) ([]HumanTask, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  []HumanTask
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []HumanTask
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "HumanTasksAPIService.ListHumanTasksApiV1HumanTasksGet")
@@ -457,8 +459,8 @@ func (a *HumanTasksAPIService) ListHumanTasksApiV1HumanTasksGetExecute(r ApiList
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}

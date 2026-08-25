@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the OperationalControlEvent type satisfies the MappedNullable interface at compile time
@@ -22,13 +22,13 @@ var _ MappedNullable = &OperationalControlEvent{}
 
 // OperationalControlEvent struct for OperationalControlEvent
 type OperationalControlEvent struct {
-	Action string `json:"action"`
-	ActorId string `json:"actorId"`
-	ControlId string `json:"controlId"`
-	EventId string `json:"eventId"`
-	Evidence map[string]interface{} `json:"evidence"`
-	OccurredAt time.Time `json:"occurredAt"`
-	Reason string `json:"reason"`
+	Action     string                 `json:"action"`
+	ActorId    string                 `json:"actorId"`
+	ControlId  string                 `json:"controlId"`
+	EventId    string                 `json:"eventId"`
+	Evidence   map[string]interface{} `json:"evidence"`
+	OccurredAt time.Time              `json:"occurredAt"`
+	Reason     string                 `json:"reason"`
 }
 
 type _OperationalControlEvent OperationalControlEvent
@@ -226,7 +226,7 @@ func (o *OperationalControlEvent) SetReason(v string) {
 }
 
 func (o OperationalControlEvent) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -264,10 +264,10 @@ func (o *OperationalControlEvent) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

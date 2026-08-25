@@ -20,8 +20,8 @@ type SubflowMode string
 
 // List of SubflowMode
 const (
-	SUBFLOWMODE_SYNC SubflowMode = "SYNC"
-	SUBFLOWMODE_ASYNC SubflowMode = "ASYNC"
+	SUBFLOWMODE_SYNC     SubflowMode = "SYNC"
+	SUBFLOWMODE_ASYNC    SubflowMode = "ASYNC"
 	SUBFLOWMODE_DETACHED SubflowMode = "DETACHED"
 )
 

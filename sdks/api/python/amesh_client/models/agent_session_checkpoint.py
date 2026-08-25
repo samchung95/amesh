@@ -20,6 +20,7 @@ import json
 from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
 from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
+from amesh_client.models.agent_model_continuation_ref import AgentModelContinuationRef
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
@@ -33,11 +34,12 @@ class AgentSessionCheckpoint(BaseModel):
     memory_entries: Optional[List[Optional[Dict[str, Any]]]] = Field(default=None, alias="memoryEntries")
     memory_write: Optional[Dict[str, Any]] = Field(default=None, alias="memoryWrite")
     messages: Optional[List[Optional[Dict[str, Any]]]] = None
+    model_continuation: Optional[AgentModelContinuationRef] = Field(default=None, alias="modelContinuation")
     next_turn: Optional[Annotated[int, Field(strict=True, ge=1)]] = Field(default=1, alias="nextTurn")
     pending_action: Optional[Dict[str, Any]] = Field(default=None, alias="pendingAction")
     pending_turn: Optional[Annotated[int, Field(strict=True, ge=1)]] = Field(default=None, alias="pendingTurn")
     release_approved: Optional[StrictBool] = Field(default=False, alias="releaseApproved")
-    __properties: ClassVar[List[str]] = ["evaluationOutcomes", "lastAcceptedOperation", "memoryEntries", "memoryWrite", "messages", "nextTurn", "pendingAction", "pendingTurn", "releaseApproved"]
+    __properties: ClassVar[List[str]] = ["evaluationOutcomes", "lastAcceptedOperation", "memoryEntries", "memoryWrite", "messages", "modelContinuation", "nextTurn", "pendingAction", "pendingTurn", "releaseApproved"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -78,6 +80,9 @@ class AgentSessionCheckpoint(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # override the default output from pydantic by calling `to_dict()` of model_continuation
+        if self.model_continuation:
+            _dict['modelContinuation'] = self.model_continuation.to_dict()
         # set to None if last_accepted_operation (nullable) is None
         # and model_fields_set contains the field
         if self.last_accepted_operation is None and "last_accepted_operation" in self.model_fields_set:
@@ -87,6 +92,11 @@ class AgentSessionCheckpoint(BaseModel):
         # and model_fields_set contains the field
         if self.memory_write is None and "memory_write" in self.model_fields_set:
             _dict['memoryWrite'] = None
+
+        # set to None if model_continuation (nullable) is None
+        # and model_fields_set contains the field
+        if self.model_continuation is None and "model_continuation" in self.model_fields_set:
+            _dict['modelContinuation'] = None
 
         # set to None if pending_action (nullable) is None
         # and model_fields_set contains the field
@@ -115,6 +125,7 @@ class AgentSessionCheckpoint(BaseModel):
             "memoryEntries": obj.get("memoryEntries"),
             "memoryWrite": obj.get("memoryWrite"),
             "messages": obj.get("messages"),
+            "modelContinuation": AgentModelContinuationRef.from_dict(obj["modelContinuation"]) if obj.get("modelContinuation") is not None else None,
             "nextTurn": obj.get("nextTurn") if obj.get("nextTurn") is not None else 1,
             "pendingAction": obj.get("pendingAction"),
             "pendingTurn": obj.get("pendingTurn"),

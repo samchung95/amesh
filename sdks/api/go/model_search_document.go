@@ -12,8 +12,8 @@ package ameshclient
 
 import (
 	"encoding/json"
-	"time"
 	"fmt"
+	"time"
 )
 
 // checks if the SearchDocument type satisfies the MappedNullable interface at compile time
@@ -21,18 +21,18 @@ var _ MappedNullable = &SearchDocument{}
 
 // SearchDocument struct for SearchDocument
 type SearchDocument struct {
-	DocumentId string `json:"documentId"`
-	DocumentType SearchDocumentType `json:"documentType"`
-	Fields map[string]interface{} `json:"fields,omitempty"`
-	Labels map[string]string `json:"labels,omitempty"`
-	Namespace NullableString `json:"namespace,omitempty"`
-	OccurredAt time.Time `json:"occurredAt"`
-	Relevance float32 `json:"relevance"`
-	SourceVersion int32 `json:"sourceVersion"`
-	State NullableString `json:"state,omitempty"`
-	Summary string `json:"summary"`
-	Title string `json:"title"`
-	UpdatedAt time.Time `json:"updatedAt"`
+	DocumentId           string                 `json:"documentId"`
+	DocumentType         SearchDocumentType     `json:"documentType"`
+	Fields               map[string]interface{} `json:"fields,omitempty"`
+	Labels               map[string]string      `json:"labels,omitempty"`
+	Namespace            NullableString         `json:"namespace,omitempty"`
+	OccurredAt           time.Time              `json:"occurredAt"`
+	Relevance            float32                `json:"relevance"`
+	SourceVersion        int32                  `json:"sourceVersion"`
+	State                NullableString         `json:"state,omitempty"`
+	Summary              string                 `json:"summary"`
+	Title                string                 `json:"title"`
+	UpdatedAt            time.Time              `json:"updatedAt"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -207,6 +207,7 @@ func (o *SearchDocument) HasNamespace() bool {
 func (o *SearchDocument) SetNamespace(v string) {
 	o.Namespace.Set(&v)
 }
+
 // SetNamespaceNil sets the value for Namespace to be an explicit nil
 func (o *SearchDocument) SetNamespaceNil() {
 	o.Namespace.Set(nil)
@@ -321,6 +322,7 @@ func (o *SearchDocument) HasState() bool {
 func (o *SearchDocument) SetState(v string) {
 	o.State.Set(&v)
 }
+
 // SetStateNil sets the value for State to be an explicit nil
 func (o *SearchDocument) SetStateNil() {
 	o.State.Set(nil)
@@ -404,7 +406,7 @@ func (o *SearchDocument) SetUpdatedAt(v time.Time) {
 }
 
 func (o SearchDocument) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -461,10 +463,10 @@ func (o *SearchDocument) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

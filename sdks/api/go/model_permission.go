@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,9 +21,9 @@ var _ MappedNullable = &Permission{}
 
 // Permission struct for Permission
 type Permission struct {
-	Action Action `json:"action"`
-	Effect *PermissionEffect `json:"effect,omitempty"`
-	ResourceType string `json:"resource_type"`
+	Action       Action            `json:"action"`
+	Effect       *PermissionEffect `json:"effect,omitempty"`
+	ResourceType string            `json:"resource_type"`
 }
 
 type _Permission Permission
@@ -132,7 +132,7 @@ func (o *Permission) SetResourceType(v string) {
 }
 
 func (o Permission) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -163,10 +163,10 @@ func (o *Permission) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

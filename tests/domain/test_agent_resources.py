@@ -38,6 +38,13 @@ from amesh.domain.agent_resources import (
     provider_migration_diagnostic,
     resolve_capability_envelope,
 )
+from amesh.domain.tool_provider import (
+    ToolDescriptor,
+    ToolImpact,
+    ToolProviderKind,
+    ToolProviderRef,
+    ToolProviderRevision,
+)
 
 
 def _revision(spec: object, revision: int = 1) -> AgentResourceRevision:
@@ -185,6 +192,58 @@ def test_capability_resolution_is_exact_deterministic_and_inspectable() -> None:
     assert [item.source_kind for item in first.instructions] == ["AGENT", "PROMPT", "SKILL"]
     assert first.model_routes[0].model == "openai/gpt-5.6-luna"
     assert first.permissions.secret_scopes == ("mcp-token", "openrouter-api-key")
+
+
+def test_capability_resolution_supports_tenant_scoped_non_mcp_provider_pins() -> None:
+    descriptor = ToolDescriptor(
+        provider=ToolProviderRef(kind=ToolProviderKind.PLUGIN, key="vendor.tools", revision=1),
+        name="search",
+        inputSchema={"type": "object", "additionalProperties": False},
+        impact=ToolImpact.READ_ONLY,
+        secretScopes=("plugin-token",),
+        allowedEgress=("plugin.example.test",),
+    )
+    provider = ToolProviderRevision(
+        provider=descriptor.provider,
+        tenantId="00000000-0000-0000-0000-000000000001",
+        namespace="agents.demo",
+        digest="sha256:" + "a" * 64,
+        tools=(descriptor,),
+    )
+    base = _agent(descriptor.schema_digest)
+    plugin_agent = base.model_copy(
+        update={
+            "tools": (
+                AgentToolRef(
+                    providerKind="plugin",
+                    providerKey="vendor.tools",
+                    providerRevision=1,
+                    toolName="search",
+                    schemaDigest=descriptor.schema_digest,
+                ),
+            ),
+            "permissions": base.permissions.model_copy(
+                update={
+                    "secret_scopes": ("plugin-token", "openrouter-api-key"),
+                    "network_hosts": ("openrouter.ai", "plugin.example.test"),
+                }
+            ),
+            "prompts": (),
+            "skills": (),
+            "evaluation_policy": AgentEvaluationPolicy(requiredEvaluations=()),
+        }
+    )
+    envelope = resolve_capability_envelope(
+        _revision(plugin_agent),
+        _revision(_model_policy()),
+        (),
+        (),
+        (),
+        tool_providers=(provider,),
+    )
+
+    assert envelope.tools[0].provider_kind is ToolProviderKind.PLUGIN
+    assert envelope.tools[0].provider_digest == provider.digest
 
 
 def test_capability_resolution_fails_closed_on_confusion_or_denied_capability() -> None:

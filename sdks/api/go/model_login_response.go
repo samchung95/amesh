@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the LoginResponse type satisfies the MappedNullable interface at compile time
@@ -23,9 +23,9 @@ var _ MappedNullable = &LoginResponse{}
 // LoginResponse struct for LoginResponse
 type LoginResponse struct {
 	AbsoluteExpiresAt time.Time `json:"absoluteExpiresAt"`
-	Display string `json:"display"`
-	IdleExpiresAt time.Time `json:"idleExpiresAt"`
-	PrincipalId string `json:"principalId"`
+	Display           string    `json:"display"`
+	IdleExpiresAt     time.Time `json:"idleExpiresAt"`
+	PrincipalId       string    `json:"principalId"`
 }
 
 type _LoginResponse LoginResponse
@@ -148,7 +148,7 @@ func (o *LoginResponse) SetPrincipalId(v string) {
 }
 
 func (o LoginResponse) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -180,10 +180,10 @@ func (o *LoginResponse) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

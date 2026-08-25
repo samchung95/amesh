@@ -16,20 +16,19 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"strings"
 	"reflect"
+	"strings"
 )
-
 
 // CredentialsAPIService CredentialsAPI service
 type CredentialsAPIService service
 
 type ApiExchangeWorkloadCredentialApiV1CredentialsExchangePostRequest struct {
-	ctx context.Context
-	ApiService *CredentialsAPIService
+	ctx                       context.Context
+	ApiService                *CredentialsAPIService
 	exchangeCredentialRequest *ExchangeCredentialRequest
-	authorization *string
-	xAmeshCSRF *string
+	authorization             *string
+	xAmeshCSRF                *string
 }
 
 func (r ApiExchangeWorkloadCredentialApiV1CredentialsExchangePostRequest) ExchangeCredentialRequest(exchangeCredentialRequest ExchangeCredentialRequest) ApiExchangeWorkloadCredentialApiV1CredentialsExchangePostRequest {
@@ -54,24 +53,25 @@ func (r ApiExchangeWorkloadCredentialApiV1CredentialsExchangePostRequest) Execut
 /*
 ExchangeWorkloadCredentialApiV1CredentialsExchangePost Exchange Workload Credential
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiExchangeWorkloadCredentialApiV1CredentialsExchangePostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiExchangeWorkloadCredentialApiV1CredentialsExchangePostRequest
 */
 func (a *CredentialsAPIService) ExchangeWorkloadCredentialApiV1CredentialsExchangePost(ctx context.Context) ApiExchangeWorkloadCredentialApiV1CredentialsExchangePostRequest {
 	return ApiExchangeWorkloadCredentialApiV1CredentialsExchangePostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return IssuedCredentialResponse
+//
+//	@return IssuedCredentialResponse
 func (a *CredentialsAPIService) ExchangeWorkloadCredentialApiV1CredentialsExchangePostExecute(r ApiExchangeWorkloadCredentialApiV1CredentialsExchangePostRequest) (*IssuedCredentialResponse, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *IssuedCredentialResponse
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *IssuedCredentialResponse
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "CredentialsAPIService.ExchangeWorkloadCredentialApiV1CredentialsExchangePost")
@@ -142,8 +142,8 @@ func (a *CredentialsAPIService) ExchangeWorkloadCredentialApiV1CredentialsExchan
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -161,12 +161,12 @@ func (a *CredentialsAPIService) ExchangeWorkloadCredentialApiV1CredentialsExchan
 }
 
 type ApiIssueCredentialApiV1AdminPrincipalsPrincipalIdCredentialsPostRequest struct {
-	ctx context.Context
-	ApiService *CredentialsAPIService
-	principalId string
+	ctx                    context.Context
+	ApiService             *CredentialsAPIService
+	principalId            string
 	issueCredentialRequest *IssueCredentialRequest
-	authorization *string
-	xAmeshCSRF *string
+	authorization          *string
+	xAmeshCSRF             *string
 }
 
 func (r ApiIssueCredentialApiV1AdminPrincipalsPrincipalIdCredentialsPostRequest) IssueCredentialRequest(issueCredentialRequest IssueCredentialRequest) ApiIssueCredentialApiV1AdminPrincipalsPrincipalIdCredentialsPostRequest {
@@ -191,26 +191,27 @@ func (r ApiIssueCredentialApiV1AdminPrincipalsPrincipalIdCredentialsPostRequest)
 /*
 IssueCredentialApiV1AdminPrincipalsPrincipalIdCredentialsPost Issue Credential
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param principalId
- @return ApiIssueCredentialApiV1AdminPrincipalsPrincipalIdCredentialsPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param principalId
+	@return ApiIssueCredentialApiV1AdminPrincipalsPrincipalIdCredentialsPostRequest
 */
 func (a *CredentialsAPIService) IssueCredentialApiV1AdminPrincipalsPrincipalIdCredentialsPost(ctx context.Context, principalId string) ApiIssueCredentialApiV1AdminPrincipalsPrincipalIdCredentialsPostRequest {
 	return ApiIssueCredentialApiV1AdminPrincipalsPrincipalIdCredentialsPostRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:  a,
+		ctx:         ctx,
 		principalId: principalId,
 	}
 }
 
 // Execute executes the request
-//  @return IssuedCredentialResponse
+//
+//	@return IssuedCredentialResponse
 func (a *CredentialsAPIService) IssueCredentialApiV1AdminPrincipalsPrincipalIdCredentialsPostExecute(r ApiIssueCredentialApiV1AdminPrincipalsPrincipalIdCredentialsPostRequest) (*IssuedCredentialResponse, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *IssuedCredentialResponse
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *IssuedCredentialResponse
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "CredentialsAPIService.IssueCredentialApiV1AdminPrincipalsPrincipalIdCredentialsPost")
@@ -282,8 +283,8 @@ func (a *CredentialsAPIService) IssueCredentialApiV1AdminPrincipalsPrincipalIdCr
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -301,16 +302,16 @@ func (a *CredentialsAPIService) IssueCredentialApiV1AdminPrincipalsPrincipalIdCr
 }
 
 type ApiListCredentialsApiV1AdminPrincipalsPrincipalIdCredentialsGetRequest struct {
-	ctx context.Context
-	ApiService *CredentialsAPIService
-	principalId string
-	cursor *string
-	limit *int32
-	filter *[]string
-	sort *string
-	fields *string
+	ctx           context.Context
+	ApiService    *CredentialsAPIService
+	principalId   string
+	cursor        *string
+	limit         *int32
+	filter        *[]string
+	sort          *string
+	fields        *string
 	authorization *string
-	xAmeshCSRF *string
+	xAmeshCSRF    *string
 }
 
 // Opaque cursor from the prior page
@@ -359,26 +360,27 @@ func (r ApiListCredentialsApiV1AdminPrincipalsPrincipalIdCredentialsGetRequest) 
 /*
 ListCredentialsApiV1AdminPrincipalsPrincipalIdCredentialsGet List Credentials
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param principalId
- @return ApiListCredentialsApiV1AdminPrincipalsPrincipalIdCredentialsGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param principalId
+	@return ApiListCredentialsApiV1AdminPrincipalsPrincipalIdCredentialsGetRequest
 */
 func (a *CredentialsAPIService) ListCredentialsApiV1AdminPrincipalsPrincipalIdCredentialsGet(ctx context.Context, principalId string) ApiListCredentialsApiV1AdminPrincipalsPrincipalIdCredentialsGetRequest {
 	return ApiListCredentialsApiV1AdminPrincipalsPrincipalIdCredentialsGetRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:  a,
+		ctx:         ctx,
 		principalId: principalId,
 	}
 }
 
 // Execute executes the request
-//  @return []CredentialMetadata
+//
+//	@return []CredentialMetadata
 func (a *CredentialsAPIService) ListCredentialsApiV1AdminPrincipalsPrincipalIdCredentialsGetExecute(r ApiListCredentialsApiV1AdminPrincipalsPrincipalIdCredentialsGetRequest) ([]CredentialMetadata, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  []CredentialMetadata
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []CredentialMetadata
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "CredentialsAPIService.ListCredentialsApiV1AdminPrincipalsPrincipalIdCredentialsGet")
@@ -468,8 +470,8 @@ func (a *CredentialsAPIService) ListCredentialsApiV1AdminPrincipalsPrincipalIdCr
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -487,11 +489,11 @@ func (a *CredentialsAPIService) ListCredentialsApiV1AdminPrincipalsPrincipalIdCr
 }
 
 type ApiRevokeAllCredentialsApiV1AdminPrincipalsPrincipalIdCredentialsDeleteRequest struct {
-	ctx context.Context
-	ApiService *CredentialsAPIService
-	principalId string
+	ctx           context.Context
+	ApiService    *CredentialsAPIService
+	principalId   string
 	authorization *string
-	xAmeshCSRF *string
+	xAmeshCSRF    *string
 }
 
 func (r ApiRevokeAllCredentialsApiV1AdminPrincipalsPrincipalIdCredentialsDeleteRequest) Authorization(authorization string) ApiRevokeAllCredentialsApiV1AdminPrincipalsPrincipalIdCredentialsDeleteRequest {
@@ -511,26 +513,27 @@ func (r ApiRevokeAllCredentialsApiV1AdminPrincipalsPrincipalIdCredentialsDeleteR
 /*
 RevokeAllCredentialsApiV1AdminPrincipalsPrincipalIdCredentialsDelete Revoke All Credentials
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param principalId
- @return ApiRevokeAllCredentialsApiV1AdminPrincipalsPrincipalIdCredentialsDeleteRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param principalId
+	@return ApiRevokeAllCredentialsApiV1AdminPrincipalsPrincipalIdCredentialsDeleteRequest
 */
 func (a *CredentialsAPIService) RevokeAllCredentialsApiV1AdminPrincipalsPrincipalIdCredentialsDelete(ctx context.Context, principalId string) ApiRevokeAllCredentialsApiV1AdminPrincipalsPrincipalIdCredentialsDeleteRequest {
 	return ApiRevokeAllCredentialsApiV1AdminPrincipalsPrincipalIdCredentialsDeleteRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:  a,
+		ctx:         ctx,
 		principalId: principalId,
 	}
 }
 
 // Execute executes the request
-//  @return RevokedCredentialsResponse
+//
+//	@return RevokedCredentialsResponse
 func (a *CredentialsAPIService) RevokeAllCredentialsApiV1AdminPrincipalsPrincipalIdCredentialsDeleteExecute(r ApiRevokeAllCredentialsApiV1AdminPrincipalsPrincipalIdCredentialsDeleteRequest) (*RevokedCredentialsResponse, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodDelete
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *RevokedCredentialsResponse
+		localVarHTTPMethod  = http.MethodDelete
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *RevokedCredentialsResponse
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "CredentialsAPIService.RevokeAllCredentialsApiV1AdminPrincipalsPrincipalIdCredentialsDelete")
@@ -597,8 +600,8 @@ func (a *CredentialsAPIService) RevokeAllCredentialsApiV1AdminPrincipalsPrincipa
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -616,11 +619,11 @@ func (a *CredentialsAPIService) RevokeAllCredentialsApiV1AdminPrincipalsPrincipa
 }
 
 type ApiRevokeCredentialApiV1AdminCredentialsCredentialIdDeleteRequest struct {
-	ctx context.Context
-	ApiService *CredentialsAPIService
-	credentialId string
+	ctx           context.Context
+	ApiService    *CredentialsAPIService
+	credentialId  string
 	authorization *string
-	xAmeshCSRF *string
+	xAmeshCSRF    *string
 }
 
 func (r ApiRevokeCredentialApiV1AdminCredentialsCredentialIdDeleteRequest) Authorization(authorization string) ApiRevokeCredentialApiV1AdminCredentialsCredentialIdDeleteRequest {
@@ -640,26 +643,27 @@ func (r ApiRevokeCredentialApiV1AdminCredentialsCredentialIdDeleteRequest) Execu
 /*
 RevokeCredentialApiV1AdminCredentialsCredentialIdDelete Revoke Credential
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param credentialId
- @return ApiRevokeCredentialApiV1AdminCredentialsCredentialIdDeleteRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param credentialId
+	@return ApiRevokeCredentialApiV1AdminCredentialsCredentialIdDeleteRequest
 */
 func (a *CredentialsAPIService) RevokeCredentialApiV1AdminCredentialsCredentialIdDelete(ctx context.Context, credentialId string) ApiRevokeCredentialApiV1AdminCredentialsCredentialIdDeleteRequest {
 	return ApiRevokeCredentialApiV1AdminCredentialsCredentialIdDeleteRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:   a,
+		ctx:          ctx,
 		credentialId: credentialId,
 	}
 }
 
 // Execute executes the request
-//  @return RevokedCredentialsResponse
+//
+//	@return RevokedCredentialsResponse
 func (a *CredentialsAPIService) RevokeCredentialApiV1AdminCredentialsCredentialIdDeleteExecute(r ApiRevokeCredentialApiV1AdminCredentialsCredentialIdDeleteRequest) (*RevokedCredentialsResponse, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodDelete
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *RevokedCredentialsResponse
+		localVarHTTPMethod  = http.MethodDelete
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *RevokedCredentialsResponse
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "CredentialsAPIService.RevokeCredentialApiV1AdminCredentialsCredentialIdDelete")
@@ -726,8 +730,8 @@ func (a *CredentialsAPIService) RevokeCredentialApiV1AdminCredentialsCredentialI
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -745,12 +749,12 @@ func (a *CredentialsAPIService) RevokeCredentialApiV1AdminCredentialsCredentialI
 }
 
 type ApiRotateCredentialApiV1AdminCredentialsCredentialIdRotatePostRequest struct {
-	ctx context.Context
-	ApiService *CredentialsAPIService
-	credentialId string
+	ctx                     context.Context
+	ApiService              *CredentialsAPIService
+	credentialId            string
 	rotateCredentialRequest *RotateCredentialRequest
-	authorization *string
-	xAmeshCSRF *string
+	authorization           *string
+	xAmeshCSRF              *string
 }
 
 func (r ApiRotateCredentialApiV1AdminCredentialsCredentialIdRotatePostRequest) RotateCredentialRequest(rotateCredentialRequest RotateCredentialRequest) ApiRotateCredentialApiV1AdminCredentialsCredentialIdRotatePostRequest {
@@ -775,26 +779,27 @@ func (r ApiRotateCredentialApiV1AdminCredentialsCredentialIdRotatePostRequest) E
 /*
 RotateCredentialApiV1AdminCredentialsCredentialIdRotatePost Rotate Credential
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param credentialId
- @return ApiRotateCredentialApiV1AdminCredentialsCredentialIdRotatePostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param credentialId
+	@return ApiRotateCredentialApiV1AdminCredentialsCredentialIdRotatePostRequest
 */
 func (a *CredentialsAPIService) RotateCredentialApiV1AdminCredentialsCredentialIdRotatePost(ctx context.Context, credentialId string) ApiRotateCredentialApiV1AdminCredentialsCredentialIdRotatePostRequest {
 	return ApiRotateCredentialApiV1AdminCredentialsCredentialIdRotatePostRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:   a,
+		ctx:          ctx,
 		credentialId: credentialId,
 	}
 }
 
 // Execute executes the request
-//  @return IssuedCredentialResponse
+//
+//	@return IssuedCredentialResponse
 func (a *CredentialsAPIService) RotateCredentialApiV1AdminCredentialsCredentialIdRotatePostExecute(r ApiRotateCredentialApiV1AdminCredentialsCredentialIdRotatePostRequest) (*IssuedCredentialResponse, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *IssuedCredentialResponse
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *IssuedCredentialResponse
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "CredentialsAPIService.RotateCredentialApiV1AdminCredentialsCredentialIdRotatePost")
@@ -866,8 +871,8 @@ func (a *CredentialsAPIService) RotateCredentialApiV1AdminCredentialsCredentialI
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}

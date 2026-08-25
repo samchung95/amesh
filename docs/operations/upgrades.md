@@ -25,6 +25,14 @@ API v1, message schema 1 and plugin protocol `amesh.plugin.rpc/v1`. Release `0.1
 The web console exposes the same release catalog, preflight/postflight reports, rolling plan and
 bounded event upcast under **Administration → Upgrades**.
 
+## Service-role health schema note
+
+Migration `0060_service_role_health.sql` adds the `DEGRADED` registry state plus nullable last-success
+and last-failure timestamps, a bounded redacted failure summary and a consecutive-failure counter.
+Apply it before deploying binaries that advertise aggregate role readiness. During a forward fix, keep
+liveness probes active, treat `DEGRADED` as not ready and preserve the recorded health evidence; do not
+run a binary that expects these columns against an older schema.
+
 ## Preflight and postflight gates
 
 The report checks the source and target support windows, schema boundary and immutable migration

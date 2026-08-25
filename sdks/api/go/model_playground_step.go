@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -22,10 +22,10 @@ var _ MappedNullable = &PlaygroundStep{}
 // PlaygroundStep struct for PlaygroundStep
 type PlaygroundStep struct {
 	Dependencies []string `json:"dependencies"`
-	Reason string `json:"reason"`
-	Simulated bool `json:"simulated"`
-	TaskId string `json:"taskId"`
-	TaskType string `json:"taskType"`
+	Reason       string   `json:"reason"`
+	Simulated    bool     `json:"simulated"`
+	TaskId       string   `json:"taskId"`
+	TaskType     string   `json:"taskType"`
 }
 
 type _PlaygroundStep PlaygroundStep
@@ -173,7 +173,7 @@ func (o *PlaygroundStep) SetTaskType(v string) {
 }
 
 func (o PlaygroundStep) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -207,10 +207,10 @@ func (o *PlaygroundStep) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

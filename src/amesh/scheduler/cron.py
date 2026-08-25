@@ -139,7 +139,7 @@ class CronScheduler:
         tenant_id: str,
         inputs: dict[str, object] | None = None,
         occurrence_metadata: dict[str, object] | None = None,
-    ) -> PersistedExecution:
+    ) -> PersistedExecution | None:
         trigger = _find_trigger(flow, trigger_id)
         scheduled_utc = _require_aware(scheduled_for).astimezone(UTC).replace(microsecond=0)
         if not _is_schedule_instant(trigger, scheduled_utc):
@@ -199,8 +199,10 @@ class CronScheduler:
                     acceptance.occurrence.execution_id,
                     tenant_id=tenant_id,
                 )
+            if acceptance.duplicate:
+                return None
             if acceptance.occurrence.state is not TriggerOccurrenceState.ACCEPTED:
-                raise RuntimeError(acceptance.reason)
+                return None
             claimed = await self._trigger_runtime.claim_occurrence(
                 acceptance.occurrence.occurrence_id,
                 tenant_id=tenant_id,
@@ -358,15 +360,15 @@ class CronScheduler:
 
         executions: list[PersistedExecution] = []
         for occurrence in selected:
-            executions.append(
-                await self.fire_occurrence(
-                    flow,
-                    trigger_id=trigger.id,
-                    scheduled_for=occurrence.scheduled_for,
-                    tenant_id=tenant_id,
-                    occurrence_metadata=metadata,
-                )
+            execution = await self.fire_occurrence(
+                flow,
+                trigger_id=trigger.id,
+                scheduled_for=occurrence.scheduled_for,
+                tenant_id=tenant_id,
+                occurrence_metadata=metadata,
             )
+            if execution is not None:
+                executions.append(execution)
         completed = await self._scheduler_repository.complete_schedule(
             tenant_id=tenant_id,
             trigger_definition_id=state.trigger_definition_id,

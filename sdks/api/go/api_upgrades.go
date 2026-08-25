@@ -18,15 +18,14 @@ import (
 	"net/url"
 )
 
-
 // UpgradesAPIService UpgradesAPI service
 type UpgradesAPIService service
 
 type ApiGetUpgradePolicyApiV1UpgradesPolicyGetRequest struct {
-	ctx context.Context
-	ApiService *UpgradesAPIService
+	ctx           context.Context
+	ApiService    *UpgradesAPIService
 	authorization *string
-	xAmeshCSRF *string
+	xAmeshCSRF    *string
 }
 
 func (r ApiGetUpgradePolicyApiV1UpgradesPolicyGetRequest) Authorization(authorization string) ApiGetUpgradePolicyApiV1UpgradesPolicyGetRequest {
@@ -46,24 +45,25 @@ func (r ApiGetUpgradePolicyApiV1UpgradesPolicyGetRequest) Execute() (*UpgradePol
 /*
 GetUpgradePolicyApiV1UpgradesPolicyGet Get Upgrade Policy
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiGetUpgradePolicyApiV1UpgradesPolicyGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiGetUpgradePolicyApiV1UpgradesPolicyGetRequest
 */
 func (a *UpgradesAPIService) GetUpgradePolicyApiV1UpgradesPolicyGet(ctx context.Context) ApiGetUpgradePolicyApiV1UpgradesPolicyGetRequest {
 	return ApiGetUpgradePolicyApiV1UpgradesPolicyGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return UpgradePolicy
+//
+//	@return UpgradePolicy
 func (a *UpgradesAPIService) GetUpgradePolicyApiV1UpgradesPolicyGetExecute(r ApiGetUpgradePolicyApiV1UpgradesPolicyGetRequest) (*UpgradePolicy, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *UpgradePolicy
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *UpgradePolicy
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "UpgradesAPIService.GetUpgradePolicyApiV1UpgradesPolicyGet")
@@ -129,8 +129,8 @@ func (a *UpgradesAPIService) GetUpgradePolicyApiV1UpgradesPolicyGetExecute(r Api
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -148,11 +148,11 @@ func (a *UpgradesAPIService) GetUpgradePolicyApiV1UpgradesPolicyGetExecute(r Api
 }
 
 type ApiMigrateUpgradeConfigurationApiV1UpgradesConfigurationMigratePostRequest struct {
-	ctx context.Context
-	ApiService *UpgradesAPIService
+	ctx                           context.Context
+	ApiService                    *UpgradesAPIService
 	configurationMigrationRequest *ConfigurationMigrationRequest
-	authorization *string
-	xAmeshCSRF *string
+	authorization                 *string
+	xAmeshCSRF                    *string
 }
 
 func (r ApiMigrateUpgradeConfigurationApiV1UpgradesConfigurationMigratePostRequest) ConfigurationMigrationRequest(configurationMigrationRequest ConfigurationMigrationRequest) ApiMigrateUpgradeConfigurationApiV1UpgradesConfigurationMigratePostRequest {
@@ -177,24 +177,25 @@ func (r ApiMigrateUpgradeConfigurationApiV1UpgradesConfigurationMigratePostReque
 /*
 MigrateUpgradeConfigurationApiV1UpgradesConfigurationMigratePost Migrate Upgrade Configuration
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiMigrateUpgradeConfigurationApiV1UpgradesConfigurationMigratePostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiMigrateUpgradeConfigurationApiV1UpgradesConfigurationMigratePostRequest
 */
 func (a *UpgradesAPIService) MigrateUpgradeConfigurationApiV1UpgradesConfigurationMigratePost(ctx context.Context) ApiMigrateUpgradeConfigurationApiV1UpgradesConfigurationMigratePostRequest {
 	return ApiMigrateUpgradeConfigurationApiV1UpgradesConfigurationMigratePostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return ConfigurationMigration
+//
+//	@return ConfigurationMigration
 func (a *UpgradesAPIService) MigrateUpgradeConfigurationApiV1UpgradesConfigurationMigratePostExecute(r ApiMigrateUpgradeConfigurationApiV1UpgradesConfigurationMigratePostRequest) (*ConfigurationMigration, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *ConfigurationMigration
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *ConfigurationMigration
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "UpgradesAPIService.MigrateUpgradeConfigurationApiV1UpgradesConfigurationMigratePost")
@@ -265,8 +266,8 @@ func (a *UpgradesAPIService) MigrateUpgradeConfigurationApiV1UpgradesConfigurati
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -284,10 +285,10 @@ func (a *UpgradesAPIService) MigrateUpgradeConfigurationApiV1UpgradesConfigurati
 }
 
 type ApiPreviewUpgradeEventUpcastApiV1UpgradesEventsUpcastGetRequest struct {
-	ctx context.Context
-	ApiService *UpgradesAPIService
+	ctx           context.Context
+	ApiService    *UpgradesAPIService
 	authorization *string
-	xAmeshCSRF *string
+	xAmeshCSRF    *string
 }
 
 func (r ApiPreviewUpgradeEventUpcastApiV1UpgradesEventsUpcastGetRequest) Authorization(authorization string) ApiPreviewUpgradeEventUpcastApiV1UpgradesEventsUpcastGetRequest {
@@ -307,24 +308,25 @@ func (r ApiPreviewUpgradeEventUpcastApiV1UpgradesEventsUpcastGetRequest) Execute
 /*
 PreviewUpgradeEventUpcastApiV1UpgradesEventsUpcastGet Preview Upgrade Event Upcast
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiPreviewUpgradeEventUpcastApiV1UpgradesEventsUpcastGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiPreviewUpgradeEventUpcastApiV1UpgradesEventsUpcastGetRequest
 */
 func (a *UpgradesAPIService) PreviewUpgradeEventUpcastApiV1UpgradesEventsUpcastGet(ctx context.Context) ApiPreviewUpgradeEventUpcastApiV1UpgradesEventsUpcastGetRequest {
 	return ApiPreviewUpgradeEventUpcastApiV1UpgradesEventsUpcastGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return PersistedEventMigration
+//
+//	@return PersistedEventMigration
 func (a *UpgradesAPIService) PreviewUpgradeEventUpcastApiV1UpgradesEventsUpcastGetExecute(r ApiPreviewUpgradeEventUpcastApiV1UpgradesEventsUpcastGetRequest) (*PersistedEventMigration, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *PersistedEventMigration
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *PersistedEventMigration
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "UpgradesAPIService.PreviewUpgradeEventUpcastApiV1UpgradesEventsUpcastGet")
@@ -390,8 +392,8 @@ func (a *UpgradesAPIService) PreviewUpgradeEventUpcastApiV1UpgradesEventsUpcastG
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -409,11 +411,11 @@ func (a *UpgradesAPIService) PreviewUpgradeEventUpcastApiV1UpgradesEventsUpcastG
 }
 
 type ApiRunUpgradeEventUpcastApiV1UpgradesEventsUpcastPostRequest struct {
-	ctx context.Context
-	ApiService *UpgradesAPIService
+	ctx                            context.Context
+	ApiService                     *UpgradesAPIService
 	persistedEventMigrationRequest *PersistedEventMigrationRequest
-	authorization *string
-	xAmeshCSRF *string
+	authorization                  *string
+	xAmeshCSRF                     *string
 }
 
 func (r ApiRunUpgradeEventUpcastApiV1UpgradesEventsUpcastPostRequest) PersistedEventMigrationRequest(persistedEventMigrationRequest PersistedEventMigrationRequest) ApiRunUpgradeEventUpcastApiV1UpgradesEventsUpcastPostRequest {
@@ -438,24 +440,25 @@ func (r ApiRunUpgradeEventUpcastApiV1UpgradesEventsUpcastPostRequest) Execute() 
 /*
 RunUpgradeEventUpcastApiV1UpgradesEventsUpcastPost Run Upgrade Event Upcast
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiRunUpgradeEventUpcastApiV1UpgradesEventsUpcastPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiRunUpgradeEventUpcastApiV1UpgradesEventsUpcastPostRequest
 */
 func (a *UpgradesAPIService) RunUpgradeEventUpcastApiV1UpgradesEventsUpcastPost(ctx context.Context) ApiRunUpgradeEventUpcastApiV1UpgradesEventsUpcastPostRequest {
 	return ApiRunUpgradeEventUpcastApiV1UpgradesEventsUpcastPostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return PersistedEventMigration
+//
+//	@return PersistedEventMigration
 func (a *UpgradesAPIService) RunUpgradeEventUpcastApiV1UpgradesEventsUpcastPostExecute(r ApiRunUpgradeEventUpcastApiV1UpgradesEventsUpcastPostRequest) (*PersistedEventMigration, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *PersistedEventMigration
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *PersistedEventMigration
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "UpgradesAPIService.RunUpgradeEventUpcastApiV1UpgradesEventsUpcastPost")
@@ -526,8 +529,8 @@ func (a *UpgradesAPIService) RunUpgradeEventUpcastApiV1UpgradesEventsUpcastPostE
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -545,11 +548,11 @@ func (a *UpgradesAPIService) RunUpgradeEventUpcastApiV1UpgradesEventsUpcastPostE
 }
 
 type ApiRunUpgradePostflightApiV1UpgradesPostflightPostRequest struct {
-	ctx context.Context
-	ApiService *UpgradesAPIService
+	ctx                  context.Context
+	ApiService           *UpgradesAPIService
 	upgradeReportRequest *UpgradeReportRequest
-	authorization *string
-	xAmeshCSRF *string
+	authorization        *string
+	xAmeshCSRF           *string
 }
 
 func (r ApiRunUpgradePostflightApiV1UpgradesPostflightPostRequest) UpgradeReportRequest(upgradeReportRequest UpgradeReportRequest) ApiRunUpgradePostflightApiV1UpgradesPostflightPostRequest {
@@ -574,24 +577,25 @@ func (r ApiRunUpgradePostflightApiV1UpgradesPostflightPostRequest) Execute() (*U
 /*
 RunUpgradePostflightApiV1UpgradesPostflightPost Run Upgrade Postflight
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiRunUpgradePostflightApiV1UpgradesPostflightPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiRunUpgradePostflightApiV1UpgradesPostflightPostRequest
 */
 func (a *UpgradesAPIService) RunUpgradePostflightApiV1UpgradesPostflightPost(ctx context.Context) ApiRunUpgradePostflightApiV1UpgradesPostflightPostRequest {
 	return ApiRunUpgradePostflightApiV1UpgradesPostflightPostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return UpgradeReport
+//
+//	@return UpgradeReport
 func (a *UpgradesAPIService) RunUpgradePostflightApiV1UpgradesPostflightPostExecute(r ApiRunUpgradePostflightApiV1UpgradesPostflightPostRequest) (*UpgradeReport, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *UpgradeReport
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *UpgradeReport
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "UpgradesAPIService.RunUpgradePostflightApiV1UpgradesPostflightPost")
@@ -662,8 +666,8 @@ func (a *UpgradesAPIService) RunUpgradePostflightApiV1UpgradesPostflightPostExec
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -681,11 +685,11 @@ func (a *UpgradesAPIService) RunUpgradePostflightApiV1UpgradesPostflightPostExec
 }
 
 type ApiRunUpgradePreflightApiV1UpgradesPreflightPostRequest struct {
-	ctx context.Context
-	ApiService *UpgradesAPIService
+	ctx                  context.Context
+	ApiService           *UpgradesAPIService
 	upgradeReportRequest *UpgradeReportRequest
-	authorization *string
-	xAmeshCSRF *string
+	authorization        *string
+	xAmeshCSRF           *string
 }
 
 func (r ApiRunUpgradePreflightApiV1UpgradesPreflightPostRequest) UpgradeReportRequest(upgradeReportRequest UpgradeReportRequest) ApiRunUpgradePreflightApiV1UpgradesPreflightPostRequest {
@@ -710,24 +714,25 @@ func (r ApiRunUpgradePreflightApiV1UpgradesPreflightPostRequest) Execute() (*Upg
 /*
 RunUpgradePreflightApiV1UpgradesPreflightPost Run Upgrade Preflight
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiRunUpgradePreflightApiV1UpgradesPreflightPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiRunUpgradePreflightApiV1UpgradesPreflightPostRequest
 */
 func (a *UpgradesAPIService) RunUpgradePreflightApiV1UpgradesPreflightPost(ctx context.Context) ApiRunUpgradePreflightApiV1UpgradesPreflightPostRequest {
 	return ApiRunUpgradePreflightApiV1UpgradesPreflightPostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return UpgradeReport
+//
+//	@return UpgradeReport
 func (a *UpgradesAPIService) RunUpgradePreflightApiV1UpgradesPreflightPostExecute(r ApiRunUpgradePreflightApiV1UpgradesPreflightPostRequest) (*UpgradeReport, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *UpgradeReport
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *UpgradeReport
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "UpgradesAPIService.RunUpgradePreflightApiV1UpgradesPreflightPost")
@@ -798,8 +803,8 @@ func (a *UpgradesAPIService) RunUpgradePreflightApiV1UpgradesPreflightPostExecut
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}

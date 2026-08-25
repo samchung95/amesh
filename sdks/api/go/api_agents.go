@@ -19,20 +19,19 @@ import (
 	"strings"
 )
 
-
 // AgentsAPIService AgentsAPI service
 type AgentsAPIService service
 
 type ApiCompareAgentDefinitionRevisionsApiV1NamespacesNamespaceAgentDefinitionsKeyCompareGetRequest struct {
-	ctx context.Context
-	ApiService *AgentsAPIService
-	namespace string
-	key string
-	fromRevision *int32
-	toRevision *int32
+	ctx           context.Context
+	ApiService    *AgentsAPIService
+	namespace     string
+	key           string
+	fromRevision  *int32
+	toRevision    *int32
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiCompareAgentDefinitionRevisionsApiV1NamespacesNamespaceAgentDefinitionsKeyCompareGetRequest) FromRevision(fromRevision int32) ApiCompareAgentDefinitionRevisionsApiV1NamespacesNamespaceAgentDefinitionsKeyCompareGetRequest {
@@ -67,28 +66,29 @@ func (r ApiCompareAgentDefinitionRevisionsApiV1NamespacesNamespaceAgentDefinitio
 /*
 CompareAgentDefinitionRevisionsApiV1NamespacesNamespaceAgentDefinitionsKeyCompareGet Compare Agent Definition Revisions
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param namespace
- @param key
- @return ApiCompareAgentDefinitionRevisionsApiV1NamespacesNamespaceAgentDefinitionsKeyCompareGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param namespace
+	@param key
+	@return ApiCompareAgentDefinitionRevisionsApiV1NamespacesNamespaceAgentDefinitionsKeyCompareGetRequest
 */
 func (a *AgentsAPIService) CompareAgentDefinitionRevisionsApiV1NamespacesNamespaceAgentDefinitionsKeyCompareGet(ctx context.Context, namespace string, key string) ApiCompareAgentDefinitionRevisionsApiV1NamespacesNamespaceAgentDefinitionsKeyCompareGetRequest {
 	return ApiCompareAgentDefinitionRevisionsApiV1NamespacesNamespaceAgentDefinitionsKeyCompareGetRequest{
 		ApiService: a,
-		ctx: ctx,
-		namespace: namespace,
-		key: key,
+		ctx:        ctx,
+		namespace:  namespace,
+		key:        key,
 	}
 }
 
 // Execute executes the request
-//  @return AgentRevisionComparison
+//
+//	@return AgentRevisionComparison
 func (a *AgentsAPIService) CompareAgentDefinitionRevisionsApiV1NamespacesNamespaceAgentDefinitionsKeyCompareGetExecute(r ApiCompareAgentDefinitionRevisionsApiV1NamespacesNamespaceAgentDefinitionsKeyCompareGetRequest) (*AgentRevisionComparison, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *AgentRevisionComparison
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *AgentRevisionComparison
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AgentsAPIService.CompareAgentDefinitionRevisionsApiV1NamespacesNamespaceAgentDefinitionsKeyCompareGet")
@@ -173,8 +173,8 @@ func (a *AgentsAPIService) CompareAgentDefinitionRevisionsApiV1NamespacesNamespa
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -192,13 +192,13 @@ func (a *AgentsAPIService) CompareAgentDefinitionRevisionsApiV1NamespacesNamespa
 }
 
 type ApiCreateAgentMcpConnectionRevisionApiV1NamespacesNamespaceAgentMcpConnectionsPostRequest struct {
-	ctx context.Context
-	ApiService *AgentsAPIService
-	namespace string
+	ctx               context.Context
+	ApiService        *AgentsAPIService
+	namespace         string
 	mcpConnectionSpec *McpConnectionSpec
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization     *string
+	xAmeshCSRF        *string
+	xAmeshTenant      *string
 }
 
 func (r ApiCreateAgentMcpConnectionRevisionApiV1NamespacesNamespaceAgentMcpConnectionsPostRequest) McpConnectionSpec(mcpConnectionSpec McpConnectionSpec) ApiCreateAgentMcpConnectionRevisionApiV1NamespacesNamespaceAgentMcpConnectionsPostRequest {
@@ -228,26 +228,27 @@ func (r ApiCreateAgentMcpConnectionRevisionApiV1NamespacesNamespaceAgentMcpConne
 /*
 CreateAgentMcpConnectionRevisionApiV1NamespacesNamespaceAgentMcpConnectionsPost Create Agent Mcp Connection Revision
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param namespace
- @return ApiCreateAgentMcpConnectionRevisionApiV1NamespacesNamespaceAgentMcpConnectionsPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param namespace
+	@return ApiCreateAgentMcpConnectionRevisionApiV1NamespacesNamespaceAgentMcpConnectionsPostRequest
 */
 func (a *AgentsAPIService) CreateAgentMcpConnectionRevisionApiV1NamespacesNamespaceAgentMcpConnectionsPost(ctx context.Context, namespace string) ApiCreateAgentMcpConnectionRevisionApiV1NamespacesNamespaceAgentMcpConnectionsPostRequest {
 	return ApiCreateAgentMcpConnectionRevisionApiV1NamespacesNamespaceAgentMcpConnectionsPostRequest{
 		ApiService: a,
-		ctx: ctx,
-		namespace: namespace,
+		ctx:        ctx,
+		namespace:  namespace,
 	}
 }
 
 // Execute executes the request
-//  @return McpConnectionRevision
+//
+//	@return McpConnectionRevision
 func (a *AgentsAPIService) CreateAgentMcpConnectionRevisionApiV1NamespacesNamespaceAgentMcpConnectionsPostExecute(r ApiCreateAgentMcpConnectionRevisionApiV1NamespacesNamespaceAgentMcpConnectionsPostRequest) (*McpConnectionRevision, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *McpConnectionRevision
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *McpConnectionRevision
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AgentsAPIService.CreateAgentMcpConnectionRevisionApiV1NamespacesNamespaceAgentMcpConnectionsPost")
@@ -322,8 +323,8 @@ func (a *AgentsAPIService) CreateAgentMcpConnectionRevisionApiV1NamespacesNamesp
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -341,13 +342,13 @@ func (a *AgentsAPIService) CreateAgentMcpConnectionRevisionApiV1NamespacesNamesp
 }
 
 type ApiCreateAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPostRequest struct {
-	ctx context.Context
-	ApiService *AgentsAPIService
-	namespace string
-	spec *Spec
+	ctx           context.Context
+	ApiService    *AgentsAPIService
+	namespace     string
+	spec          *Spec
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiCreateAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPostRequest) Spec(spec Spec) ApiCreateAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPostRequest {
@@ -377,26 +378,27 @@ func (r ApiCreateAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPost
 /*
 CreateAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPost Create Agent Resource Revision
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param namespace
- @return ApiCreateAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param namespace
+	@return ApiCreateAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPostRequest
 */
 func (a *AgentsAPIService) CreateAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPost(ctx context.Context, namespace string) ApiCreateAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPostRequest {
 	return ApiCreateAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPostRequest{
 		ApiService: a,
-		ctx: ctx,
-		namespace: namespace,
+		ctx:        ctx,
+		namespace:  namespace,
 	}
 }
 
 // Execute executes the request
-//  @return AgentResourceRevision
+//
+//	@return AgentResourceRevision
 func (a *AgentsAPIService) CreateAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPostExecute(r ApiCreateAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPostRequest) (*AgentResourceRevision, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *AgentResourceRevision
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *AgentResourceRevision
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AgentsAPIService.CreateAgentResourceRevisionApiV1NamespacesNamespaceAgentResourcesPost")
@@ -471,8 +473,8 @@ func (a *AgentsAPIService) CreateAgentResourceRevisionApiV1NamespacesNamespaceAg
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -490,13 +492,13 @@ func (a *AgentsAPIService) CreateAgentResourceRevisionApiV1NamespacesNamespaceAg
 }
 
 type ApiDeleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDeleteRequest struct {
-	ctx context.Context
-	ApiService *AgentsAPIService
-	namespace string
-	entryId string
+	ctx           context.Context
+	ApiService    *AgentsAPIService
+	namespace     string
+	entryId       string
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiDeleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDeleteRequest) Authorization(authorization string) ApiDeleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDeleteRequest {
@@ -521,28 +523,29 @@ func (r ApiDeleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDelet
 /*
 DeleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDelete Delete Agent Memory Entry
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param namespace
- @param entryId
- @return ApiDeleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDeleteRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param namespace
+	@param entryId
+	@return ApiDeleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDeleteRequest
 */
 func (a *AgentsAPIService) DeleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDelete(ctx context.Context, namespace string, entryId string) ApiDeleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDeleteRequest {
 	return ApiDeleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDeleteRequest{
 		ApiService: a,
-		ctx: ctx,
-		namespace: namespace,
-		entryId: entryId,
+		ctx:        ctx,
+		namespace:  namespace,
+		entryId:    entryId,
 	}
 }
 
 // Execute executes the request
-//  @return AgentMemoryMetadata
+//
+//	@return AgentMemoryMetadata
 func (a *AgentsAPIService) DeleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDeleteExecute(r ApiDeleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDeleteRequest) (*AgentMemoryMetadata, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodDelete
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *AgentMemoryMetadata
+		localVarHTTPMethod  = http.MethodDelete
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *AgentMemoryMetadata
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AgentsAPIService.DeleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMemoryEntryIdDelete")
@@ -613,8 +616,8 @@ func (a *AgentsAPIService) DeleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMe
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -632,15 +635,15 @@ func (a *AgentsAPIService) DeleteAgentMemoryEntryApiV1NamespacesNamespaceAgentMe
 }
 
 type ApiDiagnoseModelPolicyMigrationApiV1NamespacesNamespaceAgentModelPoliciesKeyMigrationGetRequest struct {
-	ctx context.Context
-	ApiService *AgentsAPIService
-	namespace string
-	key string
-	fromRevision *int32
-	toRevision *int32
+	ctx           context.Context
+	ApiService    *AgentsAPIService
+	namespace     string
+	key           string
+	fromRevision  *int32
+	toRevision    *int32
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiDiagnoseModelPolicyMigrationApiV1NamespacesNamespaceAgentModelPoliciesKeyMigrationGetRequest) FromRevision(fromRevision int32) ApiDiagnoseModelPolicyMigrationApiV1NamespacesNamespaceAgentModelPoliciesKeyMigrationGetRequest {
@@ -675,28 +678,29 @@ func (r ApiDiagnoseModelPolicyMigrationApiV1NamespacesNamespaceAgentModelPolicie
 /*
 DiagnoseModelPolicyMigrationApiV1NamespacesNamespaceAgentModelPoliciesKeyMigrationGet Diagnose Model Policy Migration
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param namespace
- @param key
- @return ApiDiagnoseModelPolicyMigrationApiV1NamespacesNamespaceAgentModelPoliciesKeyMigrationGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param namespace
+	@param key
+	@return ApiDiagnoseModelPolicyMigrationApiV1NamespacesNamespaceAgentModelPoliciesKeyMigrationGetRequest
 */
 func (a *AgentsAPIService) DiagnoseModelPolicyMigrationApiV1NamespacesNamespaceAgentModelPoliciesKeyMigrationGet(ctx context.Context, namespace string, key string) ApiDiagnoseModelPolicyMigrationApiV1NamespacesNamespaceAgentModelPoliciesKeyMigrationGetRequest {
 	return ApiDiagnoseModelPolicyMigrationApiV1NamespacesNamespaceAgentModelPoliciesKeyMigrationGetRequest{
 		ApiService: a,
-		ctx: ctx,
-		namespace: namespace,
-		key: key,
+		ctx:        ctx,
+		namespace:  namespace,
+		key:        key,
 	}
 }
 
 // Execute executes the request
-//  @return ProviderMigrationDiagnostic
+//
+//	@return ProviderMigrationDiagnostic
 func (a *AgentsAPIService) DiagnoseModelPolicyMigrationApiV1NamespacesNamespaceAgentModelPoliciesKeyMigrationGetExecute(r ApiDiagnoseModelPolicyMigrationApiV1NamespacesNamespaceAgentModelPoliciesKeyMigrationGetRequest) (*ProviderMigrationDiagnostic, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *ProviderMigrationDiagnostic
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *ProviderMigrationDiagnostic
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AgentsAPIService.DiagnoseModelPolicyMigrationApiV1NamespacesNamespaceAgentModelPoliciesKeyMigrationGet")
@@ -781,8 +785,8 @@ func (a *AgentsAPIService) DiagnoseModelPolicyMigrationApiV1NamespacesNamespaceA
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -800,13 +804,13 @@ func (a *AgentsAPIService) DiagnoseModelPolicyMigrationApiV1NamespacesNamespaceA
 }
 
 type ApiDiscoverAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsDiscoverPostRequest struct {
-	ctx context.Context
-	ApiService *AgentsAPIService
-	namespace string
+	ctx                           context.Context
+	ApiService                    *AgentsAPIService
+	namespace                     string
 	mcpConnectionDiscoveryRequest *McpConnectionDiscoveryRequest
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization                 *string
+	xAmeshCSRF                    *string
+	xAmeshTenant                  *string
 }
 
 func (r ApiDiscoverAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsDiscoverPostRequest) McpConnectionDiscoveryRequest(mcpConnectionDiscoveryRequest McpConnectionDiscoveryRequest) ApiDiscoverAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsDiscoverPostRequest {
@@ -836,26 +840,27 @@ func (r ApiDiscoverAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnections
 /*
 DiscoverAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsDiscoverPost Discover Agent Mcp Connection
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param namespace
- @return ApiDiscoverAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsDiscoverPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param namespace
+	@return ApiDiscoverAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsDiscoverPostRequest
 */
 func (a *AgentsAPIService) DiscoverAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsDiscoverPost(ctx context.Context, namespace string) ApiDiscoverAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsDiscoverPostRequest {
 	return ApiDiscoverAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsDiscoverPostRequest{
 		ApiService: a,
-		ctx: ctx,
-		namespace: namespace,
+		ctx:        ctx,
+		namespace:  namespace,
 	}
 }
 
 // Execute executes the request
-//  @return McpDiscoveryResult
+//
+//	@return McpDiscoveryResult
 func (a *AgentsAPIService) DiscoverAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsDiscoverPostExecute(r ApiDiscoverAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsDiscoverPostRequest) (*McpDiscoveryResult, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *McpDiscoveryResult
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *McpDiscoveryResult
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AgentsAPIService.DiscoverAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsDiscoverPost")
@@ -930,8 +935,8 @@ func (a *AgentsAPIService) DiscoverAgentMcpConnectionApiV1NamespacesNamespaceAge
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -949,14 +954,14 @@ func (a *AgentsAPIService) DiscoverAgentMcpConnectionApiV1NamespacesNamespaceAge
 }
 
 type ApiGetAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyGetRequest struct {
-	ctx context.Context
-	ApiService *AgentsAPIService
-	namespace string
-	key string
-	revision *int32
+	ctx           context.Context
+	ApiService    *AgentsAPIService
+	namespace     string
+	key           string
+	revision      *int32
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiGetAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyGetRequest) Revision(revision int32) ApiGetAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyGetRequest {
@@ -986,28 +991,29 @@ func (r ApiGetAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyGe
 /*
 GetAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyGet Get Agent Mcp Connection
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param namespace
- @param key
- @return ApiGetAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param namespace
+	@param key
+	@return ApiGetAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyGetRequest
 */
 func (a *AgentsAPIService) GetAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyGet(ctx context.Context, namespace string, key string) ApiGetAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyGetRequest {
 	return ApiGetAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyGetRequest{
 		ApiService: a,
-		ctx: ctx,
-		namespace: namespace,
-		key: key,
+		ctx:        ctx,
+		namespace:  namespace,
+		key:        key,
 	}
 }
 
 // Execute executes the request
-//  @return McpConnectionRevision
+//
+//	@return McpConnectionRevision
 func (a *AgentsAPIService) GetAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyGetExecute(r ApiGetAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyGetRequest) (*McpConnectionRevision, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *McpConnectionRevision
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *McpConnectionRevision
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AgentsAPIService.GetAgentMcpConnectionApiV1NamespacesNamespaceAgentMcpConnectionsKeyGet")
@@ -1081,8 +1087,8 @@ func (a *AgentsAPIService) GetAgentMcpConnectionApiV1NamespacesNamespaceAgentMcp
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1100,15 +1106,15 @@ func (a *AgentsAPIService) GetAgentMcpConnectionApiV1NamespacesNamespaceAgentMcp
 }
 
 type ApiGetAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGetRequest struct {
-	ctx context.Context
-	ApiService *AgentsAPIService
-	namespace string
-	kind AgentResourceKind
-	key string
-	revision *int32
+	ctx           context.Context
+	ApiService    *AgentsAPIService
+	namespace     string
+	kind          AgentResourceKind
+	key           string
+	revision      *int32
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiGetAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGetRequest) Revision(revision int32) ApiGetAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGetRequest {
@@ -1138,30 +1144,31 @@ func (r ApiGetAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGetReque
 /*
 GetAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGet Get Agent Resource
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param namespace
- @param kind
- @param key
- @return ApiGetAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param namespace
+	@param kind
+	@param key
+	@return ApiGetAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGetRequest
 */
 func (a *AgentsAPIService) GetAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGet(ctx context.Context, namespace string, kind AgentResourceKind, key string) ApiGetAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGetRequest {
 	return ApiGetAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGetRequest{
 		ApiService: a,
-		ctx: ctx,
-		namespace: namespace,
-		kind: kind,
-		key: key,
+		ctx:        ctx,
+		namespace:  namespace,
+		kind:       kind,
+		key:        key,
 	}
 }
 
 // Execute executes the request
-//  @return AgentResourceRevision
+//
+//	@return AgentResourceRevision
 func (a *AgentsAPIService) GetAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGetExecute(r ApiGetAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGetRequest) (*AgentResourceRevision, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *AgentResourceRevision
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *AgentResourceRevision
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AgentsAPIService.GetAgentResourceApiV1NamespacesNamespaceAgentResourcesKindKeyGet")
@@ -1236,8 +1243,8 @@ func (a *AgentsAPIService) GetAgentResourceApiV1NamespacesNamespaceAgentResource
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1255,14 +1262,14 @@ func (a *AgentsAPIService) GetAgentResourceApiV1NamespacesNamespaceAgentResource
 }
 
 type ApiListAgentMcpConnectionToolsApiV1NamespacesNamespaceAgentMcpConnectionsKeyToolsGetRequest struct {
-	ctx context.Context
-	ApiService *AgentsAPIService
-	namespace string
-	key string
-	revision *int32
+	ctx           context.Context
+	ApiService    *AgentsAPIService
+	namespace     string
+	key           string
+	revision      *int32
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiListAgentMcpConnectionToolsApiV1NamespacesNamespaceAgentMcpConnectionsKeyToolsGetRequest) Revision(revision int32) ApiListAgentMcpConnectionToolsApiV1NamespacesNamespaceAgentMcpConnectionsKeyToolsGetRequest {
@@ -1292,28 +1299,29 @@ func (r ApiListAgentMcpConnectionToolsApiV1NamespacesNamespaceAgentMcpConnection
 /*
 ListAgentMcpConnectionToolsApiV1NamespacesNamespaceAgentMcpConnectionsKeyToolsGet List Agent Mcp Connection Tools
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param namespace
- @param key
- @return ApiListAgentMcpConnectionToolsApiV1NamespacesNamespaceAgentMcpConnectionsKeyToolsGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param namespace
+	@param key
+	@return ApiListAgentMcpConnectionToolsApiV1NamespacesNamespaceAgentMcpConnectionsKeyToolsGetRequest
 */
 func (a *AgentsAPIService) ListAgentMcpConnectionToolsApiV1NamespacesNamespaceAgentMcpConnectionsKeyToolsGet(ctx context.Context, namespace string, key string) ApiListAgentMcpConnectionToolsApiV1NamespacesNamespaceAgentMcpConnectionsKeyToolsGetRequest {
 	return ApiListAgentMcpConnectionToolsApiV1NamespacesNamespaceAgentMcpConnectionsKeyToolsGetRequest{
 		ApiService: a,
-		ctx: ctx,
-		namespace: namespace,
-		key: key,
+		ctx:        ctx,
+		namespace:  namespace,
+		key:        key,
 	}
 }
 
 // Execute executes the request
-//  @return []map[string]interface{}
+//
+//	@return []map[string]interface{}
 func (a *AgentsAPIService) ListAgentMcpConnectionToolsApiV1NamespacesNamespaceAgentMcpConnectionsKeyToolsGetExecute(r ApiListAgentMcpConnectionToolsApiV1NamespacesNamespaceAgentMcpConnectionsKeyToolsGetRequest) ([]map[string]interface{}, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  []map[string]interface{}
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []map[string]interface{}
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AgentsAPIService.ListAgentMcpConnectionToolsApiV1NamespacesNamespaceAgentMcpConnectionsKeyToolsGet")
@@ -1387,8 +1395,8 @@ func (a *AgentsAPIService) ListAgentMcpConnectionToolsApiV1NamespacesNamespaceAg
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1406,12 +1414,12 @@ func (a *AgentsAPIService) ListAgentMcpConnectionToolsApiV1NamespacesNamespaceAg
 }
 
 type ApiListAgentMcpConnectionsApiV1NamespacesNamespaceAgentMcpConnectionsGetRequest struct {
-	ctx context.Context
-	ApiService *AgentsAPIService
-	namespace string
+	ctx           context.Context
+	ApiService    *AgentsAPIService
+	namespace     string
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiListAgentMcpConnectionsApiV1NamespacesNamespaceAgentMcpConnectionsGetRequest) Authorization(authorization string) ApiListAgentMcpConnectionsApiV1NamespacesNamespaceAgentMcpConnectionsGetRequest {
@@ -1436,26 +1444,27 @@ func (r ApiListAgentMcpConnectionsApiV1NamespacesNamespaceAgentMcpConnectionsGet
 /*
 ListAgentMcpConnectionsApiV1NamespacesNamespaceAgentMcpConnectionsGet List Agent Mcp Connections
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param namespace
- @return ApiListAgentMcpConnectionsApiV1NamespacesNamespaceAgentMcpConnectionsGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param namespace
+	@return ApiListAgentMcpConnectionsApiV1NamespacesNamespaceAgentMcpConnectionsGetRequest
 */
 func (a *AgentsAPIService) ListAgentMcpConnectionsApiV1NamespacesNamespaceAgentMcpConnectionsGet(ctx context.Context, namespace string) ApiListAgentMcpConnectionsApiV1NamespacesNamespaceAgentMcpConnectionsGetRequest {
 	return ApiListAgentMcpConnectionsApiV1NamespacesNamespaceAgentMcpConnectionsGetRequest{
 		ApiService: a,
-		ctx: ctx,
-		namespace: namespace,
+		ctx:        ctx,
+		namespace:  namespace,
 	}
 }
 
 // Execute executes the request
-//  @return []McpConnectionRevision
+//
+//	@return []McpConnectionRevision
 func (a *AgentsAPIService) ListAgentMcpConnectionsApiV1NamespacesNamespaceAgentMcpConnectionsGetExecute(r ApiListAgentMcpConnectionsApiV1NamespacesNamespaceAgentMcpConnectionsGetRequest) ([]McpConnectionRevision, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  []McpConnectionRevision
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []McpConnectionRevision
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AgentsAPIService.ListAgentMcpConnectionsApiV1NamespacesNamespaceAgentMcpConnectionsGet")
@@ -1525,8 +1534,8 @@ func (a *AgentsAPIService) ListAgentMcpConnectionsApiV1NamespacesNamespaceAgentM
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1544,14 +1553,14 @@ func (a *AgentsAPIService) ListAgentMcpConnectionsApiV1NamespacesNamespaceAgentM
 }
 
 type ApiListAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGetRequest struct {
-	ctx context.Context
-	ApiService *AgentsAPIService
-	namespace string
-	agentKey *string
-	limit *int32
+	ctx           context.Context
+	ApiService    *AgentsAPIService
+	namespace     string
+	agentKey      *string
+	limit         *int32
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiListAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGetRequest) AgentKey(agentKey string) ApiListAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGetRequest {
@@ -1586,26 +1595,27 @@ func (r ApiListAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGetRequest)
 /*
 ListAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGet List Agent Memory Metadata
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param namespace
- @return ApiListAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param namespace
+	@return ApiListAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGetRequest
 */
 func (a *AgentsAPIService) ListAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGet(ctx context.Context, namespace string) ApiListAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGetRequest {
 	return ApiListAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGetRequest{
 		ApiService: a,
-		ctx: ctx,
-		namespace: namespace,
+		ctx:        ctx,
+		namespace:  namespace,
 	}
 }
 
 // Execute executes the request
-//  @return []AgentMemoryMetadata
+//
+//	@return []AgentMemoryMetadata
 func (a *AgentsAPIService) ListAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGetExecute(r ApiListAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGetRequest) ([]AgentMemoryMetadata, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  []AgentMemoryMetadata
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []AgentMemoryMetadata
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AgentsAPIService.ListAgentMemoryMetadataApiV1NamespacesNamespaceAgentMemoryGet")
@@ -1685,8 +1695,8 @@ func (a *AgentsAPIService) ListAgentMemoryMetadataApiV1NamespacesNamespaceAgentM
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1704,13 +1714,13 @@ func (a *AgentsAPIService) ListAgentMemoryMetadataApiV1NamespacesNamespaceAgentM
 }
 
 type ApiListAgentResourcesApiV1NamespacesNamespaceAgentResourcesGetRequest struct {
-	ctx context.Context
-	ApiService *AgentsAPIService
-	namespace string
-	kind *AgentResourceKind
+	ctx           context.Context
+	ApiService    *AgentsAPIService
+	namespace     string
+	kind          *AgentResourceKind
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiListAgentResourcesApiV1NamespacesNamespaceAgentResourcesGetRequest) Kind(kind AgentResourceKind) ApiListAgentResourcesApiV1NamespacesNamespaceAgentResourcesGetRequest {
@@ -1740,26 +1750,27 @@ func (r ApiListAgentResourcesApiV1NamespacesNamespaceAgentResourcesGetRequest) E
 /*
 ListAgentResourcesApiV1NamespacesNamespaceAgentResourcesGet List Agent Resources
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param namespace
- @return ApiListAgentResourcesApiV1NamespacesNamespaceAgentResourcesGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param namespace
+	@return ApiListAgentResourcesApiV1NamespacesNamespaceAgentResourcesGetRequest
 */
 func (a *AgentsAPIService) ListAgentResourcesApiV1NamespacesNamespaceAgentResourcesGet(ctx context.Context, namespace string) ApiListAgentResourcesApiV1NamespacesNamespaceAgentResourcesGetRequest {
 	return ApiListAgentResourcesApiV1NamespacesNamespaceAgentResourcesGetRequest{
 		ApiService: a,
-		ctx: ctx,
-		namespace: namespace,
+		ctx:        ctx,
+		namespace:  namespace,
 	}
 }
 
 // Execute executes the request
-//  @return []AgentResourceRevision
+//
+//	@return []AgentResourceRevision
 func (a *AgentsAPIService) ListAgentResourcesApiV1NamespacesNamespaceAgentResourcesGetExecute(r ApiListAgentResourcesApiV1NamespacesNamespaceAgentResourcesGetRequest) ([]AgentResourceRevision, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  []AgentResourceRevision
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []AgentResourceRevision
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AgentsAPIService.ListAgentResourcesApiV1NamespacesNamespaceAgentResourcesGet")
@@ -1832,8 +1843,8 @@ func (a *AgentsAPIService) ListAgentResourcesApiV1NamespacesNamespaceAgentResour
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1851,14 +1862,14 @@ func (a *AgentsAPIService) ListAgentResourcesApiV1NamespacesNamespaceAgentResour
 }
 
 type ApiPreviewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGetRequest struct {
-	ctx context.Context
-	ApiService *AgentsAPIService
-	namespace string
-	key string
+	ctx           context.Context
+	ApiService    *AgentsAPIService
+	namespace     string
+	key           string
 	agentRevision *int32
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiPreviewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGetRequest) AgentRevision(agentRevision int32) ApiPreviewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGetRequest {
@@ -1888,28 +1899,29 @@ func (r ApiPreviewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPrev
 /*
 PreviewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGet Preview Agent Definition
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param namespace
- @param key
- @return ApiPreviewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param namespace
+	@param key
+	@return ApiPreviewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGetRequest
 */
 func (a *AgentsAPIService) PreviewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGet(ctx context.Context, namespace string, key string) ApiPreviewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGetRequest {
 	return ApiPreviewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGetRequest{
 		ApiService: a,
-		ctx: ctx,
-		namespace: namespace,
-		key: key,
+		ctx:        ctx,
+		namespace:  namespace,
+		key:        key,
 	}
 }
 
 // Execute executes the request
-//  @return AgentEnvelopePreview
+//
+//	@return AgentEnvelopePreview
 func (a *AgentsAPIService) PreviewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGetExecute(r ApiPreviewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGetRequest) (*AgentEnvelopePreview, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *AgentEnvelopePreview
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *AgentEnvelopePreview
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AgentsAPIService.PreviewAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyPreviewGet")
@@ -1987,8 +1999,8 @@ func (a *AgentsAPIService) PreviewAgentDefinitionApiV1NamespacesNamespaceAgentDe
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -2006,15 +2018,15 @@ func (a *AgentsAPIService) PreviewAgentDefinitionApiV1NamespacesNamespaceAgentDe
 }
 
 type ApiPreviewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGetRequest struct {
-	ctx context.Context
-	ApiService *AgentsAPIService
-	namespace string
-	key string
-	fixtureKey string
-	revision *int32
+	ctx           context.Context
+	ApiService    *AgentsAPIService
+	namespace     string
+	key           string
+	fixtureKey    string
+	revision      *int32
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiPreviewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGetRequest) Revision(revision int32) ApiPreviewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGetRequest {
@@ -2044,30 +2056,31 @@ func (r ApiPreviewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluations
 /*
 PreviewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGet Preview Agent Evaluation Fixture
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param namespace
- @param key
- @param fixtureKey
- @return ApiPreviewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param namespace
+	@param key
+	@param fixtureKey
+	@return ApiPreviewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGetRequest
 */
 func (a *AgentsAPIService) PreviewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGet(ctx context.Context, namespace string, key string, fixtureKey string) ApiPreviewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGetRequest {
 	return ApiPreviewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGetRequest{
 		ApiService: a,
-		ctx: ctx,
-		namespace: namespace,
-		key: key,
+		ctx:        ctx,
+		namespace:  namespace,
+		key:        key,
 		fixtureKey: fixtureKey,
 	}
 }
 
 // Execute executes the request
-//  @return AgentEvaluationPreview
+//
+//	@return AgentEvaluationPreview
 func (a *AgentsAPIService) PreviewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGetExecute(r ApiPreviewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGetRequest) (*AgentEvaluationPreview, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *AgentEvaluationPreview
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *AgentEvaluationPreview
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AgentsAPIService.PreviewAgentEvaluationFixtureApiV1NamespacesNamespaceAgentEvaluationsKeyFixturesFixtureKeyPreviewGet")
@@ -2146,8 +2159,8 @@ func (a *AgentsAPIService) PreviewAgentEvaluationFixtureApiV1NamespacesNamespace
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -2165,13 +2178,13 @@ func (a *AgentsAPIService) PreviewAgentEvaluationFixtureApiV1NamespacesNamespace
 }
 
 type ApiPreviewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPostRequest struct {
-	ctx context.Context
-	ApiService *AgentsAPIService
-	namespace string
+	ctx               context.Context
+	ApiService        *AgentsAPIService
+	namespace         string
 	agentRouteRequest *AgentRouteRequest
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization     *string
+	xAmeshCSRF        *string
+	xAmeshTenant      *string
 }
 
 func (r ApiPreviewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPostRequest) AgentRouteRequest(agentRouteRequest AgentRouteRequest) ApiPreviewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPostRequest {
@@ -2201,26 +2214,27 @@ func (r ApiPreviewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPo
 /*
 PreviewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPost Preview Agent Mesh Route
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param namespace
- @return ApiPreviewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param namespace
+	@return ApiPreviewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPostRequest
 */
 func (a *AgentsAPIService) PreviewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPost(ctx context.Context, namespace string) ApiPreviewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPostRequest {
 	return ApiPreviewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPostRequest{
 		ApiService: a,
-		ctx: ctx,
-		namespace: namespace,
+		ctx:        ctx,
+		namespace:  namespace,
 	}
 }
 
 // Execute executes the request
-//  @return AgentRouteDecision
+//
+//	@return AgentRouteDecision
 func (a *AgentsAPIService) PreviewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPostExecute(r ApiPreviewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPostRequest) (*AgentRouteDecision, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *AgentRouteDecision
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *AgentRouteDecision
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AgentsAPIService.PreviewAgentMeshRouteApiV1NamespacesNamespaceAgentMeshRoutesPreviewPost")
@@ -2295,8 +2309,8 @@ func (a *AgentsAPIService) PreviewAgentMeshRouteApiV1NamespacesNamespaceAgentMes
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -2314,14 +2328,14 @@ func (a *AgentsAPIService) PreviewAgentMeshRouteApiV1NamespacesNamespaceAgentMes
 }
 
 type ApiResolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePostRequest struct {
-	ctx context.Context
-	ApiService *AgentsAPIService
-	namespace string
-	key string
+	ctx                    context.Context
+	ApiService             *AgentsAPIService
+	namespace              string
+	key                    string
 	agentResolutionRequest *AgentResolutionRequest
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization          *string
+	xAmeshCSRF             *string
+	xAmeshTenant           *string
 }
 
 func (r ApiResolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePostRequest) AgentResolutionRequest(agentResolutionRequest AgentResolutionRequest) ApiResolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePostRequest {
@@ -2351,28 +2365,29 @@ func (r ApiResolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyReso
 /*
 ResolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePost Resolve Agent Definition
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param namespace
- @param key
- @return ApiResolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param namespace
+	@param key
+	@return ApiResolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePostRequest
 */
 func (a *AgentsAPIService) ResolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePost(ctx context.Context, namespace string, key string) ApiResolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePostRequest {
 	return ApiResolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePostRequest{
 		ApiService: a,
-		ctx: ctx,
-		namespace: namespace,
-		key: key,
+		ctx:        ctx,
+		namespace:  namespace,
+		key:        key,
 	}
 }
 
 // Execute executes the request
-//  @return AgentCapabilityPin
+//
+//	@return AgentCapabilityPin
 func (a *AgentsAPIService) ResolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePostExecute(r ApiResolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePostRequest) (*AgentCapabilityPin, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *AgentCapabilityPin
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *AgentCapabilityPin
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AgentsAPIService.ResolveAgentDefinitionApiV1NamespacesNamespaceAgentDefinitionsKeyResolvePost")
@@ -2448,8 +2463,8 @@ func (a *AgentsAPIService) ResolveAgentDefinitionApiV1NamespacesNamespaceAgentDe
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}

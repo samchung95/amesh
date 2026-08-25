@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the TriggerRuntimeState type satisfies the MappedNullable interface at compile time
@@ -22,28 +22,28 @@ var _ MappedNullable = &TriggerRuntimeState{}
 
 // TriggerRuntimeState Queryable lifecycle and health projection for one immutable trigger revision.
 type TriggerRuntimeState struct {
-	Active bool `json:"active"`
-	Checkpoint map[string]interface{} `json:"checkpoint,omitempty"`
-	ConsecutiveFailures *int32 `json:"consecutive_failures,omitempty"`
-	Cursor NullableString `json:"cursor,omitempty"`
-	DeadLetterCount *int32 `json:"dead_letter_count,omitempty"`
-	FlowId string `json:"flow_id"`
-	FlowRevision int32 `json:"flow_revision"`
-	LagSeconds *float32 `json:"lag_seconds,omitempty"`
-	LastDecision string `json:"last_decision"`
-	LastError NullableString `json:"last_error,omitempty"`
-	LastEvaluatedAt NullableTime `json:"last_evaluated_at,omitempty"`
-	LastOccurrenceAt NullableTime `json:"last_occurrence_at,omitempty"`
-	LastSuccessAt NullableTime `json:"last_success_at,omitempty"`
-	Namespace string `json:"namespace"`
-	NextEvaluationAt NullableTime `json:"next_evaluation_at,omitempty"`
-	Paused bool `json:"paused"`
-	PendingCount *int32 `json:"pending_count,omitempty"`
-	TenantId string `json:"tenant_id"`
-	TriggerDefinitionId string `json:"trigger_definition_id"`
-	TriggerId string `json:"trigger_id"`
-	TriggerType string `json:"trigger_type"`
-	UpdatedAt time.Time `json:"updated_at"`
+	Active              bool                   `json:"active"`
+	Checkpoint          map[string]interface{} `json:"checkpoint,omitempty"`
+	ConsecutiveFailures *int32                 `json:"consecutive_failures,omitempty"`
+	Cursor              NullableString         `json:"cursor,omitempty"`
+	DeadLetterCount     *int32                 `json:"dead_letter_count,omitempty"`
+	FlowId              string                 `json:"flow_id"`
+	FlowRevision        int32                  `json:"flow_revision"`
+	LagSeconds          *float32               `json:"lag_seconds,omitempty"`
+	LastDecision        string                 `json:"last_decision"`
+	LastError           NullableString         `json:"last_error,omitempty"`
+	LastEvaluatedAt     NullableTime           `json:"last_evaluated_at,omitempty"`
+	LastOccurrenceAt    NullableTime           `json:"last_occurrence_at,omitempty"`
+	LastSuccessAt       NullableTime           `json:"last_success_at,omitempty"`
+	Namespace           string                 `json:"namespace"`
+	NextEvaluationAt    NullableTime           `json:"next_evaluation_at,omitempty"`
+	Paused              bool                   `json:"paused"`
+	PendingCount        *int32                 `json:"pending_count,omitempty"`
+	TenantId            string                 `json:"tenant_id"`
+	TriggerDefinitionId string                 `json:"trigger_definition_id"`
+	TriggerId           string                 `json:"trigger_id"`
+	TriggerType         string                 `json:"trigger_type"`
+	UpdatedAt           time.Time              `json:"updated_at"`
 }
 
 type _TriggerRuntimeState TriggerRuntimeState
@@ -212,6 +212,7 @@ func (o *TriggerRuntimeState) HasCursor() bool {
 func (o *TriggerRuntimeState) SetCursor(v string) {
 	o.Cursor.Set(&v)
 }
+
 // SetCursorNil sets the value for Cursor to be an explicit nil
 func (o *TriggerRuntimeState) SetCursorNil() {
 	o.Cursor.Set(nil)
@@ -390,6 +391,7 @@ func (o *TriggerRuntimeState) HasLastError() bool {
 func (o *TriggerRuntimeState) SetLastError(v string) {
 	o.LastError.Set(&v)
 }
+
 // SetLastErrorNil sets the value for LastError to be an explicit nil
 func (o *TriggerRuntimeState) SetLastErrorNil() {
 	o.LastError.Set(nil)
@@ -432,6 +434,7 @@ func (o *TriggerRuntimeState) HasLastEvaluatedAt() bool {
 func (o *TriggerRuntimeState) SetLastEvaluatedAt(v time.Time) {
 	o.LastEvaluatedAt.Set(&v)
 }
+
 // SetLastEvaluatedAtNil sets the value for LastEvaluatedAt to be an explicit nil
 func (o *TriggerRuntimeState) SetLastEvaluatedAtNil() {
 	o.LastEvaluatedAt.Set(nil)
@@ -474,6 +477,7 @@ func (o *TriggerRuntimeState) HasLastOccurrenceAt() bool {
 func (o *TriggerRuntimeState) SetLastOccurrenceAt(v time.Time) {
 	o.LastOccurrenceAt.Set(&v)
 }
+
 // SetLastOccurrenceAtNil sets the value for LastOccurrenceAt to be an explicit nil
 func (o *TriggerRuntimeState) SetLastOccurrenceAtNil() {
 	o.LastOccurrenceAt.Set(nil)
@@ -516,6 +520,7 @@ func (o *TriggerRuntimeState) HasLastSuccessAt() bool {
 func (o *TriggerRuntimeState) SetLastSuccessAt(v time.Time) {
 	o.LastSuccessAt.Set(&v)
 }
+
 // SetLastSuccessAtNil sets the value for LastSuccessAt to be an explicit nil
 func (o *TriggerRuntimeState) SetLastSuccessAtNil() {
 	o.LastSuccessAt.Set(nil)
@@ -582,6 +587,7 @@ func (o *TriggerRuntimeState) HasNextEvaluationAt() bool {
 func (o *TriggerRuntimeState) SetNextEvaluationAt(v time.Time) {
 	o.NextEvaluationAt.Set(&v)
 }
+
 // SetNextEvaluationAtNil sets the value for NextEvaluationAt to be an explicit nil
 func (o *TriggerRuntimeState) SetNextEvaluationAtNil() {
 	o.NextEvaluationAt.Set(nil)
@@ -769,7 +775,7 @@ func (o *TriggerRuntimeState) SetUpdatedAt(v time.Time) {
 }
 
 func (o TriggerRuntimeState) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -848,10 +854,10 @@ func (o *TriggerRuntimeState) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

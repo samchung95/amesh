@@ -604,4 +604,30 @@ describe('API client', () => {
     expect(saveInit.method).toBe('POST')
     expect(JSON.parse(saveInit.body as string)).toEqual(policy)
   })
+
+  it('builds release preview, promotion and recovery requests with concurrency guards', async () => {
+    const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(new Response('{}', { status: 200 })))
+    vi.stubGlobal('fetch', fetchMock)
+    const api = createApiClient({ token: 'token', tenant: 'default', namespace: '' })
+
+    await api.previewRelease('policy/one')
+    await api.applyRelease('policy/one', 3, 'promote tested revision')
+    await api.releaseTarget('WORKFLOW', 'examples/safe/research')
+    await api.releaseHistory('WORKFLOW', 'examples/safe/research')
+    await api.rollbackRelease('WORKFLOW', 'examples/safe/research', 2, 4, 'restore known good revision')
+    await api.killSwitchRelease('WORKFLOW', 'examples/safe/research', 5, 'stop during incident review')
+
+    expect(fetchMock.mock.calls.map((call) => call[0] as string)).toEqual([
+      '/api/v1/releases/policies/policy%2Fone/preview',
+      '/api/v1/releases/policies/policy%2Fone/apply',
+      '/api/v1/releases/WORKFLOW/examples%2Fsafe%2Fresearch',
+      '/api/v1/releases/WORKFLOW/examples%2Fsafe%2Fresearch/history',
+      '/api/v1/releases/WORKFLOW/examples%2Fsafe%2Fresearch/rollback',
+      '/api/v1/releases/WORKFLOW/examples%2Fsafe%2Fresearch/kill-switch',
+    ])
+    expect(JSON.parse((fetchMock.mock.calls[0]?.[1] as RequestInit).body as string)).toEqual({ approvals: {} })
+    expect(JSON.parse((fetchMock.mock.calls[1]?.[1] as RequestInit).body as string)).toEqual({ expectedVersion: 3, reason: 'promote tested revision', approvals: {} })
+    expect(JSON.parse((fetchMock.mock.calls[4]?.[1] as RequestInit).body as string)).toEqual({ toRevision: 2, expectedVersion: 4, reason: 'restore known good revision' })
+    expect(JSON.parse((fetchMock.mock.calls[5]?.[1] as RequestInit).body as string)).toEqual({ expectedVersion: 5, reason: 'stop during incident review' })
+  })
 })

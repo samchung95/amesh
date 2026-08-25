@@ -20,13 +20,13 @@ type AgentSessionPhase string
 
 // List of AgentSessionPhase
 const (
-	AGENTSESSIONPHASE_READY AgentSessionPhase = "READY"
-	AGENTSESSIONPHASE_MODEL AgentSessionPhase = "MODEL"
-	AGENTSESSIONPHASE_POLICY AgentSessionPhase = "POLICY"
-	AGENTSESSIONPHASE_APPROVAL AgentSessionPhase = "APPROVAL"
-	AGENTSESSIONPHASE_TOOL AgentSessionPhase = "TOOL"
+	AGENTSESSIONPHASE_READY      AgentSessionPhase = "READY"
+	AGENTSESSIONPHASE_MODEL      AgentSessionPhase = "MODEL"
+	AGENTSESSIONPHASE_POLICY     AgentSessionPhase = "POLICY"
+	AGENTSESSIONPHASE_APPROVAL   AgentSessionPhase = "APPROVAL"
+	AGENTSESSIONPHASE_TOOL       AgentSessionPhase = "TOOL"
 	AGENTSESSIONPHASE_VALIDATING AgentSessionPhase = "VALIDATING"
-	AGENTSESSIONPHASE_COMPLETE AgentSessionPhase = "COMPLETE"
+	AGENTSESSIONPHASE_COMPLETE   AgentSessionPhase = "COMPLETE"
 )
 
 // All allowed values of AgentSessionPhase enum

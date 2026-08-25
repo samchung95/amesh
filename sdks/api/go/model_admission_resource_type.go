@@ -21,7 +21,7 @@ type AdmissionResourceType string
 // List of AdmissionResourceType
 const (
 	ADMISSIONRESOURCETYPE_EXECUTION AdmissionResourceType = "EXECUTION"
-	ADMISSIONRESOURCETYPE_TASK AdmissionResourceType = "TASK"
+	ADMISSIONRESOURCETYPE_TASK      AdmissionResourceType = "TASK"
 )
 
 // All allowed values of AdmissionResourceType enum

@@ -391,8 +391,8 @@ async def _resolve_agent_envelope(
                 tenant_uuid,
                 tenant_id,
                 namespace,
-                ref.connection_key,
-                ref.connection_revision,
+                ref.effective_provider_key,
+                ref.effective_provider_revision,
             )
             for ref in agent.spec.tools
         ]

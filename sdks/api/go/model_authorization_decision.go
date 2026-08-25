@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,11 +21,11 @@ var _ MappedNullable = &AuthorizationDecision{}
 
 // AuthorizationDecision struct for AuthorizationDecision
 type AuthorizationDecision struct {
-	Allowed bool `json:"allowed"`
+	Allowed          bool     `json:"allowed"`
 	MatchedRoleNames []string `json:"matched_role_names,omitempty"`
-	PolicyVersion int32 `json:"policy_version"`
-	ReasonCode string `json:"reason_code"`
-	Summary string `json:"summary"`
+	PolicyVersion    int32    `json:"policy_version"`
+	ReasonCode       string   `json:"reason_code"`
+	Summary          string   `json:"summary"`
 }
 
 type _AuthorizationDecision AuthorizationDecision
@@ -180,7 +180,7 @@ func (o *AuthorizationDecision) SetSummary(v string) {
 }
 
 func (o AuthorizationDecision) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -215,10 +215,10 @@ func (o *AuthorizationDecision) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

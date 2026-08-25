@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,9 +21,9 @@ var _ MappedNullable = &PersistedEventMigrationRequest{}
 
 // PersistedEventMigrationRequest struct for PersistedEventMigrationRequest
 type PersistedEventMigrationRequest struct {
-	BatchSize *int32 `json:"batchSize,omitempty"`
+	BatchSize    *int32 `json:"batchSize,omitempty"`
 	Confirmation string `json:"confirmation"`
-	Reason string `json:"reason"`
+	Reason       string `json:"reason"`
 }
 
 type _PersistedEventMigrationRequest PersistedEventMigrationRequest
@@ -132,7 +132,7 @@ func (o *PersistedEventMigrationRequest) SetReason(v string) {
 }
 
 func (o PersistedEventMigrationRequest) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -163,10 +163,10 @@ func (o *PersistedEventMigrationRequest) UnmarshalJSON(data []byte) (err error) 
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

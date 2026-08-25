@@ -20,10 +20,10 @@ var _ MappedNullable = &PolicyResourceContext{}
 // PolicyResourceContext struct for PolicyResourceContext
 type PolicyResourceContext struct {
 	Attributes map[string]interface{} `json:"attributes,omitempty"`
-	Inputs map[string]interface{} `json:"inputs,omitempty"`
-	Task map[string]interface{} `json:"task,omitempty"`
-	TaskId NullableString `json:"taskId,omitempty"`
-	TaskType NullableString `json:"taskType,omitempty"`
+	Inputs     map[string]interface{} `json:"inputs,omitempty"`
+	Task       map[string]interface{} `json:"task,omitempty"`
+	TaskId     NullableString         `json:"taskId,omitempty"`
+	TaskType   NullableString         `json:"taskType,omitempty"`
 }
 
 // NewPolicyResourceContext instantiates a new PolicyResourceContext object
@@ -171,6 +171,7 @@ func (o *PolicyResourceContext) HasTaskId() bool {
 func (o *PolicyResourceContext) SetTaskId(v string) {
 	o.TaskId.Set(&v)
 }
+
 // SetTaskIdNil sets the value for TaskId to be an explicit nil
 func (o *PolicyResourceContext) SetTaskIdNil() {
 	o.TaskId.Set(nil)
@@ -213,6 +214,7 @@ func (o *PolicyResourceContext) HasTaskType() bool {
 func (o *PolicyResourceContext) SetTaskType(v string) {
 	o.TaskType.Set(&v)
 }
+
 // SetTaskTypeNil sets the value for TaskType to be an explicit nil
 func (o *PolicyResourceContext) SetTaskTypeNil() {
 	o.TaskType.Set(nil)
@@ -224,7 +226,7 @@ func (o *PolicyResourceContext) UnsetTaskType() {
 }
 
 func (o PolicyResourceContext) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}

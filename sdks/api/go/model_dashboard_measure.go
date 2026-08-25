@@ -20,9 +20,9 @@ type DashboardMeasure string
 
 // List of DashboardMeasure
 const (
-	DASHBOARDMEASURE_COUNT DashboardMeasure = "COUNT"
+	DASHBOARDMEASURE_COUNT       DashboardMeasure = "COUNT"
 	DASHBOARDMEASURE_DURATION_MS DashboardMeasure = "DURATION_MS"
-	DASHBOARDMEASURE_VALUE DashboardMeasure = "VALUE"
+	DASHBOARDMEASURE_VALUE       DashboardMeasure = "VALUE"
 )
 
 // All allowed values of DashboardMeasure enum

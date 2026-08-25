@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,10 +21,10 @@ var _ MappedNullable = &FlowEditorSchemaResponse{}
 
 // FlowEditorSchemaResponse struct for FlowEditorSchemaResponse
 type FlowEditorSchemaResponse struct {
-	ExpressionContext map[string]string `json:"expressionContext"`
-	FlowSchema map[string]interface{} `json:"flowSchema"`
-	ResourceCatalog map[string]interface{} `json:"resourceCatalog"`
-	SchemaVersion string `json:"schemaVersion"`
+	ExpressionContext map[string]string      `json:"expressionContext"`
+	FlowSchema        map[string]interface{} `json:"flowSchema"`
+	ResourceCatalog   map[string]interface{} `json:"resourceCatalog"`
+	SchemaVersion     string                 `json:"schemaVersion"`
 }
 
 type _FlowEditorSchemaResponse FlowEditorSchemaResponse
@@ -147,7 +147,7 @@ func (o *FlowEditorSchemaResponse) SetSchemaVersion(v string) {
 }
 
 func (o FlowEditorSchemaResponse) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -179,10 +179,10 @@ func (o *FlowEditorSchemaResponse) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

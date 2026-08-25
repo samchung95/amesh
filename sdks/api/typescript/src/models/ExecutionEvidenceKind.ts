@@ -22,7 +22,15 @@ export const ExecutionEvidenceKind = {
     Log: 'LOG',
     Metric: 'METRIC',
     Output: 'OUTPUT',
-    Artifact: 'ARTIFACT'
+    Artifact: 'ARTIFACT',
+    Agent: 'AGENT',
+    Model: 'MODEL',
+    Tool: 'TOOL',
+    Error: 'ERROR',
+    Approval: 'APPROVAL',
+    Intervention: 'INTERVENTION',
+    Control: 'CONTROL',
+    Decision: 'DECISION'
 } as const;
 export type ExecutionEvidenceKind = typeof ExecutionEvidenceKind[keyof typeof ExecutionEvidenceKind];
 

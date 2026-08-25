@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,11 +21,11 @@ var _ MappedNullable = &ScimUserRequest{}
 
 // ScimUserRequest struct for ScimUserRequest
 type ScimUserRequest struct {
-	Active *bool `json:"active,omitempty"`
+	Active      *bool          `json:"active,omitempty"`
 	DisplayName NullableString `json:"displayName,omitempty"`
-	ExternalId NullableString `json:"externalId,omitempty"`
-	Schemas []string `json:"schemas,omitempty"`
-	UserName string `json:"userName"`
+	ExternalId  NullableString `json:"externalId,omitempty"`
+	Schemas     []string       `json:"schemas,omitempty"`
+	UserName    string         `json:"userName"`
 }
 
 type _ScimUserRequest ScimUserRequest
@@ -116,6 +116,7 @@ func (o *ScimUserRequest) HasDisplayName() bool {
 func (o *ScimUserRequest) SetDisplayName(v string) {
 	o.DisplayName.Set(&v)
 }
+
 // SetDisplayNameNil sets the value for DisplayName to be an explicit nil
 func (o *ScimUserRequest) SetDisplayNameNil() {
 	o.DisplayName.Set(nil)
@@ -158,6 +159,7 @@ func (o *ScimUserRequest) HasExternalId() bool {
 func (o *ScimUserRequest) SetExternalId(v string) {
 	o.ExternalId.Set(&v)
 }
+
 // SetExternalIdNil sets the value for ExternalId to be an explicit nil
 func (o *ScimUserRequest) SetExternalIdNil() {
 	o.ExternalId.Set(nil)
@@ -225,7 +227,7 @@ func (o *ScimUserRequest) SetUserName(v string) {
 }
 
 func (o ScimUserRequest) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -263,10 +265,10 @@ func (o *ScimUserRequest) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

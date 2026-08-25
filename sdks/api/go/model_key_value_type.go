@@ -20,13 +20,13 @@ type KeyValueType string
 
 // List of KeyValueType
 const (
-	KEYVALUETYPE_STRING KeyValueType = "STRING"
-	KEYVALUETYPE_NUMBER KeyValueType = "NUMBER"
-	KEYVALUETYPE_BOOLEAN KeyValueType = "BOOLEAN"
+	KEYVALUETYPE_STRING   KeyValueType = "STRING"
+	KEYVALUETYPE_NUMBER   KeyValueType = "NUMBER"
+	KEYVALUETYPE_BOOLEAN  KeyValueType = "BOOLEAN"
 	KEYVALUETYPE_DATETIME KeyValueType = "DATETIME"
-	KEYVALUETYPE_DATE KeyValueType = "DATE"
+	KEYVALUETYPE_DATE     KeyValueType = "DATE"
 	KEYVALUETYPE_DURATION KeyValueType = "DURATION"
-	KEYVALUETYPE_JSON KeyValueType = "JSON"
+	KEYVALUETYPE_JSON     KeyValueType = "JSON"
 )
 
 // All allowed values of KeyValueType enum

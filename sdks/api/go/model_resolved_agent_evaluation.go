@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,11 +21,11 @@ var _ MappedNullable = &ResolvedAgentEvaluation{}
 
 // ResolvedAgentEvaluation struct for ResolvedAgentEvaluation
 type ResolvedAgentEvaluation struct {
-	JudgeFallbackMode *ModelFallbackMode `json:"judgeFallbackMode,omitempty"`
-	JudgeModelRoutes []ModelRoute `json:"judgeModelRoutes,omitempty"`
-	JudgeNondeterminismDisclosure NullableString `json:"judgeNondeterminismDisclosure,omitempty"`
-	Resource ResolvedResourcePin `json:"resource"`
-	Spec AgentEvaluationSpecOutput `json:"spec"`
+	JudgeFallbackMode             *ModelFallbackMode        `json:"judgeFallbackMode,omitempty"`
+	JudgeModelRoutes              []ModelRoute              `json:"judgeModelRoutes,omitempty"`
+	JudgeNondeterminismDisclosure NullableString            `json:"judgeNondeterminismDisclosure,omitempty"`
+	Resource                      ResolvedResourcePin       `json:"resource"`
+	Spec                          AgentEvaluationSpecOutput `json:"spec"`
 }
 
 type _ResolvedAgentEvaluation ResolvedAgentEvaluation
@@ -149,6 +149,7 @@ func (o *ResolvedAgentEvaluation) HasJudgeNondeterminismDisclosure() bool {
 func (o *ResolvedAgentEvaluation) SetJudgeNondeterminismDisclosure(v string) {
 	o.JudgeNondeterminismDisclosure.Set(&v)
 }
+
 // SetJudgeNondeterminismDisclosureNil sets the value for JudgeNondeterminismDisclosure to be an explicit nil
 func (o *ResolvedAgentEvaluation) SetJudgeNondeterminismDisclosureNil() {
 	o.JudgeNondeterminismDisclosure.Set(nil)
@@ -208,7 +209,7 @@ func (o *ResolvedAgentEvaluation) SetSpec(v AgentEvaluationSpecOutput) {
 }
 
 func (o ResolvedAgentEvaluation) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -245,10 +246,10 @@ func (o *ResolvedAgentEvaluation) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

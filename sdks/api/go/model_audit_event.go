@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the AuditEvent type satisfies the MappedNullable interface at compile time
@@ -22,24 +22,24 @@ var _ MappedNullable = &AuditEvent{}
 
 // AuditEvent struct for AuditEvent
 type AuditEvent struct {
-	Action string `json:"action"`
-	ActorId string `json:"actorId"`
-	CorrelationId string `json:"correlationId"`
-	Cursor int32 `json:"cursor"`
-	DelegatedActorId NullableString `json:"delegatedActorId,omitempty"`
-	EventHash string `json:"eventHash" validate:"regexp=^[0-9a-f]{64}$"`
-	EventId string `json:"eventId"`
-	Evidence map[string]interface{} `json:"evidence"`
-	OccurredAt time.Time `json:"occurredAt"`
-	Outcome string `json:"outcome"`
-	PreviousHash NullableString `json:"previousHash,omitempty"`
-	Reason string `json:"reason"`
-	ResourceId NullableString `json:"resourceId,omitempty"`
-	ResourceType string `json:"resourceType"`
-	RetentionUntil time.Time `json:"retentionUntil"`
-	Source map[string]interface{} `json:"source"`
-	TenantId string `json:"tenantId"`
-	TraceId string `json:"traceId"`
+	Action           string                 `json:"action"`
+	ActorId          string                 `json:"actorId"`
+	CorrelationId    string                 `json:"correlationId"`
+	Cursor           int32                  `json:"cursor"`
+	DelegatedActorId NullableString         `json:"delegatedActorId,omitempty"`
+	EventHash        string                 `json:"eventHash" validate:"regexp=^[0-9a-f]{64}$"`
+	EventId          string                 `json:"eventId"`
+	Evidence         map[string]interface{} `json:"evidence"`
+	OccurredAt       time.Time              `json:"occurredAt"`
+	Outcome          string                 `json:"outcome"`
+	PreviousHash     NullableString         `json:"previousHash,omitempty"`
+	Reason           string                 `json:"reason"`
+	ResourceId       NullableString         `json:"resourceId,omitempty"`
+	ResourceType     string                 `json:"resourceType"`
+	RetentionUntil   time.Time              `json:"retentionUntil"`
+	Source           map[string]interface{} `json:"source"`
+	TenantId         string                 `json:"tenantId"`
+	TraceId          string                 `json:"traceId"`
 }
 
 type _AuditEvent AuditEvent
@@ -204,6 +204,7 @@ func (o *AuditEvent) HasDelegatedActorId() bool {
 func (o *AuditEvent) SetDelegatedActorId(v string) {
 	o.DelegatedActorId.Set(&v)
 }
+
 // SetDelegatedActorIdNil sets the value for DelegatedActorId to be an explicit nil
 func (o *AuditEvent) SetDelegatedActorIdNil() {
 	o.DelegatedActorId.Set(nil)
@@ -366,6 +367,7 @@ func (o *AuditEvent) HasPreviousHash() bool {
 func (o *AuditEvent) SetPreviousHash(v string) {
 	o.PreviousHash.Set(&v)
 }
+
 // SetPreviousHashNil sets the value for PreviousHash to be an explicit nil
 func (o *AuditEvent) SetPreviousHashNil() {
 	o.PreviousHash.Set(nil)
@@ -432,6 +434,7 @@ func (o *AuditEvent) HasResourceId() bool {
 func (o *AuditEvent) SetResourceId(v string) {
 	o.ResourceId.Set(&v)
 }
+
 // SetResourceIdNil sets the value for ResourceId to be an explicit nil
 func (o *AuditEvent) SetResourceIdNil() {
 	o.ResourceId.Set(nil)
@@ -563,7 +566,7 @@ func (o *AuditEvent) SetTraceId(v string) {
 }
 
 func (o AuditEvent) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -626,10 +629,10 @@ func (o *AuditEvent) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

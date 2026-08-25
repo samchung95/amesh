@@ -24,7 +24,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import io.amesh.client.model.ToolProviderKind;
 import java.util.Arrays;
+import org.openapitools.jackson.nullable.JsonNullable;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.openapitools.jackson.nullable.JsonNullable;
+import java.util.NoSuchElementException;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
@@ -35,18 +40,29 @@ import io.amesh.client.ApiClient;
 @JsonPropertyOrder({
   AgentToolRef.JSON_PROPERTY_CONNECTION_KEY,
   AgentToolRef.JSON_PROPERTY_CONNECTION_REVISION,
+  AgentToolRef.JSON_PROPERTY_PROVIDER_KEY,
+  AgentToolRef.JSON_PROPERTY_PROVIDER_KIND,
+  AgentToolRef.JSON_PROPERTY_PROVIDER_REVISION,
   AgentToolRef.JSON_PROPERTY_SCHEMA_DIGEST,
   AgentToolRef.JSON_PROPERTY_TOOL_NAME
 })
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.24.0")
 public class AgentToolRef {
   public static final String JSON_PROPERTY_CONNECTION_KEY = "connectionKey";
-  @javax.annotation.Nonnull
-  private String connectionKey;
+  private JsonNullable<String> connectionKey = JsonNullable.<String>undefined();
 
   public static final String JSON_PROPERTY_CONNECTION_REVISION = "connectionRevision";
-  @javax.annotation.Nonnull
-  private Integer connectionRevision;
+  private JsonNullable<Integer> connectionRevision = JsonNullable.<Integer>undefined();
+
+  public static final String JSON_PROPERTY_PROVIDER_KEY = "providerKey";
+  private JsonNullable<String> providerKey = JsonNullable.<String>undefined();
+
+  public static final String JSON_PROPERTY_PROVIDER_KIND = "providerKind";
+  @javax.annotation.Nullable
+  private ToolProviderKind providerKind;
+
+  public static final String JSON_PROPERTY_PROVIDER_REVISION = "providerRevision";
+  private JsonNullable<Integer> providerRevision = JsonNullable.<Integer>undefined();
 
   public static final String JSON_PROPERTY_SCHEMA_DIGEST = "schemaDigest";
   @javax.annotation.Nonnull
@@ -59,8 +75,8 @@ public class AgentToolRef {
   public AgentToolRef() {
   }
 
-  public AgentToolRef connectionKey(@javax.annotation.Nonnull String connectionKey) {
-    this.connectionKey = connectionKey;
+  public AgentToolRef connectionKey(@javax.annotation.Nullable String connectionKey) {
+    this.connectionKey = JsonNullable.<String>of(connectionKey);
     return this;
   }
 
@@ -68,23 +84,31 @@ public class AgentToolRef {
    * Get connectionKey
    * @return connectionKey
    */
-  @javax.annotation.Nonnull
-  @JsonProperty(value = JSON_PROPERTY_CONNECTION_KEY, required = true)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  @javax.annotation.Nullable
+  @JsonIgnore
   public String getConnectionKey() {
+        return connectionKey.orElse(null);
+  }
+
+  @JsonProperty(value = JSON_PROPERTY_CONNECTION_KEY, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public JsonNullable<String> getConnectionKey_JsonNullable() {
     return connectionKey;
   }
 
-
-  @JsonProperty(value = JSON_PROPERTY_CONNECTION_KEY, required = true)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setConnectionKey(@javax.annotation.Nonnull String connectionKey) {
+  @JsonProperty(JSON_PROPERTY_CONNECTION_KEY)
+  public void setConnectionKey_JsonNullable(JsonNullable<String> connectionKey) {
     this.connectionKey = connectionKey;
   }
 
+  public void setConnectionKey(@javax.annotation.Nullable String connectionKey) {
+    this.connectionKey = JsonNullable.<String>of(connectionKey);
+  }
 
-  public AgentToolRef connectionRevision(@javax.annotation.Nonnull Integer connectionRevision) {
-    this.connectionRevision = connectionRevision;
+
+  public AgentToolRef connectionRevision(@javax.annotation.Nullable Integer connectionRevision) {
+    this.connectionRevision = JsonNullable.<Integer>of(connectionRevision);
     return this;
   }
 
@@ -93,18 +117,115 @@ public class AgentToolRef {
    * minimum: 1
    * @return connectionRevision
    */
-  @javax.annotation.Nonnull
-  @JsonProperty(value = JSON_PROPERTY_CONNECTION_REVISION, required = true)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  @javax.annotation.Nullable
+  @JsonIgnore
   public Integer getConnectionRevision() {
+        return connectionRevision.orElse(null);
+  }
+
+  @JsonProperty(value = JSON_PROPERTY_CONNECTION_REVISION, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public JsonNullable<Integer> getConnectionRevision_JsonNullable() {
     return connectionRevision;
   }
 
-
-  @JsonProperty(value = JSON_PROPERTY_CONNECTION_REVISION, required = true)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setConnectionRevision(@javax.annotation.Nonnull Integer connectionRevision) {
+  @JsonProperty(JSON_PROPERTY_CONNECTION_REVISION)
+  public void setConnectionRevision_JsonNullable(JsonNullable<Integer> connectionRevision) {
     this.connectionRevision = connectionRevision;
+  }
+
+  public void setConnectionRevision(@javax.annotation.Nullable Integer connectionRevision) {
+    this.connectionRevision = JsonNullable.<Integer>of(connectionRevision);
+  }
+
+
+  public AgentToolRef providerKey(@javax.annotation.Nullable String providerKey) {
+    this.providerKey = JsonNullable.<String>of(providerKey);
+    return this;
+  }
+
+  /**
+   * Get providerKey
+   * @return providerKey
+   */
+  @javax.annotation.Nullable
+  @JsonIgnore
+  public String getProviderKey() {
+        return providerKey.orElse(null);
+  }
+
+  @JsonProperty(value = JSON_PROPERTY_PROVIDER_KEY, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public JsonNullable<String> getProviderKey_JsonNullable() {
+    return providerKey;
+  }
+
+  @JsonProperty(JSON_PROPERTY_PROVIDER_KEY)
+  public void setProviderKey_JsonNullable(JsonNullable<String> providerKey) {
+    this.providerKey = providerKey;
+  }
+
+  public void setProviderKey(@javax.annotation.Nullable String providerKey) {
+    this.providerKey = JsonNullable.<String>of(providerKey);
+  }
+
+
+  public AgentToolRef providerKind(@javax.annotation.Nullable ToolProviderKind providerKind) {
+    this.providerKind = providerKind;
+    return this;
+  }
+
+  /**
+   * Get providerKind
+   * @return providerKind
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_PROVIDER_KIND, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public ToolProviderKind getProviderKind() {
+    return providerKind;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_PROVIDER_KIND, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setProviderKind(@javax.annotation.Nullable ToolProviderKind providerKind) {
+    this.providerKind = providerKind;
+  }
+
+
+  public AgentToolRef providerRevision(@javax.annotation.Nullable Integer providerRevision) {
+    this.providerRevision = JsonNullable.<Integer>of(providerRevision);
+    return this;
+  }
+
+  /**
+   * Get providerRevision
+   * minimum: 1
+   * @return providerRevision
+   */
+  @javax.annotation.Nullable
+  @JsonIgnore
+  public Integer getProviderRevision() {
+        return providerRevision.orElse(null);
+  }
+
+  @JsonProperty(value = JSON_PROPERTY_PROVIDER_REVISION, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public JsonNullable<Integer> getProviderRevision_JsonNullable() {
+    return providerRevision;
+  }
+
+  @JsonProperty(JSON_PROPERTY_PROVIDER_REVISION)
+  public void setProviderRevision_JsonNullable(JsonNullable<Integer> providerRevision) {
+    this.providerRevision = providerRevision;
+  }
+
+  public void setProviderRevision(@javax.annotation.Nullable Integer providerRevision) {
+    this.providerRevision = JsonNullable.<Integer>of(providerRevision);
   }
 
 
@@ -168,15 +289,29 @@ public class AgentToolRef {
       return false;
     }
     AgentToolRef agentToolRef = (AgentToolRef) o;
-    return Objects.equals(this.connectionKey, agentToolRef.connectionKey) &&
-        Objects.equals(this.connectionRevision, agentToolRef.connectionRevision) &&
+    return equalsNullable(this.connectionKey, agentToolRef.connectionKey) &&
+        equalsNullable(this.connectionRevision, agentToolRef.connectionRevision) &&
+        equalsNullable(this.providerKey, agentToolRef.providerKey) &&
+        Objects.equals(this.providerKind, agentToolRef.providerKind) &&
+        equalsNullable(this.providerRevision, agentToolRef.providerRevision) &&
         Objects.equals(this.schemaDigest, agentToolRef.schemaDigest) &&
         Objects.equals(this.toolName, agentToolRef.toolName);
   }
 
+  private static <T> boolean equalsNullable(JsonNullable<T> a, JsonNullable<T> b) {
+    return a == b || (a != null && b != null && a.isPresent() && b.isPresent() && Objects.deepEquals(a.get(), b.get()));
+  }
+
   @Override
   public int hashCode() {
-    return Objects.hash(connectionKey, connectionRevision, schemaDigest, toolName);
+    return Objects.hash(hashCodeNullable(connectionKey), hashCodeNullable(connectionRevision), hashCodeNullable(providerKey), providerKind, hashCodeNullable(providerRevision), schemaDigest, toolName);
+  }
+
+  private static <T> int hashCodeNullable(JsonNullable<T> a) {
+    if (a == null) {
+      return 1;
+    }
+    return a.isPresent() ? Arrays.deepHashCode(new Object[]{a.get()}) : 31;
   }
 
   @Override
@@ -185,6 +320,9 @@ public class AgentToolRef {
     sb.append("class AgentToolRef {\n");
     sb.append("    connectionKey: ").append(toIndentedString(connectionKey)).append("\n");
     sb.append("    connectionRevision: ").append(toIndentedString(connectionRevision)).append("\n");
+    sb.append("    providerKey: ").append(toIndentedString(providerKey)).append("\n");
+    sb.append("    providerKind: ").append(toIndentedString(providerKind)).append("\n");
+    sb.append("    providerRevision: ").append(toIndentedString(providerRevision)).append("\n");
     sb.append("    schemaDigest: ").append(toIndentedString(schemaDigest)).append("\n");
     sb.append("    toolName: ").append(toIndentedString(toolName)).append("\n");
     sb.append("}");
@@ -239,6 +377,21 @@ public class AgentToolRef {
     // add `connectionRevision` to the URL query string
     if (getConnectionRevision() != null) {
       joiner.add(String.format(java.util.Locale.ROOT, "%sconnectionRevision%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getConnectionRevision()))));
+    }
+
+    // add `providerKey` to the URL query string
+    if (getProviderKey() != null) {
+      joiner.add(String.format(java.util.Locale.ROOT, "%sproviderKey%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getProviderKey()))));
+    }
+
+    // add `providerKind` to the URL query string
+    if (getProviderKind() != null) {
+      joiner.add(String.format(java.util.Locale.ROOT, "%sproviderKind%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getProviderKind()))));
+    }
+
+    // add `providerRevision` to the URL query string
+    if (getProviderRevision() != null) {
+      joiner.add(String.format(java.util.Locale.ROOT, "%sproviderRevision%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getProviderRevision()))));
     }
 
     // add `schemaDigest` to the URL query string

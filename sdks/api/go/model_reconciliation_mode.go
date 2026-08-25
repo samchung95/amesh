@@ -21,7 +21,7 @@ type ReconciliationMode string
 // List of ReconciliationMode
 const (
 	RECONCILIATIONMODE_DRY_RUN ReconciliationMode = "DRY_RUN"
-	RECONCILIATIONMODE_APPLY ReconciliationMode = "APPLY"
+	RECONCILIATIONMODE_APPLY   ReconciliationMode = "APPLY"
 )
 
 // All allowed values of ReconciliationMode enum

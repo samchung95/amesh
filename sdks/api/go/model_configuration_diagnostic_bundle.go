@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the ConfigurationDiagnosticBundle type satisfies the MappedNullable interface at compile time
@@ -22,16 +22,16 @@ var _ MappedNullable = &ConfigurationDiagnosticBundle{}
 
 // ConfigurationDiagnosticBundle struct for ConfigurationDiagnosticBundle
 type ConfigurationDiagnosticBundle struct {
-	ComponentHealth map[string]string `json:"componentHealth"`
-	Configuration ConfigurationSnapshot `json:"configuration"`
-	FeatureFlags []FeatureFlag `json:"featureFlags"`
-	GeneratedAt time.Time `json:"generatedAt"`
-	Namespace NullableString `json:"namespace,omitempty"`
-	RecentErrors []*map[string]interface{} `json:"recentErrors"`
-	SchemaVersion *int32 `json:"schemaVersion,omitempty"`
-	SelectedMetrics map[string]float32 `json:"selectedMetrics"`
-	TenantId string `json:"tenantId"`
-	VersionMatrix map[string]string `json:"versionMatrix"`
+	ComponentHealth map[string]string         `json:"componentHealth"`
+	Configuration   ConfigurationSnapshot     `json:"configuration"`
+	FeatureFlags    []FeatureFlag             `json:"featureFlags"`
+	GeneratedAt     time.Time                 `json:"generatedAt"`
+	Namespace       NullableString            `json:"namespace,omitempty"`
+	RecentErrors    []*map[string]interface{} `json:"recentErrors"`
+	SchemaVersion   *int32                    `json:"schemaVersion,omitempty"`
+	SelectedMetrics map[string]float32        `json:"selectedMetrics"`
+	TenantId        string                    `json:"tenantId"`
+	VersionMatrix   map[string]string         `json:"versionMatrix"`
 }
 
 type _ConfigurationDiagnosticBundle ConfigurationDiagnosticBundle
@@ -193,6 +193,7 @@ func (o *ConfigurationDiagnosticBundle) HasNamespace() bool {
 func (o *ConfigurationDiagnosticBundle) SetNamespace(v string) {
 	o.Namespace.Set(&v)
 }
+
 // SetNamespaceNil sets the value for Namespace to be an explicit nil
 func (o *ConfigurationDiagnosticBundle) SetNamespaceNil() {
 	o.Namespace.Set(nil)
@@ -332,7 +333,7 @@ func (o *ConfigurationDiagnosticBundle) SetVersionMatrix(v map[string]string) {
 }
 
 func (o ConfigurationDiagnosticBundle) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -378,10 +379,10 @@ func (o *ConfigurationDiagnosticBundle) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

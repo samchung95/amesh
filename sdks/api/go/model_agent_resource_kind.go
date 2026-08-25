@@ -20,11 +20,11 @@ type AgentResourceKind string
 
 // List of AgentResourceKind
 const (
-	AGENTRESOURCEKIND_PROMPT AgentResourceKind = "PROMPT"
-	AGENTRESOURCEKIND_SKILL AgentResourceKind = "SKILL"
+	AGENTRESOURCEKIND_PROMPT       AgentResourceKind = "PROMPT"
+	AGENTRESOURCEKIND_SKILL        AgentResourceKind = "SKILL"
 	AGENTRESOURCEKIND_MODEL_POLICY AgentResourceKind = "MODEL_POLICY"
-	AGENTRESOURCEKIND_EVALUATION AgentResourceKind = "EVALUATION"
-	AGENTRESOURCEKIND_AGENT AgentResourceKind = "AGENT"
+	AGENTRESOURCEKIND_EVALUATION   AgentResourceKind = "EVALUATION"
+	AGENTRESOURCEKIND_AGENT        AgentResourceKind = "AGENT"
 )
 
 // All allowed values of AgentResourceKind enum

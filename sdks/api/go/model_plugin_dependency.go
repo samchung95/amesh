@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,8 +21,8 @@ var _ MappedNullable = &PluginDependency{}
 
 // PluginDependency struct for PluginDependency
 type PluginDependency struct {
-	Name string `json:"name" validate:"regexp=^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$"`
-	Optional *bool `json:"optional,omitempty"`
+	Name         string `json:"name" validate:"regexp=^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$"`
+	Optional     *bool  `json:"optional,omitempty"`
 	VersionRange string `json:"versionRange"`
 }
 
@@ -132,7 +132,7 @@ func (o *PluginDependency) SetVersionRange(v string) {
 }
 
 func (o PluginDependency) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -163,10 +163,10 @@ func (o *PluginDependency) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

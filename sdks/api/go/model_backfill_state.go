@@ -20,8 +20,8 @@ type BackfillState string
 
 // List of BackfillState
 const (
-	BACKFILLSTATE_RUNNING BackfillState = "RUNNING"
-	BACKFILLSTATE_PAUSED BackfillState = "PAUSED"
+	BACKFILLSTATE_RUNNING   BackfillState = "RUNNING"
+	BACKFILLSTATE_PAUSED    BackfillState = "PAUSED"
 	BACKFILLSTATE_CANCELLED BackfillState = "CANCELLED"
 	BACKFILLSTATE_COMPLETED BackfillState = "COMPLETED"
 )

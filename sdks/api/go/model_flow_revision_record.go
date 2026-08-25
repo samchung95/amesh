@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the FlowRevisionRecord type satisfies the MappedNullable interface at compile time
@@ -22,19 +22,19 @@ var _ MappedNullable = &FlowRevisionRecord{}
 
 // FlowRevisionRecord struct for FlowRevisionRecord
 type FlowRevisionRecord struct {
-	CreatedAt time.Time `json:"created_at"`
-	CreatedBy string `json:"created_by"`
-	Deployment map[string]interface{} `json:"deployment,omitempty"`
-	Environment NullableString `json:"environment,omitempty"`
-	FlowId string `json:"flow_id"`
-	Namespace string `json:"namespace"`
+	CreatedAt        time.Time              `json:"created_at"`
+	CreatedBy        string                 `json:"created_by"`
+	Deployment       map[string]interface{} `json:"deployment,omitempty"`
+	Environment      NullableString         `json:"environment,omitempty"`
+	FlowId           string                 `json:"flow_id"`
+	Namespace        string                 `json:"namespace"`
 	PluginResolution map[string]interface{} `json:"plugin_resolution,omitempty"`
-	ResourceId string `json:"resource_id"`
-	Revision int32 `json:"revision"`
-	SemanticHash string `json:"semantic_hash"`
-	Source NullableString `json:"source,omitempty"`
-	SourceCommit NullableString `json:"source_commit,omitempty"`
-	TenantId string `json:"tenant_id"`
+	ResourceId       string                 `json:"resource_id"`
+	Revision         int32                  `json:"revision"`
+	SemanticHash     string                 `json:"semantic_hash"`
+	Source           NullableString         `json:"source,omitempty"`
+	SourceCommit     NullableString         `json:"source_commit,omitempty"`
+	TenantId         string                 `json:"tenant_id"`
 }
 
 type _FlowRevisionRecord FlowRevisionRecord
@@ -176,6 +176,7 @@ func (o *FlowRevisionRecord) HasEnvironment() bool {
 func (o *FlowRevisionRecord) SetEnvironment(v string) {
 	o.Environment.Set(&v)
 }
+
 // SetEnvironmentNil sets the value for Environment to be an explicit nil
 func (o *FlowRevisionRecord) SetEnvironmentNil() {
 	o.Environment.Set(nil)
@@ -370,6 +371,7 @@ func (o *FlowRevisionRecord) HasSource() bool {
 func (o *FlowRevisionRecord) SetSource(v string) {
 	o.Source.Set(&v)
 }
+
 // SetSourceNil sets the value for Source to be an explicit nil
 func (o *FlowRevisionRecord) SetSourceNil() {
 	o.Source.Set(nil)
@@ -412,6 +414,7 @@ func (o *FlowRevisionRecord) HasSourceCommit() bool {
 func (o *FlowRevisionRecord) SetSourceCommit(v string) {
 	o.SourceCommit.Set(&v)
 }
+
 // SetSourceCommitNil sets the value for SourceCommit to be an explicit nil
 func (o *FlowRevisionRecord) SetSourceCommitNil() {
 	o.SourceCommit.Set(nil)
@@ -447,7 +450,7 @@ func (o *FlowRevisionRecord) SetTenantId(v string) {
 }
 
 func (o FlowRevisionRecord) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -502,10 +505,10 @@ func (o *FlowRevisionRecord) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

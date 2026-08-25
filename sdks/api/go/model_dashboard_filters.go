@@ -20,14 +20,14 @@ var _ MappedNullable = &DashboardFilters{}
 
 // DashboardFilters struct for DashboardFilters
 type DashboardFilters struct {
-	Dimensions map[string]string `json:"dimensions,omitempty"`
-	FlowId NullableString `json:"flowId,omitempty"`
-	From NullableTime `json:"from,omitempty"`
-	Labels map[string]string `json:"labels,omitempty"`
-	Namespace NullableString `json:"namespace,omitempty"`
-	States []string `json:"states,omitempty"`
-	To NullableTime `json:"to,omitempty"`
-	WorkerGroups []string `json:"workerGroups,omitempty"`
+	Dimensions   map[string]string `json:"dimensions,omitempty"`
+	FlowId       NullableString    `json:"flowId,omitempty"`
+	From         NullableTime      `json:"from,omitempty"`
+	Labels       map[string]string `json:"labels,omitempty"`
+	Namespace    NullableString    `json:"namespace,omitempty"`
+	States       []string          `json:"states,omitempty"`
+	To           NullableTime      `json:"to,omitempty"`
+	WorkerGroups []string          `json:"workerGroups,omitempty"`
 }
 
 // NewDashboardFilters instantiates a new DashboardFilters object
@@ -111,6 +111,7 @@ func (o *DashboardFilters) HasFlowId() bool {
 func (o *DashboardFilters) SetFlowId(v string) {
 	o.FlowId.Set(&v)
 }
+
 // SetFlowIdNil sets the value for FlowId to be an explicit nil
 func (o *DashboardFilters) SetFlowIdNil() {
 	o.FlowId.Set(nil)
@@ -153,6 +154,7 @@ func (o *DashboardFilters) HasFrom() bool {
 func (o *DashboardFilters) SetFrom(v time.Time) {
 	o.From.Set(&v)
 }
+
 // SetFromNil sets the value for From to be an explicit nil
 func (o *DashboardFilters) SetFromNil() {
 	o.From.Set(nil)
@@ -227,6 +229,7 @@ func (o *DashboardFilters) HasNamespace() bool {
 func (o *DashboardFilters) SetNamespace(v string) {
 	o.Namespace.Set(&v)
 }
+
 // SetNamespaceNil sets the value for Namespace to be an explicit nil
 func (o *DashboardFilters) SetNamespaceNil() {
 	o.Namespace.Set(nil)
@@ -301,6 +304,7 @@ func (o *DashboardFilters) HasTo() bool {
 func (o *DashboardFilters) SetTo(v time.Time) {
 	o.To.Set(&v)
 }
+
 // SetToNil sets the value for To to be an explicit nil
 func (o *DashboardFilters) SetToNil() {
 	o.To.Set(nil)
@@ -344,7 +348,7 @@ func (o *DashboardFilters) SetWorkerGroups(v []string) {
 }
 
 func (o DashboardFilters) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}

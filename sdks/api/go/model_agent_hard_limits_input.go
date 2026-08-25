@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,14 +21,14 @@ var _ MappedNullable = &AgentHardLimitsInput{}
 
 // AgentHardLimitsInput struct for AgentHardLimitsInput
 type AgentHardLimitsInput struct {
-	MaxConcurrency int32 `json:"maxConcurrency"`
-	MaxCostUsd Maxcostusd `json:"maxCostUsd"`
-	MaxDurationSeconds int32 `json:"maxDurationSeconds"`
-	MaxLoopIterations int32 `json:"maxLoopIterations"`
-	MaxRecursionDepth int32 `json:"maxRecursionDepth"`
-	MaxToolCalls int32 `json:"maxToolCalls"`
-	MaxTotalTokens int32 `json:"maxTotalTokens"`
-	MaxTurns int32 `json:"maxTurns"`
+	MaxConcurrency     int32      `json:"maxConcurrency"`
+	MaxCostUsd         Maxcostusd `json:"maxCostUsd"`
+	MaxDurationSeconds int32      `json:"maxDurationSeconds"`
+	MaxLoopIterations  int32      `json:"maxLoopIterations"`
+	MaxRecursionDepth  int32      `json:"maxRecursionDepth"`
+	MaxToolCalls       int32      `json:"maxToolCalls"`
+	MaxTotalTokens     int32      `json:"maxTotalTokens"`
+	MaxTurns           int32      `json:"maxTurns"`
 }
 
 type _AgentHardLimitsInput AgentHardLimitsInput
@@ -251,7 +251,7 @@ func (o *AgentHardLimitsInput) SetMaxTurns(v int32) {
 }
 
 func (o AgentHardLimitsInput) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -291,10 +291,10 @@ func (o *AgentHardLimitsInput) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

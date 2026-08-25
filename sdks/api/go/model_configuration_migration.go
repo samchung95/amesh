@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,11 +21,11 @@ var _ MappedNullable = &ConfigurationMigration{}
 
 // ConfigurationMigration struct for ConfigurationMigration
 type ConfigurationMigration struct {
-	Canonical map[string]interface{} `json:"canonical"`
-	Changed bool `json:"changed"`
-	Kind ConfigurationMigrationKind `json:"kind"`
-	TargetVersion string `json:"targetVersion"`
-	Warnings []string `json:"warnings,omitempty"`
+	Canonical     map[string]interface{}     `json:"canonical"`
+	Changed       bool                       `json:"changed"`
+	Kind          ConfigurationMigrationKind `json:"kind"`
+	TargetVersion string                     `json:"targetVersion"`
+	Warnings      []string                   `json:"warnings,omitempty"`
 }
 
 type _ConfigurationMigration ConfigurationMigration
@@ -180,7 +180,7 @@ func (o *ConfigurationMigration) SetWarnings(v []string) {
 }
 
 func (o ConfigurationMigration) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -215,10 +215,10 @@ func (o *ConfigurationMigration) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

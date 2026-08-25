@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,8 +21,8 @@ var _ MappedNullable = &FlowRevisionLifecycleRequest{}
 
 // FlowRevisionLifecycleRequest struct for FlowRevisionLifecycleRequest
 type FlowRevisionLifecycleRequest struct {
-	Lifecycle FlowLifecycle `json:"lifecycle"`
-	Reason NullableString `json:"reason,omitempty"`
+	Lifecycle FlowLifecycle  `json:"lifecycle"`
+	Reason    NullableString `json:"reason,omitempty"`
 }
 
 type _FlowRevisionLifecycleRequest FlowRevisionLifecycleRequest
@@ -101,6 +101,7 @@ func (o *FlowRevisionLifecycleRequest) HasReason() bool {
 func (o *FlowRevisionLifecycleRequest) SetReason(v string) {
 	o.Reason.Set(&v)
 }
+
 // SetReasonNil sets the value for Reason to be an explicit nil
 func (o *FlowRevisionLifecycleRequest) SetReasonNil() {
 	o.Reason.Set(nil)
@@ -112,7 +113,7 @@ func (o *FlowRevisionLifecycleRequest) UnsetReason() {
 }
 
 func (o FlowRevisionLifecycleRequest) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -141,10 +142,10 @@ func (o *FlowRevisionLifecycleRequest) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

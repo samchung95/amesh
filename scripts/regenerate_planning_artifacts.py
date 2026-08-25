@@ -263,7 +263,10 @@ def render_epic_body(
     for requirement in functional:
         checked = "x" if requirement["status"] == "Verified" else " "
         lines.append(f"- [{checked}] **{requirement['id']}** — {requirement['statement']}")
-    if not functional:
+    for criterion in epic.get("acceptance_criteria", []):
+        checked = "x" if epic.get("state") == "done" else " "
+        lines.append(f"- [{checked}] {criterion}")
+    if not functional and not epic.get("acceptance_criteria"):
         lines.append("- [ ] No functional requirement is currently mapped.")
 
     if epic.get("mvp_progress"):
@@ -311,7 +314,9 @@ def render_epic_body(
             "",
         ]
     )
-    if verification:
+    if epic.get("verification_plan"):
+        lines.extend(f"- {item}." for item in epic["verification_plan"])
+    elif verification:
         lines.extend(f"- {item}." for item in verification)
     else:
         lines.append("- Requirement-specific verification to be defined before implementation.")
@@ -322,6 +327,12 @@ def render_epic_body(
             "",
             "## Definition of done",
             "",
+        ]
+    )
+    for criterion in epic.get("definition_of_done", []):
+        lines.append(f"- [{done_mark}] {criterion}")
+    lines.extend(
+        [
             f"- [{done_mark}] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.",
             f"- [{done_mark}] Public API, DSL, event and plugin contract changes pass compatibility checks.",
             f"- [{done_mark}] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.",

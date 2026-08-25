@@ -18,21 +18,20 @@ import (
 	"net/url"
 )
 
-
 // TaskCacheAPIService TaskCacheAPI service
 type TaskCacheAPIService service
 
 type ApiListTaskCacheEntriesApiV1TaskCacheGetRequest struct {
-	ctx context.Context
-	ApiService *TaskCacheAPIService
-	keyPrefix *string
-	namespace *string
-	flowId *string
-	taskId *string
-	limit *int32
+	ctx           context.Context
+	ApiService    *TaskCacheAPIService
+	keyPrefix     *string
+	namespace     *string
+	flowId        *string
+	taskId        *string
+	limit         *int32
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiListTaskCacheEntriesApiV1TaskCacheGetRequest) KeyPrefix(keyPrefix string) ApiListTaskCacheEntriesApiV1TaskCacheGetRequest {
@@ -82,24 +81,25 @@ func (r ApiListTaskCacheEntriesApiV1TaskCacheGetRequest) Execute() ([]TaskCacheE
 /*
 ListTaskCacheEntriesApiV1TaskCacheGet List Task Cache Entries
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiListTaskCacheEntriesApiV1TaskCacheGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiListTaskCacheEntriesApiV1TaskCacheGetRequest
 */
 func (a *TaskCacheAPIService) ListTaskCacheEntriesApiV1TaskCacheGet(ctx context.Context) ApiListTaskCacheEntriesApiV1TaskCacheGetRequest {
 	return ApiListTaskCacheEntriesApiV1TaskCacheGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return []TaskCacheEntry
+//
+//	@return []TaskCacheEntry
 func (a *TaskCacheAPIService) ListTaskCacheEntriesApiV1TaskCacheGetExecute(r ApiListTaskCacheEntriesApiV1TaskCacheGetRequest) ([]TaskCacheEntry, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  []TaskCacheEntry
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []TaskCacheEntry
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "TaskCacheAPIService.ListTaskCacheEntriesApiV1TaskCacheGet")
@@ -187,8 +187,8 @@ func (a *TaskCacheAPIService) ListTaskCacheEntriesApiV1TaskCacheGetExecute(r Api
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -206,12 +206,12 @@ func (a *TaskCacheAPIService) ListTaskCacheEntriesApiV1TaskCacheGetExecute(r Api
 }
 
 type ApiPurgeTaskCacheEntriesApiV1TaskCachePurgePostRequest struct {
-	ctx context.Context
-	ApiService *TaskCacheAPIService
+	ctx                   context.Context
+	ApiService            *TaskCacheAPIService
 	taskCachePurgeRequest *TaskCachePurgeRequest
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization         *string
+	xAmeshCSRF            *string
+	xAmeshTenant          *string
 }
 
 func (r ApiPurgeTaskCacheEntriesApiV1TaskCachePurgePostRequest) TaskCachePurgeRequest(taskCachePurgeRequest TaskCachePurgeRequest) ApiPurgeTaskCacheEntriesApiV1TaskCachePurgePostRequest {
@@ -241,24 +241,25 @@ func (r ApiPurgeTaskCacheEntriesApiV1TaskCachePurgePostRequest) Execute() (*Task
 /*
 PurgeTaskCacheEntriesApiV1TaskCachePurgePost Purge Task Cache Entries
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiPurgeTaskCacheEntriesApiV1TaskCachePurgePostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiPurgeTaskCacheEntriesApiV1TaskCachePurgePostRequest
 */
 func (a *TaskCacheAPIService) PurgeTaskCacheEntriesApiV1TaskCachePurgePost(ctx context.Context) ApiPurgeTaskCacheEntriesApiV1TaskCachePurgePostRequest {
 	return ApiPurgeTaskCacheEntriesApiV1TaskCachePurgePostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return TaskCachePurgeResult
+//
+//	@return TaskCachePurgeResult
 func (a *TaskCacheAPIService) PurgeTaskCacheEntriesApiV1TaskCachePurgePostExecute(r ApiPurgeTaskCacheEntriesApiV1TaskCachePurgePostRequest) (*TaskCachePurgeResult, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *TaskCachePurgeResult
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *TaskCachePurgeResult
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "TaskCacheAPIService.PurgeTaskCacheEntriesApiV1TaskCachePurgePost")
@@ -332,8 +333,8 @@ func (a *TaskCacheAPIService) PurgeTaskCacheEntriesApiV1TaskCachePurgePostExecut
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}

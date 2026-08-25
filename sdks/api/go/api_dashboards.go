@@ -19,18 +19,17 @@ import (
 	"strings"
 )
 
-
 // DashboardsAPIService DashboardsAPI service
 type DashboardsAPIService service
 
 type ApiDeleteDashboardApiV1DashboardsDashboardIdDeleteRequest struct {
-	ctx context.Context
-	ApiService *DashboardsAPIService
-	dashboardId string
+	ctx             context.Context
+	ApiService      *DashboardsAPIService
+	dashboardId     string
 	expectedVersion *int32
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization   *string
+	xAmeshCSRF      *string
+	xAmeshTenant    *string
 }
 
 func (r ApiDeleteDashboardApiV1DashboardsDashboardIdDeleteRequest) ExpectedVersion(expectedVersion int32) ApiDeleteDashboardApiV1DashboardsDashboardIdDeleteRequest {
@@ -60,14 +59,14 @@ func (r ApiDeleteDashboardApiV1DashboardsDashboardIdDeleteRequest) Execute() (*h
 /*
 DeleteDashboardApiV1DashboardsDashboardIdDelete Delete Dashboard
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param dashboardId
- @return ApiDeleteDashboardApiV1DashboardsDashboardIdDeleteRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param dashboardId
+	@return ApiDeleteDashboardApiV1DashboardsDashboardIdDeleteRequest
 */
 func (a *DashboardsAPIService) DeleteDashboardApiV1DashboardsDashboardIdDelete(ctx context.Context, dashboardId string) ApiDeleteDashboardApiV1DashboardsDashboardIdDeleteRequest {
 	return ApiDeleteDashboardApiV1DashboardsDashboardIdDeleteRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:  a,
+		ctx:         ctx,
 		dashboardId: dashboardId,
 	}
 }
@@ -75,9 +74,9 @@ func (a *DashboardsAPIService) DeleteDashboardApiV1DashboardsDashboardIdDelete(c
 // Execute executes the request
 func (a *DashboardsAPIService) DeleteDashboardApiV1DashboardsDashboardIdDeleteExecute(r ApiDeleteDashboardApiV1DashboardsDashboardIdDeleteRequest) (*http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodDelete
-		localVarPostBody     interface{}
-		formFiles            []formFile
+		localVarHTTPMethod = http.MethodDelete
+		localVarPostBody   interface{}
+		formFiles          []formFile
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "DashboardsAPIService.DeleteDashboardApiV1DashboardsDashboardIdDelete")
@@ -154,8 +153,8 @@ func (a *DashboardsAPIService) DeleteDashboardApiV1DashboardsDashboardIdDeleteEx
 				newErr.error = err.Error()
 				return localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarHTTPResponse, newErr
 	}
@@ -164,12 +163,12 @@ func (a *DashboardsAPIService) DeleteDashboardApiV1DashboardsDashboardIdDeleteEx
 }
 
 type ApiExecuteDashboardQueryApiV1DashboardQueriesPostRequest struct {
-	ctx context.Context
-	ApiService *DashboardsAPIService
+	ctx            context.Context
+	ApiService     *DashboardsAPIService
 	dashboardQuery *DashboardQuery
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization  *string
+	xAmeshCSRF     *string
+	xAmeshTenant   *string
 }
 
 func (r ApiExecuteDashboardQueryApiV1DashboardQueriesPostRequest) DashboardQuery(dashboardQuery DashboardQuery) ApiExecuteDashboardQueryApiV1DashboardQueriesPostRequest {
@@ -199,24 +198,25 @@ func (r ApiExecuteDashboardQueryApiV1DashboardQueriesPostRequest) Execute() (*Da
 /*
 ExecuteDashboardQueryApiV1DashboardQueriesPost Execute Dashboard Query
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiExecuteDashboardQueryApiV1DashboardQueriesPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiExecuteDashboardQueryApiV1DashboardQueriesPostRequest
 */
 func (a *DashboardsAPIService) ExecuteDashboardQueryApiV1DashboardQueriesPost(ctx context.Context) ApiExecuteDashboardQueryApiV1DashboardQueriesPostRequest {
 	return ApiExecuteDashboardQueryApiV1DashboardQueriesPostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return DashboardQueryResult
+//
+//	@return DashboardQueryResult
 func (a *DashboardsAPIService) ExecuteDashboardQueryApiV1DashboardQueriesPostExecute(r ApiExecuteDashboardQueryApiV1DashboardQueriesPostRequest) (*DashboardQueryResult, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *DashboardQueryResult
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *DashboardQueryResult
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "DashboardsAPIService.ExecuteDashboardQueryApiV1DashboardQueriesPost")
@@ -290,8 +290,8 @@ func (a *DashboardsAPIService) ExecuteDashboardQueryApiV1DashboardQueriesPostExe
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -309,13 +309,13 @@ func (a *DashboardsAPIService) ExecuteDashboardQueryApiV1DashboardQueriesPostExe
 }
 
 type ApiExportDashboardApiV1DashboardsDashboardIdExportGetRequest struct {
-	ctx context.Context
-	ApiService *DashboardsAPIService
-	dashboardId string
-	format *string
+	ctx           context.Context
+	ApiService    *DashboardsAPIService
+	dashboardId   string
+	format        *string
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiExportDashboardApiV1DashboardsDashboardIdExportGetRequest) Format(format string) ApiExportDashboardApiV1DashboardsDashboardIdExportGetRequest {
@@ -345,26 +345,27 @@ func (r ApiExportDashboardApiV1DashboardsDashboardIdExportGetRequest) Execute() 
 /*
 ExportDashboardApiV1DashboardsDashboardIdExportGet Export Dashboard
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param dashboardId
- @return ApiExportDashboardApiV1DashboardsDashboardIdExportGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param dashboardId
+	@return ApiExportDashboardApiV1DashboardsDashboardIdExportGetRequest
 */
 func (a *DashboardsAPIService) ExportDashboardApiV1DashboardsDashboardIdExportGet(ctx context.Context, dashboardId string) ApiExportDashboardApiV1DashboardsDashboardIdExportGetRequest {
 	return ApiExportDashboardApiV1DashboardsDashboardIdExportGetRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:  a,
+		ctx:         ctx,
 		dashboardId: dashboardId,
 	}
 }
 
 // Execute executes the request
-//  @return interface{}
+//
+//	@return interface{}
 func (a *DashboardsAPIService) ExportDashboardApiV1DashboardsDashboardIdExportGetExecute(r ApiExportDashboardApiV1DashboardsDashboardIdExportGetRequest) (interface{}, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  interface{}
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue interface{}
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "DashboardsAPIService.ExportDashboardApiV1DashboardsDashboardIdExportGet")
@@ -441,8 +442,8 @@ func (a *DashboardsAPIService) ExportDashboardApiV1DashboardsDashboardIdExportGe
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -460,12 +461,12 @@ func (a *DashboardsAPIService) ExportDashboardApiV1DashboardsDashboardIdExportGe
 }
 
 type ApiGetDashboardApiV1DashboardsDashboardIdGetRequest struct {
-	ctx context.Context
-	ApiService *DashboardsAPIService
-	dashboardId string
+	ctx           context.Context
+	ApiService    *DashboardsAPIService
+	dashboardId   string
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiGetDashboardApiV1DashboardsDashboardIdGetRequest) Authorization(authorization string) ApiGetDashboardApiV1DashboardsDashboardIdGetRequest {
@@ -490,26 +491,27 @@ func (r ApiGetDashboardApiV1DashboardsDashboardIdGetRequest) Execute() (*Dashboa
 /*
 GetDashboardApiV1DashboardsDashboardIdGet Get Dashboard
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param dashboardId
- @return ApiGetDashboardApiV1DashboardsDashboardIdGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param dashboardId
+	@return ApiGetDashboardApiV1DashboardsDashboardIdGetRequest
 */
 func (a *DashboardsAPIService) GetDashboardApiV1DashboardsDashboardIdGet(ctx context.Context, dashboardId string) ApiGetDashboardApiV1DashboardsDashboardIdGetRequest {
 	return ApiGetDashboardApiV1DashboardsDashboardIdGetRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:  a,
+		ctx:         ctx,
 		dashboardId: dashboardId,
 	}
 }
 
 // Execute executes the request
-//  @return DashboardDefinition
+//
+//	@return DashboardDefinition
 func (a *DashboardsAPIService) GetDashboardApiV1DashboardsDashboardIdGetExecute(r ApiGetDashboardApiV1DashboardsDashboardIdGetRequest) (*DashboardDefinition, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *DashboardDefinition
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *DashboardDefinition
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "DashboardsAPIService.GetDashboardApiV1DashboardsDashboardIdGet")
@@ -579,8 +581,8 @@ func (a *DashboardsAPIService) GetDashboardApiV1DashboardsDashboardIdGetExecute(
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -598,11 +600,11 @@ func (a *DashboardsAPIService) GetDashboardApiV1DashboardsDashboardIdGetExecute(
 }
 
 type ApiListDashboardsApiV1DashboardsGetRequest struct {
-	ctx context.Context
-	ApiService *DashboardsAPIService
+	ctx           context.Context
+	ApiService    *DashboardsAPIService
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiListDashboardsApiV1DashboardsGetRequest) Authorization(authorization string) ApiListDashboardsApiV1DashboardsGetRequest {
@@ -627,24 +629,25 @@ func (r ApiListDashboardsApiV1DashboardsGetRequest) Execute() ([]DashboardDefini
 /*
 ListDashboardsApiV1DashboardsGet List Dashboards
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiListDashboardsApiV1DashboardsGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiListDashboardsApiV1DashboardsGetRequest
 */
 func (a *DashboardsAPIService) ListDashboardsApiV1DashboardsGet(ctx context.Context) ApiListDashboardsApiV1DashboardsGetRequest {
 	return ApiListDashboardsApiV1DashboardsGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return []DashboardDefinition
+//
+//	@return []DashboardDefinition
 func (a *DashboardsAPIService) ListDashboardsApiV1DashboardsGetExecute(r ApiListDashboardsApiV1DashboardsGetRequest) ([]DashboardDefinition, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  []DashboardDefinition
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []DashboardDefinition
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "DashboardsAPIService.ListDashboardsApiV1DashboardsGet")
@@ -713,8 +716,8 @@ func (a *DashboardsAPIService) ListDashboardsApiV1DashboardsGetExecute(r ApiList
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -732,14 +735,14 @@ func (a *DashboardsAPIService) ListDashboardsApiV1DashboardsGetExecute(r ApiList
 }
 
 type ApiPutDashboardApiV1DashboardsDashboardIdPutRequest struct {
-	ctx context.Context
-	ApiService *DashboardsAPIService
-	dashboardId string
-	dashboardSpec *DashboardSpec
+	ctx             context.Context
+	ApiService      *DashboardsAPIService
+	dashboardId     string
+	dashboardSpec   *DashboardSpec
 	expectedVersion *int32
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization   *string
+	xAmeshCSRF      *string
+	xAmeshTenant    *string
 }
 
 func (r ApiPutDashboardApiV1DashboardsDashboardIdPutRequest) DashboardSpec(dashboardSpec DashboardSpec) ApiPutDashboardApiV1DashboardsDashboardIdPutRequest {
@@ -774,26 +777,27 @@ func (r ApiPutDashboardApiV1DashboardsDashboardIdPutRequest) Execute() (*Dashboa
 /*
 PutDashboardApiV1DashboardsDashboardIdPut Put Dashboard
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param dashboardId
- @return ApiPutDashboardApiV1DashboardsDashboardIdPutRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param dashboardId
+	@return ApiPutDashboardApiV1DashboardsDashboardIdPutRequest
 */
 func (a *DashboardsAPIService) PutDashboardApiV1DashboardsDashboardIdPut(ctx context.Context, dashboardId string) ApiPutDashboardApiV1DashboardsDashboardIdPutRequest {
 	return ApiPutDashboardApiV1DashboardsDashboardIdPutRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:  a,
+		ctx:         ctx,
 		dashboardId: dashboardId,
 	}
 }
 
 // Execute executes the request
-//  @return DashboardDefinition
+//
+//	@return DashboardDefinition
 func (a *DashboardsAPIService) PutDashboardApiV1DashboardsDashboardIdPutExecute(r ApiPutDashboardApiV1DashboardsDashboardIdPutRequest) (*DashboardDefinition, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPut
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *DashboardDefinition
+		localVarHTTPMethod  = http.MethodPut
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *DashboardDefinition
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "DashboardsAPIService.PutDashboardApiV1DashboardsDashboardIdPut")
@@ -871,8 +875,8 @@ func (a *DashboardsAPIService) PutDashboardApiV1DashboardsDashboardIdPutExecute(
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -890,13 +894,13 @@ func (a *DashboardsAPIService) PutDashboardApiV1DashboardsDashboardIdPutExecute(
 }
 
 type ApiRenderDashboardApiV1DashboardsDashboardIdRenderPostRequest struct {
-	ctx context.Context
-	ApiService *DashboardsAPIService
-	dashboardId string
+	ctx              context.Context
+	ApiService       *DashboardsAPIService
+	dashboardId      string
 	dashboardFilters *DashboardFilters
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization    *string
+	xAmeshCSRF       *string
+	xAmeshTenant     *string
 }
 
 func (r ApiRenderDashboardApiV1DashboardsDashboardIdRenderPostRequest) DashboardFilters(dashboardFilters DashboardFilters) ApiRenderDashboardApiV1DashboardsDashboardIdRenderPostRequest {
@@ -926,26 +930,27 @@ func (r ApiRenderDashboardApiV1DashboardsDashboardIdRenderPostRequest) Execute()
 /*
 RenderDashboardApiV1DashboardsDashboardIdRenderPost Render Dashboard
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param dashboardId
- @return ApiRenderDashboardApiV1DashboardsDashboardIdRenderPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param dashboardId
+	@return ApiRenderDashboardApiV1DashboardsDashboardIdRenderPostRequest
 */
 func (a *DashboardsAPIService) RenderDashboardApiV1DashboardsDashboardIdRenderPost(ctx context.Context, dashboardId string) ApiRenderDashboardApiV1DashboardsDashboardIdRenderPostRequest {
 	return ApiRenderDashboardApiV1DashboardsDashboardIdRenderPostRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:  a,
+		ctx:         ctx,
 		dashboardId: dashboardId,
 	}
 }
 
 // Execute executes the request
-//  @return DashboardRender
+//
+//	@return DashboardRender
 func (a *DashboardsAPIService) RenderDashboardApiV1DashboardsDashboardIdRenderPostExecute(r ApiRenderDashboardApiV1DashboardsDashboardIdRenderPostRequest) (*DashboardRender, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *DashboardRender
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *DashboardRender
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "DashboardsAPIService.RenderDashboardApiV1DashboardsDashboardIdRenderPost")
@@ -1020,8 +1025,8 @@ func (a *DashboardsAPIService) RenderDashboardApiV1DashboardsDashboardIdRenderPo
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}

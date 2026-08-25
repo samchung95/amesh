@@ -20,10 +20,10 @@ type AgentMemoryScope string
 
 // List of AgentMemoryScope
 const (
-	AGENTMEMORYSCOPE_NONE AgentMemoryScope = "NONE"
+	AGENTMEMORYSCOPE_NONE      AgentMemoryScope = "NONE"
 	AGENTMEMORYSCOPE_EXECUTION AgentMemoryScope = "EXECUTION"
-	AGENTMEMORYSCOPE_PRIVATE AgentMemoryScope = "PRIVATE"
-	AGENTMEMORYSCOPE_SHARED AgentMemoryScope = "SHARED"
+	AGENTMEMORYSCOPE_PRIVATE   AgentMemoryScope = "PRIVATE"
+	AGENTMEMORYSCOPE_SHARED    AgentMemoryScope = "SHARED"
 )
 
 // All allowed values of AgentMemoryScope enum

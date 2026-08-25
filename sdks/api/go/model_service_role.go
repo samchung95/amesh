@@ -20,11 +20,11 @@ type ServiceRole string
 
 // List of ServiceRole
 const (
-	SERVICEROLE_WEBSERVER ServiceRole = "webserver"
-	SERVICEROLE_EXECUTOR ServiceRole = "executor"
-	SERVICEROLE_SCHEDULER ServiceRole = "scheduler"
-	SERVICEROLE_WORKER ServiceRole = "worker"
-	SERVICEROLE_INDEXER ServiceRole = "indexer"
+	SERVICEROLE_WEBSERVER   ServiceRole = "webserver"
+	SERVICEROLE_EXECUTOR    ServiceRole = "executor"
+	SERVICEROLE_SCHEDULER   ServiceRole = "scheduler"
+	SERVICEROLE_WORKER      ServiceRole = "worker"
+	SERVICEROLE_INDEXER     ServiceRole = "indexer"
 	SERVICEROLE_MAINTENANCE ServiceRole = "maintenance"
 )
 

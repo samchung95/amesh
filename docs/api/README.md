@@ -78,5 +78,8 @@
 - Define immutable prompt, skill, model-policy and agent resources; inspect exact dependencies; and
   atomically pin effective capability envelopes through the
   [agent primitive API](agent-primitives.md).
+- Discover the client-neutral external orchestration profile, including correlation,
+  idempotent launch, reconnectable events and signed webhook guarantees, through the
+  [external orchestration API guide](external-orchestration.md).
 
 Future generated SDKs must consume the supported API contract, not internal Python classes.

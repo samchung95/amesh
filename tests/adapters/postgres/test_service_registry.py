@@ -159,6 +159,55 @@ def test_registry_fences_replaced_instances_and_reports_failover_topology() -> N
     asyncio.run(scenario())
 
 
+def test_failed_cycle_is_live_but_degraded_until_a_successful_cycle() -> None:
+    async def scenario() -> None:
+        if TEST_DATABASE_URL is None:
+            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
+        database = await create_ephemeral_database(TEST_DATABASE_URL)
+        engine = create_async_engine(database.database_url)
+        try:
+            await apply_migrations(database.database_url, MIGRATIONS)
+            repository = PostgresServiceRegistryRepository(engine, stale_after_seconds=20)
+            instance = await repository.register(
+                _registration(ServiceRole.SCHEDULER, "scheduler-health", "zone-a")
+            )
+
+            failed = await repository.heartbeat(
+                instance.instance_id,
+                instance.generation,
+                ready=False,
+                failure="schedule cycle failed",
+            )
+            assert failed.liveness is ServiceLiveness.LIVE
+            assert failed.state is ServiceState.DEGRADED
+            assert failed.last_success_at is None
+            assert failed.last_failure_at is not None
+            assert failed.consecutive_failures == 1
+            assert failed.last_failure == "schedule cycle failed"
+            degraded_topology = await repository.topology()
+            scheduler = next(
+                item for item in degraded_topology.roles if item.role is ServiceRole.SCHEDULER
+            )
+            assert scheduler.ready_instances == 0
+            assert scheduler.degraded_instances == 1
+
+            recovered = await repository.heartbeat(
+                failed.instance_id,
+                failed.generation,
+                ready=True,
+            )
+            assert recovered.state is ServiceState.READY
+            assert recovered.last_success_at is not None
+            assert recovered.last_failure_at == failed.last_failure_at
+            assert recovered.consecutive_failures == 0
+            assert recovered.last_failure is None
+        finally:
+            await engine.dispose()
+            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
+
+    asyncio.run(scenario())
+
+
 def test_role_process_observes_drain_before_taking_another_cycle() -> None:
     async def scenario() -> None:
         if TEST_DATABASE_URL is None:

@@ -21,7 +21,7 @@ type FlowTestTaskState string
 // List of FlowTestTaskState
 const (
 	FLOWTESTTASKSTATE_SUCCESS FlowTestTaskState = "SUCCESS"
-	FLOWTESTTASKSTATE_FAILED FlowTestTaskState = "FAILED"
+	FLOWTESTTASKSTATE_FAILED  FlowTestTaskState = "FAILED"
 	FLOWTESTTASKSTATE_SKIPPED FlowTestTaskState = "SKIPPED"
 )
 

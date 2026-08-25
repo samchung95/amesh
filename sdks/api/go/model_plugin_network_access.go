@@ -20,7 +20,7 @@ type PluginNetworkAccess string
 
 // List of PluginNetworkAccess
 const (
-	PLUGINNETWORKACCESS_NONE PluginNetworkAccess = "none"
+	PLUGINNETWORKACCESS_NONE       PluginNetworkAccess = "none"
 	PLUGINNETWORKACCESS_RESTRICTED PluginNetworkAccess = "restricted"
 )
 

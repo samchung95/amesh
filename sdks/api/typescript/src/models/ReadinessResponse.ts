@@ -63,6 +63,12 @@ export interface ReadinessResponse {
     migrationsExpected: number;
     /**
      *
+     * @type {{ [key: string]: string; }}
+     * @memberof ReadinessResponse
+     */
+    roles?: { [key: string]: string; };
+    /**
+     *
      * @type {string}
      * @memberof ReadinessResponse
      */
@@ -104,6 +110,7 @@ export function ReadinessResponseFromJSONTyped(json: any, ignoreDiscriminator: b
         'latestMigration': json['latest_migration'] === undefined ? undefined : json['latest_migration'] === null ? null : json['latest_migration'],
         'migrationsApplied': json['migrations_applied'],
         'migrationsExpected': json['migrations_expected'],
+        'roles': json['roles'] == null ? undefined : json['roles'],
         'status': json['status'],
         'version': json['version'],
     };
@@ -127,6 +134,7 @@ export function ReadinessResponseToJSONTyped(value?: ReadinessResponse | null, i
         'latest_migration': value['latestMigration'],
         'migrations_applied': value['migrationsApplied'],
         'migrations_expected': value['migrationsExpected'],
+        'roles': value['roles'],
         'status': value['status'],
         'version': value['version'],
     };

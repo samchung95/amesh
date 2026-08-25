@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,17 +21,17 @@ var _ MappedNullable = &BlueprintSummary{}
 
 // BlueprintSummary struct for BlueprintSummary
 type BlueprintSummary struct {
-	BlueprintId string `json:"blueprintId" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
-	Documentation string `json:"documentation"`
-	License string `json:"license"`
-	LocalOnly bool `json:"localOnly"`
-	Parameters []BlueprintParameter `json:"parameters"`
-	Provenance BlueprintProvenance `json:"provenance"`
-	Source BlueprintCatalogSource `json:"source"`
-	Summary string `json:"summary"`
-	Tags []string `json:"tags"`
-	Title string `json:"title"`
-	Version string `json:"version" validate:"regexp=^[0-9]+\\.[0-9]+\\.[0-9]+$"`
+	BlueprintId   string                 `json:"blueprintId" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
+	Documentation string                 `json:"documentation"`
+	License       string                 `json:"license"`
+	LocalOnly     bool                   `json:"localOnly"`
+	Parameters    []BlueprintParameter   `json:"parameters"`
+	Provenance    BlueprintProvenance    `json:"provenance"`
+	Source        BlueprintCatalogSource `json:"source"`
+	Summary       string                 `json:"summary"`
+	Tags          []string               `json:"tags"`
+	Title         string                 `json:"title"`
+	Version       string                 `json:"version" validate:"regexp=^[0-9]+\\.[0-9]+\\.[0-9]+$"`
 }
 
 type _BlueprintSummary BlueprintSummary
@@ -329,7 +329,7 @@ func (o *BlueprintSummary) SetVersion(v string) {
 }
 
 func (o BlueprintSummary) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -375,10 +375,10 @@ func (o *BlueprintSummary) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

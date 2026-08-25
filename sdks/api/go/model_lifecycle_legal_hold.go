@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the LifecycleLegalHold type satisfies the MappedNullable interface at compile time
@@ -22,21 +22,21 @@ var _ MappedNullable = &LifecycleLegalHold{}
 
 // LifecycleLegalHold struct for LifecycleLegalHold
 type LifecycleLegalHold struct {
-	Active bool `json:"active"`
-	CreatedAt time.Time `json:"createdAt"`
-	CreatedBy string `json:"createdBy"`
-	DataFrom NullableTime `json:"dataFrom,omitempty"`
-	DataTo NullableTime `json:"dataTo,omitempty"`
-	Id string `json:"id"`
-	LabelSelector map[string]string `json:"labelSelector,omitempty"`
-	Name string `json:"name"`
-	Namespace NullableString `json:"namespace,omitempty"`
-	Reason string `json:"reason"`
-	ReleasedAt NullableTime `json:"releasedAt,omitempty"`
-	ReleasedBy NullableString `json:"releasedBy,omitempty"`
-	ResourceId NullableString `json:"resourceId,omitempty"`
-	ResourceType NullableLifecycleResourceType `json:"resourceType,omitempty"`
-	TenantId string `json:"tenantId"`
+	Active        bool                          `json:"active"`
+	CreatedAt     time.Time                     `json:"createdAt"`
+	CreatedBy     string                        `json:"createdBy"`
+	DataFrom      NullableTime                  `json:"dataFrom,omitempty"`
+	DataTo        NullableTime                  `json:"dataTo,omitempty"`
+	Id            string                        `json:"id"`
+	LabelSelector map[string]string             `json:"labelSelector,omitempty"`
+	Name          string                        `json:"name"`
+	Namespace     NullableString                `json:"namespace,omitempty"`
+	Reason        string                        `json:"reason"`
+	ReleasedAt    NullableTime                  `json:"releasedAt,omitempty"`
+	ReleasedBy    NullableString                `json:"releasedBy,omitempty"`
+	ResourceId    NullableString                `json:"resourceId,omitempty"`
+	ResourceType  NullableLifecycleResourceType `json:"resourceType,omitempty"`
+	TenantId      string                        `json:"tenantId"`
 }
 
 type _LifecycleLegalHold LifecycleLegalHold
@@ -169,6 +169,7 @@ func (o *LifecycleLegalHold) HasDataFrom() bool {
 func (o *LifecycleLegalHold) SetDataFrom(v time.Time) {
 	o.DataFrom.Set(&v)
 }
+
 // SetDataFromNil sets the value for DataFrom to be an explicit nil
 func (o *LifecycleLegalHold) SetDataFromNil() {
 	o.DataFrom.Set(nil)
@@ -211,6 +212,7 @@ func (o *LifecycleLegalHold) HasDataTo() bool {
 func (o *LifecycleLegalHold) SetDataTo(v time.Time) {
 	o.DataTo.Set(&v)
 }
+
 // SetDataToNil sets the value for DataTo to be an explicit nil
 func (o *LifecycleLegalHold) SetDataToNil() {
 	o.DataTo.Set(nil)
@@ -333,6 +335,7 @@ func (o *LifecycleLegalHold) HasNamespace() bool {
 func (o *LifecycleLegalHold) SetNamespace(v string) {
 	o.Namespace.Set(&v)
 }
+
 // SetNamespaceNil sets the value for Namespace to be an explicit nil
 func (o *LifecycleLegalHold) SetNamespaceNil() {
 	o.Namespace.Set(nil)
@@ -399,6 +402,7 @@ func (o *LifecycleLegalHold) HasReleasedAt() bool {
 func (o *LifecycleLegalHold) SetReleasedAt(v time.Time) {
 	o.ReleasedAt.Set(&v)
 }
+
 // SetReleasedAtNil sets the value for ReleasedAt to be an explicit nil
 func (o *LifecycleLegalHold) SetReleasedAtNil() {
 	o.ReleasedAt.Set(nil)
@@ -441,6 +445,7 @@ func (o *LifecycleLegalHold) HasReleasedBy() bool {
 func (o *LifecycleLegalHold) SetReleasedBy(v string) {
 	o.ReleasedBy.Set(&v)
 }
+
 // SetReleasedByNil sets the value for ReleasedBy to be an explicit nil
 func (o *LifecycleLegalHold) SetReleasedByNil() {
 	o.ReleasedBy.Set(nil)
@@ -483,6 +488,7 @@ func (o *LifecycleLegalHold) HasResourceId() bool {
 func (o *LifecycleLegalHold) SetResourceId(v string) {
 	o.ResourceId.Set(&v)
 }
+
 // SetResourceIdNil sets the value for ResourceId to be an explicit nil
 func (o *LifecycleLegalHold) SetResourceIdNil() {
 	o.ResourceId.Set(nil)
@@ -525,6 +531,7 @@ func (o *LifecycleLegalHold) HasResourceType() bool {
 func (o *LifecycleLegalHold) SetResourceType(v LifecycleResourceType) {
 	o.ResourceType.Set(&v)
 }
+
 // SetResourceTypeNil sets the value for ResourceType to be an explicit nil
 func (o *LifecycleLegalHold) SetResourceTypeNil() {
 	o.ResourceType.Set(nil)
@@ -560,7 +567,7 @@ func (o *LifecycleLegalHold) SetTenantId(v string) {
 }
 
 func (o LifecycleLegalHold) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -622,10 +629,10 @@ func (o *LifecycleLegalHold) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

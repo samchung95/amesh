@@ -21,9 +21,9 @@ type PluginCertificationStatus string
 // List of PluginCertificationStatus
 const (
 	PLUGINCERTIFICATIONSTATUS_UNVERIFIED PluginCertificationStatus = "unverified"
-	PLUGINCERTIFICATIONSTATUS_COMMUNITY PluginCertificationStatus = "community"
-	PLUGINCERTIFICATIONSTATUS_VERIFIED PluginCertificationStatus = "verified"
-	PLUGINCERTIFICATIONSTATUS_CERTIFIED PluginCertificationStatus = "certified"
+	PLUGINCERTIFICATIONSTATUS_COMMUNITY  PluginCertificationStatus = "community"
+	PLUGINCERTIFICATIONSTATUS_VERIFIED   PluginCertificationStatus = "verified"
+	PLUGINCERTIFICATIONSTATUS_CERTIFIED  PluginCertificationStatus = "certified"
 )
 
 // All allowed values of PluginCertificationStatus enum

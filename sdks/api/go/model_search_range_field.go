@@ -20,8 +20,8 @@ type SearchRangeField string
 
 // List of SearchRangeField
 const (
-	SEARCHRANGEFIELD_OCCURRED_AT SearchRangeField = "OCCURRED_AT"
-	SEARCHRANGEFIELD_UPDATED_AT SearchRangeField = "UPDATED_AT"
+	SEARCHRANGEFIELD_OCCURRED_AT    SearchRangeField = "OCCURRED_AT"
+	SEARCHRANGEFIELD_UPDATED_AT     SearchRangeField = "UPDATED_AT"
 	SEARCHRANGEFIELD_SOURCE_VERSION SearchRangeField = "SOURCE_VERSION"
 )
 

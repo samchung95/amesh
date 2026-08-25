@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the PluginRegistryPackage type satisfies the MappedNullable interface at compile time
@@ -23,19 +23,19 @@ var _ MappedNullable = &PluginRegistryPackage{}
 // PluginRegistryPackage struct for PluginRegistryPackage
 type PluginRegistryPackage struct {
 	ArtifactSignature NullablePluginRegistrySignature `json:"artifactSignature,omitempty"`
-	Attachments []PluginRegistryAttachment `json:"attachments,omitempty"`
-	Bundle string `json:"bundle"`
-	ContentDigest string `json:"contentDigest" validate:"regexp=^sha256:[0-9a-f]{64}$"`
-	Manifest NullablePluginManifest `json:"manifest,omitempty"`
-	Metadata NullablePluginRegistryMetadata `json:"metadata,omitempty"`
+	Attachments       []PluginRegistryAttachment      `json:"attachments,omitempty"`
+	Bundle            string                          `json:"bundle"`
+	ContentDigest     string                          `json:"contentDigest" validate:"regexp=^sha256:[0-9a-f]{64}$"`
+	Manifest          NullablePluginManifest          `json:"manifest,omitempty"`
+	Metadata          NullablePluginRegistryMetadata  `json:"metadata,omitempty"`
 	MetadataSignature NullablePluginRegistrySignature `json:"metadataSignature,omitempty"`
-	Name NullableString `json:"name,omitempty"`
-	PublishedAt NullableTime `json:"publishedAt,omitempty"`
-	Signals *PluginMarketplaceSignals `json:"signals,omitempty"`
-	Version NullableString `json:"version,omitempty"`
-	YankReason NullableString `json:"yankReason,omitempty"`
-	Yanked *bool `json:"yanked,omitempty"`
-	YankedAt NullableTime `json:"yankedAt,omitempty"`
+	Name              NullableString                  `json:"name,omitempty"`
+	PublishedAt       NullableTime                    `json:"publishedAt,omitempty"`
+	Signals           *PluginMarketplaceSignals       `json:"signals,omitempty"`
+	Version           NullableString                  `json:"version,omitempty"`
+	YankReason        NullableString                  `json:"yankReason,omitempty"`
+	Yanked            *bool                           `json:"yanked,omitempty"`
+	YankedAt          NullableTime                    `json:"yankedAt,omitempty"`
 }
 
 type _PluginRegistryPackage PluginRegistryPackage
@@ -95,6 +95,7 @@ func (o *PluginRegistryPackage) HasArtifactSignature() bool {
 func (o *PluginRegistryPackage) SetArtifactSignature(v PluginRegistrySignature) {
 	o.ArtifactSignature.Set(&v)
 }
+
 // SetArtifactSignatureNil sets the value for ArtifactSignature to be an explicit nil
 func (o *PluginRegistryPackage) SetArtifactSignatureNil() {
 	o.ArtifactSignature.Set(nil)
@@ -217,6 +218,7 @@ func (o *PluginRegistryPackage) HasManifest() bool {
 func (o *PluginRegistryPackage) SetManifest(v PluginManifest) {
 	o.Manifest.Set(&v)
 }
+
 // SetManifestNil sets the value for Manifest to be an explicit nil
 func (o *PluginRegistryPackage) SetManifestNil() {
 	o.Manifest.Set(nil)
@@ -259,6 +261,7 @@ func (o *PluginRegistryPackage) HasMetadata() bool {
 func (o *PluginRegistryPackage) SetMetadata(v PluginRegistryMetadata) {
 	o.Metadata.Set(&v)
 }
+
 // SetMetadataNil sets the value for Metadata to be an explicit nil
 func (o *PluginRegistryPackage) SetMetadataNil() {
 	o.Metadata.Set(nil)
@@ -301,6 +304,7 @@ func (o *PluginRegistryPackage) HasMetadataSignature() bool {
 func (o *PluginRegistryPackage) SetMetadataSignature(v PluginRegistrySignature) {
 	o.MetadataSignature.Set(&v)
 }
+
 // SetMetadataSignatureNil sets the value for MetadataSignature to be an explicit nil
 func (o *PluginRegistryPackage) SetMetadataSignatureNil() {
 	o.MetadataSignature.Set(nil)
@@ -343,6 +347,7 @@ func (o *PluginRegistryPackage) HasName() bool {
 func (o *PluginRegistryPackage) SetName(v string) {
 	o.Name.Set(&v)
 }
+
 // SetNameNil sets the value for Name to be an explicit nil
 func (o *PluginRegistryPackage) SetNameNil() {
 	o.Name.Set(nil)
@@ -385,6 +390,7 @@ func (o *PluginRegistryPackage) HasPublishedAt() bool {
 func (o *PluginRegistryPackage) SetPublishedAt(v time.Time) {
 	o.PublishedAt.Set(&v)
 }
+
 // SetPublishedAtNil sets the value for PublishedAt to be an explicit nil
 func (o *PluginRegistryPackage) SetPublishedAtNil() {
 	o.PublishedAt.Set(nil)
@@ -459,6 +465,7 @@ func (o *PluginRegistryPackage) HasVersion() bool {
 func (o *PluginRegistryPackage) SetVersion(v string) {
 	o.Version.Set(&v)
 }
+
 // SetVersionNil sets the value for Version to be an explicit nil
 func (o *PluginRegistryPackage) SetVersionNil() {
 	o.Version.Set(nil)
@@ -501,6 +508,7 @@ func (o *PluginRegistryPackage) HasYankReason() bool {
 func (o *PluginRegistryPackage) SetYankReason(v string) {
 	o.YankReason.Set(&v)
 }
+
 // SetYankReasonNil sets the value for YankReason to be an explicit nil
 func (o *PluginRegistryPackage) SetYankReasonNil() {
 	o.YankReason.Set(nil)
@@ -575,6 +583,7 @@ func (o *PluginRegistryPackage) HasYankedAt() bool {
 func (o *PluginRegistryPackage) SetYankedAt(v time.Time) {
 	o.YankedAt.Set(&v)
 }
+
 // SetYankedAtNil sets the value for YankedAt to be an explicit nil
 func (o *PluginRegistryPackage) SetYankedAtNil() {
 	o.YankedAt.Set(nil)
@@ -586,7 +595,7 @@ func (o *PluginRegistryPackage) UnsetYankedAt() {
 }
 
 func (o PluginRegistryPackage) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -650,10 +659,10 @@ func (o *PluginRegistryPackage) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

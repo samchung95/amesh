@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the OperationalControlCreateRequest type satisfies the MappedNullable interface at compile time
@@ -22,18 +22,18 @@ var _ MappedNullable = &OperationalControlCreateRequest{}
 
 // OperationalControlCreateRequest struct for OperationalControlCreateRequest
 type OperationalControlCreateRequest struct {
-	Boundaries []OperationalBoundary `json:"boundaries"`
-	ExpiresAt NullableTime `json:"expiresAt,omitempty"`
-	FlowId NullableString `json:"flowId,omitempty"`
-	Kind OperationalControlKind `json:"kind"`
-	Name string `json:"name"`
-	Namespace NullableString `json:"namespace,omitempty"`
-	PluginId NullableString `json:"pluginId,omitempty"`
-	Reason string `json:"reason"`
-	ReviewAt NullableTime `json:"reviewAt,omitempty"`
-	RunnerId NullableString `json:"runnerId,omitempty"`
-	RunningWorkPolicy *RunningWorkPolicy `json:"runningWorkPolicy,omitempty"`
-	Scope OperationalControlScope `json:"scope"`
+	Boundaries        []OperationalBoundary   `json:"boundaries"`
+	ExpiresAt         NullableTime            `json:"expiresAt,omitempty"`
+	FlowId            NullableString          `json:"flowId,omitempty"`
+	Kind              OperationalControlKind  `json:"kind"`
+	Name              string                  `json:"name"`
+	Namespace         NullableString          `json:"namespace,omitempty"`
+	PluginId          NullableString          `json:"pluginId,omitempty"`
+	Reason            string                  `json:"reason"`
+	ReviewAt          NullableTime            `json:"reviewAt,omitempty"`
+	RunnerId          NullableString          `json:"runnerId,omitempty"`
+	RunningWorkPolicy *RunningWorkPolicy      `json:"runningWorkPolicy,omitempty"`
+	Scope             OperationalControlScope `json:"scope"`
 }
 
 type _OperationalControlCreateRequest OperationalControlCreateRequest
@@ -120,6 +120,7 @@ func (o *OperationalControlCreateRequest) HasExpiresAt() bool {
 func (o *OperationalControlCreateRequest) SetExpiresAt(v time.Time) {
 	o.ExpiresAt.Set(&v)
 }
+
 // SetExpiresAtNil sets the value for ExpiresAt to be an explicit nil
 func (o *OperationalControlCreateRequest) SetExpiresAtNil() {
 	o.ExpiresAt.Set(nil)
@@ -162,6 +163,7 @@ func (o *OperationalControlCreateRequest) HasFlowId() bool {
 func (o *OperationalControlCreateRequest) SetFlowId(v string) {
 	o.FlowId.Set(&v)
 }
+
 // SetFlowIdNil sets the value for FlowId to be an explicit nil
 func (o *OperationalControlCreateRequest) SetFlowIdNil() {
 	o.FlowId.Set(nil)
@@ -252,6 +254,7 @@ func (o *OperationalControlCreateRequest) HasNamespace() bool {
 func (o *OperationalControlCreateRequest) SetNamespace(v string) {
 	o.Namespace.Set(&v)
 }
+
 // SetNamespaceNil sets the value for Namespace to be an explicit nil
 func (o *OperationalControlCreateRequest) SetNamespaceNil() {
 	o.Namespace.Set(nil)
@@ -294,6 +297,7 @@ func (o *OperationalControlCreateRequest) HasPluginId() bool {
 func (o *OperationalControlCreateRequest) SetPluginId(v string) {
 	o.PluginId.Set(&v)
 }
+
 // SetPluginIdNil sets the value for PluginId to be an explicit nil
 func (o *OperationalControlCreateRequest) SetPluginIdNil() {
 	o.PluginId.Set(nil)
@@ -360,6 +364,7 @@ func (o *OperationalControlCreateRequest) HasReviewAt() bool {
 func (o *OperationalControlCreateRequest) SetReviewAt(v time.Time) {
 	o.ReviewAt.Set(&v)
 }
+
 // SetReviewAtNil sets the value for ReviewAt to be an explicit nil
 func (o *OperationalControlCreateRequest) SetReviewAtNil() {
 	o.ReviewAt.Set(nil)
@@ -402,6 +407,7 @@ func (o *OperationalControlCreateRequest) HasRunnerId() bool {
 func (o *OperationalControlCreateRequest) SetRunnerId(v string) {
 	o.RunnerId.Set(&v)
 }
+
 // SetRunnerIdNil sets the value for RunnerId to be an explicit nil
 func (o *OperationalControlCreateRequest) SetRunnerIdNil() {
 	o.RunnerId.Set(nil)
@@ -469,7 +475,7 @@ func (o *OperationalControlCreateRequest) SetScope(v OperationalControlScope) {
 }
 
 func (o OperationalControlCreateRequest) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -524,10 +530,10 @@ func (o *OperationalControlCreateRequest) UnmarshalJSON(data []byte) (err error)
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

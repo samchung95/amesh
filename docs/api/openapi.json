@@ -1528,6 +1528,42 @@
         "title": "AgentMemoryScope",
         "type": "string"
       },
+      "AgentModelContinuationRef": {
+        "additionalProperties": false,
+        "description": "Public handle to private provider continuation state.",
+        "properties": {
+          "invocationId": {
+            "format": "uuid",
+            "title": "Invocationid",
+            "type": "string"
+          },
+          "providerId": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Providerid",
+            "type": "string"
+          },
+          "providerRevision": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Providerrevision",
+            "type": "string"
+          },
+          "tokenDigest": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Tokendigest",
+            "type": "string"
+          }
+        },
+        "required": [
+          "invocationId",
+          "providerId",
+          "providerRevision",
+          "tokenDigest"
+        ],
+        "title": "AgentModelContinuationRef",
+        "type": "object"
+      },
       "AgentPermissions": {
         "additionalProperties": false,
         "properties": {
@@ -2336,6 +2372,16 @@
             "title": "Messages",
             "type": "array"
           },
+          "modelContinuation": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AgentModelContinuationRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "nextTurn": {
             "default": 1,
             "minimum": 1.0,
@@ -2564,16 +2610,60 @@
         "additionalProperties": false,
         "properties": {
           "connectionKey": {
-            "maxLength": 128,
-            "minLength": 1,
-            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
-            "title": "Connectionkey",
-            "type": "string"
+            "anyOf": [
+              {
+                "maxLength": 128,
+                "minLength": 1,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Connectionkey"
           },
           "connectionRevision": {
-            "minimum": 1.0,
-            "title": "Connectionrevision",
-            "type": "integer"
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Connectionrevision"
+          },
+          "providerKey": {
+            "anyOf": [
+              {
+                "maxLength": 255,
+                "minLength": 1,
+                "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Providerkey"
+          },
+          "providerKind": {
+            "$ref": "#/components/schemas/ToolProviderKind",
+            "default": "mcp"
+          },
+          "providerRevision": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Providerrevision"
           },
           "schemaDigest": {
             "pattern": "^sha256:[0-9a-f]{64}$",
@@ -2581,16 +2671,14 @@
             "type": "string"
           },
           "toolName": {
-            "maxLength": 128,
+            "maxLength": 255,
             "minLength": 1,
-            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+            "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$",
             "title": "Toolname",
             "type": "string"
           }
         },
         "required": [
-          "connectionKey",
-          "connectionRevision",
           "toolName",
           "schemaDigest"
         ],
@@ -2782,6 +2870,29 @@
           }
         },
         "title": "AppForm",
+        "type": "object"
+      },
+      "ApprovalRequirement": {
+        "additionalProperties": false,
+        "properties": {
+          "key": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Key",
+            "type": "string"
+          },
+          "minimumApprovals": {
+            "default": 1,
+            "maximum": 100.0,
+            "minimum": 1.0,
+            "title": "Minimumapprovals",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "key"
+        ],
+        "title": "ApprovalRequirement",
         "type": "object"
       },
       "AssetAccessMode": {
@@ -4808,6 +4919,58 @@
         "title": "BlueprintSummary",
         "type": "object"
       },
+      "BudgetRequirement-Input": {
+        "additionalProperties": false,
+        "properties": {
+          "key": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Key",
+            "type": "string"
+          },
+          "maximum": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "title": "Maximum"
+          }
+        },
+        "required": [
+          "key",
+          "maximum"
+        ],
+        "title": "BudgetRequirement",
+        "type": "object"
+      },
+      "BudgetRequirement-Output": {
+        "additionalProperties": false,
+        "properties": {
+          "key": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Key",
+            "type": "string"
+          },
+          "maximum": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Maximum",
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "maximum"
+        ],
+        "title": "BudgetRequirement",
+        "type": "object"
+      },
       "BulkExecutionItemResult": {
         "properties": {
           "error": {
@@ -5331,6 +5494,142 @@
         "title": "CheckPolicyUpsertRequest",
         "type": "object"
       },
+      "ComparisonCategory": {
+        "enum": [
+          "DETERMINISTIC_FAILURE",
+          "TOLERATED_DIFFERENCE",
+          "NONDETERMINISTIC_OBSERVATION"
+        ],
+        "title": "ComparisonCategory",
+        "type": "string"
+      },
+      "ComparisonDifference": {
+        "additionalProperties": false,
+        "properties": {
+          "category": {
+            "$ref": "#/components/schemas/ComparisonCategory"
+          },
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "detail": {
+            "title": "Detail",
+            "type": "string"
+          },
+          "left": {
+            "title": "Left"
+          },
+          "path": {
+            "title": "Path",
+            "type": "string"
+          },
+          "right": {
+            "title": "Right"
+          }
+        },
+        "required": [
+          "category",
+          "code",
+          "path",
+          "detail"
+        ],
+        "title": "ComparisonDifference",
+        "type": "object"
+      },
+      "ComparisonPolicy": {
+        "additionalProperties": false,
+        "description": "Comparison rules that classify variance instead of forcing byte identity.",
+        "properties": {
+          "costTolerance": {
+            "$ref": "#/components/schemas/Tolerance"
+          },
+          "latencyTolerance": {
+            "$ref": "#/components/schemas/Tolerance"
+          },
+          "nondeterministicPaths": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 1000,
+            "title": "Nondeterministicpaths",
+            "type": "array"
+          },
+          "usageTolerance": {
+            "$ref": "#/components/schemas/Tolerance"
+          }
+        },
+        "title": "ComparisonPolicy",
+        "type": "object"
+      },
+      "ComparisonReport": {
+        "additionalProperties": false,
+        "properties": {
+          "deterministicFailures": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/ComparisonDifference"
+            },
+            "title": "Deterministicfailures",
+            "type": "array"
+          },
+          "inputDigest": {
+            "title": "Inputdigest",
+            "type": "string"
+          },
+          "left": {
+            "$ref": "#/components/schemas/ShadowRun"
+          },
+          "namespace": {
+            "title": "Namespace",
+            "type": "string"
+          },
+          "nondeterministicObservations": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/ComparisonDifference"
+            },
+            "title": "Nondeterministicobservations",
+            "type": "array"
+          },
+          "right": {
+            "$ref": "#/components/schemas/ShadowRun"
+          },
+          "schemaVersion": {
+            "default": "amesh.differential-report/v1",
+            "title": "Schemaversion",
+            "type": "string"
+          },
+          "specId": {
+            "format": "uuid",
+            "title": "Specid",
+            "type": "string"
+          },
+          "tenantId": {
+            "title": "Tenantid",
+            "type": "string"
+          },
+          "toleratedDifferences": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/ComparisonDifference"
+            },
+            "title": "Tolerateddifferences",
+            "type": "array"
+          }
+        },
+        "required": [
+          "specId",
+          "tenantId",
+          "namespace",
+          "inputDigest",
+          "left",
+          "right"
+        ],
+        "title": "ComparisonReport",
+        "type": "object"
+      },
       "CompatibilityMapping": {
         "properties": {
           "adapter": {
@@ -5714,6 +6013,35 @@
           "document"
         ],
         "title": "ConfigurationMigrationRequest",
+        "type": "object"
+      },
+      "ConfigurationPin": {
+        "additionalProperties": false,
+        "description": "An exact immutable configuration identity; no floating ``latest`` reference is accepted.",
+        "properties": {
+          "digest": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Digest",
+            "type": "string"
+          },
+          "key": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Key",
+            "type": "string"
+          },
+          "revision": {
+            "minimum": 1.0,
+            "title": "Revision",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "key",
+          "revision",
+          "digest"
+        ],
+        "title": "ConfigurationPin",
         "type": "object"
       },
       "ConfigurationSnapshot": {
@@ -6766,6 +7094,69 @@
         "title": "DeterminismPolicyPin",
         "type": "object"
       },
+      "DifferentialSpec": {
+        "additionalProperties": false,
+        "description": "A frozen, tenant-scoped comparison request for two exact configurations.",
+        "properties": {
+          "fixtures": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/ShadowFixture"
+            },
+            "title": "Fixtures",
+            "type": "array"
+          },
+          "idempotencyKey": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Idempotencykey",
+            "type": "string"
+          },
+          "inputDigest": {
+            "default": "",
+            "title": "Inputdigest",
+            "type": "string"
+          },
+          "inputs": {
+            "title": "Inputs"
+          },
+          "left": {
+            "$ref": "#/components/schemas/ConfigurationPin"
+          },
+          "namespace": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Namespace",
+            "type": "string"
+          },
+          "policy": {
+            "$ref": "#/components/schemas/ComparisonPolicy"
+          },
+          "right": {
+            "$ref": "#/components/schemas/ConfigurationPin"
+          },
+          "specId": {
+            "format": "uuid",
+            "title": "Specid",
+            "type": "string"
+          },
+          "tenantId": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Tenantid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "tenantId",
+          "namespace",
+          "left",
+          "right",
+          "idempotencyKey"
+        ],
+        "title": "DifferentialSpec",
+        "type": "object"
+      },
       "DnsDiagnostic": {
         "properties": {
           "addresses": {
@@ -7061,6 +7452,251 @@
           "quarantines"
         ],
         "title": "EffectivePluginPolicy",
+        "type": "object"
+      },
+      "EvidenceArtifact": {
+        "additionalProperties": false,
+        "description": "Evidence captured for a specific target configuration and immutable forever.",
+        "properties": {
+          "capturedAt": {
+            "format": "date-time",
+            "title": "Capturedat",
+            "type": "string"
+          },
+          "configurationDigest": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Configurationdigest",
+            "type": "string"
+          },
+          "details": {
+            "additionalProperties": true,
+            "title": "Details",
+            "type": "object"
+          },
+          "digest": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Digest",
+            "type": "string"
+          },
+          "evidenceId": {
+            "format": "uuid",
+            "title": "Evidenceid",
+            "type": "string"
+          },
+          "expiresAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expiresat"
+          },
+          "key": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Key",
+            "type": "string"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/PromotionEvidenceKind"
+          },
+          "passed": {
+            "title": "Passed",
+            "type": "boolean"
+          },
+          "tenantId": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Tenantid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "tenantId",
+          "kind",
+          "key",
+          "digest",
+          "configurationDigest",
+          "passed",
+          "capturedAt"
+        ],
+        "title": "EvidenceArtifact",
+        "type": "object"
+      },
+      "EvidenceBundlePageResponse": {
+        "description": "Bounded canonical bundle projection returned by REST and SDK clients.",
+        "properties": {
+          "bundleDigest": {
+            "title": "Bundledigest",
+            "type": "string"
+          },
+          "executionId": {
+            "title": "Executionid",
+            "type": "string"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/EvidenceRecord"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "limit": {
+            "minimum": 1.0,
+            "title": "Limit",
+            "type": "integer"
+          },
+          "nextCursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nextcursor"
+          },
+          "schemaVersion": {
+            "title": "Schemaversion",
+            "type": "string"
+          },
+          "section": {
+            "title": "Section",
+            "type": "string"
+          },
+          "total": {
+            "minimum": 0.0,
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "schemaVersion",
+          "executionId",
+          "bundleDigest",
+          "section",
+          "items",
+          "limit",
+          "total"
+        ],
+        "title": "EvidenceBundlePageResponse",
+        "type": "object"
+      },
+      "EvidencePresence": {
+        "description": "Explicit section semantics; an empty value is not an outage.",
+        "enum": [
+          "present",
+          "absent",
+          "unavailable"
+        ],
+        "title": "EvidencePresence",
+        "type": "string"
+      },
+      "EvidenceRecord": {
+        "additionalProperties": false,
+        "description": "One immutable, ordered piece of execution evidence.",
+        "properties": {
+          "availability": {
+            "$ref": "#/components/schemas/EvidencePresence",
+            "default": "present"
+          },
+          "correlationId": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Correlationid"
+          },
+          "kind": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Kind",
+            "type": "string"
+          },
+          "occurredAt": {
+            "format": "date-time",
+            "title": "Occurredat",
+            "type": "string"
+          },
+          "payload": {
+            "additionalProperties": true,
+            "title": "Payload",
+            "type": "object"
+          },
+          "recordId": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Recordid"
+          },
+          "schemaDigest": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Schemadigest"
+          },
+          "sequence": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Sequence",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "recordId",
+          "kind",
+          "correlationId",
+          "occurredAt"
+        ],
+        "title": "EvidenceRecord",
+        "type": "object"
+      },
+      "EvidenceRequirement": {
+        "additionalProperties": false,
+        "description": "A policy pin for one immutable evidence artifact.",
+        "properties": {
+          "digest": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Digest",
+            "type": "string"
+          },
+          "key": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Key",
+            "type": "string"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/PromotionEvidenceKind"
+          }
+        },
+        "required": [
+          "kind",
+          "key",
+          "digest"
+        ],
+        "title": "EvidenceRequirement",
         "type": "object"
       },
       "ExchangeCredentialRequest": {
@@ -7412,7 +8048,15 @@
           "LOG",
           "METRIC",
           "OUTPUT",
-          "ARTIFACT"
+          "ARTIFACT",
+          "AGENT",
+          "MODEL",
+          "TOOL",
+          "ERROR",
+          "APPROVAL",
+          "INTERVENTION",
+          "CONTROL",
+          "DECISION"
         ],
         "title": "ExecutionEvidenceKind",
         "type": "string"
@@ -7831,6 +8475,132 @@
         "title": "ExtensionType",
         "type": "string"
       },
+      "ExternalOperation": {
+        "description": "One stable operation in the external-client profile.",
+        "properties": {
+          "authorization": {
+            "minLength": 1,
+            "title": "Authorization",
+            "type": "string"
+          },
+          "idempotent": {
+            "title": "Idempotent",
+            "type": "boolean"
+          },
+          "method": {
+            "enum": [
+              "GET",
+              "POST",
+              "PUT",
+              "PATCH",
+              "DELETE"
+            ],
+            "title": "Method",
+            "type": "string"
+          },
+          "name": {
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "path": {
+            "minLength": 1,
+            "title": "Path",
+            "type": "string"
+          },
+          "retryable": {
+            "title": "Retryable",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "name",
+          "method",
+          "path",
+          "authorization",
+          "idempotent",
+          "retryable"
+        ],
+        "title": "ExternalOperation",
+        "type": "object"
+      },
+      "ExternalOrchestrationProfile": {
+        "description": "Published, client-neutral orchestration profile.",
+        "properties": {
+          "apiVersion": {
+            "minLength": 1,
+            "title": "Apiversion",
+            "type": "string"
+          },
+          "errorCategories": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Errorcategories",
+            "type": "object"
+          },
+          "guarantees": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Guarantees",
+            "type": "array"
+          },
+          "operations": {
+            "items": {
+              "$ref": "#/components/schemas/ExternalOperation"
+            },
+            "title": "Operations",
+            "type": "array"
+          },
+          "realtime": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Realtime",
+            "type": "object"
+          },
+          "requestHeaders": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Requestheaders",
+            "type": "array"
+          },
+          "responseHeaders": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Responseheaders",
+            "type": "array"
+          },
+          "schemaVersion": {
+            "const": "amesh.external-orchestration/v1",
+            "title": "Schemaversion",
+            "type": "string"
+          },
+          "webhooks": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Webhooks",
+            "type": "object"
+          }
+        },
+        "required": [
+          "schemaVersion",
+          "apiVersion",
+          "operations",
+          "requestHeaders",
+          "responseHeaders",
+          "errorCategories",
+          "realtime",
+          "webhooks",
+          "guarantees"
+        ],
+        "title": "ExternalOrchestrationProfile",
+        "type": "object"
+      },
       "FailoverStatus": {
         "enum": [
           "REDUNDANT",
@@ -8054,6 +8824,15 @@
         ],
         "title": "FeatureFlagUpsertRequest",
         "type": "object"
+      },
+      "FixtureSource": {
+        "description": "The only sources allowed to satisfy a shadow side effect.",
+        "enum": [
+          "SAFE_FIXTURE",
+          "RECORDING"
+        ],
+        "title": "FixtureSource",
+        "type": "string"
       },
       "FlowDataContract": {
         "properties": {
@@ -9503,6 +10282,92 @@
           }
         },
         "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "HealthRequirement-Input": {
+        "additionalProperties": false,
+        "properties": {
+          "key": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Key",
+            "type": "string"
+          },
+          "maximum": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maximum"
+          },
+          "minimum": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Minimum"
+          }
+        },
+        "required": [
+          "key"
+        ],
+        "title": "HealthRequirement",
+        "type": "object"
+      },
+      "HealthRequirement-Output": {
+        "additionalProperties": false,
+        "properties": {
+          "key": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Key",
+            "type": "string"
+          },
+          "maximum": {
+            "anyOf": [
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maximum"
+          },
+          "minimum": {
+            "anyOf": [
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Minimum"
+          }
+        },
+        "required": [
+          "key"
+        ],
+        "title": "HealthRequirement",
         "type": "object"
       },
       "HealthResponse": {
@@ -11106,6 +11971,54 @@
         "title": "LifecycleTrigger",
         "type": "string"
       },
+      "Lineage": {
+        "additionalProperties": false,
+        "properties": {
+          "configurationDigest": {
+            "title": "Configurationdigest",
+            "type": "string"
+          },
+          "inputDigest": {
+            "title": "Inputdigest",
+            "type": "string"
+          },
+          "parentRunId": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parentrunid"
+          },
+          "runId": {
+            "format": "uuid",
+            "title": "Runid",
+            "type": "string"
+          },
+          "side": {
+            "pattern": "^(left|right)$",
+            "title": "Side",
+            "type": "string"
+          },
+          "specId": {
+            "format": "uuid",
+            "title": "Specid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "specId",
+          "side",
+          "configurationDigest",
+          "inputDigest"
+        ],
+        "title": "Lineage",
+        "type": "object"
+      },
       "LineageEvidenceKind": {
         "enum": [
           "DECLARED",
@@ -11585,6 +12498,19 @@
             "minLength": 1,
             "title": "Endpoint",
             "type": "string"
+          },
+          "revision": {
+            "anyOf": [
+              {
+                "maxLength": 255,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Revision"
           }
         },
         "required": [
@@ -16254,6 +17180,319 @@
         "title": "ProblemDetail",
         "type": "object"
       },
+      "PromotionApplyRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "approvals": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Approvals",
+            "type": "object"
+          },
+          "expectedVersion": {
+            "minimum": 0.0,
+            "title": "Expectedversion",
+            "type": "integer"
+          },
+          "reason": {
+            "maxLength": 2048,
+            "minLength": 1,
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "expectedVersion",
+          "reason"
+        ],
+        "title": "PromotionApplyRequest",
+        "type": "object"
+      },
+      "PromotionEvidenceKind": {
+        "enum": [
+          "TEST",
+          "ASSERTION",
+          "DIFFERENTIAL",
+          "HEALTH",
+          "BUDGET",
+          "APPROVAL"
+        ],
+        "title": "PromotionEvidenceKind",
+        "type": "string"
+      },
+      "PromotionKillSwitchRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "expectedVersion": {
+            "minimum": 0.0,
+            "title": "Expectedversion",
+            "type": "integer"
+          },
+          "reason": {
+            "maxLength": 2048,
+            "minLength": 1,
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "expectedVersion",
+          "reason"
+        ],
+        "title": "PromotionKillSwitchRequest",
+        "type": "object"
+      },
+      "PromotionPolicy-Input": {
+        "additionalProperties": false,
+        "description": "Immutable tenant policy; thresholds and cutover choices remain client supplied.",
+        "properties": {
+          "approvalRequirements": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/ApprovalRequirement"
+            },
+            "maxItems": 100,
+            "title": "Approvalrequirements",
+            "type": "array"
+          },
+          "budgetRequirements": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/BudgetRequirement-Input"
+            },
+            "maxItems": 100,
+            "title": "Budgetrequirements",
+            "type": "array"
+          },
+          "configurationDigest": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Configurationdigest",
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "title": "Createdat",
+            "type": "string"
+          },
+          "createdBy": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Createdby",
+            "type": "string"
+          },
+          "healthRequirements": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/HealthRequirement-Input"
+            },
+            "maxItems": 100,
+            "title": "Healthrequirements",
+            "type": "array"
+          },
+          "maxEvidenceAgeSeconds": {
+            "default": 86400,
+            "maximum": 31536000.0,
+            "minimum": 1.0,
+            "title": "Maxevidenceageseconds",
+            "type": "integer"
+          },
+          "policyId": {
+            "format": "uuid",
+            "title": "Policyid",
+            "type": "string"
+          },
+          "requiredEvidence": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/EvidenceRequirement"
+            },
+            "maxItems": 1000,
+            "title": "Requiredevidence",
+            "type": "array"
+          },
+          "targetKey": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Targetkey",
+            "type": "string"
+          },
+          "targetKind": {
+            "$ref": "#/components/schemas/PromotionTargetKind"
+          },
+          "targetRevision": {
+            "minimum": 1.0,
+            "title": "Targetrevision",
+            "type": "integer"
+          },
+          "tenantId": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Tenantid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "tenantId",
+          "targetKind",
+          "targetKey",
+          "targetRevision",
+          "configurationDigest",
+          "createdBy"
+        ],
+        "title": "PromotionPolicy",
+        "type": "object"
+      },
+      "PromotionPolicy-Output": {
+        "additionalProperties": false,
+        "description": "Immutable tenant policy; thresholds and cutover choices remain client supplied.",
+        "properties": {
+          "approvalRequirements": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/ApprovalRequirement"
+            },
+            "maxItems": 100,
+            "title": "Approvalrequirements",
+            "type": "array"
+          },
+          "budgetRequirements": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/BudgetRequirement-Output"
+            },
+            "maxItems": 100,
+            "title": "Budgetrequirements",
+            "type": "array"
+          },
+          "configurationDigest": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Configurationdigest",
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "title": "Createdat",
+            "type": "string"
+          },
+          "createdBy": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Createdby",
+            "type": "string"
+          },
+          "healthRequirements": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/HealthRequirement-Output"
+            },
+            "maxItems": 100,
+            "title": "Healthrequirements",
+            "type": "array"
+          },
+          "maxEvidenceAgeSeconds": {
+            "default": 86400,
+            "maximum": 31536000.0,
+            "minimum": 1.0,
+            "title": "Maxevidenceageseconds",
+            "type": "integer"
+          },
+          "policyId": {
+            "format": "uuid",
+            "title": "Policyid",
+            "type": "string"
+          },
+          "requiredEvidence": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/EvidenceRequirement"
+            },
+            "maxItems": 1000,
+            "title": "Requiredevidence",
+            "type": "array"
+          },
+          "targetKey": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Targetkey",
+            "type": "string"
+          },
+          "targetKind": {
+            "$ref": "#/components/schemas/PromotionTargetKind"
+          },
+          "targetRevision": {
+            "minimum": 1.0,
+            "title": "Targetrevision",
+            "type": "integer"
+          },
+          "tenantId": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Tenantid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "tenantId",
+          "targetKind",
+          "targetKey",
+          "targetRevision",
+          "configurationDigest",
+          "createdBy"
+        ],
+        "title": "PromotionPolicy",
+        "type": "object"
+      },
+      "PromotionPreviewRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "approvals": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Approvals",
+            "type": "object"
+          }
+        },
+        "title": "PromotionPreviewRequest",
+        "type": "object"
+      },
+      "PromotionRollbackRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "expectedVersion": {
+            "minimum": 0.0,
+            "title": "Expectedversion",
+            "type": "integer"
+          },
+          "reason": {
+            "maxLength": 2048,
+            "minLength": 1,
+            "title": "Reason",
+            "type": "string"
+          },
+          "toRevision": {
+            "minimum": 1.0,
+            "title": "Torevision",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "toRevision",
+          "expectedVersion",
+          "reason"
+        ],
+        "title": "PromotionRollbackRequest",
+        "type": "object"
+      },
+      "PromotionTargetKind": {
+        "enum": [
+          "WORKFLOW",
+          "AGENT"
+        ],
+        "title": "PromotionTargetKind",
+        "type": "string"
+      },
       "PromptSpec": {
         "additionalProperties": false,
         "properties": {
@@ -16422,6 +17661,13 @@
           "migrations_expected": {
             "title": "Migrations Expected",
             "type": "integer"
+          },
+          "roles": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Roles",
+            "type": "object"
           },
           "status": {
             "title": "Status",
@@ -17155,29 +18401,78 @@
       "ResolvedToolPin": {
         "properties": {
           "connectionDigest": {
-            "pattern": "^sha256:[0-9a-f]{64}$",
-            "title": "Connectiondigest",
-            "type": "string"
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Connectiondigest"
           },
           "connectionId": {
-            "format": "uuid",
-            "title": "Connectionid",
-            "type": "string"
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Connectionid"
           },
           "connectionKey": {
-            "maxLength": 128,
-            "minLength": 1,
-            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
-            "title": "Connectionkey",
-            "type": "string"
+            "anyOf": [
+              {
+                "maxLength": 128,
+                "minLength": 1,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Connectionkey"
           },
           "connectionRevision": {
-            "minimum": 1.0,
-            "title": "Connectionrevision",
-            "type": "integer"
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Connectionrevision"
           },
           "impact": {
             "$ref": "#/components/schemas/McpToolImpact"
+          },
+          "providerDigest": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Providerdigest",
+            "type": "string"
+          },
+          "providerKey": {
+            "maxLength": 255,
+            "minLength": 1,
+            "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$",
+            "title": "Providerkey",
+            "type": "string"
+          },
+          "providerKind": {
+            "$ref": "#/components/schemas/ToolProviderKind",
+            "default": "mcp"
+          },
+          "providerRevision": {
+            "minimum": 1.0,
+            "title": "Providerrevision",
+            "type": "integer"
           },
           "schemaDigest": {
             "pattern": "^sha256:[0-9a-f]{64}$",
@@ -17185,18 +18480,17 @@
             "type": "string"
           },
           "toolName": {
-            "maxLength": 128,
+            "maxLength": 255,
             "minLength": 1,
-            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+            "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$",
             "title": "Toolname",
             "type": "string"
           }
         },
         "required": [
-          "connectionId",
-          "connectionKey",
-          "connectionRevision",
-          "connectionDigest",
+          "providerKey",
+          "providerRevision",
+          "providerDigest",
           "toolName",
           "schemaDigest",
           "impact"
@@ -17482,6 +18776,92 @@
           }
         },
         "title": "RotateCredentialRequest",
+        "type": "object"
+      },
+      "RunObservation": {
+        "additionalProperties": false,
+        "description": "Portable evidence emitted by an adapter; model output may be declared nondeterministic.",
+        "properties": {
+          "cost": {
+            "default": "0",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Cost",
+            "type": "string"
+          },
+          "deterministicAssertions": {
+            "default": [],
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Deterministicassertions",
+            "type": "array"
+          },
+          "effects": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/ShadowEffect"
+            },
+            "title": "Effects",
+            "type": "array"
+          },
+          "evidence": {
+            "default": [],
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Evidence",
+            "type": "array"
+          },
+          "latency": {
+            "default": "0",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Latency",
+            "type": "string"
+          },
+          "nondeterministicPaths": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Nondeterministicpaths",
+            "type": "array"
+          },
+          "output": {
+            "title": "Output"
+          },
+          "schema": {
+            "title": "Schema"
+          },
+          "taskChronology": {
+            "default": [],
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Taskchronology",
+            "type": "array"
+          },
+          "toolChronology": {
+            "default": [],
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Toolchronology",
+            "type": "array"
+          },
+          "usage": {
+            "additionalProperties": {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            },
+            "title": "Usage",
+            "type": "object"
+          }
+        },
+        "title": "RunObservation",
         "type": "object"
       },
       "RunnerCapabilities": {
@@ -18890,6 +20270,12 @@
           "compatibility": {
             "$ref": "#/components/schemas/ServiceCompatibility"
           },
+          "consecutiveFailures": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Consecutivefailures",
+            "type": "integer"
+          },
           "dependencies": {
             "additionalProperties": {
               "type": "string"
@@ -18929,10 +20315,45 @@
             "title": "Labels",
             "type": "object"
           },
+          "lastFailure": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lastfailure"
+          },
+          "lastFailureAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lastfailureat"
+          },
           "lastHeartbeatAt": {
             "format": "date-time",
             "title": "Lastheartbeatat",
             "type": "string"
+          },
+          "lastSuccessAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lastsuccessat"
           },
           "liveness": {
             "$ref": "#/components/schemas/ServiceLiveness"
@@ -19019,6 +20440,11 @@
       },
       "ServiceRoleStatus": {
         "properties": {
+          "degradedInstances": {
+            "minimum": 0.0,
+            "title": "Degradedinstances",
+            "type": "integer"
+          },
           "drainingInstances": {
             "minimum": 0.0,
             "title": "Draininginstances",
@@ -19070,6 +20496,7 @@
           "totalInstances",
           "liveInstances",
           "readyInstances",
+          "degradedInstances",
           "drainingInstances",
           "staleInstances",
           "failureZones",
@@ -19083,6 +20510,7 @@
         "enum": [
           "STARTING",
           "READY",
+          "DEGRADED",
           "DRAINING",
           "STOPPED"
         ],
@@ -19157,6 +20585,79 @@
           "newPassword"
         ],
         "title": "SetLocalPasswordRequest",
+        "type": "object"
+      },
+      "ShadowEffect": {
+        "additionalProperties": false,
+        "properties": {
+          "fixtureKey": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fixturekey"
+          },
+          "key": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Key",
+            "type": "string"
+          }
+        },
+        "required": [
+          "key"
+        ],
+        "title": "ShadowEffect",
+        "type": "object"
+      },
+      "ShadowFixture": {
+        "additionalProperties": false,
+        "properties": {
+          "certificate": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Certificate",
+            "type": "string"
+          },
+          "key": {
+            "maxLength": 512,
+            "minLength": 1,
+            "title": "Key",
+            "type": "string"
+          },
+          "source": {
+            "$ref": "#/components/schemas/FixtureSource"
+          },
+          "value": {
+            "title": "Value"
+          }
+        },
+        "required": [
+          "key",
+          "source",
+          "certificate"
+        ],
+        "title": "ShadowFixture",
+        "type": "object"
+      },
+      "ShadowRun": {
+        "additionalProperties": false,
+        "properties": {
+          "lineage": {
+            "$ref": "#/components/schemas/Lineage"
+          },
+          "observation": {
+            "$ref": "#/components/schemas/RunObservation"
+          }
+        },
+        "required": [
+          "lineage",
+          "observation"
+        ],
+        "title": "ShadowRun",
         "type": "object"
       },
       "SimulatedTaskResult": {
@@ -20923,6 +22424,50 @@
         ],
         "title": "TimeRangeSelection",
         "type": "object"
+      },
+      "Tolerance": {
+        "additionalProperties": false,
+        "properties": {
+          "absolute": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "default": "0",
+            "title": "Absolute"
+          },
+          "relative": {
+            "anyOf": [
+              {
+                "maximum": 1.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "default": "0",
+            "title": "Relative"
+          }
+        },
+        "title": "Tolerance",
+        "type": "object"
+      },
+      "ToolProviderKind": {
+        "enum": [
+          "mcp",
+          "plugin"
+        ],
+        "title": "ToolProviderKind",
+        "type": "string"
       },
       "TriggerActionRequest": {
         "properties": {
@@ -31798,6 +33343,22 @@
           },
           {
             "in": "header",
+            "name": "X-Correlation-ID",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Correlation-Id"
+            }
+          },
+          {
+            "in": "header",
             "name": "authorization",
             "required": false,
             "schema": {
@@ -31911,6 +33472,22 @@
                 }
               ],
               "title": "Prefer"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Correlation-ID",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Correlation-Id"
             }
           },
           {
@@ -32517,6 +34094,140 @@
           }
         },
         "summary": "Get Execution Evidence",
+        "tags": [
+          "executions"
+        ]
+      }
+    },
+    "/api/v1/executions/{execution_id}/evidence-bundle": {
+      "get": {
+        "description": "Return a verified, bounded, tenant-scoped canonical evidence projection.",
+        "operationId": "get_execution_evidence_bundle_api_v1_executions__execution_id__evidence_bundle_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "execution_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Execution Id",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Canonical evidence section",
+            "in": "query",
+            "name": "section",
+            "required": false,
+            "schema": {
+              "default": "trace",
+              "description": "Canonical evidence section",
+              "title": "Section",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Opaque section cursor",
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Opaque section cursor",
+              "title": "Cursor"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EvidenceBundlePageResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Execution Evidence Bundle",
         "tags": [
           "executions"
         ]
@@ -33741,6 +35452,22 @@
                 }
               ],
               "title": "Idempotency-Key"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Correlation-ID",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Correlation-Id"
             }
           },
           {
@@ -39899,6 +41626,227 @@
         ]
       }
     },
+    "/api/v1/namespaces/{namespace}/differentials": {
+      "post": {
+        "operationId": "run_differential_api_v1_namespaces__namespace__differentials_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "namespace",
+            "required": true,
+            "schema": {
+              "maxLength": 255,
+              "minLength": 1,
+              "title": "Namespace",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DifferentialSpec"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ComparisonReport"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Run Differential",
+        "tags": [
+          "quality"
+        ]
+      }
+    },
+    "/api/v1/namespaces/{namespace}/differentials/{idempotency_key}": {
+      "get": {
+        "operationId": "get_differential_api_v1_namespaces__namespace__differentials__idempotency_key__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "namespace",
+            "required": true,
+            "schema": {
+              "maxLength": 255,
+              "minLength": 1,
+              "title": "Namespace",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "idempotency_key",
+            "required": true,
+            "schema": {
+              "maxLength": 512,
+              "minLength": 1,
+              "title": "Idempotency Key",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ComparisonReport"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Differential",
+        "tags": [
+          "quality"
+        ]
+      }
+    },
     "/api/v1/namespaces/{namespace}/files": {
       "get": {
         "operationId": "list_namespace_files_api_v1_namespaces__namespace__files_get",
@@ -42594,6 +44542,28 @@
         "summary": "Get Service Topology",
         "tags": [
           "operations"
+        ]
+      }
+    },
+    "/api/v1/orchestration/profile": {
+      "get": {
+        "description": "Publish the client-neutral contract without exposing tenant data.",
+        "operationId": "get_external_orchestration_profile_api_v1_orchestration_profile_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExternalOrchestrationProfile"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Get External Orchestration Profile",
+        "tags": [
+          "external-orchestration"
         ]
       }
     },
@@ -46166,6 +48136,809 @@
         "summary": "Get Reconciliation",
         "tags": [
           "operations"
+        ]
+      }
+    },
+    "/api/v1/releases/evidence": {
+      "post": {
+        "operationId": "record_evidence_api_v1_releases_evidence_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EvidenceArtifact"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EvidenceArtifact"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Record Evidence",
+        "tags": [
+          "releases"
+        ]
+      }
+    },
+    "/api/v1/releases/policies": {
+      "post": {
+        "operationId": "create_policy_api_v1_releases_policies_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PromotionPolicy-Input"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PromotionPolicy-Output"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Policy",
+        "tags": [
+          "releases"
+        ]
+      }
+    },
+    "/api/v1/releases/policies/{policy_id}/apply": {
+      "post": {
+        "operationId": "apply_policy_api_v1_releases_policies__policy_id__apply_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "policy_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Policy Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PromotionApplyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response Apply Policy Api V1 Releases Policies  Policy Id  Apply Post"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Apply Policy",
+        "tags": [
+          "releases"
+        ]
+      }
+    },
+    "/api/v1/releases/policies/{policy_id}/preview": {
+      "post": {
+        "operationId": "preview_policy_api_v1_releases_policies__policy_id__preview_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "policy_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Policy Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/PromotionPreviewRequest"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Request"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response Preview Policy Api V1 Releases Policies  Policy Id  Preview Post"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Preview Policy",
+        "tags": [
+          "releases"
+        ]
+      }
+    },
+    "/api/v1/releases/{target_kind}/{target_key}": {
+      "get": {
+        "operationId": "target_state_api_v1_releases__target_kind___target_key__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "target_kind",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/PromotionTargetKind"
+            }
+          },
+          {
+            "in": "path",
+            "name": "target_key",
+            "required": true,
+            "schema": {
+              "title": "Target Key",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response Target State Api V1 Releases  Target Kind   Target Key  Get"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Target State",
+        "tags": [
+          "releases"
+        ]
+      }
+    },
+    "/api/v1/releases/{target_kind}/{target_key}/history": {
+      "get": {
+        "operationId": "target_history_api_v1_releases__target_kind___target_key__history_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "target_kind",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/PromotionTargetKind"
+            }
+          },
+          {
+            "in": "path",
+            "name": "target_key",
+            "required": true,
+            "schema": {
+              "title": "Target Key",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response Target History Api V1 Releases  Target Kind   Target Key  History Get"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Target History",
+        "tags": [
+          "releases"
+        ]
+      }
+    },
+    "/api/v1/releases/{target_kind}/{target_key}/kill-switch": {
+      "post": {
+        "operationId": "kill_switch_api_v1_releases__target_kind___target_key__kill_switch_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "target_kind",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/PromotionTargetKind"
+            }
+          },
+          {
+            "in": "path",
+            "name": "target_key",
+            "required": true,
+            "schema": {
+              "title": "Target Key",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PromotionKillSwitchRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response Kill Switch Api V1 Releases  Target Kind   Target Key  Kill Switch Post"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Kill Switch",
+        "tags": [
+          "releases"
+        ]
+      }
+    },
+    "/api/v1/releases/{target_kind}/{target_key}/rollback": {
+      "post": {
+        "operationId": "rollback_api_v1_releases__target_kind___target_key__rollback_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "target_kind",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/PromotionTargetKind"
+            }
+          },
+          {
+            "in": "path",
+            "name": "target_key",
+            "required": true,
+            "schema": {
+              "title": "Target Key",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-Tenant",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Tenant"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Amesh-CSRF",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Amesh-Csrf"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PromotionRollbackRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response Rollback Api V1 Releases  Target Kind   Target Key  Rollback Post"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Rollback",
+        "tags": [
+          "releases"
         ]
       }
     },

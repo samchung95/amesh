@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,18 +21,18 @@ var _ MappedNullable = &DeterminismEnvelope{}
 
 // DeterminismEnvelope struct for DeterminismEnvelope
 type DeterminismEnvelope struct {
-	ConfiguredTaskNestingDepth int32 `json:"configuredTaskNestingDepth"`
-	DynamicBounds []DynamicExecutionBound `json:"dynamicBounds"`
-	EnvelopeDigest string `json:"envelopeDigest"`
-	MaximumTaskNestingDepth int32 `json:"maximumTaskNestingDepth"`
-	Nodes []DeterminismNode `json:"nodes"`
+	ConfiguredTaskNestingDepth int32                       `json:"configuredTaskNestingDepth"`
+	DynamicBounds              []DynamicExecutionBound     `json:"dynamicBounds"`
+	EnvelopeDigest             string                      `json:"envelopeDigest"`
+	MaximumTaskNestingDepth    int32                       `json:"maximumTaskNestingDepth"`
+	Nodes                      []DeterminismNode           `json:"nodes"`
 	NondeterministicOperations []NondeterministicOperation `json:"nondeterministicOperations"`
-	PluginSetHash string `json:"pluginSetHash"`
-	PolicyPins []DeterminismPolicyPin `json:"policyPins,omitempty"`
-	Revision int32 `json:"revision"`
-	SchemaVersion *string `json:"schemaVersion,omitempty"`
-	SemanticHash string `json:"semanticHash"`
-	WorstCaseTaskRuns int32 `json:"worstCaseTaskRuns"`
+	PluginSetHash              string                      `json:"pluginSetHash"`
+	PolicyPins                 []DeterminismPolicyPin      `json:"policyPins,omitempty"`
+	Revision                   int32                       `json:"revision"`
+	SchemaVersion              *string                     `json:"schemaVersion,omitempty"`
+	SemanticHash               string                      `json:"semanticHash"`
+	WorstCaseTaskRuns          int32                       `json:"worstCaseTaskRuns"`
 }
 
 type _DeterminismEnvelope DeterminismEnvelope
@@ -373,7 +373,7 @@ func (o *DeterminismEnvelope) SetWorstCaseTaskRuns(v int32) {
 }
 
 func (o DeterminismEnvelope) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -423,10 +423,10 @@ func (o *DeterminismEnvelope) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

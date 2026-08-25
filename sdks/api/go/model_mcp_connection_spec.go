@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,12 +21,12 @@ var _ MappedNullable = &McpConnectionSpec{}
 
 // McpConnectionSpec struct for McpConnectionSpec
 type McpConnectionSpec struct {
-	CredentialRef string `json:"credentialRef" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
-	Endpoint string `json:"endpoint"`
-	Key string `json:"key" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
-	Namespace string `json:"namespace"`
-	ToolAllowlist []string `json:"toolAllowlist"`
-	Tools []McpToolPin `json:"tools"`
+	CredentialRef string       `json:"credentialRef" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
+	Endpoint      string       `json:"endpoint"`
+	Key           string       `json:"key" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
+	Namespace     string       `json:"namespace"`
+	ToolAllowlist []string     `json:"toolAllowlist"`
+	Tools         []McpToolPin `json:"tools"`
 }
 
 type _McpConnectionSpec McpConnectionSpec
@@ -199,7 +199,7 @@ func (o *McpConnectionSpec) SetTools(v []McpToolPin) {
 }
 
 func (o McpConnectionSpec) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -235,10 +235,10 @@ func (o *McpConnectionSpec) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

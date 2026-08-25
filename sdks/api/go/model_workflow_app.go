@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the WorkflowApp type satisfies the MappedNullable interface at compile time
@@ -22,19 +22,19 @@ var _ MappedNullable = &WorkflowApp{}
 
 // WorkflowApp struct for WorkflowApp
 type WorkflowApp struct {
-	AppId string `json:"appId" validate:"regexp=^[a-z][a-z0-9_.-]{0\\,127}$"`
-	CreatedAt time.Time `json:"createdAt"`
-	CreatedBy string `json:"createdBy"`
-	Description *string `json:"description,omitempty"`
-	EmbedEnabled *bool `json:"embedEnabled,omitempty"`
-	FlowId string `json:"flowId" validate:"regexp=^[A-Za-z_][A-Za-z0-9_.-]{0\\,127}$"`
-	FlowRevision NullableInt32 `json:"flowRevision,omitempty"`
-	Form AppForm `json:"form"`
-	LaunchLabel *string `json:"launchLabel,omitempty"`
-	Namespace string `json:"namespace"`
-	ResourceVersion int32 `json:"resourceVersion"`
-	Revision int32 `json:"revision"`
-	Title string `json:"title"`
+	AppId           string        `json:"appId" validate:"regexp=^[a-z][a-z0-9_.-]{0\\,127}$"`
+	CreatedAt       time.Time     `json:"createdAt"`
+	CreatedBy       string        `json:"createdBy"`
+	Description     *string       `json:"description,omitempty"`
+	EmbedEnabled    *bool         `json:"embedEnabled,omitempty"`
+	FlowId          string        `json:"flowId" validate:"regexp=^[A-Za-z_][A-Za-z0-9_.-]{0\\,127}$"`
+	FlowRevision    NullableInt32 `json:"flowRevision,omitempty"`
+	Form            AppForm       `json:"form"`
+	LaunchLabel     *string       `json:"launchLabel,omitempty"`
+	Namespace       string        `json:"namespace"`
+	ResourceVersion int32         `json:"resourceVersion"`
+	Revision        int32         `json:"revision"`
+	Title           string        `json:"title"`
 }
 
 type _WorkflowApp WorkflowApp
@@ -269,6 +269,7 @@ func (o *WorkflowApp) HasFlowRevision() bool {
 func (o *WorkflowApp) SetFlowRevision(v int32) {
 	o.FlowRevision.Set(&v)
 }
+
 // SetFlowRevisionNil sets the value for FlowRevision to be an explicit nil
 func (o *WorkflowApp) SetFlowRevisionNil() {
 	o.FlowRevision.Set(nil)
@@ -432,7 +433,7 @@ func (o *WorkflowApp) SetTitle(v string) {
 }
 
 func (o WorkflowApp) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -486,10 +487,10 @@ func (o *WorkflowApp) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

@@ -12,8 +12,8 @@ package ameshclient
 
 import (
 	"encoding/json"
-	"time"
 	"fmt"
+	"time"
 )
 
 // checks if the ComplianceEvidenceRecord type satisfies the MappedNullable interface at compile time
@@ -21,16 +21,16 @@ var _ MappedNullable = &ComplianceEvidenceRecord{}
 
 // ComplianceEvidenceRecord struct for ComplianceEvidenceRecord
 type ComplianceEvidenceRecord struct {
-	Category ComplianceEvidenceCategory `json:"category"`
-	ChecksumSha256 string `json:"checksumSha256" validate:"regexp=^[0-9a-f]{64}$"`
-	CreatedAt *time.Time `json:"createdAt,omitempty"`
-	CreatedBy string `json:"createdBy"`
-	Id *string `json:"id,omitempty"`
-	OccurredAt time.Time `json:"occurredAt"`
-	Payload map[string]interface{} `json:"payload,omitempty"`
-	Source string `json:"source"`
-	TenantId string `json:"tenantId"`
-	Title string `json:"title"`
+	Category             ComplianceEvidenceCategory `json:"category"`
+	ChecksumSha256       string                     `json:"checksumSha256" validate:"regexp=^[0-9a-f]{64}$"`
+	CreatedAt            *time.Time                 `json:"createdAt,omitempty"`
+	CreatedBy            string                     `json:"createdBy"`
+	Id                   *string                    `json:"id,omitempty"`
+	OccurredAt           time.Time                  `json:"occurredAt"`
+	Payload              map[string]interface{}     `json:"payload,omitempty"`
+	Source               string                     `json:"source"`
+	TenantId             string                     `json:"tenantId"`
+	Title                string                     `json:"title"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -325,7 +325,7 @@ func (o *ComplianceEvidenceRecord) SetTitle(v string) {
 }
 
 func (o ComplianceEvidenceRecord) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -377,10 +377,10 @@ func (o *ComplianceEvidenceRecord) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

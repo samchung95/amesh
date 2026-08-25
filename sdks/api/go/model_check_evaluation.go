@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the CheckEvaluation type satisfies the MappedNullable interface at compile time
@@ -22,24 +22,24 @@ var _ MappedNullable = &CheckEvaluation{}
 
 // CheckEvaluation struct for CheckEvaluation
 type CheckEvaluation struct {
-	CheckDefinitionId string `json:"check_definition_id"`
-	CheckId string `json:"check_id"`
-	CheckType string `json:"check_type"`
-	EvaluatedAt time.Time `json:"evaluated_at"`
-	EvaluationId string `json:"evaluation_id"`
-	EvaluationPoint CheckEvaluationPoint `json:"evaluation_point"`
-	Evidence map[string]interface{} `json:"evidence"`
-	ExecutionId NullableString `json:"execution_id,omitempty"`
-	FlowId string `json:"flow_id"`
-	FlowRevision int32 `json:"flow_revision"`
-	Labels map[string]string `json:"labels"`
-	Namespace string `json:"namespace"`
-	Outcome CheckOutcome `json:"outcome"`
-	Reason string `json:"reason"`
-	Severity string `json:"severity"`
-	Source string `json:"source"`
-	SubjectKey string `json:"subject_key"`
-	TenantId string `json:"tenant_id"`
+	CheckDefinitionId string                 `json:"check_definition_id"`
+	CheckId           string                 `json:"check_id"`
+	CheckType         string                 `json:"check_type"`
+	EvaluatedAt       time.Time              `json:"evaluated_at"`
+	EvaluationId      string                 `json:"evaluation_id"`
+	EvaluationPoint   CheckEvaluationPoint   `json:"evaluation_point"`
+	Evidence          map[string]interface{} `json:"evidence"`
+	ExecutionId       NullableString         `json:"execution_id,omitempty"`
+	FlowId            string                 `json:"flow_id"`
+	FlowRevision      int32                  `json:"flow_revision"`
+	Labels            map[string]string      `json:"labels"`
+	Namespace         string                 `json:"namespace"`
+	Outcome           CheckOutcome           `json:"outcome"`
+	Reason            string                 `json:"reason"`
+	Severity          string                 `json:"severity"`
+	Source            string                 `json:"source"`
+	SubjectKey        string                 `json:"subject_key"`
+	TenantId          string                 `json:"tenant_id"`
 }
 
 type _CheckEvaluation CheckEvaluation
@@ -278,6 +278,7 @@ func (o *CheckEvaluation) HasExecutionId() bool {
 func (o *CheckEvaluation) SetExecutionId(v string) {
 	o.ExecutionId.Set(&v)
 }
+
 // SetExecutionIdNil sets the value for ExecutionId to be an explicit nil
 func (o *CheckEvaluation) SetExecutionIdNil() {
 	o.ExecutionId.Set(nil)
@@ -529,7 +530,7 @@ func (o *CheckEvaluation) SetTenantId(v string) {
 }
 
 func (o CheckEvaluation) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -590,10 +591,10 @@ func (o *CheckEvaluation) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

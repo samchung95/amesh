@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,11 +21,11 @@ var _ MappedNullable = &ValidationIssue{}
 
 // ValidationIssue struct for ValidationIssue
 type ValidationIssue struct {
-	Code string `json:"code"`
-	Hint string `json:"hint"`
-	Message string `json:"message"`
-	Path string `json:"path"`
-	Severity *string `json:"severity,omitempty"`
+	Code        string              `json:"code"`
+	Hint        string              `json:"hint"`
+	Message     string              `json:"message"`
+	Path        string              `json:"path"`
+	Severity    *string             `json:"severity,omitempty"`
 	SourceRange NullableSourceRange `json:"sourceRange,omitempty"`
 }
 
@@ -216,6 +216,7 @@ func (o *ValidationIssue) HasSourceRange() bool {
 func (o *ValidationIssue) SetSourceRange(v SourceRange) {
 	o.SourceRange.Set(&v)
 }
+
 // SetSourceRangeNil sets the value for SourceRange to be an explicit nil
 func (o *ValidationIssue) SetSourceRangeNil() {
 	o.SourceRange.Set(nil)
@@ -227,7 +228,7 @@ func (o *ValidationIssue) UnsetSourceRange() {
 }
 
 func (o ValidationIssue) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -265,10 +266,10 @@ func (o *ValidationIssue) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

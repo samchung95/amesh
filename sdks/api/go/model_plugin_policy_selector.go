@@ -20,10 +20,10 @@ var _ MappedNullable = &PluginPolicySelector{}
 // PluginPolicySelector struct for PluginPolicySelector
 type PluginPolicySelector struct {
 	Capabilities []string `json:"capabilities,omitempty"`
-	Package *string `json:"package,omitempty"`
-	PluginTypes []string `json:"pluginTypes,omitempty"`
-	Vendor *string `json:"vendor,omitempty"`
-	VersionRange *string `json:"versionRange,omitempty"`
+	Package      *string  `json:"package,omitempty"`
+	PluginTypes  []string `json:"pluginTypes,omitempty"`
+	Vendor       *string  `json:"vendor,omitempty"`
+	VersionRange *string  `json:"versionRange,omitempty"`
 }
 
 // NewPluginPolicySelector instantiates a new PluginPolicySelector object
@@ -216,7 +216,7 @@ func (o *PluginPolicySelector) SetVersionRange(v string) {
 }
 
 func (o PluginPolicySelector) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}

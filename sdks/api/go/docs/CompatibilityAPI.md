@@ -12,7 +12,7 @@ Method | HTTP request | Description
 
 ## CreateKestraExecutionApiV1ExecutionsNamespaceFlowIdPost
 
-> ExecutionDetail CreateKestraExecutionApiV1ExecutionsNamespaceFlowIdPost(ctx, namespace, flowId).KestraExecutionRequest(kestraExecutionRequest).Prefer(prefer).IdempotencyKey(idempotencyKey).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
+> ExecutionDetail CreateKestraExecutionApiV1ExecutionsNamespaceFlowIdPost(ctx, namespace, flowId).KestraExecutionRequest(kestraExecutionRequest).Prefer(prefer).IdempotencyKey(idempotencyKey).XCorrelationID(xCorrelationID).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
 
 Create Kestra Execution
 
@@ -34,13 +34,14 @@ func main() {
 	kestraExecutionRequest := *openapiclient.NewKestraExecutionRequest() // KestraExecutionRequest |
 	prefer := "prefer_example" // string |  (optional)
 	idempotencyKey := "idempotencyKey_example" // string |  (optional)
+	xCorrelationID := "xCorrelationID_example" // string |  (optional)
 	authorization := "authorization_example" // string |  (optional)
 	xAmeshCSRF := "xAmeshCSRF_example" // string |  (optional)
 	xAmeshTenant := "xAmeshTenant_example" // string |  (optional)
 
 	configuration := openapiclient.NewConfiguration()
 	apiClient := openapiclient.NewAPIClient(configuration)
-	resp, r, err := apiClient.CompatibilityAPI.CreateKestraExecutionApiV1ExecutionsNamespaceFlowIdPost(context.Background(), namespace, flowId).KestraExecutionRequest(kestraExecutionRequest).Prefer(prefer).IdempotencyKey(idempotencyKey).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
+	resp, r, err := apiClient.CompatibilityAPI.CreateKestraExecutionApiV1ExecutionsNamespaceFlowIdPost(context.Background(), namespace, flowId).KestraExecutionRequest(kestraExecutionRequest).Prefer(prefer).IdempotencyKey(idempotencyKey).XCorrelationID(xCorrelationID).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error when calling `CompatibilityAPI.CreateKestraExecutionApiV1ExecutionsNamespaceFlowIdPost``: %v\n", err)
 		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
@@ -71,6 +72,7 @@ Name | Type | Description  | Notes
  **kestraExecutionRequest** | [**KestraExecutionRequest**](KestraExecutionRequest.md) |  |
  **prefer** | **string** |  |
  **idempotencyKey** | **string** |  |
+ **xCorrelationID** | **string** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |

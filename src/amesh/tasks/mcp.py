@@ -10,6 +10,7 @@ from jsonschema import Draft202012Validator
 from jsonschema.exceptions import ValidationError as JsonSchemaValidationError
 from mcp import Client
 from mcp.client.streamable_http import streamable_http_client
+from pydantic import SecretStr
 
 from amesh.domain import (
     AgentInvocationKind,
@@ -157,6 +158,19 @@ def agent_mcp_handler(
             tuple(context.secrets.values()),
         )
         _require_tool_authority(task, context, tool_pin, extra)
+        return await _governed_mcp_call(
+            task,
+            context,
+            extra,
+            connection=connection,
+            credential=credential,
+            tool_name=tool_name,
+            outbound_arguments=outbound_arguments,
+            data_policy=data_policy,
+            target_resolver=target_resolver,
+            http_policy=http_policy,
+            repository=repository,
+        )
         try:
             Draft202012Validator(tool_pin.input_schema).validate(outbound_arguments)
         except JsonSchemaValidationError as exc:
@@ -276,6 +290,139 @@ def agent_mcp_handler(
             ) from exc
 
     return run
+
+
+async def _governed_mcp_call(
+    task: TaskDefinition,
+    context: TaskExecutionContext,
+    extra: dict[str, Any],
+    *,
+    connection: Any,
+    credential: str,
+    tool_name: str,
+    outbound_arguments: dict[str, Any],
+    data_policy: ModelDataEgress,
+    target_resolver: McpTargetResolver | None,
+    http_policy: HttpTaskPolicy | None,
+    repository: AgentPrimitiveRepository,
+) -> TaskCompletion:
+    # Import lazily because the neutral adapter reuses this module's MCP client.
+    from amesh.domain import (
+        ToolInvocationRequest,
+        ToolPolicy,
+        ToolProviderKind,
+        ToolProviderRef,
+    )
+    from amesh.tasks.tool_provider import (
+        AgentPrimitiveInvocationJournal,
+        GovernedToolInvoker,
+        McpToolProvider,
+    )
+
+    spec = connection.spec
+    legacy_hash = canonical_hash(
+        {
+            "connectionDigest": connection.digest,
+            "toolSchemaDigest": spec.pinned_tool(tool_name).schema_digest,
+            "tool": tool_name,
+            "arguments": outbound_arguments,
+        }
+    )
+    request_metadata: dict[str, object] = {
+        "connectionId": str(connection.connection_id),
+        "connectionKey": spec.key,
+        "connectionRevision": connection.revision,
+        "connectionDigest": connection.digest,
+        "endpoint": spec.endpoint,
+        "tool": tool_name,
+        "toolSchemaDigest": spec.pinned_tool(tool_name).schema_digest,
+        "schemaDigest": spec.pinned_tool(tool_name).schema_digest,
+        "impact": spec.pinned_tool(tool_name).impact.value,
+        "dataHandling": data_policy.value,
+        "arguments": _redact_values(outbound_arguments, tuple(context.secrets.values())),
+        "requestHash": legacy_hash,
+        "policyDigest": canonical_hash(
+            {
+                "allowlist": spec.tool_allowlist,
+                "secretScopes": task.contract.secret_scopes,
+            }
+        ),
+    }
+    journal_operation = _journal_operation(
+        f"{spec.key}.{tool_name}",
+        extra,
+        request_metadata,
+    )
+    invocation_id = uuid5(context.attempt_id, f"mcp:{journal_operation}")
+    approval_task = extra.get("approvalTask")
+    request = ToolInvocationRequest(
+        provider=ToolProviderRef(
+            kind=ToolProviderKind.MCP,
+            key=spec.key,
+            revision=connection.revision,
+        ),
+        toolName=tool_name,
+        arguments=outbound_arguments,
+        tenantId=context.tenant_id,
+        namespace=context.namespace,
+        executionId=context.execution_id,
+        taskRunId=context.task_run_id,
+        attempt=context.attempt,
+        invocationId=invocation_id,
+        invocationKey=(
+            extra.get("invocationKey") if isinstance(extra.get("invocationKey"), str) else None
+        ),
+        timeoutSeconds=task.timeout_seconds or 30,
+        allowWrite=extra.get("allowWrite") is True,
+        approvalGranted=(
+            isinstance(approval_task, str)
+            and isinstance(context.outputs.get(approval_task), dict)
+            and context.outputs[approval_task].get("decision") == "APPROVED"
+        ),
+        secretValues=tuple(SecretStr(value) for value in context.secrets.values()),
+        requestHashOverride=legacy_hash,
+    )
+    policy = ToolPolicy(
+        allowedTools=spec.tool_allowlist,
+        secretScopes=task.contract.secret_scopes,
+        allowHighImpact=True,
+    )
+    provider = McpToolProvider(
+        request.provider,
+        spec.endpoint,
+        credential,
+        target_resolver=target_resolver,
+        http_policy=http_policy,
+        pinned_tools=spec.tools,
+    )
+    try:
+        result = await GovernedToolInvoker(
+            provider,
+            AgentPrimitiveInvocationJournal(repository),
+        ).invoke(request, policy)
+    except Exception as exc:
+        raise _mcp_failure(
+            exc,
+            invocation_id,
+            legacy_hash,
+            secrets=tuple(context.secrets.values()),
+        ) from exc
+    output = {
+        **result.output,
+        "connection": {
+            "key": spec.key,
+            "revision": connection.revision,
+            "digest": connection.digest,
+        },
+        "toolSchemaDigest": spec.pinned_tool(tool_name).schema_digest,
+        "requestHash": legacy_hash,
+    }
+    return TaskCompletion(
+        output=cast(
+            dict[str, Any],
+            _redact_values(output, tuple(context.secrets.values())),
+        )
+    )
 
 
 def _journal_operation(

@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,10 +21,10 @@ var _ MappedNullable = &DashboardWidget{}
 
 // DashboardWidget struct for DashboardWidget
 type DashboardWidget struct {
-	Description *string `json:"description,omitempty"`
-	Query DashboardQuery `json:"query"`
-	Title string `json:"title"`
-	WidgetId string `json:"widgetId" validate:"regexp=^[a-z][a-z0-9_.-]{0\\,63}$"`
+	Description *string        `json:"description,omitempty"`
+	Query       DashboardQuery `json:"query"`
+	Title       string         `json:"title"`
+	WidgetId    string         `json:"widgetId" validate:"regexp=^[a-z][a-z0-9_.-]{0\\,63}$"`
 }
 
 type _DashboardWidget DashboardWidget
@@ -158,7 +158,7 @@ func (o *DashboardWidget) SetWidgetId(v string) {
 }
 
 func (o DashboardWidget) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -191,10 +191,10 @@ func (o *DashboardWidget) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

@@ -20,15 +20,15 @@ var _ MappedNullable = &DashboardQuery{}
 
 // DashboardQuery struct for DashboardQuery
 type DashboardQuery struct {
-	Aggregation *DashboardAggregation `json:"aggregation,omitempty"`
-	Filters *DashboardFilters `json:"filters,omitempty"`
-	GroupBy []*string `json:"groupBy,omitempty"`
-	Limit *int32 `json:"limit,omitempty"`
-	Measure *DashboardMeasure `json:"measure,omitempty"`
-	SampleRate *float32 `json:"sampleRate,omitempty"`
-	Source DashboardDataSource `json:"source"`
-	TimeoutMs *int32 `json:"timeoutMs,omitempty"`
-	Visualization DashboardVisualization `json:"visualization"`
+	Aggregation          *DashboardAggregation  `json:"aggregation,omitempty"`
+	Filters              *DashboardFilters      `json:"filters,omitempty"`
+	GroupBy              []*string              `json:"groupBy,omitempty"`
+	Limit                *int32                 `json:"limit,omitempty"`
+	Measure              *DashboardMeasure      `json:"measure,omitempty"`
+	SampleRate           *float32               `json:"sampleRate,omitempty"`
+	Source               DashboardDataSource    `json:"source"`
+	TimeoutMs            *int32                 `json:"timeoutMs,omitempty"`
+	Visualization        DashboardVisualization `json:"visualization"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -346,7 +346,7 @@ func (o *DashboardQuery) SetVisualization(v DashboardVisualization) {
 }
 
 func (o DashboardQuery) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -400,10 +400,10 @@ func (o *DashboardQuery) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

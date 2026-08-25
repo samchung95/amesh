@@ -20,12 +20,12 @@ type SimulationSubstitution string
 
 // List of SimulationSubstitution
 const (
-	SIMULATIONSUBSTITUTION_FLOWABLE SimulationSubstitution = "FLOWABLE"
+	SIMULATIONSUBSTITUTION_FLOWABLE      SimulationSubstitution = "FLOWABLE"
 	SIMULATIONSUBSTITUTION_DETERMINISTIC SimulationSubstitution = "DETERMINISTIC"
-	SIMULATIONSUBSTITUTION_MOCK SimulationSubstitution = "MOCK"
-	SIMULATIONSUBSTITUTION_RECORDED SimulationSubstitution = "RECORDED"
-	SIMULATIONSUBSTITUTION_SCHEMA_ONLY SimulationSubstitution = "SCHEMA_ONLY"
-	SIMULATIONSUBSTITUTION_UNKNOWN SimulationSubstitution = "UNKNOWN"
+	SIMULATIONSUBSTITUTION_MOCK          SimulationSubstitution = "MOCK"
+	SIMULATIONSUBSTITUTION_RECORDED      SimulationSubstitution = "RECORDED"
+	SIMULATIONSUBSTITUTION_SCHEMA_ONLY   SimulationSubstitution = "SCHEMA_ONLY"
+	SIMULATIONSUBSTITUTION_UNKNOWN       SimulationSubstitution = "UNKNOWN"
 )
 
 // All allowed values of SimulationSubstitution enum

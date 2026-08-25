@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,10 +21,13 @@ var _ MappedNullable = &AgentToolRef{}
 
 // AgentToolRef struct for AgentToolRef
 type AgentToolRef struct {
-	ConnectionKey string `json:"connectionKey" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
-	ConnectionRevision int32 `json:"connectionRevision"`
-	SchemaDigest string `json:"schemaDigest" validate:"regexp=^sha256:[0-9a-f]{64}$"`
-	ToolName string `json:"toolName" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
+	ConnectionKey      NullableString    `json:"connectionKey,omitempty" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
+	ConnectionRevision NullableInt32     `json:"connectionRevision,omitempty"`
+	ProviderKey        NullableString    `json:"providerKey,omitempty" validate:"regexp=^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"`
+	ProviderKind       *ToolProviderKind `json:"providerKind,omitempty"`
+	ProviderRevision   NullableInt32     `json:"providerRevision,omitempty"`
+	SchemaDigest       string            `json:"schemaDigest" validate:"regexp=^sha256:[0-9a-f]{64}$"`
+	ToolName           string            `json:"toolName" validate:"regexp=^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"`
 }
 
 type _AgentToolRef AgentToolRef
@@ -33,10 +36,10 @@ type _AgentToolRef AgentToolRef
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewAgentToolRef(connectionKey string, connectionRevision int32, schemaDigest string, toolName string) *AgentToolRef {
+func NewAgentToolRef(schemaDigest string, toolName string) *AgentToolRef {
 	this := AgentToolRef{}
-	this.ConnectionKey = connectionKey
-	this.ConnectionRevision = connectionRevision
+	var providerKind ToolProviderKind = TOOLPROVIDERKIND_MCP
+	this.ProviderKind = &providerKind
 	this.SchemaDigest = schemaDigest
 	this.ToolName = toolName
 	return &this
@@ -47,55 +50,213 @@ func NewAgentToolRef(connectionKey string, connectionRevision int32, schemaDiges
 // but it doesn't guarantee that properties required by API are set
 func NewAgentToolRefWithDefaults() *AgentToolRef {
 	this := AgentToolRef{}
+	var providerKind ToolProviderKind = TOOLPROVIDERKIND_MCP
+	this.ProviderKind = &providerKind
 	return &this
 }
 
-// GetConnectionKey returns the ConnectionKey field value
+// GetConnectionKey returns the ConnectionKey field value if set, zero value otherwise (both if not set or set to explicit null).
 func (o *AgentToolRef) GetConnectionKey() string {
-	if o == nil {
+	if o == nil || IsNil(o.ConnectionKey.Get()) {
 		var ret string
 		return ret
 	}
-
-	return o.ConnectionKey
+	return *o.ConnectionKey.Get()
 }
 
-// GetConnectionKeyOk returns a tuple with the ConnectionKey field value
+// GetConnectionKeyOk returns a tuple with the ConnectionKey field value if set, nil otherwise
 // and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
 func (o *AgentToolRef) GetConnectionKeyOk() (*string, bool) {
 	if o == nil {
 		return nil, false
 	}
-	return &o.ConnectionKey, true
+	return o.ConnectionKey.Get(), o.ConnectionKey.IsSet()
 }
 
-// SetConnectionKey sets field value
+// HasConnectionKey returns a boolean if a field has been set.
+func (o *AgentToolRef) HasConnectionKey() bool {
+	if o != nil && o.ConnectionKey.IsSet() {
+		return true
+	}
+
+	return false
+}
+
+// SetConnectionKey gets a reference to the given NullableString and assigns it to the ConnectionKey field.
 func (o *AgentToolRef) SetConnectionKey(v string) {
-	o.ConnectionKey = v
+	o.ConnectionKey.Set(&v)
 }
 
-// GetConnectionRevision returns the ConnectionRevision field value
+// SetConnectionKeyNil sets the value for ConnectionKey to be an explicit nil
+func (o *AgentToolRef) SetConnectionKeyNil() {
+	o.ConnectionKey.Set(nil)
+}
+
+// UnsetConnectionKey ensures that no value is present for ConnectionKey, not even an explicit nil
+func (o *AgentToolRef) UnsetConnectionKey() {
+	o.ConnectionKey.Unset()
+}
+
+// GetConnectionRevision returns the ConnectionRevision field value if set, zero value otherwise (both if not set or set to explicit null).
 func (o *AgentToolRef) GetConnectionRevision() int32 {
-	if o == nil {
+	if o == nil || IsNil(o.ConnectionRevision.Get()) {
 		var ret int32
 		return ret
 	}
-
-	return o.ConnectionRevision
+	return *o.ConnectionRevision.Get()
 }
 
-// GetConnectionRevisionOk returns a tuple with the ConnectionRevision field value
+// GetConnectionRevisionOk returns a tuple with the ConnectionRevision field value if set, nil otherwise
 // and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
 func (o *AgentToolRef) GetConnectionRevisionOk() (*int32, bool) {
 	if o == nil {
 		return nil, false
 	}
-	return &o.ConnectionRevision, true
+	return o.ConnectionRevision.Get(), o.ConnectionRevision.IsSet()
 }
 
-// SetConnectionRevision sets field value
+// HasConnectionRevision returns a boolean if a field has been set.
+func (o *AgentToolRef) HasConnectionRevision() bool {
+	if o != nil && o.ConnectionRevision.IsSet() {
+		return true
+	}
+
+	return false
+}
+
+// SetConnectionRevision gets a reference to the given NullableInt32 and assigns it to the ConnectionRevision field.
 func (o *AgentToolRef) SetConnectionRevision(v int32) {
-	o.ConnectionRevision = v
+	o.ConnectionRevision.Set(&v)
+}
+
+// SetConnectionRevisionNil sets the value for ConnectionRevision to be an explicit nil
+func (o *AgentToolRef) SetConnectionRevisionNil() {
+	o.ConnectionRevision.Set(nil)
+}
+
+// UnsetConnectionRevision ensures that no value is present for ConnectionRevision, not even an explicit nil
+func (o *AgentToolRef) UnsetConnectionRevision() {
+	o.ConnectionRevision.Unset()
+}
+
+// GetProviderKey returns the ProviderKey field value if set, zero value otherwise (both if not set or set to explicit null).
+func (o *AgentToolRef) GetProviderKey() string {
+	if o == nil || IsNil(o.ProviderKey.Get()) {
+		var ret string
+		return ret
+	}
+	return *o.ProviderKey.Get()
+}
+
+// GetProviderKeyOk returns a tuple with the ProviderKey field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
+func (o *AgentToolRef) GetProviderKeyOk() (*string, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return o.ProviderKey.Get(), o.ProviderKey.IsSet()
+}
+
+// HasProviderKey returns a boolean if a field has been set.
+func (o *AgentToolRef) HasProviderKey() bool {
+	if o != nil && o.ProviderKey.IsSet() {
+		return true
+	}
+
+	return false
+}
+
+// SetProviderKey gets a reference to the given NullableString and assigns it to the ProviderKey field.
+func (o *AgentToolRef) SetProviderKey(v string) {
+	o.ProviderKey.Set(&v)
+}
+
+// SetProviderKeyNil sets the value for ProviderKey to be an explicit nil
+func (o *AgentToolRef) SetProviderKeyNil() {
+	o.ProviderKey.Set(nil)
+}
+
+// UnsetProviderKey ensures that no value is present for ProviderKey, not even an explicit nil
+func (o *AgentToolRef) UnsetProviderKey() {
+	o.ProviderKey.Unset()
+}
+
+// GetProviderKind returns the ProviderKind field value if set, zero value otherwise.
+func (o *AgentToolRef) GetProviderKind() ToolProviderKind {
+	if o == nil || IsNil(o.ProviderKind) {
+		var ret ToolProviderKind
+		return ret
+	}
+	return *o.ProviderKind
+}
+
+// GetProviderKindOk returns a tuple with the ProviderKind field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *AgentToolRef) GetProviderKindOk() (*ToolProviderKind, bool) {
+	if o == nil || IsNil(o.ProviderKind) {
+		return nil, false
+	}
+	return o.ProviderKind, true
+}
+
+// HasProviderKind returns a boolean if a field has been set.
+func (o *AgentToolRef) HasProviderKind() bool {
+	if o != nil && !IsNil(o.ProviderKind) {
+		return true
+	}
+
+	return false
+}
+
+// SetProviderKind gets a reference to the given ToolProviderKind and assigns it to the ProviderKind field.
+func (o *AgentToolRef) SetProviderKind(v ToolProviderKind) {
+	o.ProviderKind = &v
+}
+
+// GetProviderRevision returns the ProviderRevision field value if set, zero value otherwise (both if not set or set to explicit null).
+func (o *AgentToolRef) GetProviderRevision() int32 {
+	if o == nil || IsNil(o.ProviderRevision.Get()) {
+		var ret int32
+		return ret
+	}
+	return *o.ProviderRevision.Get()
+}
+
+// GetProviderRevisionOk returns a tuple with the ProviderRevision field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
+func (o *AgentToolRef) GetProviderRevisionOk() (*int32, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return o.ProviderRevision.Get(), o.ProviderRevision.IsSet()
+}
+
+// HasProviderRevision returns a boolean if a field has been set.
+func (o *AgentToolRef) HasProviderRevision() bool {
+	if o != nil && o.ProviderRevision.IsSet() {
+		return true
+	}
+
+	return false
+}
+
+// SetProviderRevision gets a reference to the given NullableInt32 and assigns it to the ProviderRevision field.
+func (o *AgentToolRef) SetProviderRevision(v int32) {
+	o.ProviderRevision.Set(&v)
+}
+
+// SetProviderRevisionNil sets the value for ProviderRevision to be an explicit nil
+func (o *AgentToolRef) SetProviderRevisionNil() {
+	o.ProviderRevision.Set(nil)
+}
+
+// UnsetProviderRevision ensures that no value is present for ProviderRevision, not even an explicit nil
+func (o *AgentToolRef) UnsetProviderRevision() {
+	o.ProviderRevision.Unset()
 }
 
 // GetSchemaDigest returns the SchemaDigest field value
@@ -147,7 +308,7 @@ func (o *AgentToolRef) SetToolName(v string) {
 }
 
 func (o AgentToolRef) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -156,8 +317,21 @@ func (o AgentToolRef) MarshalJSON() ([]byte, error) {
 
 func (o AgentToolRef) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
-	toSerialize["connectionKey"] = o.ConnectionKey
-	toSerialize["connectionRevision"] = o.ConnectionRevision
+	if o.ConnectionKey.IsSet() {
+		toSerialize["connectionKey"] = o.ConnectionKey.Get()
+	}
+	if o.ConnectionRevision.IsSet() {
+		toSerialize["connectionRevision"] = o.ConnectionRevision.Get()
+	}
+	if o.ProviderKey.IsSet() {
+		toSerialize["providerKey"] = o.ProviderKey.Get()
+	}
+	if !IsNil(o.ProviderKind) {
+		toSerialize["providerKind"] = o.ProviderKind
+	}
+	if o.ProviderRevision.IsSet() {
+		toSerialize["providerRevision"] = o.ProviderRevision.Get()
+	}
 	toSerialize["schemaDigest"] = o.SchemaDigest
 	toSerialize["toolName"] = o.ToolName
 	return toSerialize, nil
@@ -168,8 +342,6 @@ func (o *AgentToolRef) UnmarshalJSON(data []byte) (err error) {
 	// by unmarshalling the object into a generic map with string keys and checking
 	// that every required field exists as a key in the generic map.
 	requiredProperties := []string{
-		"connectionKey",
-		"connectionRevision",
 		"schemaDigest",
 		"toolName",
 	}
@@ -179,10 +351,10 @@ func (o *AgentToolRef) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

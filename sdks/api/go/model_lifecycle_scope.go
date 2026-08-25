@@ -20,10 +20,10 @@ type LifecycleScope string
 
 // List of LifecycleScope
 const (
-	LIFECYCLESCOPE_INSTANCE LifecycleScope = "INSTANCE"
-	LIFECYCLESCOPE_TENANT LifecycleScope = "TENANT"
+	LIFECYCLESCOPE_INSTANCE  LifecycleScope = "INSTANCE"
+	LIFECYCLESCOPE_TENANT    LifecycleScope = "TENANT"
 	LIFECYCLESCOPE_NAMESPACE LifecycleScope = "NAMESPACE"
-	LIFECYCLESCOPE_LABEL LifecycleScope = "LABEL"
+	LIFECYCLESCOPE_LABEL     LifecycleScope = "LABEL"
 )
 
 // All allowed values of LifecycleScope enum

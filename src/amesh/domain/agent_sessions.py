@@ -38,6 +38,17 @@ class AgentSessionCounters(BaseModel):
     repair_attempts: int = Field(default=0, alias="repairAttempts", ge=0)
 
 
+class AgentModelContinuationRef(BaseModel):
+    """Public handle to private provider continuation state."""
+
+    model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
+
+    invocation_id: UUID = Field(alias="invocationId")
+    provider_id: str = Field(alias="providerId", min_length=1, max_length=255)
+    provider_revision: str = Field(alias="providerRevision", min_length=1, max_length=255)
+    token_digest: str = Field(alias="tokenDigest", pattern=r"^sha256:[0-9a-f]{64}$")
+
+
 class AgentSessionCheckpoint(BaseModel):
     model_config = ConfigDict(frozen=True, populate_by_name=True)
 
@@ -50,6 +61,10 @@ class AgentSessionCheckpoint(BaseModel):
     evaluation_outcomes: tuple[dict[str, Any], ...] = Field(default=(), alias="evaluationOutcomes")
     release_approved: bool = Field(default=False, alias="releaseApproved")
     memory_write: dict[str, Any] | None = Field(default=None, alias="memoryWrite")
+    model_continuation: AgentModelContinuationRef | None = Field(
+        default=None,
+        alias="modelContinuation",
+    )
 
 
 class AgentSessionStart(BaseModel):

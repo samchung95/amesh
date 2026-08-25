@@ -20,9 +20,9 @@ type PluginRegistryAttachmentKind string
 
 // List of PluginRegistryAttachmentKind
 const (
-	PLUGINREGISTRYATTACHMENTKIND_SBOM PluginRegistryAttachmentKind = "sbom"
+	PLUGINREGISTRYATTACHMENTKIND_SBOM                 PluginRegistryAttachmentKind = "sbom"
 	PLUGINREGISTRYATTACHMENTKIND_VULNERABILITY_REPORT PluginRegistryAttachmentKind = "vulnerability-report"
-	PLUGINREGISTRYATTACHMENTKIND_PROVENANCE PluginRegistryAttachmentKind = "provenance"
+	PLUGINREGISTRYATTACHMENTKIND_PROVENANCE           PluginRegistryAttachmentKind = "provenance"
 )
 
 // All allowed values of PluginRegistryAttachmentKind enum

@@ -19,8 +19,8 @@ var _ MappedNullable = &PolicyPluginContext{}
 
 // PolicyPluginContext struct for PolicyPluginContext
 type PolicyPluginContext struct {
-	Packages []*map[string]interface{} `json:"packages,omitempty"`
-	TaskTypes []*string `json:"taskTypes,omitempty"`
+	Packages  []*map[string]interface{} `json:"packages,omitempty"`
+	TaskTypes []*string                 `json:"taskTypes,omitempty"`
 }
 
 // NewPolicyPluginContext instantiates a new PolicyPluginContext object
@@ -105,7 +105,7 @@ func (o *PolicyPluginContext) SetTaskTypes(v []*string) {
 }
 
 func (o PolicyPluginContext) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}

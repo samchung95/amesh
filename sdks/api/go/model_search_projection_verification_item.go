@@ -20,13 +20,13 @@ var _ MappedNullable = &SearchProjectionVerificationItem{}
 
 // SearchProjectionVerificationItem struct for SearchProjectionVerificationItem
 type SearchProjectionVerificationItem struct {
-	DocumentType SearchDocumentType `json:"documentType"`
-	LastPosition map[string]interface{} `json:"lastPosition,omitempty"`
-	ProjectedChecksum string `json:"projectedChecksum"`
-	ProjectedCount int32 `json:"projectedCount"`
-	SourceChecksum string `json:"sourceChecksum"`
-	SourceCount int32 `json:"sourceCount"`
-	Verified bool `json:"verified"`
+	DocumentType         SearchDocumentType     `json:"documentType"`
+	LastPosition         map[string]interface{} `json:"lastPosition,omitempty"`
+	ProjectedChecksum    string                 `json:"projectedChecksum"`
+	ProjectedCount       int32                  `json:"projectedCount"`
+	SourceChecksum       string                 `json:"sourceChecksum"`
+	SourceCount          int32                  `json:"sourceCount"`
+	Verified             bool                   `json:"verified"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -232,7 +232,7 @@ func (o *SearchProjectionVerificationItem) SetVerified(v bool) {
 }
 
 func (o SearchProjectionVerificationItem) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -276,10 +276,10 @@ func (o *SearchProjectionVerificationItem) UnmarshalJSON(data []byte) (err error
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

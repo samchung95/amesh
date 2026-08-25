@@ -20,7 +20,7 @@ type UpgradePhase string
 
 // List of UpgradePhase
 const (
-	UPGRADEPHASE_PRE_UPGRADE UpgradePhase = "PRE_UPGRADE"
+	UPGRADEPHASE_PRE_UPGRADE  UpgradePhase = "PRE_UPGRADE"
 	UPGRADEPHASE_POST_UPGRADE UpgradePhase = "POST_UPGRADE"
 )
 

@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the PolicyRevision type satisfies the MappedNullable interface at compile time
@@ -22,13 +22,13 @@ var _ MappedNullable = &PolicyRevision{}
 
 // PolicyRevision struct for PolicyRevision
 type PolicyRevision struct {
-	CreatedAt *time.Time `json:"createdAt,omitempty"`
-	CreatedBy string `json:"createdBy"`
-	Digest string `json:"digest" validate:"regexp=^sha256:[0-9a-f]{64}$"`
-	Document PolicyDocument `json:"document"`
-	PolicyId *string `json:"policyId,omitempty"`
-	Revision int32 `json:"revision"`
-	TenantId NullableString `json:"tenantId,omitempty"`
+	CreatedAt *time.Time     `json:"createdAt,omitempty"`
+	CreatedBy string         `json:"createdBy"`
+	Digest    string         `json:"digest" validate:"regexp=^sha256:[0-9a-f]{64}$"`
+	Document  PolicyDocument `json:"document"`
+	PolicyId  *string        `json:"policyId,omitempty"`
+	Revision  int32          `json:"revision"`
+	TenantId  NullableString `json:"tenantId,omitempty"`
 }
 
 type _PolicyRevision PolicyRevision
@@ -246,6 +246,7 @@ func (o *PolicyRevision) HasTenantId() bool {
 func (o *PolicyRevision) SetTenantId(v string) {
 	o.TenantId.Set(&v)
 }
+
 // SetTenantIdNil sets the value for TenantId to be an explicit nil
 func (o *PolicyRevision) SetTenantIdNil() {
 	o.TenantId.Set(nil)
@@ -257,7 +258,7 @@ func (o *PolicyRevision) UnsetTenantId() {
 }
 
 func (o PolicyRevision) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -298,10 +299,10 @@ func (o *PolicyRevision) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

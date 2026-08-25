@@ -37,6 +37,7 @@ class ModelProviderSpec(BaseModel):
     model_config = ConfigDict(frozen=True, populate_by_name=True, extra="forbid")
 
     adapter: str = Field(default="openai-compatible", pattern=r"^[a-z][a-z0-9.-]*$")
+    revision: str | None = Field(default=None, min_length=1, max_length=255)
     endpoint: str = Field(min_length=1, max_length=4096)
     embedding_endpoint: str | None = Field(
         default=None,

@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the DashboardDefinition type satisfies the MappedNullable interface at compile time
@@ -22,20 +22,20 @@ var _ MappedNullable = &DashboardDefinition{}
 
 // DashboardDefinition struct for DashboardDefinition
 type DashboardDefinition struct {
-	Builtin *bool `json:"builtin,omitempty"`
-	CreatedAt time.Time `json:"createdAt"`
-	DashboardId string `json:"dashboardId" validate:"regexp=^[a-z][a-z0-9_.-]{0\\,127}$"`
-	Description *string `json:"description,omitempty"`
-	EditorIds []string `json:"editorIds,omitempty"`
-	OwnerId string `json:"ownerId"`
-	Source *DashboardDefinitionSource `json:"source,omitempty"`
-	TenantId string `json:"tenantId"`
-	Title string `json:"title"`
-	UpdatedAt time.Time `json:"updatedAt"`
-	Version int32 `json:"version"`
-	ViewerIds []string `json:"viewerIds,omitempty"`
-	Visibility *DashboardVisibility `json:"visibility,omitempty"`
-	Widgets []DashboardWidget `json:"widgets"`
+	Builtin     *bool                      `json:"builtin,omitempty"`
+	CreatedAt   time.Time                  `json:"createdAt"`
+	DashboardId string                     `json:"dashboardId" validate:"regexp=^[a-z][a-z0-9_.-]{0\\,127}$"`
+	Description *string                    `json:"description,omitempty"`
+	EditorIds   []string                   `json:"editorIds,omitempty"`
+	OwnerId     string                     `json:"ownerId"`
+	Source      *DashboardDefinitionSource `json:"source,omitempty"`
+	TenantId    string                     `json:"tenantId"`
+	Title       string                     `json:"title"`
+	UpdatedAt   time.Time                  `json:"updatedAt"`
+	Version     int32                      `json:"version"`
+	ViewerIds   []string                   `json:"viewerIds,omitempty"`
+	Visibility  *DashboardVisibility       `json:"visibility,omitempty"`
+	Widgets     []DashboardWidget          `json:"widgets"`
 }
 
 type _DashboardDefinition DashboardDefinition
@@ -466,7 +466,7 @@ func (o *DashboardDefinition) SetWidgets(v []DashboardWidget) {
 }
 
 func (o DashboardDefinition) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -524,10 +524,10 @@ func (o *DashboardDefinition) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,16 +21,16 @@ var _ MappedNullable = &PolicyDocument{}
 
 // PolicyDocument struct for PolicyDocument
 type PolicyDocument struct {
-	Criticality *PolicyCriticality `json:"criticality,omitempty"`
-	Description *string `json:"description,omitempty"`
-	Enabled *bool `json:"enabled,omitempty"`
-	EvaluationTimeoutMs *int32 `json:"evaluationTimeoutMs,omitempty"`
-	Name string `json:"name"`
-	Namespace NullableString `json:"namespace,omitempty"`
-	PolicyKey string `json:"policyKey" validate:"regexp=^[a-z][a-z0-9_.-]*$"`
-	Rules []PolicyRule `json:"rules,omitempty"`
-	SchemaVersion *string `json:"schemaVersion,omitempty"`
-	Scope *PolicyScope `json:"scope,omitempty"`
+	Criticality         *PolicyCriticality `json:"criticality,omitempty"`
+	Description         *string            `json:"description,omitempty"`
+	Enabled             *bool              `json:"enabled,omitempty"`
+	EvaluationTimeoutMs *int32             `json:"evaluationTimeoutMs,omitempty"`
+	Name                string             `json:"name"`
+	Namespace           NullableString     `json:"namespace,omitempty"`
+	PolicyKey           string             `json:"policyKey" validate:"regexp=^[a-z][a-z0-9_.-]*$"`
+	Rules               []PolicyRule       `json:"rules,omitempty"`
+	SchemaVersion       *string            `json:"schemaVersion,omitempty"`
+	Scope               *PolicyScope       `json:"scope,omitempty"`
 }
 
 type _PolicyDocument PolicyDocument
@@ -262,6 +262,7 @@ func (o *PolicyDocument) HasNamespace() bool {
 func (o *PolicyDocument) SetNamespace(v string) {
 	o.Namespace.Set(&v)
 }
+
 // SetNamespaceNil sets the value for Namespace to be an explicit nil
 func (o *PolicyDocument) SetNamespaceNil() {
 	o.Namespace.Set(nil)
@@ -393,7 +394,7 @@ func (o *PolicyDocument) SetScope(v PolicyScope) {
 }
 
 func (o PolicyDocument) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -445,10 +446,10 @@ func (o *PolicyDocument) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

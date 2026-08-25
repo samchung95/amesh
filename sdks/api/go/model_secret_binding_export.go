@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,11 +21,11 @@ var _ MappedNullable = &SecretBindingExport{}
 
 // SecretBindingExport struct for SecretBindingExport
 type SecretBindingExport struct {
-	ExpectedVersion NullableInt32 `json:"expectedVersion,omitempty"`
-	Key string `json:"key"`
-	Metadata map[string]interface{} `json:"metadata,omitempty"`
-	Provider *string `json:"provider,omitempty" validate:"regexp=^env$"`
-	ProviderReference string `json:"providerReference"`
+	ExpectedVersion   NullableInt32          `json:"expectedVersion,omitempty"`
+	Key               string                 `json:"key"`
+	Metadata          map[string]interface{} `json:"metadata,omitempty"`
+	Provider          *string                `json:"provider,omitempty" validate:"regexp=^env$"`
+	ProviderReference string                 `json:"providerReference"`
 }
 
 type _SecretBindingExport SecretBindingExport
@@ -85,6 +85,7 @@ func (o *SecretBindingExport) HasExpectedVersion() bool {
 func (o *SecretBindingExport) SetExpectedVersion(v int32) {
 	o.ExpectedVersion.Set(&v)
 }
+
 // SetExpectedVersionNil sets the value for ExpectedVersion to be an explicit nil
 func (o *SecretBindingExport) SetExpectedVersionNil() {
 	o.ExpectedVersion.Set(nil)
@@ -208,7 +209,7 @@ func (o *SecretBindingExport) SetProviderReference(v string) {
 }
 
 func (o SecretBindingExport) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -245,10 +246,10 @@ func (o *SecretBindingExport) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

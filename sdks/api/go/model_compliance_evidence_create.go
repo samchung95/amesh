@@ -12,8 +12,8 @@ package ameshclient
 
 import (
 	"encoding/json"
-	"time"
 	"fmt"
+	"time"
 )
 
 // checks if the ComplianceEvidenceCreate type satisfies the MappedNullable interface at compile time
@@ -21,11 +21,11 @@ var _ MappedNullable = &ComplianceEvidenceCreate{}
 
 // ComplianceEvidenceCreate struct for ComplianceEvidenceCreate
 type ComplianceEvidenceCreate struct {
-	Category ComplianceEvidenceCategory `json:"category"`
-	OccurredAt time.Time `json:"occurredAt"`
-	Payload map[string]interface{} `json:"payload,omitempty"`
-	Source string `json:"source"`
-	Title string `json:"title"`
+	Category             ComplianceEvidenceCategory `json:"category"`
+	OccurredAt           time.Time                  `json:"occurredAt"`
+	Payload              map[string]interface{}     `json:"payload,omitempty"`
+	Source               string                     `json:"source"`
+	Title                string                     `json:"title"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -181,7 +181,7 @@ func (o *ComplianceEvidenceCreate) SetTitle(v string) {
 }
 
 func (o ComplianceEvidenceCreate) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -221,10 +221,10 @@ func (o *ComplianceEvidenceCreate) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

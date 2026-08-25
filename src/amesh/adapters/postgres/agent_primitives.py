@@ -19,6 +19,7 @@ from amesh.domain.agent_primitives import (
     McpConnectionRevision,
     McpConnectionSpec,
 )
+from amesh.domain.model_continuations import ProtectedModelContinuation
 
 from .tenant_context import tenant_transaction
 
@@ -258,6 +259,7 @@ class PostgresAgentPrimitiveRepository:
         state: AgentInvocationState,
         result: dict[str, Any] | None = None,
         error: str | None = None,
+        protected_continuation: ProtectedModelContinuation | None = None,
     ) -> AgentInvocationRecord:
         if state is AgentInvocationState.STARTED:
             raise ValueError("completed agent invocation cannot remain STARTED")
@@ -265,6 +267,8 @@ class PostgresAgentPrimitiveRepository:
             raise ValueError("successful agent invocation requires a result")
         if state is AgentInvocationState.FAILED and not error:
             raise ValueError("failed agent invocation requires an error")
+        if protected_continuation is not None and state is not AgentInvocationState.SUCCEEDED:
+            raise ValueError("model continuation requires a successful invocation")
         async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
             row = (
                 (
@@ -275,6 +279,11 @@ class PostgresAgentPrimitiveRepository:
                             SET state = :state,
                                 result = CAST(:result AS jsonb),
                                 error = :error,
+                                continuation_provider_id = :continuation_provider_id,
+                                continuation_provider_revision = :continuation_provider_revision,
+                                continuation_key_id = :continuation_key_id,
+                                continuation_token_digest = :continuation_token_digest,
+                                continuation_ciphertext = :continuation_ciphertext,
                                 completed_at = clock_timestamp()
                             WHERE invocation_id = :invocation_id
                               AND tenant_id = :tenant_id
@@ -288,6 +297,31 @@ class PostgresAgentPrimitiveRepository:
                             "state": state.value,
                             "result": json.dumps(result) if result is not None else None,
                             "error": error,
+                            "continuation_provider_id": (
+                                protected_continuation.provider_id
+                                if protected_continuation is not None
+                                else None
+                            ),
+                            "continuation_provider_revision": (
+                                protected_continuation.provider_revision
+                                if protected_continuation is not None
+                                else None
+                            ),
+                            "continuation_key_id": (
+                                protected_continuation.key_id
+                                if protected_continuation is not None
+                                else None
+                            ),
+                            "continuation_token_digest": (
+                                protected_continuation.token_digest
+                                if protected_continuation is not None
+                                else None
+                            ),
+                            "continuation_ciphertext": (
+                                protected_continuation.ciphertext
+                                if protected_continuation is not None
+                                else None
+                            ),
                         },
                     )
                 )
@@ -317,6 +351,10 @@ class PostgresAgentPrimitiveRepository:
                     raise RuntimeError(
                         f"agent invocation {invocation_id} is already {row['state']}"
                     )
+                if _protected_continuation(row) != protected_continuation:
+                    raise RuntimeError(
+                        f"agent invocation {invocation_id} continuation result conflicts"
+                    )
             await _write_audit(
                 connection,
                 tenant_uuid,
@@ -337,6 +375,43 @@ class PostgresAgentPrimitiveRepository:
                 },
             )
         return _invocation_record(row, tenant_id)
+
+    async def get_model_continuation(
+        self,
+        invocation_id: UUID,
+        *,
+        tenant_id: str,
+    ) -> ProtectedModelContinuation | None:
+        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+            row = (
+                (
+                    await connection.execute(
+                        text(
+                            """
+                            SELECT kind, state,
+                                   continuation_provider_id,
+                                   continuation_provider_revision,
+                                   continuation_key_id,
+                                   continuation_token_digest,
+                                   continuation_ciphertext
+                            FROM agent_invocations
+                            WHERE invocation_id = :invocation_id
+                              AND tenant_id = :tenant_id
+                            """
+                        ),
+                        {"invocation_id": invocation_id, "tenant_id": tenant_uuid},
+                    )
+                )
+                .mappings()
+                .one_or_none()
+            )
+        if row is None:
+            raise LookupError(f"agent invocation {invocation_id} does not exist")
+        if row["kind"] != AgentInvocationKind.MODEL.value:
+            raise ValueError("continuation source is not a model invocation")
+        if row["state"] != AgentInvocationState.SUCCEEDED.value:
+            raise RuntimeError("continuation source model invocation is not successful")
+        return _protected_continuation(row)
 
 
 def _connection_revision(row: RowMapping, tenant_id: str) -> McpConnectionRevision:
@@ -368,6 +443,18 @@ def _invocation_record(row: RowMapping, tenant_id: str) -> AgentInvocationRecord
         error=row["error"],
         startedAt=row["started_at"],
         completedAt=row["completed_at"],
+    )
+
+
+def _protected_continuation(row: RowMapping) -> ProtectedModelContinuation | None:
+    if row["continuation_ciphertext"] is None:
+        return None
+    return ProtectedModelContinuation(
+        providerId=row["continuation_provider_id"],
+        providerRevision=row["continuation_provider_revision"],
+        keyId=row["continuation_key_id"],
+        tokenDigest=row["continuation_token_digest"],
+        ciphertext=bytes(row["continuation_ciphertext"]),
     )
 
 

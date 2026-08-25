@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,15 +21,15 @@ var _ MappedNullable = &KestraFlowImport{}
 
 // KestraFlowImport struct for KestraFlowImport
 type KestraFlowImport struct {
-	CandidateDocument map[string]interface{} `json:"candidateDocument"`
-	Mappings []CompatibilityMapping `json:"mappings"`
-	Patches []MigrationPatch `json:"patches"`
-	ReleaseClaimAllowed bool `json:"releaseClaimAllowed"`
-	RoundTripDocument string `json:"roundTripDocument"`
-	SchemaVersion *string `json:"schemaVersion,omitempty"`
-	SemanticHash string `json:"semanticHash"`
-	TargetVersion *string `json:"targetVersion,omitempty"`
-	Valid bool `json:"valid"`
+	CandidateDocument   map[string]interface{} `json:"candidateDocument"`
+	Mappings            []CompatibilityMapping `json:"mappings"`
+	Patches             []MigrationPatch       `json:"patches"`
+	ReleaseClaimAllowed bool                   `json:"releaseClaimAllowed"`
+	RoundTripDocument   string                 `json:"roundTripDocument"`
+	SchemaVersion       *string                `json:"schemaVersion,omitempty"`
+	SemanticHash        string                 `json:"semanticHash"`
+	TargetVersion       *string                `json:"targetVersion,omitempty"`
+	Valid               bool                   `json:"valid"`
 }
 
 type _KestraFlowImport KestraFlowImport
@@ -299,7 +299,7 @@ func (o *KestraFlowImport) SetValid(v bool) {
 }
 
 func (o KestraFlowImport) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -343,10 +343,10 @@ func (o *KestraFlowImport) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

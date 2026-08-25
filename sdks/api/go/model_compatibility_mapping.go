@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,12 +21,12 @@ var _ MappedNullable = &CompatibilityMapping{}
 
 // CompatibilityMapping struct for CompatibilityMapping
 type CompatibilityMapping struct {
-	Adapter NullableString `json:"adapter,omitempty"`
-	Disposition MappingDisposition `json:"disposition"`
-	Message string `json:"message"`
-	Path string `json:"path"`
+	Adapter     NullableString      `json:"adapter,omitempty"`
+	Disposition MappingDisposition  `json:"disposition"`
+	Message     string              `json:"message"`
+	Path        string              `json:"path"`
 	SourceRange NullableSourceRange `json:"sourceRange,omitempty"`
-	TargetPath NullableString `json:"targetPath,omitempty"`
+	TargetPath  NullableString      `json:"targetPath,omitempty"`
 }
 
 type _CompatibilityMapping CompatibilityMapping
@@ -83,6 +83,7 @@ func (o *CompatibilityMapping) HasAdapter() bool {
 func (o *CompatibilityMapping) SetAdapter(v string) {
 	o.Adapter.Set(&v)
 }
+
 // SetAdapterNil sets the value for Adapter to be an explicit nil
 func (o *CompatibilityMapping) SetAdapterNil() {
 	o.Adapter.Set(nil)
@@ -197,6 +198,7 @@ func (o *CompatibilityMapping) HasSourceRange() bool {
 func (o *CompatibilityMapping) SetSourceRange(v SourceRange) {
 	o.SourceRange.Set(&v)
 }
+
 // SetSourceRangeNil sets the value for SourceRange to be an explicit nil
 func (o *CompatibilityMapping) SetSourceRangeNil() {
 	o.SourceRange.Set(nil)
@@ -239,6 +241,7 @@ func (o *CompatibilityMapping) HasTargetPath() bool {
 func (o *CompatibilityMapping) SetTargetPath(v string) {
 	o.TargetPath.Set(&v)
 }
+
 // SetTargetPathNil sets the value for TargetPath to be an explicit nil
 func (o *CompatibilityMapping) SetTargetPathNil() {
 	o.TargetPath.Set(nil)
@@ -250,7 +253,7 @@ func (o *CompatibilityMapping) UnsetTargetPath() {
 }
 
 func (o CompatibilityMapping) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -289,10 +292,10 @@ func (o *CompatibilityMapping) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

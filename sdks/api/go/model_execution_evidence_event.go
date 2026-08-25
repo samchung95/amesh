@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the ExecutionEvidenceEvent type satisfies the MappedNullable interface at compile time
@@ -22,15 +22,15 @@ var _ MappedNullable = &ExecutionEvidenceEvent{}
 
 // ExecutionEvidenceEvent struct for ExecutionEvidenceEvent
 type ExecutionEvidenceEvent struct {
-	Cursor int32 `json:"cursor"`
-	EventId string `json:"event_id"`
-	EventType string `json:"event_type"`
-	ExecutionId string `json:"execution_id"`
-	IngestedAt time.Time `json:"ingested_at"`
-	Kind ExecutionEvidenceKind `json:"kind"`
-	OccurredAt time.Time `json:"occurred_at"`
-	Payload map[string]interface{} `json:"payload"`
-	TaskRunId NullableString `json:"task_run_id,omitempty"`
+	Cursor      int32                  `json:"cursor"`
+	EventId     string                 `json:"event_id"`
+	EventType   string                 `json:"event_type"`
+	ExecutionId string                 `json:"execution_id"`
+	IngestedAt  time.Time              `json:"ingested_at"`
+	Kind        ExecutionEvidenceKind  `json:"kind"`
+	OccurredAt  time.Time              `json:"occurred_at"`
+	Payload     map[string]interface{} `json:"payload"`
+	TaskRunId   NullableString         `json:"task_run_id,omitempty"`
 }
 
 type _ExecutionEvidenceEvent ExecutionEvidenceEvent
@@ -284,6 +284,7 @@ func (o *ExecutionEvidenceEvent) HasTaskRunId() bool {
 func (o *ExecutionEvidenceEvent) SetTaskRunId(v string) {
 	o.TaskRunId.Set(&v)
 }
+
 // SetTaskRunIdNil sets the value for TaskRunId to be an explicit nil
 func (o *ExecutionEvidenceEvent) SetTaskRunIdNil() {
 	o.TaskRunId.Set(nil)
@@ -295,7 +296,7 @@ func (o *ExecutionEvidenceEvent) UnsetTaskRunId() {
 }
 
 func (o ExecutionEvidenceEvent) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -338,10 +339,10 @@ func (o *ExecutionEvidenceEvent) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

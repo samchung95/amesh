@@ -2,12 +2,26 @@
 
 ## Current state
 
-- What works: the locally qualified MVP foundation is deployed through migration 59. The human-first control room, simple trace and guided workflow builder now form one responsive operate-to-create journey; EPIC-312 supplies bounded Luna/OpenRouter and MCP primitives; EPIC-807 through EPIC-809 add governed agent definitions, sessions, memory/evaluation and meshes; and production-determinism envelopes make pinned controls and bounded dynamic expansion match from preview through runtime.
-- What's in flight: none of the seven user-selected product epics remain in development; only the previously deferred production/external-qualification cards remain open.
-- Known broken / TODO: only the previously recorded deferred baseline and external-qualification cards remain unchanged.
+- What works: the locally qualified MVP foundation is deployed through migration 66. EPIC-810 through EPIC-818 now provide durable scheduling and truthful role health; the neutral external-orchestration and evidence contracts; replaceable model and MCP/plugin tool providers; a hardened local client profile; restart/large-record qualification; differential shadow runs; and evidence-backed promotion, rollback and release controls. The human-first control room, trace, guided builder and release console remain available at the same local product URL.
+- What's in flight: no EPIC-810–818 implementation remains. Their canonical backlog evidence, generated contracts/SDKs, local qualification and release UI are complete; the single MVP pull request is the current handoff.
+- Known broken / TODO: no sprint-path blocker remains. Deferred baseline cards `c89`, `c90` and `c120` retain the 5,000-line DSL timing gate, repository-wide historical formatting and full-suite-only plugin-registry event-loop isolation work. External-cloud, multi-region and long-duration qualification stays deferred as recorded in `PLAN.md`.
 - How to run/test: frontend checks run from `frontend/` with `npm test`, `npm run build` and `npm run test:e2e`; backend checks use `uv run --extra runtime --extra dev pytest`. The local Compose product is served at `http://localhost:8000`.
 
 ## Session log
+
+### 2026-08-26 (EPIC-811 through EPIC-818 neutral orchestration sprint complete)
+
+- Did: completed and deployed the client-neutral orchestration/evidence profile, provider-neutral model and tool boundaries, hardened local profile, restart qualification, differential shadow execution and evidence-backed release controls. Regenerated OpenAPI plus Python, TypeScript, Java and Go SDKs, and added the `/releases` operator UI.
+- Verification: 557 backend tests passed with 158 environment-gated skips and two separately deferred deselections; strict mypy passed over 263 source files; Ruff check and new-file format gates passed; SDK generation is deterministic across 2,671 files; the frontend build, 23 client assertions and three Chromium release journeys passed. Live Compose is ready at migration 66/66; authenticated neutral-client, evidence verification, Luna/OpenRouter, differential restart and promote→rollback restart smokes all passed. The isolated hardened profile also passed without Docker/socket, broker or model-provider authority.
+- Deviations from plan: none in the nine-epic product scope. Client-specific adapters, workflows, tools, thresholds and cutover remain client responsibilities. The complete-suite plugin event-loop issue was recorded as deferred card `c120` instead of expanding this sprint.
+- Next step when resuming: review and merge the single MVP pull request; broader production and external-resource qualification remains on its existing deferred cards.
+
+### 2026-08-25 (EPIC-810 reliable scheduling and role health complete)
+
+- Did: completed EPIC-810 with retry-wait convergence, exact legacy-pin migration or audited flow quarantine, persisted role-cycle health and aggregate enabled-role readiness; disabled only 164 `tests.scheduler.*` test flows in the shared development database to remove test pollution without deleting execution evidence.
+- Verification: 61 focused unit/API/Helm/migration/PostgreSQL tests passed. Live Compose applied migration 0060, reported scheduler failure as HTTP 503/DEGRADED, recovered all six roles to READY in 11 seconds, and retained exactly one occurrence and execution `01a03980-1533-7e64-97b7-7d30642bc231` across scheduler restarts before and after the scheduled instant.
+- Deviations from plan: no client-specific contract, workflow, domain tool or cutover logic enters AMESH.
+- Next step when resuming: finish EPIC-811's deployed neutral-client and tenant/realtime evidence, then close the canonical evidence bundle in EPIC-812.
 
 ### 2026-08-25 (human-first product experience umbrella complete)
 

@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the PersistedAsset type satisfies the MappedNullable interface at compile time
@@ -22,30 +22,30 @@ var _ MappedNullable = &PersistedAsset{}
 
 // PersistedAsset struct for PersistedAsset
 type PersistedAsset struct {
-	Account *string `json:"account,omitempty"`
-	AssetId string `json:"assetId"`
-	AssetType string `json:"assetType"`
-	Contacts []string `json:"contacts,omitempty"`
-	CreatedAt time.Time `json:"createdAt"`
-	CreatedBy string `json:"createdBy"`
-	CustomMetadata map[string]interface{} `json:"customMetadata,omitempty"`
-	Description *string `json:"description,omitempty"`
-	DisplayName string `json:"displayName"`
-	DomainGroup NullableString `json:"domainGroup,omitempty"`
-	ExternalKey string `json:"externalKey"`
-	Health *AssetHealth `json:"health,omitempty"`
-	Labels map[string]string `json:"labels,omitempty"`
-	LastMaterializationAt NullableTime `json:"lastMaterializationAt,omitempty"`
-	Location *string `json:"location,omitempty"`
-	Namespace *string `json:"namespace,omitempty"`
-	Owner NullableString `json:"owner,omitempty"`
-	Provider string `json:"provider"`
-	ResourceVersion int32 `json:"resourceVersion"`
-	Source *AssetRegistrationSource `json:"source,omitempty"`
-	Tags []string `json:"tags,omitempty"`
-	TenantId string `json:"tenantId"`
-	UpdatedAt time.Time `json:"updatedAt"`
-	UpdatedBy string `json:"updatedBy"`
+	Account               *string                  `json:"account,omitempty"`
+	AssetId               string                   `json:"assetId"`
+	AssetType             string                   `json:"assetType"`
+	Contacts              []string                 `json:"contacts,omitempty"`
+	CreatedAt             time.Time                `json:"createdAt"`
+	CreatedBy             string                   `json:"createdBy"`
+	CustomMetadata        map[string]interface{}   `json:"customMetadata,omitempty"`
+	Description           *string                  `json:"description,omitempty"`
+	DisplayName           string                   `json:"displayName"`
+	DomainGroup           NullableString           `json:"domainGroup,omitempty"`
+	ExternalKey           string                   `json:"externalKey"`
+	Health                *AssetHealth             `json:"health,omitempty"`
+	Labels                map[string]string        `json:"labels,omitempty"`
+	LastMaterializationAt NullableTime             `json:"lastMaterializationAt,omitempty"`
+	Location              *string                  `json:"location,omitempty"`
+	Namespace             *string                  `json:"namespace,omitempty"`
+	Owner                 NullableString           `json:"owner,omitempty"`
+	Provider              string                   `json:"provider"`
+	ResourceVersion       int32                    `json:"resourceVersion"`
+	Source                *AssetRegistrationSource `json:"source,omitempty"`
+	Tags                  []string                 `json:"tags,omitempty"`
+	TenantId              string                   `json:"tenantId"`
+	UpdatedAt             time.Time                `json:"updatedAt"`
+	UpdatedBy             string                   `json:"updatedBy"`
 }
 
 type _PersistedAsset PersistedAsset
@@ -382,6 +382,7 @@ func (o *PersistedAsset) HasDomainGroup() bool {
 func (o *PersistedAsset) SetDomainGroup(v string) {
 	o.DomainGroup.Set(&v)
 }
+
 // SetDomainGroupNil sets the value for DomainGroup to be an explicit nil
 func (o *PersistedAsset) SetDomainGroupNil() {
 	o.DomainGroup.Set(nil)
@@ -512,6 +513,7 @@ func (o *PersistedAsset) HasLastMaterializationAt() bool {
 func (o *PersistedAsset) SetLastMaterializationAt(v time.Time) {
 	o.LastMaterializationAt.Set(&v)
 }
+
 // SetLastMaterializationAtNil sets the value for LastMaterializationAt to be an explicit nil
 func (o *PersistedAsset) SetLastMaterializationAtNil() {
 	o.LastMaterializationAt.Set(nil)
@@ -618,6 +620,7 @@ func (o *PersistedAsset) HasOwner() bool {
 func (o *PersistedAsset) SetOwner(v string) {
 	o.Owner.Set(&v)
 }
+
 // SetOwnerNil sets the value for Owner to be an explicit nil
 func (o *PersistedAsset) SetOwnerNil() {
 	o.Owner.Set(nil)
@@ -813,7 +816,7 @@ func (o *PersistedAsset) SetUpdatedBy(v string) {
 }
 
 func (o PersistedAsset) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -898,10 +901,10 @@ func (o *PersistedAsset) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

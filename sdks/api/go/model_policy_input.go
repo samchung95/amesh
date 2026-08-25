@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,16 +21,16 @@ var _ MappedNullable = &PolicyInput{}
 
 // PolicyInput struct for PolicyInput
 type PolicyInput struct {
-	Actor PolicyActorContext `json:"actor"`
-	Flow PolicyFlowContext `json:"flow"`
-	Image *PolicyImageContext `json:"image,omitempty"`
+	Actor     PolicyActorContext     `json:"actor"`
+	Flow      PolicyFlowContext      `json:"flow"`
+	Image     *PolicyImageContext    `json:"image,omitempty"`
 	Namespace PolicyNamespaceContext `json:"namespace"`
-	Network *PolicyNetworkContext `json:"network,omitempty"`
-	Plugin *PolicyPluginContext `json:"plugin,omitempty"`
-	Resource *PolicyResourceContext `json:"resource,omitempty"`
-	Runner *PolicyRunnerContext `json:"runner,omitempty"`
-	Secret *PolicySecretContext `json:"secret,omitempty"`
-	Tenant PolicyTenantContext `json:"tenant"`
+	Network   *PolicyNetworkContext  `json:"network,omitempty"`
+	Plugin    *PolicyPluginContext   `json:"plugin,omitempty"`
+	Resource  *PolicyResourceContext `json:"resource,omitempty"`
+	Runner    *PolicyRunnerContext   `json:"runner,omitempty"`
+	Secret    *PolicySecretContext   `json:"secret,omitempty"`
+	Tenant    PolicyTenantContext    `json:"tenant"`
 }
 
 type _PolicyInput PolicyInput
@@ -345,7 +345,7 @@ func (o *PolicyInput) SetTenant(v PolicyTenantContext) {
 }
 
 func (o PolicyInput) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -395,10 +395,10 @@ func (o *PolicyInput) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the ExecutionInterventionPreview type satisfies the MappedNullable interface at compile time
@@ -22,19 +22,19 @@ var _ MappedNullable = &ExecutionInterventionPreview{}
 
 // ExecutionInterventionPreview struct for ExecutionInterventionPreview
 type ExecutionInterventionPreview struct {
-	Action ExecutionInterventionAction `json:"action"`
-	CheckpointTaskId NullableString `json:"checkpoint_task_id,omitempty"`
-	Consequences []string `json:"consequences,omitempty"`
-	CurrentEpoch int32 `json:"current_epoch"`
-	CurrentState ExecutionState `json:"current_state"`
-	CurrentVersion int32 `json:"current_version"`
-	Destructive *bool `json:"destructive,omitempty"`
-	ExecutionId string `json:"execution_id"`
-	ForceAvailableAt NullableTime `json:"force_available_at,omitempty"`
-	ImpactedTaskIds []string `json:"impacted_task_ids,omitempty"`
-	InvalidatesActiveClaims *bool `json:"invalidates_active_claims,omitempty"`
-	PredictedState ExecutionState `json:"predicted_state"`
-	PreservedTaskIds []string `json:"preserved_task_ids,omitempty"`
+	Action                  ExecutionInterventionAction `json:"action"`
+	CheckpointTaskId        NullableString              `json:"checkpoint_task_id,omitempty"`
+	Consequences            []string                    `json:"consequences,omitempty"`
+	CurrentEpoch            int32                       `json:"current_epoch"`
+	CurrentState            ExecutionState              `json:"current_state"`
+	CurrentVersion          int32                       `json:"current_version"`
+	Destructive             *bool                       `json:"destructive,omitempty"`
+	ExecutionId             string                      `json:"execution_id"`
+	ForceAvailableAt        NullableTime                `json:"force_available_at,omitempty"`
+	ImpactedTaskIds         []string                    `json:"impacted_task_ids,omitempty"`
+	InvalidatesActiveClaims *bool                       `json:"invalidates_active_claims,omitempty"`
+	PredictedState          ExecutionState              `json:"predicted_state"`
+	PreservedTaskIds        []string                    `json:"preserved_task_ids,omitempty"`
 }
 
 type _ExecutionInterventionPreview ExecutionInterventionPreview
@@ -126,6 +126,7 @@ func (o *ExecutionInterventionPreview) HasCheckpointTaskId() bool {
 func (o *ExecutionInterventionPreview) SetCheckpointTaskId(v string) {
 	o.CheckpointTaskId.Set(&v)
 }
+
 // SetCheckpointTaskIdNil sets the value for CheckpointTaskId to be an explicit nil
 func (o *ExecutionInterventionPreview) SetCheckpointTaskIdNil() {
 	o.CheckpointTaskId.Set(nil)
@@ -328,6 +329,7 @@ func (o *ExecutionInterventionPreview) HasForceAvailableAt() bool {
 func (o *ExecutionInterventionPreview) SetForceAvailableAt(v time.Time) {
 	o.ForceAvailableAt.Set(&v)
 }
+
 // SetForceAvailableAtNil sets the value for ForceAvailableAt to be an explicit nil
 func (o *ExecutionInterventionPreview) SetForceAvailableAtNil() {
 	o.ForceAvailableAt.Set(nil)
@@ -459,7 +461,7 @@ func (o *ExecutionInterventionPreview) SetPreservedTaskIds(v []string) {
 }
 
 func (o ExecutionInterventionPreview) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -516,10 +518,10 @@ func (o *ExecutionInterventionPreview) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

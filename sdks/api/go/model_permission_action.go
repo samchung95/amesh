@@ -20,16 +20,16 @@ type PermissionAction string
 
 // List of PermissionAction
 const (
-	PERMISSIONACTION_VIEW PermissionAction = "view"
-	PERMISSIONACTION_CREATE PermissionAction = "create"
-	PERMISSIONACTION_UPDATE PermissionAction = "update"
-	PERMISSIONACTION_DELETE PermissionAction = "delete"
+	PERMISSIONACTION_VIEW    PermissionAction = "view"
+	PERMISSIONACTION_CREATE  PermissionAction = "create"
+	PERMISSIONACTION_UPDATE  PermissionAction = "update"
+	PERMISSIONACTION_DELETE  PermissionAction = "delete"
 	PERMISSIONACTION_EXECUTE PermissionAction = "execute"
-	PERMISSIONACTION_MANAGE PermissionAction = "manage"
-	PERMISSIONACTION_USE PermissionAction = "use"
-	PERMISSIONACTION_LIST PermissionAction = "list"
-	PERMISSIONACTION_READ PermissionAction = "read"
-	PERMISSIONACTION_WRITE PermissionAction = "write"
+	PERMISSIONACTION_MANAGE  PermissionAction = "manage"
+	PERMISSIONACTION_USE     PermissionAction = "use"
+	PERMISSIONACTION_LIST    PermissionAction = "list"
+	PERMISSIONACTION_READ    PermissionAction = "read"
+	PERMISSIONACTION_WRITE   PermissionAction = "write"
 )
 
 // All allowed values of PermissionAction enum

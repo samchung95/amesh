@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,24 +21,24 @@ var _ MappedNullable = &RunnerCapabilities{}
 
 // RunnerCapabilities struct for RunnerCapabilities
 type RunnerCapabilities struct {
-	AcceptsCommand *bool `json:"acceptsCommand,omitempty"`
-	AcceptsImage *bool `json:"acceptsImage,omitempty"`
-	CancellationEscalation []string `json:"cancellationEscalation"`
-	ContractVersions []string `json:"contractVersions,omitempty"`
-	ExtensionType RunnerId `json:"extensionType"`
-	Features []string `json:"features,omitempty"`
-	NetworkAccess []RunnerNetworkAccess `json:"networkAccess,omitempty"`
-	Platforms []string `json:"platforms,omitempty"`
-	RequiresCommand *bool `json:"requiresCommand,omitempty"`
-	RequiresImage *bool `json:"requiresImage,omitempty"`
-	Runner RunnerId `json:"runner"`
-	SupportsFiles *bool `json:"supportsFiles,omitempty"`
-	SupportsReconciliation *bool `json:"supportsReconciliation,omitempty"`
-	SupportsResources *bool `json:"supportsResources,omitempty"`
-	SupportsScopedCredentials *bool `json:"supportsScopedCredentials,omitempty"`
-	SupportsSecurityPolicy *bool `json:"supportsSecurityPolicy,omitempty"`
-	SupportsStandardInput *bool `json:"supportsStandardInput,omitempty"`
-	SupportsWorkingDirectory *bool `json:"supportsWorkingDirectory,omitempty"`
+	AcceptsCommand            *bool                 `json:"acceptsCommand,omitempty"`
+	AcceptsImage              *bool                 `json:"acceptsImage,omitempty"`
+	CancellationEscalation    []string              `json:"cancellationEscalation"`
+	ContractVersions          []string              `json:"contractVersions,omitempty"`
+	ExtensionType             RunnerId              `json:"extensionType"`
+	Features                  []string              `json:"features,omitempty"`
+	NetworkAccess             []RunnerNetworkAccess `json:"networkAccess,omitempty"`
+	Platforms                 []string              `json:"platforms,omitempty"`
+	RequiresCommand           *bool                 `json:"requiresCommand,omitempty"`
+	RequiresImage             *bool                 `json:"requiresImage,omitempty"`
+	Runner                    RunnerId              `json:"runner"`
+	SupportsFiles             *bool                 `json:"supportsFiles,omitempty"`
+	SupportsReconciliation    *bool                 `json:"supportsReconciliation,omitempty"`
+	SupportsResources         *bool                 `json:"supportsResources,omitempty"`
+	SupportsScopedCredentials *bool                 `json:"supportsScopedCredentials,omitempty"`
+	SupportsSecurityPolicy    *bool                 `json:"supportsSecurityPolicy,omitempty"`
+	SupportsStandardInput     *bool                 `json:"supportsStandardInput,omitempty"`
+	SupportsWorkingDirectory  *bool                 `json:"supportsWorkingDirectory,omitempty"`
 }
 
 type _RunnerCapabilities RunnerCapabilities
@@ -660,7 +660,7 @@ func (o *RunnerCapabilities) SetSupportsWorkingDirectory(v bool) {
 }
 
 func (o RunnerCapabilities) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -735,10 +735,10 @@ func (o *RunnerCapabilities) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

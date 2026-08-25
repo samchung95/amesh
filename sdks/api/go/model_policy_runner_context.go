@@ -20,8 +20,8 @@ var _ MappedNullable = &PolicyRunnerContext{}
 // PolicyRunnerContext struct for PolicyRunnerContext
 type PolicyRunnerContext struct {
 	Attributes map[string]interface{} `json:"attributes,omitempty"`
-	Requested NullableString `json:"requested,omitempty"`
-	Selected []*string `json:"selected,omitempty"`
+	Requested  NullableString         `json:"requested,omitempty"`
+	Selected   []*string              `json:"selected,omitempty"`
 }
 
 // NewPolicyRunnerContext instantiates a new PolicyRunnerContext object
@@ -105,6 +105,7 @@ func (o *PolicyRunnerContext) HasRequested() bool {
 func (o *PolicyRunnerContext) SetRequested(v string) {
 	o.Requested.Set(&v)
 }
+
 // SetRequestedNil sets the value for Requested to be an explicit nil
 func (o *PolicyRunnerContext) SetRequestedNil() {
 	o.Requested.Set(nil)
@@ -148,7 +149,7 @@ func (o *PolicyRunnerContext) SetSelected(v []*string) {
 }
 
 func (o PolicyRunnerContext) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}

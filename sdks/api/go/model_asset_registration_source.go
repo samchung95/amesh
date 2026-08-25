@@ -20,7 +20,7 @@ type AssetRegistrationSource string
 
 // List of AssetRegistrationSource
 const (
-	ASSETREGISTRATIONSOURCE_DECLARED AssetRegistrationSource = "DECLARED"
+	ASSETREGISTRATIONSOURCE_DECLARED     AssetRegistrationSource = "DECLARED"
 	ASSETREGISTRATIONSOURCE_PLUGIN_EVENT AssetRegistrationSource = "PLUGIN_EVENT"
 )
 

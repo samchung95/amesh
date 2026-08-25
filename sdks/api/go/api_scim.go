@@ -19,15 +19,14 @@ import (
 	"strings"
 )
 
-
 // ScimAPIService ScimAPI service
 type ScimAPIService service
 
 type ApiCreateScimGroupScimV2GroupsPostRequest struct {
-	ctx context.Context
-	ApiService *ScimAPIService
+	ctx              context.Context
+	ApiService       *ScimAPIService
 	scimGroupRequest *ScimGroupRequest
-	authorization *string
+	authorization    *string
 }
 
 func (r ApiCreateScimGroupScimV2GroupsPostRequest) ScimGroupRequest(scimGroupRequest ScimGroupRequest) ApiCreateScimGroupScimV2GroupsPostRequest {
@@ -47,24 +46,25 @@ func (r ApiCreateScimGroupScimV2GroupsPostRequest) Execute() (*ScimGroupResource
 /*
 CreateScimGroupScimV2GroupsPost Create Scim Group
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiCreateScimGroupScimV2GroupsPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiCreateScimGroupScimV2GroupsPostRequest
 */
 func (a *ScimAPIService) CreateScimGroupScimV2GroupsPost(ctx context.Context) ApiCreateScimGroupScimV2GroupsPostRequest {
 	return ApiCreateScimGroupScimV2GroupsPostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return ScimGroupResource
+//
+//	@return ScimGroupResource
 func (a *ScimAPIService) CreateScimGroupScimV2GroupsPostExecute(r ApiCreateScimGroupScimV2GroupsPostRequest) (*ScimGroupResource, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *ScimGroupResource
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *ScimGroupResource
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ScimAPIService.CreateScimGroupScimV2GroupsPost")
@@ -132,8 +132,8 @@ func (a *ScimAPIService) CreateScimGroupScimV2GroupsPostExecute(r ApiCreateScimG
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -151,10 +151,10 @@ func (a *ScimAPIService) CreateScimGroupScimV2GroupsPostExecute(r ApiCreateScimG
 }
 
 type ApiCreateScimUserScimV2UsersPostRequest struct {
-	ctx context.Context
-	ApiService *ScimAPIService
+	ctx             context.Context
+	ApiService      *ScimAPIService
 	scimUserRequest *ScimUserRequest
-	authorization *string
+	authorization   *string
 }
 
 func (r ApiCreateScimUserScimV2UsersPostRequest) ScimUserRequest(scimUserRequest ScimUserRequest) ApiCreateScimUserScimV2UsersPostRequest {
@@ -174,24 +174,25 @@ func (r ApiCreateScimUserScimV2UsersPostRequest) Execute() (*ScimUserResource, *
 /*
 CreateScimUserScimV2UsersPost Create Scim User
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiCreateScimUserScimV2UsersPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiCreateScimUserScimV2UsersPostRequest
 */
 func (a *ScimAPIService) CreateScimUserScimV2UsersPost(ctx context.Context) ApiCreateScimUserScimV2UsersPostRequest {
 	return ApiCreateScimUserScimV2UsersPostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return ScimUserResource
+//
+//	@return ScimUserResource
 func (a *ScimAPIService) CreateScimUserScimV2UsersPostExecute(r ApiCreateScimUserScimV2UsersPostRequest) (*ScimUserResource, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *ScimUserResource
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *ScimUserResource
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ScimAPIService.CreateScimUserScimV2UsersPost")
@@ -259,8 +260,8 @@ func (a *ScimAPIService) CreateScimUserScimV2UsersPostExecute(r ApiCreateScimUse
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -278,9 +279,9 @@ func (a *ScimAPIService) CreateScimUserScimV2UsersPostExecute(r ApiCreateScimUse
 }
 
 type ApiDeleteScimGroupScimV2GroupsGroupIdDeleteRequest struct {
-	ctx context.Context
-	ApiService *ScimAPIService
-	groupId string
+	ctx           context.Context
+	ApiService    *ScimAPIService
+	groupId       string
 	authorization *string
 }
 
@@ -296,24 +297,24 @@ func (r ApiDeleteScimGroupScimV2GroupsGroupIdDeleteRequest) Execute() (*http.Res
 /*
 DeleteScimGroupScimV2GroupsGroupIdDelete Delete Scim Group
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param groupId
- @return ApiDeleteScimGroupScimV2GroupsGroupIdDeleteRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param groupId
+	@return ApiDeleteScimGroupScimV2GroupsGroupIdDeleteRequest
 */
 func (a *ScimAPIService) DeleteScimGroupScimV2GroupsGroupIdDelete(ctx context.Context, groupId string) ApiDeleteScimGroupScimV2GroupsGroupIdDeleteRequest {
 	return ApiDeleteScimGroupScimV2GroupsGroupIdDeleteRequest{
 		ApiService: a,
-		ctx: ctx,
-		groupId: groupId,
+		ctx:        ctx,
+		groupId:    groupId,
 	}
 }
 
 // Execute executes the request
 func (a *ScimAPIService) DeleteScimGroupScimV2GroupsGroupIdDeleteExecute(r ApiDeleteScimGroupScimV2GroupsGroupIdDeleteRequest) (*http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodDelete
-		localVarPostBody     interface{}
-		formFiles            []formFile
+		localVarHTTPMethod = http.MethodDelete
+		localVarPostBody   interface{}
+		formFiles          []formFile
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ScimAPIService.DeleteScimGroupScimV2GroupsGroupIdDelete")
@@ -377,8 +378,8 @@ func (a *ScimAPIService) DeleteScimGroupScimV2GroupsGroupIdDeleteExecute(r ApiDe
 				newErr.error = err.Error()
 				return localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarHTTPResponse, newErr
 	}
@@ -387,9 +388,9 @@ func (a *ScimAPIService) DeleteScimGroupScimV2GroupsGroupIdDeleteExecute(r ApiDe
 }
 
 type ApiDeleteScimUserScimV2UsersUserIdDeleteRequest struct {
-	ctx context.Context
-	ApiService *ScimAPIService
-	userId string
+	ctx           context.Context
+	ApiService    *ScimAPIService
+	userId        string
 	authorization *string
 }
 
@@ -405,24 +406,24 @@ func (r ApiDeleteScimUserScimV2UsersUserIdDeleteRequest) Execute() (*http.Respon
 /*
 DeleteScimUserScimV2UsersUserIdDelete Delete Scim User
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param userId
- @return ApiDeleteScimUserScimV2UsersUserIdDeleteRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param userId
+	@return ApiDeleteScimUserScimV2UsersUserIdDeleteRequest
 */
 func (a *ScimAPIService) DeleteScimUserScimV2UsersUserIdDelete(ctx context.Context, userId string) ApiDeleteScimUserScimV2UsersUserIdDeleteRequest {
 	return ApiDeleteScimUserScimV2UsersUserIdDeleteRequest{
 		ApiService: a,
-		ctx: ctx,
-		userId: userId,
+		ctx:        ctx,
+		userId:     userId,
 	}
 }
 
 // Execute executes the request
 func (a *ScimAPIService) DeleteScimUserScimV2UsersUserIdDeleteExecute(r ApiDeleteScimUserScimV2UsersUserIdDeleteRequest) (*http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodDelete
-		localVarPostBody     interface{}
-		formFiles            []formFile
+		localVarHTTPMethod = http.MethodDelete
+		localVarPostBody   interface{}
+		formFiles          []formFile
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ScimAPIService.DeleteScimUserScimV2UsersUserIdDelete")
@@ -486,8 +487,8 @@ func (a *ScimAPIService) DeleteScimUserScimV2UsersUserIdDeleteExecute(r ApiDelet
 				newErr.error = err.Error()
 				return localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarHTTPResponse, newErr
 	}
@@ -496,9 +497,9 @@ func (a *ScimAPIService) DeleteScimUserScimV2UsersUserIdDeleteExecute(r ApiDelet
 }
 
 type ApiGetScimGroupScimV2GroupsGroupIdGetRequest struct {
-	ctx context.Context
-	ApiService *ScimAPIService
-	groupId string
+	ctx           context.Context
+	ApiService    *ScimAPIService
+	groupId       string
 	authorization *string
 }
 
@@ -514,26 +515,27 @@ func (r ApiGetScimGroupScimV2GroupsGroupIdGetRequest) Execute() (*ScimGroupResou
 /*
 GetScimGroupScimV2GroupsGroupIdGet Get Scim Group
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param groupId
- @return ApiGetScimGroupScimV2GroupsGroupIdGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param groupId
+	@return ApiGetScimGroupScimV2GroupsGroupIdGetRequest
 */
 func (a *ScimAPIService) GetScimGroupScimV2GroupsGroupIdGet(ctx context.Context, groupId string) ApiGetScimGroupScimV2GroupsGroupIdGetRequest {
 	return ApiGetScimGroupScimV2GroupsGroupIdGetRequest{
 		ApiService: a,
-		ctx: ctx,
-		groupId: groupId,
+		ctx:        ctx,
+		groupId:    groupId,
 	}
 }
 
 // Execute executes the request
-//  @return ScimGroupResource
+//
+//	@return ScimGroupResource
 func (a *ScimAPIService) GetScimGroupScimV2GroupsGroupIdGetExecute(r ApiGetScimGroupScimV2GroupsGroupIdGetRequest) (*ScimGroupResource, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *ScimGroupResource
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *ScimGroupResource
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ScimAPIService.GetScimGroupScimV2GroupsGroupIdGet")
@@ -597,8 +599,8 @@ func (a *ScimAPIService) GetScimGroupScimV2GroupsGroupIdGetExecute(r ApiGetScimG
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -616,9 +618,9 @@ func (a *ScimAPIService) GetScimGroupScimV2GroupsGroupIdGetExecute(r ApiGetScimG
 }
 
 type ApiGetScimUserScimV2UsersUserIdGetRequest struct {
-	ctx context.Context
-	ApiService *ScimAPIService
-	userId string
+	ctx           context.Context
+	ApiService    *ScimAPIService
+	userId        string
 	authorization *string
 }
 
@@ -634,26 +636,27 @@ func (r ApiGetScimUserScimV2UsersUserIdGetRequest) Execute() (*ScimUserResource,
 /*
 GetScimUserScimV2UsersUserIdGet Get Scim User
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param userId
- @return ApiGetScimUserScimV2UsersUserIdGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param userId
+	@return ApiGetScimUserScimV2UsersUserIdGetRequest
 */
 func (a *ScimAPIService) GetScimUserScimV2UsersUserIdGet(ctx context.Context, userId string) ApiGetScimUserScimV2UsersUserIdGetRequest {
 	return ApiGetScimUserScimV2UsersUserIdGetRequest{
 		ApiService: a,
-		ctx: ctx,
-		userId: userId,
+		ctx:        ctx,
+		userId:     userId,
 	}
 }
 
 // Execute executes the request
-//  @return ScimUserResource
+//
+//	@return ScimUserResource
 func (a *ScimAPIService) GetScimUserScimV2UsersUserIdGetExecute(r ApiGetScimUserScimV2UsersUserIdGetRequest) (*ScimUserResource, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *ScimUserResource
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *ScimUserResource
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ScimAPIService.GetScimUserScimV2UsersUserIdGet")
@@ -717,8 +720,8 @@ func (a *ScimAPIService) GetScimUserScimV2UsersUserIdGetExecute(r ApiGetScimUser
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -736,11 +739,11 @@ func (a *ScimAPIService) GetScimUserScimV2UsersUserIdGetExecute(r ApiGetScimUser
 }
 
 type ApiListScimGroupsScimV2GroupsGetRequest struct {
-	ctx context.Context
-	ApiService *ScimAPIService
-	filter *string
-	startIndex *int32
-	count *int32
+	ctx           context.Context
+	ApiService    *ScimAPIService
+	filter        *string
+	startIndex    *int32
+	count         *int32
 	authorization *string
 }
 
@@ -771,24 +774,25 @@ func (r ApiListScimGroupsScimV2GroupsGetRequest) Execute() (*ScimListResponse, *
 /*
 ListScimGroupsScimV2GroupsGet List Scim Groups
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiListScimGroupsScimV2GroupsGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiListScimGroupsScimV2GroupsGetRequest
 */
 func (a *ScimAPIService) ListScimGroupsScimV2GroupsGet(ctx context.Context) ApiListScimGroupsScimV2GroupsGetRequest {
 	return ApiListScimGroupsScimV2GroupsGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return ScimListResponse
+//
+//	@return ScimListResponse
 func (a *ScimAPIService) ListScimGroupsScimV2GroupsGetExecute(r ApiListScimGroupsScimV2GroupsGetRequest) (*ScimListResponse, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *ScimListResponse
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *ScimListResponse
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ScimAPIService.ListScimGroupsScimV2GroupsGet")
@@ -868,8 +872,8 @@ func (a *ScimAPIService) ListScimGroupsScimV2GroupsGetExecute(r ApiListScimGroup
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -887,11 +891,11 @@ func (a *ScimAPIService) ListScimGroupsScimV2GroupsGetExecute(r ApiListScimGroup
 }
 
 type ApiListScimUsersScimV2UsersGetRequest struct {
-	ctx context.Context
-	ApiService *ScimAPIService
-	filter *string
-	startIndex *int32
-	count *int32
+	ctx           context.Context
+	ApiService    *ScimAPIService
+	filter        *string
+	startIndex    *int32
+	count         *int32
 	authorization *string
 }
 
@@ -922,24 +926,25 @@ func (r ApiListScimUsersScimV2UsersGetRequest) Execute() (*ScimListResponse, *ht
 /*
 ListScimUsersScimV2UsersGet List Scim Users
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiListScimUsersScimV2UsersGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiListScimUsersScimV2UsersGetRequest
 */
 func (a *ScimAPIService) ListScimUsersScimV2UsersGet(ctx context.Context) ApiListScimUsersScimV2UsersGetRequest {
 	return ApiListScimUsersScimV2UsersGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return ScimListResponse
+//
+//	@return ScimListResponse
 func (a *ScimAPIService) ListScimUsersScimV2UsersGetExecute(r ApiListScimUsersScimV2UsersGetRequest) (*ScimListResponse, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *ScimListResponse
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *ScimListResponse
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ScimAPIService.ListScimUsersScimV2UsersGet")
@@ -1019,8 +1024,8 @@ func (a *ScimAPIService) ListScimUsersScimV2UsersGetExecute(r ApiListScimUsersSc
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1038,11 +1043,11 @@ func (a *ScimAPIService) ListScimUsersScimV2UsersGetExecute(r ApiListScimUsersSc
 }
 
 type ApiPatchScimGroupScimV2GroupsGroupIdPatchRequest struct {
-	ctx context.Context
-	ApiService *ScimAPIService
-	groupId string
+	ctx              context.Context
+	ApiService       *ScimAPIService
+	groupId          string
 	scimPatchRequest *ScimPatchRequest
-	authorization *string
+	authorization    *string
 }
 
 func (r ApiPatchScimGroupScimV2GroupsGroupIdPatchRequest) ScimPatchRequest(scimPatchRequest ScimPatchRequest) ApiPatchScimGroupScimV2GroupsGroupIdPatchRequest {
@@ -1062,26 +1067,27 @@ func (r ApiPatchScimGroupScimV2GroupsGroupIdPatchRequest) Execute() (*ScimGroupR
 /*
 PatchScimGroupScimV2GroupsGroupIdPatch Patch Scim Group
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param groupId
- @return ApiPatchScimGroupScimV2GroupsGroupIdPatchRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param groupId
+	@return ApiPatchScimGroupScimV2GroupsGroupIdPatchRequest
 */
 func (a *ScimAPIService) PatchScimGroupScimV2GroupsGroupIdPatch(ctx context.Context, groupId string) ApiPatchScimGroupScimV2GroupsGroupIdPatchRequest {
 	return ApiPatchScimGroupScimV2GroupsGroupIdPatchRequest{
 		ApiService: a,
-		ctx: ctx,
-		groupId: groupId,
+		ctx:        ctx,
+		groupId:    groupId,
 	}
 }
 
 // Execute executes the request
-//  @return ScimGroupResource
+//
+//	@return ScimGroupResource
 func (a *ScimAPIService) PatchScimGroupScimV2GroupsGroupIdPatchExecute(r ApiPatchScimGroupScimV2GroupsGroupIdPatchRequest) (*ScimGroupResource, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPatch
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *ScimGroupResource
+		localVarHTTPMethod  = http.MethodPatch
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *ScimGroupResource
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ScimAPIService.PatchScimGroupScimV2GroupsGroupIdPatch")
@@ -1150,8 +1156,8 @@ func (a *ScimAPIService) PatchScimGroupScimV2GroupsGroupIdPatchExecute(r ApiPatc
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1169,11 +1175,11 @@ func (a *ScimAPIService) PatchScimGroupScimV2GroupsGroupIdPatchExecute(r ApiPatc
 }
 
 type ApiPatchScimUserScimV2UsersUserIdPatchRequest struct {
-	ctx context.Context
-	ApiService *ScimAPIService
-	userId string
+	ctx              context.Context
+	ApiService       *ScimAPIService
+	userId           string
 	scimPatchRequest *ScimPatchRequest
-	authorization *string
+	authorization    *string
 }
 
 func (r ApiPatchScimUserScimV2UsersUserIdPatchRequest) ScimPatchRequest(scimPatchRequest ScimPatchRequest) ApiPatchScimUserScimV2UsersUserIdPatchRequest {
@@ -1193,26 +1199,27 @@ func (r ApiPatchScimUserScimV2UsersUserIdPatchRequest) Execute() (*ScimUserResou
 /*
 PatchScimUserScimV2UsersUserIdPatch Patch Scim User
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param userId
- @return ApiPatchScimUserScimV2UsersUserIdPatchRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param userId
+	@return ApiPatchScimUserScimV2UsersUserIdPatchRequest
 */
 func (a *ScimAPIService) PatchScimUserScimV2UsersUserIdPatch(ctx context.Context, userId string) ApiPatchScimUserScimV2UsersUserIdPatchRequest {
 	return ApiPatchScimUserScimV2UsersUserIdPatchRequest{
 		ApiService: a,
-		ctx: ctx,
-		userId: userId,
+		ctx:        ctx,
+		userId:     userId,
 	}
 }
 
 // Execute executes the request
-//  @return ScimUserResource
+//
+//	@return ScimUserResource
 func (a *ScimAPIService) PatchScimUserScimV2UsersUserIdPatchExecute(r ApiPatchScimUserScimV2UsersUserIdPatchRequest) (*ScimUserResource, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPatch
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *ScimUserResource
+		localVarHTTPMethod  = http.MethodPatch
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *ScimUserResource
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ScimAPIService.PatchScimUserScimV2UsersUserIdPatch")
@@ -1281,8 +1288,8 @@ func (a *ScimAPIService) PatchScimUserScimV2UsersUserIdPatchExecute(r ApiPatchSc
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1300,8 +1307,8 @@ func (a *ScimAPIService) PatchScimUserScimV2UsersUserIdPatchExecute(r ApiPatchSc
 }
 
 type ApiScimServiceProviderConfigScimV2ServiceProviderConfigGetRequest struct {
-	ctx context.Context
-	ApiService *ScimAPIService
+	ctx           context.Context
+	ApiService    *ScimAPIService
 	authorization *string
 }
 
@@ -1317,24 +1324,25 @@ func (r ApiScimServiceProviderConfigScimV2ServiceProviderConfigGetRequest) Execu
 /*
 ScimServiceProviderConfigScimV2ServiceProviderConfigGet Scim Service Provider Config
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiScimServiceProviderConfigScimV2ServiceProviderConfigGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiScimServiceProviderConfigScimV2ServiceProviderConfigGetRequest
 */
 func (a *ScimAPIService) ScimServiceProviderConfigScimV2ServiceProviderConfigGet(ctx context.Context) ApiScimServiceProviderConfigScimV2ServiceProviderConfigGetRequest {
 	return ApiScimServiceProviderConfigScimV2ServiceProviderConfigGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return map[string]*interface{}
+//
+//	@return map[string]*interface{}
 func (a *ScimAPIService) ScimServiceProviderConfigScimV2ServiceProviderConfigGetExecute(r ApiScimServiceProviderConfigScimV2ServiceProviderConfigGetRequest) (map[string]*interface{}, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  map[string]*interface{}
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue map[string]*interface{}
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ScimAPIService.ScimServiceProviderConfigScimV2ServiceProviderConfigGet")
@@ -1397,8 +1405,8 @@ func (a *ScimAPIService) ScimServiceProviderConfigScimV2ServiceProviderConfigGet
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}

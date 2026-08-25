@@ -19,9 +19,9 @@ var _ MappedNullable = &PolicyNetworkContext{}
 
 // PolicyNetworkContext struct for PolicyNetworkContext
 type PolicyNetworkContext struct {
-	AllowedEgress []string `json:"allowedEgress,omitempty"`
-	Attributes map[string]interface{} `json:"attributes,omitempty"`
-	Modes []*string `json:"modes,omitempty"`
+	AllowedEgress []string               `json:"allowedEgress,omitempty"`
+	Attributes    map[string]interface{} `json:"attributes,omitempty"`
+	Modes         []*string              `json:"modes,omitempty"`
 }
 
 // NewPolicyNetworkContext instantiates a new PolicyNetworkContext object
@@ -138,7 +138,7 @@ func (o *PolicyNetworkContext) SetModes(v []*string) {
 }
 
 func (o PolicyNetworkContext) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}

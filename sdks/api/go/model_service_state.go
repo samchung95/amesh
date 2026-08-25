@@ -21,15 +21,17 @@ type ServiceState string
 // List of ServiceState
 const (
 	SERVICESTATE_STARTING ServiceState = "STARTING"
-	SERVICESTATE_READY ServiceState = "READY"
+	SERVICESTATE_READY    ServiceState = "READY"
+	SERVICESTATE_DEGRADED ServiceState = "DEGRADED"
 	SERVICESTATE_DRAINING ServiceState = "DRAINING"
-	SERVICESTATE_STOPPED ServiceState = "STOPPED"
+	SERVICESTATE_STOPPED  ServiceState = "STOPPED"
 )
 
 // All allowed values of ServiceState enum
 var AllowedServiceStateEnumValues = []ServiceState{
 	"STARTING",
 	"READY",
+	"DEGRADED",
 	"DRAINING",
 	"STOPPED",
 }

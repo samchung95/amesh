@@ -20,21 +20,20 @@ import (
 	"time"
 )
 
-
 // TriggersAPIService TriggersAPI service
 type TriggersAPIService service
 
 type ApiListTriggerOccurrencesApiV1TriggerOccurrencesGetRequest struct {
-	ctx context.Context
-	ApiService *TriggersAPIService
-	namespace *string
-	flowId *string
-	triggerId *string
-	state *TriggerOccurrenceState
-	limit *int32
+	ctx           context.Context
+	ApiService    *TriggersAPIService
+	namespace     *string
+	flowId        *string
+	triggerId     *string
+	state         *TriggerOccurrenceState
+	limit         *int32
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiListTriggerOccurrencesApiV1TriggerOccurrencesGetRequest) Namespace(namespace string) ApiListTriggerOccurrencesApiV1TriggerOccurrencesGetRequest {
@@ -84,24 +83,25 @@ func (r ApiListTriggerOccurrencesApiV1TriggerOccurrencesGetRequest) Execute() ([
 /*
 ListTriggerOccurrencesApiV1TriggerOccurrencesGet List Trigger Occurrences
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiListTriggerOccurrencesApiV1TriggerOccurrencesGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiListTriggerOccurrencesApiV1TriggerOccurrencesGetRequest
 */
 func (a *TriggersAPIService) ListTriggerOccurrencesApiV1TriggerOccurrencesGet(ctx context.Context) ApiListTriggerOccurrencesApiV1TriggerOccurrencesGetRequest {
 	return ApiListTriggerOccurrencesApiV1TriggerOccurrencesGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return []TriggerOccurrence
+//
+//	@return []TriggerOccurrence
 func (a *TriggersAPIService) ListTriggerOccurrencesApiV1TriggerOccurrencesGetExecute(r ApiListTriggerOccurrencesApiV1TriggerOccurrencesGetRequest) ([]TriggerOccurrence, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  []TriggerOccurrence
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []TriggerOccurrence
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "TriggersAPIService.ListTriggerOccurrencesApiV1TriggerOccurrencesGet")
@@ -189,8 +189,8 @@ func (a *TriggersAPIService) ListTriggerOccurrencesApiV1TriggerOccurrencesGetExe
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -208,16 +208,16 @@ func (a *TriggersAPIService) ListTriggerOccurrencesApiV1TriggerOccurrencesGetExe
 }
 
 type ApiListTriggerRuntimeStatesApiV1TriggersGetRequest struct {
-	ctx context.Context
-	ApiService *TriggersAPIService
-	namespace *string
-	flowId *string
-	triggerId *string
-	active *bool
-	limit *int32
+	ctx           context.Context
+	ApiService    *TriggersAPIService
+	namespace     *string
+	flowId        *string
+	triggerId     *string
+	active        *bool
+	limit         *int32
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiListTriggerRuntimeStatesApiV1TriggersGetRequest) Namespace(namespace string) ApiListTriggerRuntimeStatesApiV1TriggersGetRequest {
@@ -267,24 +267,25 @@ func (r ApiListTriggerRuntimeStatesApiV1TriggersGetRequest) Execute() ([]Trigger
 /*
 ListTriggerRuntimeStatesApiV1TriggersGet List Trigger Runtime States
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiListTriggerRuntimeStatesApiV1TriggersGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiListTriggerRuntimeStatesApiV1TriggersGetRequest
 */
 func (a *TriggersAPIService) ListTriggerRuntimeStatesApiV1TriggersGet(ctx context.Context) ApiListTriggerRuntimeStatesApiV1TriggersGetRequest {
 	return ApiListTriggerRuntimeStatesApiV1TriggersGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return []TriggerRuntimeState
+//
+//	@return []TriggerRuntimeState
 func (a *TriggersAPIService) ListTriggerRuntimeStatesApiV1TriggersGetExecute(r ApiListTriggerRuntimeStatesApiV1TriggersGetRequest) ([]TriggerRuntimeState, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  []TriggerRuntimeState
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []TriggerRuntimeState
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "TriggersAPIService.ListTriggerRuntimeStatesApiV1TriggersGet")
@@ -372,8 +373,8 @@ func (a *TriggersAPIService) ListTriggerRuntimeStatesApiV1TriggersGetExecute(r A
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -391,15 +392,15 @@ func (a *TriggersAPIService) ListTriggerRuntimeStatesApiV1TriggersGetExecute(r A
 }
 
 type ApiPauseTriggerRuntimeApiV1TriggersNamespaceFlowIdTriggerIdPausePostRequest struct {
-	ctx context.Context
-	ApiService *TriggersAPIService
-	namespace string
-	flowId string
-	triggerId string
+	ctx                  context.Context
+	ApiService           *TriggersAPIService
+	namespace            string
+	flowId               string
+	triggerId            string
 	triggerActionRequest *TriggerActionRequest
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization        *string
+	xAmeshCSRF           *string
+	xAmeshTenant         *string
 }
 
 func (r ApiPauseTriggerRuntimeApiV1TriggersNamespaceFlowIdTriggerIdPausePostRequest) TriggerActionRequest(triggerActionRequest TriggerActionRequest) ApiPauseTriggerRuntimeApiV1TriggersNamespaceFlowIdTriggerIdPausePostRequest {
@@ -429,30 +430,31 @@ func (r ApiPauseTriggerRuntimeApiV1TriggersNamespaceFlowIdTriggerIdPausePostRequ
 /*
 PauseTriggerRuntimeApiV1TriggersNamespaceFlowIdTriggerIdPausePost Pause Trigger Runtime
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param namespace
- @param flowId
- @param triggerId
- @return ApiPauseTriggerRuntimeApiV1TriggersNamespaceFlowIdTriggerIdPausePostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param namespace
+	@param flowId
+	@param triggerId
+	@return ApiPauseTriggerRuntimeApiV1TriggersNamespaceFlowIdTriggerIdPausePostRequest
 */
 func (a *TriggersAPIService) PauseTriggerRuntimeApiV1TriggersNamespaceFlowIdTriggerIdPausePost(ctx context.Context, namespace string, flowId string, triggerId string) ApiPauseTriggerRuntimeApiV1TriggersNamespaceFlowIdTriggerIdPausePostRequest {
 	return ApiPauseTriggerRuntimeApiV1TriggersNamespaceFlowIdTriggerIdPausePostRequest{
 		ApiService: a,
-		ctx: ctx,
-		namespace: namespace,
-		flowId: flowId,
-		triggerId: triggerId,
+		ctx:        ctx,
+		namespace:  namespace,
+		flowId:     flowId,
+		triggerId:  triggerId,
 	}
 }
 
 // Execute executes the request
-//  @return TriggerRuntimeState
+//
+//	@return TriggerRuntimeState
 func (a *TriggersAPIService) PauseTriggerRuntimeApiV1TriggersNamespaceFlowIdTriggerIdPausePostExecute(r ApiPauseTriggerRuntimeApiV1TriggersNamespaceFlowIdTriggerIdPausePostRequest) (*TriggerRuntimeState, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *TriggerRuntimeState
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *TriggerRuntimeState
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "TriggersAPIService.PauseTriggerRuntimeApiV1TriggersNamespaceFlowIdTriggerIdPausePost")
@@ -529,8 +531,8 @@ func (a *TriggersAPIService) PauseTriggerRuntimeApiV1TriggersNamespaceFlowIdTrig
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -548,16 +550,16 @@ func (a *TriggersAPIService) PauseTriggerRuntimeApiV1TriggersNamespaceFlowIdTrig
 }
 
 type ApiPreviewScheduleApiV1FlowsNamespaceFlowIdSchedulesTriggerIdPreviewGetRequest struct {
-	ctx context.Context
-	ApiService *TriggersAPIService
-	namespace string
-	flowId string
-	triggerId string
-	after *time.Time
-	count *int32
+	ctx           context.Context
+	ApiService    *TriggersAPIService
+	namespace     string
+	flowId        string
+	triggerId     string
+	after         *time.Time
+	count         *int32
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiPreviewScheduleApiV1FlowsNamespaceFlowIdSchedulesTriggerIdPreviewGetRequest) After(after time.Time) ApiPreviewScheduleApiV1FlowsNamespaceFlowIdSchedulesTriggerIdPreviewGetRequest {
@@ -592,30 +594,31 @@ func (r ApiPreviewScheduleApiV1FlowsNamespaceFlowIdSchedulesTriggerIdPreviewGetR
 /*
 PreviewScheduleApiV1FlowsNamespaceFlowIdSchedulesTriggerIdPreviewGet Preview Schedule
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param namespace
- @param flowId
- @param triggerId
- @return ApiPreviewScheduleApiV1FlowsNamespaceFlowIdSchedulesTriggerIdPreviewGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param namespace
+	@param flowId
+	@param triggerId
+	@return ApiPreviewScheduleApiV1FlowsNamespaceFlowIdSchedulesTriggerIdPreviewGetRequest
 */
 func (a *TriggersAPIService) PreviewScheduleApiV1FlowsNamespaceFlowIdSchedulesTriggerIdPreviewGet(ctx context.Context, namespace string, flowId string, triggerId string) ApiPreviewScheduleApiV1FlowsNamespaceFlowIdSchedulesTriggerIdPreviewGetRequest {
 	return ApiPreviewScheduleApiV1FlowsNamespaceFlowIdSchedulesTriggerIdPreviewGetRequest{
 		ApiService: a,
-		ctx: ctx,
-		namespace: namespace,
-		flowId: flowId,
-		triggerId: triggerId,
+		ctx:        ctx,
+		namespace:  namespace,
+		flowId:     flowId,
+		triggerId:  triggerId,
 	}
 }
 
 // Execute executes the request
-//  @return SchedulePreview
+//
+//	@return SchedulePreview
 func (a *TriggersAPIService) PreviewScheduleApiV1FlowsNamespaceFlowIdSchedulesTriggerIdPreviewGetExecute(r ApiPreviewScheduleApiV1FlowsNamespaceFlowIdSchedulesTriggerIdPreviewGetRequest) (*SchedulePreview, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *SchedulePreview
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *SchedulePreview
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "TriggersAPIService.PreviewScheduleApiV1FlowsNamespaceFlowIdSchedulesTriggerIdPreviewGet")
@@ -697,8 +700,8 @@ func (a *TriggersAPIService) PreviewScheduleApiV1FlowsNamespaceFlowIdSchedulesTr
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -716,13 +719,13 @@ func (a *TriggersAPIService) PreviewScheduleApiV1FlowsNamespaceFlowIdSchedulesTr
 }
 
 type ApiReplayTriggerOccurrenceApiV1TriggerOccurrencesOccurrenceIdReplayPostRequest struct {
-	ctx context.Context
-	ApiService *TriggersAPIService
-	occurrenceId string
+	ctx                  context.Context
+	ApiService           *TriggersAPIService
+	occurrenceId         string
 	triggerActionRequest *TriggerActionRequest
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization        *string
+	xAmeshCSRF           *string
+	xAmeshTenant         *string
 }
 
 func (r ApiReplayTriggerOccurrenceApiV1TriggerOccurrencesOccurrenceIdReplayPostRequest) TriggerActionRequest(triggerActionRequest TriggerActionRequest) ApiReplayTriggerOccurrenceApiV1TriggerOccurrencesOccurrenceIdReplayPostRequest {
@@ -752,26 +755,27 @@ func (r ApiReplayTriggerOccurrenceApiV1TriggerOccurrencesOccurrenceIdReplayPostR
 /*
 ReplayTriggerOccurrenceApiV1TriggerOccurrencesOccurrenceIdReplayPost Replay Trigger Occurrence
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param occurrenceId
- @return ApiReplayTriggerOccurrenceApiV1TriggerOccurrencesOccurrenceIdReplayPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param occurrenceId
+	@return ApiReplayTriggerOccurrenceApiV1TriggerOccurrencesOccurrenceIdReplayPostRequest
 */
 func (a *TriggersAPIService) ReplayTriggerOccurrenceApiV1TriggerOccurrencesOccurrenceIdReplayPost(ctx context.Context, occurrenceId string) ApiReplayTriggerOccurrenceApiV1TriggerOccurrencesOccurrenceIdReplayPostRequest {
 	return ApiReplayTriggerOccurrenceApiV1TriggerOccurrencesOccurrenceIdReplayPostRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:   a,
+		ctx:          ctx,
 		occurrenceId: occurrenceId,
 	}
 }
 
 // Execute executes the request
-//  @return TriggerOccurrence
+//
+//	@return TriggerOccurrence
 func (a *TriggersAPIService) ReplayTriggerOccurrenceApiV1TriggerOccurrencesOccurrenceIdReplayPostExecute(r ApiReplayTriggerOccurrenceApiV1TriggerOccurrencesOccurrenceIdReplayPostRequest) (*TriggerOccurrence, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *TriggerOccurrence
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *TriggerOccurrence
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "TriggersAPIService.ReplayTriggerOccurrenceApiV1TriggerOccurrencesOccurrenceIdReplayPost")
@@ -846,8 +850,8 @@ func (a *TriggersAPIService) ReplayTriggerOccurrenceApiV1TriggerOccurrencesOccur
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -865,15 +869,15 @@ func (a *TriggersAPIService) ReplayTriggerOccurrenceApiV1TriggerOccurrencesOccur
 }
 
 type ApiResumeTriggerRuntimeApiV1TriggersNamespaceFlowIdTriggerIdResumePostRequest struct {
-	ctx context.Context
-	ApiService *TriggersAPIService
-	namespace string
-	flowId string
-	triggerId string
+	ctx                  context.Context
+	ApiService           *TriggersAPIService
+	namespace            string
+	flowId               string
+	triggerId            string
 	triggerActionRequest *TriggerActionRequest
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization        *string
+	xAmeshCSRF           *string
+	xAmeshTenant         *string
 }
 
 func (r ApiResumeTriggerRuntimeApiV1TriggersNamespaceFlowIdTriggerIdResumePostRequest) TriggerActionRequest(triggerActionRequest TriggerActionRequest) ApiResumeTriggerRuntimeApiV1TriggersNamespaceFlowIdTriggerIdResumePostRequest {
@@ -903,30 +907,31 @@ func (r ApiResumeTriggerRuntimeApiV1TriggersNamespaceFlowIdTriggerIdResumePostRe
 /*
 ResumeTriggerRuntimeApiV1TriggersNamespaceFlowIdTriggerIdResumePost Resume Trigger Runtime
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param namespace
- @param flowId
- @param triggerId
- @return ApiResumeTriggerRuntimeApiV1TriggersNamespaceFlowIdTriggerIdResumePostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param namespace
+	@param flowId
+	@param triggerId
+	@return ApiResumeTriggerRuntimeApiV1TriggersNamespaceFlowIdTriggerIdResumePostRequest
 */
 func (a *TriggersAPIService) ResumeTriggerRuntimeApiV1TriggersNamespaceFlowIdTriggerIdResumePost(ctx context.Context, namespace string, flowId string, triggerId string) ApiResumeTriggerRuntimeApiV1TriggersNamespaceFlowIdTriggerIdResumePostRequest {
 	return ApiResumeTriggerRuntimeApiV1TriggersNamespaceFlowIdTriggerIdResumePostRequest{
 		ApiService: a,
-		ctx: ctx,
-		namespace: namespace,
-		flowId: flowId,
-		triggerId: triggerId,
+		ctx:        ctx,
+		namespace:  namespace,
+		flowId:     flowId,
+		triggerId:  triggerId,
 	}
 }
 
 // Execute executes the request
-//  @return TriggerRuntimeState
+//
+//	@return TriggerRuntimeState
 func (a *TriggersAPIService) ResumeTriggerRuntimeApiV1TriggersNamespaceFlowIdTriggerIdResumePostExecute(r ApiResumeTriggerRuntimeApiV1TriggersNamespaceFlowIdTriggerIdResumePostRequest) (*TriggerRuntimeState, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *TriggerRuntimeState
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *TriggerRuntimeState
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "TriggersAPIService.ResumeTriggerRuntimeApiV1TriggersNamespaceFlowIdTriggerIdResumePost")
@@ -1003,8 +1008,8 @@ func (a *TriggersAPIService) ResumeTriggerRuntimeApiV1TriggersNamespaceFlowIdTri
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1022,18 +1027,18 @@ func (a *TriggersAPIService) ResumeTriggerRuntimeApiV1TriggersNamespaceFlowIdTri
 }
 
 type ApiTriggerWebhookApiV1WebhooksNamespaceFlowIdTriggerIdPostRequest struct {
-	ctx context.Context
-	ApiService *TriggersAPIService
-	namespace string
-	flowId string
-	triggerId string
-	runner *RunnerMode
-	prefer *string
+	ctx            context.Context
+	ApiService     *TriggersAPIService
+	namespace      string
+	flowId         string
+	triggerId      string
+	runner         *RunnerMode
+	prefer         *string
 	idempotencyKey *string
-	xEventId *string
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xEventId       *string
+	authorization  *string
+	xAmeshCSRF     *string
+	xAmeshTenant   *string
 }
 
 func (r ApiTriggerWebhookApiV1WebhooksNamespaceFlowIdTriggerIdPostRequest) Runner(runner RunnerMode) ApiTriggerWebhookApiV1WebhooksNamespaceFlowIdTriggerIdPostRequest {
@@ -1078,30 +1083,31 @@ func (r ApiTriggerWebhookApiV1WebhooksNamespaceFlowIdTriggerIdPostRequest) Execu
 /*
 TriggerWebhookApiV1WebhooksNamespaceFlowIdTriggerIdPost Trigger Webhook
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param namespace
- @param flowId
- @param triggerId
- @return ApiTriggerWebhookApiV1WebhooksNamespaceFlowIdTriggerIdPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param namespace
+	@param flowId
+	@param triggerId
+	@return ApiTriggerWebhookApiV1WebhooksNamespaceFlowIdTriggerIdPostRequest
 */
 func (a *TriggersAPIService) TriggerWebhookApiV1WebhooksNamespaceFlowIdTriggerIdPost(ctx context.Context, namespace string, flowId string, triggerId string) ApiTriggerWebhookApiV1WebhooksNamespaceFlowIdTriggerIdPostRequest {
 	return ApiTriggerWebhookApiV1WebhooksNamespaceFlowIdTriggerIdPostRequest{
 		ApiService: a,
-		ctx: ctx,
-		namespace: namespace,
-		flowId: flowId,
-		triggerId: triggerId,
+		ctx:        ctx,
+		namespace:  namespace,
+		flowId:     flowId,
+		triggerId:  triggerId,
 	}
 }
 
 // Execute executes the request
-//  @return ExecutionDetail
+//
+//	@return ExecutionDetail
 func (a *TriggersAPIService) TriggerWebhookApiV1WebhooksNamespaceFlowIdTriggerIdPostExecute(r ApiTriggerWebhookApiV1WebhooksNamespaceFlowIdTriggerIdPostRequest) (*ExecutionDetail, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *ExecutionDetail
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *ExecutionDetail
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "TriggersAPIService.TriggerWebhookApiV1WebhooksNamespaceFlowIdTriggerIdPost")
@@ -1189,8 +1195,8 @@ func (a *TriggersAPIService) TriggerWebhookApiV1WebhooksNamespaceFlowIdTriggerId
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}

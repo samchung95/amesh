@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the NamespaceFileVersion type satisfies the MappedNullable interface at compile time
@@ -22,14 +22,14 @@ var _ MappedNullable = &NamespaceFileVersion{}
 
 // NamespaceFileVersion struct for NamespaceFileVersion
 type NamespaceFileVersion struct {
-	ChecksumSha256 string `json:"checksumSha256" validate:"regexp=^[0-9a-f]{64}$"`
-	ContentType NullableString `json:"contentType,omitempty"`
-	CreatedAt time.Time `json:"createdAt"`
-	CreatedBy string `json:"createdBy"`
-	Namespace string `json:"namespace"`
-	Path string `json:"path"`
-	SizeBytes int32 `json:"sizeBytes"`
-	Version int32 `json:"version"`
+	ChecksumSha256 string         `json:"checksumSha256" validate:"regexp=^[0-9a-f]{64}$"`
+	ContentType    NullableString `json:"contentType,omitempty"`
+	CreatedAt      time.Time      `json:"createdAt"`
+	CreatedBy      string         `json:"createdBy"`
+	Namespace      string         `json:"namespace"`
+	Path           string         `json:"path"`
+	SizeBytes      int32          `json:"sizeBytes"`
+	Version        int32          `json:"version"`
 }
 
 type _NamespaceFileVersion NamespaceFileVersion
@@ -114,6 +114,7 @@ func (o *NamespaceFileVersion) HasContentType() bool {
 func (o *NamespaceFileVersion) SetContentType(v string) {
 	o.ContentType.Set(&v)
 }
+
 // SetContentTypeNil sets the value for ContentType to be an explicit nil
 func (o *NamespaceFileVersion) SetContentTypeNil() {
 	o.ContentType.Set(nil)
@@ -269,7 +270,7 @@ func (o *NamespaceFileVersion) SetVersion(v int32) {
 }
 
 func (o NamespaceFileVersion) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -310,10 +311,10 @@ func (o *NamespaceFileVersion) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

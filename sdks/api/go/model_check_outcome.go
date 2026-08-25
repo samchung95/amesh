@@ -20,9 +20,9 @@ type CheckOutcome string
 
 // List of CheckOutcome
 const (
-	CHECKOUTCOME_PASS CheckOutcome = "PASS"
-	CHECKOUTCOME_WARN CheckOutcome = "WARN"
-	CHECKOUTCOME_FAIL CheckOutcome = "FAIL"
+	CHECKOUTCOME_PASS  CheckOutcome = "PASS"
+	CHECKOUTCOME_WARN  CheckOutcome = "WARN"
+	CHECKOUTCOME_FAIL  CheckOutcome = "FAIL"
 	CHECKOUTCOME_ERROR CheckOutcome = "ERROR"
 )
 

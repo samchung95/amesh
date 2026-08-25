@@ -10,6 +10,7 @@ from amesh.domain.plugin_policy import (
 )
 from amesh.dsl import FlowDefinition
 from amesh.plugin_sdk import (
+    PLUGIN_RESOLUTION_VERSION,
     PluginCatalogManager,
     PluginManifest,
     PluginResolution,
@@ -26,6 +27,10 @@ class PluginPolicyDenied(ValueError):
             if not item.allowed
         )
         super().__init__(f"plugin policy denied {decision.stage.value.lower()}: {denied}")
+
+
+class PluginResolutionQuarantined(ValueError):
+    """Raised once an incompatible legacy resolution has disabled its owning flow."""
 
 
 class PluginPolicyService:
@@ -73,6 +78,35 @@ class PluginPolicyService:
             resolution_payload = (
                 PluginResolver(self._catalog.snapshot).resolve_flow(flow).revision_payload()
             )
+        elif resolution_payload.get("schemaVersion") != PLUGIN_RESOLUTION_VERSION:
+            try:
+                replacement = (
+                    PluginResolver(self._catalog.snapshot).resolve_flow(flow).revision_payload()
+                )
+            except Exception as exc:
+                reason = f"{type(exc).__name__}: {exc}"
+                await self._repository.quarantine_legacy_resolution(
+                    tenant_id,
+                    flow.namespace,
+                    flow.id,
+                    flow.revision,
+                    expected=resolution_payload,
+                    actor_id=actor_id,
+                    reason=reason,
+                )
+                raise PluginResolutionQuarantined(
+                    f"flow {flow.namespace}/{flow.id} revision {flow.revision} was disabled "
+                    "because its legacy plugin resolution cannot be upgraded"
+                ) from exc
+            resolution_payload = await self._repository.migrate_legacy_resolution(
+                tenant_id,
+                flow.namespace,
+                flow.id,
+                flow.revision,
+                expected=resolution_payload,
+                replacement=replacement,
+                actor_id=actor_id,
+            )
         subjects = self.subjects_from_resolution(resolution_payload)
         effective = await self.effective_policy(tenant_id, namespace=flow.namespace)
         decision = evaluate_plugin_policy(
@@ -104,6 +138,8 @@ class PluginPolicyService:
         resolved = resolution_payload or (
             PluginResolver(self._catalog.snapshot).resolve_flow(flow).revision_payload()
         )
+        if resolved.get("schemaVersion") != PLUGIN_RESOLUTION_VERSION:
+            resolved = PluginResolver(self._catalog.snapshot).resolve_flow(flow).revision_payload()
         effective = await self.effective_policy(tenant_id, namespace=flow.namespace)
         return evaluate_plugin_policy(
             self.subjects_from_resolution(resolved),

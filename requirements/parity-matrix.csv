@@ -105,3 +105,12 @@ EPIC-806,"Multi-agent topology, typed hand-offs and routing",M8,AMESH differenti
 EPIC-807,Versioned agent definitions and capability envelopes,M8,AMESH differentiator; not a Kestra-parity claim,Intentional difference,Planned,6,
 EPIC-808,Durable bounded single-agent sessions,M8,AMESH differentiator; not a Kestra-parity claim,Intentional difference,Planned,7,
 EPIC-809,"Agent memory, evaluation and release gates",M8,AMESH differentiator; not a Kestra-parity claim,Intentional difference,Planned,6,
+EPIC-810,Reliable scheduling and truthful role-aware health,M8,AMESH differentiator; not a Kestra-parity claim,Intentional difference,Verified,0,TESTLOG.md; backlog/epics/epic-810-reliable-scheduling-and-truthful-role-aware-health.md
+EPIC-811,Client-neutral external orchestration contract,M8,AMESH differentiator; not a Kestra-parity claim,Intentional difference,Verified,0,TESTLOG.md; backlog/epics/epic-811-client-neutral-external-orchestration-contract.md
+EPIC-812,Canonical execution evidence bundle,M8,AMESH differentiator; not a Kestra-parity claim,Intentional difference,Verified,0,TESTLOG.md; backlog/epics/epic-812-canonical-execution-evidence-bundle.md
+EPIC-813,Pluggable model-provider capabilities and conformance,M8,AMESH differentiator; not a Kestra-parity claim,Intentional difference,Verified,0,TESTLOG.md; backlog/epics/epic-813-pluggable-model-provider-capabilities-and-conformance.md
+EPIC-814,Unified MCP and plugin ToolProvider contract,M8,AMESH differentiator; not a Kestra-parity claim,Intentional difference,Verified,0,TESTLOG.md; backlog/epics/epic-814-unified-mcp-and-plugin-tool-provider-contract.md
+EPIC-815,Hardened client-driven local deployment profile,M8,AMESH differentiator; not a Kestra-parity claim,Intentional difference,Verified,0,TESTLOG.md; backlog/epics/epic-815-hardened-client-driven-local-deployment-profile.md
+EPIC-816,"Restart, idempotency and large-record qualification",M8,AMESH differentiator; not a Kestra-parity claim,Intentional difference,Verified,0,TESTLOG.md; backlog/epics/epic-816-restart-idempotency-and-large-record-qualification.md
+EPIC-817,Generic differential and shadow execution,M8,AMESH differentiator; not a Kestra-parity claim,Intentional difference,Verified,0,TESTLOG.md; backlog/epics/epic-817-generic-differential-and-shadow-execution.md
+EPIC-818,"Evidence-backed promotion, rollback and release gates",M8,AMESH differentiator; not a Kestra-parity claim,Intentional difference,Verified,0,TESTLOG.md; backlog/epics/epic-818-evidence-backed-promotion-rollback-and-release-gates.md

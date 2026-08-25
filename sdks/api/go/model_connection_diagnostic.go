@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,11 +21,11 @@ var _ MappedNullable = &ConnectionDiagnostic{}
 
 // ConnectionDiagnostic struct for ConnectionDiagnostic
 type ConnectionDiagnostic struct {
-	Host string `json:"host"`
-	Name string `json:"name"`
-	Port NullableInt32 `json:"port,omitempty"`
-	Proxy string `json:"proxy"`
-	Scheme string `json:"scheme"`
+	Host   string        `json:"host"`
+	Name   string        `json:"name"`
+	Port   NullableInt32 `json:"port,omitempty"`
+	Proxy  string        `json:"proxy"`
+	Scheme string        `json:"scheme"`
 }
 
 type _ConnectionDiagnostic ConnectionDiagnostic
@@ -131,6 +131,7 @@ func (o *ConnectionDiagnostic) HasPort() bool {
 func (o *ConnectionDiagnostic) SetPort(v int32) {
 	o.Port.Set(&v)
 }
+
 // SetPortNil sets the value for Port to be an explicit nil
 func (o *ConnectionDiagnostic) SetPortNil() {
 	o.Port.Set(nil)
@@ -190,7 +191,7 @@ func (o *ConnectionDiagnostic) SetScheme(v string) {
 }
 
 func (o ConnectionDiagnostic) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -225,10 +226,10 @@ func (o *ConnectionDiagnostic) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

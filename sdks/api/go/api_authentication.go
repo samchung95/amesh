@@ -19,16 +19,15 @@ import (
 	"strings"
 )
 
-
 // AuthenticationAPIService AuthenticationAPI service
 type AuthenticationAPIService service
 
 type ApiBeginFederatedLoginApiV1AuthFederatedProviderIdStartGetRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService *AuthenticationAPIService
 	providerId string
-	tenant *string
-	returnTo *string
+	tenant     *string
+	returnTo   *string
 }
 
 func (r ApiBeginFederatedLoginApiV1AuthFederatedProviderIdStartGetRequest) Tenant(tenant string) ApiBeginFederatedLoginApiV1AuthFederatedProviderIdStartGetRequest {
@@ -48,14 +47,14 @@ func (r ApiBeginFederatedLoginApiV1AuthFederatedProviderIdStartGetRequest) Execu
 /*
 BeginFederatedLoginApiV1AuthFederatedProviderIdStartGet Begin Federated Login
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param providerId
- @return ApiBeginFederatedLoginApiV1AuthFederatedProviderIdStartGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param providerId
+	@return ApiBeginFederatedLoginApiV1AuthFederatedProviderIdStartGetRequest
 */
 func (a *AuthenticationAPIService) BeginFederatedLoginApiV1AuthFederatedProviderIdStartGet(ctx context.Context, providerId string) ApiBeginFederatedLoginApiV1AuthFederatedProviderIdStartGetRequest {
 	return ApiBeginFederatedLoginApiV1AuthFederatedProviderIdStartGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 		providerId: providerId,
 	}
 }
@@ -63,9 +62,9 @@ func (a *AuthenticationAPIService) BeginFederatedLoginApiV1AuthFederatedProvider
 // Execute executes the request
 func (a *AuthenticationAPIService) BeginFederatedLoginApiV1AuthFederatedProviderIdStartGetExecute(r ApiBeginFederatedLoginApiV1AuthFederatedProviderIdStartGetRequest) (*http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
+		localVarHTTPMethod = http.MethodGet
+		localVarPostBody   interface{}
+		formFiles          []formFile
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AuthenticationAPIService.BeginFederatedLoginApiV1AuthFederatedProviderIdStartGet")
@@ -136,8 +135,8 @@ func (a *AuthenticationAPIService) BeginFederatedLoginApiV1AuthFederatedProvider
 				newErr.error = err.Error()
 				return localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarHTTPResponse, newErr
 	}
@@ -146,11 +145,11 @@ func (a *AuthenticationAPIService) BeginFederatedLoginApiV1AuthFederatedProvider
 }
 
 type ApiChangeLocalPasswordApiV1AuthPasswordPostRequest struct {
-	ctx context.Context
-	ApiService *AuthenticationAPIService
+	ctx                        context.Context
+	ApiService                 *AuthenticationAPIService
 	changeLocalPasswordRequest *ChangeLocalPasswordRequest
-	authorization *string
-	xAmeshCSRF *string
+	authorization              *string
+	xAmeshCSRF                 *string
 }
 
 func (r ApiChangeLocalPasswordApiV1AuthPasswordPostRequest) ChangeLocalPasswordRequest(changeLocalPasswordRequest ChangeLocalPasswordRequest) ApiChangeLocalPasswordApiV1AuthPasswordPostRequest {
@@ -175,24 +174,25 @@ func (r ApiChangeLocalPasswordApiV1AuthPasswordPostRequest) Execute() (*RevokedS
 /*
 ChangeLocalPasswordApiV1AuthPasswordPost Change Local Password
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiChangeLocalPasswordApiV1AuthPasswordPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiChangeLocalPasswordApiV1AuthPasswordPostRequest
 */
 func (a *AuthenticationAPIService) ChangeLocalPasswordApiV1AuthPasswordPost(ctx context.Context) ApiChangeLocalPasswordApiV1AuthPasswordPostRequest {
 	return ApiChangeLocalPasswordApiV1AuthPasswordPostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return RevokedSessionsResponse
+//
+//	@return RevokedSessionsResponse
 func (a *AuthenticationAPIService) ChangeLocalPasswordApiV1AuthPasswordPostExecute(r ApiChangeLocalPasswordApiV1AuthPasswordPostRequest) (*RevokedSessionsResponse, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *RevokedSessionsResponse
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *RevokedSessionsResponse
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AuthenticationAPIService.ChangeLocalPasswordApiV1AuthPasswordPost")
@@ -263,8 +263,8 @@ func (a *AuthenticationAPIService) ChangeLocalPasswordApiV1AuthPasswordPostExecu
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -282,12 +282,12 @@ func (a *AuthenticationAPIService) ChangeLocalPasswordApiV1AuthPasswordPostExecu
 }
 
 type ApiCompleteOidcLoginApiV1AuthFederatedProviderIdCallbackGetRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService *AuthenticationAPIService
 	providerId string
-	state *string
-	code *string
-	error_ *string
+	state      *string
+	code       *string
+	error_     *string
 }
 
 func (r ApiCompleteOidcLoginApiV1AuthFederatedProviderIdCallbackGetRequest) State(state string) ApiCompleteOidcLoginApiV1AuthFederatedProviderIdCallbackGetRequest {
@@ -312,14 +312,14 @@ func (r ApiCompleteOidcLoginApiV1AuthFederatedProviderIdCallbackGetRequest) Exec
 /*
 CompleteOidcLoginApiV1AuthFederatedProviderIdCallbackGet Complete Oidc Login
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param providerId
- @return ApiCompleteOidcLoginApiV1AuthFederatedProviderIdCallbackGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param providerId
+	@return ApiCompleteOidcLoginApiV1AuthFederatedProviderIdCallbackGetRequest
 */
 func (a *AuthenticationAPIService) CompleteOidcLoginApiV1AuthFederatedProviderIdCallbackGet(ctx context.Context, providerId string) ApiCompleteOidcLoginApiV1AuthFederatedProviderIdCallbackGetRequest {
 	return ApiCompleteOidcLoginApiV1AuthFederatedProviderIdCallbackGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 		providerId: providerId,
 	}
 }
@@ -327,9 +327,9 @@ func (a *AuthenticationAPIService) CompleteOidcLoginApiV1AuthFederatedProviderId
 // Execute executes the request
 func (a *AuthenticationAPIService) CompleteOidcLoginApiV1AuthFederatedProviderIdCallbackGetExecute(r ApiCompleteOidcLoginApiV1AuthFederatedProviderIdCallbackGetRequest) (*http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
+		localVarHTTPMethod = http.MethodGet
+		localVarPostBody   interface{}
+		formFiles          []formFile
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AuthenticationAPIService.CompleteOidcLoginApiV1AuthFederatedProviderIdCallbackGet")
@@ -406,8 +406,8 @@ func (a *AuthenticationAPIService) CompleteOidcLoginApiV1AuthFederatedProviderId
 				newErr.error = err.Error()
 				return localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarHTTPResponse, newErr
 	}
@@ -416,7 +416,7 @@ func (a *AuthenticationAPIService) CompleteOidcLoginApiV1AuthFederatedProviderId
 }
 
 type ApiCompleteSamlLoginApiV1AuthFederatedProviderIdCallbackPostRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService *AuthenticationAPIService
 	providerId string
 }
@@ -428,14 +428,14 @@ func (r ApiCompleteSamlLoginApiV1AuthFederatedProviderIdCallbackPostRequest) Exe
 /*
 CompleteSamlLoginApiV1AuthFederatedProviderIdCallbackPost Complete Saml Login
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param providerId
- @return ApiCompleteSamlLoginApiV1AuthFederatedProviderIdCallbackPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param providerId
+	@return ApiCompleteSamlLoginApiV1AuthFederatedProviderIdCallbackPostRequest
 */
 func (a *AuthenticationAPIService) CompleteSamlLoginApiV1AuthFederatedProviderIdCallbackPost(ctx context.Context, providerId string) ApiCompleteSamlLoginApiV1AuthFederatedProviderIdCallbackPostRequest {
 	return ApiCompleteSamlLoginApiV1AuthFederatedProviderIdCallbackPostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 		providerId: providerId,
 	}
 }
@@ -443,9 +443,9 @@ func (a *AuthenticationAPIService) CompleteSamlLoginApiV1AuthFederatedProviderId
 // Execute executes the request
 func (a *AuthenticationAPIService) CompleteSamlLoginApiV1AuthFederatedProviderIdCallbackPostExecute(r ApiCompleteSamlLoginApiV1AuthFederatedProviderIdCallbackPostRequest) (*http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
+		localVarHTTPMethod = http.MethodPost
+		localVarPostBody   interface{}
+		formFiles          []formFile
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AuthenticationAPIService.CompleteSamlLoginApiV1AuthFederatedProviderIdCallbackPost")
@@ -506,8 +506,8 @@ func (a *AuthenticationAPIService) CompleteSamlLoginApiV1AuthFederatedProviderId
 				newErr.error = err.Error()
 				return localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarHTTPResponse, newErr
 	}
@@ -516,10 +516,10 @@ func (a *AuthenticationAPIService) CompleteSamlLoginApiV1AuthFederatedProviderId
 }
 
 type ApiListAuthenticationProvidersApiV1AuthProvidersGetRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService *AuthenticationAPIService
 	identifier *string
-	tenant *string
+	tenant     *string
 }
 
 func (r ApiListAuthenticationProvidersApiV1AuthProvidersGetRequest) Identifier(identifier string) ApiListAuthenticationProvidersApiV1AuthProvidersGetRequest {
@@ -539,24 +539,25 @@ func (r ApiListAuthenticationProvidersApiV1AuthProvidersGetRequest) Execute() ([
 /*
 ListAuthenticationProvidersApiV1AuthProvidersGet List Authentication Providers
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiListAuthenticationProvidersApiV1AuthProvidersGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiListAuthenticationProvidersApiV1AuthProvidersGetRequest
 */
 func (a *AuthenticationAPIService) ListAuthenticationProvidersApiV1AuthProvidersGet(ctx context.Context) ApiListAuthenticationProvidersApiV1AuthProvidersGetRequest {
 	return ApiListAuthenticationProvidersApiV1AuthProvidersGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return []AuthenticationProviderDescriptor
+//
+//	@return []AuthenticationProviderDescriptor
 func (a *AuthenticationAPIService) ListAuthenticationProvidersApiV1AuthProvidersGetExecute(r ApiListAuthenticationProvidersApiV1AuthProvidersGetRequest) ([]AuthenticationProviderDescriptor, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  []AuthenticationProviderDescriptor
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []AuthenticationProviderDescriptor
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AuthenticationAPIService.ListAuthenticationProvidersApiV1AuthProvidersGet")
@@ -622,8 +623,8 @@ func (a *AuthenticationAPIService) ListAuthenticationProvidersApiV1AuthProviders
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -641,8 +642,8 @@ func (a *AuthenticationAPIService) ListAuthenticationProvidersApiV1AuthProviders
 }
 
 type ApiLoginApiV1AuthLoginPostRequest struct {
-	ctx context.Context
-	ApiService *AuthenticationAPIService
+	ctx          context.Context
+	ApiService   *AuthenticationAPIService
 	loginRequest *LoginRequest
 }
 
@@ -658,24 +659,25 @@ func (r ApiLoginApiV1AuthLoginPostRequest) Execute() (*LoginResponse, *http.Resp
 /*
 LoginApiV1AuthLoginPost Login
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiLoginApiV1AuthLoginPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiLoginApiV1AuthLoginPostRequest
 */
 func (a *AuthenticationAPIService) LoginApiV1AuthLoginPost(ctx context.Context) ApiLoginApiV1AuthLoginPostRequest {
 	return ApiLoginApiV1AuthLoginPostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return LoginResponse
+//
+//	@return LoginResponse
 func (a *AuthenticationAPIService) LoginApiV1AuthLoginPostExecute(r ApiLoginApiV1AuthLoginPostRequest) (*LoginResponse, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *LoginResponse
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *LoginResponse
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AuthenticationAPIService.LoginApiV1AuthLoginPost")
@@ -740,8 +742,8 @@ func (a *AuthenticationAPIService) LoginApiV1AuthLoginPostExecute(r ApiLoginApiV
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -759,10 +761,10 @@ func (a *AuthenticationAPIService) LoginApiV1AuthLoginPostExecute(r ApiLoginApiV
 }
 
 type ApiLogoutAllApiV1AuthLogoutAllPostRequest struct {
-	ctx context.Context
-	ApiService *AuthenticationAPIService
+	ctx           context.Context
+	ApiService    *AuthenticationAPIService
 	authorization *string
-	xAmeshCSRF *string
+	xAmeshCSRF    *string
 }
 
 func (r ApiLogoutAllApiV1AuthLogoutAllPostRequest) Authorization(authorization string) ApiLogoutAllApiV1AuthLogoutAllPostRequest {
@@ -782,24 +784,25 @@ func (r ApiLogoutAllApiV1AuthLogoutAllPostRequest) Execute() (*RevokedSessionsRe
 /*
 LogoutAllApiV1AuthLogoutAllPost Logout All
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiLogoutAllApiV1AuthLogoutAllPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiLogoutAllApiV1AuthLogoutAllPostRequest
 */
 func (a *AuthenticationAPIService) LogoutAllApiV1AuthLogoutAllPost(ctx context.Context) ApiLogoutAllApiV1AuthLogoutAllPostRequest {
 	return ApiLogoutAllApiV1AuthLogoutAllPostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return RevokedSessionsResponse
+//
+//	@return RevokedSessionsResponse
 func (a *AuthenticationAPIService) LogoutAllApiV1AuthLogoutAllPostExecute(r ApiLogoutAllApiV1AuthLogoutAllPostRequest) (*RevokedSessionsResponse, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *RevokedSessionsResponse
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *RevokedSessionsResponse
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AuthenticationAPIService.LogoutAllApiV1AuthLogoutAllPost")
@@ -865,8 +868,8 @@ func (a *AuthenticationAPIService) LogoutAllApiV1AuthLogoutAllPostExecute(r ApiL
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -884,10 +887,10 @@ func (a *AuthenticationAPIService) LogoutAllApiV1AuthLogoutAllPostExecute(r ApiL
 }
 
 type ApiLogoutApiV1AuthLogoutPostRequest struct {
-	ctx context.Context
-	ApiService *AuthenticationAPIService
+	ctx           context.Context
+	ApiService    *AuthenticationAPIService
 	authorization *string
-	xAmeshCSRF *string
+	xAmeshCSRF    *string
 }
 
 func (r ApiLogoutApiV1AuthLogoutPostRequest) Authorization(authorization string) ApiLogoutApiV1AuthLogoutPostRequest {
@@ -907,22 +910,22 @@ func (r ApiLogoutApiV1AuthLogoutPostRequest) Execute() (*http.Response, error) {
 /*
 LogoutApiV1AuthLogoutPost Logout
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiLogoutApiV1AuthLogoutPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiLogoutApiV1AuthLogoutPostRequest
 */
 func (a *AuthenticationAPIService) LogoutApiV1AuthLogoutPost(ctx context.Context) ApiLogoutApiV1AuthLogoutPostRequest {
 	return ApiLogoutApiV1AuthLogoutPostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
 func (a *AuthenticationAPIService) LogoutApiV1AuthLogoutPostExecute(r ApiLogoutApiV1AuthLogoutPostRequest) (*http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
+		localVarHTTPMethod = http.MethodPost
+		localVarPostBody   interface{}
+		formFiles          []formFile
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AuthenticationAPIService.LogoutApiV1AuthLogoutPost")
@@ -988,8 +991,8 @@ func (a *AuthenticationAPIService) LogoutApiV1AuthLogoutPostExecute(r ApiLogoutA
 				newErr.error = err.Error()
 				return localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarHTTPResponse, newErr
 	}
@@ -998,11 +1001,11 @@ func (a *AuthenticationAPIService) LogoutApiV1AuthLogoutPostExecute(r ApiLogoutA
 }
 
 type ApiRevokePrincipalSessionsApiV1AdminPrincipalsPrincipalIdSessionsDeleteRequest struct {
-	ctx context.Context
-	ApiService *AuthenticationAPIService
-	principalId string
+	ctx           context.Context
+	ApiService    *AuthenticationAPIService
+	principalId   string
 	authorization *string
-	xAmeshCSRF *string
+	xAmeshCSRF    *string
 }
 
 func (r ApiRevokePrincipalSessionsApiV1AdminPrincipalsPrincipalIdSessionsDeleteRequest) Authorization(authorization string) ApiRevokePrincipalSessionsApiV1AdminPrincipalsPrincipalIdSessionsDeleteRequest {
@@ -1022,26 +1025,27 @@ func (r ApiRevokePrincipalSessionsApiV1AdminPrincipalsPrincipalIdSessionsDeleteR
 /*
 RevokePrincipalSessionsApiV1AdminPrincipalsPrincipalIdSessionsDelete Revoke Principal Sessions
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param principalId
- @return ApiRevokePrincipalSessionsApiV1AdminPrincipalsPrincipalIdSessionsDeleteRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param principalId
+	@return ApiRevokePrincipalSessionsApiV1AdminPrincipalsPrincipalIdSessionsDeleteRequest
 */
 func (a *AuthenticationAPIService) RevokePrincipalSessionsApiV1AdminPrincipalsPrincipalIdSessionsDelete(ctx context.Context, principalId string) ApiRevokePrincipalSessionsApiV1AdminPrincipalsPrincipalIdSessionsDeleteRequest {
 	return ApiRevokePrincipalSessionsApiV1AdminPrincipalsPrincipalIdSessionsDeleteRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:  a,
+		ctx:         ctx,
 		principalId: principalId,
 	}
 }
 
 // Execute executes the request
-//  @return RevokedSessionsResponse
+//
+//	@return RevokedSessionsResponse
 func (a *AuthenticationAPIService) RevokePrincipalSessionsApiV1AdminPrincipalsPrincipalIdSessionsDeleteExecute(r ApiRevokePrincipalSessionsApiV1AdminPrincipalsPrincipalIdSessionsDeleteRequest) (*RevokedSessionsResponse, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodDelete
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *RevokedSessionsResponse
+		localVarHTTPMethod  = http.MethodDelete
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *RevokedSessionsResponse
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AuthenticationAPIService.RevokePrincipalSessionsApiV1AdminPrincipalsPrincipalIdSessionsDelete")
@@ -1108,8 +1112,8 @@ func (a *AuthenticationAPIService) RevokePrincipalSessionsApiV1AdminPrincipalsPr
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1127,7 +1131,7 @@ func (a *AuthenticationAPIService) RevokePrincipalSessionsApiV1AdminPrincipalsPr
 }
 
 type ApiSamlServiceProviderMetadataApiV1AuthFederatedProviderIdSamlMetadataGetRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService *AuthenticationAPIService
 	providerId string
 }
@@ -1139,26 +1143,27 @@ func (r ApiSamlServiceProviderMetadataApiV1AuthFederatedProviderIdSamlMetadataGe
 /*
 SamlServiceProviderMetadataApiV1AuthFederatedProviderIdSamlMetadataGet Saml Service Provider Metadata
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param providerId
- @return ApiSamlServiceProviderMetadataApiV1AuthFederatedProviderIdSamlMetadataGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param providerId
+	@return ApiSamlServiceProviderMetadataApiV1AuthFederatedProviderIdSamlMetadataGetRequest
 */
 func (a *AuthenticationAPIService) SamlServiceProviderMetadataApiV1AuthFederatedProviderIdSamlMetadataGet(ctx context.Context, providerId string) ApiSamlServiceProviderMetadataApiV1AuthFederatedProviderIdSamlMetadataGetRequest {
 	return ApiSamlServiceProviderMetadataApiV1AuthFederatedProviderIdSamlMetadataGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 		providerId: providerId,
 	}
 }
 
 // Execute executes the request
-//  @return string
+//
+//	@return string
 func (a *AuthenticationAPIService) SamlServiceProviderMetadataApiV1AuthFederatedProviderIdSamlMetadataGetExecute(r ApiSamlServiceProviderMetadataApiV1AuthFederatedProviderIdSamlMetadataGetRequest) (string, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  string
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue string
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AuthenticationAPIService.SamlServiceProviderMetadataApiV1AuthFederatedProviderIdSamlMetadataGet")
@@ -1219,8 +1224,8 @@ func (a *AuthenticationAPIService) SamlServiceProviderMetadataApiV1AuthFederated
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1238,12 +1243,12 @@ func (a *AuthenticationAPIService) SamlServiceProviderMetadataApiV1AuthFederated
 }
 
 type ApiSetLocalPasswordApiV1AdminPrincipalsPrincipalIdLocalPasswordPutRequest struct {
-	ctx context.Context
-	ApiService *AuthenticationAPIService
-	principalId string
+	ctx                     context.Context
+	ApiService              *AuthenticationAPIService
+	principalId             string
 	setLocalPasswordRequest *SetLocalPasswordRequest
-	authorization *string
-	xAmeshCSRF *string
+	authorization           *string
+	xAmeshCSRF              *string
 }
 
 func (r ApiSetLocalPasswordApiV1AdminPrincipalsPrincipalIdLocalPasswordPutRequest) SetLocalPasswordRequest(setLocalPasswordRequest SetLocalPasswordRequest) ApiSetLocalPasswordApiV1AdminPrincipalsPrincipalIdLocalPasswordPutRequest {
@@ -1268,26 +1273,27 @@ func (r ApiSetLocalPasswordApiV1AdminPrincipalsPrincipalIdLocalPasswordPutReques
 /*
 SetLocalPasswordApiV1AdminPrincipalsPrincipalIdLocalPasswordPut Set Local Password
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param principalId
- @return ApiSetLocalPasswordApiV1AdminPrincipalsPrincipalIdLocalPasswordPutRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param principalId
+	@return ApiSetLocalPasswordApiV1AdminPrincipalsPrincipalIdLocalPasswordPutRequest
 */
 func (a *AuthenticationAPIService) SetLocalPasswordApiV1AdminPrincipalsPrincipalIdLocalPasswordPut(ctx context.Context, principalId string) ApiSetLocalPasswordApiV1AdminPrincipalsPrincipalIdLocalPasswordPutRequest {
 	return ApiSetLocalPasswordApiV1AdminPrincipalsPrincipalIdLocalPasswordPutRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:  a,
+		ctx:         ctx,
 		principalId: principalId,
 	}
 }
 
 // Execute executes the request
-//  @return RevokedSessionsResponse
+//
+//	@return RevokedSessionsResponse
 func (a *AuthenticationAPIService) SetLocalPasswordApiV1AdminPrincipalsPrincipalIdLocalPasswordPutExecute(r ApiSetLocalPasswordApiV1AdminPrincipalsPrincipalIdLocalPasswordPutRequest) (*RevokedSessionsResponse, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPut
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *RevokedSessionsResponse
+		localVarHTTPMethod  = http.MethodPut
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *RevokedSessionsResponse
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AuthenticationAPIService.SetLocalPasswordApiV1AdminPrincipalsPrincipalIdLocalPasswordPut")
@@ -1359,8 +1365,8 @@ func (a *AuthenticationAPIService) SetLocalPasswordApiV1AdminPrincipalsPrincipal
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}

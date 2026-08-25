@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,14 +21,14 @@ var _ MappedNullable = &UiSessionResponse{}
 
 // UiSessionResponse struct for UiSessionResponse
 type UiSessionResponse struct {
-	Capabilities map[string]bool `json:"capabilities"`
-	Display string `json:"display"`
-	Namespace NullableString `json:"namespace,omitempty"`
-	PrincipalId string `json:"principalId"`
-	PrincipalType PrincipalType `json:"principalType"`
-	ServerVersion string `json:"serverVersion"`
-	TelemetryEnabled bool `json:"telemetryEnabled"`
-	TenantId string `json:"tenantId"`
+	Capabilities     map[string]bool `json:"capabilities"`
+	Display          string          `json:"display"`
+	Namespace        NullableString  `json:"namespace,omitempty"`
+	PrincipalId      string          `json:"principalId"`
+	PrincipalType    PrincipalType   `json:"principalType"`
+	ServerVersion    string          `json:"serverVersion"`
+	TelemetryEnabled bool            `json:"telemetryEnabled"`
+	TenantId         string          `json:"tenantId"`
 }
 
 type _UiSessionResponse UiSessionResponse
@@ -137,6 +137,7 @@ func (o *UiSessionResponse) HasNamespace() bool {
 func (o *UiSessionResponse) SetNamespace(v string) {
 	o.Namespace.Set(&v)
 }
+
 // SetNamespaceNil sets the value for Namespace to be an explicit nil
 func (o *UiSessionResponse) SetNamespaceNil() {
 	o.Namespace.Set(nil)
@@ -268,7 +269,7 @@ func (o *UiSessionResponse) SetTenantId(v string) {
 }
 
 func (o UiSessionResponse) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -309,10 +310,10 @@ func (o *UiSessionResponse) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

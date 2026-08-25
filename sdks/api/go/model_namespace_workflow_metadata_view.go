@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,8 +21,8 @@ var _ MappedNullable = &NamespaceWorkflowMetadataView{}
 
 // NamespaceWorkflowMetadataView struct for NamespaceWorkflowMetadataView
 type NamespaceWorkflowMetadataView struct {
-	Lineage []NamespaceWorkflowMetadata `json:"lineage"`
-	Namespace string `json:"namespace"`
+	Lineage   []NamespaceWorkflowMetadata `json:"lineage"`
+	Namespace string                      `json:"namespace"`
 }
 
 type _NamespaceWorkflowMetadataView NamespaceWorkflowMetadataView
@@ -95,7 +95,7 @@ func (o *NamespaceWorkflowMetadataView) SetNamespace(v string) {
 }
 
 func (o NamespaceWorkflowMetadataView) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -123,10 +123,10 @@ func (o *NamespaceWorkflowMetadataView) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,15 +21,15 @@ var _ MappedNullable = &FlowTestDefinitionCreateRequest{}
 
 // FlowTestDefinitionCreateRequest struct for FlowTestDefinitionCreateRequest
 type FlowTestDefinitionCreateRequest struct {
-	Expected *FlowTestExpectation `json:"expected,omitempty"`
-	ExpectedVersion NullableInt32 `json:"expectedVersion,omitempty"`
-	Fixtures map[string]FlowTestFixture `json:"fixtures,omitempty"`
-	Inputs map[string]interface{} `json:"inputs,omitempty"`
-	Name string `json:"name"`
-	Revision int32 `json:"revision"`
-	Tags []string `json:"tags,omitempty"`
-	TestId string `json:"testId" validate:"regexp=^[a-zA-Z0-9][a-zA-Z0-9._-]*$"`
-	Variables map[string]interface{} `json:"variables,omitempty"`
+	Expected        *FlowTestExpectation       `json:"expected,omitempty"`
+	ExpectedVersion NullableInt32              `json:"expectedVersion,omitempty"`
+	Fixtures        map[string]FlowTestFixture `json:"fixtures,omitempty"`
+	Inputs          map[string]interface{}     `json:"inputs,omitempty"`
+	Name            string                     `json:"name"`
+	Revision        int32                      `json:"revision"`
+	Tags            []string                   `json:"tags,omitempty"`
+	TestId          string                     `json:"testId" validate:"regexp=^[a-zA-Z0-9][a-zA-Z0-9._-]*$"`
+	Variables       map[string]interface{}     `json:"variables,omitempty"`
 }
 
 type _FlowTestDefinitionCreateRequest FlowTestDefinitionCreateRequest
@@ -118,6 +118,7 @@ func (o *FlowTestDefinitionCreateRequest) HasExpectedVersion() bool {
 func (o *FlowTestDefinitionCreateRequest) SetExpectedVersion(v int32) {
 	o.ExpectedVersion.Set(&v)
 }
+
 // SetExpectedVersionNil sets the value for ExpectedVersion to be an explicit nil
 func (o *FlowTestDefinitionCreateRequest) SetExpectedVersionNil() {
 	o.ExpectedVersion.Set(nil)
@@ -329,7 +330,7 @@ func (o *FlowTestDefinitionCreateRequest) SetVariables(v map[string]interface{})
 }
 
 func (o FlowTestDefinitionCreateRequest) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -377,10 +378,10 @@ func (o *FlowTestDefinitionCreateRequest) UnmarshalJSON(data []byte) (err error)
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

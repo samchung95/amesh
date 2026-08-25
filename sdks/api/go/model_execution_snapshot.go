@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the ExecutionSnapshot type satisfies the MappedNullable interface at compile time
@@ -22,17 +22,17 @@ var _ MappedNullable = &ExecutionSnapshot{}
 
 // ExecutionSnapshot struct for ExecutionSnapshot
 type ExecutionSnapshot struct {
-	AppliedEventIds []string `json:"applied_event_ids,omitempty"`
-	AppliedIdempotencyKeys []string `json:"applied_idempotency_keys,omitempty"`
-	Epoch *int32 `json:"epoch,omitempty"`
-	ExecutionId string `json:"execution_id"`
-	FlowId string `json:"flow_id"`
-	FlowRevision int32 `json:"flow_revision"`
-	LastEventAt NullableTime `json:"last_event_at,omitempty"`
-	Namespace string `json:"namespace"`
-	State *ExecutionState `json:"state,omitempty"`
-	TenantId string `json:"tenant_id"`
-	Version *int32 `json:"version,omitempty"`
+	AppliedEventIds        []string        `json:"applied_event_ids,omitempty"`
+	AppliedIdempotencyKeys []string        `json:"applied_idempotency_keys,omitempty"`
+	Epoch                  *int32          `json:"epoch,omitempty"`
+	ExecutionId            string          `json:"execution_id"`
+	FlowId                 string          `json:"flow_id"`
+	FlowRevision           int32           `json:"flow_revision"`
+	LastEventAt            NullableTime    `json:"last_event_at,omitempty"`
+	Namespace              string          `json:"namespace"`
+	State                  *ExecutionState `json:"state,omitempty"`
+	TenantId               string          `json:"tenant_id"`
+	Version                *int32          `json:"version,omitempty"`
 }
 
 type _ExecutionSnapshot ExecutionSnapshot
@@ -271,6 +271,7 @@ func (o *ExecutionSnapshot) HasLastEventAt() bool {
 func (o *ExecutionSnapshot) SetLastEventAt(v time.Time) {
 	o.LastEventAt.Set(&v)
 }
+
 // SetLastEventAtNil sets the value for LastEventAt to be an explicit nil
 func (o *ExecutionSnapshot) SetLastEventAtNil() {
 	o.LastEventAt.Set(nil)
@@ -394,7 +395,7 @@ func (o *ExecutionSnapshot) SetVersion(v int32) {
 }
 
 func (o ExecutionSnapshot) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -446,10 +447,10 @@ func (o *ExecutionSnapshot) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

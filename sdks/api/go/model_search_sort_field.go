@@ -20,12 +20,12 @@ type SearchSortField string
 
 // List of SearchSortField
 const (
-	SEARCHSORTFIELD_RELEVANCE SearchSortField = "RELEVANCE"
-	SEARCHSORTFIELD_TITLE SearchSortField = "TITLE"
+	SEARCHSORTFIELD_RELEVANCE   SearchSortField = "RELEVANCE"
+	SEARCHSORTFIELD_TITLE       SearchSortField = "TITLE"
 	SEARCHSORTFIELD_OCCURRED_AT SearchSortField = "OCCURRED_AT"
-	SEARCHSORTFIELD_UPDATED_AT SearchSortField = "UPDATED_AT"
-	SEARCHSORTFIELD_TYPE SearchSortField = "TYPE"
-	SEARCHSORTFIELD_STATE SearchSortField = "STATE"
+	SEARCHSORTFIELD_UPDATED_AT  SearchSortField = "UPDATED_AT"
+	SEARCHSORTFIELD_TYPE        SearchSortField = "TYPE"
+	SEARCHSORTFIELD_STATE       SearchSortField = "STATE"
 )
 
 // All allowed values of SearchSortField enum

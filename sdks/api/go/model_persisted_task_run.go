@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the PersistedTaskRun type satisfies the MappedNullable interface at compile time
@@ -22,19 +22,19 @@ var _ MappedNullable = &PersistedTaskRun{}
 
 // PersistedTaskRun struct for PersistedTaskRun
 type PersistedTaskRun struct {
-	CurrentAttempt int32 `json:"current_attempt"`
-	Evidence map[string]interface{} `json:"evidence,omitempty"`
-	ExecutionId string `json:"execution_id"`
+	CurrentAttempt  int32                   `json:"current_attempt"`
+	Evidence        map[string]interface{}  `json:"evidence,omitempty"`
+	ExecutionId     string                  `json:"execution_id"`
 	FailureCategory NullableFailureCategory `json:"failure_category,omitempty"`
-	IterationKey NullableString `json:"iteration_key,omitempty"`
-	Labels map[string]string `json:"labels,omitempty"`
-	LifecyclePhase *TaskRunLifecyclePhase `json:"lifecycle_phase,omitempty"`
-	Result map[string]interface{} `json:"result,omitempty"`
-	RetryAt NullableTime `json:"retry_at,omitempty"`
-	State TaskRunState `json:"state"`
-	TaskId string `json:"task_id"`
-	TaskRunId string `json:"task_run_id"`
-	Version int32 `json:"version"`
+	IterationKey    NullableString          `json:"iteration_key,omitempty"`
+	Labels          map[string]string       `json:"labels,omitempty"`
+	LifecyclePhase  *TaskRunLifecyclePhase  `json:"lifecycle_phase,omitempty"`
+	Result          map[string]interface{}  `json:"result,omitempty"`
+	RetryAt         NullableTime            `json:"retry_at,omitempty"`
+	State           TaskRunState            `json:"state"`
+	TaskId          string                  `json:"task_id"`
+	TaskRunId       string                  `json:"task_run_id"`
+	Version         int32                   `json:"version"`
 }
 
 type _PersistedTaskRun PersistedTaskRun
@@ -178,6 +178,7 @@ func (o *PersistedTaskRun) HasFailureCategory() bool {
 func (o *PersistedTaskRun) SetFailureCategory(v FailureCategory) {
 	o.FailureCategory.Set(&v)
 }
+
 // SetFailureCategoryNil sets the value for FailureCategory to be an explicit nil
 func (o *PersistedTaskRun) SetFailureCategoryNil() {
 	o.FailureCategory.Set(nil)
@@ -220,6 +221,7 @@ func (o *PersistedTaskRun) HasIterationKey() bool {
 func (o *PersistedTaskRun) SetIterationKey(v string) {
 	o.IterationKey.Set(&v)
 }
+
 // SetIterationKeyNil sets the value for IterationKey to be an explicit nil
 func (o *PersistedTaskRun) SetIterationKeyNil() {
 	o.IterationKey.Set(nil)
@@ -359,6 +361,7 @@ func (o *PersistedTaskRun) HasRetryAt() bool {
 func (o *PersistedTaskRun) SetRetryAt(v time.Time) {
 	o.RetryAt.Set(&v)
 }
+
 // SetRetryAtNil sets the value for RetryAt to be an explicit nil
 func (o *PersistedTaskRun) SetRetryAtNil() {
 	o.RetryAt.Set(nil)
@@ -466,7 +469,7 @@ func (o *PersistedTaskRun) SetVersion(v int32) {
 }
 
 func (o PersistedTaskRun) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -523,10 +526,10 @@ func (o *PersistedTaskRun) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

@@ -13,7 +13,15 @@ from sqlalchemy.ext.asyncio import create_async_engine
 
 from amesh.adapters.postgres import PostgresExecutionRepository
 from amesh.config import IsolatedPluginServiceConfig, Settings, TrustedPluginApproval
-from amesh.domain import FailureCategory
+from amesh.domain import (
+    FailureCategory,
+    ToolDescriptor,
+    ToolImpact,
+    ToolInvocationRequest,
+    ToolPolicy,
+    ToolProviderKind,
+    ToolProviderRef,
+)
 from amesh.dsl import FlowDefinition, TaskDefinition
 from amesh.executor import (
     InProcessExecutor,
@@ -34,6 +42,7 @@ from amesh.plugin_sdk import (
     PluginSourceKind,
 )
 from amesh.plugins import IsolatedPluginRuntime, IsolatedPluginState, build_isolated_runtime
+from amesh.tasks import GovernedToolInvoker, InMemoryToolInvocationJournal
 
 TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
 MIGRATIONS = Path(__file__).resolve().parents[2] / "migrations"
@@ -270,6 +279,39 @@ def test_isolated_process_negotiates_capabilities_and_records_evidence(tmp_path:
         assert status.starts == 1
         assert status.completed == 1
         assert status.last_pid is not None
+
+    asyncio.run(scenario())
+
+
+def test_tool_provider_binding_uses_isolated_rpc_runtime(tmp_path: Path) -> None:
+    runtime, _, _, _ = _runtime(tmp_path)
+    identity = ToolProviderRef(kind=ToolProviderKind.PLUGIN, key="vendor.isolated", revision=1)
+    descriptor = ToolDescriptor(
+        provider=identity,
+        name="main",
+        inputSchema={
+            "type": "object",
+            "properties": {"message": {"type": "string"}},
+            "required": ["message"],
+            "additionalProperties": False,
+        },
+        impact=ToolImpact.HIGH_IMPACT,
+    )
+
+    async def scenario() -> None:
+        await runtime.ensure_configured()
+        provider = runtime.tool_provider(identity, (descriptor,))
+        result = await GovernedToolInvoker(provider, InMemoryToolInvocationJournal()).invoke(
+            ToolInvocationRequest(
+                provider=identity,
+                toolName="main",
+                arguments={"message": "bound"},
+                allowWrite=True,
+                approvalGranted=True,
+            ),
+            ToolPolicy(allowedTools=("main",), allowHighImpact=True),
+        )
+        assert result.output["message"] == "bound"
 
     asyncio.run(scenario())
 

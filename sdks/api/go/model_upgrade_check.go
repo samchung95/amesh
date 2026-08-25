@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,12 +21,12 @@ var _ MappedNullable = &UpgradeCheck{}
 
 // UpgradeCheck struct for UpgradeCheck
 type UpgradeCheck struct {
-	Category string `json:"category"`
-	Detail string `json:"detail"`
-	Evidence map[string]interface{} `json:"evidence,omitempty"`
-	Name string `json:"name"`
-	Remediation NullableString `json:"remediation,omitempty"`
-	Status UpgradeCheckStatus `json:"status"`
+	Category    string                 `json:"category"`
+	Detail      string                 `json:"detail"`
+	Evidence    map[string]interface{} `json:"evidence,omitempty"`
+	Name        string                 `json:"name"`
+	Remediation NullableString         `json:"remediation,omitempty"`
+	Status      UpgradeCheckStatus     `json:"status"`
 }
 
 type _UpgradeCheck UpgradeCheck
@@ -188,6 +188,7 @@ func (o *UpgradeCheck) HasRemediation() bool {
 func (o *UpgradeCheck) SetRemediation(v string) {
 	o.Remediation.Set(&v)
 }
+
 // SetRemediationNil sets the value for Remediation to be an explicit nil
 func (o *UpgradeCheck) SetRemediationNil() {
 	o.Remediation.Set(nil)
@@ -223,7 +224,7 @@ func (o *UpgradeCheck) SetStatus(v UpgradeCheckStatus) {
 }
 
 func (o UpgradeCheck) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -261,10 +262,10 @@ func (o *UpgradeCheck) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

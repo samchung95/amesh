@@ -47,6 +47,7 @@ class CompatibilityApi:
         kestra_execution_request: KestraExecutionRequest,
         prefer: Optional[StrictStr] = None,
         idempotency_key: Optional[StrictStr] = None,
+        x_correlation_id: Optional[StrictStr] = None,
         authorization: Optional[StrictStr] = None,
         x_amesh_csrf: Optional[StrictStr] = None,
         x_amesh_tenant: Optional[StrictStr] = None,
@@ -76,6 +77,8 @@ class CompatibilityApi:
         :type prefer: str
         :param idempotency_key:
         :type idempotency_key: str
+        :param x_correlation_id:
+        :type x_correlation_id: str
         :param authorization:
         :type authorization: str
         :param x_amesh_csrf:
@@ -110,6 +113,7 @@ class CompatibilityApi:
             kestra_execution_request=kestra_execution_request,
             prefer=prefer,
             idempotency_key=idempotency_key,
+            x_correlation_id=x_correlation_id,
             authorization=authorization,
             x_amesh_csrf=x_amesh_csrf,
             x_amesh_tenant=x_amesh_tenant,
@@ -143,6 +147,7 @@ class CompatibilityApi:
         kestra_execution_request: KestraExecutionRequest,
         prefer: Optional[StrictStr] = None,
         idempotency_key: Optional[StrictStr] = None,
+        x_correlation_id: Optional[StrictStr] = None,
         authorization: Optional[StrictStr] = None,
         x_amesh_csrf: Optional[StrictStr] = None,
         x_amesh_tenant: Optional[StrictStr] = None,
@@ -172,6 +177,8 @@ class CompatibilityApi:
         :type prefer: str
         :param idempotency_key:
         :type idempotency_key: str
+        :param x_correlation_id:
+        :type x_correlation_id: str
         :param authorization:
         :type authorization: str
         :param x_amesh_csrf:
@@ -206,6 +213,7 @@ class CompatibilityApi:
             kestra_execution_request=kestra_execution_request,
             prefer=prefer,
             idempotency_key=idempotency_key,
+            x_correlation_id=x_correlation_id,
             authorization=authorization,
             x_amesh_csrf=x_amesh_csrf,
             x_amesh_tenant=x_amesh_tenant,
@@ -239,6 +247,7 @@ class CompatibilityApi:
         kestra_execution_request: KestraExecutionRequest,
         prefer: Optional[StrictStr] = None,
         idempotency_key: Optional[StrictStr] = None,
+        x_correlation_id: Optional[StrictStr] = None,
         authorization: Optional[StrictStr] = None,
         x_amesh_csrf: Optional[StrictStr] = None,
         x_amesh_tenant: Optional[StrictStr] = None,
@@ -268,6 +277,8 @@ class CompatibilityApi:
         :type prefer: str
         :param idempotency_key:
         :type idempotency_key: str
+        :param x_correlation_id:
+        :type x_correlation_id: str
         :param authorization:
         :type authorization: str
         :param x_amesh_csrf:
@@ -302,6 +313,7 @@ class CompatibilityApi:
             kestra_execution_request=kestra_execution_request,
             prefer=prefer,
             idempotency_key=idempotency_key,
+            x_correlation_id=x_correlation_id,
             authorization=authorization,
             x_amesh_csrf=x_amesh_csrf,
             x_amesh_tenant=x_amesh_tenant,
@@ -330,6 +342,7 @@ class CompatibilityApi:
         kestra_execution_request,
         prefer,
         idempotency_key,
+        x_correlation_id,
         authorization,
         x_amesh_csrf,
         x_amesh_tenant,
@@ -364,6 +377,8 @@ class CompatibilityApi:
             _header_params['Prefer'] = prefer
         if idempotency_key is not None:
             _header_params['Idempotency-Key'] = idempotency_key
+        if x_correlation_id is not None:
+            _header_params['X-Correlation-ID'] = x_correlation_id
         if authorization is not None:
             _header_params['authorization'] = authorization
         if x_amesh_csrf is not None:

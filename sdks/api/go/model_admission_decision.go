@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the AdmissionDecision type satisfies the MappedNullable interface at compile time
@@ -22,23 +22,23 @@ var _ MappedNullable = &AdmissionDecision{}
 
 // AdmissionDecision struct for AdmissionDecision
 type AdmissionDecision struct {
-	ActiveCount *int32 `json:"active_count,omitempty"`
-	AdmittedAt NullableTime `json:"admitted_at,omitempty"`
-	CreatedAt time.Time `json:"created_at"`
-	Limit NullableInt32 `json:"limit,omitempty"`
-	LimitingBucket NullableString `json:"limiting_bucket,omitempty"`
-	LimitingPolicyId NullableString `json:"limiting_policy_id,omitempty"`
-	LimitingScope NullableAdmissionScope `json:"limiting_scope,omitempty"`
-	Outcome AdmissionOutcome `json:"outcome"`
-	Priority *int32 `json:"priority,omitempty"`
-	QueueAgeSeconds *float32 `json:"queue_age_seconds,omitempty"`
-	QueuePosition NullableInt32 `json:"queue_position,omitempty"`
-	Reason string `json:"reason"`
-	ReleasedAt NullableTime `json:"released_at,omitempty"`
-	ReplacedResourceId NullableString `json:"replaced_resource_id,omitempty"`
-	RequestId string `json:"request_id"`
-	ResourceId string `json:"resource_id"`
-	ResourceType AdmissionResourceType `json:"resource_type"`
+	ActiveCount        *int32                 `json:"active_count,omitempty"`
+	AdmittedAt         NullableTime           `json:"admitted_at,omitempty"`
+	CreatedAt          time.Time              `json:"created_at"`
+	Limit              NullableInt32          `json:"limit,omitempty"`
+	LimitingBucket     NullableString         `json:"limiting_bucket,omitempty"`
+	LimitingPolicyId   NullableString         `json:"limiting_policy_id,omitempty"`
+	LimitingScope      NullableAdmissionScope `json:"limiting_scope,omitempty"`
+	Outcome            AdmissionOutcome       `json:"outcome"`
+	Priority           *int32                 `json:"priority,omitempty"`
+	QueueAgeSeconds    *float32               `json:"queue_age_seconds,omitempty"`
+	QueuePosition      NullableInt32          `json:"queue_position,omitempty"`
+	Reason             string                 `json:"reason"`
+	ReleasedAt         NullableTime           `json:"released_at,omitempty"`
+	ReplacedResourceId NullableString         `json:"replaced_resource_id,omitempty"`
+	RequestId          string                 `json:"request_id"`
+	ResourceId         string                 `json:"resource_id"`
+	ResourceType       AdmissionResourceType  `json:"resource_type"`
 }
 
 type _AdmissionDecision AdmissionDecision
@@ -142,6 +142,7 @@ func (o *AdmissionDecision) HasAdmittedAt() bool {
 func (o *AdmissionDecision) SetAdmittedAt(v time.Time) {
 	o.AdmittedAt.Set(&v)
 }
+
 // SetAdmittedAtNil sets the value for AdmittedAt to be an explicit nil
 func (o *AdmissionDecision) SetAdmittedAtNil() {
 	o.AdmittedAt.Set(nil)
@@ -208,6 +209,7 @@ func (o *AdmissionDecision) HasLimit() bool {
 func (o *AdmissionDecision) SetLimit(v int32) {
 	o.Limit.Set(&v)
 }
+
 // SetLimitNil sets the value for Limit to be an explicit nil
 func (o *AdmissionDecision) SetLimitNil() {
 	o.Limit.Set(nil)
@@ -250,6 +252,7 @@ func (o *AdmissionDecision) HasLimitingBucket() bool {
 func (o *AdmissionDecision) SetLimitingBucket(v string) {
 	o.LimitingBucket.Set(&v)
 }
+
 // SetLimitingBucketNil sets the value for LimitingBucket to be an explicit nil
 func (o *AdmissionDecision) SetLimitingBucketNil() {
 	o.LimitingBucket.Set(nil)
@@ -292,6 +295,7 @@ func (o *AdmissionDecision) HasLimitingPolicyId() bool {
 func (o *AdmissionDecision) SetLimitingPolicyId(v string) {
 	o.LimitingPolicyId.Set(&v)
 }
+
 // SetLimitingPolicyIdNil sets the value for LimitingPolicyId to be an explicit nil
 func (o *AdmissionDecision) SetLimitingPolicyIdNil() {
 	o.LimitingPolicyId.Set(nil)
@@ -334,6 +338,7 @@ func (o *AdmissionDecision) HasLimitingScope() bool {
 func (o *AdmissionDecision) SetLimitingScope(v AdmissionScope) {
 	o.LimitingScope.Set(&v)
 }
+
 // SetLimitingScopeNil sets the value for LimitingScope to be an explicit nil
 func (o *AdmissionDecision) SetLimitingScopeNil() {
 	o.LimitingScope.Set(nil)
@@ -464,6 +469,7 @@ func (o *AdmissionDecision) HasQueuePosition() bool {
 func (o *AdmissionDecision) SetQueuePosition(v int32) {
 	o.QueuePosition.Set(&v)
 }
+
 // SetQueuePositionNil sets the value for QueuePosition to be an explicit nil
 func (o *AdmissionDecision) SetQueuePositionNil() {
 	o.QueuePosition.Set(nil)
@@ -530,6 +536,7 @@ func (o *AdmissionDecision) HasReleasedAt() bool {
 func (o *AdmissionDecision) SetReleasedAt(v time.Time) {
 	o.ReleasedAt.Set(&v)
 }
+
 // SetReleasedAtNil sets the value for ReleasedAt to be an explicit nil
 func (o *AdmissionDecision) SetReleasedAtNil() {
 	o.ReleasedAt.Set(nil)
@@ -572,6 +579,7 @@ func (o *AdmissionDecision) HasReplacedResourceId() bool {
 func (o *AdmissionDecision) SetReplacedResourceId(v string) {
 	o.ReplacedResourceId.Set(&v)
 }
+
 // SetReplacedResourceIdNil sets the value for ReplacedResourceId to be an explicit nil
 func (o *AdmissionDecision) SetReplacedResourceIdNil() {
 	o.ReplacedResourceId.Set(nil)
@@ -655,7 +663,7 @@ func (o *AdmissionDecision) SetResourceType(v AdmissionResourceType) {
 }
 
 func (o AdmissionDecision) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -724,10 +732,10 @@ func (o *AdmissionDecision) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

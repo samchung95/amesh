@@ -20,13 +20,13 @@ var _ MappedNullable = &CheckActionDefinition{}
 
 // CheckActionDefinition struct for CheckActionDefinition
 type CheckActionDefinition struct {
-	Channel NullableString `json:"channel,omitempty"`
-	FlowId NullableString `json:"flowId,omitempty" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
-	MaxAttempts *int32 `json:"maxAttempts,omitempty"`
-	MaxDepth *int32 `json:"maxDepth,omitempty"`
-	Namespace NullableString `json:"namespace,omitempty"`
-	Payload map[string]interface{} `json:"payload,omitempty"`
-	Type string `json:"type"`
+	Channel              NullableString         `json:"channel,omitempty"`
+	FlowId               NullableString         `json:"flowId,omitempty" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
+	MaxAttempts          *int32                 `json:"maxAttempts,omitempty"`
+	MaxDepth             *int32                 `json:"maxDepth,omitempty"`
+	Namespace            NullableString         `json:"namespace,omitempty"`
+	Payload              map[string]interface{} `json:"payload,omitempty"`
+	Type                 string                 `json:"type"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -90,6 +90,7 @@ func (o *CheckActionDefinition) HasChannel() bool {
 func (o *CheckActionDefinition) SetChannel(v string) {
 	o.Channel.Set(&v)
 }
+
 // SetChannelNil sets the value for Channel to be an explicit nil
 func (o *CheckActionDefinition) SetChannelNil() {
 	o.Channel.Set(nil)
@@ -132,6 +133,7 @@ func (o *CheckActionDefinition) HasFlowId() bool {
 func (o *CheckActionDefinition) SetFlowId(v string) {
 	o.FlowId.Set(&v)
 }
+
 // SetFlowIdNil sets the value for FlowId to be an explicit nil
 func (o *CheckActionDefinition) SetFlowIdNil() {
 	o.FlowId.Set(nil)
@@ -238,6 +240,7 @@ func (o *CheckActionDefinition) HasNamespace() bool {
 func (o *CheckActionDefinition) SetNamespace(v string) {
 	o.Namespace.Set(&v)
 }
+
 // SetNamespaceNil sets the value for Namespace to be an explicit nil
 func (o *CheckActionDefinition) SetNamespaceNil() {
 	o.Namespace.Set(nil)
@@ -305,7 +308,7 @@ func (o *CheckActionDefinition) SetType(v string) {
 }
 
 func (o CheckActionDefinition) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -354,10 +357,10 @@ func (o *CheckActionDefinition) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

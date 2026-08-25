@@ -19,19 +19,18 @@ import (
 	"strings"
 )
 
-
 // NamespaceResourcesAPIService NamespaceResourcesAPI service
 type NamespaceResourcesAPIService service
 
 type ApiDeleteNamespaceFileApiV1NamespacesNamespaceFilesPathDeleteRequest struct {
-	ctx context.Context
-	ApiService *NamespaceResourcesAPIService
-	namespace string
-	path string
+	ctx             context.Context
+	ApiService      *NamespaceResourcesAPIService
+	namespace       string
+	path            string
 	expectedVersion *int32
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization   *string
+	xAmeshCSRF      *string
+	xAmeshTenant    *string
 }
 
 func (r ApiDeleteNamespaceFileApiV1NamespacesNamespaceFilesPathDeleteRequest) ExpectedVersion(expectedVersion int32) ApiDeleteNamespaceFileApiV1NamespacesNamespaceFilesPathDeleteRequest {
@@ -61,28 +60,29 @@ func (r ApiDeleteNamespaceFileApiV1NamespacesNamespaceFilesPathDeleteRequest) Ex
 /*
 DeleteNamespaceFileApiV1NamespacesNamespaceFilesPathDelete Delete Namespace File
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param namespace
- @param path
- @return ApiDeleteNamespaceFileApiV1NamespacesNamespaceFilesPathDeleteRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param namespace
+	@param path
+	@return ApiDeleteNamespaceFileApiV1NamespacesNamespaceFilesPathDeleteRequest
 */
 func (a *NamespaceResourcesAPIService) DeleteNamespaceFileApiV1NamespacesNamespaceFilesPathDelete(ctx context.Context, namespace string, path string) ApiDeleteNamespaceFileApiV1NamespacesNamespaceFilesPathDeleteRequest {
 	return ApiDeleteNamespaceFileApiV1NamespacesNamespaceFilesPathDeleteRequest{
 		ApiService: a,
-		ctx: ctx,
-		namespace: namespace,
-		path: path,
+		ctx:        ctx,
+		namespace:  namespace,
+		path:       path,
 	}
 }
 
 // Execute executes the request
-//  @return map[string]int32
+//
+//	@return map[string]int32
 func (a *NamespaceResourcesAPIService) DeleteNamespaceFileApiV1NamespacesNamespaceFilesPathDeleteExecute(r ApiDeleteNamespaceFileApiV1NamespacesNamespaceFilesPathDeleteRequest) (map[string]int32, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodDelete
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  map[string]int32
+		localVarHTTPMethod  = http.MethodDelete
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue map[string]int32
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "NamespaceResourcesAPIService.DeleteNamespaceFileApiV1NamespacesNamespaceFilesPathDelete")
@@ -156,8 +156,8 @@ func (a *NamespaceResourcesAPIService) DeleteNamespaceFileApiV1NamespacesNamespa
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -175,14 +175,14 @@ func (a *NamespaceResourcesAPIService) DeleteNamespaceFileApiV1NamespacesNamespa
 }
 
 type ApiDeleteNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyDeleteRequest struct {
-	ctx context.Context
-	ApiService *NamespaceResourcesAPIService
-	namespace string
-	key string
+	ctx             context.Context
+	ApiService      *NamespaceResourcesAPIService
+	namespace       string
+	key             string
 	expectedVersion *int32
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization   *string
+	xAmeshCSRF      *string
+	xAmeshTenant    *string
 }
 
 func (r ApiDeleteNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyDeleteRequest) ExpectedVersion(expectedVersion int32) ApiDeleteNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyDeleteRequest {
@@ -212,28 +212,29 @@ func (r ApiDeleteNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyDeleteRequ
 /*
 DeleteNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyDelete Delete Namespace Key Value
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param namespace
- @param key
- @return ApiDeleteNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyDeleteRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param namespace
+	@param key
+	@return ApiDeleteNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyDeleteRequest
 */
 func (a *NamespaceResourcesAPIService) DeleteNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyDelete(ctx context.Context, namespace string, key string) ApiDeleteNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyDeleteRequest {
 	return ApiDeleteNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyDeleteRequest{
 		ApiService: a,
-		ctx: ctx,
-		namespace: namespace,
-		key: key,
+		ctx:        ctx,
+		namespace:  namespace,
+		key:        key,
 	}
 }
 
 // Execute executes the request
-//  @return map[string]*bool
+//
+//	@return map[string]*bool
 func (a *NamespaceResourcesAPIService) DeleteNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyDeleteExecute(r ApiDeleteNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyDeleteRequest) (map[string]*bool, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodDelete
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  map[string]*bool
+		localVarHTTPMethod  = http.MethodDelete
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue map[string]*bool
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "NamespaceResourcesAPIService.DeleteNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyDelete")
@@ -307,8 +308,8 @@ func (a *NamespaceResourcesAPIService) DeleteNamespaceKeyValueApiV1NamespacesNam
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -326,14 +327,14 @@ func (a *NamespaceResourcesAPIService) DeleteNamespaceKeyValueApiV1NamespacesNam
 }
 
 type ApiDeleteNamespaceSecretBindingApiV1NamespacesNamespaceSecretBindingsKeyDeleteRequest struct {
-	ctx context.Context
-	ApiService *NamespaceResourcesAPIService
-	namespace string
-	key string
+	ctx             context.Context
+	ApiService      *NamespaceResourcesAPIService
+	namespace       string
+	key             string
 	expectedVersion *int32
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization   *string
+	xAmeshCSRF      *string
+	xAmeshTenant    *string
 }
 
 func (r ApiDeleteNamespaceSecretBindingApiV1NamespacesNamespaceSecretBindingsKeyDeleteRequest) ExpectedVersion(expectedVersion int32) ApiDeleteNamespaceSecretBindingApiV1NamespacesNamespaceSecretBindingsKeyDeleteRequest {
@@ -363,28 +364,29 @@ func (r ApiDeleteNamespaceSecretBindingApiV1NamespacesNamespaceSecretBindingsKey
 /*
 DeleteNamespaceSecretBindingApiV1NamespacesNamespaceSecretBindingsKeyDelete Delete Namespace Secret Binding
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param namespace
- @param key
- @return ApiDeleteNamespaceSecretBindingApiV1NamespacesNamespaceSecretBindingsKeyDeleteRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param namespace
+	@param key
+	@return ApiDeleteNamespaceSecretBindingApiV1NamespacesNamespaceSecretBindingsKeyDeleteRequest
 */
 func (a *NamespaceResourcesAPIService) DeleteNamespaceSecretBindingApiV1NamespacesNamespaceSecretBindingsKeyDelete(ctx context.Context, namespace string, key string) ApiDeleteNamespaceSecretBindingApiV1NamespacesNamespaceSecretBindingsKeyDeleteRequest {
 	return ApiDeleteNamespaceSecretBindingApiV1NamespacesNamespaceSecretBindingsKeyDeleteRequest{
 		ApiService: a,
-		ctx: ctx,
-		namespace: namespace,
-		key: key,
+		ctx:        ctx,
+		namespace:  namespace,
+		key:        key,
 	}
 }
 
 // Execute executes the request
-//  @return map[string]*bool
+//
+//	@return map[string]*bool
 func (a *NamespaceResourcesAPIService) DeleteNamespaceSecretBindingApiV1NamespacesNamespaceSecretBindingsKeyDeleteExecute(r ApiDeleteNamespaceSecretBindingApiV1NamespacesNamespaceSecretBindingsKeyDeleteRequest) (map[string]*bool, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodDelete
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  map[string]*bool
+		localVarHTTPMethod  = http.MethodDelete
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue map[string]*bool
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "NamespaceResourcesAPIService.DeleteNamespaceSecretBindingApiV1NamespacesNamespaceSecretBindingsKeyDelete")
@@ -458,8 +460,8 @@ func (a *NamespaceResourcesAPIService) DeleteNamespaceSecretBindingApiV1Namespac
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -477,14 +479,14 @@ func (a *NamespaceResourcesAPIService) DeleteNamespaceSecretBindingApiV1Namespac
 }
 
 type ApiDownloadNamespaceFileApiV1NamespacesNamespaceFilesPathGetRequest struct {
-	ctx context.Context
-	ApiService *NamespaceResourcesAPIService
-	namespace string
-	path string
-	version *int32
+	ctx           context.Context
+	ApiService    *NamespaceResourcesAPIService
+	namespace     string
+	path          string
+	version       *int32
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiDownloadNamespaceFileApiV1NamespacesNamespaceFilesPathGetRequest) Version(version int32) ApiDownloadNamespaceFileApiV1NamespacesNamespaceFilesPathGetRequest {
@@ -514,26 +516,26 @@ func (r ApiDownloadNamespaceFileApiV1NamespacesNamespaceFilesPathGetRequest) Exe
 /*
 DownloadNamespaceFileApiV1NamespacesNamespaceFilesPathGet Download Namespace File
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param namespace
- @param path
- @return ApiDownloadNamespaceFileApiV1NamespacesNamespaceFilesPathGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param namespace
+	@param path
+	@return ApiDownloadNamespaceFileApiV1NamespacesNamespaceFilesPathGetRequest
 */
 func (a *NamespaceResourcesAPIService) DownloadNamespaceFileApiV1NamespacesNamespaceFilesPathGet(ctx context.Context, namespace string, path string) ApiDownloadNamespaceFileApiV1NamespacesNamespaceFilesPathGetRequest {
 	return ApiDownloadNamespaceFileApiV1NamespacesNamespaceFilesPathGetRequest{
 		ApiService: a,
-		ctx: ctx,
-		namespace: namespace,
-		path: path,
+		ctx:        ctx,
+		namespace:  namespace,
+		path:       path,
 	}
 }
 
 // Execute executes the request
 func (a *NamespaceResourcesAPIService) DownloadNamespaceFileApiV1NamespacesNamespaceFilesPathGetExecute(r ApiDownloadNamespaceFileApiV1NamespacesNamespaceFilesPathGetRequest) (*http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
+		localVarHTTPMethod = http.MethodGet
+		localVarPostBody   interface{}
+		formFiles          []formFile
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "NamespaceResourcesAPIService.DownloadNamespaceFileApiV1NamespacesNamespaceFilesPathGet")
@@ -607,8 +609,8 @@ func (a *NamespaceResourcesAPIService) DownloadNamespaceFileApiV1NamespacesNames
 				newErr.error = err.Error()
 				return localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarHTTPResponse, newErr
 	}
@@ -617,12 +619,12 @@ func (a *NamespaceResourcesAPIService) DownloadNamespaceFileApiV1NamespacesNames
 }
 
 type ApiExportNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundleGetRequest struct {
-	ctx context.Context
-	ApiService *NamespaceResourcesAPIService
-	namespace string
+	ctx           context.Context
+	ApiService    *NamespaceResourcesAPIService
+	namespace     string
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiExportNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundleGetRequest) Authorization(authorization string) ApiExportNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundleGetRequest {
@@ -647,26 +649,27 @@ func (r ApiExportNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundleGe
 /*
 ExportNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundleGet Export Namespace Resource Bundle
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param namespace
- @return ApiExportNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundleGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param namespace
+	@return ApiExportNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundleGetRequest
 */
 func (a *NamespaceResourcesAPIService) ExportNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundleGet(ctx context.Context, namespace string) ApiExportNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundleGetRequest {
 	return ApiExportNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundleGetRequest{
 		ApiService: a,
-		ctx: ctx,
-		namespace: namespace,
+		ctx:        ctx,
+		namespace:  namespace,
 	}
 }
 
 // Execute executes the request
-//  @return NamespaceResourceBundle
+//
+//	@return NamespaceResourceBundle
 func (a *NamespaceResourcesAPIService) ExportNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundleGetExecute(r ApiExportNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundleGetRequest) (*NamespaceResourceBundle, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *NamespaceResourceBundle
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *NamespaceResourceBundle
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "NamespaceResourcesAPIService.ExportNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundleGet")
@@ -736,8 +739,8 @@ func (a *NamespaceResourcesAPIService) ExportNamespaceResourceBundleApiV1Namespa
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -755,13 +758,13 @@ func (a *NamespaceResourcesAPIService) ExportNamespaceResourceBundleApiV1Namespa
 }
 
 type ApiGetNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyGetRequest struct {
-	ctx context.Context
-	ApiService *NamespaceResourcesAPIService
-	namespace string
-	key string
+	ctx           context.Context
+	ApiService    *NamespaceResourcesAPIService
+	namespace     string
+	key           string
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiGetNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyGetRequest) Authorization(authorization string) ApiGetNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyGetRequest {
@@ -786,28 +789,29 @@ func (r ApiGetNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyGetRequest) E
 /*
 GetNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyGet Get Namespace Key Value
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param namespace
- @param key
- @return ApiGetNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param namespace
+	@param key
+	@return ApiGetNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyGetRequest
 */
 func (a *NamespaceResourcesAPIService) GetNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyGet(ctx context.Context, namespace string, key string) ApiGetNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyGetRequest {
 	return ApiGetNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyGetRequest{
 		ApiService: a,
-		ctx: ctx,
-		namespace: namespace,
-		key: key,
+		ctx:        ctx,
+		namespace:  namespace,
+		key:        key,
 	}
 }
 
 // Execute executes the request
-//  @return KeyValueEntry
+//
+//	@return KeyValueEntry
 func (a *NamespaceResourcesAPIService) GetNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyGetExecute(r ApiGetNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyGetRequest) (*KeyValueEntry, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *KeyValueEntry
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *KeyValueEntry
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "NamespaceResourcesAPIService.GetNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyGet")
@@ -878,8 +882,8 @@ func (a *NamespaceResourcesAPIService) GetNamespaceKeyValueApiV1NamespacesNamesp
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -897,13 +901,13 @@ func (a *NamespaceResourcesAPIService) GetNamespaceKeyValueApiV1NamespacesNamesp
 }
 
 type ApiImportNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundlePostRequest struct {
-	ctx context.Context
-	ApiService *NamespaceResourcesAPIService
-	namespace string
+	ctx                     context.Context
+	ApiService              *NamespaceResourcesAPIService
+	namespace               string
 	namespaceResourceBundle *NamespaceResourceBundle
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization           *string
+	xAmeshCSRF              *string
+	xAmeshTenant            *string
 }
 
 func (r ApiImportNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundlePostRequest) NamespaceResourceBundle(namespaceResourceBundle NamespaceResourceBundle) ApiImportNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundlePostRequest {
@@ -933,26 +937,27 @@ func (r ApiImportNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundlePo
 /*
 ImportNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundlePost Import Namespace Resource Bundle
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param namespace
- @return ApiImportNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundlePostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param namespace
+	@return ApiImportNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundlePostRequest
 */
 func (a *NamespaceResourcesAPIService) ImportNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundlePost(ctx context.Context, namespace string) ApiImportNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundlePostRequest {
 	return ApiImportNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundlePostRequest{
 		ApiService: a,
-		ctx: ctx,
-		namespace: namespace,
+		ctx:        ctx,
+		namespace:  namespace,
 	}
 }
 
 // Execute executes the request
-//  @return NamespaceResourceImportResult
+//
+//	@return NamespaceResourceImportResult
 func (a *NamespaceResourcesAPIService) ImportNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundlePostExecute(r ApiImportNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundlePostRequest) (*NamespaceResourceImportResult, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *NamespaceResourceImportResult
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *NamespaceResourceImportResult
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "NamespaceResourcesAPIService.ImportNamespaceResourceBundleApiV1NamespacesNamespaceResourceBundlePost")
@@ -1027,8 +1032,8 @@ func (a *NamespaceResourcesAPIService) ImportNamespaceResourceBundleApiV1Namespa
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1046,13 +1051,13 @@ func (a *NamespaceResourcesAPIService) ImportNamespaceResourceBundleApiV1Namespa
 }
 
 type ApiListNamespaceFileVersionsApiV1NamespacesNamespaceFilesPathVersionsGetRequest struct {
-	ctx context.Context
-	ApiService *NamespaceResourcesAPIService
-	namespace string
-	path string
+	ctx           context.Context
+	ApiService    *NamespaceResourcesAPIService
+	namespace     string
+	path          string
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiListNamespaceFileVersionsApiV1NamespacesNamespaceFilesPathVersionsGetRequest) Authorization(authorization string) ApiListNamespaceFileVersionsApiV1NamespacesNamespaceFilesPathVersionsGetRequest {
@@ -1077,28 +1082,29 @@ func (r ApiListNamespaceFileVersionsApiV1NamespacesNamespaceFilesPathVersionsGet
 /*
 ListNamespaceFileVersionsApiV1NamespacesNamespaceFilesPathVersionsGet List Namespace File Versions
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param namespace
- @param path
- @return ApiListNamespaceFileVersionsApiV1NamespacesNamespaceFilesPathVersionsGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param namespace
+	@param path
+	@return ApiListNamespaceFileVersionsApiV1NamespacesNamespaceFilesPathVersionsGetRequest
 */
 func (a *NamespaceResourcesAPIService) ListNamespaceFileVersionsApiV1NamespacesNamespaceFilesPathVersionsGet(ctx context.Context, namespace string, path string) ApiListNamespaceFileVersionsApiV1NamespacesNamespaceFilesPathVersionsGetRequest {
 	return ApiListNamespaceFileVersionsApiV1NamespacesNamespaceFilesPathVersionsGetRequest{
 		ApiService: a,
-		ctx: ctx,
-		namespace: namespace,
-		path: path,
+		ctx:        ctx,
+		namespace:  namespace,
+		path:       path,
 	}
 }
 
 // Execute executes the request
-//  @return []NamespaceFileVersion
+//
+//	@return []NamespaceFileVersion
 func (a *NamespaceResourcesAPIService) ListNamespaceFileVersionsApiV1NamespacesNamespaceFilesPathVersionsGetExecute(r ApiListNamespaceFileVersionsApiV1NamespacesNamespaceFilesPathVersionsGetRequest) ([]NamespaceFileVersion, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  []NamespaceFileVersion
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []NamespaceFileVersion
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "NamespaceResourcesAPIService.ListNamespaceFileVersionsApiV1NamespacesNamespaceFilesPathVersionsGet")
@@ -1169,8 +1175,8 @@ func (a *NamespaceResourcesAPIService) ListNamespaceFileVersionsApiV1NamespacesN
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1188,13 +1194,13 @@ func (a *NamespaceResourcesAPIService) ListNamespaceFileVersionsApiV1NamespacesN
 }
 
 type ApiListNamespaceFilesApiV1NamespacesNamespaceFilesGetRequest struct {
-	ctx context.Context
-	ApiService *NamespaceResourcesAPIService
-	namespace string
-	inherited *bool
+	ctx           context.Context
+	ApiService    *NamespaceResourcesAPIService
+	namespace     string
+	inherited     *bool
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiListNamespaceFilesApiV1NamespacesNamespaceFilesGetRequest) Inherited(inherited bool) ApiListNamespaceFilesApiV1NamespacesNamespaceFilesGetRequest {
@@ -1224,26 +1230,27 @@ func (r ApiListNamespaceFilesApiV1NamespacesNamespaceFilesGetRequest) Execute() 
 /*
 ListNamespaceFilesApiV1NamespacesNamespaceFilesGet List Namespace Files
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param namespace
- @return ApiListNamespaceFilesApiV1NamespacesNamespaceFilesGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param namespace
+	@return ApiListNamespaceFilesApiV1NamespacesNamespaceFilesGetRequest
 */
 func (a *NamespaceResourcesAPIService) ListNamespaceFilesApiV1NamespacesNamespaceFilesGet(ctx context.Context, namespace string) ApiListNamespaceFilesApiV1NamespacesNamespaceFilesGetRequest {
 	return ApiListNamespaceFilesApiV1NamespacesNamespaceFilesGetRequest{
 		ApiService: a,
-		ctx: ctx,
-		namespace: namespace,
+		ctx:        ctx,
+		namespace:  namespace,
 	}
 }
 
 // Execute executes the request
-//  @return []NamespaceFile
+//
+//	@return []NamespaceFile
 func (a *NamespaceResourcesAPIService) ListNamespaceFilesApiV1NamespacesNamespaceFilesGetExecute(r ApiListNamespaceFilesApiV1NamespacesNamespaceFilesGetRequest) ([]NamespaceFile, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  []NamespaceFile
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []NamespaceFile
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "NamespaceResourcesAPIService.ListNamespaceFilesApiV1NamespacesNamespaceFilesGet")
@@ -1320,8 +1327,8 @@ func (a *NamespaceResourcesAPIService) ListNamespaceFilesApiV1NamespacesNamespac
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1339,14 +1346,14 @@ func (a *NamespaceResourcesAPIService) ListNamespaceFilesApiV1NamespacesNamespac
 }
 
 type ApiListNamespaceKeyValueChangesApiV1NamespacesNamespaceKeyValuesChangesGetRequest struct {
-	ctx context.Context
-	ApiService *NamespaceResourcesAPIService
-	namespace string
-	after *int32
-	limit *int32
+	ctx           context.Context
+	ApiService    *NamespaceResourcesAPIService
+	namespace     string
+	after         *int32
+	limit         *int32
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiListNamespaceKeyValueChangesApiV1NamespacesNamespaceKeyValuesChangesGetRequest) After(after int32) ApiListNamespaceKeyValueChangesApiV1NamespacesNamespaceKeyValuesChangesGetRequest {
@@ -1381,26 +1388,27 @@ func (r ApiListNamespaceKeyValueChangesApiV1NamespacesNamespaceKeyValuesChangesG
 /*
 ListNamespaceKeyValueChangesApiV1NamespacesNamespaceKeyValuesChangesGet List Namespace Key Value Changes
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param namespace
- @return ApiListNamespaceKeyValueChangesApiV1NamespacesNamespaceKeyValuesChangesGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param namespace
+	@return ApiListNamespaceKeyValueChangesApiV1NamespacesNamespaceKeyValuesChangesGetRequest
 */
 func (a *NamespaceResourcesAPIService) ListNamespaceKeyValueChangesApiV1NamespacesNamespaceKeyValuesChangesGet(ctx context.Context, namespace string) ApiListNamespaceKeyValueChangesApiV1NamespacesNamespaceKeyValuesChangesGetRequest {
 	return ApiListNamespaceKeyValueChangesApiV1NamespacesNamespaceKeyValuesChangesGetRequest{
 		ApiService: a,
-		ctx: ctx,
-		namespace: namespace,
+		ctx:        ctx,
+		namespace:  namespace,
 	}
 }
 
 // Execute executes the request
-//  @return []KeyValueChange
+//
+//	@return []KeyValueChange
 func (a *NamespaceResourcesAPIService) ListNamespaceKeyValueChangesApiV1NamespacesNamespaceKeyValuesChangesGetExecute(r ApiListNamespaceKeyValueChangesApiV1NamespacesNamespaceKeyValuesChangesGetRequest) ([]KeyValueChange, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  []KeyValueChange
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []KeyValueChange
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "NamespaceResourcesAPIService.ListNamespaceKeyValueChangesApiV1NamespacesNamespaceKeyValuesChangesGet")
@@ -1484,8 +1492,8 @@ func (a *NamespaceResourcesAPIService) ListNamespaceKeyValueChangesApiV1Namespac
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1503,12 +1511,12 @@ func (a *NamespaceResourcesAPIService) ListNamespaceKeyValueChangesApiV1Namespac
 }
 
 type ApiListNamespaceKeyValuesApiV1NamespacesNamespaceKeyValuesGetRequest struct {
-	ctx context.Context
-	ApiService *NamespaceResourcesAPIService
-	namespace string
+	ctx           context.Context
+	ApiService    *NamespaceResourcesAPIService
+	namespace     string
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiListNamespaceKeyValuesApiV1NamespacesNamespaceKeyValuesGetRequest) Authorization(authorization string) ApiListNamespaceKeyValuesApiV1NamespacesNamespaceKeyValuesGetRequest {
@@ -1533,26 +1541,27 @@ func (r ApiListNamespaceKeyValuesApiV1NamespacesNamespaceKeyValuesGetRequest) Ex
 /*
 ListNamespaceKeyValuesApiV1NamespacesNamespaceKeyValuesGet List Namespace Key Values
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param namespace
- @return ApiListNamespaceKeyValuesApiV1NamespacesNamespaceKeyValuesGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param namespace
+	@return ApiListNamespaceKeyValuesApiV1NamespacesNamespaceKeyValuesGetRequest
 */
 func (a *NamespaceResourcesAPIService) ListNamespaceKeyValuesApiV1NamespacesNamespaceKeyValuesGet(ctx context.Context, namespace string) ApiListNamespaceKeyValuesApiV1NamespacesNamespaceKeyValuesGetRequest {
 	return ApiListNamespaceKeyValuesApiV1NamespacesNamespaceKeyValuesGetRequest{
 		ApiService: a,
-		ctx: ctx,
-		namespace: namespace,
+		ctx:        ctx,
+		namespace:  namespace,
 	}
 }
 
 // Execute executes the request
-//  @return []KeyValueEntry
+//
+//	@return []KeyValueEntry
 func (a *NamespaceResourcesAPIService) ListNamespaceKeyValuesApiV1NamespacesNamespaceKeyValuesGetExecute(r ApiListNamespaceKeyValuesApiV1NamespacesNamespaceKeyValuesGetRequest) ([]KeyValueEntry, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  []KeyValueEntry
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []KeyValueEntry
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "NamespaceResourcesAPIService.ListNamespaceKeyValuesApiV1NamespacesNamespaceKeyValuesGet")
@@ -1622,8 +1631,8 @@ func (a *NamespaceResourcesAPIService) ListNamespaceKeyValuesApiV1NamespacesName
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1641,13 +1650,13 @@ func (a *NamespaceResourcesAPIService) ListNamespaceKeyValuesApiV1NamespacesName
 }
 
 type ApiListNamespaceSecretBindingsApiV1NamespacesNamespaceSecretBindingsGetRequest struct {
-	ctx context.Context
-	ApiService *NamespaceResourcesAPIService
-	namespace string
-	inherited *bool
+	ctx           context.Context
+	ApiService    *NamespaceResourcesAPIService
+	namespace     string
+	inherited     *bool
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiListNamespaceSecretBindingsApiV1NamespacesNamespaceSecretBindingsGetRequest) Inherited(inherited bool) ApiListNamespaceSecretBindingsApiV1NamespacesNamespaceSecretBindingsGetRequest {
@@ -1677,26 +1686,27 @@ func (r ApiListNamespaceSecretBindingsApiV1NamespacesNamespaceSecretBindingsGetR
 /*
 ListNamespaceSecretBindingsApiV1NamespacesNamespaceSecretBindingsGet List Namespace Secret Bindings
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param namespace
- @return ApiListNamespaceSecretBindingsApiV1NamespacesNamespaceSecretBindingsGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param namespace
+	@return ApiListNamespaceSecretBindingsApiV1NamespacesNamespaceSecretBindingsGetRequest
 */
 func (a *NamespaceResourcesAPIService) ListNamespaceSecretBindingsApiV1NamespacesNamespaceSecretBindingsGet(ctx context.Context, namespace string) ApiListNamespaceSecretBindingsApiV1NamespacesNamespaceSecretBindingsGetRequest {
 	return ApiListNamespaceSecretBindingsApiV1NamespacesNamespaceSecretBindingsGetRequest{
 		ApiService: a,
-		ctx: ctx,
-		namespace: namespace,
+		ctx:        ctx,
+		namespace:  namespace,
 	}
 }
 
 // Execute executes the request
-//  @return []SecretBinding
+//
+//	@return []SecretBinding
 func (a *NamespaceResourcesAPIService) ListNamespaceSecretBindingsApiV1NamespacesNamespaceSecretBindingsGetExecute(r ApiListNamespaceSecretBindingsApiV1NamespacesNamespaceSecretBindingsGetRequest) ([]SecretBinding, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  []SecretBinding
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []SecretBinding
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "NamespaceResourcesAPIService.ListNamespaceSecretBindingsApiV1NamespacesNamespaceSecretBindingsGet")
@@ -1773,8 +1783,8 @@ func (a *NamespaceResourcesAPIService) ListNamespaceSecretBindingsApiV1Namespace
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1792,14 +1802,14 @@ func (a *NamespaceResourcesAPIService) ListNamespaceSecretBindingsApiV1Namespace
 }
 
 type ApiMoveNamespaceFileApiV1NamespacesNamespaceFilesPathMovePostRequest struct {
-	ctx context.Context
-	ApiService *NamespaceResourcesAPIService
-	namespace string
-	path string
+	ctx                      context.Context
+	ApiService               *NamespaceResourcesAPIService
+	namespace                string
+	path                     string
 	namespaceFileMoveRequest *NamespaceFileMoveRequest
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization            *string
+	xAmeshCSRF               *string
+	xAmeshTenant             *string
 }
 
 func (r ApiMoveNamespaceFileApiV1NamespacesNamespaceFilesPathMovePostRequest) NamespaceFileMoveRequest(namespaceFileMoveRequest NamespaceFileMoveRequest) ApiMoveNamespaceFileApiV1NamespacesNamespaceFilesPathMovePostRequest {
@@ -1829,28 +1839,29 @@ func (r ApiMoveNamespaceFileApiV1NamespacesNamespaceFilesPathMovePostRequest) Ex
 /*
 MoveNamespaceFileApiV1NamespacesNamespaceFilesPathMovePost Move Namespace File
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param namespace
- @param path
- @return ApiMoveNamespaceFileApiV1NamespacesNamespaceFilesPathMovePostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param namespace
+	@param path
+	@return ApiMoveNamespaceFileApiV1NamespacesNamespaceFilesPathMovePostRequest
 */
 func (a *NamespaceResourcesAPIService) MoveNamespaceFileApiV1NamespacesNamespaceFilesPathMovePost(ctx context.Context, namespace string, path string) ApiMoveNamespaceFileApiV1NamespacesNamespaceFilesPathMovePostRequest {
 	return ApiMoveNamespaceFileApiV1NamespacesNamespaceFilesPathMovePostRequest{
 		ApiService: a,
-		ctx: ctx,
-		namespace: namespace,
-		path: path,
+		ctx:        ctx,
+		namespace:  namespace,
+		path:       path,
 	}
 }
 
 // Execute executes the request
-//  @return NamespaceFile
+//
+//	@return NamespaceFile
 func (a *NamespaceResourcesAPIService) MoveNamespaceFileApiV1NamespacesNamespaceFilesPathMovePostExecute(r ApiMoveNamespaceFileApiV1NamespacesNamespaceFilesPathMovePostRequest) (*NamespaceFile, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *NamespaceFile
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *NamespaceFile
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "NamespaceResourcesAPIService.MoveNamespaceFileApiV1NamespacesNamespaceFilesPathMovePost")
@@ -1926,8 +1937,8 @@ func (a *NamespaceResourcesAPIService) MoveNamespaceFileApiV1NamespacesNamespace
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1945,14 +1956,14 @@ func (a *NamespaceResourcesAPIService) MoveNamespaceFileApiV1NamespacesNamespace
 }
 
 type ApiPutNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyPutRequest struct {
-	ctx context.Context
-	ApiService *NamespaceResourcesAPIService
-	namespace string
-	key string
+	ctx           context.Context
+	ApiService    *NamespaceResourcesAPIService
+	namespace     string
+	key           string
 	keyValueWrite *KeyValueWrite
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiPutNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyPutRequest) KeyValueWrite(keyValueWrite KeyValueWrite) ApiPutNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyPutRequest {
@@ -1982,28 +1993,29 @@ func (r ApiPutNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyPutRequest) E
 /*
 PutNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyPut Put Namespace Key Value
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param namespace
- @param key
- @return ApiPutNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyPutRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param namespace
+	@param key
+	@return ApiPutNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyPutRequest
 */
 func (a *NamespaceResourcesAPIService) PutNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyPut(ctx context.Context, namespace string, key string) ApiPutNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyPutRequest {
 	return ApiPutNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyPutRequest{
 		ApiService: a,
-		ctx: ctx,
-		namespace: namespace,
-		key: key,
+		ctx:        ctx,
+		namespace:  namespace,
+		key:        key,
 	}
 }
 
 // Execute executes the request
-//  @return KeyValueEntry
+//
+//	@return KeyValueEntry
 func (a *NamespaceResourcesAPIService) PutNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyPutExecute(r ApiPutNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyPutRequest) (*KeyValueEntry, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPut
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *KeyValueEntry
+		localVarHTTPMethod  = http.MethodPut
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *KeyValueEntry
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "NamespaceResourcesAPIService.PutNamespaceKeyValueApiV1NamespacesNamespaceKeyValuesKeyPut")
@@ -2079,8 +2091,8 @@ func (a *NamespaceResourcesAPIService) PutNamespaceKeyValueApiV1NamespacesNamesp
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -2098,14 +2110,14 @@ func (a *NamespaceResourcesAPIService) PutNamespaceKeyValueApiV1NamespacesNamesp
 }
 
 type ApiPutNamespaceSecretBindingApiV1NamespacesNamespaceSecretBindingsKeyPutRequest struct {
-	ctx context.Context
-	ApiService *NamespaceResourcesAPIService
-	namespace string
-	key string
+	ctx                context.Context
+	ApiService         *NamespaceResourcesAPIService
+	namespace          string
+	key                string
 	secretBindingWrite *SecretBindingWrite
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization      *string
+	xAmeshCSRF         *string
+	xAmeshTenant       *string
 }
 
 func (r ApiPutNamespaceSecretBindingApiV1NamespacesNamespaceSecretBindingsKeyPutRequest) SecretBindingWrite(secretBindingWrite SecretBindingWrite) ApiPutNamespaceSecretBindingApiV1NamespacesNamespaceSecretBindingsKeyPutRequest {
@@ -2135,28 +2147,29 @@ func (r ApiPutNamespaceSecretBindingApiV1NamespacesNamespaceSecretBindingsKeyPut
 /*
 PutNamespaceSecretBindingApiV1NamespacesNamespaceSecretBindingsKeyPut Put Namespace Secret Binding
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param namespace
- @param key
- @return ApiPutNamespaceSecretBindingApiV1NamespacesNamespaceSecretBindingsKeyPutRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param namespace
+	@param key
+	@return ApiPutNamespaceSecretBindingApiV1NamespacesNamespaceSecretBindingsKeyPutRequest
 */
 func (a *NamespaceResourcesAPIService) PutNamespaceSecretBindingApiV1NamespacesNamespaceSecretBindingsKeyPut(ctx context.Context, namespace string, key string) ApiPutNamespaceSecretBindingApiV1NamespacesNamespaceSecretBindingsKeyPutRequest {
 	return ApiPutNamespaceSecretBindingApiV1NamespacesNamespaceSecretBindingsKeyPutRequest{
 		ApiService: a,
-		ctx: ctx,
-		namespace: namespace,
-		key: key,
+		ctx:        ctx,
+		namespace:  namespace,
+		key:        key,
 	}
 }
 
 // Execute executes the request
-//  @return SecretBinding
+//
+//	@return SecretBinding
 func (a *NamespaceResourcesAPIService) PutNamespaceSecretBindingApiV1NamespacesNamespaceSecretBindingsKeyPutExecute(r ApiPutNamespaceSecretBindingApiV1NamespacesNamespaceSecretBindingsKeyPutRequest) (*SecretBinding, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPut
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *SecretBinding
+		localVarHTTPMethod  = http.MethodPut
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *SecretBinding
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "NamespaceResourcesAPIService.PutNamespaceSecretBindingApiV1NamespacesNamespaceSecretBindingsKeyPut")
@@ -2232,8 +2245,8 @@ func (a *NamespaceResourcesAPIService) PutNamespaceSecretBindingApiV1NamespacesN
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -2251,14 +2264,14 @@ func (a *NamespaceResourcesAPIService) PutNamespaceSecretBindingApiV1NamespacesN
 }
 
 type ApiUploadNamespaceFileApiV1NamespacesNamespaceFilesPathPutRequest struct {
-	ctx context.Context
-	ApiService *NamespaceResourcesAPIService
-	namespace string
-	path string
+	ctx             context.Context
+	ApiService      *NamespaceResourcesAPIService
+	namespace       string
+	path            string
 	expectedVersion *int32
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization   *string
+	xAmeshCSRF      *string
+	xAmeshTenant    *string
 }
 
 func (r ApiUploadNamespaceFileApiV1NamespacesNamespaceFilesPathPutRequest) ExpectedVersion(expectedVersion int32) ApiUploadNamespaceFileApiV1NamespacesNamespaceFilesPathPutRequest {
@@ -2288,28 +2301,29 @@ func (r ApiUploadNamespaceFileApiV1NamespacesNamespaceFilesPathPutRequest) Execu
 /*
 UploadNamespaceFileApiV1NamespacesNamespaceFilesPathPut Upload Namespace File
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param namespace
- @param path
- @return ApiUploadNamespaceFileApiV1NamespacesNamespaceFilesPathPutRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param namespace
+	@param path
+	@return ApiUploadNamespaceFileApiV1NamespacesNamespaceFilesPathPutRequest
 */
 func (a *NamespaceResourcesAPIService) UploadNamespaceFileApiV1NamespacesNamespaceFilesPathPut(ctx context.Context, namespace string, path string) ApiUploadNamespaceFileApiV1NamespacesNamespaceFilesPathPutRequest {
 	return ApiUploadNamespaceFileApiV1NamespacesNamespaceFilesPathPutRequest{
 		ApiService: a,
-		ctx: ctx,
-		namespace: namespace,
-		path: path,
+		ctx:        ctx,
+		namespace:  namespace,
+		path:       path,
 	}
 }
 
 // Execute executes the request
-//  @return NamespaceFile
+//
+//	@return NamespaceFile
 func (a *NamespaceResourcesAPIService) UploadNamespaceFileApiV1NamespacesNamespaceFilesPathPutExecute(r ApiUploadNamespaceFileApiV1NamespacesNamespaceFilesPathPutRequest) (*NamespaceFile, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPut
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *NamespaceFile
+		localVarHTTPMethod  = http.MethodPut
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *NamespaceFile
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "NamespaceResourcesAPIService.UploadNamespaceFileApiV1NamespacesNamespaceFilesPathPut")
@@ -2383,8 +2397,8 @@ func (a *NamespaceResourcesAPIService) UploadNamespaceFileApiV1NamespacesNamespa
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}

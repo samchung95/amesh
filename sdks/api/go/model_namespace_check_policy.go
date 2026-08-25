@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the NamespaceCheckPolicy type satisfies the MappedNullable interface at compile time
@@ -22,16 +22,16 @@ var _ MappedNullable = &NamespaceCheckPolicy{}
 
 // NamespaceCheckPolicy struct for NamespaceCheckPolicy
 type NamespaceCheckPolicy struct {
-	CreatedAt time.Time `json:"created_at"`
-	Definition CheckDefinition `json:"definition"`
-	Enabled bool `json:"enabled"`
-	Namespace string `json:"namespace"`
-	PolicyId string `json:"policy_id"`
-	PolicyKey string `json:"policy_key"`
-	Source CheckPolicySource `json:"source"`
-	TaskType NullableString `json:"task_type,omitempty"`
-	TenantId string `json:"tenant_id"`
-	UpdatedAt time.Time `json:"updated_at"`
+	CreatedAt  time.Time         `json:"created_at"`
+	Definition CheckDefinition   `json:"definition"`
+	Enabled    bool              `json:"enabled"`
+	Namespace  string            `json:"namespace"`
+	PolicyId   string            `json:"policy_id"`
+	PolicyKey  string            `json:"policy_key"`
+	Source     CheckPolicySource `json:"source"`
+	TaskType   NullableString    `json:"task_type,omitempty"`
+	TenantId   string            `json:"tenant_id"`
+	UpdatedAt  time.Time         `json:"updated_at"`
 }
 
 type _NamespaceCheckPolicy NamespaceCheckPolicy
@@ -262,6 +262,7 @@ func (o *NamespaceCheckPolicy) HasTaskType() bool {
 func (o *NamespaceCheckPolicy) SetTaskType(v string) {
 	o.TaskType.Set(&v)
 }
+
 // SetTaskTypeNil sets the value for TaskType to be an explicit nil
 func (o *NamespaceCheckPolicy) SetTaskTypeNil() {
 	o.TaskType.Set(nil)
@@ -321,7 +322,7 @@ func (o *NamespaceCheckPolicy) SetUpdatedAt(v time.Time) {
 }
 
 func (o NamespaceCheckPolicy) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -366,10 +367,10 @@ func (o *NamespaceCheckPolicy) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

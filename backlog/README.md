@@ -1,6 +1,6 @@
 # Epic backlog
 
-This backlog contains 106 epics and is generated from `backlog/epics.json`.
+This backlog contains 115 epics and is generated from `backlog/epics.json`.
 
 | Epic | Milestone | Domain | Requirements | Goal |
 |---|---|---|---:|---|
@@ -110,3 +110,12 @@ This backlog contains 106 epics and is generated from `backlog/epics.json`.
 | [EPIC-807](epics/epic-807-versioned-agent-definitions-and-capability-envelopes.md) | M8 | differentiation | 6 | Define reusable, versioned agent resources whose model, prompt, skill, tool, permission, environment, budget and output-contract revisions resolve and pin before execution. |
 | [EPIC-808](epics/epic-808-durable-bounded-single-agent-sessions.md) | M8 | differentiation | 7 | Run one supervised agent as a durable workflow task whose model turns and tool proposals are mediated by AMESH and cannot succeed until structured-output and policy gates pass. |
 | [EPIC-809](epics/epic-809-agent-memory-evaluation-and-release-gates.md) | M8 | differentiation | 6 | Make bounded agents safe to adopt through isolated memory, versioned evaluations, human-readable traces and evidence-backed promotion gates in the existing workflow experience. |
+| [EPIC-810](epics/epic-810-reliable-scheduling-and-truthful-role-aware-health.md) | M8 | engine | 0 | Make AMESH the durable owner of generic schedules while every enabled service role reports its real ability to make progress. |
+| [EPIC-811](epics/epic-811-client-neutral-external-orchestration-contract.md) | M8 | api | 0 | Let any external client version workflows, launch idempotent runs, inspect progress and control executions through a stable neutral contract. |
+| [EPIC-812](epics/epic-812-canonical-execution-evidence-bundle.md) | M8 | observability | 0 | Export one versioned, bounded and integrity-checkable record of everything a client needs to explain an execution without exposing secrets or hidden model rationale. |
+| [EPIC-813](epics/epic-813-pluggable-model-provider-capabilities-and-conformance.md) | M8 | differentiation | 0 | Run bounded agents against replaceable model providers whose capabilities, continuation state, timeouts, usage and cost semantics are negotiated and tested before provider I/O. |
+| [EPIC-814](epics/epic-814-unified-mcp-and-plugin-tool-provider-contract.md) | M8 | plugins | 0 | Let MCP servers and installable plugins supply tools through one pinned policy, schema, invocation and recovery boundary without embedding domain integrations in core. |
+| [EPIC-815](epics/epic-815-hardened-client-driven-local-deployment-profile.md) | M8 | security | 0 | Provide a fail-closed local deployment profile that external clients can safely call without Docker authority, public exposure or unrelated domain credentials. |
+| [EPIC-816](epics/epic-816-restart-idempotency-and-large-record-qualification.md) | M8 | quality | 0 | Prove on isolated PostgreSQL and object storage that failures around schedules, agents, tools and evidence lose no accepted data and create no duplicate logical outcome. |
+| [EPIC-817](epics/epic-817-generic-differential-and-shadow-execution.md) | M8 | quality | 0 | Compare two exact workflow or agent configurations on frozen inputs without permitting uncontrolled side effects or pretending nondeterministic outputs must be byte-identical. |
+| [EPIC-818](epics/epic-818-evidence-backed-promotion-rollback-and-release-gates.md) | M8 | governance | 0 | Promote an exact workflow or agent revision only when its client-defined policy is satisfied by fresh immutable evidence, with auditable rollback and an immediate kill switch. |

@@ -19,9 +19,22 @@ from amesh.adapters.postgres import (
 from amesh.domain import ExecutionState
 from amesh.dsl.models import FlowDefinition, TaskDefinition, TriggerDefinition
 from amesh.executor import InProcessExecutor
-from amesh.ports import PersistedFlow, SchedulerFenceError
+from amesh.migrations import (
+    apply_migrations,
+    create_ephemeral_database,
+    drop_ephemeral_database,
+    migration_directory,
+)
+from amesh.ports import (
+    ExecutionLaunchSource,
+    PersistedExecution,
+    PersistedFlow,
+    SchedulerFenceError,
+    SubflowLaunchContext,
+    TriggerOccurrence,
+)
 from amesh.scheduler import CronScheduler, ScheduleAction
-from amesh.worker import schedule_once
+from amesh.worker import ScheduleCycleError, process_trigger_occurrences_once, schedule_once
 
 TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
 
@@ -44,6 +57,75 @@ class ScopedPostgresExecutionRepository(PostgresExecutionRepository):
             for flow in flows
             if flow.namespace == self._namespace and flow.flow_id == self._flow_id
         ]
+
+
+class FailFirstExecutionRepository(ScopedPostgresExecutionRepository):
+    def __init__(self, engine: AsyncEngine, namespace: str, flow_id: str) -> None:
+        super().__init__(engine, namespace, flow_id)
+        self.fail_next_create = True
+
+    async def create_execution(
+        self,
+        flow: FlowDefinition,
+        *,
+        tenant_id: str,
+        inputs: dict[str, object],
+        trigger: dict[str, object] | None = None,
+        launch_source: ExecutionLaunchSource = ExecutionLaunchSource.MANUAL,
+        idempotency_key: str | None = None,
+        actor_id: str = "system:executor",
+        labels: dict[str, str] | None = None,
+        subflow: SubflowLaunchContext | None = None,
+        priority: int | None = None,
+    ) -> PersistedExecution:
+        if self.fail_next_create:
+            self.fail_next_create = False
+            raise RuntimeError("simulated transient execution creation failure")
+        return await super().create_execution(
+            flow,
+            tenant_id=tenant_id,
+            inputs=inputs,
+            trigger=trigger,
+            launch_source=launch_source,
+            idempotency_key=idempotency_key,
+            actor_id=actor_id,
+            labels=labels,
+            subflow=subflow,
+            priority=priority,
+        )
+
+
+class ScopedPostgresTriggerRuntimeRepository(PostgresTriggerRuntimeRepository):
+    def __init__(self, engine: AsyncEngine, namespace: str) -> None:
+        super().__init__(engine)
+        self._namespace = namespace
+
+    async def claim_due_occurrences(
+        self,
+        *,
+        tenant_id: str,
+        owner_id: UUID,
+        lease_duration: timedelta,
+        limit: int = 100,
+    ) -> list[TriggerOccurrence]:
+        occurrences = await self.list_occurrences(
+            tenant_id=tenant_id,
+            namespace=self._namespace,
+            limit=limit,
+        )
+        claimed: list[TriggerOccurrence] = []
+        for occurrence in occurrences:
+            if occurrence.state.value not in {"ACCEPTED", "DEFERRED", "RETRY_WAIT"}:
+                continue
+            claimed.append(
+                await self.claim_occurrence(
+                    occurrence.occurrence_id,
+                    tenant_id=tenant_id,
+                    owner_id=owner_id,
+                    lease_duration=lease_duration,
+                )
+            )
+        return claimed
 
 
 async def cleanup_execution(engine: AsyncEngine, execution_id: UUID) -> None:
@@ -279,7 +361,7 @@ def test_worker_poll_fires_applied_cron_flow_once_per_minute() -> None:
         engine = create_async_engine(TEST_DATABASE_URL)
         repository = ScopedPostgresExecutionRepository(engine, flow.namespace, flow.id)
         scheduler_repository = PostgresSchedulerRepository(engine)
-        trigger_runtime = PostgresTriggerRuntimeRepository(engine)
+        trigger_runtime = ScopedPostgresTriggerRuntimeRepository(engine, flow.namespace)
         scheduler_id = uuid4()
         await repository.apply_flow(flow, tenant_id="default")
         first_poll = datetime(2026, 8, 21, 12, 0, 5, tzinfo=UTC)
@@ -329,6 +411,133 @@ def test_worker_poll_fires_applied_cron_flow_once_per_minute() -> None:
             if executions:
                 await cleanup_execution(engine, executions[0].execution_id)
             await engine.dispose()
+
+    asyncio.run(scenario())
+
+
+def test_retry_wait_occurrence_advances_cursor_and_launches_exactly_once() -> None:
+    async def scenario() -> None:
+        if TEST_DATABASE_URL is None:
+            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
+        flow = FlowDefinition(
+            id="retry_wait_convergence",
+            namespace=f"tests.scheduler.retry.{uuid4().hex}",
+            triggers=[
+                TriggerDefinition(
+                    id="every_minute",
+                    type="core.cron",
+                    cron="* * * * *",
+                    timezone="UTC",
+                    retry_delay=timedelta(milliseconds=1),
+                )
+            ],
+            tasks=[TaskDefinition(id="done", type="core.return", value="done")],
+        )
+        database = await create_ephemeral_database(TEST_DATABASE_URL)
+        engine = create_async_engine(database.database_url)
+        repository = FailFirstExecutionRepository(engine, flow.namespace, flow.id)
+        scheduler_repository = PostgresSchedulerRepository(engine)
+        trigger_runtime = ScopedPostgresTriggerRuntimeRepository(engine, flow.namespace)
+        due_at = datetime(2026, 8, 21, 12, 0, 5, tzinfo=UTC)
+        execution_id: UUID | None = None
+
+        try:
+            await apply_migrations(database.database_url, migration_directory())
+            await repository.apply_flow(flow, tenant_id="default")
+            with pytest.raises(ScheduleCycleError) as first_cycle:
+                await schedule_once(
+                    repository,
+                    scheduler_repository,
+                    tenant_ids=("default",),
+                    scheduler_id=uuid4(),
+                    now=due_at,
+                    trigger_runtime=trigger_runtime,
+                )
+            assert "simulated transient execution creation failure" in str(first_cycle.value)
+
+            occurrences = await trigger_runtime.list_occurrences(
+                tenant_id="default",
+                namespace=flow.namespace,
+            )
+            assert len(occurrences) == 1
+            assert occurrences[0].state.value == "RETRY_WAIT"
+            assert occurrences[0].execution_id is None
+
+            async with engine.begin() as connection:
+                await connection.execute(
+                    text(
+                        "UPDATE scheduler_states SET lease_expires_at = clock_timestamp() "
+                        "- interval '1 second' WHERE namespace_name = :namespace"
+                    ),
+                    {"namespace": flow.namespace},
+                )
+                await connection.execute(
+                    text(
+                        "UPDATE trigger_occurrences SET available_at = clock_timestamp() "
+                        "- interval '1 second' WHERE occurrence_id = :occurrence_id"
+                    ),
+                    {"occurrence_id": occurrences[0].occurrence_id},
+                )
+
+            assert (
+                await schedule_once(
+                    repository,
+                    scheduler_repository,
+                    tenant_ids=("default",),
+                    scheduler_id=uuid4(),
+                    now=due_at,
+                    trigger_runtime=trigger_runtime,
+                )
+                == 0
+            )
+            assert (
+                await process_trigger_occurrences_once(
+                    repository,
+                    trigger_runtime,
+                    tenant_ids=("default",),
+                    worker_id=uuid4(),
+                )
+                == 1
+            )
+
+            executions = [
+                execution
+                for execution in await repository.list_executions(
+                    tenant_id="default",
+                    limit=1000,
+                )
+                if execution.namespace == flow.namespace and execution.flow_id == flow.id
+            ]
+            assert len(executions) == 1
+            execution_id = executions[0].execution_id
+            completed_occurrence = (
+                await trigger_runtime.list_occurrences(
+                    tenant_id="default",
+                    namespace=flow.namespace,
+                )
+            )[0]
+            assert completed_occurrence.state.value == "SUCCEEDED"
+            assert completed_occurrence.execution_id == execution_id
+
+            async with engine.connect() as connection:
+                next_fire_at = await connection.scalar(
+                    text(
+                        "SELECT next_fire_at FROM scheduler_states "
+                        "WHERE namespace_name = :namespace"
+                    ),
+                    {"namespace": flow.namespace},
+                )
+            assert next_fire_at > due_at
+        finally:
+            if execution_id is not None:
+                await cleanup_execution(engine, execution_id)
+            async with engine.begin() as connection:
+                await connection.execute(
+                    text("DELETE FROM scheduler_states WHERE namespace_name = :namespace"),
+                    {"namespace": flow.namespace},
+                )
+            await engine.dispose()
+            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
 
     asyncio.run(scenario())
 

@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,15 +21,15 @@ var _ MappedNullable = &AgentEvaluationPreview{}
 
 // AgentEvaluationPreview struct for AgentEvaluationPreview
 type AgentEvaluationPreview struct {
-	Deterministic AgentDeterministicEvaluation `json:"deterministic"`
-	EvaluationKey string `json:"evaluationKey"`
-	EvaluationRevision int32 `json:"evaluationRevision"`
-	ExternalCallsSuppressed *bool `json:"externalCallsSuppressed,omitempty"`
-	FixtureKey string `json:"fixtureKey"`
-	Input map[string]interface{} `json:"input"`
-	JudgeRequired bool `json:"judgeRequired"`
-	ModelBehaviorUnknown *bool `json:"modelBehaviorUnknown,omitempty"`
-	RecordedOutput map[string]interface{} `json:"recordedOutput"`
+	Deterministic           AgentDeterministicEvaluation `json:"deterministic"`
+	EvaluationKey           string                       `json:"evaluationKey"`
+	EvaluationRevision      int32                        `json:"evaluationRevision"`
+	ExternalCallsSuppressed *bool                        `json:"externalCallsSuppressed,omitempty"`
+	FixtureKey              string                       `json:"fixtureKey"`
+	Input                   map[string]interface{}       `json:"input"`
+	JudgeRequired           bool                         `json:"judgeRequired"`
+	ModelBehaviorUnknown    *bool                        `json:"modelBehaviorUnknown,omitempty"`
+	RecordedOutput          map[string]interface{}       `json:"recordedOutput"`
 }
 
 type _AgentEvaluationPreview AgentEvaluationPreview
@@ -299,7 +299,7 @@ func (o *AgentEvaluationPreview) SetRecordedOutput(v map[string]interface{}) {
 }
 
 func (o AgentEvaluationPreview) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -343,10 +343,10 @@ func (o *AgentEvaluationPreview) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

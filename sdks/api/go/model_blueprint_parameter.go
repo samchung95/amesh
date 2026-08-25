@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,12 +21,12 @@ var _ MappedNullable = &BlueprintParameter{}
 
 // BlueprintParameter struct for BlueprintParameter
 type BlueprintParameter struct {
-	Default NullableString `json:"default,omitempty"`
-	Description string `json:"description"`
-	Kind BlueprintParameterKind `json:"kind"`
-	Name string `json:"name" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
-	Required *bool `json:"required,omitempty"`
-	Title string `json:"title"`
+	Default     NullableString         `json:"default,omitempty"`
+	Description string                 `json:"description"`
+	Kind        BlueprintParameterKind `json:"kind"`
+	Name        string                 `json:"name" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
+	Required    *bool                  `json:"required,omitempty"`
+	Title       string                 `json:"title"`
 }
 
 type _BlueprintParameter BlueprintParameter
@@ -88,6 +88,7 @@ func (o *BlueprintParameter) HasDefault() bool {
 func (o *BlueprintParameter) SetDefault(v string) {
 	o.Default.Set(&v)
 }
+
 // SetDefaultNil sets the value for Default to be an explicit nil
 func (o *BlueprintParameter) SetDefaultNil() {
 	o.Default.Set(nil)
@@ -227,7 +228,7 @@ func (o *BlueprintParameter) SetTitle(v string) {
 }
 
 func (o BlueprintParameter) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -265,10 +266,10 @@ func (o *BlueprintParameter) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

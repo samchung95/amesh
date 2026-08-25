@@ -68,6 +68,21 @@ compatibility, observed failure domain, owned work summary, durable partition st
 health. Each role summary is `REDUNDANT`, `AVAILABLE`, `DRAINING` or `UNAVAILABLE`. `REDUNDANT`
 requires at least two ready instances in distinct observed failure domains.
 
+`GET /ready` evaluates every role named by `SERVICE_ENABLED_ROLES`. Roles not in that set are reported
+as `DISABLED` and do not affect HTTP readiness. Enabled roles use these semantics:
+
+- `STARTING`: registered, live, but no successful work cycle has completed yet;
+- `READY`: live and the most recent bounded cycle succeeded;
+- `DEGRADED`: live, but a caught cycle failure is persisted with `lastFailureAt`, a redacted
+  `lastFailure` summary and incremented `consecutiveFailures`;
+- `DRAINING`: live but intentionally taking no new cycle;
+- `UNAVAILABLE`: no live instance is registered.
+
+Every successful cycle updates `lastSuccessAt`, clears the failure summary and resets
+`consecutiveFailures`. Every enabled role must have at least one live `READY` instance for aggregate
+readiness to return HTTP 200. `/health` remains process liveness only and never substitutes for this
+progress check.
+
 During a rolling upgrade, watch `versionSkew`, role versions, stale instances, queue diagnostics and
 reconciliation metrics. Mixed versions are visible and expected only during the documented overlap
 window.

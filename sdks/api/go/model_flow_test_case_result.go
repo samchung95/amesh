@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,14 +21,14 @@ var _ MappedNullable = &FlowTestCaseResult{}
 
 // FlowTestCaseResult struct for FlowTestCaseResult
 type FlowTestCaseResult struct {
-	Assertions []FlowTestAssertion `json:"assertions"`
-	Coverage FlowTestCoverage `json:"coverage"`
-	Error NullableString `json:"error,omitempty"`
-	Outcome FlowTestOutcome `json:"outcome"`
-	Outputs map[string]interface{} `json:"outputs"`
-	State FlowTestTaskState `json:"state"`
-	Tasks []SimulatedTaskResult `json:"tasks"`
-	TestId string `json:"testId"`
+	Assertions []FlowTestAssertion    `json:"assertions"`
+	Coverage   FlowTestCoverage       `json:"coverage"`
+	Error      NullableString         `json:"error,omitempty"`
+	Outcome    FlowTestOutcome        `json:"outcome"`
+	Outputs    map[string]interface{} `json:"outputs"`
+	State      FlowTestTaskState      `json:"state"`
+	Tasks      []SimulatedTaskResult  `json:"tasks"`
+	TestId     string                 `json:"testId"`
 }
 
 type _FlowTestCaseResult FlowTestCaseResult
@@ -137,6 +137,7 @@ func (o *FlowTestCaseResult) HasError() bool {
 func (o *FlowTestCaseResult) SetError(v string) {
 	o.Error.Set(&v)
 }
+
 // SetErrorNil sets the value for Error to be an explicit nil
 func (o *FlowTestCaseResult) SetErrorNil() {
 	o.Error.Set(nil)
@@ -268,7 +269,7 @@ func (o *FlowTestCaseResult) SetTestId(v string) {
 }
 
 func (o FlowTestCaseResult) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -309,10 +310,10 @@ func (o *FlowTestCaseResult) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the PluginPolicyRule type satisfies the MappedNullable interface at compile time
@@ -22,20 +22,20 @@ var _ MappedNullable = &PluginPolicyRule{}
 
 // PluginPolicyRule struct for PluginPolicyRule
 type PluginPolicyRule struct {
-	CreatedAt *time.Time `json:"createdAt,omitempty"`
-	CreatedBy string `json:"createdBy"`
-	Effect PluginPolicyEffect `json:"effect"`
-	Enabled *bool `json:"enabled,omitempty"`
-	Id *string `json:"id,omitempty"`
-	Namespace NullableString `json:"namespace,omitempty"`
-	Priority *int32 `json:"priority,omitempty"`
-	Reason string `json:"reason"`
-	Scope PluginPolicyScope `json:"scope"`
-	Selector *PluginPolicySelector `json:"selector,omitempty"`
-	Stages []PluginPolicyStage `json:"stages"`
-	TenantId NullableString `json:"tenantId,omitempty"`
-	UpdatedAt *time.Time `json:"updatedAt,omitempty"`
-	UpdatedBy string `json:"updatedBy"`
+	CreatedAt *time.Time            `json:"createdAt,omitempty"`
+	CreatedBy string                `json:"createdBy"`
+	Effect    PluginPolicyEffect    `json:"effect"`
+	Enabled   *bool                 `json:"enabled,omitempty"`
+	Id        *string               `json:"id,omitempty"`
+	Namespace NullableString        `json:"namespace,omitempty"`
+	Priority  *int32                `json:"priority,omitempty"`
+	Reason    string                `json:"reason"`
+	Scope     PluginPolicyScope     `json:"scope"`
+	Selector  *PluginPolicySelector `json:"selector,omitempty"`
+	Stages    []PluginPolicyStage   `json:"stages"`
+	TenantId  NullableString        `json:"tenantId,omitempty"`
+	UpdatedAt *time.Time            `json:"updatedAt,omitempty"`
+	UpdatedBy string                `json:"updatedBy"`
 }
 
 type _PluginPolicyRule PluginPolicyRule
@@ -247,6 +247,7 @@ func (o *PluginPolicyRule) HasNamespace() bool {
 func (o *PluginPolicyRule) SetNamespace(v string) {
 	o.Namespace.Set(&v)
 }
+
 // SetNamespaceNil sets the value for Namespace to be an explicit nil
 func (o *PluginPolicyRule) SetNamespaceNil() {
 	o.Namespace.Set(nil)
@@ -425,6 +426,7 @@ func (o *PluginPolicyRule) HasTenantId() bool {
 func (o *PluginPolicyRule) SetTenantId(v string) {
 	o.TenantId.Set(&v)
 }
+
 // SetTenantIdNil sets the value for TenantId to be an explicit nil
 func (o *PluginPolicyRule) SetTenantIdNil() {
 	o.TenantId.Set(nil)
@@ -492,7 +494,7 @@ func (o *PluginPolicyRule) SetUpdatedBy(v string) {
 }
 
 func (o PluginPolicyRule) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -552,10 +554,10 @@ func (o *PluginPolicyRule) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

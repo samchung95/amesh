@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,9 +21,9 @@ var _ MappedNullable = &DeterminismPolicyPin{}
 
 // DeterminismPolicyPin struct for DeterminismPolicyPin
 type DeterminismPolicyPin struct {
-	Category string `json:"category"`
-	Digest string `json:"digest"`
-	Key string `json:"key"`
+	Category string        `json:"category"`
+	Digest   string        `json:"digest"`
+	Key      string        `json:"key"`
 	Revision NullableInt32 `json:"revision,omitempty"`
 }
 
@@ -153,6 +153,7 @@ func (o *DeterminismPolicyPin) HasRevision() bool {
 func (o *DeterminismPolicyPin) SetRevision(v int32) {
 	o.Revision.Set(&v)
 }
+
 // SetRevisionNil sets the value for Revision to be an explicit nil
 func (o *DeterminismPolicyPin) SetRevisionNil() {
 	o.Revision.Set(nil)
@@ -164,7 +165,7 @@ func (o *DeterminismPolicyPin) UnsetRevision() {
 }
 
 func (o DeterminismPolicyPin) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -197,10 +198,10 @@ func (o *DeterminismPolicyPin) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

@@ -20,12 +20,12 @@ type AdmissionScope string
 
 // List of AdmissionScope
 const (
-	ADMISSIONSCOPE_GLOBAL AdmissionScope = "GLOBAL"
-	ADMISSIONSCOPE_TENANT AdmissionScope = "TENANT"
-	ADMISSIONSCOPE_NAMESPACE AdmissionScope = "NAMESPACE"
-	ADMISSIONSCOPE_FLOW AdmissionScope = "FLOW"
+	ADMISSIONSCOPE_GLOBAL       AdmissionScope = "GLOBAL"
+	ADMISSIONSCOPE_TENANT       AdmissionScope = "TENANT"
+	ADMISSIONSCOPE_NAMESPACE    AdmissionScope = "NAMESPACE"
+	ADMISSIONSCOPE_FLOW         AdmissionScope = "FLOW"
 	ADMISSIONSCOPE_WORKER_GROUP AdmissionScope = "WORKER_GROUP"
-	ADMISSIONSCOPE_KEY AdmissionScope = "KEY"
+	ADMISSIONSCOPE_KEY          AdmissionScope = "KEY"
 )
 
 // All allowed values of AdmissionScope enum

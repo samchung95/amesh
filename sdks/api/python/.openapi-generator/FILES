@@ -21,6 +21,7 @@ amesh_client/api/configuration_api.py
 amesh_client/api/credentials_api.py
 amesh_client/api/dashboards_api.py
 amesh_client/api/executions_api.py
+amesh_client/api/external_orchestration_api.py
 amesh_client/api/flow_tests_api.py
 amesh_client/api/flows_api.py
 amesh_client/api/human_tasks_api.py
@@ -30,7 +31,9 @@ amesh_client/api/namespaces_api.py
 amesh_client/api/operations_api.py
 amesh_client/api/plugins_api.py
 amesh_client/api/policies_api.py
+amesh_client/api/quality_api.py
 amesh_client/api/realtime_api.py
+amesh_client/api/releases_api.py
 amesh_client/api/scim_api.py
 amesh_client/api/search_api.py
 amesh_client/api/simulations_api.py
@@ -46,6 +49,7 @@ amesh_client/api_response.py
 amesh_client/configuration.py
 amesh_client/exceptions.py
 amesh_client/models/__init__.py
+amesh_client/models/absolute.py
 amesh_client/models/action.py
 amesh_client/models/administration_apply_request.py
 amesh_client/models/administration_audit_entry.py
@@ -76,6 +80,7 @@ amesh_client/models/agent_judge_policy_output.py
 amesh_client/models/agent_memory_metadata.py
 amesh_client/models/agent_memory_policy.py
 amesh_client/models/agent_memory_scope.py
+amesh_client/models/agent_model_continuation_ref.py
 amesh_client/models/agent_permissions.py
 amesh_client/models/agent_resolution_request.py
 amesh_client/models/agent_resource_kind.py
@@ -102,6 +107,7 @@ amesh_client/models/announcement_audience.py
 amesh_client/models/announcement_create_request.py
 amesh_client/models/announcement_severity.py
 amesh_client/models/app_form.py
+amesh_client/models/approval_requirement.py
 amesh_client/models/asset_access_mode.py
 amesh_client/models/asset_catalog_entry.py
 amesh_client/models/asset_catalog_export.py
@@ -145,6 +151,8 @@ amesh_client/models/blueprint_parameter.py
 amesh_client/models/blueprint_parameter_kind.py
 amesh_client/models/blueprint_provenance.py
 amesh_client/models/blueprint_summary.py
+amesh_client/models/budget_requirement_input.py
+amesh_client/models/budget_requirement_output.py
 amesh_client/models/bulk_execution_item_result.py
 amesh_client/models/bulk_execution_request.py
 amesh_client/models/certificate_diagnostic.py
@@ -157,6 +165,10 @@ amesh_client/models/check_evaluation_point.py
 amesh_client/models/check_outcome.py
 amesh_client/models/check_policy_source.py
 amesh_client/models/check_policy_upsert_request.py
+amesh_client/models/comparison_category.py
+amesh_client/models/comparison_difference.py
+amesh_client/models/comparison_policy.py
+amesh_client/models/comparison_report.py
 amesh_client/models/compatibility_mapping.py
 amesh_client/models/compliance_evidence_category.py
 amesh_client/models/compliance_evidence_create.py
@@ -167,8 +179,10 @@ amesh_client/models/configuration_entry.py
 amesh_client/models/configuration_migration.py
 amesh_client/models/configuration_migration_kind.py
 amesh_client/models/configuration_migration_request.py
+amesh_client/models/configuration_pin.py
 amesh_client/models/configuration_snapshot.py
 amesh_client/models/connection_diagnostic.py
+amesh_client/models/correlationid.py
 amesh_client/models/create_execution_request.py
 amesh_client/models/create_tenant_request.py
 amesh_client/models/credential_kind.py
@@ -192,10 +206,16 @@ amesh_client/models/dashboard_widget_result.py
 amesh_client/models/determinism_envelope.py
 amesh_client/models/determinism_node.py
 amesh_client/models/determinism_policy_pin.py
+amesh_client/models/differential_spec.py
 amesh_client/models/dns_diagnostic.py
 amesh_client/models/dynamic_execution_bound.py
 amesh_client/models/effective_capability_envelope.py
 amesh_client/models/effective_plugin_policy.py
+amesh_client/models/evidence_artifact.py
+amesh_client/models/evidence_bundle_page_response.py
+amesh_client/models/evidence_presence.py
+amesh_client/models/evidence_record.py
+amesh_client/models/evidence_requirement.py
 amesh_client/models/exchange_credential_request.py
 amesh_client/models/execution_artifact.py
 amesh_client/models/execution_detail.py
@@ -214,12 +234,15 @@ amesh_client/models/execution_state.py
 amesh_client/models/expression_preview_request.py
 amesh_client/models/expression_preview_response.py
 amesh_client/models/extension_type.py
+amesh_client/models/external_operation.py
+amesh_client/models/external_orchestration_profile.py
 amesh_client/models/failover_status.py
 amesh_client/models/failure_category.py
 amesh_client/models/feature_flag.py
 amesh_client/models/feature_flag_decision.py
 amesh_client/models/feature_flag_scope.py
 amesh_client/models/feature_flag_upsert_request.py
+amesh_client/models/fixture_source.py
 amesh_client/models/flow_data_contract.py
 amesh_client/models/flow_document_export.py
 amesh_client/models/flow_editor_schema_response.py
@@ -251,6 +274,8 @@ amesh_client/models/flow_validation_result.py
 amesh_client/models/form_field.py
 amesh_client/models/form_section.py
 amesh_client/models/gte.py
+amesh_client/models/health_requirement_input.py
+amesh_client/models/health_requirement_output.py
 amesh_client/models/health_response.py
 amesh_client/models/http_validation_error.py
 amesh_client/models/human_task.py
@@ -284,6 +309,7 @@ amesh_client/models/lifecycle_preview_request.py
 amesh_client/models/lifecycle_resource_type.py
 amesh_client/models/lifecycle_scope.py
 amesh_client/models/lifecycle_trigger.py
+amesh_client/models/lineage.py
 amesh_client/models/lineage_evidence_kind.py
 amesh_client/models/location_inner.py
 amesh_client/models/log_level.py
@@ -293,6 +319,8 @@ amesh_client/models/login_response.py
 amesh_client/models/lte.py
 amesh_client/models/mapping_disposition.py
 amesh_client/models/maxcostusd.py
+amesh_client/models/maximum.py
+amesh_client/models/maximum1.py
 amesh_client/models/maximumuncertainty.py
 amesh_client/models/mcp_connection_discovery_request.py
 amesh_client/models/mcp_connection_revision.py
@@ -302,6 +330,7 @@ amesh_client/models/mcp_tool_impact.py
 amesh_client/models/mcp_tool_pin.py
 amesh_client/models/metric_kind.py
 amesh_client/models/migration_patch.py
+amesh_client/models/minimum.py
 amesh_client/models/minimumrubricscore.py
 amesh_client/models/minimumscore.py
 amesh_client/models/model_fallback_mode.py
@@ -420,6 +449,14 @@ amesh_client/models/principal_definition.py
 amesh_client/models/principal_type.py
 amesh_client/models/problem_detail.py
 amesh_client/models/projectedcostusd.py
+amesh_client/models/promotion_apply_request.py
+amesh_client/models/promotion_evidence_kind.py
+amesh_client/models/promotion_kill_switch_request.py
+amesh_client/models/promotion_policy_input.py
+amesh_client/models/promotion_policy_output.py
+amesh_client/models/promotion_preview_request.py
+amesh_client/models/promotion_rollback_request.py
+amesh_client/models/promotion_target_kind.py
 amesh_client/models/prompt_spec.py
 amesh_client/models/provider_migration_diagnostic.py
 amesh_client/models/provisioned_webhook_subscription.py
@@ -436,8 +473,10 @@ amesh_client/models/reconciliation_request.py
 amesh_client/models/reconciliation_run.py
 amesh_client/models/reconciliation_run_state.py
 amesh_client/models/reconciliation_target_type.py
+amesh_client/models/recordid.py
 amesh_client/models/reduce_execution_request.py
 amesh_client/models/reduce_execution_response.py
+amesh_client/models/relative.py
 amesh_client/models/resolved_agent_evaluation.py
 amesh_client/models/resolved_resource_pin.py
 amesh_client/models/resolved_tool_pin.py
@@ -451,6 +490,7 @@ amesh_client/models/role_binding.py
 amesh_client/models/role_definition.py
 amesh_client/models/rolling_upgrade_step.py
 amesh_client/models/rotate_credential_request.py
+amesh_client/models/run_observation.py
 amesh_client/models/runner_capabilities.py
 amesh_client/models/runner_id.py
 amesh_client/models/runner_mode.py
@@ -493,6 +533,9 @@ amesh_client/models/service_role_status.py
 amesh_client/models/service_state.py
 amesh_client/models/service_topology.py
 amesh_client/models/set_local_password_request.py
+amesh_client/models/shadow_effect.py
+amesh_client/models/shadow_fixture.py
+amesh_client/models/shadow_run.py
 amesh_client/models/simulated_task_result.py
 amesh_client/models/simulation_comparison.py
 amesh_client/models/simulation_estimate_model.py
@@ -533,6 +576,8 @@ amesh_client/models/tenant_export.py
 amesh_client/models/tenant_policy.py
 amesh_client/models/tenant_status.py
 amesh_client/models/time_range_selection.py
+amesh_client/models/tolerance.py
+amesh_client/models/tool_provider_kind.py
 amesh_client/models/trigger_action_request.py
 amesh_client/models/trigger_occurrence.py
 amesh_client/models/trigger_occurrence_state.py
@@ -588,6 +633,7 @@ docs/ConfigurationApi.md
 docs/CredentialsApi.md
 docs/DashboardsApi.md
 docs/ExecutionsApi.md
+docs/ExternalOrchestrationApi.md
 docs/FlowTestsApi.md
 docs/FlowsApi.md
 docs/HumanTasksApi.md
@@ -597,7 +643,9 @@ docs/NamespacesApi.md
 docs/OperationsApi.md
 docs/PluginsApi.md
 docs/PoliciesApi.md
+docs/QualityApi.md
 docs/RealtimeApi.md
+docs/ReleasesApi.md
 docs/ScimApi.md
 docs/SearchApi.md
 docs/SimulationsApi.md

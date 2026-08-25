@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -22,9 +22,9 @@ var _ MappedNullable = &PolicyFlowContext{}
 // PolicyFlowContext struct for PolicyFlowContext
 type PolicyFlowContext struct {
 	Definition map[string]interface{} `json:"definition,omitempty"`
-	Id string `json:"id"`
-	Labels map[string]string `json:"labels,omitempty"`
-	Revision int32 `json:"revision"`
+	Id         string                 `json:"id"`
+	Labels     map[string]string      `json:"labels,omitempty"`
+	Revision   int32                  `json:"revision"`
 }
 
 type _PolicyFlowContext PolicyFlowContext
@@ -161,7 +161,7 @@ func (o *PolicyFlowContext) SetRevision(v int32) {
 }
 
 func (o PolicyFlowContext) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -195,10 +195,10 @@ func (o *PolicyFlowContext) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

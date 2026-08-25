@@ -20,10 +20,10 @@ type AssetHealth string
 
 // List of AssetHealth
 const (
-	ASSETHEALTH_UNKNOWN AssetHealth = "UNKNOWN"
-	ASSETHEALTH_HEALTHY AssetHealth = "HEALTHY"
+	ASSETHEALTH_UNKNOWN  AssetHealth = "UNKNOWN"
+	ASSETHEALTH_HEALTHY  AssetHealth = "HEALTHY"
 	ASSETHEALTH_DEGRADED AssetHealth = "DEGRADED"
-	ASSETHEALTH_FAILED AssetHealth = "FAILED"
+	ASSETHEALTH_FAILED   AssetHealth = "FAILED"
 )
 
 // All allowed values of AssetHealth enum

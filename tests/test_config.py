@@ -35,6 +35,25 @@ def test_reference_configuration_is_postgresql_only() -> None:
     assert settings.core_http_max_response_bytes == 10 * 1024 * 1024
     assert settings.network_inbound_tls_mode == "disabled"
     assert settings.network_egress_allowed_hosts == ("*",)
+    assert settings.service_enabled_roles == ("webserver",)
+
+
+def test_enabled_service_roles_are_explicit_valid_and_include_this_process() -> None:
+    settings = Settings(
+        _env_file=None,
+        service_role="scheduler",
+        service_enabled_roles=("webserver", "scheduler", "executor"),
+    )
+    assert settings.service_enabled_roles == ("webserver", "scheduler", "executor")
+
+    with pytest.raises(ValueError, match="SERVICE_ENABLED_ROLES"):
+        Settings(
+            _env_file=None,
+            service_role="scheduler",
+            service_enabled_roles=("webserver",),
+        )
+    with pytest.raises(ValueError, match="SERVICE_ENABLED_ROLES"):
+        Settings(_env_file=None, service_enabled_roles=("webserver", "unknown"))
 
 
 def test_database_urls_require_the_async_postgresql_driver() -> None:

@@ -21,7 +21,7 @@ type SimulationTaskState string
 // List of SimulationTaskState
 const (
 	SIMULATIONTASKSTATE_SUCCESS SimulationTaskState = "SUCCESS"
-	SIMULATIONTASKSTATE_FAILED SimulationTaskState = "FAILED"
+	SIMULATIONTASKSTATE_FAILED  SimulationTaskState = "FAILED"
 	SIMULATIONTASKSTATE_SKIPPED SimulationTaskState = "SKIPPED"
 	SIMULATIONTASKSTATE_UNKNOWN SimulationTaskState = "UNKNOWN"
 )

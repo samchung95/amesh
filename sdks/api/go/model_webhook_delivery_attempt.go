@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the WebhookDeliveryAttempt type satisfies the MappedNullable interface at compile time
@@ -22,14 +22,14 @@ var _ MappedNullable = &WebhookDeliveryAttempt{}
 
 // WebhookDeliveryAttempt struct for WebhookDeliveryAttempt
 type WebhookDeliveryAttempt struct {
-	Attempt int32 `json:"attempt"`
-	AttemptedAt time.Time `json:"attemptedAt"`
-	DeliveryId string `json:"deliveryId"`
-	DurationMs int32 `json:"durationMs"`
-	ErrorCode NullableString `json:"errorCode,omitempty"`
-	Outcome WebhookDeliveryStatus `json:"outcome"`
-	RequestTimestamp int32 `json:"requestTimestamp"`
-	ResponseStatus NullableInt32 `json:"responseStatus,omitempty"`
+	Attempt          int32                 `json:"attempt"`
+	AttemptedAt      time.Time             `json:"attemptedAt"`
+	DeliveryId       string                `json:"deliveryId"`
+	DurationMs       int32                 `json:"durationMs"`
+	ErrorCode        NullableString        `json:"errorCode,omitempty"`
+	Outcome          WebhookDeliveryStatus `json:"outcome"`
+	RequestTimestamp int32                 `json:"requestTimestamp"`
+	ResponseStatus   NullableInt32         `json:"responseStatus,omitempty"`
 }
 
 type _WebhookDeliveryAttempt WebhookDeliveryAttempt
@@ -185,6 +185,7 @@ func (o *WebhookDeliveryAttempt) HasErrorCode() bool {
 func (o *WebhookDeliveryAttempt) SetErrorCode(v string) {
 	o.ErrorCode.Set(&v)
 }
+
 // SetErrorCodeNil sets the value for ErrorCode to be an explicit nil
 func (o *WebhookDeliveryAttempt) SetErrorCodeNil() {
 	o.ErrorCode.Set(nil)
@@ -275,6 +276,7 @@ func (o *WebhookDeliveryAttempt) HasResponseStatus() bool {
 func (o *WebhookDeliveryAttempt) SetResponseStatus(v int32) {
 	o.ResponseStatus.Set(&v)
 }
+
 // SetResponseStatusNil sets the value for ResponseStatus to be an explicit nil
 func (o *WebhookDeliveryAttempt) SetResponseStatusNil() {
 	o.ResponseStatus.Set(nil)
@@ -286,7 +288,7 @@ func (o *WebhookDeliveryAttempt) UnsetResponseStatus() {
 }
 
 func (o WebhookDeliveryAttempt) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -328,10 +330,10 @@ func (o *WebhookDeliveryAttempt) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

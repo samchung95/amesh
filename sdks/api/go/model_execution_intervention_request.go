@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,12 +21,12 @@ var _ MappedNullable = &ExecutionInterventionRequest{}
 
 // ExecutionInterventionRequest struct for ExecutionInterventionRequest
 type ExecutionInterventionRequest struct {
-	Action ExecutionInterventionAction `json:"action"`
-	CheckpointTaskId NullableString `json:"checkpointTaskId,omitempty"`
-	ExpectedEpoch int32 `json:"expectedEpoch"`
-	ExpectedVersion int32 `json:"expectedVersion"`
-	GraceSeconds *float32 `json:"graceSeconds,omitempty"`
-	Reason string `json:"reason"`
+	Action           ExecutionInterventionAction `json:"action"`
+	CheckpointTaskId NullableString              `json:"checkpointTaskId,omitempty"`
+	ExpectedEpoch    int32                       `json:"expectedEpoch"`
+	ExpectedVersion  int32                       `json:"expectedVersion"`
+	GraceSeconds     *float32                    `json:"graceSeconds,omitempty"`
+	Reason           string                      `json:"reason"`
 }
 
 type _ExecutionInterventionRequest ExecutionInterventionRequest
@@ -112,6 +112,7 @@ func (o *ExecutionInterventionRequest) HasCheckpointTaskId() bool {
 func (o *ExecutionInterventionRequest) SetCheckpointTaskId(v string) {
 	o.CheckpointTaskId.Set(&v)
 }
+
 // SetCheckpointTaskIdNil sets the value for CheckpointTaskId to be an explicit nil
 func (o *ExecutionInterventionRequest) SetCheckpointTaskIdNil() {
 	o.CheckpointTaskId.Set(nil)
@@ -227,7 +228,7 @@ func (o *ExecutionInterventionRequest) SetReason(v string) {
 }
 
 func (o ExecutionInterventionRequest) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -265,10 +266,10 @@ func (o *ExecutionInterventionRequest) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

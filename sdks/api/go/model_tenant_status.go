@@ -20,8 +20,8 @@ type TenantStatus string
 
 // List of TenantStatus
 const (
-	TENANTSTATUS_ACTIVE TenantStatus = "ACTIVE"
-	TENANTSTATUS_SUSPENDED TenantStatus = "SUSPENDED"
+	TENANTSTATUS_ACTIVE     TenantStatus = "ACTIVE"
+	TENANTSTATUS_SUSPENDED  TenantStatus = "SUSPENDED"
 	TENANTSTATUS_TOMBSTONED TenantStatus = "TOMBSTONED"
 )
 

@@ -20,13 +20,13 @@ var _ MappedNullable = &AuditExportRequest{}
 
 // AuditExportRequest struct for AuditExportRequest
 type AuditExportRequest struct {
-	Action NullableString `json:"action,omitempty"`
-	Format *AuditExportFormat `json:"format,omitempty"`
-	Limit *int32 `json:"limit,omitempty"`
-	OccurredFrom NullableTime `json:"occurredFrom,omitempty"`
-	OccurredTo NullableTime `json:"occurredTo,omitempty"`
-	Outcome NullableString `json:"outcome,omitempty"`
-	ResourceType NullableString `json:"resourceType,omitempty"`
+	Action       NullableString     `json:"action,omitempty"`
+	Format       *AuditExportFormat `json:"format,omitempty"`
+	Limit        *int32             `json:"limit,omitempty"`
+	OccurredFrom NullableTime       `json:"occurredFrom,omitempty"`
+	OccurredTo   NullableTime       `json:"occurredTo,omitempty"`
+	Outcome      NullableString     `json:"outcome,omitempty"`
+	ResourceType NullableString     `json:"resourceType,omitempty"`
 }
 
 // NewAuditExportRequest instantiates a new AuditExportRequest object
@@ -86,6 +86,7 @@ func (o *AuditExportRequest) HasAction() bool {
 func (o *AuditExportRequest) SetAction(v string) {
 	o.Action.Set(&v)
 }
+
 // SetActionNil sets the value for Action to be an explicit nil
 func (o *AuditExportRequest) SetActionNil() {
 	o.Action.Set(nil)
@@ -192,6 +193,7 @@ func (o *AuditExportRequest) HasOccurredFrom() bool {
 func (o *AuditExportRequest) SetOccurredFrom(v time.Time) {
 	o.OccurredFrom.Set(&v)
 }
+
 // SetOccurredFromNil sets the value for OccurredFrom to be an explicit nil
 func (o *AuditExportRequest) SetOccurredFromNil() {
 	o.OccurredFrom.Set(nil)
@@ -234,6 +236,7 @@ func (o *AuditExportRequest) HasOccurredTo() bool {
 func (o *AuditExportRequest) SetOccurredTo(v time.Time) {
 	o.OccurredTo.Set(&v)
 }
+
 // SetOccurredToNil sets the value for OccurredTo to be an explicit nil
 func (o *AuditExportRequest) SetOccurredToNil() {
 	o.OccurredTo.Set(nil)
@@ -276,6 +279,7 @@ func (o *AuditExportRequest) HasOutcome() bool {
 func (o *AuditExportRequest) SetOutcome(v string) {
 	o.Outcome.Set(&v)
 }
+
 // SetOutcomeNil sets the value for Outcome to be an explicit nil
 func (o *AuditExportRequest) SetOutcomeNil() {
 	o.Outcome.Set(nil)
@@ -318,6 +322,7 @@ func (o *AuditExportRequest) HasResourceType() bool {
 func (o *AuditExportRequest) SetResourceType(v string) {
 	o.ResourceType.Set(&v)
 }
+
 // SetResourceTypeNil sets the value for ResourceType to be an explicit nil
 func (o *AuditExportRequest) SetResourceTypeNil() {
 	o.ResourceType.Set(nil)
@@ -329,7 +334,7 @@ func (o *AuditExportRequest) UnsetResourceType() {
 }
 
 func (o AuditExportRequest) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}

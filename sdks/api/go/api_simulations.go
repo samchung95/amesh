@@ -19,21 +19,20 @@ import (
 	"strings"
 )
 
-
 // SimulationsAPIService SimulationsAPI service
 type SimulationsAPIService service
 
 type ApiCompareFlowSimulationsApiV1FlowsNamespaceFlowIdSimulationsComparePostRequest struct {
-	ctx context.Context
-	ApiService *SimulationsAPIService
-	namespace string
-	flowId string
-	from *int32
-	to *int32
+	ctx               context.Context
+	ApiService        *SimulationsAPIService
+	namespace         string
+	flowId            string
+	from              *int32
+	to                *int32
 	simulationRequest *SimulationRequest
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization     *string
+	xAmeshCSRF        *string
+	xAmeshTenant      *string
 }
 
 func (r ApiCompareFlowSimulationsApiV1FlowsNamespaceFlowIdSimulationsComparePostRequest) From(from int32) ApiCompareFlowSimulationsApiV1FlowsNamespaceFlowIdSimulationsComparePostRequest {
@@ -73,28 +72,29 @@ func (r ApiCompareFlowSimulationsApiV1FlowsNamespaceFlowIdSimulationsComparePost
 /*
 CompareFlowSimulationsApiV1FlowsNamespaceFlowIdSimulationsComparePost Compare Flow Simulations
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param namespace
- @param flowId
- @return ApiCompareFlowSimulationsApiV1FlowsNamespaceFlowIdSimulationsComparePostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param namespace
+	@param flowId
+	@return ApiCompareFlowSimulationsApiV1FlowsNamespaceFlowIdSimulationsComparePostRequest
 */
 func (a *SimulationsAPIService) CompareFlowSimulationsApiV1FlowsNamespaceFlowIdSimulationsComparePost(ctx context.Context, namespace string, flowId string) ApiCompareFlowSimulationsApiV1FlowsNamespaceFlowIdSimulationsComparePostRequest {
 	return ApiCompareFlowSimulationsApiV1FlowsNamespaceFlowIdSimulationsComparePostRequest{
 		ApiService: a,
-		ctx: ctx,
-		namespace: namespace,
-		flowId: flowId,
+		ctx:        ctx,
+		namespace:  namespace,
+		flowId:     flowId,
 	}
 }
 
 // Execute executes the request
-//  @return SimulationComparison
+//
+//	@return SimulationComparison
 func (a *SimulationsAPIService) CompareFlowSimulationsApiV1FlowsNamespaceFlowIdSimulationsComparePostExecute(r ApiCompareFlowSimulationsApiV1FlowsNamespaceFlowIdSimulationsComparePostRequest) (*SimulationComparison, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *SimulationComparison
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *SimulationComparison
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "SimulationsAPIService.CompareFlowSimulationsApiV1FlowsNamespaceFlowIdSimulationsComparePost")
@@ -184,8 +184,8 @@ func (a *SimulationsAPIService) CompareFlowSimulationsApiV1FlowsNamespaceFlowIdS
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -203,15 +203,15 @@ func (a *SimulationsAPIService) CompareFlowSimulationsApiV1FlowsNamespaceFlowIdS
 }
 
 type ApiSimulateFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionSimulatePostRequest struct {
-	ctx context.Context
-	ApiService *SimulationsAPIService
-	namespace string
-	flowId string
-	revision int32
+	ctx               context.Context
+	ApiService        *SimulationsAPIService
+	namespace         string
+	flowId            string
+	revision          int32
 	simulationRequest *SimulationRequest
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization     *string
+	xAmeshCSRF        *string
+	xAmeshTenant      *string
 }
 
 func (r ApiSimulateFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionSimulatePostRequest) SimulationRequest(simulationRequest SimulationRequest) ApiSimulateFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionSimulatePostRequest {
@@ -241,30 +241,31 @@ func (r ApiSimulateFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionSimulat
 /*
 SimulateFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionSimulatePost Simulate Flow Revision
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param namespace
- @param flowId
- @param revision
- @return ApiSimulateFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionSimulatePostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param namespace
+	@param flowId
+	@param revision
+	@return ApiSimulateFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionSimulatePostRequest
 */
 func (a *SimulationsAPIService) SimulateFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionSimulatePost(ctx context.Context, namespace string, flowId string, revision int32) ApiSimulateFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionSimulatePostRequest {
 	return ApiSimulateFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionSimulatePostRequest{
 		ApiService: a,
-		ctx: ctx,
-		namespace: namespace,
-		flowId: flowId,
-		revision: revision,
+		ctx:        ctx,
+		namespace:  namespace,
+		flowId:     flowId,
+		revision:   revision,
 	}
 }
 
 // Execute executes the request
-//  @return SimulationPlan
+//
+//	@return SimulationPlan
 func (a *SimulationsAPIService) SimulateFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionSimulatePostExecute(r ApiSimulateFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionSimulatePostRequest) (*SimulationPlan, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *SimulationPlan
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *SimulationPlan
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "SimulationsAPIService.SimulateFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionSimulatePost")
@@ -341,8 +342,8 @@ func (a *SimulationsAPIService) SimulateFlowRevisionApiV1FlowsNamespaceFlowIdRev
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}

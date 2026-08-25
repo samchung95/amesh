@@ -33,6 +33,8 @@ export type Capability =
   | 'namespaceResources.write'
   | 'secretBindings.write'
   | 'plugins.view'
+  | 'releases.view'
+  | 'releases.manage'
   | 'administration.manage'
 
 export interface UiSession {
@@ -44,6 +46,55 @@ export interface UiSession {
   capabilities: Record<Capability, boolean>
   telemetryEnabled: boolean
   serverVersion: string
+}
+
+export type PromotionTargetKind = 'WORKFLOW' | 'AGENT'
+
+export interface PromotionGate {
+  gateId: string
+  tenantId: string
+  policyId: string
+  policyDigest: string
+  targetKind: PromotionTargetKind
+  targetKey: string
+  targetRevision: number
+  configurationDigest: string
+  evidenceDigests: string[]
+  passed: boolean
+  failures: string[]
+  evaluatedAt: string
+}
+
+export interface ReleaseTarget {
+  tenantId: string
+  targetKind: PromotionTargetKind
+  targetKey: string
+  activeRevision: number | null
+  activeConfigurationDigest: string | null
+  state: 'ACTIVE' | 'KILLED'
+  version: number
+  updatedAt: string
+}
+
+export interface ReleaseHistoryEntry {
+  eventId: string
+  tenantId: string
+  targetKind: PromotionTargetKind
+  targetKey: string
+  action: 'PROMOTE' | 'ROLLBACK' | 'KILL_SWITCH'
+  fromRevision: number | null
+  toRevision: number | null
+  toConfigurationDigest: string | null
+  gateDigest: string | null
+  actorId: string
+  reason: string
+  version: number
+  occurredAt: string
+}
+
+export interface ReleaseActionResult {
+  target: ReleaseTarget
+  event: ReleaseHistoryEntry
 }
 
 export interface AppFormField {

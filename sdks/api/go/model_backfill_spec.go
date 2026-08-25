@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,15 +21,15 @@ var _ MappedNullable = &BackfillSpec{}
 
 // BackfillSpec struct for BackfillSpec
 type BackfillSpec struct {
-	FlowId string `json:"flowId"`
-	FlowRevision int32 `json:"flowRevision"`
-	Inputs map[string]interface{} `json:"inputs,omitempty"`
-	Labels map[string]string `json:"labels,omitempty"`
-	MaxConcurrency *int32 `json:"maxConcurrency,omitempty"`
-	Namespace string `json:"namespace"`
-	Priority *int32 `json:"priority,omitempty"`
-	RatePerMinute *int32 `json:"ratePerMinute,omitempty"`
-	Selection BackfillSelection `json:"selection"`
+	FlowId         string                 `json:"flowId"`
+	FlowRevision   int32                  `json:"flowRevision"`
+	Inputs         map[string]interface{} `json:"inputs,omitempty"`
+	Labels         map[string]string      `json:"labels,omitempty"`
+	MaxConcurrency *int32                 `json:"maxConcurrency,omitempty"`
+	Namespace      string                 `json:"namespace"`
+	Priority       *int32                 `json:"priority,omitempty"`
+	RatePerMinute  *int32                 `json:"ratePerMinute,omitempty"`
+	Selection      BackfillSelection      `json:"selection"`
 }
 
 type _BackfillSpec BackfillSpec
@@ -324,7 +324,7 @@ func (o *BackfillSpec) SetSelection(v BackfillSelection) {
 }
 
 func (o BackfillSpec) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -371,10 +371,10 @@ func (o *BackfillSpec) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

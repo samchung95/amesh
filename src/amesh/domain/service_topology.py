@@ -20,6 +20,7 @@ class ServiceRole(StrEnum):
 class ServiceState(StrEnum):
     STARTING = "STARTING"
     READY = "READY"
+    DEGRADED = "DEGRADED"
     DRAINING = "DRAINING"
     STOPPED = "STOPPED"
 
@@ -73,6 +74,10 @@ class ServiceInstance(BaseModel):
     dependencies: dict[str, str] = Field(default_factory=dict)
     registered_at: datetime = Field(alias="registeredAt")
     last_heartbeat_at: datetime = Field(alias="lastHeartbeatAt")
+    last_success_at: datetime | None = Field(default=None, alias="lastSuccessAt")
+    last_failure_at: datetime | None = Field(default=None, alias="lastFailureAt")
+    consecutive_failures: int = Field(default=0, ge=0, alias="consecutiveFailures")
+    last_failure: str | None = Field(default=None, alias="lastFailure")
     stopped_at: datetime | None = Field(default=None, alias="stoppedAt")
 
 
@@ -83,6 +88,7 @@ class ServiceRoleStatus(BaseModel):
     total_instances: int = Field(ge=0, alias="totalInstances")
     live_instances: int = Field(ge=0, alias="liveInstances")
     ready_instances: int = Field(ge=0, alias="readyInstances")
+    degraded_instances: int = Field(ge=0, alias="degradedInstances")
     draining_instances: int = Field(ge=0, alias="drainingInstances")
     stale_instances: int = Field(ge=0, alias="staleInstances")
     failure_zones: tuple[str, ...] = Field(alias="failureZones")

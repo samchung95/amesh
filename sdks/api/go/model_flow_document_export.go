@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,11 +21,11 @@ var _ MappedNullable = &FlowDocumentExport{}
 
 // FlowDocumentExport struct for FlowDocumentExport
 type FlowDocumentExport struct {
-	Document map[string]interface{} `json:"document"`
-	FlowId string `json:"flowId"`
-	Namespace string `json:"namespace"`
-	Revision int32 `json:"revision"`
-	SemanticHash string `json:"semanticHash"`
+	Document     map[string]interface{} `json:"document"`
+	FlowId       string                 `json:"flowId"`
+	Namespace    string                 `json:"namespace"`
+	Revision     int32                  `json:"revision"`
+	SemanticHash string                 `json:"semanticHash"`
 }
 
 type _FlowDocumentExport FlowDocumentExport
@@ -173,7 +173,7 @@ func (o *FlowDocumentExport) SetSemanticHash(v string) {
 }
 
 func (o FlowDocumentExport) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -207,10 +207,10 @@ func (o *FlowDocumentExport) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

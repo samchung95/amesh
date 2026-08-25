@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,13 +21,13 @@ var _ MappedNullable = &CheckDefinition{}
 
 // CheckDefinition struct for CheckDefinition
 type CheckDefinition struct {
-	Actions []CheckActionDefinition `json:"actions,omitempty"`
-	Enabled *bool `json:"enabled,omitempty"`
-	Expression NullableString `json:"expression,omitempty"`
-	Id string `json:"id" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
-	Severity *string `json:"severity,omitempty"`
-	Threshold NullableString `json:"threshold,omitempty"`
-	Type string `json:"type"`
+	Actions    []CheckActionDefinition `json:"actions,omitempty"`
+	Enabled    *bool                   `json:"enabled,omitempty"`
+	Expression NullableString          `json:"expression,omitempty"`
+	Id         string                  `json:"id" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
+	Severity   *string                 `json:"severity,omitempty"`
+	Threshold  NullableString          `json:"threshold,omitempty"`
+	Type       string                  `json:"type"`
 }
 
 type _CheckDefinition CheckDefinition
@@ -155,6 +155,7 @@ func (o *CheckDefinition) HasExpression() bool {
 func (o *CheckDefinition) SetExpression(v string) {
 	o.Expression.Set(&v)
 }
+
 // SetExpressionNil sets the value for Expression to be an explicit nil
 func (o *CheckDefinition) SetExpressionNil() {
 	o.Expression.Set(nil)
@@ -253,6 +254,7 @@ func (o *CheckDefinition) HasThreshold() bool {
 func (o *CheckDefinition) SetThreshold(v string) {
 	o.Threshold.Set(&v)
 }
+
 // SetThresholdNil sets the value for Threshold to be an explicit nil
 func (o *CheckDefinition) SetThresholdNil() {
 	o.Threshold.Set(nil)
@@ -288,7 +290,7 @@ func (o *CheckDefinition) SetType(v string) {
 }
 
 func (o CheckDefinition) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -331,10 +333,10 @@ func (o *CheckDefinition) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

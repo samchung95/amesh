@@ -20,6 +20,13 @@ import {
     McpToolImpactToJSON,
     McpToolImpactToJSONTyped,
 } from './McpToolImpact';
+import type { ToolProviderKind } from './ToolProviderKind';
+import {
+    ToolProviderKindFromJSON,
+    ToolProviderKindFromJSONTyped,
+    ToolProviderKindToJSON,
+    ToolProviderKindToJSONTyped,
+} from './ToolProviderKind';
 
 /**
  *
@@ -32,31 +39,55 @@ export interface ResolvedToolPin {
      * @type {string}
      * @memberof ResolvedToolPin
      */
-    connectionDigest: string;
+    connectionDigest?: string | null;
     /**
      *
      * @type {string}
      * @memberof ResolvedToolPin
      */
-    connectionId: string;
+    connectionId?: string | null;
     /**
      *
      * @type {string}
      * @memberof ResolvedToolPin
      */
-    connectionKey: string;
+    connectionKey?: string | null;
     /**
      *
      * @type {number}
      * @memberof ResolvedToolPin
      */
-    connectionRevision: number;
+    connectionRevision?: number | null;
     /**
      *
      * @type {McpToolImpact}
      * @memberof ResolvedToolPin
      */
     impact: McpToolImpact;
+    /**
+     *
+     * @type {string}
+     * @memberof ResolvedToolPin
+     */
+    providerDigest: string;
+    /**
+     *
+     * @type {string}
+     * @memberof ResolvedToolPin
+     */
+    providerKey: string;
+    /**
+     *
+     * @type {ToolProviderKind}
+     * @memberof ResolvedToolPin
+     */
+    providerKind?: ToolProviderKind;
+    /**
+     *
+     * @type {number}
+     * @memberof ResolvedToolPin
+     */
+    providerRevision: number;
     /**
      *
      * @type {string}
@@ -77,11 +108,10 @@ export interface ResolvedToolPin {
  * Check if a given object implements the ResolvedToolPin interface.
  */
 export function instanceOfResolvedToolPin(value: object): value is ResolvedToolPin {
-    if (!('connectionDigest' in value) || value['connectionDigest'] === undefined) return false;
-    if (!('connectionId' in value) || value['connectionId'] === undefined) return false;
-    if (!('connectionKey' in value) || value['connectionKey'] === undefined) return false;
-    if (!('connectionRevision' in value) || value['connectionRevision'] === undefined) return false;
     if (!('impact' in value) || value['impact'] === undefined) return false;
+    if (!('providerDigest' in value) || value['providerDigest'] === undefined) return false;
+    if (!('providerKey' in value) || value['providerKey'] === undefined) return false;
+    if (!('providerRevision' in value) || value['providerRevision'] === undefined) return false;
     if (!('schemaDigest' in value) || value['schemaDigest'] === undefined) return false;
     if (!('toolName' in value) || value['toolName'] === undefined) return false;
     return true;
@@ -97,11 +127,15 @@ export function ResolvedToolPinFromJSONTyped(json: any, ignoreDiscriminator: boo
     }
     return {
 
-        'connectionDigest': json['connectionDigest'],
-        'connectionId': json['connectionId'],
-        'connectionKey': json['connectionKey'],
-        'connectionRevision': json['connectionRevision'],
+        'connectionDigest': json['connectionDigest'] === undefined ? undefined : json['connectionDigest'] === null ? null : json['connectionDigest'],
+        'connectionId': json['connectionId'] === undefined ? undefined : json['connectionId'] === null ? null : json['connectionId'],
+        'connectionKey': json['connectionKey'] === undefined ? undefined : json['connectionKey'] === null ? null : json['connectionKey'],
+        'connectionRevision': json['connectionRevision'] === undefined ? undefined : json['connectionRevision'] === null ? null : json['connectionRevision'],
         'impact': McpToolImpactFromJSON(json['impact']),
+        'providerDigest': json['providerDigest'],
+        'providerKey': json['providerKey'],
+        'providerKind': json['providerKind'] == null ? undefined : ToolProviderKindFromJSON(json['providerKind']),
+        'providerRevision': json['providerRevision'],
         'schemaDigest': json['schemaDigest'],
         'toolName': json['toolName'],
     };
@@ -123,6 +157,10 @@ export function ResolvedToolPinToJSONTyped(value?: ResolvedToolPin | null, ignor
         'connectionKey': value['connectionKey'],
         'connectionRevision': value['connectionRevision'],
         'impact': McpToolImpactToJSON(value['impact']),
+        'providerDigest': value['providerDigest'],
+        'providerKey': value['providerKey'],
+        'providerKind': ToolProviderKindToJSON(value['providerKind']),
+        'providerRevision': value['providerRevision'],
         'schemaDigest': value['schemaDigest'],
         'toolName': value['toolName'],
     };

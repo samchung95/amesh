@@ -19,10 +19,10 @@ var _ MappedNullable = &FlowTestExpectation{}
 
 // FlowTestExpectation struct for FlowTestExpectation
 type FlowTestExpectation struct {
-	Outputs map[string]interface{} `json:"outputs,omitempty"`
-	State *FlowTestTaskState `json:"state,omitempty"`
+	Outputs     map[string]interface{}            `json:"outputs,omitempty"`
+	State       *FlowTestTaskState                `json:"state,omitempty"`
 	TaskOutputs map[string]map[string]interface{} `json:"taskOutputs,omitempty"`
-	TaskStates map[string]FlowTestTaskState `json:"taskStates,omitempty"`
+	TaskStates  map[string]FlowTestTaskState      `json:"taskStates,omitempty"`
 }
 
 // NewFlowTestExpectation instantiates a new FlowTestExpectation object
@@ -176,7 +176,7 @@ func (o *FlowTestExpectation) SetTaskStates(v map[string]FlowTestTaskState) {
 }
 
 func (o FlowTestExpectation) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}

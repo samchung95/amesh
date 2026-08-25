@@ -20,12 +20,12 @@ var _ MappedNullable = &PolicyRule{}
 
 // PolicyRule struct for PolicyRule
 type PolicyRule struct {
-	Conditions []PolicyCondition `json:"conditions,omitempty"`
-	Id string `json:"id" validate:"regexp=^[a-z][a-z0-9_.-]*$"`
-	Mutations map[string]interface{} `json:"mutations,omitempty"`
-	Outcome PolicyOutcome `json:"outcome"`
-	Reason string `json:"reason"`
-	Stages []PolicyStage `json:"stages"`
+	Conditions           []PolicyCondition      `json:"conditions,omitempty"`
+	Id                   string                 `json:"id" validate:"regexp=^[a-z][a-z0-9_.-]*$"`
+	Mutations            map[string]interface{} `json:"mutations,omitempty"`
+	Outcome              PolicyOutcome          `json:"outcome"`
+	Reason               string                 `json:"reason"`
+	Stages               []PolicyStage          `json:"stages"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -213,7 +213,7 @@ func (o *PolicyRule) SetStages(v []PolicyStage) {
 }
 
 func (o PolicyRule) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -256,10 +256,10 @@ func (o *PolicyRule) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

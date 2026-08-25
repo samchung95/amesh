@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the WebhookSubscription type satisfies the MappedNullable interface at compile time
@@ -22,19 +22,19 @@ var _ MappedNullable = &WebhookSubscription{}
 
 // WebhookSubscription struct for WebhookSubscription
 type WebhookSubscription struct {
-	CreatedAt time.Time `json:"createdAt"`
-	CreatedBy string `json:"createdBy"`
-	Enabled bool `json:"enabled"`
-	Filters RealtimeFilter `json:"filters"`
-	Id string `json:"id"`
-	LastEnqueuedCursor int32 `json:"lastEnqueuedCursor"`
-	MaxAttempts int32 `json:"maxAttempts"`
-	Name string `json:"name"`
-	ResourceVersion int32 `json:"resourceVersion"`
-	SigningVersion int32 `json:"signingVersion"`
-	UpdatedAt time.Time `json:"updatedAt"`
-	UpdatedBy string `json:"updatedBy"`
-	Url string `json:"url"`
+	CreatedAt          time.Time      `json:"createdAt"`
+	CreatedBy          string         `json:"createdBy"`
+	Enabled            bool           `json:"enabled"`
+	Filters            RealtimeFilter `json:"filters"`
+	Id                 string         `json:"id"`
+	LastEnqueuedCursor int32          `json:"lastEnqueuedCursor"`
+	MaxAttempts        int32          `json:"maxAttempts"`
+	Name               string         `json:"name"`
+	ResourceVersion    int32          `json:"resourceVersion"`
+	SigningVersion     int32          `json:"signingVersion"`
+	UpdatedAt          time.Time      `json:"updatedAt"`
+	UpdatedBy          string         `json:"updatedBy"`
+	Url                string         `json:"url"`
 }
 
 type _WebhookSubscription WebhookSubscription
@@ -382,7 +382,7 @@ func (o *WebhookSubscription) SetUrl(v string) {
 }
 
 func (o WebhookSubscription) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -432,10 +432,10 @@ func (o *WebhookSubscription) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

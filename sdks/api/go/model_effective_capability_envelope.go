@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,22 +21,22 @@ var _ MappedNullable = &EffectiveCapabilityEnvelope{}
 
 // EffectiveCapabilityEnvelope struct for EffectiveCapabilityEnvelope
 type EffectiveCapabilityEnvelope struct {
-	Agent ResolvedResourcePin `json:"agent"`
-	EvaluationPolicy AgentEvaluationPolicy `json:"evaluationPolicy"`
-	Evaluations []ResolvedAgentEvaluation `json:"evaluations,omitempty"`
-	FallbackMode ModelFallbackMode `json:"fallbackMode"`
-	HardLimits AgentHardLimitsOutput `json:"hardLimits"`
-	InputSchema map[string]interface{} `json:"inputSchema"`
-	Instructions []InstructionFragment `json:"instructions"`
-	MemoryPolicy AgentMemoryPolicy `json:"memoryPolicy"`
-	ModelRoutes []ModelRoute `json:"modelRoutes"`
-	OutputNondeterminismDisclosure string `json:"outputNondeterminismDisclosure"`
-	OutputSchema map[string]interface{} `json:"outputSchema"`
-	Permissions AgentPermissions `json:"permissions"`
-	PromptVariables map[string]string `json:"promptVariables"`
-	Resources []ResolvedResourcePin `json:"resources"`
-	SchemaVersion *string `json:"schemaVersion,omitempty"`
-	Tools []ResolvedToolPin `json:"tools"`
+	Agent                          ResolvedResourcePin       `json:"agent"`
+	EvaluationPolicy               AgentEvaluationPolicy     `json:"evaluationPolicy"`
+	Evaluations                    []ResolvedAgentEvaluation `json:"evaluations,omitempty"`
+	FallbackMode                   ModelFallbackMode         `json:"fallbackMode"`
+	HardLimits                     AgentHardLimitsOutput     `json:"hardLimits"`
+	InputSchema                    map[string]interface{}    `json:"inputSchema"`
+	Instructions                   []InstructionFragment     `json:"instructions"`
+	MemoryPolicy                   AgentMemoryPolicy         `json:"memoryPolicy"`
+	ModelRoutes                    []ModelRoute              `json:"modelRoutes"`
+	OutputNondeterminismDisclosure string                    `json:"outputNondeterminismDisclosure"`
+	OutputSchema                   map[string]interface{}    `json:"outputSchema"`
+	Permissions                    AgentPermissions          `json:"permissions"`
+	PromptVariables                map[string]string         `json:"promptVariables"`
+	Resources                      []ResolvedResourcePin     `json:"resources"`
+	SchemaVersion                  *string                   `json:"schemaVersion,omitempty"`
+	Tools                          []ResolvedToolPin         `json:"tools"`
 }
 
 type _EffectiveCapabilityEnvelope EffectiveCapabilityEnvelope
@@ -477,7 +477,7 @@ func (o *EffectiveCapabilityEnvelope) SetTools(v []ResolvedToolPin) {
 }
 
 func (o EffectiveCapabilityEnvelope) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -535,10 +535,10 @@ func (o *EffectiveCapabilityEnvelope) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

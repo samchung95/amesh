@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the LifecycleLegalHoldDraft type satisfies the MappedNullable interface at compile time
@@ -22,14 +22,14 @@ var _ MappedNullable = &LifecycleLegalHoldDraft{}
 
 // LifecycleLegalHoldDraft struct for LifecycleLegalHoldDraft
 type LifecycleLegalHoldDraft struct {
-	DataFrom NullableTime `json:"dataFrom,omitempty"`
-	DataTo NullableTime `json:"dataTo,omitempty"`
-	LabelSelector map[string]string `json:"labelSelector,omitempty"`
-	Name string `json:"name"`
-	Namespace NullableString `json:"namespace,omitempty"`
-	Reason string `json:"reason"`
-	ResourceId NullableString `json:"resourceId,omitempty"`
-	ResourceType NullableLifecycleResourceType `json:"resourceType,omitempty"`
+	DataFrom      NullableTime                  `json:"dataFrom,omitempty"`
+	DataTo        NullableTime                  `json:"dataTo,omitempty"`
+	LabelSelector map[string]string             `json:"labelSelector,omitempty"`
+	Name          string                        `json:"name"`
+	Namespace     NullableString                `json:"namespace,omitempty"`
+	Reason        string                        `json:"reason"`
+	ResourceId    NullableString                `json:"resourceId,omitempty"`
+	ResourceType  NullableLifecycleResourceType `json:"resourceType,omitempty"`
 }
 
 type _LifecycleLegalHoldDraft LifecycleLegalHoldDraft
@@ -85,6 +85,7 @@ func (o *LifecycleLegalHoldDraft) HasDataFrom() bool {
 func (o *LifecycleLegalHoldDraft) SetDataFrom(v time.Time) {
 	o.DataFrom.Set(&v)
 }
+
 // SetDataFromNil sets the value for DataFrom to be an explicit nil
 func (o *LifecycleLegalHoldDraft) SetDataFromNil() {
 	o.DataFrom.Set(nil)
@@ -127,6 +128,7 @@ func (o *LifecycleLegalHoldDraft) HasDataTo() bool {
 func (o *LifecycleLegalHoldDraft) SetDataTo(v time.Time) {
 	o.DataTo.Set(&v)
 }
+
 // SetDataToNil sets the value for DataTo to be an explicit nil
 func (o *LifecycleLegalHoldDraft) SetDataToNil() {
 	o.DataTo.Set(nil)
@@ -225,6 +227,7 @@ func (o *LifecycleLegalHoldDraft) HasNamespace() bool {
 func (o *LifecycleLegalHoldDraft) SetNamespace(v string) {
 	o.Namespace.Set(&v)
 }
+
 // SetNamespaceNil sets the value for Namespace to be an explicit nil
 func (o *LifecycleLegalHoldDraft) SetNamespaceNil() {
 	o.Namespace.Set(nil)
@@ -291,6 +294,7 @@ func (o *LifecycleLegalHoldDraft) HasResourceId() bool {
 func (o *LifecycleLegalHoldDraft) SetResourceId(v string) {
 	o.ResourceId.Set(&v)
 }
+
 // SetResourceIdNil sets the value for ResourceId to be an explicit nil
 func (o *LifecycleLegalHoldDraft) SetResourceIdNil() {
 	o.ResourceId.Set(nil)
@@ -333,6 +337,7 @@ func (o *LifecycleLegalHoldDraft) HasResourceType() bool {
 func (o *LifecycleLegalHoldDraft) SetResourceType(v LifecycleResourceType) {
 	o.ResourceType.Set(&v)
 }
+
 // SetResourceTypeNil sets the value for ResourceType to be an explicit nil
 func (o *LifecycleLegalHoldDraft) SetResourceTypeNil() {
 	o.ResourceType.Set(nil)
@@ -344,7 +349,7 @@ func (o *LifecycleLegalHoldDraft) UnsetResourceType() {
 }
 
 func (o LifecycleLegalHoldDraft) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -390,10 +395,10 @@ func (o *LifecycleLegalHoldDraft) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

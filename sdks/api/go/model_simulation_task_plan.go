@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,21 +21,21 @@ var _ MappedNullable = &SimulationTaskPlan{}
 
 // SimulationTaskPlan struct for SimulationTaskPlan
 type SimulationTaskPlan struct {
-	Attempts int32 `json:"attempts"`
-	ConcurrencyBuckets []string `json:"concurrencyBuckets,omitempty"`
-	Dependencies []string `json:"dependencies,omitempty"`
-	ExpressionStatus string `json:"expressionStatus"`
-	LifecyclePhase string `json:"lifecyclePhase"`
-	MaxAttempts int32 `json:"maxAttempts"`
-	Order int32 `json:"order"`
-	Output map[string]*interface{} `json:"output,omitempty"`
-	ParentId NullableString `json:"parentId,omitempty"`
-	Reason string `json:"reason"`
-	Runner NullableString `json:"runner,omitempty"`
-	State SimulationTaskState `json:"state"`
-	Substitution SimulationSubstitution `json:"substitution"`
-	TaskId string `json:"taskId"`
-	TaskType string `json:"taskType"`
+	Attempts           int32                   `json:"attempts"`
+	ConcurrencyBuckets []string                `json:"concurrencyBuckets,omitempty"`
+	Dependencies       []string                `json:"dependencies,omitempty"`
+	ExpressionStatus   string                  `json:"expressionStatus"`
+	LifecyclePhase     string                  `json:"lifecyclePhase"`
+	MaxAttempts        int32                   `json:"maxAttempts"`
+	Order              int32                   `json:"order"`
+	Output             map[string]*interface{} `json:"output,omitempty"`
+	ParentId           NullableString          `json:"parentId,omitempty"`
+	Reason             string                  `json:"reason"`
+	Runner             NullableString          `json:"runner,omitempty"`
+	State              SimulationTaskState     `json:"state"`
+	Substitution       SimulationSubstitution  `json:"substitution"`
+	TaskId             string                  `json:"taskId"`
+	TaskType           string                  `json:"taskType"`
 }
 
 type _SimulationTaskPlan SimulationTaskPlan
@@ -316,6 +316,7 @@ func (o *SimulationTaskPlan) HasParentId() bool {
 func (o *SimulationTaskPlan) SetParentId(v string) {
 	o.ParentId.Set(&v)
 }
+
 // SetParentIdNil sets the value for ParentId to be an explicit nil
 func (o *SimulationTaskPlan) SetParentIdNil() {
 	o.ParentId.Set(nil)
@@ -382,6 +383,7 @@ func (o *SimulationTaskPlan) HasRunner() bool {
 func (o *SimulationTaskPlan) SetRunner(v string) {
 	o.Runner.Set(&v)
 }
+
 // SetRunnerNil sets the value for Runner to be an explicit nil
 func (o *SimulationTaskPlan) SetRunnerNil() {
 	o.Runner.Set(nil)
@@ -489,7 +491,7 @@ func (o *SimulationTaskPlan) SetTaskType(v string) {
 }
 
 func (o SimulationTaskPlan) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -548,10 +550,10 @@ func (o *SimulationTaskPlan) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

@@ -20,8 +20,8 @@ type AuthorizationScopeType string
 
 // List of AuthorizationScopeType
 const (
-	AUTHORIZATIONSCOPETYPE_INSTANCE AuthorizationScopeType = "INSTANCE"
-	AUTHORIZATIONSCOPETYPE_TENANT AuthorizationScopeType = "TENANT"
+	AUTHORIZATIONSCOPETYPE_INSTANCE  AuthorizationScopeType = "INSTANCE"
+	AUTHORIZATIONSCOPETYPE_TENANT    AuthorizationScopeType = "TENANT"
 	AUTHORIZATIONSCOPETYPE_NAMESPACE AuthorizationScopeType = "NAMESPACE"
 )
 

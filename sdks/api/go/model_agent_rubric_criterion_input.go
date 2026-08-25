@@ -20,10 +20,10 @@ var _ MappedNullable = &AgentRubricCriterionInput{}
 
 // AgentRubricCriterionInput struct for AgentRubricCriterionInput
 type AgentRubricCriterionInput struct {
-	Assertion map[string]interface{} `json:"assertion"`
-	Description string `json:"description"`
-	Key string `json:"key" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
-	Weight *Weight `json:"weight,omitempty"`
+	Assertion            map[string]interface{} `json:"assertion"`
+	Description          string                 `json:"description"`
+	Key                  string                 `json:"key" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
+	Weight               *Weight                `json:"weight,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -154,7 +154,7 @@ func (o *AgentRubricCriterionInput) SetWeight(v Weight) {
 }
 
 func (o AgentRubricCriterionInput) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -192,10 +192,10 @@ func (o *AgentRubricCriterionInput) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

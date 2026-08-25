@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the AnnouncementCreateRequest type satisfies the MappedNullable interface at compile time
@@ -22,13 +22,13 @@ var _ MappedNullable = &AnnouncementCreateRequest{}
 
 // AnnouncementCreateRequest struct for AnnouncementCreateRequest
 type AnnouncementCreateRequest struct {
-	Audience *AnnouncementAudience `json:"audience,omitempty"`
-	ExpiresAt time.Time `json:"expiresAt"`
-	Message string `json:"message"`
-	Namespace NullableString `json:"namespace,omitempty"`
-	Severity *AnnouncementSeverity `json:"severity,omitempty"`
-	StartsAt *time.Time `json:"startsAt,omitempty"`
-	Title string `json:"title"`
+	Audience  *AnnouncementAudience `json:"audience,omitempty"`
+	ExpiresAt time.Time             `json:"expiresAt"`
+	Message   string                `json:"message"`
+	Namespace NullableString        `json:"namespace,omitempty"`
+	Severity  *AnnouncementSeverity `json:"severity,omitempty"`
+	StartsAt  *time.Time            `json:"startsAt,omitempty"`
+	Title     string                `json:"title"`
 }
 
 type _AnnouncementCreateRequest AnnouncementCreateRequest
@@ -173,6 +173,7 @@ func (o *AnnouncementCreateRequest) HasNamespace() bool {
 func (o *AnnouncementCreateRequest) SetNamespace(v string) {
 	o.Namespace.Set(&v)
 }
+
 // SetNamespaceNil sets the value for Namespace to be an explicit nil
 func (o *AnnouncementCreateRequest) SetNamespaceNil() {
 	o.Namespace.Set(nil)
@@ -272,7 +273,7 @@ func (o *AnnouncementCreateRequest) SetTitle(v string) {
 }
 
 func (o AnnouncementCreateRequest) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -314,10 +315,10 @@ func (o *AnnouncementCreateRequest) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

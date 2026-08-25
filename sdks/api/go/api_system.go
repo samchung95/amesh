@@ -18,12 +18,11 @@ import (
 	"net/url"
 )
 
-
 // SystemAPIService SystemAPI service
 type SystemAPIService service
 
 type ApiHealthHealthGetRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService *SystemAPIService
 }
 
@@ -34,24 +33,25 @@ func (r ApiHealthHealthGetRequest) Execute() (*HealthResponse, *http.Response, e
 /*
 HealthHealthGet Health
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiHealthHealthGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiHealthHealthGetRequest
 */
 func (a *SystemAPIService) HealthHealthGet(ctx context.Context) ApiHealthHealthGetRequest {
 	return ApiHealthHealthGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return HealthResponse
+//
+//	@return HealthResponse
 func (a *SystemAPIService) HealthHealthGetExecute(r ApiHealthHealthGetRequest) (*HealthResponse, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *HealthResponse
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *HealthResponse
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "SystemAPIService.HealthHealthGet")
@@ -120,7 +120,7 @@ func (a *SystemAPIService) HealthHealthGetExecute(r ApiHealthHealthGetRequest) (
 }
 
 type ApiReadyReadyGetRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService *SystemAPIService
 }
 
@@ -131,24 +131,25 @@ func (r ApiReadyReadyGetRequest) Execute() (*ReadinessResponse, *http.Response, 
 /*
 ReadyReadyGet Ready
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiReadyReadyGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiReadyReadyGetRequest
 */
 func (a *SystemAPIService) ReadyReadyGet(ctx context.Context) ApiReadyReadyGetRequest {
 	return ApiReadyReadyGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return ReadinessResponse
+//
+//	@return ReadinessResponse
 func (a *SystemAPIService) ReadyReadyGetExecute(r ApiReadyReadyGetRequest) (*ReadinessResponse, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *ReadinessResponse
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *ReadinessResponse
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "SystemAPIService.ReadyReadyGet")

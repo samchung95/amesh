@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,9 +21,9 @@ var _ MappedNullable = &OrderedPromptRef{}
 
 // OrderedPromptRef struct for OrderedPromptRef
 type OrderedPromptRef struct {
-	Key string `json:"key" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
-	Order int32 `json:"order"`
-	Revision int32 `json:"revision"`
+	Key      string `json:"key" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
+	Order    int32  `json:"order"`
+	Revision int32  `json:"revision"`
 }
 
 type _OrderedPromptRef OrderedPromptRef
@@ -121,7 +121,7 @@ func (o *OrderedPromptRef) SetRevision(v int32) {
 }
 
 func (o OrderedPromptRef) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -151,10 +151,10 @@ func (o *OrderedPromptRef) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,11 +21,11 @@ var _ MappedNullable = &SimulationPolicyDecision{}
 
 // SimulationPolicyDecision struct for SimulationPolicyDecision
 type SimulationPolicyDecision struct {
-	Allowed bool `json:"allowed"`
-	Category string `json:"category"`
-	Details map[string]*interface{} `json:"details,omitempty"`
-	PolicyId string `json:"policyId"`
-	Reason string `json:"reason"`
+	Allowed  bool                    `json:"allowed"`
+	Category string                  `json:"category"`
+	Details  map[string]*interface{} `json:"details,omitempty"`
+	PolicyId string                  `json:"policyId"`
+	Reason   string                  `json:"reason"`
 }
 
 type _SimulationPolicyDecision SimulationPolicyDecision
@@ -180,7 +180,7 @@ func (o *SimulationPolicyDecision) SetReason(v string) {
 }
 
 func (o SimulationPolicyDecision) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -215,10 +215,10 @@ func (o *SimulationPolicyDecision) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

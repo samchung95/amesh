@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the NamespaceWorkflowMetadata type satisfies the MappedNullable interface at compile time
@@ -22,15 +22,15 @@ var _ MappedNullable = &NamespaceWorkflowMetadata{}
 
 // NamespaceWorkflowMetadata struct for NamespaceWorkflowMetadata
 type NamespaceWorkflowMetadata struct {
-	CreatedAt time.Time `json:"createdAt"`
-	CreatedBy string `json:"createdBy"`
-	Namespace string `json:"namespace"`
-	PluginDefaults []PluginDefaultDefinition `json:"pluginDefaults,omitempty"`
-	Policy *WorkflowMetadataPolicy `json:"policy,omitempty"`
-	ResourceVersion int32 `json:"resourceVersion"`
-	TenantId string `json:"tenantId"`
-	UpdatedAt time.Time `json:"updatedAt"`
-	UpdatedBy string `json:"updatedBy"`
+	CreatedAt       time.Time                 `json:"createdAt"`
+	CreatedBy       string                    `json:"createdBy"`
+	Namespace       string                    `json:"namespace"`
+	PluginDefaults  []PluginDefaultDefinition `json:"pluginDefaults,omitempty"`
+	Policy          *WorkflowMetadataPolicy   `json:"policy,omitempty"`
+	ResourceVersion int32                     `json:"resourceVersion"`
+	TenantId        string                    `json:"tenantId"`
+	UpdatedAt       time.Time                 `json:"updatedAt"`
+	UpdatedBy       string                    `json:"updatedBy"`
 }
 
 type _NamespaceWorkflowMetadata NamespaceWorkflowMetadata
@@ -292,7 +292,7 @@ func (o *NamespaceWorkflowMetadata) SetUpdatedBy(v string) {
 }
 
 func (o NamespaceWorkflowMetadata) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -336,10 +336,10 @@ func (o *NamespaceWorkflowMetadata) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

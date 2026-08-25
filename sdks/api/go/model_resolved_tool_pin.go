@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,13 +21,17 @@ var _ MappedNullable = &ResolvedToolPin{}
 
 // ResolvedToolPin struct for ResolvedToolPin
 type ResolvedToolPin struct {
-	ConnectionDigest string `json:"connectionDigest" validate:"regexp=^sha256:[0-9a-f]{64}$"`
-	ConnectionId string `json:"connectionId"`
-	ConnectionKey string `json:"connectionKey" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
-	ConnectionRevision int32 `json:"connectionRevision"`
-	Impact McpToolImpact `json:"impact"`
-	SchemaDigest string `json:"schemaDigest" validate:"regexp=^sha256:[0-9a-f]{64}$"`
-	ToolName string `json:"toolName" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
+	ConnectionDigest   NullableString    `json:"connectionDigest,omitempty" validate:"regexp=^sha256:[0-9a-f]{64}$"`
+	ConnectionId       NullableString    `json:"connectionId,omitempty"`
+	ConnectionKey      NullableString    `json:"connectionKey,omitempty" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
+	ConnectionRevision NullableInt32     `json:"connectionRevision,omitempty"`
+	Impact             McpToolImpact     `json:"impact"`
+	ProviderDigest     string            `json:"providerDigest" validate:"regexp=^sha256:[0-9a-f]{64}$"`
+	ProviderKey        string            `json:"providerKey" validate:"regexp=^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"`
+	ProviderKind       *ToolProviderKind `json:"providerKind,omitempty"`
+	ProviderRevision   int32             `json:"providerRevision"`
+	SchemaDigest       string            `json:"schemaDigest" validate:"regexp=^sha256:[0-9a-f]{64}$"`
+	ToolName           string            `json:"toolName" validate:"regexp=^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"`
 }
 
 type _ResolvedToolPin ResolvedToolPin
@@ -36,13 +40,14 @@ type _ResolvedToolPin ResolvedToolPin
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewResolvedToolPin(connectionDigest string, connectionId string, connectionKey string, connectionRevision int32, impact McpToolImpact, schemaDigest string, toolName string) *ResolvedToolPin {
+func NewResolvedToolPin(impact McpToolImpact, providerDigest string, providerKey string, providerRevision int32, schemaDigest string, toolName string) *ResolvedToolPin {
 	this := ResolvedToolPin{}
-	this.ConnectionDigest = connectionDigest
-	this.ConnectionId = connectionId
-	this.ConnectionKey = connectionKey
-	this.ConnectionRevision = connectionRevision
 	this.Impact = impact
+	this.ProviderDigest = providerDigest
+	this.ProviderKey = providerKey
+	var providerKind ToolProviderKind = TOOLPROVIDERKIND_MCP
+	this.ProviderKind = &providerKind
+	this.ProviderRevision = providerRevision
 	this.SchemaDigest = schemaDigest
 	this.ToolName = toolName
 	return &this
@@ -53,103 +58,181 @@ func NewResolvedToolPin(connectionDigest string, connectionId string, connection
 // but it doesn't guarantee that properties required by API are set
 func NewResolvedToolPinWithDefaults() *ResolvedToolPin {
 	this := ResolvedToolPin{}
+	var providerKind ToolProviderKind = TOOLPROVIDERKIND_MCP
+	this.ProviderKind = &providerKind
 	return &this
 }
 
-// GetConnectionDigest returns the ConnectionDigest field value
+// GetConnectionDigest returns the ConnectionDigest field value if set, zero value otherwise (both if not set or set to explicit null).
 func (o *ResolvedToolPin) GetConnectionDigest() string {
-	if o == nil {
+	if o == nil || IsNil(o.ConnectionDigest.Get()) {
 		var ret string
 		return ret
 	}
-
-	return o.ConnectionDigest
+	return *o.ConnectionDigest.Get()
 }
 
-// GetConnectionDigestOk returns a tuple with the ConnectionDigest field value
+// GetConnectionDigestOk returns a tuple with the ConnectionDigest field value if set, nil otherwise
 // and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
 func (o *ResolvedToolPin) GetConnectionDigestOk() (*string, bool) {
 	if o == nil {
 		return nil, false
 	}
-	return &o.ConnectionDigest, true
+	return o.ConnectionDigest.Get(), o.ConnectionDigest.IsSet()
 }
 
-// SetConnectionDigest sets field value
+// HasConnectionDigest returns a boolean if a field has been set.
+func (o *ResolvedToolPin) HasConnectionDigest() bool {
+	if o != nil && o.ConnectionDigest.IsSet() {
+		return true
+	}
+
+	return false
+}
+
+// SetConnectionDigest gets a reference to the given NullableString and assigns it to the ConnectionDigest field.
 func (o *ResolvedToolPin) SetConnectionDigest(v string) {
-	o.ConnectionDigest = v
+	o.ConnectionDigest.Set(&v)
 }
 
-// GetConnectionId returns the ConnectionId field value
+// SetConnectionDigestNil sets the value for ConnectionDigest to be an explicit nil
+func (o *ResolvedToolPin) SetConnectionDigestNil() {
+	o.ConnectionDigest.Set(nil)
+}
+
+// UnsetConnectionDigest ensures that no value is present for ConnectionDigest, not even an explicit nil
+func (o *ResolvedToolPin) UnsetConnectionDigest() {
+	o.ConnectionDigest.Unset()
+}
+
+// GetConnectionId returns the ConnectionId field value if set, zero value otherwise (both if not set or set to explicit null).
 func (o *ResolvedToolPin) GetConnectionId() string {
-	if o == nil {
+	if o == nil || IsNil(o.ConnectionId.Get()) {
 		var ret string
 		return ret
 	}
-
-	return o.ConnectionId
+	return *o.ConnectionId.Get()
 }
 
-// GetConnectionIdOk returns a tuple with the ConnectionId field value
+// GetConnectionIdOk returns a tuple with the ConnectionId field value if set, nil otherwise
 // and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
 func (o *ResolvedToolPin) GetConnectionIdOk() (*string, bool) {
 	if o == nil {
 		return nil, false
 	}
-	return &o.ConnectionId, true
+	return o.ConnectionId.Get(), o.ConnectionId.IsSet()
 }
 
-// SetConnectionId sets field value
+// HasConnectionId returns a boolean if a field has been set.
+func (o *ResolvedToolPin) HasConnectionId() bool {
+	if o != nil && o.ConnectionId.IsSet() {
+		return true
+	}
+
+	return false
+}
+
+// SetConnectionId gets a reference to the given NullableString and assigns it to the ConnectionId field.
 func (o *ResolvedToolPin) SetConnectionId(v string) {
-	o.ConnectionId = v
+	o.ConnectionId.Set(&v)
 }
 
-// GetConnectionKey returns the ConnectionKey field value
+// SetConnectionIdNil sets the value for ConnectionId to be an explicit nil
+func (o *ResolvedToolPin) SetConnectionIdNil() {
+	o.ConnectionId.Set(nil)
+}
+
+// UnsetConnectionId ensures that no value is present for ConnectionId, not even an explicit nil
+func (o *ResolvedToolPin) UnsetConnectionId() {
+	o.ConnectionId.Unset()
+}
+
+// GetConnectionKey returns the ConnectionKey field value if set, zero value otherwise (both if not set or set to explicit null).
 func (o *ResolvedToolPin) GetConnectionKey() string {
-	if o == nil {
+	if o == nil || IsNil(o.ConnectionKey.Get()) {
 		var ret string
 		return ret
 	}
-
-	return o.ConnectionKey
+	return *o.ConnectionKey.Get()
 }
 
-// GetConnectionKeyOk returns a tuple with the ConnectionKey field value
+// GetConnectionKeyOk returns a tuple with the ConnectionKey field value if set, nil otherwise
 // and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
 func (o *ResolvedToolPin) GetConnectionKeyOk() (*string, bool) {
 	if o == nil {
 		return nil, false
 	}
-	return &o.ConnectionKey, true
+	return o.ConnectionKey.Get(), o.ConnectionKey.IsSet()
 }
 
-// SetConnectionKey sets field value
+// HasConnectionKey returns a boolean if a field has been set.
+func (o *ResolvedToolPin) HasConnectionKey() bool {
+	if o != nil && o.ConnectionKey.IsSet() {
+		return true
+	}
+
+	return false
+}
+
+// SetConnectionKey gets a reference to the given NullableString and assigns it to the ConnectionKey field.
 func (o *ResolvedToolPin) SetConnectionKey(v string) {
-	o.ConnectionKey = v
+	o.ConnectionKey.Set(&v)
 }
 
-// GetConnectionRevision returns the ConnectionRevision field value
+// SetConnectionKeyNil sets the value for ConnectionKey to be an explicit nil
+func (o *ResolvedToolPin) SetConnectionKeyNil() {
+	o.ConnectionKey.Set(nil)
+}
+
+// UnsetConnectionKey ensures that no value is present for ConnectionKey, not even an explicit nil
+func (o *ResolvedToolPin) UnsetConnectionKey() {
+	o.ConnectionKey.Unset()
+}
+
+// GetConnectionRevision returns the ConnectionRevision field value if set, zero value otherwise (both if not set or set to explicit null).
 func (o *ResolvedToolPin) GetConnectionRevision() int32 {
-	if o == nil {
+	if o == nil || IsNil(o.ConnectionRevision.Get()) {
 		var ret int32
 		return ret
 	}
-
-	return o.ConnectionRevision
+	return *o.ConnectionRevision.Get()
 }
 
-// GetConnectionRevisionOk returns a tuple with the ConnectionRevision field value
+// GetConnectionRevisionOk returns a tuple with the ConnectionRevision field value if set, nil otherwise
 // and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
 func (o *ResolvedToolPin) GetConnectionRevisionOk() (*int32, bool) {
 	if o == nil {
 		return nil, false
 	}
-	return &o.ConnectionRevision, true
+	return o.ConnectionRevision.Get(), o.ConnectionRevision.IsSet()
 }
 
-// SetConnectionRevision sets field value
+// HasConnectionRevision returns a boolean if a field has been set.
+func (o *ResolvedToolPin) HasConnectionRevision() bool {
+	if o != nil && o.ConnectionRevision.IsSet() {
+		return true
+	}
+
+	return false
+}
+
+// SetConnectionRevision gets a reference to the given NullableInt32 and assigns it to the ConnectionRevision field.
 func (o *ResolvedToolPin) SetConnectionRevision(v int32) {
-	o.ConnectionRevision = v
+	o.ConnectionRevision.Set(&v)
+}
+
+// SetConnectionRevisionNil sets the value for ConnectionRevision to be an explicit nil
+func (o *ResolvedToolPin) SetConnectionRevisionNil() {
+	o.ConnectionRevision.Set(nil)
+}
+
+// UnsetConnectionRevision ensures that no value is present for ConnectionRevision, not even an explicit nil
+func (o *ResolvedToolPin) UnsetConnectionRevision() {
+	o.ConnectionRevision.Unset()
 }
 
 // GetImpact returns the Impact field value
@@ -174,6 +257,110 @@ func (o *ResolvedToolPin) GetImpactOk() (*McpToolImpact, bool) {
 // SetImpact sets field value
 func (o *ResolvedToolPin) SetImpact(v McpToolImpact) {
 	o.Impact = v
+}
+
+// GetProviderDigest returns the ProviderDigest field value
+func (o *ResolvedToolPin) GetProviderDigest() string {
+	if o == nil {
+		var ret string
+		return ret
+	}
+
+	return o.ProviderDigest
+}
+
+// GetProviderDigestOk returns a tuple with the ProviderDigest field value
+// and a boolean to check if the value has been set.
+func (o *ResolvedToolPin) GetProviderDigestOk() (*string, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return &o.ProviderDigest, true
+}
+
+// SetProviderDigest sets field value
+func (o *ResolvedToolPin) SetProviderDigest(v string) {
+	o.ProviderDigest = v
+}
+
+// GetProviderKey returns the ProviderKey field value
+func (o *ResolvedToolPin) GetProviderKey() string {
+	if o == nil {
+		var ret string
+		return ret
+	}
+
+	return o.ProviderKey
+}
+
+// GetProviderKeyOk returns a tuple with the ProviderKey field value
+// and a boolean to check if the value has been set.
+func (o *ResolvedToolPin) GetProviderKeyOk() (*string, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return &o.ProviderKey, true
+}
+
+// SetProviderKey sets field value
+func (o *ResolvedToolPin) SetProviderKey(v string) {
+	o.ProviderKey = v
+}
+
+// GetProviderKind returns the ProviderKind field value if set, zero value otherwise.
+func (o *ResolvedToolPin) GetProviderKind() ToolProviderKind {
+	if o == nil || IsNil(o.ProviderKind) {
+		var ret ToolProviderKind
+		return ret
+	}
+	return *o.ProviderKind
+}
+
+// GetProviderKindOk returns a tuple with the ProviderKind field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *ResolvedToolPin) GetProviderKindOk() (*ToolProviderKind, bool) {
+	if o == nil || IsNil(o.ProviderKind) {
+		return nil, false
+	}
+	return o.ProviderKind, true
+}
+
+// HasProviderKind returns a boolean if a field has been set.
+func (o *ResolvedToolPin) HasProviderKind() bool {
+	if o != nil && !IsNil(o.ProviderKind) {
+		return true
+	}
+
+	return false
+}
+
+// SetProviderKind gets a reference to the given ToolProviderKind and assigns it to the ProviderKind field.
+func (o *ResolvedToolPin) SetProviderKind(v ToolProviderKind) {
+	o.ProviderKind = &v
+}
+
+// GetProviderRevision returns the ProviderRevision field value
+func (o *ResolvedToolPin) GetProviderRevision() int32 {
+	if o == nil {
+		var ret int32
+		return ret
+	}
+
+	return o.ProviderRevision
+}
+
+// GetProviderRevisionOk returns a tuple with the ProviderRevision field value
+// and a boolean to check if the value has been set.
+func (o *ResolvedToolPin) GetProviderRevisionOk() (*int32, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return &o.ProviderRevision, true
+}
+
+// SetProviderRevision sets field value
+func (o *ResolvedToolPin) SetProviderRevision(v int32) {
+	o.ProviderRevision = v
 }
 
 // GetSchemaDigest returns the SchemaDigest field value
@@ -225,7 +412,7 @@ func (o *ResolvedToolPin) SetToolName(v string) {
 }
 
 func (o ResolvedToolPin) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -234,11 +421,25 @@ func (o ResolvedToolPin) MarshalJSON() ([]byte, error) {
 
 func (o ResolvedToolPin) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
-	toSerialize["connectionDigest"] = o.ConnectionDigest
-	toSerialize["connectionId"] = o.ConnectionId
-	toSerialize["connectionKey"] = o.ConnectionKey
-	toSerialize["connectionRevision"] = o.ConnectionRevision
+	if o.ConnectionDigest.IsSet() {
+		toSerialize["connectionDigest"] = o.ConnectionDigest.Get()
+	}
+	if o.ConnectionId.IsSet() {
+		toSerialize["connectionId"] = o.ConnectionId.Get()
+	}
+	if o.ConnectionKey.IsSet() {
+		toSerialize["connectionKey"] = o.ConnectionKey.Get()
+	}
+	if o.ConnectionRevision.IsSet() {
+		toSerialize["connectionRevision"] = o.ConnectionRevision.Get()
+	}
 	toSerialize["impact"] = o.Impact
+	toSerialize["providerDigest"] = o.ProviderDigest
+	toSerialize["providerKey"] = o.ProviderKey
+	if !IsNil(o.ProviderKind) {
+		toSerialize["providerKind"] = o.ProviderKind
+	}
+	toSerialize["providerRevision"] = o.ProviderRevision
 	toSerialize["schemaDigest"] = o.SchemaDigest
 	toSerialize["toolName"] = o.ToolName
 	return toSerialize, nil
@@ -249,11 +450,10 @@ func (o *ResolvedToolPin) UnmarshalJSON(data []byte) (err error) {
 	// by unmarshalling the object into a generic map with string keys and checking
 	// that every required field exists as a key in the generic map.
 	requiredProperties := []string{
-		"connectionDigest",
-		"connectionId",
-		"connectionKey",
-		"connectionRevision",
 		"impact",
+		"providerDigest",
+		"providerKey",
+		"providerRevision",
 		"schemaDigest",
 		"toolName",
 	}
@@ -263,10 +463,10 @@ func (o *ResolvedToolPin) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

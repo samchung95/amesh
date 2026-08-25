@@ -21,8 +21,8 @@ type PluginTransport string
 // List of PluginTransport
 const (
 	PLUGINTRANSPORT_STDIO PluginTransport = "stdio"
-	PLUGINTRANSPORT_GRPC PluginTransport = "grpc"
-	PLUGINTRANSPORT_HTTP PluginTransport = "http"
+	PLUGINTRANSPORT_GRPC  PluginTransport = "grpc"
+	PLUGINTRANSPORT_HTTP  PluginTransport = "http"
 )
 
 // All allowed values of PluginTransport enum

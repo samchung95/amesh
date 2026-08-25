@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the ReconciliationRun type satisfies the MappedNullable interface at compile time
@@ -22,24 +22,24 @@ var _ MappedNullable = &ReconciliationRun{}
 
 // ReconciliationRun struct for ReconciliationRun
 type ReconciliationRun struct {
-	ActorId string `json:"actorId"`
-	CompletedAt NullableTime `json:"completedAt,omitempty"`
-	CreatedAt time.Time `json:"createdAt"`
-	FindingCount int32 `json:"findingCount"`
-	Findings []ReconciliationFinding `json:"findings,omitempty"`
-	Id string `json:"id"`
-	IdempotencyKey string `json:"idempotencyKey"`
-	MaxRepairs int32 `json:"maxRepairs"`
-	Mode ReconciliationMode `json:"mode"`
-	Reason string `json:"reason"`
-	RepairsApplied int32 `json:"repairsApplied"`
-	Since NullableTime `json:"since,omitempty"`
-	State ReconciliationRunState `json:"state"`
-	TargetId NullableString `json:"targetId,omitempty"`
-	TargetType ReconciliationTargetType `json:"targetType"`
-	TenantId string `json:"tenantId"`
-	UnresolvedCount int32 `json:"unresolvedCount"`
-	Until NullableTime `json:"until,omitempty"`
+	ActorId         string                   `json:"actorId"`
+	CompletedAt     NullableTime             `json:"completedAt,omitempty"`
+	CreatedAt       time.Time                `json:"createdAt"`
+	FindingCount    int32                    `json:"findingCount"`
+	Findings        []ReconciliationFinding  `json:"findings,omitempty"`
+	Id              string                   `json:"id"`
+	IdempotencyKey  string                   `json:"idempotencyKey"`
+	MaxRepairs      int32                    `json:"maxRepairs"`
+	Mode            ReconciliationMode       `json:"mode"`
+	Reason          string                   `json:"reason"`
+	RepairsApplied  int32                    `json:"repairsApplied"`
+	Since           NullableTime             `json:"since,omitempty"`
+	State           ReconciliationRunState   `json:"state"`
+	TargetId        NullableString           `json:"targetId,omitempty"`
+	TargetType      ReconciliationTargetType `json:"targetType"`
+	TenantId        string                   `json:"tenantId"`
+	UnresolvedCount int32                    `json:"unresolvedCount"`
+	Until           NullableTime             `json:"until,omitempty"`
 }
 
 type _ReconciliationRun ReconciliationRun
@@ -130,6 +130,7 @@ func (o *ReconciliationRun) HasCompletedAt() bool {
 func (o *ReconciliationRun) SetCompletedAt(v time.Time) {
 	o.CompletedAt.Set(&v)
 }
+
 // SetCompletedAtNil sets the value for CompletedAt to be an explicit nil
 func (o *ReconciliationRun) SetCompletedAtNil() {
 	o.CompletedAt.Set(nil)
@@ -396,6 +397,7 @@ func (o *ReconciliationRun) HasSince() bool {
 func (o *ReconciliationRun) SetSince(v time.Time) {
 	o.Since.Set(&v)
 }
+
 // SetSinceNil sets the value for Since to be an explicit nil
 func (o *ReconciliationRun) SetSinceNil() {
 	o.Since.Set(nil)
@@ -462,6 +464,7 @@ func (o *ReconciliationRun) HasTargetId() bool {
 func (o *ReconciliationRun) SetTargetId(v string) {
 	o.TargetId.Set(&v)
 }
+
 // SetTargetIdNil sets the value for TargetId to be an explicit nil
 func (o *ReconciliationRun) SetTargetIdNil() {
 	o.TargetId.Set(nil)
@@ -576,6 +579,7 @@ func (o *ReconciliationRun) HasUntil() bool {
 func (o *ReconciliationRun) SetUntil(v time.Time) {
 	o.Until.Set(&v)
 }
+
 // SetUntilNil sets the value for Until to be an explicit nil
 func (o *ReconciliationRun) SetUntilNil() {
 	o.Until.Set(nil)
@@ -587,7 +591,7 @@ func (o *ReconciliationRun) UnsetUntil() {
 }
 
 func (o ReconciliationRun) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -652,10 +656,10 @@ func (o *ReconciliationRun) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the BackfillRecord type satisfies the MappedNullable interface at compile time
@@ -22,31 +22,31 @@ var _ MappedNullable = &BackfillRecord{}
 
 // BackfillRecord struct for BackfillRecord
 type BackfillRecord struct {
-	ActualCostUnits int32 `json:"actualCostUnits"`
-	BackfillId string `json:"backfillId"`
-	Cancelled int32 `json:"cancelled"`
-	CreatedAt time.Time `json:"createdAt"`
-	CreatedBy string `json:"createdBy"`
-	DurationSeconds float32 `json:"durationSeconds"`
-	EstimatedCostUnits int32 `json:"estimatedCostUnits"`
-	Failed int32 `json:"failed"`
-	FinishedAt NullableTime `json:"finishedAt,omitempty"`
-	FlowId string `json:"flowId"`
-	FlowRevision int32 `json:"flowRevision"`
-	Inputs map[string]interface{} `json:"inputs"`
-	Labels map[string]string `json:"labels"`
-	MaxConcurrency int32 `json:"maxConcurrency"`
-	Namespace string `json:"namespace"`
-	Pending int32 `json:"pending"`
-	Priority int32 `json:"priority"`
-	RatePerMinute int32 `json:"ratePerMinute"`
-	Running int32 `json:"running"`
-	SelectionKind BackfillSelectionKind `json:"selectionKind"`
-	State BackfillState `json:"state"`
-	Succeeded int32 `json:"succeeded"`
-	TenantId string `json:"tenantId"`
-	Total int32 `json:"total"`
-	UpdatedAt time.Time `json:"updatedAt"`
+	ActualCostUnits    int32                  `json:"actualCostUnits"`
+	BackfillId         string                 `json:"backfillId"`
+	Cancelled          int32                  `json:"cancelled"`
+	CreatedAt          time.Time              `json:"createdAt"`
+	CreatedBy          string                 `json:"createdBy"`
+	DurationSeconds    float32                `json:"durationSeconds"`
+	EstimatedCostUnits int32                  `json:"estimatedCostUnits"`
+	Failed             int32                  `json:"failed"`
+	FinishedAt         NullableTime           `json:"finishedAt,omitempty"`
+	FlowId             string                 `json:"flowId"`
+	FlowRevision       int32                  `json:"flowRevision"`
+	Inputs             map[string]interface{} `json:"inputs"`
+	Labels             map[string]string      `json:"labels"`
+	MaxConcurrency     int32                  `json:"maxConcurrency"`
+	Namespace          string                 `json:"namespace"`
+	Pending            int32                  `json:"pending"`
+	Priority           int32                  `json:"priority"`
+	RatePerMinute      int32                  `json:"ratePerMinute"`
+	Running            int32                  `json:"running"`
+	SelectionKind      BackfillSelectionKind  `json:"selectionKind"`
+	State              BackfillState          `json:"state"`
+	Succeeded          int32                  `json:"succeeded"`
+	TenantId           string                 `json:"tenantId"`
+	Total              int32                  `json:"total"`
+	UpdatedAt          time.Time              `json:"updatedAt"`
 }
 
 type _BackfillRecord BackfillRecord
@@ -316,6 +316,7 @@ func (o *BackfillRecord) HasFinishedAt() bool {
 func (o *BackfillRecord) SetFinishedAt(v time.Time) {
 	o.FinishedAt.Set(&v)
 }
+
 // SetFinishedAtNil sets the value for FinishedAt to be an explicit nil
 func (o *BackfillRecord) SetFinishedAtNil() {
 	o.FinishedAt.Set(nil)
@@ -711,7 +712,7 @@ func (o *BackfillRecord) SetUpdatedAt(v time.Time) {
 }
 
 func (o BackfillRecord) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -786,10 +787,10 @@ func (o *BackfillRecord) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

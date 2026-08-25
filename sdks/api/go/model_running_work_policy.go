@@ -21,8 +21,8 @@ type RunningWorkPolicy string
 // List of RunningWorkPolicy
 const (
 	RUNNINGWORKPOLICY_CONTINUE RunningWorkPolicy = "CONTINUE"
-	RUNNINGWORKPOLICY_DRAIN RunningWorkPolicy = "DRAIN"
-	RUNNINGWORKPOLICY_CANCEL RunningWorkPolicy = "CANCEL"
+	RUNNINGWORKPOLICY_DRAIN    RunningWorkPolicy = "DRAIN"
+	RUNNINGWORKPOLICY_CANCEL   RunningWorkPolicy = "CANCEL"
 )
 
 // All allowed values of RunningWorkPolicy enum

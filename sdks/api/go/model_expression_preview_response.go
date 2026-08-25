@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,9 +21,9 @@ var _ MappedNullable = &ExpressionPreviewResponse{}
 
 // ExpressionPreviewResponse struct for ExpressionPreviewResponse
 type ExpressionPreviewResponse struct {
-	CompatibilityVersion string `json:"compatibilityVersion"`
-	RedactedContext map[string]interface{} `json:"redactedContext"`
-	Result interface{} `json:"result"`
+	CompatibilityVersion string                 `json:"compatibilityVersion"`
+	RedactedContext      map[string]interface{} `json:"redactedContext"`
+	Result               interface{}            `json:"result"`
 }
 
 type _ExpressionPreviewResponse ExpressionPreviewResponse
@@ -123,7 +123,7 @@ func (o *ExpressionPreviewResponse) SetResult(v interface{}) {
 }
 
 func (o ExpressionPreviewResponse) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -155,10 +155,10 @@ func (o *ExpressionPreviewResponse) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

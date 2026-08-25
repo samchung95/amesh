@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -22,11 +22,11 @@ var _ MappedNullable = &TaskArtifactRecord{}
 // TaskArtifactRecord struct for TaskArtifactRecord
 type TaskArtifactRecord struct {
 	ChecksumSha256 NullableString `json:"checksumSha256,omitempty" validate:"regexp=^[0-9a-f]{64}$"`
-	Lineage []string `json:"lineage,omitempty"`
-	LogicalPath NullableString `json:"logicalPath,omitempty"`
-	MediaType NullableString `json:"mediaType,omitempty"`
-	SizeBytes int32 `json:"sizeBytes"`
-	Uri string `json:"uri"`
+	Lineage        []string       `json:"lineage,omitempty"`
+	LogicalPath    NullableString `json:"logicalPath,omitempty"`
+	MediaType      NullableString `json:"mediaType,omitempty"`
+	SizeBytes      int32          `json:"sizeBytes"`
+	Uri            string         `json:"uri"`
 }
 
 type _TaskArtifactRecord TaskArtifactRecord
@@ -82,6 +82,7 @@ func (o *TaskArtifactRecord) HasChecksumSha256() bool {
 func (o *TaskArtifactRecord) SetChecksumSha256(v string) {
 	o.ChecksumSha256.Set(&v)
 }
+
 // SetChecksumSha256Nil sets the value for ChecksumSha256 to be an explicit nil
 func (o *TaskArtifactRecord) SetChecksumSha256Nil() {
 	o.ChecksumSha256.Set(nil)
@@ -156,6 +157,7 @@ func (o *TaskArtifactRecord) HasLogicalPath() bool {
 func (o *TaskArtifactRecord) SetLogicalPath(v string) {
 	o.LogicalPath.Set(&v)
 }
+
 // SetLogicalPathNil sets the value for LogicalPath to be an explicit nil
 func (o *TaskArtifactRecord) SetLogicalPathNil() {
 	o.LogicalPath.Set(nil)
@@ -198,6 +200,7 @@ func (o *TaskArtifactRecord) HasMediaType() bool {
 func (o *TaskArtifactRecord) SetMediaType(v string) {
 	o.MediaType.Set(&v)
 }
+
 // SetMediaTypeNil sets the value for MediaType to be an explicit nil
 func (o *TaskArtifactRecord) SetMediaTypeNil() {
 	o.MediaType.Set(nil)
@@ -257,7 +260,7 @@ func (o *TaskArtifactRecord) SetUri(v string) {
 }
 
 func (o TaskArtifactRecord) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -297,10 +300,10 @@ func (o *TaskArtifactRecord) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

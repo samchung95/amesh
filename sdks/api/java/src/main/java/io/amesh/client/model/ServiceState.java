@@ -34,6 +34,8 @@ public enum ServiceState {
 
   READY("READY"),
 
+  DEGRADED("DEGRADED"),
+
   DRAINING("DRAINING"),
 
   STOPPED("STOPPED");

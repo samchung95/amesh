@@ -20,7 +20,7 @@ type PluginQuarantineState string
 
 // List of PluginQuarantineState
 const (
-	PLUGINQUARANTINESTATE_ACTIVE PluginQuarantineState = "ACTIVE"
+	PLUGINQUARANTINESTATE_ACTIVE   PluginQuarantineState = "ACTIVE"
 	PLUGINQUARANTINESTATE_RELEASED PluginQuarantineState = "RELEASED"
 )
 

@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,11 +21,11 @@ var _ MappedNullable = &FlowMetadataResponse{}
 
 // FlowMetadataResponse struct for FlowMetadataResponse
 type FlowMetadataResponse struct {
-	FlowId string `json:"flowId"`
-	Labels map[string]string `json:"labels"`
-	Namespace string `json:"namespace"`
+	FlowId           string                 `json:"flowId"`
+	Labels           map[string]string      `json:"labels"`
+	Namespace        string                 `json:"namespace"`
 	PluginResolution map[string]interface{} `json:"pluginResolution"`
-	Revision int32 `json:"revision"`
+	Revision         int32                  `json:"revision"`
 }
 
 type _FlowMetadataResponse FlowMetadataResponse
@@ -173,7 +173,7 @@ func (o *FlowMetadataResponse) SetRevision(v int32) {
 }
 
 func (o FlowMetadataResponse) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -207,10 +207,10 @@ func (o *FlowMetadataResponse) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

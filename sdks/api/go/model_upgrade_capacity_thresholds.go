@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -22,8 +22,8 @@ var _ MappedNullable = &UpgradeCapacityThresholds{}
 // UpgradeCapacityThresholds struct for UpgradeCapacityThresholds
 type UpgradeCapacityThresholds struct {
 	MaximumActiveExecutions int32 `json:"maximumActiveExecutions"`
-	MaximumDatabaseBytes int32 `json:"maximumDatabaseBytes"`
-	MaximumQueuedWork int32 `json:"maximumQueuedWork"`
+	MaximumDatabaseBytes    int32 `json:"maximumDatabaseBytes"`
+	MaximumQueuedWork       int32 `json:"maximumQueuedWork"`
 }
 
 type _UpgradeCapacityThresholds UpgradeCapacityThresholds
@@ -121,7 +121,7 @@ func (o *UpgradeCapacityThresholds) SetMaximumQueuedWork(v int32) {
 }
 
 func (o UpgradeCapacityThresholds) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -151,10 +151,10 @@ func (o *UpgradeCapacityThresholds) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

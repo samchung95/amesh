@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the ExecutionArtifact type satisfies the MappedNullable interface at compile time
@@ -22,18 +22,18 @@ var _ MappedNullable = &ExecutionArtifact{}
 
 // ExecutionArtifact struct for ExecutionArtifact
 type ExecutionArtifact struct {
-	ArtifactId string `json:"artifact_id"`
-	Attempt int32 `json:"attempt"`
+	ArtifactId     string         `json:"artifact_id"`
+	Attempt        int32          `json:"attempt"`
 	ChecksumSha256 NullableString `json:"checksum_sha256,omitempty" validate:"regexp=^[0-9a-f]{64}$"`
-	ExecutionId string `json:"execution_id"`
-	IngestedAt time.Time `json:"ingested_at"`
-	Lineage []string `json:"lineage,omitempty"`
-	LogicalPath NullableString `json:"logical_path,omitempty"`
-	MediaType NullableString `json:"media_type,omitempty"`
-	OccurredAt time.Time `json:"occurred_at"`
-	SizeBytes int32 `json:"size_bytes"`
-	TaskRunId string `json:"task_run_id"`
-	Uri string `json:"uri"`
+	ExecutionId    string         `json:"execution_id"`
+	IngestedAt     time.Time      `json:"ingested_at"`
+	Lineage        []string       `json:"lineage,omitempty"`
+	LogicalPath    NullableString `json:"logical_path,omitempty"`
+	MediaType      NullableString `json:"media_type,omitempty"`
+	OccurredAt     time.Time      `json:"occurred_at"`
+	SizeBytes      int32          `json:"size_bytes"`
+	TaskRunId      string         `json:"task_run_id"`
+	Uri            string         `json:"uri"`
 }
 
 type _ExecutionArtifact ExecutionArtifact
@@ -143,6 +143,7 @@ func (o *ExecutionArtifact) HasChecksumSha256() bool {
 func (o *ExecutionArtifact) SetChecksumSha256(v string) {
 	o.ChecksumSha256.Set(&v)
 }
+
 // SetChecksumSha256Nil sets the value for ChecksumSha256 to be an explicit nil
 func (o *ExecutionArtifact) SetChecksumSha256Nil() {
 	o.ChecksumSha256.Set(nil)
@@ -265,6 +266,7 @@ func (o *ExecutionArtifact) HasLogicalPath() bool {
 func (o *ExecutionArtifact) SetLogicalPath(v string) {
 	o.LogicalPath.Set(&v)
 }
+
 // SetLogicalPathNil sets the value for LogicalPath to be an explicit nil
 func (o *ExecutionArtifact) SetLogicalPathNil() {
 	o.LogicalPath.Set(nil)
@@ -307,6 +309,7 @@ func (o *ExecutionArtifact) HasMediaType() bool {
 func (o *ExecutionArtifact) SetMediaType(v string) {
 	o.MediaType.Set(&v)
 }
+
 // SetMediaTypeNil sets the value for MediaType to be an explicit nil
 func (o *ExecutionArtifact) SetMediaTypeNil() {
 	o.MediaType.Set(nil)
@@ -414,7 +417,7 @@ func (o *ExecutionArtifact) SetUri(v string) {
 }
 
 func (o ExecutionArtifact) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -466,10 +469,10 @@ func (o *ExecutionArtifact) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

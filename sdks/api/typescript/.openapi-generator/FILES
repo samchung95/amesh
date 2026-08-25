@@ -17,6 +17,7 @@ docs/ConfigurationApi.md
 docs/CredentialsApi.md
 docs/DashboardsApi.md
 docs/ExecutionsApi.md
+docs/ExternalOrchestrationApi.md
 docs/FlowTestsApi.md
 docs/FlowsApi.md
 docs/HumanTasksApi.md
@@ -26,7 +27,9 @@ docs/NamespacesApi.md
 docs/OperationsApi.md
 docs/PluginsApi.md
 docs/PoliciesApi.md
+docs/QualityApi.md
 docs/RealtimeApi.md
+docs/ReleasesApi.md
 docs/ScimApi.md
 docs/SearchApi.md
 docs/SimulationsApi.md
@@ -53,6 +56,7 @@ src/apis/ConfigurationApi.ts
 src/apis/CredentialsApi.ts
 src/apis/DashboardsApi.ts
 src/apis/ExecutionsApi.ts
+src/apis/ExternalOrchestrationApi.ts
 src/apis/FlowTestsApi.ts
 src/apis/FlowsApi.ts
 src/apis/HumanTasksApi.ts
@@ -62,7 +66,9 @@ src/apis/NamespacesApi.ts
 src/apis/OperationsApi.ts
 src/apis/PluginsApi.ts
 src/apis/PoliciesApi.ts
+src/apis/QualityApi.ts
 src/apis/RealtimeApi.ts
+src/apis/ReleasesApi.ts
 src/apis/ScimApi.ts
 src/apis/SearchApi.ts
 src/apis/SimulationsApi.ts
@@ -75,6 +81,7 @@ src/apis/UpgradesApi.ts
 src/apis/WorkersApi.ts
 src/apis/index.ts
 src/index.ts
+src/models/Absolute.ts
 src/models/Action.ts
 src/models/AdministrationApplyRequest.ts
 src/models/AdministrationAuditEntry.ts
@@ -105,6 +112,7 @@ src/models/AgentJudgePolicyOutput.ts
 src/models/AgentMemoryMetadata.ts
 src/models/AgentMemoryPolicy.ts
 src/models/AgentMemoryScope.ts
+src/models/AgentModelContinuationRef.ts
 src/models/AgentPermissions.ts
 src/models/AgentResolutionRequest.ts
 src/models/AgentResourceKind.ts
@@ -131,6 +139,7 @@ src/models/AnnouncementAudience.ts
 src/models/AnnouncementCreateRequest.ts
 src/models/AnnouncementSeverity.ts
 src/models/AppForm.ts
+src/models/ApprovalRequirement.ts
 src/models/AssetAccessMode.ts
 src/models/AssetCatalogEntry.ts
 src/models/AssetCatalogExport.ts
@@ -174,6 +183,8 @@ src/models/BlueprintParameter.ts
 src/models/BlueprintParameterKind.ts
 src/models/BlueprintProvenance.ts
 src/models/BlueprintSummary.ts
+src/models/BudgetRequirementInput.ts
+src/models/BudgetRequirementOutput.ts
 src/models/BulkExecutionItemResult.ts
 src/models/BulkExecutionRequest.ts
 src/models/CertificateDiagnostic.ts
@@ -186,6 +197,10 @@ src/models/CheckEvaluationPoint.ts
 src/models/CheckOutcome.ts
 src/models/CheckPolicySource.ts
 src/models/CheckPolicyUpsertRequest.ts
+src/models/ComparisonCategory.ts
+src/models/ComparisonDifference.ts
+src/models/ComparisonPolicy.ts
+src/models/ComparisonReport.ts
 src/models/CompatibilityMapping.ts
 src/models/ComplianceEvidenceCategory.ts
 src/models/ComplianceEvidenceCreate.ts
@@ -196,8 +211,10 @@ src/models/ConfigurationEntry.ts
 src/models/ConfigurationMigration.ts
 src/models/ConfigurationMigrationKind.ts
 src/models/ConfigurationMigrationRequest.ts
+src/models/ConfigurationPin.ts
 src/models/ConfigurationSnapshot.ts
 src/models/ConnectionDiagnostic.ts
+src/models/Correlationid.ts
 src/models/CreateExecutionRequest.ts
 src/models/CreateTenantRequest.ts
 src/models/CredentialKind.ts
@@ -221,10 +238,16 @@ src/models/DashboardWidgetResult.ts
 src/models/DeterminismEnvelope.ts
 src/models/DeterminismNode.ts
 src/models/DeterminismPolicyPin.ts
+src/models/DifferentialSpec.ts
 src/models/DnsDiagnostic.ts
 src/models/DynamicExecutionBound.ts
 src/models/EffectiveCapabilityEnvelope.ts
 src/models/EffectivePluginPolicy.ts
+src/models/EvidenceArtifact.ts
+src/models/EvidenceBundlePageResponse.ts
+src/models/EvidencePresence.ts
+src/models/EvidenceRecord.ts
+src/models/EvidenceRequirement.ts
 src/models/ExchangeCredentialRequest.ts
 src/models/ExecutionArtifact.ts
 src/models/ExecutionDetail.ts
@@ -243,12 +266,15 @@ src/models/ExecutionState.ts
 src/models/ExpressionPreviewRequest.ts
 src/models/ExpressionPreviewResponse.ts
 src/models/ExtensionType.ts
+src/models/ExternalOperation.ts
+src/models/ExternalOrchestrationProfile.ts
 src/models/FailoverStatus.ts
 src/models/FailureCategory.ts
 src/models/FeatureFlag.ts
 src/models/FeatureFlagDecision.ts
 src/models/FeatureFlagScope.ts
 src/models/FeatureFlagUpsertRequest.ts
+src/models/FixtureSource.ts
 src/models/FlowDataContract.ts
 src/models/FlowDocumentExport.ts
 src/models/FlowEditorSchemaResponse.ts
@@ -281,6 +307,8 @@ src/models/FormField.ts
 src/models/FormSection.ts
 src/models/Gte.ts
 src/models/HTTPValidationError.ts
+src/models/HealthRequirementInput.ts
+src/models/HealthRequirementOutput.ts
 src/models/HealthResponse.ts
 src/models/HumanTask.ts
 src/models/HumanTaskAction.ts
@@ -313,6 +341,7 @@ src/models/LifecyclePreviewRequest.ts
 src/models/LifecycleResourceType.ts
 src/models/LifecycleScope.ts
 src/models/LifecycleTrigger.ts
+src/models/Lineage.ts
 src/models/LineageEvidenceKind.ts
 src/models/LocationInner.ts
 src/models/LogLevel.ts
@@ -322,6 +351,8 @@ src/models/LoginResponse.ts
 src/models/Lte.ts
 src/models/MappingDisposition.ts
 src/models/Maxcostusd.ts
+src/models/Maximum.ts
+src/models/Maximum1.ts
 src/models/Maximumuncertainty.ts
 src/models/McpConnectionDiscoveryRequest.ts
 src/models/McpConnectionRevision.ts
@@ -331,6 +362,7 @@ src/models/McpToolImpact.ts
 src/models/McpToolPin.ts
 src/models/MetricKind.ts
 src/models/MigrationPatch.ts
+src/models/Minimum.ts
 src/models/Minimumrubricscore.ts
 src/models/Minimumscore.ts
 src/models/ModelFallbackMode.ts
@@ -449,6 +481,14 @@ src/models/PrincipalDefinition.ts
 src/models/PrincipalType.ts
 src/models/ProblemDetail.ts
 src/models/Projectedcostusd.ts
+src/models/PromotionApplyRequest.ts
+src/models/PromotionEvidenceKind.ts
+src/models/PromotionKillSwitchRequest.ts
+src/models/PromotionPolicyInput.ts
+src/models/PromotionPolicyOutput.ts
+src/models/PromotionPreviewRequest.ts
+src/models/PromotionRollbackRequest.ts
+src/models/PromotionTargetKind.ts
 src/models/PromptSpec.ts
 src/models/ProviderMigrationDiagnostic.ts
 src/models/ProvisionedWebhookSubscription.ts
@@ -465,8 +505,10 @@ src/models/ReconciliationRequest.ts
 src/models/ReconciliationRun.ts
 src/models/ReconciliationRunState.ts
 src/models/ReconciliationTargetType.ts
+src/models/Recordid.ts
 src/models/ReduceExecutionRequest.ts
 src/models/ReduceExecutionResponse.ts
+src/models/Relative.ts
 src/models/ResolvedAgentEvaluation.ts
 src/models/ResolvedResourcePin.ts
 src/models/ResolvedToolPin.ts
@@ -480,6 +522,7 @@ src/models/RoleBinding.ts
 src/models/RoleDefinition.ts
 src/models/RollingUpgradeStep.ts
 src/models/RotateCredentialRequest.ts
+src/models/RunObservation.ts
 src/models/RunnerCapabilities.ts
 src/models/RunnerId.ts
 src/models/RunnerMode.ts
@@ -522,6 +565,9 @@ src/models/ServiceRoleStatus.ts
 src/models/ServiceState.ts
 src/models/ServiceTopology.ts
 src/models/SetLocalPasswordRequest.ts
+src/models/ShadowEffect.ts
+src/models/ShadowFixture.ts
+src/models/ShadowRun.ts
 src/models/SimulatedTaskResult.ts
 src/models/SimulationComparison.ts
 src/models/SimulationEstimateModel.ts
@@ -562,6 +608,8 @@ src/models/TenantExport.ts
 src/models/TenantPolicy.ts
 src/models/TenantStatus.ts
 src/models/TimeRangeSelection.ts
+src/models/Tolerance.ts
+src/models/ToolProviderKind.ts
 src/models/TriggerActionRequest.ts
 src/models/TriggerOccurrence.ts
 src/models/TriggerOccurrenceState.ts

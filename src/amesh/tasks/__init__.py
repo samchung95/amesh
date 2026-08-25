@@ -12,6 +12,13 @@ from .mesh import agent_mesh_handlers
 from .notifications import EmailSender, SmtpDelivery, core_notification_handlers
 from .scripts import script_task_handlers
 from .session import InvalidAgentOutputPolicy, agent_session_handler
+from .tool_provider import (
+    AgentPrimitiveInvocationJournal,
+    ExampleToolProvider,
+    GovernedToolInvoker,
+    InMemoryToolInvocationJournal,
+    McpToolProvider,
+)
 
 
 def core_utility_handlers(
@@ -32,9 +39,14 @@ def core_utility_handlers(
 
 __all__ = [
     "SCRIPT_TASK_TYPES",
+    "AgentPrimitiveInvocationJournal",
     "EmailSender",
+    "ExampleToolProvider",
+    "GovernedToolInvoker",
     "HttpTaskPolicy",
+    "InMemoryToolInvocationJournal",
     "InvalidAgentOutputPolicy",
+    "McpToolProvider",
     "OpenAICompatibleConfig",
     "ScriptTaskPolicy",
     "SmtpDelivery",

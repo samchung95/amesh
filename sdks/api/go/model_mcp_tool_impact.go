@@ -20,9 +20,9 @@ type McpToolImpact string
 
 // List of McpToolImpact
 const (
-	MCPTOOLIMPACT_READ_ONLY McpToolImpact = "READ_ONLY"
+	MCPTOOLIMPACT_READ_ONLY        McpToolImpact = "READ_ONLY"
 	MCPTOOLIMPACT_IDEMPOTENT_WRITE McpToolImpact = "IDEMPOTENT_WRITE"
-	MCPTOOLIMPACT_HIGH_IMPACT McpToolImpact = "HIGH_IMPACT"
+	MCPTOOLIMPACT_HIGH_IMPACT      McpToolImpact = "HIGH_IMPACT"
 )
 
 // All allowed values of McpToolImpact enum

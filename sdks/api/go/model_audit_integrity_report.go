@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,12 +21,12 @@ var _ MappedNullable = &AuditIntegrityReport{}
 
 // AuditIntegrityReport struct for AuditIntegrityReport
 type AuditIntegrityReport struct {
-	AnchorHash NullableString `json:"anchorHash,omitempty"`
-	CheckedEvents int32 `json:"checkedEvents"`
+	AnchorHash         NullableString `json:"anchorHash,omitempty"`
+	CheckedEvents      int32          `json:"checkedEvents"`
 	FirstBrokenEventId NullableString `json:"firstBrokenEventId,omitempty"`
-	HeadHash NullableString `json:"headHash,omitempty"`
-	Reason NullableString `json:"reason,omitempty"`
-	Valid bool `json:"valid"`
+	HeadHash           NullableString `json:"headHash,omitempty"`
+	Reason             NullableString `json:"reason,omitempty"`
+	Valid              bool           `json:"valid"`
 }
 
 type _AuditIntegrityReport AuditIntegrityReport
@@ -82,6 +82,7 @@ func (o *AuditIntegrityReport) HasAnchorHash() bool {
 func (o *AuditIntegrityReport) SetAnchorHash(v string) {
 	o.AnchorHash.Set(&v)
 }
+
 // SetAnchorHashNil sets the value for AnchorHash to be an explicit nil
 func (o *AuditIntegrityReport) SetAnchorHashNil() {
 	o.AnchorHash.Set(nil)
@@ -148,6 +149,7 @@ func (o *AuditIntegrityReport) HasFirstBrokenEventId() bool {
 func (o *AuditIntegrityReport) SetFirstBrokenEventId(v string) {
 	o.FirstBrokenEventId.Set(&v)
 }
+
 // SetFirstBrokenEventIdNil sets the value for FirstBrokenEventId to be an explicit nil
 func (o *AuditIntegrityReport) SetFirstBrokenEventIdNil() {
 	o.FirstBrokenEventId.Set(nil)
@@ -190,6 +192,7 @@ func (o *AuditIntegrityReport) HasHeadHash() bool {
 func (o *AuditIntegrityReport) SetHeadHash(v string) {
 	o.HeadHash.Set(&v)
 }
+
 // SetHeadHashNil sets the value for HeadHash to be an explicit nil
 func (o *AuditIntegrityReport) SetHeadHashNil() {
 	o.HeadHash.Set(nil)
@@ -232,6 +235,7 @@ func (o *AuditIntegrityReport) HasReason() bool {
 func (o *AuditIntegrityReport) SetReason(v string) {
 	o.Reason.Set(&v)
 }
+
 // SetReasonNil sets the value for Reason to be an explicit nil
 func (o *AuditIntegrityReport) SetReasonNil() {
 	o.Reason.Set(nil)
@@ -267,7 +271,7 @@ func (o *AuditIntegrityReport) SetValid(v bool) {
 }
 
 func (o AuditIntegrityReport) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -307,10 +311,10 @@ func (o *AuditIntegrityReport) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

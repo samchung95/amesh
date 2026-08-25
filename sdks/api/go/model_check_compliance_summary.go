@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -22,12 +22,12 @@ var _ MappedNullable = &CheckComplianceSummary{}
 // CheckComplianceSummary struct for CheckComplianceSummary
 type CheckComplianceSummary struct {
 	ComplianceRate float32 `json:"compliance_rate"`
-	Errors int32 `json:"errors"`
-	Failed int32 `json:"failed"`
-	GroupKey string `json:"group_key"`
-	Passed int32 `json:"passed"`
-	Total int32 `json:"total"`
-	Warned int32 `json:"warned"`
+	Errors         int32   `json:"errors"`
+	Failed         int32   `json:"failed"`
+	GroupKey       string  `json:"group_key"`
+	Passed         int32   `json:"passed"`
+	Total          int32   `json:"total"`
+	Warned         int32   `json:"warned"`
 }
 
 type _CheckComplianceSummary CheckComplianceSummary
@@ -225,7 +225,7 @@ func (o *CheckComplianceSummary) SetWarned(v int32) {
 }
 
 func (o CheckComplianceSummary) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -263,10 +263,10 @@ func (o *CheckComplianceSummary) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

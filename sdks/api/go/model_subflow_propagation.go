@@ -20,10 +20,10 @@ var _ MappedNullable = &SubflowPropagation{}
 // SubflowPropagation struct for SubflowPropagation
 type SubflowPropagation struct {
 	Cancellation *bool `json:"cancellation,omitempty"`
-	Failure *bool `json:"failure,omitempty"`
-	Pause *bool `json:"pause,omitempty"`
-	Restart *bool `json:"restart,omitempty"`
-	Success *bool `json:"success,omitempty"`
+	Failure      *bool `json:"failure,omitempty"`
+	Pause        *bool `json:"pause,omitempty"`
+	Restart      *bool `json:"restart,omitempty"`
+	Success      *bool `json:"success,omitempty"`
 }
 
 // NewSubflowPropagation instantiates a new SubflowPropagation object
@@ -224,7 +224,7 @@ func (o *SubflowPropagation) SetSuccess(v bool) {
 }
 
 func (o SubflowPropagation) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}

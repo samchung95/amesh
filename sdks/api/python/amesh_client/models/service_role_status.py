@@ -30,6 +30,7 @@ class ServiceRoleStatus(BaseModel):
     """
     ServiceRoleStatus
     """ # noqa: E501
+    degraded_instances: Annotated[int, Field(strict=True, ge=0)] = Field(alias="degradedInstances")
     draining_instances: Annotated[int, Field(strict=True, ge=0)] = Field(alias="drainingInstances")
     failover_status: FailoverStatus = Field(alias="failoverStatus")
     failure_zones: List[StrictStr] = Field(alias="failureZones")
@@ -39,7 +40,7 @@ class ServiceRoleStatus(BaseModel):
     stale_instances: Annotated[int, Field(strict=True, ge=0)] = Field(alias="staleInstances")
     total_instances: Annotated[int, Field(strict=True, ge=0)] = Field(alias="totalInstances")
     versions: List[StrictStr]
-    __properties: ClassVar[List[str]] = ["drainingInstances", "failoverStatus", "failureZones", "liveInstances", "readyInstances", "role", "staleInstances", "totalInstances", "versions"]
+    __properties: ClassVar[List[str]] = ["degradedInstances", "drainingInstances", "failoverStatus", "failureZones", "liveInstances", "readyInstances", "role", "staleInstances", "totalInstances", "versions"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -92,6 +93,7 @@ class ServiceRoleStatus(BaseModel):
             return cls.model_validate(obj)
 
         _obj = cls.model_validate({
+            "degradedInstances": obj.get("degradedInstances"),
             "drainingInstances": obj.get("drainingInstances"),
             "failoverStatus": obj.get("failoverStatus"),
             "failureZones": obj.get("failureZones"),

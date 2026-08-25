@@ -20,12 +20,12 @@ type ExecutionInterventionAction string
 
 // List of ExecutionInterventionAction
 const (
-	EXECUTIONINTERVENTIONACTION_PAUSE ExecutionInterventionAction = "PAUSE"
-	EXECUTIONINTERVENTIONACTION_RESUME ExecutionInterventionAction = "RESUME"
+	EXECUTIONINTERVENTIONACTION_PAUSE          ExecutionInterventionAction = "PAUSE"
+	EXECUTIONINTERVENTIONACTION_RESUME         ExecutionInterventionAction = "RESUME"
 	EXECUTIONINTERVENTIONACTION_REQUEST_CANCEL ExecutionInterventionAction = "REQUEST_CANCEL"
 	EXECUTIONINTERVENTIONACTION_CONFIRM_CANCEL ExecutionInterventionAction = "CONFIRM_CANCEL"
-	EXECUTIONINTERVENTIONACTION_FORCE_CANCEL ExecutionInterventionAction = "FORCE_CANCEL"
-	EXECUTIONINTERVENTIONACTION_RESTART ExecutionInterventionAction = "RESTART"
+	EXECUTIONINTERVENTIONACTION_FORCE_CANCEL   ExecutionInterventionAction = "FORCE_CANCEL"
+	EXECUTIONINTERVENTIONACTION_RESTART        ExecutionInterventionAction = "RESTART"
 )
 
 // All allowed values of ExecutionInterventionAction enum

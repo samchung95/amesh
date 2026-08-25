@@ -19,13 +19,13 @@ var _ MappedNullable = &SimulationRequest{}
 
 // SimulationRequest struct for SimulationRequest
 type SimulationRequest struct {
-	DefaultRunner *string `json:"defaultRunner,omitempty"`
+	DefaultRunner  *string                            `json:"defaultRunner,omitempty"`
 	EstimateModels map[string]SimulationEstimateModel `json:"estimateModels,omitempty"`
-	Fixtures map[string]SimulationFixture `json:"fixtures,omitempty"`
-	Inputs map[string]*interface{} `json:"inputs,omitempty"`
-	SignEvidence *bool `json:"signEvidence,omitempty"`
-	TriggerContext map[string]*interface{} `json:"triggerContext,omitempty"`
-	Variables map[string]*interface{} `json:"variables,omitempty"`
+	Fixtures       map[string]SimulationFixture       `json:"fixtures,omitempty"`
+	Inputs         map[string]*interface{}            `json:"inputs,omitempty"`
+	SignEvidence   *bool                              `json:"signEvidence,omitempty"`
+	TriggerContext map[string]*interface{}            `json:"triggerContext,omitempty"`
+	Variables      map[string]*interface{}            `json:"variables,omitempty"`
 }
 
 // NewSimulationRequest instantiates a new SimulationRequest object
@@ -278,7 +278,7 @@ func (o *SimulationRequest) SetVariables(v map[string]*interface{}) {
 }
 
 func (o SimulationRequest) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}

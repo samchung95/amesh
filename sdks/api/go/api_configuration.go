@@ -19,19 +19,18 @@ import (
 	"strings"
 )
 
-
 // ConfigurationAPIService ConfigurationAPI service
 type ConfigurationAPIService service
 
 type ApiEvaluateFeatureFlagApiV1FeatureFlagsKeyEvaluateGetRequest struct {
-	ctx context.Context
-	ApiService *ConfigurationAPIService
-	key string
-	namespace *string
-	default_ *bool
+	ctx           context.Context
+	ApiService    *ConfigurationAPIService
+	key           string
+	namespace     *string
+	default_      *bool
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiEvaluateFeatureFlagApiV1FeatureFlagsKeyEvaluateGetRequest) Namespace(namespace string) ApiEvaluateFeatureFlagApiV1FeatureFlagsKeyEvaluateGetRequest {
@@ -66,26 +65,27 @@ func (r ApiEvaluateFeatureFlagApiV1FeatureFlagsKeyEvaluateGetRequest) Execute() 
 /*
 EvaluateFeatureFlagApiV1FeatureFlagsKeyEvaluateGet Evaluate Feature Flag
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param key
- @return ApiEvaluateFeatureFlagApiV1FeatureFlagsKeyEvaluateGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param key
+	@return ApiEvaluateFeatureFlagApiV1FeatureFlagsKeyEvaluateGetRequest
 */
 func (a *ConfigurationAPIService) EvaluateFeatureFlagApiV1FeatureFlagsKeyEvaluateGet(ctx context.Context, key string) ApiEvaluateFeatureFlagApiV1FeatureFlagsKeyEvaluateGetRequest {
 	return ApiEvaluateFeatureFlagApiV1FeatureFlagsKeyEvaluateGetRequest{
 		ApiService: a,
-		ctx: ctx,
-		key: key,
+		ctx:        ctx,
+		key:        key,
 	}
 }
 
 // Execute executes the request
-//  @return FeatureFlagDecision
+//
+//	@return FeatureFlagDecision
 func (a *ConfigurationAPIService) EvaluateFeatureFlagApiV1FeatureFlagsKeyEvaluateGetExecute(r ApiEvaluateFeatureFlagApiV1FeatureFlagsKeyEvaluateGetRequest) (*FeatureFlagDecision, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *FeatureFlagDecision
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *FeatureFlagDecision
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ConfigurationAPIService.EvaluateFeatureFlagApiV1FeatureFlagsKeyEvaluateGet")
@@ -165,8 +165,8 @@ func (a *ConfigurationAPIService) EvaluateFeatureFlagApiV1FeatureFlagsKeyEvaluat
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -184,12 +184,12 @@ func (a *ConfigurationAPIService) EvaluateFeatureFlagApiV1FeatureFlagsKeyEvaluat
 }
 
 type ApiGetConfigurationDiagnosticsApiV1ConfigurationDiagnosticsGetRequest struct {
-	ctx context.Context
-	ApiService *ConfigurationAPIService
-	namespace *string
+	ctx           context.Context
+	ApiService    *ConfigurationAPIService
+	namespace     *string
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiGetConfigurationDiagnosticsApiV1ConfigurationDiagnosticsGetRequest) Namespace(namespace string) ApiGetConfigurationDiagnosticsApiV1ConfigurationDiagnosticsGetRequest {
@@ -219,24 +219,25 @@ func (r ApiGetConfigurationDiagnosticsApiV1ConfigurationDiagnosticsGetRequest) E
 /*
 GetConfigurationDiagnosticsApiV1ConfigurationDiagnosticsGet Get Configuration Diagnostics
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiGetConfigurationDiagnosticsApiV1ConfigurationDiagnosticsGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiGetConfigurationDiagnosticsApiV1ConfigurationDiagnosticsGetRequest
 */
 func (a *ConfigurationAPIService) GetConfigurationDiagnosticsApiV1ConfigurationDiagnosticsGet(ctx context.Context) ApiGetConfigurationDiagnosticsApiV1ConfigurationDiagnosticsGetRequest {
 	return ApiGetConfigurationDiagnosticsApiV1ConfigurationDiagnosticsGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return ConfigurationDiagnosticBundle
+//
+//	@return ConfigurationDiagnosticBundle
 func (a *ConfigurationAPIService) GetConfigurationDiagnosticsApiV1ConfigurationDiagnosticsGetExecute(r ApiGetConfigurationDiagnosticsApiV1ConfigurationDiagnosticsGetRequest) (*ConfigurationDiagnosticBundle, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *ConfigurationDiagnosticBundle
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *ConfigurationDiagnosticBundle
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ConfigurationAPIService.GetConfigurationDiagnosticsApiV1ConfigurationDiagnosticsGet")
@@ -308,8 +309,8 @@ func (a *ConfigurationAPIService) GetConfigurationDiagnosticsApiV1ConfigurationD
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -327,10 +328,10 @@ func (a *ConfigurationAPIService) GetConfigurationDiagnosticsApiV1ConfigurationD
 }
 
 type ApiGetEffectiveConfigurationApiV1ConfigurationGetRequest struct {
-	ctx context.Context
-	ApiService *ConfigurationAPIService
+	ctx           context.Context
+	ApiService    *ConfigurationAPIService
 	authorization *string
-	xAmeshCSRF *string
+	xAmeshCSRF    *string
 }
 
 func (r ApiGetEffectiveConfigurationApiV1ConfigurationGetRequest) Authorization(authorization string) ApiGetEffectiveConfigurationApiV1ConfigurationGetRequest {
@@ -350,24 +351,25 @@ func (r ApiGetEffectiveConfigurationApiV1ConfigurationGetRequest) Execute() (*Co
 /*
 GetEffectiveConfigurationApiV1ConfigurationGet Get Effective Configuration
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiGetEffectiveConfigurationApiV1ConfigurationGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiGetEffectiveConfigurationApiV1ConfigurationGetRequest
 */
 func (a *ConfigurationAPIService) GetEffectiveConfigurationApiV1ConfigurationGet(ctx context.Context) ApiGetEffectiveConfigurationApiV1ConfigurationGetRequest {
 	return ApiGetEffectiveConfigurationApiV1ConfigurationGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return ConfigurationSnapshot
+//
+//	@return ConfigurationSnapshot
 func (a *ConfigurationAPIService) GetEffectiveConfigurationApiV1ConfigurationGetExecute(r ApiGetEffectiveConfigurationApiV1ConfigurationGetRequest) (*ConfigurationSnapshot, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *ConfigurationSnapshot
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *ConfigurationSnapshot
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ConfigurationAPIService.GetEffectiveConfigurationApiV1ConfigurationGet")
@@ -433,8 +435,8 @@ func (a *ConfigurationAPIService) GetEffectiveConfigurationApiV1ConfigurationGet
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -452,12 +454,12 @@ func (a *ConfigurationAPIService) GetEffectiveConfigurationApiV1ConfigurationGet
 }
 
 type ApiListFeatureFlagsApiV1FeatureFlagsGetRequest struct {
-	ctx context.Context
-	ApiService *ConfigurationAPIService
-	namespace *string
+	ctx           context.Context
+	ApiService    *ConfigurationAPIService
+	namespace     *string
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiListFeatureFlagsApiV1FeatureFlagsGetRequest) Namespace(namespace string) ApiListFeatureFlagsApiV1FeatureFlagsGetRequest {
@@ -487,24 +489,25 @@ func (r ApiListFeatureFlagsApiV1FeatureFlagsGetRequest) Execute() ([]FeatureFlag
 /*
 ListFeatureFlagsApiV1FeatureFlagsGet List Feature Flags
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiListFeatureFlagsApiV1FeatureFlagsGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiListFeatureFlagsApiV1FeatureFlagsGetRequest
 */
 func (a *ConfigurationAPIService) ListFeatureFlagsApiV1FeatureFlagsGet(ctx context.Context) ApiListFeatureFlagsApiV1FeatureFlagsGetRequest {
 	return ApiListFeatureFlagsApiV1FeatureFlagsGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return []FeatureFlag
+//
+//	@return []FeatureFlag
 func (a *ConfigurationAPIService) ListFeatureFlagsApiV1FeatureFlagsGetExecute(r ApiListFeatureFlagsApiV1FeatureFlagsGetRequest) ([]FeatureFlag, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  []FeatureFlag
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []FeatureFlag
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ConfigurationAPIService.ListFeatureFlagsApiV1FeatureFlagsGet")
@@ -576,8 +579,8 @@ func (a *ConfigurationAPIService) ListFeatureFlagsApiV1FeatureFlagsGetExecute(r 
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -595,13 +598,13 @@ func (a *ConfigurationAPIService) ListFeatureFlagsApiV1FeatureFlagsGetExecute(r 
 }
 
 type ApiPutFeatureFlagApiV1FeatureFlagsKeyPutRequest struct {
-	ctx context.Context
-	ApiService *ConfigurationAPIService
-	key string
+	ctx                      context.Context
+	ApiService               *ConfigurationAPIService
+	key                      string
 	featureFlagUpsertRequest *FeatureFlagUpsertRequest
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization            *string
+	xAmeshCSRF               *string
+	xAmeshTenant             *string
 }
 
 func (r ApiPutFeatureFlagApiV1FeatureFlagsKeyPutRequest) FeatureFlagUpsertRequest(featureFlagUpsertRequest FeatureFlagUpsertRequest) ApiPutFeatureFlagApiV1FeatureFlagsKeyPutRequest {
@@ -631,26 +634,27 @@ func (r ApiPutFeatureFlagApiV1FeatureFlagsKeyPutRequest) Execute() (*FeatureFlag
 /*
 PutFeatureFlagApiV1FeatureFlagsKeyPut Put Feature Flag
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param key
- @return ApiPutFeatureFlagApiV1FeatureFlagsKeyPutRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param key
+	@return ApiPutFeatureFlagApiV1FeatureFlagsKeyPutRequest
 */
 func (a *ConfigurationAPIService) PutFeatureFlagApiV1FeatureFlagsKeyPut(ctx context.Context, key string) ApiPutFeatureFlagApiV1FeatureFlagsKeyPutRequest {
 	return ApiPutFeatureFlagApiV1FeatureFlagsKeyPutRequest{
 		ApiService: a,
-		ctx: ctx,
-		key: key,
+		ctx:        ctx,
+		key:        key,
 	}
 }
 
 // Execute executes the request
-//  @return FeatureFlag
+//
+//	@return FeatureFlag
 func (a *ConfigurationAPIService) PutFeatureFlagApiV1FeatureFlagsKeyPutExecute(r ApiPutFeatureFlagApiV1FeatureFlagsKeyPutRequest) (*FeatureFlag, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPut
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *FeatureFlag
+		localVarHTTPMethod  = http.MethodPut
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *FeatureFlag
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ConfigurationAPIService.PutFeatureFlagApiV1FeatureFlagsKeyPut")
@@ -725,8 +729,8 @@ func (a *ConfigurationAPIService) PutFeatureFlagApiV1FeatureFlagsKeyPutExecute(r
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -744,10 +748,10 @@ func (a *ConfigurationAPIService) PutFeatureFlagApiV1FeatureFlagsKeyPutExecute(r
 }
 
 type ApiReloadConfigurationApiV1ConfigurationReloadPostRequest struct {
-	ctx context.Context
-	ApiService *ConfigurationAPIService
+	ctx           context.Context
+	ApiService    *ConfigurationAPIService
 	authorization *string
-	xAmeshCSRF *string
+	xAmeshCSRF    *string
 }
 
 func (r ApiReloadConfigurationApiV1ConfigurationReloadPostRequest) Authorization(authorization string) ApiReloadConfigurationApiV1ConfigurationReloadPostRequest {
@@ -767,24 +771,25 @@ func (r ApiReloadConfigurationApiV1ConfigurationReloadPostRequest) Execute() (*C
 /*
 ReloadConfigurationApiV1ConfigurationReloadPost Reload Configuration
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiReloadConfigurationApiV1ConfigurationReloadPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiReloadConfigurationApiV1ConfigurationReloadPostRequest
 */
 func (a *ConfigurationAPIService) ReloadConfigurationApiV1ConfigurationReloadPost(ctx context.Context) ApiReloadConfigurationApiV1ConfigurationReloadPostRequest {
 	return ApiReloadConfigurationApiV1ConfigurationReloadPostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return ConfigurationSnapshot
+//
+//	@return ConfigurationSnapshot
 func (a *ConfigurationAPIService) ReloadConfigurationApiV1ConfigurationReloadPostExecute(r ApiReloadConfigurationApiV1ConfigurationReloadPostRequest) (*ConfigurationSnapshot, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *ConfigurationSnapshot
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *ConfigurationSnapshot
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ConfigurationAPIService.ReloadConfigurationApiV1ConfigurationReloadPost")
@@ -850,8 +855,8 @@ func (a *ConfigurationAPIService) ReloadConfigurationApiV1ConfigurationReloadPos
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}

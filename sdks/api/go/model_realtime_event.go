@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the RealtimeEvent type satisfies the MappedNullable interface at compile time
@@ -22,17 +22,17 @@ var _ MappedNullable = &RealtimeEvent{}
 
 // RealtimeEvent struct for RealtimeEvent
 type RealtimeEvent struct {
-	Cursor int32 `json:"cursor"`
-	EventId string `json:"eventId"`
-	EventType string `json:"eventType"`
-	ExecutionId NullableString `json:"executionId,omitempty"`
-	FlowId NullableString `json:"flowId,omitempty"`
-	IngestedAt time.Time `json:"ingestedAt"`
-	Namespace NullableString `json:"namespace,omitempty"`
-	OccurredAt time.Time `json:"occurredAt"`
-	Payload map[string]interface{} `json:"payload"`
-	Severity RealtimeSeverity `json:"severity"`
-	TaskRunId NullableString `json:"taskRunId,omitempty"`
+	Cursor      int32                  `json:"cursor"`
+	EventId     string                 `json:"eventId"`
+	EventType   string                 `json:"eventType"`
+	ExecutionId NullableString         `json:"executionId,omitempty"`
+	FlowId      NullableString         `json:"flowId,omitempty"`
+	IngestedAt  time.Time              `json:"ingestedAt"`
+	Namespace   NullableString         `json:"namespace,omitempty"`
+	OccurredAt  time.Time              `json:"occurredAt"`
+	Payload     map[string]interface{} `json:"payload"`
+	Severity    RealtimeSeverity       `json:"severity"`
+	TaskRunId   NullableString         `json:"taskRunId,omitempty"`
 }
 
 type _RealtimeEvent RealtimeEvent
@@ -165,6 +165,7 @@ func (o *RealtimeEvent) HasExecutionId() bool {
 func (o *RealtimeEvent) SetExecutionId(v string) {
 	o.ExecutionId.Set(&v)
 }
+
 // SetExecutionIdNil sets the value for ExecutionId to be an explicit nil
 func (o *RealtimeEvent) SetExecutionIdNil() {
 	o.ExecutionId.Set(nil)
@@ -207,6 +208,7 @@ func (o *RealtimeEvent) HasFlowId() bool {
 func (o *RealtimeEvent) SetFlowId(v string) {
 	o.FlowId.Set(&v)
 }
+
 // SetFlowIdNil sets the value for FlowId to be an explicit nil
 func (o *RealtimeEvent) SetFlowIdNil() {
 	o.FlowId.Set(nil)
@@ -273,6 +275,7 @@ func (o *RealtimeEvent) HasNamespace() bool {
 func (o *RealtimeEvent) SetNamespace(v string) {
 	o.Namespace.Set(&v)
 }
+
 // SetNamespaceNil sets the value for Namespace to be an explicit nil
 func (o *RealtimeEvent) SetNamespaceNil() {
 	o.Namespace.Set(nil)
@@ -387,6 +390,7 @@ func (o *RealtimeEvent) HasTaskRunId() bool {
 func (o *RealtimeEvent) SetTaskRunId(v string) {
 	o.TaskRunId.Set(&v)
 }
+
 // SetTaskRunIdNil sets the value for TaskRunId to be an explicit nil
 func (o *RealtimeEvent) SetTaskRunIdNil() {
 	o.TaskRunId.Set(nil)
@@ -398,7 +402,7 @@ func (o *RealtimeEvent) UnsetTaskRunId() {
 }
 
 func (o RealtimeEvent) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -448,10 +452,10 @@ func (o *RealtimeEvent) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

@@ -20,10 +20,10 @@ type OperationalControlState string
 
 // List of OperationalControlState
 const (
-	OPERATIONALCONTROLSTATE_ACTIVE OperationalControlState = "ACTIVE"
-	OPERATIONALCONTROLSTATE_BYPASSED OperationalControlState = "BYPASSED"
+	OPERATIONALCONTROLSTATE_ACTIVE      OperationalControlState = "ACTIVE"
+	OPERATIONALCONTROLSTATE_BYPASSED    OperationalControlState = "BYPASSED"
 	OPERATIONALCONTROLSTATE_DEACTIVATED OperationalControlState = "DEACTIVATED"
-	OPERATIONALCONTROLSTATE_EXPIRED OperationalControlState = "EXPIRED"
+	OPERATIONALCONTROLSTATE_EXPIRED     OperationalControlState = "EXPIRED"
 )
 
 // All allowed values of OperationalControlState enum

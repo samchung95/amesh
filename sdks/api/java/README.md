@@ -331,6 +331,8 @@ Class | Method | HTTP request | Description
 *ExecutionsApi* | [**getExecutionApiV1ExecutionsExecutionIdGetWithHttpInfo**](docs/ExecutionsApi.md#getExecutionApiV1ExecutionsExecutionIdGetWithHttpInfo) | **GET** /api/v1/executions/{execution_id} | Get Execution
 *ExecutionsApi* | [**getExecutionEvidenceApiV1ExecutionsExecutionIdEvidenceGet**](docs/ExecutionsApi.md#getExecutionEvidenceApiV1ExecutionsExecutionIdEvidenceGet) | **GET** /api/v1/executions/{execution_id}/evidence | Get Execution Evidence
 *ExecutionsApi* | [**getExecutionEvidenceApiV1ExecutionsExecutionIdEvidenceGetWithHttpInfo**](docs/ExecutionsApi.md#getExecutionEvidenceApiV1ExecutionsExecutionIdEvidenceGetWithHttpInfo) | **GET** /api/v1/executions/{execution_id}/evidence | Get Execution Evidence
+*ExecutionsApi* | [**getExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGet**](docs/ExecutionsApi.md#getExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGet) | **GET** /api/v1/executions/{execution_id}/evidence-bundle | Get Execution Evidence Bundle
+*ExecutionsApi* | [**getExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGetWithHttpInfo**](docs/ExecutionsApi.md#getExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGetWithHttpInfo) | **GET** /api/v1/executions/{execution_id}/evidence-bundle | Get Execution Evidence Bundle
 *ExecutionsApi* | [**getExecutionGraphApiV1ExecutionsExecutionIdGraphGet**](docs/ExecutionsApi.md#getExecutionGraphApiV1ExecutionsExecutionIdGraphGet) | **GET** /api/v1/executions/{execution_id}/graph | Get Execution Graph
 *ExecutionsApi* | [**getExecutionGraphApiV1ExecutionsExecutionIdGraphGetWithHttpInfo**](docs/ExecutionsApi.md#getExecutionGraphApiV1ExecutionsExecutionIdGraphGetWithHttpInfo) | **GET** /api/v1/executions/{execution_id}/graph | Get Execution Graph
 *ExecutionsApi* | [**getExecutionLogsApiV1ExecutionsExecutionIdLogsGet**](docs/ExecutionsApi.md#getExecutionLogsApiV1ExecutionsExecutionIdLogsGet) | **GET** /api/v1/executions/{execution_id}/logs | Get Execution Logs
@@ -359,6 +361,8 @@ Class | Method | HTTP request | Description
 *ExecutionsApi* | [**streamExecutionEvidenceApiV1ExecutionsExecutionIdEvidenceStreamGetWithHttpInfo**](docs/ExecutionsApi.md#streamExecutionEvidenceApiV1ExecutionsExecutionIdEvidenceStreamGetWithHttpInfo) | **GET** /api/v1/executions/{execution_id}/evidence/stream | Stream Execution Evidence
 *ExecutionsApi* | [**streamExecutionLogsApiV1ExecutionsExecutionIdLogsStreamGet**](docs/ExecutionsApi.md#streamExecutionLogsApiV1ExecutionsExecutionIdLogsStreamGet) | **GET** /api/v1/executions/{execution_id}/logs/stream | Stream Execution Logs
 *ExecutionsApi* | [**streamExecutionLogsApiV1ExecutionsExecutionIdLogsStreamGetWithHttpInfo**](docs/ExecutionsApi.md#streamExecutionLogsApiV1ExecutionsExecutionIdLogsStreamGetWithHttpInfo) | **GET** /api/v1/executions/{execution_id}/logs/stream | Stream Execution Logs
+*ExternalOrchestrationApi* | [**getExternalOrchestrationProfileApiV1OrchestrationProfileGet**](docs/ExternalOrchestrationApi.md#getExternalOrchestrationProfileApiV1OrchestrationProfileGet) | **GET** /api/v1/orchestration/profile | Get External Orchestration Profile
+*ExternalOrchestrationApi* | [**getExternalOrchestrationProfileApiV1OrchestrationProfileGetWithHttpInfo**](docs/ExternalOrchestrationApi.md#getExternalOrchestrationProfileApiV1OrchestrationProfileGetWithHttpInfo) | **GET** /api/v1/orchestration/profile | Get External Orchestration Profile
 *FlowTestsApi* | [**deleteFlowTestApiV1FlowsNamespaceFlowIdTestsTestIdDelete**](docs/FlowTestsApi.md#deleteFlowTestApiV1FlowsNamespaceFlowIdTestsTestIdDelete) | **DELETE** /api/v1/flows/{namespace}/{flow_id}/tests/{test_id} | Delete Flow Test
 *FlowTestsApi* | [**deleteFlowTestApiV1FlowsNamespaceFlowIdTestsTestIdDeleteWithHttpInfo**](docs/FlowTestsApi.md#deleteFlowTestApiV1FlowsNamespaceFlowIdTestsTestIdDeleteWithHttpInfo) | **DELETE** /api/v1/flows/{namespace}/{flow_id}/tests/{test_id} | Delete Flow Test
 *FlowTestsApi* | [**getFlowTestGateApiV1NamespacesNamespaceFlowTestGateGet**](docs/FlowTestsApi.md#getFlowTestGateApiV1NamespacesNamespaceFlowTestGateGet) | **GET** /api/v1/namespaces/{namespace}/flow-test-gate | Get Flow Test Gate
@@ -559,6 +563,10 @@ Class | Method | HTTP request | Description
 *PoliciesApi* | [**updateAdmissionPolicyApiV1PoliciesPolicyKeyPutWithHttpInfo**](docs/PoliciesApi.md#updateAdmissionPolicyApiV1PoliciesPolicyKeyPutWithHttpInfo) | **PUT** /api/v1/policies/{policy_key} | Update Admission Policy
 *PoliciesApi* | [**validateFlowAdmissionPolicyApiV1PoliciesFlowsValidatePost**](docs/PoliciesApi.md#validateFlowAdmissionPolicyApiV1PoliciesFlowsValidatePost) | **POST** /api/v1/policies/flows/validate | Validate Flow Admission Policy
 *PoliciesApi* | [**validateFlowAdmissionPolicyApiV1PoliciesFlowsValidatePostWithHttpInfo**](docs/PoliciesApi.md#validateFlowAdmissionPolicyApiV1PoliciesFlowsValidatePostWithHttpInfo) | **POST** /api/v1/policies/flows/validate | Validate Flow Admission Policy
+*QualityApi* | [**getDifferentialApiV1NamespacesNamespaceDifferentialsIdempotencyKeyGet**](docs/QualityApi.md#getDifferentialApiV1NamespacesNamespaceDifferentialsIdempotencyKeyGet) | **GET** /api/v1/namespaces/{namespace}/differentials/{idempotency_key} | Get Differential
+*QualityApi* | [**getDifferentialApiV1NamespacesNamespaceDifferentialsIdempotencyKeyGetWithHttpInfo**](docs/QualityApi.md#getDifferentialApiV1NamespacesNamespaceDifferentialsIdempotencyKeyGetWithHttpInfo) | **GET** /api/v1/namespaces/{namespace}/differentials/{idempotency_key} | Get Differential
+*QualityApi* | [**runDifferentialApiV1NamespacesNamespaceDifferentialsPost**](docs/QualityApi.md#runDifferentialApiV1NamespacesNamespaceDifferentialsPost) | **POST** /api/v1/namespaces/{namespace}/differentials | Run Differential
+*QualityApi* | [**runDifferentialApiV1NamespacesNamespaceDifferentialsPostWithHttpInfo**](docs/QualityApi.md#runDifferentialApiV1NamespacesNamespaceDifferentialsPostWithHttpInfo) | **POST** /api/v1/namespaces/{namespace}/differentials | Run Differential
 *RealtimeApi* | [**createWebhookSubscriptionApiV1WebhookSubscriptionsPost**](docs/RealtimeApi.md#createWebhookSubscriptionApiV1WebhookSubscriptionsPost) | **POST** /api/v1/webhook-subscriptions | Create Webhook Subscription
 *RealtimeApi* | [**createWebhookSubscriptionApiV1WebhookSubscriptionsPostWithHttpInfo**](docs/RealtimeApi.md#createWebhookSubscriptionApiV1WebhookSubscriptionsPostWithHttpInfo) | **POST** /api/v1/webhook-subscriptions | Create Webhook Subscription
 *RealtimeApi* | [**listRealtimeEventsApiV1RealtimeEventsGet**](docs/RealtimeApi.md#listRealtimeEventsApiV1RealtimeEventsGet) | **GET** /api/v1/realtime/events | List Realtime Events
@@ -575,6 +583,22 @@ Class | Method | HTTP request | Description
 *RealtimeApi* | [**streamRealtimeEventsApiV1RealtimeStreamGetWithHttpInfo**](docs/RealtimeApi.md#streamRealtimeEventsApiV1RealtimeStreamGetWithHttpInfo) | **GET** /api/v1/realtime/stream | Stream Realtime Events
 *RealtimeApi* | [**testWebhookSubscriptionApiV1WebhookSubscriptionsSubscriptionIdTestPost**](docs/RealtimeApi.md#testWebhookSubscriptionApiV1WebhookSubscriptionsSubscriptionIdTestPost) | **POST** /api/v1/webhook-subscriptions/{subscription_id}/test | Test Webhook Subscription
 *RealtimeApi* | [**testWebhookSubscriptionApiV1WebhookSubscriptionsSubscriptionIdTestPostWithHttpInfo**](docs/RealtimeApi.md#testWebhookSubscriptionApiV1WebhookSubscriptionsSubscriptionIdTestPostWithHttpInfo) | **POST** /api/v1/webhook-subscriptions/{subscription_id}/test | Test Webhook Subscription
+*ReleasesApi* | [**applyPolicyApiV1ReleasesPoliciesPolicyIdApplyPost**](docs/ReleasesApi.md#applyPolicyApiV1ReleasesPoliciesPolicyIdApplyPost) | **POST** /api/v1/releases/policies/{policy_id}/apply | Apply Policy
+*ReleasesApi* | [**applyPolicyApiV1ReleasesPoliciesPolicyIdApplyPostWithHttpInfo**](docs/ReleasesApi.md#applyPolicyApiV1ReleasesPoliciesPolicyIdApplyPostWithHttpInfo) | **POST** /api/v1/releases/policies/{policy_id}/apply | Apply Policy
+*ReleasesApi* | [**createPolicyApiV1ReleasesPoliciesPost**](docs/ReleasesApi.md#createPolicyApiV1ReleasesPoliciesPost) | **POST** /api/v1/releases/policies | Create Policy
+*ReleasesApi* | [**createPolicyApiV1ReleasesPoliciesPostWithHttpInfo**](docs/ReleasesApi.md#createPolicyApiV1ReleasesPoliciesPostWithHttpInfo) | **POST** /api/v1/releases/policies | Create Policy
+*ReleasesApi* | [**killSwitchApiV1ReleasesTargetKindTargetKeyKillSwitchPost**](docs/ReleasesApi.md#killSwitchApiV1ReleasesTargetKindTargetKeyKillSwitchPost) | **POST** /api/v1/releases/{target_kind}/{target_key}/kill-switch | Kill Switch
+*ReleasesApi* | [**killSwitchApiV1ReleasesTargetKindTargetKeyKillSwitchPostWithHttpInfo**](docs/ReleasesApi.md#killSwitchApiV1ReleasesTargetKindTargetKeyKillSwitchPostWithHttpInfo) | **POST** /api/v1/releases/{target_kind}/{target_key}/kill-switch | Kill Switch
+*ReleasesApi* | [**previewPolicyApiV1ReleasesPoliciesPolicyIdPreviewPost**](docs/ReleasesApi.md#previewPolicyApiV1ReleasesPoliciesPolicyIdPreviewPost) | **POST** /api/v1/releases/policies/{policy_id}/preview | Preview Policy
+*ReleasesApi* | [**previewPolicyApiV1ReleasesPoliciesPolicyIdPreviewPostWithHttpInfo**](docs/ReleasesApi.md#previewPolicyApiV1ReleasesPoliciesPolicyIdPreviewPostWithHttpInfo) | **POST** /api/v1/releases/policies/{policy_id}/preview | Preview Policy
+*ReleasesApi* | [**recordEvidenceApiV1ReleasesEvidencePost**](docs/ReleasesApi.md#recordEvidenceApiV1ReleasesEvidencePost) | **POST** /api/v1/releases/evidence | Record Evidence
+*ReleasesApi* | [**recordEvidenceApiV1ReleasesEvidencePostWithHttpInfo**](docs/ReleasesApi.md#recordEvidenceApiV1ReleasesEvidencePostWithHttpInfo) | **POST** /api/v1/releases/evidence | Record Evidence
+*ReleasesApi* | [**rollbackApiV1ReleasesTargetKindTargetKeyRollbackPost**](docs/ReleasesApi.md#rollbackApiV1ReleasesTargetKindTargetKeyRollbackPost) | **POST** /api/v1/releases/{target_kind}/{target_key}/rollback | Rollback
+*ReleasesApi* | [**rollbackApiV1ReleasesTargetKindTargetKeyRollbackPostWithHttpInfo**](docs/ReleasesApi.md#rollbackApiV1ReleasesTargetKindTargetKeyRollbackPostWithHttpInfo) | **POST** /api/v1/releases/{target_kind}/{target_key}/rollback | Rollback
+*ReleasesApi* | [**targetHistoryApiV1ReleasesTargetKindTargetKeyHistoryGet**](docs/ReleasesApi.md#targetHistoryApiV1ReleasesTargetKindTargetKeyHistoryGet) | **GET** /api/v1/releases/{target_kind}/{target_key}/history | Target History
+*ReleasesApi* | [**targetHistoryApiV1ReleasesTargetKindTargetKeyHistoryGetWithHttpInfo**](docs/ReleasesApi.md#targetHistoryApiV1ReleasesTargetKindTargetKeyHistoryGetWithHttpInfo) | **GET** /api/v1/releases/{target_kind}/{target_key}/history | Target History
+*ReleasesApi* | [**targetStateApiV1ReleasesTargetKindTargetKeyGet**](docs/ReleasesApi.md#targetStateApiV1ReleasesTargetKindTargetKeyGet) | **GET** /api/v1/releases/{target_kind}/{target_key} | Target State
+*ReleasesApi* | [**targetStateApiV1ReleasesTargetKindTargetKeyGetWithHttpInfo**](docs/ReleasesApi.md#targetStateApiV1ReleasesTargetKindTargetKeyGetWithHttpInfo) | **GET** /api/v1/releases/{target_kind}/{target_key} | Target State
 *ScimApi* | [**createScimGroupScimV2GroupsPost**](docs/ScimApi.md#createScimGroupScimV2GroupsPost) | **POST** /scim/v2/Groups | Create Scim Group
 *ScimApi* | [**createScimGroupScimV2GroupsPostWithHttpInfo**](docs/ScimApi.md#createScimGroupScimV2GroupsPostWithHttpInfo) | **POST** /scim/v2/Groups | Create Scim Group
 *ScimApi* | [**createScimUserScimV2UsersPost**](docs/ScimApi.md#createScimUserScimV2UsersPost) | **POST** /scim/v2/Users | Create Scim User
@@ -673,6 +697,7 @@ Class | Method | HTTP request | Description
 
 ## Documentation for Models
 
+ - [Absolute](docs/Absolute.md)
  - [Action](docs/Action.md)
  - [AdministrationApplyRequest](docs/AdministrationApplyRequest.md)
  - [AdministrationAuditEntry](docs/AdministrationAuditEntry.md)
@@ -703,6 +728,7 @@ Class | Method | HTTP request | Description
  - [AgentMemoryMetadata](docs/AgentMemoryMetadata.md)
  - [AgentMemoryPolicy](docs/AgentMemoryPolicy.md)
  - [AgentMemoryScope](docs/AgentMemoryScope.md)
+ - [AgentModelContinuationRef](docs/AgentModelContinuationRef.md)
  - [AgentPermissions](docs/AgentPermissions.md)
  - [AgentResolutionRequest](docs/AgentResolutionRequest.md)
  - [AgentResourceKind](docs/AgentResourceKind.md)
@@ -729,6 +755,7 @@ Class | Method | HTTP request | Description
  - [AnnouncementCreateRequest](docs/AnnouncementCreateRequest.md)
  - [AnnouncementSeverity](docs/AnnouncementSeverity.md)
  - [AppForm](docs/AppForm.md)
+ - [ApprovalRequirement](docs/ApprovalRequirement.md)
  - [AssetAccessMode](docs/AssetAccessMode.md)
  - [AssetCatalogEntry](docs/AssetCatalogEntry.md)
  - [AssetCatalogExport](docs/AssetCatalogExport.md)
@@ -772,6 +799,8 @@ Class | Method | HTTP request | Description
  - [BlueprintParameterKind](docs/BlueprintParameterKind.md)
  - [BlueprintProvenance](docs/BlueprintProvenance.md)
  - [BlueprintSummary](docs/BlueprintSummary.md)
+ - [BudgetRequirementInput](docs/BudgetRequirementInput.md)
+ - [BudgetRequirementOutput](docs/BudgetRequirementOutput.md)
  - [BulkExecutionItemResult](docs/BulkExecutionItemResult.md)
  - [BulkExecutionRequest](docs/BulkExecutionRequest.md)
  - [CertificateDiagnostic](docs/CertificateDiagnostic.md)
@@ -784,6 +813,10 @@ Class | Method | HTTP request | Description
  - [CheckOutcome](docs/CheckOutcome.md)
  - [CheckPolicySource](docs/CheckPolicySource.md)
  - [CheckPolicyUpsertRequest](docs/CheckPolicyUpsertRequest.md)
+ - [ComparisonCategory](docs/ComparisonCategory.md)
+ - [ComparisonDifference](docs/ComparisonDifference.md)
+ - [ComparisonPolicy](docs/ComparisonPolicy.md)
+ - [ComparisonReport](docs/ComparisonReport.md)
  - [CompatibilityMapping](docs/CompatibilityMapping.md)
  - [ComplianceEvidenceCategory](docs/ComplianceEvidenceCategory.md)
  - [ComplianceEvidenceCreate](docs/ComplianceEvidenceCreate.md)
@@ -794,8 +827,10 @@ Class | Method | HTTP request | Description
  - [ConfigurationMigration](docs/ConfigurationMigration.md)
  - [ConfigurationMigrationKind](docs/ConfigurationMigrationKind.md)
  - [ConfigurationMigrationRequest](docs/ConfigurationMigrationRequest.md)
+ - [ConfigurationPin](docs/ConfigurationPin.md)
  - [ConfigurationSnapshot](docs/ConfigurationSnapshot.md)
  - [ConnectionDiagnostic](docs/ConnectionDiagnostic.md)
+ - [Correlationid](docs/Correlationid.md)
  - [CreateExecutionRequest](docs/CreateExecutionRequest.md)
  - [CreateTenantRequest](docs/CreateTenantRequest.md)
  - [CredentialKind](docs/CredentialKind.md)
@@ -819,10 +854,16 @@ Class | Method | HTTP request | Description
  - [DeterminismEnvelope](docs/DeterminismEnvelope.md)
  - [DeterminismNode](docs/DeterminismNode.md)
  - [DeterminismPolicyPin](docs/DeterminismPolicyPin.md)
+ - [DifferentialSpec](docs/DifferentialSpec.md)
  - [DnsDiagnostic](docs/DnsDiagnostic.md)
  - [DynamicExecutionBound](docs/DynamicExecutionBound.md)
  - [EffectiveCapabilityEnvelope](docs/EffectiveCapabilityEnvelope.md)
  - [EffectivePluginPolicy](docs/EffectivePluginPolicy.md)
+ - [EvidenceArtifact](docs/EvidenceArtifact.md)
+ - [EvidenceBundlePageResponse](docs/EvidenceBundlePageResponse.md)
+ - [EvidencePresence](docs/EvidencePresence.md)
+ - [EvidenceRecord](docs/EvidenceRecord.md)
+ - [EvidenceRequirement](docs/EvidenceRequirement.md)
  - [ExchangeCredentialRequest](docs/ExchangeCredentialRequest.md)
  - [ExecutionArtifact](docs/ExecutionArtifact.md)
  - [ExecutionDetail](docs/ExecutionDetail.md)
@@ -841,12 +882,15 @@ Class | Method | HTTP request | Description
  - [ExpressionPreviewRequest](docs/ExpressionPreviewRequest.md)
  - [ExpressionPreviewResponse](docs/ExpressionPreviewResponse.md)
  - [ExtensionType](docs/ExtensionType.md)
+ - [ExternalOperation](docs/ExternalOperation.md)
+ - [ExternalOrchestrationProfile](docs/ExternalOrchestrationProfile.md)
  - [FailoverStatus](docs/FailoverStatus.md)
  - [FailureCategory](docs/FailureCategory.md)
  - [FeatureFlag](docs/FeatureFlag.md)
  - [FeatureFlagDecision](docs/FeatureFlagDecision.md)
  - [FeatureFlagScope](docs/FeatureFlagScope.md)
  - [FeatureFlagUpsertRequest](docs/FeatureFlagUpsertRequest.md)
+ - [FixtureSource](docs/FixtureSource.md)
  - [FlowDataContract](docs/FlowDataContract.md)
  - [FlowDocumentExport](docs/FlowDocumentExport.md)
  - [FlowEditorSchemaResponse](docs/FlowEditorSchemaResponse.md)
@@ -879,6 +923,8 @@ Class | Method | HTTP request | Description
  - [FormSection](docs/FormSection.md)
  - [Gte](docs/Gte.md)
  - [HTTPValidationError](docs/HTTPValidationError.md)
+ - [HealthRequirementInput](docs/HealthRequirementInput.md)
+ - [HealthRequirementOutput](docs/HealthRequirementOutput.md)
  - [HealthResponse](docs/HealthResponse.md)
  - [HumanTask](docs/HumanTask.md)
  - [HumanTaskAction](docs/HumanTaskAction.md)
@@ -911,6 +957,7 @@ Class | Method | HTTP request | Description
  - [LifecycleResourceType](docs/LifecycleResourceType.md)
  - [LifecycleScope](docs/LifecycleScope.md)
  - [LifecycleTrigger](docs/LifecycleTrigger.md)
+ - [Lineage](docs/Lineage.md)
  - [LineageEvidenceKind](docs/LineageEvidenceKind.md)
  - [LocationInner](docs/LocationInner.md)
  - [LogLevel](docs/LogLevel.md)
@@ -920,6 +967,8 @@ Class | Method | HTTP request | Description
  - [Lte](docs/Lte.md)
  - [MappingDisposition](docs/MappingDisposition.md)
  - [Maxcostusd](docs/Maxcostusd.md)
+ - [Maximum](docs/Maximum.md)
+ - [Maximum1](docs/Maximum1.md)
  - [Maximumuncertainty](docs/Maximumuncertainty.md)
  - [McpConnectionDiscoveryRequest](docs/McpConnectionDiscoveryRequest.md)
  - [McpConnectionRevision](docs/McpConnectionRevision.md)
@@ -929,6 +978,7 @@ Class | Method | HTTP request | Description
  - [McpToolPin](docs/McpToolPin.md)
  - [MetricKind](docs/MetricKind.md)
  - [MigrationPatch](docs/MigrationPatch.md)
+ - [Minimum](docs/Minimum.md)
  - [Minimumrubricscore](docs/Minimumrubricscore.md)
  - [Minimumscore](docs/Minimumscore.md)
  - [ModelFallbackMode](docs/ModelFallbackMode.md)
@@ -1047,6 +1097,14 @@ Class | Method | HTTP request | Description
  - [PrincipalType](docs/PrincipalType.md)
  - [ProblemDetail](docs/ProblemDetail.md)
  - [Projectedcostusd](docs/Projectedcostusd.md)
+ - [PromotionApplyRequest](docs/PromotionApplyRequest.md)
+ - [PromotionEvidenceKind](docs/PromotionEvidenceKind.md)
+ - [PromotionKillSwitchRequest](docs/PromotionKillSwitchRequest.md)
+ - [PromotionPolicyInput](docs/PromotionPolicyInput.md)
+ - [PromotionPolicyOutput](docs/PromotionPolicyOutput.md)
+ - [PromotionPreviewRequest](docs/PromotionPreviewRequest.md)
+ - [PromotionRollbackRequest](docs/PromotionRollbackRequest.md)
+ - [PromotionTargetKind](docs/PromotionTargetKind.md)
  - [PromptSpec](docs/PromptSpec.md)
  - [ProviderMigrationDiagnostic](docs/ProviderMigrationDiagnostic.md)
  - [ProvisionedWebhookSubscription](docs/ProvisionedWebhookSubscription.md)
@@ -1063,8 +1121,10 @@ Class | Method | HTTP request | Description
  - [ReconciliationRun](docs/ReconciliationRun.md)
  - [ReconciliationRunState](docs/ReconciliationRunState.md)
  - [ReconciliationTargetType](docs/ReconciliationTargetType.md)
+ - [Recordid](docs/Recordid.md)
  - [ReduceExecutionRequest](docs/ReduceExecutionRequest.md)
  - [ReduceExecutionResponse](docs/ReduceExecutionResponse.md)
+ - [Relative](docs/Relative.md)
  - [ResolvedAgentEvaluation](docs/ResolvedAgentEvaluation.md)
  - [ResolvedResourcePin](docs/ResolvedResourcePin.md)
  - [ResolvedToolPin](docs/ResolvedToolPin.md)
@@ -1078,6 +1138,7 @@ Class | Method | HTTP request | Description
  - [RoleDefinition](docs/RoleDefinition.md)
  - [RollingUpgradeStep](docs/RollingUpgradeStep.md)
  - [RotateCredentialRequest](docs/RotateCredentialRequest.md)
+ - [RunObservation](docs/RunObservation.md)
  - [RunnerCapabilities](docs/RunnerCapabilities.md)
  - [RunnerId](docs/RunnerId.md)
  - [RunnerMode](docs/RunnerMode.md)
@@ -1120,6 +1181,9 @@ Class | Method | HTTP request | Description
  - [ServiceState](docs/ServiceState.md)
  - [ServiceTopology](docs/ServiceTopology.md)
  - [SetLocalPasswordRequest](docs/SetLocalPasswordRequest.md)
+ - [ShadowEffect](docs/ShadowEffect.md)
+ - [ShadowFixture](docs/ShadowFixture.md)
+ - [ShadowRun](docs/ShadowRun.md)
  - [SimulatedTaskResult](docs/SimulatedTaskResult.md)
  - [SimulationComparison](docs/SimulationComparison.md)
  - [SimulationEstimateModel](docs/SimulationEstimateModel.md)
@@ -1160,6 +1224,8 @@ Class | Method | HTTP request | Description
  - [TenantPolicy](docs/TenantPolicy.md)
  - [TenantStatus](docs/TenantStatus.md)
  - [TimeRangeSelection](docs/TimeRangeSelection.md)
+ - [Tolerance](docs/Tolerance.md)
+ - [ToolProviderKind](docs/ToolProviderKind.md)
  - [TriggerActionRequest](docs/TriggerActionRequest.md)
  - [TriggerOccurrence](docs/TriggerOccurrence.md)
  - [TriggerOccurrenceState](docs/TriggerOccurrenceState.md)

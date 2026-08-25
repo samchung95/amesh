@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,24 +21,24 @@ var _ MappedNullable = &SimulationPlan{}
 
 // SimulationPlan struct for SimulationPlan
 type SimulationPlan struct {
-	DeterministicEnvelope DeterminismEnvelope `json:"deterministicEnvelope"`
-	Estimates SimulationEstimates `json:"estimates"`
-	Evidence NullableSimulationEvidence `json:"evidence,omitempty"`
-	ExpressionVersion string `json:"expressionVersion"`
-	FlowId string `json:"flowId"`
-	InputHash string `json:"inputHash"`
-	Namespace string `json:"namespace"`
-	PlanId string `json:"planId"`
-	PluginSetHash string `json:"pluginSetHash"`
-	PolicyDecisions []SimulationPolicyDecision `json:"policyDecisions"`
-	ReducerSemanticsVersion *string `json:"reducerSemanticsVersion,omitempty"`
-	Revision int32 `json:"revision"`
-	SchemaVersion *string `json:"schemaVersion,omitempty"`
-	SemanticHash string `json:"semanticHash"`
-	SideEffectsSuppressed *bool `json:"sideEffectsSuppressed,omitempty"`
-	SimulatorVersion *string `json:"simulatorVersion,omitempty"`
-	Tasks []SimulationTaskPlan `json:"tasks"`
-	Unknowns []SimulationUnknown `json:"unknowns"`
+	DeterministicEnvelope   DeterminismEnvelope        `json:"deterministicEnvelope"`
+	Estimates               SimulationEstimates        `json:"estimates"`
+	Evidence                NullableSimulationEvidence `json:"evidence,omitempty"`
+	ExpressionVersion       string                     `json:"expressionVersion"`
+	FlowId                  string                     `json:"flowId"`
+	InputHash               string                     `json:"inputHash"`
+	Namespace               string                     `json:"namespace"`
+	PlanId                  string                     `json:"planId"`
+	PluginSetHash           string                     `json:"pluginSetHash"`
+	PolicyDecisions         []SimulationPolicyDecision `json:"policyDecisions"`
+	ReducerSemanticsVersion *string                    `json:"reducerSemanticsVersion,omitempty"`
+	Revision                int32                      `json:"revision"`
+	SchemaVersion           *string                    `json:"schemaVersion,omitempty"`
+	SemanticHash            string                     `json:"semanticHash"`
+	SideEffectsSuppressed   *bool                      `json:"sideEffectsSuppressed,omitempty"`
+	SimulatorVersion        *string                    `json:"simulatorVersion,omitempty"`
+	Tasks                   []SimulationTaskPlan       `json:"tasks"`
+	Unknowns                []SimulationUnknown        `json:"unknowns"`
 }
 
 type _SimulationPlan SimulationPlan
@@ -169,6 +169,7 @@ func (o *SimulationPlan) HasEvidence() bool {
 func (o *SimulationPlan) SetEvidence(v SimulationEvidence) {
 	o.Evidence.Set(&v)
 }
+
 // SetEvidenceNil sets the value for Evidence to be an explicit nil
 func (o *SimulationPlan) SetEvidenceNil() {
 	o.Evidence.Set(nil)
@@ -572,7 +573,7 @@ func (o *SimulationPlan) SetUnknowns(v []SimulationUnknown) {
 }
 
 func (o SimulationPlan) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -637,10 +638,10 @@ func (o *SimulationPlan) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

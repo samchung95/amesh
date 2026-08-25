@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -22,10 +22,10 @@ var _ MappedNullable = &UpgradePolicy{}
 // UpgradePolicy struct for UpgradePolicy
 type UpgradePolicy struct {
 	CapacityThresholds UpgradeCapacityThresholds `json:"capacityThresholds"`
-	CurrentVersion string `json:"currentVersion"`
-	Paths []UpgradePath `json:"paths"`
-	Releases []UpgradeRelease `json:"releases"`
-	SchemaVersion string `json:"schemaVersion"`
+	CurrentVersion     string                    `json:"currentVersion"`
+	Paths              []UpgradePath             `json:"paths"`
+	Releases           []UpgradeRelease          `json:"releases"`
+	SchemaVersion      string                    `json:"schemaVersion"`
 }
 
 type _UpgradePolicy UpgradePolicy
@@ -173,7 +173,7 @@ func (o *UpgradePolicy) SetSchemaVersion(v string) {
 }
 
 func (o UpgradePolicy) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -207,10 +207,10 @@ func (o *UpgradePolicy) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

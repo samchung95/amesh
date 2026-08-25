@@ -16,25 +16,24 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"strings"
 	"reflect"
+	"strings"
 )
-
 
 // FlowsAPIService FlowsAPI service
 type FlowsAPIService service
 
 type ApiApplyFlowApiV1FlowsPutRequest struct {
-	ctx context.Context
-	ApiService *FlowsAPIService
-	ifMatch *string
-	xAMESHSource *string
-	xAMESHCommit *string
+	ctx               context.Context
+	ApiService        *FlowsAPIService
+	ifMatch           *string
+	xAMESHSource      *string
+	xAMESHCommit      *string
 	xAMESHEnvironment *string
-	xAMESHDeployment *string
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAMESHDeployment  *string
+	authorization     *string
+	xAmeshCSRF        *string
+	xAmeshTenant      *string
 }
 
 func (r ApiApplyFlowApiV1FlowsPutRequest) IfMatch(ifMatch string) ApiApplyFlowApiV1FlowsPutRequest {
@@ -84,24 +83,25 @@ func (r ApiApplyFlowApiV1FlowsPutRequest) Execute() (*PersistedFlow, *http.Respo
 /*
 ApplyFlowApiV1FlowsPut Apply Flow
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiApplyFlowApiV1FlowsPutRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiApplyFlowApiV1FlowsPutRequest
 */
 func (a *FlowsAPIService) ApplyFlowApiV1FlowsPut(ctx context.Context) ApiApplyFlowApiV1FlowsPutRequest {
 	return ApiApplyFlowApiV1FlowsPutRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return PersistedFlow
+//
+//	@return PersistedFlow
 func (a *FlowsAPIService) ApplyFlowApiV1FlowsPutExecute(r ApiApplyFlowApiV1FlowsPutRequest) (*PersistedFlow, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPut
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *PersistedFlow
+		localVarHTTPMethod  = http.MethodPut
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *PersistedFlow
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "FlowsAPIService.ApplyFlowApiV1FlowsPut")
@@ -185,8 +185,8 @@ func (a *FlowsAPIService) ApplyFlowApiV1FlowsPutExecute(r ApiApplyFlowApiV1Flows
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -204,14 +204,14 @@ func (a *FlowsAPIService) ApplyFlowApiV1FlowsPutExecute(r ApiApplyFlowApiV1Flows
 }
 
 type ApiDeleteFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionDeleteRequest struct {
-	ctx context.Context
-	ApiService *FlowsAPIService
-	namespace string
-	flowId string
-	revision int32
+	ctx           context.Context
+	ApiService    *FlowsAPIService
+	namespace     string
+	flowId        string
+	revision      int32
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiDeleteFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionDeleteRequest) Authorization(authorization string) ApiDeleteFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionDeleteRequest {
@@ -236,28 +236,28 @@ func (r ApiDeleteFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionDeleteReq
 /*
 DeleteFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionDelete Delete Flow Revision
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param namespace
- @param flowId
- @param revision
- @return ApiDeleteFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionDeleteRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param namespace
+	@param flowId
+	@param revision
+	@return ApiDeleteFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionDeleteRequest
 */
 func (a *FlowsAPIService) DeleteFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionDelete(ctx context.Context, namespace string, flowId string, revision int32) ApiDeleteFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionDeleteRequest {
 	return ApiDeleteFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionDeleteRequest{
 		ApiService: a,
-		ctx: ctx,
-		namespace: namespace,
-		flowId: flowId,
-		revision: revision,
+		ctx:        ctx,
+		namespace:  namespace,
+		flowId:     flowId,
+		revision:   revision,
 	}
 }
 
 // Execute executes the request
 func (a *FlowsAPIService) DeleteFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionDeleteExecute(r ApiDeleteFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionDeleteRequest) (*http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodDelete
-		localVarPostBody     interface{}
-		formFiles            []formFile
+		localVarHTTPMethod = http.MethodDelete
+		localVarPostBody   interface{}
+		formFiles          []formFile
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "FlowsAPIService.DeleteFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionDelete")
@@ -329,8 +329,8 @@ func (a *FlowsAPIService) DeleteFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRe
 				newErr.error = err.Error()
 				return localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarHTTPResponse, newErr
 	}
@@ -339,14 +339,14 @@ func (a *FlowsAPIService) DeleteFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRe
 }
 
 type ApiDiffFlowDraftApiV1FlowsNamespaceFlowIdRevisionsRevisionDiffDraftPostRequest struct {
-	ctx context.Context
-	ApiService *FlowsAPIService
-	namespace string
-	flowId string
-	revision int32
+	ctx           context.Context
+	ApiService    *FlowsAPIService
+	namespace     string
+	flowId        string
+	revision      int32
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiDiffFlowDraftApiV1FlowsNamespaceFlowIdRevisionsRevisionDiffDraftPostRequest) Authorization(authorization string) ApiDiffFlowDraftApiV1FlowsNamespaceFlowIdRevisionsRevisionDiffDraftPostRequest {
@@ -371,30 +371,31 @@ func (r ApiDiffFlowDraftApiV1FlowsNamespaceFlowIdRevisionsRevisionDiffDraftPostR
 /*
 DiffFlowDraftApiV1FlowsNamespaceFlowIdRevisionsRevisionDiffDraftPost Diff Flow Draft
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param namespace
- @param flowId
- @param revision
- @return ApiDiffFlowDraftApiV1FlowsNamespaceFlowIdRevisionsRevisionDiffDraftPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param namespace
+	@param flowId
+	@param revision
+	@return ApiDiffFlowDraftApiV1FlowsNamespaceFlowIdRevisionsRevisionDiffDraftPostRequest
 */
 func (a *FlowsAPIService) DiffFlowDraftApiV1FlowsNamespaceFlowIdRevisionsRevisionDiffDraftPost(ctx context.Context, namespace string, flowId string, revision int32) ApiDiffFlowDraftApiV1FlowsNamespaceFlowIdRevisionsRevisionDiffDraftPostRequest {
 	return ApiDiffFlowDraftApiV1FlowsNamespaceFlowIdRevisionsRevisionDiffDraftPostRequest{
 		ApiService: a,
-		ctx: ctx,
-		namespace: namespace,
-		flowId: flowId,
-		revision: revision,
+		ctx:        ctx,
+		namespace:  namespace,
+		flowId:     flowId,
+		revision:   revision,
 	}
 }
 
 // Execute executes the request
-//  @return FlowRevisionDiff
+//
+//	@return FlowRevisionDiff
 func (a *FlowsAPIService) DiffFlowDraftApiV1FlowsNamespaceFlowIdRevisionsRevisionDiffDraftPostExecute(r ApiDiffFlowDraftApiV1FlowsNamespaceFlowIdRevisionsRevisionDiffDraftPostRequest) (*FlowRevisionDiff, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *FlowRevisionDiff
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *FlowRevisionDiff
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "FlowsAPIService.DiffFlowDraftApiV1FlowsNamespaceFlowIdRevisionsRevisionDiffDraftPost")
@@ -466,8 +467,8 @@ func (a *FlowsAPIService) DiffFlowDraftApiV1FlowsNamespaceFlowIdRevisionsRevisio
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -485,15 +486,15 @@ func (a *FlowsAPIService) DiffFlowDraftApiV1FlowsNamespaceFlowIdRevisionsRevisio
 }
 
 type ApiDiffFlowRevisionsApiV1FlowsNamespaceFlowIdRevisionsDiffGetRequest struct {
-	ctx context.Context
-	ApiService *FlowsAPIService
-	namespace string
-	flowId string
-	from *int32
-	to *int32
+	ctx           context.Context
+	ApiService    *FlowsAPIService
+	namespace     string
+	flowId        string
+	from          *int32
+	to            *int32
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiDiffFlowRevisionsApiV1FlowsNamespaceFlowIdRevisionsDiffGetRequest) From(from int32) ApiDiffFlowRevisionsApiV1FlowsNamespaceFlowIdRevisionsDiffGetRequest {
@@ -528,28 +529,29 @@ func (r ApiDiffFlowRevisionsApiV1FlowsNamespaceFlowIdRevisionsDiffGetRequest) Ex
 /*
 DiffFlowRevisionsApiV1FlowsNamespaceFlowIdRevisionsDiffGet Diff Flow Revisions
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param namespace
- @param flowId
- @return ApiDiffFlowRevisionsApiV1FlowsNamespaceFlowIdRevisionsDiffGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param namespace
+	@param flowId
+	@return ApiDiffFlowRevisionsApiV1FlowsNamespaceFlowIdRevisionsDiffGetRequest
 */
 func (a *FlowsAPIService) DiffFlowRevisionsApiV1FlowsNamespaceFlowIdRevisionsDiffGet(ctx context.Context, namespace string, flowId string) ApiDiffFlowRevisionsApiV1FlowsNamespaceFlowIdRevisionsDiffGetRequest {
 	return ApiDiffFlowRevisionsApiV1FlowsNamespaceFlowIdRevisionsDiffGetRequest{
 		ApiService: a,
-		ctx: ctx,
-		namespace: namespace,
-		flowId: flowId,
+		ctx:        ctx,
+		namespace:  namespace,
+		flowId:     flowId,
 	}
 }
 
 // Execute executes the request
-//  @return FlowRevisionDiff
+//
+//	@return FlowRevisionDiff
 func (a *FlowsAPIService) DiffFlowRevisionsApiV1FlowsNamespaceFlowIdRevisionsDiffGetExecute(r ApiDiffFlowRevisionsApiV1FlowsNamespaceFlowIdRevisionsDiffGetRequest) (*FlowRevisionDiff, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *FlowRevisionDiff
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *FlowRevisionDiff
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "FlowsAPIService.DiffFlowRevisionsApiV1FlowsNamespaceFlowIdRevisionsDiffGet")
@@ -634,8 +636,8 @@ func (a *FlowsAPIService) DiffFlowRevisionsApiV1FlowsNamespaceFlowIdRevisionsDif
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -653,14 +655,14 @@ func (a *FlowsAPIService) DiffFlowRevisionsApiV1FlowsNamespaceFlowIdRevisionsDif
 }
 
 type ApiExportFlowDocumentApiV1FlowsNamespaceFlowIdDocumentGetRequest struct {
-	ctx context.Context
-	ApiService *FlowsAPIService
-	namespace string
-	flowId string
-	revision *int32
+	ctx           context.Context
+	ApiService    *FlowsAPIService
+	namespace     string
+	flowId        string
+	revision      *int32
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiExportFlowDocumentApiV1FlowsNamespaceFlowIdDocumentGetRequest) Revision(revision int32) ApiExportFlowDocumentApiV1FlowsNamespaceFlowIdDocumentGetRequest {
@@ -690,28 +692,29 @@ func (r ApiExportFlowDocumentApiV1FlowsNamespaceFlowIdDocumentGetRequest) Execut
 /*
 ExportFlowDocumentApiV1FlowsNamespaceFlowIdDocumentGet Export Flow Document
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param namespace
- @param flowId
- @return ApiExportFlowDocumentApiV1FlowsNamespaceFlowIdDocumentGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param namespace
+	@param flowId
+	@return ApiExportFlowDocumentApiV1FlowsNamespaceFlowIdDocumentGetRequest
 */
 func (a *FlowsAPIService) ExportFlowDocumentApiV1FlowsNamespaceFlowIdDocumentGet(ctx context.Context, namespace string, flowId string) ApiExportFlowDocumentApiV1FlowsNamespaceFlowIdDocumentGetRequest {
 	return ApiExportFlowDocumentApiV1FlowsNamespaceFlowIdDocumentGetRequest{
 		ApiService: a,
-		ctx: ctx,
-		namespace: namespace,
-		flowId: flowId,
+		ctx:        ctx,
+		namespace:  namespace,
+		flowId:     flowId,
 	}
 }
 
 // Execute executes the request
-//  @return FlowDocumentExport
+//
+//	@return FlowDocumentExport
 func (a *FlowsAPIService) ExportFlowDocumentApiV1FlowsNamespaceFlowIdDocumentGetExecute(r ApiExportFlowDocumentApiV1FlowsNamespaceFlowIdDocumentGetRequest) (*FlowDocumentExport, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *FlowDocumentExport
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *FlowDocumentExport
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "FlowsAPIService.ExportFlowDocumentApiV1FlowsNamespaceFlowIdDocumentGet")
@@ -785,8 +788,8 @@ func (a *FlowsAPIService) ExportFlowDocumentApiV1FlowsNamespaceFlowIdDocumentGet
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -804,7 +807,7 @@ func (a *FlowsAPIService) ExportFlowDocumentApiV1FlowsNamespaceFlowIdDocumentGet
 }
 
 type ApiFormatFlowApiV1FlowsFormatPostRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService *FlowsAPIService
 }
 
@@ -815,24 +818,25 @@ func (r ApiFormatFlowApiV1FlowsFormatPostRequest) Execute() (*FlowFormatResponse
 /*
 FormatFlowApiV1FlowsFormatPost Format Flow
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiFormatFlowApiV1FlowsFormatPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiFormatFlowApiV1FlowsFormatPostRequest
 */
 func (a *FlowsAPIService) FormatFlowApiV1FlowsFormatPost(ctx context.Context) ApiFormatFlowApiV1FlowsFormatPostRequest {
 	return ApiFormatFlowApiV1FlowsFormatPostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return FlowFormatResponse
+//
+//	@return FlowFormatResponse
 func (a *FlowsAPIService) FormatFlowApiV1FlowsFormatPostExecute(r ApiFormatFlowApiV1FlowsFormatPostRequest) (*FlowFormatResponse, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *FlowFormatResponse
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *FlowFormatResponse
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "FlowsAPIService.FormatFlowApiV1FlowsFormatPost")
@@ -901,13 +905,13 @@ func (a *FlowsAPIService) FormatFlowApiV1FlowsFormatPostExecute(r ApiFormatFlowA
 }
 
 type ApiGetFlowDataContractApiV1FlowsNamespaceFlowIdDataContractGetRequest struct {
-	ctx context.Context
-	ApiService *FlowsAPIService
-	namespace string
-	flowId string
+	ctx           context.Context
+	ApiService    *FlowsAPIService
+	namespace     string
+	flowId        string
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiGetFlowDataContractApiV1FlowsNamespaceFlowIdDataContractGetRequest) Authorization(authorization string) ApiGetFlowDataContractApiV1FlowsNamespaceFlowIdDataContractGetRequest {
@@ -932,28 +936,29 @@ func (r ApiGetFlowDataContractApiV1FlowsNamespaceFlowIdDataContractGetRequest) E
 /*
 GetFlowDataContractApiV1FlowsNamespaceFlowIdDataContractGet Get Flow Data Contract
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param namespace
- @param flowId
- @return ApiGetFlowDataContractApiV1FlowsNamespaceFlowIdDataContractGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param namespace
+	@param flowId
+	@return ApiGetFlowDataContractApiV1FlowsNamespaceFlowIdDataContractGetRequest
 */
 func (a *FlowsAPIService) GetFlowDataContractApiV1FlowsNamespaceFlowIdDataContractGet(ctx context.Context, namespace string, flowId string) ApiGetFlowDataContractApiV1FlowsNamespaceFlowIdDataContractGetRequest {
 	return ApiGetFlowDataContractApiV1FlowsNamespaceFlowIdDataContractGetRequest{
 		ApiService: a,
-		ctx: ctx,
-		namespace: namespace,
-		flowId: flowId,
+		ctx:        ctx,
+		namespace:  namespace,
+		flowId:     flowId,
 	}
 }
 
 // Execute executes the request
-//  @return FlowDataContract
+//
+//	@return FlowDataContract
 func (a *FlowsAPIService) GetFlowDataContractApiV1FlowsNamespaceFlowIdDataContractGetExecute(r ApiGetFlowDataContractApiV1FlowsNamespaceFlowIdDataContractGetRequest) (*FlowDataContract, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *FlowDataContract
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *FlowDataContract
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "FlowsAPIService.GetFlowDataContractApiV1FlowsNamespaceFlowIdDataContractGet")
@@ -1024,8 +1029,8 @@ func (a *FlowsAPIService) GetFlowDataContractApiV1FlowsNamespaceFlowIdDataContra
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1043,11 +1048,11 @@ func (a *FlowsAPIService) GetFlowDataContractApiV1FlowsNamespaceFlowIdDataContra
 }
 
 type ApiGetFlowEditorSchemaApiV1FlowsEditorSchemaGetRequest struct {
-	ctx context.Context
-	ApiService *FlowsAPIService
+	ctx           context.Context
+	ApiService    *FlowsAPIService
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiGetFlowEditorSchemaApiV1FlowsEditorSchemaGetRequest) Authorization(authorization string) ApiGetFlowEditorSchemaApiV1FlowsEditorSchemaGetRequest {
@@ -1072,24 +1077,25 @@ func (r ApiGetFlowEditorSchemaApiV1FlowsEditorSchemaGetRequest) Execute() (*Flow
 /*
 GetFlowEditorSchemaApiV1FlowsEditorSchemaGet Get Flow Editor Schema
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiGetFlowEditorSchemaApiV1FlowsEditorSchemaGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiGetFlowEditorSchemaApiV1FlowsEditorSchemaGetRequest
 */
 func (a *FlowsAPIService) GetFlowEditorSchemaApiV1FlowsEditorSchemaGet(ctx context.Context) ApiGetFlowEditorSchemaApiV1FlowsEditorSchemaGetRequest {
 	return ApiGetFlowEditorSchemaApiV1FlowsEditorSchemaGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return FlowEditorSchemaResponse
+//
+//	@return FlowEditorSchemaResponse
 func (a *FlowsAPIService) GetFlowEditorSchemaApiV1FlowsEditorSchemaGetExecute(r ApiGetFlowEditorSchemaApiV1FlowsEditorSchemaGetRequest) (*FlowEditorSchemaResponse, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *FlowEditorSchemaResponse
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *FlowEditorSchemaResponse
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "FlowsAPIService.GetFlowEditorSchemaApiV1FlowsEditorSchemaGet")
@@ -1158,8 +1164,8 @@ func (a *FlowsAPIService) GetFlowEditorSchemaApiV1FlowsEditorSchemaGetExecute(r 
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1177,13 +1183,13 @@ func (a *FlowsAPIService) GetFlowEditorSchemaApiV1FlowsEditorSchemaGetExecute(r 
 }
 
 type ApiGetFlowGraphApiV1FlowsNamespaceFlowIdGraphGetRequest struct {
-	ctx context.Context
-	ApiService *FlowsAPIService
-	namespace string
-	flowId string
+	ctx           context.Context
+	ApiService    *FlowsAPIService
+	namespace     string
+	flowId        string
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiGetFlowGraphApiV1FlowsNamespaceFlowIdGraphGetRequest) Authorization(authorization string) ApiGetFlowGraphApiV1FlowsNamespaceFlowIdGraphGetRequest {
@@ -1208,28 +1214,29 @@ func (r ApiGetFlowGraphApiV1FlowsNamespaceFlowIdGraphGetRequest) Execute() (*Flo
 /*
 GetFlowGraphApiV1FlowsNamespaceFlowIdGraphGet Get Flow Graph
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param namespace
- @param flowId
- @return ApiGetFlowGraphApiV1FlowsNamespaceFlowIdGraphGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param namespace
+	@param flowId
+	@return ApiGetFlowGraphApiV1FlowsNamespaceFlowIdGraphGetRequest
 */
 func (a *FlowsAPIService) GetFlowGraphApiV1FlowsNamespaceFlowIdGraphGet(ctx context.Context, namespace string, flowId string) ApiGetFlowGraphApiV1FlowsNamespaceFlowIdGraphGetRequest {
 	return ApiGetFlowGraphApiV1FlowsNamespaceFlowIdGraphGetRequest{
 		ApiService: a,
-		ctx: ctx,
-		namespace: namespace,
-		flowId: flowId,
+		ctx:        ctx,
+		namespace:  namespace,
+		flowId:     flowId,
 	}
 }
 
 // Execute executes the request
-//  @return FlowGraph
+//
+//	@return FlowGraph
 func (a *FlowsAPIService) GetFlowGraphApiV1FlowsNamespaceFlowIdGraphGetExecute(r ApiGetFlowGraphApiV1FlowsNamespaceFlowIdGraphGetRequest) (*FlowGraph, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *FlowGraph
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *FlowGraph
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "FlowsAPIService.GetFlowGraphApiV1FlowsNamespaceFlowIdGraphGet")
@@ -1300,8 +1307,8 @@ func (a *FlowsAPIService) GetFlowGraphApiV1FlowsNamespaceFlowIdGraphGetExecute(r
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1319,13 +1326,13 @@ func (a *FlowsAPIService) GetFlowGraphApiV1FlowsNamespaceFlowIdGraphGetExecute(r
 }
 
 type ApiGetFlowMetadataApiV1FlowsNamespaceFlowIdMetadataGetRequest struct {
-	ctx context.Context
-	ApiService *FlowsAPIService
-	namespace string
-	flowId string
+	ctx           context.Context
+	ApiService    *FlowsAPIService
+	namespace     string
+	flowId        string
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiGetFlowMetadataApiV1FlowsNamespaceFlowIdMetadataGetRequest) Authorization(authorization string) ApiGetFlowMetadataApiV1FlowsNamespaceFlowIdMetadataGetRequest {
@@ -1350,28 +1357,29 @@ func (r ApiGetFlowMetadataApiV1FlowsNamespaceFlowIdMetadataGetRequest) Execute()
 /*
 GetFlowMetadataApiV1FlowsNamespaceFlowIdMetadataGet Get Flow Metadata
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param namespace
- @param flowId
- @return ApiGetFlowMetadataApiV1FlowsNamespaceFlowIdMetadataGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param namespace
+	@param flowId
+	@return ApiGetFlowMetadataApiV1FlowsNamespaceFlowIdMetadataGetRequest
 */
 func (a *FlowsAPIService) GetFlowMetadataApiV1FlowsNamespaceFlowIdMetadataGet(ctx context.Context, namespace string, flowId string) ApiGetFlowMetadataApiV1FlowsNamespaceFlowIdMetadataGetRequest {
 	return ApiGetFlowMetadataApiV1FlowsNamespaceFlowIdMetadataGetRequest{
 		ApiService: a,
-		ctx: ctx,
-		namespace: namespace,
-		flowId: flowId,
+		ctx:        ctx,
+		namespace:  namespace,
+		flowId:     flowId,
 	}
 }
 
 // Execute executes the request
-//  @return FlowMetadataResponse
+//
+//	@return FlowMetadataResponse
 func (a *FlowsAPIService) GetFlowMetadataApiV1FlowsNamespaceFlowIdMetadataGetExecute(r ApiGetFlowMetadataApiV1FlowsNamespaceFlowIdMetadataGetRequest) (*FlowMetadataResponse, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *FlowMetadataResponse
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *FlowMetadataResponse
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "FlowsAPIService.GetFlowMetadataApiV1FlowsNamespaceFlowIdMetadataGet")
@@ -1442,8 +1450,8 @@ func (a *FlowsAPIService) GetFlowMetadataApiV1FlowsNamespaceFlowIdMetadataGetExe
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1461,13 +1469,13 @@ func (a *FlowsAPIService) GetFlowMetadataApiV1FlowsNamespaceFlowIdMetadataGetExe
 }
 
 type ApiListFlowRevisionsApiV1FlowsNamespaceFlowIdRevisionsGetRequest struct {
-	ctx context.Context
-	ApiService *FlowsAPIService
-	namespace string
-	flowId string
+	ctx           context.Context
+	ApiService    *FlowsAPIService
+	namespace     string
+	flowId        string
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiListFlowRevisionsApiV1FlowsNamespaceFlowIdRevisionsGetRequest) Authorization(authorization string) ApiListFlowRevisionsApiV1FlowsNamespaceFlowIdRevisionsGetRequest {
@@ -1492,28 +1500,29 @@ func (r ApiListFlowRevisionsApiV1FlowsNamespaceFlowIdRevisionsGetRequest) Execut
 /*
 ListFlowRevisionsApiV1FlowsNamespaceFlowIdRevisionsGet List Flow Revisions
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param namespace
- @param flowId
- @return ApiListFlowRevisionsApiV1FlowsNamespaceFlowIdRevisionsGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param namespace
+	@param flowId
+	@return ApiListFlowRevisionsApiV1FlowsNamespaceFlowIdRevisionsGetRequest
 */
 func (a *FlowsAPIService) ListFlowRevisionsApiV1FlowsNamespaceFlowIdRevisionsGet(ctx context.Context, namespace string, flowId string) ApiListFlowRevisionsApiV1FlowsNamespaceFlowIdRevisionsGetRequest {
 	return ApiListFlowRevisionsApiV1FlowsNamespaceFlowIdRevisionsGetRequest{
 		ApiService: a,
-		ctx: ctx,
-		namespace: namespace,
-		flowId: flowId,
+		ctx:        ctx,
+		namespace:  namespace,
+		flowId:     flowId,
 	}
 }
 
 // Execute executes the request
-//  @return []FlowRevisionRecord
+//
+//	@return []FlowRevisionRecord
 func (a *FlowsAPIService) ListFlowRevisionsApiV1FlowsNamespaceFlowIdRevisionsGetExecute(r ApiListFlowRevisionsApiV1FlowsNamespaceFlowIdRevisionsGetRequest) ([]FlowRevisionRecord, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  []FlowRevisionRecord
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []FlowRevisionRecord
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "FlowsAPIService.ListFlowRevisionsApiV1FlowsNamespaceFlowIdRevisionsGet")
@@ -1584,8 +1593,8 @@ func (a *FlowsAPIService) ListFlowRevisionsApiV1FlowsNamespaceFlowIdRevisionsGet
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1603,16 +1612,16 @@ func (a *FlowsAPIService) ListFlowRevisionsApiV1FlowsNamespaceFlowIdRevisionsGet
 }
 
 type ApiListFlowsApiV1FlowsGetRequest struct {
-	ctx context.Context
-	ApiService *FlowsAPIService
-	cursor *string
-	limit *int32
-	filter *[]string
-	sort *string
-	fields *string
+	ctx           context.Context
+	ApiService    *FlowsAPIService
+	cursor        *string
+	limit         *int32
+	filter        *[]string
+	sort          *string
+	fields        *string
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 // Opaque cursor from the prior page
@@ -1666,24 +1675,25 @@ func (r ApiListFlowsApiV1FlowsGetRequest) Execute() ([]PersistedFlow, *http.Resp
 /*
 ListFlowsApiV1FlowsGet List Flows
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiListFlowsApiV1FlowsGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiListFlowsApiV1FlowsGetRequest
 */
 func (a *FlowsAPIService) ListFlowsApiV1FlowsGet(ctx context.Context) ApiListFlowsApiV1FlowsGetRequest {
 	return ApiListFlowsApiV1FlowsGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return []PersistedFlow
+//
+//	@return []PersistedFlow
 func (a *FlowsAPIService) ListFlowsApiV1FlowsGetExecute(r ApiListFlowsApiV1FlowsGetRequest) ([]PersistedFlow, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  []PersistedFlow
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []PersistedFlow
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "FlowsAPIService.ListFlowsApiV1FlowsGet")
@@ -1775,8 +1785,8 @@ func (a *FlowsAPIService) ListFlowsApiV1FlowsGetExecute(r ApiListFlowsApiV1Flows
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1794,12 +1804,12 @@ func (a *FlowsAPIService) ListFlowsApiV1FlowsGetExecute(r ApiListFlowsApiV1Flows
 }
 
 type ApiPreviewFlowExpressionApiV1FlowsExpressionsPreviewPostRequest struct {
-	ctx context.Context
-	ApiService *FlowsAPIService
+	ctx                      context.Context
+	ApiService               *FlowsAPIService
 	expressionPreviewRequest *ExpressionPreviewRequest
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization            *string
+	xAmeshCSRF               *string
+	xAmeshTenant             *string
 }
 
 func (r ApiPreviewFlowExpressionApiV1FlowsExpressionsPreviewPostRequest) ExpressionPreviewRequest(expressionPreviewRequest ExpressionPreviewRequest) ApiPreviewFlowExpressionApiV1FlowsExpressionsPreviewPostRequest {
@@ -1829,24 +1839,25 @@ func (r ApiPreviewFlowExpressionApiV1FlowsExpressionsPreviewPostRequest) Execute
 /*
 PreviewFlowExpressionApiV1FlowsExpressionsPreviewPost Preview Flow Expression
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiPreviewFlowExpressionApiV1FlowsExpressionsPreviewPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiPreviewFlowExpressionApiV1FlowsExpressionsPreviewPostRequest
 */
 func (a *FlowsAPIService) PreviewFlowExpressionApiV1FlowsExpressionsPreviewPost(ctx context.Context) ApiPreviewFlowExpressionApiV1FlowsExpressionsPreviewPostRequest {
 	return ApiPreviewFlowExpressionApiV1FlowsExpressionsPreviewPostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return ExpressionPreviewResponse
+//
+//	@return ExpressionPreviewResponse
 func (a *FlowsAPIService) PreviewFlowExpressionApiV1FlowsExpressionsPreviewPostExecute(r ApiPreviewFlowExpressionApiV1FlowsExpressionsPreviewPostRequest) (*ExpressionPreviewResponse, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *ExpressionPreviewResponse
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *ExpressionPreviewResponse
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "FlowsAPIService.PreviewFlowExpressionApiV1FlowsExpressionsPreviewPost")
@@ -1920,8 +1931,8 @@ func (a *FlowsAPIService) PreviewFlowExpressionApiV1FlowsExpressionsPreviewPostE
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1939,15 +1950,15 @@ func (a *FlowsAPIService) PreviewFlowExpressionApiV1FlowsExpressionsPreviewPostE
 }
 
 type ApiPromoteFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionLifecyclePutRequest struct {
-	ctx context.Context
-	ApiService *FlowsAPIService
-	namespace string
-	flowId string
-	revision int32
+	ctx                          context.Context
+	ApiService                   *FlowsAPIService
+	namespace                    string
+	flowId                       string
+	revision                     int32
 	flowRevisionLifecycleRequest *FlowRevisionLifecycleRequest
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization                *string
+	xAmeshCSRF                   *string
+	xAmeshTenant                 *string
 }
 
 func (r ApiPromoteFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionLifecyclePutRequest) FlowRevisionLifecycleRequest(flowRevisionLifecycleRequest FlowRevisionLifecycleRequest) ApiPromoteFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionLifecyclePutRequest {
@@ -1977,30 +1988,31 @@ func (r ApiPromoteFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionLifecycl
 /*
 PromoteFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionLifecyclePut Promote Flow Revision
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param namespace
- @param flowId
- @param revision
- @return ApiPromoteFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionLifecyclePutRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param namespace
+	@param flowId
+	@param revision
+	@return ApiPromoteFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionLifecyclePutRequest
 */
 func (a *FlowsAPIService) PromoteFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionLifecyclePut(ctx context.Context, namespace string, flowId string, revision int32) ApiPromoteFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionLifecyclePutRequest {
 	return ApiPromoteFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionLifecyclePutRequest{
 		ApiService: a,
-		ctx: ctx,
-		namespace: namespace,
-		flowId: flowId,
-		revision: revision,
+		ctx:        ctx,
+		namespace:  namespace,
+		flowId:     flowId,
+		revision:   revision,
 	}
 }
 
 // Execute executes the request
-//  @return PersistedFlow
+//
+//	@return PersistedFlow
 func (a *FlowsAPIService) PromoteFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionLifecyclePutExecute(r ApiPromoteFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionLifecyclePutRequest) (*PersistedFlow, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPut
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *PersistedFlow
+		localVarHTTPMethod  = http.MethodPut
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *PersistedFlow
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "FlowsAPIService.PromoteFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionLifecyclePut")
@@ -2077,8 +2089,8 @@ func (a *FlowsAPIService) PromoteFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsR
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -2096,15 +2108,15 @@ func (a *FlowsAPIService) PromoteFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsR
 }
 
 type ApiRestoreFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionRestorePostRequest struct {
-	ctx context.Context
-	ApiService *FlowsAPIService
-	namespace string
-	flowId string
-	revision int32
+	ctx                        context.Context
+	ApiService                 *FlowsAPIService
+	namespace                  string
+	flowId                     string
+	revision                   int32
 	flowRevisionRestoreRequest *FlowRevisionRestoreRequest
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization              *string
+	xAmeshCSRF                 *string
+	xAmeshTenant               *string
 }
 
 func (r ApiRestoreFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionRestorePostRequest) FlowRevisionRestoreRequest(flowRevisionRestoreRequest FlowRevisionRestoreRequest) ApiRestoreFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionRestorePostRequest {
@@ -2134,30 +2146,31 @@ func (r ApiRestoreFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionRestoreP
 /*
 RestoreFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionRestorePost Restore Flow Revision
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param namespace
- @param flowId
- @param revision
- @return ApiRestoreFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionRestorePostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param namespace
+	@param flowId
+	@param revision
+	@return ApiRestoreFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionRestorePostRequest
 */
 func (a *FlowsAPIService) RestoreFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionRestorePost(ctx context.Context, namespace string, flowId string, revision int32) ApiRestoreFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionRestorePostRequest {
 	return ApiRestoreFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionRestorePostRequest{
 		ApiService: a,
-		ctx: ctx,
-		namespace: namespace,
-		flowId: flowId,
-		revision: revision,
+		ctx:        ctx,
+		namespace:  namespace,
+		flowId:     flowId,
+		revision:   revision,
 	}
 }
 
 // Execute executes the request
-//  @return PersistedFlow
+//
+//	@return PersistedFlow
 func (a *FlowsAPIService) RestoreFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionRestorePostExecute(r ApiRestoreFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionRestorePostRequest) (*PersistedFlow, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *PersistedFlow
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *PersistedFlow
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "FlowsAPIService.RestoreFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsRevisionRestorePost")
@@ -2234,8 +2247,8 @@ func (a *FlowsAPIService) RestoreFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsR
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -2253,7 +2266,7 @@ func (a *FlowsAPIService) RestoreFlowRevisionApiV1FlowsNamespaceFlowIdRevisionsR
 }
 
 type ApiValidateFlowApiV1FlowsValidatePostRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService *FlowsAPIService
 }
 
@@ -2264,24 +2277,25 @@ func (r ApiValidateFlowApiV1FlowsValidatePostRequest) Execute() (*FlowValidation
 /*
 ValidateFlowApiV1FlowsValidatePost Validate Flow
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiValidateFlowApiV1FlowsValidatePostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiValidateFlowApiV1FlowsValidatePostRequest
 */
 func (a *FlowsAPIService) ValidateFlowApiV1FlowsValidatePost(ctx context.Context) ApiValidateFlowApiV1FlowsValidatePostRequest {
 	return ApiValidateFlowApiV1FlowsValidatePostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return FlowValidationResult
+//
+//	@return FlowValidationResult
 func (a *FlowsAPIService) ValidateFlowApiV1FlowsValidatePostExecute(r ApiValidateFlowApiV1FlowsValidatePostRequest) (*FlowValidationResult, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *FlowValidationResult
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *FlowValidationResult
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "FlowsAPIService.ValidateFlowApiV1FlowsValidatePost")

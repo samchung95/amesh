@@ -20,7 +20,7 @@ type ConfigurationMigrationKind string
 
 // List of ConfigurationMigrationKind
 const (
-	CONFIGURATIONMIGRATIONKIND_FLOW ConfigurationMigrationKind = "flow"
+	CONFIGURATIONMIGRATIONKIND_FLOW   ConfigurationMigrationKind = "flow"
 	CONFIGURATIONMIGRATIONKIND_PLUGIN ConfigurationMigrationKind = "plugin"
 )
 

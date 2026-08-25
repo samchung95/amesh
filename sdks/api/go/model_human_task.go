@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the HumanTask type satisfies the MappedNullable interface at compile time
@@ -22,25 +22,25 @@ var _ MappedNullable = &HumanTask{}
 
 // HumanTask struct for HumanTask
 type HumanTask struct {
-	Actions []HumanTaskAction `json:"actions,omitempty"`
-	AssigneeIds []string `json:"assigneeIds"`
-	Attempt int32 `json:"attempt"`
-	CreatedAt time.Time `json:"createdAt"`
-	DeadlineAt NullableTime `json:"deadlineAt"`
-	DecidedAt NullableTime `json:"decidedAt"`
-	DecidedBy NullableString `json:"decidedBy"`
-	Description string `json:"description"`
-	ExecutionId string `json:"executionId"`
-	Form AppForm `json:"form"`
-	FormValues map[string]interface{} `json:"formValues"`
-	GroupIds []string `json:"groupIds"`
-	HumanTaskId string `json:"humanTaskId"`
-	Namespace string `json:"namespace"`
-	Reason string `json:"reason"`
-	State HumanTaskState `json:"state"`
-	TaskRunId string `json:"taskRunId"`
-	Title string `json:"title"`
-	Version int32 `json:"version"`
+	Actions     []HumanTaskAction      `json:"actions,omitempty"`
+	AssigneeIds []string               `json:"assigneeIds"`
+	Attempt     int32                  `json:"attempt"`
+	CreatedAt   time.Time              `json:"createdAt"`
+	DeadlineAt  NullableTime           `json:"deadlineAt"`
+	DecidedAt   NullableTime           `json:"decidedAt"`
+	DecidedBy   NullableString         `json:"decidedBy"`
+	Description string                 `json:"description"`
+	ExecutionId string                 `json:"executionId"`
+	Form        AppForm                `json:"form"`
+	FormValues  map[string]interface{} `json:"formValues"`
+	GroupIds    []string               `json:"groupIds"`
+	HumanTaskId string                 `json:"humanTaskId"`
+	Namespace   string                 `json:"namespace"`
+	Reason      string                 `json:"reason"`
+	State       HumanTaskState         `json:"state"`
+	TaskRunId   string                 `json:"taskRunId"`
+	Title       string                 `json:"title"`
+	Version     int32                  `json:"version"`
 }
 
 type _HumanTask HumanTask
@@ -551,7 +551,7 @@ func (o *HumanTask) SetVersion(v int32) {
 }
 
 func (o HumanTask) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -614,10 +614,10 @@ func (o *HumanTask) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

@@ -21,8 +21,8 @@ type DashboardDefinitionSource string
 // List of DashboardDefinitionSource
 const (
 	DASHBOARDDEFINITIONSOURCE_BUILTIN DashboardDefinitionSource = "BUILTIN"
-	DASHBOARDDEFINITIONSOURCE_API DashboardDefinitionSource = "API"
-	DASHBOARDDEFINITIONSOURCE_GITOPS DashboardDefinitionSource = "GITOPS"
+	DASHBOARDDEFINITIONSOURCE_API     DashboardDefinitionSource = "API"
+	DASHBOARDDEFINITIONSOURCE_GITOPS  DashboardDefinitionSource = "GITOPS"
 )
 
 // All allowed values of DashboardDefinitionSource enum

@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,12 +21,12 @@ var _ MappedNullable = &CreateExecutionRequest{}
 
 // CreateExecutionRequest struct for CreateExecutionRequest
 type CreateExecutionRequest struct {
-	CacheMode *TaskCacheMode `json:"cacheMode,omitempty"`
-	FlowId string `json:"flowId"`
-	IdempotencyKey NullableString `json:"idempotencyKey,omitempty"`
-	Inputs map[string]interface{} `json:"inputs,omitempty"`
-	Namespace string `json:"namespace"`
-	Runner *RunnerMode `json:"runner,omitempty"`
+	CacheMode      *TaskCacheMode         `json:"cacheMode,omitempty"`
+	FlowId         string                 `json:"flowId"`
+	IdempotencyKey NullableString         `json:"idempotencyKey,omitempty"`
+	Inputs         map[string]interface{} `json:"inputs,omitempty"`
+	Namespace      string                 `json:"namespace"`
+	Runner         *RunnerMode            `json:"runner,omitempty"`
 }
 
 type _CreateExecutionRequest CreateExecutionRequest
@@ -146,6 +146,7 @@ func (o *CreateExecutionRequest) HasIdempotencyKey() bool {
 func (o *CreateExecutionRequest) SetIdempotencyKey(v string) {
 	o.IdempotencyKey.Set(&v)
 }
+
 // SetIdempotencyKeyNil sets the value for IdempotencyKey to be an explicit nil
 func (o *CreateExecutionRequest) SetIdempotencyKeyNil() {
 	o.IdempotencyKey.Set(nil)
@@ -245,7 +246,7 @@ func (o *CreateExecutionRequest) SetRunner(v RunnerMode) {
 }
 
 func (o CreateExecutionRequest) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -285,10 +286,10 @@ func (o *CreateExecutionRequest) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

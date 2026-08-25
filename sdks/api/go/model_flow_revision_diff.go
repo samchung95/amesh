@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,10 +21,10 @@ var _ MappedNullable = &FlowRevisionDiff{}
 
 // FlowRevisionDiff struct for FlowRevisionDiff
 type FlowRevisionDiff struct {
-	FromRevision int32 `json:"from_revision"`
-	Human string `json:"human"`
-	Operations []*map[string]interface{} `json:"operations"`
-	ToRevision int32 `json:"to_revision"`
+	FromRevision int32                     `json:"from_revision"`
+	Human        string                    `json:"human"`
+	Operations   []*map[string]interface{} `json:"operations"`
+	ToRevision   int32                     `json:"to_revision"`
 }
 
 type _FlowRevisionDiff FlowRevisionDiff
@@ -147,7 +147,7 @@ func (o *FlowRevisionDiff) SetToRevision(v int32) {
 }
 
 func (o FlowRevisionDiff) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -179,10 +179,10 @@ func (o *FlowRevisionDiff) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

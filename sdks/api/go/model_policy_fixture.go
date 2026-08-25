@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,10 +21,10 @@ var _ MappedNullable = &PolicyFixture{}
 
 // PolicyFixture struct for PolicyFixture
 type PolicyFixture struct {
-	ExpectedAllowed bool `json:"expectedAllowed"`
-	ExpectedOutcome PolicyOutcome `json:"expectedOutcome"`
-	Name string `json:"name"`
-	Request PolicyEvaluationRequest `json:"request"`
+	ExpectedAllowed bool                    `json:"expectedAllowed"`
+	ExpectedOutcome PolicyOutcome           `json:"expectedOutcome"`
+	Name            string                  `json:"name"`
+	Request         PolicyEvaluationRequest `json:"request"`
 }
 
 type _PolicyFixture PolicyFixture
@@ -147,7 +147,7 @@ func (o *PolicyFixture) SetRequest(v PolicyEvaluationRequest) {
 }
 
 func (o PolicyFixture) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -179,10 +179,10 @@ func (o *PolicyFixture) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the CertificateDiagnostic type satisfies the MappedNullable interface at compile time
@@ -22,12 +22,12 @@ var _ MappedNullable = &CertificateDiagnostic{}
 
 // CertificateDiagnostic struct for CertificateDiagnostic
 type CertificateDiagnostic struct {
-	Configured bool `json:"configured"`
-	Detail string `json:"detail"`
+	Configured  bool           `json:"configured"`
+	Detail      string         `json:"detail"`
 	Fingerprint NullableString `json:"fingerprint,omitempty"`
-	ModifiedAt NullableTime `json:"modifiedAt,omitempty"`
-	Purpose string `json:"purpose"`
-	Status string `json:"status"`
+	ModifiedAt  NullableTime   `json:"modifiedAt,omitempty"`
+	Purpose     string         `json:"purpose"`
+	Status      string         `json:"status"`
 }
 
 type _CertificateDiagnostic CertificateDiagnostic
@@ -133,6 +133,7 @@ func (o *CertificateDiagnostic) HasFingerprint() bool {
 func (o *CertificateDiagnostic) SetFingerprint(v string) {
 	o.Fingerprint.Set(&v)
 }
+
 // SetFingerprintNil sets the value for Fingerprint to be an explicit nil
 func (o *CertificateDiagnostic) SetFingerprintNil() {
 	o.Fingerprint.Set(nil)
@@ -175,6 +176,7 @@ func (o *CertificateDiagnostic) HasModifiedAt() bool {
 func (o *CertificateDiagnostic) SetModifiedAt(v time.Time) {
 	o.ModifiedAt.Set(&v)
 }
+
 // SetModifiedAtNil sets the value for ModifiedAt to be an explicit nil
 func (o *CertificateDiagnostic) SetModifiedAtNil() {
 	o.ModifiedAt.Set(nil)
@@ -234,7 +236,7 @@ func (o *CertificateDiagnostic) SetStatus(v string) {
 }
 
 func (o CertificateDiagnostic) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -272,10 +274,10 @@ func (o *CertificateDiagnostic) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

@@ -21,7 +21,7 @@ type DashboardVisibility string
 // List of DashboardVisibility
 const (
 	DASHBOARDVISIBILITY_PRIVATE DashboardVisibility = "PRIVATE"
-	DASHBOARDVISIBILITY_TENANT DashboardVisibility = "TENANT"
+	DASHBOARDVISIBILITY_TENANT  DashboardVisibility = "TENANT"
 )
 
 // All allowed values of DashboardVisibility enum

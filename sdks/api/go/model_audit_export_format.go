@@ -20,7 +20,7 @@ type AuditExportFormat string
 
 // List of AuditExportFormat
 const (
-	AUDITEXPORTFORMAT_JSON AuditExportFormat = "JSON"
+	AUDITEXPORTFORMAT_JSON   AuditExportFormat = "JSON"
 	AUDITEXPORTFORMAT_NDJSON AuditExportFormat = "NDJSON"
 )
 

@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,8 +21,8 @@ var _ MappedNullable = &NamespaceResourceImportResult{}
 
 // NamespaceResourceImportResult struct for NamespaceResourceImportResult
 type NamespaceResourceImportResult struct {
-	Files int32 `json:"files"`
-	KeyValues int32 `json:"keyValues"`
+	Files          int32 `json:"files"`
+	KeyValues      int32 `json:"keyValues"`
 	SecretBindings int32 `json:"secretBindings"`
 }
 
@@ -121,7 +121,7 @@ func (o *NamespaceResourceImportResult) SetSecretBindings(v int32) {
 }
 
 func (o NamespaceResourceImportResult) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -151,10 +151,10 @@ func (o *NamespaceResourceImportResult) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

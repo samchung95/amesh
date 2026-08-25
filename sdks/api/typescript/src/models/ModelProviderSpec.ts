@@ -43,6 +43,12 @@ export interface ModelProviderSpec {
      * @memberof ModelProviderSpec
      */
     endpoint: string;
+    /**
+     *
+     * @type {string}
+     * @memberof ModelProviderSpec
+     */
+    revision?: string | null;
 }
 
 /**
@@ -68,6 +74,7 @@ export function ModelProviderSpecFromJSONTyped(json: any, ignoreDiscriminator: b
         'credentialRef': json['credentialRef'],
         'embeddingEndpoint': json['embeddingEndpoint'] === undefined ? undefined : json['embeddingEndpoint'] === null ? null : json['embeddingEndpoint'],
         'endpoint': json['endpoint'],
+        'revision': json['revision'] === undefined ? undefined : json['revision'] === null ? null : json['revision'],
     };
 }
 
@@ -86,5 +93,6 @@ export function ModelProviderSpecToJSONTyped(value?: ModelProviderSpec | null, i
         'credentialRef': value['credentialRef'],
         'embeddingEndpoint': value['embeddingEndpoint'],
         'endpoint': value['endpoint'],
+        'revision': value['revision'],
     };
 }

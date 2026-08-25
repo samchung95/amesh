@@ -20,10 +20,10 @@ type PolicyOutcome string
 
 // List of PolicyOutcome
 const (
-	POLICYOUTCOME_ALLOW PolicyOutcome = "ALLOW"
-	POLICYOUTCOME_DENY PolicyOutcome = "DENY"
-	POLICYOUTCOME_WARN PolicyOutcome = "WARN"
-	POLICYOUTCOME_MUTATE_DEFAULT PolicyOutcome = "MUTATE_DEFAULT"
+	POLICYOUTCOME_ALLOW            PolicyOutcome = "ALLOW"
+	POLICYOUTCOME_DENY             PolicyOutcome = "DENY"
+	POLICYOUTCOME_WARN             PolicyOutcome = "WARN"
+	POLICYOUTCOME_MUTATE_DEFAULT   PolicyOutcome = "MUTATE_DEFAULT"
 	POLICYOUTCOME_REQUIRE_APPROVAL PolicyOutcome = "REQUIRE_APPROVAL"
 )
 

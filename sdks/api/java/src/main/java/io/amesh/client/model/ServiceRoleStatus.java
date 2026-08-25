@@ -37,6 +37,7 @@ import io.amesh.client.ApiClient;
  * ServiceRoleStatus
  */
 @JsonPropertyOrder({
+  ServiceRoleStatus.JSON_PROPERTY_DEGRADED_INSTANCES,
   ServiceRoleStatus.JSON_PROPERTY_DRAINING_INSTANCES,
   ServiceRoleStatus.JSON_PROPERTY_FAILOVER_STATUS,
   ServiceRoleStatus.JSON_PROPERTY_FAILURE_ZONES,
@@ -49,6 +50,10 @@ import io.amesh.client.ApiClient;
 })
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.24.0")
 public class ServiceRoleStatus {
+  public static final String JSON_PROPERTY_DEGRADED_INSTANCES = "degradedInstances";
+  @javax.annotation.Nonnull
+  private Integer degradedInstances;
+
   public static final String JSON_PROPERTY_DRAINING_INSTANCES = "drainingInstances";
   @javax.annotation.Nonnull
   private Integer drainingInstances;
@@ -87,6 +92,31 @@ public class ServiceRoleStatus {
 
   public ServiceRoleStatus() {
   }
+
+  public ServiceRoleStatus degradedInstances(@javax.annotation.Nonnull Integer degradedInstances) {
+    this.degradedInstances = degradedInstances;
+    return this;
+  }
+
+  /**
+   * Get degradedInstances
+   * minimum: 0
+   * @return degradedInstances
+   */
+  @javax.annotation.Nonnull
+  @JsonProperty(value = JSON_PROPERTY_DEGRADED_INSTANCES, required = true)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public Integer getDegradedInstances() {
+    return degradedInstances;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_DEGRADED_INSTANCES, required = true)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setDegradedInstances(@javax.annotation.Nonnull Integer degradedInstances) {
+    this.degradedInstances = degradedInstances;
+  }
+
 
   public ServiceRoleStatus drainingInstances(@javax.annotation.Nonnull Integer drainingInstances) {
     this.drainingInstances = drainingInstances;
@@ -337,7 +367,8 @@ public class ServiceRoleStatus {
       return false;
     }
     ServiceRoleStatus serviceRoleStatus = (ServiceRoleStatus) o;
-    return Objects.equals(this.drainingInstances, serviceRoleStatus.drainingInstances) &&
+    return Objects.equals(this.degradedInstances, serviceRoleStatus.degradedInstances) &&
+        Objects.equals(this.drainingInstances, serviceRoleStatus.drainingInstances) &&
         Objects.equals(this.failoverStatus, serviceRoleStatus.failoverStatus) &&
         Objects.equals(this.failureZones, serviceRoleStatus.failureZones) &&
         Objects.equals(this.liveInstances, serviceRoleStatus.liveInstances) &&
@@ -350,13 +381,14 @@ public class ServiceRoleStatus {
 
   @Override
   public int hashCode() {
-    return Objects.hash(drainingInstances, failoverStatus, failureZones, liveInstances, readyInstances, role, staleInstances, totalInstances, versions);
+    return Objects.hash(degradedInstances, drainingInstances, failoverStatus, failureZones, liveInstances, readyInstances, role, staleInstances, totalInstances, versions);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class ServiceRoleStatus {\n");
+    sb.append("    degradedInstances: ").append(toIndentedString(degradedInstances)).append("\n");
     sb.append("    drainingInstances: ").append(toIndentedString(drainingInstances)).append("\n");
     sb.append("    failoverStatus: ").append(toIndentedString(failoverStatus)).append("\n");
     sb.append("    failureZones: ").append(toIndentedString(failureZones)).append("\n");
@@ -409,6 +441,11 @@ public class ServiceRoleStatus {
     }
 
     StringJoiner joiner = new StringJoiner("&");
+
+    // add `degradedInstances` to the URL query string
+    if (getDegradedInstances() != null) {
+      joiner.add(String.format(java.util.Locale.ROOT, "%sdegradedInstances%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getDegradedInstances()))));
+    }
 
     // add `drainingInstances` to the URL query string
     if (getDrainingInstances() != null) {

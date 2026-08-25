@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,9 +21,9 @@ var _ MappedNullable = &PluginRegistryPublishAttachment{}
 
 // PluginRegistryPublishAttachment struct for PluginRegistryPublishAttachment
 type PluginRegistryPublishAttachment struct {
-	ContentBase64 string `json:"contentBase64"`
-	Kind PluginRegistryAttachmentKind `json:"kind"`
-	MediaType string `json:"mediaType"`
+	ContentBase64 string                       `json:"contentBase64"`
+	Kind          PluginRegistryAttachmentKind `json:"kind"`
+	MediaType     string                       `json:"mediaType"`
 }
 
 type _PluginRegistryPublishAttachment PluginRegistryPublishAttachment
@@ -121,7 +121,7 @@ func (o *PluginRegistryPublishAttachment) SetMediaType(v string) {
 }
 
 func (o PluginRegistryPublishAttachment) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -151,10 +151,10 @@ func (o *PluginRegistryPublishAttachment) UnmarshalJSON(data []byte) (err error)
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

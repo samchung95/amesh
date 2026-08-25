@@ -20,12 +20,12 @@ var _ MappedNullable = &SimulationFixture{}
 
 // SimulationFixture struct for SimulationFixture
 type SimulationFixture struct {
-	Error NullableString `json:"error,omitempty"`
-	FailuresBeforeSuccess *int32 `json:"failuresBeforeSuccess,omitempty"`
-	Output map[string]*interface{} `json:"output,omitempty"`
-	OutputSchema map[string]*interface{} `json:"outputSchema,omitempty"`
-	RecordedAt NullableTime `json:"recordedAt,omitempty"`
-	Source *SimulationFixtureSource `json:"source,omitempty"`
+	Error                 NullableString           `json:"error,omitempty"`
+	FailuresBeforeSuccess *int32                   `json:"failuresBeforeSuccess,omitempty"`
+	Output                map[string]*interface{}  `json:"output,omitempty"`
+	OutputSchema          map[string]*interface{}  `json:"outputSchema,omitempty"`
+	RecordedAt            NullableTime             `json:"recordedAt,omitempty"`
+	Source                *SimulationFixtureSource `json:"source,omitempty"`
 }
 
 // NewSimulationFixture instantiates a new SimulationFixture object
@@ -85,6 +85,7 @@ func (o *SimulationFixture) HasError() bool {
 func (o *SimulationFixture) SetError(v string) {
 	o.Error.Set(&v)
 }
+
 // SetErrorNil sets the value for Error to be an explicit nil
 func (o *SimulationFixture) SetErrorNil() {
 	o.Error.Set(nil)
@@ -223,6 +224,7 @@ func (o *SimulationFixture) HasRecordedAt() bool {
 func (o *SimulationFixture) SetRecordedAt(v time.Time) {
 	o.RecordedAt.Set(&v)
 }
+
 // SetRecordedAtNil sets the value for RecordedAt to be an explicit nil
 func (o *SimulationFixture) SetRecordedAtNil() {
 	o.RecordedAt.Set(nil)
@@ -266,7 +268,7 @@ func (o *SimulationFixture) SetSource(v SimulationFixtureSource) {
 }
 
 func (o SimulationFixture) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}

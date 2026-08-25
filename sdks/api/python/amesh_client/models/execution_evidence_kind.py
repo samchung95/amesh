@@ -31,6 +31,14 @@ class ExecutionEvidenceKind(str, Enum):
     METRIC = 'METRIC'
     OUTPUT = 'OUTPUT'
     ARTIFACT = 'ARTIFACT'
+    AGENT = 'AGENT'
+    MODEL = 'MODEL'
+    TOOL = 'TOOL'
+    ERROR = 'ERROR'
+    APPROVAL = 'APPROVAL'
+    INTERVENTION = 'INTERVENTION'
+    CONTROL = 'CONTROL'
+    DECISION = 'DECISION'
 
     @classmethod
     def from_json(cls, json_str: str) -> Self:

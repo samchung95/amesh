@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,7 +21,7 @@ var _ MappedNullable = &HealthResponse{}
 
 // HealthResponse struct for HealthResponse
 type HealthResponse struct {
-	Status string `json:"status"`
+	Status  string `json:"status"`
 	Version string `json:"version"`
 }
 
@@ -95,7 +95,7 @@ func (o *HealthResponse) SetVersion(v string) {
 }
 
 func (o HealthResponse) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -123,10 +123,10 @@ func (o *HealthResponse) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

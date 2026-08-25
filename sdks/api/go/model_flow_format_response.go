@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,7 +21,7 @@ var _ MappedNullable = &FlowFormatResponse{}
 
 // FlowFormatResponse struct for FlowFormatResponse
 type FlowFormatResponse struct {
-	Document NullableString `json:"document,omitempty"`
+	Document   NullableString       `json:"document,omitempty"`
 	Validation FlowValidationResult `json:"validation"`
 }
 
@@ -77,6 +77,7 @@ func (o *FlowFormatResponse) HasDocument() bool {
 func (o *FlowFormatResponse) SetDocument(v string) {
 	o.Document.Set(&v)
 }
+
 // SetDocumentNil sets the value for Document to be an explicit nil
 func (o *FlowFormatResponse) SetDocumentNil() {
 	o.Document.Set(nil)
@@ -112,7 +113,7 @@ func (o *FlowFormatResponse) SetValidation(v FlowValidationResult) {
 }
 
 func (o FlowFormatResponse) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -141,10 +142,10 @@ func (o *FlowFormatResponse) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

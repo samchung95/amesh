@@ -20,19 +20,19 @@ var _ MappedNullable = &SearchRequest{}
 
 // SearchRequest struct for SearchRequest
 type SearchRequest struct {
-	Cursor NullableString `json:"cursor,omitempty"`
+	Cursor    NullableString       `json:"cursor,omitempty"`
 	Direction *SearchSortDirection `json:"direction,omitempty"`
-	Fields map[string]string `json:"fields,omitempty"`
-	From NullableTime `json:"from,omitempty"`
-	Labels map[string]string `json:"labels,omitempty"`
-	Limit *int32 `json:"limit,omitempty"`
-	Namespace NullableString `json:"namespace,omitempty"`
-	Query *string `json:"query,omitempty"`
-	Ranges []SearchRange `json:"ranges,omitempty"`
-	Sort *SearchSortField `json:"sort,omitempty"`
-	States []string `json:"states,omitempty"`
-	To NullableTime `json:"to,omitempty"`
-	Types []SearchDocumentType `json:"types,omitempty"`
+	Fields    map[string]string    `json:"fields,omitempty"`
+	From      NullableTime         `json:"from,omitempty"`
+	Labels    map[string]string    `json:"labels,omitempty"`
+	Limit     *int32               `json:"limit,omitempty"`
+	Namespace NullableString       `json:"namespace,omitempty"`
+	Query     *string              `json:"query,omitempty"`
+	Ranges    []SearchRange        `json:"ranges,omitempty"`
+	Sort      *SearchSortField     `json:"sort,omitempty"`
+	States    []string             `json:"states,omitempty"`
+	To        NullableTime         `json:"to,omitempty"`
+	Types     []SearchDocumentType `json:"types,omitempty"`
 }
 
 // NewSearchRequest instantiates a new SearchRequest object
@@ -100,6 +100,7 @@ func (o *SearchRequest) HasCursor() bool {
 func (o *SearchRequest) SetCursor(v string) {
 	o.Cursor.Set(&v)
 }
+
 // SetCursorNil sets the value for Cursor to be an explicit nil
 func (o *SearchRequest) SetCursorNil() {
 	o.Cursor.Set(nil)
@@ -206,6 +207,7 @@ func (o *SearchRequest) HasFrom() bool {
 func (o *SearchRequest) SetFrom(v time.Time) {
 	o.From.Set(&v)
 }
+
 // SetFromNil sets the value for From to be an explicit nil
 func (o *SearchRequest) SetFromNil() {
 	o.From.Set(nil)
@@ -312,6 +314,7 @@ func (o *SearchRequest) HasNamespace() bool {
 func (o *SearchRequest) SetNamespace(v string) {
 	o.Namespace.Set(&v)
 }
+
 // SetNamespaceNil sets the value for Namespace to be an explicit nil
 func (o *SearchRequest) SetNamespaceNil() {
 	o.Namespace.Set(nil)
@@ -482,6 +485,7 @@ func (o *SearchRequest) HasTo() bool {
 func (o *SearchRequest) SetTo(v time.Time) {
 	o.To.Set(&v)
 }
+
 // SetToNil sets the value for To to be an explicit nil
 func (o *SearchRequest) SetToNil() {
 	o.To.Set(nil)
@@ -525,7 +529,7 @@ func (o *SearchRequest) SetTypes(v []SearchDocumentType) {
 }
 
 func (o SearchRequest) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}

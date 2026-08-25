@@ -21,7 +21,7 @@ type PermissionEffect string
 // List of PermissionEffect
 const (
 	PERMISSIONEFFECT_ALLOW PermissionEffect = "ALLOW"
-	PERMISSIONEFFECT_DENY PermissionEffect = "DENY"
+	PERMISSIONEFFECT_DENY  PermissionEffect = "DENY"
 )
 
 // All allowed values of PermissionEffect enum

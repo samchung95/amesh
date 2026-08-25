@@ -19,17 +19,17 @@ var _ MappedNullable = &TenantPolicy{}
 
 // TenantPolicy struct for TenantPolicy
 type TenantPolicy struct {
-	EncryptionKeyRef NullableString `json:"encryption_key_ref,omitempty"`
-	FeatureFlags map[string]interface{} `json:"feature_flags,omitempty"`
-	IdentityProviderRefs []*string `json:"identity_provider_refs,omitempty"`
-	MaxApiRequestsPerMinute *int32 `json:"max_api_requests_per_minute,omitempty"`
-	MaxConcurrentExecutions *int32 `json:"max_concurrent_executions,omitempty"`
-	MaxLogBytes *int64 `json:"max_log_bytes,omitempty"`
-	MaxQueuedExecutions *int32 `json:"max_queued_executions,omitempty"`
-	MaxStorageBytes *int64 `json:"max_storage_bytes,omitempty"`
-	PluginAllowlist []*string `json:"plugin_allowlist,omitempty"`
-	RetentionDays *int32 `json:"retention_days,omitempty"`
-	WorkerGroups []string `json:"worker_groups,omitempty"`
+	EncryptionKeyRef        NullableString         `json:"encryption_key_ref,omitempty"`
+	FeatureFlags            map[string]interface{} `json:"feature_flags,omitempty"`
+	IdentityProviderRefs    []*string              `json:"identity_provider_refs,omitempty"`
+	MaxApiRequestsPerMinute *int32                 `json:"max_api_requests_per_minute,omitempty"`
+	MaxConcurrentExecutions *int32                 `json:"max_concurrent_executions,omitempty"`
+	MaxLogBytes             *int64                 `json:"max_log_bytes,omitempty"`
+	MaxQueuedExecutions     *int32                 `json:"max_queued_executions,omitempty"`
+	MaxStorageBytes         *int64                 `json:"max_storage_bytes,omitempty"`
+	PluginAllowlist         []*string              `json:"plugin_allowlist,omitempty"`
+	RetentionDays           *int32                 `json:"retention_days,omitempty"`
+	WorkerGroups            []string               `json:"worker_groups,omitempty"`
 }
 
 // NewTenantPolicy instantiates a new TenantPolicy object
@@ -105,6 +105,7 @@ func (o *TenantPolicy) HasEncryptionKeyRef() bool {
 func (o *TenantPolicy) SetEncryptionKeyRef(v string) {
 	o.EncryptionKeyRef.Set(&v)
 }
+
 // SetEncryptionKeyRefNil sets the value for EncryptionKeyRef to be an explicit nil
 func (o *TenantPolicy) SetEncryptionKeyRefNil() {
 	o.EncryptionKeyRef.Set(nil)
@@ -436,7 +437,7 @@ func (o *TenantPolicy) SetWorkerGroups(v []string) {
 }
 
 func (o TenantPolicy) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}

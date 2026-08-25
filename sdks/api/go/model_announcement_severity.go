@@ -20,8 +20,8 @@ type AnnouncementSeverity string
 
 // List of AnnouncementSeverity
 const (
-	ANNOUNCEMENTSEVERITY_INFO AnnouncementSeverity = "INFO"
-	ANNOUNCEMENTSEVERITY_WARNING AnnouncementSeverity = "WARNING"
+	ANNOUNCEMENTSEVERITY_INFO     AnnouncementSeverity = "INFO"
+	ANNOUNCEMENTSEVERITY_WARNING  AnnouncementSeverity = "WARNING"
 	ANNOUNCEMENTSEVERITY_CRITICAL AnnouncementSeverity = "CRITICAL"
 )
 

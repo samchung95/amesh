@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,9 +21,9 @@ var _ MappedNullable = &AuditRetentionResult{}
 
 // AuditRetentionResult struct for AuditRetentionResult
 type AuditRetentionResult struct {
-	AnchorHash NullableString `json:"anchorHash,omitempty"`
-	DeletedEvents int32 `json:"deletedEvents"`
-	StoppedByLegalHold *bool `json:"stoppedByLegalHold,omitempty"`
+	AnchorHash         NullableString `json:"anchorHash,omitempty"`
+	DeletedEvents      int32          `json:"deletedEvents"`
+	StoppedByLegalHold *bool          `json:"stoppedByLegalHold,omitempty"`
 }
 
 type _AuditRetentionResult AuditRetentionResult
@@ -82,6 +82,7 @@ func (o *AuditRetentionResult) HasAnchorHash() bool {
 func (o *AuditRetentionResult) SetAnchorHash(v string) {
 	o.AnchorHash.Set(&v)
 }
+
 // SetAnchorHashNil sets the value for AnchorHash to be an explicit nil
 func (o *AuditRetentionResult) SetAnchorHashNil() {
 	o.AnchorHash.Set(nil)
@@ -149,7 +150,7 @@ func (o *AuditRetentionResult) SetStoppedByLegalHold(v bool) {
 }
 
 func (o AuditRetentionResult) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -181,10 +182,10 @@ func (o *AuditRetentionResult) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

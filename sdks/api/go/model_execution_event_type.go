@@ -20,17 +20,17 @@ type ExecutionEventType string
 
 // List of ExecutionEventType
 const (
-	EXECUTIONEVENTTYPE_EXECUTION_CREATED ExecutionEventType = "ExecutionCreated"
-	EXECUTIONEVENTTYPE_EXECUTION_QUEUED ExecutionEventType = "ExecutionQueued"
-	EXECUTIONEVENTTYPE_EXECUTION_STARTED ExecutionEventType = "ExecutionStarted"
-	EXECUTIONEVENTTYPE_EXECUTION_PAUSED ExecutionEventType = "ExecutionPaused"
-	EXECUTIONEVENTTYPE_EXECUTION_RESUMED ExecutionEventType = "ExecutionResumed"
-	EXECUTIONEVENTTYPE_EXECUTION_CANCEL_REQUESTED ExecutionEventType = "ExecutionCancelRequested"
-	EXECUTIONEVENTTYPE_EXECUTION_CANCELLED ExecutionEventType = "ExecutionCancelled"
-	EXECUTIONEVENTTYPE_EXECUTION_SUCCEEDED ExecutionEventType = "ExecutionSucceeded"
-	EXECUTIONEVENTTYPE_EXECUTION_FAILED ExecutionEventType = "ExecutionFailed"
-	EXECUTIONEVENTTYPE_EXECUTION_WARNED ExecutionEventType = "ExecutionWarned"
-	EXECUTIONEVENTTYPE_EXECUTION_RESTART_REQUESTED ExecutionEventType = "ExecutionRestartRequested"
+	EXECUTIONEVENTTYPE_EXECUTION_CREATED            ExecutionEventType = "ExecutionCreated"
+	EXECUTIONEVENTTYPE_EXECUTION_QUEUED             ExecutionEventType = "ExecutionQueued"
+	EXECUTIONEVENTTYPE_EXECUTION_STARTED            ExecutionEventType = "ExecutionStarted"
+	EXECUTIONEVENTTYPE_EXECUTION_PAUSED             ExecutionEventType = "ExecutionPaused"
+	EXECUTIONEVENTTYPE_EXECUTION_RESUMED            ExecutionEventType = "ExecutionResumed"
+	EXECUTIONEVENTTYPE_EXECUTION_CANCEL_REQUESTED   ExecutionEventType = "ExecutionCancelRequested"
+	EXECUTIONEVENTTYPE_EXECUTION_CANCELLED          ExecutionEventType = "ExecutionCancelled"
+	EXECUTIONEVENTTYPE_EXECUTION_SUCCEEDED          ExecutionEventType = "ExecutionSucceeded"
+	EXECUTIONEVENTTYPE_EXECUTION_FAILED             ExecutionEventType = "ExecutionFailed"
+	EXECUTIONEVENTTYPE_EXECUTION_WARNED             ExecutionEventType = "ExecutionWarned"
+	EXECUTIONEVENTTYPE_EXECUTION_RESTART_REQUESTED  ExecutionEventType = "ExecutionRestartRequested"
 	EXECUTIONEVENTTYPE_EXECUTION_LIFECYCLE_RECORDED ExecutionEventType = "ExecutionLifecycleRecorded"
 )
 

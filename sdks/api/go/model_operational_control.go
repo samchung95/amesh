@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the OperationalControl type satisfies the MappedNullable interface at compile time
@@ -22,29 +22,29 @@ var _ MappedNullable = &OperationalControl{}
 
 // OperationalControl struct for OperationalControl
 type OperationalControl struct {
-	Acknowledgements []OperationalControlAcknowledgement `json:"acknowledgements,omitempty"`
-	Boundaries []OperationalBoundary `json:"boundaries"`
-	BypassReason NullableString `json:"bypassReason,omitempty"`
-	BypassUntil NullableTime `json:"bypassUntil,omitempty"`
-	CreatedAt time.Time `json:"createdAt"`
-	CreatedBy string `json:"createdBy"`
-	ExpiresAt NullableTime `json:"expiresAt,omitempty"`
-	FlowId NullableString `json:"flowId,omitempty"`
-	Id *string `json:"id,omitempty"`
-	Kind OperationalControlKind `json:"kind"`
-	Name string `json:"name"`
-	Namespace NullableString `json:"namespace,omitempty"`
-	PluginId NullableString `json:"pluginId,omitempty"`
-	Reason string `json:"reason"`
-	ReviewAt NullableTime `json:"reviewAt,omitempty"`
-	RunnerId NullableString `json:"runnerId,omitempty"`
-	RunningWorkPolicy RunningWorkPolicy `json:"runningWorkPolicy"`
-	Scope OperationalControlScope `json:"scope"`
-	State OperationalControlState `json:"state"`
-	TenantId NullableString `json:"tenantId,omitempty"`
-	UpdatedAt time.Time `json:"updatedAt"`
-	UpdatedBy string `json:"updatedBy"`
-	Version int32 `json:"version"`
+	Acknowledgements  []OperationalControlAcknowledgement `json:"acknowledgements,omitempty"`
+	Boundaries        []OperationalBoundary               `json:"boundaries"`
+	BypassReason      NullableString                      `json:"bypassReason,omitempty"`
+	BypassUntil       NullableTime                        `json:"bypassUntil,omitempty"`
+	CreatedAt         time.Time                           `json:"createdAt"`
+	CreatedBy         string                              `json:"createdBy"`
+	ExpiresAt         NullableTime                        `json:"expiresAt,omitempty"`
+	FlowId            NullableString                      `json:"flowId,omitempty"`
+	Id                *string                             `json:"id,omitempty"`
+	Kind              OperationalControlKind              `json:"kind"`
+	Name              string                              `json:"name"`
+	Namespace         NullableString                      `json:"namespace,omitempty"`
+	PluginId          NullableString                      `json:"pluginId,omitempty"`
+	Reason            string                              `json:"reason"`
+	ReviewAt          NullableTime                        `json:"reviewAt,omitempty"`
+	RunnerId          NullableString                      `json:"runnerId,omitempty"`
+	RunningWorkPolicy RunningWorkPolicy                   `json:"runningWorkPolicy"`
+	Scope             OperationalControlScope             `json:"scope"`
+	State             OperationalControlState             `json:"state"`
+	TenantId          NullableString                      `json:"tenantId,omitempty"`
+	UpdatedAt         time.Time                           `json:"updatedAt"`
+	UpdatedBy         string                              `json:"updatedBy"`
+	Version           int32                               `json:"version"`
 }
 
 type _OperationalControl OperationalControl
@@ -166,6 +166,7 @@ func (o *OperationalControl) HasBypassReason() bool {
 func (o *OperationalControl) SetBypassReason(v string) {
 	o.BypassReason.Set(&v)
 }
+
 // SetBypassReasonNil sets the value for BypassReason to be an explicit nil
 func (o *OperationalControl) SetBypassReasonNil() {
 	o.BypassReason.Set(nil)
@@ -208,6 +209,7 @@ func (o *OperationalControl) HasBypassUntil() bool {
 func (o *OperationalControl) SetBypassUntil(v time.Time) {
 	o.BypassUntil.Set(&v)
 }
+
 // SetBypassUntilNil sets the value for BypassUntil to be an explicit nil
 func (o *OperationalControl) SetBypassUntilNil() {
 	o.BypassUntil.Set(nil)
@@ -298,6 +300,7 @@ func (o *OperationalControl) HasExpiresAt() bool {
 func (o *OperationalControl) SetExpiresAt(v time.Time) {
 	o.ExpiresAt.Set(&v)
 }
+
 // SetExpiresAtNil sets the value for ExpiresAt to be an explicit nil
 func (o *OperationalControl) SetExpiresAtNil() {
 	o.ExpiresAt.Set(nil)
@@ -340,6 +343,7 @@ func (o *OperationalControl) HasFlowId() bool {
 func (o *OperationalControl) SetFlowId(v string) {
 	o.FlowId.Set(&v)
 }
+
 // SetFlowIdNil sets the value for FlowId to be an explicit nil
 func (o *OperationalControl) SetFlowIdNil() {
 	o.FlowId.Set(nil)
@@ -462,6 +466,7 @@ func (o *OperationalControl) HasNamespace() bool {
 func (o *OperationalControl) SetNamespace(v string) {
 	o.Namespace.Set(&v)
 }
+
 // SetNamespaceNil sets the value for Namespace to be an explicit nil
 func (o *OperationalControl) SetNamespaceNil() {
 	o.Namespace.Set(nil)
@@ -504,6 +509,7 @@ func (o *OperationalControl) HasPluginId() bool {
 func (o *OperationalControl) SetPluginId(v string) {
 	o.PluginId.Set(&v)
 }
+
 // SetPluginIdNil sets the value for PluginId to be an explicit nil
 func (o *OperationalControl) SetPluginIdNil() {
 	o.PluginId.Set(nil)
@@ -570,6 +576,7 @@ func (o *OperationalControl) HasReviewAt() bool {
 func (o *OperationalControl) SetReviewAt(v time.Time) {
 	o.ReviewAt.Set(&v)
 }
+
 // SetReviewAtNil sets the value for ReviewAt to be an explicit nil
 func (o *OperationalControl) SetReviewAtNil() {
 	o.ReviewAt.Set(nil)
@@ -612,6 +619,7 @@ func (o *OperationalControl) HasRunnerId() bool {
 func (o *OperationalControl) SetRunnerId(v string) {
 	o.RunnerId.Set(&v)
 }
+
 // SetRunnerIdNil sets the value for RunnerId to be an explicit nil
 func (o *OperationalControl) SetRunnerIdNil() {
 	o.RunnerId.Set(nil)
@@ -726,6 +734,7 @@ func (o *OperationalControl) HasTenantId() bool {
 func (o *OperationalControl) SetTenantId(v string) {
 	o.TenantId.Set(&v)
 }
+
 // SetTenantIdNil sets the value for TenantId to be an explicit nil
 func (o *OperationalControl) SetTenantIdNil() {
 	o.TenantId.Set(nil)
@@ -809,7 +818,7 @@ func (o *OperationalControl) SetVersion(v int32) {
 }
 
 func (o OperationalControl) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -890,10 +899,10 @@ func (o *OperationalControl) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

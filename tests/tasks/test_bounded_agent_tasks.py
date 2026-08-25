@@ -18,6 +18,7 @@ from amesh.domain import (
     McpConnectionSpec,
     McpToolImpact,
 )
+from amesh.domain.model_continuations import ProtectedModelContinuation
 from amesh.dsl.models import TaskDefinition
 from amesh.executor import TaskExecutionContext, TaskExecutionFailure
 from amesh.ports import ModelProviderRequest, ModelProviderResponse
@@ -93,7 +94,9 @@ class MemoryAgentRepository:
         state: AgentInvocationState,
         result: dict[str, Any] | None = None,
         error: str | None = None,
+        protected_continuation: ProtectedModelContinuation | None = None,
     ) -> AgentInvocationRecord:
+        assert protected_continuation is None
         selected_key, selected = next(
             (item for item in self.invocations.items() if item[1].invocation_id == invocation_id),
             (None, None),
@@ -110,6 +113,15 @@ class MemoryAgentRepository:
         )
         self.invocations[selected_key] = completed
         return completed
+
+    async def get_model_continuation(
+        self,
+        invocation_id: UUID,
+        *,
+        tenant_id: str,
+    ) -> ProtectedModelContinuation | None:
+        del invocation_id, tenant_id
+        return None
 
 
 class FakeModelProvider:
@@ -300,6 +312,10 @@ def test_structured_model_output_and_budget_fail_deterministically() -> None:
         provider = FakeModelProvider(
             [
                 {
+                    "choices": [{"message": {"content": "{not-json"}}],
+                    "usage": {"total_tokens": 8, "cost": 0.0004},
+                },
+                {
                     "choices": [{"message": {"content": '{"answer":"wrong"}'}}],
                     "usage": {"total_tokens": 8, "cost": 0.0004},
                 },
@@ -324,6 +340,10 @@ def test_structured_model_output_and_budget_fail_deterministically() -> None:
                 **provider_policy(),
             }
         )
+        with pytest.raises(TaskExecutionFailure, match="not valid JSON") as malformed:
+            await handler(schema_task, execution_context())
+        assert malformed.value.category is FailureCategory.NON_RETRYABLE
+
         with pytest.raises(TaskExecutionFailure, match="failed schema") as invalid:
             await handler(schema_task, execution_context())
         assert invalid.value.category is FailureCategory.NON_RETRYABLE

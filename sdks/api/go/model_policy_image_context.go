@@ -20,7 +20,7 @@ var _ MappedNullable = &PolicyImageContext{}
 // PolicyImageContext struct for PolicyImageContext
 type PolicyImageContext struct {
 	Attributes map[string]interface{} `json:"attributes,omitempty"`
-	References []*string `json:"references,omitempty"`
+	References []*string              `json:"references,omitempty"`
 }
 
 // NewPolicyImageContext instantiates a new PolicyImageContext object
@@ -105,7 +105,7 @@ func (o *PolicyImageContext) SetReferences(v []*string) {
 }
 
 func (o PolicyImageContext) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}

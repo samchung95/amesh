@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the AssetObservation type satisfies the MappedNullable interface at compile time
@@ -22,20 +22,20 @@ var _ MappedNullable = &AssetObservation{}
 
 // AssetObservation struct for AssetObservation
 type AssetObservation struct {
-	AccessMode AssetAccessMode `json:"accessMode"`
-	ArtifactId NullableString `json:"artifactId,omitempty"`
-	AssetId string `json:"assetId"`
-	Confidence float32 `json:"confidence"`
-	CreatedBy string `json:"createdBy"`
-	EvidenceKind LineageEvidenceKind `json:"evidenceKind"`
-	ExecutionId NullableString `json:"executionId,omitempty"`
-	FlowId NullableString `json:"flowId,omitempty"`
-	Metadata map[string]interface{} `json:"metadata,omitempty"`
-	Namespace string `json:"namespace"`
-	ObservationId string `json:"observationId"`
-	ObservedAt time.Time `json:"observedAt"`
-	TaskRunId NullableString `json:"taskRunId,omitempty"`
-	TenantId string `json:"tenantId"`
+	AccessMode    AssetAccessMode        `json:"accessMode"`
+	ArtifactId    NullableString         `json:"artifactId,omitempty"`
+	AssetId       string                 `json:"assetId"`
+	Confidence    float32                `json:"confidence"`
+	CreatedBy     string                 `json:"createdBy"`
+	EvidenceKind  LineageEvidenceKind    `json:"evidenceKind"`
+	ExecutionId   NullableString         `json:"executionId,omitempty"`
+	FlowId        NullableString         `json:"flowId,omitempty"`
+	Metadata      map[string]interface{} `json:"metadata,omitempty"`
+	Namespace     string                 `json:"namespace"`
+	ObservationId string                 `json:"observationId"`
+	ObservedAt    time.Time              `json:"observedAt"`
+	TaskRunId     NullableString         `json:"taskRunId,omitempty"`
+	TenantId      string                 `json:"tenantId"`
 }
 
 type _AssetObservation AssetObservation
@@ -122,6 +122,7 @@ func (o *AssetObservation) HasArtifactId() bool {
 func (o *AssetObservation) SetArtifactId(v string) {
 	o.ArtifactId.Set(&v)
 }
+
 // SetArtifactIdNil sets the value for ArtifactId to be an explicit nil
 func (o *AssetObservation) SetArtifactIdNil() {
 	o.ArtifactId.Set(nil)
@@ -260,6 +261,7 @@ func (o *AssetObservation) HasExecutionId() bool {
 func (o *AssetObservation) SetExecutionId(v string) {
 	o.ExecutionId.Set(&v)
 }
+
 // SetExecutionIdNil sets the value for ExecutionId to be an explicit nil
 func (o *AssetObservation) SetExecutionIdNil() {
 	o.ExecutionId.Set(nil)
@@ -302,6 +304,7 @@ func (o *AssetObservation) HasFlowId() bool {
 func (o *AssetObservation) SetFlowId(v string) {
 	o.FlowId.Set(&v)
 }
+
 // SetFlowIdNil sets the value for FlowId to be an explicit nil
 func (o *AssetObservation) SetFlowIdNil() {
 	o.FlowId.Set(nil)
@@ -448,6 +451,7 @@ func (o *AssetObservation) HasTaskRunId() bool {
 func (o *AssetObservation) SetTaskRunId(v string) {
 	o.TaskRunId.Set(&v)
 }
+
 // SetTaskRunIdNil sets the value for TaskRunId to be an explicit nil
 func (o *AssetObservation) SetTaskRunIdNil() {
 	o.TaskRunId.Set(nil)
@@ -483,7 +487,7 @@ func (o *AssetObservation) SetTenantId(v string) {
 }
 
 func (o AssetObservation) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -540,10 +544,10 @@ func (o *AssetObservation) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

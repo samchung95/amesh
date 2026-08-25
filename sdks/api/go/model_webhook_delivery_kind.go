@@ -20,8 +20,8 @@ type WebhookDeliveryKind string
 
 // List of WebhookDeliveryKind
 const (
-	WEBHOOKDELIVERYKIND_EVENT WebhookDeliveryKind = "EVENT"
-	WEBHOOKDELIVERYKIND_TEST WebhookDeliveryKind = "TEST"
+	WEBHOOKDELIVERYKIND_EVENT  WebhookDeliveryKind = "EVENT"
+	WEBHOOKDELIVERYKIND_TEST   WebhookDeliveryKind = "TEST"
 	WEBHOOKDELIVERYKIND_REPLAY WebhookDeliveryKind = "REPLAY"
 )
 

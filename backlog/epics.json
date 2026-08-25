@@ -1,7 +1,7 @@
 {
   "metadata": {
     "generated_on": "2026-08-16",
-    "epic_count": 106,
+    "epic_count": 115,
     "functional_requirement_count": 837,
     "nonfunctional_requirement_count": 63
   },
@@ -4490,6 +4490,538 @@
       ],
       "body_file": "backlog/epics/epic-809-agent-memory-evaluation-and-release-gates.md",
       "body": "# EPIC-809 — Agent memory, evaluation and release gates\n\n- **Milestone:** M8 — Differentiation and general availability\n- **Priority:** Must\n- **Domain:** `differentiation`\n- **Primary persona:** AI workflow developer\n- **Parity scope:** AMESH Agent Mesh differentiator; not a Kestra-parity claim\n\n## Outcome\n\nMake bounded agents safe to adopt through isolated memory, versioned evaluations, human-readable traces and evidence-backed promotion gates in the existing workflow experience.\n\n## In scope\n\n- [x] **URS-F-0812** — The system shall provide isolated private memory and policy-controlled shared memory with retention, redaction, size and tenant boundaries.\n- [x] **URS-F-0816** — The system shall evaluate agent and mesh outcomes against versioned tests, rubrics, judges and business assertions.\n- [x] **URS-F-0819** — The system shall interleave agent sessions, ordinary tasks and human approval tasks in one state machine, timeline and audit trail.\n\n## Implementation completion evidence\n\n- 2026-08-25 — EPIC-809 is complete. Migration 0059 adds a tenant-RLS memory journal with exact execution, private agent-revision and named shared scopes; bounded size and retention; redaction; idempotent provenance; metadata-only discovery; and namespace-scoped soft deletion with audit evidence. Exact immutable evaluation revisions run deterministic JSON-schema assertions and weighted rubrics before an optional judge pinned to ordered model-policy routes. Judge evidence records model, route, usage, cost, score, uncertainty, rationale and nondeterminism, while deterministic failure remains authoritative and high-impact release still requires a direct ordinary `core.approval` predecessor. Side-effect-free definition and fixture previews disclose that model behavior is unknown. Agent checkpoints and the ordinary execution trace interleave memory, evaluation, approval and output events. The deployed OpenRouter Luna cold and recall executions `01a03728-0034-7730-82f9-fce320a344fc` and `01a03728-fc13-70cc-b592-df2fabca6c88` both passed exact evaluation revision 1; the latter proved private-memory recall and replacement. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`agent-primitives.md`](../../docs/api/agent-primitives.md), [`configure-agent-memory-evaluations.md`](../../docs/how-to/configure-agent-memory-evaluations.md), [`054-agent-memory-evaluation-and-release-evidence.md`](../../docs/adr/054-agent-memory-evaluation-and-release-evidence.md), [`test_agent_memory_repository.py`](../../tests/adapters/postgres/test_agent_memory_repository.py), [`test_agent_sessions.py`](../../tests/tasks/test_agent_sessions.py), and [`executionTraceModel.test.ts`](../../frontend/src/components/executionTraceModel.test.ts). Shared mesh-wide NFRs remain In Progress until EPIC-806 qualifies multi-agent routing, hand-offs and provider substitution.\n\n## Explicit non-goals\n\n- Using an LLM judge as the sole authority for high-impact release or tool decisions\n- Storing unrestricted conversation history without retention and redaction policy\n\n## Non-functional requirements\n\n- [ ] **URS-NFR-AGENT-002** — Every agent message, routing decision, tool call, hand-off, approval and model response shall be traceable to pinned policy and execution context. Target: All catalogued mesh scenarios produce a complete provenance graph with no orphan tool effects.\n- [ ] **URS-NFR-AGENT-003** — Agent memory, tools and credentials shall be isolated by tenant, namespace, execution and delegated capability. Target: Zero cross-boundary disclosure or unauthorised tool invocation in adversarial mesh tests.\n- [ ] **URS-NFR-AGENT-004** — Core mesh state and policy shall remain usable when a model provider is disabled or replaced. Target: Reference meshes migrate between two conforming model adapters with documented output nondeterminism and no state-schema change.\n\n## Dependencies\n\n- EPIC-407\n- EPIC-508\n- EPIC-510\n- EPIC-800\n- EPIC-808\n\n## Architecture impact\n\n- Primary bounded area: `differentiation`.\n- Public contracts introduced or changed must be versioned and documented.\n- Durable state changes must use the command/event/outbox model.\n- Tenant, authorization, audit, telemetry and failure behavior must be reviewed.\n\n## Verification plan\n\n- Agent memory-isolation, evaluation, trace, approval-interleaving and release-gate end-to-end tests.\n- Provenance graph completeness tests.\n- Cross-tenant, prompt-injection and capability-confusion tests.\n- Provider substitution and outage tests.\n- Add requirement-to-test evidence links before changing any requirement to Verified.\n- Add failure, duplicate, restart and authorization scenarios where applicable.\n\n## Definition of done\n\n- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.\n- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.\n- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.\n- [x] Security, tenant isolation, redaction and audit behavior are reviewed.\n- [x] Documentation, examples, migration notes and operational runbooks are updated.\n- [x] Performance and recovery budgets are measured when this epic is on a critical path.\n- [x] `python scripts/validate_backlog.py` passes.\n\n## Risks and unknowns\n\n- Shared memory can disclose information across executions, namespaces or tenants\n- LLM judges can be nondeterministic, biased or correlated with the model under test\n- A passing format or rubric score can be mistaken for business correctness\n\n## Traceability\n\n- Functional requirements: URS-F-0812, URS-F-0816, URS-F-0819\n- Non-functional requirements: URS-NFR-AGENT-002, URS-NFR-AGENT-003, URS-NFR-AGENT-004\n- Source scope: AMESH Agent Mesh differentiator; not a Kestra-parity claim\n",
+      "state": "done"
+    },
+    {
+      "id": "EPIC-810",
+      "title": "Reliable scheduling and truthful role-aware health",
+      "milestone": "M8",
+      "wave": 8,
+      "domain": "engine",
+      "persona": "Operator",
+      "goal": "Make AMESH the durable owner of generic schedules while every enabled service role reports its real ability to make progress.",
+      "implementation_progress": [
+        "2026-08-25 — EPIC-810 is complete. Temporal `RETRY_WAIT` duplicates now advance the fenced schedule cursor without a second execution, while the trigger worker retries with the same occurrence idempotency key. Legacy plugin pins are conditionally migrated to exact v1 pins with one audit event or the owning flow is disabled with one quarantine audit. Migration 0060 persists DEGRADED role state, last success/failure, bounded redacted failure evidence and consecutive failures; `/ready` aggregates every configured role and distinguishes disabled roles. Sixty-one focused unit, API, Helm, migration and PostgreSQL tests passed. Live Compose produced HTTP 503 while the scheduler was degraded, recovered all six roles to READY in 11 seconds after remediation, and kept exactly one occurrence and execution (`01a03980-1533-7e64-97b7-7d30642bc231`) across scheduler restarts before and after its bounded cron instant. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`scheduler-and-triggers.md`](../../docs/architecture/scheduler-and-triggers.md), [`high-availability.md`](../../docs/operations/high-availability.md), [`test_cron_scheduler.py`](../../tests/scheduler/test_cron_scheduler.py), [`test_service_registry.py`](../../tests/adapters/postgres/test_service_registry.py), and [`test_plugin_policy_repository.py`](../../tests/adapters/postgres/test_plugin_policy_repository.py)."
+      ],
+      "priority": "Must",
+      "dependencies": [
+        "EPIC-103",
+        "EPIC-303",
+        "EPIC-601"
+      ],
+      "acceptance_criteria": [
+        "Duplicate schedule occurrences already in `RETRY_WAIT` converge without an exception loop or a second execution.",
+        "Stale or incompatible plugin-resolution pins are migrated or quarantined through a bounded, auditable path and cannot poison the scheduler loop.",
+        "Every enabled role reports last success, last failure, consecutive failures, liveness and readiness; caught background-loop failures degrade readiness.",
+        "Disabled roles are explicitly reported as disabled and do not make the deployment unhealthy.",
+        "Timezone, start/end bounds, misfire, catch-up, pause/resume, replay and restart semantics remain deterministic and occurrence-idempotent.",
+        "A live Compose restart demonstrates no lost or duplicate scheduled execution and health changes honestly when a required role fails."
+      ],
+      "verification_plan": [
+        "Scheduler unit tests for retry-wait convergence, temporal boundaries and restart deduplication",
+        "Plugin-resolution compatibility and quarantine regression tests",
+        "Role-health unit, API contract and isolated PostgreSQL integration tests",
+        "Live Compose scheduler restart and required-role failure smoke evidence"
+      ],
+      "definition_of_done": [
+        "All EPIC-810 acceptance scenarios pass without recurring scheduler errors.",
+        "Health documentation defines enabled, disabled, live, ready and degraded role semantics.",
+        "The canonical backlog, TESTLOG and progress handoff link the automated and live evidence."
+      ],
+      "risks": [
+        "False-green readiness can send client traffic to a deployment that cannot launch work.",
+        "Historical trigger records can repeatedly fail after a plugin contract evolves."
+      ],
+      "non_goals": [
+        "Embedding market calendars, news schedules or other domain-specific scheduling rules in core",
+        "Making clients responsible for occurrence durability or deduplication"
+      ],
+      "labels": [
+        "type:epic",
+        "priority:must",
+        "area:engine",
+        "area:reliability",
+        "area:observability",
+        "difference:intentional"
+      ],
+      "requirement_ids": [],
+      "nfr_ids": [],
+      "body_file": "backlog/epics/epic-810-reliable-scheduling-and-truthful-role-aware-health.md",
+      "body": "# EPIC-810 — Reliable scheduling and truthful role-aware health\n\n- **Milestone:** M8 — Differentiation and general availability\n- **Priority:** Must\n- **Domain:** `engine`\n- **Primary persona:** Operator\n- **Parity scope:** AMESH quality and architecture requirement\n\n## Outcome\n\nMake AMESH the durable owner of generic schedules while every enabled service role reports its real ability to make progress.\n\n## In scope\n\n- [x] Duplicate schedule occurrences already in `RETRY_WAIT` converge without an exception loop or a second execution.\n- [x] Stale or incompatible plugin-resolution pins are migrated or quarantined through a bounded, auditable path and cannot poison the scheduler loop.\n- [x] Every enabled role reports last success, last failure, consecutive failures, liveness and readiness; caught background-loop failures degrade readiness.\n- [x] Disabled roles are explicitly reported as disabled and do not make the deployment unhealthy.\n- [x] Timezone, start/end bounds, misfire, catch-up, pause/resume, replay and restart semantics remain deterministic and occurrence-idempotent.\n- [x] A live Compose restart demonstrates no lost or duplicate scheduled execution and health changes honestly when a required role fails.\n\n## Implementation completion evidence\n\n- 2026-08-25 — EPIC-810 is complete. Temporal `RETRY_WAIT` duplicates now advance the fenced schedule cursor without a second execution, while the trigger worker retries with the same occurrence idempotency key. Legacy plugin pins are conditionally migrated to exact v1 pins with one audit event or the owning flow is disabled with one quarantine audit. Migration 0060 persists DEGRADED role state, last success/failure, bounded redacted failure evidence and consecutive failures; `/ready` aggregates every configured role and distinguishes disabled roles. Sixty-one focused unit, API, Helm, migration and PostgreSQL tests passed. Live Compose produced HTTP 503 while the scheduler was degraded, recovered all six roles to READY in 11 seconds after remediation, and kept exactly one occurrence and execution (`01a03980-1533-7e64-97b7-7d30642bc231`) across scheduler restarts before and after its bounded cron instant. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`scheduler-and-triggers.md`](../../docs/architecture/scheduler-and-triggers.md), [`high-availability.md`](../../docs/operations/high-availability.md), [`test_cron_scheduler.py`](../../tests/scheduler/test_cron_scheduler.py), [`test_service_registry.py`](../../tests/adapters/postgres/test_service_registry.py), and [`test_plugin_policy_repository.py`](../../tests/adapters/postgres/test_plugin_policy_repository.py).\n\n## Explicit non-goals\n\n- Embedding market calendars, news schedules or other domain-specific scheduling rules in core\n- Making clients responsible for occurrence durability or deduplication\n\n## Non-functional requirements\n\n- [ ] No epic-specific NFR is mapped yet; general security, maintainability and test gates still apply.\n\n## Dependencies\n\n- EPIC-103\n- EPIC-303\n- EPIC-601\n\n## Architecture impact\n\n- Primary bounded area: `engine`.\n- Public contracts introduced or changed must be versioned and documented.\n- Durable state changes must use the command/event/outbox model.\n- Tenant, authorization, audit, telemetry and failure behavior must be reviewed.\n\n## Verification plan\n\n- Scheduler unit tests for retry-wait convergence, temporal boundaries and restart deduplication.\n- Plugin-resolution compatibility and quarantine regression tests.\n- Role-health unit, API contract and isolated PostgreSQL integration tests.\n- Live Compose scheduler restart and required-role failure smoke evidence.\n- Add requirement-to-test evidence links before changing any requirement to Verified.\n- Add failure, duplicate, restart and authorization scenarios where applicable.\n\n## Definition of done\n\n- [x] All EPIC-810 acceptance scenarios pass without recurring scheduler errors.\n- [x] Health documentation defines enabled, disabled, live, ready and degraded role semantics.\n- [x] The canonical backlog, TESTLOG and progress handoff link the automated and live evidence.\n- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.\n- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.\n- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.\n- [x] Security, tenant isolation, redaction and audit behavior are reviewed.\n- [x] Documentation, examples, migration notes and operational runbooks are updated.\n- [x] Performance and recovery budgets are measured when this epic is on a critical path.\n- [x] `python scripts/validate_backlog.py` passes.\n\n## Risks and unknowns\n\n- False-green readiness can send client traffic to a deployment that cannot launch work.\n- Historical trigger records can repeatedly fail after a plugin contract evolves.\n\n## Traceability\n\n- Functional requirements: none\n- Non-functional requirements: none specifically mapped\n- Source scope: AMESH quality and architecture requirement\n",
+      "state": "done"
+    },
+    {
+      "id": "EPIC-811",
+      "title": "Client-neutral external orchestration contract",
+      "milestone": "M8",
+      "wave": 8,
+      "domain": "api",
+      "persona": "Integration developer",
+      "goal": "Let any external client version workflows, launch idempotent runs, inspect progress and control executions through a stable neutral contract.",
+      "implementation_progress": [
+        "2026-08-26 — EPIC-811 is complete. The versioned `amesh.external-orchestration/v1` profile publishes validate, apply, exact-revision read, idempotent launch, inspect and authorized control operations with correlation, cursor pagination, optimistic concurrency and stable terminal/retryable/conflict/ambiguous error categories. OpenAPI and all generated SDKs expose the same neutral surface, and the uv example harness verifies all nine operations without client-specific code. Eleven focused contract/SDK tests and three live PostgreSQL realtime tests passed. Authenticated Compose execution `01a039c5-4225-735e-b4f7-e7af5d4a5dbc` was returned unchanged for correlation/idempotency key `epic-811-live-restart` before and after an API restart. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`external-orchestration.md`](../../docs/api/external-orchestration.md), [`neutral-client.py`](../../examples/sdk/neutral-client.py), [`test_external_orchestration.py`](../../tests/test_external_orchestration.py), and [`test_realtime_api.py`](../../tests/api/test_realtime_api.py)."
+      ],
+      "priority": "Must",
+      "dependencies": [
+        "EPIC-400",
+        "EPIC-405",
+        "EPIC-810"
+      ],
+      "acceptance_criteria": [
+        "A versioned external-client profile covers validate, apply, read exact revision, idempotent launch, inspect and authorized control operations.",
+        "Client correlation and idempotency keys survive retries and return the same logical run without duplicate decisions.",
+        "Cursor-based realtime events and signed webhooks reconnect without event loss or duplicate delivery effects.",
+        "Stable machine-readable errors distinguish terminal, retryable, conflict and ambiguous outcomes.",
+        "Scopes, tenant isolation, redaction, pagination and optimistic concurrency are enforced consistently.",
+        "A neutral client harness validates the published OpenAPI and generated SDK profile against a live deployment."
+      ],
+      "verification_plan": [
+        "OpenAPI and generated SDK compatibility checks for the external-client profile",
+        "REST contract tests for exact revisions, launch idempotency, correlation, pagination and conflicts",
+        "Realtime reconnect and signed-webhook duplicate-delivery tests",
+        "Authenticated live neutral-client harness"
+      ],
+      "definition_of_done": [
+        "The same documented contract is usable without a client-specific adapter in AMESH.",
+        "All profile operations have authorization, tenant-isolation and stable-error evidence.",
+        "Client integration documentation includes runnable uv-based examples."
+      ],
+      "risks": [
+        "A loosely defined client profile can force every consumer to reverse-engineer internal routes.",
+        "Reconnect or retry behavior can create duplicate externally observed decisions."
+      ],
+      "non_goals": [
+        "Adding VibeStonks-specific resources, endpoints or adapter code",
+        "Moving client domain validation or migration logic into AMESH"
+      ],
+      "labels": [
+        "type:epic",
+        "priority:must",
+        "area:api",
+        "area:reliability",
+        "difference:intentional"
+      ],
+      "requirement_ids": [],
+      "nfr_ids": [],
+      "body_file": "backlog/epics/epic-811-client-neutral-external-orchestration-contract.md",
+      "body": "# EPIC-811 — Client-neutral external orchestration contract\n\n- **Milestone:** M8 — Differentiation and general availability\n- **Priority:** Must\n- **Domain:** `api`\n- **Primary persona:** Integration developer\n- **Parity scope:** AMESH quality and architecture requirement\n\n## Outcome\n\nLet any external client version workflows, launch idempotent runs, inspect progress and control executions through a stable neutral contract.\n\n## In scope\n\n- [x] A versioned external-client profile covers validate, apply, read exact revision, idempotent launch, inspect and authorized control operations.\n- [x] Client correlation and idempotency keys survive retries and return the same logical run without duplicate decisions.\n- [x] Cursor-based realtime events and signed webhooks reconnect without event loss or duplicate delivery effects.\n- [x] Stable machine-readable errors distinguish terminal, retryable, conflict and ambiguous outcomes.\n- [x] Scopes, tenant isolation, redaction, pagination and optimistic concurrency are enforced consistently.\n- [x] A neutral client harness validates the published OpenAPI and generated SDK profile against a live deployment.\n\n## Implementation completion evidence\n\n- 2026-08-26 — EPIC-811 is complete. The versioned `amesh.external-orchestration/v1` profile publishes validate, apply, exact-revision read, idempotent launch, inspect and authorized control operations with correlation, cursor pagination, optimistic concurrency and stable terminal/retryable/conflict/ambiguous error categories. OpenAPI and all generated SDKs expose the same neutral surface, and the uv example harness verifies all nine operations without client-specific code. Eleven focused contract/SDK tests and three live PostgreSQL realtime tests passed. Authenticated Compose execution `01a039c5-4225-735e-b4f7-e7af5d4a5dbc` was returned unchanged for correlation/idempotency key `epic-811-live-restart` before and after an API restart. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`external-orchestration.md`](../../docs/api/external-orchestration.md), [`neutral-client.py`](../../examples/sdk/neutral-client.py), [`test_external_orchestration.py`](../../tests/test_external_orchestration.py), and [`test_realtime_api.py`](../../tests/api/test_realtime_api.py).\n\n## Explicit non-goals\n\n- Adding VibeStonks-specific resources, endpoints or adapter code\n- Moving client domain validation or migration logic into AMESH\n\n## Non-functional requirements\n\n- [ ] No epic-specific NFR is mapped yet; general security, maintainability and test gates still apply.\n\n## Dependencies\n\n- EPIC-400\n- EPIC-405\n- EPIC-810\n\n## Architecture impact\n\n- Primary bounded area: `api`.\n- Public contracts introduced or changed must be versioned and documented.\n- Durable state changes must use the command/event/outbox model.\n- Tenant, authorization, audit, telemetry and failure behavior must be reviewed.\n\n## Verification plan\n\n- OpenAPI and generated SDK compatibility checks for the external-client profile.\n- REST contract tests for exact revisions, launch idempotency, correlation, pagination and conflicts.\n- Realtime reconnect and signed-webhook duplicate-delivery tests.\n- Authenticated live neutral-client harness.\n- Add requirement-to-test evidence links before changing any requirement to Verified.\n- Add failure, duplicate, restart and authorization scenarios where applicable.\n\n## Definition of done\n\n- [x] The same documented contract is usable without a client-specific adapter in AMESH.\n- [x] All profile operations have authorization, tenant-isolation and stable-error evidence.\n- [x] Client integration documentation includes runnable uv-based examples.\n- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.\n- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.\n- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.\n- [x] Security, tenant isolation, redaction and audit behavior are reviewed.\n- [x] Documentation, examples, migration notes and operational runbooks are updated.\n- [x] Performance and recovery budgets are measured when this epic is on a critical path.\n- [x] `python scripts/validate_backlog.py` passes.\n\n## Risks and unknowns\n\n- A loosely defined client profile can force every consumer to reverse-engineer internal routes.\n- Reconnect or retry behavior can create duplicate externally observed decisions.\n\n## Traceability\n\n- Functional requirements: none\n- Non-functional requirements: none specifically mapped\n- Source scope: AMESH quality and architecture requirement\n",
+      "state": "done"
+    },
+    {
+      "id": "EPIC-812",
+      "title": "Canonical execution evidence bundle",
+      "milestone": "M8",
+      "wave": 8,
+      "domain": "observability",
+      "persona": "Operator",
+      "goal": "Export one versioned, bounded and integrity-checkable record of everything a client needs to explain an execution without exposing secrets or hidden model rationale.",
+      "implementation_progress": [
+        "2026-08-26 — EPIC-812 is complete. The canonical evidence bundle captures workflow, agent, model, tool, decision, error, approval, intervention and control records with exact lineage, normalized usage/cost states, deterministic ordering, bounded pagination, object-store externalization, redaction and a stable SHA-256 digest; secrets and hidden reasoning are excluded. Migration 0066 preserves every evidence kind. Fourteen focused unit/API/PostgreSQL tests passed. Live execution `01a039c5-4225-735e-b4f7-e7af5d4a5dbc` exported 13 trace records with digest `sha256:eced2443a98deae4cc15c372a09e72553cafa907b2e924f570919cbb0f347576`, and the uv CLI independently returned `verified: true`. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`evidence-bundles.md`](../../docs/operations/evidence-bundles.md), [`evidence-bundle-v1.json`](../../schemas/evidence-bundle-v1.json), [`test_evidence_bundle.py`](../../tests/test_evidence_bundle.py), and [`test_evidence_bundle_repository.py`](../../tests/adapters/postgres/test_evidence_bundle_repository.py)."
+      ],
+      "priority": "Must",
+      "dependencies": [
+        "EPIC-407",
+        "EPIC-602",
+        "EPIC-808",
+        "EPIC-811"
+      ],
+      "acceptance_criteria": [
+        "The bundle includes exact pins, inputs, outputs, task attempts, agent sessions, external invocations, state transitions, logs, metrics, files, errors, approvals and interventions.",
+        "Records have stable ordering, correlation identifiers, schema digests, token usage and explicit priced, unpriced or unavailable cost states.",
+        "Secrets and hidden chain-of-thought are excluded while provider-supplied opaque continuation data remains protected and resumable.",
+        "Large fields externalize to integrity-checked object storage and every API response remains bounded and paginated.",
+        "REST, CLI and SDK retrieval enforce authorization, tenant isolation and redaction.",
+        "The same completed or recovered execution produces a stable bundle digest; conflicting evidence is detected rather than overwritten."
+      ],
+      "verification_plan": [
+        "Canonical ordering, digest and schema contract tests",
+        "Large-record externalization and integrity-corruption integration tests",
+        "Authorization, tenant-isolation and secret-redaction tests",
+        "Restart-stability tests plus REST, CLI and SDK retrieval smoke tests"
+      ],
+      "definition_of_done": [
+        "The evidence schema is versioned and its compatibility policy is documented.",
+        "A reference execution with agents and tools exports and verifies end to end.",
+        "TESTLOG records bundle size limits, digest evidence and negative cases."
+      ],
+      "risks": [
+        "Unbounded evidence responses can make successful large runs impossible to inspect.",
+        "Raw provider or tool records can disclose credentials or sensitive reasoning."
+      ],
+      "non_goals": [
+        "Persisting or displaying private chain-of-thought",
+        "Defining a domain-specific decision or citation schema"
+      ],
+      "labels": [
+        "type:epic",
+        "priority:must",
+        "area:observability",
+        "area:storage",
+        "area:api",
+        "difference:intentional"
+      ],
+      "requirement_ids": [],
+      "nfr_ids": [],
+      "body_file": "backlog/epics/epic-812-canonical-execution-evidence-bundle.md",
+      "body": "# EPIC-812 — Canonical execution evidence bundle\n\n- **Milestone:** M8 — Differentiation and general availability\n- **Priority:** Must\n- **Domain:** `observability`\n- **Primary persona:** Operator\n- **Parity scope:** AMESH quality and architecture requirement\n\n## Outcome\n\nExport one versioned, bounded and integrity-checkable record of everything a client needs to explain an execution without exposing secrets or hidden model rationale.\n\n## In scope\n\n- [x] The bundle includes exact pins, inputs, outputs, task attempts, agent sessions, external invocations, state transitions, logs, metrics, files, errors, approvals and interventions.\n- [x] Records have stable ordering, correlation identifiers, schema digests, token usage and explicit priced, unpriced or unavailable cost states.\n- [x] Secrets and hidden chain-of-thought are excluded while provider-supplied opaque continuation data remains protected and resumable.\n- [x] Large fields externalize to integrity-checked object storage and every API response remains bounded and paginated.\n- [x] REST, CLI and SDK retrieval enforce authorization, tenant isolation and redaction.\n- [x] The same completed or recovered execution produces a stable bundle digest; conflicting evidence is detected rather than overwritten.\n\n## Implementation completion evidence\n\n- 2026-08-26 — EPIC-812 is complete. The canonical evidence bundle captures workflow, agent, model, tool, decision, error, approval, intervention and control records with exact lineage, normalized usage/cost states, deterministic ordering, bounded pagination, object-store externalization, redaction and a stable SHA-256 digest; secrets and hidden reasoning are excluded. Migration 0066 preserves every evidence kind. Fourteen focused unit/API/PostgreSQL tests passed. Live execution `01a039c5-4225-735e-b4f7-e7af5d4a5dbc` exported 13 trace records with digest `sha256:eced2443a98deae4cc15c372a09e72553cafa907b2e924f570919cbb0f347576`, and the uv CLI independently returned `verified: true`. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`evidence-bundles.md`](../../docs/operations/evidence-bundles.md), [`evidence-bundle-v1.json`](../../schemas/evidence-bundle-v1.json), [`test_evidence_bundle.py`](../../tests/test_evidence_bundle.py), and [`test_evidence_bundle_repository.py`](../../tests/adapters/postgres/test_evidence_bundle_repository.py).\n\n## Explicit non-goals\n\n- Persisting or displaying private chain-of-thought\n- Defining a domain-specific decision or citation schema\n\n## Non-functional requirements\n\n- [ ] No epic-specific NFR is mapped yet; general security, maintainability and test gates still apply.\n\n## Dependencies\n\n- EPIC-407\n- EPIC-602\n- EPIC-808\n- EPIC-811\n\n## Architecture impact\n\n- Primary bounded area: `observability`.\n- Public contracts introduced or changed must be versioned and documented.\n- Durable state changes must use the command/event/outbox model.\n- Tenant, authorization, audit, telemetry and failure behavior must be reviewed.\n\n## Verification plan\n\n- Canonical ordering, digest and schema contract tests.\n- Large-record externalization and integrity-corruption integration tests.\n- Authorization, tenant-isolation and secret-redaction tests.\n- Restart-stability tests plus REST, CLI and SDK retrieval smoke tests.\n- Add requirement-to-test evidence links before changing any requirement to Verified.\n- Add failure, duplicate, restart and authorization scenarios where applicable.\n\n## Definition of done\n\n- [x] The evidence schema is versioned and its compatibility policy is documented.\n- [x] A reference execution with agents and tools exports and verifies end to end.\n- [x] TESTLOG records bundle size limits, digest evidence and negative cases.\n- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.\n- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.\n- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.\n- [x] Security, tenant isolation, redaction and audit behavior are reviewed.\n- [x] Documentation, examples, migration notes and operational runbooks are updated.\n- [x] Performance and recovery budgets are measured when this epic is on a critical path.\n- [x] `python scripts/validate_backlog.py` passes.\n\n## Risks and unknowns\n\n- Unbounded evidence responses can make successful large runs impossible to inspect.\n- Raw provider or tool records can disclose credentials or sensitive reasoning.\n\n## Traceability\n\n- Functional requirements: none\n- Non-functional requirements: none specifically mapped\n- Source scope: AMESH quality and architecture requirement\n",
+      "state": "done"
+    },
+    {
+      "id": "EPIC-813",
+      "title": "Pluggable model-provider capabilities and conformance",
+      "milestone": "M8",
+      "wave": 8,
+      "domain": "differentiation",
+      "persona": "AI workflow developer",
+      "goal": "Run bounded agents against replaceable model providers whose capabilities, continuation state, timeouts, usage and cost semantics are negotiated and tested before provider I/O.",
+      "implementation_progress": [
+        "2026-08-26 — EPIC-813 is complete. A provider-neutral registry pins exact provider revisions and negotiates structured output, tools, reasoning continuation, timeout, retry and cancellation capabilities before network I/O. Usage and billed-cost normalization preserve unavailable and unpriced states; hard budgets fail closed; ambiguous outcomes are not repeated; opaque continuation state is application-encrypted with rotatable Fernet keys and tenant-scoped durable storage. Seventeen model-provider/task tests passed against two independently implemented fixtures, strict mypy passed, and the live OpenRouter smoke returned content, usage and billed cost from exact model `openai/gpt-5.6-luna`. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`add-model-provider.md`](../../docs/how-to/add-model-provider.md), [`057-application-encrypted-model-continuations.md`](../../docs/adr/057-application-encrypted-model-continuations.md), [`test_model_provider_registry.py`](../../tests/model_providers/test_model_provider_registry.py), and [`test_openrouter_smoke.py`](../../tests/llm/test_openrouter_smoke.py)."
+      ],
+      "priority": "Must",
+      "dependencies": [
+        "EPIC-312",
+        "EPIC-807",
+        "EPIC-808"
+      ],
+      "acceptance_criteria": [
+        "A versioned ModelProvider registry declares context, output, structured-output, tool, streaming, opaque-continuation, timeout, cancellation, usage, cache, cost and retry capabilities.",
+        "Capability negotiation rejects incompatible requests before external I/O and pins the exact provider revision used.",
+        "OpenAI-compatible transport remains one implementation and independently trusted adapters can register without changing workflow semantics.",
+        "Opaque reasoning continuation data round-trips for supported providers without exposing hidden rationale to users or logs.",
+        "Usage and cost normalize to billed, unpriced or unavailable states and hard budgets fail closed when required cost data is absent.",
+        "Conformance covers large responses, malformed structured output, tool turns, timeout, retry, cancellation and ambiguous outcomes.",
+        "Environment-gated live checks use OpenRouter with `openai/gpt-5.6-luna`; a DeepSeek-compatible fixture proves large-output and continuation semantics without making DeepSeek a core dependency."
+      ],
+      "verification_plan": [
+        "Provider registry, capability negotiation and immutable-revision unit tests",
+        "Provider conformance fixture suite for structured output, tools, continuation, usage, timeout and ambiguous outcomes",
+        "Large-response and budget fail-closed tests",
+        "Environment-gated OpenRouter Luna smoke test"
+      ],
+      "definition_of_done": [
+        "At least two provider registrations pass the neutral conformance suite.",
+        "Agent resource and session traces expose pinned capabilities and normalized usage without provider secrets.",
+        "Provider authoring and conformance documentation is runnable with uv."
+      ],
+      "risks": [
+        "Provider-specific request features can leak into durable workflow contracts.",
+        "Missing or incompatible cost telemetry can silently defeat hard budgets."
+      ],
+      "non_goals": [
+        "Making DeepSeek or OpenRouter mandatory for AMESH",
+        "Persisting user-visible hidden chain-of-thought"
+      ],
+      "labels": [
+        "type:epic",
+        "priority:must",
+        "area:agents",
+        "area:plugins",
+        "area:reliability",
+        "difference:intentional"
+      ],
+      "requirement_ids": [],
+      "nfr_ids": [],
+      "body_file": "backlog/epics/epic-813-pluggable-model-provider-capabilities-and-conformance.md",
+      "body": "# EPIC-813 — Pluggable model-provider capabilities and conformance\n\n- **Milestone:** M8 — Differentiation and general availability\n- **Priority:** Must\n- **Domain:** `differentiation`\n- **Primary persona:** AI workflow developer\n- **Parity scope:** AMESH quality and architecture requirement\n\n## Outcome\n\nRun bounded agents against replaceable model providers whose capabilities, continuation state, timeouts, usage and cost semantics are negotiated and tested before provider I/O.\n\n## In scope\n\n- [x] A versioned ModelProvider registry declares context, output, structured-output, tool, streaming, opaque-continuation, timeout, cancellation, usage, cache, cost and retry capabilities.\n- [x] Capability negotiation rejects incompatible requests before external I/O and pins the exact provider revision used.\n- [x] OpenAI-compatible transport remains one implementation and independently trusted adapters can register without changing workflow semantics.\n- [x] Opaque reasoning continuation data round-trips for supported providers without exposing hidden rationale to users or logs.\n- [x] Usage and cost normalize to billed, unpriced or unavailable states and hard budgets fail closed when required cost data is absent.\n- [x] Conformance covers large responses, malformed structured output, tool turns, timeout, retry, cancellation and ambiguous outcomes.\n- [x] Environment-gated live checks use OpenRouter with `openai/gpt-5.6-luna`; a DeepSeek-compatible fixture proves large-output and continuation semantics without making DeepSeek a core dependency.\n\n## Implementation completion evidence\n\n- 2026-08-26 — EPIC-813 is complete. A provider-neutral registry pins exact provider revisions and negotiates structured output, tools, reasoning continuation, timeout, retry and cancellation capabilities before network I/O. Usage and billed-cost normalization preserve unavailable and unpriced states; hard budgets fail closed; ambiguous outcomes are not repeated; opaque continuation state is application-encrypted with rotatable Fernet keys and tenant-scoped durable storage. Seventeen model-provider/task tests passed against two independently implemented fixtures, strict mypy passed, and the live OpenRouter smoke returned content, usage and billed cost from exact model `openai/gpt-5.6-luna`. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`add-model-provider.md`](../../docs/how-to/add-model-provider.md), [`057-application-encrypted-model-continuations.md`](../../docs/adr/057-application-encrypted-model-continuations.md), [`test_model_provider_registry.py`](../../tests/model_providers/test_model_provider_registry.py), and [`test_openrouter_smoke.py`](../../tests/llm/test_openrouter_smoke.py).\n\n## Explicit non-goals\n\n- Making DeepSeek or OpenRouter mandatory for AMESH\n- Persisting user-visible hidden chain-of-thought\n\n## Non-functional requirements\n\n- [ ] No epic-specific NFR is mapped yet; general security, maintainability and test gates still apply.\n\n## Dependencies\n\n- EPIC-312\n- EPIC-807\n- EPIC-808\n\n## Architecture impact\n\n- Primary bounded area: `differentiation`.\n- Public contracts introduced or changed must be versioned and documented.\n- Durable state changes must use the command/event/outbox model.\n- Tenant, authorization, audit, telemetry and failure behavior must be reviewed.\n\n## Verification plan\n\n- Provider registry, capability negotiation and immutable-revision unit tests.\n- Provider conformance fixture suite for structured output, tools, continuation, usage, timeout and ambiguous outcomes.\n- Large-response and budget fail-closed tests.\n- Environment-gated OpenRouter Luna smoke test.\n- Add requirement-to-test evidence links before changing any requirement to Verified.\n- Add failure, duplicate, restart and authorization scenarios where applicable.\n\n## Definition of done\n\n- [x] At least two provider registrations pass the neutral conformance suite.\n- [x] Agent resource and session traces expose pinned capabilities and normalized usage without provider secrets.\n- [x] Provider authoring and conformance documentation is runnable with uv.\n- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.\n- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.\n- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.\n- [x] Security, tenant isolation, redaction and audit behavior are reviewed.\n- [x] Documentation, examples, migration notes and operational runbooks are updated.\n- [x] Performance and recovery budgets are measured when this epic is on a critical path.\n- [x] `python scripts/validate_backlog.py` passes.\n\n## Risks and unknowns\n\n- Provider-specific request features can leak into durable workflow contracts.\n- Missing or incompatible cost telemetry can silently defeat hard budgets.\n\n## Traceability\n\n- Functional requirements: none\n- Non-functional requirements: none specifically mapped\n- Source scope: AMESH quality and architecture requirement\n",
+      "state": "done"
+    },
+    {
+      "id": "EPIC-814",
+      "title": "Unified MCP and plugin ToolProvider contract",
+      "milestone": "M8",
+      "wave": 8,
+      "domain": "plugins",
+      "persona": "Plugin developer",
+      "goal": "Let MCP servers and installable plugins supply tools through one pinned policy, schema, invocation and recovery boundary without embedding domain integrations in core.",
+      "implementation_progress": [
+        "2026-08-26 — EPIC-814 is complete. MCP connections and isolated installable plugins now implement one pinned `ToolProvider` discovery, JSON-schema, policy, redaction, timeout, cancellation and restart-recovery contract. Migration 0062 supplies a tenant-RLS durable invocation journal with stable ownership and explicit ambiguous external-outcome handling; certification docs and a neutral example plugin show how clients add domain tools without changing core. The shared conformance suite passed both actual adapters locally and against PostgreSQL, including discovery identity, schema denial, secret redaction, accepted-result reuse and restart ambiguity; Ruff and strict mypy passed. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`tool-provider.md`](../../docs/reference/tool-provider.md), [`implement-tool-provider.md`](../../docs/how-to/implement-tool-provider.md), [`neutral-tool-provider.py`](../../examples/plugin-sdk/neutral-tool-provider.py), and [`test_tool_provider_conformance.py`](../../tests/conformance/test_tool_provider_conformance.py)."
+      ],
+      "priority": "Must",
+      "dependencies": [
+        "EPIC-301",
+        "EPIC-312",
+        "EPIC-807",
+        "EPIC-808"
+      ],
+      "acceptance_criteria": [
+        "A neutral ToolProvider port defines identity, input/output schemas, impact, secrets, egress, filesystem and invocation semantics.",
+        "The existing MCP adapter implements the port without changing its external semantics.",
+        "Plugin tool entry points execute through isolated RPC, policy checks and the durable invocation journal.",
+        "Agent definitions pin provider kind, key, revision, tool name and schema digest; existing MCP-only references migrate compatibly.",
+        "Discovery, allowlisting, high-impact approval, schema validation, timeout, cancellation, restart reuse and ambiguous-outcome rules are identical across providers.",
+        "A neutral example plugin tool and certification suite prove extensibility without adding a domain connector to core."
+      ],
+      "verification_plan": [
+        "ToolProvider contract and MCP compatibility tests",
+        "Plugin isolated-RPC discovery and invocation integration tests",
+        "Policy, schema, timeout, cancellation, restart and ambiguous-outcome conformance tests",
+        "Neutral example plugin certification test"
+      ],
+      "definition_of_done": [
+        "MCP and plugin tools pass one provider-neutral certification suite.",
+        "Existing MCP agent definitions have a documented compatibility path.",
+        "Plugin authors can implement and test a tool without modifying AMESH core."
+      ],
+      "risks": [
+        "A plugin tool path can accidentally bypass the policy and invocation journal used by MCP.",
+        "Provider-specific identity can make exact agent capability pins non-portable."
+      ],
+      "non_goals": [
+        "Shipping news, market-data, broker or other use-case-specific tools",
+        "Allowing in-process plugin code to bypass isolation"
+      ],
+      "labels": [
+        "type:epic",
+        "priority:must",
+        "area:plugins",
+        "area:agents",
+        "area:security",
+        "difference:intentional"
+      ],
+      "requirement_ids": [],
+      "nfr_ids": [],
+      "body_file": "backlog/epics/epic-814-unified-mcp-and-plugin-tool-provider-contract.md",
+      "body": "# EPIC-814 — Unified MCP and plugin ToolProvider contract\n\n- **Milestone:** M8 — Differentiation and general availability\n- **Priority:** Must\n- **Domain:** `plugins`\n- **Primary persona:** Plugin developer\n- **Parity scope:** AMESH quality and architecture requirement\n\n## Outcome\n\nLet MCP servers and installable plugins supply tools through one pinned policy, schema, invocation and recovery boundary without embedding domain integrations in core.\n\n## In scope\n\n- [x] A neutral ToolProvider port defines identity, input/output schemas, impact, secrets, egress, filesystem and invocation semantics.\n- [x] The existing MCP adapter implements the port without changing its external semantics.\n- [x] Plugin tool entry points execute through isolated RPC, policy checks and the durable invocation journal.\n- [x] Agent definitions pin provider kind, key, revision, tool name and schema digest; existing MCP-only references migrate compatibly.\n- [x] Discovery, allowlisting, high-impact approval, schema validation, timeout, cancellation, restart reuse and ambiguous-outcome rules are identical across providers.\n- [x] A neutral example plugin tool and certification suite prove extensibility without adding a domain connector to core.\n\n## Implementation completion evidence\n\n- 2026-08-26 — EPIC-814 is complete. MCP connections and isolated installable plugins now implement one pinned `ToolProvider` discovery, JSON-schema, policy, redaction, timeout, cancellation and restart-recovery contract. Migration 0062 supplies a tenant-RLS durable invocation journal with stable ownership and explicit ambiguous external-outcome handling; certification docs and a neutral example plugin show how clients add domain tools without changing core. The shared conformance suite passed both actual adapters locally and against PostgreSQL, including discovery identity, schema denial, secret redaction, accepted-result reuse and restart ambiguity; Ruff and strict mypy passed. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`tool-provider.md`](../../docs/reference/tool-provider.md), [`implement-tool-provider.md`](../../docs/how-to/implement-tool-provider.md), [`neutral-tool-provider.py`](../../examples/plugin-sdk/neutral-tool-provider.py), and [`test_tool_provider_conformance.py`](../../tests/conformance/test_tool_provider_conformance.py).\n\n## Explicit non-goals\n\n- Shipping news, market-data, broker or other use-case-specific tools\n- Allowing in-process plugin code to bypass isolation\n\n## Non-functional requirements\n\n- [ ] No epic-specific NFR is mapped yet; general security, maintainability and test gates still apply.\n\n## Dependencies\n\n- EPIC-301\n- EPIC-312\n- EPIC-807\n- EPIC-808\n\n## Architecture impact\n\n- Primary bounded area: `plugins`.\n- Public contracts introduced or changed must be versioned and documented.\n- Durable state changes must use the command/event/outbox model.\n- Tenant, authorization, audit, telemetry and failure behavior must be reviewed.\n\n## Verification plan\n\n- ToolProvider contract and MCP compatibility tests.\n- Plugin isolated-RPC discovery and invocation integration tests.\n- Policy, schema, timeout, cancellation, restart and ambiguous-outcome conformance tests.\n- Neutral example plugin certification test.\n- Add requirement-to-test evidence links before changing any requirement to Verified.\n- Add failure, duplicate, restart and authorization scenarios where applicable.\n\n## Definition of done\n\n- [x] MCP and plugin tools pass one provider-neutral certification suite.\n- [x] Existing MCP agent definitions have a documented compatibility path.\n- [x] Plugin authors can implement and test a tool without modifying AMESH core.\n- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.\n- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.\n- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.\n- [x] Security, tenant isolation, redaction and audit behavior are reviewed.\n- [x] Documentation, examples, migration notes and operational runbooks are updated.\n- [x] Performance and recovery budgets are measured when this epic is on a critical path.\n- [x] `python scripts/validate_backlog.py` passes.\n\n## Risks and unknowns\n\n- A plugin tool path can accidentally bypass the policy and invocation journal used by MCP.\n- Provider-specific identity can make exact agent capability pins non-portable.\n\n## Traceability\n\n- Functional requirements: none\n- Non-functional requirements: none specifically mapped\n- Source scope: AMESH quality and architecture requirement\n",
+      "state": "done"
+    },
+    {
+      "id": "EPIC-815",
+      "title": "Hardened client-driven local deployment profile",
+      "milestone": "M8",
+      "wave": 8,
+      "domain": "security",
+      "persona": "Operator",
+      "goal": "Provide a fail-closed local deployment profile that external clients can safely call without Docker authority, public exposure or unrelated domain credentials.",
+      "implementation_progress": [
+        "2026-08-26 — EPIC-815 is complete. The checked-in hardened Compose profile binds AMESH to loopback, removes Docker/socket authority and broker/OpenRouter credentials, requires real authentication, uses a password-free database URL plus a permission-restricted `PGPASSFILE` Docker secret, and fails preflight on unsafe exposure or inline secrets. Eight focused deployment tests and Ruff passed. A fresh isolated qualification on port 18016 applied migrations and preflight, completed a real authenticated workflow and evidence read, exposed no database port, mounted no Docker socket, and carried no broker or model-provider credential. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`compose.hardened.yaml`](../../compose.hardened.yaml), [`run-hardened-local-profile.md`](../../docs/how-to/run-hardened-local-profile.md), [`deployment_profile.py`](../../src/amesh/deployment_profile.py), and [`test_hardened_deployment.py`](../../tests/test_hardened_deployment.py)."
+      ],
+      "priority": "Must",
+      "dependencies": [
+        "EPIC-403",
+        "EPIC-510",
+        "EPIC-612",
+        "EPIC-810",
+        "EPIC-811"
+      ],
+      "acceptance_criteria": [
+        "The hardened profile binds client-facing services to loopback and keeps internal roles on private networks with explicit enabled-role declarations.",
+        "The Docker runner and Docker socket are absent; the scheduler is enabled or explicitly disabled with truthful health semantics.",
+        "Real authentication and scoped service accounts protect every client operation.",
+        "Secrets are references, outbound egress is allowlisted, and private-host access is denied unless explicitly authorized.",
+        "Preflight rejects public binds, development auth, Docker sockets, default credentials, unexpected secrets and missing required roles.",
+        "Compose, uv-based setup, authentication and run smoke tests pass without domain or broker credentials."
+      ],
+      "verification_plan": [
+        "Hardened-profile configuration and fail-closed preflight tests",
+        "Compose configuration assertions for loopback binds, private networks and absent Docker socket",
+        "Authentication, service-account scope and egress policy tests",
+        "Live local authenticated launch and evidence-retrieval smoke test"
+      ],
+      "definition_of_done": [
+        "A checked-in hardened Compose profile starts with documented secret injection and no development credentials.",
+        "Negative preflight fixtures fail before any service accepts client traffic.",
+        "The deployment runbook states the exact trust and exposure boundary."
+      ],
+      "risks": [
+        "Development defaults can be mistaken for a safe client deployment.",
+        "Container runtime authority or broad egress can turn a workflow tool into host compromise."
+      ],
+      "non_goals": [
+        "Storing client broker credentials in AMESH",
+        "Qualifying public internet or multi-region hosting"
+      ],
+      "labels": [
+        "type:epic",
+        "priority:must",
+        "area:security",
+        "area:operations",
+        "area:devops",
+        "difference:intentional"
+      ],
+      "requirement_ids": [],
+      "nfr_ids": [],
+      "body_file": "backlog/epics/epic-815-hardened-client-driven-local-deployment-profile.md",
+      "body": "# EPIC-815 — Hardened client-driven local deployment profile\n\n- **Milestone:** M8 — Differentiation and general availability\n- **Priority:** Must\n- **Domain:** `security`\n- **Primary persona:** Operator\n- **Parity scope:** AMESH quality and architecture requirement\n\n## Outcome\n\nProvide a fail-closed local deployment profile that external clients can safely call without Docker authority, public exposure or unrelated domain credentials.\n\n## In scope\n\n- [x] The hardened profile binds client-facing services to loopback and keeps internal roles on private networks with explicit enabled-role declarations.\n- [x] The Docker runner and Docker socket are absent; the scheduler is enabled or explicitly disabled with truthful health semantics.\n- [x] Real authentication and scoped service accounts protect every client operation.\n- [x] Secrets are references, outbound egress is allowlisted, and private-host access is denied unless explicitly authorized.\n- [x] Preflight rejects public binds, development auth, Docker sockets, default credentials, unexpected secrets and missing required roles.\n- [x] Compose, uv-based setup, authentication and run smoke tests pass without domain or broker credentials.\n\n## Implementation completion evidence\n\n- 2026-08-26 — EPIC-815 is complete. The checked-in hardened Compose profile binds AMESH to loopback, removes Docker/socket authority and broker/OpenRouter credentials, requires real authentication, uses a password-free database URL plus a permission-restricted `PGPASSFILE` Docker secret, and fails preflight on unsafe exposure or inline secrets. Eight focused deployment tests and Ruff passed. A fresh isolated qualification on port 18016 applied migrations and preflight, completed a real authenticated workflow and evidence read, exposed no database port, mounted no Docker socket, and carried no broker or model-provider credential. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`compose.hardened.yaml`](../../compose.hardened.yaml), [`run-hardened-local-profile.md`](../../docs/how-to/run-hardened-local-profile.md), [`deployment_profile.py`](../../src/amesh/deployment_profile.py), and [`test_hardened_deployment.py`](../../tests/test_hardened_deployment.py).\n\n## Explicit non-goals\n\n- Storing client broker credentials in AMESH\n- Qualifying public internet or multi-region hosting\n\n## Non-functional requirements\n\n- [ ] No epic-specific NFR is mapped yet; general security, maintainability and test gates still apply.\n\n## Dependencies\n\n- EPIC-403\n- EPIC-510\n- EPIC-612\n- EPIC-810\n- EPIC-811\n\n## Architecture impact\n\n- Primary bounded area: `security`.\n- Public contracts introduced or changed must be versioned and documented.\n- Durable state changes must use the command/event/outbox model.\n- Tenant, authorization, audit, telemetry and failure behavior must be reviewed.\n\n## Verification plan\n\n- Hardened-profile configuration and fail-closed preflight tests.\n- Compose configuration assertions for loopback binds, private networks and absent Docker socket.\n- Authentication, service-account scope and egress policy tests.\n- Live local authenticated launch and evidence-retrieval smoke test.\n- Add requirement-to-test evidence links before changing any requirement to Verified.\n- Add failure, duplicate, restart and authorization scenarios where applicable.\n\n## Definition of done\n\n- [x] A checked-in hardened Compose profile starts with documented secret injection and no development credentials.\n- [x] Negative preflight fixtures fail before any service accepts client traffic.\n- [x] The deployment runbook states the exact trust and exposure boundary.\n- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.\n- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.\n- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.\n- [x] Security, tenant isolation, redaction and audit behavior are reviewed.\n- [x] Documentation, examples, migration notes and operational runbooks are updated.\n- [x] Performance and recovery budgets are measured when this epic is on a critical path.\n- [x] `python scripts/validate_backlog.py` passes.\n\n## Risks and unknowns\n\n- Development defaults can be mistaken for a safe client deployment.\n- Container runtime authority or broad egress can turn a workflow tool into host compromise.\n\n## Traceability\n\n- Functional requirements: none\n- Non-functional requirements: none specifically mapped\n- Source scope: AMESH quality and architecture requirement\n",
+      "state": "done"
+    },
+    {
+      "id": "EPIC-816",
+      "title": "Restart, idempotency and large-record qualification",
+      "milestone": "M8",
+      "wave": 8,
+      "domain": "quality",
+      "persona": "Maintainer",
+      "goal": "Prove on isolated PostgreSQL and object storage that failures around schedules, agents, tools and evidence lose no accepted data and create no duplicate logical outcome.",
+      "implementation_progress": [
+        "2026-08-26 — EPIC-816 is complete. The documented uv qualification harness isolates its database and object store, exercises 40 before/after restart boundaries across scheduling, execution, model, tool, checkpoint and evidence persistence, and asserts fencing, stable idempotency, accepted-result reuse and explicit ambiguous outcomes. The machine-readable local report passed with zero lost accepted records, zero duplicate logical decisions and consistent evidence digests; a 1 MiB payload externalized with integrity verification and deliberate corruption was detected. Three focused qualification tests passed. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`run-restart-idempotency-qualification.md`](../../docs/how-to/run-restart-idempotency-qualification.md), [`qualify_restart_idempotency.py`](../../scripts/qualify_restart_idempotency.py), [`restart_qualification.py`](../../src/amesh/restart_qualification.py), and [`test_restart_qualification.py`](../../tests/test_restart_qualification.py)."
+      ],
+      "priority": "Must",
+      "dependencies": [
+        "EPIC-108",
+        "EPIC-810",
+        "EPIC-812",
+        "EPIC-813",
+        "EPIC-814",
+        "EPIC-815"
+      ],
+      "acceptance_criteria": [
+        "An isolated PostgreSQL and object-storage qualification harness never uses shared developer data.",
+        "A fault matrix restarts API, scheduler, executor and worker before and after occurrence, model call, tool call, checkpoint and final-output persistence boundaries.",
+        "Stable idempotency keys, accepted-result reuse, fencing and ambiguous-outcome behavior are asserted at every boundary.",
+        "Large payloads externalize with size limits and content-integrity verification.",
+        "Qualification produces zero lost accepted records, zero duplicate logical decisions and consistent evidence digests.",
+        "Commands, environment requirements, supported limits and evidence are reproducible from documentation."
+      ],
+      "verification_plan": [
+        "Isolated PostgreSQL and object-storage integration harness",
+        "Parameterized process-restart fault matrix across scheduler, execution, model, tool and evidence boundaries",
+        "Large-payload externalization and corruption tests",
+        "Machine-readable qualification report with loss, duplicate and digest assertions"
+      ],
+      "definition_of_done": [
+        "The complete fault matrix passes on the documented local profile.",
+        "Every ambiguous external-I/O case has an explicit non-duplication outcome.",
+        "Qualification artifacts and exact rerun commands are linked from TESTLOG."
+      ],
+      "risks": [
+        "In-memory fake repositories can hide transaction and restart failures.",
+        "Large provider outputs can exceed database, API or SDK limits after otherwise successful work."
+      ],
+      "non_goals": [
+        "Claiming multi-region high availability",
+        "Using a developer's long-lived database as a destructive fault-test target"
+      ],
+      "labels": [
+        "type:epic",
+        "priority:must",
+        "area:quality",
+        "area:reliability",
+        "area:storage",
+        "difference:intentional"
+      ],
+      "requirement_ids": [],
+      "nfr_ids": [],
+      "body_file": "backlog/epics/epic-816-restart-idempotency-and-large-record-qualification.md",
+      "body": "# EPIC-816 — Restart, idempotency and large-record qualification\n\n- **Milestone:** M8 — Differentiation and general availability\n- **Priority:** Must\n- **Domain:** `quality`\n- **Primary persona:** Maintainer\n- **Parity scope:** AMESH quality and architecture requirement\n\n## Outcome\n\nProve on isolated PostgreSQL and object storage that failures around schedules, agents, tools and evidence lose no accepted data and create no duplicate logical outcome.\n\n## In scope\n\n- [x] An isolated PostgreSQL and object-storage qualification harness never uses shared developer data.\n- [x] A fault matrix restarts API, scheduler, executor and worker before and after occurrence, model call, tool call, checkpoint and final-output persistence boundaries.\n- [x] Stable idempotency keys, accepted-result reuse, fencing and ambiguous-outcome behavior are asserted at every boundary.\n- [x] Large payloads externalize with size limits and content-integrity verification.\n- [x] Qualification produces zero lost accepted records, zero duplicate logical decisions and consistent evidence digests.\n- [x] Commands, environment requirements, supported limits and evidence are reproducible from documentation.\n\n## Implementation completion evidence\n\n- 2026-08-26 — EPIC-816 is complete. The documented uv qualification harness isolates its database and object store, exercises 40 before/after restart boundaries across scheduling, execution, model, tool, checkpoint and evidence persistence, and asserts fencing, stable idempotency, accepted-result reuse and explicit ambiguous outcomes. The machine-readable local report passed with zero lost accepted records, zero duplicate logical decisions and consistent evidence digests; a 1 MiB payload externalized with integrity verification and deliberate corruption was detected. Three focused qualification tests passed. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`run-restart-idempotency-qualification.md`](../../docs/how-to/run-restart-idempotency-qualification.md), [`qualify_restart_idempotency.py`](../../scripts/qualify_restart_idempotency.py), [`restart_qualification.py`](../../src/amesh/restart_qualification.py), and [`test_restart_qualification.py`](../../tests/test_restart_qualification.py).\n\n## Explicit non-goals\n\n- Claiming multi-region high availability\n- Using a developer's long-lived database as a destructive fault-test target\n\n## Non-functional requirements\n\n- [ ] No epic-specific NFR is mapped yet; general security, maintainability and test gates still apply.\n\n## Dependencies\n\n- EPIC-108\n- EPIC-810\n- EPIC-812\n- EPIC-813\n- EPIC-814\n- EPIC-815\n\n## Architecture impact\n\n- Primary bounded area: `quality`.\n- Public contracts introduced or changed must be versioned and documented.\n- Durable state changes must use the command/event/outbox model.\n- Tenant, authorization, audit, telemetry and failure behavior must be reviewed.\n\n## Verification plan\n\n- Isolated PostgreSQL and object-storage integration harness.\n- Parameterized process-restart fault matrix across scheduler, execution, model, tool and evidence boundaries.\n- Large-payload externalization and corruption tests.\n- Machine-readable qualification report with loss, duplicate and digest assertions.\n- Add requirement-to-test evidence links before changing any requirement to Verified.\n- Add failure, duplicate, restart and authorization scenarios where applicable.\n\n## Definition of done\n\n- [x] The complete fault matrix passes on the documented local profile.\n- [x] Every ambiguous external-I/O case has an explicit non-duplication outcome.\n- [x] Qualification artifacts and exact rerun commands are linked from TESTLOG.\n- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.\n- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.\n- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.\n- [x] Security, tenant isolation, redaction and audit behavior are reviewed.\n- [x] Documentation, examples, migration notes and operational runbooks are updated.\n- [x] Performance and recovery budgets are measured when this epic is on a critical path.\n- [x] `python scripts/validate_backlog.py` passes.\n\n## Risks and unknowns\n\n- In-memory fake repositories can hide transaction and restart failures.\n- Large provider outputs can exceed database, API or SDK limits after otherwise successful work.\n\n## Traceability\n\n- Functional requirements: none\n- Non-functional requirements: none specifically mapped\n- Source scope: AMESH quality and architecture requirement\n",
+      "state": "done"
+    },
+    {
+      "id": "EPIC-817",
+      "title": "Generic differential and shadow execution",
+      "milestone": "M8",
+      "wave": 8,
+      "domain": "quality",
+      "persona": "AI workflow developer",
+      "goal": "Compare two exact workflow or agent configurations on frozen inputs without permitting uncontrolled side effects or pretending nondeterministic outputs must be byte-identical.",
+      "implementation_progress": [
+        "2026-08-26 — EPIC-817 is complete. The durable differential service pins two exact configurations, frozen inputs, certified fixtures and comparison policy; independently claims and records each side; denies uncontrolled effects; and reports deterministic failures, tolerated differences and nondeterministic observations across schema, chronology, evidence, usage, cost and latency. REST, CLI and SDK operations are authorized, tenant-scoped and idempotent. Focused unit/API/CLI/PostgreSQL tests passed. Live Compose spec `561a6327-631e-4c1e-8341-8e61cebad3bc` produced independent runs `01a039cb-1c7a-7d12-9f46-5902b9e468f1` and `01a039cb-1c8f-7681-abf1-cd2240845e23` with zero deterministic failures and returned the identical durable report after an API restart. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`run-differential-shadow.md`](../../docs/how-to/run-differential-shadow.md), [`differential.py`](../../src/amesh/quality/differential.py), [`durable.py`](../../src/amesh/quality/durable.py), and [`test_differential_repository.py`](../../tests/quality/test_differential_repository.py)."
+      ],
+      "priority": "Must",
+      "dependencies": [
+        "EPIC-704",
+        "EPIC-812",
+        "EPIC-813",
+        "EPIC-814",
+        "EPIC-816"
+      ],
+      "acceptance_criteria": [
+        "A differential specification pins two exact configurations, frozen inputs, safe fixtures and comparison policy.",
+        "Shadow runs deny external side effects unless a certified safe fixture or recording is selected.",
+        "Each side retains independent lineage while comparison covers schema, deterministic assertions, task/tool chronology, evidence, usage, cost, latency and configured tolerances.",
+        "Comparator extensions are provider- and domain-neutral; a deterministic structural comparator ships in core.",
+        "REST, CLI and SDK operations are authorized, tenant-isolated and idempotent.",
+        "Tests distinguish expected model nondeterminism from contract, policy and evidence regressions."
+      ],
+      "verification_plan": [
+        "Differential specification and structural comparator unit tests",
+        "Side-effect-denial and certified-fixture policy tests",
+        "Independent-lineage, tolerance, usage, cost and evidence comparison integration tests",
+        "REST, CLI and SDK idempotency smoke tests"
+      ],
+      "definition_of_done": [
+        "A neutral two-configuration shadow scenario runs end to end with zero uncontrolled effects.",
+        "The report separates deterministic failures, tolerated differences and nondeterministic observations.",
+        "Extension and operator documentation explains frozen-input and safety requirements."
+      ],
+      "risks": [
+        "A shadow run can accidentally duplicate real external effects.",
+        "Byte-level comparison can misclassify valid nondeterministic model variation as failure."
+      ],
+      "non_goals": [
+        "Encoding VibeStonks parity rules in AMESH",
+        "Automatically promoting the shadow candidate"
+      ],
+      "labels": [
+        "type:epic",
+        "priority:must",
+        "area:quality",
+        "area:agents",
+        "area:observability",
+        "difference:intentional"
+      ],
+      "requirement_ids": [],
+      "nfr_ids": [],
+      "body_file": "backlog/epics/epic-817-generic-differential-and-shadow-execution.md",
+      "body": "# EPIC-817 — Generic differential and shadow execution\n\n- **Milestone:** M8 — Differentiation and general availability\n- **Priority:** Must\n- **Domain:** `quality`\n- **Primary persona:** AI workflow developer\n- **Parity scope:** AMESH quality and architecture requirement\n\n## Outcome\n\nCompare two exact workflow or agent configurations on frozen inputs without permitting uncontrolled side effects or pretending nondeterministic outputs must be byte-identical.\n\n## In scope\n\n- [x] A differential specification pins two exact configurations, frozen inputs, safe fixtures and comparison policy.\n- [x] Shadow runs deny external side effects unless a certified safe fixture or recording is selected.\n- [x] Each side retains independent lineage while comparison covers schema, deterministic assertions, task/tool chronology, evidence, usage, cost, latency and configured tolerances.\n- [x] Comparator extensions are provider- and domain-neutral; a deterministic structural comparator ships in core.\n- [x] REST, CLI and SDK operations are authorized, tenant-isolated and idempotent.\n- [x] Tests distinguish expected model nondeterminism from contract, policy and evidence regressions.\n\n## Implementation completion evidence\n\n- 2026-08-26 — EPIC-817 is complete. The durable differential service pins two exact configurations, frozen inputs, certified fixtures and comparison policy; independently claims and records each side; denies uncontrolled effects; and reports deterministic failures, tolerated differences and nondeterministic observations across schema, chronology, evidence, usage, cost and latency. REST, CLI and SDK operations are authorized, tenant-scoped and idempotent. Focused unit/API/CLI/PostgreSQL tests passed. Live Compose spec `561a6327-631e-4c1e-8341-8e61cebad3bc` produced independent runs `01a039cb-1c7a-7d12-9f46-5902b9e468f1` and `01a039cb-1c8f-7681-abf1-cd2240845e23` with zero deterministic failures and returned the identical durable report after an API restart. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`run-differential-shadow.md`](../../docs/how-to/run-differential-shadow.md), [`differential.py`](../../src/amesh/quality/differential.py), [`durable.py`](../../src/amesh/quality/durable.py), and [`test_differential_repository.py`](../../tests/quality/test_differential_repository.py).\n\n## Explicit non-goals\n\n- Encoding VibeStonks parity rules in AMESH\n- Automatically promoting the shadow candidate\n\n## Non-functional requirements\n\n- [ ] No epic-specific NFR is mapped yet; general security, maintainability and test gates still apply.\n\n## Dependencies\n\n- EPIC-704\n- EPIC-812\n- EPIC-813\n- EPIC-814\n- EPIC-816\n\n## Architecture impact\n\n- Primary bounded area: `quality`.\n- Public contracts introduced or changed must be versioned and documented.\n- Durable state changes must use the command/event/outbox model.\n- Tenant, authorization, audit, telemetry and failure behavior must be reviewed.\n\n## Verification plan\n\n- Differential specification and structural comparator unit tests.\n- Side-effect-denial and certified-fixture policy tests.\n- Independent-lineage, tolerance, usage, cost and evidence comparison integration tests.\n- REST, CLI and SDK idempotency smoke tests.\n- Add requirement-to-test evidence links before changing any requirement to Verified.\n- Add failure, duplicate, restart and authorization scenarios where applicable.\n\n## Definition of done\n\n- [x] A neutral two-configuration shadow scenario runs end to end with zero uncontrolled effects.\n- [x] The report separates deterministic failures, tolerated differences and nondeterministic observations.\n- [x] Extension and operator documentation explains frozen-input and safety requirements.\n- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.\n- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.\n- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.\n- [x] Security, tenant isolation, redaction and audit behavior are reviewed.\n- [x] Documentation, examples, migration notes and operational runbooks are updated.\n- [x] Performance and recovery budgets are measured when this epic is on a critical path.\n- [x] `python scripts/validate_backlog.py` passes.\n\n## Risks and unknowns\n\n- A shadow run can accidentally duplicate real external effects.\n- Byte-level comparison can misclassify valid nondeterministic model variation as failure.\n\n## Traceability\n\n- Functional requirements: none\n- Non-functional requirements: none specifically mapped\n- Source scope: AMESH quality and architecture requirement\n",
+      "state": "done"
+    },
+    {
+      "id": "EPIC-818",
+      "title": "Evidence-backed promotion, rollback and release gates",
+      "milestone": "M8",
+      "wave": 8,
+      "domain": "governance",
+      "persona": "Release manager",
+      "goal": "Promote an exact workflow or agent revision only when its client-defined policy is satisfied by fresh immutable evidence, with auditable rollback and an immediate kill switch.",
+      "implementation_progress": [
+        "2026-08-26 — EPIC-818 is complete. Tenant-scoped immutable policies bind fresh evidence to exact configuration digests and enforce client-defined tests, health, budget and approval requirements; preview and apply use separate authorization, optimistic concurrency and immutable audit/outbox history. API, CLI and the `/releases` console support promotion, exact rollback and the immediate kill switch. Nine focused backend/UI-session tests, 23 frontend client tests, the production build and three Chromium Playwright scenarios passed, including view/manage permissions, accessibility and screenshot export. Live target `epic818-qual-f6003249d4d94572b640672f78112e2e` rejected missing evidence with HTTP 409, promoted revisions 1 then 2, rolled back to the exact revision-1 digest at version 3, and preserved `PROMOTE → PROMOTE → ROLLBACK` history after API restart. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`release-promotion.md`](../../docs/how-to/release-promotion.md), [`ReleaseControlsPage.tsx`](../../frontend/src/pages/ReleaseControlsPage.tsx), [`release-controls.spec.ts`](../../frontend/e2e/release-controls.spec.ts), and [`test_promotion_cli.py`](../../tests/test_promotion_cli.py)."
+      ],
+      "priority": "Must",
+      "dependencies": [
+        "EPIC-510",
+        "EPIC-705",
+        "EPIC-809",
+        "EPIC-817"
+      ],
+      "acceptance_criteria": [
+        "A promotion policy pins exact tests, assertions, differential results, health requirements, budgets and approval rules.",
+        "A tenant-scoped immutable gate binds fresh evidence to exact configuration digests and rejects stale or mismatched evidence.",
+        "Preview and apply are separately authorized, audited and protected by optimistic concurrency.",
+        "Rollback selects an exact prior revision, preserves history and supports an immediate policy kill switch.",
+        "Clients own thresholds and cutover decisions; AMESH supplies neutral evaluation and enforcement contracts.",
+        "API, CLI and UI paths preserve authorization and behavior across restart, and a live local smoke proves promote then rollback."
+      ],
+      "verification_plan": [
+        "Promotion policy, evidence freshness and digest-binding unit tests",
+        "Authorization, tenant-isolation, audit and optimistic-concurrency tests",
+        "Rollback history, restart and kill-switch integration tests",
+        "API, CLI, UI and live local promote/rollback smoke test"
+      ],
+      "definition_of_done": [
+        "No revision can be promoted with stale, incomplete or differently pinned evidence.",
+        "Promotion, rollback and kill-switch actions produce complete immutable audit evidence.",
+        "Client-neutral release-gate and recovery runbooks are verified end to end."
+      ],
+      "risks": [
+        "Stale qualification evidence can be incorrectly applied to a changed configuration.",
+        "Rollback without exact immutable history can create an untraceable mixed release."
+      ],
+      "non_goals": [
+        "Choosing domain-specific acceptance thresholds for clients",
+        "Executing a client's production cutover outside AMESH"
+      ],
+      "labels": [
+        "type:epic",
+        "priority:must",
+        "area:governance",
+        "area:quality",
+        "area:reliability",
+        "difference:intentional"
+      ],
+      "requirement_ids": [],
+      "nfr_ids": [],
+      "body_file": "backlog/epics/epic-818-evidence-backed-promotion-rollback-and-release-gates.md",
+      "body": "# EPIC-818 — Evidence-backed promotion, rollback and release gates\n\n- **Milestone:** M8 — Differentiation and general availability\n- **Priority:** Must\n- **Domain:** `governance`\n- **Primary persona:** Release manager\n- **Parity scope:** AMESH quality and architecture requirement\n\n## Outcome\n\nPromote an exact workflow or agent revision only when its client-defined policy is satisfied by fresh immutable evidence, with auditable rollback and an immediate kill switch.\n\n## In scope\n\n- [x] A promotion policy pins exact tests, assertions, differential results, health requirements, budgets and approval rules.\n- [x] A tenant-scoped immutable gate binds fresh evidence to exact configuration digests and rejects stale or mismatched evidence.\n- [x] Preview and apply are separately authorized, audited and protected by optimistic concurrency.\n- [x] Rollback selects an exact prior revision, preserves history and supports an immediate policy kill switch.\n- [x] Clients own thresholds and cutover decisions; AMESH supplies neutral evaluation and enforcement contracts.\n- [x] API, CLI and UI paths preserve authorization and behavior across restart, and a live local smoke proves promote then rollback.\n\n## Implementation completion evidence\n\n- 2026-08-26 — EPIC-818 is complete. Tenant-scoped immutable policies bind fresh evidence to exact configuration digests and enforce client-defined tests, health, budget and approval requirements; preview and apply use separate authorization, optimistic concurrency and immutable audit/outbox history. API, CLI and the `/releases` console support promotion, exact rollback and the immediate kill switch. Nine focused backend/UI-session tests, 23 frontend client tests, the production build and three Chromium Playwright scenarios passed, including view/manage permissions, accessibility and screenshot export. Live target `epic818-qual-f6003249d4d94572b640672f78112e2e` rejected missing evidence with HTTP 409, promoted revisions 1 then 2, rolled back to the exact revision-1 digest at version 3, and preserved `PROMOTE → PROMOTE → ROLLBACK` history after API restart. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`release-promotion.md`](../../docs/how-to/release-promotion.md), [`ReleaseControlsPage.tsx`](../../frontend/src/pages/ReleaseControlsPage.tsx), [`release-controls.spec.ts`](../../frontend/e2e/release-controls.spec.ts), and [`test_promotion_cli.py`](../../tests/test_promotion_cli.py).\n\n## Explicit non-goals\n\n- Choosing domain-specific acceptance thresholds for clients\n- Executing a client's production cutover outside AMESH\n\n## Non-functional requirements\n\n- [ ] No epic-specific NFR is mapped yet; general security, maintainability and test gates still apply.\n\n## Dependencies\n\n- EPIC-510\n- EPIC-705\n- EPIC-809\n- EPIC-817\n\n## Architecture impact\n\n- Primary bounded area: `governance`.\n- Public contracts introduced or changed must be versioned and documented.\n- Durable state changes must use the command/event/outbox model.\n- Tenant, authorization, audit, telemetry and failure behavior must be reviewed.\n\n## Verification plan\n\n- Promotion policy, evidence freshness and digest-binding unit tests.\n- Authorization, tenant-isolation, audit and optimistic-concurrency tests.\n- Rollback history, restart and kill-switch integration tests.\n- API, CLI, UI and live local promote/rollback smoke test.\n- Add requirement-to-test evidence links before changing any requirement to Verified.\n- Add failure, duplicate, restart and authorization scenarios where applicable.\n\n## Definition of done\n\n- [x] No revision can be promoted with stale, incomplete or differently pinned evidence.\n- [x] Promotion, rollback and kill-switch actions produce complete immutable audit evidence.\n- [x] Client-neutral release-gate and recovery runbooks are verified end to end.\n- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.\n- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.\n- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.\n- [x] Security, tenant isolation, redaction and audit behavior are reviewed.\n- [x] Documentation, examples, migration notes and operational runbooks are updated.\n- [x] Performance and recovery budgets are measured when this epic is on a critical path.\n- [x] `python scripts/validate_backlog.py` passes.\n\n## Risks and unknowns\n\n- Stale qualification evidence can be incorrectly applied to a changed configuration.\n- Rollback without exact immutable history can create an untraceable mixed release.\n\n## Traceability\n\n- Functional requirements: none\n- Non-functional requirements: none specifically mapped\n- Source scope: AMESH quality and architecture requirement\n",
       "state": "done"
     }
   ]

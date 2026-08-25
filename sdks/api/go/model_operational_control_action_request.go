@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the OperationalControlActionRequest type satisfies the MappedNullable interface at compile time
@@ -22,12 +22,12 @@ var _ MappedNullable = &OperationalControlActionRequest{}
 
 // OperationalControlActionRequest struct for OperationalControlActionRequest
 type OperationalControlActionRequest struct {
-	Action OperationalControlActionKind `json:"action"`
-	BypassUntil NullableTime `json:"bypassUntil,omitempty"`
-	ExpectedVersion int32 `json:"expectedVersion"`
-	ExpiresAt NullableTime `json:"expiresAt,omitempty"`
-	Reason string `json:"reason"`
-	ReviewAt NullableTime `json:"reviewAt,omitempty"`
+	Action          OperationalControlActionKind `json:"action"`
+	BypassUntil     NullableTime                 `json:"bypassUntil,omitempty"`
+	ExpectedVersion int32                        `json:"expectedVersion"`
+	ExpiresAt       NullableTime                 `json:"expiresAt,omitempty"`
+	Reason          string                       `json:"reason"`
+	ReviewAt        NullableTime                 `json:"reviewAt,omitempty"`
 }
 
 type _OperationalControlActionRequest OperationalControlActionRequest
@@ -108,6 +108,7 @@ func (o *OperationalControlActionRequest) HasBypassUntil() bool {
 func (o *OperationalControlActionRequest) SetBypassUntil(v time.Time) {
 	o.BypassUntil.Set(&v)
 }
+
 // SetBypassUntilNil sets the value for BypassUntil to be an explicit nil
 func (o *OperationalControlActionRequest) SetBypassUntilNil() {
 	o.BypassUntil.Set(nil)
@@ -174,6 +175,7 @@ func (o *OperationalControlActionRequest) HasExpiresAt() bool {
 func (o *OperationalControlActionRequest) SetExpiresAt(v time.Time) {
 	o.ExpiresAt.Set(&v)
 }
+
 // SetExpiresAtNil sets the value for ExpiresAt to be an explicit nil
 func (o *OperationalControlActionRequest) SetExpiresAtNil() {
 	o.ExpiresAt.Set(nil)
@@ -240,6 +242,7 @@ func (o *OperationalControlActionRequest) HasReviewAt() bool {
 func (o *OperationalControlActionRequest) SetReviewAt(v time.Time) {
 	o.ReviewAt.Set(&v)
 }
+
 // SetReviewAtNil sets the value for ReviewAt to be an explicit nil
 func (o *OperationalControlActionRequest) SetReviewAtNil() {
 	o.ReviewAt.Set(nil)
@@ -251,7 +254,7 @@ func (o *OperationalControlActionRequest) UnsetReviewAt() {
 }
 
 func (o OperationalControlActionRequest) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -290,10 +293,10 @@ func (o *OperationalControlActionRequest) UnmarshalJSON(data []byte) (err error)
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

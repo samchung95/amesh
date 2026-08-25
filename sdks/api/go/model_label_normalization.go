@@ -20,7 +20,7 @@ type LabelNormalization string
 
 // List of LabelNormalization
 const (
-	LABELNORMALIZATION_TRIM LabelNormalization = "TRIM"
+	LABELNORMALIZATION_TRIM      LabelNormalization = "TRIM"
 	LABELNORMALIZATION_LOWERCASE LabelNormalization = "LOWERCASE"
 	LABELNORMALIZATION_UPPERCASE LabelNormalization = "UPPERCASE"
 )

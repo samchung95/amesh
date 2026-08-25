@@ -19,9 +19,9 @@ var _ MappedNullable = &KestraExecutionRequest{}
 
 // KestraExecutionRequest struct for KestraExecutionRequest
 type KestraExecutionRequest struct {
-	IdempotencyKey NullableString `json:"idempotencyKey,omitempty"`
-	Inputs map[string]interface{} `json:"inputs,omitempty"`
-	Runner *RunnerMode `json:"runner,omitempty"`
+	IdempotencyKey       NullableString         `json:"idempotencyKey,omitempty"`
+	Inputs               map[string]interface{} `json:"inputs,omitempty"`
+	Runner               *RunnerMode            `json:"runner,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -80,6 +80,7 @@ func (o *KestraExecutionRequest) HasIdempotencyKey() bool {
 func (o *KestraExecutionRequest) SetIdempotencyKey(v string) {
 	o.IdempotencyKey.Set(&v)
 }
+
 // SetIdempotencyKeyNil sets the value for IdempotencyKey to be an explicit nil
 func (o *KestraExecutionRequest) SetIdempotencyKeyNil() {
 	o.IdempotencyKey.Set(nil)
@@ -155,7 +156,7 @@ func (o *KestraExecutionRequest) SetRunner(v RunnerMode) {
 }
 
 func (o KestraExecutionRequest) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}

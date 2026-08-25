@@ -11,6 +11,7 @@ from amesh import worker
 from amesh.config import Settings
 from amesh.domain import (
     ExecutionState,
+    FlowLifecycle,
     OperationalBoundary,
     OperationalControlDecision,
     RunningWorkPolicy,
@@ -81,8 +82,16 @@ def test_scheduler_continues_after_one_flow_evaluation_fails(
         async def list_flows(self, *, tenant_id: str) -> list[object]:
             del tenant_id
             return [
-                SimpleNamespace(namespace="tests", flow_id="broken"),
-                SimpleNamespace(namespace="tests", flow_id="healthy"),
+                SimpleNamespace(
+                    namespace="tests",
+                    flow_id="broken",
+                    lifecycle=FlowLifecycle.ACTIVE,
+                ),
+                SimpleNamespace(
+                    namespace="tests",
+                    flow_id="healthy",
+                    lifecycle=FlowLifecycle.ACTIVE,
+                ),
             ]
 
         async def get_flow(self, namespace: str, flow_id: str, *, tenant_id: str) -> object:
@@ -111,16 +120,51 @@ def test_scheduler_continues_after_one_flow_evaluation_fails(
 
     monkeypatch.setattr(worker, "CronScheduler", Scheduler)
 
-    scheduled = asyncio.run(
-        worker.schedule_once(
-            ExecutionRepository(),  # type: ignore[arg-type]
-            SchedulerRepository(),  # type: ignore[arg-type]
-            tenant_ids=["default"],
-            scheduler_id=uuid4(),
+    with pytest.raises(worker.ScheduleCycleError) as caught:
+        asyncio.run(
+            worker.schedule_once(
+                ExecutionRepository(),  # type: ignore[arg-type]
+                SchedulerRepository(),  # type: ignore[arg-type]
+                tenant_ids=["default"],
+                scheduler_id=uuid4(),
+            )
         )
-    )
 
-    assert scheduled == 1
+    assert caught.value.scheduled == 1
+    assert len(caught.value.failures) == 1
+
+
+def test_scheduler_skips_disabled_flows() -> None:
+    class ExecutionRepository:
+        async def list_flows(self, *, tenant_id: str) -> list[object]:
+            del tenant_id
+            return [
+                SimpleNamespace(
+                    namespace="tests",
+                    flow_id="quarantined",
+                    lifecycle=FlowLifecycle.DISABLED,
+                )
+            ]
+
+        async def get_flow(self, *args: object, **kwargs: object) -> object:
+            del args, kwargs
+            raise AssertionError("disabled flow must not enter scheduler evaluation")
+
+    class SchedulerRepository:
+        async def database_time(self) -> datetime:
+            return datetime(2026, 8, 22, tzinfo=UTC)
+
+    assert (
+        asyncio.run(
+            worker.schedule_once(
+                ExecutionRepository(),  # type: ignore[arg-type]
+                SchedulerRepository(),  # type: ignore[arg-type]
+                tenant_ids=["default"],
+                scheduler_id=uuid4(),
+            )
+        )
+        == 0
+    )
 
 
 def test_periodic_reconciliation_skips_a_tenant_already_being_repaired(

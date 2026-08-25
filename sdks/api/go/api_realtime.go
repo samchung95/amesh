@@ -16,21 +16,20 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"strings"
 	"reflect"
+	"strings"
 )
-
 
 // RealtimeAPIService RealtimeAPI service
 type RealtimeAPIService service
 
 type ApiCreateWebhookSubscriptionApiV1WebhookSubscriptionsPostRequest struct {
-	ctx context.Context
-	ApiService *RealtimeAPIService
+	ctx                       context.Context
+	ApiService                *RealtimeAPIService
 	webhookSubscriptionCreate *WebhookSubscriptionCreate
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization             *string
+	xAmeshCSRF                *string
+	xAmeshTenant              *string
 }
 
 func (r ApiCreateWebhookSubscriptionApiV1WebhookSubscriptionsPostRequest) WebhookSubscriptionCreate(webhookSubscriptionCreate WebhookSubscriptionCreate) ApiCreateWebhookSubscriptionApiV1WebhookSubscriptionsPostRequest {
@@ -60,24 +59,25 @@ func (r ApiCreateWebhookSubscriptionApiV1WebhookSubscriptionsPostRequest) Execut
 /*
 CreateWebhookSubscriptionApiV1WebhookSubscriptionsPost Create Webhook Subscription
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiCreateWebhookSubscriptionApiV1WebhookSubscriptionsPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiCreateWebhookSubscriptionApiV1WebhookSubscriptionsPostRequest
 */
 func (a *RealtimeAPIService) CreateWebhookSubscriptionApiV1WebhookSubscriptionsPost(ctx context.Context) ApiCreateWebhookSubscriptionApiV1WebhookSubscriptionsPostRequest {
 	return ApiCreateWebhookSubscriptionApiV1WebhookSubscriptionsPostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return ProvisionedWebhookSubscription
+//
+//	@return ProvisionedWebhookSubscription
 func (a *RealtimeAPIService) CreateWebhookSubscriptionApiV1WebhookSubscriptionsPostExecute(r ApiCreateWebhookSubscriptionApiV1WebhookSubscriptionsPostRequest) (*ProvisionedWebhookSubscription, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *ProvisionedWebhookSubscription
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *ProvisionedWebhookSubscription
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "RealtimeAPIService.CreateWebhookSubscriptionApiV1WebhookSubscriptionsPost")
@@ -151,8 +151,8 @@ func (a *RealtimeAPIService) CreateWebhookSubscriptionApiV1WebhookSubscriptionsP
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -170,19 +170,19 @@ func (a *RealtimeAPIService) CreateWebhookSubscriptionApiV1WebhookSubscriptionsP
 }
 
 type ApiListRealtimeEventsApiV1RealtimeEventsGetRequest struct {
-	ctx context.Context
-	ApiService *RealtimeAPIService
-	cursor *string
-	namespace *string
-	flowId *string
-	executionId *string
-	eventType *[]string
-	severity *[]RealtimeSeverity
-	includeAudit *bool
-	limit *int32
+	ctx           context.Context
+	ApiService    *RealtimeAPIService
+	cursor        *string
+	namespace     *string
+	flowId        *string
+	executionId   *string
+	eventType     *[]string
+	severity      *[]RealtimeSeverity
+	includeAudit  *bool
+	limit         *int32
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 // Opaque reconnect cursor
@@ -248,24 +248,25 @@ func (r ApiListRealtimeEventsApiV1RealtimeEventsGetRequest) Execute() (*Realtime
 /*
 ListRealtimeEventsApiV1RealtimeEventsGet List Realtime Events
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiListRealtimeEventsApiV1RealtimeEventsGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiListRealtimeEventsApiV1RealtimeEventsGetRequest
 */
 func (a *RealtimeAPIService) ListRealtimeEventsApiV1RealtimeEventsGet(ctx context.Context) ApiListRealtimeEventsApiV1RealtimeEventsGetRequest {
 	return ApiListRealtimeEventsApiV1RealtimeEventsGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return RealtimeEventPage
+//
+//	@return RealtimeEventPage
 func (a *RealtimeAPIService) ListRealtimeEventsApiV1RealtimeEventsGetExecute(r ApiListRealtimeEventsApiV1RealtimeEventsGetRequest) (*RealtimeEventPage, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *RealtimeEventPage
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *RealtimeEventPage
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "RealtimeAPIService.ListRealtimeEventsApiV1RealtimeEventsGet")
@@ -382,8 +383,8 @@ func (a *RealtimeAPIService) ListRealtimeEventsApiV1RealtimeEventsGetExecute(r A
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -401,13 +402,13 @@ func (a *RealtimeAPIService) ListRealtimeEventsApiV1RealtimeEventsGetExecute(r A
 }
 
 type ApiListWebhookDeliveryHistoryApiV1WebhookSubscriptionsSubscriptionIdDeliveriesGetRequest struct {
-	ctx context.Context
-	ApiService *RealtimeAPIService
+	ctx            context.Context
+	ApiService     *RealtimeAPIService
 	subscriptionId string
-	limit *int32
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	limit          *int32
+	authorization  *string
+	xAmeshCSRF     *string
+	xAmeshTenant   *string
 }
 
 func (r ApiListWebhookDeliveryHistoryApiV1WebhookSubscriptionsSubscriptionIdDeliveriesGetRequest) Limit(limit int32) ApiListWebhookDeliveryHistoryApiV1WebhookSubscriptionsSubscriptionIdDeliveriesGetRequest {
@@ -437,26 +438,27 @@ func (r ApiListWebhookDeliveryHistoryApiV1WebhookSubscriptionsSubscriptionIdDeli
 /*
 ListWebhookDeliveryHistoryApiV1WebhookSubscriptionsSubscriptionIdDeliveriesGet List Webhook Delivery History
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param subscriptionId
- @return ApiListWebhookDeliveryHistoryApiV1WebhookSubscriptionsSubscriptionIdDeliveriesGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param subscriptionId
+	@return ApiListWebhookDeliveryHistoryApiV1WebhookSubscriptionsSubscriptionIdDeliveriesGetRequest
 */
 func (a *RealtimeAPIService) ListWebhookDeliveryHistoryApiV1WebhookSubscriptionsSubscriptionIdDeliveriesGet(ctx context.Context, subscriptionId string) ApiListWebhookDeliveryHistoryApiV1WebhookSubscriptionsSubscriptionIdDeliveriesGetRequest {
 	return ApiListWebhookDeliveryHistoryApiV1WebhookSubscriptionsSubscriptionIdDeliveriesGetRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:     a,
+		ctx:            ctx,
 		subscriptionId: subscriptionId,
 	}
 }
 
 // Execute executes the request
-//  @return []WebhookDeliveryHistory
+//
+//	@return []WebhookDeliveryHistory
 func (a *RealtimeAPIService) ListWebhookDeliveryHistoryApiV1WebhookSubscriptionsSubscriptionIdDeliveriesGetExecute(r ApiListWebhookDeliveryHistoryApiV1WebhookSubscriptionsSubscriptionIdDeliveriesGetRequest) ([]WebhookDeliveryHistory, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  []WebhookDeliveryHistory
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []WebhookDeliveryHistory
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "RealtimeAPIService.ListWebhookDeliveryHistoryApiV1WebhookSubscriptionsSubscriptionIdDeliveriesGet")
@@ -533,8 +535,8 @@ func (a *RealtimeAPIService) ListWebhookDeliveryHistoryApiV1WebhookSubscriptions
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -552,11 +554,11 @@ func (a *RealtimeAPIService) ListWebhookDeliveryHistoryApiV1WebhookSubscriptions
 }
 
 type ApiListWebhookSubscriptionsApiV1WebhookSubscriptionsGetRequest struct {
-	ctx context.Context
-	ApiService *RealtimeAPIService
+	ctx           context.Context
+	ApiService    *RealtimeAPIService
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiListWebhookSubscriptionsApiV1WebhookSubscriptionsGetRequest) Authorization(authorization string) ApiListWebhookSubscriptionsApiV1WebhookSubscriptionsGetRequest {
@@ -581,24 +583,25 @@ func (r ApiListWebhookSubscriptionsApiV1WebhookSubscriptionsGetRequest) Execute(
 /*
 ListWebhookSubscriptionsApiV1WebhookSubscriptionsGet List Webhook Subscriptions
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiListWebhookSubscriptionsApiV1WebhookSubscriptionsGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiListWebhookSubscriptionsApiV1WebhookSubscriptionsGetRequest
 */
 func (a *RealtimeAPIService) ListWebhookSubscriptionsApiV1WebhookSubscriptionsGet(ctx context.Context) ApiListWebhookSubscriptionsApiV1WebhookSubscriptionsGetRequest {
 	return ApiListWebhookSubscriptionsApiV1WebhookSubscriptionsGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return []WebhookSubscription
+//
+//	@return []WebhookSubscription
 func (a *RealtimeAPIService) ListWebhookSubscriptionsApiV1WebhookSubscriptionsGetExecute(r ApiListWebhookSubscriptionsApiV1WebhookSubscriptionsGetRequest) ([]WebhookSubscription, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  []WebhookSubscription
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []WebhookSubscription
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "RealtimeAPIService.ListWebhookSubscriptionsApiV1WebhookSubscriptionsGet")
@@ -667,8 +670,8 @@ func (a *RealtimeAPIService) ListWebhookSubscriptionsApiV1WebhookSubscriptionsGe
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -686,12 +689,12 @@ func (a *RealtimeAPIService) ListWebhookSubscriptionsApiV1WebhookSubscriptionsGe
 }
 
 type ApiReplayWebhookDeliveryApiV1WebhookDeliveriesDeliveryIdReplayPostRequest struct {
-	ctx context.Context
-	ApiService *RealtimeAPIService
-	deliveryId string
+	ctx           context.Context
+	ApiService    *RealtimeAPIService
+	deliveryId    string
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiReplayWebhookDeliveryApiV1WebhookDeliveriesDeliveryIdReplayPostRequest) Authorization(authorization string) ApiReplayWebhookDeliveryApiV1WebhookDeliveriesDeliveryIdReplayPostRequest {
@@ -716,26 +719,27 @@ func (r ApiReplayWebhookDeliveryApiV1WebhookDeliveriesDeliveryIdReplayPostReques
 /*
 ReplayWebhookDeliveryApiV1WebhookDeliveriesDeliveryIdReplayPost Replay Webhook Delivery
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param deliveryId
- @return ApiReplayWebhookDeliveryApiV1WebhookDeliveriesDeliveryIdReplayPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param deliveryId
+	@return ApiReplayWebhookDeliveryApiV1WebhookDeliveriesDeliveryIdReplayPostRequest
 */
 func (a *RealtimeAPIService) ReplayWebhookDeliveryApiV1WebhookDeliveriesDeliveryIdReplayPost(ctx context.Context, deliveryId string) ApiReplayWebhookDeliveryApiV1WebhookDeliveriesDeliveryIdReplayPostRequest {
 	return ApiReplayWebhookDeliveryApiV1WebhookDeliveriesDeliveryIdReplayPostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 		deliveryId: deliveryId,
 	}
 }
 
 // Execute executes the request
-//  @return WebhookDelivery
+//
+//	@return WebhookDelivery
 func (a *RealtimeAPIService) ReplayWebhookDeliveryApiV1WebhookDeliveriesDeliveryIdReplayPostExecute(r ApiReplayWebhookDeliveryApiV1WebhookDeliveriesDeliveryIdReplayPostRequest) (*WebhookDelivery, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *WebhookDelivery
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *WebhookDelivery
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "RealtimeAPIService.ReplayWebhookDeliveryApiV1WebhookDeliveriesDeliveryIdReplayPost")
@@ -805,8 +809,8 @@ func (a *RealtimeAPIService) ReplayWebhookDeliveryApiV1WebhookDeliveriesDelivery
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -824,13 +828,13 @@ func (a *RealtimeAPIService) ReplayWebhookDeliveryApiV1WebhookDeliveriesDelivery
 }
 
 type ApiRotateWebhookSubscriptionSecretApiV1WebhookSubscriptionsSubscriptionIdRotateSecretPostRequest struct {
-	ctx context.Context
-	ApiService *RealtimeAPIService
-	subscriptionId string
+	ctx             context.Context
+	ApiService      *RealtimeAPIService
+	subscriptionId  string
 	expectedVersion *int32
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization   *string
+	xAmeshCSRF      *string
+	xAmeshTenant    *string
 }
 
 func (r ApiRotateWebhookSubscriptionSecretApiV1WebhookSubscriptionsSubscriptionIdRotateSecretPostRequest) ExpectedVersion(expectedVersion int32) ApiRotateWebhookSubscriptionSecretApiV1WebhookSubscriptionsSubscriptionIdRotateSecretPostRequest {
@@ -860,26 +864,27 @@ func (r ApiRotateWebhookSubscriptionSecretApiV1WebhookSubscriptionsSubscriptionI
 /*
 RotateWebhookSubscriptionSecretApiV1WebhookSubscriptionsSubscriptionIdRotateSecretPost Rotate Webhook Subscription Secret
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param subscriptionId
- @return ApiRotateWebhookSubscriptionSecretApiV1WebhookSubscriptionsSubscriptionIdRotateSecretPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param subscriptionId
+	@return ApiRotateWebhookSubscriptionSecretApiV1WebhookSubscriptionsSubscriptionIdRotateSecretPostRequest
 */
 func (a *RealtimeAPIService) RotateWebhookSubscriptionSecretApiV1WebhookSubscriptionsSubscriptionIdRotateSecretPost(ctx context.Context, subscriptionId string) ApiRotateWebhookSubscriptionSecretApiV1WebhookSubscriptionsSubscriptionIdRotateSecretPostRequest {
 	return ApiRotateWebhookSubscriptionSecretApiV1WebhookSubscriptionsSubscriptionIdRotateSecretPostRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:     a,
+		ctx:            ctx,
 		subscriptionId: subscriptionId,
 	}
 }
 
 // Execute executes the request
-//  @return ProvisionedWebhookSubscription
+//
+//	@return ProvisionedWebhookSubscription
 func (a *RealtimeAPIService) RotateWebhookSubscriptionSecretApiV1WebhookSubscriptionsSubscriptionIdRotateSecretPostExecute(r ApiRotateWebhookSubscriptionSecretApiV1WebhookSubscriptionsSubscriptionIdRotateSecretPostRequest) (*ProvisionedWebhookSubscription, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *ProvisionedWebhookSubscription
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *ProvisionedWebhookSubscription
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "RealtimeAPIService.RotateWebhookSubscriptionSecretApiV1WebhookSubscriptionsSubscriptionIdRotateSecretPost")
@@ -956,8 +961,8 @@ func (a *RealtimeAPIService) RotateWebhookSubscriptionSecretApiV1WebhookSubscrip
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -975,23 +980,23 @@ func (a *RealtimeAPIService) RotateWebhookSubscriptionSecretApiV1WebhookSubscrip
 }
 
 type ApiStreamRealtimeEventsApiV1RealtimeStreamGetRequest struct {
-	ctx context.Context
-	ApiService *RealtimeAPIService
-	cursor *string
-	namespace *string
-	flowId *string
-	executionId *string
-	eventType *[]string
-	severity *[]RealtimeSeverity
-	includeAudit *bool
-	bufferEvents *int32
-	maxEvents *int32
+	ctx              context.Context
+	ApiService       *RealtimeAPIService
+	cursor           *string
+	namespace        *string
+	flowId           *string
+	executionId      *string
+	eventType        *[]string
+	severity         *[]RealtimeSeverity
+	includeAudit     *bool
+	bufferEvents     *int32
+	maxEvents        *int32
 	heartbeatSeconds *float32
-	streamSeconds *float32
-	lastEventID *string
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	streamSeconds    *float32
+	lastEventID      *string
+	authorization    *string
+	xAmeshCSRF       *string
+	xAmeshTenant     *string
 }
 
 // Opaque reconnect cursor
@@ -1077,22 +1082,22 @@ func (r ApiStreamRealtimeEventsApiV1RealtimeStreamGetRequest) Execute() (*http.R
 /*
 StreamRealtimeEventsApiV1RealtimeStreamGet Stream Realtime Events
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiStreamRealtimeEventsApiV1RealtimeStreamGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiStreamRealtimeEventsApiV1RealtimeStreamGetRequest
 */
 func (a *RealtimeAPIService) StreamRealtimeEventsApiV1RealtimeStreamGet(ctx context.Context) ApiStreamRealtimeEventsApiV1RealtimeStreamGetRequest {
 	return ApiStreamRealtimeEventsApiV1RealtimeStreamGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
 func (a *RealtimeAPIService) StreamRealtimeEventsApiV1RealtimeStreamGetExecute(r ApiStreamRealtimeEventsApiV1RealtimeStreamGetRequest) (*http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
+		localVarHTTPMethod = http.MethodGet
+		localVarPostBody   interface{}
+		formFiles          []formFile
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "RealtimeAPIService.StreamRealtimeEventsApiV1RealtimeStreamGet")
@@ -1233,8 +1238,8 @@ func (a *RealtimeAPIService) StreamRealtimeEventsApiV1RealtimeStreamGetExecute(r
 				newErr.error = err.Error()
 				return localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarHTTPResponse, newErr
 	}
@@ -1243,12 +1248,12 @@ func (a *RealtimeAPIService) StreamRealtimeEventsApiV1RealtimeStreamGetExecute(r
 }
 
 type ApiTestWebhookSubscriptionApiV1WebhookSubscriptionsSubscriptionIdTestPostRequest struct {
-	ctx context.Context
-	ApiService *RealtimeAPIService
+	ctx            context.Context
+	ApiService     *RealtimeAPIService
 	subscriptionId string
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization  *string
+	xAmeshCSRF     *string
+	xAmeshTenant   *string
 }
 
 func (r ApiTestWebhookSubscriptionApiV1WebhookSubscriptionsSubscriptionIdTestPostRequest) Authorization(authorization string) ApiTestWebhookSubscriptionApiV1WebhookSubscriptionsSubscriptionIdTestPostRequest {
@@ -1273,26 +1278,27 @@ func (r ApiTestWebhookSubscriptionApiV1WebhookSubscriptionsSubscriptionIdTestPos
 /*
 TestWebhookSubscriptionApiV1WebhookSubscriptionsSubscriptionIdTestPost Test Webhook Subscription
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param subscriptionId
- @return ApiTestWebhookSubscriptionApiV1WebhookSubscriptionsSubscriptionIdTestPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param subscriptionId
+	@return ApiTestWebhookSubscriptionApiV1WebhookSubscriptionsSubscriptionIdTestPostRequest
 */
 func (a *RealtimeAPIService) TestWebhookSubscriptionApiV1WebhookSubscriptionsSubscriptionIdTestPost(ctx context.Context, subscriptionId string) ApiTestWebhookSubscriptionApiV1WebhookSubscriptionsSubscriptionIdTestPostRequest {
 	return ApiTestWebhookSubscriptionApiV1WebhookSubscriptionsSubscriptionIdTestPostRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:     a,
+		ctx:            ctx,
 		subscriptionId: subscriptionId,
 	}
 }
 
 // Execute executes the request
-//  @return WebhookDelivery
+//
+//	@return WebhookDelivery
 func (a *RealtimeAPIService) TestWebhookSubscriptionApiV1WebhookSubscriptionsSubscriptionIdTestPostExecute(r ApiTestWebhookSubscriptionApiV1WebhookSubscriptionsSubscriptionIdTestPostRequest) (*WebhookDelivery, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *WebhookDelivery
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *WebhookDelivery
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "RealtimeAPIService.TestWebhookSubscriptionApiV1WebhookSubscriptionsSubscriptionIdTestPost")
@@ -1362,8 +1368,8 @@ func (a *RealtimeAPIService) TestWebhookSubscriptionApiV1WebhookSubscriptionsSub
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}

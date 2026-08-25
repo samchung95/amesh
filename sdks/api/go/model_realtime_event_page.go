@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,11 +21,11 @@ var _ MappedNullable = &RealtimeEventPage{}
 
 // RealtimeEventPage struct for RealtimeEventPage
 type RealtimeEventPage struct {
-	Gap *bool `json:"gap,omitempty"`
-	Items []RealtimeEvent `json:"items"`
-	LatestCursor NullableString `json:"latestCursor,omitempty"`
-	NextCursor NullableString `json:"nextCursor,omitempty"`
-	OldestCursor NullableString `json:"oldestCursor,omitempty"`
+	Gap          *bool           `json:"gap,omitempty"`
+	Items        []RealtimeEvent `json:"items"`
+	LatestCursor NullableString  `json:"latestCursor,omitempty"`
+	NextCursor   NullableString  `json:"nextCursor,omitempty"`
+	OldestCursor NullableString  `json:"oldestCursor,omitempty"`
 }
 
 type _RealtimeEventPage RealtimeEventPage
@@ -140,6 +140,7 @@ func (o *RealtimeEventPage) HasLatestCursor() bool {
 func (o *RealtimeEventPage) SetLatestCursor(v string) {
 	o.LatestCursor.Set(&v)
 }
+
 // SetLatestCursorNil sets the value for LatestCursor to be an explicit nil
 func (o *RealtimeEventPage) SetLatestCursorNil() {
 	o.LatestCursor.Set(nil)
@@ -182,6 +183,7 @@ func (o *RealtimeEventPage) HasNextCursor() bool {
 func (o *RealtimeEventPage) SetNextCursor(v string) {
 	o.NextCursor.Set(&v)
 }
+
 // SetNextCursorNil sets the value for NextCursor to be an explicit nil
 func (o *RealtimeEventPage) SetNextCursorNil() {
 	o.NextCursor.Set(nil)
@@ -224,6 +226,7 @@ func (o *RealtimeEventPage) HasOldestCursor() bool {
 func (o *RealtimeEventPage) SetOldestCursor(v string) {
 	o.OldestCursor.Set(&v)
 }
+
 // SetOldestCursorNil sets the value for OldestCursor to be an explicit nil
 func (o *RealtimeEventPage) SetOldestCursorNil() {
 	o.OldestCursor.Set(nil)
@@ -235,7 +238,7 @@ func (o *RealtimeEventPage) UnsetOldestCursor() {
 }
 
 func (o RealtimeEventPage) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -273,10 +276,10 @@ func (o *RealtimeEventPage) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

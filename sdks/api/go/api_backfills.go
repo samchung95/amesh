@@ -16,22 +16,21 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"strings"
 	"reflect"
+	"strings"
 )
-
 
 // BackfillsAPIService BackfillsAPI service
 type BackfillsAPIService service
 
 type ApiCancelBackfillApiV1BackfillsBackfillIdCancelPostRequest struct {
-	ctx context.Context
-	ApiService *BackfillsAPIService
-	backfillId string
+	ctx                   context.Context
+	ApiService            *BackfillsAPIService
+	backfillId            string
 	backfillActionRequest *BackfillActionRequest
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization         *string
+	xAmeshCSRF            *string
+	xAmeshTenant          *string
 }
 
 func (r ApiCancelBackfillApiV1BackfillsBackfillIdCancelPostRequest) BackfillActionRequest(backfillActionRequest BackfillActionRequest) ApiCancelBackfillApiV1BackfillsBackfillIdCancelPostRequest {
@@ -61,26 +60,27 @@ func (r ApiCancelBackfillApiV1BackfillsBackfillIdCancelPostRequest) Execute() (*
 /*
 CancelBackfillApiV1BackfillsBackfillIdCancelPost Cancel Backfill
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param backfillId
- @return ApiCancelBackfillApiV1BackfillsBackfillIdCancelPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param backfillId
+	@return ApiCancelBackfillApiV1BackfillsBackfillIdCancelPostRequest
 */
 func (a *BackfillsAPIService) CancelBackfillApiV1BackfillsBackfillIdCancelPost(ctx context.Context, backfillId string) ApiCancelBackfillApiV1BackfillsBackfillIdCancelPostRequest {
 	return ApiCancelBackfillApiV1BackfillsBackfillIdCancelPostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 		backfillId: backfillId,
 	}
 }
 
 // Execute executes the request
-//  @return BackfillRecord
+//
+//	@return BackfillRecord
 func (a *BackfillsAPIService) CancelBackfillApiV1BackfillsBackfillIdCancelPostExecute(r ApiCancelBackfillApiV1BackfillsBackfillIdCancelPostRequest) (*BackfillRecord, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *BackfillRecord
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *BackfillRecord
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "BackfillsAPIService.CancelBackfillApiV1BackfillsBackfillIdCancelPost")
@@ -155,8 +155,8 @@ func (a *BackfillsAPIService) CancelBackfillApiV1BackfillsBackfillIdCancelPostEx
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -174,12 +174,12 @@ func (a *BackfillsAPIService) CancelBackfillApiV1BackfillsBackfillIdCancelPostEx
 }
 
 type ApiCreateBackfillApiV1BackfillsPostRequest struct {
-	ctx context.Context
-	ApiService *BackfillsAPIService
-	backfillSpec *BackfillSpec
+	ctx           context.Context
+	ApiService    *BackfillsAPIService
+	backfillSpec  *BackfillSpec
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiCreateBackfillApiV1BackfillsPostRequest) BackfillSpec(backfillSpec BackfillSpec) ApiCreateBackfillApiV1BackfillsPostRequest {
@@ -209,24 +209,25 @@ func (r ApiCreateBackfillApiV1BackfillsPostRequest) Execute() (*BackfillRecord, 
 /*
 CreateBackfillApiV1BackfillsPost Create Backfill
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiCreateBackfillApiV1BackfillsPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiCreateBackfillApiV1BackfillsPostRequest
 */
 func (a *BackfillsAPIService) CreateBackfillApiV1BackfillsPost(ctx context.Context) ApiCreateBackfillApiV1BackfillsPostRequest {
 	return ApiCreateBackfillApiV1BackfillsPostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return BackfillRecord
+//
+//	@return BackfillRecord
 func (a *BackfillsAPIService) CreateBackfillApiV1BackfillsPostExecute(r ApiCreateBackfillApiV1BackfillsPostRequest) (*BackfillRecord, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *BackfillRecord
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *BackfillRecord
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "BackfillsAPIService.CreateBackfillApiV1BackfillsPost")
@@ -300,8 +301,8 @@ func (a *BackfillsAPIService) CreateBackfillApiV1BackfillsPostExecute(r ApiCreat
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -319,12 +320,12 @@ func (a *BackfillsAPIService) CreateBackfillApiV1BackfillsPostExecute(r ApiCreat
 }
 
 type ApiGetBackfillApiV1BackfillsBackfillIdGetRequest struct {
-	ctx context.Context
-	ApiService *BackfillsAPIService
-	backfillId string
+	ctx           context.Context
+	ApiService    *BackfillsAPIService
+	backfillId    string
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiGetBackfillApiV1BackfillsBackfillIdGetRequest) Authorization(authorization string) ApiGetBackfillApiV1BackfillsBackfillIdGetRequest {
@@ -349,26 +350,27 @@ func (r ApiGetBackfillApiV1BackfillsBackfillIdGetRequest) Execute() (*BackfillRe
 /*
 GetBackfillApiV1BackfillsBackfillIdGet Get Backfill
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param backfillId
- @return ApiGetBackfillApiV1BackfillsBackfillIdGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param backfillId
+	@return ApiGetBackfillApiV1BackfillsBackfillIdGetRequest
 */
 func (a *BackfillsAPIService) GetBackfillApiV1BackfillsBackfillIdGet(ctx context.Context, backfillId string) ApiGetBackfillApiV1BackfillsBackfillIdGetRequest {
 	return ApiGetBackfillApiV1BackfillsBackfillIdGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 		backfillId: backfillId,
 	}
 }
 
 // Execute executes the request
-//  @return BackfillRecord
+//
+//	@return BackfillRecord
 func (a *BackfillsAPIService) GetBackfillApiV1BackfillsBackfillIdGetExecute(r ApiGetBackfillApiV1BackfillsBackfillIdGetRequest) (*BackfillRecord, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *BackfillRecord
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *BackfillRecord
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "BackfillsAPIService.GetBackfillApiV1BackfillsBackfillIdGet")
@@ -438,8 +440,8 @@ func (a *BackfillsAPIService) GetBackfillApiV1BackfillsBackfillIdGetExecute(r Ap
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -457,16 +459,16 @@ func (a *BackfillsAPIService) GetBackfillApiV1BackfillsBackfillIdGetExecute(r Ap
 }
 
 type ApiListBackfillsApiV1BackfillsGetRequest struct {
-	ctx context.Context
-	ApiService *BackfillsAPIService
-	cursor *string
-	limit *int32
-	filter *[]string
-	sort *string
-	fields *string
+	ctx           context.Context
+	ApiService    *BackfillsAPIService
+	cursor        *string
+	limit         *int32
+	filter        *[]string
+	sort          *string
+	fields        *string
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 // Opaque cursor from the prior page
@@ -520,24 +522,25 @@ func (r ApiListBackfillsApiV1BackfillsGetRequest) Execute() ([]BackfillRecord, *
 /*
 ListBackfillsApiV1BackfillsGet List Backfills
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiListBackfillsApiV1BackfillsGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiListBackfillsApiV1BackfillsGetRequest
 */
 func (a *BackfillsAPIService) ListBackfillsApiV1BackfillsGet(ctx context.Context) ApiListBackfillsApiV1BackfillsGetRequest {
 	return ApiListBackfillsApiV1BackfillsGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return []BackfillRecord
+//
+//	@return []BackfillRecord
 func (a *BackfillsAPIService) ListBackfillsApiV1BackfillsGetExecute(r ApiListBackfillsApiV1BackfillsGetRequest) ([]BackfillRecord, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  []BackfillRecord
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []BackfillRecord
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "BackfillsAPIService.ListBackfillsApiV1BackfillsGet")
@@ -633,8 +636,8 @@ func (a *BackfillsAPIService) ListBackfillsApiV1BackfillsGetExecute(r ApiListBac
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -652,13 +655,13 @@ func (a *BackfillsAPIService) ListBackfillsApiV1BackfillsGetExecute(r ApiListBac
 }
 
 type ApiPauseBackfillApiV1BackfillsBackfillIdPausePostRequest struct {
-	ctx context.Context
-	ApiService *BackfillsAPIService
-	backfillId string
+	ctx                   context.Context
+	ApiService            *BackfillsAPIService
+	backfillId            string
 	backfillActionRequest *BackfillActionRequest
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization         *string
+	xAmeshCSRF            *string
+	xAmeshTenant          *string
 }
 
 func (r ApiPauseBackfillApiV1BackfillsBackfillIdPausePostRequest) BackfillActionRequest(backfillActionRequest BackfillActionRequest) ApiPauseBackfillApiV1BackfillsBackfillIdPausePostRequest {
@@ -688,26 +691,27 @@ func (r ApiPauseBackfillApiV1BackfillsBackfillIdPausePostRequest) Execute() (*Ba
 /*
 PauseBackfillApiV1BackfillsBackfillIdPausePost Pause Backfill
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param backfillId
- @return ApiPauseBackfillApiV1BackfillsBackfillIdPausePostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param backfillId
+	@return ApiPauseBackfillApiV1BackfillsBackfillIdPausePostRequest
 */
 func (a *BackfillsAPIService) PauseBackfillApiV1BackfillsBackfillIdPausePost(ctx context.Context, backfillId string) ApiPauseBackfillApiV1BackfillsBackfillIdPausePostRequest {
 	return ApiPauseBackfillApiV1BackfillsBackfillIdPausePostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 		backfillId: backfillId,
 	}
 }
 
 // Execute executes the request
-//  @return BackfillRecord
+//
+//	@return BackfillRecord
 func (a *BackfillsAPIService) PauseBackfillApiV1BackfillsBackfillIdPausePostExecute(r ApiPauseBackfillApiV1BackfillsBackfillIdPausePostRequest) (*BackfillRecord, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *BackfillRecord
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *BackfillRecord
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "BackfillsAPIService.PauseBackfillApiV1BackfillsBackfillIdPausePost")
@@ -782,8 +786,8 @@ func (a *BackfillsAPIService) PauseBackfillApiV1BackfillsBackfillIdPausePostExec
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -801,12 +805,12 @@ func (a *BackfillsAPIService) PauseBackfillApiV1BackfillsBackfillIdPausePostExec
 }
 
 type ApiPreviewBackfillApiV1BackfillsPreviewPostRequest struct {
-	ctx context.Context
-	ApiService *BackfillsAPIService
-	backfillSpec *BackfillSpec
+	ctx           context.Context
+	ApiService    *BackfillsAPIService
+	backfillSpec  *BackfillSpec
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiPreviewBackfillApiV1BackfillsPreviewPostRequest) BackfillSpec(backfillSpec BackfillSpec) ApiPreviewBackfillApiV1BackfillsPreviewPostRequest {
@@ -836,24 +840,25 @@ func (r ApiPreviewBackfillApiV1BackfillsPreviewPostRequest) Execute() (*Backfill
 /*
 PreviewBackfillApiV1BackfillsPreviewPost Preview Backfill
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiPreviewBackfillApiV1BackfillsPreviewPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiPreviewBackfillApiV1BackfillsPreviewPostRequest
 */
 func (a *BackfillsAPIService) PreviewBackfillApiV1BackfillsPreviewPost(ctx context.Context) ApiPreviewBackfillApiV1BackfillsPreviewPostRequest {
 	return ApiPreviewBackfillApiV1BackfillsPreviewPostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return BackfillPreview
+//
+//	@return BackfillPreview
 func (a *BackfillsAPIService) PreviewBackfillApiV1BackfillsPreviewPostExecute(r ApiPreviewBackfillApiV1BackfillsPreviewPostRequest) (*BackfillPreview, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *BackfillPreview
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *BackfillPreview
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "BackfillsAPIService.PreviewBackfillApiV1BackfillsPreviewPost")
@@ -927,8 +932,8 @@ func (a *BackfillsAPIService) PreviewBackfillApiV1BackfillsPreviewPostExecute(r 
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -946,13 +951,13 @@ func (a *BackfillsAPIService) PreviewBackfillApiV1BackfillsPreviewPostExecute(r 
 }
 
 type ApiResumeBackfillApiV1BackfillsBackfillIdResumePostRequest struct {
-	ctx context.Context
-	ApiService *BackfillsAPIService
-	backfillId string
+	ctx                   context.Context
+	ApiService            *BackfillsAPIService
+	backfillId            string
 	backfillActionRequest *BackfillActionRequest
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization         *string
+	xAmeshCSRF            *string
+	xAmeshTenant          *string
 }
 
 func (r ApiResumeBackfillApiV1BackfillsBackfillIdResumePostRequest) BackfillActionRequest(backfillActionRequest BackfillActionRequest) ApiResumeBackfillApiV1BackfillsBackfillIdResumePostRequest {
@@ -982,26 +987,27 @@ func (r ApiResumeBackfillApiV1BackfillsBackfillIdResumePostRequest) Execute() (*
 /*
 ResumeBackfillApiV1BackfillsBackfillIdResumePost Resume Backfill
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param backfillId
- @return ApiResumeBackfillApiV1BackfillsBackfillIdResumePostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param backfillId
+	@return ApiResumeBackfillApiV1BackfillsBackfillIdResumePostRequest
 */
 func (a *BackfillsAPIService) ResumeBackfillApiV1BackfillsBackfillIdResumePost(ctx context.Context, backfillId string) ApiResumeBackfillApiV1BackfillsBackfillIdResumePostRequest {
 	return ApiResumeBackfillApiV1BackfillsBackfillIdResumePostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 		backfillId: backfillId,
 	}
 }
 
 // Execute executes the request
-//  @return BackfillRecord
+//
+//	@return BackfillRecord
 func (a *BackfillsAPIService) ResumeBackfillApiV1BackfillsBackfillIdResumePostExecute(r ApiResumeBackfillApiV1BackfillsBackfillIdResumePostRequest) (*BackfillRecord, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *BackfillRecord
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *BackfillRecord
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "BackfillsAPIService.ResumeBackfillApiV1BackfillsBackfillIdResumePost")
@@ -1076,8 +1082,8 @@ func (a *BackfillsAPIService) ResumeBackfillApiV1BackfillsBackfillIdResumePostEx
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}

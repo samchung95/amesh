@@ -20,12 +20,12 @@ type PluginLifecycleStatus string
 
 // List of PluginLifecycleStatus
 const (
-	PLUGINLIFECYCLESTATUS_INSTALLED PluginLifecycleStatus = "installed"
-	PLUGINLIFECYCLESTATUS_ACTIVE PluginLifecycleStatus = "active"
-	PLUGINLIFECYCLESTATUS_DEPRECATED PluginLifecycleStatus = "deprecated"
+	PLUGINLIFECYCLESTATUS_INSTALLED    PluginLifecycleStatus = "installed"
+	PLUGINLIFECYCLESTATUS_ACTIVE       PluginLifecycleStatus = "active"
+	PLUGINLIFECYCLESTATUS_DEPRECATED   PluginLifecycleStatus = "deprecated"
 	PLUGINLIFECYCLESTATUS_INCOMPATIBLE PluginLifecycleStatus = "incompatible"
-	PLUGINLIFECYCLESTATUS_QUARANTINED PluginLifecycleStatus = "quarantined"
-	PLUGINLIFECYCLESTATUS_YANKED PluginLifecycleStatus = "yanked"
+	PLUGINLIFECYCLESTATUS_QUARANTINED  PluginLifecycleStatus = "quarantined"
+	PLUGINLIFECYCLESTATUS_YANKED       PluginLifecycleStatus = "yanked"
 )
 
 // All allowed values of PluginLifecycleStatus enum

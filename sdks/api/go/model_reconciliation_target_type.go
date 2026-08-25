@@ -20,10 +20,10 @@ type ReconciliationTargetType string
 
 // List of ReconciliationTargetType
 const (
-	RECONCILIATIONTARGETTYPE_TENANT ReconciliationTargetType = "TENANT"
-	RECONCILIATIONTARGETTYPE_EXECUTION ReconciliationTargetType = "EXECUTION"
-	RECONCILIATIONTARGETTYPE_TRIGGER ReconciliationTargetType = "TRIGGER"
-	RECONCILIATIONTARGETTYPE_WORKER ReconciliationTargetType = "WORKER"
+	RECONCILIATIONTARGETTYPE_TENANT     ReconciliationTargetType = "TENANT"
+	RECONCILIATIONTARGETTYPE_EXECUTION  ReconciliationTargetType = "EXECUTION"
+	RECONCILIATIONTARGETTYPE_TRIGGER    ReconciliationTargetType = "TRIGGER"
+	RECONCILIATIONTARGETTYPE_WORKER     ReconciliationTargetType = "WORKER"
 	RECONCILIATIONTARGETTYPE_TIME_RANGE ReconciliationTargetType = "TIME_RANGE"
 )
 

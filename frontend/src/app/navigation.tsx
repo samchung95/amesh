@@ -9,6 +9,7 @@ import {
   DatabaseZap,
   LayoutGrid,
   RadioTower,
+  Rocket,
   ShieldCheck,
   Settings2,
   Workflow,
@@ -88,6 +89,14 @@ export const navigationItems: NavigationItem[] = [
     group: 'govern',
     icon: Cable,
     capability: 'plugins.view',
+  },
+  {
+    id: 'releases',
+    labelKey: 'releases',
+    path: '/releases',
+    group: 'govern',
+    icon: Rocket,
+    capability: 'releases.view',
   },
   {
     id: 'administration',

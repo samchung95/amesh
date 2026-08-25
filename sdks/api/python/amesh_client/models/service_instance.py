@@ -35,13 +35,17 @@ class ServiceInstance(BaseModel):
     ServiceInstance
     """ # noqa: E501
     compatibility: ServiceCompatibility
+    consecutive_failures: Optional[Annotated[int, Field(strict=True, ge=0)]] = Field(default=0, alias="consecutiveFailures")
     dependencies: Optional[Dict[str, StrictStr]] = None
     failure_zone: Optional[StrictStr] = Field(default=None, alias="failureZone")
     generation: Annotated[int, Field(strict=True, ge=1)]
     id: UUID
     instance_name: StrictStr = Field(alias="instanceName")
     labels: Optional[Dict[str, StrictStr]] = None
+    last_failure: Optional[StrictStr] = Field(default=None, alias="lastFailure")
+    last_failure_at: Optional[datetime] = Field(default=None, alias="lastFailureAt")
     last_heartbeat_at: datetime = Field(alias="lastHeartbeatAt")
+    last_success_at: Optional[datetime] = Field(default=None, alias="lastSuccessAt")
     liveness: ServiceLiveness
     ownership: Optional[Dict[str, Any]] = None
     partitions: Optional[Dict[str, Any]] = None
@@ -51,7 +55,7 @@ class ServiceInstance(BaseModel):
     state: ServiceState
     stopped_at: Optional[datetime] = Field(default=None, alias="stoppedAt")
     version: StrictStr
-    __properties: ClassVar[List[str]] = ["compatibility", "dependencies", "failureZone", "generation", "id", "instanceName", "labels", "lastHeartbeatAt", "liveness", "ownership", "partitions", "registeredAt", "resourceVersion", "role", "state", "stoppedAt", "version"]
+    __properties: ClassVar[List[str]] = ["compatibility", "consecutiveFailures", "dependencies", "failureZone", "generation", "id", "instanceName", "labels", "lastFailure", "lastFailureAt", "lastHeartbeatAt", "lastSuccessAt", "liveness", "ownership", "partitions", "registeredAt", "resourceVersion", "role", "state", "stoppedAt", "version"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -97,6 +101,21 @@ class ServiceInstance(BaseModel):
         if self.failure_zone is None and "failure_zone" in self.model_fields_set:
             _dict['failureZone'] = None
 
+        # set to None if last_failure (nullable) is None
+        # and model_fields_set contains the field
+        if self.last_failure is None and "last_failure" in self.model_fields_set:
+            _dict['lastFailure'] = None
+
+        # set to None if last_failure_at (nullable) is None
+        # and model_fields_set contains the field
+        if self.last_failure_at is None and "last_failure_at" in self.model_fields_set:
+            _dict['lastFailureAt'] = None
+
+        # set to None if last_success_at (nullable) is None
+        # and model_fields_set contains the field
+        if self.last_success_at is None and "last_success_at" in self.model_fields_set:
+            _dict['lastSuccessAt'] = None
+
         # set to None if stopped_at (nullable) is None
         # and model_fields_set contains the field
         if self.stopped_at is None and "stopped_at" in self.model_fields_set:
@@ -115,13 +134,17 @@ class ServiceInstance(BaseModel):
 
         _obj = cls.model_validate({
             "compatibility": obj.get("compatibility"),
+            "consecutiveFailures": obj.get("consecutiveFailures") if obj.get("consecutiveFailures") is not None else 0,
             "dependencies": obj.get("dependencies"),
             "failureZone": obj.get("failureZone"),
             "generation": obj.get("generation"),
             "id": obj.get("id"),
             "instanceName": obj.get("instanceName"),
             "labels": obj.get("labels"),
+            "lastFailure": obj.get("lastFailure"),
+            "lastFailureAt": obj.get("lastFailureAt"),
             "lastHeartbeatAt": obj.get("lastHeartbeatAt"),
+            "lastSuccessAt": obj.get("lastSuccessAt"),
             "liveness": obj.get("liveness"),
             "ownership": obj.get("ownership"),
             "partitions": obj.get("partitions"),

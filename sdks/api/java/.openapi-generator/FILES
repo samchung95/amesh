@@ -21,6 +21,7 @@ docs/ConfigurationApi.md
 docs/CredentialsApi.md
 docs/DashboardsApi.md
 docs/ExecutionsApi.md
+docs/ExternalOrchestrationApi.md
 docs/FlowTestsApi.md
 docs/FlowsApi.md
 docs/HumanTasksApi.md
@@ -30,7 +31,9 @@ docs/NamespacesApi.md
 docs/OperationsApi.md
 docs/PluginsApi.md
 docs/PoliciesApi.md
+docs/QualityApi.md
 docs/RealtimeApi.md
+docs/ReleasesApi.md
 docs/ScimApi.md
 docs/SearchApi.md
 docs/SimulationsApi.md
@@ -76,6 +79,7 @@ src/main/java/io/amesh/client/api/ConfigurationApi.java
 src/main/java/io/amesh/client/api/CredentialsApi.java
 src/main/java/io/amesh/client/api/DashboardsApi.java
 src/main/java/io/amesh/client/api/ExecutionsApi.java
+src/main/java/io/amesh/client/api/ExternalOrchestrationApi.java
 src/main/java/io/amesh/client/api/FlowTestsApi.java
 src/main/java/io/amesh/client/api/FlowsApi.java
 src/main/java/io/amesh/client/api/HumanTasksApi.java
@@ -85,7 +89,9 @@ src/main/java/io/amesh/client/api/NamespacesApi.java
 src/main/java/io/amesh/client/api/OperationsApi.java
 src/main/java/io/amesh/client/api/PluginsApi.java
 src/main/java/io/amesh/client/api/PoliciesApi.java
+src/main/java/io/amesh/client/api/QualityApi.java
 src/main/java/io/amesh/client/api/RealtimeApi.java
+src/main/java/io/amesh/client/api/ReleasesApi.java
 src/main/java/io/amesh/client/api/ScimApi.java
 src/main/java/io/amesh/client/api/SearchApi.java
 src/main/java/io/amesh/client/api/SimulationsApi.java
@@ -96,6 +102,7 @@ src/main/java/io/amesh/client/api/TriggersApi.java
 src/main/java/io/amesh/client/api/UiApi.java
 src/main/java/io/amesh/client/api/UpgradesApi.java
 src/main/java/io/amesh/client/api/WorkersApi.java
+src/main/java/io/amesh/client/model/Absolute.java
 src/main/java/io/amesh/client/model/AbstractOpenApiSchema.java
 src/main/java/io/amesh/client/model/Action.java
 src/main/java/io/amesh/client/model/AdministrationApplyRequest.java
@@ -127,6 +134,7 @@ src/main/java/io/amesh/client/model/AgentJudgePolicyOutput.java
 src/main/java/io/amesh/client/model/AgentMemoryMetadata.java
 src/main/java/io/amesh/client/model/AgentMemoryPolicy.java
 src/main/java/io/amesh/client/model/AgentMemoryScope.java
+src/main/java/io/amesh/client/model/AgentModelContinuationRef.java
 src/main/java/io/amesh/client/model/AgentPermissions.java
 src/main/java/io/amesh/client/model/AgentResolutionRequest.java
 src/main/java/io/amesh/client/model/AgentResourceKind.java
@@ -153,6 +161,7 @@ src/main/java/io/amesh/client/model/AnnouncementAudience.java
 src/main/java/io/amesh/client/model/AnnouncementCreateRequest.java
 src/main/java/io/amesh/client/model/AnnouncementSeverity.java
 src/main/java/io/amesh/client/model/AppForm.java
+src/main/java/io/amesh/client/model/ApprovalRequirement.java
 src/main/java/io/amesh/client/model/AssetAccessMode.java
 src/main/java/io/amesh/client/model/AssetCatalogEntry.java
 src/main/java/io/amesh/client/model/AssetCatalogExport.java
@@ -196,6 +205,8 @@ src/main/java/io/amesh/client/model/BlueprintParameter.java
 src/main/java/io/amesh/client/model/BlueprintParameterKind.java
 src/main/java/io/amesh/client/model/BlueprintProvenance.java
 src/main/java/io/amesh/client/model/BlueprintSummary.java
+src/main/java/io/amesh/client/model/BudgetRequirementInput.java
+src/main/java/io/amesh/client/model/BudgetRequirementOutput.java
 src/main/java/io/amesh/client/model/BulkExecutionItemResult.java
 src/main/java/io/amesh/client/model/BulkExecutionRequest.java
 src/main/java/io/amesh/client/model/CertificateDiagnostic.java
@@ -208,6 +219,10 @@ src/main/java/io/amesh/client/model/CheckEvaluationPoint.java
 src/main/java/io/amesh/client/model/CheckOutcome.java
 src/main/java/io/amesh/client/model/CheckPolicySource.java
 src/main/java/io/amesh/client/model/CheckPolicyUpsertRequest.java
+src/main/java/io/amesh/client/model/ComparisonCategory.java
+src/main/java/io/amesh/client/model/ComparisonDifference.java
+src/main/java/io/amesh/client/model/ComparisonPolicy.java
+src/main/java/io/amesh/client/model/ComparisonReport.java
 src/main/java/io/amesh/client/model/CompatibilityMapping.java
 src/main/java/io/amesh/client/model/ComplianceEvidenceCategory.java
 src/main/java/io/amesh/client/model/ComplianceEvidenceCreate.java
@@ -218,8 +233,10 @@ src/main/java/io/amesh/client/model/ConfigurationEntry.java
 src/main/java/io/amesh/client/model/ConfigurationMigration.java
 src/main/java/io/amesh/client/model/ConfigurationMigrationKind.java
 src/main/java/io/amesh/client/model/ConfigurationMigrationRequest.java
+src/main/java/io/amesh/client/model/ConfigurationPin.java
 src/main/java/io/amesh/client/model/ConfigurationSnapshot.java
 src/main/java/io/amesh/client/model/ConnectionDiagnostic.java
+src/main/java/io/amesh/client/model/Correlationid.java
 src/main/java/io/amesh/client/model/CreateExecutionRequest.java
 src/main/java/io/amesh/client/model/CreateTenantRequest.java
 src/main/java/io/amesh/client/model/CredentialKind.java
@@ -243,10 +260,16 @@ src/main/java/io/amesh/client/model/DashboardWidgetResult.java
 src/main/java/io/amesh/client/model/DeterminismEnvelope.java
 src/main/java/io/amesh/client/model/DeterminismNode.java
 src/main/java/io/amesh/client/model/DeterminismPolicyPin.java
+src/main/java/io/amesh/client/model/DifferentialSpec.java
 src/main/java/io/amesh/client/model/DnsDiagnostic.java
 src/main/java/io/amesh/client/model/DynamicExecutionBound.java
 src/main/java/io/amesh/client/model/EffectiveCapabilityEnvelope.java
 src/main/java/io/amesh/client/model/EffectivePluginPolicy.java
+src/main/java/io/amesh/client/model/EvidenceArtifact.java
+src/main/java/io/amesh/client/model/EvidenceBundlePageResponse.java
+src/main/java/io/amesh/client/model/EvidencePresence.java
+src/main/java/io/amesh/client/model/EvidenceRecord.java
+src/main/java/io/amesh/client/model/EvidenceRequirement.java
 src/main/java/io/amesh/client/model/ExchangeCredentialRequest.java
 src/main/java/io/amesh/client/model/ExecutionArtifact.java
 src/main/java/io/amesh/client/model/ExecutionDetail.java
@@ -265,12 +288,15 @@ src/main/java/io/amesh/client/model/ExecutionState.java
 src/main/java/io/amesh/client/model/ExpressionPreviewRequest.java
 src/main/java/io/amesh/client/model/ExpressionPreviewResponse.java
 src/main/java/io/amesh/client/model/ExtensionType.java
+src/main/java/io/amesh/client/model/ExternalOperation.java
+src/main/java/io/amesh/client/model/ExternalOrchestrationProfile.java
 src/main/java/io/amesh/client/model/FailoverStatus.java
 src/main/java/io/amesh/client/model/FailureCategory.java
 src/main/java/io/amesh/client/model/FeatureFlag.java
 src/main/java/io/amesh/client/model/FeatureFlagDecision.java
 src/main/java/io/amesh/client/model/FeatureFlagScope.java
 src/main/java/io/amesh/client/model/FeatureFlagUpsertRequest.java
+src/main/java/io/amesh/client/model/FixtureSource.java
 src/main/java/io/amesh/client/model/FlowDataContract.java
 src/main/java/io/amesh/client/model/FlowDocumentExport.java
 src/main/java/io/amesh/client/model/FlowEditorSchemaResponse.java
@@ -303,6 +329,8 @@ src/main/java/io/amesh/client/model/FormField.java
 src/main/java/io/amesh/client/model/FormSection.java
 src/main/java/io/amesh/client/model/Gte.java
 src/main/java/io/amesh/client/model/HTTPValidationError.java
+src/main/java/io/amesh/client/model/HealthRequirementInput.java
+src/main/java/io/amesh/client/model/HealthRequirementOutput.java
 src/main/java/io/amesh/client/model/HealthResponse.java
 src/main/java/io/amesh/client/model/HumanTask.java
 src/main/java/io/amesh/client/model/HumanTaskAction.java
@@ -335,6 +363,7 @@ src/main/java/io/amesh/client/model/LifecyclePreviewRequest.java
 src/main/java/io/amesh/client/model/LifecycleResourceType.java
 src/main/java/io/amesh/client/model/LifecycleScope.java
 src/main/java/io/amesh/client/model/LifecycleTrigger.java
+src/main/java/io/amesh/client/model/Lineage.java
 src/main/java/io/amesh/client/model/LineageEvidenceKind.java
 src/main/java/io/amesh/client/model/LocationInner.java
 src/main/java/io/amesh/client/model/LogLevel.java
@@ -344,6 +373,8 @@ src/main/java/io/amesh/client/model/LoginResponse.java
 src/main/java/io/amesh/client/model/Lte.java
 src/main/java/io/amesh/client/model/MappingDisposition.java
 src/main/java/io/amesh/client/model/Maxcostusd.java
+src/main/java/io/amesh/client/model/Maximum.java
+src/main/java/io/amesh/client/model/Maximum1.java
 src/main/java/io/amesh/client/model/Maximumuncertainty.java
 src/main/java/io/amesh/client/model/McpConnectionDiscoveryRequest.java
 src/main/java/io/amesh/client/model/McpConnectionRevision.java
@@ -353,6 +384,7 @@ src/main/java/io/amesh/client/model/McpToolImpact.java
 src/main/java/io/amesh/client/model/McpToolPin.java
 src/main/java/io/amesh/client/model/MetricKind.java
 src/main/java/io/amesh/client/model/MigrationPatch.java
+src/main/java/io/amesh/client/model/Minimum.java
 src/main/java/io/amesh/client/model/Minimumrubricscore.java
 src/main/java/io/amesh/client/model/Minimumscore.java
 src/main/java/io/amesh/client/model/ModelFallbackMode.java
@@ -471,6 +503,14 @@ src/main/java/io/amesh/client/model/PrincipalDefinition.java
 src/main/java/io/amesh/client/model/PrincipalType.java
 src/main/java/io/amesh/client/model/ProblemDetail.java
 src/main/java/io/amesh/client/model/Projectedcostusd.java
+src/main/java/io/amesh/client/model/PromotionApplyRequest.java
+src/main/java/io/amesh/client/model/PromotionEvidenceKind.java
+src/main/java/io/amesh/client/model/PromotionKillSwitchRequest.java
+src/main/java/io/amesh/client/model/PromotionPolicyInput.java
+src/main/java/io/amesh/client/model/PromotionPolicyOutput.java
+src/main/java/io/amesh/client/model/PromotionPreviewRequest.java
+src/main/java/io/amesh/client/model/PromotionRollbackRequest.java
+src/main/java/io/amesh/client/model/PromotionTargetKind.java
 src/main/java/io/amesh/client/model/PromptSpec.java
 src/main/java/io/amesh/client/model/ProviderMigrationDiagnostic.java
 src/main/java/io/amesh/client/model/ProvisionedWebhookSubscription.java
@@ -487,8 +527,10 @@ src/main/java/io/amesh/client/model/ReconciliationRequest.java
 src/main/java/io/amesh/client/model/ReconciliationRun.java
 src/main/java/io/amesh/client/model/ReconciliationRunState.java
 src/main/java/io/amesh/client/model/ReconciliationTargetType.java
+src/main/java/io/amesh/client/model/Recordid.java
 src/main/java/io/amesh/client/model/ReduceExecutionRequest.java
 src/main/java/io/amesh/client/model/ReduceExecutionResponse.java
+src/main/java/io/amesh/client/model/Relative.java
 src/main/java/io/amesh/client/model/ResolvedAgentEvaluation.java
 src/main/java/io/amesh/client/model/ResolvedResourcePin.java
 src/main/java/io/amesh/client/model/ResolvedToolPin.java
@@ -502,6 +544,7 @@ src/main/java/io/amesh/client/model/RoleBinding.java
 src/main/java/io/amesh/client/model/RoleDefinition.java
 src/main/java/io/amesh/client/model/RollingUpgradeStep.java
 src/main/java/io/amesh/client/model/RotateCredentialRequest.java
+src/main/java/io/amesh/client/model/RunObservation.java
 src/main/java/io/amesh/client/model/RunnerCapabilities.java
 src/main/java/io/amesh/client/model/RunnerId.java
 src/main/java/io/amesh/client/model/RunnerMode.java
@@ -544,6 +587,9 @@ src/main/java/io/amesh/client/model/ServiceRoleStatus.java
 src/main/java/io/amesh/client/model/ServiceState.java
 src/main/java/io/amesh/client/model/ServiceTopology.java
 src/main/java/io/amesh/client/model/SetLocalPasswordRequest.java
+src/main/java/io/amesh/client/model/ShadowEffect.java
+src/main/java/io/amesh/client/model/ShadowFixture.java
+src/main/java/io/amesh/client/model/ShadowRun.java
 src/main/java/io/amesh/client/model/SimulatedTaskResult.java
 src/main/java/io/amesh/client/model/SimulationComparison.java
 src/main/java/io/amesh/client/model/SimulationEstimateModel.java
@@ -584,6 +630,8 @@ src/main/java/io/amesh/client/model/TenantExport.java
 src/main/java/io/amesh/client/model/TenantPolicy.java
 src/main/java/io/amesh/client/model/TenantStatus.java
 src/main/java/io/amesh/client/model/TimeRangeSelection.java
+src/main/java/io/amesh/client/model/Tolerance.java
+src/main/java/io/amesh/client/model/ToolProviderKind.java
 src/main/java/io/amesh/client/model/TriggerActionRequest.java
 src/main/java/io/amesh/client/model/TriggerOccurrence.java
 src/main/java/io/amesh/client/model/TriggerOccurrenceState.java

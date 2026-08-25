@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,12 +21,12 @@ var _ MappedNullable = &ProviderMigrationDiagnostic{}
 
 // ProviderMigrationDiagnostic struct for ProviderMigrationDiagnostic
 type ProviderMigrationDiagnostic struct {
-	AddedRoutes []string `json:"addedRoutes"`
-	Disclosure string `json:"disclosure"`
-	OutputNondeterministic *bool `json:"outputNondeterministic,omitempty"`
-	ProviderRoutesChanged bool `json:"providerRoutesChanged"`
-	RemovedRoutes []string `json:"removedRoutes"`
-	StateSchemaChanged *bool `json:"stateSchemaChanged,omitempty"`
+	AddedRoutes            []string `json:"addedRoutes"`
+	Disclosure             string   `json:"disclosure"`
+	OutputNondeterministic *bool    `json:"outputNondeterministic,omitempty"`
+	ProviderRoutesChanged  bool     `json:"providerRoutesChanged"`
+	RemovedRoutes          []string `json:"removedRoutes"`
+	StateSchemaChanged     *bool    `json:"stateSchemaChanged,omitempty"`
 }
 
 type _ProviderMigrationDiagnostic ProviderMigrationDiagnostic
@@ -221,7 +221,7 @@ func (o *ProviderMigrationDiagnostic) SetStateSchemaChanged(v bool) {
 }
 
 func (o ProviderMigrationDiagnostic) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -259,10 +259,10 @@ func (o *ProviderMigrationDiagnostic) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

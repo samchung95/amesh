@@ -20,13 +20,13 @@ type SearchDocumentType string
 
 // List of SearchDocumentType
 const (
-	SEARCHDOCUMENTTYPE_FLOW SearchDocumentType = "FLOW"
+	SEARCHDOCUMENTTYPE_FLOW      SearchDocumentType = "FLOW"
 	SEARCHDOCUMENTTYPE_EXECUTION SearchDocumentType = "EXECUTION"
-	SEARCHDOCUMENTTYPE_TASK_RUN SearchDocumentType = "TASK_RUN"
-	SEARCHDOCUMENTTYPE_LOG SearchDocumentType = "LOG"
-	SEARCHDOCUMENTTYPE_METRIC SearchDocumentType = "METRIC"
-	SEARCHDOCUMENTTYPE_ASSET SearchDocumentType = "ASSET"
-	SEARCHDOCUMENTTYPE_AUDIT SearchDocumentType = "AUDIT"
+	SEARCHDOCUMENTTYPE_TASK_RUN  SearchDocumentType = "TASK_RUN"
+	SEARCHDOCUMENTTYPE_LOG       SearchDocumentType = "LOG"
+	SEARCHDOCUMENTTYPE_METRIC    SearchDocumentType = "METRIC"
+	SEARCHDOCUMENTTYPE_ASSET     SearchDocumentType = "ASSET"
+	SEARCHDOCUMENTTYPE_AUDIT     SearchDocumentType = "AUDIT"
 )
 
 // All allowed values of SearchDocumentType enum

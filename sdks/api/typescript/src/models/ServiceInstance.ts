@@ -56,6 +56,12 @@ export interface ServiceInstance {
     compatibility: ServiceCompatibility;
     /**
      *
+     * @type {number}
+     * @memberof ServiceInstance
+     */
+    consecutiveFailures?: number;
+    /**
+     *
      * @type {{ [key: string]: string; }}
      * @memberof ServiceInstance
      */
@@ -92,10 +98,28 @@ export interface ServiceInstance {
     labels?: { [key: string]: string; };
     /**
      *
+     * @type {string}
+     * @memberof ServiceInstance
+     */
+    lastFailure?: string | null;
+    /**
+     *
+     * @type {Date}
+     * @memberof ServiceInstance
+     */
+    lastFailureAt?: Date | null;
+    /**
+     *
      * @type {Date}
      * @memberof ServiceInstance
      */
     lastHeartbeatAt: Date;
+    /**
+     *
+     * @type {Date}
+     * @memberof ServiceInstance
+     */
+    lastSuccessAt?: Date | null;
     /**
      *
      * @type {ServiceLiveness}
@@ -183,13 +207,17 @@ export function ServiceInstanceFromJSONTyped(json: any, ignoreDiscriminator: boo
     return {
 
         'compatibility': ServiceCompatibilityFromJSON(json['compatibility']),
+        'consecutiveFailures': json['consecutiveFailures'] == null ? undefined : json['consecutiveFailures'],
         'dependencies': json['dependencies'] == null ? undefined : json['dependencies'],
         'failureZone': json['failureZone'] === undefined ? undefined : json['failureZone'] === null ? null : json['failureZone'],
         'generation': json['generation'],
         'id': json['id'],
         'instanceName': json['instanceName'],
         'labels': json['labels'] == null ? undefined : json['labels'],
+        'lastFailure': json['lastFailure'] === undefined ? undefined : json['lastFailure'] === null ? null : json['lastFailure'],
+        'lastFailureAt': json['lastFailureAt'] === undefined ? undefined : json['lastFailureAt'] === null ? null : (new Date(json['lastFailureAt'])),
         'lastHeartbeatAt': (new Date(json['lastHeartbeatAt'])),
+        'lastSuccessAt': json['lastSuccessAt'] === undefined ? undefined : json['lastSuccessAt'] === null ? null : (new Date(json['lastSuccessAt'])),
         'liveness': ServiceLivenessFromJSON(json['liveness']),
         'ownership': json['ownership'] == null ? undefined : json['ownership'],
         'partitions': json['partitions'] == null ? undefined : json['partitions'],
@@ -214,13 +242,17 @@ export function ServiceInstanceToJSONTyped(value?: ServiceInstance | null, ignor
     return {
 
         'compatibility': ServiceCompatibilityToJSON(value['compatibility']),
+        'consecutiveFailures': value['consecutiveFailures'],
         'dependencies': value['dependencies'],
         'failureZone': value['failureZone'],
         'generation': value['generation'],
         'id': value['id'],
         'instanceName': value['instanceName'],
         'labels': value['labels'],
+        'lastFailure': value['lastFailure'],
+        'lastFailureAt': value['lastFailureAt'] == null ? value['lastFailureAt'] : value['lastFailureAt'].toISOString(),
         'lastHeartbeatAt': value['lastHeartbeatAt'].toISOString(),
+        'lastSuccessAt': value['lastSuccessAt'] == null ? value['lastSuccessAt'] : value['lastSuccessAt'].toISOString(),
         'liveness': ServiceLivenessToJSON(value['liveness']),
         'ownership': value['ownership'],
         'partitions': value['partitions'],

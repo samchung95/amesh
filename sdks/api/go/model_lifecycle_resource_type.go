@@ -21,10 +21,10 @@ type LifecycleResourceType string
 // List of LifecycleResourceType
 const (
 	LIFECYCLERESOURCETYPE_EXECUTION LifecycleResourceType = "EXECUTION"
-	LIFECYCLERESOURCETYPE_LOG LifecycleResourceType = "LOG"
-	LIFECYCLERESOURCETYPE_METRIC LifecycleResourceType = "METRIC"
-	LIFECYCLERESOURCETYPE_ARTIFACT LifecycleResourceType = "ARTIFACT"
-	LIFECYCLERESOURCETYPE_CACHE LifecycleResourceType = "CACHE"
+	LIFECYCLERESOURCETYPE_LOG       LifecycleResourceType = "LOG"
+	LIFECYCLERESOURCETYPE_METRIC    LifecycleResourceType = "METRIC"
+	LIFECYCLERESOURCETYPE_ARTIFACT  LifecycleResourceType = "ARTIFACT"
+	LIFECYCLERESOURCETYPE_CACHE     LifecycleResourceType = "CACHE"
 )
 
 // All allowed values of LifecycleResourceType enum

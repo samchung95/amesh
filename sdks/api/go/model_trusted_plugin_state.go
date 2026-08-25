@@ -20,11 +20,11 @@ type TrustedPluginState string
 
 // List of TrustedPluginState
 const (
-	TRUSTEDPLUGINSTATE_REGISTERED TrustedPluginState = "registered"
-	TRUSTEDPLUGINSTATE_STARTING TrustedPluginState = "starting"
-	TRUSTEDPLUGINSTATE_ACTIVE TrustedPluginState = "active"
-	TRUSTEDPLUGINSTATE_STOPPING TrustedPluginState = "stopping"
-	TRUSTEDPLUGINSTATE_STOPPED TrustedPluginState = "stopped"
+	TRUSTEDPLUGINSTATE_REGISTERED  TrustedPluginState = "registered"
+	TRUSTEDPLUGINSTATE_STARTING    TrustedPluginState = "starting"
+	TRUSTEDPLUGINSTATE_ACTIVE      TrustedPluginState = "active"
+	TRUSTEDPLUGINSTATE_STOPPING    TrustedPluginState = "stopping"
+	TRUSTEDPLUGINSTATE_STOPPED     TrustedPluginState = "stopped"
 	TRUSTEDPLUGINSTATE_QUARANTINED TrustedPluginState = "quarantined"
 )
 

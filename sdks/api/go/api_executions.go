@@ -16,22 +16,21 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"strings"
 	"reflect"
+	"strings"
 )
-
 
 // ExecutionsAPIService ExecutionsAPI service
 type ExecutionsAPIService service
 
 type ApiApplyExecutionControlApiV1ExecutionsExecutionIdInterventionsPostRequest struct {
-	ctx context.Context
-	ApiService *ExecutionsAPIService
-	executionId string
+	ctx                          context.Context
+	ApiService                   *ExecutionsAPIService
+	executionId                  string
 	executionInterventionRequest *ExecutionInterventionRequest
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization                *string
+	xAmeshCSRF                   *string
+	xAmeshTenant                 *string
 }
 
 func (r ApiApplyExecutionControlApiV1ExecutionsExecutionIdInterventionsPostRequest) ExecutionInterventionRequest(executionInterventionRequest ExecutionInterventionRequest) ApiApplyExecutionControlApiV1ExecutionsExecutionIdInterventionsPostRequest {
@@ -61,26 +60,27 @@ func (r ApiApplyExecutionControlApiV1ExecutionsExecutionIdInterventionsPostReque
 /*
 ApplyExecutionControlApiV1ExecutionsExecutionIdInterventionsPost Apply Execution Control
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param executionId
- @return ApiApplyExecutionControlApiV1ExecutionsExecutionIdInterventionsPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param executionId
+	@return ApiApplyExecutionControlApiV1ExecutionsExecutionIdInterventionsPostRequest
 */
 func (a *ExecutionsAPIService) ApplyExecutionControlApiV1ExecutionsExecutionIdInterventionsPost(ctx context.Context, executionId string) ApiApplyExecutionControlApiV1ExecutionsExecutionIdInterventionsPostRequest {
 	return ApiApplyExecutionControlApiV1ExecutionsExecutionIdInterventionsPostRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:  a,
+		ctx:         ctx,
 		executionId: executionId,
 	}
 }
 
 // Execute executes the request
-//  @return ExecutionDetail
+//
+//	@return ExecutionDetail
 func (a *ExecutionsAPIService) ApplyExecutionControlApiV1ExecutionsExecutionIdInterventionsPostExecute(r ApiApplyExecutionControlApiV1ExecutionsExecutionIdInterventionsPostRequest) (*ExecutionDetail, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *ExecutionDetail
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *ExecutionDetail
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ExecutionsAPIService.ApplyExecutionControlApiV1ExecutionsExecutionIdInterventionsPost")
@@ -155,8 +155,8 @@ func (a *ExecutionsAPIService) ApplyExecutionControlApiV1ExecutionsExecutionIdIn
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -174,14 +174,15 @@ func (a *ExecutionsAPIService) ApplyExecutionControlApiV1ExecutionsExecutionIdIn
 }
 
 type ApiCreateExecutionApiV1ExecutionsPostRequest struct {
-	ctx context.Context
-	ApiService *ExecutionsAPIService
+	ctx                    context.Context
+	ApiService             *ExecutionsAPIService
 	createExecutionRequest *CreateExecutionRequest
-	prefer *string
-	idempotencyKey *string
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	prefer                 *string
+	idempotencyKey         *string
+	xCorrelationID         *string
+	authorization          *string
+	xAmeshCSRF             *string
+	xAmeshTenant           *string
 }
 
 func (r ApiCreateExecutionApiV1ExecutionsPostRequest) CreateExecutionRequest(createExecutionRequest CreateExecutionRequest) ApiCreateExecutionApiV1ExecutionsPostRequest {
@@ -196,6 +197,11 @@ func (r ApiCreateExecutionApiV1ExecutionsPostRequest) Prefer(prefer string) ApiC
 
 func (r ApiCreateExecutionApiV1ExecutionsPostRequest) IdempotencyKey(idempotencyKey string) ApiCreateExecutionApiV1ExecutionsPostRequest {
 	r.idempotencyKey = &idempotencyKey
+	return r
+}
+
+func (r ApiCreateExecutionApiV1ExecutionsPostRequest) XCorrelationID(xCorrelationID string) ApiCreateExecutionApiV1ExecutionsPostRequest {
+	r.xCorrelationID = &xCorrelationID
 	return r
 }
 
@@ -221,24 +227,25 @@ func (r ApiCreateExecutionApiV1ExecutionsPostRequest) Execute() (*ExecutionDetai
 /*
 CreateExecutionApiV1ExecutionsPost Create Execution
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiCreateExecutionApiV1ExecutionsPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiCreateExecutionApiV1ExecutionsPostRequest
 */
 func (a *ExecutionsAPIService) CreateExecutionApiV1ExecutionsPost(ctx context.Context) ApiCreateExecutionApiV1ExecutionsPostRequest {
 	return ApiCreateExecutionApiV1ExecutionsPostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return ExecutionDetail
+//
+//	@return ExecutionDetail
 func (a *ExecutionsAPIService) CreateExecutionApiV1ExecutionsPostExecute(r ApiCreateExecutionApiV1ExecutionsPostRequest) (*ExecutionDetail, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *ExecutionDetail
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *ExecutionDetail
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ExecutionsAPIService.CreateExecutionApiV1ExecutionsPost")
@@ -277,6 +284,9 @@ func (a *ExecutionsAPIService) CreateExecutionApiV1ExecutionsPostExecute(r ApiCr
 	}
 	if r.idempotencyKey != nil {
 		parameterAddToHeaderOrQuery(localVarHeaderParams, "Idempotency-Key", r.idempotencyKey, "simple", "")
+	}
+	if r.xCorrelationID != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "X-Correlation-ID", r.xCorrelationID, "simple", "")
 	}
 	if r.authorization != nil {
 		parameterAddToHeaderOrQuery(localVarHeaderParams, "authorization", r.authorization, "simple", "")
@@ -318,8 +328,8 @@ func (a *ExecutionsAPIService) CreateExecutionApiV1ExecutionsPostExecute(r ApiCr
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -337,13 +347,14 @@ func (a *ExecutionsAPIService) CreateExecutionApiV1ExecutionsPostExecute(r ApiCr
 }
 
 type ApiCreateExecutionsBulkApiV1ExecutionsBulkPostRequest struct {
-	ctx context.Context
-	ApiService *ExecutionsAPIService
+	ctx                  context.Context
+	ApiService           *ExecutionsAPIService
 	bulkExecutionRequest *BulkExecutionRequest
-	prefer *string
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	prefer               *string
+	xCorrelationID       *string
+	authorization        *string
+	xAmeshCSRF           *string
+	xAmeshTenant         *string
 }
 
 func (r ApiCreateExecutionsBulkApiV1ExecutionsBulkPostRequest) BulkExecutionRequest(bulkExecutionRequest BulkExecutionRequest) ApiCreateExecutionsBulkApiV1ExecutionsBulkPostRequest {
@@ -353,6 +364,11 @@ func (r ApiCreateExecutionsBulkApiV1ExecutionsBulkPostRequest) BulkExecutionRequ
 
 func (r ApiCreateExecutionsBulkApiV1ExecutionsBulkPostRequest) Prefer(prefer string) ApiCreateExecutionsBulkApiV1ExecutionsBulkPostRequest {
 	r.prefer = &prefer
+	return r
+}
+
+func (r ApiCreateExecutionsBulkApiV1ExecutionsBulkPostRequest) XCorrelationID(xCorrelationID string) ApiCreateExecutionsBulkApiV1ExecutionsBulkPostRequest {
+	r.xCorrelationID = &xCorrelationID
 	return r
 }
 
@@ -378,24 +394,25 @@ func (r ApiCreateExecutionsBulkApiV1ExecutionsBulkPostRequest) Execute() ([]Bulk
 /*
 CreateExecutionsBulkApiV1ExecutionsBulkPost Create Executions Bulk
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiCreateExecutionsBulkApiV1ExecutionsBulkPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiCreateExecutionsBulkApiV1ExecutionsBulkPostRequest
 */
 func (a *ExecutionsAPIService) CreateExecutionsBulkApiV1ExecutionsBulkPost(ctx context.Context) ApiCreateExecutionsBulkApiV1ExecutionsBulkPostRequest {
 	return ApiCreateExecutionsBulkApiV1ExecutionsBulkPostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return []BulkExecutionItemResult
+//
+//	@return []BulkExecutionItemResult
 func (a *ExecutionsAPIService) CreateExecutionsBulkApiV1ExecutionsBulkPostExecute(r ApiCreateExecutionsBulkApiV1ExecutionsBulkPostRequest) ([]BulkExecutionItemResult, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  []BulkExecutionItemResult
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []BulkExecutionItemResult
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ExecutionsAPIService.CreateExecutionsBulkApiV1ExecutionsBulkPost")
@@ -431,6 +448,9 @@ func (a *ExecutionsAPIService) CreateExecutionsBulkApiV1ExecutionsBulkPostExecut
 	}
 	if r.prefer != nil {
 		parameterAddToHeaderOrQuery(localVarHeaderParams, "Prefer", r.prefer, "simple", "")
+	}
+	if r.xCorrelationID != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "X-Correlation-ID", r.xCorrelationID, "simple", "")
 	}
 	if r.authorization != nil {
 		parameterAddToHeaderOrQuery(localVarHeaderParams, "authorization", r.authorization, "simple", "")
@@ -472,8 +492,8 @@ func (a *ExecutionsAPIService) CreateExecutionsBulkApiV1ExecutionsBulkPostExecut
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -491,13 +511,13 @@ func (a *ExecutionsAPIService) CreateExecutionsBulkApiV1ExecutionsBulkPostExecut
 }
 
 type ApiDownloadExecutionFileApiV1ExecutionsExecutionIdFilesArtifactIdGetRequest struct {
-	ctx context.Context
-	ApiService *ExecutionsAPIService
-	executionId string
-	artifactId string
+	ctx           context.Context
+	ApiService    *ExecutionsAPIService
+	executionId   string
+	artifactId    string
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiDownloadExecutionFileApiV1ExecutionsExecutionIdFilesArtifactIdGetRequest) Authorization(authorization string) ApiDownloadExecutionFileApiV1ExecutionsExecutionIdFilesArtifactIdGetRequest {
@@ -522,26 +542,26 @@ func (r ApiDownloadExecutionFileApiV1ExecutionsExecutionIdFilesArtifactIdGetRequ
 /*
 DownloadExecutionFileApiV1ExecutionsExecutionIdFilesArtifactIdGet Download Execution File
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param executionId
- @param artifactId
- @return ApiDownloadExecutionFileApiV1ExecutionsExecutionIdFilesArtifactIdGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param executionId
+	@param artifactId
+	@return ApiDownloadExecutionFileApiV1ExecutionsExecutionIdFilesArtifactIdGetRequest
 */
 func (a *ExecutionsAPIService) DownloadExecutionFileApiV1ExecutionsExecutionIdFilesArtifactIdGet(ctx context.Context, executionId string, artifactId string) ApiDownloadExecutionFileApiV1ExecutionsExecutionIdFilesArtifactIdGetRequest {
 	return ApiDownloadExecutionFileApiV1ExecutionsExecutionIdFilesArtifactIdGetRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:  a,
+		ctx:         ctx,
 		executionId: executionId,
-		artifactId: artifactId,
+		artifactId:  artifactId,
 	}
 }
 
 // Execute executes the request
 func (a *ExecutionsAPIService) DownloadExecutionFileApiV1ExecutionsExecutionIdFilesArtifactIdGetExecute(r ApiDownloadExecutionFileApiV1ExecutionsExecutionIdFilesArtifactIdGetRequest) (*http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
+		localVarHTTPMethod = http.MethodGet
+		localVarPostBody   interface{}
+		formFiles          []formFile
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ExecutionsAPIService.DownloadExecutionFileApiV1ExecutionsExecutionIdFilesArtifactIdGet")
@@ -612,8 +632,8 @@ func (a *ExecutionsAPIService) DownloadExecutionFileApiV1ExecutionsExecutionIdFi
 				newErr.error = err.Error()
 				return localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarHTTPResponse, newErr
 	}
@@ -622,12 +642,12 @@ func (a *ExecutionsAPIService) DownloadExecutionFileApiV1ExecutionsExecutionIdFi
 }
 
 type ApiGetExecutionAdmissionApiV1ExecutionsExecutionIdAdmissionGetRequest struct {
-	ctx context.Context
-	ApiService *ExecutionsAPIService
-	executionId string
+	ctx           context.Context
+	ApiService    *ExecutionsAPIService
+	executionId   string
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiGetExecutionAdmissionApiV1ExecutionsExecutionIdAdmissionGetRequest) Authorization(authorization string) ApiGetExecutionAdmissionApiV1ExecutionsExecutionIdAdmissionGetRequest {
@@ -652,26 +672,27 @@ func (r ApiGetExecutionAdmissionApiV1ExecutionsExecutionIdAdmissionGetRequest) E
 /*
 GetExecutionAdmissionApiV1ExecutionsExecutionIdAdmissionGet Get Execution Admission
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param executionId
- @return ApiGetExecutionAdmissionApiV1ExecutionsExecutionIdAdmissionGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param executionId
+	@return ApiGetExecutionAdmissionApiV1ExecutionsExecutionIdAdmissionGetRequest
 */
 func (a *ExecutionsAPIService) GetExecutionAdmissionApiV1ExecutionsExecutionIdAdmissionGet(ctx context.Context, executionId string) ApiGetExecutionAdmissionApiV1ExecutionsExecutionIdAdmissionGetRequest {
 	return ApiGetExecutionAdmissionApiV1ExecutionsExecutionIdAdmissionGetRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:  a,
+		ctx:         ctx,
 		executionId: executionId,
 	}
 }
 
 // Execute executes the request
-//  @return AdmissionDecision
+//
+//	@return AdmissionDecision
 func (a *ExecutionsAPIService) GetExecutionAdmissionApiV1ExecutionsExecutionIdAdmissionGetExecute(r ApiGetExecutionAdmissionApiV1ExecutionsExecutionIdAdmissionGetRequest) (*AdmissionDecision, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *AdmissionDecision
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *AdmissionDecision
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ExecutionsAPIService.GetExecutionAdmissionApiV1ExecutionsExecutionIdAdmissionGet")
@@ -741,8 +762,8 @@ func (a *ExecutionsAPIService) GetExecutionAdmissionApiV1ExecutionsExecutionIdAd
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -760,14 +781,14 @@ func (a *ExecutionsAPIService) GetExecutionAdmissionApiV1ExecutionsExecutionIdAd
 }
 
 type ApiGetExecutionApiV1ExecutionsExecutionIdGetRequest struct {
-	ctx context.Context
-	ApiService *ExecutionsAPIService
-	executionId string
-	taskOffset *int32
-	taskLimit *int32
+	ctx           context.Context
+	ApiService    *ExecutionsAPIService
+	executionId   string
+	taskOffset    *int32
+	taskLimit     *int32
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiGetExecutionApiV1ExecutionsExecutionIdGetRequest) TaskOffset(taskOffset int32) ApiGetExecutionApiV1ExecutionsExecutionIdGetRequest {
@@ -802,26 +823,27 @@ func (r ApiGetExecutionApiV1ExecutionsExecutionIdGetRequest) Execute() (*Executi
 /*
 GetExecutionApiV1ExecutionsExecutionIdGet Get Execution
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param executionId
- @return ApiGetExecutionApiV1ExecutionsExecutionIdGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param executionId
+	@return ApiGetExecutionApiV1ExecutionsExecutionIdGetRequest
 */
 func (a *ExecutionsAPIService) GetExecutionApiV1ExecutionsExecutionIdGet(ctx context.Context, executionId string) ApiGetExecutionApiV1ExecutionsExecutionIdGetRequest {
 	return ApiGetExecutionApiV1ExecutionsExecutionIdGetRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:  a,
+		ctx:         ctx,
 		executionId: executionId,
 	}
 }
 
 // Execute executes the request
-//  @return ExecutionDetail
+//
+//	@return ExecutionDetail
 func (a *ExecutionsAPIService) GetExecutionApiV1ExecutionsExecutionIdGetExecute(r ApiGetExecutionApiV1ExecutionsExecutionIdGetRequest) (*ExecutionDetail, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *ExecutionDetail
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *ExecutionDetail
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ExecutionsAPIService.GetExecutionApiV1ExecutionsExecutionIdGet")
@@ -901,8 +923,8 @@ func (a *ExecutionsAPIService) GetExecutionApiV1ExecutionsExecutionIdGetExecute(
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -920,14 +942,14 @@ func (a *ExecutionsAPIService) GetExecutionApiV1ExecutionsExecutionIdGetExecute(
 }
 
 type ApiGetExecutionEvidenceApiV1ExecutionsExecutionIdEvidenceGetRequest struct {
-	ctx context.Context
-	ApiService *ExecutionsAPIService
-	executionId string
-	cursor *string
-	limit *int32
+	ctx           context.Context
+	ApiService    *ExecutionsAPIService
+	executionId   string
+	cursor        *string
+	limit         *int32
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 // Opaque reconnect cursor
@@ -963,26 +985,27 @@ func (r ApiGetExecutionEvidenceApiV1ExecutionsExecutionIdEvidenceGetRequest) Exe
 /*
 GetExecutionEvidenceApiV1ExecutionsExecutionIdEvidenceGet Get Execution Evidence
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param executionId
- @return ApiGetExecutionEvidenceApiV1ExecutionsExecutionIdEvidenceGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param executionId
+	@return ApiGetExecutionEvidenceApiV1ExecutionsExecutionIdEvidenceGetRequest
 */
 func (a *ExecutionsAPIService) GetExecutionEvidenceApiV1ExecutionsExecutionIdEvidenceGet(ctx context.Context, executionId string) ApiGetExecutionEvidenceApiV1ExecutionsExecutionIdEvidenceGetRequest {
 	return ApiGetExecutionEvidenceApiV1ExecutionsExecutionIdEvidenceGetRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:  a,
+		ctx:         ctx,
 		executionId: executionId,
 	}
 }
 
 // Execute executes the request
-//  @return ExecutionEvidencePage
+//
+//	@return ExecutionEvidencePage
 func (a *ExecutionsAPIService) GetExecutionEvidenceApiV1ExecutionsExecutionIdEvidenceGetExecute(r ApiGetExecutionEvidenceApiV1ExecutionsExecutionIdEvidenceGetRequest) (*ExecutionEvidencePage, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *ExecutionEvidencePage
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *ExecutionEvidencePage
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ExecutionsAPIService.GetExecutionEvidenceApiV1ExecutionsExecutionIdEvidenceGet")
@@ -1062,8 +1085,186 @@ func (a *ExecutionsAPIService) GetExecutionEvidenceApiV1ExecutionsExecutionIdEvi
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	err = a.client.decode(&localVarReturnValue, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+	if err != nil {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: err.Error(),
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	return localVarReturnValue, localVarHTTPResponse, nil
+}
+
+type ApiGetExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGetRequest struct {
+	ctx           context.Context
+	ApiService    *ExecutionsAPIService
+	executionId   string
+	section       *string
+	cursor        *string
+	limit         *int32
+	authorization *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
+}
+
+// Canonical evidence section
+func (r ApiGetExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGetRequest) Section(section string) ApiGetExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGetRequest {
+	r.section = &section
+	return r
+}
+
+// Opaque section cursor
+func (r ApiGetExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGetRequest) Cursor(cursor string) ApiGetExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGetRequest {
+	r.cursor = &cursor
+	return r
+}
+
+func (r ApiGetExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGetRequest) Limit(limit int32) ApiGetExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGetRequest {
+	r.limit = &limit
+	return r
+}
+
+func (r ApiGetExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGetRequest) Authorization(authorization string) ApiGetExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGetRequest {
+	r.authorization = &authorization
+	return r
+}
+
+func (r ApiGetExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGetRequest) XAmeshCSRF(xAmeshCSRF string) ApiGetExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGetRequest {
+	r.xAmeshCSRF = &xAmeshCSRF
+	return r
+}
+
+func (r ApiGetExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGetRequest) XAmeshTenant(xAmeshTenant string) ApiGetExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGetRequest {
+	r.xAmeshTenant = &xAmeshTenant
+	return r
+}
+
+func (r ApiGetExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGetRequest) Execute() (*EvidenceBundlePageResponse, *http.Response, error) {
+	return r.ApiService.GetExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGetExecute(r)
+}
+
+/*
+GetExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGet Get Execution Evidence Bundle
+
+Return a verified, bounded, tenant-scoped canonical evidence projection.
+
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param executionId
+	@return ApiGetExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGetRequest
+*/
+func (a *ExecutionsAPIService) GetExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGet(ctx context.Context, executionId string) ApiGetExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGetRequest {
+	return ApiGetExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGetRequest{
+		ApiService:  a,
+		ctx:         ctx,
+		executionId: executionId,
+	}
+}
+
+// Execute executes the request
+//
+//	@return EvidenceBundlePageResponse
+func (a *ExecutionsAPIService) GetExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGetExecute(r ApiGetExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGetRequest) (*EvidenceBundlePageResponse, *http.Response, error) {
+	var (
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *EvidenceBundlePageResponse
+	)
+
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ExecutionsAPIService.GetExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGet")
+	if err != nil {
+		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
+	}
+
+	localVarPath := localBasePath + "/api/v1/executions/{execution_id}/evidence-bundle"
+	localVarPath = strings.Replace(localVarPath, "{"+"execution_id"+"}", url.PathEscape(parameterValueToString(r.executionId, "executionId")), -1)
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+
+	if r.section != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "section", r.section, "form", "")
+	} else {
+		var defaultValue string = "trace"
+		parameterAddToHeaderOrQuery(localVarQueryParams, "section", defaultValue, "form", "")
+		r.section = &defaultValue
+	}
+	if r.cursor != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "cursor", r.cursor, "form", "")
+	}
+	if r.limit != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "limit", r.limit, "form", "")
+	} else {
+		var defaultValue int32 = 100
+		parameterAddToHeaderOrQuery(localVarQueryParams, "limit", defaultValue, "form", "")
+		r.limit = &defaultValue
+	}
+	// to determine the Content-Type header
+	localVarHTTPContentTypes := []string{}
+
+	// set Content-Type header
+	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
+	if localVarHTTPContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHTTPContentType
+	}
+
+	// to determine the Accept header
+	localVarHTTPHeaderAccepts := []string{"application/json"}
+
+	// set Accept header
+	localVarHTTPHeaderAccept := selectHeaderAccept(localVarHTTPHeaderAccepts)
+	if localVarHTTPHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
+	}
+	if r.authorization != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "authorization", r.authorization, "simple", "")
+	}
+	if r.xAmeshCSRF != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "X-Amesh-CSRF", r.xAmeshCSRF, "simple", "")
+	}
+	if r.xAmeshTenant != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "X-Amesh-Tenant", r.xAmeshTenant, "simple", "")
+	}
+	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
+	if err != nil {
+		return localVarReturnValue, nil, err
+	}
+
+	localVarHTTPResponse, err := a.client.callAPI(req)
+	if err != nil || localVarHTTPResponse == nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	localVarBody, err := io.ReadAll(localVarHTTPResponse.Body)
+	localVarHTTPResponse.Body.Close()
+	localVarHTTPResponse.Body = io.NopCloser(bytes.NewBuffer(localVarBody))
+	if err != nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	if localVarHTTPResponse.StatusCode >= 300 {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: localVarHTTPResponse.Status,
+		}
+		if localVarHTTPResponse.StatusCode == 422 {
+			var v HTTPValidationError
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1081,12 +1282,12 @@ func (a *ExecutionsAPIService) GetExecutionEvidenceApiV1ExecutionsExecutionIdEvi
 }
 
 type ApiGetExecutionGraphApiV1ExecutionsExecutionIdGraphGetRequest struct {
-	ctx context.Context
-	ApiService *ExecutionsAPIService
-	executionId string
+	ctx           context.Context
+	ApiService    *ExecutionsAPIService
+	executionId   string
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiGetExecutionGraphApiV1ExecutionsExecutionIdGraphGetRequest) Authorization(authorization string) ApiGetExecutionGraphApiV1ExecutionsExecutionIdGraphGetRequest {
@@ -1111,26 +1312,27 @@ func (r ApiGetExecutionGraphApiV1ExecutionsExecutionIdGraphGetRequest) Execute()
 /*
 GetExecutionGraphApiV1ExecutionsExecutionIdGraphGet Get Execution Graph
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param executionId
- @return ApiGetExecutionGraphApiV1ExecutionsExecutionIdGraphGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param executionId
+	@return ApiGetExecutionGraphApiV1ExecutionsExecutionIdGraphGetRequest
 */
 func (a *ExecutionsAPIService) GetExecutionGraphApiV1ExecutionsExecutionIdGraphGet(ctx context.Context, executionId string) ApiGetExecutionGraphApiV1ExecutionsExecutionIdGraphGetRequest {
 	return ApiGetExecutionGraphApiV1ExecutionsExecutionIdGraphGetRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:  a,
+		ctx:         ctx,
 		executionId: executionId,
 	}
 }
 
 // Execute executes the request
-//  @return FlowGraph
+//
+//	@return FlowGraph
 func (a *ExecutionsAPIService) GetExecutionGraphApiV1ExecutionsExecutionIdGraphGetExecute(r ApiGetExecutionGraphApiV1ExecutionsExecutionIdGraphGetRequest) (*FlowGraph, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *FlowGraph
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *FlowGraph
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ExecutionsAPIService.GetExecutionGraphApiV1ExecutionsExecutionIdGraphGet")
@@ -1200,8 +1402,8 @@ func (a *ExecutionsAPIService) GetExecutionGraphApiV1ExecutionsExecutionIdGraphG
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1219,12 +1421,12 @@ func (a *ExecutionsAPIService) GetExecutionGraphApiV1ExecutionsExecutionIdGraphG
 }
 
 type ApiGetExecutionLogsApiV1ExecutionsExecutionIdLogsGetRequest struct {
-	ctx context.Context
-	ApiService *ExecutionsAPIService
-	executionId string
+	ctx           context.Context
+	ApiService    *ExecutionsAPIService
+	executionId   string
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiGetExecutionLogsApiV1ExecutionsExecutionIdLogsGetRequest) Authorization(authorization string) ApiGetExecutionLogsApiV1ExecutionsExecutionIdLogsGetRequest {
@@ -1249,26 +1451,27 @@ func (r ApiGetExecutionLogsApiV1ExecutionsExecutionIdLogsGetRequest) Execute() (
 /*
 GetExecutionLogsApiV1ExecutionsExecutionIdLogsGet Get Execution Logs
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param executionId
- @return ApiGetExecutionLogsApiV1ExecutionsExecutionIdLogsGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param executionId
+	@return ApiGetExecutionLogsApiV1ExecutionsExecutionIdLogsGetRequest
 */
 func (a *ExecutionsAPIService) GetExecutionLogsApiV1ExecutionsExecutionIdLogsGet(ctx context.Context, executionId string) ApiGetExecutionLogsApiV1ExecutionsExecutionIdLogsGetRequest {
 	return ApiGetExecutionLogsApiV1ExecutionsExecutionIdLogsGetRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:  a,
+		ctx:         ctx,
 		executionId: executionId,
 	}
 }
 
 // Execute executes the request
-//  @return []TaskLog
+//
+//	@return []TaskLog
 func (a *ExecutionsAPIService) GetExecutionLogsApiV1ExecutionsExecutionIdLogsGetExecute(r ApiGetExecutionLogsApiV1ExecutionsExecutionIdLogsGetRequest) ([]TaskLog, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  []TaskLog
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []TaskLog
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ExecutionsAPIService.GetExecutionLogsApiV1ExecutionsExecutionIdLogsGet")
@@ -1338,8 +1541,8 @@ func (a *ExecutionsAPIService) GetExecutionLogsApiV1ExecutionsExecutionIdLogsGet
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1357,12 +1560,12 @@ func (a *ExecutionsAPIService) GetExecutionLogsApiV1ExecutionsExecutionIdLogsGet
 }
 
 type ApiGetExecutionParentSubflowApiV1ExecutionsExecutionIdParentSubflowGetRequest struct {
-	ctx context.Context
-	ApiService *ExecutionsAPIService
-	executionId string
+	ctx           context.Context
+	ApiService    *ExecutionsAPIService
+	executionId   string
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiGetExecutionParentSubflowApiV1ExecutionsExecutionIdParentSubflowGetRequest) Authorization(authorization string) ApiGetExecutionParentSubflowApiV1ExecutionsExecutionIdParentSubflowGetRequest {
@@ -1387,26 +1590,27 @@ func (r ApiGetExecutionParentSubflowApiV1ExecutionsExecutionIdParentSubflowGetRe
 /*
 GetExecutionParentSubflowApiV1ExecutionsExecutionIdParentSubflowGet Get Execution Parent Subflow
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param executionId
- @return ApiGetExecutionParentSubflowApiV1ExecutionsExecutionIdParentSubflowGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param executionId
+	@return ApiGetExecutionParentSubflowApiV1ExecutionsExecutionIdParentSubflowGetRequest
 */
 func (a *ExecutionsAPIService) GetExecutionParentSubflowApiV1ExecutionsExecutionIdParentSubflowGet(ctx context.Context, executionId string) ApiGetExecutionParentSubflowApiV1ExecutionsExecutionIdParentSubflowGetRequest {
 	return ApiGetExecutionParentSubflowApiV1ExecutionsExecutionIdParentSubflowGetRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:  a,
+		ctx:         ctx,
 		executionId: executionId,
 	}
 }
 
 // Execute executes the request
-//  @return PersistedSubflow
+//
+//	@return PersistedSubflow
 func (a *ExecutionsAPIService) GetExecutionParentSubflowApiV1ExecutionsExecutionIdParentSubflowGetExecute(r ApiGetExecutionParentSubflowApiV1ExecutionsExecutionIdParentSubflowGetRequest) (*PersistedSubflow, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *PersistedSubflow
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *PersistedSubflow
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ExecutionsAPIService.GetExecutionParentSubflowApiV1ExecutionsExecutionIdParentSubflowGet")
@@ -1476,8 +1680,8 @@ func (a *ExecutionsAPIService) GetExecutionParentSubflowApiV1ExecutionsExecution
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1495,12 +1699,12 @@ func (a *ExecutionsAPIService) GetExecutionParentSubflowApiV1ExecutionsExecution
 }
 
 type ApiGetTaskAdmissionApiV1TaskRunsTaskRunIdAdmissionGetRequest struct {
-	ctx context.Context
-	ApiService *ExecutionsAPIService
-	taskRunId string
+	ctx           context.Context
+	ApiService    *ExecutionsAPIService
+	taskRunId     string
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiGetTaskAdmissionApiV1TaskRunsTaskRunIdAdmissionGetRequest) Authorization(authorization string) ApiGetTaskAdmissionApiV1TaskRunsTaskRunIdAdmissionGetRequest {
@@ -1525,26 +1729,27 @@ func (r ApiGetTaskAdmissionApiV1TaskRunsTaskRunIdAdmissionGetRequest) Execute() 
 /*
 GetTaskAdmissionApiV1TaskRunsTaskRunIdAdmissionGet Get Task Admission
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param taskRunId
- @return ApiGetTaskAdmissionApiV1TaskRunsTaskRunIdAdmissionGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param taskRunId
+	@return ApiGetTaskAdmissionApiV1TaskRunsTaskRunIdAdmissionGetRequest
 */
 func (a *ExecutionsAPIService) GetTaskAdmissionApiV1TaskRunsTaskRunIdAdmissionGet(ctx context.Context, taskRunId string) ApiGetTaskAdmissionApiV1TaskRunsTaskRunIdAdmissionGetRequest {
 	return ApiGetTaskAdmissionApiV1TaskRunsTaskRunIdAdmissionGetRequest{
 		ApiService: a,
-		ctx: ctx,
-		taskRunId: taskRunId,
+		ctx:        ctx,
+		taskRunId:  taskRunId,
 	}
 }
 
 // Execute executes the request
-//  @return AdmissionDecision
+//
+//	@return AdmissionDecision
 func (a *ExecutionsAPIService) GetTaskAdmissionApiV1TaskRunsTaskRunIdAdmissionGetExecute(r ApiGetTaskAdmissionApiV1TaskRunsTaskRunIdAdmissionGetRequest) (*AdmissionDecision, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *AdmissionDecision
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *AdmissionDecision
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ExecutionsAPIService.GetTaskAdmissionApiV1TaskRunsTaskRunIdAdmissionGet")
@@ -1614,8 +1819,8 @@ func (a *ExecutionsAPIService) GetTaskAdmissionApiV1TaskRunsTaskRunIdAdmissionGe
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1633,12 +1838,12 @@ func (a *ExecutionsAPIService) GetTaskAdmissionApiV1TaskRunsTaskRunIdAdmissionGe
 }
 
 type ApiListExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGetRequest struct {
-	ctx context.Context
-	ApiService *ExecutionsAPIService
-	executionId string
+	ctx           context.Context
+	ApiService    *ExecutionsAPIService
+	executionId   string
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiListExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGetRequest) Authorization(authorization string) ApiListExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGetRequest {
@@ -1663,26 +1868,27 @@ func (r ApiListExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGetR
 /*
 ListExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGet List Execution Agent Sessions
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param executionId
- @return ApiListExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param executionId
+	@return ApiListExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGetRequest
 */
 func (a *ExecutionsAPIService) ListExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGet(ctx context.Context, executionId string) ApiListExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGetRequest {
 	return ApiListExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGetRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:  a,
+		ctx:         ctx,
 		executionId: executionId,
 	}
 }
 
 // Execute executes the request
-//  @return []AgentSessionRecord
+//
+//	@return []AgentSessionRecord
 func (a *ExecutionsAPIService) ListExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGetExecute(r ApiListExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGetRequest) ([]AgentSessionRecord, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  []AgentSessionRecord
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []AgentSessionRecord
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ExecutionsAPIService.ListExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGet")
@@ -1752,8 +1958,8 @@ func (a *ExecutionsAPIService) ListExecutionAgentSessionsApiV1ExecutionsExecutio
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1771,12 +1977,12 @@ func (a *ExecutionsAPIService) ListExecutionAgentSessionsApiV1ExecutionsExecutio
 }
 
 type ApiListExecutionControlHistoryApiV1ExecutionsExecutionIdInterventionsGetRequest struct {
-	ctx context.Context
-	ApiService *ExecutionsAPIService
-	executionId string
+	ctx           context.Context
+	ApiService    *ExecutionsAPIService
+	executionId   string
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiListExecutionControlHistoryApiV1ExecutionsExecutionIdInterventionsGetRequest) Authorization(authorization string) ApiListExecutionControlHistoryApiV1ExecutionsExecutionIdInterventionsGetRequest {
@@ -1801,26 +2007,27 @@ func (r ApiListExecutionControlHistoryApiV1ExecutionsExecutionIdInterventionsGet
 /*
 ListExecutionControlHistoryApiV1ExecutionsExecutionIdInterventionsGet List Execution Control History
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param executionId
- @return ApiListExecutionControlHistoryApiV1ExecutionsExecutionIdInterventionsGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param executionId
+	@return ApiListExecutionControlHistoryApiV1ExecutionsExecutionIdInterventionsGetRequest
 */
 func (a *ExecutionsAPIService) ListExecutionControlHistoryApiV1ExecutionsExecutionIdInterventionsGet(ctx context.Context, executionId string) ApiListExecutionControlHistoryApiV1ExecutionsExecutionIdInterventionsGetRequest {
 	return ApiListExecutionControlHistoryApiV1ExecutionsExecutionIdInterventionsGetRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:  a,
+		ctx:         ctx,
 		executionId: executionId,
 	}
 }
 
 // Execute executes the request
-//  @return []ExecutionInterventionRecord
+//
+//	@return []ExecutionInterventionRecord
 func (a *ExecutionsAPIService) ListExecutionControlHistoryApiV1ExecutionsExecutionIdInterventionsGetExecute(r ApiListExecutionControlHistoryApiV1ExecutionsExecutionIdInterventionsGetRequest) ([]ExecutionInterventionRecord, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  []ExecutionInterventionRecord
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []ExecutionInterventionRecord
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ExecutionsAPIService.ListExecutionControlHistoryApiV1ExecutionsExecutionIdInterventionsGet")
@@ -1890,8 +2097,8 @@ func (a *ExecutionsAPIService) ListExecutionControlHistoryApiV1ExecutionsExecuti
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1909,12 +2116,12 @@ func (a *ExecutionsAPIService) ListExecutionControlHistoryApiV1ExecutionsExecuti
 }
 
 type ApiListExecutionFilesApiV1ExecutionsExecutionIdFilesGetRequest struct {
-	ctx context.Context
-	ApiService *ExecutionsAPIService
-	executionId string
+	ctx           context.Context
+	ApiService    *ExecutionsAPIService
+	executionId   string
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiListExecutionFilesApiV1ExecutionsExecutionIdFilesGetRequest) Authorization(authorization string) ApiListExecutionFilesApiV1ExecutionsExecutionIdFilesGetRequest {
@@ -1939,26 +2146,27 @@ func (r ApiListExecutionFilesApiV1ExecutionsExecutionIdFilesGetRequest) Execute(
 /*
 ListExecutionFilesApiV1ExecutionsExecutionIdFilesGet List Execution Files
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param executionId
- @return ApiListExecutionFilesApiV1ExecutionsExecutionIdFilesGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param executionId
+	@return ApiListExecutionFilesApiV1ExecutionsExecutionIdFilesGetRequest
 */
 func (a *ExecutionsAPIService) ListExecutionFilesApiV1ExecutionsExecutionIdFilesGet(ctx context.Context, executionId string) ApiListExecutionFilesApiV1ExecutionsExecutionIdFilesGetRequest {
 	return ApiListExecutionFilesApiV1ExecutionsExecutionIdFilesGetRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:  a,
+		ctx:         ctx,
 		executionId: executionId,
 	}
 }
 
 // Execute executes the request
-//  @return []ExecutionArtifact
+//
+//	@return []ExecutionArtifact
 func (a *ExecutionsAPIService) ListExecutionFilesApiV1ExecutionsExecutionIdFilesGetExecute(r ApiListExecutionFilesApiV1ExecutionsExecutionIdFilesGetRequest) ([]ExecutionArtifact, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  []ExecutionArtifact
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []ExecutionArtifact
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ExecutionsAPIService.ListExecutionFilesApiV1ExecutionsExecutionIdFilesGet")
@@ -2028,8 +2236,8 @@ func (a *ExecutionsAPIService) ListExecutionFilesApiV1ExecutionsExecutionIdFiles
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -2047,12 +2255,12 @@ func (a *ExecutionsAPIService) ListExecutionFilesApiV1ExecutionsExecutionIdFiles
 }
 
 type ApiListExecutionSubflowsApiV1ExecutionsExecutionIdSubflowsGetRequest struct {
-	ctx context.Context
-	ApiService *ExecutionsAPIService
-	executionId string
+	ctx           context.Context
+	ApiService    *ExecutionsAPIService
+	executionId   string
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiListExecutionSubflowsApiV1ExecutionsExecutionIdSubflowsGetRequest) Authorization(authorization string) ApiListExecutionSubflowsApiV1ExecutionsExecutionIdSubflowsGetRequest {
@@ -2077,26 +2285,27 @@ func (r ApiListExecutionSubflowsApiV1ExecutionsExecutionIdSubflowsGetRequest) Ex
 /*
 ListExecutionSubflowsApiV1ExecutionsExecutionIdSubflowsGet List Execution Subflows
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param executionId
- @return ApiListExecutionSubflowsApiV1ExecutionsExecutionIdSubflowsGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param executionId
+	@return ApiListExecutionSubflowsApiV1ExecutionsExecutionIdSubflowsGetRequest
 */
 func (a *ExecutionsAPIService) ListExecutionSubflowsApiV1ExecutionsExecutionIdSubflowsGet(ctx context.Context, executionId string) ApiListExecutionSubflowsApiV1ExecutionsExecutionIdSubflowsGetRequest {
 	return ApiListExecutionSubflowsApiV1ExecutionsExecutionIdSubflowsGetRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:  a,
+		ctx:         ctx,
 		executionId: executionId,
 	}
 }
 
 // Execute executes the request
-//  @return []PersistedSubflow
+//
+//	@return []PersistedSubflow
 func (a *ExecutionsAPIService) ListExecutionSubflowsApiV1ExecutionsExecutionIdSubflowsGetExecute(r ApiListExecutionSubflowsApiV1ExecutionsExecutionIdSubflowsGetRequest) ([]PersistedSubflow, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  []PersistedSubflow
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []PersistedSubflow
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ExecutionsAPIService.ListExecutionSubflowsApiV1ExecutionsExecutionIdSubflowsGet")
@@ -2166,8 +2375,8 @@ func (a *ExecutionsAPIService) ListExecutionSubflowsApiV1ExecutionsExecutionIdSu
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -2185,16 +2394,16 @@ func (a *ExecutionsAPIService) ListExecutionSubflowsApiV1ExecutionsExecutionIdSu
 }
 
 type ApiListExecutionsApiV1ExecutionsGetRequest struct {
-	ctx context.Context
-	ApiService *ExecutionsAPIService
-	cursor *string
-	limit *int32
-	filter *[]string
-	sort *string
-	fields *string
+	ctx           context.Context
+	ApiService    *ExecutionsAPIService
+	cursor        *string
+	limit         *int32
+	filter        *[]string
+	sort          *string
+	fields        *string
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 // Opaque cursor from the prior page
@@ -2248,24 +2457,25 @@ func (r ApiListExecutionsApiV1ExecutionsGetRequest) Execute() ([]PersistedExecut
 /*
 ListExecutionsApiV1ExecutionsGet List Executions
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiListExecutionsApiV1ExecutionsGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiListExecutionsApiV1ExecutionsGetRequest
 */
 func (a *ExecutionsAPIService) ListExecutionsApiV1ExecutionsGet(ctx context.Context) ApiListExecutionsApiV1ExecutionsGetRequest {
 	return ApiListExecutionsApiV1ExecutionsGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return []PersistedExecution
+//
+//	@return []PersistedExecution
 func (a *ExecutionsAPIService) ListExecutionsApiV1ExecutionsGetExecute(r ApiListExecutionsApiV1ExecutionsGetRequest) ([]PersistedExecution, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  []PersistedExecution
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []PersistedExecution
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ExecutionsAPIService.ListExecutionsApiV1ExecutionsGet")
@@ -2361,8 +2571,8 @@ func (a *ExecutionsAPIService) ListExecutionsApiV1ExecutionsGetExecute(r ApiList
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -2380,13 +2590,13 @@ func (a *ExecutionsAPIService) ListExecutionsApiV1ExecutionsGetExecute(r ApiList
 }
 
 type ApiPreviewExecutionControlApiV1ExecutionsExecutionIdInterventionsPreviewPostRequest struct {
-	ctx context.Context
-	ApiService *ExecutionsAPIService
-	executionId string
+	ctx                                 context.Context
+	ApiService                          *ExecutionsAPIService
+	executionId                         string
 	executionInterventionPreviewRequest *ExecutionInterventionPreviewRequest
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization                       *string
+	xAmeshCSRF                          *string
+	xAmeshTenant                        *string
 }
 
 func (r ApiPreviewExecutionControlApiV1ExecutionsExecutionIdInterventionsPreviewPostRequest) ExecutionInterventionPreviewRequest(executionInterventionPreviewRequest ExecutionInterventionPreviewRequest) ApiPreviewExecutionControlApiV1ExecutionsExecutionIdInterventionsPreviewPostRequest {
@@ -2416,26 +2626,27 @@ func (r ApiPreviewExecutionControlApiV1ExecutionsExecutionIdInterventionsPreview
 /*
 PreviewExecutionControlApiV1ExecutionsExecutionIdInterventionsPreviewPost Preview Execution Control
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param executionId
- @return ApiPreviewExecutionControlApiV1ExecutionsExecutionIdInterventionsPreviewPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param executionId
+	@return ApiPreviewExecutionControlApiV1ExecutionsExecutionIdInterventionsPreviewPostRequest
 */
 func (a *ExecutionsAPIService) PreviewExecutionControlApiV1ExecutionsExecutionIdInterventionsPreviewPost(ctx context.Context, executionId string) ApiPreviewExecutionControlApiV1ExecutionsExecutionIdInterventionsPreviewPostRequest {
 	return ApiPreviewExecutionControlApiV1ExecutionsExecutionIdInterventionsPreviewPostRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:  a,
+		ctx:         ctx,
 		executionId: executionId,
 	}
 }
 
 // Execute executes the request
-//  @return ExecutionInterventionPreview
+//
+//	@return ExecutionInterventionPreview
 func (a *ExecutionsAPIService) PreviewExecutionControlApiV1ExecutionsExecutionIdInterventionsPreviewPostExecute(r ApiPreviewExecutionControlApiV1ExecutionsExecutionIdInterventionsPreviewPostRequest) (*ExecutionInterventionPreview, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *ExecutionInterventionPreview
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *ExecutionInterventionPreview
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ExecutionsAPIService.PreviewExecutionControlApiV1ExecutionsExecutionIdInterventionsPreviewPost")
@@ -2510,8 +2721,8 @@ func (a *ExecutionsAPIService) PreviewExecutionControlApiV1ExecutionsExecutionId
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -2529,12 +2740,12 @@ func (a *ExecutionsAPIService) PreviewExecutionControlApiV1ExecutionsExecutionId
 }
 
 type ApiReduceExecutionEventsApiV1ExecutionsReducePostRequest struct {
-	ctx context.Context
-	ApiService *ExecutionsAPIService
+	ctx                    context.Context
+	ApiService             *ExecutionsAPIService
 	reduceExecutionRequest *ReduceExecutionRequest
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization          *string
+	xAmeshCSRF             *string
+	xAmeshTenant           *string
 }
 
 func (r ApiReduceExecutionEventsApiV1ExecutionsReducePostRequest) ReduceExecutionRequest(reduceExecutionRequest ReduceExecutionRequest) ApiReduceExecutionEventsApiV1ExecutionsReducePostRequest {
@@ -2564,24 +2775,25 @@ func (r ApiReduceExecutionEventsApiV1ExecutionsReducePostRequest) Execute() (*Re
 /*
 ReduceExecutionEventsApiV1ExecutionsReducePost Reduce Execution Events
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiReduceExecutionEventsApiV1ExecutionsReducePostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiReduceExecutionEventsApiV1ExecutionsReducePostRequest
 */
 func (a *ExecutionsAPIService) ReduceExecutionEventsApiV1ExecutionsReducePost(ctx context.Context) ApiReduceExecutionEventsApiV1ExecutionsReducePostRequest {
 	return ApiReduceExecutionEventsApiV1ExecutionsReducePostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return ReduceExecutionResponse
+//
+//	@return ReduceExecutionResponse
 func (a *ExecutionsAPIService) ReduceExecutionEventsApiV1ExecutionsReducePostExecute(r ApiReduceExecutionEventsApiV1ExecutionsReducePostRequest) (*ReduceExecutionResponse, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *ReduceExecutionResponse
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *ReduceExecutionResponse
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ExecutionsAPIService.ReduceExecutionEventsApiV1ExecutionsReducePost")
@@ -2655,8 +2867,8 @@ func (a *ExecutionsAPIService) ReduceExecutionEventsApiV1ExecutionsReducePostExe
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -2674,14 +2886,14 @@ func (a *ExecutionsAPIService) ReduceExecutionEventsApiV1ExecutionsReducePostExe
 }
 
 type ApiResumeTaskRunApiV1ExecutionsExecutionIdTaskRunsTaskRunIdResumePostRequest struct {
-	ctx context.Context
-	ApiService *ExecutionsAPIService
-	executionId string
-	taskRunId string
+	ctx               context.Context
+	ApiService        *ExecutionsAPIService
+	executionId       string
+	taskRunId         string
 	resumeTaskRequest *ResumeTaskRequest
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization     *string
+	xAmeshCSRF        *string
+	xAmeshTenant      *string
 }
 
 func (r ApiResumeTaskRunApiV1ExecutionsExecutionIdTaskRunsTaskRunIdResumePostRequest) ResumeTaskRequest(resumeTaskRequest ResumeTaskRequest) ApiResumeTaskRunApiV1ExecutionsExecutionIdTaskRunsTaskRunIdResumePostRequest {
@@ -2711,28 +2923,29 @@ func (r ApiResumeTaskRunApiV1ExecutionsExecutionIdTaskRunsTaskRunIdResumePostReq
 /*
 ResumeTaskRunApiV1ExecutionsExecutionIdTaskRunsTaskRunIdResumePost Resume Task Run
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param executionId
- @param taskRunId
- @return ApiResumeTaskRunApiV1ExecutionsExecutionIdTaskRunsTaskRunIdResumePostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param executionId
+	@param taskRunId
+	@return ApiResumeTaskRunApiV1ExecutionsExecutionIdTaskRunsTaskRunIdResumePostRequest
 */
 func (a *ExecutionsAPIService) ResumeTaskRunApiV1ExecutionsExecutionIdTaskRunsTaskRunIdResumePost(ctx context.Context, executionId string, taskRunId string) ApiResumeTaskRunApiV1ExecutionsExecutionIdTaskRunsTaskRunIdResumePostRequest {
 	return ApiResumeTaskRunApiV1ExecutionsExecutionIdTaskRunsTaskRunIdResumePostRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:  a,
+		ctx:         ctx,
 		executionId: executionId,
-		taskRunId: taskRunId,
+		taskRunId:   taskRunId,
 	}
 }
 
 // Execute executes the request
-//  @return PersistedTaskRun
+//
+//	@return PersistedTaskRun
 func (a *ExecutionsAPIService) ResumeTaskRunApiV1ExecutionsExecutionIdTaskRunsTaskRunIdResumePostExecute(r ApiResumeTaskRunApiV1ExecutionsExecutionIdTaskRunsTaskRunIdResumePostRequest) (*PersistedTaskRun, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *PersistedTaskRun
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *PersistedTaskRun
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ExecutionsAPIService.ResumeTaskRunApiV1ExecutionsExecutionIdTaskRunsTaskRunIdResumePost")
@@ -2808,8 +3021,8 @@ func (a *ExecutionsAPIService) ResumeTaskRunApiV1ExecutionsExecutionIdTaskRunsTa
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -2827,13 +3040,13 @@ func (a *ExecutionsAPIService) ResumeTaskRunApiV1ExecutionsExecutionIdTaskRunsTa
 }
 
 type ApiStreamExecutionEvidenceApiV1ExecutionsExecutionIdEvidenceStreamGetRequest struct {
-	ctx context.Context
-	ApiService *ExecutionsAPIService
-	executionId string
-	cursor *string
+	ctx           context.Context
+	ApiService    *ExecutionsAPIService
+	executionId   string
+	cursor        *string
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 // Opaque reconnect cursor
@@ -2864,14 +3077,14 @@ func (r ApiStreamExecutionEvidenceApiV1ExecutionsExecutionIdEvidenceStreamGetReq
 /*
 StreamExecutionEvidenceApiV1ExecutionsExecutionIdEvidenceStreamGet Stream Execution Evidence
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param executionId
- @return ApiStreamExecutionEvidenceApiV1ExecutionsExecutionIdEvidenceStreamGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param executionId
+	@return ApiStreamExecutionEvidenceApiV1ExecutionsExecutionIdEvidenceStreamGetRequest
 */
 func (a *ExecutionsAPIService) StreamExecutionEvidenceApiV1ExecutionsExecutionIdEvidenceStreamGet(ctx context.Context, executionId string) ApiStreamExecutionEvidenceApiV1ExecutionsExecutionIdEvidenceStreamGetRequest {
 	return ApiStreamExecutionEvidenceApiV1ExecutionsExecutionIdEvidenceStreamGetRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:  a,
+		ctx:         ctx,
 		executionId: executionId,
 	}
 }
@@ -2879,9 +3092,9 @@ func (a *ExecutionsAPIService) StreamExecutionEvidenceApiV1ExecutionsExecutionId
 // Execute executes the request
 func (a *ExecutionsAPIService) StreamExecutionEvidenceApiV1ExecutionsExecutionIdEvidenceStreamGetExecute(r ApiStreamExecutionEvidenceApiV1ExecutionsExecutionIdEvidenceStreamGetRequest) (*http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
+		localVarHTTPMethod = http.MethodGet
+		localVarPostBody   interface{}
+		formFiles          []formFile
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ExecutionsAPIService.StreamExecutionEvidenceApiV1ExecutionsExecutionIdEvidenceStreamGet")
@@ -2954,8 +3167,8 @@ func (a *ExecutionsAPIService) StreamExecutionEvidenceApiV1ExecutionsExecutionId
 				newErr.error = err.Error()
 				return localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarHTTPResponse, newErr
 	}
@@ -2964,12 +3177,12 @@ func (a *ExecutionsAPIService) StreamExecutionEvidenceApiV1ExecutionsExecutionId
 }
 
 type ApiStreamExecutionLogsApiV1ExecutionsExecutionIdLogsStreamGetRequest struct {
-	ctx context.Context
-	ApiService *ExecutionsAPIService
-	executionId string
+	ctx           context.Context
+	ApiService    *ExecutionsAPIService
+	executionId   string
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiStreamExecutionLogsApiV1ExecutionsExecutionIdLogsStreamGetRequest) Authorization(authorization string) ApiStreamExecutionLogsApiV1ExecutionsExecutionIdLogsStreamGetRequest {
@@ -2994,14 +3207,14 @@ func (r ApiStreamExecutionLogsApiV1ExecutionsExecutionIdLogsStreamGetRequest) Ex
 /*
 StreamExecutionLogsApiV1ExecutionsExecutionIdLogsStreamGet Stream Execution Logs
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param executionId
- @return ApiStreamExecutionLogsApiV1ExecutionsExecutionIdLogsStreamGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param executionId
+	@return ApiStreamExecutionLogsApiV1ExecutionsExecutionIdLogsStreamGetRequest
 */
 func (a *ExecutionsAPIService) StreamExecutionLogsApiV1ExecutionsExecutionIdLogsStreamGet(ctx context.Context, executionId string) ApiStreamExecutionLogsApiV1ExecutionsExecutionIdLogsStreamGetRequest {
 	return ApiStreamExecutionLogsApiV1ExecutionsExecutionIdLogsStreamGetRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:  a,
+		ctx:         ctx,
 		executionId: executionId,
 	}
 }
@@ -3009,9 +3222,9 @@ func (a *ExecutionsAPIService) StreamExecutionLogsApiV1ExecutionsExecutionIdLogs
 // Execute executes the request
 func (a *ExecutionsAPIService) StreamExecutionLogsApiV1ExecutionsExecutionIdLogsStreamGetExecute(r ApiStreamExecutionLogsApiV1ExecutionsExecutionIdLogsStreamGetRequest) (*http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
+		localVarHTTPMethod = http.MethodGet
+		localVarPostBody   interface{}
+		formFiles          []formFile
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ExecutionsAPIService.StreamExecutionLogsApiV1ExecutionsExecutionIdLogsStreamGet")
@@ -3081,8 +3294,8 @@ func (a *ExecutionsAPIService) StreamExecutionLogsApiV1ExecutionsExecutionIdLogs
 				newErr.error = err.Error()
 				return localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarHTTPResponse, newErr
 	}

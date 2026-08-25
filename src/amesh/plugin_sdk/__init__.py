@@ -147,6 +147,10 @@ from .schema import (
     ui_controls,
     validate_configuration,
 )
+from .tool_provider_certification import (
+    ToolProviderCertificationReport,
+    certify_tool_provider,
+)
 from .wire import (
     JSON_RPC_VERSION,
     PLUGIN_METHOD_CANCEL,
@@ -326,9 +330,11 @@ __all__ = [
     "StorageResult",
     "TaskExtension",
     "TaskResult",
+    "ToolProviderCertificationReport",
     "TriggerExtension",
     "TriggerResult",
     "certify_plugin",
+    "certify_tool_provider",
     "content_digest",
     "extension_operation",
     "generate_plugin_documentation",

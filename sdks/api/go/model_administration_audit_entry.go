@@ -12,8 +12,8 @@ package ameshclient
 
 import (
 	"encoding/json"
-	"time"
 	"fmt"
+	"time"
 )
 
 // checks if the AdministrationAuditEntry type satisfies the MappedNullable interface at compile time
@@ -21,14 +21,14 @@ var _ MappedNullable = &AdministrationAuditEntry{}
 
 // AdministrationAuditEntry struct for AdministrationAuditEntry
 type AdministrationAuditEntry struct {
-	Action string `json:"action"`
-	ActorId string `json:"actorId"`
-	EventId string `json:"eventId"`
-	Evidence map[string]interface{} `json:"evidence"`
-	OccurredAt time.Time `json:"occurredAt"`
-	Outcome string `json:"outcome"`
-	Reason string `json:"reason"`
-	ResourceId string `json:"resourceId"`
+	Action               string                 `json:"action"`
+	ActorId              string                 `json:"actorId"`
+	EventId              string                 `json:"eventId"`
+	Evidence             map[string]interface{} `json:"evidence"`
+	OccurredAt           time.Time              `json:"occurredAt"`
+	Outcome              string                 `json:"outcome"`
+	Reason               string                 `json:"reason"`
+	ResourceId           string                 `json:"resourceId"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -252,7 +252,7 @@ func (o *AdministrationAuditEntry) SetResourceId(v string) {
 }
 
 func (o AdministrationAuditEntry) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -297,10 +297,10 @@ func (o *AdministrationAuditEntry) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

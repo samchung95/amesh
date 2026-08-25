@@ -20,16 +20,16 @@ var _ MappedNullable = &ResourceMetadata{}
 
 // ResourceMetadata struct for ResourceMetadata
 type ResourceMetadata struct {
-	Annotations map[string]string `json:"annotations,omitempty"`
-	ArchivedAt NullableTime `json:"archived_at,omitempty"`
-	CreatedAt *time.Time `json:"created_at,omitempty"`
-	CreatedBy *string `json:"created_by,omitempty"`
-	DeletedAt NullableTime `json:"deleted_at,omitempty"`
-	Labels map[string]string `json:"labels,omitempty"`
-	Lifecycle *ResourceLifecycle `json:"lifecycle,omitempty"`
-	ResourceVersion *int32 `json:"resource_version,omitempty"`
-	UpdatedAt *time.Time `json:"updated_at,omitempty"`
-	UpdatedBy *string `json:"updated_by,omitempty"`
+	Annotations     map[string]string  `json:"annotations,omitempty"`
+	ArchivedAt      NullableTime       `json:"archived_at,omitempty"`
+	CreatedAt       *time.Time         `json:"created_at,omitempty"`
+	CreatedBy       *string            `json:"created_by,omitempty"`
+	DeletedAt       NullableTime       `json:"deleted_at,omitempty"`
+	Labels          map[string]string  `json:"labels,omitempty"`
+	Lifecycle       *ResourceLifecycle `json:"lifecycle,omitempty"`
+	ResourceVersion *int32             `json:"resource_version,omitempty"`
+	UpdatedAt       *time.Time         `json:"updated_at,omitempty"`
+	UpdatedBy       *string            `json:"updated_by,omitempty"`
 }
 
 // NewResourceMetadata instantiates a new ResourceMetadata object
@@ -129,6 +129,7 @@ func (o *ResourceMetadata) HasArchivedAt() bool {
 func (o *ResourceMetadata) SetArchivedAt(v time.Time) {
 	o.ArchivedAt.Set(&v)
 }
+
 // SetArchivedAtNil sets the value for ArchivedAt to be an explicit nil
 func (o *ResourceMetadata) SetArchivedAtNil() {
 	o.ArchivedAt.Set(nil)
@@ -235,6 +236,7 @@ func (o *ResourceMetadata) HasDeletedAt() bool {
 func (o *ResourceMetadata) SetDeletedAt(v time.Time) {
 	o.DeletedAt.Set(&v)
 }
+
 // SetDeletedAtNil sets the value for DeletedAt to be an explicit nil
 func (o *ResourceMetadata) SetDeletedAtNil() {
 	o.DeletedAt.Set(nil)
@@ -406,7 +408,7 @@ func (o *ResourceMetadata) SetUpdatedBy(v string) {
 }
 
 func (o ResourceMetadata) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}

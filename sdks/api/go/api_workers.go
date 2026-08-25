@@ -16,22 +16,21 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"strings"
 	"reflect"
+	"strings"
 )
-
 
 // WorkersAPIService WorkersAPI service
 type WorkersAPIService service
 
 type ApiDrainWorkerApiV1WorkersWorkerIdDrainPostRequest struct {
-	ctx context.Context
-	ApiService *WorkersAPIService
-	workerId string
+	ctx             context.Context
+	ApiService      *WorkersAPIService
+	workerId        string
 	expectedVersion *int32
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization   *string
+	xAmeshCSRF      *string
+	xAmeshTenant    *string
 }
 
 func (r ApiDrainWorkerApiV1WorkersWorkerIdDrainPostRequest) ExpectedVersion(expectedVersion int32) ApiDrainWorkerApiV1WorkersWorkerIdDrainPostRequest {
@@ -61,26 +60,27 @@ func (r ApiDrainWorkerApiV1WorkersWorkerIdDrainPostRequest) Execute() (*WorkerIn
 /*
 DrainWorkerApiV1WorkersWorkerIdDrainPost Drain Worker
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param workerId
- @return ApiDrainWorkerApiV1WorkersWorkerIdDrainPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param workerId
+	@return ApiDrainWorkerApiV1WorkersWorkerIdDrainPostRequest
 */
 func (a *WorkersAPIService) DrainWorkerApiV1WorkersWorkerIdDrainPost(ctx context.Context, workerId string) ApiDrainWorkerApiV1WorkersWorkerIdDrainPostRequest {
 	return ApiDrainWorkerApiV1WorkersWorkerIdDrainPostRequest{
 		ApiService: a,
-		ctx: ctx,
-		workerId: workerId,
+		ctx:        ctx,
+		workerId:   workerId,
 	}
 }
 
 // Execute executes the request
-//  @return WorkerInventory
+//
+//	@return WorkerInventory
 func (a *WorkersAPIService) DrainWorkerApiV1WorkersWorkerIdDrainPostExecute(r ApiDrainWorkerApiV1WorkersWorkerIdDrainPostRequest) (*WorkerInventory, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *WorkerInventory
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *WorkerInventory
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "WorkersAPIService.DrainWorkerApiV1WorkersWorkerIdDrainPost")
@@ -157,8 +157,8 @@ func (a *WorkersAPIService) DrainWorkerApiV1WorkersWorkerIdDrainPostExecute(r Ap
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -176,11 +176,11 @@ func (a *WorkersAPIService) DrainWorkerApiV1WorkersWorkerIdDrainPostExecute(r Ap
 }
 
 type ApiListRunnerCapabilitiesApiV1RunnersCapabilitiesGetRequest struct {
-	ctx context.Context
-	ApiService *WorkersAPIService
+	ctx           context.Context
+	ApiService    *WorkersAPIService
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiListRunnerCapabilitiesApiV1RunnersCapabilitiesGetRequest) Authorization(authorization string) ApiListRunnerCapabilitiesApiV1RunnersCapabilitiesGetRequest {
@@ -205,24 +205,25 @@ func (r ApiListRunnerCapabilitiesApiV1RunnersCapabilitiesGetRequest) Execute() (
 /*
 ListRunnerCapabilitiesApiV1RunnersCapabilitiesGet List Runner Capabilities
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiListRunnerCapabilitiesApiV1RunnersCapabilitiesGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiListRunnerCapabilitiesApiV1RunnersCapabilitiesGetRequest
 */
 func (a *WorkersAPIService) ListRunnerCapabilitiesApiV1RunnersCapabilitiesGet(ctx context.Context) ApiListRunnerCapabilitiesApiV1RunnersCapabilitiesGetRequest {
 	return ApiListRunnerCapabilitiesApiV1RunnersCapabilitiesGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return []RunnerCapabilities
+//
+//	@return []RunnerCapabilities
 func (a *WorkersAPIService) ListRunnerCapabilitiesApiV1RunnersCapabilitiesGetExecute(r ApiListRunnerCapabilitiesApiV1RunnersCapabilitiesGetRequest) ([]RunnerCapabilities, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  []RunnerCapabilities
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []RunnerCapabilities
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "WorkersAPIService.ListRunnerCapabilitiesApiV1RunnersCapabilitiesGet")
@@ -291,8 +292,8 @@ func (a *WorkersAPIService) ListRunnerCapabilitiesApiV1RunnersCapabilitiesGetExe
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -310,16 +311,16 @@ func (a *WorkersAPIService) ListRunnerCapabilitiesApiV1RunnersCapabilitiesGetExe
 }
 
 type ApiListWorkersApiV1WorkersGetRequest struct {
-	ctx context.Context
-	ApiService *WorkersAPIService
-	cursor *string
-	limit *int32
-	filter *[]string
-	sort *string
-	fields *string
+	ctx           context.Context
+	ApiService    *WorkersAPIService
+	cursor        *string
+	limit         *int32
+	filter        *[]string
+	sort          *string
+	fields        *string
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 // Opaque cursor from the prior page
@@ -373,24 +374,25 @@ func (r ApiListWorkersApiV1WorkersGetRequest) Execute() ([]WorkerInventory, *htt
 /*
 ListWorkersApiV1WorkersGet List Workers
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiListWorkersApiV1WorkersGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiListWorkersApiV1WorkersGetRequest
 */
 func (a *WorkersAPIService) ListWorkersApiV1WorkersGet(ctx context.Context) ApiListWorkersApiV1WorkersGetRequest {
 	return ApiListWorkersApiV1WorkersGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return []WorkerInventory
+//
+//	@return []WorkerInventory
 func (a *WorkersAPIService) ListWorkersApiV1WorkersGetExecute(r ApiListWorkersApiV1WorkersGetRequest) ([]WorkerInventory, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  []WorkerInventory
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []WorkerInventory
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "WorkersAPIService.ListWorkersApiV1WorkersGet")
@@ -482,8 +484,8 @@ func (a *WorkersAPIService) ListWorkersApiV1WorkersGetExecute(r ApiListWorkersAp
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}

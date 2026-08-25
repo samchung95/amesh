@@ -20,10 +20,10 @@ var _ MappedNullable = &PluginRegistryIndex{}
 
 // PluginRegistryIndex struct for PluginRegistryIndex
 type PluginRegistryIndex struct {
-	GeneratedAt *time.Time `json:"generatedAt,omitempty"`
-	Packages []PluginRegistryPackage `json:"packages,omitempty"`
-	SchemaVersion *string `json:"schemaVersion,omitempty"`
-	Signature NullablePluginRegistrySignature `json:"signature,omitempty"`
+	GeneratedAt   *time.Time                      `json:"generatedAt,omitempty"`
+	Packages      []PluginRegistryPackage         `json:"packages,omitempty"`
+	SchemaVersion *string                         `json:"schemaVersion,omitempty"`
+	Signature     NullablePluginRegistrySignature `json:"signature,omitempty"`
 }
 
 // NewPluginRegistryIndex instantiates a new PluginRegistryIndex object
@@ -175,6 +175,7 @@ func (o *PluginRegistryIndex) HasSignature() bool {
 func (o *PluginRegistryIndex) SetSignature(v PluginRegistrySignature) {
 	o.Signature.Set(&v)
 }
+
 // SetSignatureNil sets the value for Signature to be an explicit nil
 func (o *PluginRegistryIndex) SetSignatureNil() {
 	o.Signature.Set(nil)
@@ -186,7 +187,7 @@ func (o *PluginRegistryIndex) UnsetSignature() {
 }
 
 func (o PluginRegistryIndex) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}

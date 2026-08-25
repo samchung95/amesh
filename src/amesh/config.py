@@ -41,6 +41,9 @@ _RENAMED_SETTINGS = {
 }
 _SECRET_LOCK = RLock()
 _RUNTIME_SECRET_VALUES: tuple[str, ...] = ()
+_SERVICE_ROLES = frozenset(
+    {"webserver", "executor", "scheduler", "worker", "indexer", "maintenance"}
+)
 
 
 class TrustedPluginApproval(BaseModel):
@@ -312,12 +315,21 @@ class Settings(BaseSettings):
     core_http_max_response_bytes: int = Field(default=10 * 1024 * 1024, ge=1, le=128 * 1024 * 1024)
     core_http_max_pages: int = Field(default=100, ge=1, le=10_000)
     core_http_max_redirects: int = Field(default=5, ge=0, le=20)
+    model_continuation_key_id: str = Field(default="primary", min_length=1, max_length=255)
+    model_continuation_encryption_key: SecretStr | None = None
+    model_continuation_previous_key_id: str | None = Field(
+        default=None,
+        min_length=1,
+        max_length=255,
+    )
+    model_continuation_previous_encryption_key: SecretStr | None = None
     webhook_signing_key: SecretStr = Field(
         default=SecretStr("amesh-webhook-development-signing-key"), min_length=32
     )
     webhook_delivery_timeout_seconds: float = Field(default=10.0, gt=0, le=300)
     webhook_delivery_batch_size: int = Field(default=100, ge=1, le=1_000)
     service_role: str = Field(default="webserver", min_length=1, max_length=32)
+    service_enabled_roles: tuple[str, ...] = ()
     service_instance_name: str | None = Field(default=None, min_length=1, max_length=256)
     service_failure_zone: str | None = Field(default=None, min_length=1, max_length=256)
     service_heartbeat_seconds: float = Field(default=5.0, ge=1, le=60)
@@ -439,6 +451,7 @@ class Settings(BaseSettings):
         "network_no_proxy",
         "network_egress_allowed_hosts",
         "network_diagnostic_hosts",
+        "service_enabled_roles",
         mode="before",
     )
     @classmethod
@@ -447,6 +460,26 @@ class Settings(BaseSettings):
 
     @model_validator(mode="after")
     def validate_token_pepper(self) -> Settings:
+        if self.service_role not in _SERVICE_ROLES:
+            raise ValueError(f"SERVICE_ROLE must be one of {sorted(_SERVICE_ROLES)}")
+        if (self.model_continuation_previous_key_id is None) != (
+            self.model_continuation_previous_encryption_key is None
+        ):
+            raise ValueError(
+                "MODEL_CONTINUATION_PREVIOUS_KEY_ID and "
+                "MODEL_CONTINUATION_PREVIOUS_ENCRYPTION_KEY must be set together"
+            )
+        enabled_roles = self.service_enabled_roles or (self.service_role,)
+        if len(enabled_roles) != len(set(enabled_roles)):
+            raise ValueError("SERVICE_ENABLED_ROLES must contain unique roles")
+        unknown_roles = sorted(set(enabled_roles) - _SERVICE_ROLES)
+        if unknown_roles:
+            raise ValueError(
+                f"SERVICE_ENABLED_ROLES contains unknown roles: {', '.join(unknown_roles)}"
+            )
+        if self.service_role not in enabled_roles:
+            raise ValueError("SERVICE_ENABLED_ROLES must include SERVICE_ROLE")
+        self.service_enabled_roles = enabled_roles
         pepper = self.amesh_token_pepper.get_secret_value()
         if not pepper:
             raise ValueError("AMESH_TOKEN_PEPPER cannot be empty")
@@ -493,8 +526,7 @@ class Settings(BaseSettings):
         ):
             raise ValueError("public production exposure requires trusted TLS termination")
         if self.network_inbound_tls_mode == "direct" and (
-            self.network_tls_certificate_file is None
-            or self.network_tls_private_key_file is None
+            self.network_tls_certificate_file is None or self.network_tls_private_key_file is None
         ):
             raise ValueError(
                 "direct inbound TLS requires NETWORK_TLS_CERTIFICATE_FILE and "
@@ -515,9 +547,7 @@ class Settings(BaseSettings):
         if (self.network_outbound_client_certificate_file is None) != (
             self.network_outbound_client_key_file is None
         ):
-            raise ValueError(
-                "outbound mTLS requires both client certificate and private key files"
-            )
+            raise ValueError("outbound mTLS requires both client certificate and private key files")
         for value in self.network_trusted_proxy_ranges:
             try:
                 ipaddress.ip_network(value, strict=False)
@@ -541,16 +571,22 @@ class Settings(BaseSettings):
             if configured_url is None:
                 continue
             parsed = urlsplit(configured_url)
-            allowed_schemes = {"https"} if field_name == "NETWORK_EXTERNAL_BASE_URL" else {
-                "http",
-                "https",
-            }
+            allowed_schemes = (
+                {"https"}
+                if field_name == "NETWORK_EXTERNAL_BASE_URL"
+                else {
+                    "http",
+                    "https",
+                }
+            )
             if parsed.scheme not in allowed_schemes or not parsed.hostname:
                 raise ValueError(f"{field_name} must be an absolute {sorted(allowed_schemes)} URL")
             if field_name == "NETWORK_EXTERNAL_BASE_URL" and (
                 parsed.username is not None or parsed.query or parsed.fragment
             ):
-                raise ValueError("NETWORK_EXTERNAL_BASE_URL cannot contain credentials or query data")
+                raise ValueError(
+                    "NETWORK_EXTERNAL_BASE_URL cannot contain credentials or query data"
+                )
         if not self.network_egress_allowed_hosts:
             raise ValueError("NETWORK_EGRESS_ALLOWED_HOSTS cannot be empty")
         if self.auth_session_idle_seconds > self.auth_session_absolute_seconds:

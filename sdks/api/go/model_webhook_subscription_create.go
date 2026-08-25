@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,11 +21,11 @@ var _ MappedNullable = &WebhookSubscriptionCreate{}
 
 // WebhookSubscriptionCreate struct for WebhookSubscriptionCreate
 type WebhookSubscriptionCreate struct {
-	Enabled *bool `json:"enabled,omitempty"`
-	Filters *RealtimeFilter `json:"filters,omitempty"`
-	MaxAttempts *int32 `json:"maxAttempts,omitempty"`
-	Name string `json:"name" validate:"regexp=^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$"`
-	Url string `json:"url"`
+	Enabled     *bool           `json:"enabled,omitempty"`
+	Filters     *RealtimeFilter `json:"filters,omitempty"`
+	MaxAttempts *int32          `json:"maxAttempts,omitempty"`
+	Name        string          `json:"name" validate:"regexp=^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$"`
+	Url         string          `json:"url"`
 }
 
 type _WebhookSubscriptionCreate WebhookSubscriptionCreate
@@ -202,7 +202,7 @@ func (o *WebhookSubscriptionCreate) SetUrl(v string) {
 }
 
 func (o WebhookSubscriptionCreate) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -239,10 +239,10 @@ func (o *WebhookSubscriptionCreate) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

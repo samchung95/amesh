@@ -20,9 +20,9 @@ type IsolatedPluginState string
 
 // List of IsolatedPluginState
 const (
-	ISOLATEDPLUGINSTATE_READY IsolatedPluginState = "ready"
-	ISOLATEDPLUGINSTATE_RUNNING IsolatedPluginState = "running"
-	ISOLATEDPLUGINSTATE_DEGRADED IsolatedPluginState = "degraded"
+	ISOLATEDPLUGINSTATE_READY       IsolatedPluginState = "ready"
+	ISOLATEDPLUGINSTATE_RUNNING     IsolatedPluginState = "running"
+	ISOLATEDPLUGINSTATE_DEGRADED    IsolatedPluginState = "degraded"
 	ISOLATEDPLUGINSTATE_UNAVAILABLE IsolatedPluginState = "unavailable"
 )
 

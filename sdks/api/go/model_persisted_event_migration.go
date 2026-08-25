@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,12 +21,12 @@ var _ MappedNullable = &PersistedEventMigration{}
 
 // PersistedEventMigration struct for PersistedEventMigration
 type PersistedEventMigration struct {
-	Applied bool `json:"applied"`
-	ConfirmationPhrase string `json:"confirmationPhrase"`
-	EligibleEvents int32 `json:"eligibleEvents"`
-	EvidenceEventId NullableString `json:"evidenceEventId,omitempty"`
-	MigratedEvents int32 `json:"migratedEvents"`
-	RemainingEvents int32 `json:"remainingEvents"`
+	Applied            bool           `json:"applied"`
+	ConfirmationPhrase string         `json:"confirmationPhrase"`
+	EligibleEvents     int32          `json:"eligibleEvents"`
+	EvidenceEventId    NullableString `json:"evidenceEventId,omitempty"`
+	MigratedEvents     int32          `json:"migratedEvents"`
+	RemainingEvents    int32          `json:"remainingEvents"`
 }
 
 type _PersistedEventMigration PersistedEventMigration
@@ -157,6 +157,7 @@ func (o *PersistedEventMigration) HasEvidenceEventId() bool {
 func (o *PersistedEventMigration) SetEvidenceEventId(v string) {
 	o.EvidenceEventId.Set(&v)
 }
+
 // SetEvidenceEventIdNil sets the value for EvidenceEventId to be an explicit nil
 func (o *PersistedEventMigration) SetEvidenceEventIdNil() {
 	o.EvidenceEventId.Set(nil)
@@ -216,7 +217,7 @@ func (o *PersistedEventMigration) SetRemainingEvents(v int32) {
 }
 
 func (o PersistedEventMigration) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -253,10 +254,10 @@ func (o *PersistedEventMigration) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

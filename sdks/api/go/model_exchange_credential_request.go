@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,10 +21,10 @@ var _ MappedNullable = &ExchangeCredentialRequest{}
 
 // ExchangeCredentialRequest struct for ExchangeCredentialRequest
 type ExchangeCredentialRequest struct {
-	Audience string `json:"audience"`
-	ExpiresInSeconds int32 `json:"expiresInSeconds"`
-	RateLimitPerMinute *int32 `json:"rateLimitPerMinute,omitempty"`
-	Scopes []string `json:"scopes"`
+	Audience           string   `json:"audience"`
+	ExpiresInSeconds   int32    `json:"expiresInSeconds"`
+	RateLimitPerMinute *int32   `json:"rateLimitPerMinute,omitempty"`
+	Scopes             []string `json:"scopes"`
 }
 
 type _ExchangeCredentialRequest ExchangeCredentialRequest
@@ -158,7 +158,7 @@ func (o *ExchangeCredentialRequest) SetScopes(v []string) {
 }
 
 func (o ExchangeCredentialRequest) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -191,10 +191,10 @@ func (o *ExchangeCredentialRequest) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

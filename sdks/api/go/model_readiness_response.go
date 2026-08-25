@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,15 +21,16 @@ var _ MappedNullable = &ReadinessResponse{}
 
 // ReadinessResponse struct for ReadinessResponse
 type ReadinessResponse struct {
-	Database string `json:"database"`
-	DegradedDependencies []string `json:"degraded_dependencies,omitempty"`
-	Dependencies map[string]string `json:"dependencies,omitempty"`
-	Error NullableString `json:"error,omitempty"`
-	LatestMigration NullableString `json:"latest_migration,omitempty"`
-	MigrationsApplied int32 `json:"migrations_applied"`
-	MigrationsExpected int32 `json:"migrations_expected"`
-	Status string `json:"status"`
-	Version string `json:"version"`
+	Database             string            `json:"database"`
+	DegradedDependencies []string          `json:"degraded_dependencies,omitempty"`
+	Dependencies         map[string]string `json:"dependencies,omitempty"`
+	Error                NullableString    `json:"error,omitempty"`
+	LatestMigration      NullableString    `json:"latest_migration,omitempty"`
+	MigrationsApplied    int32             `json:"migrations_applied"`
+	MigrationsExpected   int32             `json:"migrations_expected"`
+	Roles                map[string]string `json:"roles,omitempty"`
+	Status               string            `json:"status"`
+	Version              string            `json:"version"`
 }
 
 type _ReadinessResponse ReadinessResponse
@@ -176,6 +177,7 @@ func (o *ReadinessResponse) HasError() bool {
 func (o *ReadinessResponse) SetError(v string) {
 	o.Error.Set(&v)
 }
+
 // SetErrorNil sets the value for Error to be an explicit nil
 func (o *ReadinessResponse) SetErrorNil() {
 	o.Error.Set(nil)
@@ -218,6 +220,7 @@ func (o *ReadinessResponse) HasLatestMigration() bool {
 func (o *ReadinessResponse) SetLatestMigration(v string) {
 	o.LatestMigration.Set(&v)
 }
+
 // SetLatestMigrationNil sets the value for LatestMigration to be an explicit nil
 func (o *ReadinessResponse) SetLatestMigrationNil() {
 	o.LatestMigration.Set(nil)
@@ -276,6 +279,38 @@ func (o *ReadinessResponse) SetMigrationsExpected(v int32) {
 	o.MigrationsExpected = v
 }
 
+// GetRoles returns the Roles field value if set, zero value otherwise.
+func (o *ReadinessResponse) GetRoles() map[string]string {
+	if o == nil || IsNil(o.Roles) {
+		var ret map[string]string
+		return ret
+	}
+	return o.Roles
+}
+
+// GetRolesOk returns a tuple with the Roles field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *ReadinessResponse) GetRolesOk() (map[string]string, bool) {
+	if o == nil || IsNil(o.Roles) {
+		return map[string]string{}, false
+	}
+	return o.Roles, true
+}
+
+// HasRoles returns a boolean if a field has been set.
+func (o *ReadinessResponse) HasRoles() bool {
+	if o != nil && !IsNil(o.Roles) {
+		return true
+	}
+
+	return false
+}
+
+// SetRoles gets a reference to the given map[string]string and assigns it to the Roles field.
+func (o *ReadinessResponse) SetRoles(v map[string]string) {
+	o.Roles = v
+}
+
 // GetStatus returns the Status field value
 func (o *ReadinessResponse) GetStatus() string {
 	if o == nil {
@@ -325,7 +360,7 @@ func (o *ReadinessResponse) SetVersion(v string) {
 }
 
 func (o ReadinessResponse) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -349,6 +384,9 @@ func (o ReadinessResponse) ToMap() (map[string]interface{}, error) {
 	}
 	toSerialize["migrations_applied"] = o.MigrationsApplied
 	toSerialize["migrations_expected"] = o.MigrationsExpected
+	if !IsNil(o.Roles) {
+		toSerialize["roles"] = o.Roles
+	}
 	toSerialize["status"] = o.Status
 	toSerialize["version"] = o.Version
 	return toSerialize, nil
@@ -371,10 +409,10 @@ func (o *ReadinessResponse) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

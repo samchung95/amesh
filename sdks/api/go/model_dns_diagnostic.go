@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -22,9 +22,9 @@ var _ MappedNullable = &DnsDiagnostic{}
 // DnsDiagnostic struct for DnsDiagnostic
 type DnsDiagnostic struct {
 	Addresses []string `json:"addresses,omitempty"`
-	Detail string `json:"detail"`
-	Host string `json:"host"`
-	Status string `json:"status"`
+	Detail    string   `json:"detail"`
+	Host      string   `json:"host"`
+	Status    string   `json:"status"`
 }
 
 type _DnsDiagnostic DnsDiagnostic
@@ -154,7 +154,7 @@ func (o *DnsDiagnostic) SetStatus(v string) {
 }
 
 func (o DnsDiagnostic) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -187,10 +187,10 @@ func (o *DnsDiagnostic) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

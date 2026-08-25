@@ -31,6 +31,8 @@ COPY src ./src
 COPY --from=web /web/dist ./src/amesh/web
 COPY migrations ./migrations
 COPY scripts/soak_mvp.py ./scripts/soak_mvp.py
+COPY scripts/hardened-entrypoint.sh ./scripts/hardened-entrypoint.sh
+RUN chmod 0755 ./scripts/hardened-entrypoint.sh
 RUN uv sync --frozen --no-dev --extra runtime --no-editable
 
 USER 100:101

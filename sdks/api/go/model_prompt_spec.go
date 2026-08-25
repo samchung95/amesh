@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,11 +21,11 @@ var _ MappedNullable = &PromptSpec{}
 
 // PromptSpec struct for PromptSpec
 type PromptSpec struct {
-	Content string `json:"content"`
-	Key string `json:"key" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
-	Kind *string `json:"kind,omitempty"`
-	Namespace string `json:"namespace"`
-	Title string `json:"title"`
+	Content   string                 `json:"content"`
+	Key       string                 `json:"key" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
+	Kind      *string                `json:"kind,omitempty"`
+	Namespace string                 `json:"namespace"`
+	Title     string                 `json:"title"`
 	Variables map[string]interface{} `json:"variables,omitempty"`
 }
 
@@ -217,7 +217,7 @@ func (o *PromptSpec) SetVariables(v map[string]interface{}) {
 }
 
 func (o PromptSpec) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -255,10 +255,10 @@ func (o *PromptSpec) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

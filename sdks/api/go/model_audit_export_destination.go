@@ -20,7 +20,7 @@ type AuditExportDestination string
 
 // List of AuditExportDestination
 const (
-	AUDITEXPORTDESTINATION_FILE AuditExportDestination = "FILE"
+	AUDITEXPORTDESTINATION_FILE           AuditExportDestination = "FILE"
 	AUDITEXPORTDESTINATION_OBJECT_STORAGE AuditExportDestination = "OBJECT_STORAGE"
 )
 

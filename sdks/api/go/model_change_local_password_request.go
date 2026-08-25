@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -22,8 +22,8 @@ var _ MappedNullable = &ChangeLocalPasswordRequest{}
 // ChangeLocalPasswordRequest struct for ChangeLocalPasswordRequest
 type ChangeLocalPasswordRequest struct {
 	CurrentPassword string `json:"currentPassword"`
-	Identifier string `json:"identifier"`
-	NewPassword string `json:"newPassword"`
+	Identifier      string `json:"identifier"`
+	NewPassword     string `json:"newPassword"`
 }
 
 type _ChangeLocalPasswordRequest ChangeLocalPasswordRequest
@@ -121,7 +121,7 @@ func (o *ChangeLocalPasswordRequest) SetNewPassword(v string) {
 }
 
 func (o ChangeLocalPasswordRequest) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -151,10 +151,10 @@ func (o *ChangeLocalPasswordRequest) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

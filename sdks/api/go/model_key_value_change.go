@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the KeyValueChange type satisfies the MappedNullable interface at compile time
@@ -22,14 +22,14 @@ var _ MappedNullable = &KeyValueChange{}
 
 // KeyValueChange struct for KeyValueChange
 type KeyValueChange struct {
-	Cursor int32 `json:"cursor"`
-	Key string `json:"key"`
-	Metadata map[string]interface{} `json:"metadata,omitempty"`
-	Namespace string `json:"namespace"`
-	OccurredAt time.Time `json:"occurredAt"`
-	Operation string `json:"operation"`
-	ResourceVersion int32 `json:"resourceVersion"`
-	Type NullableKeyValueType `json:"type,omitempty"`
+	Cursor          int32                  `json:"cursor"`
+	Key             string                 `json:"key"`
+	Metadata        map[string]interface{} `json:"metadata,omitempty"`
+	Namespace       string                 `json:"namespace"`
+	OccurredAt      time.Time              `json:"occurredAt"`
+	Operation       string                 `json:"operation"`
+	ResourceVersion int32                  `json:"resourceVersion"`
+	Type            NullableKeyValueType   `json:"type,omitempty"`
 }
 
 type _KeyValueChange KeyValueChange
@@ -265,6 +265,7 @@ func (o *KeyValueChange) HasType() bool {
 func (o *KeyValueChange) SetType(v KeyValueType) {
 	o.Type.Set(&v)
 }
+
 // SetTypeNil sets the value for Type to be an explicit nil
 func (o *KeyValueChange) SetTypeNil() {
 	o.Type.Set(nil)
@@ -276,7 +277,7 @@ func (o *KeyValueChange) UnsetType() {
 }
 
 func (o KeyValueChange) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -318,10 +319,10 @@ func (o *KeyValueChange) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

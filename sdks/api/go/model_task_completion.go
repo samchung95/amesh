@@ -19,13 +19,13 @@ var _ MappedNullable = &TaskCompletion{}
 
 // TaskCompletion struct for TaskCompletion
 type TaskCompletion struct {
-	Artifacts []TaskArtifactRecord `json:"artifacts,omitempty"`
-	Assets []TaskAssetRecord `json:"assets,omitempty"`
-	Exit *TaskExitMetadata `json:"exit,omitempty"`
-	Logs []TaskLogRecord `json:"logs,omitempty"`
-	Metrics []TaskMetricRecord `json:"metrics,omitempty"`
-	Output map[string]interface{} `json:"output,omitempty"`
-	SensitiveOutputKeys []*string `json:"sensitiveOutputKeys,omitempty"`
+	Artifacts           []TaskArtifactRecord   `json:"artifacts,omitempty"`
+	Assets              []TaskAssetRecord      `json:"assets,omitempty"`
+	Exit                *TaskExitMetadata      `json:"exit,omitempty"`
+	Logs                []TaskLogRecord        `json:"logs,omitempty"`
+	Metrics             []TaskMetricRecord     `json:"metrics,omitempty"`
+	Output              map[string]interface{} `json:"output,omitempty"`
+	SensitiveOutputKeys []*string              `json:"sensitiveOutputKeys,omitempty"`
 }
 
 // NewTaskCompletion instantiates a new TaskCompletion object
@@ -270,7 +270,7 @@ func (o *TaskCompletion) SetSensitiveOutputKeys(v []*string) {
 }
 
 func (o TaskCompletion) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}

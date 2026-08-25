@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,10 +21,10 @@ var _ MappedNullable = &BlueprintProvenance{}
 
 // BlueprintProvenance struct for BlueprintProvenance
 type BlueprintProvenance struct {
-	Digest string `json:"digest" validate:"regexp=^sha256:[0-9a-f]{64}$"`
-	Location string `json:"location"`
+	Digest    string `json:"digest" validate:"regexp=^sha256:[0-9a-f]{64}$"`
+	Location  string `json:"location"`
 	Publisher string `json:"publisher"`
-	Revision string `json:"revision"`
+	Revision  string `json:"revision"`
 }
 
 type _BlueprintProvenance BlueprintProvenance
@@ -147,7 +147,7 @@ func (o *BlueprintProvenance) SetRevision(v string) {
 }
 
 func (o BlueprintProvenance) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -179,10 +179,10 @@ func (o *BlueprintProvenance) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

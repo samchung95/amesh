@@ -72,7 +72,7 @@ func (o *BlueprintInstantiationRequest) SetParameters(v map[string]string) {
 }
 
 func (o BlueprintInstantiationRequest) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}

@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,13 +21,13 @@ var _ MappedNullable = &RoleBinding{}
 
 // RoleBinding struct for RoleBinding
 type RoleBinding struct {
-	Id *string `json:"id,omitempty"`
-	Namespace NullableString `json:"namespace,omitempty"`
-	PrincipalId string `json:"principal_id"`
-	PrincipalType PrincipalType `json:"principal_type"`
-	RoleName string `json:"role_name" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
-	ScopeType AuthorizationScopeType `json:"scope_type"`
-	TenantId NullableString `json:"tenant_id,omitempty" validate:"regexp=^[a-z0-9][a-z0-9-]*$"`
+	Id            *string                `json:"id,omitempty"`
+	Namespace     NullableString         `json:"namespace,omitempty"`
+	PrincipalId   string                 `json:"principal_id"`
+	PrincipalType PrincipalType          `json:"principal_type"`
+	RoleName      string                 `json:"role_name" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
+	ScopeType     AuthorizationScopeType `json:"scope_type"`
+	TenantId      NullableString         `json:"tenant_id,omitempty" validate:"regexp=^[a-z0-9][a-z0-9-]*$"`
 }
 
 type _RoleBinding RoleBinding
@@ -117,6 +117,7 @@ func (o *RoleBinding) HasNamespace() bool {
 func (o *RoleBinding) SetNamespace(v string) {
 	o.Namespace.Set(&v)
 }
+
 // SetNamespaceNil sets the value for Namespace to be an explicit nil
 func (o *RoleBinding) SetNamespaceNil() {
 	o.Namespace.Set(nil)
@@ -255,6 +256,7 @@ func (o *RoleBinding) HasTenantId() bool {
 func (o *RoleBinding) SetTenantId(v string) {
 	o.TenantId.Set(&v)
 }
+
 // SetTenantIdNil sets the value for TenantId to be an explicit nil
 func (o *RoleBinding) SetTenantIdNil() {
 	o.TenantId.Set(nil)
@@ -266,7 +268,7 @@ func (o *RoleBinding) UnsetTenantId() {
 }
 
 func (o RoleBinding) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -307,10 +309,10 @@ func (o *RoleBinding) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

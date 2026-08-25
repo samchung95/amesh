@@ -19,19 +19,18 @@ import (
 	"strings"
 )
 
-
 // AppsAPIService AppsAPI service
 type AppsAPIService service
 
 type ApiGetWorkflowAppApiV1AppsNamespaceAppIdGetRequest struct {
-	ctx context.Context
-	ApiService *AppsAPIService
-	namespace string
-	appId string
-	revision *int32
+	ctx           context.Context
+	ApiService    *AppsAPIService
+	namespace     string
+	appId         string
+	revision      *int32
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiGetWorkflowAppApiV1AppsNamespaceAppIdGetRequest) Revision(revision int32) ApiGetWorkflowAppApiV1AppsNamespaceAppIdGetRequest {
@@ -61,28 +60,29 @@ func (r ApiGetWorkflowAppApiV1AppsNamespaceAppIdGetRequest) Execute() (*Workflow
 /*
 GetWorkflowAppApiV1AppsNamespaceAppIdGet Get Workflow App
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param namespace
- @param appId
- @return ApiGetWorkflowAppApiV1AppsNamespaceAppIdGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param namespace
+	@param appId
+	@return ApiGetWorkflowAppApiV1AppsNamespaceAppIdGetRequest
 */
 func (a *AppsAPIService) GetWorkflowAppApiV1AppsNamespaceAppIdGet(ctx context.Context, namespace string, appId string) ApiGetWorkflowAppApiV1AppsNamespaceAppIdGetRequest {
 	return ApiGetWorkflowAppApiV1AppsNamespaceAppIdGetRequest{
 		ApiService: a,
-		ctx: ctx,
-		namespace: namespace,
-		appId: appId,
+		ctx:        ctx,
+		namespace:  namespace,
+		appId:      appId,
 	}
 }
 
 // Execute executes the request
-//  @return WorkflowApp
+//
+//	@return WorkflowApp
 func (a *AppsAPIService) GetWorkflowAppApiV1AppsNamespaceAppIdGetExecute(r ApiGetWorkflowAppApiV1AppsNamespaceAppIdGetRequest) (*WorkflowApp, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *WorkflowApp
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *WorkflowApp
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AppsAPIService.GetWorkflowAppApiV1AppsNamespaceAppIdGet")
@@ -156,8 +156,8 @@ func (a *AppsAPIService) GetWorkflowAppApiV1AppsNamespaceAppIdGetExecute(r ApiGe
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -175,14 +175,14 @@ func (a *AppsAPIService) GetWorkflowAppApiV1AppsNamespaceAppIdGetExecute(r ApiGe
 }
 
 type ApiLaunchWorkflowAppApiV1AppsNamespaceAppIdLaunchPostRequest struct {
-	ctx context.Context
-	ApiService *AppsAPIService
-	namespace string
-	appId string
+	ctx                      context.Context
+	ApiService               *AppsAPIService
+	namespace                string
+	appId                    string
 	workflowAppLaunchRequest *WorkflowAppLaunchRequest
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization            *string
+	xAmeshCSRF               *string
+	xAmeshTenant             *string
 }
 
 func (r ApiLaunchWorkflowAppApiV1AppsNamespaceAppIdLaunchPostRequest) WorkflowAppLaunchRequest(workflowAppLaunchRequest WorkflowAppLaunchRequest) ApiLaunchWorkflowAppApiV1AppsNamespaceAppIdLaunchPostRequest {
@@ -212,28 +212,29 @@ func (r ApiLaunchWorkflowAppApiV1AppsNamespaceAppIdLaunchPostRequest) Execute() 
 /*
 LaunchWorkflowAppApiV1AppsNamespaceAppIdLaunchPost Launch Workflow App
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param namespace
- @param appId
- @return ApiLaunchWorkflowAppApiV1AppsNamespaceAppIdLaunchPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param namespace
+	@param appId
+	@return ApiLaunchWorkflowAppApiV1AppsNamespaceAppIdLaunchPostRequest
 */
 func (a *AppsAPIService) LaunchWorkflowAppApiV1AppsNamespaceAppIdLaunchPost(ctx context.Context, namespace string, appId string) ApiLaunchWorkflowAppApiV1AppsNamespaceAppIdLaunchPostRequest {
 	return ApiLaunchWorkflowAppApiV1AppsNamespaceAppIdLaunchPostRequest{
 		ApiService: a,
-		ctx: ctx,
-		namespace: namespace,
-		appId: appId,
+		ctx:        ctx,
+		namespace:  namespace,
+		appId:      appId,
 	}
 }
 
 // Execute executes the request
-//  @return ExecutionDetail
+//
+//	@return ExecutionDetail
 func (a *AppsAPIService) LaunchWorkflowAppApiV1AppsNamespaceAppIdLaunchPostExecute(r ApiLaunchWorkflowAppApiV1AppsNamespaceAppIdLaunchPostRequest) (*ExecutionDetail, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *ExecutionDetail
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *ExecutionDetail
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AppsAPIService.LaunchWorkflowAppApiV1AppsNamespaceAppIdLaunchPost")
@@ -309,8 +310,8 @@ func (a *AppsAPIService) LaunchWorkflowAppApiV1AppsNamespaceAppIdLaunchPostExecu
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -328,12 +329,12 @@ func (a *AppsAPIService) LaunchWorkflowAppApiV1AppsNamespaceAppIdLaunchPostExecu
 }
 
 type ApiListWorkflowAppsApiV1AppsGetRequest struct {
-	ctx context.Context
-	ApiService *AppsAPIService
-	namespace *string
+	ctx           context.Context
+	ApiService    *AppsAPIService
+	namespace     *string
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiListWorkflowAppsApiV1AppsGetRequest) Namespace(namespace string) ApiListWorkflowAppsApiV1AppsGetRequest {
@@ -363,24 +364,25 @@ func (r ApiListWorkflowAppsApiV1AppsGetRequest) Execute() ([]WorkflowApp, *http.
 /*
 ListWorkflowAppsApiV1AppsGet List Workflow Apps
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiListWorkflowAppsApiV1AppsGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiListWorkflowAppsApiV1AppsGetRequest
 */
 func (a *AppsAPIService) ListWorkflowAppsApiV1AppsGet(ctx context.Context) ApiListWorkflowAppsApiV1AppsGetRequest {
 	return ApiListWorkflowAppsApiV1AppsGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return []WorkflowApp
+//
+//	@return []WorkflowApp
 func (a *AppsAPIService) ListWorkflowAppsApiV1AppsGetExecute(r ApiListWorkflowAppsApiV1AppsGetRequest) ([]WorkflowApp, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  []WorkflowApp
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []WorkflowApp
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AppsAPIService.ListWorkflowAppsApiV1AppsGet")
@@ -452,8 +454,8 @@ func (a *AppsAPIService) ListWorkflowAppsApiV1AppsGetExecute(r ApiListWorkflowAp
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -471,14 +473,14 @@ func (a *AppsAPIService) ListWorkflowAppsApiV1AppsGetExecute(r ApiListWorkflowAp
 }
 
 type ApiUpsertWorkflowAppApiV1AppsNamespaceAppIdPutRequest struct {
-	ctx context.Context
-	ApiService *AppsAPIService
-	namespace string
-	appId string
+	ctx                      context.Context
+	ApiService               *AppsAPIService
+	namespace                string
+	appId                    string
 	workflowAppUpsertRequest *WorkflowAppUpsertRequest
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization            *string
+	xAmeshCSRF               *string
+	xAmeshTenant             *string
 }
 
 func (r ApiUpsertWorkflowAppApiV1AppsNamespaceAppIdPutRequest) WorkflowAppUpsertRequest(workflowAppUpsertRequest WorkflowAppUpsertRequest) ApiUpsertWorkflowAppApiV1AppsNamespaceAppIdPutRequest {
@@ -508,28 +510,29 @@ func (r ApiUpsertWorkflowAppApiV1AppsNamespaceAppIdPutRequest) Execute() (*Workf
 /*
 UpsertWorkflowAppApiV1AppsNamespaceAppIdPut Upsert Workflow App
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param namespace
- @param appId
- @return ApiUpsertWorkflowAppApiV1AppsNamespaceAppIdPutRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param namespace
+	@param appId
+	@return ApiUpsertWorkflowAppApiV1AppsNamespaceAppIdPutRequest
 */
 func (a *AppsAPIService) UpsertWorkflowAppApiV1AppsNamespaceAppIdPut(ctx context.Context, namespace string, appId string) ApiUpsertWorkflowAppApiV1AppsNamespaceAppIdPutRequest {
 	return ApiUpsertWorkflowAppApiV1AppsNamespaceAppIdPutRequest{
 		ApiService: a,
-		ctx: ctx,
-		namespace: namespace,
-		appId: appId,
+		ctx:        ctx,
+		namespace:  namespace,
+		appId:      appId,
 	}
 }
 
 // Execute executes the request
-//  @return WorkflowApp
+//
+//	@return WorkflowApp
 func (a *AppsAPIService) UpsertWorkflowAppApiV1AppsNamespaceAppIdPutExecute(r ApiUpsertWorkflowAppApiV1AppsNamespaceAppIdPutRequest) (*WorkflowApp, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPut
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *WorkflowApp
+		localVarHTTPMethod  = http.MethodPut
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *WorkflowApp
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AppsAPIService.UpsertWorkflowAppApiV1AppsNamespaceAppIdPut")
@@ -605,8 +608,8 @@ func (a *AppsAPIService) UpsertWorkflowAppApiV1AppsNamespaceAppIdPutExecute(r Ap
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}

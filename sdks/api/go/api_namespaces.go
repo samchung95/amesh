@@ -19,17 +19,16 @@ import (
 	"strings"
 )
 
-
 // NamespacesAPIService NamespacesAPI service
 type NamespacesAPIService service
 
 type ApiGetNamespaceWorkflowMetadataApiV1NamespacesNamespaceWorkflowMetadataGetRequest struct {
-	ctx context.Context
-	ApiService *NamespacesAPIService
-	namespace string
+	ctx           context.Context
+	ApiService    *NamespacesAPIService
+	namespace     string
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiGetNamespaceWorkflowMetadataApiV1NamespacesNamespaceWorkflowMetadataGetRequest) Authorization(authorization string) ApiGetNamespaceWorkflowMetadataApiV1NamespacesNamespaceWorkflowMetadataGetRequest {
@@ -54,26 +53,27 @@ func (r ApiGetNamespaceWorkflowMetadataApiV1NamespacesNamespaceWorkflowMetadataG
 /*
 GetNamespaceWorkflowMetadataApiV1NamespacesNamespaceWorkflowMetadataGet Get Namespace Workflow Metadata
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param namespace
- @return ApiGetNamespaceWorkflowMetadataApiV1NamespacesNamespaceWorkflowMetadataGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param namespace
+	@return ApiGetNamespaceWorkflowMetadataApiV1NamespacesNamespaceWorkflowMetadataGetRequest
 */
 func (a *NamespacesAPIService) GetNamespaceWorkflowMetadataApiV1NamespacesNamespaceWorkflowMetadataGet(ctx context.Context, namespace string) ApiGetNamespaceWorkflowMetadataApiV1NamespacesNamespaceWorkflowMetadataGetRequest {
 	return ApiGetNamespaceWorkflowMetadataApiV1NamespacesNamespaceWorkflowMetadataGetRequest{
 		ApiService: a,
-		ctx: ctx,
-		namespace: namespace,
+		ctx:        ctx,
+		namespace:  namespace,
 	}
 }
 
 // Execute executes the request
-//  @return NamespaceWorkflowMetadataView
+//
+//	@return NamespaceWorkflowMetadataView
 func (a *NamespacesAPIService) GetNamespaceWorkflowMetadataApiV1NamespacesNamespaceWorkflowMetadataGetExecute(r ApiGetNamespaceWorkflowMetadataApiV1NamespacesNamespaceWorkflowMetadataGetRequest) (*NamespaceWorkflowMetadataView, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *NamespaceWorkflowMetadataView
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *NamespaceWorkflowMetadataView
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "NamespacesAPIService.GetNamespaceWorkflowMetadataApiV1NamespacesNamespaceWorkflowMetadataGet")
@@ -143,8 +143,8 @@ func (a *NamespacesAPIService) GetNamespaceWorkflowMetadataApiV1NamespacesNamesp
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -162,13 +162,13 @@ func (a *NamespacesAPIService) GetNamespaceWorkflowMetadataApiV1NamespacesNamesp
 }
 
 type ApiUpsertNamespaceWorkflowMetadataApiV1NamespacesNamespaceWorkflowMetadataPutRequest struct {
-	ctx context.Context
-	ApiService *NamespacesAPIService
-	namespace string
+	ctx                             context.Context
+	ApiService                      *NamespacesAPIService
+	namespace                       string
 	namespaceWorkflowMetadataUpdate *NamespaceWorkflowMetadataUpdate
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization                   *string
+	xAmeshCSRF                      *string
+	xAmeshTenant                    *string
 }
 
 func (r ApiUpsertNamespaceWorkflowMetadataApiV1NamespacesNamespaceWorkflowMetadataPutRequest) NamespaceWorkflowMetadataUpdate(namespaceWorkflowMetadataUpdate NamespaceWorkflowMetadataUpdate) ApiUpsertNamespaceWorkflowMetadataApiV1NamespacesNamespaceWorkflowMetadataPutRequest {
@@ -198,26 +198,27 @@ func (r ApiUpsertNamespaceWorkflowMetadataApiV1NamespacesNamespaceWorkflowMetada
 /*
 UpsertNamespaceWorkflowMetadataApiV1NamespacesNamespaceWorkflowMetadataPut Upsert Namespace Workflow Metadata
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param namespace
- @return ApiUpsertNamespaceWorkflowMetadataApiV1NamespacesNamespaceWorkflowMetadataPutRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param namespace
+	@return ApiUpsertNamespaceWorkflowMetadataApiV1NamespacesNamespaceWorkflowMetadataPutRequest
 */
 func (a *NamespacesAPIService) UpsertNamespaceWorkflowMetadataApiV1NamespacesNamespaceWorkflowMetadataPut(ctx context.Context, namespace string) ApiUpsertNamespaceWorkflowMetadataApiV1NamespacesNamespaceWorkflowMetadataPutRequest {
 	return ApiUpsertNamespaceWorkflowMetadataApiV1NamespacesNamespaceWorkflowMetadataPutRequest{
 		ApiService: a,
-		ctx: ctx,
-		namespace: namespace,
+		ctx:        ctx,
+		namespace:  namespace,
 	}
 }
 
 // Execute executes the request
-//  @return NamespaceWorkflowMetadata
+//
+//	@return NamespaceWorkflowMetadata
 func (a *NamespacesAPIService) UpsertNamespaceWorkflowMetadataApiV1NamespacesNamespaceWorkflowMetadataPutExecute(r ApiUpsertNamespaceWorkflowMetadataApiV1NamespacesNamespaceWorkflowMetadataPutRequest) (*NamespaceWorkflowMetadata, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPut
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *NamespaceWorkflowMetadata
+		localVarHTTPMethod  = http.MethodPut
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *NamespaceWorkflowMetadata
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "NamespacesAPIService.UpsertNamespaceWorkflowMetadataApiV1NamespacesNamespaceWorkflowMetadataPut")
@@ -292,8 +293,8 @@ func (a *NamespacesAPIService) UpsertNamespaceWorkflowMetadataApiV1NamespacesNam
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}

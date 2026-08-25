@@ -20,9 +20,9 @@ import (
 type Spec struct {
 	AgentDefinitionSpecInput *AgentDefinitionSpecInput
 	AgentEvaluationSpecInput *AgentEvaluationSpecInput
-	ModelPolicySpec *ModelPolicySpec
-	PromptSpec *PromptSpec
-	SkillSpec *SkillSpec
+	ModelPolicySpec          *ModelPolicySpec
+	PromptSpec               *PromptSpec
+	SkillSpec                *SkillSpec
 }
 
 // AgentDefinitionSpecInputAsSpec is a convenience function that returns AgentDefinitionSpecInput wrapped in Spec
@@ -59,7 +59,6 @@ func SkillSpecAsSpec(v *SkillSpec) Spec {
 		SkillSpec: v,
 	}
 }
-
 
 // Unmarshal JSON data into one of the pointers in the struct
 func (dst *Spec) UnmarshalJSON(data []byte) error {
@@ -162,31 +161,31 @@ func (dst *Spec) UnmarshalJSON(data []byte) error {
 	} else if match == 1 {
 		return nil // exactly one match
 	} else { // no match
-        if err != nil {
-            return fmt.Errorf("data failed to match schemas in oneOf(Spec): %v", err)
-        } else {
-            return fmt.Errorf("data failed to match schemas in oneOf(Spec)")
-        }
-        if err != nil {
-            return fmt.Errorf("data failed to match schemas in oneOf(Spec): %v", err)
-        } else {
-            return fmt.Errorf("data failed to match schemas in oneOf(Spec)")
-        }
-        if err != nil {
-            return fmt.Errorf("data failed to match schemas in oneOf(Spec): %v", err)
-        } else {
-            return fmt.Errorf("data failed to match schemas in oneOf(Spec)")
-        }
-        if err != nil {
-            return fmt.Errorf("data failed to match schemas in oneOf(Spec): %v", err)
-        } else {
-            return fmt.Errorf("data failed to match schemas in oneOf(Spec)")
-        }
-        if err != nil {
-            return fmt.Errorf("data failed to match schemas in oneOf(Spec): %v", err)
-        } else {
-            return fmt.Errorf("data failed to match schemas in oneOf(Spec)")
-        }
+		if err != nil {
+			return fmt.Errorf("data failed to match schemas in oneOf(Spec): %v", err)
+		} else {
+			return fmt.Errorf("data failed to match schemas in oneOf(Spec)")
+		}
+		if err != nil {
+			return fmt.Errorf("data failed to match schemas in oneOf(Spec): %v", err)
+		} else {
+			return fmt.Errorf("data failed to match schemas in oneOf(Spec)")
+		}
+		if err != nil {
+			return fmt.Errorf("data failed to match schemas in oneOf(Spec): %v", err)
+		} else {
+			return fmt.Errorf("data failed to match schemas in oneOf(Spec)")
+		}
+		if err != nil {
+			return fmt.Errorf("data failed to match schemas in oneOf(Spec): %v", err)
+		} else {
+			return fmt.Errorf("data failed to match schemas in oneOf(Spec)")
+		}
+		if err != nil {
+			return fmt.Errorf("data failed to match schemas in oneOf(Spec): %v", err)
+		} else {
+			return fmt.Errorf("data failed to match schemas in oneOf(Spec)")
+		}
 	}
 }
 
@@ -216,7 +215,7 @@ func (src Spec) MarshalJSON() ([]byte, error) {
 }
 
 // Get the actual instance
-func (obj *Spec) GetActualInstance() (interface{}) {
+func (obj *Spec) GetActualInstance() interface{} {
 	if obj == nil {
 		return nil
 	}
@@ -245,7 +244,7 @@ func (obj *Spec) GetActualInstance() (interface{}) {
 }
 
 // Get the actual instance value
-func (obj Spec) GetActualInstanceValue() (interface{}) {
+func (obj Spec) GetActualInstanceValue() interface{} {
 	if obj.AgentDefinitionSpecInput != nil {
 		return *obj.AgentDefinitionSpecInput
 	}

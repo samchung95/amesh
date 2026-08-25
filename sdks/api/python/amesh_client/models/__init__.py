@@ -13,6 +13,7 @@
 """  # noqa: E501
 
 # import models into model package
+from amesh_client.models.absolute import Absolute
 from amesh_client.models.action import Action
 from amesh_client.models.administration_apply_request import AdministrationApplyRequest
 from amesh_client.models.administration_audit_entry import AdministrationAuditEntry
@@ -43,6 +44,7 @@ from amesh_client.models.agent_judge_policy_output import AgentJudgePolicyOutput
 from amesh_client.models.agent_memory_metadata import AgentMemoryMetadata
 from amesh_client.models.agent_memory_policy import AgentMemoryPolicy
 from amesh_client.models.agent_memory_scope import AgentMemoryScope
+from amesh_client.models.agent_model_continuation_ref import AgentModelContinuationRef
 from amesh_client.models.agent_permissions import AgentPermissions
 from amesh_client.models.agent_resolution_request import AgentResolutionRequest
 from amesh_client.models.agent_resource_kind import AgentResourceKind
@@ -69,6 +71,7 @@ from amesh_client.models.announcement_audience import AnnouncementAudience
 from amesh_client.models.announcement_create_request import AnnouncementCreateRequest
 from amesh_client.models.announcement_severity import AnnouncementSeverity
 from amesh_client.models.app_form import AppForm
+from amesh_client.models.approval_requirement import ApprovalRequirement
 from amesh_client.models.asset_access_mode import AssetAccessMode
 from amesh_client.models.asset_catalog_entry import AssetCatalogEntry
 from amesh_client.models.asset_catalog_export import AssetCatalogExport
@@ -112,6 +115,8 @@ from amesh_client.models.blueprint_parameter import BlueprintParameter
 from amesh_client.models.blueprint_parameter_kind import BlueprintParameterKind
 from amesh_client.models.blueprint_provenance import BlueprintProvenance
 from amesh_client.models.blueprint_summary import BlueprintSummary
+from amesh_client.models.budget_requirement_input import BudgetRequirementInput
+from amesh_client.models.budget_requirement_output import BudgetRequirementOutput
 from amesh_client.models.bulk_execution_item_result import BulkExecutionItemResult
 from amesh_client.models.bulk_execution_request import BulkExecutionRequest
 from amesh_client.models.certificate_diagnostic import CertificateDiagnostic
@@ -124,6 +129,10 @@ from amesh_client.models.check_evaluation_point import CheckEvaluationPoint
 from amesh_client.models.check_outcome import CheckOutcome
 from amesh_client.models.check_policy_source import CheckPolicySource
 from amesh_client.models.check_policy_upsert_request import CheckPolicyUpsertRequest
+from amesh_client.models.comparison_category import ComparisonCategory
+from amesh_client.models.comparison_difference import ComparisonDifference
+from amesh_client.models.comparison_policy import ComparisonPolicy
+from amesh_client.models.comparison_report import ComparisonReport
 from amesh_client.models.compatibility_mapping import CompatibilityMapping
 from amesh_client.models.compliance_evidence_category import ComplianceEvidenceCategory
 from amesh_client.models.compliance_evidence_create import ComplianceEvidenceCreate
@@ -134,8 +143,10 @@ from amesh_client.models.configuration_entry import ConfigurationEntry
 from amesh_client.models.configuration_migration import ConfigurationMigration
 from amesh_client.models.configuration_migration_kind import ConfigurationMigrationKind
 from amesh_client.models.configuration_migration_request import ConfigurationMigrationRequest
+from amesh_client.models.configuration_pin import ConfigurationPin
 from amesh_client.models.configuration_snapshot import ConfigurationSnapshot
 from amesh_client.models.connection_diagnostic import ConnectionDiagnostic
+from amesh_client.models.correlationid import Correlationid
 from amesh_client.models.create_execution_request import CreateExecutionRequest
 from amesh_client.models.create_tenant_request import CreateTenantRequest
 from amesh_client.models.credential_kind import CredentialKind
@@ -159,10 +170,16 @@ from amesh_client.models.dashboard_widget_result import DashboardWidgetResult
 from amesh_client.models.determinism_envelope import DeterminismEnvelope
 from amesh_client.models.determinism_node import DeterminismNode
 from amesh_client.models.determinism_policy_pin import DeterminismPolicyPin
+from amesh_client.models.differential_spec import DifferentialSpec
 from amesh_client.models.dns_diagnostic import DnsDiagnostic
 from amesh_client.models.dynamic_execution_bound import DynamicExecutionBound
 from amesh_client.models.effective_capability_envelope import EffectiveCapabilityEnvelope
 from amesh_client.models.effective_plugin_policy import EffectivePluginPolicy
+from amesh_client.models.evidence_artifact import EvidenceArtifact
+from amesh_client.models.evidence_bundle_page_response import EvidenceBundlePageResponse
+from amesh_client.models.evidence_presence import EvidencePresence
+from amesh_client.models.evidence_record import EvidenceRecord
+from amesh_client.models.evidence_requirement import EvidenceRequirement
 from amesh_client.models.exchange_credential_request import ExchangeCredentialRequest
 from amesh_client.models.execution_artifact import ExecutionArtifact
 from amesh_client.models.execution_detail import ExecutionDetail
@@ -181,12 +198,15 @@ from amesh_client.models.execution_state import ExecutionState
 from amesh_client.models.expression_preview_request import ExpressionPreviewRequest
 from amesh_client.models.expression_preview_response import ExpressionPreviewResponse
 from amesh_client.models.extension_type import ExtensionType
+from amesh_client.models.external_operation import ExternalOperation
+from amesh_client.models.external_orchestration_profile import ExternalOrchestrationProfile
 from amesh_client.models.failover_status import FailoverStatus
 from amesh_client.models.failure_category import FailureCategory
 from amesh_client.models.feature_flag import FeatureFlag
 from amesh_client.models.feature_flag_decision import FeatureFlagDecision
 from amesh_client.models.feature_flag_scope import FeatureFlagScope
 from amesh_client.models.feature_flag_upsert_request import FeatureFlagUpsertRequest
+from amesh_client.models.fixture_source import FixtureSource
 from amesh_client.models.flow_data_contract import FlowDataContract
 from amesh_client.models.flow_document_export import FlowDocumentExport
 from amesh_client.models.flow_editor_schema_response import FlowEditorSchemaResponse
@@ -219,6 +239,8 @@ from amesh_client.models.form_field import FormField
 from amesh_client.models.form_section import FormSection
 from amesh_client.models.gte import Gte
 from amesh_client.models.http_validation_error import HTTPValidationError
+from amesh_client.models.health_requirement_input import HealthRequirementInput
+from amesh_client.models.health_requirement_output import HealthRequirementOutput
 from amesh_client.models.health_response import HealthResponse
 from amesh_client.models.human_task import HumanTask
 from amesh_client.models.human_task_action import HumanTaskAction
@@ -251,6 +273,7 @@ from amesh_client.models.lifecycle_preview_request import LifecyclePreviewReques
 from amesh_client.models.lifecycle_resource_type import LifecycleResourceType
 from amesh_client.models.lifecycle_scope import LifecycleScope
 from amesh_client.models.lifecycle_trigger import LifecycleTrigger
+from amesh_client.models.lineage import Lineage
 from amesh_client.models.lineage_evidence_kind import LineageEvidenceKind
 from amesh_client.models.location_inner import LocationInner
 from amesh_client.models.log_level import LogLevel
@@ -260,6 +283,8 @@ from amesh_client.models.login_response import LoginResponse
 from amesh_client.models.lte import Lte
 from amesh_client.models.mapping_disposition import MappingDisposition
 from amesh_client.models.maxcostusd import Maxcostusd
+from amesh_client.models.maximum import Maximum
+from amesh_client.models.maximum1 import Maximum1
 from amesh_client.models.maximumuncertainty import Maximumuncertainty
 from amesh_client.models.mcp_connection_discovery_request import McpConnectionDiscoveryRequest
 from amesh_client.models.mcp_connection_revision import McpConnectionRevision
@@ -269,6 +294,7 @@ from amesh_client.models.mcp_tool_impact import McpToolImpact
 from amesh_client.models.mcp_tool_pin import McpToolPin
 from amesh_client.models.metric_kind import MetricKind
 from amesh_client.models.migration_patch import MigrationPatch
+from amesh_client.models.minimum import Minimum
 from amesh_client.models.minimumrubricscore import Minimumrubricscore
 from amesh_client.models.minimumscore import Minimumscore
 from amesh_client.models.model_fallback_mode import ModelFallbackMode
@@ -387,6 +413,14 @@ from amesh_client.models.principal_definition import PrincipalDefinition
 from amesh_client.models.principal_type import PrincipalType
 from amesh_client.models.problem_detail import ProblemDetail
 from amesh_client.models.projectedcostusd import Projectedcostusd
+from amesh_client.models.promotion_apply_request import PromotionApplyRequest
+from amesh_client.models.promotion_evidence_kind import PromotionEvidenceKind
+from amesh_client.models.promotion_kill_switch_request import PromotionKillSwitchRequest
+from amesh_client.models.promotion_policy_input import PromotionPolicyInput
+from amesh_client.models.promotion_policy_output import PromotionPolicyOutput
+from amesh_client.models.promotion_preview_request import PromotionPreviewRequest
+from amesh_client.models.promotion_rollback_request import PromotionRollbackRequest
+from amesh_client.models.promotion_target_kind import PromotionTargetKind
 from amesh_client.models.prompt_spec import PromptSpec
 from amesh_client.models.provider_migration_diagnostic import ProviderMigrationDiagnostic
 from amesh_client.models.provisioned_webhook_subscription import ProvisionedWebhookSubscription
@@ -403,8 +437,10 @@ from amesh_client.models.reconciliation_request import ReconciliationRequest
 from amesh_client.models.reconciliation_run import ReconciliationRun
 from amesh_client.models.reconciliation_run_state import ReconciliationRunState
 from amesh_client.models.reconciliation_target_type import ReconciliationTargetType
+from amesh_client.models.recordid import Recordid
 from amesh_client.models.reduce_execution_request import ReduceExecutionRequest
 from amesh_client.models.reduce_execution_response import ReduceExecutionResponse
+from amesh_client.models.relative import Relative
 from amesh_client.models.resolved_agent_evaluation import ResolvedAgentEvaluation
 from amesh_client.models.resolved_resource_pin import ResolvedResourcePin
 from amesh_client.models.resolved_tool_pin import ResolvedToolPin
@@ -418,6 +454,7 @@ from amesh_client.models.role_binding import RoleBinding
 from amesh_client.models.role_definition import RoleDefinition
 from amesh_client.models.rolling_upgrade_step import RollingUpgradeStep
 from amesh_client.models.rotate_credential_request import RotateCredentialRequest
+from amesh_client.models.run_observation import RunObservation
 from amesh_client.models.runner_capabilities import RunnerCapabilities
 from amesh_client.models.runner_id import RunnerId
 from amesh_client.models.runner_mode import RunnerMode
@@ -460,6 +497,9 @@ from amesh_client.models.service_role_status import ServiceRoleStatus
 from amesh_client.models.service_state import ServiceState
 from amesh_client.models.service_topology import ServiceTopology
 from amesh_client.models.set_local_password_request import SetLocalPasswordRequest
+from amesh_client.models.shadow_effect import ShadowEffect
+from amesh_client.models.shadow_fixture import ShadowFixture
+from amesh_client.models.shadow_run import ShadowRun
 from amesh_client.models.simulated_task_result import SimulatedTaskResult
 from amesh_client.models.simulation_comparison import SimulationComparison
 from amesh_client.models.simulation_estimate_model import SimulationEstimateModel
@@ -500,6 +540,8 @@ from amesh_client.models.tenant_export import TenantExport
 from amesh_client.models.tenant_policy import TenantPolicy
 from amesh_client.models.tenant_status import TenantStatus
 from amesh_client.models.time_range_selection import TimeRangeSelection
+from amesh_client.models.tolerance import Tolerance
+from amesh_client.models.tool_provider_kind import ToolProviderKind
 from amesh_client.models.trigger_action_request import TriggerActionRequest
 from amesh_client.models.trigger_occurrence import TriggerOccurrence
 from amesh_client.models.trigger_occurrence_state import TriggerOccurrenceState

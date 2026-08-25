@@ -21,6 +21,7 @@ from amesh.adapters.postgres import (
     PostgresExecutionRepository,
     PostgresTenantRepository,
 )
+from amesh.api.evidence_models import EvidenceBundlePageResponse
 from amesh.authentication import AuthenticationService
 from amesh.cli_config import (
     CliProfile,
@@ -45,12 +46,14 @@ from amesh.kestra_compatibility import (
 )
 from amesh.plugin_sdk import (
     certify_plugin,
+    certify_tool_provider,
     generate_plugin_documentation,
     quality_level_criteria,
     sandbox_configuration,
     scaffold_plugin,
 )
 from amesh.ports import StorageMigrationCheckpoint
+from amesh.quality import add_differential_commands, differential_request, differential_result
 from amesh.recovery import RecoveryService
 from amesh.storage.factory import build_object_store
 from amesh.tenancy import TenantService
@@ -107,6 +110,15 @@ def build_parser() -> argparse.ArgumentParser:
     logs = subcommands.add_parser("logs", help="Get task outputs for one execution")
     logs.add_argument("execution_id")
 
+    evidence = subcommands.add_parser(
+        "evidence", help="Get a bounded canonical evidence-bundle page for one execution"
+    )
+    evidence.add_argument("execution_id")
+    evidence.add_argument("--section", default="trace")
+    evidence.add_argument("--cursor")
+    evidence.add_argument("--limit", type=int, default=100)
+    evidence.add_argument("--verify", action="store_true")
+
     webhook = subcommands.add_parser("webhook", help="Trigger an applied webhook flow")
     webhook.add_argument("namespace")
     webhook.add_argument("flow_id")
@@ -134,6 +146,12 @@ def build_parser() -> argparse.ArgumentParser:
     plugin_certify.add_argument("path", type=Path)
     plugin_certify.add_argument("--platform-version", action="append", default=[])
     plugin_certify.add_argument("--output", type=Path)
+    provider_certify = plugin_commands.add_parser(
+        "certify-provider",
+        aliases=("certify-tool-provider",),
+        help="Run provider-neutral ToolProvider certification checks",
+    )
+    provider_certify.add_argument("path", type=Path)
     plugin_docs = plugin_commands.add_parser(
         "docs", help="Generate plugin reference and sample configuration"
     )
@@ -424,6 +442,38 @@ def build_parser() -> argparse.ArgumentParser:
     )
     lifecycle_release.add_argument("hold_id")
 
+    releases = subcommands.add_parser(
+        "releases", help="Preview and apply evidence-backed release actions"
+    )
+    release_commands = releases.add_subparsers(dest="release_command", required=True)
+    release_preview = release_commands.add_parser("preview", help="Preview one policy gate")
+    release_preview.add_argument("policy_id")
+    release_apply = release_commands.add_parser("apply", help="Apply one passing policy gate")
+    release_apply.add_argument("policy_id")
+    release_apply.add_argument("--expected-version", type=int, required=True)
+    release_apply.add_argument("--reason", required=True)
+    release_rollback = release_commands.add_parser(
+        "rollback", help="Rollback to an exact prior revision"
+    )
+    release_rollback.add_argument("target_kind", choices=("WORKFLOW", "AGENT"))
+    release_rollback.add_argument("target_key")
+    release_rollback.add_argument("--to-revision", type=int, required=True)
+    release_rollback.add_argument("--expected-version", type=int, required=True)
+    release_rollback.add_argument("--reason", required=True)
+    release_kill = release_commands.add_parser("kill-switch", help="Immediately disable a target")
+    release_kill.add_argument("target_kind", choices=("WORKFLOW", "AGENT"))
+    release_kill.add_argument("target_key")
+    release_kill.add_argument("--expected-version", type=int, required=True)
+    release_kill.add_argument("--reason", required=True)
+    release_target = release_commands.add_parser("target", help="Read current release state")
+    release_target.add_argument("target_kind", choices=("WORKFLOW", "AGENT"))
+    release_target.add_argument("target_key")
+    release_history = release_commands.add_parser("history", help="Read immutable release history")
+    release_history.add_argument("target_kind", choices=("WORKFLOW", "AGENT"))
+    release_history.add_argument("target_key")
+
+    add_differential_commands(subcommands)
+
     upgrade = subcommands.add_parser("upgrade", help="Plan and verify supported upgrades")
     upgrade_commands = upgrade.add_subparsers(dest="upgrade_command", required=True)
     upgrade_commands.add_parser("policy", help="Show supported LTS releases and upgrade paths")
@@ -582,6 +632,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     if args.command == "plugins" and args.plugin_command in {
         "scaffold",
         "certify",
+        "certify-provider",
+        "certify-tool-provider",
         "docs",
         "sandbox",
         "criteria",
@@ -604,6 +656,10 @@ def main(argv: Sequence[str] | None = None) -> int:
                     args.output.write_text(encoded + "\n", encoding="utf-8")
                 _emit(json.loads(encoded), output_mode)
                 return EXIT_SUCCESS if certification_report.passed else EXIT_DIFFERENCE
+            if args.plugin_command in {"certify-provider", "certify-tool-provider"}:
+                provider_report = certify_tool_provider(_load_mapping(args.path))
+                _emit(provider_report.model_dump(mode="json", by_alias=True), output_mode)
+                return EXIT_SUCCESS if provider_report.passed else EXIT_DIFFERENCE
             if args.plugin_command == "docs":
                 documentation_path, sample = generate_plugin_documentation(
                     args.path, args.output_dir
@@ -753,6 +809,25 @@ def main(argv: Sequence[str] | None = None) -> int:
                 response = client.get(f"/api/v1/executions/{args.execution_id}")
             elif args.command == "logs":
                 response = client.get(f"/api/v1/executions/{args.execution_id}/logs")
+            elif args.command == "evidence":
+                evidence_params = {
+                    key: value
+                    for key, value in {
+                        "section": args.section,
+                        "cursor": args.cursor,
+                        "limit": args.limit,
+                    }.items()
+                    if value is not None
+                }
+                response = client.get(
+                    f"/api/v1/executions/{args.execution_id}/evidence-bundle",
+                    params=evidence_params,
+                )
+                if args.verify and not response.is_error:
+                    verified = EvidenceBundlePageResponse.model_validate(response.json())
+                    payload = verified.model_dump(mode="json", by_alias=True)
+                    payload["verified"] = True
+                    response = httpx.Response(200, json=payload)
             elif args.command == "webhook":
                 response = client.post(
                     f"/api/v1/webhooks/{args.namespace}/{args.flow_id}/{args.trigger_id}",
@@ -798,6 +873,14 @@ def main(argv: Sequence[str] | None = None) -> int:
                 if isinstance(upgrade_result, int):
                     return upgrade_result
                 response = upgrade_result
+            elif args.command == "releases":
+                response = _release_request(client, args)
+            elif args.command == "differential":
+                result_code, result_body = differential_result(
+                    differential_request(client, args, tenant_id=args.tenant)
+                )
+                _emit(result_body, output_mode)
+                return result_code
             else:
                 return EXIT_ERROR
         if response.is_error:
@@ -942,6 +1025,7 @@ def _uses_api(args: argparse.Namespace) -> bool:
         "run",
         "execution",
         "logs",
+        "evidence",
         "webhook",
         "namespace",
         "agent",
@@ -949,6 +1033,8 @@ def _uses_api(args: argparse.Namespace) -> bool:
         "admin",
         "lifecycle",
         "upgrade",
+        "releases",
+        "differential",
     }:
         return True
     return args.command == "plugins" and args.plugin_command in {"list", "refresh", "install"}
@@ -1295,6 +1381,37 @@ def _upgrade_request(
             "document": _load_mapping(args.path),
         },
     )
+
+
+def _release_request(client: httpx.Client, args: argparse.Namespace) -> httpx.Response:
+    if args.release_command == "preview":
+        return client.post(f"/api/v1/releases/policies/{quote(args.policy_id, safe='')}/preview")
+    if args.release_command == "apply":
+        return client.post(
+            f"/api/v1/releases/policies/{quote(args.policy_id, safe='')}/apply",
+            json={
+                "expectedVersion": args.expected_version,
+                "reason": args.reason,
+            },
+        )
+    target = f"{args.target_kind.lower()}/{quote(args.target_key, safe='')}"
+    if args.release_command == "rollback":
+        return client.post(
+            f"/api/v1/releases/{target}/rollback",
+            json={
+                "toRevision": args.to_revision,
+                "expectedVersion": args.expected_version,
+                "reason": args.reason,
+            },
+        )
+    if args.release_command == "kill-switch":
+        return client.post(
+            f"/api/v1/releases/{target}/kill-switch",
+            json={"expectedVersion": args.expected_version, "reason": args.reason},
+        )
+    suffix = "history" if args.release_command == "history" else ""
+    path = f"/api/v1/releases/{target}"
+    return client.get(f"{path}/{suffix}" if suffix else path)
 
 
 def _write_upgrade_response(

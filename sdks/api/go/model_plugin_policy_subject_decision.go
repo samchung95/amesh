@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,10 +21,10 @@ var _ MappedNullable = &PluginPolicySubjectDecision{}
 
 // PluginPolicySubjectDecision struct for PluginPolicySubjectDecision
 type PluginPolicySubjectDecision struct {
-	Allowed bool `json:"allowed"`
-	ReasonCode string `json:"reasonCode"`
-	Sources []PluginPolicyRuleSource `json:"sources"`
-	Subject PluginPolicySubject `json:"subject"`
+	Allowed    bool                     `json:"allowed"`
+	ReasonCode string                   `json:"reasonCode"`
+	Sources    []PluginPolicyRuleSource `json:"sources"`
+	Subject    PluginPolicySubject      `json:"subject"`
 }
 
 type _PluginPolicySubjectDecision PluginPolicySubjectDecision
@@ -147,7 +147,7 @@ func (o *PluginPolicySubjectDecision) SetSubject(v PluginPolicySubject) {
 }
 
 func (o PluginPolicySubjectDecision) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -179,10 +179,10 @@ func (o *PluginPolicySubjectDecision) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -22,7 +22,7 @@ var _ MappedNullable = &SourcePosition{}
 // SourcePosition struct for SourcePosition
 type SourcePosition struct {
 	Column int32 `json:"column"`
-	Line int32 `json:"line"`
+	Line   int32 `json:"line"`
 	Offset int32 `json:"offset"`
 }
 
@@ -121,7 +121,7 @@ func (o *SourcePosition) SetOffset(v int32) {
 }
 
 func (o SourcePosition) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -151,10 +151,10 @@ func (o *SourcePosition) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

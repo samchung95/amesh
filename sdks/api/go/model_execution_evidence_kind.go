@@ -20,11 +20,19 @@ type ExecutionEvidenceKind string
 
 // List of ExecutionEvidenceKind
 const (
-	EXECUTIONEVIDENCEKIND_STATE ExecutionEvidenceKind = "STATE"
-	EXECUTIONEVIDENCEKIND_LOG ExecutionEvidenceKind = "LOG"
-	EXECUTIONEVIDENCEKIND_METRIC ExecutionEvidenceKind = "METRIC"
-	EXECUTIONEVIDENCEKIND_OUTPUT ExecutionEvidenceKind = "OUTPUT"
-	EXECUTIONEVIDENCEKIND_ARTIFACT ExecutionEvidenceKind = "ARTIFACT"
+	EXECUTIONEVIDENCEKIND_STATE        ExecutionEvidenceKind = "STATE"
+	EXECUTIONEVIDENCEKIND_LOG          ExecutionEvidenceKind = "LOG"
+	EXECUTIONEVIDENCEKIND_METRIC       ExecutionEvidenceKind = "METRIC"
+	EXECUTIONEVIDENCEKIND_OUTPUT       ExecutionEvidenceKind = "OUTPUT"
+	EXECUTIONEVIDENCEKIND_ARTIFACT     ExecutionEvidenceKind = "ARTIFACT"
+	EXECUTIONEVIDENCEKIND_AGENT        ExecutionEvidenceKind = "AGENT"
+	EXECUTIONEVIDENCEKIND_MODEL        ExecutionEvidenceKind = "MODEL"
+	EXECUTIONEVIDENCEKIND_TOOL         ExecutionEvidenceKind = "TOOL"
+	EXECUTIONEVIDENCEKIND_ERROR        ExecutionEvidenceKind = "ERROR"
+	EXECUTIONEVIDENCEKIND_APPROVAL     ExecutionEvidenceKind = "APPROVAL"
+	EXECUTIONEVIDENCEKIND_INTERVENTION ExecutionEvidenceKind = "INTERVENTION"
+	EXECUTIONEVIDENCEKIND_CONTROL      ExecutionEvidenceKind = "CONTROL"
+	EXECUTIONEVIDENCEKIND_DECISION     ExecutionEvidenceKind = "DECISION"
 )
 
 // All allowed values of ExecutionEvidenceKind enum
@@ -34,6 +42,14 @@ var AllowedExecutionEvidenceKindEnumValues = []ExecutionEvidenceKind{
 	"METRIC",
 	"OUTPUT",
 	"ARTIFACT",
+	"AGENT",
+	"MODEL",
+	"TOOL",
+	"ERROR",
+	"APPROVAL",
+	"INTERVENTION",
+	"CONTROL",
+	"DECISION",
 }
 
 func (v *ExecutionEvidenceKind) UnmarshalJSON(src []byte) error {

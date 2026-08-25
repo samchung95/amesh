@@ -71,6 +71,7 @@ func (o *FlowRevisionRestoreRequest) HasReason() bool {
 func (o *FlowRevisionRestoreRequest) SetReason(v string) {
 	o.Reason.Set(&v)
 }
+
 // SetReasonNil sets the value for Reason to be an explicit nil
 func (o *FlowRevisionRestoreRequest) SetReasonNil() {
 	o.Reason.Set(nil)
@@ -82,7 +83,7 @@ func (o *FlowRevisionRestoreRequest) UnsetReason() {
 }
 
 func (o FlowRevisionRestoreRequest) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}

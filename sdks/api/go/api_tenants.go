@@ -16,20 +16,19 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"strings"
 	"reflect"
+	"strings"
 )
-
 
 // TenantsAPIService TenantsAPI service
 type TenantsAPIService service
 
 type ApiCreateTenantApiV1AdminTenantsPostRequest struct {
-	ctx context.Context
-	ApiService *TenantsAPIService
+	ctx                 context.Context
+	ApiService          *TenantsAPIService
 	createTenantRequest *CreateTenantRequest
-	authorization *string
-	xAmeshCSRF *string
+	authorization       *string
+	xAmeshCSRF          *string
 }
 
 func (r ApiCreateTenantApiV1AdminTenantsPostRequest) CreateTenantRequest(createTenantRequest CreateTenantRequest) ApiCreateTenantApiV1AdminTenantsPostRequest {
@@ -54,24 +53,25 @@ func (r ApiCreateTenantApiV1AdminTenantsPostRequest) Execute() (*TenantDefinitio
 /*
 CreateTenantApiV1AdminTenantsPost Create Tenant
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiCreateTenantApiV1AdminTenantsPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiCreateTenantApiV1AdminTenantsPostRequest
 */
 func (a *TenantsAPIService) CreateTenantApiV1AdminTenantsPost(ctx context.Context) ApiCreateTenantApiV1AdminTenantsPostRequest {
 	return ApiCreateTenantApiV1AdminTenantsPostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return TenantDefinition
+//
+//	@return TenantDefinition
 func (a *TenantsAPIService) CreateTenantApiV1AdminTenantsPostExecute(r ApiCreateTenantApiV1AdminTenantsPostRequest) (*TenantDefinition, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *TenantDefinition
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *TenantDefinition
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "TenantsAPIService.CreateTenantApiV1AdminTenantsPost")
@@ -142,8 +142,8 @@ func (a *TenantsAPIService) CreateTenantApiV1AdminTenantsPostExecute(r ApiCreate
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -161,11 +161,11 @@ func (a *TenantsAPIService) CreateTenantApiV1AdminTenantsPostExecute(r ApiCreate
 }
 
 type ApiDeleteTenantApiV1AdminTenantsTenantSlugDeleteRequest struct {
-	ctx context.Context
-	ApiService *TenantsAPIService
-	tenantSlug string
+	ctx           context.Context
+	ApiService    *TenantsAPIService
+	tenantSlug    string
 	authorization *string
-	xAmeshCSRF *string
+	xAmeshCSRF    *string
 }
 
 func (r ApiDeleteTenantApiV1AdminTenantsTenantSlugDeleteRequest) Authorization(authorization string) ApiDeleteTenantApiV1AdminTenantsTenantSlugDeleteRequest {
@@ -185,26 +185,27 @@ func (r ApiDeleteTenantApiV1AdminTenantsTenantSlugDeleteRequest) Execute() (*Ten
 /*
 DeleteTenantApiV1AdminTenantsTenantSlugDelete Delete Tenant
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param tenantSlug
- @return ApiDeleteTenantApiV1AdminTenantsTenantSlugDeleteRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param tenantSlug
+	@return ApiDeleteTenantApiV1AdminTenantsTenantSlugDeleteRequest
 */
 func (a *TenantsAPIService) DeleteTenantApiV1AdminTenantsTenantSlugDelete(ctx context.Context, tenantSlug string) ApiDeleteTenantApiV1AdminTenantsTenantSlugDeleteRequest {
 	return ApiDeleteTenantApiV1AdminTenantsTenantSlugDeleteRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 		tenantSlug: tenantSlug,
 	}
 }
 
 // Execute executes the request
-//  @return TenantDefinition
+//
+//	@return TenantDefinition
 func (a *TenantsAPIService) DeleteTenantApiV1AdminTenantsTenantSlugDeleteExecute(r ApiDeleteTenantApiV1AdminTenantsTenantSlugDeleteRequest) (*TenantDefinition, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodDelete
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *TenantDefinition
+		localVarHTTPMethod  = http.MethodDelete
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *TenantDefinition
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "TenantsAPIService.DeleteTenantApiV1AdminTenantsTenantSlugDelete")
@@ -271,8 +272,8 @@ func (a *TenantsAPIService) DeleteTenantApiV1AdminTenantsTenantSlugDeleteExecute
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -290,11 +291,11 @@ func (a *TenantsAPIService) DeleteTenantApiV1AdminTenantsTenantSlugDeleteExecute
 }
 
 type ApiExportTenantApiV1AdminTenantsTenantSlugExportsPostRequest struct {
-	ctx context.Context
-	ApiService *TenantsAPIService
-	tenantSlug string
+	ctx           context.Context
+	ApiService    *TenantsAPIService
+	tenantSlug    string
 	authorization *string
-	xAmeshCSRF *string
+	xAmeshCSRF    *string
 }
 
 func (r ApiExportTenantApiV1AdminTenantsTenantSlugExportsPostRequest) Authorization(authorization string) ApiExportTenantApiV1AdminTenantsTenantSlugExportsPostRequest {
@@ -314,26 +315,27 @@ func (r ApiExportTenantApiV1AdminTenantsTenantSlugExportsPostRequest) Execute() 
 /*
 ExportTenantApiV1AdminTenantsTenantSlugExportsPost Export Tenant
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param tenantSlug
- @return ApiExportTenantApiV1AdminTenantsTenantSlugExportsPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param tenantSlug
+	@return ApiExportTenantApiV1AdminTenantsTenantSlugExportsPostRequest
 */
 func (a *TenantsAPIService) ExportTenantApiV1AdminTenantsTenantSlugExportsPost(ctx context.Context, tenantSlug string) ApiExportTenantApiV1AdminTenantsTenantSlugExportsPostRequest {
 	return ApiExportTenantApiV1AdminTenantsTenantSlugExportsPostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 		tenantSlug: tenantSlug,
 	}
 }
 
 // Execute executes the request
-//  @return TenantExport
+//
+//	@return TenantExport
 func (a *TenantsAPIService) ExportTenantApiV1AdminTenantsTenantSlugExportsPostExecute(r ApiExportTenantApiV1AdminTenantsTenantSlugExportsPostRequest) (*TenantExport, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *TenantExport
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *TenantExport
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "TenantsAPIService.ExportTenantApiV1AdminTenantsTenantSlugExportsPost")
@@ -400,8 +402,8 @@ func (a *TenantsAPIService) ExportTenantApiV1AdminTenantsTenantSlugExportsPostEx
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -419,11 +421,11 @@ func (a *TenantsAPIService) ExportTenantApiV1AdminTenantsTenantSlugExportsPostEx
 }
 
 type ApiGetTenantApiV1AdminTenantsTenantSlugGetRequest struct {
-	ctx context.Context
-	ApiService *TenantsAPIService
-	tenantSlug string
+	ctx           context.Context
+	ApiService    *TenantsAPIService
+	tenantSlug    string
 	authorization *string
-	xAmeshCSRF *string
+	xAmeshCSRF    *string
 }
 
 func (r ApiGetTenantApiV1AdminTenantsTenantSlugGetRequest) Authorization(authorization string) ApiGetTenantApiV1AdminTenantsTenantSlugGetRequest {
@@ -443,26 +445,27 @@ func (r ApiGetTenantApiV1AdminTenantsTenantSlugGetRequest) Execute() (*TenantDef
 /*
 GetTenantApiV1AdminTenantsTenantSlugGet Get Tenant
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param tenantSlug
- @return ApiGetTenantApiV1AdminTenantsTenantSlugGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param tenantSlug
+	@return ApiGetTenantApiV1AdminTenantsTenantSlugGetRequest
 */
 func (a *TenantsAPIService) GetTenantApiV1AdminTenantsTenantSlugGet(ctx context.Context, tenantSlug string) ApiGetTenantApiV1AdminTenantsTenantSlugGetRequest {
 	return ApiGetTenantApiV1AdminTenantsTenantSlugGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 		tenantSlug: tenantSlug,
 	}
 }
 
 // Execute executes the request
-//  @return TenantDefinition
+//
+//	@return TenantDefinition
 func (a *TenantsAPIService) GetTenantApiV1AdminTenantsTenantSlugGetExecute(r ApiGetTenantApiV1AdminTenantsTenantSlugGetRequest) (*TenantDefinition, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *TenantDefinition
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *TenantDefinition
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "TenantsAPIService.GetTenantApiV1AdminTenantsTenantSlugGet")
@@ -529,8 +532,8 @@ func (a *TenantsAPIService) GetTenantApiV1AdminTenantsTenantSlugGetExecute(r Api
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -548,15 +551,15 @@ func (a *TenantsAPIService) GetTenantApiV1AdminTenantsTenantSlugGetExecute(r Api
 }
 
 type ApiListTenantsApiV1AdminTenantsGetRequest struct {
-	ctx context.Context
-	ApiService *TenantsAPIService
-	cursor *string
-	limit *int32
-	filter *[]string
-	sort *string
-	fields *string
+	ctx           context.Context
+	ApiService    *TenantsAPIService
+	cursor        *string
+	limit         *int32
+	filter        *[]string
+	sort          *string
+	fields        *string
 	authorization *string
-	xAmeshCSRF *string
+	xAmeshCSRF    *string
 }
 
 // Opaque cursor from the prior page
@@ -605,24 +608,25 @@ func (r ApiListTenantsApiV1AdminTenantsGetRequest) Execute() ([]TenantDefinition
 /*
 ListTenantsApiV1AdminTenantsGet List Tenants
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiListTenantsApiV1AdminTenantsGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiListTenantsApiV1AdminTenantsGetRequest
 */
 func (a *TenantsAPIService) ListTenantsApiV1AdminTenantsGet(ctx context.Context) ApiListTenantsApiV1AdminTenantsGetRequest {
 	return ApiListTenantsApiV1AdminTenantsGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return []TenantDefinition
+//
+//	@return []TenantDefinition
 func (a *TenantsAPIService) ListTenantsApiV1AdminTenantsGetExecute(r ApiListTenantsApiV1AdminTenantsGetRequest) ([]TenantDefinition, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  []TenantDefinition
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []TenantDefinition
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "TenantsAPIService.ListTenantsApiV1AdminTenantsGet")
@@ -711,8 +715,8 @@ func (a *TenantsAPIService) ListTenantsApiV1AdminTenantsGetExecute(r ApiListTena
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -730,11 +734,11 @@ func (a *TenantsAPIService) ListTenantsApiV1AdminTenantsGetExecute(r ApiListTena
 }
 
 type ApiRestoreTenantApiV1AdminTenantsTenantSlugRestorePostRequest struct {
-	ctx context.Context
-	ApiService *TenantsAPIService
-	tenantSlug string
+	ctx           context.Context
+	ApiService    *TenantsAPIService
+	tenantSlug    string
 	authorization *string
-	xAmeshCSRF *string
+	xAmeshCSRF    *string
 }
 
 func (r ApiRestoreTenantApiV1AdminTenantsTenantSlugRestorePostRequest) Authorization(authorization string) ApiRestoreTenantApiV1AdminTenantsTenantSlugRestorePostRequest {
@@ -754,26 +758,27 @@ func (r ApiRestoreTenantApiV1AdminTenantsTenantSlugRestorePostRequest) Execute()
 /*
 RestoreTenantApiV1AdminTenantsTenantSlugRestorePost Restore Tenant
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param tenantSlug
- @return ApiRestoreTenantApiV1AdminTenantsTenantSlugRestorePostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param tenantSlug
+	@return ApiRestoreTenantApiV1AdminTenantsTenantSlugRestorePostRequest
 */
 func (a *TenantsAPIService) RestoreTenantApiV1AdminTenantsTenantSlugRestorePost(ctx context.Context, tenantSlug string) ApiRestoreTenantApiV1AdminTenantsTenantSlugRestorePostRequest {
 	return ApiRestoreTenantApiV1AdminTenantsTenantSlugRestorePostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 		tenantSlug: tenantSlug,
 	}
 }
 
 // Execute executes the request
-//  @return TenantDefinition
+//
+//	@return TenantDefinition
 func (a *TenantsAPIService) RestoreTenantApiV1AdminTenantsTenantSlugRestorePostExecute(r ApiRestoreTenantApiV1AdminTenantsTenantSlugRestorePostRequest) (*TenantDefinition, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *TenantDefinition
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *TenantDefinition
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "TenantsAPIService.RestoreTenantApiV1AdminTenantsTenantSlugRestorePost")
@@ -840,8 +845,8 @@ func (a *TenantsAPIService) RestoreTenantApiV1AdminTenantsTenantSlugRestorePostE
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -859,11 +864,11 @@ func (a *TenantsAPIService) RestoreTenantApiV1AdminTenantsTenantSlugRestorePostE
 }
 
 type ApiSuspendTenantApiV1AdminTenantsTenantSlugSuspendPostRequest struct {
-	ctx context.Context
-	ApiService *TenantsAPIService
-	tenantSlug string
+	ctx           context.Context
+	ApiService    *TenantsAPIService
+	tenantSlug    string
 	authorization *string
-	xAmeshCSRF *string
+	xAmeshCSRF    *string
 }
 
 func (r ApiSuspendTenantApiV1AdminTenantsTenantSlugSuspendPostRequest) Authorization(authorization string) ApiSuspendTenantApiV1AdminTenantsTenantSlugSuspendPostRequest {
@@ -883,26 +888,27 @@ func (r ApiSuspendTenantApiV1AdminTenantsTenantSlugSuspendPostRequest) Execute()
 /*
 SuspendTenantApiV1AdminTenantsTenantSlugSuspendPost Suspend Tenant
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param tenantSlug
- @return ApiSuspendTenantApiV1AdminTenantsTenantSlugSuspendPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param tenantSlug
+	@return ApiSuspendTenantApiV1AdminTenantsTenantSlugSuspendPostRequest
 */
 func (a *TenantsAPIService) SuspendTenantApiV1AdminTenantsTenantSlugSuspendPost(ctx context.Context, tenantSlug string) ApiSuspendTenantApiV1AdminTenantsTenantSlugSuspendPostRequest {
 	return ApiSuspendTenantApiV1AdminTenantsTenantSlugSuspendPostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 		tenantSlug: tenantSlug,
 	}
 }
 
 // Execute executes the request
-//  @return TenantDefinition
+//
+//	@return TenantDefinition
 func (a *TenantsAPIService) SuspendTenantApiV1AdminTenantsTenantSlugSuspendPostExecute(r ApiSuspendTenantApiV1AdminTenantsTenantSlugSuspendPostRequest) (*TenantDefinition, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *TenantDefinition
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *TenantDefinition
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "TenantsAPIService.SuspendTenantApiV1AdminTenantsTenantSlugSuspendPost")
@@ -969,8 +975,8 @@ func (a *TenantsAPIService) SuspendTenantApiV1AdminTenantsTenantSlugSuspendPostE
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -988,12 +994,12 @@ func (a *TenantsAPIService) SuspendTenantApiV1AdminTenantsTenantSlugSuspendPostE
 }
 
 type ApiUpdateTenantPolicyApiV1AdminTenantsTenantSlugPolicyPutRequest struct {
-	ctx context.Context
-	ApiService *TenantsAPIService
-	tenantSlug string
-	tenantPolicy *TenantPolicy
+	ctx           context.Context
+	ApiService    *TenantsAPIService
+	tenantSlug    string
+	tenantPolicy  *TenantPolicy
 	authorization *string
-	xAmeshCSRF *string
+	xAmeshCSRF    *string
 }
 
 func (r ApiUpdateTenantPolicyApiV1AdminTenantsTenantSlugPolicyPutRequest) TenantPolicy(tenantPolicy TenantPolicy) ApiUpdateTenantPolicyApiV1AdminTenantsTenantSlugPolicyPutRequest {
@@ -1018,26 +1024,27 @@ func (r ApiUpdateTenantPolicyApiV1AdminTenantsTenantSlugPolicyPutRequest) Execut
 /*
 UpdateTenantPolicyApiV1AdminTenantsTenantSlugPolicyPut Update Tenant Policy
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param tenantSlug
- @return ApiUpdateTenantPolicyApiV1AdminTenantsTenantSlugPolicyPutRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param tenantSlug
+	@return ApiUpdateTenantPolicyApiV1AdminTenantsTenantSlugPolicyPutRequest
 */
 func (a *TenantsAPIService) UpdateTenantPolicyApiV1AdminTenantsTenantSlugPolicyPut(ctx context.Context, tenantSlug string) ApiUpdateTenantPolicyApiV1AdminTenantsTenantSlugPolicyPutRequest {
 	return ApiUpdateTenantPolicyApiV1AdminTenantsTenantSlugPolicyPutRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 		tenantSlug: tenantSlug,
 	}
 }
 
 // Execute executes the request
-//  @return TenantDefinition
+//
+//	@return TenantDefinition
 func (a *TenantsAPIService) UpdateTenantPolicyApiV1AdminTenantsTenantSlugPolicyPutExecute(r ApiUpdateTenantPolicyApiV1AdminTenantsTenantSlugPolicyPutRequest) (*TenantDefinition, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPut
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *TenantDefinition
+		localVarHTTPMethod  = http.MethodPut
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *TenantDefinition
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "TenantsAPIService.UpdateTenantPolicyApiV1AdminTenantsTenantSlugPolicyPut")
@@ -1109,8 +1116,8 @@ func (a *TenantsAPIService) UpdateTenantPolicyApiV1AdminTenantsTenantSlugPolicyP
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}

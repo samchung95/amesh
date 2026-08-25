@@ -191,6 +191,7 @@ source = { editable = "." }
 dependencies = [
     { name = "authlib" },
     { name = "croniter" },
+    { name = "cryptography" },
     { name = "docker" },
     { name = "fastapi" },
     { name = "httpx" },
@@ -251,6 +252,7 @@ requires-dist = [
     { name = "azure-identity", marker = "extra == 'runtime'", specifier = ">=1.25,<2" },
     { name = "azure-storage-blob", extras = ["aio"], marker = "extra == 'runtime'", specifier = ">=12.30,<13" },
     { name = "croniter", specifier = ">=6.2.4,<7" },
+    { name = "cryptography", specifier = ">=50,<51" },
     { name = "docker", specifier = "==7.2.0" },
     { name = "fastapi", specifier = "==0.141.1" },
     { name = "google-cloud-storage", marker = "extra == 'runtime'", specifier = ">=3.13,<4" },

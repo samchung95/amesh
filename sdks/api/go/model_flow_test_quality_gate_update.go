@@ -19,10 +19,10 @@ var _ MappedNullable = &FlowTestQualityGateUpdate{}
 
 // FlowTestQualityGateUpdate struct for FlowTestQualityGateUpdate
 type FlowTestQualityGateUpdate struct {
-	Enabled *bool `json:"enabled,omitempty"`
+	Enabled         *bool         `json:"enabled,omitempty"`
 	ExpectedVersion NullableInt32 `json:"expectedVersion,omitempty"`
-	MinimumCoverage *float32 `json:"minimumCoverage,omitempty"`
-	RequiredTestIds []string `json:"requiredTestIds,omitempty"`
+	MinimumCoverage *float32      `json:"minimumCoverage,omitempty"`
+	RequiredTestIds []string      `json:"requiredTestIds,omitempty"`
 }
 
 // NewFlowTestQualityGateUpdate instantiates a new FlowTestQualityGateUpdate object
@@ -114,6 +114,7 @@ func (o *FlowTestQualityGateUpdate) HasExpectedVersion() bool {
 func (o *FlowTestQualityGateUpdate) SetExpectedVersion(v int32) {
 	o.ExpectedVersion.Set(&v)
 }
+
 // SetExpectedVersionNil sets the value for ExpectedVersion to be an explicit nil
 func (o *FlowTestQualityGateUpdate) SetExpectedVersionNil() {
 	o.ExpectedVersion.Set(nil)
@@ -189,7 +190,7 @@ func (o *FlowTestQualityGateUpdate) SetRequiredTestIds(v []string) {
 }
 
 func (o FlowTestQualityGateUpdate) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}

@@ -15,18 +15,17 @@ import (
 	"fmt"
 )
 
-
 // ResourcesInner struct for ResourcesInner
 type ResourcesInner struct {
 	ScimGroupResource *ScimGroupResource
-	ScimUserResource *ScimUserResource
+	ScimUserResource  *ScimUserResource
 }
 
 // Unmarshal JSON data into any of the pointers in the struct
 func (dst *ResourcesInner) UnmarshalJSON(data []byte) error {
 	var err error
 	// try to unmarshal JSON data into ScimGroupResource
-	err = json.Unmarshal(data, &dst.ScimGroupResource);
+	err = json.Unmarshal(data, &dst.ScimGroupResource)
 	if err == nil {
 		jsonScimGroupResource, _ := json.Marshal(dst.ScimGroupResource)
 		if string(jsonScimGroupResource) == "{}" { // empty struct
@@ -39,7 +38,7 @@ func (dst *ResourcesInner) UnmarshalJSON(data []byte) error {
 	}
 
 	// try to unmarshal JSON data into ScimUserResource
-	err = json.Unmarshal(data, &dst.ScimUserResource);
+	err = json.Unmarshal(data, &dst.ScimUserResource)
 	if err == nil {
 		jsonScimUserResource, _ := json.Marshal(dst.ScimUserResource)
 		if string(jsonScimUserResource) == "{}" { // empty struct
@@ -66,7 +65,6 @@ func (src ResourcesInner) MarshalJSON() ([]byte, error) {
 
 	return nil, nil // no data in anyOf schemas
 }
-
 
 type NullableResourcesInner struct {
 	value *ResourcesInner

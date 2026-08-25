@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the HumanTaskAction type satisfies the MappedNullable interface at compile time
@@ -22,14 +22,14 @@ var _ MappedNullable = &HumanTaskAction{}
 
 // HumanTaskAction struct for HumanTaskAction
 type HumanTaskAction struct {
-	Action HumanTaskActionKind `json:"action"`
-	ActionId string `json:"actionId"`
-	ActorId NullableString `json:"actorId"`
-	ArtifactUri NullableString `json:"artifactUri"`
-	Comment string `json:"comment"`
-	FormValues map[string]interface{} `json:"formValues"`
-	OccurredAt time.Time `json:"occurredAt"`
-	Reason string `json:"reason"`
+	Action      HumanTaskActionKind    `json:"action"`
+	ActionId    string                 `json:"actionId"`
+	ActorId     NullableString         `json:"actorId"`
+	ArtifactUri NullableString         `json:"artifactUri"`
+	Comment     string                 `json:"comment"`
+	FormValues  map[string]interface{} `json:"formValues"`
+	OccurredAt  time.Time              `json:"occurredAt"`
+	Reason      string                 `json:"reason"`
 }
 
 type _HumanTaskAction HumanTaskAction
@@ -256,7 +256,7 @@ func (o *HumanTaskAction) SetReason(v string) {
 }
 
 func (o HumanTaskAction) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -296,10 +296,10 @@ func (o *HumanTaskAction) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

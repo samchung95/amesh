@@ -20,7 +20,7 @@ type PolicyCriticality string
 
 // List of PolicyCriticality
 const (
-	POLICYCRITICALITY_ADVISORY PolicyCriticality = "ADVISORY"
+	POLICYCRITICALITY_ADVISORY  PolicyCriticality = "ADVISORY"
 	POLICYCRITICALITY_ENFORCING PolicyCriticality = "ENFORCING"
 )
 

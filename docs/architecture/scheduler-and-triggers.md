@@ -13,6 +13,18 @@ execution identity and can advance the cursor without launching a duplicate. Wor
 retry after connection-level failures at the configured poll interval, allowing the SQLAlchemy pool to
 establish a new PostgreSQL connection after failover.
 
+If execution creation fails after a temporal occurrence is accepted, the occurrence enters bounded
+`RETRY_WAIT`. A later scheduler evaluation recognizes that durable occurrence as pending work, advances
+the schedule cursor without creating another execution, and leaves the trigger worker to retry the same
+occurrence key. Both paths use that key as the execution idempotency key, so a crash between creation and
+occurrence completion still converges on one execution.
+
+Historical flow revisions with the pre-v1 resource-only plugin payload are resolved once against the
+installed catalog and conditionally replaced with exact package and content pins. The migration writes a
+`plugin.resolution.migrate` audit event. If exact resolution is impossible, AMESH writes one
+`plugin.resolution.quarantine` event and disables the flow; disabled flows do not enter schedule
+evaluation. An operator must correct and re-apply the flow before scheduling resumes.
+
 ## Temporal model
 
 `core.cron` evaluates a five-field cron expression as local wall time in its declared IANA timezone.

@@ -18,17 +18,16 @@ import (
 	"net/url"
 )
 
-
 // UiAPIService UiAPI service
 type UiAPIService service
 
 type ApiGetUiSessionApiV1UiSessionGetRequest struct {
-	ctx context.Context
-	ApiService *UiAPIService
-	namespace *string
+	ctx           context.Context
+	ApiService    *UiAPIService
+	namespace     *string
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiGetUiSessionApiV1UiSessionGetRequest) Namespace(namespace string) ApiGetUiSessionApiV1UiSessionGetRequest {
@@ -58,24 +57,25 @@ func (r ApiGetUiSessionApiV1UiSessionGetRequest) Execute() (*UiSessionResponse, 
 /*
 GetUiSessionApiV1UiSessionGet Get Ui Session
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiGetUiSessionApiV1UiSessionGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiGetUiSessionApiV1UiSessionGetRequest
 */
 func (a *UiAPIService) GetUiSessionApiV1UiSessionGet(ctx context.Context) ApiGetUiSessionApiV1UiSessionGetRequest {
 	return ApiGetUiSessionApiV1UiSessionGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return UiSessionResponse
+//
+//	@return UiSessionResponse
 func (a *UiAPIService) GetUiSessionApiV1UiSessionGetExecute(r ApiGetUiSessionApiV1UiSessionGetRequest) (*UiSessionResponse, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *UiSessionResponse
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *UiSessionResponse
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "UiAPIService.GetUiSessionApiV1UiSessionGet")
@@ -147,8 +147,8 @@ func (a *UiAPIService) GetUiSessionApiV1UiSessionGetExecute(r ApiGetUiSessionApi
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}

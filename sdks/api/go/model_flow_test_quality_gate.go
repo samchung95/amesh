@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the FlowTestQualityGate type satisfies the MappedNullable interface at compile time
@@ -22,14 +22,14 @@ var _ MappedNullable = &FlowTestQualityGate{}
 
 // FlowTestQualityGate struct for FlowTestQualityGate
 type FlowTestQualityGate struct {
-	Enabled bool `json:"enabled"`
-	MinimumCoverage float32 `json:"minimumCoverage"`
-	Namespace string `json:"namespace"`
-	RequiredTestIds []string `json:"requiredTestIds"`
-	TenantId string `json:"tenantId"`
-	UpdatedAt time.Time `json:"updatedAt"`
-	UpdatedBy string `json:"updatedBy"`
-	Version int32 `json:"version"`
+	Enabled         bool      `json:"enabled"`
+	MinimumCoverage float32   `json:"minimumCoverage"`
+	Namespace       string    `json:"namespace"`
+	RequiredTestIds []string  `json:"requiredTestIds"`
+	TenantId        string    `json:"tenantId"`
+	UpdatedAt       time.Time `json:"updatedAt"`
+	UpdatedBy       string    `json:"updatedBy"`
+	Version         int32     `json:"version"`
 }
 
 type _FlowTestQualityGate FlowTestQualityGate
@@ -252,7 +252,7 @@ func (o *FlowTestQualityGate) SetVersion(v int32) {
 }
 
 func (o FlowTestQualityGate) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -292,10 +292,10 @@ func (o *FlowTestQualityGate) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

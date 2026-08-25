@@ -13,6 +13,14 @@
  */
 
 import { mapValues } from '../runtime';
+import type { AgentModelContinuationRef } from './AgentModelContinuationRef';
+import {
+    AgentModelContinuationRefFromJSON,
+    AgentModelContinuationRefFromJSONTyped,
+    AgentModelContinuationRefToJSON,
+    AgentModelContinuationRefToJSONTyped,
+} from './AgentModelContinuationRef';
+
 /**
  *
  * @export
@@ -49,6 +57,12 @@ export interface AgentSessionCheckpoint {
      * @memberof AgentSessionCheckpoint
      */
     messages?: Array<{ [key: string]: any; } | null>;
+    /**
+     *
+     * @type {AgentModelContinuationRef}
+     * @memberof AgentSessionCheckpoint
+     */
+    modelContinuation?: AgentModelContinuationRef | null;
     /**
      *
      * @type {number}
@@ -97,6 +111,7 @@ export function AgentSessionCheckpointFromJSONTyped(json: any, ignoreDiscriminat
         'memoryEntries': json['memoryEntries'] == null ? undefined : json['memoryEntries'],
         'memoryWrite': json['memoryWrite'] === undefined ? undefined : json['memoryWrite'] === null ? null : json['memoryWrite'],
         'messages': json['messages'] == null ? undefined : json['messages'],
+        'modelContinuation': json['modelContinuation'] === undefined ? undefined : json['modelContinuation'] === null ? null : AgentModelContinuationRefFromJSON(json['modelContinuation']),
         'nextTurn': json['nextTurn'] == null ? undefined : json['nextTurn'],
         'pendingAction': json['pendingAction'] === undefined ? undefined : json['pendingAction'] === null ? null : json['pendingAction'],
         'pendingTurn': json['pendingTurn'] === undefined ? undefined : json['pendingTurn'] === null ? null : json['pendingTurn'],
@@ -120,6 +135,7 @@ export function AgentSessionCheckpointToJSONTyped(value?: AgentSessionCheckpoint
         'memoryEntries': value['memoryEntries'],
         'memoryWrite': value['memoryWrite'],
         'messages': value['messages'],
+        'modelContinuation': AgentModelContinuationRefToJSON(value['modelContinuation']),
         'nextTurn': value['nextTurn'],
         'pendingAction': value['pendingAction'],
         'pendingTurn': value['pendingTurn'],

@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the FeatureFlag type satisfies the MappedNullable interface at compile time
@@ -22,17 +22,17 @@ var _ MappedNullable = &FeatureFlag{}
 
 // FeatureFlag struct for FeatureFlag
 type FeatureFlag struct {
-	CreatedAt *time.Time `json:"created_at,omitempty"`
-	Description *string `json:"description,omitempty"`
-	Enabled bool `json:"enabled"`
-	Id *string `json:"id,omitempty"`
-	Key string `json:"key" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
-	Namespace NullableString `json:"namespace,omitempty"`
-	Scope FeatureFlagScope `json:"scope"`
-	TenantId NullableString `json:"tenant_id,omitempty" validate:"regexp=^[a-z0-9][a-z0-9-]*$"`
-	UpdatedAt *time.Time `json:"updated_at,omitempty"`
-	UpdatedBy string `json:"updated_by"`
-	Version *int32 `json:"version,omitempty"`
+	CreatedAt   *time.Time       `json:"created_at,omitempty"`
+	Description *string          `json:"description,omitempty"`
+	Enabled     bool             `json:"enabled"`
+	Id          *string          `json:"id,omitempty"`
+	Key         string           `json:"key" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
+	Namespace   NullableString   `json:"namespace,omitempty"`
+	Scope       FeatureFlagScope `json:"scope"`
+	TenantId    NullableString   `json:"tenant_id,omitempty" validate:"regexp=^[a-z0-9][a-z0-9-]*$"`
+	UpdatedAt   *time.Time       `json:"updated_at,omitempty"`
+	UpdatedBy   string           `json:"updated_by"`
+	Version     *int32           `json:"version,omitempty"`
 }
 
 type _FeatureFlag FeatureFlag
@@ -242,6 +242,7 @@ func (o *FeatureFlag) HasNamespace() bool {
 func (o *FeatureFlag) SetNamespace(v string) {
 	o.Namespace.Set(&v)
 }
+
 // SetNamespaceNil sets the value for Namespace to be an explicit nil
 func (o *FeatureFlag) SetNamespaceNil() {
 	o.Namespace.Set(nil)
@@ -308,6 +309,7 @@ func (o *FeatureFlag) HasTenantId() bool {
 func (o *FeatureFlag) SetTenantId(v string) {
 	o.TenantId.Set(&v)
 }
+
 // SetTenantIdNil sets the value for TenantId to be an explicit nil
 func (o *FeatureFlag) SetTenantIdNil() {
 	o.TenantId.Set(nil)
@@ -407,7 +409,7 @@ func (o *FeatureFlag) SetVersion(v int32) {
 }
 
 func (o FeatureFlag) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -460,10 +462,10 @@ func (o *FeatureFlag) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

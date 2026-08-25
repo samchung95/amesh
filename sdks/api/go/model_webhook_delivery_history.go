@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -22,7 +22,7 @@ var _ MappedNullable = &WebhookDeliveryHistory{}
 // WebhookDeliveryHistory struct for WebhookDeliveryHistory
 type WebhookDeliveryHistory struct {
 	Attempts []WebhookDeliveryAttempt `json:"attempts"`
-	Delivery WebhookDelivery `json:"delivery"`
+	Delivery WebhookDelivery          `json:"delivery"`
 }
 
 type _WebhookDeliveryHistory WebhookDeliveryHistory
@@ -95,7 +95,7 @@ func (o *WebhookDeliveryHistory) SetDelivery(v WebhookDelivery) {
 }
 
 func (o WebhookDeliveryHistory) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -123,10 +123,10 @@ func (o *WebhookDeliveryHistory) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

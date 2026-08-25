@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,13 +21,13 @@ var _ MappedNullable = &SimulationEstimates{}
 
 // SimulationEstimates struct for SimulationEstimates
 type SimulationEstimates struct {
-	ApiCalls int32 `json:"apiCalls"`
-	CostUsd float32 `json:"costUsd"`
-	CriticalPathSeconds NullableFloat32 `json:"criticalPathSeconds"`
-	ModeledTaskCount int32 `json:"modeledTaskCount"`
-	RunnerDemand map[string]int32 `json:"runnerDemand,omitempty"`
-	StorageBytes int32 `json:"storageBytes"`
-	TaskCount int32 `json:"taskCount"`
+	ApiCalls            int32            `json:"apiCalls"`
+	CostUsd             float32          `json:"costUsd"`
+	CriticalPathSeconds NullableFloat32  `json:"criticalPathSeconds"`
+	ModeledTaskCount    int32            `json:"modeledTaskCount"`
+	RunnerDemand        map[string]int32 `json:"runnerDemand,omitempty"`
+	StorageBytes        int32            `json:"storageBytes"`
+	TaskCount           int32            `json:"taskCount"`
 }
 
 type _SimulationEstimates SimulationEstimates
@@ -234,7 +234,7 @@ func (o *SimulationEstimates) SetTaskCount(v int32) {
 }
 
 func (o SimulationEstimates) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -273,10 +273,10 @@ func (o *SimulationEstimates) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

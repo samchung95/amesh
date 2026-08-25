@@ -20,15 +20,15 @@ var _ MappedNullable = &PluginEntryPoint{}
 
 // PluginEntryPoint struct for PluginEntryPoint
 type PluginEntryPoint struct {
-	ApiVersion *string `json:"apiVersion,omitempty"`
-	ConfigurationSchema map[string]interface{} `json:"configurationSchema"`
-	Documentation PluginDocumentation `json:"documentation"`
-	Name string `json:"name" validate:"regexp=^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$"`
-	OutputSchema map[string]interface{} `json:"outputSchema,omitempty"`
-	ResourceType NullableString `json:"resourceType,omitempty" validate:"regexp=^[A-Za-z][A-Za-z0-9]*(?:[.-][A-Za-z0-9]+)*$"`
-	Target string `json:"target"`
-	Transport PluginTransport `json:"transport"`
-	Type ExtensionType `json:"type"`
+	ApiVersion           *string                `json:"apiVersion,omitempty"`
+	ConfigurationSchema  map[string]interface{} `json:"configurationSchema"`
+	Documentation        PluginDocumentation    `json:"documentation"`
+	Name                 string                 `json:"name" validate:"regexp=^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$"`
+	OutputSchema         map[string]interface{} `json:"outputSchema,omitempty"`
+	ResourceType         NullableString         `json:"resourceType,omitempty" validate:"regexp=^[A-Za-z][A-Za-z0-9]*(?:[.-][A-Za-z0-9]+)*$"`
+	Target               string                 `json:"target"`
+	Transport            PluginTransport        `json:"transport"`
+	Type                 ExtensionType          `json:"type"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -230,6 +230,7 @@ func (o *PluginEntryPoint) HasResourceType() bool {
 func (o *PluginEntryPoint) SetResourceType(v string) {
 	o.ResourceType.Set(&v)
 }
+
 // SetResourceTypeNil sets the value for ResourceType to be an explicit nil
 func (o *PluginEntryPoint) SetResourceTypeNil() {
 	o.ResourceType.Set(nil)
@@ -313,7 +314,7 @@ func (o *PluginEntryPoint) SetType(v ExtensionType) {
 }
 
 func (o PluginEntryPoint) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -363,10 +364,10 @@ func (o *PluginEntryPoint) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

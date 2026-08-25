@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the IssueCredentialRequest type satisfies the MappedNullable interface at compile time
@@ -22,11 +22,11 @@ var _ MappedNullable = &IssueCredentialRequest{}
 
 // IssueCredentialRequest struct for IssueCredentialRequest
 type IssueCredentialRequest struct {
-	Audience *string `json:"audience,omitempty"`
-	ExpiresAt time.Time `json:"expiresAt"`
-	Name string `json:"name"`
-	RateLimitPerMinute *int32 `json:"rateLimitPerMinute,omitempty"`
-	Scopes []string `json:"scopes"`
+	Audience           *string   `json:"audience,omitempty"`
+	ExpiresAt          time.Time `json:"expiresAt"`
+	Name               string    `json:"name"`
+	RateLimitPerMinute *int32    `json:"rateLimitPerMinute,omitempty"`
+	Scopes             []string  `json:"scopes"`
 }
 
 type _IssueCredentialRequest IssueCredentialRequest
@@ -196,7 +196,7 @@ func (o *IssueCredentialRequest) SetScopes(v []string) {
 }
 
 func (o IssueCredentialRequest) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -232,10 +232,10 @@ func (o *IssueCredentialRequest) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

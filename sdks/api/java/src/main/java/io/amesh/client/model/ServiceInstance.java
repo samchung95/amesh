@@ -46,13 +46,17 @@ import io.amesh.client.ApiClient;
  */
 @JsonPropertyOrder({
   ServiceInstance.JSON_PROPERTY_COMPATIBILITY,
+  ServiceInstance.JSON_PROPERTY_CONSECUTIVE_FAILURES,
   ServiceInstance.JSON_PROPERTY_DEPENDENCIES,
   ServiceInstance.JSON_PROPERTY_FAILURE_ZONE,
   ServiceInstance.JSON_PROPERTY_GENERATION,
   ServiceInstance.JSON_PROPERTY_ID,
   ServiceInstance.JSON_PROPERTY_INSTANCE_NAME,
   ServiceInstance.JSON_PROPERTY_LABELS,
+  ServiceInstance.JSON_PROPERTY_LAST_FAILURE,
+  ServiceInstance.JSON_PROPERTY_LAST_FAILURE_AT,
   ServiceInstance.JSON_PROPERTY_LAST_HEARTBEAT_AT,
+  ServiceInstance.JSON_PROPERTY_LAST_SUCCESS_AT,
   ServiceInstance.JSON_PROPERTY_LIVENESS,
   ServiceInstance.JSON_PROPERTY_OWNERSHIP,
   ServiceInstance.JSON_PROPERTY_PARTITIONS,
@@ -68,6 +72,10 @@ public class ServiceInstance {
   public static final String JSON_PROPERTY_COMPATIBILITY = "compatibility";
   @javax.annotation.Nonnull
   private ServiceCompatibility compatibility;
+
+  public static final String JSON_PROPERTY_CONSECUTIVE_FAILURES = "consecutiveFailures";
+  @javax.annotation.Nullable
+  private Integer consecutiveFailures = 0;
 
   public static final String JSON_PROPERTY_DEPENDENCIES = "dependencies";
   @javax.annotation.Nullable
@@ -92,9 +100,18 @@ public class ServiceInstance {
   @javax.annotation.Nullable
   private Map<String, String> labels = new HashMap<>();
 
+  public static final String JSON_PROPERTY_LAST_FAILURE = "lastFailure";
+  private JsonNullable<String> lastFailure = JsonNullable.<String>undefined();
+
+  public static final String JSON_PROPERTY_LAST_FAILURE_AT = "lastFailureAt";
+  private JsonNullable<OffsetDateTime> lastFailureAt = JsonNullable.<OffsetDateTime>undefined();
+
   public static final String JSON_PROPERTY_LAST_HEARTBEAT_AT = "lastHeartbeatAt";
   @javax.annotation.Nonnull
   private OffsetDateTime lastHeartbeatAt;
+
+  public static final String JSON_PROPERTY_LAST_SUCCESS_AT = "lastSuccessAt";
+  private JsonNullable<OffsetDateTime> lastSuccessAt = JsonNullable.<OffsetDateTime>undefined();
 
   public static final String JSON_PROPERTY_LIVENESS = "liveness";
   @javax.annotation.Nonnull
@@ -155,6 +172,31 @@ public class ServiceInstance {
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public void setCompatibility(@javax.annotation.Nonnull ServiceCompatibility compatibility) {
     this.compatibility = compatibility;
+  }
+
+
+  public ServiceInstance consecutiveFailures(@javax.annotation.Nullable Integer consecutiveFailures) {
+    this.consecutiveFailures = consecutiveFailures;
+    return this;
+  }
+
+  /**
+   * Get consecutiveFailures
+   * minimum: 0
+   * @return consecutiveFailures
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_CONSECUTIVE_FAILURES, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public Integer getConsecutiveFailures() {
+    return consecutiveFailures;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_CONSECUTIVE_FAILURES, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setConsecutiveFailures(@javax.annotation.Nullable Integer consecutiveFailures) {
+    this.consecutiveFailures = consecutiveFailures;
   }
 
 
@@ -327,6 +369,70 @@ public class ServiceInstance {
   }
 
 
+  public ServiceInstance lastFailure(@javax.annotation.Nullable String lastFailure) {
+    this.lastFailure = JsonNullable.<String>of(lastFailure);
+    return this;
+  }
+
+  /**
+   * Get lastFailure
+   * @return lastFailure
+   */
+  @javax.annotation.Nullable
+  @JsonIgnore
+  public String getLastFailure() {
+        return lastFailure.orElse(null);
+  }
+
+  @JsonProperty(value = JSON_PROPERTY_LAST_FAILURE, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public JsonNullable<String> getLastFailure_JsonNullable() {
+    return lastFailure;
+  }
+
+  @JsonProperty(JSON_PROPERTY_LAST_FAILURE)
+  public void setLastFailure_JsonNullable(JsonNullable<String> lastFailure) {
+    this.lastFailure = lastFailure;
+  }
+
+  public void setLastFailure(@javax.annotation.Nullable String lastFailure) {
+    this.lastFailure = JsonNullable.<String>of(lastFailure);
+  }
+
+
+  public ServiceInstance lastFailureAt(@javax.annotation.Nullable OffsetDateTime lastFailureAt) {
+    this.lastFailureAt = JsonNullable.<OffsetDateTime>of(lastFailureAt);
+    return this;
+  }
+
+  /**
+   * Get lastFailureAt
+   * @return lastFailureAt
+   */
+  @javax.annotation.Nullable
+  @JsonIgnore
+  public OffsetDateTime getLastFailureAt() {
+        return lastFailureAt.orElse(null);
+  }
+
+  @JsonProperty(value = JSON_PROPERTY_LAST_FAILURE_AT, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public JsonNullable<OffsetDateTime> getLastFailureAt_JsonNullable() {
+    return lastFailureAt;
+  }
+
+  @JsonProperty(JSON_PROPERTY_LAST_FAILURE_AT)
+  public void setLastFailureAt_JsonNullable(JsonNullable<OffsetDateTime> lastFailureAt) {
+    this.lastFailureAt = lastFailureAt;
+  }
+
+  public void setLastFailureAt(@javax.annotation.Nullable OffsetDateTime lastFailureAt) {
+    this.lastFailureAt = JsonNullable.<OffsetDateTime>of(lastFailureAt);
+  }
+
+
   public ServiceInstance lastHeartbeatAt(@javax.annotation.Nonnull OffsetDateTime lastHeartbeatAt) {
     this.lastHeartbeatAt = lastHeartbeatAt;
     return this;
@@ -348,6 +454,38 @@ public class ServiceInstance {
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public void setLastHeartbeatAt(@javax.annotation.Nonnull OffsetDateTime lastHeartbeatAt) {
     this.lastHeartbeatAt = lastHeartbeatAt;
+  }
+
+
+  public ServiceInstance lastSuccessAt(@javax.annotation.Nullable OffsetDateTime lastSuccessAt) {
+    this.lastSuccessAt = JsonNullable.<OffsetDateTime>of(lastSuccessAt);
+    return this;
+  }
+
+  /**
+   * Get lastSuccessAt
+   * @return lastSuccessAt
+   */
+  @javax.annotation.Nullable
+  @JsonIgnore
+  public OffsetDateTime getLastSuccessAt() {
+        return lastSuccessAt.orElse(null);
+  }
+
+  @JsonProperty(value = JSON_PROPERTY_LAST_SUCCESS_AT, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public JsonNullable<OffsetDateTime> getLastSuccessAt_JsonNullable() {
+    return lastSuccessAt;
+  }
+
+  @JsonProperty(JSON_PROPERTY_LAST_SUCCESS_AT)
+  public void setLastSuccessAt_JsonNullable(JsonNullable<OffsetDateTime> lastSuccessAt) {
+    this.lastSuccessAt = lastSuccessAt;
+  }
+
+  public void setLastSuccessAt(@javax.annotation.Nullable OffsetDateTime lastSuccessAt) {
+    this.lastSuccessAt = JsonNullable.<OffsetDateTime>of(lastSuccessAt);
   }
 
 
@@ -605,13 +743,17 @@ public class ServiceInstance {
     }
     ServiceInstance serviceInstance = (ServiceInstance) o;
     return Objects.equals(this.compatibility, serviceInstance.compatibility) &&
+        Objects.equals(this.consecutiveFailures, serviceInstance.consecutiveFailures) &&
         Objects.equals(this.dependencies, serviceInstance.dependencies) &&
         equalsNullable(this.failureZone, serviceInstance.failureZone) &&
         Objects.equals(this.generation, serviceInstance.generation) &&
         Objects.equals(this.id, serviceInstance.id) &&
         Objects.equals(this.instanceName, serviceInstance.instanceName) &&
         Objects.equals(this.labels, serviceInstance.labels) &&
+        equalsNullable(this.lastFailure, serviceInstance.lastFailure) &&
+        equalsNullable(this.lastFailureAt, serviceInstance.lastFailureAt) &&
         Objects.equals(this.lastHeartbeatAt, serviceInstance.lastHeartbeatAt) &&
+        equalsNullable(this.lastSuccessAt, serviceInstance.lastSuccessAt) &&
         Objects.equals(this.liveness, serviceInstance.liveness) &&
         Objects.equals(this.ownership, serviceInstance.ownership) &&
         Objects.equals(this.partitions, serviceInstance.partitions) &&
@@ -629,7 +771,7 @@ public class ServiceInstance {
 
   @Override
   public int hashCode() {
-    return Objects.hash(compatibility, dependencies, hashCodeNullable(failureZone), generation, id, instanceName, labels, lastHeartbeatAt, liveness, ownership, partitions, registeredAt, resourceVersion, role, state, hashCodeNullable(stoppedAt), version);
+    return Objects.hash(compatibility, consecutiveFailures, dependencies, hashCodeNullable(failureZone), generation, id, instanceName, labels, hashCodeNullable(lastFailure), hashCodeNullable(lastFailureAt), lastHeartbeatAt, hashCodeNullable(lastSuccessAt), liveness, ownership, partitions, registeredAt, resourceVersion, role, state, hashCodeNullable(stoppedAt), version);
   }
 
   private static <T> int hashCodeNullable(JsonNullable<T> a) {
@@ -644,13 +786,17 @@ public class ServiceInstance {
     StringBuilder sb = new StringBuilder();
     sb.append("class ServiceInstance {\n");
     sb.append("    compatibility: ").append(toIndentedString(compatibility)).append("\n");
+    sb.append("    consecutiveFailures: ").append(toIndentedString(consecutiveFailures)).append("\n");
     sb.append("    dependencies: ").append(toIndentedString(dependencies)).append("\n");
     sb.append("    failureZone: ").append(toIndentedString(failureZone)).append("\n");
     sb.append("    generation: ").append(toIndentedString(generation)).append("\n");
     sb.append("    id: ").append(toIndentedString(id)).append("\n");
     sb.append("    instanceName: ").append(toIndentedString(instanceName)).append("\n");
     sb.append("    labels: ").append(toIndentedString(labels)).append("\n");
+    sb.append("    lastFailure: ").append(toIndentedString(lastFailure)).append("\n");
+    sb.append("    lastFailureAt: ").append(toIndentedString(lastFailureAt)).append("\n");
     sb.append("    lastHeartbeatAt: ").append(toIndentedString(lastHeartbeatAt)).append("\n");
+    sb.append("    lastSuccessAt: ").append(toIndentedString(lastSuccessAt)).append("\n");
     sb.append("    liveness: ").append(toIndentedString(liveness)).append("\n");
     sb.append("    ownership: ").append(toIndentedString(ownership)).append("\n");
     sb.append("    partitions: ").append(toIndentedString(partitions)).append("\n");
@@ -709,6 +855,11 @@ public class ServiceInstance {
       joiner.add(String.format(java.util.Locale.ROOT, "%scompatibility%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getCompatibility()))));
     }
 
+    // add `consecutiveFailures` to the URL query string
+    if (getConsecutiveFailures() != null) {
+      joiner.add(String.format(java.util.Locale.ROOT, "%sconsecutiveFailures%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getConsecutiveFailures()))));
+    }
+
     // add `dependencies` to the URL query string
     if (getDependencies() != null) {
       for (String _key : getDependencies().keySet()) {
@@ -747,9 +898,24 @@ public class ServiceInstance {
       }
     }
 
+    // add `lastFailure` to the URL query string
+    if (getLastFailure() != null) {
+      joiner.add(String.format(java.util.Locale.ROOT, "%slastFailure%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getLastFailure()))));
+    }
+
+    // add `lastFailureAt` to the URL query string
+    if (getLastFailureAt() != null) {
+      joiner.add(String.format(java.util.Locale.ROOT, "%slastFailureAt%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getLastFailureAt()))));
+    }
+
     // add `lastHeartbeatAt` to the URL query string
     if (getLastHeartbeatAt() != null) {
       joiner.add(String.format(java.util.Locale.ROOT, "%slastHeartbeatAt%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getLastHeartbeatAt()))));
+    }
+
+    // add `lastSuccessAt` to the URL query string
+    if (getLastSuccessAt() != null) {
+      joiner.add(String.format(java.util.Locale.ROOT, "%slastSuccessAt%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getLastSuccessAt()))));
     }
 
     // add `liveness` to the URL query string

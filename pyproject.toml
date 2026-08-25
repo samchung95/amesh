@@ -50,6 +50,7 @@ dependencies = [
   "opentelemetry-sdk>=1.44,<2",
   "opentelemetry-exporter-otlp-proto-http>=1.44,<2",
   "httpx2>=2.12,<3",
+  "cryptography>=50,<51",
 ]
 
 [project.optional-dependencies]
@@ -76,6 +77,7 @@ amesh = "amesh.cli:main"
 amesh-compact = "amesh.compact:main"
 amesh-migrate = "amesh.migrations:main"
 amesh-preflight = "amesh.preflight:main"
+amesh-hardened-preflight = "amesh.deployment_profile:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

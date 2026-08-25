@@ -34,9 +34,10 @@ class ReadinessResponse(BaseModel):
     latest_migration: Optional[StrictStr] = None
     migrations_applied: StrictInt
     migrations_expected: StrictInt
+    roles: Optional[Dict[str, StrictStr]] = None
     status: StrictStr
     version: StrictStr
-    __properties: ClassVar[List[str]] = ["database", "degraded_dependencies", "dependencies", "error", "latest_migration", "migrations_applied", "migrations_expected", "status", "version"]
+    __properties: ClassVar[List[str]] = ["database", "degraded_dependencies", "dependencies", "error", "latest_migration", "migrations_applied", "migrations_expected", "roles", "status", "version"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -106,6 +107,7 @@ class ReadinessResponse(BaseModel):
             "latest_migration": obj.get("latest_migration"),
             "migrations_applied": obj.get("migrations_applied"),
             "migrations_expected": obj.get("migrations_expected"),
+            "roles": obj.get("roles"),
             "status": obj.get("status"),
             "version": obj.get("version")
         })

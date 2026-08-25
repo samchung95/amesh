@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the PersistedSubflow type satisfies the MappedNullable interface at compile time
@@ -22,25 +22,25 @@ var _ MappedNullable = &PersistedSubflow{}
 
 // PersistedSubflow struct for PersistedSubflow
 type PersistedSubflow struct {
-	ChildExecutionId string `json:"child_execution_id"`
-	ChildFlowId string `json:"child_flow_id"`
-	ChildNamespace string `json:"child_namespace"`
-	ChildState ExecutionState `json:"child_state"`
-	CreatedAt time.Time `json:"created_at"`
-	CreatedBy string `json:"created_by"`
-	Depth int32 `json:"depth"`
-	InvocationKey string `json:"invocation_key"`
-	Mode SubflowMode `json:"mode"`
-	OutputMapping map[string]string `json:"output_mapping,omitempty"`
-	ParentAttempt int32 `json:"parent_attempt"`
-	ParentExecutionId string `json:"parent_execution_id"`
-	ParentFlowId string `json:"parent_flow_id"`
-	ParentFlowRevision int32 `json:"parent_flow_revision"`
-	ParentNamespace string `json:"parent_namespace"`
-	ParentTaskRunId string `json:"parent_task_run_id"`
-	Propagation SubflowPropagation `json:"propagation"`
-	RelationshipId string `json:"relationship_id"`
-	TargetRevision int32 `json:"target_revision"`
+	ChildExecutionId   string             `json:"child_execution_id"`
+	ChildFlowId        string             `json:"child_flow_id"`
+	ChildNamespace     string             `json:"child_namespace"`
+	ChildState         ExecutionState     `json:"child_state"`
+	CreatedAt          time.Time          `json:"created_at"`
+	CreatedBy          string             `json:"created_by"`
+	Depth              int32              `json:"depth"`
+	InvocationKey      string             `json:"invocation_key"`
+	Mode               SubflowMode        `json:"mode"`
+	OutputMapping      map[string]string  `json:"output_mapping,omitempty"`
+	ParentAttempt      int32              `json:"parent_attempt"`
+	ParentExecutionId  string             `json:"parent_execution_id"`
+	ParentFlowId       string             `json:"parent_flow_id"`
+	ParentFlowRevision int32              `json:"parent_flow_revision"`
+	ParentNamespace    string             `json:"parent_namespace"`
+	ParentTaskRunId    string             `json:"parent_task_run_id"`
+	Propagation        SubflowPropagation `json:"propagation"`
+	RelationshipId     string             `json:"relationship_id"`
+	TargetRevision     int32              `json:"target_revision"`
 }
 
 type _PersistedSubflow PersistedSubflow
@@ -545,7 +545,7 @@ func (o *PersistedSubflow) SetTargetRevision(v int32) {
 }
 
 func (o PersistedSubflow) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -608,10 +608,10 @@ func (o *PersistedSubflow) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

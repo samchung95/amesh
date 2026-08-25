@@ -39,6 +39,11 @@ import {
     CreateExecutionRequestToJSON,
 } from '../models/CreateExecutionRequest';
 import {
+    type EvidenceBundlePageResponse,
+    EvidenceBundlePageResponseFromJSON,
+    EvidenceBundlePageResponseToJSON,
+} from '../models/EvidenceBundlePageResponse';
+import {
     type ExecutionArtifact,
     ExecutionArtifactFromJSON,
     ExecutionArtifactToJSON,
@@ -131,6 +136,7 @@ export interface CreateExecutionApiV1ExecutionsPostRequest {
     createExecutionRequest: CreateExecutionRequest;
     prefer?: string | null;
     idempotencyKey?: string | null;
+    xCorrelationID?: string | null;
     authorization?: string | null;
     xAmeshCSRF?: string | null;
     xAmeshTenant?: string | null;
@@ -139,6 +145,7 @@ export interface CreateExecutionApiV1ExecutionsPostRequest {
 export interface CreateExecutionsBulkApiV1ExecutionsBulkPostRequest {
     bulkExecutionRequest: BulkExecutionRequest;
     prefer?: string | null;
+    xCorrelationID?: string | null;
     authorization?: string | null;
     xAmeshCSRF?: string | null;
     xAmeshTenant?: string | null;
@@ -170,6 +177,16 @@ export interface GetExecutionApiV1ExecutionsExecutionIdGetRequest {
 
 export interface GetExecutionEvidenceApiV1ExecutionsExecutionIdEvidenceGetRequest {
     executionId: string;
+    cursor?: string | null;
+    limit?: number;
+    authorization?: string | null;
+    xAmeshCSRF?: string | null;
+    xAmeshTenant?: string | null;
+}
+
+export interface GetExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGetRequest {
+    executionId: string;
+    section?: string;
     cursor?: string | null;
     limit?: number;
     authorization?: string | null;
@@ -380,6 +397,10 @@ export class ExecutionsApi extends runtime.BaseAPI {
             headerParameters['Idempotency-Key'] = String(requestParameters['idempotencyKey']);
         }
 
+        if (requestParameters['xCorrelationID'] != null) {
+            headerParameters['X-Correlation-ID'] = String(requestParameters['xCorrelationID']);
+        }
+
         if (requestParameters['authorization'] != null) {
             headerParameters['authorization'] = String(requestParameters['authorization']);
         }
@@ -441,6 +462,10 @@ export class ExecutionsApi extends runtime.BaseAPI {
 
         if (requestParameters['prefer'] != null) {
             headerParameters['Prefer'] = String(requestParameters['prefer']);
+        }
+
+        if (requestParameters['xCorrelationID'] != null) {
+            headerParameters['X-Correlation-ID'] = String(requestParameters['xCorrelationID']);
         }
 
         if (requestParameters['authorization'] != null) {
@@ -733,6 +758,77 @@ export class ExecutionsApi extends runtime.BaseAPI {
      */
     async getExecutionEvidenceApiV1ExecutionsExecutionIdEvidenceGet(requestParameters: GetExecutionEvidenceApiV1ExecutionsExecutionIdEvidenceGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ExecutionEvidencePage> {
         const response = await this.getExecutionEvidenceApiV1ExecutionsExecutionIdEvidenceGetRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Creates request options for getExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGet without sending the request
+     */
+    async getExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGetRequestOpts(requestParameters: GetExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGetRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['executionId'] == null) {
+            throw new runtime.RequiredError(
+                'executionId',
+                'Required parameter "executionId" was null or undefined when calling getExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGet().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        if (requestParameters['section'] != null) {
+            queryParameters['section'] = requestParameters['section'];
+        }
+
+        if (requestParameters['cursor'] != null) {
+            queryParameters['cursor'] = requestParameters['cursor'];
+        }
+
+        if (requestParameters['limit'] != null) {
+            queryParameters['limit'] = requestParameters['limit'];
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (requestParameters['authorization'] != null) {
+            headerParameters['authorization'] = String(requestParameters['authorization']);
+        }
+
+        if (requestParameters['xAmeshCSRF'] != null) {
+            headerParameters['X-Amesh-CSRF'] = String(requestParameters['xAmeshCSRF']);
+        }
+
+        if (requestParameters['xAmeshTenant'] != null) {
+            headerParameters['X-Amesh-Tenant'] = String(requestParameters['xAmeshTenant']);
+        }
+
+
+        let urlPath = `/api/v1/executions/{execution_id}/evidence-bundle`;
+        urlPath = urlPath.replace('{execution_id}', encodeURIComponent(String(requestParameters['executionId'])));
+
+        return {
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     * Return a verified, bounded, tenant-scoped canonical evidence projection.
+     * Get Execution Evidence Bundle
+     */
+    async getExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGetRaw(requestParameters: GetExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<EvidenceBundlePageResponse>> {
+        const requestOptions = await this.getExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGetRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => EvidenceBundlePageResponseFromJSON(jsonValue));
+    }
+
+    /**
+     * Return a verified, bounded, tenant-scoped canonical evidence projection.
+     * Get Execution Evidence Bundle
+     */
+    async getExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGet(requestParameters: GetExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<EvidenceBundlePageResponse> {
+        const response = await this.getExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGetRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

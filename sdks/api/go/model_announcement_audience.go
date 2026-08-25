@@ -20,8 +20,8 @@ type AnnouncementAudience string
 
 // List of AnnouncementAudience
 const (
-	ANNOUNCEMENTAUDIENCE_INSTANCE AnnouncementAudience = "INSTANCE"
-	ANNOUNCEMENTAUDIENCE_TENANT AnnouncementAudience = "TENANT"
+	ANNOUNCEMENTAUDIENCE_INSTANCE  AnnouncementAudience = "INSTANCE"
+	ANNOUNCEMENTAUDIENCE_TENANT    AnnouncementAudience = "TENANT"
 	ANNOUNCEMENTAUDIENCE_NAMESPACE AnnouncementAudience = "NAMESPACE"
 )
 

@@ -18,6 +18,7 @@ api_configuration.go
 api_credentials.go
 api_dashboards.go
 api_executions.go
+api_external_orchestration.go
 api_flow_tests.go
 api_flows.go
 api_human_tasks.go
@@ -27,7 +28,9 @@ api_namespaces.go
 api_operations.go
 api_plugins.go
 api_policies.go
+api_quality.go
 api_realtime.go
+api_releases.go
 api_scim.go
 api_search.go
 api_simulations.go
@@ -55,6 +58,7 @@ docs/ConfigurationAPI.md
 docs/CredentialsAPI.md
 docs/DashboardsAPI.md
 docs/ExecutionsAPI.md
+docs/ExternalOrchestrationAPI.md
 docs/FlowTestsAPI.md
 docs/FlowsAPI.md
 docs/HumanTasksAPI.md
@@ -64,7 +68,9 @@ docs/NamespacesAPI.md
 docs/OperationsAPI.md
 docs/PluginsAPI.md
 docs/PoliciesAPI.md
+docs/QualityAPI.md
 docs/RealtimeAPI.md
+docs/ReleasesAPI.md
 docs/ScimAPI.md
 docs/SearchAPI.md
 docs/SimulationsAPI.md
@@ -78,6 +84,7 @@ docs/WorkersAPI.md
 git_push.sh
 go.mod
 go.sum
+model_absolute.go
 model_action.go
 model_administration_apply_request.go
 model_administration_audit_entry.go
@@ -108,6 +115,7 @@ model_agent_judge_policy_output.go
 model_agent_memory_metadata.go
 model_agent_memory_policy.go
 model_agent_memory_scope.go
+model_agent_model_continuation_ref.go
 model_agent_permissions.go
 model_agent_resolution_request.go
 model_agent_resource_kind.go
@@ -134,6 +142,7 @@ model_announcement_audience.go
 model_announcement_create_request.go
 model_announcement_severity.go
 model_app_form.go
+model_approval_requirement.go
 model_asset_access_mode.go
 model_asset_catalog_entry.go
 model_asset_catalog_export.go
@@ -177,6 +186,8 @@ model_blueprint_parameter.go
 model_blueprint_parameter_kind.go
 model_blueprint_provenance.go
 model_blueprint_summary.go
+model_budget_requirement_input.go
+model_budget_requirement_output.go
 model_bulk_execution_item_result.go
 model_bulk_execution_request.go
 model_certificate_diagnostic.go
@@ -189,6 +200,10 @@ model_check_evaluation_point.go
 model_check_outcome.go
 model_check_policy_source.go
 model_check_policy_upsert_request.go
+model_comparison_category.go
+model_comparison_difference.go
+model_comparison_policy.go
+model_comparison_report.go
 model_compatibility_mapping.go
 model_compliance_evidence_category.go
 model_compliance_evidence_create.go
@@ -199,8 +214,10 @@ model_configuration_entry.go
 model_configuration_migration.go
 model_configuration_migration_kind.go
 model_configuration_migration_request.go
+model_configuration_pin.go
 model_configuration_snapshot.go
 model_connection_diagnostic.go
+model_correlationid.go
 model_create_execution_request.go
 model_create_tenant_request.go
 model_credential_kind.go
@@ -224,10 +241,16 @@ model_dashboard_widget_result.go
 model_determinism_envelope.go
 model_determinism_node.go
 model_determinism_policy_pin.go
+model_differential_spec.go
 model_dns_diagnostic.go
 model_dynamic_execution_bound.go
 model_effective_capability_envelope.go
 model_effective_plugin_policy.go
+model_evidence_artifact.go
+model_evidence_bundle_page_response.go
+model_evidence_presence.go
+model_evidence_record.go
+model_evidence_requirement.go
 model_exchange_credential_request.go
 model_execution_artifact.go
 model_execution_detail.go
@@ -246,12 +269,15 @@ model_execution_state.go
 model_expression_preview_request.go
 model_expression_preview_response.go
 model_extension_type.go
+model_external_operation.go
+model_external_orchestration_profile.go
 model_failover_status.go
 model_failure_category.go
 model_feature_flag.go
 model_feature_flag_decision.go
 model_feature_flag_scope.go
 model_feature_flag_upsert_request.go
+model_fixture_source.go
 model_flow_data_contract.go
 model_flow_document_export.go
 model_flow_editor_schema_response.go
@@ -283,6 +309,8 @@ model_flow_validation_result.go
 model_form_field.go
 model_form_section.go
 model_gte.go
+model_health_requirement_input.go
+model_health_requirement_output.go
 model_health_response.go
 model_http_validation_error.go
 model_human_task.go
@@ -316,6 +344,7 @@ model_lifecycle_preview_request.go
 model_lifecycle_resource_type.go
 model_lifecycle_scope.go
 model_lifecycle_trigger.go
+model_lineage.go
 model_lineage_evidence_kind.go
 model_location_inner.go
 model_log_level.go
@@ -325,6 +354,8 @@ model_login_response.go
 model_lte.go
 model_mapping_disposition.go
 model_maxcostusd.go
+model_maximum.go
+model_maximum_1.go
 model_maximumuncertainty.go
 model_mcp_connection_discovery_request.go
 model_mcp_connection_revision.go
@@ -334,6 +365,7 @@ model_mcp_tool_impact.go
 model_mcp_tool_pin.go
 model_metric_kind.go
 model_migration_patch.go
+model_minimum.go
 model_minimumrubricscore.go
 model_minimumscore.go
 model_model_fallback_mode.go
@@ -452,6 +484,14 @@ model_principal_definition.go
 model_principal_type.go
 model_problem_detail.go
 model_projectedcostusd.go
+model_promotion_apply_request.go
+model_promotion_evidence_kind.go
+model_promotion_kill_switch_request.go
+model_promotion_policy_input.go
+model_promotion_policy_output.go
+model_promotion_preview_request.go
+model_promotion_rollback_request.go
+model_promotion_target_kind.go
 model_prompt_spec.go
 model_provider_migration_diagnostic.go
 model_provisioned_webhook_subscription.go
@@ -468,8 +508,10 @@ model_reconciliation_request.go
 model_reconciliation_run.go
 model_reconciliation_run_state.go
 model_reconciliation_target_type.go
+model_recordid.go
 model_reduce_execution_request.go
 model_reduce_execution_response.go
+model_relative.go
 model_resolved_agent_evaluation.go
 model_resolved_resource_pin.go
 model_resolved_tool_pin.go
@@ -483,6 +525,7 @@ model_role_binding.go
 model_role_definition.go
 model_rolling_upgrade_step.go
 model_rotate_credential_request.go
+model_run_observation.go
 model_runner_capabilities.go
 model_runner_id.go
 model_runner_mode.go
@@ -525,6 +568,9 @@ model_service_role_status.go
 model_service_state.go
 model_service_topology.go
 model_set_local_password_request.go
+model_shadow_effect.go
+model_shadow_fixture.go
+model_shadow_run.go
 model_simulated_task_result.go
 model_simulation_comparison.go
 model_simulation_estimate_model.go
@@ -565,6 +611,8 @@ model_tenant_export.go
 model_tenant_policy.go
 model_tenant_status.go
 model_time_range_selection.go
+model_tolerance.go
+model_tool_provider_kind.go
 model_trigger_action_request.go
 model_trigger_occurrence.go
 model_trigger_occurrence_state.go

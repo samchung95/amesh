@@ -20,16 +20,16 @@ var _ MappedNullable = &AgentEvaluationSpecInput{}
 
 // AgentEvaluationSpecInput struct for AgentEvaluationSpecInput
 type AgentEvaluationSpecInput struct {
-	Assertions []map[string]interface{} `json:"assertions,omitempty"`
-	Description *string `json:"description,omitempty"`
-	Fixtures []AgentEvaluationFixture `json:"fixtures,omitempty"`
-	Judge NullableAgentJudgePolicyInput `json:"judge,omitempty"`
-	Key string `json:"key" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
-	Kind *string `json:"kind,omitempty"`
-	MinimumRubricScore *Minimumrubricscore `json:"minimumRubricScore,omitempty"`
-	Namespace string `json:"namespace"`
-	Rubric []AgentRubricCriterionInput `json:"rubric,omitempty"`
-	Title string `json:"title"`
+	Assertions           []map[string]interface{}      `json:"assertions,omitempty"`
+	Description          *string                       `json:"description,omitempty"`
+	Fixtures             []AgentEvaluationFixture      `json:"fixtures,omitempty"`
+	Judge                NullableAgentJudgePolicyInput `json:"judge,omitempty"`
+	Key                  string                        `json:"key" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
+	Kind                 *string                       `json:"kind,omitempty"`
+	MinimumRubricScore   *Minimumrubricscore           `json:"minimumRubricScore,omitempty"`
+	Namespace            string                        `json:"namespace"`
+	Rubric               []AgentRubricCriterionInput   `json:"rubric,omitempty"`
+	Title                string                        `json:"title"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -191,6 +191,7 @@ func (o *AgentEvaluationSpecInput) HasJudge() bool {
 func (o *AgentEvaluationSpecInput) SetJudge(v AgentJudgePolicyInput) {
 	o.Judge.Set(&v)
 }
+
 // SetJudgeNil sets the value for Judge to be an explicit nil
 func (o *AgentEvaluationSpecInput) SetJudgeNil() {
 	o.Judge.Set(nil)
@@ -370,7 +371,7 @@ func (o *AgentEvaluationSpecInput) SetTitle(v string) {
 }
 
 func (o AgentEvaluationSpecInput) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -426,10 +427,10 @@ func (o *AgentEvaluationSpecInput) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

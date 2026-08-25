@@ -21,7 +21,7 @@ type ModelFallbackMode string
 // List of ModelFallbackMode
 const (
 	MODELFALLBACKMODE_DISABLED ModelFallbackMode = "DISABLED"
-	MODELFALLBACKMODE_ORDERED ModelFallbackMode = "ORDERED"
+	MODELFALLBACKMODE_ORDERED  ModelFallbackMode = "ORDERED"
 )
 
 // All allowed values of ModelFallbackMode enum

@@ -60,6 +60,7 @@ from amesh.adapters.postgres import (
     PostgresCheckRepository,
     PostgresCredentialRepository,
     PostgresDashboardRepository,
+    PostgresEvidenceBundleRepository,
     PostgresExecutionRepository,
     PostgresFeatureFlagRepository,
     PostgresFederationRepository,
@@ -68,6 +69,7 @@ from amesh.adapters.postgres import (
     PostgresMetadataRepository,
     PostgresOperationalControlRepository,
     PostgresPluginPolicyRepository,
+    PostgresPromotionRepository,
     PostgresRealtimeRepository,
     PostgresReconciliationRepository,
     PostgresRetentionRepository,
@@ -95,6 +97,7 @@ from amesh.api.contracts import (
     collection_response,
     default_limited_collection_query,
 )
+from amesh.api.evidence_models import EvidenceBundlePageResponse
 from amesh.api.models import (
     AuthorizationExplanationRequest,
     BackfillActionRequest,
@@ -160,6 +163,7 @@ from amesh.api.models import (
     TriggerActionRequest,
     UiSessionResponse,
 )
+from amesh.api.promotion import build_promotion_router
 from amesh.audit import AuditArtifact, AuditArtifactService
 from amesh.authentication import (
     AuthenticationRateLimited,
@@ -388,6 +392,12 @@ from amesh.dsl import (
     compile_execution_tasks,
     validate_flow_document,
 )
+from amesh.evidence_bundle import (
+    EvidenceConflictError,
+    EvidenceNotFoundError,
+    EvidenceUnavailableError,
+    FilesystemEvidenceObjectStore,
+)
 from amesh.executor import (
     InProcessExecutor,
     SubflowCoordinator,
@@ -404,6 +414,12 @@ from amesh.executor import (
 )
 from amesh.expressions import NativeExpressionEngine
 from amesh.expressions.contracts import ExpressionError
+from amesh.external_orchestration import (
+    ExternalOrchestrationProfile,
+    correlation_id_is_valid,
+    error_category,
+    external_orchestration_profile,
+)
 from amesh.federation import (
     FederationProviderUnavailable,
     FederationRejected,
@@ -419,6 +435,7 @@ from amesh.kestra_compatibility import (
     import_kestra_flow,
 )
 from amesh.mcp_server import create_amesh_mcp_application, create_amesh_mcp_server
+from amesh.model_continuations import configured_model_continuation_protector
 from amesh.networking import (
     ForwardedHeaderRejected,
     NetworkDiagnosticBundle,
@@ -510,6 +527,15 @@ from amesh.ports.federation_repository import (
 )
 from amesh.ports.search_repository import SearchCursorError, SearchUnavailableError
 from amesh.preflight import DependencyCondition, run_preflight
+from amesh.promotion import PromotionService
+from amesh.quality import (
+    ConfigurationPin,
+    DurableDifferentialService,
+    PostgresDifferentialShadowRepository,
+    RunObservation,
+    ShadowRunContext,
+    build_differential_application_router,
+)
 from amesh.realtime import (
     ProvisionedWebhookSubscription,
     RealtimeEvent,
@@ -677,6 +703,17 @@ app = FastAPI(
 )
 
 
+@app.get(
+    "/api/v1/orchestration/profile",
+    response_model=ExternalOrchestrationProfile,
+    tags=["external-orchestration"],
+)
+async def get_external_orchestration_profile() -> ExternalOrchestrationProfile:
+    """Publish the client-neutral contract without exposing tenant data."""
+
+    return external_orchestration_profile()
+
+
 def _problem_response(
     request: Request,
     *,
@@ -698,10 +735,15 @@ def _problem_response(
     }
     if errors is not None:
         content["errors"] = errors
+    response_headers = dict(headers or {})
+    response_headers.setdefault(
+        "X-Amesh-Error-Category",
+        error_category(status_code, problem_code),
+    )
     return JSONResponse(
         status_code=status_code,
         content=content,
-        headers=headers,
+        headers=response_headers,
         media_type="application/problem+json",
     )
 
@@ -753,6 +795,19 @@ async def observe_http(
     call_next: Callable[[Request], Awaitable[Response]],
 ) -> Response:
     started = perf_counter()
+    client_correlation_id = request.headers.get("X-Correlation-ID")
+    if not correlation_id_is_valid(client_correlation_id):
+        invalid_response = _problem_response(
+            request,
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="X-Correlation-ID must be 1-255 characters without surrounding whitespace",
+            code="INVALID_CORRELATION_ID",
+        )
+        invalid_response.headers["X-Amesh-Error-Category"] = "terminal"
+        return invalid_response
+    if client_correlation_id is None:
+        client_correlation_id = str(new_runtime_id())
+    request.state.client_correlation_id = client_correlation_id
     try:
         settings = get_settings()
         apply_trusted_forwarded_headers(
@@ -785,6 +840,9 @@ async def observe_http(
         trace_context = propagated_trace_context()
         if "traceparent" in trace_context:
             response.headers["traceparent"] = trace_context["traceparent"]
+        response.headers["X-Correlation-ID"] = client_correlation_id
+        if response.status_code >= 400 and "X-Amesh-Error-Category" not in response.headers:
+            response.headers["X-Amesh-Error-Category"] = error_category(response.status_code)
         LOGGER.info(
             "http request",
             extra={
@@ -1034,6 +1092,100 @@ MetadataRepositoryDependency = Annotated[
     PostgresMetadataRepository,
     Depends(get_metadata_repository),
 ]
+
+
+@lru_cache
+def get_evidence_bundle_repository() -> PostgresEvidenceBundleRepository:
+    object_root = os.getenv("AMESH_EVIDENCE_OBJECT_ROOT")
+    object_store = FilesystemEvidenceObjectStore(object_root) if object_root else None
+    return PostgresEvidenceBundleRepository(database_engine(), object_store=object_store)
+
+
+EvidenceBundleRepositoryDependency = Annotated[
+    PostgresEvidenceBundleRepository,
+    Depends(get_evidence_bundle_repository),
+]
+
+
+@lru_cache
+def get_promotion_repository() -> PostgresPromotionRepository:
+    return PostgresPromotionRepository(database_engine())
+
+
+@lru_cache
+def get_promotion_service() -> PromotionService:
+    return PromotionService(get_promotion_repository())
+
+
+async def get_promotion_authorizer(
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> Callable[[str], Awaitable[None]]:
+    async def authorize_release(action: str) -> None:
+        selected_action = (
+            PermissionAction.VIEW if action in {"view", "preview"} else PermissionAction.MANAGE
+        )
+        await authorize_request(
+            authorization_service,
+            actor,
+            resource_type="release",
+            action=selected_action,
+            tenant_id=tenant_id,
+        )
+
+    return authorize_release
+
+
+async def get_promotion_actor(actor: ActorDependency) -> str:
+    return str(actor.principal_id)
+
+
+@lru_cache
+def get_differential_repository() -> PostgresDifferentialShadowRepository:
+    return PostgresDifferentialShadowRepository(database_engine())
+
+
+@lru_cache
+def get_differential_service() -> DurableDifferentialService:
+    return DurableDifferentialService(get_differential_repository())
+
+
+def get_differential_executor() -> Callable[
+    [ConfigurationPin, object, ShadowRunContext], RunObservation
+]:
+    """Return the neutral baseline executor used until a domain adapter is supplied."""
+
+    def execute(
+        configuration: ConfigurationPin,
+        inputs: object,
+        context: ShadowRunContext,
+    ) -> RunObservation:
+        del configuration, context
+        return RunObservation(output=inputs)
+
+    return execute
+
+
+async def get_differential_authorizer(
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> Callable[[str], Awaitable[None]]:
+    async def authorize_differential(action: str) -> None:
+        await authorize_request(
+            authorization_service,
+            actor,
+            resource_type="execution",
+            action=(PermissionAction.EXECUTE if action == "execute" else PermissionAction.VIEW),
+            tenant_id=tenant_id,
+        )
+
+    return authorize_differential
+
+
+async def get_differential_actor(actor: ActorDependency) -> str:
+    return str(actor.principal_id)
 
 
 @lru_cache
@@ -1924,6 +2076,25 @@ async def authorize_request(
         ) from exc
 
 
+app.include_router(
+    build_promotion_router(
+        get_promotion_service,
+        require_tenant_context,
+        get_promotion_authorizer,
+        get_promotion_actor,
+    )
+)
+app.include_router(
+    build_differential_application_router(
+        get_differential_service,
+        get_differential_executor,
+        require_tenant_context,
+        get_differential_authorizer,
+        get_differential_actor,
+    )
+)
+
+
 def _agent_outbound_policy(settings: Settings) -> HttpTaskPolicy:
     return HttpTaskPolicy(
         allowed_hosts=settings.network_egress_allowed_hosts,
@@ -2677,23 +2848,50 @@ async def ready(
     )
     dependencies = readiness.dependency_states
     registered_ready = True
-    if readiness.ready and settings.service_instance_name is not None:
+    role_states = {role.value: "DISABLED" for role in ServiceRole}
+    enabled_roles = {ServiceRole(value) for value in settings.service_enabled_roles}
+    for role in enabled_roles:
+        role_states[role.value] = DependencyCondition.UNAVAILABLE.value
+    unready_roles: list[str] = []
+    if readiness.ready:
         topology = await service_registry.topology()
-        registered_ready = any(
-            instance.role is ServiceRole.WEBSERVER
-            and instance.instance_name == settings.service_instance_name
-            and instance.liveness is ServiceLiveness.LIVE
-            and instance.state is ServiceState.READY
-            for instance in topology.instances
-        )
-        dependencies = {
-            **dependencies,
-            "service-registry": (
+        for role in enabled_roles:
+            live = tuple(
+                instance
+                for instance in topology.instances
+                if instance.role is role and instance.liveness is ServiceLiveness.LIVE
+            )
+            if any(instance.state is ServiceState.READY for instance in live):
+                role_states[role.value] = ServiceState.READY.value
+            elif any(instance.state is ServiceState.DEGRADED for instance in live):
+                role_states[role.value] = ServiceState.DEGRADED.value
+            elif any(instance.state is ServiceState.DRAINING for instance in live):
+                role_states[role.value] = ServiceState.DRAINING.value
+            elif live:
+                role_states[role.value] = ServiceState.STARTING.value
+            else:
+                role_states[role.value] = DependencyCondition.UNAVAILABLE.value
+            if role_states[role.value] != ServiceState.READY.value:
+                unready_roles.append(role.value)
+            dependencies[f"role:{role.value}"] = (
                 DependencyCondition.READY.value
-                if registered_ready
+                if role_states[role.value] == ServiceState.READY.value
                 else DependencyCondition.UNAVAILABLE.value
-            ),
-        }
+            )
+        if settings.service_instance_name is not None:
+            registered_ready = any(
+                instance.role is ServiceRole.WEBSERVER
+                and instance.instance_name == settings.service_instance_name
+                and instance.liveness is ServiceLiveness.LIVE
+                and instance.state is ServiceState.READY
+                for instance in topology.instances
+            )
+        registered_ready = registered_ready and not unready_roles
+        dependencies["service-registry"] = (
+            DependencyCondition.READY.value
+            if registered_ready
+            else DependencyCondition.UNAVAILABLE.value
+        )
     if not readiness.ready or not registered_ready:
         response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
     return ReadinessResponse(
@@ -2708,8 +2906,15 @@ async def ready(
         migrations_expected=readiness.migrations_expected,
         latest_migration=readiness.latest_migration,
         dependencies=dependencies,
+        roles=role_states,
         degraded_dependencies=readiness.degraded_dependencies,
-        error=("service instance is not ready" if not registered_ready else readiness.error),
+        error=(
+            f"enabled service roles not ready: {', '.join(sorted(unready_roles))}"
+            if unready_roles
+            else "service instance is not ready"
+            if not registered_ready
+            else readiness.error
+        ),
     )
 
 
@@ -2756,6 +2961,8 @@ async def get_ui_session(
         "namespaceResources.write": ("namespace_file", PermissionAction.WRITE),
         "secretBindings.write": ("secret", PermissionAction.WRITE),
         "plugins.view": ("plugin", PermissionAction.VIEW),
+        "releases.view": ("release", PermissionAction.VIEW),
+        "releases.manage": ("release", PermissionAction.MANAGE),
         "administration.manage": ("tenant", PermissionAction.MANAGE),
     }
     decisions = await asyncio.gather(
@@ -7977,6 +8184,7 @@ async def create_execution(
     tenant_id: TenantDependency,
     prefer: Annotated[str | None, Header(alias="Prefer")] = None,
     idempotency_key: Annotated[str | None, Header(alias="Idempotency-Key")] = None,
+    correlation_id: Annotated[str | None, Header(alias="X-Correlation-ID")] = None,
 ) -> ExecutionDetail:
     await authorize_request(
         authorization_service,
@@ -8015,11 +8223,15 @@ async def create_execution(
         launch_source=ExecutionLaunchSource.API,
         idempotency_key=effective_idempotency_key,
         respond_async=respond_async,
+        correlation_id=correlation_id,
     )
     if respond_async and detail.execution.state is ExecutionState.RUNNING:
         response.status_code = status.HTTP_202_ACCEPTED
         response.headers["Preference-Applied"] = "respond-async"
         response.headers["Location"] = f"/api/v1/executions/{detail.execution.execution_id}"
+    persisted_correlation_id = detail.execution.trigger.get("correlationId")
+    if isinstance(persisted_correlation_id, str):
+        response.headers["X-Correlation-ID"] = persisted_correlation_id
     return detail
 
 
@@ -8041,6 +8253,7 @@ async def create_executions_bulk(
     authorization_service: AuthorizationServiceDependency,
     tenant_id: TenantDependency,
     prefer: Annotated[str | None, Header(alias="Prefer")] = None,
+    correlation_id: Annotated[str | None, Header(alias="X-Correlation-ID")] = None,
 ) -> list[BulkExecutionItemResult]:
     respond_async = _prefers_async_response(prefer)
     results: list[BulkExecutionItemResult] = []
@@ -8075,6 +8288,7 @@ async def create_executions_bulk(
                 launch_source=ExecutionLaunchSource.API,
                 idempotency_key=item.idempotency_key,
                 respond_async=respond_async,
+                correlation_id=correlation_id,
             )
         except (HTTPException, LookupError) as exc:
             item_status = exc.status_code if isinstance(exc, HTTPException) else 404
@@ -10114,6 +10328,120 @@ async def replay_webhook_delivery(
 
 
 @app.get(
+    "/api/v1/executions/{execution_id}/evidence-bundle",
+    response_model=EvidenceBundlePageResponse,
+    tags=["executions"],
+)
+async def get_execution_evidence_bundle(
+    execution_id: UUID,
+    repository: RepositoryDependency,
+    metadata: MetadataRepositoryDependency,
+    evidence_repository: EvidenceBundleRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+    section: Annotated[str, Query(description="Canonical evidence section")] = "trace",
+    cursor: Annotated[str | None, Query(description="Opaque section cursor")] = None,
+    limit: Annotated[int, Query(ge=1, le=500)] = 100,
+) -> EvidenceBundlePageResponse:
+    """Return a verified, bounded, tenant-scoped canonical evidence projection."""
+
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="execution",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+    )
+    try:
+        execution = await repository.get_execution(execution_id, tenant_id=tenant_id)
+        bundle = await evidence_repository.get(execution_id, tenant_id=tenant_id)
+    except EvidenceNotFoundError:
+        try:
+            execution = await repository.get_execution(execution_id, tenant_id=tenant_id)
+            flow = await repository.get_flow(
+                execution.namespace,
+                execution.flow_id,
+                tenant_id=tenant_id,
+                revision=execution.flow_revision,
+            )
+            events: list[object] = []
+            after_cursor = 0
+            for _ in range(20):
+                batch = await metadata.list_evidence_events(
+                    execution_id,
+                    tenant_id=tenant_id,
+                    after_cursor=after_cursor,
+                    limit=500,
+                )
+                if not batch:
+                    break
+                events.extend(_public_evidence(flow, execution, batch))
+                after_cursor = batch[-1].cursor
+                if len(batch) < 500:
+                    break
+            else:
+                raise HTTPException(
+                    status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+                    detail="execution evidence exceeds the canonical export bound",
+                )
+            bundle = await evidence_repository.build_and_put(
+                execution_id,
+                tenant_id,
+                events,
+                created_at=execution.created_at,
+                correlation_id=str(execution.execution_id),
+                inputs=execution.inputs,
+                outputs=execution.outputs,
+            )
+        except EvidenceConflictError:
+            bundle = await evidence_repository.get(execution_id, tenant_id=tenant_id)
+        except EvidenceUnavailableError as exc:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="canonical evidence repository unavailable",
+            ) from exc
+        except LookupError as exc:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    except EvidenceUnavailableError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="canonical evidence repository unavailable",
+        ) from exc
+    try:
+        page = await evidence_repository.page(
+            execution_id,
+            tenant_id=tenant_id,
+            section=section,
+            cursor=cursor,
+            limit=limit,
+        )
+    except EvidenceNotFoundError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="execution evidence absent"
+        ) from exc
+    except EvidenceUnavailableError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="canonical evidence repository unavailable",
+        ) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+    return EvidenceBundlePageResponse(
+        schemaVersion=bundle.schema_version,
+        executionId=str(bundle.execution_id),
+        bundleDigest=bundle.digest,
+        section=section,
+        items=page.items,
+        nextCursor=page.next_cursor,
+        limit=page.limit,
+        total=page.total,
+    )
+
+
+@app.get(
     "/api/v1/executions/{execution_id}/evidence",
     response_model=ExecutionEvidencePage,
     tags=["executions"],
@@ -11066,6 +11394,7 @@ async def _execute_flow(
     idempotency_key: str | None = None,
     respond_async: bool = False,
     trigger_context: dict[str, object] | None = None,
+    correlation_id: str | None = None,
 ) -> ExecutionDetail:
     if flow.disabled:
         raise HTTPException(
@@ -11222,6 +11551,12 @@ async def _execute_flow(
     model_handler = agent_llm_handler(
         http_policy=http_policy,
         repository=agent_repository,
+        continuation_protector=configured_model_continuation_protector(
+            primary_key_id=settings.model_continuation_key_id,
+            primary_key=settings.model_continuation_encryption_key,
+            previous_key_id=settings.model_continuation_previous_key_id,
+            previous_key=settings.model_continuation_previous_encryption_key,
+        ),
     )
     mcp_handler = agent_mcp_handler(
         repository=agent_repository,
@@ -11413,11 +11748,14 @@ async def _execute_flow(
             execution_trigger = dict(trigger_context or {})
             if request.cache_mode.value != "USE":
                 execution_trigger["_ameshCacheMode"] = request.cache_mode.value
+            launch_trigger = dict(trigger_context or {})
+            if correlation_id is not None:
+                launch_trigger.setdefault("correlationId", correlation_id)
             execution = await repository.create_execution(
                 flow,
                 tenant_id=tenant_id,
                 inputs=validated_inputs,
-                trigger=execution_trigger or None,
+                trigger={**execution_trigger, **launch_trigger} or None,
                 launch_source=launch_source,
                 idempotency_key=idempotency_key,
                 actor_id=actor_id,
@@ -12708,6 +13046,7 @@ async def create_kestra_execution(
     tenant_id: TenantDependency,
     prefer: Annotated[str | None, Header(alias="Prefer")] = None,
     idempotency_key: Annotated[str | None, Header(alias="Idempotency-Key")] = None,
+    correlation_id: Annotated[str | None, Header(alias="X-Correlation-ID")] = None,
 ) -> ExecutionDetail:
     return await create_execution(
         CreateExecutionRequest(
@@ -12729,6 +13068,7 @@ async def create_kestra_execution(
         tenant_id,
         prefer,
         idempotency_key,
+        correlation_id,
     )
 
 

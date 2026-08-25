@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,17 +21,17 @@ var _ MappedNullable = &DynamicExecutionBound{}
 
 // DynamicExecutionBound struct for DynamicExecutionBound
 type DynamicExecutionBound struct {
-	InlinePayloadBytes NullableInt32 `json:"inlinePayloadBytes,omitempty"`
-	IterationKeyPattern NullableString `json:"iterationKeyPattern,omitempty"`
-	Kind string `json:"kind"`
-	MaxConcurrency NullableInt32 `json:"maxConcurrency,omitempty"`
-	MaxDepth NullableInt32 `json:"maxDepth,omitempty"`
-	MaxDurationSeconds NullableFloat32 `json:"maxDurationSeconds,omitempty"`
-	MaxIterations NullableInt32 `json:"maxIterations,omitempty"`
-	MaxTaskRuns NullableInt32 `json:"maxTaskRuns,omitempty"`
-	TaskId string `json:"taskId"`
-	TemplateTaskIds []string `json:"templateTaskIds,omitempty"`
-	WorstCaseTaskRuns int32 `json:"worstCaseTaskRuns"`
+	InlinePayloadBytes  NullableInt32   `json:"inlinePayloadBytes,omitempty"`
+	IterationKeyPattern NullableString  `json:"iterationKeyPattern,omitempty"`
+	Kind                string          `json:"kind"`
+	MaxConcurrency      NullableInt32   `json:"maxConcurrency,omitempty"`
+	MaxDepth            NullableInt32   `json:"maxDepth,omitempty"`
+	MaxDurationSeconds  NullableFloat32 `json:"maxDurationSeconds,omitempty"`
+	MaxIterations       NullableInt32   `json:"maxIterations,omitempty"`
+	MaxTaskRuns         NullableInt32   `json:"maxTaskRuns,omitempty"`
+	TaskId              string          `json:"taskId"`
+	TemplateTaskIds     []string        `json:"templateTaskIds,omitempty"`
+	WorstCaseTaskRuns   int32           `json:"worstCaseTaskRuns"`
 }
 
 type _DynamicExecutionBound DynamicExecutionBound
@@ -88,6 +88,7 @@ func (o *DynamicExecutionBound) HasInlinePayloadBytes() bool {
 func (o *DynamicExecutionBound) SetInlinePayloadBytes(v int32) {
 	o.InlinePayloadBytes.Set(&v)
 }
+
 // SetInlinePayloadBytesNil sets the value for InlinePayloadBytes to be an explicit nil
 func (o *DynamicExecutionBound) SetInlinePayloadBytesNil() {
 	o.InlinePayloadBytes.Set(nil)
@@ -130,6 +131,7 @@ func (o *DynamicExecutionBound) HasIterationKeyPattern() bool {
 func (o *DynamicExecutionBound) SetIterationKeyPattern(v string) {
 	o.IterationKeyPattern.Set(&v)
 }
+
 // SetIterationKeyPatternNil sets the value for IterationKeyPattern to be an explicit nil
 func (o *DynamicExecutionBound) SetIterationKeyPatternNil() {
 	o.IterationKeyPattern.Set(nil)
@@ -196,6 +198,7 @@ func (o *DynamicExecutionBound) HasMaxConcurrency() bool {
 func (o *DynamicExecutionBound) SetMaxConcurrency(v int32) {
 	o.MaxConcurrency.Set(&v)
 }
+
 // SetMaxConcurrencyNil sets the value for MaxConcurrency to be an explicit nil
 func (o *DynamicExecutionBound) SetMaxConcurrencyNil() {
 	o.MaxConcurrency.Set(nil)
@@ -238,6 +241,7 @@ func (o *DynamicExecutionBound) HasMaxDepth() bool {
 func (o *DynamicExecutionBound) SetMaxDepth(v int32) {
 	o.MaxDepth.Set(&v)
 }
+
 // SetMaxDepthNil sets the value for MaxDepth to be an explicit nil
 func (o *DynamicExecutionBound) SetMaxDepthNil() {
 	o.MaxDepth.Set(nil)
@@ -280,6 +284,7 @@ func (o *DynamicExecutionBound) HasMaxDurationSeconds() bool {
 func (o *DynamicExecutionBound) SetMaxDurationSeconds(v float32) {
 	o.MaxDurationSeconds.Set(&v)
 }
+
 // SetMaxDurationSecondsNil sets the value for MaxDurationSeconds to be an explicit nil
 func (o *DynamicExecutionBound) SetMaxDurationSecondsNil() {
 	o.MaxDurationSeconds.Set(nil)
@@ -322,6 +327,7 @@ func (o *DynamicExecutionBound) HasMaxIterations() bool {
 func (o *DynamicExecutionBound) SetMaxIterations(v int32) {
 	o.MaxIterations.Set(&v)
 }
+
 // SetMaxIterationsNil sets the value for MaxIterations to be an explicit nil
 func (o *DynamicExecutionBound) SetMaxIterationsNil() {
 	o.MaxIterations.Set(nil)
@@ -364,6 +370,7 @@ func (o *DynamicExecutionBound) HasMaxTaskRuns() bool {
 func (o *DynamicExecutionBound) SetMaxTaskRuns(v int32) {
 	o.MaxTaskRuns.Set(&v)
 }
+
 // SetMaxTaskRunsNil sets the value for MaxTaskRuns to be an explicit nil
 func (o *DynamicExecutionBound) SetMaxTaskRunsNil() {
 	o.MaxTaskRuns.Set(nil)
@@ -455,7 +462,7 @@ func (o *DynamicExecutionBound) SetWorstCaseTaskRuns(v int32) {
 }
 
 func (o DynamicExecutionBound) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -509,10 +516,10 @@ func (o *DynamicExecutionBound) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

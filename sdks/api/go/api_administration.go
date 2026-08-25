@@ -19,18 +19,17 @@ import (
 	"strings"
 )
 
-
 // AdministrationAPIService AdministrationAPI service
 type AdministrationAPIService service
 
 type ApiApplyAdministrationControlApiV1AdminControlsKeyPutRequest struct {
-	ctx context.Context
-	ApiService *AdministrationAPIService
-	key AdministrationControlKey
+	ctx                        context.Context
+	ApiService                 *AdministrationAPIService
+	key                        AdministrationControlKey
 	administrationApplyRequest *AdministrationApplyRequest
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization              *string
+	xAmeshCSRF                 *string
+	xAmeshTenant               *string
 }
 
 func (r ApiApplyAdministrationControlApiV1AdminControlsKeyPutRequest) AdministrationApplyRequest(administrationApplyRequest AdministrationApplyRequest) ApiApplyAdministrationControlApiV1AdminControlsKeyPutRequest {
@@ -60,26 +59,27 @@ func (r ApiApplyAdministrationControlApiV1AdminControlsKeyPutRequest) Execute() 
 /*
 ApplyAdministrationControlApiV1AdminControlsKeyPut Apply Administration Control
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param key
- @return ApiApplyAdministrationControlApiV1AdminControlsKeyPutRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param key
+	@return ApiApplyAdministrationControlApiV1AdminControlsKeyPutRequest
 */
 func (a *AdministrationAPIService) ApplyAdministrationControlApiV1AdminControlsKeyPut(ctx context.Context, key AdministrationControlKey) ApiApplyAdministrationControlApiV1AdminControlsKeyPutRequest {
 	return ApiApplyAdministrationControlApiV1AdminControlsKeyPutRequest{
 		ApiService: a,
-		ctx: ctx,
-		key: key,
+		ctx:        ctx,
+		key:        key,
 	}
 }
 
 // Execute executes the request
-//  @return AdministrationControl
+//
+//	@return AdministrationControl
 func (a *AdministrationAPIService) ApplyAdministrationControlApiV1AdminControlsKeyPutExecute(r ApiApplyAdministrationControlApiV1AdminControlsKeyPutRequest) (*AdministrationControl, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPut
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *AdministrationControl
+		localVarHTTPMethod  = http.MethodPut
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *AdministrationControl
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AdministrationAPIService.ApplyAdministrationControlApiV1AdminControlsKeyPut")
@@ -154,8 +154,8 @@ func (a *AdministrationAPIService) ApplyAdministrationControlApiV1AdminControlsK
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -173,12 +173,12 @@ func (a *AdministrationAPIService) ApplyAdministrationControlApiV1AdminControlsK
 }
 
 type ApiListAdministrationAuditApiV1AdminAuditGetRequest struct {
-	ctx context.Context
-	ApiService *AdministrationAPIService
-	limit *int32
+	ctx           context.Context
+	ApiService    *AdministrationAPIService
+	limit         *int32
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiListAdministrationAuditApiV1AdminAuditGetRequest) Limit(limit int32) ApiListAdministrationAuditApiV1AdminAuditGetRequest {
@@ -208,24 +208,25 @@ func (r ApiListAdministrationAuditApiV1AdminAuditGetRequest) Execute() ([]Admini
 /*
 ListAdministrationAuditApiV1AdminAuditGet List Administration Audit
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiListAdministrationAuditApiV1AdminAuditGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiListAdministrationAuditApiV1AdminAuditGetRequest
 */
 func (a *AdministrationAPIService) ListAdministrationAuditApiV1AdminAuditGet(ctx context.Context) ApiListAdministrationAuditApiV1AdminAuditGetRequest {
 	return ApiListAdministrationAuditApiV1AdminAuditGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return []AdministrationAuditEntry
+//
+//	@return []AdministrationAuditEntry
 func (a *AdministrationAPIService) ListAdministrationAuditApiV1AdminAuditGetExecute(r ApiListAdministrationAuditApiV1AdminAuditGetRequest) ([]AdministrationAuditEntry, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  []AdministrationAuditEntry
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []AdministrationAuditEntry
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AdministrationAPIService.ListAdministrationAuditApiV1AdminAuditGet")
@@ -301,8 +302,8 @@ func (a *AdministrationAPIService) ListAdministrationAuditApiV1AdminAuditGetExec
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -320,11 +321,11 @@ func (a *AdministrationAPIService) ListAdministrationAuditApiV1AdminAuditGetExec
 }
 
 type ApiListAdministrationControlsApiV1AdminControlsGetRequest struct {
-	ctx context.Context
-	ApiService *AdministrationAPIService
+	ctx           context.Context
+	ApiService    *AdministrationAPIService
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiListAdministrationControlsApiV1AdminControlsGetRequest) Authorization(authorization string) ApiListAdministrationControlsApiV1AdminControlsGetRequest {
@@ -349,24 +350,25 @@ func (r ApiListAdministrationControlsApiV1AdminControlsGetRequest) Execute() ([]
 /*
 ListAdministrationControlsApiV1AdminControlsGet List Administration Controls
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiListAdministrationControlsApiV1AdminControlsGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiListAdministrationControlsApiV1AdminControlsGetRequest
 */
 func (a *AdministrationAPIService) ListAdministrationControlsApiV1AdminControlsGet(ctx context.Context) ApiListAdministrationControlsApiV1AdminControlsGetRequest {
 	return ApiListAdministrationControlsApiV1AdminControlsGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return []AdministrationControl
+//
+//	@return []AdministrationControl
 func (a *AdministrationAPIService) ListAdministrationControlsApiV1AdminControlsGetExecute(r ApiListAdministrationControlsApiV1AdminControlsGetRequest) ([]AdministrationControl, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  []AdministrationControl
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []AdministrationControl
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AdministrationAPIService.ListAdministrationControlsApiV1AdminControlsGet")
@@ -435,8 +437,8 @@ func (a *AdministrationAPIService) ListAdministrationControlsApiV1AdminControlsG
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -454,12 +456,12 @@ func (a *AdministrationAPIService) ListAdministrationControlsApiV1AdminControlsG
 }
 
 type ApiPreviewAdministrationControlApiV1AdminControlsPreviewPostRequest struct {
-	ctx context.Context
-	ApiService *AdministrationAPIService
+	ctx                        context.Context
+	ApiService                 *AdministrationAPIService
 	administrationControlDraft *AdministrationControlDraft
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization              *string
+	xAmeshCSRF                 *string
+	xAmeshTenant               *string
 }
 
 func (r ApiPreviewAdministrationControlApiV1AdminControlsPreviewPostRequest) AdministrationControlDraft(administrationControlDraft AdministrationControlDraft) ApiPreviewAdministrationControlApiV1AdminControlsPreviewPostRequest {
@@ -489,24 +491,25 @@ func (r ApiPreviewAdministrationControlApiV1AdminControlsPreviewPostRequest) Exe
 /*
 PreviewAdministrationControlApiV1AdminControlsPreviewPost Preview Administration Control
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiPreviewAdministrationControlApiV1AdminControlsPreviewPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiPreviewAdministrationControlApiV1AdminControlsPreviewPostRequest
 */
 func (a *AdministrationAPIService) PreviewAdministrationControlApiV1AdminControlsPreviewPost(ctx context.Context) ApiPreviewAdministrationControlApiV1AdminControlsPreviewPostRequest {
 	return ApiPreviewAdministrationControlApiV1AdminControlsPreviewPostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return AdministrationImpactPreview
+//
+//	@return AdministrationImpactPreview
 func (a *AdministrationAPIService) PreviewAdministrationControlApiV1AdminControlsPreviewPostExecute(r ApiPreviewAdministrationControlApiV1AdminControlsPreviewPostRequest) (*AdministrationImpactPreview, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *AdministrationImpactPreview
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *AdministrationImpactPreview
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AdministrationAPIService.PreviewAdministrationControlApiV1AdminControlsPreviewPost")
@@ -580,8 +583,8 @@ func (a *AdministrationAPIService) PreviewAdministrationControlApiV1AdminControl
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}

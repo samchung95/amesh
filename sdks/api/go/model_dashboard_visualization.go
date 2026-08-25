@@ -20,12 +20,12 @@ type DashboardVisualization string
 
 // List of DashboardVisualization
 const (
-	DASHBOARDVISUALIZATION_TIME_SERIES DashboardVisualization = "TIME_SERIES"
-	DASHBOARDVISUALIZATION_TABLE DashboardVisualization = "TABLE"
-	DASHBOARDVISUALIZATION_COUNTER DashboardVisualization = "COUNTER"
-	DASHBOARDVISUALIZATION_DISTRIBUTION DashboardVisualization = "DISTRIBUTION"
+	DASHBOARDVISUALIZATION_TIME_SERIES      DashboardVisualization = "TIME_SERIES"
+	DASHBOARDVISUALIZATION_TABLE            DashboardVisualization = "TABLE"
+	DASHBOARDVISUALIZATION_COUNTER          DashboardVisualization = "COUNTER"
+	DASHBOARDVISUALIZATION_DISTRIBUTION     DashboardVisualization = "DISTRIBUTION"
 	DASHBOARDVISUALIZATION_STATUS_BREAKDOWN DashboardVisualization = "STATUS_BREAKDOWN"
-	DASHBOARDVISUALIZATION_RANKED_LIST DashboardVisualization = "RANKED_LIST"
+	DASHBOARDVISUALIZATION_RANKED_LIST      DashboardVisualization = "RANKED_LIST"
 )
 
 // All allowed values of DashboardVisualization enum

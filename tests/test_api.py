@@ -1,8 +1,18 @@
+from types import SimpleNamespace
+
+import pytest
 from fastapi.testclient import TestClient
 from starlette.requests import Request
 
-from amesh.app import _build_flow_graph, _problem_response, app, get_read_repository
-from amesh.config import Settings
+from amesh.app import (
+    _build_flow_graph,
+    _problem_response,
+    app,
+    get_read_repository,
+    get_service_registry_repository,
+)
+from amesh.config import Settings, get_settings
+from amesh.domain import ServiceLiveness, ServiceRole, ServiceState
 from amesh.dsl import FlowDefinition
 from amesh.ports import PersistedIterationSummary
 
@@ -13,6 +23,71 @@ def test_health() -> None:
     response = client.get("/health")
     assert response.status_code == 200
     assert response.json()["status"] == "ok"
+
+
+def test_readiness_requires_every_enabled_role_and_reports_disabled_roles(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    async def ready_preflight(*args: object, **kwargs: object) -> SimpleNamespace:
+        del args, kwargs
+        return SimpleNamespace(
+            ready=True,
+            status="ready",
+            dependency_states={"database": "READY", "migrations": "READY"},
+            migrations_applied=60,
+            migrations_expected=60,
+            latest_migration="0060_service_role_health.sql",
+            degraded_dependencies=(),
+            error=None,
+        )
+
+    class Registry:
+        scheduler_state = ServiceState.DEGRADED
+
+        async def topology(self) -> SimpleNamespace:
+            return SimpleNamespace(
+                instances=(
+                    SimpleNamespace(
+                        role=ServiceRole.WEBSERVER,
+                        instance_name="api",
+                        liveness=ServiceLiveness.LIVE,
+                        state=ServiceState.READY,
+                    ),
+                    SimpleNamespace(
+                        role=ServiceRole.SCHEDULER,
+                        instance_name="scheduler",
+                        liveness=ServiceLiveness.LIVE,
+                        state=self.scheduler_state,
+                    ),
+                )
+            )
+
+    registry = Registry()
+    monkeypatch.setattr("amesh.app.run_preflight", ready_preflight)
+    app.dependency_overrides[get_settings] = lambda: Settings(
+        _env_file=None,
+        service_instance_name="api",
+        service_enabled_roles=("webserver", "scheduler"),
+    )
+    app.dependency_overrides[get_service_registry_repository] = lambda: registry
+    try:
+        response = client.get("/ready")
+        assert response.status_code == 503
+        assert response.json()["roles"] == {
+            "executor": "DISABLED",
+            "indexer": "DISABLED",
+            "maintenance": "DISABLED",
+            "scheduler": "DEGRADED",
+            "webserver": "READY",
+            "worker": "DISABLED",
+        }
+
+        registry.scheduler_state = ServiceState.READY
+        recovered = client.get("/ready")
+        assert recovered.status_code == 200
+        assert recovered.json()["roles"]["scheduler"] == "READY"
+    finally:
+        app.dependency_overrides.clear()
 
 
 def test_http_errors_use_problem_details() -> None:

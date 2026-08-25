@@ -25,6 +25,7 @@ import { AssetsPage } from './pages/AssetsPage'
 import { AppsPage } from './pages/AppsPage'
 import { AgentsPage } from './pages/AgentsPage'
 import { BlueprintsPage } from './pages/BlueprintsPage'
+import { ReleaseControlsPage } from './pages/ReleaseControlsPage'
 
 export function App() {
   const { connected } = useAppSettings()
@@ -90,6 +91,7 @@ function WorkspaceRoutes({ session }: { session: UiSession }) {
         <Route path="apps" element={<CapabilityRoute session={session} capability="apps.view" title="Apps"><AppsPage session={session} /></CapabilityRoute>} />
         <Route path="apps/:namespace/:appId" element={<CapabilityRoute session={session} capability="apps.view" title="App"><AppsPage session={session} /></CapabilityRoute>} />
         <Route path="plugins" element={<CapabilityRoute session={session} capability="plugins.view" title="Plugins"><PluginsPage session={session} /></CapabilityRoute>} />
+        <Route path="releases" element={<CapabilityRoute session={session} capability="releases.view" title="Releases"><ReleaseControlsPage session={session} /></CapabilityRoute>} />
         <Route path="administration" element={<CapabilityRoute session={session} capability="administration.manage" title="Administration"><AdministrationPage session={session} /></CapabilityRoute>} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>

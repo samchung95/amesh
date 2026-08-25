@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,12 +21,12 @@ var _ MappedNullable = &FeatureFlagUpsertRequest{}
 
 // FeatureFlagUpsertRequest struct for FeatureFlagUpsertRequest
 type FeatureFlagUpsertRequest struct {
-	Description *string `json:"description,omitempty"`
-	Enabled bool `json:"enabled"`
-	ExpectedVersion NullableInt32 `json:"expectedVersion,omitempty"`
-	Namespace NullableString `json:"namespace,omitempty"`
-	Scope FeatureFlagScope `json:"scope"`
-	TenantId NullableString `json:"tenantId,omitempty"`
+	Description     *string          `json:"description,omitempty"`
+	Enabled         bool             `json:"enabled"`
+	ExpectedVersion NullableInt32    `json:"expectedVersion,omitempty"`
+	Namespace       NullableString   `json:"namespace,omitempty"`
+	Scope           FeatureFlagScope `json:"scope"`
+	TenantId        NullableString   `json:"tenantId,omitempty"`
 }
 
 type _FeatureFlagUpsertRequest FeatureFlagUpsertRequest
@@ -142,6 +142,7 @@ func (o *FeatureFlagUpsertRequest) HasExpectedVersion() bool {
 func (o *FeatureFlagUpsertRequest) SetExpectedVersion(v int32) {
 	o.ExpectedVersion.Set(&v)
 }
+
 // SetExpectedVersionNil sets the value for ExpectedVersion to be an explicit nil
 func (o *FeatureFlagUpsertRequest) SetExpectedVersionNil() {
 	o.ExpectedVersion.Set(nil)
@@ -184,6 +185,7 @@ func (o *FeatureFlagUpsertRequest) HasNamespace() bool {
 func (o *FeatureFlagUpsertRequest) SetNamespace(v string) {
 	o.Namespace.Set(&v)
 }
+
 // SetNamespaceNil sets the value for Namespace to be an explicit nil
 func (o *FeatureFlagUpsertRequest) SetNamespaceNil() {
 	o.Namespace.Set(nil)
@@ -250,6 +252,7 @@ func (o *FeatureFlagUpsertRequest) HasTenantId() bool {
 func (o *FeatureFlagUpsertRequest) SetTenantId(v string) {
 	o.TenantId.Set(&v)
 }
+
 // SetTenantIdNil sets the value for TenantId to be an explicit nil
 func (o *FeatureFlagUpsertRequest) SetTenantIdNil() {
 	o.TenantId.Set(nil)
@@ -261,7 +264,7 @@ func (o *FeatureFlagUpsertRequest) UnsetTenantId() {
 }
 
 func (o FeatureFlagUpsertRequest) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -301,10 +304,10 @@ func (o *FeatureFlagUpsertRequest) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

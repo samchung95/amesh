@@ -19,17 +19,16 @@ import (
 	"strings"
 )
 
-
 // AssetsAPIService AssetsAPI service
 type AssetsAPIService service
 
 type ApiDeclareAssetLineageApiV1AssetsLineagePostRequest struct {
-	ctx context.Context
-	ApiService *AssetsAPIService
+	ctx                     context.Context
+	ApiService              *AssetsAPIService
 	assetLineageDeclaration *AssetLineageDeclaration
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization           *string
+	xAmeshCSRF              *string
+	xAmeshTenant            *string
 }
 
 func (r ApiDeclareAssetLineageApiV1AssetsLineagePostRequest) AssetLineageDeclaration(assetLineageDeclaration AssetLineageDeclaration) ApiDeclareAssetLineageApiV1AssetsLineagePostRequest {
@@ -59,24 +58,25 @@ func (r ApiDeclareAssetLineageApiV1AssetsLineagePostRequest) Execute() (*AssetLi
 /*
 DeclareAssetLineageApiV1AssetsLineagePost Declare Asset Lineage
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiDeclareAssetLineageApiV1AssetsLineagePostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiDeclareAssetLineageApiV1AssetsLineagePostRequest
 */
 func (a *AssetsAPIService) DeclareAssetLineageApiV1AssetsLineagePost(ctx context.Context) ApiDeclareAssetLineageApiV1AssetsLineagePostRequest {
 	return ApiDeclareAssetLineageApiV1AssetsLineagePostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return AssetLineageEdge
+//
+//	@return AssetLineageEdge
 func (a *AssetsAPIService) DeclareAssetLineageApiV1AssetsLineagePostExecute(r ApiDeclareAssetLineageApiV1AssetsLineagePostRequest) (*AssetLineageEdge, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *AssetLineageEdge
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *AssetLineageEdge
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AssetsAPIService.DeclareAssetLineageApiV1AssetsLineagePost")
@@ -150,8 +150,8 @@ func (a *AssetsAPIService) DeclareAssetLineageApiV1AssetsLineagePostExecute(r Ap
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -169,12 +169,12 @@ func (a *AssetsAPIService) DeclareAssetLineageApiV1AssetsLineagePostExecute(r Ap
 }
 
 type ApiExportAssetCatalogApiV1AssetsExportOpenlineageGetRequest struct {
-	ctx context.Context
-	ApiService *AssetsAPIService
-	namespace *string
+	ctx           context.Context
+	ApiService    *AssetsAPIService
+	namespace     *string
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiExportAssetCatalogApiV1AssetsExportOpenlineageGetRequest) Namespace(namespace string) ApiExportAssetCatalogApiV1AssetsExportOpenlineageGetRequest {
@@ -204,24 +204,25 @@ func (r ApiExportAssetCatalogApiV1AssetsExportOpenlineageGetRequest) Execute() (
 /*
 ExportAssetCatalogApiV1AssetsExportOpenlineageGet Export Asset Catalog
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiExportAssetCatalogApiV1AssetsExportOpenlineageGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiExportAssetCatalogApiV1AssetsExportOpenlineageGetRequest
 */
 func (a *AssetsAPIService) ExportAssetCatalogApiV1AssetsExportOpenlineageGet(ctx context.Context) ApiExportAssetCatalogApiV1AssetsExportOpenlineageGetRequest {
 	return ApiExportAssetCatalogApiV1AssetsExportOpenlineageGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return AssetCatalogExport
+//
+//	@return AssetCatalogExport
 func (a *AssetsAPIService) ExportAssetCatalogApiV1AssetsExportOpenlineageGetExecute(r ApiExportAssetCatalogApiV1AssetsExportOpenlineageGetRequest) (*AssetCatalogExport, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *AssetCatalogExport
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *AssetCatalogExport
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AssetsAPIService.ExportAssetCatalogApiV1AssetsExportOpenlineageGet")
@@ -293,8 +294,8 @@ func (a *AssetsAPIService) ExportAssetCatalogApiV1AssetsExportOpenlineageGetExec
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -312,12 +313,12 @@ func (a *AssetsAPIService) ExportAssetCatalogApiV1AssetsExportOpenlineageGetExec
 }
 
 type ApiGetAssetCatalogEntryApiV1AssetsAssetIdGetRequest struct {
-	ctx context.Context
-	ApiService *AssetsAPIService
-	assetId string
+	ctx           context.Context
+	ApiService    *AssetsAPIService
+	assetId       string
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiGetAssetCatalogEntryApiV1AssetsAssetIdGetRequest) Authorization(authorization string) ApiGetAssetCatalogEntryApiV1AssetsAssetIdGetRequest {
@@ -342,26 +343,27 @@ func (r ApiGetAssetCatalogEntryApiV1AssetsAssetIdGetRequest) Execute() (*AssetCa
 /*
 GetAssetCatalogEntryApiV1AssetsAssetIdGet Get Asset Catalog Entry
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param assetId
- @return ApiGetAssetCatalogEntryApiV1AssetsAssetIdGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param assetId
+	@return ApiGetAssetCatalogEntryApiV1AssetsAssetIdGetRequest
 */
 func (a *AssetsAPIService) GetAssetCatalogEntryApiV1AssetsAssetIdGet(ctx context.Context, assetId string) ApiGetAssetCatalogEntryApiV1AssetsAssetIdGetRequest {
 	return ApiGetAssetCatalogEntryApiV1AssetsAssetIdGetRequest{
 		ApiService: a,
-		ctx: ctx,
-		assetId: assetId,
+		ctx:        ctx,
+		assetId:    assetId,
 	}
 }
 
 // Execute executes the request
-//  @return AssetCatalogEntry
+//
+//	@return AssetCatalogEntry
 func (a *AssetsAPIService) GetAssetCatalogEntryApiV1AssetsAssetIdGetExecute(r ApiGetAssetCatalogEntryApiV1AssetsAssetIdGetRequest) (*AssetCatalogEntry, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *AssetCatalogEntry
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *AssetCatalogEntry
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AssetsAPIService.GetAssetCatalogEntryApiV1AssetsAssetIdGet")
@@ -431,8 +433,8 @@ func (a *AssetsAPIService) GetAssetCatalogEntryApiV1AssetsAssetIdGetExecute(r Ap
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -450,12 +452,12 @@ func (a *AssetsAPIService) GetAssetCatalogEntryApiV1AssetsAssetIdGetExecute(r Ap
 }
 
 type ApiListAssetsApiV1AssetsGetRequest struct {
-	ctx context.Context
-	ApiService *AssetsAPIService
-	namespace *string
+	ctx           context.Context
+	ApiService    *AssetsAPIService
+	namespace     *string
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiListAssetsApiV1AssetsGetRequest) Namespace(namespace string) ApiListAssetsApiV1AssetsGetRequest {
@@ -485,24 +487,25 @@ func (r ApiListAssetsApiV1AssetsGetRequest) Execute() ([]PersistedAsset, *http.R
 /*
 ListAssetsApiV1AssetsGet List Assets
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiListAssetsApiV1AssetsGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiListAssetsApiV1AssetsGetRequest
 */
 func (a *AssetsAPIService) ListAssetsApiV1AssetsGet(ctx context.Context) ApiListAssetsApiV1AssetsGetRequest {
 	return ApiListAssetsApiV1AssetsGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return []PersistedAsset
+//
+//	@return []PersistedAsset
 func (a *AssetsAPIService) ListAssetsApiV1AssetsGetExecute(r ApiListAssetsApiV1AssetsGetRequest) ([]PersistedAsset, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  []PersistedAsset
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []PersistedAsset
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AssetsAPIService.ListAssetsApiV1AssetsGet")
@@ -574,8 +577,8 @@ func (a *AssetsAPIService) ListAssetsApiV1AssetsGetExecute(r ApiListAssetsApiV1A
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -593,12 +596,12 @@ func (a *AssetsAPIService) ListAssetsApiV1AssetsGetExecute(r ApiListAssetsApiV1A
 }
 
 type ApiRecordAssetObservationApiV1AssetsObservationsPostRequest struct {
-	ctx context.Context
-	ApiService *AssetsAPIService
+	ctx                    context.Context
+	ApiService             *AssetsAPIService
 	assetObservationCreate *AssetObservationCreate
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization          *string
+	xAmeshCSRF             *string
+	xAmeshTenant           *string
 }
 
 func (r ApiRecordAssetObservationApiV1AssetsObservationsPostRequest) AssetObservationCreate(assetObservationCreate AssetObservationCreate) ApiRecordAssetObservationApiV1AssetsObservationsPostRequest {
@@ -628,24 +631,25 @@ func (r ApiRecordAssetObservationApiV1AssetsObservationsPostRequest) Execute() (
 /*
 RecordAssetObservationApiV1AssetsObservationsPost Record Asset Observation
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiRecordAssetObservationApiV1AssetsObservationsPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiRecordAssetObservationApiV1AssetsObservationsPostRequest
 */
 func (a *AssetsAPIService) RecordAssetObservationApiV1AssetsObservationsPost(ctx context.Context) ApiRecordAssetObservationApiV1AssetsObservationsPostRequest {
 	return ApiRecordAssetObservationApiV1AssetsObservationsPostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return AssetObservation
+//
+//	@return AssetObservation
 func (a *AssetsAPIService) RecordAssetObservationApiV1AssetsObservationsPostExecute(r ApiRecordAssetObservationApiV1AssetsObservationsPostRequest) (*AssetObservation, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *AssetObservation
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *AssetObservation
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AssetsAPIService.RecordAssetObservationApiV1AssetsObservationsPost")
@@ -719,8 +723,8 @@ func (a *AssetsAPIService) RecordAssetObservationApiV1AssetsObservationsPostExec
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -738,13 +742,13 @@ func (a *AssetsAPIService) RecordAssetObservationApiV1AssetsObservationsPostExec
 }
 
 type ApiRegisterAssetApiV1AssetsPostRequest struct {
-	ctx context.Context
-	ApiService *AssetsAPIService
-	assetMetadata *AssetMetadata
+	ctx             context.Context
+	ApiService      *AssetsAPIService
+	assetMetadata   *AssetMetadata
 	expectedVersion *int32
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization   *string
+	xAmeshCSRF      *string
+	xAmeshTenant    *string
 }
 
 func (r ApiRegisterAssetApiV1AssetsPostRequest) AssetMetadata(assetMetadata AssetMetadata) ApiRegisterAssetApiV1AssetsPostRequest {
@@ -779,24 +783,25 @@ func (r ApiRegisterAssetApiV1AssetsPostRequest) Execute() (*PersistedAsset, *htt
 /*
 RegisterAssetApiV1AssetsPost Register Asset
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiRegisterAssetApiV1AssetsPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiRegisterAssetApiV1AssetsPostRequest
 */
 func (a *AssetsAPIService) RegisterAssetApiV1AssetsPost(ctx context.Context) ApiRegisterAssetApiV1AssetsPostRequest {
 	return ApiRegisterAssetApiV1AssetsPostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return PersistedAsset
+//
+//	@return PersistedAsset
 func (a *AssetsAPIService) RegisterAssetApiV1AssetsPostExecute(r ApiRegisterAssetApiV1AssetsPostRequest) (*PersistedAsset, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *PersistedAsset
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *PersistedAsset
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AssetsAPIService.RegisterAssetApiV1AssetsPost")
@@ -873,8 +878,8 @@ func (a *AssetsAPIService) RegisterAssetApiV1AssetsPostExecute(r ApiRegisterAsse
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}

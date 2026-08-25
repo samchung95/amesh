@@ -20,8 +20,8 @@ type ReconciliationDisposition string
 
 // List of ReconciliationDisposition
 const (
-	RECONCILIATIONDISPOSITION_DETECTED ReconciliationDisposition = "DETECTED"
-	RECONCILIATIONDISPOSITION_REPAIRED ReconciliationDisposition = "REPAIRED"
+	RECONCILIATIONDISPOSITION_DETECTED    ReconciliationDisposition = "DETECTED"
+	RECONCILIATIONDISPOSITION_REPAIRED    ReconciliationDisposition = "REPAIRED"
 	RECONCILIATIONDISPOSITION_QUARANTINED ReconciliationDisposition = "QUARANTINED"
 )
 

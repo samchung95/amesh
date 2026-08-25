@@ -19,18 +19,17 @@ import (
 	"strings"
 )
 
-
 // BlueprintsAPIService BlueprintsAPI service
 type BlueprintsAPIService service
 
 type ApiGetBlueprintVersionApiV1BlueprintsBlueprintIdVersionGetRequest struct {
-	ctx context.Context
-	ApiService *BlueprintsAPIService
-	blueprintId string
-	version string
+	ctx           context.Context
+	ApiService    *BlueprintsAPIService
+	blueprintId   string
+	version       string
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiGetBlueprintVersionApiV1BlueprintsBlueprintIdVersionGetRequest) Authorization(authorization string) ApiGetBlueprintVersionApiV1BlueprintsBlueprintIdVersionGetRequest {
@@ -55,28 +54,29 @@ func (r ApiGetBlueprintVersionApiV1BlueprintsBlueprintIdVersionGetRequest) Execu
 /*
 GetBlueprintVersionApiV1BlueprintsBlueprintIdVersionGet Get Blueprint Version
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param blueprintId
- @param version
- @return ApiGetBlueprintVersionApiV1BlueprintsBlueprintIdVersionGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param blueprintId
+	@param version
+	@return ApiGetBlueprintVersionApiV1BlueprintsBlueprintIdVersionGetRequest
 */
 func (a *BlueprintsAPIService) GetBlueprintVersionApiV1BlueprintsBlueprintIdVersionGet(ctx context.Context, blueprintId string, version string) ApiGetBlueprintVersionApiV1BlueprintsBlueprintIdVersionGetRequest {
 	return ApiGetBlueprintVersionApiV1BlueprintsBlueprintIdVersionGetRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:  a,
+		ctx:         ctx,
 		blueprintId: blueprintId,
-		version: version,
+		version:     version,
 	}
 }
 
 // Execute executes the request
-//  @return BlueprintDefinition
+//
+//	@return BlueprintDefinition
 func (a *BlueprintsAPIService) GetBlueprintVersionApiV1BlueprintsBlueprintIdVersionGetExecute(r ApiGetBlueprintVersionApiV1BlueprintsBlueprintIdVersionGetRequest) (*BlueprintDefinition, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *BlueprintDefinition
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *BlueprintDefinition
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "BlueprintsAPIService.GetBlueprintVersionApiV1BlueprintsBlueprintIdVersionGet")
@@ -147,8 +147,8 @@ func (a *BlueprintsAPIService) GetBlueprintVersionApiV1BlueprintsBlueprintIdVers
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -166,13 +166,13 @@ func (a *BlueprintsAPIService) GetBlueprintVersionApiV1BlueprintsBlueprintIdVers
 }
 
 type ApiGetBlueprintsApiV1BlueprintsGetRequest struct {
-	ctx context.Context
-	ApiService *BlueprintsAPIService
-	q *string
-	source *BlueprintCatalogSource
+	ctx           context.Context
+	ApiService    *BlueprintsAPIService
+	q             *string
+	source        *BlueprintCatalogSource
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiGetBlueprintsApiV1BlueprintsGetRequest) Q(q string) ApiGetBlueprintsApiV1BlueprintsGetRequest {
@@ -207,24 +207,25 @@ func (r ApiGetBlueprintsApiV1BlueprintsGetRequest) Execute() ([]BlueprintSummary
 /*
 GetBlueprintsApiV1BlueprintsGet Get Blueprints
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiGetBlueprintsApiV1BlueprintsGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiGetBlueprintsApiV1BlueprintsGetRequest
 */
 func (a *BlueprintsAPIService) GetBlueprintsApiV1BlueprintsGet(ctx context.Context) ApiGetBlueprintsApiV1BlueprintsGetRequest {
 	return ApiGetBlueprintsApiV1BlueprintsGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return []BlueprintSummary
+//
+//	@return []BlueprintSummary
 func (a *BlueprintsAPIService) GetBlueprintsApiV1BlueprintsGetExecute(r ApiGetBlueprintsApiV1BlueprintsGetRequest) ([]BlueprintSummary, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  []BlueprintSummary
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []BlueprintSummary
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "BlueprintsAPIService.GetBlueprintsApiV1BlueprintsGet")
@@ -299,8 +300,8 @@ func (a *BlueprintsAPIService) GetBlueprintsApiV1BlueprintsGetExecute(r ApiGetBl
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -318,14 +319,14 @@ func (a *BlueprintsAPIService) GetBlueprintsApiV1BlueprintsGetExecute(r ApiGetBl
 }
 
 type ApiInstantiateBlueprintDraftApiV1BlueprintsBlueprintIdVersionInstantiatePostRequest struct {
-	ctx context.Context
-	ApiService *BlueprintsAPIService
-	blueprintId string
-	version string
+	ctx                           context.Context
+	ApiService                    *BlueprintsAPIService
+	blueprintId                   string
+	version                       string
 	blueprintInstantiationRequest *BlueprintInstantiationRequest
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization                 *string
+	xAmeshCSRF                    *string
+	xAmeshTenant                  *string
 }
 
 func (r ApiInstantiateBlueprintDraftApiV1BlueprintsBlueprintIdVersionInstantiatePostRequest) BlueprintInstantiationRequest(blueprintInstantiationRequest BlueprintInstantiationRequest) ApiInstantiateBlueprintDraftApiV1BlueprintsBlueprintIdVersionInstantiatePostRequest {
@@ -355,28 +356,29 @@ func (r ApiInstantiateBlueprintDraftApiV1BlueprintsBlueprintIdVersionInstantiate
 /*
 InstantiateBlueprintDraftApiV1BlueprintsBlueprintIdVersionInstantiatePost Instantiate Blueprint Draft
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param blueprintId
- @param version
- @return ApiInstantiateBlueprintDraftApiV1BlueprintsBlueprintIdVersionInstantiatePostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param blueprintId
+	@param version
+	@return ApiInstantiateBlueprintDraftApiV1BlueprintsBlueprintIdVersionInstantiatePostRequest
 */
 func (a *BlueprintsAPIService) InstantiateBlueprintDraftApiV1BlueprintsBlueprintIdVersionInstantiatePost(ctx context.Context, blueprintId string, version string) ApiInstantiateBlueprintDraftApiV1BlueprintsBlueprintIdVersionInstantiatePostRequest {
 	return ApiInstantiateBlueprintDraftApiV1BlueprintsBlueprintIdVersionInstantiatePostRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:  a,
+		ctx:         ctx,
 		blueprintId: blueprintId,
-		version: version,
+		version:     version,
 	}
 }
 
 // Execute executes the request
-//  @return BlueprintDraftResponse
+//
+//	@return BlueprintDraftResponse
 func (a *BlueprintsAPIService) InstantiateBlueprintDraftApiV1BlueprintsBlueprintIdVersionInstantiatePostExecute(r ApiInstantiateBlueprintDraftApiV1BlueprintsBlueprintIdVersionInstantiatePostRequest) (*BlueprintDraftResponse, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *BlueprintDraftResponse
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *BlueprintDraftResponse
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "BlueprintsAPIService.InstantiateBlueprintDraftApiV1BlueprintsBlueprintIdVersionInstantiatePost")
@@ -452,8 +454,8 @@ func (a *BlueprintsAPIService) InstantiateBlueprintDraftApiV1BlueprintsBlueprint
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -471,12 +473,12 @@ func (a *BlueprintsAPIService) InstantiateBlueprintDraftApiV1BlueprintsBlueprint
 }
 
 type ApiSimulatePlaygroundApiV1PlaygroundSimulatePostRequest struct {
-	ctx context.Context
-	ApiService *BlueprintsAPIService
+	ctx                         context.Context
+	ApiService                  *BlueprintsAPIService
 	playgroundSimulationRequest *PlaygroundSimulationRequest
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization               *string
+	xAmeshCSRF                  *string
+	xAmeshTenant                *string
 }
 
 func (r ApiSimulatePlaygroundApiV1PlaygroundSimulatePostRequest) PlaygroundSimulationRequest(playgroundSimulationRequest PlaygroundSimulationRequest) ApiSimulatePlaygroundApiV1PlaygroundSimulatePostRequest {
@@ -506,24 +508,25 @@ func (r ApiSimulatePlaygroundApiV1PlaygroundSimulatePostRequest) Execute() (*Pla
 /*
 SimulatePlaygroundApiV1PlaygroundSimulatePost Simulate Playground
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiSimulatePlaygroundApiV1PlaygroundSimulatePostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiSimulatePlaygroundApiV1PlaygroundSimulatePostRequest
 */
 func (a *BlueprintsAPIService) SimulatePlaygroundApiV1PlaygroundSimulatePost(ctx context.Context) ApiSimulatePlaygroundApiV1PlaygroundSimulatePostRequest {
 	return ApiSimulatePlaygroundApiV1PlaygroundSimulatePostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return PlaygroundSimulationResponse
+//
+//	@return PlaygroundSimulationResponse
 func (a *BlueprintsAPIService) SimulatePlaygroundApiV1PlaygroundSimulatePostExecute(r ApiSimulatePlaygroundApiV1PlaygroundSimulatePostRequest) (*PlaygroundSimulationResponse, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *PlaygroundSimulationResponse
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *PlaygroundSimulationResponse
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "BlueprintsAPIService.SimulatePlaygroundApiV1PlaygroundSimulatePost")
@@ -597,8 +600,8 @@ func (a *BlueprintsAPIService) SimulatePlaygroundApiV1PlaygroundSimulatePostExec
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}

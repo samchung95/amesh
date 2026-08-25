@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,12 +21,12 @@ var _ MappedNullable = &MigrationPatch{}
 
 // MigrationPatch struct for MigrationPatch
 type MigrationPatch struct {
-	Operation string `json:"operation"`
-	Path string `json:"path"`
-	Reason string `json:"reason"`
+	Operation   string              `json:"operation"`
+	Path        string              `json:"path"`
+	Reason      string              `json:"reason"`
 	SourceRange NullableSourceRange `json:"sourceRange,omitempty"`
-	TargetPath string `json:"targetPath"`
-	Value interface{} `json:"value,omitempty"`
+	TargetPath  string              `json:"targetPath"`
+	Value       interface{}         `json:"value,omitempty"`
 }
 
 type _MigrationPatch MigrationPatch
@@ -156,6 +156,7 @@ func (o *MigrationPatch) HasSourceRange() bool {
 func (o *MigrationPatch) SetSourceRange(v SourceRange) {
 	o.SourceRange.Set(&v)
 }
+
 // SetSourceRangeNil sets the value for SourceRange to be an explicit nil
 func (o *MigrationPatch) SetSourceRangeNil() {
 	o.SourceRange.Set(nil)
@@ -224,7 +225,7 @@ func (o *MigrationPatch) SetValue(v interface{}) {
 }
 
 func (o MigrationPatch) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -262,10 +263,10 @@ func (o *MigrationPatch) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

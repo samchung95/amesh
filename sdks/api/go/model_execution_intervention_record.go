@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the ExecutionInterventionRecord type satisfies the MappedNullable interface at compile time
@@ -22,13 +22,13 @@ var _ MappedNullable = &ExecutionInterventionRecord{}
 
 // ExecutionInterventionRecord struct for ExecutionInterventionRecord
 type ExecutionInterventionRecord struct {
-	Action ExecutionInterventionAction `json:"action"`
-	ActorId string `json:"actor_id"`
-	EventType string `json:"event_type"`
-	OccurredAt time.Time `json:"occurred_at"`
-	Payload map[string]interface{} `json:"payload,omitempty"`
-	Reason NullableString `json:"reason,omitempty"`
-	Sequence int32 `json:"sequence"`
+	Action     ExecutionInterventionAction `json:"action"`
+	ActorId    string                      `json:"actor_id"`
+	EventType  string                      `json:"event_type"`
+	OccurredAt time.Time                   `json:"occurred_at"`
+	Payload    map[string]interface{}      `json:"payload,omitempty"`
+	Reason     NullableString              `json:"reason,omitempty"`
+	Sequence   int32                       `json:"sequence"`
 }
 
 type _ExecutionInterventionRecord ExecutionInterventionRecord
@@ -215,6 +215,7 @@ func (o *ExecutionInterventionRecord) HasReason() bool {
 func (o *ExecutionInterventionRecord) SetReason(v string) {
 	o.Reason.Set(&v)
 }
+
 // SetReasonNil sets the value for Reason to be an explicit nil
 func (o *ExecutionInterventionRecord) SetReasonNil() {
 	o.Reason.Set(nil)
@@ -250,7 +251,7 @@ func (o *ExecutionInterventionRecord) SetSequence(v int32) {
 }
 
 func (o ExecutionInterventionRecord) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -290,10 +291,10 @@ func (o *ExecutionInterventionRecord) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

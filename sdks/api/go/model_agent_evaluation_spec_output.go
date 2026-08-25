@@ -20,16 +20,16 @@ var _ MappedNullable = &AgentEvaluationSpecOutput{}
 
 // AgentEvaluationSpecOutput struct for AgentEvaluationSpecOutput
 type AgentEvaluationSpecOutput struct {
-	Assertions []map[string]interface{} `json:"assertions,omitempty"`
-	Description *string `json:"description,omitempty"`
-	Fixtures []AgentEvaluationFixture `json:"fixtures,omitempty"`
-	Judge NullableAgentJudgePolicyOutput `json:"judge,omitempty"`
-	Key string `json:"key" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
-	Kind *string `json:"kind,omitempty"`
-	MinimumRubricScore *string `json:"minimumRubricScore,omitempty" validate:"regexp=^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"`
-	Namespace string `json:"namespace"`
-	Rubric []AgentRubricCriterionOutput `json:"rubric,omitempty"`
-	Title string `json:"title"`
+	Assertions           []map[string]interface{}       `json:"assertions,omitempty"`
+	Description          *string                        `json:"description,omitempty"`
+	Fixtures             []AgentEvaluationFixture       `json:"fixtures,omitempty"`
+	Judge                NullableAgentJudgePolicyOutput `json:"judge,omitempty"`
+	Key                  string                         `json:"key" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
+	Kind                 *string                        `json:"kind,omitempty"`
+	MinimumRubricScore   *string                        `json:"minimumRubricScore,omitempty" validate:"regexp=^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"`
+	Namespace            string                         `json:"namespace"`
+	Rubric               []AgentRubricCriterionOutput   `json:"rubric,omitempty"`
+	Title                string                         `json:"title"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -191,6 +191,7 @@ func (o *AgentEvaluationSpecOutput) HasJudge() bool {
 func (o *AgentEvaluationSpecOutput) SetJudge(v AgentJudgePolicyOutput) {
 	o.Judge.Set(&v)
 }
+
 // SetJudgeNil sets the value for Judge to be an explicit nil
 func (o *AgentEvaluationSpecOutput) SetJudgeNil() {
 	o.Judge.Set(nil)
@@ -370,7 +371,7 @@ func (o *AgentEvaluationSpecOutput) SetTitle(v string) {
 }
 
 func (o AgentEvaluationSpecOutput) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -426,10 +427,10 @@ func (o *AgentEvaluationSpecOutput) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the Announcement type satisfies the MappedNullable interface at compile time
@@ -22,20 +22,20 @@ var _ MappedNullable = &Announcement{}
 
 // Announcement struct for Announcement
 type Announcement struct {
-	Active bool `json:"active"`
-	Audience AnnouncementAudience `json:"audience"`
-	CreatedAt time.Time `json:"createdAt"`
-	CreatedBy string `json:"createdBy"`
-	ExpiresAt time.Time `json:"expiresAt"`
-	Id *string `json:"id,omitempty"`
-	Message string `json:"message"`
-	Namespace NullableString `json:"namespace,omitempty"`
-	Severity AnnouncementSeverity `json:"severity"`
-	StartsAt time.Time `json:"startsAt"`
-	TenantId NullableString `json:"tenantId,omitempty"`
-	Title string `json:"title"`
-	UpdatedAt time.Time `json:"updatedAt"`
-	Version int32 `json:"version"`
+	Active    bool                 `json:"active"`
+	Audience  AnnouncementAudience `json:"audience"`
+	CreatedAt time.Time            `json:"createdAt"`
+	CreatedBy string               `json:"createdBy"`
+	ExpiresAt time.Time            `json:"expiresAt"`
+	Id        *string              `json:"id,omitempty"`
+	Message   string               `json:"message"`
+	Namespace NullableString       `json:"namespace,omitempty"`
+	Severity  AnnouncementSeverity `json:"severity"`
+	StartsAt  time.Time            `json:"startsAt"`
+	TenantId  NullableString       `json:"tenantId,omitempty"`
+	Title     string               `json:"title"`
+	UpdatedAt time.Time            `json:"updatedAt"`
+	Version   int32                `json:"version"`
 }
 
 type _Announcement Announcement
@@ -276,6 +276,7 @@ func (o *Announcement) HasNamespace() bool {
 func (o *Announcement) SetNamespace(v string) {
 	o.Namespace.Set(&v)
 }
+
 // SetNamespaceNil sets the value for Namespace to be an explicit nil
 func (o *Announcement) SetNamespaceNil() {
 	o.Namespace.Set(nil)
@@ -366,6 +367,7 @@ func (o *Announcement) HasTenantId() bool {
 func (o *Announcement) SetTenantId(v string) {
 	o.TenantId.Set(&v)
 }
+
 // SetTenantIdNil sets the value for TenantId to be an explicit nil
 func (o *Announcement) SetTenantIdNil() {
 	o.TenantId.Set(nil)
@@ -449,7 +451,7 @@ func (o *Announcement) SetVersion(v int32) {
 }
 
 func (o Announcement) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -504,10 +506,10 @@ func (o *Announcement) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

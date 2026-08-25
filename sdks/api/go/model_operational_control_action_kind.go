@@ -20,8 +20,8 @@ type OperationalControlActionKind string
 
 // List of OperationalControlActionKind
 const (
-	OPERATIONALCONTROLACTIONKIND_EXTEND OperationalControlActionKind = "EXTEND"
-	OPERATIONALCONTROLACTIONKIND_BYPASS OperationalControlActionKind = "BYPASS"
+	OPERATIONALCONTROLACTIONKIND_EXTEND     OperationalControlActionKind = "EXTEND"
+	OPERATIONALCONTROLACTIONKIND_BYPASS     OperationalControlActionKind = "BYPASS"
 	OPERATIONALCONTROLACTIONKIND_DEACTIVATE OperationalControlActionKind = "DEACTIVATE"
 )
 

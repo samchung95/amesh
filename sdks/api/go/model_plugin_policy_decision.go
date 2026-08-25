@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the PluginPolicyDecision type satisfies the MappedNullable interface at compile time
@@ -22,15 +22,15 @@ var _ MappedNullable = &PluginPolicyDecision{}
 
 // PluginPolicyDecision struct for PluginPolicyDecision
 type PluginPolicyDecision struct {
-	Allowed bool `json:"allowed"`
-	DecidedAt *time.Time `json:"decidedAt,omitempty"`
-	FlowId NullableString `json:"flowId,omitempty"`
-	FlowRevision NullableInt32 `json:"flowRevision,omitempty"`
-	Id *string `json:"id,omitempty"`
-	Namespace string `json:"namespace"`
-	Stage PluginPolicyStage `json:"stage"`
-	Subjects []PluginPolicySubjectDecision `json:"subjects"`
-	TenantId string `json:"tenantId"`
+	Allowed      bool                          `json:"allowed"`
+	DecidedAt    *time.Time                    `json:"decidedAt,omitempty"`
+	FlowId       NullableString                `json:"flowId,omitempty"`
+	FlowRevision NullableInt32                 `json:"flowRevision,omitempty"`
+	Id           *string                       `json:"id,omitempty"`
+	Namespace    string                        `json:"namespace"`
+	Stage        PluginPolicyStage             `json:"stage"`
+	Subjects     []PluginPolicySubjectDecision `json:"subjects"`
+	TenantId     string                        `json:"tenantId"`
 }
 
 type _PluginPolicyDecision PluginPolicyDecision
@@ -145,6 +145,7 @@ func (o *PluginPolicyDecision) HasFlowId() bool {
 func (o *PluginPolicyDecision) SetFlowId(v string) {
 	o.FlowId.Set(&v)
 }
+
 // SetFlowIdNil sets the value for FlowId to be an explicit nil
 func (o *PluginPolicyDecision) SetFlowIdNil() {
 	o.FlowId.Set(nil)
@@ -187,6 +188,7 @@ func (o *PluginPolicyDecision) HasFlowRevision() bool {
 func (o *PluginPolicyDecision) SetFlowRevision(v int32) {
 	o.FlowRevision.Set(&v)
 }
+
 // SetFlowRevisionNil sets the value for FlowRevision to be an explicit nil
 func (o *PluginPolicyDecision) SetFlowRevisionNil() {
 	o.FlowRevision.Set(nil)
@@ -326,7 +328,7 @@ func (o *PluginPolicyDecision) SetTenantId(v string) {
 }
 
 func (o PluginPolicyDecision) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -372,10 +374,10 @@ func (o *PluginPolicyDecision) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

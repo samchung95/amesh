@@ -15,10 +15,9 @@ import (
 	"fmt"
 )
 
-
 // Value struct for Value
 type Value struct {
-	Int32 *int32
+	Int32  *int32
 	String *string
 }
 
@@ -31,7 +30,7 @@ func (dst *Value) UnmarshalJSON(data []byte) error {
 	}
 
 	// try to unmarshal JSON data into Int32
-	err = json.Unmarshal(data, &dst.Int32);
+	err = json.Unmarshal(data, &dst.Int32)
 	if err == nil {
 		jsonInt32, _ := json.Marshal(dst.Int32)
 		if string(jsonInt32) == "{}" { // empty struct
@@ -44,7 +43,7 @@ func (dst *Value) UnmarshalJSON(data []byte) error {
 	}
 
 	// try to unmarshal JSON data into String
-	err = json.Unmarshal(data, &dst.String);
+	err = json.Unmarshal(data, &dst.String)
 	if err == nil {
 		jsonString, _ := json.Marshal(dst.String)
 		if string(jsonString) == "{}" { // empty struct
@@ -71,7 +70,6 @@ func (src Value) MarshalJSON() ([]byte, error) {
 
 	return nil, nil // no data in anyOf schemas
 }
-
 
 type NullableValue struct {
 	value *Value

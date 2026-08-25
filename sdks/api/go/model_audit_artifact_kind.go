@@ -20,7 +20,7 @@ type AuditArtifactKind string
 
 // List of AuditArtifactKind
 const (
-	AUDITARTIFACTKIND_AUDIT AuditArtifactKind = "AUDIT"
+	AUDITARTIFACTKIND_AUDIT      AuditArtifactKind = "AUDIT"
 	AUDITARTIFACTKIND_COMPLIANCE AuditArtifactKind = "COMPLIANCE"
 )
 

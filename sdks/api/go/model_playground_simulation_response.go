@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,12 +21,12 @@ var _ MappedNullable = &PlaygroundSimulationResponse{}
 
 // PlaygroundSimulationResponse struct for PlaygroundSimulationResponse
 type PlaygroundSimulationResponse struct {
-	CompatibilityVersion string `json:"compatibilityVersion"`
-	ExpressionResult interface{} `json:"expressionResult,omitempty"`
-	RedactedContext map[string]interface{} `json:"redactedContext,omitempty"`
-	Safety *PlaygroundSafety `json:"safety,omitempty"`
-	Steps []PlaygroundStep `json:"steps,omitempty"`
-	Validation NullableFlowValidationResult `json:"validation,omitempty"`
+	CompatibilityVersion string                       `json:"compatibilityVersion"`
+	ExpressionResult     interface{}                  `json:"expressionResult,omitempty"`
+	RedactedContext      map[string]interface{}       `json:"redactedContext,omitempty"`
+	Safety               *PlaygroundSafety            `json:"safety,omitempty"`
+	Steps                []PlaygroundStep             `json:"steps,omitempty"`
+	Validation           NullableFlowValidationResult `json:"validation,omitempty"`
 }
 
 type _PlaygroundSimulationResponse PlaygroundSimulationResponse
@@ -234,6 +234,7 @@ func (o *PlaygroundSimulationResponse) HasValidation() bool {
 func (o *PlaygroundSimulationResponse) SetValidation(v FlowValidationResult) {
 	o.Validation.Set(&v)
 }
+
 // SetValidationNil sets the value for Validation to be an explicit nil
 func (o *PlaygroundSimulationResponse) SetValidationNil() {
 	o.Validation.Set(nil)
@@ -245,7 +246,7 @@ func (o *PlaygroundSimulationResponse) UnsetValidation() {
 }
 
 func (o PlaygroundSimulationResponse) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -286,10 +287,10 @@ func (o *PlaygroundSimulationResponse) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

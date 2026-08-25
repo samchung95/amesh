@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the ServiceInstance type satisfies the MappedNullable interface at compile time
@@ -22,23 +22,27 @@ var _ MappedNullable = &ServiceInstance{}
 
 // ServiceInstance struct for ServiceInstance
 type ServiceInstance struct {
-	Compatibility ServiceCompatibility `json:"compatibility"`
-	Dependencies map[string]string `json:"dependencies,omitempty"`
-	FailureZone NullableString `json:"failureZone,omitempty"`
-	Generation int32 `json:"generation"`
-	Id string `json:"id"`
-	InstanceName string `json:"instanceName"`
-	Labels map[string]string `json:"labels,omitempty"`
-	LastHeartbeatAt time.Time `json:"lastHeartbeatAt"`
-	Liveness ServiceLiveness `json:"liveness"`
-	Ownership map[string]interface{} `json:"ownership,omitempty"`
-	Partitions map[string]interface{} `json:"partitions,omitempty"`
-	RegisteredAt time.Time `json:"registeredAt"`
-	ResourceVersion int32 `json:"resourceVersion"`
-	Role ServiceRole `json:"role"`
-	State ServiceState `json:"state"`
-	StoppedAt NullableTime `json:"stoppedAt,omitempty"`
-	Version string `json:"version"`
+	Compatibility       ServiceCompatibility   `json:"compatibility"`
+	ConsecutiveFailures *int32                 `json:"consecutiveFailures,omitempty"`
+	Dependencies        map[string]string      `json:"dependencies,omitempty"`
+	FailureZone         NullableString         `json:"failureZone,omitempty"`
+	Generation          int32                  `json:"generation"`
+	Id                  string                 `json:"id"`
+	InstanceName        string                 `json:"instanceName"`
+	Labels              map[string]string      `json:"labels,omitempty"`
+	LastFailure         NullableString         `json:"lastFailure,omitempty"`
+	LastFailureAt       NullableTime           `json:"lastFailureAt,omitempty"`
+	LastHeartbeatAt     time.Time              `json:"lastHeartbeatAt"`
+	LastSuccessAt       NullableTime           `json:"lastSuccessAt,omitempty"`
+	Liveness            ServiceLiveness        `json:"liveness"`
+	Ownership           map[string]interface{} `json:"ownership,omitempty"`
+	Partitions          map[string]interface{} `json:"partitions,omitempty"`
+	RegisteredAt        time.Time              `json:"registeredAt"`
+	ResourceVersion     int32                  `json:"resourceVersion"`
+	Role                ServiceRole            `json:"role"`
+	State               ServiceState           `json:"state"`
+	StoppedAt           NullableTime           `json:"stoppedAt,omitempty"`
+	Version             string                 `json:"version"`
 }
 
 type _ServiceInstance ServiceInstance
@@ -50,6 +54,8 @@ type _ServiceInstance ServiceInstance
 func NewServiceInstance(compatibility ServiceCompatibility, generation int32, id string, instanceName string, lastHeartbeatAt time.Time, liveness ServiceLiveness, registeredAt time.Time, resourceVersion int32, role ServiceRole, state ServiceState, version string) *ServiceInstance {
 	this := ServiceInstance{}
 	this.Compatibility = compatibility
+	var consecutiveFailures int32 = 0
+	this.ConsecutiveFailures = &consecutiveFailures
 	this.Generation = generation
 	this.Id = id
 	this.InstanceName = instanceName
@@ -68,6 +74,8 @@ func NewServiceInstance(compatibility ServiceCompatibility, generation int32, id
 // but it doesn't guarantee that properties required by API are set
 func NewServiceInstanceWithDefaults() *ServiceInstance {
 	this := ServiceInstance{}
+	var consecutiveFailures int32 = 0
+	this.ConsecutiveFailures = &consecutiveFailures
 	return &this
 }
 
@@ -93,6 +101,38 @@ func (o *ServiceInstance) GetCompatibilityOk() (*ServiceCompatibility, bool) {
 // SetCompatibility sets field value
 func (o *ServiceInstance) SetCompatibility(v ServiceCompatibility) {
 	o.Compatibility = v
+}
+
+// GetConsecutiveFailures returns the ConsecutiveFailures field value if set, zero value otherwise.
+func (o *ServiceInstance) GetConsecutiveFailures() int32 {
+	if o == nil || IsNil(o.ConsecutiveFailures) {
+		var ret int32
+		return ret
+	}
+	return *o.ConsecutiveFailures
+}
+
+// GetConsecutiveFailuresOk returns a tuple with the ConsecutiveFailures field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *ServiceInstance) GetConsecutiveFailuresOk() (*int32, bool) {
+	if o == nil || IsNil(o.ConsecutiveFailures) {
+		return nil, false
+	}
+	return o.ConsecutiveFailures, true
+}
+
+// HasConsecutiveFailures returns a boolean if a field has been set.
+func (o *ServiceInstance) HasConsecutiveFailures() bool {
+	if o != nil && !IsNil(o.ConsecutiveFailures) {
+		return true
+	}
+
+	return false
+}
+
+// SetConsecutiveFailures gets a reference to the given int32 and assigns it to the ConsecutiveFailures field.
+func (o *ServiceInstance) SetConsecutiveFailures(v int32) {
+	o.ConsecutiveFailures = &v
 }
 
 // GetDependencies returns the Dependencies field value if set, zero value otherwise.
@@ -159,6 +199,7 @@ func (o *ServiceInstance) HasFailureZone() bool {
 func (o *ServiceInstance) SetFailureZone(v string) {
 	o.FailureZone.Set(&v)
 }
+
 // SetFailureZoneNil sets the value for FailureZone to be an explicit nil
 func (o *ServiceInstance) SetFailureZoneNil() {
 	o.FailureZone.Set(nil)
@@ -273,6 +314,92 @@ func (o *ServiceInstance) SetLabels(v map[string]string) {
 	o.Labels = v
 }
 
+// GetLastFailure returns the LastFailure field value if set, zero value otherwise (both if not set or set to explicit null).
+func (o *ServiceInstance) GetLastFailure() string {
+	if o == nil || IsNil(o.LastFailure.Get()) {
+		var ret string
+		return ret
+	}
+	return *o.LastFailure.Get()
+}
+
+// GetLastFailureOk returns a tuple with the LastFailure field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
+func (o *ServiceInstance) GetLastFailureOk() (*string, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return o.LastFailure.Get(), o.LastFailure.IsSet()
+}
+
+// HasLastFailure returns a boolean if a field has been set.
+func (o *ServiceInstance) HasLastFailure() bool {
+	if o != nil && o.LastFailure.IsSet() {
+		return true
+	}
+
+	return false
+}
+
+// SetLastFailure gets a reference to the given NullableString and assigns it to the LastFailure field.
+func (o *ServiceInstance) SetLastFailure(v string) {
+	o.LastFailure.Set(&v)
+}
+
+// SetLastFailureNil sets the value for LastFailure to be an explicit nil
+func (o *ServiceInstance) SetLastFailureNil() {
+	o.LastFailure.Set(nil)
+}
+
+// UnsetLastFailure ensures that no value is present for LastFailure, not even an explicit nil
+func (o *ServiceInstance) UnsetLastFailure() {
+	o.LastFailure.Unset()
+}
+
+// GetLastFailureAt returns the LastFailureAt field value if set, zero value otherwise (both if not set or set to explicit null).
+func (o *ServiceInstance) GetLastFailureAt() time.Time {
+	if o == nil || IsNil(o.LastFailureAt.Get()) {
+		var ret time.Time
+		return ret
+	}
+	return *o.LastFailureAt.Get()
+}
+
+// GetLastFailureAtOk returns a tuple with the LastFailureAt field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
+func (o *ServiceInstance) GetLastFailureAtOk() (*time.Time, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return o.LastFailureAt.Get(), o.LastFailureAt.IsSet()
+}
+
+// HasLastFailureAt returns a boolean if a field has been set.
+func (o *ServiceInstance) HasLastFailureAt() bool {
+	if o != nil && o.LastFailureAt.IsSet() {
+		return true
+	}
+
+	return false
+}
+
+// SetLastFailureAt gets a reference to the given NullableTime and assigns it to the LastFailureAt field.
+func (o *ServiceInstance) SetLastFailureAt(v time.Time) {
+	o.LastFailureAt.Set(&v)
+}
+
+// SetLastFailureAtNil sets the value for LastFailureAt to be an explicit nil
+func (o *ServiceInstance) SetLastFailureAtNil() {
+	o.LastFailureAt.Set(nil)
+}
+
+// UnsetLastFailureAt ensures that no value is present for LastFailureAt, not even an explicit nil
+func (o *ServiceInstance) UnsetLastFailureAt() {
+	o.LastFailureAt.Unset()
+}
+
 // GetLastHeartbeatAt returns the LastHeartbeatAt field value
 func (o *ServiceInstance) GetLastHeartbeatAt() time.Time {
 	if o == nil {
@@ -295,6 +422,49 @@ func (o *ServiceInstance) GetLastHeartbeatAtOk() (*time.Time, bool) {
 // SetLastHeartbeatAt sets field value
 func (o *ServiceInstance) SetLastHeartbeatAt(v time.Time) {
 	o.LastHeartbeatAt = v
+}
+
+// GetLastSuccessAt returns the LastSuccessAt field value if set, zero value otherwise (both if not set or set to explicit null).
+func (o *ServiceInstance) GetLastSuccessAt() time.Time {
+	if o == nil || IsNil(o.LastSuccessAt.Get()) {
+		var ret time.Time
+		return ret
+	}
+	return *o.LastSuccessAt.Get()
+}
+
+// GetLastSuccessAtOk returns a tuple with the LastSuccessAt field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
+func (o *ServiceInstance) GetLastSuccessAtOk() (*time.Time, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return o.LastSuccessAt.Get(), o.LastSuccessAt.IsSet()
+}
+
+// HasLastSuccessAt returns a boolean if a field has been set.
+func (o *ServiceInstance) HasLastSuccessAt() bool {
+	if o != nil && o.LastSuccessAt.IsSet() {
+		return true
+	}
+
+	return false
+}
+
+// SetLastSuccessAt gets a reference to the given NullableTime and assigns it to the LastSuccessAt field.
+func (o *ServiceInstance) SetLastSuccessAt(v time.Time) {
+	o.LastSuccessAt.Set(&v)
+}
+
+// SetLastSuccessAtNil sets the value for LastSuccessAt to be an explicit nil
+func (o *ServiceInstance) SetLastSuccessAtNil() {
+	o.LastSuccessAt.Set(nil)
+}
+
+// UnsetLastSuccessAt ensures that no value is present for LastSuccessAt, not even an explicit nil
+func (o *ServiceInstance) UnsetLastSuccessAt() {
+	o.LastSuccessAt.Unset()
 }
 
 // GetLiveness returns the Liveness field value
@@ -513,6 +683,7 @@ func (o *ServiceInstance) HasStoppedAt() bool {
 func (o *ServiceInstance) SetStoppedAt(v time.Time) {
 	o.StoppedAt.Set(&v)
 }
+
 // SetStoppedAtNil sets the value for StoppedAt to be an explicit nil
 func (o *ServiceInstance) SetStoppedAtNil() {
 	o.StoppedAt.Set(nil)
@@ -548,7 +719,7 @@ func (o *ServiceInstance) SetVersion(v string) {
 }
 
 func (o ServiceInstance) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -558,6 +729,9 @@ func (o ServiceInstance) MarshalJSON() ([]byte, error) {
 func (o ServiceInstance) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
 	toSerialize["compatibility"] = o.Compatibility
+	if !IsNil(o.ConsecutiveFailures) {
+		toSerialize["consecutiveFailures"] = o.ConsecutiveFailures
+	}
 	if !IsNil(o.Dependencies) {
 		toSerialize["dependencies"] = o.Dependencies
 	}
@@ -570,7 +744,16 @@ func (o ServiceInstance) ToMap() (map[string]interface{}, error) {
 	if !IsNil(o.Labels) {
 		toSerialize["labels"] = o.Labels
 	}
+	if o.LastFailure.IsSet() {
+		toSerialize["lastFailure"] = o.LastFailure.Get()
+	}
+	if o.LastFailureAt.IsSet() {
+		toSerialize["lastFailureAt"] = o.LastFailureAt.Get()
+	}
 	toSerialize["lastHeartbeatAt"] = o.LastHeartbeatAt
+	if o.LastSuccessAt.IsSet() {
+		toSerialize["lastSuccessAt"] = o.LastSuccessAt.Get()
+	}
 	toSerialize["liveness"] = o.Liveness
 	if !IsNil(o.Ownership) {
 		toSerialize["ownership"] = o.Ownership
@@ -612,10 +795,10 @@ func (o *ServiceInstance) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

@@ -20,11 +20,11 @@ var _ MappedNullable = &PluginMarketplaceSignals{}
 
 // PluginMarketplaceSignals struct for PluginMarketplaceSignals
 type PluginMarketplaceSignals struct {
-	Certification *PluginCertificationStatus `json:"certification,omitempty"`
-	Downloads *int32 `json:"downloads,omitempty"`
-	LastMaintainedAt NullableTime `json:"lastMaintainedAt,omitempty"`
-	Security *PluginSecurityStatus `json:"security,omitempty"`
-	TrustDisclaimer *string `json:"trustDisclaimer,omitempty"`
+	Certification    *PluginCertificationStatus `json:"certification,omitempty"`
+	Downloads        *int32                     `json:"downloads,omitempty"`
+	LastMaintainedAt NullableTime               `json:"lastMaintainedAt,omitempty"`
+	Security         *PluginSecurityStatus      `json:"security,omitempty"`
+	TrustDisclaimer  *string                    `json:"trustDisclaimer,omitempty"`
 }
 
 // NewPluginMarketplaceSignals instantiates a new PluginMarketplaceSignals object
@@ -156,6 +156,7 @@ func (o *PluginMarketplaceSignals) HasLastMaintainedAt() bool {
 func (o *PluginMarketplaceSignals) SetLastMaintainedAt(v time.Time) {
 	o.LastMaintainedAt.Set(&v)
 }
+
 // SetLastMaintainedAtNil sets the value for LastMaintainedAt to be an explicit nil
 func (o *PluginMarketplaceSignals) SetLastMaintainedAtNil() {
 	o.LastMaintainedAt.Set(nil)
@@ -231,7 +232,7 @@ func (o *PluginMarketplaceSignals) SetTrustDisclaimer(v string) {
 }
 
 func (o PluginMarketplaceSignals) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}

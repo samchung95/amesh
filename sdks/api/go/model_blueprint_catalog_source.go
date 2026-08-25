@@ -20,9 +20,9 @@ type BlueprintCatalogSource string
 
 // List of BlueprintCatalogSource
 const (
-	BLUEPRINTCATALOGSOURCE_BUILTIN BlueprintCatalogSource = "BUILTIN"
+	BLUEPRINTCATALOGSOURCE_BUILTIN      BlueprintCatalogSource = "BUILTIN"
 	BLUEPRINTCATALOGSOURCE_ORGANIZATION BlueprintCatalogSource = "ORGANIZATION"
-	BLUEPRINTCATALOGSOURCE_COMMUNITY BlueprintCatalogSource = "COMMUNITY"
+	BLUEPRINTCATALOGSOURCE_COMMUNITY    BlueprintCatalogSource = "COMMUNITY"
 )
 
 // All allowed values of BlueprintCatalogSource enum

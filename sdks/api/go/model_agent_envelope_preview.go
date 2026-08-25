@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,11 +21,11 @@ var _ MappedNullable = &AgentEnvelopePreview{}
 
 // AgentEnvelopePreview struct for AgentEnvelopePreview
 type AgentEnvelopePreview struct {
-	AgentRevision int32 `json:"agentRevision"`
-	Envelope EffectiveCapabilityEnvelope `json:"envelope"`
-	EnvelopeDigest string `json:"envelopeDigest" validate:"regexp=^sha256:[0-9a-f]{64}$"`
-	ExternalCallsSuppressed *bool `json:"externalCallsSuppressed,omitempty"`
-	ModelBehaviorUnknown *bool `json:"modelBehaviorUnknown,omitempty"`
+	AgentRevision           int32                       `json:"agentRevision"`
+	Envelope                EffectiveCapabilityEnvelope `json:"envelope"`
+	EnvelopeDigest          string                      `json:"envelopeDigest" validate:"regexp=^sha256:[0-9a-f]{64}$"`
+	ExternalCallsSuppressed *bool                       `json:"externalCallsSuppressed,omitempty"`
+	ModelBehaviorUnknown    *bool                       `json:"modelBehaviorUnknown,omitempty"`
 }
 
 type _AgentEnvelopePreview AgentEnvelopePreview
@@ -195,7 +195,7 @@ func (o *AgentEnvelopePreview) SetModelBehaviorUnknown(v bool) {
 }
 
 func (o AgentEnvelopePreview) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -231,10 +231,10 @@ func (o *AgentEnvelopePreview) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

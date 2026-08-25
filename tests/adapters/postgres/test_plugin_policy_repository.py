@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import asyncio
+import json
 import os
+from uuid import uuid4
 
 import pytest
 from sqlalchemy import text
@@ -12,6 +14,7 @@ from amesh.adapters.postgres import (
     PostgresPluginPolicyRepository,
 )
 from amesh.config import Settings
+from amesh.domain import FlowLifecycle
 from amesh.domain.plugin_policy import (
     PluginPolicyEffect,
     PluginPolicyRuleCreate,
@@ -28,7 +31,12 @@ from amesh.migrations import (
     migration_directory,
 )
 from amesh.plugin_sdk import PluginResolver
-from amesh.plugins import PluginPolicyDenied, PluginPolicyService, build_plugin_catalog
+from amesh.plugins import (
+    PluginPolicyDenied,
+    PluginPolicyService,
+    PluginResolutionQuarantined,
+    build_plugin_catalog,
+)
 
 TEST_DATABASE_URL = os.getenv("AMESH_TEST_DATABASE_URL")
 
@@ -80,6 +88,43 @@ def test_plugin_policy_is_durable_explained_audited_and_enforced() -> None:
                 tenant_id="default",
             )
             assert revisions[0].plugin_resolution["packages"][0]["version"] == core.version
+            async with engine.begin() as connection:
+                await connection.execute(
+                    text(
+                        "UPDATE flow_revisions SET plugin_resolution = "
+                        "'{\"catalogVersion\":\"amesh.resource-catalog/v1\","
+                        "\"resources\":[{\"kind\":\"task\","
+                        "\"type\":\"core.return\"}]}'::jsonb "
+                        "WHERE id = CAST(:revision_id AS uuid)"
+                    ),
+                    {"revision_id": revisions[0].resource_id},
+                )
+            legacy_decision = await service.evaluate_flow(
+                flow,
+                tenant_id="default",
+                stage=PluginPolicyStage.EXECUTION,
+                actor_id="system:scheduler",
+            )
+            assert legacy_decision.allowed
+            assert legacy_decision.subjects[0].subject.package == "amesh.core"
+            migrated = await policies.frozen_resolution(
+                "default",
+                flow.namespace,
+                flow.id,
+                flow.revision,
+            )
+            assert migrated is not None
+            assert migrated["schemaVersion"] == "amesh.plugin-resolution/v1"
+            async with engine.connect() as connection:
+                assert (
+                    await connection.scalar(
+                        text(
+                            "SELECT count(*) FROM audit_events "
+                            "WHERE action = 'plugin.resolution.migrate'"
+                        )
+                    )
+                    == 1
+                )
 
             validation_deny = await policies.create_rule(
                 "default",
@@ -216,6 +261,87 @@ def test_plugin_policy_is_durable_explained_audited_and_enforced() -> None:
                 actor_id="runner",
             )
             assert execution.flow_revision == persisted.revision
+        finally:
+            await engine.dispose()
+            await drop_ephemeral_database(TEST_DATABASE_URL, database.name)
+
+    asyncio.run(scenario())
+
+
+def test_unresolvable_legacy_resolution_disables_flow_and_audits_once() -> None:
+    async def scenario() -> None:
+        if TEST_DATABASE_URL is None:
+            raise RuntimeError("AMESH_TEST_DATABASE_URL is required")
+        database = await create_ephemeral_database(TEST_DATABASE_URL)
+        engine = create_async_engine(database.database_url)
+        catalog = build_plugin_catalog(Settings())
+        policies = PostgresPluginPolicyRepository(engine)
+        service = PluginPolicyService(policies, catalog, default_allow=False)
+        executions = PostgresExecutionRepository(
+            engine,
+            plugin_resolution_provider=lambda flow: PluginResolver(catalog.snapshot)
+            .resolve_flow(flow)
+            .revision_payload(),
+            plugin_policy_enforcer=service.enforce_flow,
+        )
+        namespace = f"governance.quarantine.{uuid4().hex}"
+        valid_flow = FlowDefinition.model_validate(
+            {
+                "id": "legacy_pin",
+                "namespace": namespace,
+                "tasks": [{"id": "return", "type": "core.return", "value": "ok"}],
+            }
+        )
+        incompatible_flow = FlowDefinition.model_validate(
+            {
+                "id": valid_flow.id,
+                "namespace": namespace,
+                "tasks": [
+                    {"id": "missing", "type": "vendor.missing", "payload": {}}
+                ],
+            }
+        )
+        legacy = {
+            "catalogVersion": "amesh.resource-catalog/v1",
+            "resources": [{"kind": "task", "type": "vendor.missing"}],
+        }
+        try:
+            await apply_migrations(database.database_url, migration_directory())
+            persisted = await executions.apply_flow(valid_flow, tenant_id="default")
+            async with engine.begin() as connection:
+                await connection.execute(
+                    text(
+                        "UPDATE flow_revisions SET plugin_resolution = CAST(:legacy AS jsonb) "
+                        "WHERE flow_id = CAST(:flow_id AS uuid) AND revision = 1"
+                    ),
+                    {"legacy": json.dumps(legacy), "flow_id": persisted.resource_id},
+                )
+
+            for _ in range(2):
+                with pytest.raises(PluginResolutionQuarantined):
+                    await service.evaluate_flow(
+                        incompatible_flow,
+                        tenant_id="default",
+                        stage=PluginPolicyStage.EXECUTION,
+                        actor_id="system:scheduler",
+                    )
+
+            quarantined = next(
+                item
+                for item in await executions.list_flows(tenant_id="default")
+                if item.namespace == namespace and item.flow_id == valid_flow.id
+            )
+            assert quarantined.lifecycle is FlowLifecycle.DISABLED
+            async with engine.connect() as connection:
+                assert (
+                    await connection.scalar(
+                        text(
+                            "SELECT count(*) FROM audit_events "
+                            "WHERE action = 'plugin.resolution.quarantine'"
+                        )
+                    )
+                    == 1
+                )
         finally:
             await engine.dispose()
             await drop_ephemeral_database(TEST_DATABASE_URL, database.name)

@@ -20,10 +20,10 @@ var _ MappedNullable = &BackfillSelection{}
 
 // BackfillSelection struct for BackfillSelection
 type BackfillSelection struct {
-	Occurrences []time.Time `json:"occurrences,omitempty"`
-	Partitions []string `json:"partitions,omitempty"`
-	SourceExecutionIds []string `json:"sourceExecutionIds,omitempty"`
-	TimeRange NullableTimeRangeSelection `json:"timeRange,omitempty"`
+	Occurrences        []time.Time                `json:"occurrences,omitempty"`
+	Partitions         []string                   `json:"partitions,omitempty"`
+	SourceExecutionIds []string                   `json:"sourceExecutionIds,omitempty"`
+	TimeRange          NullableTimeRangeSelection `json:"timeRange,omitempty"`
 }
 
 // NewBackfillSelection instantiates a new BackfillSelection object
@@ -171,6 +171,7 @@ func (o *BackfillSelection) HasTimeRange() bool {
 func (o *BackfillSelection) SetTimeRange(v TimeRangeSelection) {
 	o.TimeRange.Set(&v)
 }
+
 // SetTimeRangeNil sets the value for TimeRange to be an explicit nil
 func (o *BackfillSelection) SetTimeRangeNil() {
 	o.TimeRange.Set(nil)
@@ -182,7 +183,7 @@ func (o *BackfillSelection) UnsetTimeRange() {
 }
 
 func (o BackfillSelection) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}

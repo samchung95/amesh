@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 from datetime import UTC, datetime
 from uuid import UUID
@@ -433,6 +434,199 @@ class PostgresPluginPolicyRepository:
                 },
             )
         return dict(value) if isinstance(value, dict) else None
+
+    async def migrate_legacy_resolution(
+        self,
+        tenant_id: str,
+        namespace: str,
+        flow_id: str,
+        revision: int,
+        *,
+        expected: dict[str, object],
+        replacement: dict[str, object],
+        actor_id: str,
+    ) -> dict[str, object]:
+        """Replace one legacy unpinned payload with an exact resolver result once."""
+
+        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+            revision_id = await connection.scalar(
+                text(
+                    """
+                    UPDATE flow_revisions AS revisions
+                    SET plugin_resolution = CAST(:replacement AS jsonb)
+                    FROM flows, namespaces
+                    WHERE revisions.flow_id = flows.id
+                      AND revisions.tenant_id = flows.tenant_id
+                      AND namespaces.id = flows.namespace_id
+                      AND namespaces.tenant_id = flows.tenant_id
+                      AND revisions.tenant_id = :tenant_id
+                      AND namespaces.name = :namespace
+                      AND flows.flow_key = :flow_id
+                      AND revisions.revision = :revision
+                      AND revisions.plugin_resolution = CAST(:expected AS jsonb)
+                    RETURNING revisions.id
+                    """
+                ),
+                {
+                    "tenant_id": tenant_uuid,
+                    "namespace": namespace,
+                    "flow_id": flow_id,
+                    "revision": revision,
+                    "expected": json.dumps(expected),
+                    "replacement": json.dumps(replacement),
+                },
+            )
+            if revision_id is None:
+                current = await connection.scalar(
+                    text(
+                        """
+                        SELECT revisions.plugin_resolution
+                        FROM flow_revisions AS revisions
+                        JOIN flows ON flows.id = revisions.flow_id
+                                  AND flows.tenant_id = revisions.tenant_id
+                        JOIN namespaces ON namespaces.id = flows.namespace_id
+                                       AND namespaces.tenant_id = flows.tenant_id
+                        WHERE revisions.tenant_id = :tenant_id
+                          AND namespaces.name = :namespace
+                          AND flows.flow_key = :flow_id
+                          AND revisions.revision = :revision
+                        """
+                    ),
+                    {
+                        "tenant_id": tenant_uuid,
+                        "namespace": namespace,
+                        "flow_id": flow_id,
+                        "revision": revision,
+                    },
+                )
+                if current == replacement:
+                    return replacement
+                raise RuntimeError("plugin resolution changed during compatibility migration")
+            expected_digest = hashlib.sha256(
+                json.dumps(expected, sort_keys=True, separators=(",", ":")).encode()
+            ).hexdigest()
+            replacement_digest = hashlib.sha256(
+                json.dumps(replacement, sort_keys=True, separators=(",", ":")).encode()
+            ).hexdigest()
+            await _write_audit(
+                connection,
+                tenant_uuid,
+                actor_id=actor_id,
+                action="plugin.resolution.migrate",
+                resource_id=str(revision_id),
+                reason="legacy plugin resolution upgraded to an exact v1 pin",
+                evidence={
+                    "namespace": namespace,
+                    "flowId": flow_id,
+                    "revision": revision,
+                    "legacyDigest": expected_digest,
+                    "resolutionDigest": replacement_digest,
+                },
+            )
+        return replacement
+
+    async def quarantine_legacy_resolution(
+        self,
+        tenant_id: str,
+        namespace: str,
+        flow_id: str,
+        revision: int,
+        *,
+        expected: dict[str, object],
+        actor_id: str,
+        reason: str,
+    ) -> bool:
+        """Disable one flow whose legacy pin cannot be resolved, with one audit event."""
+
+        async with tenant_transaction(self._engine, tenant_id) as (connection, tenant_uuid):
+            revision_id = await connection.scalar(
+                text(
+                    """
+                    WITH target AS (
+                        SELECT flows.id AS flow_resource_id, revisions.id AS revision_id
+                        FROM flow_revisions AS revisions
+                        JOIN flows ON flows.id = revisions.flow_id
+                                  AND flows.tenant_id = revisions.tenant_id
+                        JOIN namespaces ON namespaces.id = flows.namespace_id
+                                       AND namespaces.tenant_id = flows.tenant_id
+                        WHERE revisions.tenant_id = :tenant_id
+                          AND namespaces.name = :namespace
+                          AND flows.flow_key = :flow_id
+                          AND revisions.revision = :revision
+                          AND revisions.plugin_resolution = CAST(:expected AS jsonb)
+                          AND flows.status <> 'DISABLED'
+                        FOR UPDATE OF flows, revisions
+                    )
+                    UPDATE flows
+                    SET status = 'DISABLED',
+                        version = flows.version + 1,
+                        updated_by = :actor_id,
+                        updated_at = clock_timestamp()
+                    FROM target
+                    WHERE flows.id = target.flow_resource_id
+                    RETURNING target.revision_id
+                    """
+                ),
+                {
+                    "tenant_id": tenant_uuid,
+                    "namespace": namespace,
+                    "flow_id": flow_id,
+                    "revision": revision,
+                    "expected": json.dumps(expected),
+                    "actor_id": actor_id,
+                },
+            )
+            if revision_id is None:
+                current = (
+                    (
+                        await connection.execute(
+                            text(
+                                """
+                                SELECT revisions.plugin_resolution, flows.status
+                                FROM flow_revisions AS revisions
+                                JOIN flows ON flows.id = revisions.flow_id
+                                          AND flows.tenant_id = revisions.tenant_id
+                                JOIN namespaces ON namespaces.id = flows.namespace_id
+                                               AND namespaces.tenant_id = flows.tenant_id
+                                WHERE revisions.tenant_id = :tenant_id
+                                  AND namespaces.name = :namespace
+                                  AND flows.flow_key = :flow_id
+                                  AND revisions.revision = :revision
+                                """
+                            ),
+                            {
+                                "tenant_id": tenant_uuid,
+                                "namespace": namespace,
+                                "flow_id": flow_id,
+                                "revision": revision,
+                            },
+                        )
+                    )
+                    .mappings()
+                    .one_or_none()
+                )
+                if current is not None and current["plugin_resolution"] == expected:
+                    return bool(current["status"] == "DISABLED")
+                raise RuntimeError("plugin resolution changed during compatibility quarantine")
+            legacy_digest = hashlib.sha256(
+                json.dumps(expected, sort_keys=True, separators=(",", ":")).encode()
+            ).hexdigest()
+            await _write_audit(
+                connection,
+                tenant_uuid,
+                actor_id=actor_id,
+                action="plugin.resolution.quarantine",
+                resource_id=str(revision_id),
+                reason="legacy plugin resolution could not be upgraded; flow disabled",
+                evidence={
+                    "namespace": namespace,
+                    "flowId": flow_id,
+                    "revision": revision,
+                    "legacyDigest": legacy_digest,
+                    "failure": reason[:2048],
+                },
+            )
+        return True
 
     async def impact_preview(
         self,

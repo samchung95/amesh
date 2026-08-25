@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,13 +21,13 @@ var _ MappedNullable = &AuthenticationProviderDescriptor{}
 
 // AuthenticationProviderDescriptor struct for AuthenticationProviderDescriptor
 type AuthenticationProviderDescriptor struct {
-	DisplayName string `json:"display_name"`
-	Domains []string `json:"domains,omitempty"`
-	Id string `json:"id" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
-	Interactive *bool `json:"interactive,omitempty"`
-	Kind AuthenticationProviderKind `json:"kind"`
-	LoginMode *string `json:"login_mode,omitempty"`
-	Tenants []string `json:"tenants,omitempty"`
+	DisplayName string                     `json:"display_name"`
+	Domains     []string                   `json:"domains,omitempty"`
+	Id          string                     `json:"id" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
+	Interactive *bool                      `json:"interactive,omitempty"`
+	Kind        AuthenticationProviderKind `json:"kind"`
+	LoginMode   *string                    `json:"login_mode,omitempty"`
+	Tenants     []string                   `json:"tenants,omitempty"`
 }
 
 type _AuthenticationProviderDescriptor AuthenticationProviderDescriptor
@@ -261,7 +261,7 @@ func (o *AuthenticationProviderDescriptor) SetTenants(v []string) {
 }
 
 func (o AuthenticationProviderDescriptor) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -303,10 +303,10 @@ func (o *AuthenticationProviderDescriptor) UnmarshalJSON(data []byte) (err error
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

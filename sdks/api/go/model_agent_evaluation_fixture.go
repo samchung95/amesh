@@ -20,10 +20,10 @@ var _ MappedNullable = &AgentEvaluationFixture{}
 
 // AgentEvaluationFixture struct for AgentEvaluationFixture
 type AgentEvaluationFixture struct {
-	Description *string `json:"description,omitempty"`
-	Input map[string]interface{} `json:"input"`
-	Key string `json:"key" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
-	RecordedOutput map[string]interface{} `json:"recordedOutput"`
+	Description          *string                `json:"description,omitempty"`
+	Input                map[string]interface{} `json:"input"`
+	Key                  string                 `json:"key" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
+	RecordedOutput       map[string]interface{} `json:"recordedOutput"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -158,7 +158,7 @@ func (o *AgentEvaluationFixture) SetRecordedOutput(v map[string]interface{}) {
 }
 
 func (o AgentEvaluationFixture) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -196,10 +196,10 @@ func (o *AgentEvaluationFixture) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

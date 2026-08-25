@@ -20,7 +20,7 @@ type UpgradeCheckStatus string
 
 // List of UpgradeCheckStatus
 const (
-	UPGRADECHECKSTATUS_PASS UpgradeCheckStatus = "PASS"
+	UPGRADECHECKSTATUS_PASS    UpgradeCheckStatus = "PASS"
 	UPGRADECHECKSTATUS_WARNING UpgradeCheckStatus = "WARNING"
 	UPGRADECHECKSTATUS_BLOCKED UpgradeCheckStatus = "BLOCKED"
 )

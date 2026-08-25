@@ -36,6 +36,7 @@ from amesh.config import Settings, get_settings
 from amesh.database import create_database_engine
 from amesh.domain import (
     ExecutionState,
+    FlowLifecycle,
     OperationalBoundary,
     PolicyDecision,
     PolicyStage,
@@ -57,11 +58,13 @@ from amesh.executor import (
     selecting_runner_handler,
 )
 from amesh.human_tasks import HumanTaskService, approval_task_handler
+from amesh.model_continuations import configured_model_continuation_protector
 from amesh.observability import (
     configure_observability,
     instrument_async_operation,
     shutdown_observability,
 )
+from amesh.plugin_sdk import PluginResolver
 from amesh.plugins import (
     IsolatedPluginRuntime,
     PluginPolicyService,
@@ -103,6 +106,18 @@ from amesh.workflow.working_directory import WorkingDirectoryManager
 LOGGER = logging.getLogger("amesh.worker")
 
 
+class ScheduleCycleError(RuntimeError):
+    def __init__(self, *, scheduled: int, failures: Sequence[str]) -> None:
+        self.scheduled = scheduled
+        self.failures = tuple(failures)
+        preview = "; ".join(self.failures[:3])
+        suffix = f"; and {len(self.failures) - 3} more" if len(self.failures) > 3 else ""
+        super().__init__(
+            f"schedule cycle launched {scheduled} execution(s) but "
+            f"{len(self.failures)} flow evaluation(s) failed: {preview}{suffix}"
+        )
+
+
 @instrument_async_operation("scheduler", "schedule")
 async def schedule_once(
     repository: PostgresExecutionRepository,
@@ -123,8 +138,11 @@ async def schedule_once(
     )
     scheduled_at = now or await scheduler_repository.database_time()
     scheduled = 0
+    failures: list[str] = []
     for tenant_id in tenant_ids:
         for persisted_flow in await repository.list_flows(tenant_id=tenant_id):
+            if persisted_flow.lifecycle is not FlowLifecycle.ACTIVE:
+                continue
             flow = await repository.get_flow(
                 persisted_flow.namespace,
                 persisted_flow.flow_id,
@@ -140,15 +158,13 @@ async def schedule_once(
                 )
             except (DBAPIError, OSError):
                 raise
-            except Exception:
-                LOGGER.exception(
-                    "scheduled flow evaluation failed; continuing",
-                    extra={
-                        "tenant_id": tenant_id,
-                        "namespace": persisted_flow.namespace,
-                        "flow_id": persisted_flow.flow_id,
-                    },
+            except Exception as exc:
+                failures.append(
+                    f"{tenant_id}/{persisted_flow.namespace}/{persisted_flow.flow_id}: "
+                    f"{type(exc).__name__}: {exc}"
                 )
+    if failures:
+        raise ScheduleCycleError(scheduled=scheduled, failures=failures)
     return scheduled
 
 
@@ -229,10 +245,27 @@ async def process_trigger_occurrences_once(
                         "occurrenceId": str(occurrence.occurrence_id),
                         "occurrenceKey": occurrence.occurrence_key,
                         "payload": occurrence.payload,
+                        **(
+                            {
+                                "date": occurrence.metadata.get("observedAt"),
+                                "timezone": trigger.timezone,
+                            }
+                            if occurrence.trigger_type in {"core.cron", "core.interval"}
+                            else {}
+                        ),
                     },
-                    launch_source=ExecutionLaunchSource.EVENT,
+                    launch_source=(
+                        ExecutionLaunchSource.SCHEDULED
+                        if occurrence.trigger_type in {"core.cron", "core.interval"}
+                        else ExecutionLaunchSource.EVENT
+                    ),
                     idempotency_key=(
-                        f"trigger:{occurrence.trigger_definition_id}:{occurrence.occurrence_key}"
+                        occurrence.occurrence_key
+                        if occurrence.trigger_type in {"core.cron", "core.interval"}
+                        else (
+                            f"trigger:{occurrence.trigger_definition_id}:"
+                            f"{occurrence.occurrence_key}"
+                        )
                     ),
                     actor_id="system:trigger-worker",
                 )
@@ -495,6 +528,12 @@ async def recover_once(
             model_handler = agent_llm_handler(
                 http_policy=http_policy,
                 repository=agent_primitives,
+                continuation_protector=configured_model_continuation_protector(
+                    primary_key_id=settings.model_continuation_key_id,
+                    primary_key=settings.model_continuation_encryption_key,
+                    previous_key_id=settings.model_continuation_previous_key_id,
+                    previous_key=settings.model_continuation_previous_encryption_key,
+                ),
             )
             mcp_handler = agent_mcp_handler(
                 repository=agent_primitives,
@@ -698,6 +737,9 @@ async def run_worker(settings: Settings) -> None:
     admission_policy = AdmissionPolicyService(PostgresAdmissionPolicyRepository(engine))
     repository = PostgresExecutionRepository(
         engine,
+        plugin_resolution_provider=lambda flow: (
+            PluginResolver(plugin_catalog.snapshot).resolve_flow(flow).revision_payload()
+        ),
         plugin_policy_enforcer=plugin_policy.enforce_flow,
         admission_policy_enforcer=admission_policy.enforce_repository,
     )

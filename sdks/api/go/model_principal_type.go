@@ -20,12 +20,12 @@ type PrincipalType string
 
 // List of PrincipalType
 const (
-	PRINCIPALTYPE_USER PrincipalType = "USER"
-	PRINCIPALTYPE_GROUP PrincipalType = "GROUP"
+	PRINCIPALTYPE_USER            PrincipalType = "USER"
+	PRINCIPALTYPE_GROUP           PrincipalType = "GROUP"
 	PRINCIPALTYPE_SERVICE_ACCOUNT PrincipalType = "SERVICE_ACCOUNT"
-	PRINCIPALTYPE_WORKER PrincipalType = "WORKER"
-	PRINCIPALTYPE_PLUGIN PrincipalType = "PLUGIN"
-	PRINCIPALTYPE_SYSTEM PrincipalType = "SYSTEM"
+	PRINCIPALTYPE_WORKER          PrincipalType = "WORKER"
+	PRINCIPALTYPE_PLUGIN          PrincipalType = "PLUGIN"
+	PRINCIPALTYPE_SYSTEM          PrincipalType = "SYSTEM"
 )
 
 // All allowed values of PrincipalType enum

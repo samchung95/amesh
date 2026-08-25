@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the ExecutionEvent type satisfies the MappedNullable interface at compile time
@@ -22,17 +22,17 @@ var _ MappedNullable = &ExecutionEvent{}
 
 // ExecutionEvent struct for ExecutionEvent
 type ExecutionEvent struct {
-	ActorId *string `json:"actor_id,omitempty"`
-	CausationId NullableString `json:"causation_id,omitempty"`
-	CorrelationId *string `json:"correlation_id,omitempty"`
-	EventId *string `json:"event_id,omitempty"`
-	EventType ExecutionEventType `json:"event_type"`
-	IdempotencyKey NullableString `json:"idempotency_key,omitempty"`
-	OccurredAt *time.Time `json:"occurred_at,omitempty"`
-	Payload map[string]interface{} `json:"payload,omitempty"`
-	Reason NullableString `json:"reason,omitempty"`
-	SchemaVersion *int32 `json:"schema_version,omitempty"`
-	TraceContext map[string]string `json:"trace_context,omitempty"`
+	ActorId        *string                `json:"actor_id,omitempty"`
+	CausationId    NullableString         `json:"causation_id,omitempty"`
+	CorrelationId  *string                `json:"correlation_id,omitempty"`
+	EventId        *string                `json:"event_id,omitempty"`
+	EventType      ExecutionEventType     `json:"event_type"`
+	IdempotencyKey NullableString         `json:"idempotency_key,omitempty"`
+	OccurredAt     *time.Time             `json:"occurred_at,omitempty"`
+	Payload        map[string]interface{} `json:"payload,omitempty"`
+	Reason         NullableString         `json:"reason,omitempty"`
+	SchemaVersion  *int32                 `json:"schema_version,omitempty"`
+	TraceContext   map[string]string      `json:"trace_context,omitempty"`
 }
 
 type _ExecutionEvent ExecutionEvent
@@ -127,6 +127,7 @@ func (o *ExecutionEvent) HasCausationId() bool {
 func (o *ExecutionEvent) SetCausationId(v string) {
 	o.CausationId.Set(&v)
 }
+
 // SetCausationIdNil sets the value for CausationId to be an explicit nil
 func (o *ExecutionEvent) SetCausationIdNil() {
 	o.CausationId.Set(nil)
@@ -257,6 +258,7 @@ func (o *ExecutionEvent) HasIdempotencyKey() bool {
 func (o *ExecutionEvent) SetIdempotencyKey(v string) {
 	o.IdempotencyKey.Set(&v)
 }
+
 // SetIdempotencyKeyNil sets the value for IdempotencyKey to be an explicit nil
 func (o *ExecutionEvent) SetIdempotencyKeyNil() {
 	o.IdempotencyKey.Set(nil)
@@ -363,6 +365,7 @@ func (o *ExecutionEvent) HasReason() bool {
 func (o *ExecutionEvent) SetReason(v string) {
 	o.Reason.Set(&v)
 }
+
 // SetReasonNil sets the value for Reason to be an explicit nil
 func (o *ExecutionEvent) SetReasonNil() {
 	o.Reason.Set(nil)
@@ -438,7 +441,7 @@ func (o *ExecutionEvent) SetTraceContext(v map[string]string) {
 }
 
 func (o ExecutionEvent) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -494,10 +497,10 @@ func (o *ExecutionEvent) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

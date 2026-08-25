@@ -11,6 +11,7 @@ Method | HTTP request | Description
 [**GetExecutionAdmissionApiV1ExecutionsExecutionIdAdmissionGet**](ExecutionsAPI.md#GetExecutionAdmissionApiV1ExecutionsExecutionIdAdmissionGet) | **Get** /api/v1/executions/{execution_id}/admission | Get Execution Admission
 [**GetExecutionApiV1ExecutionsExecutionIdGet**](ExecutionsAPI.md#GetExecutionApiV1ExecutionsExecutionIdGet) | **Get** /api/v1/executions/{execution_id} | Get Execution
 [**GetExecutionEvidenceApiV1ExecutionsExecutionIdEvidenceGet**](ExecutionsAPI.md#GetExecutionEvidenceApiV1ExecutionsExecutionIdEvidenceGet) | **Get** /api/v1/executions/{execution_id}/evidence | Get Execution Evidence
+[**GetExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGet**](ExecutionsAPI.md#GetExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGet) | **Get** /api/v1/executions/{execution_id}/evidence-bundle | Get Execution Evidence Bundle
 [**GetExecutionGraphApiV1ExecutionsExecutionIdGraphGet**](ExecutionsAPI.md#GetExecutionGraphApiV1ExecutionsExecutionIdGraphGet) | **Get** /api/v1/executions/{execution_id}/graph | Get Execution Graph
 [**GetExecutionLogsApiV1ExecutionsExecutionIdLogsGet**](ExecutionsAPI.md#GetExecutionLogsApiV1ExecutionsExecutionIdLogsGet) | **Get** /api/v1/executions/{execution_id}/logs | Get Execution Logs
 [**GetExecutionParentSubflowApiV1ExecutionsExecutionIdParentSubflowGet**](ExecutionsAPI.md#GetExecutionParentSubflowApiV1ExecutionsExecutionIdParentSubflowGet) | **Get** /api/v1/executions/{execution_id}/parent-subflow | Get Execution Parent Subflow
@@ -106,7 +107,7 @@ No authorization required
 
 ## CreateExecutionApiV1ExecutionsPost
 
-> ExecutionDetail CreateExecutionApiV1ExecutionsPost(ctx).CreateExecutionRequest(createExecutionRequest).Prefer(prefer).IdempotencyKey(idempotencyKey).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
+> ExecutionDetail CreateExecutionApiV1ExecutionsPost(ctx).CreateExecutionRequest(createExecutionRequest).Prefer(prefer).IdempotencyKey(idempotencyKey).XCorrelationID(xCorrelationID).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
 
 Create Execution
 
@@ -126,13 +127,14 @@ func main() {
 	createExecutionRequest := *openapiclient.NewCreateExecutionRequest("FlowId_example", "Namespace_example") // CreateExecutionRequest |
 	prefer := "prefer_example" // string |  (optional)
 	idempotencyKey := "idempotencyKey_example" // string |  (optional)
+	xCorrelationID := "xCorrelationID_example" // string |  (optional)
 	authorization := "authorization_example" // string |  (optional)
 	xAmeshCSRF := "xAmeshCSRF_example" // string |  (optional)
 	xAmeshTenant := "xAmeshTenant_example" // string |  (optional)
 
 	configuration := openapiclient.NewConfiguration()
 	apiClient := openapiclient.NewAPIClient(configuration)
-	resp, r, err := apiClient.ExecutionsAPI.CreateExecutionApiV1ExecutionsPost(context.Background()).CreateExecutionRequest(createExecutionRequest).Prefer(prefer).IdempotencyKey(idempotencyKey).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
+	resp, r, err := apiClient.ExecutionsAPI.CreateExecutionApiV1ExecutionsPost(context.Background()).CreateExecutionRequest(createExecutionRequest).Prefer(prefer).IdempotencyKey(idempotencyKey).XCorrelationID(xCorrelationID).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error when calling `ExecutionsAPI.CreateExecutionApiV1ExecutionsPost``: %v\n", err)
 		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
@@ -156,6 +158,7 @@ Name | Type | Description  | Notes
  **createExecutionRequest** | [**CreateExecutionRequest**](CreateExecutionRequest.md) |  |
  **prefer** | **string** |  |
  **idempotencyKey** | **string** |  |
+ **xCorrelationID** | **string** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
@@ -180,7 +183,7 @@ No authorization required
 
 ## CreateExecutionsBulkApiV1ExecutionsBulkPost
 
-> []BulkExecutionItemResult CreateExecutionsBulkApiV1ExecutionsBulkPost(ctx).BulkExecutionRequest(bulkExecutionRequest).Prefer(prefer).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
+> []BulkExecutionItemResult CreateExecutionsBulkApiV1ExecutionsBulkPost(ctx).BulkExecutionRequest(bulkExecutionRequest).Prefer(prefer).XCorrelationID(xCorrelationID).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
 
 Create Executions Bulk
 
@@ -199,13 +202,14 @@ import (
 func main() {
 	bulkExecutionRequest := *openapiclient.NewBulkExecutionRequest([]openapiclient.CreateExecutionRequest{*openapiclient.NewCreateExecutionRequest("FlowId_example", "Namespace_example")}) // BulkExecutionRequest |
 	prefer := "prefer_example" // string |  (optional)
+	xCorrelationID := "xCorrelationID_example" // string |  (optional)
 	authorization := "authorization_example" // string |  (optional)
 	xAmeshCSRF := "xAmeshCSRF_example" // string |  (optional)
 	xAmeshTenant := "xAmeshTenant_example" // string |  (optional)
 
 	configuration := openapiclient.NewConfiguration()
 	apiClient := openapiclient.NewAPIClient(configuration)
-	resp, r, err := apiClient.ExecutionsAPI.CreateExecutionsBulkApiV1ExecutionsBulkPost(context.Background()).BulkExecutionRequest(bulkExecutionRequest).Prefer(prefer).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
+	resp, r, err := apiClient.ExecutionsAPI.CreateExecutionsBulkApiV1ExecutionsBulkPost(context.Background()).BulkExecutionRequest(bulkExecutionRequest).Prefer(prefer).XCorrelationID(xCorrelationID).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error when calling `ExecutionsAPI.CreateExecutionsBulkApiV1ExecutionsBulkPost``: %v\n", err)
 		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
@@ -228,6 +232,7 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **bulkExecutionRequest** | [**BulkExecutionRequest**](BulkExecutionRequest.md) |  |
  **prefer** | **string** |  |
+ **xCorrelationID** | **string** |  |
  **authorization** | **string** |  |
  **xAmeshCSRF** | **string** |  |
  **xAmeshTenant** | **string** |  |
@@ -540,6 +545,88 @@ Name | Type | Description  | Notes
 ### Return type
 
 [**ExecutionEvidencePage**](ExecutionEvidencePage.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
+[[Back to Model list]](../README.md#documentation-for-models)
+[[Back to README]](../README.md)
+
+
+## GetExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGet
+
+> EvidenceBundlePageResponse GetExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGet(ctx, executionId).Section(section).Cursor(cursor).Limit(limit).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
+
+Get Execution Evidence Bundle
+
+
+
+### Example
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"os"
+	openapiclient "github.com/amesh/amesh-client-go"
+)
+
+func main() {
+	executionId := "38400000-8cf0-11bd-b23e-10b96e4ef00d" // string |
+	section := "section_example" // string | Canonical evidence section (optional) (default to "trace")
+	cursor := "cursor_example" // string | Opaque section cursor (optional)
+	limit := int32(56) // int32 |  (optional) (default to 100)
+	authorization := "authorization_example" // string |  (optional)
+	xAmeshCSRF := "xAmeshCSRF_example" // string |  (optional)
+	xAmeshTenant := "xAmeshTenant_example" // string |  (optional)
+
+	configuration := openapiclient.NewConfiguration()
+	apiClient := openapiclient.NewAPIClient(configuration)
+	resp, r, err := apiClient.ExecutionsAPI.GetExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGet(context.Background(), executionId).Section(section).Cursor(cursor).Limit(limit).Authorization(authorization).XAmeshCSRF(xAmeshCSRF).XAmeshTenant(xAmeshTenant).Execute()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error when calling `ExecutionsAPI.GetExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGet``: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+	}
+	// response from `GetExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGet`: EvidenceBundlePageResponse
+	fmt.Fprintf(os.Stdout, "Response from `ExecutionsAPI.GetExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGet`: %v\n", resp)
+}
+```
+
+### Path Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+**ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
+**executionId** | **string** |  |
+
+### Other Parameters
+
+Other parameters are passed through a pointer to a apiGetExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGetRequest struct via the builder pattern
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+
+ **section** | **string** | Canonical evidence section | [default to &quot;trace&quot;]
+ **cursor** | **string** | Opaque section cursor |
+ **limit** | **int32** |  | [default to 100]
+ **authorization** | **string** |  |
+ **xAmeshCSRF** | **string** |  |
+ **xAmeshTenant** | **string** |  |
+
+### Return type
+
+[**EvidenceBundlePageResponse**](EvidenceBundlePageResponse.md)
 
 ### Authorization
 

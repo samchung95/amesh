@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the LifecyclePolicy type satisfies the MappedNullable interface at compile time
@@ -22,23 +22,23 @@ var _ MappedNullable = &LifecyclePolicy{}
 
 // LifecyclePolicy struct for LifecyclePolicy
 type LifecyclePolicy struct {
-	BatchSize *int32 `json:"batchSize,omitempty"`
-	CreatedAt time.Time `json:"createdAt"`
-	CreatedBy string `json:"createdBy"`
-	Enabled *bool `json:"enabled,omitempty"`
-	Id string `json:"id"`
-	LabelSelector map[string]string `json:"labelSelector,omitempty"`
-	Namespace NullableString `json:"namespace,omitempty"`
-	NextRunAt NullableTime `json:"nextRunAt,omitempty"`
-	Reason string `json:"reason"`
-	ResourceType LifecycleResourceType `json:"resourceType"`
-	RetentionDays int32 `json:"retentionDays"`
-	ScheduleIntervalMinutes NullableInt32 `json:"scheduleIntervalMinutes,omitempty"`
-	Scope LifecycleScope `json:"scope"`
-	TenantId NullableString `json:"tenantId"`
-	UpdatedAt time.Time `json:"updatedAt"`
-	UpdatedBy string `json:"updatedBy"`
-	Version int32 `json:"version"`
+	BatchSize               *int32                `json:"batchSize,omitempty"`
+	CreatedAt               time.Time             `json:"createdAt"`
+	CreatedBy               string                `json:"createdBy"`
+	Enabled                 *bool                 `json:"enabled,omitempty"`
+	Id                      string                `json:"id"`
+	LabelSelector           map[string]string     `json:"labelSelector,omitempty"`
+	Namespace               NullableString        `json:"namespace,omitempty"`
+	NextRunAt               NullableTime          `json:"nextRunAt,omitempty"`
+	Reason                  string                `json:"reason"`
+	ResourceType            LifecycleResourceType `json:"resourceType"`
+	RetentionDays           int32                 `json:"retentionDays"`
+	ScheduleIntervalMinutes NullableInt32         `json:"scheduleIntervalMinutes,omitempty"`
+	Scope                   LifecycleScope        `json:"scope"`
+	TenantId                NullableString        `json:"tenantId"`
+	UpdatedAt               time.Time             `json:"updatedAt"`
+	UpdatedBy               string                `json:"updatedBy"`
+	Version                 int32                 `json:"version"`
 }
 
 type _LifecyclePolicy LifecyclePolicy
@@ -279,6 +279,7 @@ func (o *LifecyclePolicy) HasNamespace() bool {
 func (o *LifecyclePolicy) SetNamespace(v string) {
 	o.Namespace.Set(&v)
 }
+
 // SetNamespaceNil sets the value for Namespace to be an explicit nil
 func (o *LifecyclePolicy) SetNamespaceNil() {
 	o.Namespace.Set(nil)
@@ -321,6 +322,7 @@ func (o *LifecyclePolicy) HasNextRunAt() bool {
 func (o *LifecyclePolicy) SetNextRunAt(v time.Time) {
 	o.NextRunAt.Set(&v)
 }
+
 // SetNextRunAtNil sets the value for NextRunAt to be an explicit nil
 func (o *LifecyclePolicy) SetNextRunAtNil() {
 	o.NextRunAt.Set(nil)
@@ -435,6 +437,7 @@ func (o *LifecyclePolicy) HasScheduleIntervalMinutes() bool {
 func (o *LifecyclePolicy) SetScheduleIntervalMinutes(v int32) {
 	o.ScheduleIntervalMinutes.Set(&v)
 }
+
 // SetScheduleIntervalMinutesNil sets the value for ScheduleIntervalMinutes to be an explicit nil
 func (o *LifecyclePolicy) SetScheduleIntervalMinutesNil() {
 	o.ScheduleIntervalMinutes.Set(nil)
@@ -568,7 +571,7 @@ func (o *LifecyclePolicy) SetVersion(v int32) {
 }
 
 func (o LifecyclePolicy) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -632,10 +635,10 @@ func (o *LifecyclePolicy) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

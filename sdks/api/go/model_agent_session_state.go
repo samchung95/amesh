@@ -20,9 +20,9 @@ type AgentSessionState string
 
 // List of AgentSessionState
 const (
-	AGENTSESSIONSTATE_RUNNING AgentSessionState = "RUNNING"
+	AGENTSESSIONSTATE_RUNNING   AgentSessionState = "RUNNING"
 	AGENTSESSIONSTATE_SUCCEEDED AgentSessionState = "SUCCEEDED"
-	AGENTSESSIONSTATE_FAILED AgentSessionState = "FAILED"
+	AGENTSESSIONSTATE_FAILED    AgentSessionState = "FAILED"
 )
 
 // All allowed values of AgentSessionState enum

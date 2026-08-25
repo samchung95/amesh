@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,10 +21,10 @@ var _ MappedNullable = &TaskLog{}
 
 // TaskLog struct for TaskLog
 type TaskLog struct {
-	Attempt int32 `json:"attempt"`
-	Output map[string]interface{} `json:"output,omitempty"`
-	State string `json:"state"`
-	TaskId string `json:"taskId"`
+	Attempt int32                  `json:"attempt"`
+	Output  map[string]interface{} `json:"output,omitempty"`
+	State   string                 `json:"state"`
+	TaskId  string                 `json:"taskId"`
 }
 
 type _TaskLog TaskLog
@@ -155,7 +155,7 @@ func (o *TaskLog) SetTaskId(v string) {
 }
 
 func (o TaskLog) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -188,10 +188,10 @@ func (o *TaskLog) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

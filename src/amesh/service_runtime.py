@@ -60,6 +60,8 @@ class RegisteredService:
         ownership: dict[str, Any] | None = None,
         partitions: dict[str, Any] | None = None,
         dependencies: dict[str, str] | None = None,
+        ready: bool | None = True,
+        failure: str | None = None,
     ) -> ServiceInstance:
         current = self.instance
         self._instance = await self._repository.heartbeat(
@@ -68,6 +70,8 @@ class RegisteredService:
             ownership=ownership,
             partitions=partitions,
             dependencies=dependencies,
+            ready=ready,
+            failure=failure,
         )
         return self._instance
 

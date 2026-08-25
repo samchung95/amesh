@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,14 +21,14 @@ var _ MappedNullable = &AgentRouteAssessment{}
 
 // AgentRouteAssessment struct for AgentRouteAssessment
 type AgentRouteAssessment struct {
-	Available bool `json:"available"`
-	Eligible bool `json:"eligible"`
-	EvaluationScore string `json:"evaluationScore" validate:"regexp=^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"`
-	MemberId string `json:"memberId" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
-	PolicyOutcome string `json:"policyOutcome"`
-	ProjectedCostUsd string `json:"projectedCostUsd" validate:"regexp=^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"`
-	ProjectedLatencyMs int32 `json:"projectedLatencyMs"`
-	Reasons []string `json:"reasons"`
+	Available          bool     `json:"available"`
+	Eligible           bool     `json:"eligible"`
+	EvaluationScore    string   `json:"evaluationScore" validate:"regexp=^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"`
+	MemberId           string   `json:"memberId" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
+	PolicyOutcome      string   `json:"policyOutcome"`
+	ProjectedCostUsd   string   `json:"projectedCostUsd" validate:"regexp=^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"`
+	ProjectedLatencyMs int32    `json:"projectedLatencyMs"`
+	Reasons            []string `json:"reasons"`
 }
 
 type _AgentRouteAssessment AgentRouteAssessment
@@ -251,7 +251,7 @@ func (o *AgentRouteAssessment) SetReasons(v []string) {
 }
 
 func (o AgentRouteAssessment) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -291,10 +291,10 @@ func (o *AgentRouteAssessment) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

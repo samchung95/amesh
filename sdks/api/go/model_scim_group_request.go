@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,10 +21,10 @@ var _ MappedNullable = &ScimGroupRequest{}
 
 // ScimGroupRequest struct for ScimGroupRequest
 type ScimGroupRequest struct {
-	DisplayName string `json:"displayName"`
-	ExternalId NullableString `json:"externalId,omitempty"`
-	Members []ScimMember `json:"members,omitempty"`
-	Schemas []string `json:"schemas,omitempty"`
+	DisplayName string         `json:"displayName"`
+	ExternalId  NullableString `json:"externalId,omitempty"`
+	Members     []ScimMember   `json:"members,omitempty"`
+	Schemas     []string       `json:"schemas,omitempty"`
 }
 
 type _ScimGroupRequest ScimGroupRequest
@@ -103,6 +103,7 @@ func (o *ScimGroupRequest) HasExternalId() bool {
 func (o *ScimGroupRequest) SetExternalId(v string) {
 	o.ExternalId.Set(&v)
 }
+
 // SetExternalIdNil sets the value for ExternalId to be an explicit nil
 func (o *ScimGroupRequest) SetExternalIdNil() {
 	o.ExternalId.Set(nil)
@@ -178,7 +179,7 @@ func (o *ScimGroupRequest) SetSchemas(v []string) {
 }
 
 func (o ScimGroupRequest) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -213,10 +214,10 @@ func (o *ScimGroupRequest) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

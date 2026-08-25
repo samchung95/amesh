@@ -20,8 +20,8 @@ type PluginFilesystemAccess string
 
 // List of PluginFilesystemAccess
 const (
-	PLUGINFILESYSTEMACCESS_NONE PluginFilesystemAccess = "none"
-	PLUGINFILESYSTEMACCESS_WORKSPACE_READ PluginFilesystemAccess = "workspace-read"
+	PLUGINFILESYSTEMACCESS_NONE            PluginFilesystemAccess = "none"
+	PLUGINFILESYSTEMACCESS_WORKSPACE_READ  PluginFilesystemAccess = "workspace-read"
 	PLUGINFILESYSTEMACCESS_WORKSPACE_WRITE PluginFilesystemAccess = "workspace-write"
 )
 

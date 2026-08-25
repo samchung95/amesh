@@ -20,6 +20,7 @@ from amesh.domain.runner import (
     RunnerSecurityPolicy,
 )
 
+from .agent_memory import AgentMemoryRepository
 from .agent_primitives import (
     AgentPrimitiveRepository,
     ModelProvider,
@@ -27,7 +28,6 @@ from .agent_primitives import (
     ModelProviderResponse,
 )
 from .agent_resources import AgentResourceRepository
-from .agent_memory import AgentMemoryRepository
 from .agent_sessions import AgentSessionRepository
 from .audit_repository import AuditRepository, AuthorizationDecisionAuditSink
 from .authentication_repository import AuthenticationProvider, AuthenticationRepository
@@ -136,6 +136,7 @@ from .object_store import (
 )
 from .operational_controls import OperationalControlEvaluator
 from .plugin_runtime import PluginInvocation, PluginRuntime
+from .promotion_repository import PromotionRepository
 from .reconciliation_repository import (
     ReconciliationAlreadyRunningError,
     ReconciliationRepository,
@@ -182,6 +183,7 @@ from .tenant_repository import (
     TenantRepository,
     TenantUnavailableError,
 )
+from .tool_provider import ToolInvocationJournal, ToolProvider
 from .trigger_runtime import (
     PollingTriggerAdapter,
     RealtimeTriggerAdapter,
@@ -210,8 +212,8 @@ from .worker_repository import (
 
 __all__ = [
     "WORKER_PROTOCOL_VERSION",
-    "AgentPrimitiveRepository",
     "AgentMemoryRepository",
+    "AgentPrimitiveRepository",
     "AgentResourceRepository",
     "AgentSessionRepository",
     "AmbiguousFederatedIdentity",
@@ -310,6 +312,7 @@ __all__ = [
     "PluginRuntime",
     "PolicyVersionChanged",
     "PollingTriggerAdapter",
+    "PromotionRepository",
     "QueueShardDiagnostics",
     "RealtimeTriggerAdapter",
     "ReconciliationAlreadyRunningError",
@@ -362,6 +365,8 @@ __all__ = [
     "TenantQuotaExceeded",
     "TenantRepository",
     "TenantUnavailableError",
+    "ToolInvocationJournal",
+    "ToolProvider",
     "TransportDiagnostics",
     "TransportRetentionResult",
     "TriggerAdapterOccurrence",

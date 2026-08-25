@@ -13,7 +13,7 @@ from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from enum import StrEnum
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import psutil
 from pydantic import BaseModel, ConfigDict, Field, SecretStr
@@ -24,6 +24,7 @@ from amesh.dsl import TaskDefinition
 from amesh.executor import (
     TaskArtifactRecord,
     TaskAssetRecord,
+    TaskCancellationChannel,
     TaskCompletion,
     TaskConfigurationError,
     TaskExecutionContext,
@@ -76,6 +77,11 @@ from amesh.plugin_sdk.wire import (
     PluginCapabilityEnvelope,
 )
 from amesh.ports import LogLevel, LogSourceStream, MetricKind
+
+if TYPE_CHECKING:
+    from amesh.domain import ToolDescriptor, ToolInvocationRequest, ToolProviderRef
+
+    from .tool_provider import IsolatedPluginToolProvider
 
 _TASK_STRUCTURE_FIELDS = {
     "id",
@@ -186,6 +192,22 @@ class _OutputBudget:
                 FailureCategory.USER_CODE,
                 "plugin.isolated.output_limit",
             )
+
+
+class _ToolCancellation(TaskCancellationChannel):
+    def __init__(self) -> None:
+        super().__init__()
+        self._event = asyncio.Event()
+
+    async def requested(self) -> bool:
+        return self._event.is_set()
+
+    async def wait(self, *, poll_interval: float = 0.05) -> None:
+        del poll_interval
+        await self._event.wait()
+
+    def cancel(self) -> None:
+        self._event.set()
 
 
 class _PluginProcess:
@@ -413,6 +435,7 @@ class IsolatedPluginRuntime:
         self._catalog_generation = catalog.snapshot.generation
         self._registrations: dict[tuple[str, str, str], _Registration] = {}
         self._unavailable: dict[tuple[str, str, str], IsolatedPluginRuntimeStatus] = {}
+        self._tool_cancellations: dict[str, _ToolCancellation] = {}
         self._lock = asyncio.Lock()
 
     async def ensure_configured(self) -> None:
@@ -461,6 +484,132 @@ class IsolatedPluginRuntime:
                 raise RuntimeError(f"isolated task identity {pin.type!r} was already registered")
             handlers[pin.type] = self._task_handler(registration, entry_name)
         return handlers
+
+    def tool_provider(
+        self,
+        identity: ToolProviderRef,
+        tools: tuple[ToolDescriptor, ...],
+    ) -> IsolatedPluginToolProvider:
+        """Bind neutral tool calls to this runtime's isolated RPC boundary."""
+
+        from .tool_provider import IsolatedPluginToolProvider
+
+        return IsolatedPluginToolProvider(
+            identity,
+            tools,
+            lambda request: self.invoke_tool(identity, request),
+            cancel=self.cancel_tool,
+        )
+
+    async def invoke_tool(
+        self,
+        identity: ToolProviderRef,
+        request: ToolInvocationRequest,
+    ) -> dict[str, Any]:
+        """Execute one manifest entry point through the existing child process."""
+
+        from amesh.domain import ToolProviderKind
+
+        if identity.kind is not ToolProviderKind.PLUGIN:
+            raise ValueError("isolated runtime tool calls require a plugin provider")
+        await self.ensure_configured()
+        registrations = [
+            item for item in self._registrations.values() if item.profile.name == identity.key
+        ]
+        if len(registrations) != 1:
+            raise ValueError(
+                f"plugin provider {identity.key!r} does not resolve to exactly one isolated revision"
+            )
+        registration = registrations[0]
+        entry = next(
+            (
+                item
+                for item in registration.manifest.entry_points
+                if item.name == request.tool_name
+                or item.resolved_resource_type == request.tool_name
+            ),
+            None,
+        )
+        if entry is None:
+            raise LookupError(f"isolated plugin tool {request.tool_name!r} is unavailable")
+        from amesh.plugin_sdk import (
+            PluginCapabilityEnvelope,
+            PluginOperation,
+            PluginRequest,
+            PluginSession,
+        )
+
+        capability_tokens = {
+            capability: secrets.token_urlsafe(24)
+            for capability in registration.manifest.capabilities.required
+        }
+        declared = registration.manifest.capabilities
+        scoped_secrets = {
+            scope: value
+            for scope, value in zip(declared.secret_scopes, request.secret_values, strict=False)
+        }
+        context_secrets = {
+            scope: value.get_secret_value() for scope, value in scoped_secrets.items()
+        }
+        capabilities = PluginCapabilityEnvelope(
+            capabilityTokens={name: SecretStr(token) for name, token in capability_tokens.items()},
+            secrets={name: value for name, value in scoped_secrets.items()},
+            allowedEgress=(
+                declared.allowed_egress
+                if declared.network_access is PluginNetworkAccess.RESTRICTED
+                else ()
+            ),
+            platformApis=registration.profile.platform_apis,
+        )
+        plugin_request = PluginRequest(
+            plugin=registration.manifest.name,
+            entryPoint=entry.name,
+            operation=PluginOperation.EXECUTE,
+            session=PluginSession(
+                tenantId=request.tenant_id,
+                invocationId=str(request.invocation_id),
+                capabilityTokens={
+                    name: SecretStr(token) for name, token in capability_tokens.items()
+                },
+            ),
+            configuration=dict(request.arguments),
+            input=dict(request.arguments),
+            context={
+                "executionId": str(request.execution_id),
+                "taskRunId": str(request.task_run_id),
+                "attempt": request.attempt,
+            },
+        )
+        cancellation = _ToolCancellation()
+        context = TaskExecutionContext(
+            tenant_id=request.tenant_id,
+            execution_id=request.execution_id,
+            task_run_id=request.task_run_id,
+            attempt=request.attempt,
+            attempt_id=request.invocation_id,
+            inputs=request.arguments,
+            outputs={},
+            variables={},
+            namespace=request.namespace,
+            secrets=context_secrets,
+            cancellation=cancellation,
+        )
+        self._tool_cancellations[str(request.invocation_id)] = cancellation
+        try:
+            completion = await self._invoke(
+                registration,
+                plugin_request,
+                capabilities,
+                context,
+            )
+            return completion.output
+        finally:
+            self._tool_cancellations.pop(str(request.invocation_id), None)
+
+    async def cancel_tool(self, invocation_id: str) -> None:
+        cancellation = self._tool_cancellations.get(invocation_id)
+        if cancellation is not None:
+            cancellation.cancel()
 
     def snapshot(self) -> IsolatedPluginRuntimeSnapshot:
         statuses = [self._status(item) for item in self._registrations.values()]

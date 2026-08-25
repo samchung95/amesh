@@ -10,6 +10,9 @@ x-observability-environment: &observability-environment
   OTEL_BATCH_QUEUE_SIZE: ${OTEL_BATCH_QUEUE_SIZE:-2048}
   OTEL_BATCH_SIZE: ${OTEL_BATCH_SIZE:-512}
   OTEL_EXPORT_TIMEOUT_SECONDS: ${OTEL_EXPORT_TIMEOUT_SECONDS:-5}
+  MODEL_CONTINUATION_KEY_ID: compose-development
+  MODEL_CONTINUATION_ENCRYPTION_KEY: ${MODEL_CONTINUATION_ENCRYPTION_KEY:-56sxfzMhHF5kTfJeU8mk5ZuckryTJWyUrlByWTmyQbo=}
+  SERVICE_ENABLED_ROLES: '["webserver","executor","scheduler","worker","indexer","maintenance"]'
 
 services:
   api:

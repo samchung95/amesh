@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the AgentSessionRecord type satisfies the MappedNullable interface at compile time
@@ -22,24 +22,24 @@ var _ MappedNullable = &AgentSessionRecord{}
 
 // AgentSessionRecord struct for AgentSessionRecord
 type AgentSessionRecord struct {
-	Attempt int32 `json:"attempt"`
-	CapabilityPinId string `json:"capabilityPinId"`
-	Checkpoint *AgentSessionCheckpoint `json:"checkpoint,omitempty"`
-	CompletedAt NullableTime `json:"completedAt,omitempty"`
-	Counters *AgentSessionCounters `json:"counters,omitempty"`
-	CreatedAt *time.Time `json:"createdAt,omitempty"`
-	EnvelopeDigest string `json:"envelopeDigest" validate:"regexp=^sha256:[0-9a-f]{64}$"`
-	Error NullableString `json:"error,omitempty"`
-	ExecutionId string `json:"executionId"`
-	FinalResult map[string]interface{} `json:"finalResult,omitempty"`
-	Namespace string `json:"namespace"`
-	Phase *AgentSessionPhase `json:"phase,omitempty"`
-	SessionId *string `json:"sessionId,omitempty"`
-	State *AgentSessionState `json:"state,omitempty"`
-	TaskRunId string `json:"taskRunId"`
-	TenantId string `json:"tenantId"`
-	UpdatedAt *time.Time `json:"updatedAt,omitempty"`
-	Version *int32 `json:"version,omitempty"`
+	Attempt         int32                   `json:"attempt"`
+	CapabilityPinId string                  `json:"capabilityPinId"`
+	Checkpoint      *AgentSessionCheckpoint `json:"checkpoint,omitempty"`
+	CompletedAt     NullableTime            `json:"completedAt,omitempty"`
+	Counters        *AgentSessionCounters   `json:"counters,omitempty"`
+	CreatedAt       *time.Time              `json:"createdAt,omitempty"`
+	EnvelopeDigest  string                  `json:"envelopeDigest" validate:"regexp=^sha256:[0-9a-f]{64}$"`
+	Error           NullableString          `json:"error,omitempty"`
+	ExecutionId     string                  `json:"executionId"`
+	FinalResult     map[string]interface{}  `json:"finalResult,omitempty"`
+	Namespace       string                  `json:"namespace"`
+	Phase           *AgentSessionPhase      `json:"phase,omitempty"`
+	SessionId       *string                 `json:"sessionId,omitempty"`
+	State           *AgentSessionState      `json:"state,omitempty"`
+	TaskRunId       string                  `json:"taskRunId"`
+	TenantId        string                  `json:"tenantId"`
+	UpdatedAt       *time.Time              `json:"updatedAt,omitempty"`
+	Version         *int32                  `json:"version,omitempty"`
 }
 
 type _AgentSessionRecord AgentSessionRecord
@@ -192,6 +192,7 @@ func (o *AgentSessionRecord) HasCompletedAt() bool {
 func (o *AgentSessionRecord) SetCompletedAt(v time.Time) {
 	o.CompletedAt.Set(&v)
 }
+
 // SetCompletedAtNil sets the value for CompletedAt to be an explicit nil
 func (o *AgentSessionRecord) SetCompletedAtNil() {
 	o.CompletedAt.Set(nil)
@@ -322,6 +323,7 @@ func (o *AgentSessionRecord) HasError() bool {
 func (o *AgentSessionRecord) SetError(v string) {
 	o.Error.Set(&v)
 }
+
 // SetErrorNil sets the value for Error to be an explicit nil
 func (o *AgentSessionRecord) SetErrorNil() {
 	o.Error.Set(nil)
@@ -622,7 +624,7 @@ func (o *AgentSessionRecord) SetVersion(v int32) {
 }
 
 func (o AgentSessionRecord) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -693,10 +695,10 @@ func (o *AgentSessionRecord) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

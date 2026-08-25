@@ -19,8 +19,8 @@ var _ MappedNullable = &WorkflowAppLaunchRequest{}
 
 // WorkflowAppLaunchRequest struct for WorkflowAppLaunchRequest
 type WorkflowAppLaunchRequest struct {
-	IdempotencyKey NullableString `json:"idempotencyKey,omitempty"`
-	Inputs map[string]interface{} `json:"inputs,omitempty"`
+	IdempotencyKey       NullableString         `json:"idempotencyKey,omitempty"`
+	Inputs               map[string]interface{} `json:"inputs,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -75,6 +75,7 @@ func (o *WorkflowAppLaunchRequest) HasIdempotencyKey() bool {
 func (o *WorkflowAppLaunchRequest) SetIdempotencyKey(v string) {
 	o.IdempotencyKey.Set(&v)
 }
+
 // SetIdempotencyKeyNil sets the value for IdempotencyKey to be an explicit nil
 func (o *WorkflowAppLaunchRequest) SetIdempotencyKeyNil() {
 	o.IdempotencyKey.Set(nil)
@@ -118,7 +119,7 @@ func (o *WorkflowAppLaunchRequest) SetInputs(v map[string]interface{}) {
 }
 
 func (o WorkflowAppLaunchRequest) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}

@@ -19,9 +19,9 @@ var _ MappedNullable = &NamespaceWorkflowMetadataUpdate{}
 
 // NamespaceWorkflowMetadataUpdate struct for NamespaceWorkflowMetadataUpdate
 type NamespaceWorkflowMetadataUpdate struct {
-	ExpectedVersion NullableInt32 `json:"expectedVersion,omitempty"`
-	PluginDefaults []PluginDefaultDefinition `json:"pluginDefaults,omitempty"`
-	Policy *WorkflowMetadataPolicy `json:"policy,omitempty"`
+	ExpectedVersion NullableInt32             `json:"expectedVersion,omitempty"`
+	PluginDefaults  []PluginDefaultDefinition `json:"pluginDefaults,omitempty"`
+	Policy          *WorkflowMetadataPolicy   `json:"policy,omitempty"`
 }
 
 // NewNamespaceWorkflowMetadataUpdate instantiates a new NamespaceWorkflowMetadataUpdate object
@@ -73,6 +73,7 @@ func (o *NamespaceWorkflowMetadataUpdate) HasExpectedVersion() bool {
 func (o *NamespaceWorkflowMetadataUpdate) SetExpectedVersion(v int32) {
 	o.ExpectedVersion.Set(&v)
 }
+
 // SetExpectedVersionNil sets the value for ExpectedVersion to be an explicit nil
 func (o *NamespaceWorkflowMetadataUpdate) SetExpectedVersionNil() {
 	o.ExpectedVersion.Set(nil)
@@ -148,7 +149,7 @@ func (o *NamespaceWorkflowMetadataUpdate) SetPolicy(v WorkflowMetadataPolicy) {
 }
 
 func (o NamespaceWorkflowMetadataUpdate) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}

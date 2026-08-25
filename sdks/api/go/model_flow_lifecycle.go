@@ -20,8 +20,8 @@ type FlowLifecycle string
 
 // List of FlowLifecycle
 const (
-	FLOWLIFECYCLE_DRAFT FlowLifecycle = "DRAFT"
-	FLOWLIFECYCLE_ACTIVE FlowLifecycle = "ACTIVE"
+	FLOWLIFECYCLE_DRAFT    FlowLifecycle = "DRAFT"
+	FLOWLIFECYCLE_ACTIVE   FlowLifecycle = "ACTIVE"
 	FLOWLIFECYCLE_DISABLED FlowLifecycle = "DISABLED"
 	FLOWLIFECYCLE_ARCHIVED FlowLifecycle = "ARCHIVED"
 )

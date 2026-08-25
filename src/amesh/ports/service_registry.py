@@ -29,6 +29,8 @@ class ServiceRegistryRepository(Protocol):
         ownership: dict[str, Any] | None = None,
         partitions: dict[str, Any] | None = None,
         dependencies: dict[str, str] | None = None,
+        ready: bool | None = True,
+        failure: str | None = None,
     ) -> ServiceInstance: ...
 
     async def request_drain(

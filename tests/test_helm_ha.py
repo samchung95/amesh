@@ -33,6 +33,9 @@ def test_chart_declares_independent_fenced_service_roles() -> None:
         "SERVICE_FAILURE_ZONE",
     ):
         assert required in role_template
+    helpers = (CHART / "templates" / "_helpers.tpl").read_text(encoding="utf-8")
+    assert 'define "amesh.enabledRolesJson"' in helpers
+    assert "SERVICE_ENABLED_ROLES" in helpers
     assert "kind: PodDisruptionBudget" in (
         CHART / "templates" / "poddisruptionbudgets.yaml"
     ).read_text(encoding="utf-8")

@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the McpConnectionRevision type satisfies the MappedNullable interface at compile time
@@ -22,13 +22,13 @@ var _ MappedNullable = &McpConnectionRevision{}
 
 // McpConnectionRevision struct for McpConnectionRevision
 type McpConnectionRevision struct {
-	ConnectionId string `json:"connectionId"`
-	CreatedAt time.Time `json:"createdAt"`
-	CreatedBy string `json:"createdBy"`
-	Digest string `json:"digest" validate:"regexp=^sha256:[0-9a-f]{64}$"`
-	Revision int32 `json:"revision"`
-	Spec McpConnectionSpec `json:"spec"`
-	TenantId string `json:"tenantId"`
+	ConnectionId string            `json:"connectionId"`
+	CreatedAt    time.Time         `json:"createdAt"`
+	CreatedBy    string            `json:"createdBy"`
+	Digest       string            `json:"digest" validate:"regexp=^sha256:[0-9a-f]{64}$"`
+	Revision     int32             `json:"revision"`
+	Spec         McpConnectionSpec `json:"spec"`
+	TenantId     string            `json:"tenantId"`
 }
 
 type _McpConnectionRevision McpConnectionRevision
@@ -226,7 +226,7 @@ func (o *McpConnectionRevision) SetTenantId(v string) {
 }
 
 func (o McpConnectionRevision) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -264,10 +264,10 @@ func (o *McpConnectionRevision) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

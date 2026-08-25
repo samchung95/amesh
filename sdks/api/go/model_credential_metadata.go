@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the CredentialMetadata type satisfies the MappedNullable interface at compile time
@@ -22,23 +22,23 @@ var _ MappedNullable = &CredentialMetadata{}
 
 // CredentialMetadata struct for CredentialMetadata
 type CredentialMetadata struct {
-	Audience *string `json:"audience,omitempty"`
-	CreatedAt *time.Time `json:"created_at,omitempty"`
-	ExpiresAt time.Time `json:"expires_at"`
-	Id *string `json:"id,omitempty"`
-	IssuedCredentialVersion *int32 `json:"issued_credential_version,omitempty"`
-	Kind *CredentialKind `json:"kind,omitempty"`
-	LastUsedAt NullableTime `json:"last_used_at,omitempty"`
-	Name string `json:"name" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
-	OverlapExpiresAt NullableTime `json:"overlap_expires_at,omitempty"`
-	ParentTokenId NullableString `json:"parent_token_id,omitempty"`
-	PrincipalId string `json:"principal_id"`
-	PrincipalType PrincipalType `json:"principal_type"`
-	RateLimitPerMinute *int32 `json:"rate_limit_per_minute,omitempty"`
-	RevokedAt NullableTime `json:"revoked_at,omitempty"`
-	Scopes []string `json:"scopes,omitempty"`
-	Status *CredentialStatus `json:"status,omitempty"`
-	SupersededBy NullableString `json:"superseded_by,omitempty"`
+	Audience                *string           `json:"audience,omitempty"`
+	CreatedAt               *time.Time        `json:"created_at,omitempty"`
+	ExpiresAt               time.Time         `json:"expires_at"`
+	Id                      *string           `json:"id,omitempty"`
+	IssuedCredentialVersion *int32            `json:"issued_credential_version,omitempty"`
+	Kind                    *CredentialKind   `json:"kind,omitempty"`
+	LastUsedAt              NullableTime      `json:"last_used_at,omitempty"`
+	Name                    string            `json:"name" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
+	OverlapExpiresAt        NullableTime      `json:"overlap_expires_at,omitempty"`
+	ParentTokenId           NullableString    `json:"parent_token_id,omitempty"`
+	PrincipalId             string            `json:"principal_id"`
+	PrincipalType           PrincipalType     `json:"principal_type"`
+	RateLimitPerMinute      *int32            `json:"rate_limit_per_minute,omitempty"`
+	RevokedAt               NullableTime      `json:"revoked_at,omitempty"`
+	Scopes                  []string          `json:"scopes,omitempty"`
+	Status                  *CredentialStatus `json:"status,omitempty"`
+	SupersededBy            NullableString    `json:"superseded_by,omitempty"`
 }
 
 type _CredentialMetadata CredentialMetadata
@@ -300,6 +300,7 @@ func (o *CredentialMetadata) HasLastUsedAt() bool {
 func (o *CredentialMetadata) SetLastUsedAt(v time.Time) {
 	o.LastUsedAt.Set(&v)
 }
+
 // SetLastUsedAtNil sets the value for LastUsedAt to be an explicit nil
 func (o *CredentialMetadata) SetLastUsedAtNil() {
 	o.LastUsedAt.Set(nil)
@@ -366,6 +367,7 @@ func (o *CredentialMetadata) HasOverlapExpiresAt() bool {
 func (o *CredentialMetadata) SetOverlapExpiresAt(v time.Time) {
 	o.OverlapExpiresAt.Set(&v)
 }
+
 // SetOverlapExpiresAtNil sets the value for OverlapExpiresAt to be an explicit nil
 func (o *CredentialMetadata) SetOverlapExpiresAtNil() {
 	o.OverlapExpiresAt.Set(nil)
@@ -408,6 +410,7 @@ func (o *CredentialMetadata) HasParentTokenId() bool {
 func (o *CredentialMetadata) SetParentTokenId(v string) {
 	o.ParentTokenId.Set(&v)
 }
+
 // SetParentTokenIdNil sets the value for ParentTokenId to be an explicit nil
 func (o *CredentialMetadata) SetParentTokenIdNil() {
 	o.ParentTokenId.Set(nil)
@@ -530,6 +533,7 @@ func (o *CredentialMetadata) HasRevokedAt() bool {
 func (o *CredentialMetadata) SetRevokedAt(v time.Time) {
 	o.RevokedAt.Set(&v)
 }
+
 // SetRevokedAtNil sets the value for RevokedAt to be an explicit nil
 func (o *CredentialMetadata) SetRevokedAtNil() {
 	o.RevokedAt.Set(nil)
@@ -636,6 +640,7 @@ func (o *CredentialMetadata) HasSupersededBy() bool {
 func (o *CredentialMetadata) SetSupersededBy(v string) {
 	o.SupersededBy.Set(&v)
 }
+
 // SetSupersededByNil sets the value for SupersededBy to be an explicit nil
 func (o *CredentialMetadata) SetSupersededByNil() {
 	o.SupersededBy.Set(nil)
@@ -647,7 +652,7 @@ func (o *CredentialMetadata) UnsetSupersededBy() {
 }
 
 func (o CredentialMetadata) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -718,10 +723,10 @@ func (o *CredentialMetadata) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

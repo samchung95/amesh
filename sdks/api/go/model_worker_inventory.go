@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the WorkerInventory type satisfies the MappedNullable interface at compile time
@@ -22,26 +22,26 @@ var _ MappedNullable = &WorkerInventory{}
 
 // WorkerInventory struct for WorkerInventory
 type WorkerInventory struct {
-	CancellationAcknowledged bool `json:"cancellation_acknowledged"`
-	Capabilities []string `json:"capabilities"`
-	Capacity int32 `json:"capacity"`
-	ClaimedWork int32 `json:"claimed_work"`
-	Compatibility WorkerCompatibility `json:"compatibility"`
-	InstanceName string `json:"instance_name"`
-	Labels map[string]string `json:"labels"`
-	LastHeartbeatAt time.Time `json:"last_heartbeat_at"`
-	Liveness WorkerLiveness `json:"liveness"`
-	Progress map[string]interface{} `json:"progress"`
-	ProtocolVersion int32 `json:"protocol_version"`
-	ResourceUsage map[string]interface{} `json:"resource_usage"`
-	ResourceVersion int32 `json:"resource_version"`
-	RunnerTypes []string `json:"runner_types"`
-	Status WorkerStatus `json:"status"`
-	TenantId string `json:"tenant_id"`
-	Utilization float32 `json:"utilization"`
-	Version string `json:"version"`
-	WorkerGroup string `json:"worker_group"`
-	WorkerId string `json:"worker_id"`
+	CancellationAcknowledged bool                   `json:"cancellation_acknowledged"`
+	Capabilities             []string               `json:"capabilities"`
+	Capacity                 int32                  `json:"capacity"`
+	ClaimedWork              int32                  `json:"claimed_work"`
+	Compatibility            WorkerCompatibility    `json:"compatibility"`
+	InstanceName             string                 `json:"instance_name"`
+	Labels                   map[string]string      `json:"labels"`
+	LastHeartbeatAt          time.Time              `json:"last_heartbeat_at"`
+	Liveness                 WorkerLiveness         `json:"liveness"`
+	Progress                 map[string]interface{} `json:"progress"`
+	ProtocolVersion          int32                  `json:"protocol_version"`
+	ResourceUsage            map[string]interface{} `json:"resource_usage"`
+	ResourceVersion          int32                  `json:"resource_version"`
+	RunnerTypes              []string               `json:"runner_types"`
+	Status                   WorkerStatus           `json:"status"`
+	TenantId                 string                 `json:"tenant_id"`
+	Utilization              float32                `json:"utilization"`
+	Version                  string                 `json:"version"`
+	WorkerGroup              string                 `json:"worker_group"`
+	WorkerId                 string                 `json:"worker_id"`
 }
 
 type _WorkerInventory WorkerInventory
@@ -564,7 +564,7 @@ func (o *WorkerInventory) SetWorkerId(v string) {
 }
 
 func (o WorkerInventory) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -628,10 +628,10 @@ func (o *WorkerInventory) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

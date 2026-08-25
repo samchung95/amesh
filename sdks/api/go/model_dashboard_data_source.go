@@ -21,11 +21,11 @@ type DashboardDataSource string
 // List of DashboardDataSource
 const (
 	DASHBOARDDATASOURCE_EXECUTIONS DashboardDataSource = "EXECUTIONS"
-	DASHBOARDDATASOURCE_LOGS DashboardDataSource = "LOGS"
-	DASHBOARDDATASOURCE_METRICS DashboardDataSource = "METRICS"
-	DASHBOARDDATASOURCE_SLA DashboardDataSource = "SLA"
-	DASHBOARDDATASOURCE_WORKERS DashboardDataSource = "WORKERS"
-	DASHBOARDDATASOURCE_ASSETS DashboardDataSource = "ASSETS"
+	DASHBOARDDATASOURCE_LOGS       DashboardDataSource = "LOGS"
+	DASHBOARDDATASOURCE_METRICS    DashboardDataSource = "METRICS"
+	DASHBOARDDATASOURCE_SLA        DashboardDataSource = "SLA"
+	DASHBOARDDATASOURCE_WORKERS    DashboardDataSource = "WORKERS"
+	DASHBOARDDATASOURCE_ASSETS     DashboardDataSource = "ASSETS"
 )
 
 // All allowed values of DashboardDataSource enum

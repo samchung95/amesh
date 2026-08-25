@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,17 +21,17 @@ var _ MappedNullable = &PluginManifest{}
 
 // PluginManifest struct for PluginManifest
 type PluginManifest struct {
-	Capabilities *PluginCapabilities `json:"capabilities,omitempty"`
+	Capabilities  *PluginCapabilities `json:"capabilities,omitempty"`
 	Compatibility PluginCompatibility `json:"compatibility"`
-	Dependencies []PluginDependency `json:"dependencies,omitempty"`
-	Deprecations []PluginDeprecation `json:"deprecations,omitempty"`
-	Description NullableString `json:"description,omitempty"`
-	EntryPoints []PluginEntryPoint `json:"entryPoints"`
-	License string `json:"license"`
-	Name string `json:"name" validate:"regexp=^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$"`
-	SchemaVersion *string `json:"schemaVersion,omitempty"`
-	Vendor string `json:"vendor"`
-	Version string `json:"version" validate:"regexp=^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?(?:\\+[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?$"`
+	Dependencies  []PluginDependency  `json:"dependencies,omitempty"`
+	Deprecations  []PluginDeprecation `json:"deprecations,omitempty"`
+	Description   NullableString      `json:"description,omitempty"`
+	EntryPoints   []PluginEntryPoint  `json:"entryPoints"`
+	License       string              `json:"license"`
+	Name          string              `json:"name" validate:"regexp=^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$"`
+	SchemaVersion *string             `json:"schemaVersion,omitempty"`
+	Vendor        string              `json:"vendor"`
+	Version       string              `json:"version" validate:"regexp=^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?(?:\\+[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?$"`
 }
 
 type _PluginManifest PluginManifest
@@ -215,6 +215,7 @@ func (o *PluginManifest) HasDescription() bool {
 func (o *PluginManifest) SetDescription(v string) {
 	o.Description.Set(&v)
 }
+
 // SetDescriptionNil sets the value for Description to be an explicit nil
 func (o *PluginManifest) SetDescriptionNil() {
 	o.Description.Set(nil)
@@ -378,7 +379,7 @@ func (o *PluginManifest) SetVersion(v string) {
 }
 
 func (o PluginManifest) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -429,10 +430,10 @@ func (o *PluginManifest) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

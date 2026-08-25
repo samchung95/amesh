@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from decimal import Decimal, InvalidOperation
 from enum import StrEnum
 from typing import Any, cast
-from uuid import uuid5
+from uuid import UUID, uuid5
 
 import httpx
 from jsonschema import Draft202012Validator
@@ -37,6 +37,16 @@ from amesh.executor import (
     TaskExecutionFailure,
     TaskHandler,
     TaskMetricRecord,
+)
+from amesh.model_continuations import ModelContinuationProtector
+from amesh.model_providers import (
+    CapabilityRequirement,
+    ModelProviderCapabilities,
+    ModelProviderRegistry,
+    ProviderCapability,
+    ProviderPin,
+    normalize_cost,
+    normalize_usage,
 )
 from amesh.ports import AgentPrimitiveRepository, ModelProvider, ModelProviderRequest
 from amesh.tasks.http import HttpTaskPolicy
@@ -160,8 +170,11 @@ def agent_llm_handler(
     http_policy: HttpTaskPolicy | None = None,
     provider: ModelProvider | None = None,
     repository: AgentPrimitiveRepository | None = None,
+    provider_registry: ModelProviderRegistry | None = None,
+    continuation_protector: ModelContinuationProtector | None = None,
 ) -> TaskHandler:
     active_provider = provider or OpenAICompatibleModelProvider(client, http_policy=http_policy)
+    registry = provider_registry or ModelProviderRegistry()
 
     async def run(task: TaskDefinition, context: TaskExecutionContext) -> TaskCompletion:
         extra = dict(task.model_extra or {})
@@ -169,6 +182,20 @@ def agent_llm_handler(
         if operation is None:
             raise ValueError(f"unsupported model task type {task.type!r}")
         spec, credential = _parse_task_spec(task, context, operation, configuration)
+        continuation_source = _continuation_source(extra)
+        provider_pin = _negotiate_provider(
+            registry,
+            active_provider,
+            spec,
+            require_continuation=continuation_source is not None,
+        )
+        continuation, continuation_metadata = await _load_continuation(
+            continuation_source,
+            context=context,
+            repository=repository,
+            protector=continuation_protector,
+            provider_pin=provider_pin,
+        )
         outbound_payload = _provider_payload(spec)
         outbound_payload = _apply_egress_policy(
             outbound_payload,
@@ -186,6 +213,7 @@ def agent_llm_handler(
                 "endpoint": endpoint,
                 "operation": operation.value,
                 "payload": outbound_payload,
+                "continuation": continuation_metadata,
             }
         )
         request_metadata = _request_metadata(
@@ -195,6 +223,8 @@ def agent_llm_handler(
             request_hash,
             tuple(context.secrets.values()),
             task,
+            provider_pin,
+            continuation_metadata,
         )
         journal_operation = _journal_operation(operation.value, extra, request_metadata)
         claim = None
@@ -217,25 +247,48 @@ def agent_llm_handler(
                 return _reused_completion(claim.record)
         invocation_id = claim.record.invocation_id if claim is not None else None
         try:
-            response = await active_provider.invoke(
+            response = await provider_pin.registration.adapter.invoke(
                 ModelProviderRequest(
                     operation=operation.value,
                     endpoint=endpoint,
                     model=spec.model,
                     payload=outbound_payload,
                     timeoutSeconds=task.timeout_seconds or 60,
+                    continuation=continuation,
                 ),
                 SecretStr(credential),
             )
             output = _normalize_response(spec, response.payload, request_metadata)
             _enforce_budget(spec.budget, output)
             safe_output = _redact_values(output, tuple(context.secrets.values()))
+            protected_continuation = None
+            if response.continuation is not None and repository is not None:
+                if invocation_id is None or continuation_protector is None:
+                    raise RuntimeError(
+                        "provider returned continuation state but durable protected storage is unavailable"
+                    )
+                if not provider_pin.capabilities.opaque_continuation:
+                    raise RuntimeError(
+                        "provider returned continuation state without declaring opaque_continuation"
+                    )
+                protected_continuation = continuation_protector.protect(
+                    tenant_id=context.tenant_id,
+                    invocation_id=invocation_id,
+                    provider_id=provider_pin.provider_id,
+                    provider_revision=provider_pin.revision,
+                    token=response.continuation,
+                )
+                safe_output["continuation"] = {
+                    "invocationId": str(invocation_id),
+                    **protected_continuation.public_metadata(),
+                }
             if repository is not None and invocation_id is not None:
                 await repository.complete_invocation(
                     invocation_id,
                     tenant_id=context.tenant_id,
                     state=AgentInvocationState.SUCCEEDED,
                     result=safe_output,
+                    protected_continuation=protected_continuation,
                 )
             return _completion(safe_output)
         except Exception as exc:
@@ -272,6 +325,90 @@ def _journal_operation(
     return f"{operation[:80]}#{canonical_hash(invocation_key)[:32]}"
 
 
+def _negotiate_provider(
+    registry: ModelProviderRegistry,
+    active_provider: ModelProvider,
+    spec: _ModelTaskSpec,
+    *,
+    require_continuation: bool = False,
+) -> ProviderPin:
+    """Resolve an immutable provider pin before the adapter receives the request."""
+
+    try:
+        registry.resolve(spec.provider.adapter)
+    except LookupError:
+        registry.register(
+            spec.provider.adapter,
+            "1.0.0",
+            active_provider,
+            ModelProviderCapabilities(
+                structuredOutput=True,
+                tool=True,
+                cancellation=True,
+                usage=True,
+                cost=True,
+                opaqueContinuation=True,
+            ),
+        )
+    required = {
+        ProviderCapability.CONTEXT,
+        ProviderCapability.OUTPUT,
+        ProviderCapability.TIMEOUT,
+        ProviderCapability.USAGE,
+    }
+    if spec.operation is ModelOperation.STRUCTURED:
+        required.add(ProviderCapability.STRUCTURED_OUTPUT)
+    if spec.operation is ModelOperation.TOOL_CALL:
+        required.add(ProviderCapability.TOOL)
+    if spec.budget is not None:
+        required.add(ProviderCapability.COST)
+    if require_continuation:
+        required.add(ProviderCapability.OPAQUE_CONTINUATION)
+    return registry.negotiate(
+        spec.provider.adapter,
+        CapabilityRequirement(
+            required=frozenset(required),
+            outputTokens=spec.max_completion_tokens,
+        ),
+        revision=spec.provider.revision,
+    )
+
+
+def _continuation_source(extra: dict[str, Any]) -> UUID | None:
+    value = extra.get("continuationFromInvocationId")
+    if value is None:
+        return None
+    try:
+        return UUID(str(value))
+    except (TypeError, ValueError) as exc:
+        raise ValueError("continuationFromInvocationId must be a UUID") from exc
+
+
+async def _load_continuation(
+    source: UUID | None,
+    *,
+    context: TaskExecutionContext,
+    repository: AgentPrimitiveRepository | None,
+    protector: ModelContinuationProtector | None,
+    provider_pin: ProviderPin,
+) -> tuple[SecretStr | None, dict[str, str] | None]:
+    if source is None:
+        return None, None
+    if repository is None or protector is None:
+        raise RuntimeError("protected model continuation storage is unavailable")
+    protected = await repository.get_model_continuation(source, tenant_id=context.tenant_id)
+    if protected is None:
+        raise LookupError(f"model invocation {source} has no continuation state")
+    token = protector.reveal(
+        protected,
+        tenant_id=context.tenant_id,
+        invocation_id=source,
+        provider_id=provider_pin.provider_id,
+        provider_revision=provider_pin.revision,
+    )
+    return token, {"sourceInvocationId": str(source), **protected.public_metadata()}
+
+
 def _parse_task_spec(
     task: TaskDefinition,
     context: TaskExecutionContext,
@@ -298,8 +435,6 @@ def _parse_task_spec(
         model = str(extra.get("model", active.default_model))
     else:
         provider = ModelProviderSpec.model_validate(raw_provider)
-        if provider.adapter != "openai-compatible":
-            raise ValueError(f"unsupported model provider adapter {provider.adapter!r}")
         if provider.credential_ref not in task.contract.secret_scopes:
             raise ValueError(
                 f"task {task.id!r} provider credentialRef must be declared in contract.secretScopes"
@@ -434,6 +569,8 @@ def _request_metadata(
     request_hash: str,
     secrets: tuple[str, ...],
     task: TaskDefinition,
+    provider_pin: ProviderPin,
+    continuation: dict[str, str] | None,
 ) -> dict[str, Any]:
     metadata: dict[str, Any] = {
         "adapter": spec.provider.adapter,
@@ -450,9 +587,15 @@ def _request_metadata(
         "retry": task.retry.model_dump(mode="json", by_alias=True),
         "dataHandling": spec.data_handling.model_dump(mode="json", by_alias=True),
         "nondeterministic": True,
+        "providerId": provider_pin.provider_id,
+        "providerRevision": provider_pin.revision,
+        "providerDigest": provider_pin.digest,
+        "capabilities": provider_pin.capabilities.model_dump(mode="json", by_alias=True),
     }
     if spec.data_handling.prompt_retention is PromptRetention.REDACTED:
         metadata["request"] = _redact_values(payload, secrets)
+    if continuation is not None:
+        metadata["continuation"] = continuation
     return metadata
 
 
@@ -468,6 +611,8 @@ def _normalize_response(
         "operation": spec.operation.value,
         "model": str(payload.get("model", spec.model)),
         "usage": usage,
+        "usageNormalized": normalize_usage(payload).model_dump(mode="json", by_alias=True),
+        "costNormalized": normalize_cost(payload).model_dump(mode="json", by_alias=True),
         "provenance": provenance,
     }
     if spec.operation is ModelOperation.EMBEDDING:
@@ -566,15 +711,18 @@ def _tool_calls(
 def _enforce_budget(budget: ModelBudget | None, output: dict[str, Any]) -> None:
     if budget is None:
         return
-    usage = output["usage"]
-    total_tokens = usage.get("total_tokens")
+    normalized_usage = output.get("usageNormalized")
+    total_tokens = (
+        normalized_usage.get("totalTokens") if isinstance(normalized_usage, dict) else None
+    )
     if not isinstance(total_tokens, int) or isinstance(total_tokens, bool):
         raise RuntimeError("model provider did not report total_tokens required by the budget")
     if total_tokens > budget.max_total_tokens:
         raise ValueError(
             f"model response exceeded maxTotalTokens={budget.max_total_tokens}: {total_tokens}"
         )
-    raw_cost = usage.get("cost")
+    normalized_cost = output.get("costNormalized")
+    raw_cost = normalized_cost.get("amountUsd") if isinstance(normalized_cost, dict) else None
     try:
         cost = Decimal(str(raw_cost))
     except (InvalidOperation, ValueError) as exc:

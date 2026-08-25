@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,8 +21,8 @@ var _ MappedNullable = &ExecutionEvidencePage{}
 
 // ExecutionEvidencePage struct for ExecutionEvidencePage
 type ExecutionEvidencePage struct {
-	Items []ExecutionEvidenceEvent `json:"items"`
-	NextCursor NullableString `json:"nextCursor,omitempty"`
+	Items      []ExecutionEvidenceEvent `json:"items"`
+	NextCursor NullableString           `json:"nextCursor,omitempty"`
 }
 
 type _ExecutionEvidencePage ExecutionEvidencePage
@@ -101,6 +101,7 @@ func (o *ExecutionEvidencePage) HasNextCursor() bool {
 func (o *ExecutionEvidencePage) SetNextCursor(v string) {
 	o.NextCursor.Set(&v)
 }
+
 // SetNextCursorNil sets the value for NextCursor to be an explicit nil
 func (o *ExecutionEvidencePage) SetNextCursorNil() {
 	o.NextCursor.Set(nil)
@@ -112,7 +113,7 @@ func (o *ExecutionEvidencePage) UnsetNextCursor() {
 }
 
 func (o ExecutionEvidencePage) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -141,10 +142,10 @@ func (o *ExecutionEvidencePage) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

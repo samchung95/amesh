@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,11 +21,11 @@ var _ MappedNullable = &PluginRegistryMetadata{}
 
 // PluginRegistryMetadata struct for PluginRegistryMetadata
 type PluginRegistryMetadata struct {
-	ChangelogUrl string `json:"changelogUrl"`
-	DocumentationUrl string `json:"documentationUrl"`
-	License string `json:"license"`
-	SdkRange string `json:"sdkRange"`
-	SourceUrl string `json:"sourceUrl"`
+	ChangelogUrl           string `json:"changelogUrl"`
+	DocumentationUrl       string `json:"documentationUrl"`
+	License                string `json:"license"`
+	SdkRange               string `json:"sdkRange"`
+	SourceUrl              string `json:"sourceUrl"`
 	SupportedPlatformRange string `json:"supportedPlatformRange"`
 }
 
@@ -199,7 +199,7 @@ func (o *PluginRegistryMetadata) SetSupportedPlatformRange(v string) {
 }
 
 func (o PluginRegistryMetadata) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -235,10 +235,10 @@ func (o *PluginRegistryMetadata) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

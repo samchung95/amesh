@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,20 +21,20 @@ var _ MappedNullable = &TaskAssetRecord{}
 
 // TaskAssetRecord struct for TaskAssetRecord
 type TaskAssetRecord struct {
-	AccessMode AssetAccessMode `json:"accessMode"`
-	Account *string `json:"account,omitempty"`
-	ArtifactUri NullableString `json:"artifactUri,omitempty"`
-	AssetType string `json:"assetType"`
-	Contacts []string `json:"contacts,omitempty"`
+	AccessMode     AssetAccessMode        `json:"accessMode"`
+	Account        *string                `json:"account,omitempty"`
+	ArtifactUri    NullableString         `json:"artifactUri,omitempty"`
+	AssetType      string                 `json:"assetType"`
+	Contacts       []string               `json:"contacts,omitempty"`
 	CustomMetadata map[string]interface{} `json:"customMetadata,omitempty"`
-	Description *string `json:"description,omitempty"`
-	DisplayName string `json:"displayName"`
-	DomainGroup NullableString `json:"domainGroup,omitempty"`
-	ExternalKey string `json:"externalKey"`
-	Location *string `json:"location,omitempty"`
-	Owner NullableString `json:"owner,omitempty"`
-	Provider string `json:"provider"`
-	Tags []string `json:"tags,omitempty"`
+	Description    *string                `json:"description,omitempty"`
+	DisplayName    string                 `json:"displayName"`
+	DomainGroup    NullableString         `json:"domainGroup,omitempty"`
+	ExternalKey    string                 `json:"externalKey"`
+	Location       *string                `json:"location,omitempty"`
+	Owner          NullableString         `json:"owner,omitempty"`
+	Provider       string                 `json:"provider"`
+	Tags           []string               `json:"tags,omitempty"`
 }
 
 type _TaskAssetRecord TaskAssetRecord
@@ -161,6 +161,7 @@ func (o *TaskAssetRecord) HasArtifactUri() bool {
 func (o *TaskAssetRecord) SetArtifactUri(v string) {
 	o.ArtifactUri.Set(&v)
 }
+
 // SetArtifactUriNil sets the value for ArtifactUri to be an explicit nil
 func (o *TaskAssetRecord) SetArtifactUriNil() {
 	o.ArtifactUri.Set(nil)
@@ -347,6 +348,7 @@ func (o *TaskAssetRecord) HasDomainGroup() bool {
 func (o *TaskAssetRecord) SetDomainGroup(v string) {
 	o.DomainGroup.Set(&v)
 }
+
 // SetDomainGroupNil sets the value for DomainGroup to be an explicit nil
 func (o *TaskAssetRecord) SetDomainGroupNil() {
 	o.DomainGroup.Set(nil)
@@ -445,6 +447,7 @@ func (o *TaskAssetRecord) HasOwner() bool {
 func (o *TaskAssetRecord) SetOwner(v string) {
 	o.Owner.Set(&v)
 }
+
 // SetOwnerNil sets the value for Owner to be an explicit nil
 func (o *TaskAssetRecord) SetOwnerNil() {
 	o.Owner.Set(nil)
@@ -512,7 +515,7 @@ func (o *TaskAssetRecord) SetTags(v []string) {
 }
 
 func (o TaskAssetRecord) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -573,10 +576,10 @@ func (o *TaskAssetRecord) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

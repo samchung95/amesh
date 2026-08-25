@@ -20,7 +20,7 @@ type LogSourceStream string
 
 // List of LogSourceStream
 const (
-	LOGSOURCESTREAM_TASK LogSourceStream = "TASK"
+	LOGSOURCESTREAM_TASK   LogSourceStream = "TASK"
 	LOGSOURCESTREAM_STDOUT LogSourceStream = "STDOUT"
 	LOGSOURCESTREAM_STDERR LogSourceStream = "STDERR"
 	LOGSOURCESTREAM_PLUGIN LogSourceStream = "PLUGIN"

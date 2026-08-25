@@ -97,6 +97,11 @@ import type {
   PlaygroundSimulationResponse,
   PrincipalDefinition,
   ReadinessResponse,
+  PromotionGate,
+  PromotionTargetKind,
+  ReleaseActionResult,
+  ReleaseHistoryEntry,
+  ReleaseTarget,
   RoleBinding,
   RoleDefinition,
   SecretBinding,
@@ -811,6 +816,43 @@ export function createApiClient(connection: ApiConnection) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(spec),
+    }),
+    previewRelease: async (policyId: string) =>
+      request<PromotionGate>(`/api/v1/releases/policies/${encodeURIComponent(policyId)}/preview`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ approvals: {} }),
+      }),
+    applyRelease: async (policyId: string, expectedVersion: number, reason: string) =>
+      request<ReleaseActionResult>(`/api/v1/releases/policies/${encodeURIComponent(policyId)}/apply`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ expectedVersion, reason, approvals: {} }),
+      }),
+    releaseTarget: async (targetKind: PromotionTargetKind, targetKey: string) =>
+      request<ReleaseTarget>(`/api/v1/releases/${targetKind}/${encodeURIComponent(targetKey)}`),
+    releaseHistory: async (targetKind: PromotionTargetKind, targetKey: string) =>
+      request<ReleaseHistoryEntry[]>(`/api/v1/releases/${targetKind}/${encodeURIComponent(targetKey)}/history`),
+    rollbackRelease: async (
+      targetKind: PromotionTargetKind,
+      targetKey: string,
+      toRevision: number,
+      expectedVersion: number,
+      reason: string,
+    ) => request<ReleaseActionResult>(`/api/v1/releases/${targetKind}/${encodeURIComponent(targetKey)}/rollback`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ toRevision, expectedVersion, reason }),
+    }),
+    killSwitchRelease: async (
+      targetKind: PromotionTargetKind,
+      targetKey: string,
+      expectedVersion: number,
+      reason: string,
+    ) => request<ReleaseActionResult>(`/api/v1/releases/${targetKind}/${encodeURIComponent(targetKey)}/kill-switch`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ expectedVersion, reason }),
     }),
   }
 }

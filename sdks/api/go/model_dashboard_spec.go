@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,13 +21,13 @@ var _ MappedNullable = &DashboardSpec{}
 
 // DashboardSpec struct for DashboardSpec
 type DashboardSpec struct {
-	Description *string `json:"description,omitempty"`
-	EditorIds []string `json:"editorIds,omitempty"`
-	Source *DashboardDefinitionSource `json:"source,omitempty"`
-	Title string `json:"title"`
-	ViewerIds []string `json:"viewerIds,omitempty"`
-	Visibility *DashboardVisibility `json:"visibility,omitempty"`
-	Widgets []DashboardWidget `json:"widgets"`
+	Description *string                    `json:"description,omitempty"`
+	EditorIds   []string                   `json:"editorIds,omitempty"`
+	Source      *DashboardDefinitionSource `json:"source,omitempty"`
+	Title       string                     `json:"title"`
+	ViewerIds   []string                   `json:"viewerIds,omitempty"`
+	Visibility  *DashboardVisibility       `json:"visibility,omitempty"`
+	Widgets     []DashboardWidget          `json:"widgets"`
 }
 
 type _DashboardSpec DashboardSpec
@@ -272,7 +272,7 @@ func (o *DashboardSpec) SetWidgets(v []DashboardWidget) {
 }
 
 func (o DashboardSpec) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -315,10 +315,10 @@ func (o *DashboardSpec) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

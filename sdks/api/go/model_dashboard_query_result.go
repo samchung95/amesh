@@ -12,8 +12,8 @@ package ameshclient
 
 import (
 	"encoding/json"
-	"time"
 	"fmt"
+	"time"
 )
 
 // checks if the DashboardQueryResult type satisfies the MappedNullable interface at compile time
@@ -21,14 +21,14 @@ var _ MappedNullable = &DashboardQueryResult{}
 
 // DashboardQueryResult struct for DashboardQueryResult
 type DashboardQueryResult struct {
-	Columns []string `json:"columns"`
-	FreshAt time.Time `json:"freshAt"`
-	Limit int32 `json:"limit"`
-	Partial bool `json:"partial"`
-	Redacted *bool `json:"redacted,omitempty"`
-	Rows []*map[string]interface{} `json:"rows"`
-	Sampled bool `json:"sampled"`
-	ScannedRows int32 `json:"scannedRows"`
+	Columns              []string                  `json:"columns"`
+	FreshAt              time.Time                 `json:"freshAt"`
+	Limit                int32                     `json:"limit"`
+	Partial              bool                      `json:"partial"`
+	Redacted             *bool                     `json:"redacted,omitempty"`
+	Rows                 []*map[string]interface{} `json:"rows"`
+	Sampled              bool                      `json:"sampled"`
+	ScannedRows          int32                     `json:"scannedRows"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -263,7 +263,7 @@ func (o *DashboardQueryResult) SetScannedRows(v int32) {
 }
 
 func (o DashboardQueryResult) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -309,10 +309,10 @@ func (o *DashboardQueryResult) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

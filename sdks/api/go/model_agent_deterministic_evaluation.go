@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,10 +21,10 @@ var _ MappedNullable = &AgentDeterministicEvaluation{}
 
 // AgentDeterministicEvaluation struct for AgentDeterministicEvaluation
 type AgentDeterministicEvaluation struct {
-	Checks []AgentEvaluationCheck `json:"checks"`
-	MinimumRubricScore string `json:"minimumRubricScore" validate:"regexp=^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"`
-	Passed bool `json:"passed"`
-	RubricScore string `json:"rubricScore" validate:"regexp=^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"`
+	Checks             []AgentEvaluationCheck `json:"checks"`
+	MinimumRubricScore string                 `json:"minimumRubricScore" validate:"regexp=^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"`
+	Passed             bool                   `json:"passed"`
+	RubricScore        string                 `json:"rubricScore" validate:"regexp=^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"`
 }
 
 type _AgentDeterministicEvaluation AgentDeterministicEvaluation
@@ -147,7 +147,7 @@ func (o *AgentDeterministicEvaluation) SetRubricScore(v string) {
 }
 
 func (o AgentDeterministicEvaluation) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -179,10 +179,10 @@ func (o *AgentDeterministicEvaluation) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

@@ -48,6 +48,7 @@ import io.amesh.client.ApiClient;
   ReadinessResponse.JSON_PROPERTY_LATEST_MIGRATION,
   ReadinessResponse.JSON_PROPERTY_MIGRATIONS_APPLIED,
   ReadinessResponse.JSON_PROPERTY_MIGRATIONS_EXPECTED,
+  ReadinessResponse.JSON_PROPERTY_ROLES,
   ReadinessResponse.JSON_PROPERTY_STATUS,
   ReadinessResponse.JSON_PROPERTY_VERSION
 })
@@ -78,6 +79,10 @@ public class ReadinessResponse {
   public static final String JSON_PROPERTY_MIGRATIONS_EXPECTED = "migrations_expected";
   @javax.annotation.Nonnull
   private Integer migrationsExpected;
+
+  public static final String JSON_PROPERTY_ROLES = "roles";
+  @javax.annotation.Nullable
+  private Map<String, String> roles = new HashMap<>();
 
   public static final String JSON_PROPERTY_STATUS = "status";
   @javax.annotation.Nonnull
@@ -290,6 +295,38 @@ public class ReadinessResponse {
   }
 
 
+  public ReadinessResponse roles(@javax.annotation.Nullable Map<String, String> roles) {
+    this.roles = roles;
+    return this;
+  }
+
+  public ReadinessResponse putRolesItem(String key, String rolesItem) {
+    if (this.roles == null) {
+      this.roles = new HashMap<>();
+    }
+    this.roles.put(key, rolesItem);
+    return this;
+  }
+
+  /**
+   * Get roles
+   * @return roles
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_ROLES, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public Map<String, String> getRoles() {
+    return roles;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_ROLES, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setRoles(@javax.annotation.Nullable Map<String, String> roles) {
+    this.roles = roles;
+  }
+
+
   public ReadinessResponse status(@javax.annotation.Nonnull String status) {
     this.status = status;
     return this;
@@ -357,6 +394,7 @@ public class ReadinessResponse {
         equalsNullable(this.latestMigration, readinessResponse.latestMigration) &&
         Objects.equals(this.migrationsApplied, readinessResponse.migrationsApplied) &&
         Objects.equals(this.migrationsExpected, readinessResponse.migrationsExpected) &&
+        Objects.equals(this.roles, readinessResponse.roles) &&
         Objects.equals(this.status, readinessResponse.status) &&
         Objects.equals(this.version, readinessResponse.version);
   }
@@ -367,7 +405,7 @@ public class ReadinessResponse {
 
   @Override
   public int hashCode() {
-    return Objects.hash(database, degradedDependencies, dependencies, hashCodeNullable(error), hashCodeNullable(latestMigration), migrationsApplied, migrationsExpected, status, version);
+    return Objects.hash(database, degradedDependencies, dependencies, hashCodeNullable(error), hashCodeNullable(latestMigration), migrationsApplied, migrationsExpected, roles, status, version);
   }
 
   private static <T> int hashCodeNullable(JsonNullable<T> a) {
@@ -388,6 +426,7 @@ public class ReadinessResponse {
     sb.append("    latestMigration: ").append(toIndentedString(latestMigration)).append("\n");
     sb.append("    migrationsApplied: ").append(toIndentedString(migrationsApplied)).append("\n");
     sb.append("    migrationsExpected: ").append(toIndentedString(migrationsExpected)).append("\n");
+    sb.append("    roles: ").append(toIndentedString(roles)).append("\n");
     sb.append("    status: ").append(toIndentedString(status)).append("\n");
     sb.append("    version: ").append(toIndentedString(version)).append("\n");
     sb.append("}");
@@ -475,6 +514,15 @@ public class ReadinessResponse {
     // add `migrations_expected` to the URL query string
     if (getMigrationsExpected() != null) {
       joiner.add(String.format(java.util.Locale.ROOT, "%smigrations_expected%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getMigrationsExpected()))));
+    }
+
+    // add `roles` to the URL query string
+    if (getRoles() != null) {
+      for (String _key : getRoles().keySet()) {
+        joiner.add(String.format(java.util.Locale.ROOT, "%sroles%s%s=%s", prefix, suffix,
+            "".equals(suffix) ? "" : String.format(java.util.Locale.ROOT, "%s%d%s", containerPrefix, _key, containerSuffix),
+            getRoles().get(_key), ApiClient.urlEncode(ApiClient.valueToString(getRoles().get(_key)))));
+      }
     }
 
     // add `status` to the URL query string

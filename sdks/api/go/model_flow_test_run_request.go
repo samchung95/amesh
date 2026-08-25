@@ -19,8 +19,8 @@ var _ MappedNullable = &FlowTestRunRequest{}
 
 // FlowTestRunRequest struct for FlowTestRunRequest
 type FlowTestRunRequest struct {
-	FailFast *bool `json:"failFast,omitempty"`
-	TestIds []string `json:"testIds,omitempty"`
+	FailFast *bool    `json:"failFast,omitempty"`
+	TestIds  []string `json:"testIds,omitempty"`
 }
 
 // NewFlowTestRunRequest instantiates a new FlowTestRunRequest object
@@ -109,7 +109,7 @@ func (o *FlowTestRunRequest) SetTestIds(v []string) {
 }
 
 func (o FlowTestRunRequest) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}

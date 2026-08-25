@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,15 +21,15 @@ var _ MappedNullable = &DeterminismNode{}
 
 // DeterminismNode struct for DeterminismNode
 type DeterminismNode struct {
-	BranchId NullableString `json:"branchId,omitempty"`
-	Dependencies []string `json:"dependencies,omitempty"`
-	LifecyclePhase string `json:"lifecyclePhase"`
-	LogicalId string `json:"logicalId"`
-	MaxConcurrency NullableInt32 `json:"maxConcurrency,omitempty"`
-	Mode NullableString `json:"mode,omitempty"`
-	Order int32 `json:"order"`
-	ParentId NullableString `json:"parentId,omitempty"`
-	TaskType string `json:"taskType"`
+	BranchId       NullableString `json:"branchId,omitempty"`
+	Dependencies   []string       `json:"dependencies,omitempty"`
+	LifecyclePhase string         `json:"lifecyclePhase"`
+	LogicalId      string         `json:"logicalId"`
+	MaxConcurrency NullableInt32  `json:"maxConcurrency,omitempty"`
+	Mode           NullableString `json:"mode,omitempty"`
+	Order          int32          `json:"order"`
+	ParentId       NullableString `json:"parentId,omitempty"`
+	TaskType       string         `json:"taskType"`
 }
 
 type _DeterminismNode DeterminismNode
@@ -87,6 +87,7 @@ func (o *DeterminismNode) HasBranchId() bool {
 func (o *DeterminismNode) SetBranchId(v string) {
 	o.BranchId.Set(&v)
 }
+
 // SetBranchIdNil sets the value for BranchId to be an explicit nil
 func (o *DeterminismNode) SetBranchIdNil() {
 	o.BranchId.Set(nil)
@@ -209,6 +210,7 @@ func (o *DeterminismNode) HasMaxConcurrency() bool {
 func (o *DeterminismNode) SetMaxConcurrency(v int32) {
 	o.MaxConcurrency.Set(&v)
 }
+
 // SetMaxConcurrencyNil sets the value for MaxConcurrency to be an explicit nil
 func (o *DeterminismNode) SetMaxConcurrencyNil() {
 	o.MaxConcurrency.Set(nil)
@@ -251,6 +253,7 @@ func (o *DeterminismNode) HasMode() bool {
 func (o *DeterminismNode) SetMode(v string) {
 	o.Mode.Set(&v)
 }
+
 // SetModeNil sets the value for Mode to be an explicit nil
 func (o *DeterminismNode) SetModeNil() {
 	o.Mode.Set(nil)
@@ -317,6 +320,7 @@ func (o *DeterminismNode) HasParentId() bool {
 func (o *DeterminismNode) SetParentId(v string) {
 	o.ParentId.Set(&v)
 }
+
 // SetParentIdNil sets the value for ParentId to be an explicit nil
 func (o *DeterminismNode) SetParentIdNil() {
 	o.ParentId.Set(nil)
@@ -352,7 +356,7 @@ func (o *DeterminismNode) SetTaskType(v string) {
 }
 
 func (o DeterminismNode) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -399,10 +403,10 @@ func (o *DeterminismNode) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

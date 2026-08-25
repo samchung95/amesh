@@ -32,7 +32,8 @@ class ModelProviderSpec(BaseModel):
     credential_ref: Annotated[str, Field(min_length=1, strict=True, max_length=128)] = Field(alias="credentialRef")
     embedding_endpoint: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=4096)]] = Field(default=None, alias="embeddingEndpoint")
     endpoint: Annotated[str, Field(min_length=1, strict=True, max_length=4096)]
-    __properties: ClassVar[List[str]] = ["adapter", "credentialRef", "embeddingEndpoint", "endpoint"]
+    revision: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=255)]] = None
+    __properties: ClassVar[List[str]] = ["adapter", "credentialRef", "embeddingEndpoint", "endpoint", "revision"]
 
     @field_validator('adapter', mode="before")
     def adapter_validate_regular_expression(cls, value):
@@ -95,6 +96,11 @@ class ModelProviderSpec(BaseModel):
         if self.embedding_endpoint is None and "embedding_endpoint" in self.model_fields_set:
             _dict['embeddingEndpoint'] = None
 
+        # set to None if revision (nullable) is None
+        # and model_fields_set contains the field
+        if self.revision is None and "revision" in self.model_fields_set:
+            _dict['revision'] = None
+
         return _dict
 
     @classmethod
@@ -110,6 +116,7 @@ class ModelProviderSpec(BaseModel):
             "adapter": obj.get("adapter") if obj.get("adapter") is not None else 'openai-compatible',
             "credentialRef": obj.get("credentialRef"),
             "embeddingEndpoint": obj.get("embeddingEndpoint"),
-            "endpoint": obj.get("endpoint")
+            "endpoint": obj.get("endpoint"),
+            "revision": obj.get("revision")
         })
         return _obj

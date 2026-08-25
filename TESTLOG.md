@@ -1,5 +1,94 @@
 # Test Log
 
+## EPIC-811–EPIC-818: Neutral orchestration qualification sprint — 2026-08-26
+
+Spec sources: Agent Hotel cards `c112` through `c119` and the canonical
+`backlog/epics/epic-811-*.md` through `epic-818-*.md` definitions of done.
+
+- [x] **EPIC-811 — external orchestration:** the v1 neutral profile, OpenAPI and generated SDKs
+  cover nine validate/apply/read/launch/inspect/control operations with stable error categories,
+  tenant authorization, correlation and idempotency. The live uv harness returned execution
+  `01a039c5-4225-735e-b4f7-e7af5d4a5dbc` for the same key before and after an API restart; three
+  live PostgreSQL realtime reconnect tests passed.
+- [x] **EPIC-812 — evidence:** the same execution exported 13 canonical trace records with bundle
+  digest `sha256:eced2443a98deae4cc15c372a09e72553cafa907b2e924f570919cbb0f347576`.
+  API and uv CLI verification agreed on the digest and returned `verified: true`; redaction,
+  pagination, externalization and corruption/conflict behavior passed focused tests.
+- [x] **EPIC-813 — model providers:** capability negotiation, exact revisions, structured output,
+  tools, encrypted opaque continuation, timeout/retry/cancel, ambiguity, normalized usage and billed
+  cost passed against two independent provider fixtures. The environment-gated live OpenRouter test
+  passed against exact model `openai/gpt-5.6-luna` with content, usage and billed-cost evidence.
+- [x] **EPIC-814 — tool providers:** the shared conformance suite passed the actual MCP and isolated
+  plugin adapters locally and against PostgreSQL, including pinned discovery/schema identity,
+  policy denial, redaction, timeout/cancellation, accepted-result reuse and restart ambiguity.
+- [x] **EPIC-815 — hardened local profile:** eight tests and a fresh isolated Compose run on loopback
+  port 18016 passed migration/preflight, real login, workflow execution and evidence retrieval. The
+  profile exposed no database port, mounted no Docker socket, carried no broker/OpenRouter secret,
+  and used a password-free database URL with a permission-restricted `PGPASSFILE` secret.
+- [x] **EPIC-816 — restart qualification:** `uv run python scripts/qualify_restart_idempotency.py`
+  produced `build/epic-816-qualification.json` with all 40 fault-boundary scenarios passing, zero
+  lost accepted records, zero duplicate logical decisions, stable accepted-result reuse, stale-fence
+  rejection and non-repeated ambiguous outcomes. A 1 MiB payload externalized with verified
+  integrity, and deliberate corruption was detected. The generated report is local evidence; the
+  exact reproducible command and limits are maintained in
+  [`run-restart-idempotency-qualification.md`](docs/how-to/run-restart-idempotency-qualification.md).
+- [x] **EPIC-817 — differential shadow:** live spec
+  `561a6327-631e-4c1e-8341-8e61cebad3bc` created independent left/right runs
+  `01a039cb-1c7a-7d12-9f46-5902b9e468f1` and `01a039cb-1c8f-7681-abf1-cd2240845e23`, denied
+  uncontrolled effects, reported zero deterministic failures, and returned the identical durable
+  report after an API restart.
+- [x] **EPIC-818 — release gates:** 23 frontend client assertions, the production build, nine
+  backend/UI-session checks and three Chromium Playwright scenarios passed with no serious or
+  critical axe finding. Live target `epic818-qual-f6003249d4d94572b640672f78112e2e`
+  rejected missing evidence with HTTP 409, promoted revisions 1 and 2, rolled back to the exact
+  revision-1 digest at version 3, then preserved `PROMOTE → PROMOTE → ROLLBACK` after API restart.
+
+Cross-sprint gates: 557 backend tests passed, 158 environment-gated tests skipped and two separately
+tracked baseline tests were deselected; Ruff check passed, strict mypy passed over 263 source files,
+and all new sprint Python files pass Ruff format. Contract generation is deterministic across 2,671
+files; Python, TypeScript, Java and Go SDK checks pass. The two deselections are the already deferred
+5,000-line DSL performance budget (`c89`) and the full-suite-only async plugin-registry isolation
+issue (`c120`) that passes alone; neither affects an EPIC-811–818 path.
+
+Qualification boundary: these epics prove the checked-in local profiles and provider-neutral core
+contracts. Client domain tools, client parity thresholds, production cutover, multi-region HA and
+external-cloud certification remain explicitly outside this sprint.
+
+Verdict: PASS — EPIC-811 through EPIC-818 satisfy their published local definitions of done.
+
+## EPIC-810: Reliable scheduling and truthful role-aware health — 2026-08-25
+
+Spec source: Agent Hotel card `c111` and
+`backlog/epics/epic-810-reliable-scheduling-and-truthful-role-aware-health.md`.
+
+- [x] A PostgreSQL regression forces temporal execution creation to fail, observes one durable
+  `RETRY_WAIT` occurrence, advances the fenced schedule cursor on the duplicate evaluation and lets
+  the trigger worker create exactly one execution with the original occurrence key.
+- [x] Resolvable legacy plugin payloads conditionally migrate to exact v1 pins with one
+  `plugin.resolution.migrate` audit event. Unresolvable payloads disable the owning flow with one
+  `plugin.resolution.quarantine` event, and disabled flows do not enter scheduler evaluation.
+- [x] Migration 0060 persists `DEGRADED`, `lastSuccessAt`, `lastFailureAt`, a bounded redacted failure
+  summary and `consecutiveFailures`. The API reports every configured role as READY, DEGRADED,
+  STARTING, DRAINING, UNAVAILABLE or DISABLED and returns 503 unless every enabled role has a live
+  READY instance.
+- [x] Sixty-one focused scheduler, trigger-runtime, plugin-policy, service-registry, configuration,
+  API, worker, Helm and migration tests passed together; Ruff and strict mypy passed for affected
+  production modules.
+- [x] Rebuilt Compose applied migration 60/60. A quota-induced scheduler cycle failure produced HTTP
+  503 and persisted DEGRADED evidence; after reversibly disabling 164 leaked `tests.scheduler.*`
+  flows, all six enabled roles returned READY in 11 seconds and the failure timestamp remained as
+  recovery evidence.
+- [x] Bounded cron flow `smoke.epic810/epic810_restart_151710` fired once at
+  `2026-08-25T15:18:00Z`. Restarts before and after the instant retained one occurrence and one
+  execution, `01a03980-1533-7e64-97b7-7d30642bc231`; final `/ready` returned HTTP 200 with all six
+  roles READY and scheduler logs contained no recurring post-recovery error.
+
+Security review: health failures are redacted and bounded before persistence, service mutations are
+generation-fenced, plugin compatibility mutations are tenant-scoped and conditional, and quarantine
+and migration actions are audited. No domain calendar, client adapter or broker capability was added.
+
+Verdict: PASS — EPIC-810 and card `c111` are verified.
+
 ## c103: Human-first control room and workflow experience overhaul — 2026-08-25
 
 Spec source: Agent Hotel umbrella card `c103`, its completed workstreams `c97` through `c102`, and

@@ -20,8 +20,8 @@ type WorkerLiveness string
 
 // List of WorkerLiveness
 const (
-	WORKERLIVENESS_LIVE WorkerLiveness = "LIVE"
-	WORKERLIVENESS_STALE WorkerLiveness = "STALE"
+	WORKERLIVENESS_LIVE    WorkerLiveness = "LIVE"
+	WORKERLIVENESS_STALE   WorkerLiveness = "STALE"
 	WORKERLIVENESS_STOPPED WorkerLiveness = "STOPPED"
 )
 

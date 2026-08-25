@@ -20,6 +20,9 @@ GENERATOR_IMAGE = (
     "openapitools/openapi-generator-cli@"
     "sha256:5bf3dc75f764c584da8e3344c51b2f3f1e74703461d46a035b5ac1d31515cc88"
 )
+GO_FORMATTER_IMAGE = (
+    "golang@sha256:60deed95d3888cc5e4d9ff8a10c54e5edc008c6ae3fba6187be6fb592e19e8c0"
+)
 
 
 @dataclass(frozen=True)
@@ -336,6 +339,39 @@ def _repair_typescript_generator_gaps(root: Path) -> None:
         path.write_text(json.dumps(document, indent=2) + "\n", encoding="utf-8")
 
 
+def _repair_and_format_go_generator_gaps(root: Path) -> None:
+    """Repair pinned-generator union defaults, then format generated Go deterministically."""
+
+    tolerance = root / "go" / "model_tolerance.go"
+    content = tolerance.read_text(encoding="utf-8")
+    replacements = {
+        "var absolute Absolute = 0": ('var absolute Absolute = Absolute{String: PtrString("0")}'),
+        "var relative Relative = 0": ('var relative Relative = Relative{String: PtrString("0")}'),
+    }
+    for old, new in replacements.items():
+        if content.count(old) != 2:
+            raise RuntimeError(f"generated Go Tolerance marker changed: {old}")
+        content = content.replace(old, new)
+    tolerance.write_text(content, encoding="utf-8")
+
+    command = [
+        "docker",
+        "run",
+        "--rm",
+        "-v",
+        f"{ROOT}:/local",
+        "-w",
+        _container_path(root / "go"),
+        GO_FORMATTER_IMAGE,
+        "sh",
+        "-c",
+        "find . -type f -name '*.go' -print0 | xargs -0 gofmt -w",
+    ]
+    completed = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, check=False)
+    if completed.returncode != 0:
+        raise RuntimeError(f"Go SDK formatting failed\n{completed.stdout}\n{completed.stderr}")
+
+
 def _write_license_metadata(root: Path) -> None:
     for target in TARGETS:
         shutil.copy2(ROOT / "LICENSE", root / target.name / "LICENSE")
@@ -358,6 +394,7 @@ def _write_manifest(root: Path) -> None:
         "compatibleApiVersions": ">=0.2.0,<0.3.0",
         "openapiSha256": hashlib.sha256(OPENAPI.read_bytes()).hexdigest(),
         "generatorImage": GENERATOR_IMAGE,
+        "goFormatterImage": GO_FORMATTER_IMAGE,
         "clients": [
             {
                 "language": target.name,
@@ -420,6 +457,7 @@ def generate(root: Path, *, allowed_parent: Path) -> None:
     _write_pagination_helpers(root)
     _write_execution_helpers(root)
     _repair_typescript_generator_gaps(root)
+    _repair_and_format_go_generator_gaps(root)
     _write_manifest(root)
     _normalize_generated_text(root)
 

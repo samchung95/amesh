@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,15 +21,15 @@ var _ MappedNullable = &LifecyclePolicyDraft{}
 
 // LifecyclePolicyDraft struct for LifecyclePolicyDraft
 type LifecyclePolicyDraft struct {
-	BatchSize *int32 `json:"batchSize,omitempty"`
-	Enabled *bool `json:"enabled,omitempty"`
-	LabelSelector map[string]string `json:"labelSelector,omitempty"`
-	Namespace NullableString `json:"namespace,omitempty"`
-	Reason string `json:"reason"`
-	ResourceType LifecycleResourceType `json:"resourceType"`
-	RetentionDays int32 `json:"retentionDays"`
-	ScheduleIntervalMinutes NullableInt32 `json:"scheduleIntervalMinutes,omitempty"`
-	Scope LifecycleScope `json:"scope"`
+	BatchSize               *int32                `json:"batchSize,omitempty"`
+	Enabled                 *bool                 `json:"enabled,omitempty"`
+	LabelSelector           map[string]string     `json:"labelSelector,omitempty"`
+	Namespace               NullableString        `json:"namespace,omitempty"`
+	Reason                  string                `json:"reason"`
+	ResourceType            LifecycleResourceType `json:"resourceType"`
+	RetentionDays           int32                 `json:"retentionDays"`
+	ScheduleIntervalMinutes NullableInt32         `json:"scheduleIntervalMinutes,omitempty"`
+	Scope                   LifecycleScope        `json:"scope"`
 }
 
 type _LifecyclePolicyDraft LifecyclePolicyDraft
@@ -191,6 +191,7 @@ func (o *LifecyclePolicyDraft) HasNamespace() bool {
 func (o *LifecyclePolicyDraft) SetNamespace(v string) {
 	o.Namespace.Set(&v)
 }
+
 // SetNamespaceNil sets the value for Namespace to be an explicit nil
 func (o *LifecyclePolicyDraft) SetNamespaceNil() {
 	o.Namespace.Set(nil)
@@ -305,6 +306,7 @@ func (o *LifecyclePolicyDraft) HasScheduleIntervalMinutes() bool {
 func (o *LifecyclePolicyDraft) SetScheduleIntervalMinutes(v int32) {
 	o.ScheduleIntervalMinutes.Set(&v)
 }
+
 // SetScheduleIntervalMinutesNil sets the value for ScheduleIntervalMinutes to be an explicit nil
 func (o *LifecyclePolicyDraft) SetScheduleIntervalMinutesNil() {
 	o.ScheduleIntervalMinutes.Set(nil)
@@ -340,7 +342,7 @@ func (o *LifecyclePolicyDraft) SetScope(v LifecycleScope) {
 }
 
 func (o LifecyclePolicyDraft) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -387,10 +389,10 @@ func (o *LifecyclePolicyDraft) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

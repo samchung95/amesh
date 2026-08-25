@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,12 +21,12 @@ var _ MappedNullable = &FlowDataContract{}
 
 // FlowDataContract struct for FlowDataContract
 type FlowDataContract struct {
-	FlowId string `json:"flowId"`
+	FlowId      string                 `json:"flowId"`
 	InputSchema map[string]interface{} `json:"inputSchema"`
-	Namespace string `json:"namespace"`
-	Outputs map[string]interface{} `json:"outputs,omitempty"`
-	Revision int32 `json:"revision"`
-	Variables map[string]interface{} `json:"variables,omitempty"`
+	Namespace   string                 `json:"namespace"`
+	Outputs     map[string]interface{} `json:"outputs,omitempty"`
+	Revision    int32                  `json:"revision"`
+	Variables   map[string]interface{} `json:"variables,omitempty"`
 }
 
 type _FlowDataContract FlowDataContract
@@ -213,7 +213,7 @@ func (o *FlowDataContract) SetVariables(v map[string]interface{}) {
 }
 
 func (o FlowDataContract) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -251,10 +251,10 @@ func (o *FlowDataContract) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

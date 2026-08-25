@@ -19,17 +19,16 @@ import (
 	"strings"
 )
 
-
 // PluginsAPIService PluginsAPI service
 type PluginsAPIService service
 
 type ApiCreatePluginPolicyRuleApiV1PluginPolicyRulesPostRequest struct {
-	ctx context.Context
-	ApiService *PluginsAPIService
+	ctx                    context.Context
+	ApiService             *PluginsAPIService
 	pluginPolicyRuleCreate *PluginPolicyRuleCreate
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization          *string
+	xAmeshCSRF             *string
+	xAmeshTenant           *string
 }
 
 func (r ApiCreatePluginPolicyRuleApiV1PluginPolicyRulesPostRequest) PluginPolicyRuleCreate(pluginPolicyRuleCreate PluginPolicyRuleCreate) ApiCreatePluginPolicyRuleApiV1PluginPolicyRulesPostRequest {
@@ -59,24 +58,25 @@ func (r ApiCreatePluginPolicyRuleApiV1PluginPolicyRulesPostRequest) Execute() (*
 /*
 CreatePluginPolicyRuleApiV1PluginPolicyRulesPost Create Plugin Policy Rule
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiCreatePluginPolicyRuleApiV1PluginPolicyRulesPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiCreatePluginPolicyRuleApiV1PluginPolicyRulesPostRequest
 */
 func (a *PluginsAPIService) CreatePluginPolicyRuleApiV1PluginPolicyRulesPost(ctx context.Context) ApiCreatePluginPolicyRuleApiV1PluginPolicyRulesPostRequest {
 	return ApiCreatePluginPolicyRuleApiV1PluginPolicyRulesPostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return PluginPolicyRule
+//
+//	@return PluginPolicyRule
 func (a *PluginsAPIService) CreatePluginPolicyRuleApiV1PluginPolicyRulesPostExecute(r ApiCreatePluginPolicyRuleApiV1PluginPolicyRulesPostRequest) (*PluginPolicyRule, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *PluginPolicyRule
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *PluginPolicyRule
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "PluginsAPIService.CreatePluginPolicyRuleApiV1PluginPolicyRulesPost")
@@ -150,8 +150,8 @@ func (a *PluginsAPIService) CreatePluginPolicyRuleApiV1PluginPolicyRulesPostExec
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -169,12 +169,12 @@ func (a *PluginsAPIService) CreatePluginPolicyRuleApiV1PluginPolicyRulesPostExec
 }
 
 type ApiDeletePluginPolicyRuleApiV1PluginPolicyRulesRuleIdDeleteRequest struct {
-	ctx context.Context
-	ApiService *PluginsAPIService
-	ruleId string
+	ctx           context.Context
+	ApiService    *PluginsAPIService
+	ruleId        string
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiDeletePluginPolicyRuleApiV1PluginPolicyRulesRuleIdDeleteRequest) Authorization(authorization string) ApiDeletePluginPolicyRuleApiV1PluginPolicyRulesRuleIdDeleteRequest {
@@ -199,24 +199,24 @@ func (r ApiDeletePluginPolicyRuleApiV1PluginPolicyRulesRuleIdDeleteRequest) Exec
 /*
 DeletePluginPolicyRuleApiV1PluginPolicyRulesRuleIdDelete Delete Plugin Policy Rule
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param ruleId
- @return ApiDeletePluginPolicyRuleApiV1PluginPolicyRulesRuleIdDeleteRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param ruleId
+	@return ApiDeletePluginPolicyRuleApiV1PluginPolicyRulesRuleIdDeleteRequest
 */
 func (a *PluginsAPIService) DeletePluginPolicyRuleApiV1PluginPolicyRulesRuleIdDelete(ctx context.Context, ruleId string) ApiDeletePluginPolicyRuleApiV1PluginPolicyRulesRuleIdDeleteRequest {
 	return ApiDeletePluginPolicyRuleApiV1PluginPolicyRulesRuleIdDeleteRequest{
 		ApiService: a,
-		ctx: ctx,
-		ruleId: ruleId,
+		ctx:        ctx,
+		ruleId:     ruleId,
 	}
 }
 
 // Execute executes the request
 func (a *PluginsAPIService) DeletePluginPolicyRuleApiV1PluginPolicyRulesRuleIdDeleteExecute(r ApiDeletePluginPolicyRuleApiV1PluginPolicyRulesRuleIdDeleteRequest) (*http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodDelete
-		localVarPostBody     interface{}
-		formFiles            []formFile
+		localVarHTTPMethod = http.MethodDelete
+		localVarPostBody   interface{}
+		formFiles          []formFile
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "PluginsAPIService.DeletePluginPolicyRuleApiV1PluginPolicyRulesRuleIdDelete")
@@ -286,8 +286,8 @@ func (a *PluginsAPIService) DeletePluginPolicyRuleApiV1PluginPolicyRulesRuleIdDe
 				newErr.error = err.Error()
 				return localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarHTTPResponse, newErr
 	}
@@ -296,12 +296,12 @@ func (a *PluginsAPIService) DeletePluginPolicyRuleApiV1PluginPolicyRulesRuleIdDe
 }
 
 type ApiDownloadPluginRegistryBundleApiV1PluginRegistryBlobsDigestGetRequest struct {
-	ctx context.Context
-	ApiService *PluginsAPIService
-	digest string
+	ctx           context.Context
+	ApiService    *PluginsAPIService
+	digest        string
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiDownloadPluginRegistryBundleApiV1PluginRegistryBlobsDigestGetRequest) Authorization(authorization string) ApiDownloadPluginRegistryBundleApiV1PluginRegistryBlobsDigestGetRequest {
@@ -326,24 +326,24 @@ func (r ApiDownloadPluginRegistryBundleApiV1PluginRegistryBlobsDigestGetRequest)
 /*
 DownloadPluginRegistryBundleApiV1PluginRegistryBlobsDigestGet Download Plugin Registry Bundle
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param digest
- @return ApiDownloadPluginRegistryBundleApiV1PluginRegistryBlobsDigestGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param digest
+	@return ApiDownloadPluginRegistryBundleApiV1PluginRegistryBlobsDigestGetRequest
 */
 func (a *PluginsAPIService) DownloadPluginRegistryBundleApiV1PluginRegistryBlobsDigestGet(ctx context.Context, digest string) ApiDownloadPluginRegistryBundleApiV1PluginRegistryBlobsDigestGetRequest {
 	return ApiDownloadPluginRegistryBundleApiV1PluginRegistryBlobsDigestGetRequest{
 		ApiService: a,
-		ctx: ctx,
-		digest: digest,
+		ctx:        ctx,
+		digest:     digest,
 	}
 }
 
 // Execute executes the request
 func (a *PluginsAPIService) DownloadPluginRegistryBundleApiV1PluginRegistryBlobsDigestGetExecute(r ApiDownloadPluginRegistryBundleApiV1PluginRegistryBlobsDigestGetRequest) (*http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
+		localVarHTTPMethod = http.MethodGet
+		localVarPostBody   interface{}
+		formFiles          []formFile
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "PluginsAPIService.DownloadPluginRegistryBundleApiV1PluginRegistryBlobsDigestGet")
@@ -413,8 +413,8 @@ func (a *PluginsAPIService) DownloadPluginRegistryBundleApiV1PluginRegistryBlobs
 				newErr.error = err.Error()
 				return localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarHTTPResponse, newErr
 	}
@@ -423,12 +423,12 @@ func (a *PluginsAPIService) DownloadPluginRegistryBundleApiV1PluginRegistryBlobs
 }
 
 type ApiEvaluateFlowPluginPolicyApiV1PluginPolicyEvaluatePostRequest struct {
-	ctx context.Context
-	ApiService *PluginsAPIService
-	stage *PluginPolicyStage
+	ctx           context.Context
+	ApiService    *PluginsAPIService
+	stage         *PluginPolicyStage
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiEvaluateFlowPluginPolicyApiV1PluginPolicyEvaluatePostRequest) Stage(stage PluginPolicyStage) ApiEvaluateFlowPluginPolicyApiV1PluginPolicyEvaluatePostRequest {
@@ -458,24 +458,25 @@ func (r ApiEvaluateFlowPluginPolicyApiV1PluginPolicyEvaluatePostRequest) Execute
 /*
 EvaluateFlowPluginPolicyApiV1PluginPolicyEvaluatePost Evaluate Flow Plugin Policy
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiEvaluateFlowPluginPolicyApiV1PluginPolicyEvaluatePostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiEvaluateFlowPluginPolicyApiV1PluginPolicyEvaluatePostRequest
 */
 func (a *PluginsAPIService) EvaluateFlowPluginPolicyApiV1PluginPolicyEvaluatePost(ctx context.Context) ApiEvaluateFlowPluginPolicyApiV1PluginPolicyEvaluatePostRequest {
 	return ApiEvaluateFlowPluginPolicyApiV1PluginPolicyEvaluatePostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return PluginPolicyDecision
+//
+//	@return PluginPolicyDecision
 func (a *PluginsAPIService) EvaluateFlowPluginPolicyApiV1PluginPolicyEvaluatePostExecute(r ApiEvaluateFlowPluginPolicyApiV1PluginPolicyEvaluatePostRequest) (*PluginPolicyDecision, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *PluginPolicyDecision
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *PluginPolicyDecision
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "PluginsAPIService.EvaluateFlowPluginPolicyApiV1PluginPolicyEvaluatePost")
@@ -551,8 +552,8 @@ func (a *PluginsAPIService) EvaluateFlowPluginPolicyApiV1PluginPolicyEvaluatePos
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -570,11 +571,11 @@ func (a *PluginsAPIService) EvaluateFlowPluginPolicyApiV1PluginPolicyEvaluatePos
 }
 
 type ApiExportPluginRegistryApiV1PluginRegistryOfflineExportGetRequest struct {
-	ctx context.Context
-	ApiService *PluginsAPIService
+	ctx           context.Context
+	ApiService    *PluginsAPIService
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiExportPluginRegistryApiV1PluginRegistryOfflineExportGetRequest) Authorization(authorization string) ApiExportPluginRegistryApiV1PluginRegistryOfflineExportGetRequest {
@@ -599,22 +600,22 @@ func (r ApiExportPluginRegistryApiV1PluginRegistryOfflineExportGetRequest) Execu
 /*
 ExportPluginRegistryApiV1PluginRegistryOfflineExportGet Export Plugin Registry
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiExportPluginRegistryApiV1PluginRegistryOfflineExportGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiExportPluginRegistryApiV1PluginRegistryOfflineExportGetRequest
 */
 func (a *PluginsAPIService) ExportPluginRegistryApiV1PluginRegistryOfflineExportGet(ctx context.Context) ApiExportPluginRegistryApiV1PluginRegistryOfflineExportGetRequest {
 	return ApiExportPluginRegistryApiV1PluginRegistryOfflineExportGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
 func (a *PluginsAPIService) ExportPluginRegistryApiV1PluginRegistryOfflineExportGetExecute(r ApiExportPluginRegistryApiV1PluginRegistryOfflineExportGetRequest) (*http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
+		localVarHTTPMethod = http.MethodGet
+		localVarPostBody   interface{}
+		formFiles          []formFile
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "PluginsAPIService.ExportPluginRegistryApiV1PluginRegistryOfflineExportGet")
@@ -683,8 +684,8 @@ func (a *PluginsAPIService) ExportPluginRegistryApiV1PluginRegistryOfflineExport
 				newErr.error = err.Error()
 				return localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarHTTPResponse, newErr
 	}
@@ -693,12 +694,12 @@ func (a *PluginsAPIService) ExportPluginRegistryApiV1PluginRegistryOfflineExport
 }
 
 type ApiGetEffectivePluginPolicyApiV1PluginPolicyEffectiveGetRequest struct {
-	ctx context.Context
-	ApiService *PluginsAPIService
-	namespace *string
+	ctx           context.Context
+	ApiService    *PluginsAPIService
+	namespace     *string
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiGetEffectivePluginPolicyApiV1PluginPolicyEffectiveGetRequest) Namespace(namespace string) ApiGetEffectivePluginPolicyApiV1PluginPolicyEffectiveGetRequest {
@@ -728,24 +729,25 @@ func (r ApiGetEffectivePluginPolicyApiV1PluginPolicyEffectiveGetRequest) Execute
 /*
 GetEffectivePluginPolicyApiV1PluginPolicyEffectiveGet Get Effective Plugin Policy
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiGetEffectivePluginPolicyApiV1PluginPolicyEffectiveGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiGetEffectivePluginPolicyApiV1PluginPolicyEffectiveGetRequest
 */
 func (a *PluginsAPIService) GetEffectivePluginPolicyApiV1PluginPolicyEffectiveGet(ctx context.Context) ApiGetEffectivePluginPolicyApiV1PluginPolicyEffectiveGetRequest {
 	return ApiGetEffectivePluginPolicyApiV1PluginPolicyEffectiveGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return EffectivePluginPolicy
+//
+//	@return EffectivePluginPolicy
 func (a *PluginsAPIService) GetEffectivePluginPolicyApiV1PluginPolicyEffectiveGetExecute(r ApiGetEffectivePluginPolicyApiV1PluginPolicyEffectiveGetRequest) (*EffectivePluginPolicy, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *EffectivePluginPolicy
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *EffectivePluginPolicy
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "PluginsAPIService.GetEffectivePluginPolicyApiV1PluginPolicyEffectiveGet")
@@ -817,8 +819,8 @@ func (a *PluginsAPIService) GetEffectivePluginPolicyApiV1PluginPolicyEffectiveGe
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -836,12 +838,12 @@ func (a *PluginsAPIService) GetEffectivePluginPolicyApiV1PluginPolicyEffectiveGe
 }
 
 type ApiGetPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGetRequest struct {
-	ctx context.Context
-	ApiService *PluginsAPIService
-	ruleId string
+	ctx           context.Context
+	ApiService    *PluginsAPIService
+	ruleId        string
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiGetPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGetRequest) Authorization(authorization string) ApiGetPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGetRequest {
@@ -866,26 +868,27 @@ func (r ApiGetPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGetRequest) Execute() 
 /*
 GetPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGet Get Plugin Policy Rule
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param ruleId
- @return ApiGetPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param ruleId
+	@return ApiGetPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGetRequest
 */
 func (a *PluginsAPIService) GetPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGet(ctx context.Context, ruleId string) ApiGetPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGetRequest {
 	return ApiGetPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGetRequest{
 		ApiService: a,
-		ctx: ctx,
-		ruleId: ruleId,
+		ctx:        ctx,
+		ruleId:     ruleId,
 	}
 }
 
 // Execute executes the request
-//  @return PluginPolicyRule
+//
+//	@return PluginPolicyRule
 func (a *PluginsAPIService) GetPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGetExecute(r ApiGetPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGetRequest) (*PluginPolicyRule, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *PluginPolicyRule
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *PluginPolicyRule
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "PluginsAPIService.GetPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGet")
@@ -955,8 +958,8 @@ func (a *PluginsAPIService) GetPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGetEx
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -974,11 +977,11 @@ func (a *PluginsAPIService) GetPluginPolicyRuleApiV1PluginPolicyRulesRuleIdGetEx
 }
 
 type ApiGetPluginRegistryIndexApiV1PluginRegistryIndexGetRequest struct {
-	ctx context.Context
-	ApiService *PluginsAPIService
+	ctx           context.Context
+	ApiService    *PluginsAPIService
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiGetPluginRegistryIndexApiV1PluginRegistryIndexGetRequest) Authorization(authorization string) ApiGetPluginRegistryIndexApiV1PluginRegistryIndexGetRequest {
@@ -1003,24 +1006,25 @@ func (r ApiGetPluginRegistryIndexApiV1PluginRegistryIndexGetRequest) Execute() (
 /*
 GetPluginRegistryIndexApiV1PluginRegistryIndexGet Get Plugin Registry Index
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiGetPluginRegistryIndexApiV1PluginRegistryIndexGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiGetPluginRegistryIndexApiV1PluginRegistryIndexGetRequest
 */
 func (a *PluginsAPIService) GetPluginRegistryIndexApiV1PluginRegistryIndexGet(ctx context.Context) ApiGetPluginRegistryIndexApiV1PluginRegistryIndexGetRequest {
 	return ApiGetPluginRegistryIndexApiV1PluginRegistryIndexGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return PluginRegistryIndex
+//
+//	@return PluginRegistryIndex
 func (a *PluginsAPIService) GetPluginRegistryIndexApiV1PluginRegistryIndexGetExecute(r ApiGetPluginRegistryIndexApiV1PluginRegistryIndexGetRequest) (*PluginRegistryIndex, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *PluginRegistryIndex
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *PluginRegistryIndex
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "PluginsAPIService.GetPluginRegistryIndexApiV1PluginRegistryIndexGet")
@@ -1089,8 +1093,8 @@ func (a *PluginsAPIService) GetPluginRegistryIndexApiV1PluginRegistryIndexGetExe
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1108,13 +1112,13 @@ func (a *PluginsAPIService) GetPluginRegistryIndexApiV1PluginRegistryIndexGetExe
 }
 
 type ApiGetPluginRegistryPackageApiV1PluginRegistryPackagesNameVersionGetRequest struct {
-	ctx context.Context
-	ApiService *PluginsAPIService
-	name string
-	version string
+	ctx           context.Context
+	ApiService    *PluginsAPIService
+	name          string
+	version       string
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiGetPluginRegistryPackageApiV1PluginRegistryPackagesNameVersionGetRequest) Authorization(authorization string) ApiGetPluginRegistryPackageApiV1PluginRegistryPackagesNameVersionGetRequest {
@@ -1139,28 +1143,29 @@ func (r ApiGetPluginRegistryPackageApiV1PluginRegistryPackagesNameVersionGetRequ
 /*
 GetPluginRegistryPackageApiV1PluginRegistryPackagesNameVersionGet Get Plugin Registry Package
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param name
- @param version
- @return ApiGetPluginRegistryPackageApiV1PluginRegistryPackagesNameVersionGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param name
+	@param version
+	@return ApiGetPluginRegistryPackageApiV1PluginRegistryPackagesNameVersionGetRequest
 */
 func (a *PluginsAPIService) GetPluginRegistryPackageApiV1PluginRegistryPackagesNameVersionGet(ctx context.Context, name string, version string) ApiGetPluginRegistryPackageApiV1PluginRegistryPackagesNameVersionGetRequest {
 	return ApiGetPluginRegistryPackageApiV1PluginRegistryPackagesNameVersionGetRequest{
 		ApiService: a,
-		ctx: ctx,
-		name: name,
-		version: version,
+		ctx:        ctx,
+		name:       name,
+		version:    version,
 	}
 }
 
 // Execute executes the request
-//  @return PluginRegistryPackage
+//
+//	@return PluginRegistryPackage
 func (a *PluginsAPIService) GetPluginRegistryPackageApiV1PluginRegistryPackagesNameVersionGetExecute(r ApiGetPluginRegistryPackageApiV1PluginRegistryPackagesNameVersionGetRequest) (*PluginRegistryPackage, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *PluginRegistryPackage
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *PluginRegistryPackage
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "PluginsAPIService.GetPluginRegistryPackageApiV1PluginRegistryPackagesNameVersionGet")
@@ -1231,8 +1236,8 @@ func (a *PluginsAPIService) GetPluginRegistryPackageApiV1PluginRegistryPackagesN
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1250,11 +1255,11 @@ func (a *PluginsAPIService) GetPluginRegistryPackageApiV1PluginRegistryPackagesN
 }
 
 type ApiImportPluginRegistryApiV1PluginRegistryOfflineImportPostRequest struct {
-	ctx context.Context
-	ApiService *PluginsAPIService
+	ctx           context.Context
+	ApiService    *PluginsAPIService
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiImportPluginRegistryApiV1PluginRegistryOfflineImportPostRequest) Authorization(authorization string) ApiImportPluginRegistryApiV1PluginRegistryOfflineImportPostRequest {
@@ -1279,24 +1284,25 @@ func (r ApiImportPluginRegistryApiV1PluginRegistryOfflineImportPostRequest) Exec
 /*
 ImportPluginRegistryApiV1PluginRegistryOfflineImportPost Import Plugin Registry
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiImportPluginRegistryApiV1PluginRegistryOfflineImportPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiImportPluginRegistryApiV1PluginRegistryOfflineImportPostRequest
 */
 func (a *PluginsAPIService) ImportPluginRegistryApiV1PluginRegistryOfflineImportPost(ctx context.Context) ApiImportPluginRegistryApiV1PluginRegistryOfflineImportPostRequest {
 	return ApiImportPluginRegistryApiV1PluginRegistryOfflineImportPostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return PluginRegistryIndex
+//
+//	@return PluginRegistryIndex
 func (a *PluginsAPIService) ImportPluginRegistryApiV1PluginRegistryOfflineImportPostExecute(r ApiImportPluginRegistryApiV1PluginRegistryOfflineImportPostRequest) (*PluginRegistryIndex, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *PluginRegistryIndex
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *PluginRegistryIndex
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "PluginsAPIService.ImportPluginRegistryApiV1PluginRegistryOfflineImportPost")
@@ -1365,8 +1371,8 @@ func (a *PluginsAPIService) ImportPluginRegistryApiV1PluginRegistryOfflineImport
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1384,12 +1390,12 @@ func (a *PluginsAPIService) ImportPluginRegistryApiV1PluginRegistryOfflineImport
 }
 
 type ApiInstallPluginBundleApiV1PluginsInstallPostRequest struct {
-	ctx context.Context
-	ApiService *PluginsAPIService
+	ctx           context.Context
+	ApiService    *PluginsAPIService
 	contentDigest *string
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiInstallPluginBundleApiV1PluginsInstallPostRequest) ContentDigest(contentDigest string) ApiInstallPluginBundleApiV1PluginsInstallPostRequest {
@@ -1419,24 +1425,25 @@ func (r ApiInstallPluginBundleApiV1PluginsInstallPostRequest) Execute() (*Plugin
 /*
 InstallPluginBundleApiV1PluginsInstallPost Install Plugin Bundle
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiInstallPluginBundleApiV1PluginsInstallPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiInstallPluginBundleApiV1PluginsInstallPostRequest
 */
 func (a *PluginsAPIService) InstallPluginBundleApiV1PluginsInstallPost(ctx context.Context) ApiInstallPluginBundleApiV1PluginsInstallPostRequest {
 	return ApiInstallPluginBundleApiV1PluginsInstallPostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return PluginCatalogSnapshot
+//
+//	@return PluginCatalogSnapshot
 func (a *PluginsAPIService) InstallPluginBundleApiV1PluginsInstallPostExecute(r ApiInstallPluginBundleApiV1PluginsInstallPostRequest) (*PluginCatalogSnapshot, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *PluginCatalogSnapshot
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *PluginCatalogSnapshot
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "PluginsAPIService.InstallPluginBundleApiV1PluginsInstallPost")
@@ -1509,8 +1516,8 @@ func (a *PluginsAPIService) InstallPluginBundleApiV1PluginsInstallPostExecute(r 
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1528,11 +1535,11 @@ func (a *PluginsAPIService) InstallPluginBundleApiV1PluginsInstallPostExecute(r 
 }
 
 type ApiIsolatedPluginRuntimeStatusApiV1PluginsIsolatedRuntimeGetRequest struct {
-	ctx context.Context
-	ApiService *PluginsAPIService
+	ctx           context.Context
+	ApiService    *PluginsAPIService
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiIsolatedPluginRuntimeStatusApiV1PluginsIsolatedRuntimeGetRequest) Authorization(authorization string) ApiIsolatedPluginRuntimeStatusApiV1PluginsIsolatedRuntimeGetRequest {
@@ -1557,24 +1564,25 @@ func (r ApiIsolatedPluginRuntimeStatusApiV1PluginsIsolatedRuntimeGetRequest) Exe
 /*
 IsolatedPluginRuntimeStatusApiV1PluginsIsolatedRuntimeGet Isolated Plugin Runtime Status
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiIsolatedPluginRuntimeStatusApiV1PluginsIsolatedRuntimeGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiIsolatedPluginRuntimeStatusApiV1PluginsIsolatedRuntimeGetRequest
 */
 func (a *PluginsAPIService) IsolatedPluginRuntimeStatusApiV1PluginsIsolatedRuntimeGet(ctx context.Context) ApiIsolatedPluginRuntimeStatusApiV1PluginsIsolatedRuntimeGetRequest {
 	return ApiIsolatedPluginRuntimeStatusApiV1PluginsIsolatedRuntimeGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return IsolatedPluginRuntimeSnapshot
+//
+//	@return IsolatedPluginRuntimeSnapshot
 func (a *PluginsAPIService) IsolatedPluginRuntimeStatusApiV1PluginsIsolatedRuntimeGetExecute(r ApiIsolatedPluginRuntimeStatusApiV1PluginsIsolatedRuntimeGetRequest) (*IsolatedPluginRuntimeSnapshot, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *IsolatedPluginRuntimeSnapshot
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *IsolatedPluginRuntimeSnapshot
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "PluginsAPIService.IsolatedPluginRuntimeStatusApiV1PluginsIsolatedRuntimeGet")
@@ -1643,8 +1651,8 @@ func (a *PluginsAPIService) IsolatedPluginRuntimeStatusApiV1PluginsIsolatedRunti
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1662,12 +1670,12 @@ func (a *PluginsAPIService) IsolatedPluginRuntimeStatusApiV1PluginsIsolatedRunti
 }
 
 type ApiListPluginPolicyDecisionsApiV1PluginPolicyDecisionsGetRequest struct {
-	ctx context.Context
-	ApiService *PluginsAPIService
-	limit *int32
+	ctx           context.Context
+	ApiService    *PluginsAPIService
+	limit         *int32
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiListPluginPolicyDecisionsApiV1PluginPolicyDecisionsGetRequest) Limit(limit int32) ApiListPluginPolicyDecisionsApiV1PluginPolicyDecisionsGetRequest {
@@ -1697,24 +1705,25 @@ func (r ApiListPluginPolicyDecisionsApiV1PluginPolicyDecisionsGetRequest) Execut
 /*
 ListPluginPolicyDecisionsApiV1PluginPolicyDecisionsGet List Plugin Policy Decisions
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiListPluginPolicyDecisionsApiV1PluginPolicyDecisionsGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiListPluginPolicyDecisionsApiV1PluginPolicyDecisionsGetRequest
 */
 func (a *PluginsAPIService) ListPluginPolicyDecisionsApiV1PluginPolicyDecisionsGet(ctx context.Context) ApiListPluginPolicyDecisionsApiV1PluginPolicyDecisionsGetRequest {
 	return ApiListPluginPolicyDecisionsApiV1PluginPolicyDecisionsGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return []PluginPolicyDecision
+//
+//	@return []PluginPolicyDecision
 func (a *PluginsAPIService) ListPluginPolicyDecisionsApiV1PluginPolicyDecisionsGetExecute(r ApiListPluginPolicyDecisionsApiV1PluginPolicyDecisionsGetRequest) ([]PluginPolicyDecision, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  []PluginPolicyDecision
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []PluginPolicyDecision
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "PluginsAPIService.ListPluginPolicyDecisionsApiV1PluginPolicyDecisionsGet")
@@ -1790,8 +1799,8 @@ func (a *PluginsAPIService) ListPluginPolicyDecisionsApiV1PluginPolicyDecisionsG
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1809,11 +1818,11 @@ func (a *PluginsAPIService) ListPluginPolicyDecisionsApiV1PluginPolicyDecisionsG
 }
 
 type ApiListPluginsApiV1PluginsGetRequest struct {
-	ctx context.Context
-	ApiService *PluginsAPIService
+	ctx           context.Context
+	ApiService    *PluginsAPIService
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiListPluginsApiV1PluginsGetRequest) Authorization(authorization string) ApiListPluginsApiV1PluginsGetRequest {
@@ -1838,24 +1847,25 @@ func (r ApiListPluginsApiV1PluginsGetRequest) Execute() (*PluginCatalogSnapshot,
 /*
 ListPluginsApiV1PluginsGet List Plugins
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiListPluginsApiV1PluginsGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiListPluginsApiV1PluginsGetRequest
 */
 func (a *PluginsAPIService) ListPluginsApiV1PluginsGet(ctx context.Context) ApiListPluginsApiV1PluginsGetRequest {
 	return ApiListPluginsApiV1PluginsGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return PluginCatalogSnapshot
+//
+//	@return PluginCatalogSnapshot
 func (a *PluginsAPIService) ListPluginsApiV1PluginsGetExecute(r ApiListPluginsApiV1PluginsGetRequest) (*PluginCatalogSnapshot, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *PluginCatalogSnapshot
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *PluginCatalogSnapshot
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "PluginsAPIService.ListPluginsApiV1PluginsGet")
@@ -1924,8 +1934,8 @@ func (a *PluginsAPIService) ListPluginsApiV1PluginsGetExecute(r ApiListPluginsAp
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1943,12 +1953,12 @@ func (a *PluginsAPIService) ListPluginsApiV1PluginsGetExecute(r ApiListPluginsAp
 }
 
 type ApiPreviewPluginQuarantineApiV1PluginPolicyQuarantinesPreviewPostRequest struct {
-	ctx context.Context
-	ApiService *PluginsAPIService
+	ctx                    context.Context
+	ApiService             *PluginsAPIService
 	pluginQuarantineCreate *PluginQuarantineCreate
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization          *string
+	xAmeshCSRF             *string
+	xAmeshTenant           *string
 }
 
 func (r ApiPreviewPluginQuarantineApiV1PluginPolicyQuarantinesPreviewPostRequest) PluginQuarantineCreate(pluginQuarantineCreate PluginQuarantineCreate) ApiPreviewPluginQuarantineApiV1PluginPolicyQuarantinesPreviewPostRequest {
@@ -1978,24 +1988,25 @@ func (r ApiPreviewPluginQuarantineApiV1PluginPolicyQuarantinesPreviewPostRequest
 /*
 PreviewPluginQuarantineApiV1PluginPolicyQuarantinesPreviewPost Preview Plugin Quarantine
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiPreviewPluginQuarantineApiV1PluginPolicyQuarantinesPreviewPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiPreviewPluginQuarantineApiV1PluginPolicyQuarantinesPreviewPostRequest
 */
 func (a *PluginsAPIService) PreviewPluginQuarantineApiV1PluginPolicyQuarantinesPreviewPost(ctx context.Context) ApiPreviewPluginQuarantineApiV1PluginPolicyQuarantinesPreviewPostRequest {
 	return ApiPreviewPluginQuarantineApiV1PluginPolicyQuarantinesPreviewPostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return PluginPolicyImpactPreview
+//
+//	@return PluginPolicyImpactPreview
 func (a *PluginsAPIService) PreviewPluginQuarantineApiV1PluginPolicyQuarantinesPreviewPostExecute(r ApiPreviewPluginQuarantineApiV1PluginPolicyQuarantinesPreviewPostRequest) (*PluginPolicyImpactPreview, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *PluginPolicyImpactPreview
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *PluginPolicyImpactPreview
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "PluginsAPIService.PreviewPluginQuarantineApiV1PluginPolicyQuarantinesPreviewPost")
@@ -2069,8 +2080,8 @@ func (a *PluginsAPIService) PreviewPluginQuarantineApiV1PluginPolicyQuarantinesP
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -2088,12 +2099,12 @@ func (a *PluginsAPIService) PreviewPluginQuarantineApiV1PluginPolicyQuarantinesP
 }
 
 type ApiPublishPluginRegistryPackageApiV1PluginRegistryPackagesPostRequest struct {
-	ctx context.Context
-	ApiService *PluginsAPIService
+	ctx                          context.Context
+	ApiService                   *PluginsAPIService
 	pluginRegistryPublishRequest *PluginRegistryPublishRequest
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization                *string
+	xAmeshCSRF                   *string
+	xAmeshTenant                 *string
 }
 
 func (r ApiPublishPluginRegistryPackageApiV1PluginRegistryPackagesPostRequest) PluginRegistryPublishRequest(pluginRegistryPublishRequest PluginRegistryPublishRequest) ApiPublishPluginRegistryPackageApiV1PluginRegistryPackagesPostRequest {
@@ -2123,24 +2134,25 @@ func (r ApiPublishPluginRegistryPackageApiV1PluginRegistryPackagesPostRequest) E
 /*
 PublishPluginRegistryPackageApiV1PluginRegistryPackagesPost Publish Plugin Registry Package
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiPublishPluginRegistryPackageApiV1PluginRegistryPackagesPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiPublishPluginRegistryPackageApiV1PluginRegistryPackagesPostRequest
 */
 func (a *PluginsAPIService) PublishPluginRegistryPackageApiV1PluginRegistryPackagesPost(ctx context.Context) ApiPublishPluginRegistryPackageApiV1PluginRegistryPackagesPostRequest {
 	return ApiPublishPluginRegistryPackageApiV1PluginRegistryPackagesPostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return PluginRegistryPackage
+//
+//	@return PluginRegistryPackage
 func (a *PluginsAPIService) PublishPluginRegistryPackageApiV1PluginRegistryPackagesPostExecute(r ApiPublishPluginRegistryPackageApiV1PluginRegistryPackagesPostRequest) (*PluginRegistryPackage, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *PluginRegistryPackage
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *PluginRegistryPackage
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "PluginsAPIService.PublishPluginRegistryPackageApiV1PluginRegistryPackagesPost")
@@ -2214,8 +2226,8 @@ func (a *PluginsAPIService) PublishPluginRegistryPackageApiV1PluginRegistryPacka
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -2233,12 +2245,12 @@ func (a *PluginsAPIService) PublishPluginRegistryPackageApiV1PluginRegistryPacka
 }
 
 type ApiQuarantinePluginVersionApiV1PluginPolicyQuarantinesPostRequest struct {
-	ctx context.Context
-	ApiService *PluginsAPIService
+	ctx                    context.Context
+	ApiService             *PluginsAPIService
 	pluginQuarantineCreate *PluginQuarantineCreate
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization          *string
+	xAmeshCSRF             *string
+	xAmeshTenant           *string
 }
 
 func (r ApiQuarantinePluginVersionApiV1PluginPolicyQuarantinesPostRequest) PluginQuarantineCreate(pluginQuarantineCreate PluginQuarantineCreate) ApiQuarantinePluginVersionApiV1PluginPolicyQuarantinesPostRequest {
@@ -2268,24 +2280,25 @@ func (r ApiQuarantinePluginVersionApiV1PluginPolicyQuarantinesPostRequest) Execu
 /*
 QuarantinePluginVersionApiV1PluginPolicyQuarantinesPost Quarantine Plugin Version
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiQuarantinePluginVersionApiV1PluginPolicyQuarantinesPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiQuarantinePluginVersionApiV1PluginPolicyQuarantinesPostRequest
 */
 func (a *PluginsAPIService) QuarantinePluginVersionApiV1PluginPolicyQuarantinesPost(ctx context.Context) ApiQuarantinePluginVersionApiV1PluginPolicyQuarantinesPostRequest {
 	return ApiQuarantinePluginVersionApiV1PluginPolicyQuarantinesPostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return PluginQuarantine
+//
+//	@return PluginQuarantine
 func (a *PluginsAPIService) QuarantinePluginVersionApiV1PluginPolicyQuarantinesPostExecute(r ApiQuarantinePluginVersionApiV1PluginPolicyQuarantinesPostRequest) (*PluginQuarantine, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *PluginQuarantine
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *PluginQuarantine
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "PluginsAPIService.QuarantinePluginVersionApiV1PluginPolicyQuarantinesPost")
@@ -2359,8 +2372,8 @@ func (a *PluginsAPIService) QuarantinePluginVersionApiV1PluginPolicyQuarantinesP
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -2378,11 +2391,11 @@ func (a *PluginsAPIService) QuarantinePluginVersionApiV1PluginPolicyQuarantinesP
 }
 
 type ApiRefreshPluginsApiV1PluginsRefreshPostRequest struct {
-	ctx context.Context
-	ApiService *PluginsAPIService
+	ctx           context.Context
+	ApiService    *PluginsAPIService
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiRefreshPluginsApiV1PluginsRefreshPostRequest) Authorization(authorization string) ApiRefreshPluginsApiV1PluginsRefreshPostRequest {
@@ -2407,24 +2420,25 @@ func (r ApiRefreshPluginsApiV1PluginsRefreshPostRequest) Execute() (*PluginCatal
 /*
 RefreshPluginsApiV1PluginsRefreshPost Refresh Plugins
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiRefreshPluginsApiV1PluginsRefreshPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiRefreshPluginsApiV1PluginsRefreshPostRequest
 */
 func (a *PluginsAPIService) RefreshPluginsApiV1PluginsRefreshPost(ctx context.Context) ApiRefreshPluginsApiV1PluginsRefreshPostRequest {
 	return ApiRefreshPluginsApiV1PluginsRefreshPostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return PluginCatalogSnapshot
+//
+//	@return PluginCatalogSnapshot
 func (a *PluginsAPIService) RefreshPluginsApiV1PluginsRefreshPostExecute(r ApiRefreshPluginsApiV1PluginsRefreshPostRequest) (*PluginCatalogSnapshot, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *PluginCatalogSnapshot
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *PluginCatalogSnapshot
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "PluginsAPIService.RefreshPluginsApiV1PluginsRefreshPost")
@@ -2493,8 +2507,8 @@ func (a *PluginsAPIService) RefreshPluginsApiV1PluginsRefreshPostExecute(r ApiRe
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -2512,13 +2526,13 @@ func (a *PluginsAPIService) RefreshPluginsApiV1PluginsRefreshPostExecute(r ApiRe
 }
 
 type ApiReleasePluginQuarantineApiV1PluginPolicyQuarantinesQuarantineIdReleasePostRequest struct {
-	ctx context.Context
-	ApiService *PluginsAPIService
-	quarantineId string
-	reason *string
+	ctx           context.Context
+	ApiService    *PluginsAPIService
+	quarantineId  string
+	reason        *string
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiReleasePluginQuarantineApiV1PluginPolicyQuarantinesQuarantineIdReleasePostRequest) Reason(reason string) ApiReleasePluginQuarantineApiV1PluginPolicyQuarantinesQuarantineIdReleasePostRequest {
@@ -2548,26 +2562,27 @@ func (r ApiReleasePluginQuarantineApiV1PluginPolicyQuarantinesQuarantineIdReleas
 /*
 ReleasePluginQuarantineApiV1PluginPolicyQuarantinesQuarantineIdReleasePost Release Plugin Quarantine
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param quarantineId
- @return ApiReleasePluginQuarantineApiV1PluginPolicyQuarantinesQuarantineIdReleasePostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param quarantineId
+	@return ApiReleasePluginQuarantineApiV1PluginPolicyQuarantinesQuarantineIdReleasePostRequest
 */
 func (a *PluginsAPIService) ReleasePluginQuarantineApiV1PluginPolicyQuarantinesQuarantineIdReleasePost(ctx context.Context, quarantineId string) ApiReleasePluginQuarantineApiV1PluginPolicyQuarantinesQuarantineIdReleasePostRequest {
 	return ApiReleasePluginQuarantineApiV1PluginPolicyQuarantinesQuarantineIdReleasePostRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:   a,
+		ctx:          ctx,
 		quarantineId: quarantineId,
 	}
 }
 
 // Execute executes the request
-//  @return PluginQuarantine
+//
+//	@return PluginQuarantine
 func (a *PluginsAPIService) ReleasePluginQuarantineApiV1PluginPolicyQuarantinesQuarantineIdReleasePostExecute(r ApiReleasePluginQuarantineApiV1PluginPolicyQuarantinesQuarantineIdReleasePostRequest) (*PluginQuarantine, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *PluginQuarantine
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *PluginQuarantine
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "PluginsAPIService.ReleasePluginQuarantineApiV1PluginPolicyQuarantinesQuarantineIdReleasePost")
@@ -2647,8 +2662,8 @@ func (a *PluginsAPIService) ReleasePluginQuarantineApiV1PluginPolicyQuarantinesQ
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -2666,11 +2681,11 @@ func (a *PluginsAPIService) ReleasePluginQuarantineApiV1PluginPolicyQuarantinesQ
 }
 
 type ApiTrustedPluginRuntimeStatusApiV1PluginsTrustedRuntimeGetRequest struct {
-	ctx context.Context
-	ApiService *PluginsAPIService
+	ctx           context.Context
+	ApiService    *PluginsAPIService
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiTrustedPluginRuntimeStatusApiV1PluginsTrustedRuntimeGetRequest) Authorization(authorization string) ApiTrustedPluginRuntimeStatusApiV1PluginsTrustedRuntimeGetRequest {
@@ -2695,24 +2710,25 @@ func (r ApiTrustedPluginRuntimeStatusApiV1PluginsTrustedRuntimeGetRequest) Execu
 /*
 TrustedPluginRuntimeStatusApiV1PluginsTrustedRuntimeGet Trusted Plugin Runtime Status
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiTrustedPluginRuntimeStatusApiV1PluginsTrustedRuntimeGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiTrustedPluginRuntimeStatusApiV1PluginsTrustedRuntimeGetRequest
 */
 func (a *PluginsAPIService) TrustedPluginRuntimeStatusApiV1PluginsTrustedRuntimeGet(ctx context.Context) ApiTrustedPluginRuntimeStatusApiV1PluginsTrustedRuntimeGetRequest {
 	return ApiTrustedPluginRuntimeStatusApiV1PluginsTrustedRuntimeGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return TrustedPluginRuntimeSnapshot
+//
+//	@return TrustedPluginRuntimeSnapshot
 func (a *PluginsAPIService) TrustedPluginRuntimeStatusApiV1PluginsTrustedRuntimeGetExecute(r ApiTrustedPluginRuntimeStatusApiV1PluginsTrustedRuntimeGetRequest) (*TrustedPluginRuntimeSnapshot, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *TrustedPluginRuntimeSnapshot
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *TrustedPluginRuntimeSnapshot
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "PluginsAPIService.TrustedPluginRuntimeStatusApiV1PluginsTrustedRuntimeGet")
@@ -2781,8 +2797,8 @@ func (a *PluginsAPIService) TrustedPluginRuntimeStatusApiV1PluginsTrustedRuntime
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -2800,13 +2816,13 @@ func (a *PluginsAPIService) TrustedPluginRuntimeStatusApiV1PluginsTrustedRuntime
 }
 
 type ApiUpdatePluginPolicyRuleApiV1PluginPolicyRulesRuleIdPutRequest struct {
-	ctx context.Context
-	ApiService *PluginsAPIService
-	ruleId string
+	ctx                    context.Context
+	ApiService             *PluginsAPIService
+	ruleId                 string
 	pluginPolicyRuleCreate *PluginPolicyRuleCreate
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization          *string
+	xAmeshCSRF             *string
+	xAmeshTenant           *string
 }
 
 func (r ApiUpdatePluginPolicyRuleApiV1PluginPolicyRulesRuleIdPutRequest) PluginPolicyRuleCreate(pluginPolicyRuleCreate PluginPolicyRuleCreate) ApiUpdatePluginPolicyRuleApiV1PluginPolicyRulesRuleIdPutRequest {
@@ -2836,26 +2852,27 @@ func (r ApiUpdatePluginPolicyRuleApiV1PluginPolicyRulesRuleIdPutRequest) Execute
 /*
 UpdatePluginPolicyRuleApiV1PluginPolicyRulesRuleIdPut Update Plugin Policy Rule
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param ruleId
- @return ApiUpdatePluginPolicyRuleApiV1PluginPolicyRulesRuleIdPutRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param ruleId
+	@return ApiUpdatePluginPolicyRuleApiV1PluginPolicyRulesRuleIdPutRequest
 */
 func (a *PluginsAPIService) UpdatePluginPolicyRuleApiV1PluginPolicyRulesRuleIdPut(ctx context.Context, ruleId string) ApiUpdatePluginPolicyRuleApiV1PluginPolicyRulesRuleIdPutRequest {
 	return ApiUpdatePluginPolicyRuleApiV1PluginPolicyRulesRuleIdPutRequest{
 		ApiService: a,
-		ctx: ctx,
-		ruleId: ruleId,
+		ctx:        ctx,
+		ruleId:     ruleId,
 	}
 }
 
 // Execute executes the request
-//  @return PluginPolicyRule
+//
+//	@return PluginPolicyRule
 func (a *PluginsAPIService) UpdatePluginPolicyRuleApiV1PluginPolicyRulesRuleIdPutExecute(r ApiUpdatePluginPolicyRuleApiV1PluginPolicyRulesRuleIdPutRequest) (*PluginPolicyRule, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPut
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *PluginPolicyRule
+		localVarHTTPMethod  = http.MethodPut
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *PluginPolicyRule
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "PluginsAPIService.UpdatePluginPolicyRuleApiV1PluginPolicyRulesRuleIdPut")
@@ -2930,8 +2947,8 @@ func (a *PluginsAPIService) UpdatePluginPolicyRuleApiV1PluginPolicyRulesRuleIdPu
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -2949,14 +2966,14 @@ func (a *PluginsAPIService) UpdatePluginPolicyRuleApiV1PluginPolicyRulesRuleIdPu
 }
 
 type ApiYankPluginRegistryPackageApiV1PluginRegistryPackagesNameVersionYankPostRequest struct {
-	ctx context.Context
-	ApiService *PluginsAPIService
-	name string
-	version string
+	ctx                       context.Context
+	ApiService                *PluginsAPIService
+	name                      string
+	version                   string
 	pluginRegistryYankRequest *PluginRegistryYankRequest
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization             *string
+	xAmeshCSRF                *string
+	xAmeshTenant              *string
 }
 
 func (r ApiYankPluginRegistryPackageApiV1PluginRegistryPackagesNameVersionYankPostRequest) PluginRegistryYankRequest(pluginRegistryYankRequest PluginRegistryYankRequest) ApiYankPluginRegistryPackageApiV1PluginRegistryPackagesNameVersionYankPostRequest {
@@ -2986,28 +3003,29 @@ func (r ApiYankPluginRegistryPackageApiV1PluginRegistryPackagesNameVersionYankPo
 /*
 YankPluginRegistryPackageApiV1PluginRegistryPackagesNameVersionYankPost Yank Plugin Registry Package
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param name
- @param version
- @return ApiYankPluginRegistryPackageApiV1PluginRegistryPackagesNameVersionYankPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param name
+	@param version
+	@return ApiYankPluginRegistryPackageApiV1PluginRegistryPackagesNameVersionYankPostRequest
 */
 func (a *PluginsAPIService) YankPluginRegistryPackageApiV1PluginRegistryPackagesNameVersionYankPost(ctx context.Context, name string, version string) ApiYankPluginRegistryPackageApiV1PluginRegistryPackagesNameVersionYankPostRequest {
 	return ApiYankPluginRegistryPackageApiV1PluginRegistryPackagesNameVersionYankPostRequest{
 		ApiService: a,
-		ctx: ctx,
-		name: name,
-		version: version,
+		ctx:        ctx,
+		name:       name,
+		version:    version,
 	}
 }
 
 // Execute executes the request
-//  @return PluginRegistryPackage
+//
+//	@return PluginRegistryPackage
 func (a *PluginsAPIService) YankPluginRegistryPackageApiV1PluginRegistryPackagesNameVersionYankPostExecute(r ApiYankPluginRegistryPackageApiV1PluginRegistryPackagesNameVersionYankPostRequest) (*PluginRegistryPackage, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *PluginRegistryPackage
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *PluginRegistryPackage
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "PluginsAPIService.YankPluginRegistryPackageApiV1PluginRegistryPackagesNameVersionYankPost")
@@ -3083,8 +3101,8 @@ func (a *PluginsAPIService) YankPluginRegistryPackageApiV1PluginRegistryPackages
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}

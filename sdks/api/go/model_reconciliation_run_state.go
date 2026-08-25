@@ -20,9 +20,9 @@ type ReconciliationRunState string
 
 // List of ReconciliationRunState
 const (
-	RECONCILIATIONRUNSTATE_RUNNING ReconciliationRunState = "RUNNING"
+	RECONCILIATIONRUNSTATE_RUNNING   ReconciliationRunState = "RUNNING"
 	RECONCILIATIONRUNSTATE_COMPLETED ReconciliationRunState = "COMPLETED"
-	RECONCILIATIONRUNSTATE_FAILED ReconciliationRunState = "FAILED"
+	RECONCILIATIONRUNSTATE_FAILED    ReconciliationRunState = "FAILED"
 )
 
 // All allowed values of ReconciliationRunState enum

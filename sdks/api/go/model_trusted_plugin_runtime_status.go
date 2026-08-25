@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,20 +21,20 @@ var _ MappedNullable = &TrustedPluginRuntimeStatus{}
 
 // TrustedPluginRuntimeStatus struct for TrustedPluginRuntimeStatus
 type TrustedPluginRuntimeStatus struct {
-	AverageLatencyMs *float32 `json:"averageLatencyMs,omitempty"`
-	Callbacks *int32 `json:"callbacks,omitempty"`
-	Circuit TrustedCircuitState `json:"circuit"`
-	ConsecutiveFailures *int32 `json:"consecutiveFailures,omitempty"`
-	ContentDigest string `json:"contentDigest"`
-	Errors *int32 `json:"errors,omitempty"`
-	InvariantViolations *int32 `json:"invariantViolations,omitempty"`
-	LastErrorCode NullableString `json:"lastErrorCode,omitempty"`
-	Name string `json:"name"`
-	Namespace NullableString `json:"namespace,omitempty"`
-	OwnedMemoryBytes NullableInt32 `json:"ownedMemoryBytes,omitempty"`
-	ProcessMemoryBytes NullableInt32 `json:"processMemoryBytes,omitempty"`
-	State TrustedPluginState `json:"state"`
-	Version string `json:"version"`
+	AverageLatencyMs    *float32            `json:"averageLatencyMs,omitempty"`
+	Callbacks           *int32              `json:"callbacks,omitempty"`
+	Circuit             TrustedCircuitState `json:"circuit"`
+	ConsecutiveFailures *int32              `json:"consecutiveFailures,omitempty"`
+	ContentDigest       string              `json:"contentDigest"`
+	Errors              *int32              `json:"errors,omitempty"`
+	InvariantViolations *int32              `json:"invariantViolations,omitempty"`
+	LastErrorCode       NullableString      `json:"lastErrorCode,omitempty"`
+	Name                string              `json:"name"`
+	Namespace           NullableString      `json:"namespace,omitempty"`
+	OwnedMemoryBytes    NullableInt32       `json:"ownedMemoryBytes,omitempty"`
+	ProcessMemoryBytes  NullableInt32       `json:"processMemoryBytes,omitempty"`
+	State               TrustedPluginState  `json:"state"`
+	Version             string              `json:"version"`
 }
 
 type _TrustedPluginRuntimeStatus TrustedPluginRuntimeStatus
@@ -321,6 +321,7 @@ func (o *TrustedPluginRuntimeStatus) HasLastErrorCode() bool {
 func (o *TrustedPluginRuntimeStatus) SetLastErrorCode(v string) {
 	o.LastErrorCode.Set(&v)
 }
+
 // SetLastErrorCodeNil sets the value for LastErrorCode to be an explicit nil
 func (o *TrustedPluginRuntimeStatus) SetLastErrorCodeNil() {
 	o.LastErrorCode.Set(nil)
@@ -387,6 +388,7 @@ func (o *TrustedPluginRuntimeStatus) HasNamespace() bool {
 func (o *TrustedPluginRuntimeStatus) SetNamespace(v string) {
 	o.Namespace.Set(&v)
 }
+
 // SetNamespaceNil sets the value for Namespace to be an explicit nil
 func (o *TrustedPluginRuntimeStatus) SetNamespaceNil() {
 	o.Namespace.Set(nil)
@@ -429,6 +431,7 @@ func (o *TrustedPluginRuntimeStatus) HasOwnedMemoryBytes() bool {
 func (o *TrustedPluginRuntimeStatus) SetOwnedMemoryBytes(v int32) {
 	o.OwnedMemoryBytes.Set(&v)
 }
+
 // SetOwnedMemoryBytesNil sets the value for OwnedMemoryBytes to be an explicit nil
 func (o *TrustedPluginRuntimeStatus) SetOwnedMemoryBytesNil() {
 	o.OwnedMemoryBytes.Set(nil)
@@ -471,6 +474,7 @@ func (o *TrustedPluginRuntimeStatus) HasProcessMemoryBytes() bool {
 func (o *TrustedPluginRuntimeStatus) SetProcessMemoryBytes(v int32) {
 	o.ProcessMemoryBytes.Set(&v)
 }
+
 // SetProcessMemoryBytesNil sets the value for ProcessMemoryBytes to be an explicit nil
 func (o *TrustedPluginRuntimeStatus) SetProcessMemoryBytesNil() {
 	o.ProcessMemoryBytes.Set(nil)
@@ -530,7 +534,7 @@ func (o *TrustedPluginRuntimeStatus) SetVersion(v string) {
 }
 
 func (o TrustedPluginRuntimeStatus) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -591,10 +595,10 @@ func (o *TrustedPluginRuntimeStatus) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

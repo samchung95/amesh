@@ -21,9 +21,9 @@ type MetricKind string
 // List of MetricKind
 const (
 	METRICKIND_COUNTER MetricKind = "COUNTER"
-	METRICKIND_GAUGE MetricKind = "GAUGE"
-	METRICKIND_TIMER MetricKind = "TIMER"
-	METRICKIND_CUSTOM MetricKind = "CUSTOM"
+	METRICKIND_GAUGE   MetricKind = "GAUGE"
+	METRICKIND_TIMER   MetricKind = "TIMER"
+	METRICKIND_CUSTOM  MetricKind = "CUSTOM"
 )
 
 // All allowed values of MetricKind enum

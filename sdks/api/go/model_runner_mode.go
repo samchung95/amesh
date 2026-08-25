@@ -20,8 +20,8 @@ type RunnerMode string
 
 // List of RunnerMode
 const (
-	RUNNERMODE_LOCAL RunnerMode = "local"
-	RUNNERMODE_DOCKER RunnerMode = "docker"
+	RUNNERMODE_LOCAL      RunnerMode = "local"
+	RUNNERMODE_DOCKER     RunnerMode = "docker"
 	RUNNERMODE_KUBERNETES RunnerMode = "kubernetes"
 )
 

@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,7 +21,7 @@ var _ MappedNullable = &AuditEventPage{}
 
 // AuditEventPage struct for AuditEventPage
 type AuditEventPage struct {
-	Items []AuditEvent `json:"items"`
+	Items      []AuditEvent  `json:"items"`
 	NextCursor NullableInt32 `json:"nextCursor,omitempty"`
 }
 
@@ -101,6 +101,7 @@ func (o *AuditEventPage) HasNextCursor() bool {
 func (o *AuditEventPage) SetNextCursor(v int32) {
 	o.NextCursor.Set(&v)
 }
+
 // SetNextCursorNil sets the value for NextCursor to be an explicit nil
 func (o *AuditEventPage) SetNextCursorNil() {
 	o.NextCursor.Set(nil)
@@ -112,7 +113,7 @@ func (o *AuditEventPage) UnsetNextCursor() {
 }
 
 func (o AuditEventPage) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -141,10 +142,10 @@ func (o *AuditEventPage) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

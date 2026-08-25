@@ -45,6 +45,10 @@ _REGISTER = text(
         dependencies = '{}'::jsonb,
         registered_at = clock_timestamp(),
         last_heartbeat_at = clock_timestamp(),
+        last_success_at = NULL,
+        last_failure_at = NULL,
+        consecutive_failures = 0,
+        last_failure = NULL,
         stopped_at = NULL
     RETURNING *, clock_timestamp() AS database_now
     """
@@ -53,10 +57,33 @@ _REGISTER = text(
 _HEARTBEAT = text(
     """
     UPDATE service_instances
-    SET state = CASE WHEN state = 'DRAINING' THEN state ELSE 'READY' END,
+        SET state = CASE
+            WHEN state = 'DRAINING' THEN state
+            WHEN CAST(:ready AS boolean) IS NULL THEN state
+            WHEN CAST(:ready AS boolean) THEN 'READY'
+            ELSE 'DEGRADED'
+        END,
         ownership = CAST(:ownership AS jsonb),
         partitions = CAST(:partitions AS jsonb),
         dependencies = CAST(:dependencies AS jsonb),
+        last_success_at = CASE
+            WHEN CAST(:ready AS boolean) IS TRUE THEN clock_timestamp()
+            ELSE last_success_at
+        END,
+        last_failure_at = CASE
+            WHEN CAST(:ready AS boolean) IS FALSE THEN clock_timestamp()
+            ELSE last_failure_at
+        END,
+        consecutive_failures = CASE
+            WHEN CAST(:ready AS boolean) IS TRUE THEN 0
+            WHEN CAST(:ready AS boolean) IS FALSE THEN consecutive_failures + 1
+            ELSE consecutive_failures
+        END,
+        last_failure = CASE
+            WHEN CAST(:ready AS boolean) IS TRUE THEN NULL
+            WHEN CAST(:ready AS boolean) IS FALSE THEN :failure
+            ELSE last_failure
+        END,
         last_heartbeat_at = clock_timestamp(),
         resource_version = resource_version + 1
     WHERE id = :instance_id
@@ -73,7 +100,7 @@ _DRAIN = text(
         resource_version = resource_version + 1
     WHERE id = :instance_id
       AND resource_version = :expected_version
-      AND state IN ('STARTING', 'READY', 'DRAINING')
+      AND state IN ('STARTING', 'READY', 'DEGRADED', 'DRAINING')
     RETURNING *, clock_timestamp() AS database_now
     """
 )
@@ -165,7 +192,12 @@ class PostgresServiceRegistryRepository(ServiceRegistryRepository):
         ownership: dict[str, Any] | None = None,
         partitions: dict[str, Any] | None = None,
         dependencies: dict[str, str] | None = None,
+        ready: bool | None = True,
+        failure: str | None = None,
     ) -> ServiceInstance:
+        failure_summary = (
+            (failure or "service cycle reported not ready")[:2048] if ready is False else None
+        )
         async with self._engine.begin() as connection:
             row = (
                 (
@@ -177,6 +209,8 @@ class PostgresServiceRegistryRepository(ServiceRegistryRepository):
                             "ownership": json.dumps(ownership or {}),
                             "partitions": json.dumps(partitions or {}),
                             "dependencies": json.dumps(dependencies or {}),
+                            "ready": ready,
+                            "failure": failure_summary,
                         },
                     )
                 )
@@ -311,6 +345,10 @@ class PostgresServiceRegistryRepository(ServiceRegistryRepository):
             dependencies=row["dependencies"] or {},
             registeredAt=row["registered_at"],
             lastHeartbeatAt=heartbeat,
+            lastSuccessAt=row["last_success_at"],
+            lastFailureAt=row["last_failure_at"],
+            consecutiveFailures=row["consecutive_failures"],
+            lastFailure=row["last_failure"],
             stoppedAt=row["stopped_at"],
         )
 
@@ -322,6 +360,7 @@ class PostgresServiceRegistryRepository(ServiceRegistryRepository):
         selected = tuple(instance for instance in instances if instance.role is role)
         live = tuple(instance for instance in selected if instance.liveness is ServiceLiveness.LIVE)
         ready = tuple(instance for instance in live if instance.state is ServiceState.READY)
+        degraded = tuple(instance for instance in live if instance.state is ServiceState.DEGRADED)
         draining = tuple(instance for instance in live if instance.state is ServiceState.DRAINING)
         zones = tuple(
             sorted({instance.failure_zone for instance in ready if instance.failure_zone})
@@ -339,6 +378,7 @@ class PostgresServiceRegistryRepository(ServiceRegistryRepository):
             totalInstances=len(selected),
             liveInstances=len(live),
             readyInstances=len(ready),
+            degradedInstances=len(degraded),
             drainingInstances=len(draining),
             staleInstances=sum(instance.liveness is ServiceLiveness.STALE for instance in selected),
             failureZones=zones,

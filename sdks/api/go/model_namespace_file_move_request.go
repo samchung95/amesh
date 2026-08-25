@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,7 +21,7 @@ var _ MappedNullable = &NamespaceFileMoveRequest{}
 
 // NamespaceFileMoveRequest struct for NamespaceFileMoveRequest
 type NamespaceFileMoveRequest struct {
-	DestinationPath string `json:"destinationPath"`
+	DestinationPath string        `json:"destinationPath"`
 	ExpectedVersion NullableInt32 `json:"expectedVersion,omitempty"`
 }
 
@@ -101,6 +101,7 @@ func (o *NamespaceFileMoveRequest) HasExpectedVersion() bool {
 func (o *NamespaceFileMoveRequest) SetExpectedVersion(v int32) {
 	o.ExpectedVersion.Set(&v)
 }
+
 // SetExpectedVersionNil sets the value for ExpectedVersion to be an explicit nil
 func (o *NamespaceFileMoveRequest) SetExpectedVersionNil() {
 	o.ExpectedVersion.Set(nil)
@@ -112,7 +113,7 @@ func (o *NamespaceFileMoveRequest) UnsetExpectedVersion() {
 }
 
 func (o NamespaceFileMoveRequest) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -141,10 +142,10 @@ func (o *NamespaceFileMoveRequest) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

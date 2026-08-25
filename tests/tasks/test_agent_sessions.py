@@ -196,6 +196,58 @@ class ScriptedModel:
         )
 
 
+class ContinuationModel:
+    def __init__(self) -> None:
+        self.calls: list[TaskDefinition] = []
+        self.source_invocation_id = uuid4()
+
+    async def __call__(
+        self,
+        task: TaskDefinition,
+        context: TaskExecutionContext,
+    ) -> TaskCompletion:
+        del context
+        self.calls.append(task)
+        first = len(self.calls) == 1
+        action = (
+            {
+                "action": "tool",
+                "tool": "lookup",
+                "arguments": {"key": "one"},
+                "output": None,
+                "rationale": "Need evidence",
+            }
+            if first
+            else {
+                "action": "final",
+                "tool": "lookup",
+                "arguments": None,
+                "output": {"answer": "continued"},
+                "rationale": "Done",
+            }
+        )
+        output: dict[str, Any] = {
+            "structuredOutput": action,
+            "model": "fixture/reasoning",
+            "usage": {"total_tokens": 5},
+            "costUsd": "0.001",
+            "provenance": {
+                "providerId": "openai-compatible",
+                "providerRevision": "7.0.0",
+                "providerDigest": "sha256:" + "7" * 64,
+                "capabilities": {"opaqueContinuation": True, "usage": True},
+            },
+        }
+        if first:
+            output["continuation"] = {
+                "invocationId": str(self.source_invocation_id),
+                "providerId": "openai-compatible",
+                "providerRevision": "7.0.0",
+                "tokenDigest": "sha256:" + "8" * 64,
+            }
+        return TaskCompletion(output=output)
+
+
 class FallbackJudgeModel:
     def __init__(self) -> None:
         self.calls: list[TaskDefinition] = []
@@ -397,6 +449,9 @@ def _pin(
         connectionKey="catalog",
         connectionRevision=1,
         connectionDigest="sha256:" + "2" * 64,
+        providerKey="mcp",
+        providerRevision=1,
+        providerDigest="sha256:" + "9" * 64,
         toolName="lookup",
         schemaDigest="sha256:" + "3" * 64,
         impact=impact,
@@ -737,6 +792,38 @@ def test_session_resumes_pending_tool_without_repeating_accepted_model_turn() ->
             "model.response",
             "output.accepted",
         ]
+
+    asyncio.run(scenario())
+
+
+def test_session_persists_only_a_provider_pinned_continuation_handle() -> None:
+    async def scenario() -> None:
+        pin = _pin()
+        sessions = MemorySessions()
+        model = ContinuationModel()
+        handler = agent_session_handler(
+            resources=MemoryResources(pin),
+            sessions=sessions,
+            model_handler=model,
+            mcp_handler=ScriptedMcp(),
+        )
+        context = _context()
+
+        completed = await handler(_task(), context)
+
+        assert completed.output["result"] == {"answer": "continued"}
+        assert len(model.calls) == 2
+        second = model.calls[1].model_extra
+        assert second is not None
+        assert second["continuationFromInvocationId"] == str(model.source_invocation_id)
+        assert second["provider"]["revision"] == "7.0.0"
+        detail = await sessions.get_session("default", context.task_run_id, 1)
+        first_response = next(
+            event for event in detail.events if event.event_type == "model.response"
+        )
+        assert first_response.payload["providerPin"]["providerRevision"] == "7.0.0"
+        assert first_response.payload["continuation"]["tokenDigest"] == "sha256:" + "8" * 64
+        assert "hidden" not in repr(detail)
 
     asyncio.run(scenario())
 

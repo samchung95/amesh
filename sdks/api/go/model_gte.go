@@ -12,14 +12,13 @@ package ameshclient
 
 import (
 	"encoding/json"
-	"time"
 	"fmt"
+	"time"
 )
-
 
 // Gte struct for Gte
 type Gte struct {
-	Int32 *int32
+	Int32    *int32
 	TimeTime *time.Time
 }
 
@@ -32,7 +31,7 @@ func (dst *Gte) UnmarshalJSON(data []byte) error {
 	}
 
 	// try to unmarshal JSON data into Int32
-	err = json.Unmarshal(data, &dst.Int32);
+	err = json.Unmarshal(data, &dst.Int32)
 	if err == nil {
 		jsonInt32, _ := json.Marshal(dst.Int32)
 		if string(jsonInt32) == "{}" { // empty struct
@@ -45,7 +44,7 @@ func (dst *Gte) UnmarshalJSON(data []byte) error {
 	}
 
 	// try to unmarshal JSON data into TimeTime
-	err = json.Unmarshal(data, &dst.TimeTime);
+	err = json.Unmarshal(data, &dst.TimeTime)
 	if err == nil {
 		jsonTimeTime, _ := json.Marshal(dst.TimeTime)
 		if string(jsonTimeTime) == "{}" { // empty struct
@@ -72,7 +71,6 @@ func (src Gte) MarshalJSON() ([]byte, error) {
 
 	return nil, nil // no data in anyOf schemas
 }
-
 
 type NullableGte struct {
 	value *Gte

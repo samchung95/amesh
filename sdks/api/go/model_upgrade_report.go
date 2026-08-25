@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the UpgradeReport type satisfies the MappedNullable interface at compile time
@@ -22,18 +22,18 @@ var _ MappedNullable = &UpgradeReport{}
 
 // UpgradeReport struct for UpgradeReport
 type UpgradeReport struct {
-	Checks []UpgradeCheck `json:"checks"`
-	FromVersion string `json:"fromVersion"`
-	Id *string `json:"id,omitempty"`
-	ObservedAt time.Time `json:"observedAt"`
-	Phase UpgradePhase `json:"phase"`
-	ReportFingerprint string `json:"reportFingerprint"`
-	RestorationGuidance string `json:"restorationGuidance"`
-	RollingCompatible bool `json:"rollingCompatible"`
-	RollingPlan []RollingUpgradeStep `json:"rollingPlan,omitempty"`
-	SafeToProceed bool `json:"safeToProceed"`
-	ToVersion string `json:"toVersion"`
-	Warnings []string `json:"warnings,omitempty"`
+	Checks              []UpgradeCheck       `json:"checks"`
+	FromVersion         string               `json:"fromVersion"`
+	Id                  *string              `json:"id,omitempty"`
+	ObservedAt          time.Time            `json:"observedAt"`
+	Phase               UpgradePhase         `json:"phase"`
+	ReportFingerprint   string               `json:"reportFingerprint"`
+	RestorationGuidance string               `json:"restorationGuidance"`
+	RollingCompatible   bool                 `json:"rollingCompatible"`
+	RollingPlan         []RollingUpgradeStep `json:"rollingPlan,omitempty"`
+	SafeToProceed       bool                 `json:"safeToProceed"`
+	ToVersion           string               `json:"toVersion"`
+	Warnings            []string             `json:"warnings,omitempty"`
 }
 
 type _UpgradeReport UpgradeReport
@@ -377,7 +377,7 @@ func (o *UpgradeReport) SetWarnings(v []string) {
 }
 
 func (o UpgradeReport) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -428,10 +428,10 @@ func (o *UpgradeReport) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

@@ -7,7 +7,7 @@ from uuid import uuid4
 import pytest
 
 from amesh.dsl.models import TaskDefinition
-from amesh.executor import TaskExecutionContext
+from amesh.executor import TaskCompletion, TaskExecutionContext
 from amesh.tasks import agent_llm_handler
 
 OPENROUTER_CHAT_COMPLETIONS_URL = "https://openrouter.ai/api/v1/chat/completions"
@@ -65,9 +65,13 @@ def test_openrouter_chat_completion_contract(model: str) -> None:
                 secrets={"openrouter": api_key},
             ),
         )
+        assert isinstance(result, TaskCompletion)
         assert result.output["model"]
         assert result.output["content"].strip()
         assert result.output["costUsd"]
+        assert result.output["usageNormalized"]["state"] != "unavailable"
+        assert result.output["costNormalized"]["state"] == "billed"
+        assert result.output["provenance"]["providerRevision"] == "1.0.0"
         assert result.output["provenance"]["nondeterministic"] is True
         assert "request" not in result.output["provenance"]
 

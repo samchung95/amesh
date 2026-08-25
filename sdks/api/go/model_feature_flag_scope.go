@@ -20,8 +20,8 @@ type FeatureFlagScope string
 
 // List of FeatureFlagScope
 const (
-	FEATUREFLAGSCOPE_INSTANCE FeatureFlagScope = "INSTANCE"
-	FEATUREFLAGSCOPE_TENANT FeatureFlagScope = "TENANT"
+	FEATUREFLAGSCOPE_INSTANCE  FeatureFlagScope = "INSTANCE"
+	FEATUREFLAGSCOPE_TENANT    FeatureFlagScope = "TENANT"
 	FEATUREFLAGSCOPE_NAMESPACE FeatureFlagScope = "NAMESPACE"
 )
 

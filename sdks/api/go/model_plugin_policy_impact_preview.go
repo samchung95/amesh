@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,10 +21,10 @@ var _ MappedNullable = &PluginPolicyImpactPreview{}
 
 // PluginPolicyImpactPreview struct for PluginPolicyImpactPreview
 type PluginPolicyImpactPreview struct {
-	AffectedFlows []*map[string]interface{} `json:"affectedFlows"`
-	Package string `json:"package"`
+	AffectedFlows     []*map[string]interface{} `json:"affectedFlows"`
+	Package           string                    `json:"package"`
 	RunningExecutions []*map[string]interface{} `json:"runningExecutions"`
-	Version string `json:"version"`
+	Version           string                    `json:"version"`
 }
 
 type _PluginPolicyImpactPreview PluginPolicyImpactPreview
@@ -147,7 +147,7 @@ func (o *PluginPolicyImpactPreview) SetVersion(v string) {
 }
 
 func (o PluginPolicyImpactPreview) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -179,10 +179,10 @@ func (o *PluginPolicyImpactPreview) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

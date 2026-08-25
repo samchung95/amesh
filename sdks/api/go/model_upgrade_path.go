@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,12 +21,12 @@ var _ MappedNullable = &UpgradePath{}
 
 // UpgradePath struct for UpgradePath
 type UpgradePath struct {
-	FromVersion string `json:"fromVersion"`
+	FromVersion           string  `json:"fromVersion"`
 	MessageSchemaVersions []int32 `json:"messageSchemaVersions"`
-	RestorationGuidance string `json:"restorationGuidance"`
-	RollbackWindowHours int32 `json:"rollbackWindowHours"`
-	RollingCompatible bool `json:"rollingCompatible"`
-	ToVersion string `json:"toVersion"`
+	RestorationGuidance   string  `json:"restorationGuidance"`
+	RollbackWindowHours   int32   `json:"rollbackWindowHours"`
+	RollingCompatible     bool    `json:"rollingCompatible"`
+	ToVersion             string  `json:"toVersion"`
 }
 
 type _UpgradePath UpgradePath
@@ -199,7 +199,7 @@ func (o *UpgradePath) SetToVersion(v string) {
 }
 
 func (o UpgradePath) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -235,10 +235,10 @@ func (o *UpgradePath) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

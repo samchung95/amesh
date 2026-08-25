@@ -869,6 +869,32 @@ details pre { max-width: 480px; overflow: auto; padding: 10px; background: var(-
 .audit-list article { display: grid; grid-template-columns: auto 1fr; gap: 10px; padding: 11px 3px; border-top: 1px solid var(--line); }
 .audit-list svg { color: var(--accent); }
 .audit-list p, .audit-list small { margin: 2px 0 0; color: var(--muted); }
+.release-columns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; align-items: start; }
+.release-page .section-heading > svg { color: var(--accent); }
+.release-page .section-copy { margin: 8px 0 0; color: var(--muted); line-height: 1.55; }
+.release-target-form { grid-template-columns: 150px minmax(240px, 1fr) auto; }
+.release-facts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 0; overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius-control); }
+.release-facts > div { min-width: 0; padding: 12px; border-right: 1px solid var(--line); }
+.release-facts > div:nth-child(4) { border-right: 0; }
+.release-facts > .span-two { grid-column: 1 / -1; border-top: 1px solid var(--line); border-right: 0; }
+.release-facts dt { color: var(--muted); font-size: .7rem; }
+.release-facts dd { margin: 4px 0 0; font-weight: 650; }
+.release-facts code { display: block; overflow: hidden; text-overflow: ellipsis; }
+.release-gate { display: grid; gap: 11px; padding: 14px; border: 1px solid var(--line); border-left: 4px solid var(--line-strong); border-radius: var(--radius-control); }
+.release-gate-pass { background: var(--success-soft); border-left-color: var(--success); }
+.release-gate-fail { background: var(--danger-soft); border-left-color: var(--danger); }
+.release-gate header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.release-gate strong, .release-gate small { display: block; }
+.release-gate small { margin-top: 3px; color: var(--muted); }
+.release-gate dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 0; }
+.release-gate dl div { padding: 8px 0; }
+.release-gate dt { color: var(--muted); font-size: .7rem; }
+.release-gate dd { margin: 3px 0 0; }
+.release-gate p, .release-gate ul { margin: 0; }
+.release-version-note { display: grid; align-content: center; justify-items: start; gap: 2px; }
+.release-version-note span, .release-version-note small { color: var(--muted); font-size: .7rem; }
+.release-version-note strong { font: 650 1.25rem "IBM Plex Mono", monospace; }
+.release-recovery { border-color: color-mix(in srgb, var(--warning) 34%, var(--line)); }
 .blueprint-local-note { display: inline-flex; align-items: center; gap: 7px; padding: 8px 11px; color: var(--success); background: var(--success-soft); border: 1px solid color-mix(in srgb, var(--success) 28%, var(--line)); border-radius: 30px; font: 600 .72rem "IBM Plex Mono", monospace; }
 .blueprint-tabs button { flex: 0 0 min(220px, 31%); }
 .blueprint-catalog-layout { display: grid; grid-template-columns: minmax(300px, .75fr) minmax(460px, 1.25fr); gap: 18px; align-items: start; }
@@ -1009,6 +1035,7 @@ details pre { max-width: 480px; overflow: auto; padding: 10px; background: var(-
   .search-filters { grid-template-columns: repeat(2, minmax(140px, 1fr)); }
   .search-filters fieldset { grid-column: span 2; }
   .admin-split, .admin-split.equal { grid-template-columns: 1fr; }
+  .release-columns { grid-template-columns: 1fr; }
   .admin-health-strip { grid-template-columns: repeat(2, 1fr); }
   .admin-health-strip article:nth-child(2) { border-right: 0; }
   .admin-health-strip article:nth-child(-n+2) { border-bottom: 1px solid var(--rail-soft); }
@@ -1073,6 +1100,10 @@ details pre { max-width: 480px; overflow: auto; padding: 10px; background: var(-
   .editor-inspector { grid-template-columns: 1fr; }
   .editor-inspector > section:last-child { grid-column: auto; }
   .toolbar { align-items: stretch; flex-direction: column; }
+  .release-target-form, .release-facts, .release-gate dl { grid-template-columns: 1fr; }
+  .release-target-form > *, .release-facts > .span-two { grid-column: auto; }
+  .release-facts > div { border-right: 0; border-bottom: 1px solid var(--line); }
+  .release-facts > div:last-child { border-bottom: 0; }
   .result-count { margin-left: 0; padding: 0; }
   .detail-facts { grid-template-columns: 1fr; }
   .detail-facts > div { border-right: 0; border-bottom: 1px solid var(--line); }

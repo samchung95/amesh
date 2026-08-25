@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,10 +21,10 @@ var _ MappedNullable = &FormSection{}
 
 // FormSection struct for FormSection
 type FormSection struct {
-	Columns *int32 `json:"columns,omitempty"`
-	Fields []string `json:"fields"`
-	HelpText *string `json:"helpText,omitempty"`
-	Title string `json:"title"`
+	Columns  *int32   `json:"columns,omitempty"`
+	Fields   []string `json:"fields"`
+	HelpText *string  `json:"helpText,omitempty"`
+	Title    string   `json:"title"`
 }
 
 type _FormSection FormSection
@@ -169,7 +169,7 @@ func (o *FormSection) SetTitle(v string) {
 }
 
 func (o FormSection) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -203,10 +203,10 @@ func (o *FormSection) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

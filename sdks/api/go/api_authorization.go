@@ -16,21 +16,20 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"strings"
 	"reflect"
+	"strings"
 )
-
 
 // AuthorizationAPIService AuthorizationAPI service
 type AuthorizationAPIService service
 
 type ApiAddGroupMemberApiV1AdminGroupsGroupIdMembersMemberIdPutRequest struct {
-	ctx context.Context
-	ApiService *AuthorizationAPIService
-	groupId string
-	memberId string
+	ctx           context.Context
+	ApiService    *AuthorizationAPIService
+	groupId       string
+	memberId      string
 	authorization *string
-	xAmeshCSRF *string
+	xAmeshCSRF    *string
 }
 
 func (r ApiAddGroupMemberApiV1AdminGroupsGroupIdMembersMemberIdPutRequest) Authorization(authorization string) ApiAddGroupMemberApiV1AdminGroupsGroupIdMembersMemberIdPutRequest {
@@ -50,26 +49,26 @@ func (r ApiAddGroupMemberApiV1AdminGroupsGroupIdMembersMemberIdPutRequest) Execu
 /*
 AddGroupMemberApiV1AdminGroupsGroupIdMembersMemberIdPut Add Group Member
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param groupId
- @param memberId
- @return ApiAddGroupMemberApiV1AdminGroupsGroupIdMembersMemberIdPutRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param groupId
+	@param memberId
+	@return ApiAddGroupMemberApiV1AdminGroupsGroupIdMembersMemberIdPutRequest
 */
 func (a *AuthorizationAPIService) AddGroupMemberApiV1AdminGroupsGroupIdMembersMemberIdPut(ctx context.Context, groupId string, memberId string) ApiAddGroupMemberApiV1AdminGroupsGroupIdMembersMemberIdPutRequest {
 	return ApiAddGroupMemberApiV1AdminGroupsGroupIdMembersMemberIdPutRequest{
 		ApiService: a,
-		ctx: ctx,
-		groupId: groupId,
-		memberId: memberId,
+		ctx:        ctx,
+		groupId:    groupId,
+		memberId:   memberId,
 	}
 }
 
 // Execute executes the request
 func (a *AuthorizationAPIService) AddGroupMemberApiV1AdminGroupsGroupIdMembersMemberIdPutExecute(r ApiAddGroupMemberApiV1AdminGroupsGroupIdMembersMemberIdPutRequest) (*http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPut
-		localVarPostBody     interface{}
-		formFiles            []formFile
+		localVarHTTPMethod = http.MethodPut
+		localVarPostBody   interface{}
+		formFiles          []formFile
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AuthorizationAPIService.AddGroupMemberApiV1AdminGroupsGroupIdMembersMemberIdPut")
@@ -137,8 +136,8 @@ func (a *AuthorizationAPIService) AddGroupMemberApiV1AdminGroupsGroupIdMembersMe
 				newErr.error = err.Error()
 				return localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarHTTPResponse, newErr
 	}
@@ -147,11 +146,11 @@ func (a *AuthorizationAPIService) AddGroupMemberApiV1AdminGroupsGroupIdMembersMe
 }
 
 type ApiCreatePrincipalApiV1AdminPrincipalsPostRequest struct {
-	ctx context.Context
-	ApiService *AuthorizationAPIService
+	ctx                 context.Context
+	ApiService          *AuthorizationAPIService
 	principalDefinition *PrincipalDefinition
-	authorization *string
-	xAmeshCSRF *string
+	authorization       *string
+	xAmeshCSRF          *string
 }
 
 func (r ApiCreatePrincipalApiV1AdminPrincipalsPostRequest) PrincipalDefinition(principalDefinition PrincipalDefinition) ApiCreatePrincipalApiV1AdminPrincipalsPostRequest {
@@ -176,24 +175,25 @@ func (r ApiCreatePrincipalApiV1AdminPrincipalsPostRequest) Execute() (*Principal
 /*
 CreatePrincipalApiV1AdminPrincipalsPost Create Principal
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiCreatePrincipalApiV1AdminPrincipalsPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiCreatePrincipalApiV1AdminPrincipalsPostRequest
 */
 func (a *AuthorizationAPIService) CreatePrincipalApiV1AdminPrincipalsPost(ctx context.Context) ApiCreatePrincipalApiV1AdminPrincipalsPostRequest {
 	return ApiCreatePrincipalApiV1AdminPrincipalsPostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return PrincipalDefinition
+//
+//	@return PrincipalDefinition
 func (a *AuthorizationAPIService) CreatePrincipalApiV1AdminPrincipalsPostExecute(r ApiCreatePrincipalApiV1AdminPrincipalsPostRequest) (*PrincipalDefinition, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *PrincipalDefinition
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *PrincipalDefinition
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AuthorizationAPIService.CreatePrincipalApiV1AdminPrincipalsPost")
@@ -264,8 +264,8 @@ func (a *AuthorizationAPIService) CreatePrincipalApiV1AdminPrincipalsPostExecute
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -283,11 +283,11 @@ func (a *AuthorizationAPIService) CreatePrincipalApiV1AdminPrincipalsPostExecute
 }
 
 type ApiCreateRoleBindingApiV1AdminBindingsPostRequest struct {
-	ctx context.Context
-	ApiService *AuthorizationAPIService
-	roleBinding *RoleBinding
+	ctx           context.Context
+	ApiService    *AuthorizationAPIService
+	roleBinding   *RoleBinding
 	authorization *string
-	xAmeshCSRF *string
+	xAmeshCSRF    *string
 }
 
 func (r ApiCreateRoleBindingApiV1AdminBindingsPostRequest) RoleBinding(roleBinding RoleBinding) ApiCreateRoleBindingApiV1AdminBindingsPostRequest {
@@ -312,24 +312,25 @@ func (r ApiCreateRoleBindingApiV1AdminBindingsPostRequest) Execute() (*RoleBindi
 /*
 CreateRoleBindingApiV1AdminBindingsPost Create Role Binding
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiCreateRoleBindingApiV1AdminBindingsPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiCreateRoleBindingApiV1AdminBindingsPostRequest
 */
 func (a *AuthorizationAPIService) CreateRoleBindingApiV1AdminBindingsPost(ctx context.Context) ApiCreateRoleBindingApiV1AdminBindingsPostRequest {
 	return ApiCreateRoleBindingApiV1AdminBindingsPostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return RoleBinding
+//
+//	@return RoleBinding
 func (a *AuthorizationAPIService) CreateRoleBindingApiV1AdminBindingsPostExecute(r ApiCreateRoleBindingApiV1AdminBindingsPostRequest) (*RoleBinding, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *RoleBinding
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *RoleBinding
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AuthorizationAPIService.CreateRoleBindingApiV1AdminBindingsPost")
@@ -400,8 +401,8 @@ func (a *AuthorizationAPIService) CreateRoleBindingApiV1AdminBindingsPostExecute
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -419,13 +420,13 @@ func (a *AuthorizationAPIService) CreateRoleBindingApiV1AdminBindingsPostExecute
 }
 
 type ApiDeleteRoleBindingApiV1AdminBindingsBindingIdDeleteRequest struct {
-	ctx context.Context
-	ApiService *AuthorizationAPIService
-	bindingId string
-	xAmeshTenant *string
+	ctx             context.Context
+	ApiService      *AuthorizationAPIService
+	bindingId       string
+	xAmeshTenant    *string
 	xAmeshNamespace *string
-	authorization *string
-	xAmeshCSRF *string
+	authorization   *string
+	xAmeshCSRF      *string
 }
 
 func (r ApiDeleteRoleBindingApiV1AdminBindingsBindingIdDeleteRequest) XAmeshTenant(xAmeshTenant string) ApiDeleteRoleBindingApiV1AdminBindingsBindingIdDeleteRequest {
@@ -455,24 +456,24 @@ func (r ApiDeleteRoleBindingApiV1AdminBindingsBindingIdDeleteRequest) Execute() 
 /*
 DeleteRoleBindingApiV1AdminBindingsBindingIdDelete Delete Role Binding
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param bindingId
- @return ApiDeleteRoleBindingApiV1AdminBindingsBindingIdDeleteRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param bindingId
+	@return ApiDeleteRoleBindingApiV1AdminBindingsBindingIdDeleteRequest
 */
 func (a *AuthorizationAPIService) DeleteRoleBindingApiV1AdminBindingsBindingIdDelete(ctx context.Context, bindingId string) ApiDeleteRoleBindingApiV1AdminBindingsBindingIdDeleteRequest {
 	return ApiDeleteRoleBindingApiV1AdminBindingsBindingIdDeleteRequest{
 		ApiService: a,
-		ctx: ctx,
-		bindingId: bindingId,
+		ctx:        ctx,
+		bindingId:  bindingId,
 	}
 }
 
 // Execute executes the request
 func (a *AuthorizationAPIService) DeleteRoleBindingApiV1AdminBindingsBindingIdDeleteExecute(r ApiDeleteRoleBindingApiV1AdminBindingsBindingIdDeleteRequest) (*http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodDelete
-		localVarPostBody     interface{}
-		formFiles            []formFile
+		localVarHTTPMethod = http.MethodDelete
+		localVarPostBody   interface{}
+		formFiles          []formFile
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AuthorizationAPIService.DeleteRoleBindingApiV1AdminBindingsBindingIdDelete")
@@ -545,8 +546,8 @@ func (a *AuthorizationAPIService) DeleteRoleBindingApiV1AdminBindingsBindingIdDe
 				newErr.error = err.Error()
 				return localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarHTTPResponse, newErr
 	}
@@ -555,11 +556,11 @@ func (a *AuthorizationAPIService) DeleteRoleBindingApiV1AdminBindingsBindingIdDe
 }
 
 type ApiExplainAuthorizationApiV1AuthorizationExplainPostRequest struct {
-	ctx context.Context
-	ApiService *AuthorizationAPIService
+	ctx                             context.Context
+	ApiService                      *AuthorizationAPIService
 	authorizationExplanationRequest *AuthorizationExplanationRequest
-	authorization *string
-	xAmeshCSRF *string
+	authorization                   *string
+	xAmeshCSRF                      *string
 }
 
 func (r ApiExplainAuthorizationApiV1AuthorizationExplainPostRequest) AuthorizationExplanationRequest(authorizationExplanationRequest AuthorizationExplanationRequest) ApiExplainAuthorizationApiV1AuthorizationExplainPostRequest {
@@ -584,24 +585,25 @@ func (r ApiExplainAuthorizationApiV1AuthorizationExplainPostRequest) Execute() (
 /*
 ExplainAuthorizationApiV1AuthorizationExplainPost Explain Authorization
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiExplainAuthorizationApiV1AuthorizationExplainPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiExplainAuthorizationApiV1AuthorizationExplainPostRequest
 */
 func (a *AuthorizationAPIService) ExplainAuthorizationApiV1AuthorizationExplainPost(ctx context.Context) ApiExplainAuthorizationApiV1AuthorizationExplainPostRequest {
 	return ApiExplainAuthorizationApiV1AuthorizationExplainPostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return AuthorizationDecision
+//
+//	@return AuthorizationDecision
 func (a *AuthorizationAPIService) ExplainAuthorizationApiV1AuthorizationExplainPostExecute(r ApiExplainAuthorizationApiV1AuthorizationExplainPostRequest) (*AuthorizationDecision, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *AuthorizationDecision
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *AuthorizationDecision
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AuthorizationAPIService.ExplainAuthorizationApiV1AuthorizationExplainPost")
@@ -672,8 +674,8 @@ func (a *AuthorizationAPIService) ExplainAuthorizationApiV1AuthorizationExplainP
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -691,15 +693,15 @@ func (a *AuthorizationAPIService) ExplainAuthorizationApiV1AuthorizationExplainP
 }
 
 type ApiListPrincipalsApiV1AdminPrincipalsGetRequest struct {
-	ctx context.Context
-	ApiService *AuthorizationAPIService
-	cursor *string
-	limit *int32
-	filter *[]string
-	sort *string
-	fields *string
+	ctx           context.Context
+	ApiService    *AuthorizationAPIService
+	cursor        *string
+	limit         *int32
+	filter        *[]string
+	sort          *string
+	fields        *string
 	authorization *string
-	xAmeshCSRF *string
+	xAmeshCSRF    *string
 }
 
 // Opaque cursor from the prior page
@@ -748,24 +750,25 @@ func (r ApiListPrincipalsApiV1AdminPrincipalsGetRequest) Execute() ([]PrincipalD
 /*
 ListPrincipalsApiV1AdminPrincipalsGet List Principals
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiListPrincipalsApiV1AdminPrincipalsGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiListPrincipalsApiV1AdminPrincipalsGetRequest
 */
 func (a *AuthorizationAPIService) ListPrincipalsApiV1AdminPrincipalsGet(ctx context.Context) ApiListPrincipalsApiV1AdminPrincipalsGetRequest {
 	return ApiListPrincipalsApiV1AdminPrincipalsGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return []PrincipalDefinition
+//
+//	@return []PrincipalDefinition
 func (a *AuthorizationAPIService) ListPrincipalsApiV1AdminPrincipalsGetExecute(r ApiListPrincipalsApiV1AdminPrincipalsGetRequest) ([]PrincipalDefinition, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  []PrincipalDefinition
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []PrincipalDefinition
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AuthorizationAPIService.ListPrincipalsApiV1AdminPrincipalsGet")
@@ -854,8 +857,8 @@ func (a *AuthorizationAPIService) ListPrincipalsApiV1AdminPrincipalsGetExecute(r
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -873,15 +876,15 @@ func (a *AuthorizationAPIService) ListPrincipalsApiV1AdminPrincipalsGetExecute(r
 }
 
 type ApiListRoleBindingsApiV1AdminBindingsGetRequest struct {
-	ctx context.Context
-	ApiService *AuthorizationAPIService
-	cursor *string
-	limit *int32
-	filter *[]*string
-	sort *string
-	fields *string
+	ctx           context.Context
+	ApiService    *AuthorizationAPIService
+	cursor        *string
+	limit         *int32
+	filter        *[]*string
+	sort          *string
+	fields        *string
 	authorization *string
-	xAmeshCSRF *string
+	xAmeshCSRF    *string
 }
 
 // Opaque cursor from the prior page
@@ -930,24 +933,25 @@ func (r ApiListRoleBindingsApiV1AdminBindingsGetRequest) Execute() ([]RoleBindin
 /*
 ListRoleBindingsApiV1AdminBindingsGet List Role Bindings
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiListRoleBindingsApiV1AdminBindingsGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiListRoleBindingsApiV1AdminBindingsGetRequest
 */
 func (a *AuthorizationAPIService) ListRoleBindingsApiV1AdminBindingsGet(ctx context.Context) ApiListRoleBindingsApiV1AdminBindingsGetRequest {
 	return ApiListRoleBindingsApiV1AdminBindingsGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return []RoleBinding
+//
+//	@return []RoleBinding
 func (a *AuthorizationAPIService) ListRoleBindingsApiV1AdminBindingsGetExecute(r ApiListRoleBindingsApiV1AdminBindingsGetRequest) ([]RoleBinding, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  []RoleBinding
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []RoleBinding
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AuthorizationAPIService.ListRoleBindingsApiV1AdminBindingsGet")
@@ -1036,8 +1040,8 @@ func (a *AuthorizationAPIService) ListRoleBindingsApiV1AdminBindingsGetExecute(r
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1055,15 +1059,15 @@ func (a *AuthorizationAPIService) ListRoleBindingsApiV1AdminBindingsGetExecute(r
 }
 
 type ApiListRolesApiV1AdminRolesGetRequest struct {
-	ctx context.Context
-	ApiService *AuthorizationAPIService
-	cursor *string
-	limit *int32
-	filter *[]string
-	sort *string
-	fields *string
+	ctx           context.Context
+	ApiService    *AuthorizationAPIService
+	cursor        *string
+	limit         *int32
+	filter        *[]string
+	sort          *string
+	fields        *string
 	authorization *string
-	xAmeshCSRF *string
+	xAmeshCSRF    *string
 }
 
 // Opaque cursor from the prior page
@@ -1112,24 +1116,25 @@ func (r ApiListRolesApiV1AdminRolesGetRequest) Execute() ([]RoleDefinition, *htt
 /*
 ListRolesApiV1AdminRolesGet List Roles
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiListRolesApiV1AdminRolesGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiListRolesApiV1AdminRolesGetRequest
 */
 func (a *AuthorizationAPIService) ListRolesApiV1AdminRolesGet(ctx context.Context) ApiListRolesApiV1AdminRolesGetRequest {
 	return ApiListRolesApiV1AdminRolesGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return []RoleDefinition
+//
+//	@return []RoleDefinition
 func (a *AuthorizationAPIService) ListRolesApiV1AdminRolesGetExecute(r ApiListRolesApiV1AdminRolesGetRequest) ([]RoleDefinition, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  []RoleDefinition
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []RoleDefinition
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AuthorizationAPIService.ListRolesApiV1AdminRolesGet")
@@ -1218,8 +1223,8 @@ func (a *AuthorizationAPIService) ListRolesApiV1AdminRolesGetExecute(r ApiListRo
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1237,12 +1242,12 @@ func (a *AuthorizationAPIService) ListRolesApiV1AdminRolesGetExecute(r ApiListRo
 }
 
 type ApiRemoveGroupMemberApiV1AdminGroupsGroupIdMembersMemberIdDeleteRequest struct {
-	ctx context.Context
-	ApiService *AuthorizationAPIService
-	groupId string
-	memberId string
+	ctx           context.Context
+	ApiService    *AuthorizationAPIService
+	groupId       string
+	memberId      string
 	authorization *string
-	xAmeshCSRF *string
+	xAmeshCSRF    *string
 }
 
 func (r ApiRemoveGroupMemberApiV1AdminGroupsGroupIdMembersMemberIdDeleteRequest) Authorization(authorization string) ApiRemoveGroupMemberApiV1AdminGroupsGroupIdMembersMemberIdDeleteRequest {
@@ -1262,26 +1267,26 @@ func (r ApiRemoveGroupMemberApiV1AdminGroupsGroupIdMembersMemberIdDeleteRequest)
 /*
 RemoveGroupMemberApiV1AdminGroupsGroupIdMembersMemberIdDelete Remove Group Member
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param groupId
- @param memberId
- @return ApiRemoveGroupMemberApiV1AdminGroupsGroupIdMembersMemberIdDeleteRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param groupId
+	@param memberId
+	@return ApiRemoveGroupMemberApiV1AdminGroupsGroupIdMembersMemberIdDeleteRequest
 */
 func (a *AuthorizationAPIService) RemoveGroupMemberApiV1AdminGroupsGroupIdMembersMemberIdDelete(ctx context.Context, groupId string, memberId string) ApiRemoveGroupMemberApiV1AdminGroupsGroupIdMembersMemberIdDeleteRequest {
 	return ApiRemoveGroupMemberApiV1AdminGroupsGroupIdMembersMemberIdDeleteRequest{
 		ApiService: a,
-		ctx: ctx,
-		groupId: groupId,
-		memberId: memberId,
+		ctx:        ctx,
+		groupId:    groupId,
+		memberId:   memberId,
 	}
 }
 
 // Execute executes the request
 func (a *AuthorizationAPIService) RemoveGroupMemberApiV1AdminGroupsGroupIdMembersMemberIdDeleteExecute(r ApiRemoveGroupMemberApiV1AdminGroupsGroupIdMembersMemberIdDeleteRequest) (*http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodDelete
-		localVarPostBody     interface{}
-		formFiles            []formFile
+		localVarHTTPMethod = http.MethodDelete
+		localVarPostBody   interface{}
+		formFiles          []formFile
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AuthorizationAPIService.RemoveGroupMemberApiV1AdminGroupsGroupIdMembersMemberIdDelete")
@@ -1349,8 +1354,8 @@ func (a *AuthorizationAPIService) RemoveGroupMemberApiV1AdminGroupsGroupIdMember
 				newErr.error = err.Error()
 				return localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarHTTPResponse, newErr
 	}
@@ -1359,12 +1364,12 @@ func (a *AuthorizationAPIService) RemoveGroupMemberApiV1AdminGroupsGroupIdMember
 }
 
 type ApiSetNamespaceAuthorizationBoundaryApiV1AdminTenantsTenantIdNamespacesNamespaceAuthorizationBoundaryPutRequest struct {
-	ctx context.Context
-	ApiService *AuthorizationAPIService
-	tenantId string
-	namespace string
+	ctx           context.Context
+	ApiService    *AuthorizationAPIService
+	tenantId      string
+	namespace     string
 	authorization *string
-	xAmeshCSRF *string
+	xAmeshCSRF    *string
 }
 
 func (r ApiSetNamespaceAuthorizationBoundaryApiV1AdminTenantsTenantIdNamespacesNamespaceAuthorizationBoundaryPutRequest) Authorization(authorization string) ApiSetNamespaceAuthorizationBoundaryApiV1AdminTenantsTenantIdNamespacesNamespaceAuthorizationBoundaryPutRequest {
@@ -1384,28 +1389,29 @@ func (r ApiSetNamespaceAuthorizationBoundaryApiV1AdminTenantsTenantIdNamespacesN
 /*
 SetNamespaceAuthorizationBoundaryApiV1AdminTenantsTenantIdNamespacesNamespaceAuthorizationBoundaryPut Set Namespace Authorization Boundary
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param tenantId
- @param namespace
- @return ApiSetNamespaceAuthorizationBoundaryApiV1AdminTenantsTenantIdNamespacesNamespaceAuthorizationBoundaryPutRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param tenantId
+	@param namespace
+	@return ApiSetNamespaceAuthorizationBoundaryApiV1AdminTenantsTenantIdNamespacesNamespaceAuthorizationBoundaryPutRequest
 */
 func (a *AuthorizationAPIService) SetNamespaceAuthorizationBoundaryApiV1AdminTenantsTenantIdNamespacesNamespaceAuthorizationBoundaryPut(ctx context.Context, tenantId string, namespace string) ApiSetNamespaceAuthorizationBoundaryApiV1AdminTenantsTenantIdNamespacesNamespaceAuthorizationBoundaryPutRequest {
 	return ApiSetNamespaceAuthorizationBoundaryApiV1AdminTenantsTenantIdNamespacesNamespaceAuthorizationBoundaryPutRequest{
 		ApiService: a,
-		ctx: ctx,
-		tenantId: tenantId,
-		namespace: namespace,
+		ctx:        ctx,
+		tenantId:   tenantId,
+		namespace:  namespace,
 	}
 }
 
 // Execute executes the request
-//  @return NamespaceAuthorizationBoundary
+//
+//	@return NamespaceAuthorizationBoundary
 func (a *AuthorizationAPIService) SetNamespaceAuthorizationBoundaryApiV1AdminTenantsTenantIdNamespacesNamespaceAuthorizationBoundaryPutExecute(r ApiSetNamespaceAuthorizationBoundaryApiV1AdminTenantsTenantIdNamespacesNamespaceAuthorizationBoundaryPutRequest) (*NamespaceAuthorizationBoundary, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPut
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *NamespaceAuthorizationBoundary
+		localVarHTTPMethod  = http.MethodPut
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *NamespaceAuthorizationBoundary
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AuthorizationAPIService.SetNamespaceAuthorizationBoundaryApiV1AdminTenantsTenantIdNamespacesNamespaceAuthorizationBoundaryPut")
@@ -1473,8 +1479,8 @@ func (a *AuthorizationAPIService) SetNamespaceAuthorizationBoundaryApiV1AdminTen
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1492,12 +1498,12 @@ func (a *AuthorizationAPIService) SetNamespaceAuthorizationBoundaryApiV1AdminTen
 }
 
 type ApiUpsertRoleApiV1AdminRolesRoleNamePutRequest struct {
-	ctx context.Context
-	ApiService *AuthorizationAPIService
-	roleName string
+	ctx            context.Context
+	ApiService     *AuthorizationAPIService
+	roleName       string
 	roleDefinition *RoleDefinition
-	authorization *string
-	xAmeshCSRF *string
+	authorization  *string
+	xAmeshCSRF     *string
 }
 
 func (r ApiUpsertRoleApiV1AdminRolesRoleNamePutRequest) RoleDefinition(roleDefinition RoleDefinition) ApiUpsertRoleApiV1AdminRolesRoleNamePutRequest {
@@ -1522,26 +1528,27 @@ func (r ApiUpsertRoleApiV1AdminRolesRoleNamePutRequest) Execute() (*RoleDefiniti
 /*
 UpsertRoleApiV1AdminRolesRoleNamePut Upsert Role
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param roleName
- @return ApiUpsertRoleApiV1AdminRolesRoleNamePutRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param roleName
+	@return ApiUpsertRoleApiV1AdminRolesRoleNamePutRequest
 */
 func (a *AuthorizationAPIService) UpsertRoleApiV1AdminRolesRoleNamePut(ctx context.Context, roleName string) ApiUpsertRoleApiV1AdminRolesRoleNamePutRequest {
 	return ApiUpsertRoleApiV1AdminRolesRoleNamePutRequest{
 		ApiService: a,
-		ctx: ctx,
-		roleName: roleName,
+		ctx:        ctx,
+		roleName:   roleName,
 	}
 }
 
 // Execute executes the request
-//  @return RoleDefinition
+//
+//	@return RoleDefinition
 func (a *AuthorizationAPIService) UpsertRoleApiV1AdminRolesRoleNamePutExecute(r ApiUpsertRoleApiV1AdminRolesRoleNamePutRequest) (*RoleDefinition, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPut
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *RoleDefinition
+		localVarHTTPMethod  = http.MethodPut
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *RoleDefinition
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AuthorizationAPIService.UpsertRoleApiV1AdminRolesRoleNamePut")
@@ -1613,8 +1620,8 @@ func (a *AuthorizationAPIService) UpsertRoleApiV1AdminRolesRoleNamePutExecute(r 
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}

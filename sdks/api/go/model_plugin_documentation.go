@@ -20,13 +20,13 @@ var _ MappedNullable = &PluginDocumentation{}
 
 // PluginDocumentation struct for PluginDocumentation
 type PluginDocumentation struct {
-	Category string `json:"category"`
-	Description string `json:"description"`
-	DocumentationUrl NullableString `json:"documentationUrl,omitempty"`
-	Examples []*map[string]interface{} `json:"examples,omitempty"`
-	Icon NullableString `json:"icon,omitempty"`
-	PropertyOrder []*string `json:"propertyOrder,omitempty"`
-	Title string `json:"title"`
+	Category             string                    `json:"category"`
+	Description          string                    `json:"description"`
+	DocumentationUrl     NullableString            `json:"documentationUrl,omitempty"`
+	Examples             []*map[string]interface{} `json:"examples,omitempty"`
+	Icon                 NullableString            `json:"icon,omitempty"`
+	PropertyOrder        []*string                 `json:"propertyOrder,omitempty"`
+	Title                string                    `json:"title"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -132,6 +132,7 @@ func (o *PluginDocumentation) HasDocumentationUrl() bool {
 func (o *PluginDocumentation) SetDocumentationUrl(v string) {
 	o.DocumentationUrl.Set(&v)
 }
+
 // SetDocumentationUrlNil sets the value for DocumentationUrl to be an explicit nil
 func (o *PluginDocumentation) SetDocumentationUrlNil() {
 	o.DocumentationUrl.Set(nil)
@@ -206,6 +207,7 @@ func (o *PluginDocumentation) HasIcon() bool {
 func (o *PluginDocumentation) SetIcon(v string) {
 	o.Icon.Set(&v)
 }
+
 // SetIconNil sets the value for Icon to be an explicit nil
 func (o *PluginDocumentation) SetIconNil() {
 	o.Icon.Set(nil)
@@ -273,7 +275,7 @@ func (o *PluginDocumentation) SetTitle(v string) {
 }
 
 func (o PluginDocumentation) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -320,10 +322,10 @@ func (o *PluginDocumentation) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

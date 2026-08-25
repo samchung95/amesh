@@ -20,12 +20,12 @@ type OperationalControlScope string
 
 // List of OperationalControlScope
 const (
-	OPERATIONALCONTROLSCOPE_INSTANCE OperationalControlScope = "INSTANCE"
-	OPERATIONALCONTROLSCOPE_TENANT OperationalControlScope = "TENANT"
+	OPERATIONALCONTROLSCOPE_INSTANCE  OperationalControlScope = "INSTANCE"
+	OPERATIONALCONTROLSCOPE_TENANT    OperationalControlScope = "TENANT"
 	OPERATIONALCONTROLSCOPE_NAMESPACE OperationalControlScope = "NAMESPACE"
-	OPERATIONALCONTROLSCOPE_FLOW OperationalControlScope = "FLOW"
-	OPERATIONALCONTROLSCOPE_PLUGIN OperationalControlScope = "PLUGIN"
-	OPERATIONALCONTROLSCOPE_RUNNER OperationalControlScope = "RUNNER"
+	OPERATIONALCONTROLSCOPE_FLOW      OperationalControlScope = "FLOW"
+	OPERATIONALCONTROLSCOPE_PLUGIN    OperationalControlScope = "PLUGIN"
+	OPERATIONALCONTROLSCOPE_RUNNER    OperationalControlScope = "RUNNER"
 )
 
 // All allowed values of OperationalControlScope enum

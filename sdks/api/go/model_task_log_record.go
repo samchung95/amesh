@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the TaskLogRecord type satisfies the MappedNullable interface at compile time
@@ -22,14 +22,14 @@ var _ MappedNullable = &TaskLogRecord{}
 
 // TaskLogRecord struct for TaskLogRecord
 type TaskLogRecord struct {
-	Fields map[string]interface{} `json:"fields,omitempty"`
-	Level *LogLevel `json:"level,omitempty"`
-	Logger *string `json:"logger,omitempty"`
-	Message string `json:"message"`
-	OccurredAt *time.Time `json:"occurredAt,omitempty"`
-	Redacted *bool `json:"redacted,omitempty"`
-	SourceStream *LogSourceStream `json:"sourceStream,omitempty"`
-	TraceId NullableString `json:"traceId,omitempty"`
+	Fields       map[string]interface{} `json:"fields,omitempty"`
+	Level        *LogLevel              `json:"level,omitempty"`
+	Logger       *string                `json:"logger,omitempty"`
+	Message      string                 `json:"message"`
+	OccurredAt   *time.Time             `json:"occurredAt,omitempty"`
+	Redacted     *bool                  `json:"redacted,omitempty"`
+	SourceStream *LogSourceStream       `json:"sourceStream,omitempty"`
+	TraceId      NullableString         `json:"traceId,omitempty"`
 }
 
 type _TaskLogRecord TaskLogRecord
@@ -316,6 +316,7 @@ func (o *TaskLogRecord) HasTraceId() bool {
 func (o *TaskLogRecord) SetTraceId(v string) {
 	o.TraceId.Set(&v)
 }
+
 // SetTraceIdNil sets the value for TraceId to be an explicit nil
 func (o *TaskLogRecord) SetTraceIdNil() {
 	o.TraceId.Set(nil)
@@ -327,7 +328,7 @@ func (o *TaskLogRecord) UnsetTraceId() {
 }
 
 func (o TaskLogRecord) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -374,10 +375,10 @@ func (o *TaskLogRecord) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the FlowTestRunResult type satisfies the MappedNullable interface at compile time
@@ -22,24 +22,24 @@ var _ MappedNullable = &FlowTestRunResult{}
 
 // FlowTestRunResult struct for FlowTestRunResult
 type FlowTestRunResult struct {
-	ArtifactsCreated *int32 `json:"artifactsCreated,omitempty"`
-	Cases []FlowTestCaseResult `json:"cases"`
-	Coverage FlowTestCoverage `json:"coverage"`
-	CreatedAt *time.Time `json:"createdAt,omitempty"`
-	FlowId string `json:"flowId"`
-	FlowSemanticHash string `json:"flowSemanticHash"`
-	Isolated *bool `json:"isolated,omitempty"`
-	Namespace string `json:"namespace"`
-	Outcome FlowTestOutcome `json:"outcome"`
-	PluginSetHash string `json:"pluginSetHash"`
-	ProductionExecutionsCreated *int32 `json:"productionExecutionsCreated,omitempty"`
-	RequestedBy string `json:"requestedBy"`
-	Revision int32 `json:"revision"`
-	RunId *string `json:"runId,omitempty"`
-	SchemaVersion *string `json:"schemaVersion,omitempty"`
-	SecretLookups *int32 `json:"secretLookups,omitempty"`
-	SimulatorVersion *string `json:"simulatorVersion,omitempty"`
-	TenantId string `json:"tenantId"`
+	ArtifactsCreated            *int32               `json:"artifactsCreated,omitempty"`
+	Cases                       []FlowTestCaseResult `json:"cases"`
+	Coverage                    FlowTestCoverage     `json:"coverage"`
+	CreatedAt                   *time.Time           `json:"createdAt,omitempty"`
+	FlowId                      string               `json:"flowId"`
+	FlowSemanticHash            string               `json:"flowSemanticHash"`
+	Isolated                    *bool                `json:"isolated,omitempty"`
+	Namespace                   string               `json:"namespace"`
+	Outcome                     FlowTestOutcome      `json:"outcome"`
+	PluginSetHash               string               `json:"pluginSetHash"`
+	ProductionExecutionsCreated *int32               `json:"productionExecutionsCreated,omitempty"`
+	RequestedBy                 string               `json:"requestedBy"`
+	Revision                    int32                `json:"revision"`
+	RunId                       *string              `json:"runId,omitempty"`
+	SchemaVersion               *string              `json:"schemaVersion,omitempty"`
+	SecretLookups               *int32               `json:"secretLookups,omitempty"`
+	SimulatorVersion            *string              `json:"simulatorVersion,omitempty"`
+	TenantId                    string               `json:"tenantId"`
 }
 
 type _FlowTestRunResult FlowTestRunResult
@@ -592,7 +592,7 @@ func (o *FlowTestRunResult) SetTenantId(v string) {
 }
 
 func (o FlowTestRunResult) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -660,10 +660,10 @@ func (o *FlowTestRunResult) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

@@ -19,10 +19,10 @@ var _ MappedNullable = &TaskExitMetadata{}
 
 // TaskExitMetadata struct for TaskExitMetadata
 type TaskExitMetadata struct {
-	Code NullableInt32 `json:"code,omitempty"`
+	Code       NullableInt32   `json:"code,omitempty"`
 	DurationMs NullableFloat32 `json:"durationMs,omitempty"`
-	Reason NullableString `json:"reason,omitempty"`
-	Status *string `json:"status,omitempty"`
+	Reason     NullableString  `json:"reason,omitempty"`
+	Status     *string         `json:"status,omitempty"`
 }
 
 // NewTaskExitMetadata instantiates a new TaskExitMetadata object
@@ -78,6 +78,7 @@ func (o *TaskExitMetadata) HasCode() bool {
 func (o *TaskExitMetadata) SetCode(v int32) {
 	o.Code.Set(&v)
 }
+
 // SetCodeNil sets the value for Code to be an explicit nil
 func (o *TaskExitMetadata) SetCodeNil() {
 	o.Code.Set(nil)
@@ -120,6 +121,7 @@ func (o *TaskExitMetadata) HasDurationMs() bool {
 func (o *TaskExitMetadata) SetDurationMs(v float32) {
 	o.DurationMs.Set(&v)
 }
+
 // SetDurationMsNil sets the value for DurationMs to be an explicit nil
 func (o *TaskExitMetadata) SetDurationMsNil() {
 	o.DurationMs.Set(nil)
@@ -162,6 +164,7 @@ func (o *TaskExitMetadata) HasReason() bool {
 func (o *TaskExitMetadata) SetReason(v string) {
 	o.Reason.Set(&v)
 }
+
 // SetReasonNil sets the value for Reason to be an explicit nil
 func (o *TaskExitMetadata) SetReasonNil() {
 	o.Reason.Set(nil)
@@ -205,7 +208,7 @@ func (o *TaskExitMetadata) SetStatus(v string) {
 }
 
 func (o TaskExitMetadata) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}

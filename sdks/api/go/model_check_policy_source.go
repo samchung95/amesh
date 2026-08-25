@@ -20,7 +20,7 @@ type CheckPolicySource string
 
 // List of CheckPolicySource
 const (
-	CHECKPOLICYSOURCE_NAMESPACE CheckPolicySource = "NAMESPACE"
+	CHECKPOLICYSOURCE_NAMESPACE      CheckPolicySource = "NAMESPACE"
 	CHECKPOLICYSOURCE_PLUGIN_DEFAULT CheckPolicySource = "PLUGIN_DEFAULT"
 )
 

@@ -38,7 +38,23 @@ public enum ExecutionEvidenceKind {
 
   OUTPUT("OUTPUT"),
 
-  ARTIFACT("ARTIFACT");
+  ARTIFACT("ARTIFACT"),
+
+  AGENT("AGENT"),
+
+  MODEL("MODEL"),
+
+  TOOL("TOOL"),
+
+  ERROR("ERROR"),
+
+  APPROVAL("APPROVAL"),
+
+  INTERVENTION("INTERVENTION"),
+
+  CONTROL("CONTROL"),
+
+  DECISION("DECISION");
 
   private String value;
 

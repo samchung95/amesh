@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the DashboardRender type satisfies the MappedNullable interface at compile time
@@ -22,9 +22,9 @@ var _ MappedNullable = &DashboardRender{}
 
 // DashboardRender struct for DashboardRender
 type DashboardRender struct {
-	Dashboard DashboardDefinition `json:"dashboard"`
-	RenderedAt *time.Time `json:"renderedAt,omitempty"`
-	Widgets []DashboardWidgetResult `json:"widgets"`
+	Dashboard  DashboardDefinition     `json:"dashboard"`
+	RenderedAt *time.Time              `json:"renderedAt,omitempty"`
+	Widgets    []DashboardWidgetResult `json:"widgets"`
 }
 
 type _DashboardRender DashboardRender
@@ -129,7 +129,7 @@ func (o *DashboardRender) SetWidgets(v []DashboardWidgetResult) {
 }
 
 func (o DashboardRender) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -160,10 +160,10 @@ func (o *DashboardRender) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

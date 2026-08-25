@@ -12,7 +12,7 @@ All URIs are relative to *http://localhost*
 
 ## createKestraExecutionApiV1ExecutionsNamespaceFlowIdPost
 
-> ExecutionDetail createKestraExecutionApiV1ExecutionsNamespaceFlowIdPost(namespace, flowId, kestraExecutionRequest, prefer, idempotencyKey, authorization, xAmeshCSRF, xAmeshTenant)
+> ExecutionDetail createKestraExecutionApiV1ExecutionsNamespaceFlowIdPost(namespace, flowId, kestraExecutionRequest, prefer, idempotencyKey, xCorrelationID, authorization, xAmeshCSRF, xAmeshTenant)
 
 Create Kestra Execution
 
@@ -40,6 +40,8 @@ async function example() {
     prefer: prefer_example,
     // string (optional)
     idempotencyKey: idempotencyKey_example,
+    // string (optional)
+    xCorrelationID: xCorrelationID_example,
     // string (optional)
     authorization: authorization_example,
     // string (optional)
@@ -70,6 +72,7 @@ example().catch(console.error);
 | **kestraExecutionRequest** | [KestraExecutionRequest](KestraExecutionRequest.md) |  | |
 | **prefer** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **idempotencyKey** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **xCorrelationID** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |

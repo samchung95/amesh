@@ -20,8 +20,8 @@ type TrustedCircuitState string
 
 // List of TrustedCircuitState
 const (
-	TRUSTEDCIRCUITSTATE_CLOSED TrustedCircuitState = "closed"
-	TRUSTEDCIRCUITSTATE_OPEN TrustedCircuitState = "open"
+	TRUSTEDCIRCUITSTATE_CLOSED    TrustedCircuitState = "closed"
+	TRUSTEDCIRCUITSTATE_OPEN      TrustedCircuitState = "open"
 	TRUSTEDCIRCUITSTATE_HALF_OPEN TrustedCircuitState = "half-open"
 )
 

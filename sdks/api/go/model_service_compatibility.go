@@ -20,9 +20,9 @@ type ServiceCompatibility string
 
 // List of ServiceCompatibility
 const (
-	SERVICECOMPATIBILITY_CURRENT ServiceCompatibility = "CURRENT"
+	SERVICECOMPATIBILITY_CURRENT            ServiceCompatibility = "CURRENT"
 	SERVICECOMPATIBILITY_ROLLING_COMPATIBLE ServiceCompatibility = "ROLLING_COMPATIBLE"
-	SERVICECOMPATIBILITY_UNSAFE ServiceCompatibility = "UNSAFE"
+	SERVICECOMPATIBILITY_UNSAFE             ServiceCompatibility = "UNSAFE"
 )
 
 // All allowed values of ServiceCompatibility enum

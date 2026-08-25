@@ -19,21 +19,21 @@ import (
 	"strings"
 )
 
-
 // CompatibilityAPIService CompatibilityAPI service
 type CompatibilityAPIService service
 
 type ApiCreateKestraExecutionApiV1ExecutionsNamespaceFlowIdPostRequest struct {
-	ctx context.Context
-	ApiService *CompatibilityAPIService
-	namespace string
-	flowId string
+	ctx                    context.Context
+	ApiService             *CompatibilityAPIService
+	namespace              string
+	flowId                 string
 	kestraExecutionRequest *KestraExecutionRequest
-	prefer *string
-	idempotencyKey *string
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	prefer                 *string
+	idempotencyKey         *string
+	xCorrelationID         *string
+	authorization          *string
+	xAmeshCSRF             *string
+	xAmeshTenant           *string
 }
 
 func (r ApiCreateKestraExecutionApiV1ExecutionsNamespaceFlowIdPostRequest) KestraExecutionRequest(kestraExecutionRequest KestraExecutionRequest) ApiCreateKestraExecutionApiV1ExecutionsNamespaceFlowIdPostRequest {
@@ -48,6 +48,11 @@ func (r ApiCreateKestraExecutionApiV1ExecutionsNamespaceFlowIdPostRequest) Prefe
 
 func (r ApiCreateKestraExecutionApiV1ExecutionsNamespaceFlowIdPostRequest) IdempotencyKey(idempotencyKey string) ApiCreateKestraExecutionApiV1ExecutionsNamespaceFlowIdPostRequest {
 	r.idempotencyKey = &idempotencyKey
+	return r
+}
+
+func (r ApiCreateKestraExecutionApiV1ExecutionsNamespaceFlowIdPostRequest) XCorrelationID(xCorrelationID string) ApiCreateKestraExecutionApiV1ExecutionsNamespaceFlowIdPostRequest {
+	r.xCorrelationID = &xCorrelationID
 	return r
 }
 
@@ -73,28 +78,29 @@ func (r ApiCreateKestraExecutionApiV1ExecutionsNamespaceFlowIdPostRequest) Execu
 /*
 CreateKestraExecutionApiV1ExecutionsNamespaceFlowIdPost Create Kestra Execution
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param namespace
- @param flowId
- @return ApiCreateKestraExecutionApiV1ExecutionsNamespaceFlowIdPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param namespace
+	@param flowId
+	@return ApiCreateKestraExecutionApiV1ExecutionsNamespaceFlowIdPostRequest
 */
 func (a *CompatibilityAPIService) CreateKestraExecutionApiV1ExecutionsNamespaceFlowIdPost(ctx context.Context, namespace string, flowId string) ApiCreateKestraExecutionApiV1ExecutionsNamespaceFlowIdPostRequest {
 	return ApiCreateKestraExecutionApiV1ExecutionsNamespaceFlowIdPostRequest{
 		ApiService: a,
-		ctx: ctx,
-		namespace: namespace,
-		flowId: flowId,
+		ctx:        ctx,
+		namespace:  namespace,
+		flowId:     flowId,
 	}
 }
 
 // Execute executes the request
-//  @return ExecutionDetail
+//
+//	@return ExecutionDetail
 func (a *CompatibilityAPIService) CreateKestraExecutionApiV1ExecutionsNamespaceFlowIdPostExecute(r ApiCreateKestraExecutionApiV1ExecutionsNamespaceFlowIdPostRequest) (*ExecutionDetail, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *ExecutionDetail
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *ExecutionDetail
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "CompatibilityAPIService.CreateKestraExecutionApiV1ExecutionsNamespaceFlowIdPost")
@@ -136,6 +142,9 @@ func (a *CompatibilityAPIService) CreateKestraExecutionApiV1ExecutionsNamespaceF
 	if r.idempotencyKey != nil {
 		parameterAddToHeaderOrQuery(localVarHeaderParams, "Idempotency-Key", r.idempotencyKey, "simple", "")
 	}
+	if r.xCorrelationID != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "X-Correlation-ID", r.xCorrelationID, "simple", "")
+	}
 	if r.authorization != nil {
 		parameterAddToHeaderOrQuery(localVarHeaderParams, "authorization", r.authorization, "simple", "")
 	}
@@ -176,8 +185,8 @@ func (a *CompatibilityAPIService) CreateKestraExecutionApiV1ExecutionsNamespaceF
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -195,7 +204,7 @@ func (a *CompatibilityAPIService) CreateKestraExecutionApiV1ExecutionsNamespaceF
 }
 
 type ApiGetKestraCompatibilityManifestApiV1CompatibilityKestraManifestGetRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService *CompatibilityAPIService
 }
 
@@ -206,24 +215,25 @@ func (r ApiGetKestraCompatibilityManifestApiV1CompatibilityKestraManifestGetRequ
 /*
 GetKestraCompatibilityManifestApiV1CompatibilityKestraManifestGet Get Kestra Compatibility Manifest
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiGetKestraCompatibilityManifestApiV1CompatibilityKestraManifestGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiGetKestraCompatibilityManifestApiV1CompatibilityKestraManifestGetRequest
 */
 func (a *CompatibilityAPIService) GetKestraCompatibilityManifestApiV1CompatibilityKestraManifestGet(ctx context.Context) ApiGetKestraCompatibilityManifestApiV1CompatibilityKestraManifestGetRequest {
 	return ApiGetKestraCompatibilityManifestApiV1CompatibilityKestraManifestGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return map[string]*interface{}
+//
+//	@return map[string]*interface{}
 func (a *CompatibilityAPIService) GetKestraCompatibilityManifestApiV1CompatibilityKestraManifestGetExecute(r ApiGetKestraCompatibilityManifestApiV1CompatibilityKestraManifestGetRequest) (map[string]*interface{}, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  map[string]*interface{}
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue map[string]*interface{}
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "CompatibilityAPIService.GetKestraCompatibilityManifestApiV1CompatibilityKestraManifestGet")
@@ -292,7 +302,7 @@ func (a *CompatibilityAPIService) GetKestraCompatibilityManifestApiV1Compatibili
 }
 
 type ApiValidateKestraFlowApiV1MainFlowsValidatePostRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService *CompatibilityAPIService
 }
 
@@ -303,24 +313,25 @@ func (r ApiValidateKestraFlowApiV1MainFlowsValidatePostRequest) Execute() (*Kest
 /*
 ValidateKestraFlowApiV1MainFlowsValidatePost Validate Kestra Flow
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiValidateKestraFlowApiV1MainFlowsValidatePostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiValidateKestraFlowApiV1MainFlowsValidatePostRequest
 */
 func (a *CompatibilityAPIService) ValidateKestraFlowApiV1MainFlowsValidatePost(ctx context.Context) ApiValidateKestraFlowApiV1MainFlowsValidatePostRequest {
 	return ApiValidateKestraFlowApiV1MainFlowsValidatePostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return KestraFlowImport
+//
+//	@return KestraFlowImport
 func (a *CompatibilityAPIService) ValidateKestraFlowApiV1MainFlowsValidatePostExecute(r ApiValidateKestraFlowApiV1MainFlowsValidatePostRequest) (*KestraFlowImport, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *KestraFlowImport
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *KestraFlowImport
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "CompatibilityAPIService.ValidateKestraFlowApiV1MainFlowsValidatePost")

@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,13 +21,13 @@ var _ MappedNullable = &TenantDefinition{}
 
 // TenantDefinition struct for TenantDefinition
 type TenantDefinition struct {
-	DisplayName string `json:"display_name"`
-	Id *string `json:"id,omitempty"`
-	Metadata *ResourceMetadata `json:"metadata,omitempty"`
-	Policy *TenantPolicy `json:"policy,omitempty"`
-	Slug string `json:"slug" validate:"regexp=^[a-z0-9][a-z0-9-]*$"`
-	Status *TenantStatus `json:"status,omitempty"`
-	StoragePrefix NullableString `json:"storage_prefix,omitempty"`
+	DisplayName   string            `json:"display_name"`
+	Id            *string           `json:"id,omitempty"`
+	Metadata      *ResourceMetadata `json:"metadata,omitempty"`
+	Policy        *TenantPolicy     `json:"policy,omitempty"`
+	Slug          string            `json:"slug" validate:"regexp=^[a-z0-9][a-z0-9-]*$"`
+	Status        *TenantStatus     `json:"status,omitempty"`
+	StoragePrefix NullableString    `json:"storage_prefix,omitempty"`
 }
 
 type _TenantDefinition TenantDefinition
@@ -263,6 +263,7 @@ func (o *TenantDefinition) HasStoragePrefix() bool {
 func (o *TenantDefinition) SetStoragePrefix(v string) {
 	o.StoragePrefix.Set(&v)
 }
+
 // SetStoragePrefixNil sets the value for StoragePrefix to be an explicit nil
 func (o *TenantDefinition) SetStoragePrefixNil() {
 	o.StoragePrefix.Set(nil)
@@ -274,7 +275,7 @@ func (o *TenantDefinition) UnsetStoragePrefix() {
 }
 
 func (o TenantDefinition) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -317,10 +318,10 @@ func (o *TenantDefinition) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

@@ -20,7 +20,7 @@ type WorkerCompatibility string
 
 // List of WorkerCompatibility
 const (
-	WORKERCOMPATIBILITY_COMPATIBLE WorkerCompatibility = "COMPATIBLE"
+	WORKERCOMPATIBILITY_COMPATIBLE   WorkerCompatibility = "COMPATIBLE"
 	WORKERCOMPATIBILITY_INCOMPATIBLE WorkerCompatibility = "INCOMPATIBLE"
 )
 

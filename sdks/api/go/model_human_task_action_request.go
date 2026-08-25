@@ -20,14 +20,14 @@ var _ MappedNullable = &HumanTaskActionRequest{}
 
 // HumanTaskActionRequest struct for HumanTaskActionRequest
 type HumanTaskActionRequest struct {
-	Action HumanTaskActionKind `json:"action"`
-	ArtifactUri NullableString `json:"artifactUri,omitempty"`
-	AssigneeIds []string `json:"assigneeIds,omitempty"`
-	Comment *string `json:"comment,omitempty"`
-	FormValues map[string]interface{} `json:"formValues,omitempty"`
-	GroupIds []string `json:"groupIds,omitempty"`
-	IdempotencyKey string `json:"idempotencyKey"`
-	Reason *string `json:"reason,omitempty"`
+	Action               HumanTaskActionKind    `json:"action"`
+	ArtifactUri          NullableString         `json:"artifactUri,omitempty"`
+	AssigneeIds          []string               `json:"assigneeIds,omitempty"`
+	Comment              *string                `json:"comment,omitempty"`
+	FormValues           map[string]interface{} `json:"formValues,omitempty"`
+	GroupIds             []string               `json:"groupIds,omitempty"`
+	IdempotencyKey       string                 `json:"idempotencyKey"`
+	Reason               *string                `json:"reason,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -116,6 +116,7 @@ func (o *HumanTaskActionRequest) HasArtifactUri() bool {
 func (o *HumanTaskActionRequest) SetArtifactUri(v string) {
 	o.ArtifactUri.Set(&v)
 }
+
 // SetArtifactUriNil sets the value for ArtifactUri to be an explicit nil
 func (o *HumanTaskActionRequest) SetArtifactUriNil() {
 	o.ArtifactUri.Set(nil)
@@ -311,7 +312,7 @@ func (o *HumanTaskActionRequest) SetReason(v string) {
 }
 
 func (o HumanTaskActionRequest) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -362,10 +363,10 @@ func (o *HumanTaskActionRequest) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

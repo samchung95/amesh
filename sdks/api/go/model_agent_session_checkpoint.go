@@ -19,15 +19,16 @@ var _ MappedNullable = &AgentSessionCheckpoint{}
 
 // AgentSessionCheckpoint struct for AgentSessionCheckpoint
 type AgentSessionCheckpoint struct {
-	EvaluationOutcomes []*map[string]interface{} `json:"evaluationOutcomes,omitempty"`
-	LastAcceptedOperation NullableString `json:"lastAcceptedOperation,omitempty"`
-	MemoryEntries []*map[string]interface{} `json:"memoryEntries,omitempty"`
-	MemoryWrite map[string]interface{} `json:"memoryWrite,omitempty"`
-	Messages []*map[string]interface{} `json:"messages,omitempty"`
-	NextTurn *int32 `json:"nextTurn,omitempty"`
-	PendingAction map[string]interface{} `json:"pendingAction,omitempty"`
-	PendingTurn NullableInt32 `json:"pendingTurn,omitempty"`
-	ReleaseApproved *bool `json:"releaseApproved,omitempty"`
+	EvaluationOutcomes    []*map[string]interface{}         `json:"evaluationOutcomes,omitempty"`
+	LastAcceptedOperation NullableString                    `json:"lastAcceptedOperation,omitempty"`
+	MemoryEntries         []*map[string]interface{}         `json:"memoryEntries,omitempty"`
+	MemoryWrite           map[string]interface{}            `json:"memoryWrite,omitempty"`
+	Messages              []*map[string]interface{}         `json:"messages,omitempty"`
+	ModelContinuation     NullableAgentModelContinuationRef `json:"modelContinuation,omitempty"`
+	NextTurn              *int32                            `json:"nextTurn,omitempty"`
+	PendingAction         map[string]interface{}            `json:"pendingAction,omitempty"`
+	PendingTurn           NullableInt32                     `json:"pendingTurn,omitempty"`
+	ReleaseApproved       *bool                             `json:"releaseApproved,omitempty"`
 }
 
 // NewAgentSessionCheckpoint instantiates a new AgentSessionCheckpoint object
@@ -119,6 +120,7 @@ func (o *AgentSessionCheckpoint) HasLastAcceptedOperation() bool {
 func (o *AgentSessionCheckpoint) SetLastAcceptedOperation(v string) {
 	o.LastAcceptedOperation.Set(&v)
 }
+
 // SetLastAcceptedOperationNil sets the value for LastAcceptedOperation to be an explicit nil
 func (o *AgentSessionCheckpoint) SetLastAcceptedOperationNil() {
 	o.LastAcceptedOperation.Set(nil)
@@ -226,6 +228,49 @@ func (o *AgentSessionCheckpoint) SetMessages(v []*map[string]interface{}) {
 	o.Messages = v
 }
 
+// GetModelContinuation returns the ModelContinuation field value if set, zero value otherwise (both if not set or set to explicit null).
+func (o *AgentSessionCheckpoint) GetModelContinuation() AgentModelContinuationRef {
+	if o == nil || IsNil(o.ModelContinuation.Get()) {
+		var ret AgentModelContinuationRef
+		return ret
+	}
+	return *o.ModelContinuation.Get()
+}
+
+// GetModelContinuationOk returns a tuple with the ModelContinuation field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
+func (o *AgentSessionCheckpoint) GetModelContinuationOk() (*AgentModelContinuationRef, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return o.ModelContinuation.Get(), o.ModelContinuation.IsSet()
+}
+
+// HasModelContinuation returns a boolean if a field has been set.
+func (o *AgentSessionCheckpoint) HasModelContinuation() bool {
+	if o != nil && o.ModelContinuation.IsSet() {
+		return true
+	}
+
+	return false
+}
+
+// SetModelContinuation gets a reference to the given NullableAgentModelContinuationRef and assigns it to the ModelContinuation field.
+func (o *AgentSessionCheckpoint) SetModelContinuation(v AgentModelContinuationRef) {
+	o.ModelContinuation.Set(&v)
+}
+
+// SetModelContinuationNil sets the value for ModelContinuation to be an explicit nil
+func (o *AgentSessionCheckpoint) SetModelContinuationNil() {
+	o.ModelContinuation.Set(nil)
+}
+
+// UnsetModelContinuation ensures that no value is present for ModelContinuation, not even an explicit nil
+func (o *AgentSessionCheckpoint) UnsetModelContinuation() {
+	o.ModelContinuation.Unset()
+}
+
 // GetNextTurn returns the NextTurn field value if set, zero value otherwise.
 func (o *AgentSessionCheckpoint) GetNextTurn() int32 {
 	if o == nil || IsNil(o.NextTurn) {
@@ -323,6 +368,7 @@ func (o *AgentSessionCheckpoint) HasPendingTurn() bool {
 func (o *AgentSessionCheckpoint) SetPendingTurn(v int32) {
 	o.PendingTurn.Set(&v)
 }
+
 // SetPendingTurnNil sets the value for PendingTurn to be an explicit nil
 func (o *AgentSessionCheckpoint) SetPendingTurnNil() {
 	o.PendingTurn.Set(nil)
@@ -366,7 +412,7 @@ func (o *AgentSessionCheckpoint) SetReleaseApproved(v bool) {
 }
 
 func (o AgentSessionCheckpoint) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -389,6 +435,9 @@ func (o AgentSessionCheckpoint) ToMap() (map[string]interface{}, error) {
 	}
 	if !IsNil(o.Messages) {
 		toSerialize["messages"] = o.Messages
+	}
+	if o.ModelContinuation.IsSet() {
+		toSerialize["modelContinuation"] = o.ModelContinuation.Get()
 	}
 	if !IsNil(o.NextTurn) {
 		toSerialize["nextTurn"] = o.NextTurn

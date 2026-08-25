@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,10 +21,10 @@ var _ MappedNullable = &AdmissionDiagnostics{}
 
 // AdmissionDiagnostics struct for AdmissionDiagnostics
 type AdmissionDiagnostics struct {
-	ActiveReservations int32 `json:"active_reservations"`
-	OldestQueueAgeSeconds float32 `json:"oldest_queue_age_seconds"`
-	PressureByPolicy map[string]int32 `json:"pressure_by_policy,omitempty"`
-	QueuedRequests int32 `json:"queued_requests"`
+	ActiveReservations    int32            `json:"active_reservations"`
+	OldestQueueAgeSeconds float32          `json:"oldest_queue_age_seconds"`
+	PressureByPolicy      map[string]int32 `json:"pressure_by_policy,omitempty"`
+	QueuedRequests        int32            `json:"queued_requests"`
 }
 
 type _AdmissionDiagnostics AdmissionDiagnostics
@@ -154,7 +154,7 @@ func (o *AdmissionDiagnostics) SetQueuedRequests(v int32) {
 }
 
 func (o AdmissionDiagnostics) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -187,10 +187,10 @@ func (o *AdmissionDiagnostics) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

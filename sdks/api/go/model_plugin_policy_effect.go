@@ -21,7 +21,7 @@ type PluginPolicyEffect string
 // List of PluginPolicyEffect
 const (
 	PLUGINPOLICYEFFECT_ALLOW PluginPolicyEffect = "ALLOW"
-	PLUGINPOLICYEFFECT_DENY PluginPolicyEffect = "DENY"
+	PLUGINPOLICYEFFECT_DENY  PluginPolicyEffect = "DENY"
 )
 
 // All allowed values of PluginPolicyEffect enum

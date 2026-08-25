@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,10 +21,10 @@ var _ MappedNullable = &McpDiscoveryResult{}
 
 // McpDiscoveryResult struct for McpDiscoveryResult
 type McpDiscoveryResult struct {
-	Digest string `json:"digest" validate:"regexp=^sha256:[0-9a-f]{64}$"`
-	ServerName string `json:"serverName"`
-	ServerVersion *string `json:"serverVersion,omitempty"`
-	Tools []McpToolPin `json:"tools"`
+	Digest        string       `json:"digest" validate:"regexp=^sha256:[0-9a-f]{64}$"`
+	ServerName    string       `json:"serverName"`
+	ServerVersion *string      `json:"serverVersion,omitempty"`
+	Tools         []McpToolPin `json:"tools"`
 }
 
 type _McpDiscoveryResult McpDiscoveryResult
@@ -158,7 +158,7 @@ func (o *McpDiscoveryResult) SetTools(v []McpToolPin) {
 }
 
 func (o McpDiscoveryResult) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -191,10 +191,10 @@ func (o *McpDiscoveryResult) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

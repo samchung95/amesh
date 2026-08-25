@@ -20,22 +20,21 @@ import (
 	"time"
 )
 
-
 // ChecksAPIService ChecksAPI service
 type ChecksAPIService service
 
 type ApiGetCheckComplianceApiV1CheckComplianceGetRequest struct {
-	ctx context.Context
-	ApiService *ChecksAPIService
-	groupBy *string
-	fromTime *time.Time
-	toTime *time.Time
-	namespace *string
-	flowId *string
-	limit *int32
+	ctx           context.Context
+	ApiService    *ChecksAPIService
+	groupBy       *string
+	fromTime      *time.Time
+	toTime        *time.Time
+	namespace     *string
+	flowId        *string
+	limit         *int32
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiGetCheckComplianceApiV1CheckComplianceGetRequest) GroupBy(groupBy string) ApiGetCheckComplianceApiV1CheckComplianceGetRequest {
@@ -90,24 +89,25 @@ func (r ApiGetCheckComplianceApiV1CheckComplianceGetRequest) Execute() ([]CheckC
 /*
 GetCheckComplianceApiV1CheckComplianceGet Get Check Compliance
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiGetCheckComplianceApiV1CheckComplianceGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiGetCheckComplianceApiV1CheckComplianceGetRequest
 */
 func (a *ChecksAPIService) GetCheckComplianceApiV1CheckComplianceGet(ctx context.Context) ApiGetCheckComplianceApiV1CheckComplianceGetRequest {
 	return ApiGetCheckComplianceApiV1CheckComplianceGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return []CheckComplianceSummary
+//
+//	@return []CheckComplianceSummary
 func (a *ChecksAPIService) GetCheckComplianceApiV1CheckComplianceGetExecute(r ApiGetCheckComplianceApiV1CheckComplianceGetRequest) ([]CheckComplianceSummary, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  []CheckComplianceSummary
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []CheckComplianceSummary
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ChecksAPIService.GetCheckComplianceApiV1CheckComplianceGet")
@@ -202,8 +202,8 @@ func (a *ChecksAPIService) GetCheckComplianceApiV1CheckComplianceGetExecute(r Ap
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -221,16 +221,16 @@ func (a *ChecksAPIService) GetCheckComplianceApiV1CheckComplianceGetExecute(r Ap
 }
 
 type ApiListCheckEvaluationsApiV1CheckEvaluationsGetRequest struct {
-	ctx context.Context
-	ApiService *ChecksAPIService
-	namespace *string
-	flowId *string
-	executionId *string
-	outcome *CheckOutcome
-	limit *int32
+	ctx           context.Context
+	ApiService    *ChecksAPIService
+	namespace     *string
+	flowId        *string
+	executionId   *string
+	outcome       *CheckOutcome
+	limit         *int32
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiListCheckEvaluationsApiV1CheckEvaluationsGetRequest) Namespace(namespace string) ApiListCheckEvaluationsApiV1CheckEvaluationsGetRequest {
@@ -280,24 +280,25 @@ func (r ApiListCheckEvaluationsApiV1CheckEvaluationsGetRequest) Execute() ([]Che
 /*
 ListCheckEvaluationsApiV1CheckEvaluationsGet List Check Evaluations
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiListCheckEvaluationsApiV1CheckEvaluationsGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiListCheckEvaluationsApiV1CheckEvaluationsGetRequest
 */
 func (a *ChecksAPIService) ListCheckEvaluationsApiV1CheckEvaluationsGet(ctx context.Context) ApiListCheckEvaluationsApiV1CheckEvaluationsGetRequest {
 	return ApiListCheckEvaluationsApiV1CheckEvaluationsGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return []CheckEvaluation
+//
+//	@return []CheckEvaluation
 func (a *ChecksAPIService) ListCheckEvaluationsApiV1CheckEvaluationsGetExecute(r ApiListCheckEvaluationsApiV1CheckEvaluationsGetRequest) ([]CheckEvaluation, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  []CheckEvaluation
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []CheckEvaluation
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ChecksAPIService.ListCheckEvaluationsApiV1CheckEvaluationsGet")
@@ -385,8 +386,8 @@ func (a *ChecksAPIService) ListCheckEvaluationsApiV1CheckEvaluationsGetExecute(r
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -404,13 +405,13 @@ func (a *ChecksAPIService) ListCheckEvaluationsApiV1CheckEvaluationsGetExecute(r
 }
 
 type ApiListCheckPoliciesApiV1CheckPoliciesGetRequest struct {
-	ctx context.Context
-	ApiService *ChecksAPIService
-	namespace *string
-	limit *int32
+	ctx           context.Context
+	ApiService    *ChecksAPIService
+	namespace     *string
+	limit         *int32
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiListCheckPoliciesApiV1CheckPoliciesGetRequest) Namespace(namespace string) ApiListCheckPoliciesApiV1CheckPoliciesGetRequest {
@@ -445,24 +446,25 @@ func (r ApiListCheckPoliciesApiV1CheckPoliciesGetRequest) Execute() ([]Namespace
 /*
 ListCheckPoliciesApiV1CheckPoliciesGet List Check Policies
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiListCheckPoliciesApiV1CheckPoliciesGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiListCheckPoliciesApiV1CheckPoliciesGetRequest
 */
 func (a *ChecksAPIService) ListCheckPoliciesApiV1CheckPoliciesGet(ctx context.Context) ApiListCheckPoliciesApiV1CheckPoliciesGetRequest {
 	return ApiListCheckPoliciesApiV1CheckPoliciesGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return []NamespaceCheckPolicy
+//
+//	@return []NamespaceCheckPolicy
 func (a *ChecksAPIService) ListCheckPoliciesApiV1CheckPoliciesGetExecute(r ApiListCheckPoliciesApiV1CheckPoliciesGetRequest) ([]NamespaceCheckPolicy, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  []NamespaceCheckPolicy
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []NamespaceCheckPolicy
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ChecksAPIService.ListCheckPoliciesApiV1CheckPoliciesGet")
@@ -541,8 +543,8 @@ func (a *ChecksAPIService) ListCheckPoliciesApiV1CheckPoliciesGetExecute(r ApiLi
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -560,14 +562,14 @@ func (a *ChecksAPIService) ListCheckPoliciesApiV1CheckPoliciesGetExecute(r ApiLi
 }
 
 type ApiUpsertCheckPolicyApiV1CheckPoliciesNamespacePolicyKeyPutRequest struct {
-	ctx context.Context
-	ApiService *ChecksAPIService
-	namespace string
-	policyKey string
+	ctx                      context.Context
+	ApiService               *ChecksAPIService
+	namespace                string
+	policyKey                string
 	checkPolicyUpsertRequest *CheckPolicyUpsertRequest
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization            *string
+	xAmeshCSRF               *string
+	xAmeshTenant             *string
 }
 
 func (r ApiUpsertCheckPolicyApiV1CheckPoliciesNamespacePolicyKeyPutRequest) CheckPolicyUpsertRequest(checkPolicyUpsertRequest CheckPolicyUpsertRequest) ApiUpsertCheckPolicyApiV1CheckPoliciesNamespacePolicyKeyPutRequest {
@@ -597,28 +599,29 @@ func (r ApiUpsertCheckPolicyApiV1CheckPoliciesNamespacePolicyKeyPutRequest) Exec
 /*
 UpsertCheckPolicyApiV1CheckPoliciesNamespacePolicyKeyPut Upsert Check Policy
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param namespace
- @param policyKey
- @return ApiUpsertCheckPolicyApiV1CheckPoliciesNamespacePolicyKeyPutRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param namespace
+	@param policyKey
+	@return ApiUpsertCheckPolicyApiV1CheckPoliciesNamespacePolicyKeyPutRequest
 */
 func (a *ChecksAPIService) UpsertCheckPolicyApiV1CheckPoliciesNamespacePolicyKeyPut(ctx context.Context, namespace string, policyKey string) ApiUpsertCheckPolicyApiV1CheckPoliciesNamespacePolicyKeyPutRequest {
 	return ApiUpsertCheckPolicyApiV1CheckPoliciesNamespacePolicyKeyPutRequest{
 		ApiService: a,
-		ctx: ctx,
-		namespace: namespace,
-		policyKey: policyKey,
+		ctx:        ctx,
+		namespace:  namespace,
+		policyKey:  policyKey,
 	}
 }
 
 // Execute executes the request
-//  @return NamespaceCheckPolicy
+//
+//	@return NamespaceCheckPolicy
 func (a *ChecksAPIService) UpsertCheckPolicyApiV1CheckPoliciesNamespacePolicyKeyPutExecute(r ApiUpsertCheckPolicyApiV1CheckPoliciesNamespacePolicyKeyPutRequest) (*NamespaceCheckPolicy, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPut
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *NamespaceCheckPolicy
+		localVarHTTPMethod  = http.MethodPut
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *NamespaceCheckPolicy
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ChecksAPIService.UpsertCheckPolicyApiV1CheckPoliciesNamespacePolicyKeyPut")
@@ -694,8 +697,8 @@ func (a *ChecksAPIService) UpsertCheckPolicyApiV1CheckPoliciesNamespacePolicyKey
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}

@@ -19,12 +19,12 @@ var _ MappedNullable = &WorkflowMetadataPolicy{}
 
 // WorkflowMetadataPolicy struct for WorkflowMetadataPolicy
 type WorkflowMetadataPolicy struct {
-	DeniedDefaults map[string][]string `json:"deniedDefaults,omitempty"`
-	DeniedLabels []string `json:"deniedLabels,omitempty"`
+	DeniedDefaults    map[string][]string                      `json:"deniedDefaults,omitempty"`
+	DeniedLabels      []string                                 `json:"deniedLabels,omitempty"`
 	NormalizeDefaults map[string]map[string]LabelNormalization `json:"normalizeDefaults,omitempty"`
-	NormalizeLabels map[string]LabelNormalization `json:"normalizeLabels,omitempty"`
-	RequiredDefaults map[string][]string `json:"requiredDefaults,omitempty"`
-	RequiredLabels map[string]*string `json:"requiredLabels,omitempty"`
+	NormalizeLabels   map[string]LabelNormalization            `json:"normalizeLabels,omitempty"`
+	RequiredDefaults  map[string][]string                      `json:"requiredDefaults,omitempty"`
+	RequiredLabels    map[string]*string                       `json:"requiredLabels,omitempty"`
 }
 
 // NewWorkflowMetadataPolicy instantiates a new WorkflowMetadataPolicy object
@@ -237,7 +237,7 @@ func (o *WorkflowMetadataPolicy) SetRequiredLabels(v map[string]*string) {
 }
 
 func (o WorkflowMetadataPolicy) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}

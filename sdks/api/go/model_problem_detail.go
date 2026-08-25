@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,13 +21,13 @@ var _ MappedNullable = &ProblemDetail{}
 
 // ProblemDetail struct for ProblemDetail
 type ProblemDetail struct {
-	Code string `json:"code"`
-	Detail interface{} `json:"detail"`
-	Errors []*map[string]interface{} `json:"errors,omitempty"`
-	Instance string `json:"instance"`
-	Status int32 `json:"status"`
-	Title string `json:"title"`
-	Type string `json:"type"`
+	Code     string                    `json:"code"`
+	Detail   interface{}               `json:"detail"`
+	Errors   []*map[string]interface{} `json:"errors,omitempty"`
+	Instance string                    `json:"instance"`
+	Status   int32                     `json:"status"`
+	Title    string                    `json:"title"`
+	Type     string                    `json:"type"`
 }
 
 type _ProblemDetail ProblemDetail
@@ -235,7 +235,7 @@ func (o *ProblemDetail) SetType(v string) {
 }
 
 func (o ProblemDetail) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -276,10 +276,10 @@ func (o *ProblemDetail) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

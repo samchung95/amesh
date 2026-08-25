@@ -19,17 +19,16 @@ import (
 	"strings"
 )
 
-
 // LifecycleAPIService LifecycleAPI service
 type LifecycleAPIService service
 
 type ApiCreateLifecycleLegalHoldApiV1LifecycleLegalHoldsPostRequest struct {
-	ctx context.Context
-	ApiService *LifecycleAPIService
+	ctx                     context.Context
+	ApiService              *LifecycleAPIService
 	lifecycleLegalHoldDraft *LifecycleLegalHoldDraft
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization           *string
+	xAmeshCSRF              *string
+	xAmeshTenant            *string
 }
 
 func (r ApiCreateLifecycleLegalHoldApiV1LifecycleLegalHoldsPostRequest) LifecycleLegalHoldDraft(lifecycleLegalHoldDraft LifecycleLegalHoldDraft) ApiCreateLifecycleLegalHoldApiV1LifecycleLegalHoldsPostRequest {
@@ -59,24 +58,25 @@ func (r ApiCreateLifecycleLegalHoldApiV1LifecycleLegalHoldsPostRequest) Execute(
 /*
 CreateLifecycleLegalHoldApiV1LifecycleLegalHoldsPost Create Lifecycle Legal Hold
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiCreateLifecycleLegalHoldApiV1LifecycleLegalHoldsPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiCreateLifecycleLegalHoldApiV1LifecycleLegalHoldsPostRequest
 */
 func (a *LifecycleAPIService) CreateLifecycleLegalHoldApiV1LifecycleLegalHoldsPost(ctx context.Context) ApiCreateLifecycleLegalHoldApiV1LifecycleLegalHoldsPostRequest {
 	return ApiCreateLifecycleLegalHoldApiV1LifecycleLegalHoldsPostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return LifecycleLegalHold
+//
+//	@return LifecycleLegalHold
 func (a *LifecycleAPIService) CreateLifecycleLegalHoldApiV1LifecycleLegalHoldsPostExecute(r ApiCreateLifecycleLegalHoldApiV1LifecycleLegalHoldsPostRequest) (*LifecycleLegalHold, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *LifecycleLegalHold
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *LifecycleLegalHold
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "LifecycleAPIService.CreateLifecycleLegalHoldApiV1LifecycleLegalHoldsPost")
@@ -150,8 +150,8 @@ func (a *LifecycleAPIService) CreateLifecycleLegalHoldApiV1LifecycleLegalHoldsPo
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -169,12 +169,12 @@ func (a *LifecycleAPIService) CreateLifecycleLegalHoldApiV1LifecycleLegalHoldsPo
 }
 
 type ApiCreateLifecyclePolicyApiV1LifecyclePoliciesPostRequest struct {
-	ctx context.Context
-	ApiService *LifecycleAPIService
+	ctx                  context.Context
+	ApiService           *LifecycleAPIService
 	lifecyclePolicyDraft *LifecyclePolicyDraft
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization        *string
+	xAmeshCSRF           *string
+	xAmeshTenant         *string
 }
 
 func (r ApiCreateLifecyclePolicyApiV1LifecyclePoliciesPostRequest) LifecyclePolicyDraft(lifecyclePolicyDraft LifecyclePolicyDraft) ApiCreateLifecyclePolicyApiV1LifecyclePoliciesPostRequest {
@@ -204,24 +204,25 @@ func (r ApiCreateLifecyclePolicyApiV1LifecyclePoliciesPostRequest) Execute() (*L
 /*
 CreateLifecyclePolicyApiV1LifecyclePoliciesPost Create Lifecycle Policy
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiCreateLifecyclePolicyApiV1LifecyclePoliciesPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiCreateLifecyclePolicyApiV1LifecyclePoliciesPostRequest
 */
 func (a *LifecycleAPIService) CreateLifecyclePolicyApiV1LifecyclePoliciesPost(ctx context.Context) ApiCreateLifecyclePolicyApiV1LifecyclePoliciesPostRequest {
 	return ApiCreateLifecyclePolicyApiV1LifecyclePoliciesPostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return LifecyclePolicy
+//
+//	@return LifecyclePolicy
 func (a *LifecycleAPIService) CreateLifecyclePolicyApiV1LifecyclePoliciesPostExecute(r ApiCreateLifecyclePolicyApiV1LifecyclePoliciesPostRequest) (*LifecyclePolicy, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *LifecyclePolicy
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *LifecyclePolicy
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "LifecycleAPIService.CreateLifecyclePolicyApiV1LifecyclePoliciesPost")
@@ -295,8 +296,8 @@ func (a *LifecycleAPIService) CreateLifecyclePolicyApiV1LifecyclePoliciesPostExe
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -314,13 +315,13 @@ func (a *LifecycleAPIService) CreateLifecyclePolicyApiV1LifecyclePoliciesPostExe
 }
 
 type ApiExecuteLifecycleJobApiV1LifecycleJobsJobIdExecutePostRequest struct {
-	ctx context.Context
-	ApiService *LifecycleAPIService
-	jobId string
+	ctx                     context.Context
+	ApiService              *LifecycleAPIService
+	jobId                   string
 	lifecycleExecuteRequest *LifecycleExecuteRequest
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization           *string
+	xAmeshCSRF              *string
+	xAmeshTenant            *string
 }
 
 func (r ApiExecuteLifecycleJobApiV1LifecycleJobsJobIdExecutePostRequest) LifecycleExecuteRequest(lifecycleExecuteRequest LifecycleExecuteRequest) ApiExecuteLifecycleJobApiV1LifecycleJobsJobIdExecutePostRequest {
@@ -350,26 +351,27 @@ func (r ApiExecuteLifecycleJobApiV1LifecycleJobsJobIdExecutePostRequest) Execute
 /*
 ExecuteLifecycleJobApiV1LifecycleJobsJobIdExecutePost Execute Lifecycle Job
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param jobId
- @return ApiExecuteLifecycleJobApiV1LifecycleJobsJobIdExecutePostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param jobId
+	@return ApiExecuteLifecycleJobApiV1LifecycleJobsJobIdExecutePostRequest
 */
 func (a *LifecycleAPIService) ExecuteLifecycleJobApiV1LifecycleJobsJobIdExecutePost(ctx context.Context, jobId string) ApiExecuteLifecycleJobApiV1LifecycleJobsJobIdExecutePostRequest {
 	return ApiExecuteLifecycleJobApiV1LifecycleJobsJobIdExecutePostRequest{
 		ApiService: a,
-		ctx: ctx,
-		jobId: jobId,
+		ctx:        ctx,
+		jobId:      jobId,
 	}
 }
 
 // Execute executes the request
-//  @return LifecycleJob
+//
+//	@return LifecycleJob
 func (a *LifecycleAPIService) ExecuteLifecycleJobApiV1LifecycleJobsJobIdExecutePostExecute(r ApiExecuteLifecycleJobApiV1LifecycleJobsJobIdExecutePostRequest) (*LifecycleJob, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *LifecycleJob
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *LifecycleJob
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "LifecycleAPIService.ExecuteLifecycleJobApiV1LifecycleJobsJobIdExecutePost")
@@ -444,8 +446,8 @@ func (a *LifecycleAPIService) ExecuteLifecycleJobApiV1LifecycleJobsJobIdExecuteP
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -463,12 +465,12 @@ func (a *LifecycleAPIService) ExecuteLifecycleJobApiV1LifecycleJobsJobIdExecuteP
 }
 
 type ApiGetLifecycleJobApiV1LifecycleJobsJobIdGetRequest struct {
-	ctx context.Context
-	ApiService *LifecycleAPIService
-	jobId string
+	ctx           context.Context
+	ApiService    *LifecycleAPIService
+	jobId         string
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiGetLifecycleJobApiV1LifecycleJobsJobIdGetRequest) Authorization(authorization string) ApiGetLifecycleJobApiV1LifecycleJobsJobIdGetRequest {
@@ -493,26 +495,27 @@ func (r ApiGetLifecycleJobApiV1LifecycleJobsJobIdGetRequest) Execute() (*Lifecyc
 /*
 GetLifecycleJobApiV1LifecycleJobsJobIdGet Get Lifecycle Job
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param jobId
- @return ApiGetLifecycleJobApiV1LifecycleJobsJobIdGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param jobId
+	@return ApiGetLifecycleJobApiV1LifecycleJobsJobIdGetRequest
 */
 func (a *LifecycleAPIService) GetLifecycleJobApiV1LifecycleJobsJobIdGet(ctx context.Context, jobId string) ApiGetLifecycleJobApiV1LifecycleJobsJobIdGetRequest {
 	return ApiGetLifecycleJobApiV1LifecycleJobsJobIdGetRequest{
 		ApiService: a,
-		ctx: ctx,
-		jobId: jobId,
+		ctx:        ctx,
+		jobId:      jobId,
 	}
 }
 
 // Execute executes the request
-//  @return LifecycleJob
+//
+//	@return LifecycleJob
 func (a *LifecycleAPIService) GetLifecycleJobApiV1LifecycleJobsJobIdGetExecute(r ApiGetLifecycleJobApiV1LifecycleJobsJobIdGetRequest) (*LifecycleJob, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *LifecycleJob
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *LifecycleJob
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "LifecycleAPIService.GetLifecycleJobApiV1LifecycleJobsJobIdGet")
@@ -582,8 +585,8 @@ func (a *LifecycleAPIService) GetLifecycleJobApiV1LifecycleJobsJobIdGetExecute(r
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -601,12 +604,12 @@ func (a *LifecycleAPIService) GetLifecycleJobApiV1LifecycleJobsJobIdGetExecute(r
 }
 
 type ApiListLifecycleJobsApiV1LifecycleJobsGetRequest struct {
-	ctx context.Context
-	ApiService *LifecycleAPIService
-	limit *int32
+	ctx           context.Context
+	ApiService    *LifecycleAPIService
+	limit         *int32
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiListLifecycleJobsApiV1LifecycleJobsGetRequest) Limit(limit int32) ApiListLifecycleJobsApiV1LifecycleJobsGetRequest {
@@ -636,24 +639,25 @@ func (r ApiListLifecycleJobsApiV1LifecycleJobsGetRequest) Execute() ([]Lifecycle
 /*
 ListLifecycleJobsApiV1LifecycleJobsGet List Lifecycle Jobs
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiListLifecycleJobsApiV1LifecycleJobsGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiListLifecycleJobsApiV1LifecycleJobsGetRequest
 */
 func (a *LifecycleAPIService) ListLifecycleJobsApiV1LifecycleJobsGet(ctx context.Context) ApiListLifecycleJobsApiV1LifecycleJobsGetRequest {
 	return ApiListLifecycleJobsApiV1LifecycleJobsGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return []LifecycleJob
+//
+//	@return []LifecycleJob
 func (a *LifecycleAPIService) ListLifecycleJobsApiV1LifecycleJobsGetExecute(r ApiListLifecycleJobsApiV1LifecycleJobsGetRequest) ([]LifecycleJob, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  []LifecycleJob
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []LifecycleJob
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "LifecycleAPIService.ListLifecycleJobsApiV1LifecycleJobsGet")
@@ -729,8 +733,8 @@ func (a *LifecycleAPIService) ListLifecycleJobsApiV1LifecycleJobsGetExecute(r Ap
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -748,11 +752,11 @@ func (a *LifecycleAPIService) ListLifecycleJobsApiV1LifecycleJobsGetExecute(r Ap
 }
 
 type ApiListLifecycleLegalHoldsApiV1LifecycleLegalHoldsGetRequest struct {
-	ctx context.Context
-	ApiService *LifecycleAPIService
+	ctx           context.Context
+	ApiService    *LifecycleAPIService
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiListLifecycleLegalHoldsApiV1LifecycleLegalHoldsGetRequest) Authorization(authorization string) ApiListLifecycleLegalHoldsApiV1LifecycleLegalHoldsGetRequest {
@@ -777,24 +781,25 @@ func (r ApiListLifecycleLegalHoldsApiV1LifecycleLegalHoldsGetRequest) Execute() 
 /*
 ListLifecycleLegalHoldsApiV1LifecycleLegalHoldsGet List Lifecycle Legal Holds
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiListLifecycleLegalHoldsApiV1LifecycleLegalHoldsGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiListLifecycleLegalHoldsApiV1LifecycleLegalHoldsGetRequest
 */
 func (a *LifecycleAPIService) ListLifecycleLegalHoldsApiV1LifecycleLegalHoldsGet(ctx context.Context) ApiListLifecycleLegalHoldsApiV1LifecycleLegalHoldsGetRequest {
 	return ApiListLifecycleLegalHoldsApiV1LifecycleLegalHoldsGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return []LifecycleLegalHold
+//
+//	@return []LifecycleLegalHold
 func (a *LifecycleAPIService) ListLifecycleLegalHoldsApiV1LifecycleLegalHoldsGetExecute(r ApiListLifecycleLegalHoldsApiV1LifecycleLegalHoldsGetRequest) ([]LifecycleLegalHold, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  []LifecycleLegalHold
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []LifecycleLegalHold
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "LifecycleAPIService.ListLifecycleLegalHoldsApiV1LifecycleLegalHoldsGet")
@@ -863,8 +868,8 @@ func (a *LifecycleAPIService) ListLifecycleLegalHoldsApiV1LifecycleLegalHoldsGet
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -882,11 +887,11 @@ func (a *LifecycleAPIService) ListLifecycleLegalHoldsApiV1LifecycleLegalHoldsGet
 }
 
 type ApiListLifecyclePoliciesApiV1LifecyclePoliciesGetRequest struct {
-	ctx context.Context
-	ApiService *LifecycleAPIService
+	ctx           context.Context
+	ApiService    *LifecycleAPIService
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiListLifecyclePoliciesApiV1LifecyclePoliciesGetRequest) Authorization(authorization string) ApiListLifecyclePoliciesApiV1LifecyclePoliciesGetRequest {
@@ -911,24 +916,25 @@ func (r ApiListLifecyclePoliciesApiV1LifecyclePoliciesGetRequest) Execute() ([]L
 /*
 ListLifecyclePoliciesApiV1LifecyclePoliciesGet List Lifecycle Policies
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiListLifecyclePoliciesApiV1LifecyclePoliciesGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiListLifecyclePoliciesApiV1LifecyclePoliciesGetRequest
 */
 func (a *LifecycleAPIService) ListLifecyclePoliciesApiV1LifecyclePoliciesGet(ctx context.Context) ApiListLifecyclePoliciesApiV1LifecyclePoliciesGetRequest {
 	return ApiListLifecyclePoliciesApiV1LifecyclePoliciesGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return []LifecyclePolicy
+//
+//	@return []LifecyclePolicy
 func (a *LifecycleAPIService) ListLifecyclePoliciesApiV1LifecyclePoliciesGetExecute(r ApiListLifecyclePoliciesApiV1LifecyclePoliciesGetRequest) ([]LifecyclePolicy, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  []LifecyclePolicy
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []LifecyclePolicy
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "LifecycleAPIService.ListLifecyclePoliciesApiV1LifecyclePoliciesGet")
@@ -997,8 +1003,8 @@ func (a *LifecycleAPIService) ListLifecyclePoliciesApiV1LifecyclePoliciesGetExec
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1016,12 +1022,12 @@ func (a *LifecycleAPIService) ListLifecyclePoliciesApiV1LifecyclePoliciesGetExec
 }
 
 type ApiPreviewLifecyclePurgeApiV1LifecyclePreviewsPostRequest struct {
-	ctx context.Context
-	ApiService *LifecycleAPIService
+	ctx                     context.Context
+	ApiService              *LifecycleAPIService
 	lifecyclePreviewRequest *LifecyclePreviewRequest
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization           *string
+	xAmeshCSRF              *string
+	xAmeshTenant            *string
 }
 
 func (r ApiPreviewLifecyclePurgeApiV1LifecyclePreviewsPostRequest) LifecyclePreviewRequest(lifecyclePreviewRequest LifecyclePreviewRequest) ApiPreviewLifecyclePurgeApiV1LifecyclePreviewsPostRequest {
@@ -1051,24 +1057,25 @@ func (r ApiPreviewLifecyclePurgeApiV1LifecyclePreviewsPostRequest) Execute() (*L
 /*
 PreviewLifecyclePurgeApiV1LifecyclePreviewsPost Preview Lifecycle Purge
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiPreviewLifecyclePurgeApiV1LifecyclePreviewsPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiPreviewLifecyclePurgeApiV1LifecyclePreviewsPostRequest
 */
 func (a *LifecycleAPIService) PreviewLifecyclePurgeApiV1LifecyclePreviewsPost(ctx context.Context) ApiPreviewLifecyclePurgeApiV1LifecyclePreviewsPostRequest {
 	return ApiPreviewLifecyclePurgeApiV1LifecyclePreviewsPostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return LifecycleJob
+//
+//	@return LifecycleJob
 func (a *LifecycleAPIService) PreviewLifecyclePurgeApiV1LifecyclePreviewsPostExecute(r ApiPreviewLifecyclePurgeApiV1LifecyclePreviewsPostRequest) (*LifecycleJob, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *LifecycleJob
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *LifecycleJob
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "LifecycleAPIService.PreviewLifecyclePurgeApiV1LifecyclePreviewsPost")
@@ -1142,8 +1149,8 @@ func (a *LifecycleAPIService) PreviewLifecyclePurgeApiV1LifecyclePreviewsPostExe
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1161,12 +1168,12 @@ func (a *LifecycleAPIService) PreviewLifecyclePurgeApiV1LifecyclePreviewsPostExe
 }
 
 type ApiReleaseLifecycleLegalHoldApiV1LifecycleLegalHoldsHoldIdReleasePostRequest struct {
-	ctx context.Context
-	ApiService *LifecycleAPIService
-	holdId string
+	ctx           context.Context
+	ApiService    *LifecycleAPIService
+	holdId        string
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiReleaseLifecycleLegalHoldApiV1LifecycleLegalHoldsHoldIdReleasePostRequest) Authorization(authorization string) ApiReleaseLifecycleLegalHoldApiV1LifecycleLegalHoldsHoldIdReleasePostRequest {
@@ -1191,26 +1198,27 @@ func (r ApiReleaseLifecycleLegalHoldApiV1LifecycleLegalHoldsHoldIdReleasePostReq
 /*
 ReleaseLifecycleLegalHoldApiV1LifecycleLegalHoldsHoldIdReleasePost Release Lifecycle Legal Hold
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param holdId
- @return ApiReleaseLifecycleLegalHoldApiV1LifecycleLegalHoldsHoldIdReleasePostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param holdId
+	@return ApiReleaseLifecycleLegalHoldApiV1LifecycleLegalHoldsHoldIdReleasePostRequest
 */
 func (a *LifecycleAPIService) ReleaseLifecycleLegalHoldApiV1LifecycleLegalHoldsHoldIdReleasePost(ctx context.Context, holdId string) ApiReleaseLifecycleLegalHoldApiV1LifecycleLegalHoldsHoldIdReleasePostRequest {
 	return ApiReleaseLifecycleLegalHoldApiV1LifecycleLegalHoldsHoldIdReleasePostRequest{
 		ApiService: a,
-		ctx: ctx,
-		holdId: holdId,
+		ctx:        ctx,
+		holdId:     holdId,
 	}
 }
 
 // Execute executes the request
-//  @return LifecycleLegalHold
+//
+//	@return LifecycleLegalHold
 func (a *LifecycleAPIService) ReleaseLifecycleLegalHoldApiV1LifecycleLegalHoldsHoldIdReleasePostExecute(r ApiReleaseLifecycleLegalHoldApiV1LifecycleLegalHoldsHoldIdReleasePostRequest) (*LifecycleLegalHold, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *LifecycleLegalHold
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *LifecycleLegalHold
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "LifecycleAPIService.ReleaseLifecycleLegalHoldApiV1LifecycleLegalHoldsHoldIdReleasePost")
@@ -1280,8 +1288,8 @@ func (a *LifecycleAPIService) ReleaseLifecycleLegalHoldApiV1LifecycleLegalHoldsH
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1299,12 +1307,12 @@ func (a *LifecycleAPIService) ReleaseLifecycleLegalHoldApiV1LifecycleLegalHoldsH
 }
 
 type ApiResumeLifecycleJobApiV1LifecycleJobsJobIdResumePostRequest struct {
-	ctx context.Context
-	ApiService *LifecycleAPIService
-	jobId string
+	ctx           context.Context
+	ApiService    *LifecycleAPIService
+	jobId         string
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiResumeLifecycleJobApiV1LifecycleJobsJobIdResumePostRequest) Authorization(authorization string) ApiResumeLifecycleJobApiV1LifecycleJobsJobIdResumePostRequest {
@@ -1329,26 +1337,27 @@ func (r ApiResumeLifecycleJobApiV1LifecycleJobsJobIdResumePostRequest) Execute()
 /*
 ResumeLifecycleJobApiV1LifecycleJobsJobIdResumePost Resume Lifecycle Job
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param jobId
- @return ApiResumeLifecycleJobApiV1LifecycleJobsJobIdResumePostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param jobId
+	@return ApiResumeLifecycleJobApiV1LifecycleJobsJobIdResumePostRequest
 */
 func (a *LifecycleAPIService) ResumeLifecycleJobApiV1LifecycleJobsJobIdResumePost(ctx context.Context, jobId string) ApiResumeLifecycleJobApiV1LifecycleJobsJobIdResumePostRequest {
 	return ApiResumeLifecycleJobApiV1LifecycleJobsJobIdResumePostRequest{
 		ApiService: a,
-		ctx: ctx,
-		jobId: jobId,
+		ctx:        ctx,
+		jobId:      jobId,
 	}
 }
 
 // Execute executes the request
-//  @return LifecycleJob
+//
+//	@return LifecycleJob
 func (a *LifecycleAPIService) ResumeLifecycleJobApiV1LifecycleJobsJobIdResumePostExecute(r ApiResumeLifecycleJobApiV1LifecycleJobsJobIdResumePostRequest) (*LifecycleJob, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *LifecycleJob
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *LifecycleJob
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "LifecycleAPIService.ResumeLifecycleJobApiV1LifecycleJobsJobIdResumePost")
@@ -1418,8 +1427,8 @@ func (a *LifecycleAPIService) ResumeLifecycleJobApiV1LifecycleJobsJobIdResumePos
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1437,14 +1446,14 @@ func (a *LifecycleAPIService) ResumeLifecycleJobApiV1LifecycleJobsJobIdResumePos
 }
 
 type ApiUpdateLifecyclePolicyApiV1LifecyclePoliciesPolicyIdPutRequest struct {
-	ctx context.Context
-	ApiService *LifecycleAPIService
-	policyId string
+	ctx                  context.Context
+	ApiService           *LifecycleAPIService
+	policyId             string
 	lifecyclePolicyDraft *LifecyclePolicyDraft
-	expectedVersion *int32
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	expectedVersion      *int32
+	authorization        *string
+	xAmeshCSRF           *string
+	xAmeshTenant         *string
 }
 
 func (r ApiUpdateLifecyclePolicyApiV1LifecyclePoliciesPolicyIdPutRequest) LifecyclePolicyDraft(lifecyclePolicyDraft LifecyclePolicyDraft) ApiUpdateLifecyclePolicyApiV1LifecyclePoliciesPolicyIdPutRequest {
@@ -1479,26 +1488,27 @@ func (r ApiUpdateLifecyclePolicyApiV1LifecyclePoliciesPolicyIdPutRequest) Execut
 /*
 UpdateLifecyclePolicyApiV1LifecyclePoliciesPolicyIdPut Update Lifecycle Policy
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param policyId
- @return ApiUpdateLifecyclePolicyApiV1LifecyclePoliciesPolicyIdPutRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param policyId
+	@return ApiUpdateLifecyclePolicyApiV1LifecyclePoliciesPolicyIdPutRequest
 */
 func (a *LifecycleAPIService) UpdateLifecyclePolicyApiV1LifecyclePoliciesPolicyIdPut(ctx context.Context, policyId string) ApiUpdateLifecyclePolicyApiV1LifecyclePoliciesPolicyIdPutRequest {
 	return ApiUpdateLifecyclePolicyApiV1LifecyclePoliciesPolicyIdPutRequest{
 		ApiService: a,
-		ctx: ctx,
-		policyId: policyId,
+		ctx:        ctx,
+		policyId:   policyId,
 	}
 }
 
 // Execute executes the request
-//  @return LifecyclePolicy
+//
+//	@return LifecyclePolicy
 func (a *LifecycleAPIService) UpdateLifecyclePolicyApiV1LifecyclePoliciesPolicyIdPutExecute(r ApiUpdateLifecyclePolicyApiV1LifecyclePoliciesPolicyIdPutRequest) (*LifecyclePolicy, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPut
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *LifecyclePolicy
+		localVarHTTPMethod  = http.MethodPut
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *LifecyclePolicy
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "LifecycleAPIService.UpdateLifecyclePolicyApiV1LifecyclePoliciesPolicyIdPut")
@@ -1576,8 +1586,8 @@ func (a *LifecycleAPIService) UpdateLifecyclePolicyApiV1LifecyclePoliciesPolicyI
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}

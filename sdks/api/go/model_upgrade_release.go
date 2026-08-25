@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,12 +21,12 @@ var _ MappedNullable = &UpgradeRelease{}
 
 // UpgradeRelease struct for UpgradeRelease
 type UpgradeRelease struct {
-	Lts bool `json:"lts"`
+	Lts               bool              `json:"lts"`
 	MinimumComponents map[string]string `json:"minimumComponents"`
-	SchemaMigration string `json:"schemaMigration" validate:"regexp=^[0-9]{4}_.+\\.sql$"`
-	SupportEndsOn string `json:"supportEndsOn"`
-	SupportStartsOn string `json:"supportStartsOn"`
-	Version string `json:"version" validate:"regexp=^[0-9]+\\.[0-9]+\\.[0-9]+$"`
+	SchemaMigration   string            `json:"schemaMigration" validate:"regexp=^[0-9]{4}_.+\\.sql$"`
+	SupportEndsOn     string            `json:"supportEndsOn"`
+	SupportStartsOn   string            `json:"supportStartsOn"`
+	Version           string            `json:"version" validate:"regexp=^[0-9]+\\.[0-9]+\\.[0-9]+$"`
 }
 
 type _UpgradeRelease UpgradeRelease
@@ -199,7 +199,7 @@ func (o *UpgradeRelease) SetVersion(v string) {
 }
 
 func (o UpgradeRelease) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -235,10 +235,10 @@ func (o *UpgradeRelease) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

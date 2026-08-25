@@ -20,10 +20,10 @@ type AdministrationControlKey string
 
 // List of AdministrationControlKey
 const (
-	ADMINISTRATIONCONTROLKEY_RETENTION AdministrationControlKey = "RETENTION"
+	ADMINISTRATIONCONTROLKEY_RETENTION    AdministrationControlKey = "RETENTION"
 	ADMINISTRATIONCONTROLKEY_ANNOUNCEMENT AdministrationControlKey = "ANNOUNCEMENT"
-	ADMINISTRATIONCONTROLKEY_MAINTENANCE AdministrationControlKey = "MAINTENANCE"
-	ADMINISTRATIONCONTROLKEY_KILL_SWITCH AdministrationControlKey = "KILL_SWITCH"
+	ADMINISTRATIONCONTROLKEY_MAINTENANCE  AdministrationControlKey = "MAINTENANCE"
+	ADMINISTRATIONCONTROLKEY_KILL_SWITCH  AdministrationControlKey = "KILL_SWITCH"
 )
 
 // All allowed values of AdministrationControlKey enum

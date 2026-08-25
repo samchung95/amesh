@@ -20,17 +20,16 @@ import (
 	"time"
 )
 
-
 // AuditAPIService AuditAPI service
 type AuditAPIService service
 
 type ApiCreateAuditLegalHoldApiV1AuditLegalHoldsPostRequest struct {
-	ctx context.Context
-	ApiService *AuditAPIService
+	ctx                  context.Context
+	ApiService           *AuditAPIService
 	auditLegalHoldCreate *AuditLegalHoldCreate
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization        *string
+	xAmeshCSRF           *string
+	xAmeshTenant         *string
 }
 
 func (r ApiCreateAuditLegalHoldApiV1AuditLegalHoldsPostRequest) AuditLegalHoldCreate(auditLegalHoldCreate AuditLegalHoldCreate) ApiCreateAuditLegalHoldApiV1AuditLegalHoldsPostRequest {
@@ -60,24 +59,25 @@ func (r ApiCreateAuditLegalHoldApiV1AuditLegalHoldsPostRequest) Execute() (*Audi
 /*
 CreateAuditLegalHoldApiV1AuditLegalHoldsPost Create Audit Legal Hold
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiCreateAuditLegalHoldApiV1AuditLegalHoldsPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiCreateAuditLegalHoldApiV1AuditLegalHoldsPostRequest
 */
 func (a *AuditAPIService) CreateAuditLegalHoldApiV1AuditLegalHoldsPost(ctx context.Context) ApiCreateAuditLegalHoldApiV1AuditLegalHoldsPostRequest {
 	return ApiCreateAuditLegalHoldApiV1AuditLegalHoldsPostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return AuditLegalHold
+//
+//	@return AuditLegalHold
 func (a *AuditAPIService) CreateAuditLegalHoldApiV1AuditLegalHoldsPostExecute(r ApiCreateAuditLegalHoldApiV1AuditLegalHoldsPostRequest) (*AuditLegalHold, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *AuditLegalHold
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *AuditLegalHold
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AuditAPIService.CreateAuditLegalHoldApiV1AuditLegalHoldsPost")
@@ -151,8 +151,8 @@ func (a *AuditAPIService) CreateAuditLegalHoldApiV1AuditLegalHoldsPostExecute(r 
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -170,12 +170,12 @@ func (a *AuditAPIService) CreateAuditLegalHoldApiV1AuditLegalHoldsPostExecute(r 
 }
 
 type ApiCreateComplianceEvidenceApiV1ComplianceEvidencePostRequest struct {
-	ctx context.Context
-	ApiService *AuditAPIService
+	ctx                      context.Context
+	ApiService               *AuditAPIService
 	complianceEvidenceCreate *ComplianceEvidenceCreate
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization            *string
+	xAmeshCSRF               *string
+	xAmeshTenant             *string
 }
 
 func (r ApiCreateComplianceEvidenceApiV1ComplianceEvidencePostRequest) ComplianceEvidenceCreate(complianceEvidenceCreate ComplianceEvidenceCreate) ApiCreateComplianceEvidenceApiV1ComplianceEvidencePostRequest {
@@ -205,24 +205,25 @@ func (r ApiCreateComplianceEvidenceApiV1ComplianceEvidencePostRequest) Execute()
 /*
 CreateComplianceEvidenceApiV1ComplianceEvidencePost Create Compliance Evidence
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiCreateComplianceEvidenceApiV1ComplianceEvidencePostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiCreateComplianceEvidenceApiV1ComplianceEvidencePostRequest
 */
 func (a *AuditAPIService) CreateComplianceEvidenceApiV1ComplianceEvidencePost(ctx context.Context) ApiCreateComplianceEvidenceApiV1ComplianceEvidencePostRequest {
 	return ApiCreateComplianceEvidenceApiV1ComplianceEvidencePostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return ComplianceEvidenceRecord
+//
+//	@return ComplianceEvidenceRecord
 func (a *AuditAPIService) CreateComplianceEvidenceApiV1ComplianceEvidencePostExecute(r ApiCreateComplianceEvidenceApiV1ComplianceEvidencePostRequest) (*ComplianceEvidenceRecord, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *ComplianceEvidenceRecord
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *ComplianceEvidenceRecord
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AuditAPIService.CreateComplianceEvidenceApiV1ComplianceEvidencePost")
@@ -296,8 +297,8 @@ func (a *AuditAPIService) CreateComplianceEvidenceApiV1ComplianceEvidencePostExe
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -315,12 +316,12 @@ func (a *AuditAPIService) CreateComplianceEvidenceApiV1ComplianceEvidencePostExe
 }
 
 type ApiCreateObjectAuditExportApiV1AuditExportsPostRequest struct {
-	ctx context.Context
-	ApiService *AuditAPIService
+	ctx                context.Context
+	ApiService         *AuditAPIService
 	auditExportRequest *AuditExportRequest
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization      *string
+	xAmeshCSRF         *string
+	xAmeshTenant       *string
 }
 
 func (r ApiCreateObjectAuditExportApiV1AuditExportsPostRequest) AuditExportRequest(auditExportRequest AuditExportRequest) ApiCreateObjectAuditExportApiV1AuditExportsPostRequest {
@@ -350,24 +351,25 @@ func (r ApiCreateObjectAuditExportApiV1AuditExportsPostRequest) Execute() (*Audi
 /*
 CreateObjectAuditExportApiV1AuditExportsPost Create Object Audit Export
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiCreateObjectAuditExportApiV1AuditExportsPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiCreateObjectAuditExportApiV1AuditExportsPostRequest
 */
 func (a *AuditAPIService) CreateObjectAuditExportApiV1AuditExportsPost(ctx context.Context) ApiCreateObjectAuditExportApiV1AuditExportsPostRequest {
 	return ApiCreateObjectAuditExportApiV1AuditExportsPostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return AuditExportReceipt
+//
+//	@return AuditExportReceipt
 func (a *AuditAPIService) CreateObjectAuditExportApiV1AuditExportsPostExecute(r ApiCreateObjectAuditExportApiV1AuditExportsPostRequest) (*AuditExportReceipt, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *AuditExportReceipt
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *AuditExportReceipt
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AuditAPIService.CreateObjectAuditExportApiV1AuditExportsPost")
@@ -441,8 +443,8 @@ func (a *AuditAPIService) CreateObjectAuditExportApiV1AuditExportsPostExecute(r 
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -460,12 +462,12 @@ func (a *AuditAPIService) CreateObjectAuditExportApiV1AuditExportsPostExecute(r 
 }
 
 type ApiCreateObjectCompliancePackageApiV1CompliancePackagesPostRequest struct {
-	ctx context.Context
-	ApiService *AuditAPIService
+	ctx                      context.Context
+	ApiService               *AuditAPIService
 	compliancePackageRequest *CompliancePackageRequest
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization            *string
+	xAmeshCSRF               *string
+	xAmeshTenant             *string
 }
 
 func (r ApiCreateObjectCompliancePackageApiV1CompliancePackagesPostRequest) CompliancePackageRequest(compliancePackageRequest CompliancePackageRequest) ApiCreateObjectCompliancePackageApiV1CompliancePackagesPostRequest {
@@ -495,24 +497,25 @@ func (r ApiCreateObjectCompliancePackageApiV1CompliancePackagesPostRequest) Exec
 /*
 CreateObjectCompliancePackageApiV1CompliancePackagesPost Create Object Compliance Package
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiCreateObjectCompliancePackageApiV1CompliancePackagesPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiCreateObjectCompliancePackageApiV1CompliancePackagesPostRequest
 */
 func (a *AuditAPIService) CreateObjectCompliancePackageApiV1CompliancePackagesPost(ctx context.Context) ApiCreateObjectCompliancePackageApiV1CompliancePackagesPostRequest {
 	return ApiCreateObjectCompliancePackageApiV1CompliancePackagesPostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return AuditExportReceipt
+//
+//	@return AuditExportReceipt
 func (a *AuditAPIService) CreateObjectCompliancePackageApiV1CompliancePackagesPostExecute(r ApiCreateObjectCompliancePackageApiV1CompliancePackagesPostRequest) (*AuditExportReceipt, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *AuditExportReceipt
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *AuditExportReceipt
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AuditAPIService.CreateObjectCompliancePackageApiV1CompliancePackagesPost")
@@ -586,8 +589,8 @@ func (a *AuditAPIService) CreateObjectCompliancePackageApiV1CompliancePackagesPo
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -605,18 +608,18 @@ func (a *AuditAPIService) CreateObjectCompliancePackageApiV1CompliancePackagesPo
 }
 
 type ApiDownloadAuditExportApiV1AuditEventsExportGetRequest struct {
-	ctx context.Context
-	ApiService *AuditAPIService
-	format *AuditExportFormat
-	limit *int32
-	action *string
-	resourceType *string
-	outcome *string
-	occurredFrom *time.Time
-	occurredTo *time.Time
+	ctx           context.Context
+	ApiService    *AuditAPIService
+	format        *AuditExportFormat
+	limit         *int32
+	action        *string
+	resourceType  *string
+	outcome       *string
+	occurredFrom  *time.Time
+	occurredTo    *time.Time
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiDownloadAuditExportApiV1AuditEventsExportGetRequest) Format(format AuditExportFormat) ApiDownloadAuditExportApiV1AuditEventsExportGetRequest {
@@ -676,24 +679,25 @@ func (r ApiDownloadAuditExportApiV1AuditEventsExportGetRequest) Execute() (inter
 /*
 DownloadAuditExportApiV1AuditEventsExportGet Download Audit Export
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiDownloadAuditExportApiV1AuditEventsExportGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiDownloadAuditExportApiV1AuditEventsExportGetRequest
 */
 func (a *AuditAPIService) DownloadAuditExportApiV1AuditEventsExportGet(ctx context.Context) ApiDownloadAuditExportApiV1AuditEventsExportGetRequest {
 	return ApiDownloadAuditExportApiV1AuditEventsExportGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return interface{}
+//
+//	@return interface{}
 func (a *AuditAPIService) DownloadAuditExportApiV1AuditEventsExportGetExecute(r ApiDownloadAuditExportApiV1AuditEventsExportGetRequest) (interface{}, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  interface{}
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue interface{}
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AuditAPIService.DownloadAuditExportApiV1AuditEventsExportGet")
@@ -791,8 +795,8 @@ func (a *AuditAPIService) DownloadAuditExportApiV1AuditEventsExportGetExecute(r 
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -810,14 +814,14 @@ func (a *AuditAPIService) DownloadAuditExportApiV1AuditEventsExportGetExecute(r 
 }
 
 type ApiDownloadCompliancePackageApiV1CompliancePackagesExportGetRequest struct {
-	ctx context.Context
-	ApiService *AuditAPIService
-	occurredFrom *time.Time
-	occurredTo *time.Time
+	ctx            context.Context
+	ApiService     *AuditAPIService
+	occurredFrom   *time.Time
+	occurredTo     *time.Time
 	maxAuditEvents *int32
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization  *string
+	xAmeshCSRF     *string
+	xAmeshTenant   *string
 }
 
 func (r ApiDownloadCompliancePackageApiV1CompliancePackagesExportGetRequest) OccurredFrom(occurredFrom time.Time) ApiDownloadCompliancePackageApiV1CompliancePackagesExportGetRequest {
@@ -857,24 +861,25 @@ func (r ApiDownloadCompliancePackageApiV1CompliancePackagesExportGetRequest) Exe
 /*
 DownloadCompliancePackageApiV1CompliancePackagesExportGet Download Compliance Package
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiDownloadCompliancePackageApiV1CompliancePackagesExportGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiDownloadCompliancePackageApiV1CompliancePackagesExportGetRequest
 */
 func (a *AuditAPIService) DownloadCompliancePackageApiV1CompliancePackagesExportGet(ctx context.Context) ApiDownloadCompliancePackageApiV1CompliancePackagesExportGetRequest {
 	return ApiDownloadCompliancePackageApiV1CompliancePackagesExportGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return interface{}
+//
+//	@return interface{}
 func (a *AuditAPIService) DownloadCompliancePackageApiV1CompliancePackagesExportGetExecute(r ApiDownloadCompliancePackageApiV1CompliancePackagesExportGetRequest) (interface{}, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  interface{}
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue interface{}
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AuditAPIService.DownloadCompliancePackageApiV1CompliancePackagesExportGet")
@@ -956,8 +961,8 @@ func (a *AuditAPIService) DownloadCompliancePackageApiV1CompliancePackagesExport
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -975,11 +980,11 @@ func (a *AuditAPIService) DownloadCompliancePackageApiV1CompliancePackagesExport
 }
 
 type ApiGetAuditPolicyApiV1AuditPolicyGetRequest struct {
-	ctx context.Context
-	ApiService *AuditAPIService
+	ctx           context.Context
+	ApiService    *AuditAPIService
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiGetAuditPolicyApiV1AuditPolicyGetRequest) Authorization(authorization string) ApiGetAuditPolicyApiV1AuditPolicyGetRequest {
@@ -1004,24 +1009,25 @@ func (r ApiGetAuditPolicyApiV1AuditPolicyGetRequest) Execute() (*AuditRetentionP
 /*
 GetAuditPolicyApiV1AuditPolicyGet Get Audit Policy
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiGetAuditPolicyApiV1AuditPolicyGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiGetAuditPolicyApiV1AuditPolicyGetRequest
 */
 func (a *AuditAPIService) GetAuditPolicyApiV1AuditPolicyGet(ctx context.Context) ApiGetAuditPolicyApiV1AuditPolicyGetRequest {
 	return ApiGetAuditPolicyApiV1AuditPolicyGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return AuditRetentionPolicy
+//
+//	@return AuditRetentionPolicy
 func (a *AuditAPIService) GetAuditPolicyApiV1AuditPolicyGetExecute(r ApiGetAuditPolicyApiV1AuditPolicyGetRequest) (*AuditRetentionPolicy, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *AuditRetentionPolicy
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *AuditRetentionPolicy
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AuditAPIService.GetAuditPolicyApiV1AuditPolicyGet")
@@ -1090,8 +1096,8 @@ func (a *AuditAPIService) GetAuditPolicyApiV1AuditPolicyGetExecute(r ApiGetAudit
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1109,18 +1115,18 @@ func (a *AuditAPIService) GetAuditPolicyApiV1AuditPolicyGetExecute(r ApiGetAudit
 }
 
 type ApiListAuditEventsApiV1AuditEventsGetRequest struct {
-	ctx context.Context
-	ApiService *AuditAPIService
-	cursor *int32
-	limit *int32
-	action *string
-	resourceType *string
-	outcome *string
-	occurredFrom *time.Time
-	occurredTo *time.Time
+	ctx           context.Context
+	ApiService    *AuditAPIService
+	cursor        *int32
+	limit         *int32
+	action        *string
+	resourceType  *string
+	outcome       *string
+	occurredFrom  *time.Time
+	occurredTo    *time.Time
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiListAuditEventsApiV1AuditEventsGetRequest) Cursor(cursor int32) ApiListAuditEventsApiV1AuditEventsGetRequest {
@@ -1180,24 +1186,25 @@ func (r ApiListAuditEventsApiV1AuditEventsGetRequest) Execute() (*AuditEventPage
 /*
 ListAuditEventsApiV1AuditEventsGet List Audit Events
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiListAuditEventsApiV1AuditEventsGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiListAuditEventsApiV1AuditEventsGetRequest
 */
 func (a *AuditAPIService) ListAuditEventsApiV1AuditEventsGet(ctx context.Context) ApiListAuditEventsApiV1AuditEventsGetRequest {
 	return ApiListAuditEventsApiV1AuditEventsGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return AuditEventPage
+//
+//	@return AuditEventPage
 func (a *AuditAPIService) ListAuditEventsApiV1AuditEventsGetExecute(r ApiListAuditEventsApiV1AuditEventsGetRequest) (*AuditEventPage, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *AuditEventPage
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *AuditEventPage
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AuditAPIService.ListAuditEventsApiV1AuditEventsGet")
@@ -1291,8 +1298,8 @@ func (a *AuditAPIService) ListAuditEventsApiV1AuditEventsGetExecute(r ApiListAud
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1310,11 +1317,11 @@ func (a *AuditAPIService) ListAuditEventsApiV1AuditEventsGetExecute(r ApiListAud
 }
 
 type ApiListAuditLegalHoldsApiV1AuditLegalHoldsGetRequest struct {
-	ctx context.Context
-	ApiService *AuditAPIService
+	ctx           context.Context
+	ApiService    *AuditAPIService
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiListAuditLegalHoldsApiV1AuditLegalHoldsGetRequest) Authorization(authorization string) ApiListAuditLegalHoldsApiV1AuditLegalHoldsGetRequest {
@@ -1339,24 +1346,25 @@ func (r ApiListAuditLegalHoldsApiV1AuditLegalHoldsGetRequest) Execute() ([]Audit
 /*
 ListAuditLegalHoldsApiV1AuditLegalHoldsGet List Audit Legal Holds
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiListAuditLegalHoldsApiV1AuditLegalHoldsGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiListAuditLegalHoldsApiV1AuditLegalHoldsGetRequest
 */
 func (a *AuditAPIService) ListAuditLegalHoldsApiV1AuditLegalHoldsGet(ctx context.Context) ApiListAuditLegalHoldsApiV1AuditLegalHoldsGetRequest {
 	return ApiListAuditLegalHoldsApiV1AuditLegalHoldsGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return []AuditLegalHold
+//
+//	@return []AuditLegalHold
 func (a *AuditAPIService) ListAuditLegalHoldsApiV1AuditLegalHoldsGetExecute(r ApiListAuditLegalHoldsApiV1AuditLegalHoldsGetRequest) ([]AuditLegalHold, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  []AuditLegalHold
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []AuditLegalHold
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AuditAPIService.ListAuditLegalHoldsApiV1AuditLegalHoldsGet")
@@ -1425,8 +1433,8 @@ func (a *AuditAPIService) ListAuditLegalHoldsApiV1AuditLegalHoldsGetExecute(r Ap
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1444,11 +1452,11 @@ func (a *AuditAPIService) ListAuditLegalHoldsApiV1AuditLegalHoldsGetExecute(r Ap
 }
 
 type ApiListComplianceEvidenceApiV1ComplianceEvidenceGetRequest struct {
-	ctx context.Context
-	ApiService *AuditAPIService
+	ctx           context.Context
+	ApiService    *AuditAPIService
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiListComplianceEvidenceApiV1ComplianceEvidenceGetRequest) Authorization(authorization string) ApiListComplianceEvidenceApiV1ComplianceEvidenceGetRequest {
@@ -1473,24 +1481,25 @@ func (r ApiListComplianceEvidenceApiV1ComplianceEvidenceGetRequest) Execute() ([
 /*
 ListComplianceEvidenceApiV1ComplianceEvidenceGet List Compliance Evidence
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiListComplianceEvidenceApiV1ComplianceEvidenceGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiListComplianceEvidenceApiV1ComplianceEvidenceGetRequest
 */
 func (a *AuditAPIService) ListComplianceEvidenceApiV1ComplianceEvidenceGet(ctx context.Context) ApiListComplianceEvidenceApiV1ComplianceEvidenceGetRequest {
 	return ApiListComplianceEvidenceApiV1ComplianceEvidenceGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return []ComplianceEvidenceRecord
+//
+//	@return []ComplianceEvidenceRecord
 func (a *AuditAPIService) ListComplianceEvidenceApiV1ComplianceEvidenceGetExecute(r ApiListComplianceEvidenceApiV1ComplianceEvidenceGetRequest) ([]ComplianceEvidenceRecord, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  []ComplianceEvidenceRecord
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []ComplianceEvidenceRecord
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AuditAPIService.ListComplianceEvidenceApiV1ComplianceEvidenceGet")
@@ -1559,8 +1568,8 @@ func (a *AuditAPIService) ListComplianceEvidenceApiV1ComplianceEvidenceGetExecut
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1578,11 +1587,11 @@ func (a *AuditAPIService) ListComplianceEvidenceApiV1ComplianceEvidenceGetExecut
 }
 
 type ApiPurgeAuditRetentionApiV1AuditRetentionPurgePostRequest struct {
-	ctx context.Context
-	ApiService *AuditAPIService
+	ctx           context.Context
+	ApiService    *AuditAPIService
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiPurgeAuditRetentionApiV1AuditRetentionPurgePostRequest) Authorization(authorization string) ApiPurgeAuditRetentionApiV1AuditRetentionPurgePostRequest {
@@ -1607,24 +1616,25 @@ func (r ApiPurgeAuditRetentionApiV1AuditRetentionPurgePostRequest) Execute() (*A
 /*
 PurgeAuditRetentionApiV1AuditRetentionPurgePost Purge Audit Retention
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiPurgeAuditRetentionApiV1AuditRetentionPurgePostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiPurgeAuditRetentionApiV1AuditRetentionPurgePostRequest
 */
 func (a *AuditAPIService) PurgeAuditRetentionApiV1AuditRetentionPurgePost(ctx context.Context) ApiPurgeAuditRetentionApiV1AuditRetentionPurgePostRequest {
 	return ApiPurgeAuditRetentionApiV1AuditRetentionPurgePostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return AuditRetentionResult
+//
+//	@return AuditRetentionResult
 func (a *AuditAPIService) PurgeAuditRetentionApiV1AuditRetentionPurgePostExecute(r ApiPurgeAuditRetentionApiV1AuditRetentionPurgePostRequest) (*AuditRetentionResult, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *AuditRetentionResult
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *AuditRetentionResult
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AuditAPIService.PurgeAuditRetentionApiV1AuditRetentionPurgePost")
@@ -1693,8 +1703,8 @@ func (a *AuditAPIService) PurgeAuditRetentionApiV1AuditRetentionPurgePostExecute
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1712,12 +1722,12 @@ func (a *AuditAPIService) PurgeAuditRetentionApiV1AuditRetentionPurgePostExecute
 }
 
 type ApiReleaseAuditLegalHoldApiV1AuditLegalHoldsHoldIdDeleteRequest struct {
-	ctx context.Context
-	ApiService *AuditAPIService
-	holdId string
+	ctx           context.Context
+	ApiService    *AuditAPIService
+	holdId        string
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiReleaseAuditLegalHoldApiV1AuditLegalHoldsHoldIdDeleteRequest) Authorization(authorization string) ApiReleaseAuditLegalHoldApiV1AuditLegalHoldsHoldIdDeleteRequest {
@@ -1742,26 +1752,27 @@ func (r ApiReleaseAuditLegalHoldApiV1AuditLegalHoldsHoldIdDeleteRequest) Execute
 /*
 ReleaseAuditLegalHoldApiV1AuditLegalHoldsHoldIdDelete Release Audit Legal Hold
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param holdId
- @return ApiReleaseAuditLegalHoldApiV1AuditLegalHoldsHoldIdDeleteRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param holdId
+	@return ApiReleaseAuditLegalHoldApiV1AuditLegalHoldsHoldIdDeleteRequest
 */
 func (a *AuditAPIService) ReleaseAuditLegalHoldApiV1AuditLegalHoldsHoldIdDelete(ctx context.Context, holdId string) ApiReleaseAuditLegalHoldApiV1AuditLegalHoldsHoldIdDeleteRequest {
 	return ApiReleaseAuditLegalHoldApiV1AuditLegalHoldsHoldIdDeleteRequest{
 		ApiService: a,
-		ctx: ctx,
-		holdId: holdId,
+		ctx:        ctx,
+		holdId:     holdId,
 	}
 }
 
 // Execute executes the request
-//  @return AuditLegalHold
+//
+//	@return AuditLegalHold
 func (a *AuditAPIService) ReleaseAuditLegalHoldApiV1AuditLegalHoldsHoldIdDeleteExecute(r ApiReleaseAuditLegalHoldApiV1AuditLegalHoldsHoldIdDeleteRequest) (*AuditLegalHold, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodDelete
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *AuditLegalHold
+		localVarHTTPMethod  = http.MethodDelete
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *AuditLegalHold
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AuditAPIService.ReleaseAuditLegalHoldApiV1AuditLegalHoldsHoldIdDelete")
@@ -1831,8 +1842,8 @@ func (a *AuditAPIService) ReleaseAuditLegalHoldApiV1AuditLegalHoldsHoldIdDeleteE
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1850,12 +1861,12 @@ func (a *AuditAPIService) ReleaseAuditLegalHoldApiV1AuditLegalHoldsHoldIdDeleteE
 }
 
 type ApiUpdateAuditPolicyApiV1AuditPolicyPutRequest struct {
-	ctx context.Context
-	ApiService *AuditAPIService
+	ctx                        context.Context
+	ApiService                 *AuditAPIService
 	auditRetentionPolicyUpdate *AuditRetentionPolicyUpdate
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization              *string
+	xAmeshCSRF                 *string
+	xAmeshTenant               *string
 }
 
 func (r ApiUpdateAuditPolicyApiV1AuditPolicyPutRequest) AuditRetentionPolicyUpdate(auditRetentionPolicyUpdate AuditRetentionPolicyUpdate) ApiUpdateAuditPolicyApiV1AuditPolicyPutRequest {
@@ -1885,24 +1896,25 @@ func (r ApiUpdateAuditPolicyApiV1AuditPolicyPutRequest) Execute() (*AuditRetenti
 /*
 UpdateAuditPolicyApiV1AuditPolicyPut Update Audit Policy
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiUpdateAuditPolicyApiV1AuditPolicyPutRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiUpdateAuditPolicyApiV1AuditPolicyPutRequest
 */
 func (a *AuditAPIService) UpdateAuditPolicyApiV1AuditPolicyPut(ctx context.Context) ApiUpdateAuditPolicyApiV1AuditPolicyPutRequest {
 	return ApiUpdateAuditPolicyApiV1AuditPolicyPutRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return AuditRetentionPolicy
+//
+//	@return AuditRetentionPolicy
 func (a *AuditAPIService) UpdateAuditPolicyApiV1AuditPolicyPutExecute(r ApiUpdateAuditPolicyApiV1AuditPolicyPutRequest) (*AuditRetentionPolicy, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPut
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *AuditRetentionPolicy
+		localVarHTTPMethod  = http.MethodPut
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *AuditRetentionPolicy
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AuditAPIService.UpdateAuditPolicyApiV1AuditPolicyPut")
@@ -1976,8 +1988,8 @@ func (a *AuditAPIService) UpdateAuditPolicyApiV1AuditPolicyPutExecute(r ApiUpdat
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1995,11 +2007,11 @@ func (a *AuditAPIService) UpdateAuditPolicyApiV1AuditPolicyPutExecute(r ApiUpdat
 }
 
 type ApiVerifyAuditIntegrityApiV1AuditEventsIntegrityGetRequest struct {
-	ctx context.Context
-	ApiService *AuditAPIService
+	ctx           context.Context
+	ApiService    *AuditAPIService
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiVerifyAuditIntegrityApiV1AuditEventsIntegrityGetRequest) Authorization(authorization string) ApiVerifyAuditIntegrityApiV1AuditEventsIntegrityGetRequest {
@@ -2024,24 +2036,25 @@ func (r ApiVerifyAuditIntegrityApiV1AuditEventsIntegrityGetRequest) Execute() (*
 /*
 VerifyAuditIntegrityApiV1AuditEventsIntegrityGet Verify Audit Integrity
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiVerifyAuditIntegrityApiV1AuditEventsIntegrityGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiVerifyAuditIntegrityApiV1AuditEventsIntegrityGetRequest
 */
 func (a *AuditAPIService) VerifyAuditIntegrityApiV1AuditEventsIntegrityGet(ctx context.Context) ApiVerifyAuditIntegrityApiV1AuditEventsIntegrityGetRequest {
 	return ApiVerifyAuditIntegrityApiV1AuditEventsIntegrityGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return AuditIntegrityReport
+//
+//	@return AuditIntegrityReport
 func (a *AuditAPIService) VerifyAuditIntegrityApiV1AuditEventsIntegrityGetExecute(r ApiVerifyAuditIntegrityApiV1AuditEventsIntegrityGetRequest) (*AuditIntegrityReport, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *AuditIntegrityReport
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *AuditIntegrityReport
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AuditAPIService.VerifyAuditIntegrityApiV1AuditEventsIntegrityGet")
@@ -2110,8 +2123,8 @@ func (a *AuditAPIService) VerifyAuditIntegrityApiV1AuditEventsIntegrityGetExecut
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}

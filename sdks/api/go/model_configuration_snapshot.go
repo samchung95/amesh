@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the ConfigurationSnapshot type satisfies the MappedNullable interface at compile time
@@ -22,13 +22,13 @@ var _ MappedNullable = &ConfigurationSnapshot{}
 
 // ConfigurationSnapshot struct for ConfigurationSnapshot
 type ConfigurationSnapshot struct {
-	Entries []ConfigurationEntry `json:"entries"`
-	Fingerprint string `json:"fingerprint"`
-	LoadedAt time.Time `json:"loaded_at"`
-	Precedence []string `json:"precedence,omitempty"`
-	SchemaVersion *int32 `json:"schema_version,omitempty"`
-	Version int32 `json:"version"`
-	Warnings []string `json:"warnings,omitempty"`
+	Entries       []ConfigurationEntry `json:"entries"`
+	Fingerprint   string               `json:"fingerprint"`
+	LoadedAt      time.Time            `json:"loaded_at"`
+	Precedence    []string             `json:"precedence,omitempty"`
+	SchemaVersion *int32               `json:"schema_version,omitempty"`
+	Version       int32                `json:"version"`
+	Warnings      []string             `json:"warnings,omitempty"`
 }
 
 type _ConfigurationSnapshot ConfigurationSnapshot
@@ -251,7 +251,7 @@ func (o *ConfigurationSnapshot) SetWarnings(v []string) {
 }
 
 func (o ConfigurationSnapshot) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -292,10 +292,10 @@ func (o *ConfigurationSnapshot) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

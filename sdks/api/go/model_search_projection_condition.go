@@ -20,10 +20,10 @@ type SearchProjectionCondition string
 
 // List of SearchProjectionCondition
 const (
-	SEARCHPROJECTIONCONDITION_READY SearchProjectionCondition = "READY"
+	SEARCHPROJECTIONCONDITION_READY      SearchProjectionCondition = "READY"
 	SEARCHPROJECTIONCONDITION_REBUILDING SearchProjectionCondition = "REBUILDING"
-	SEARCHPROJECTIONCONDITION_DEGRADED SearchProjectionCondition = "DEGRADED"
-	SEARCHPROJECTIONCONDITION_DISABLED SearchProjectionCondition = "DISABLED"
+	SEARCHPROJECTIONCONDITION_DEGRADED   SearchProjectionCondition = "DEGRADED"
+	SEARCHPROJECTIONCONDITION_DISABLED   SearchProjectionCondition = "DISABLED"
 )
 
 // All allowed values of SearchProjectionCondition enum

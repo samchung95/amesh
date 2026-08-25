@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,10 +21,10 @@ var _ MappedNullable = &PolicyPin{}
 
 // PolicyPin struct for PolicyPin
 type PolicyPin struct {
-	Digest string `json:"digest"`
-	PolicyId string `json:"policyId"`
+	Digest    string `json:"digest"`
+	PolicyId  string `json:"policyId"`
 	PolicyKey string `json:"policyKey"`
-	Revision int32 `json:"revision"`
+	Revision  int32  `json:"revision"`
 }
 
 type _PolicyPin PolicyPin
@@ -147,7 +147,7 @@ func (o *PolicyPin) SetRevision(v int32) {
 }
 
 func (o PolicyPin) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -179,10 +179,10 @@ func (o *PolicyPin) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

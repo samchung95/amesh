@@ -28,6 +28,7 @@ class ServiceState(str, Enum):
     """
     STARTING = 'STARTING'
     READY = 'READY'
+    DEGRADED = 'DEGRADED'
     DRAINING = 'DRAINING'
     STOPPED = 'STOPPED'
 

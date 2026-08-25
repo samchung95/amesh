@@ -20,17 +20,17 @@ var _ MappedNullable = &FormField{}
 
 // FormField struct for FormField
 type FormField struct {
-	Default NullableAnyOf `json:"default,omitempty"`
-	HelpText *string `json:"helpText,omitempty"`
-	Id string `json:"id" validate:"regexp=^[A-Za-z_][A-Za-z0-9_.-]{0\\,127}$"`
-	Label string `json:"label"`
-	Options []interface{} `json:"options,omitempty"`
-	Placeholder NullableString `json:"placeholder,omitempty"`
-	Required *bool `json:"required,omitempty"`
-	Schema map[string]interface{} `json:"schema,omitempty"`
-	Sensitive *bool `json:"sensitive,omitempty"`
-	Type string `json:"type"`
-	Validation map[string]interface{} `json:"validation,omitempty"`
+	Default              NullableAnyOf          `json:"default,omitempty"`
+	HelpText             *string                `json:"helpText,omitempty"`
+	Id                   string                 `json:"id" validate:"regexp=^[A-Za-z_][A-Za-z0-9_.-]{0\\,127}$"`
+	Label                string                 `json:"label"`
+	Options              []interface{}          `json:"options,omitempty"`
+	Placeholder          NullableString         `json:"placeholder,omitempty"`
+	Required             *bool                  `json:"required,omitempty"`
+	Schema               map[string]interface{} `json:"schema,omitempty"`
+	Sensitive            *bool                  `json:"sensitive,omitempty"`
+	Type                 string                 `json:"type"`
+	Validation           map[string]interface{} `json:"validation,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -100,6 +100,7 @@ func (o *FormField) HasDefault() bool {
 func (o *FormField) SetDefault(v AnyOf) {
 	o.Default.Set(&v)
 }
+
 // SetDefaultNil sets the value for Default to be an explicit nil
 func (o *FormField) SetDefaultNil() {
 	o.Default.Set(nil)
@@ -254,6 +255,7 @@ func (o *FormField) HasPlaceholder() bool {
 func (o *FormField) SetPlaceholder(v string) {
 	o.Placeholder.Set(&v)
 }
+
 // SetPlaceholderNil sets the value for Placeholder to be an explicit nil
 func (o *FormField) SetPlaceholderNil() {
 	o.Placeholder.Set(nil)
@@ -417,7 +419,7 @@ func (o *FormField) SetValidation(v map[string]interface{}) {
 }
 
 func (o FormField) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -476,10 +478,10 @@ func (o *FormField) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

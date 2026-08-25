@@ -18,17 +18,16 @@ import (
 	"net/url"
 )
 
-
 // SearchAPIService SearchAPI service
 type SearchAPIService service
 
 type ApiControlSearchProjectionApiV1SearchControlPostRequest struct {
-	ctx context.Context
-	ApiService *SearchAPIService
+	ctx                            context.Context
+	ApiService                     *SearchAPIService
 	searchProjectionControlRequest *SearchProjectionControlRequest
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization                  *string
+	xAmeshCSRF                     *string
+	xAmeshTenant                   *string
 }
 
 func (r ApiControlSearchProjectionApiV1SearchControlPostRequest) SearchProjectionControlRequest(searchProjectionControlRequest SearchProjectionControlRequest) ApiControlSearchProjectionApiV1SearchControlPostRequest {
@@ -58,24 +57,25 @@ func (r ApiControlSearchProjectionApiV1SearchControlPostRequest) Execute() (*Sea
 /*
 ControlSearchProjectionApiV1SearchControlPost Control Search Projection
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiControlSearchProjectionApiV1SearchControlPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiControlSearchProjectionApiV1SearchControlPostRequest
 */
 func (a *SearchAPIService) ControlSearchProjectionApiV1SearchControlPost(ctx context.Context) ApiControlSearchProjectionApiV1SearchControlPostRequest {
 	return ApiControlSearchProjectionApiV1SearchControlPostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return SearchProjectionStatus
+//
+//	@return SearchProjectionStatus
 func (a *SearchAPIService) ControlSearchProjectionApiV1SearchControlPostExecute(r ApiControlSearchProjectionApiV1SearchControlPostRequest) (*SearchProjectionStatus, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *SearchProjectionStatus
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *SearchProjectionStatus
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "SearchAPIService.ControlSearchProjectionApiV1SearchControlPost")
@@ -149,8 +149,8 @@ func (a *SearchAPIService) ControlSearchProjectionApiV1SearchControlPostExecute(
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -168,11 +168,11 @@ func (a *SearchAPIService) ControlSearchProjectionApiV1SearchControlPostExecute(
 }
 
 type ApiGetSearchStatusApiV1SearchStatusGetRequest struct {
-	ctx context.Context
-	ApiService *SearchAPIService
+	ctx           context.Context
+	ApiService    *SearchAPIService
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiGetSearchStatusApiV1SearchStatusGetRequest) Authorization(authorization string) ApiGetSearchStatusApiV1SearchStatusGetRequest {
@@ -197,24 +197,25 @@ func (r ApiGetSearchStatusApiV1SearchStatusGetRequest) Execute() (*SearchProject
 /*
 GetSearchStatusApiV1SearchStatusGet Get Search Status
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiGetSearchStatusApiV1SearchStatusGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiGetSearchStatusApiV1SearchStatusGetRequest
 */
 func (a *SearchAPIService) GetSearchStatusApiV1SearchStatusGet(ctx context.Context) ApiGetSearchStatusApiV1SearchStatusGetRequest {
 	return ApiGetSearchStatusApiV1SearchStatusGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return SearchProjectionStatus
+//
+//	@return SearchProjectionStatus
 func (a *SearchAPIService) GetSearchStatusApiV1SearchStatusGetExecute(r ApiGetSearchStatusApiV1SearchStatusGetRequest) (*SearchProjectionStatus, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *SearchProjectionStatus
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *SearchProjectionStatus
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "SearchAPIService.GetSearchStatusApiV1SearchStatusGet")
@@ -283,8 +284,8 @@ func (a *SearchAPIService) GetSearchStatusApiV1SearchStatusGetExecute(r ApiGetSe
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -302,12 +303,12 @@ func (a *SearchAPIService) GetSearchStatusApiV1SearchStatusGetExecute(r ApiGetSe
 }
 
 type ApiRebuildSearchProjectionApiV1SearchRebuildPostRequest struct {
-	ctx context.Context
-	ApiService *SearchAPIService
+	ctx                  context.Context
+	ApiService           *SearchAPIService
 	searchRebuildRequest *SearchRebuildRequest
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization        *string
+	xAmeshCSRF           *string
+	xAmeshTenant         *string
 }
 
 func (r ApiRebuildSearchProjectionApiV1SearchRebuildPostRequest) SearchRebuildRequest(searchRebuildRequest SearchRebuildRequest) ApiRebuildSearchProjectionApiV1SearchRebuildPostRequest {
@@ -337,24 +338,25 @@ func (r ApiRebuildSearchProjectionApiV1SearchRebuildPostRequest) Execute() (*Sea
 /*
 RebuildSearchProjectionApiV1SearchRebuildPost Rebuild Search Projection
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiRebuildSearchProjectionApiV1SearchRebuildPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiRebuildSearchProjectionApiV1SearchRebuildPostRequest
 */
 func (a *SearchAPIService) RebuildSearchProjectionApiV1SearchRebuildPost(ctx context.Context) ApiRebuildSearchProjectionApiV1SearchRebuildPostRequest {
 	return ApiRebuildSearchProjectionApiV1SearchRebuildPostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return SearchProjectionStatus
+//
+//	@return SearchProjectionStatus
 func (a *SearchAPIService) RebuildSearchProjectionApiV1SearchRebuildPostExecute(r ApiRebuildSearchProjectionApiV1SearchRebuildPostRequest) (*SearchProjectionStatus, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *SearchProjectionStatus
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *SearchProjectionStatus
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "SearchAPIService.RebuildSearchProjectionApiV1SearchRebuildPost")
@@ -428,8 +430,8 @@ func (a *SearchAPIService) RebuildSearchProjectionApiV1SearchRebuildPostExecute(
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -447,12 +449,12 @@ func (a *SearchAPIService) RebuildSearchProjectionApiV1SearchRebuildPostExecute(
 }
 
 type ApiSearchResourcesApiV1SearchPostRequest struct {
-	ctx context.Context
-	ApiService *SearchAPIService
+	ctx           context.Context
+	ApiService    *SearchAPIService
 	searchRequest *SearchRequest
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiSearchResourcesApiV1SearchPostRequest) SearchRequest(searchRequest SearchRequest) ApiSearchResourcesApiV1SearchPostRequest {
@@ -482,24 +484,25 @@ func (r ApiSearchResourcesApiV1SearchPostRequest) Execute() (*SearchResponse, *h
 /*
 SearchResourcesApiV1SearchPost Search Resources
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiSearchResourcesApiV1SearchPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiSearchResourcesApiV1SearchPostRequest
 */
 func (a *SearchAPIService) SearchResourcesApiV1SearchPost(ctx context.Context) ApiSearchResourcesApiV1SearchPostRequest {
 	return ApiSearchResourcesApiV1SearchPostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return SearchResponse
+//
+//	@return SearchResponse
 func (a *SearchAPIService) SearchResourcesApiV1SearchPostExecute(r ApiSearchResourcesApiV1SearchPostRequest) (*SearchResponse, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *SearchResponse
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *SearchResponse
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "SearchAPIService.SearchResourcesApiV1SearchPost")
@@ -573,8 +576,8 @@ func (a *SearchAPIService) SearchResourcesApiV1SearchPostExecute(r ApiSearchReso
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -592,11 +595,11 @@ func (a *SearchAPIService) SearchResourcesApiV1SearchPostExecute(r ApiSearchReso
 }
 
 type ApiVerifySearchProjectionApiV1SearchVerifyGetRequest struct {
-	ctx context.Context
-	ApiService *SearchAPIService
+	ctx           context.Context
+	ApiService    *SearchAPIService
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiVerifySearchProjectionApiV1SearchVerifyGetRequest) Authorization(authorization string) ApiVerifySearchProjectionApiV1SearchVerifyGetRequest {
@@ -621,24 +624,25 @@ func (r ApiVerifySearchProjectionApiV1SearchVerifyGetRequest) Execute() (*Search
 /*
 VerifySearchProjectionApiV1SearchVerifyGet Verify Search Projection
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiVerifySearchProjectionApiV1SearchVerifyGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiVerifySearchProjectionApiV1SearchVerifyGetRequest
 */
 func (a *SearchAPIService) VerifySearchProjectionApiV1SearchVerifyGet(ctx context.Context) ApiVerifySearchProjectionApiV1SearchVerifyGetRequest {
 	return ApiVerifySearchProjectionApiV1SearchVerifyGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return SearchProjectionVerification
+//
+//	@return SearchProjectionVerification
 func (a *SearchAPIService) VerifySearchProjectionApiV1SearchVerifyGetExecute(r ApiVerifySearchProjectionApiV1SearchVerifyGetRequest) (*SearchProjectionVerification, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *SearchProjectionVerification
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *SearchProjectionVerification
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "SearchAPIService.VerifySearchProjectionApiV1SearchVerifyGet")
@@ -707,8 +711,8 @@ func (a *SearchAPIService) VerifySearchProjectionApiV1SearchVerifyGetExecute(r A
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}

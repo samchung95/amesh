@@ -10,7 +10,7 @@ Method | HTTP request | Description
 
 
 # **create_kestra_execution_api_v1_executions_namespace_flow_id_post**
-> ExecutionDetail create_kestra_execution_api_v1_executions_namespace_flow_id_post(namespace, flow_id, kestra_execution_request, prefer=prefer, idempotency_key=idempotency_key, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
+> ExecutionDetail create_kestra_execution_api_v1_executions_namespace_flow_id_post(namespace, flow_id, kestra_execution_request, prefer=prefer, idempotency_key=idempotency_key, x_correlation_id=x_correlation_id, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
 
 Create Kestra Execution
 
@@ -40,13 +40,14 @@ with amesh_client.ApiClient(configuration) as api_client:
     kestra_execution_request = amesh_client.KestraExecutionRequest() # KestraExecutionRequest |
     prefer = 'prefer_example' # str |  (optional)
     idempotency_key = 'idempotency_key_example' # str |  (optional)
+    x_correlation_id = 'x_correlation_id_example' # str |  (optional)
     authorization = 'authorization_example' # str |  (optional)
     x_amesh_csrf = 'x_amesh_csrf_example' # str |  (optional)
     x_amesh_tenant = 'x_amesh_tenant_example' # str |  (optional)
 
     try:
         # Create Kestra Execution
-        api_response = api_instance.create_kestra_execution_api_v1_executions_namespace_flow_id_post(namespace, flow_id, kestra_execution_request, prefer=prefer, idempotency_key=idempotency_key, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
+        api_response = api_instance.create_kestra_execution_api_v1_executions_namespace_flow_id_post(namespace, flow_id, kestra_execution_request, prefer=prefer, idempotency_key=idempotency_key, x_correlation_id=x_correlation_id, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
         print("The response of CompatibilityApi->create_kestra_execution_api_v1_executions_namespace_flow_id_post:\n")
         pprint(api_response)
     except Exception as e:
@@ -65,6 +66,7 @@ Name | Type | Description  | Notes
  **kestra_execution_request** | [**KestraExecutionRequest**](KestraExecutionRequest.md)|  |
  **prefer** | **str**|  | [optional]
  **idempotency_key** | **str**|  | [optional]
+ **x_correlation_id** | **str**|  | [optional]
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]

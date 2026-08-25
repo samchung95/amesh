@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the LifecycleJob type satisfies the MappedNullable interface at compile time
@@ -22,32 +22,32 @@ var _ MappedNullable = &LifecycleJob{}
 
 // LifecycleJob struct for LifecycleJob
 type LifecycleJob struct {
-	ActiveRecords int32 `json:"activeRecords"`
-	ActorId string `json:"actorId"`
-	BatchSize int32 `json:"batchSize"`
-	CompletedAt NullableTime `json:"completedAt,omitempty"`
-	ConfirmationPhrase string `json:"confirmationPhrase"`
-	CreatedAt time.Time `json:"createdAt"`
-	Cursor NullableString `json:"cursor,omitempty"`
-	Cutoff time.Time `json:"cutoff"`
-	EstimatedBytes int32 `json:"estimatedBytes"`
-	EstimatedRecords int32 `json:"estimatedRecords"`
-	Evidence map[string]interface{} `json:"evidence"`
-	Id string `json:"id"`
-	LastError NullableString `json:"lastError,omitempty"`
-	PolicyId string `json:"policyId"`
-	PolicySnapshot map[string]interface{} `json:"policySnapshot"`
-	PreviewExpiresAt time.Time `json:"previewExpiresAt"`
-	ProcessedBytes int32 `json:"processedBytes"`
-	ProcessedRecords int32 `json:"processedRecords"`
-	ProtectedRecords int32 `json:"protectedRecords"`
-	Reason string `json:"reason"`
-	RetryCount int32 `json:"retryCount"`
-	StartedAt NullableTime `json:"startedAt,omitempty"`
-	State LifecycleJobState `json:"state"`
-	TenantId string `json:"tenantId"`
-	Trigger LifecycleTrigger `json:"trigger"`
-	UpdatedAt time.Time `json:"updatedAt"`
+	ActiveRecords      int32                  `json:"activeRecords"`
+	ActorId            string                 `json:"actorId"`
+	BatchSize          int32                  `json:"batchSize"`
+	CompletedAt        NullableTime           `json:"completedAt,omitempty"`
+	ConfirmationPhrase string                 `json:"confirmationPhrase"`
+	CreatedAt          time.Time              `json:"createdAt"`
+	Cursor             NullableString         `json:"cursor,omitempty"`
+	Cutoff             time.Time              `json:"cutoff"`
+	EstimatedBytes     int32                  `json:"estimatedBytes"`
+	EstimatedRecords   int32                  `json:"estimatedRecords"`
+	Evidence           map[string]interface{} `json:"evidence"`
+	Id                 string                 `json:"id"`
+	LastError          NullableString         `json:"lastError,omitempty"`
+	PolicyId           string                 `json:"policyId"`
+	PolicySnapshot     map[string]interface{} `json:"policySnapshot"`
+	PreviewExpiresAt   time.Time              `json:"previewExpiresAt"`
+	ProcessedBytes     int32                  `json:"processedBytes"`
+	ProcessedRecords   int32                  `json:"processedRecords"`
+	ProtectedRecords   int32                  `json:"protectedRecords"`
+	Reason             string                 `json:"reason"`
+	RetryCount         int32                  `json:"retryCount"`
+	StartedAt          NullableTime           `json:"startedAt,omitempty"`
+	State              LifecycleJobState      `json:"state"`
+	TenantId           string                 `json:"tenantId"`
+	Trigger            LifecycleTrigger       `json:"trigger"`
+	UpdatedAt          time.Time              `json:"updatedAt"`
 }
 
 type _LifecycleJob LifecycleJob
@@ -195,6 +195,7 @@ func (o *LifecycleJob) HasCompletedAt() bool {
 func (o *LifecycleJob) SetCompletedAt(v time.Time) {
 	o.CompletedAt.Set(&v)
 }
+
 // SetCompletedAtNil sets the value for CompletedAt to be an explicit nil
 func (o *LifecycleJob) SetCompletedAtNil() {
 	o.CompletedAt.Set(nil)
@@ -285,6 +286,7 @@ func (o *LifecycleJob) HasCursor() bool {
 func (o *LifecycleJob) SetCursor(v string) {
 	o.Cursor.Set(&v)
 }
+
 // SetCursorNil sets the value for Cursor to be an explicit nil
 func (o *LifecycleJob) SetCursorNil() {
 	o.Cursor.Set(nil)
@@ -447,6 +449,7 @@ func (o *LifecycleJob) HasLastError() bool {
 func (o *LifecycleJob) SetLastError(v string) {
 	o.LastError.Set(&v)
 }
+
 // SetLastErrorNil sets the value for LastError to be an explicit nil
 func (o *LifecycleJob) SetLastErrorNil() {
 	o.LastError.Set(nil)
@@ -681,6 +684,7 @@ func (o *LifecycleJob) HasStartedAt() bool {
 func (o *LifecycleJob) SetStartedAt(v time.Time) {
 	o.StartedAt.Set(&v)
 }
+
 // SetStartedAtNil sets the value for StartedAt to be an explicit nil
 func (o *LifecycleJob) SetStartedAtNil() {
 	o.StartedAt.Set(nil)
@@ -788,7 +792,7 @@ func (o *LifecycleJob) SetUpdatedAt(v time.Time) {
 }
 
 func (o LifecycleJob) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -868,10 +872,10 @@ func (o *LifecycleJob) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

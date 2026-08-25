@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,16 +21,16 @@ var _ MappedNullable = &AgentRouteCandidate{}
 
 // AgentRouteCandidate struct for AgentRouteCandidate
 type AgentRouteCandidate struct {
-	Agent string `json:"agent" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
-	AgentRevision int32 `json:"agentRevision"`
-	Availability AgentRouteAvailabilitySignal `json:"availability"`
-	Capabilities []string `json:"capabilities"`
-	Evaluation AgentRouteEvaluationSignal `json:"evaluation"`
-	MemberId string `json:"memberId" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
-	Policy AgentRoutePolicySignal `json:"policy"`
-	ProjectedCostUsd Projectedcostusd `json:"projectedCostUsd"`
-	ProjectedLatencyMs int32 `json:"projectedLatencyMs"`
-	Task string `json:"task" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
+	Agent              string                       `json:"agent" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
+	AgentRevision      int32                        `json:"agentRevision"`
+	Availability       AgentRouteAvailabilitySignal `json:"availability"`
+	Capabilities       []string                     `json:"capabilities"`
+	Evaluation         AgentRouteEvaluationSignal   `json:"evaluation"`
+	MemberId           string                       `json:"memberId" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
+	Policy             AgentRoutePolicySignal       `json:"policy"`
+	ProjectedCostUsd   Projectedcostusd             `json:"projectedCostUsd"`
+	ProjectedLatencyMs int32                        `json:"projectedLatencyMs"`
+	Task               string                       `json:"task" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
 }
 
 type _AgentRouteCandidate AgentRouteCandidate
@@ -303,7 +303,7 @@ func (o *AgentRouteCandidate) SetTask(v string) {
 }
 
 func (o AgentRouteCandidate) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -347,10 +347,10 @@ func (o *AgentRouteCandidate) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

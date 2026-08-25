@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the ScimResourceMeta type satisfies the MappedNullable interface at compile time
@@ -22,11 +22,11 @@ var _ MappedNullable = &ScimResourceMeta{}
 
 // ScimResourceMeta struct for ScimResourceMeta
 type ScimResourceMeta struct {
-	Created time.Time `json:"created"`
+	Created      time.Time `json:"created"`
 	LastModified time.Time `json:"lastModified"`
-	Location string `json:"location"`
-	ResourceType string `json:"resourceType"`
-	Version string `json:"version"`
+	Location     string    `json:"location"`
+	ResourceType string    `json:"resourceType"`
+	Version      string    `json:"version"`
 }
 
 type _ScimResourceMeta ScimResourceMeta
@@ -174,7 +174,7 @@ func (o *ScimResourceMeta) SetVersion(v string) {
 }
 
 func (o ScimResourceMeta) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -208,10 +208,10 @@ func (o *ScimResourceMeta) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

@@ -39,6 +39,12 @@ export interface ServiceRoleStatus {
      * @type {number}
      * @memberof ServiceRoleStatus
      */
+    degradedInstances: number;
+    /**
+     *
+     * @type {number}
+     * @memberof ServiceRoleStatus
+     */
     drainingInstances: number;
     /**
      *
@@ -96,6 +102,7 @@ export interface ServiceRoleStatus {
  * Check if a given object implements the ServiceRoleStatus interface.
  */
 export function instanceOfServiceRoleStatus(value: object): value is ServiceRoleStatus {
+    if (!('degradedInstances' in value) || value['degradedInstances'] === undefined) return false;
     if (!('drainingInstances' in value) || value['drainingInstances'] === undefined) return false;
     if (!('failoverStatus' in value) || value['failoverStatus'] === undefined) return false;
     if (!('failureZones' in value) || value['failureZones'] === undefined) return false;
@@ -118,6 +125,7 @@ export function ServiceRoleStatusFromJSONTyped(json: any, ignoreDiscriminator: b
     }
     return {
 
+        'degradedInstances': json['degradedInstances'],
         'drainingInstances': json['drainingInstances'],
         'failoverStatus': FailoverStatusFromJSON(json['failoverStatus']),
         'failureZones': json['failureZones'],
@@ -141,6 +149,7 @@ export function ServiceRoleStatusToJSONTyped(value?: ServiceRoleStatus | null, i
 
     return {
 
+        'degradedInstances': value['degradedInstances'],
         'drainingInstances': value['drainingInstances'],
         'failoverStatus': FailoverStatusToJSON(value['failoverStatus']),
         'failureZones': value['failureZones'],

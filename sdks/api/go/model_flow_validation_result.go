@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,11 +21,11 @@ var _ MappedNullable = &FlowValidationResult{}
 
 // FlowValidationResult struct for FlowValidationResult
 type FlowValidationResult struct {
-	Canonical map[string]interface{} `json:"canonical,omitempty"`
-	IrVersion NullableString `json:"irVersion,omitempty"`
-	Issues []ValidationIssue `json:"issues,omitempty"`
-	SemanticHash NullableString `json:"semantic_hash,omitempty"`
-	Valid bool `json:"valid"`
+	Canonical    map[string]interface{} `json:"canonical,omitempty"`
+	IrVersion    NullableString         `json:"irVersion,omitempty"`
+	Issues       []ValidationIssue      `json:"issues,omitempty"`
+	SemanticHash NullableString         `json:"semantic_hash,omitempty"`
+	Valid        bool                   `json:"valid"`
 }
 
 type _FlowValidationResult FlowValidationResult
@@ -113,6 +113,7 @@ func (o *FlowValidationResult) HasIrVersion() bool {
 func (o *FlowValidationResult) SetIrVersion(v string) {
 	o.IrVersion.Set(&v)
 }
+
 // SetIrVersionNil sets the value for IrVersion to be an explicit nil
 func (o *FlowValidationResult) SetIrVersionNil() {
 	o.IrVersion.Set(nil)
@@ -187,6 +188,7 @@ func (o *FlowValidationResult) HasSemanticHash() bool {
 func (o *FlowValidationResult) SetSemanticHash(v string) {
 	o.SemanticHash.Set(&v)
 }
+
 // SetSemanticHashNil sets the value for SemanticHash to be an explicit nil
 func (o *FlowValidationResult) SetSemanticHashNil() {
 	o.SemanticHash.Set(nil)
@@ -222,7 +224,7 @@ func (o *FlowValidationResult) SetValid(v bool) {
 }
 
 func (o FlowValidationResult) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -260,10 +262,10 @@ func (o *FlowValidationResult) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

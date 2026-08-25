@@ -20,9 +20,9 @@ type CredentialStatus string
 
 // List of CredentialStatus
 const (
-	CREDENTIALSTATUS_ACTIVE CredentialStatus = "ACTIVE"
+	CREDENTIALSTATUS_ACTIVE     CredentialStatus = "ACTIVE"
 	CREDENTIALSTATUS_SUPERSEDED CredentialStatus = "SUPERSEDED"
-	CREDENTIALSTATUS_REVOKED CredentialStatus = "REVOKED"
+	CREDENTIALSTATUS_REVOKED    CredentialStatus = "REVOKED"
 )
 
 // All allowed values of CredentialStatus enum

@@ -6363,6 +6363,42 @@ The system shall interleave agent sessions, ordinary tasks and human approval ta
 _Verification:_ Agent memory-isolation, evaluation, trace, approval-interleaving and release-gate end-to-end tests.
 _Source scope:_ AMESH Agent Mesh differentiator; not a Kestra-parity claim.
 
+#### EPIC-810 — Reliable scheduling and truthful role-aware health
+
+Make AMESH the durable owner of generic schedules while every enabled service role reports its real ability to make progress.
+
+#### EPIC-811 — Client-neutral external orchestration contract
+
+Let any external client version workflows, launch idempotent runs, inspect progress and control executions through a stable neutral contract.
+
+#### EPIC-812 — Canonical execution evidence bundle
+
+Export one versioned, bounded and integrity-checkable record of everything a client needs to explain an execution without exposing secrets or hidden model rationale.
+
+#### EPIC-813 — Pluggable model-provider capabilities and conformance
+
+Run bounded agents against replaceable model providers whose capabilities, continuation state, timeouts, usage and cost semantics are negotiated and tested before provider I/O.
+
+#### EPIC-814 — Unified MCP and plugin ToolProvider contract
+
+Let MCP servers and installable plugins supply tools through one pinned policy, schema, invocation and recovery boundary without embedding domain integrations in core.
+
+#### EPIC-815 — Hardened client-driven local deployment profile
+
+Provide a fail-closed local deployment profile that external clients can safely call without Docker authority, public exposure or unrelated domain credentials.
+
+#### EPIC-816 — Restart, idempotency and large-record qualification
+
+Prove on isolated PostgreSQL and object storage that failures around schedules, agents, tools and evidence lose no accepted data and create no duplicate logical outcome.
+
+#### EPIC-817 — Generic differential and shadow execution
+
+Compare two exact workflow or agent configurations on frozen inputs without permitting uncontrolled side effects or pretending nondeterministic outputs must be byte-identical.
+
+#### EPIC-818 — Evidence-backed promotion, rollback and release gates
+
+Promote an exact workflow or agent revision only when its client-defined policy is satisfied by fresh immutable evidence, with auditable rollback and an immediate kill switch.
+
 ## 5. Non-functional requirements
 
 ### Agent Runtime

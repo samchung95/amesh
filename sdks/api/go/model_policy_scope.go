@@ -20,8 +20,8 @@ type PolicyScope string
 
 // List of PolicyScope
 const (
-	POLICYSCOPE_INSTANCE PolicyScope = "INSTANCE"
-	POLICYSCOPE_TENANT PolicyScope = "TENANT"
+	POLICYSCOPE_INSTANCE  PolicyScope = "INSTANCE"
+	POLICYSCOPE_TENANT    PolicyScope = "TENANT"
 	POLICYSCOPE_NAMESPACE PolicyScope = "NAMESPACE"
 )
 

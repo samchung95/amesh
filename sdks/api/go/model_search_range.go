@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -22,8 +22,8 @@ var _ MappedNullable = &SearchRange{}
 // SearchRange struct for SearchRange
 type SearchRange struct {
 	Field SearchRangeField `json:"field"`
-	Gte NullableGte `json:"gte,omitempty"`
-	Lte NullableLte `json:"lte,omitempty"`
+	Gte   NullableGte      `json:"gte,omitempty"`
+	Lte   NullableLte      `json:"lte,omitempty"`
 }
 
 type _SearchRange SearchRange
@@ -102,6 +102,7 @@ func (o *SearchRange) HasGte() bool {
 func (o *SearchRange) SetGte(v Gte) {
 	o.Gte.Set(&v)
 }
+
 // SetGteNil sets the value for Gte to be an explicit nil
 func (o *SearchRange) SetGteNil() {
 	o.Gte.Set(nil)
@@ -144,6 +145,7 @@ func (o *SearchRange) HasLte() bool {
 func (o *SearchRange) SetLte(v Lte) {
 	o.Lte.Set(&v)
 }
+
 // SetLteNil sets the value for Lte to be an explicit nil
 func (o *SearchRange) SetLteNil() {
 	o.Lte.Set(nil)
@@ -155,7 +157,7 @@ func (o *SearchRange) UnsetLte() {
 }
 
 func (o SearchRange) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -187,10 +189,10 @@ func (o *SearchRange) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

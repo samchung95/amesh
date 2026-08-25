@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,11 +21,11 @@ var _ MappedNullable = &TaskMetricRecord{}
 
 // TaskMetricRecord struct for TaskMetricRecord
 type TaskMetricRecord struct {
-	Kind *MetricKind `json:"kind,omitempty"`
+	Kind   *MetricKind       `json:"kind,omitempty"`
 	Labels map[string]string `json:"labels,omitempty"`
-	Name string `json:"name"`
-	Unit NullableString `json:"unit,omitempty"`
-	Value Value1 `json:"value"`
+	Name   string            `json:"name"`
+	Unit   NullableString    `json:"unit,omitempty"`
+	Value  Value1            `json:"value"`
 }
 
 type _TaskMetricRecord TaskMetricRecord
@@ -173,6 +173,7 @@ func (o *TaskMetricRecord) HasUnit() bool {
 func (o *TaskMetricRecord) SetUnit(v string) {
 	o.Unit.Set(&v)
 }
+
 // SetUnitNil sets the value for Unit to be an explicit nil
 func (o *TaskMetricRecord) SetUnitNil() {
 	o.Unit.Set(nil)
@@ -208,7 +209,7 @@ func (o *TaskMetricRecord) SetValue(v Value1) {
 }
 
 func (o TaskMetricRecord) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -245,10 +246,10 @@ func (o *TaskMetricRecord) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

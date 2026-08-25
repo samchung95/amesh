@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,15 +21,15 @@ var _ MappedNullable = &SimulatedTaskResult{}
 
 // SimulatedTaskResult struct for SimulatedTaskResult
 type SimulatedTaskResult struct {
-	Attempts int32 `json:"attempts"`
-	Branch NullableString `json:"branch,omitempty"`
-	FixtureSource NullableFlowTestFixtureSource `json:"fixtureSource,omitempty"`
-	LifecyclePhase string `json:"lifecyclePhase"`
-	Output map[string]interface{} `json:"output,omitempty"`
-	Reason string `json:"reason"`
-	State FlowTestTaskState `json:"state"`
-	TaskId string `json:"taskId"`
-	TaskType string `json:"taskType"`
+	Attempts       int32                         `json:"attempts"`
+	Branch         NullableString                `json:"branch,omitempty"`
+	FixtureSource  NullableFlowTestFixtureSource `json:"fixtureSource,omitempty"`
+	LifecyclePhase string                        `json:"lifecyclePhase"`
+	Output         map[string]interface{}        `json:"output,omitempty"`
+	Reason         string                        `json:"reason"`
+	State          FlowTestTaskState             `json:"state"`
+	TaskId         string                        `json:"taskId"`
+	TaskType       string                        `json:"taskType"`
 }
 
 type _SimulatedTaskResult SimulatedTaskResult
@@ -113,6 +113,7 @@ func (o *SimulatedTaskResult) HasBranch() bool {
 func (o *SimulatedTaskResult) SetBranch(v string) {
 	o.Branch.Set(&v)
 }
+
 // SetBranchNil sets the value for Branch to be an explicit nil
 func (o *SimulatedTaskResult) SetBranchNil() {
 	o.Branch.Set(nil)
@@ -155,6 +156,7 @@ func (o *SimulatedTaskResult) HasFixtureSource() bool {
 func (o *SimulatedTaskResult) SetFixtureSource(v FlowTestFixtureSource) {
 	o.FixtureSource.Set(&v)
 }
+
 // SetFixtureSourceNil sets the value for FixtureSource to be an explicit nil
 func (o *SimulatedTaskResult) SetFixtureSourceNil() {
 	o.FixtureSource.Set(nil)
@@ -319,7 +321,7 @@ func (o *SimulatedTaskResult) SetTaskType(v string) {
 }
 
 func (o SimulatedTaskResult) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -364,10 +366,10 @@ func (o *SimulatedTaskResult) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

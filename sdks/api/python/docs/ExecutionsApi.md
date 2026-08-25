@@ -11,6 +11,7 @@ Method | HTTP request | Description
 [**get_execution_admission_api_v1_executions_execution_id_admission_get**](ExecutionsApi.md#get_execution_admission_api_v1_executions_execution_id_admission_get) | **GET** /api/v1/executions/{execution_id}/admission | Get Execution Admission
 [**get_execution_api_v1_executions_execution_id_get**](ExecutionsApi.md#get_execution_api_v1_executions_execution_id_get) | **GET** /api/v1/executions/{execution_id} | Get Execution
 [**get_execution_evidence_api_v1_executions_execution_id_evidence_get**](ExecutionsApi.md#get_execution_evidence_api_v1_executions_execution_id_evidence_get) | **GET** /api/v1/executions/{execution_id}/evidence | Get Execution Evidence
+[**get_execution_evidence_bundle_api_v1_executions_execution_id_evidence_bundle_get**](ExecutionsApi.md#get_execution_evidence_bundle_api_v1_executions_execution_id_evidence_bundle_get) | **GET** /api/v1/executions/{execution_id}/evidence-bundle | Get Execution Evidence Bundle
 [**get_execution_graph_api_v1_executions_execution_id_graph_get**](ExecutionsApi.md#get_execution_graph_api_v1_executions_execution_id_graph_get) | **GET** /api/v1/executions/{execution_id}/graph | Get Execution Graph
 [**get_execution_logs_api_v1_executions_execution_id_logs_get**](ExecutionsApi.md#get_execution_logs_api_v1_executions_execution_id_logs_get) | **GET** /api/v1/executions/{execution_id}/logs | Get Execution Logs
 [**get_execution_parent_subflow_api_v1_executions_execution_id_parent_subflow_get**](ExecutionsApi.md#get_execution_parent_subflow_api_v1_executions_execution_id_parent_subflow_get) | **GET** /api/v1/executions/{execution_id}/parent-subflow | Get Execution Parent Subflow
@@ -104,7 +105,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **create_execution_api_v1_executions_post**
-> ExecutionDetail create_execution_api_v1_executions_post(create_execution_request, prefer=prefer, idempotency_key=idempotency_key, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
+> ExecutionDetail create_execution_api_v1_executions_post(create_execution_request, prefer=prefer, idempotency_key=idempotency_key, x_correlation_id=x_correlation_id, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
 
 Create Execution
 
@@ -132,13 +133,14 @@ with amesh_client.ApiClient(configuration) as api_client:
     create_execution_request = amesh_client.CreateExecutionRequest() # CreateExecutionRequest |
     prefer = 'prefer_example' # str |  (optional)
     idempotency_key = 'idempotency_key_example' # str |  (optional)
+    x_correlation_id = 'x_correlation_id_example' # str |  (optional)
     authorization = 'authorization_example' # str |  (optional)
     x_amesh_csrf = 'x_amesh_csrf_example' # str |  (optional)
     x_amesh_tenant = 'x_amesh_tenant_example' # str |  (optional)
 
     try:
         # Create Execution
-        api_response = api_instance.create_execution_api_v1_executions_post(create_execution_request, prefer=prefer, idempotency_key=idempotency_key, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
+        api_response = api_instance.create_execution_api_v1_executions_post(create_execution_request, prefer=prefer, idempotency_key=idempotency_key, x_correlation_id=x_correlation_id, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
         print("The response of ExecutionsApi->create_execution_api_v1_executions_post:\n")
         pprint(api_response)
     except Exception as e:
@@ -155,6 +157,7 @@ Name | Type | Description  | Notes
  **create_execution_request** | [**CreateExecutionRequest**](CreateExecutionRequest.md)|  |
  **prefer** | **str**|  | [optional]
  **idempotency_key** | **str**|  | [optional]
+ **x_correlation_id** | **str**|  | [optional]
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
@@ -183,7 +186,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **create_executions_bulk_api_v1_executions_bulk_post**
-> List[BulkExecutionItemResult] create_executions_bulk_api_v1_executions_bulk_post(bulk_execution_request, prefer=prefer, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
+> List[BulkExecutionItemResult] create_executions_bulk_api_v1_executions_bulk_post(bulk_execution_request, prefer=prefer, x_correlation_id=x_correlation_id, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
 
 Create Executions Bulk
 
@@ -210,13 +213,14 @@ with amesh_client.ApiClient(configuration) as api_client:
     api_instance = amesh_client.ExecutionsApi(api_client)
     bulk_execution_request = amesh_client.BulkExecutionRequest() # BulkExecutionRequest |
     prefer = 'prefer_example' # str |  (optional)
+    x_correlation_id = 'x_correlation_id_example' # str |  (optional)
     authorization = 'authorization_example' # str |  (optional)
     x_amesh_csrf = 'x_amesh_csrf_example' # str |  (optional)
     x_amesh_tenant = 'x_amesh_tenant_example' # str |  (optional)
 
     try:
         # Create Executions Bulk
-        api_response = api_instance.create_executions_bulk_api_v1_executions_bulk_post(bulk_execution_request, prefer=prefer, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
+        api_response = api_instance.create_executions_bulk_api_v1_executions_bulk_post(bulk_execution_request, prefer=prefer, x_correlation_id=x_correlation_id, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
         print("The response of ExecutionsApi->create_executions_bulk_api_v1_executions_bulk_post:\n")
         pprint(api_response)
     except Exception as e:
@@ -232,6 +236,7 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **bulk_execution_request** | [**BulkExecutionRequest**](BulkExecutionRequest.md)|  |
  **prefer** | **str**|  | [optional]
+ **x_correlation_id** | **str**|  | [optional]
  **authorization** | **str**|  | [optional]
  **x_amesh_csrf** | **str**|  | [optional]
  **x_amesh_tenant** | **str**|  | [optional]
@@ -538,6 +543,87 @@ Name | Type | Description  | Notes
 ### Return type
 
 [**ExecutionEvidencePage**](ExecutionEvidencePage.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Successful Response |  -  |
+**422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **get_execution_evidence_bundle_api_v1_executions_execution_id_evidence_bundle_get**
+> EvidenceBundlePageResponse get_execution_evidence_bundle_api_v1_executions_execution_id_evidence_bundle_get(execution_id, section=section, cursor=cursor, limit=limit, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
+
+Get Execution Evidence Bundle
+
+Return a verified, bounded, tenant-scoped canonical evidence projection.
+
+### Example
+
+
+```python
+import amesh_client
+from amesh_client.models.evidence_bundle_page_response import EvidenceBundlePageResponse
+from amesh_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to http://localhost
+# See configuration.py for a list of all supported configuration parameters.
+configuration = amesh_client.Configuration(
+    host = "http://localhost"
+)
+
+
+# Enter a context with an instance of the API client
+with amesh_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = amesh_client.ExecutionsApi(api_client)
+    execution_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID |
+    section = 'trace' # str | Canonical evidence section (optional) (default to 'trace')
+    cursor = 'cursor_example' # str | Opaque section cursor (optional)
+    limit = 100 # int |  (optional) (default to 100)
+    authorization = 'authorization_example' # str |  (optional)
+    x_amesh_csrf = 'x_amesh_csrf_example' # str |  (optional)
+    x_amesh_tenant = 'x_amesh_tenant_example' # str |  (optional)
+
+    try:
+        # Get Execution Evidence Bundle
+        api_response = api_instance.get_execution_evidence_bundle_api_v1_executions_execution_id_evidence_bundle_get(execution_id, section=section, cursor=cursor, limit=limit, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
+        print("The response of ExecutionsApi->get_execution_evidence_bundle_api_v1_executions_execution_id_evidence_bundle_get:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling ExecutionsApi->get_execution_evidence_bundle_api_v1_executions_execution_id_evidence_bundle_get: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **execution_id** | **UUID**|  |
+ **section** | **str**| Canonical evidence section | [optional] [default to &#39;trace&#39;]
+ **cursor** | **str**| Opaque section cursor | [optional]
+ **limit** | **int**|  | [optional] [default to 100]
+ **authorization** | **str**|  | [optional]
+ **x_amesh_csrf** | **str**|  | [optional]
+ **x_amesh_tenant** | **str**|  | [optional]
+
+### Return type
+
+[**EvidenceBundlePageResponse**](EvidenceBundlePageResponse.md)
 
 ### Authorization
 

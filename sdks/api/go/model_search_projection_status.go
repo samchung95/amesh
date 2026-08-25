@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the SearchProjectionStatus type satisfies the MappedNullable interface at compile time
@@ -22,23 +22,23 @@ var _ MappedNullable = &SearchProjectionStatus{}
 
 // SearchProjectionStatus struct for SearchProjectionStatus
 type SearchProjectionStatus struct {
-	ActiveChecksum NullableString `json:"activeChecksum,omitempty"`
-	BuildingVersion NullableInt32 `json:"buildingVersion,omitempty"`
-	CheckpointsVerified *bool `json:"checkpointsVerified,omitempty"`
-	Condition SearchProjectionCondition `json:"condition"`
-	DocumentsIndexed int32 `json:"documentsIndexed"`
-	Enabled *bool `json:"enabled,omitempty"`
-	Failures int32 `json:"failures"`
-	LagSeconds NullableFloat32 `json:"lagSeconds"`
-	LastError NullableString `json:"lastError"`
-	LastProjectedAt NullableTime `json:"lastProjectedAt"`
-	LatestSourceAt NullableTime `json:"latestSourceAt"`
-	Progress float32 `json:"progress"`
-	ProjectionVersion int32 `json:"projectionVersion"`
-	RebuildCompletedAt NullableTime `json:"rebuildCompletedAt"`
-	RebuildStartedAt NullableTime `json:"rebuildStartedAt"`
-	SchemaVersion *int32 `json:"schemaVersion,omitempty"`
-	SourceDocuments int32 `json:"sourceDocuments"`
+	ActiveChecksum      NullableString            `json:"activeChecksum,omitempty"`
+	BuildingVersion     NullableInt32             `json:"buildingVersion,omitempty"`
+	CheckpointsVerified *bool                     `json:"checkpointsVerified,omitempty"`
+	Condition           SearchProjectionCondition `json:"condition"`
+	DocumentsIndexed    int32                     `json:"documentsIndexed"`
+	Enabled             *bool                     `json:"enabled,omitempty"`
+	Failures            int32                     `json:"failures"`
+	LagSeconds          NullableFloat32           `json:"lagSeconds"`
+	LastError           NullableString            `json:"lastError"`
+	LastProjectedAt     NullableTime              `json:"lastProjectedAt"`
+	LatestSourceAt      NullableTime              `json:"latestSourceAt"`
+	Progress            float32                   `json:"progress"`
+	ProjectionVersion   int32                     `json:"projectionVersion"`
+	RebuildCompletedAt  NullableTime              `json:"rebuildCompletedAt"`
+	RebuildStartedAt    NullableTime              `json:"rebuildStartedAt"`
+	SchemaVersion       *int32                    `json:"schemaVersion,omitempty"`
+	SourceDocuments     int32                     `json:"sourceDocuments"`
 }
 
 type _SearchProjectionStatus SearchProjectionStatus
@@ -116,6 +116,7 @@ func (o *SearchProjectionStatus) HasActiveChecksum() bool {
 func (o *SearchProjectionStatus) SetActiveChecksum(v string) {
 	o.ActiveChecksum.Set(&v)
 }
+
 // SetActiveChecksumNil sets the value for ActiveChecksum to be an explicit nil
 func (o *SearchProjectionStatus) SetActiveChecksumNil() {
 	o.ActiveChecksum.Set(nil)
@@ -158,6 +159,7 @@ func (o *SearchProjectionStatus) HasBuildingVersion() bool {
 func (o *SearchProjectionStatus) SetBuildingVersion(v int32) {
 	o.BuildingVersion.Set(&v)
 }
+
 // SetBuildingVersionNil sets the value for BuildingVersion to be an explicit nil
 func (o *SearchProjectionStatus) SetBuildingVersionNil() {
 	o.BuildingVersion.Set(nil)
@@ -565,7 +567,7 @@ func (o *SearchProjectionStatus) SetSourceDocuments(v int32) {
 }
 
 func (o SearchProjectionStatus) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -628,10 +630,10 @@ func (o *SearchProjectionStatus) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

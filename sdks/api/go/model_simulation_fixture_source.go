@@ -20,8 +20,8 @@ type SimulationFixtureSource string
 
 // List of SimulationFixtureSource
 const (
-	SIMULATIONFIXTURESOURCE_MOCK SimulationFixtureSource = "MOCK"
-	SIMULATIONFIXTURESOURCE_RECORDED SimulationFixtureSource = "RECORDED"
+	SIMULATIONFIXTURESOURCE_MOCK        SimulationFixtureSource = "MOCK"
+	SIMULATIONFIXTURESOURCE_RECORDED    SimulationFixtureSource = "RECORDED"
 	SIMULATIONFIXTURESOURCE_SCHEMA_ONLY SimulationFixtureSource = "SCHEMA_ONLY"
 )
 

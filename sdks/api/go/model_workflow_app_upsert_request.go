@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,14 +21,14 @@ var _ MappedNullable = &WorkflowAppUpsertRequest{}
 
 // WorkflowAppUpsertRequest struct for WorkflowAppUpsertRequest
 type WorkflowAppUpsertRequest struct {
-	Description *string `json:"description,omitempty"`
-	EmbedEnabled *bool `json:"embedEnabled,omitempty"`
-	ExpectedVersion NullableInt32 `json:"expectedVersion,omitempty"`
-	FlowId string `json:"flowId" validate:"regexp=^[A-Za-z_][A-Za-z0-9_.-]{0\\,127}$"`
-	FlowRevision NullableInt32 `json:"flowRevision,omitempty"`
-	Form NullableAppForm `json:"form,omitempty"`
-	LaunchLabel *string `json:"launchLabel,omitempty"`
-	Title string `json:"title"`
+	Description     *string         `json:"description,omitempty"`
+	EmbedEnabled    *bool           `json:"embedEnabled,omitempty"`
+	ExpectedVersion NullableInt32   `json:"expectedVersion,omitempty"`
+	FlowId          string          `json:"flowId" validate:"regexp=^[A-Za-z_][A-Za-z0-9_.-]{0\\,127}$"`
+	FlowRevision    NullableInt32   `json:"flowRevision,omitempty"`
+	Form            NullableAppForm `json:"form,omitempty"`
+	LaunchLabel     *string         `json:"launchLabel,omitempty"`
+	Title           string          `json:"title"`
 }
 
 type _WorkflowAppUpsertRequest WorkflowAppUpsertRequest
@@ -160,6 +160,7 @@ func (o *WorkflowAppUpsertRequest) HasExpectedVersion() bool {
 func (o *WorkflowAppUpsertRequest) SetExpectedVersion(v int32) {
 	o.ExpectedVersion.Set(&v)
 }
+
 // SetExpectedVersionNil sets the value for ExpectedVersion to be an explicit nil
 func (o *WorkflowAppUpsertRequest) SetExpectedVersionNil() {
 	o.ExpectedVersion.Set(nil)
@@ -226,6 +227,7 @@ func (o *WorkflowAppUpsertRequest) HasFlowRevision() bool {
 func (o *WorkflowAppUpsertRequest) SetFlowRevision(v int32) {
 	o.FlowRevision.Set(&v)
 }
+
 // SetFlowRevisionNil sets the value for FlowRevision to be an explicit nil
 func (o *WorkflowAppUpsertRequest) SetFlowRevisionNil() {
 	o.FlowRevision.Set(nil)
@@ -268,6 +270,7 @@ func (o *WorkflowAppUpsertRequest) HasForm() bool {
 func (o *WorkflowAppUpsertRequest) SetForm(v AppForm) {
 	o.Form.Set(&v)
 }
+
 // SetFormNil sets the value for Form to be an explicit nil
 func (o *WorkflowAppUpsertRequest) SetFormNil() {
 	o.Form.Set(nil)
@@ -335,7 +338,7 @@ func (o *WorkflowAppUpsertRequest) SetTitle(v string) {
 }
 
 func (o WorkflowAppUpsertRequest) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -381,10 +384,10 @@ func (o *WorkflowAppUpsertRequest) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

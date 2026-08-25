@@ -116,6 +116,52 @@ def test_normalized_error_and_ndjson_stream() -> None:
     assert [item["taskId"] for item in stream.stream_logs("execution-1")] == ["one", "two"]
 
 
+def test_machine_error_category_controls_safe_retry_behavior() -> None:
+    retry_transport = FakeTransport(
+        [
+            HttpResponse(
+                500,
+                {
+                    "x-amesh-error-category": "retryable",
+                    "x-correlation-id": "client-attempt-17",
+                },
+                b'{"code":"TEMPORARY_FAILURE"}',
+            ),
+            HttpResponse(200, {}, json.dumps(_detail()).encode()),
+        ]
+    )
+    retrying = ExecutionClient(
+        "https://amesh.test",
+        "test-token",
+        transport=retry_transport,
+        retry_policy=RetryPolicy(max_attempts=2, initial_delay_seconds=0),
+        sleeper=lambda _: None,
+    )
+
+    assert retrying.launch("examples.mvp", "hello_world").execution.state.value == "SUCCESS"
+    assert len(retry_transport.requests) == 2
+
+    ambiguous = ExecutionClient(
+        "https://amesh.test",
+        "test-token",
+        transport=FakeTransport(
+            [
+                HttpResponse(
+                    425,
+                    {"x-amesh-error-category": "ambiguous"},
+                    b'{"code":"AMBIGUOUS_EXTERNAL_OUTCOME"}',
+                )
+            ]
+        ),
+        retry_policy=RetryPolicy(max_attempts=2, initial_delay_seconds=0),
+        sleeper=lambda _: None,
+    )
+    with pytest.raises(AmeshError) as captured:
+        ambiguous.launch("examples.mvp", "hello_world")
+    assert captured.value.category == "ambiguous"
+    assert captured.value.retryable is False
+
+
 def test_webhook_verification_enforces_hmac_and_timestamp_window() -> None:
     secret = "webhook-secret"
     timestamp = 1_800_000_000

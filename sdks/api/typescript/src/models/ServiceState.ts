@@ -20,6 +20,7 @@
 export const ServiceState = {
     Starting: 'STARTING',
     Ready: 'READY',
+    Degraded: 'DEGRADED',
     Draining: 'DRAINING',
     Stopped: 'STOPPED'
 } as const;

@@ -21,10 +21,10 @@ type WorkerStatus string
 // List of WorkerStatus
 const (
 	WORKERSTATUS_STARTING WorkerStatus = "STARTING"
-	WORKERSTATUS_READY WorkerStatus = "READY"
+	WORKERSTATUS_READY    WorkerStatus = "READY"
 	WORKERSTATUS_DEGRADED WorkerStatus = "DEGRADED"
 	WORKERSTATUS_DRAINING WorkerStatus = "DRAINING"
-	WORKERSTATUS_STOPPED WorkerStatus = "STOPPED"
+	WORKERSTATUS_STOPPED  WorkerStatus = "STOPPED"
 )
 
 // All allowed values of WorkerStatus enum

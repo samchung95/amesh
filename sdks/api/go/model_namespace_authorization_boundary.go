@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -22,7 +22,7 @@ var _ MappedNullable = &NamespaceAuthorizationBoundary{}
 // NamespaceAuthorizationBoundary struct for NamespaceAuthorizationBoundary
 type NamespaceAuthorizationBoundary struct {
 	Namespace string `json:"namespace"`
-	TenantId string `json:"tenant_id" validate:"regexp=^[a-z0-9][a-z0-9-]*$"`
+	TenantId  string `json:"tenant_id" validate:"regexp=^[a-z0-9][a-z0-9-]*$"`
 }
 
 type _NamespaceAuthorizationBoundary NamespaceAuthorizationBoundary
@@ -95,7 +95,7 @@ func (o *NamespaceAuthorizationBoundary) SetTenantId(v string) {
 }
 
 func (o NamespaceAuthorizationBoundary) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -123,10 +123,10 @@ func (o *NamespaceAuthorizationBoundary) UnmarshalJSON(data []byte) (err error) 
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

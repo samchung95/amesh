@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,12 +21,12 @@ var _ MappedNullable = &AuthorizationExplanationRequest{}
 
 // AuthorizationExplanationRequest struct for AuthorizationExplanationRequest
 type AuthorizationExplanationRequest struct {
-	Action PermissionAction `json:"action"`
-	Namespace NullableString `json:"namespace,omitempty"`
-	PrincipalId string `json:"principalId"`
-	PrincipalType PrincipalType `json:"principalType"`
-	ResourceType string `json:"resourceType"`
-	TenantId NullableString `json:"tenantId,omitempty" validate:"regexp=^[a-z0-9][a-z0-9-]*$"`
+	Action        PermissionAction `json:"action"`
+	Namespace     NullableString   `json:"namespace,omitempty"`
+	PrincipalId   string           `json:"principalId"`
+	PrincipalType PrincipalType    `json:"principalType"`
+	ResourceType  string           `json:"resourceType"`
+	TenantId      NullableString   `json:"tenantId,omitempty" validate:"regexp=^[a-z0-9][a-z0-9-]*$"`
 }
 
 type _AuthorizationExplanationRequest AuthorizationExplanationRequest
@@ -108,6 +108,7 @@ func (o *AuthorizationExplanationRequest) HasNamespace() bool {
 func (o *AuthorizationExplanationRequest) SetNamespace(v string) {
 	o.Namespace.Set(&v)
 }
+
 // SetNamespaceNil sets the value for Namespace to be an explicit nil
 func (o *AuthorizationExplanationRequest) SetNamespaceNil() {
 	o.Namespace.Set(nil)
@@ -222,6 +223,7 @@ func (o *AuthorizationExplanationRequest) HasTenantId() bool {
 func (o *AuthorizationExplanationRequest) SetTenantId(v string) {
 	o.TenantId.Set(&v)
 }
+
 // SetTenantIdNil sets the value for TenantId to be an explicit nil
 func (o *AuthorizationExplanationRequest) SetTenantIdNil() {
 	o.TenantId.Set(nil)
@@ -233,7 +235,7 @@ func (o *AuthorizationExplanationRequest) UnsetTenantId() {
 }
 
 func (o AuthorizationExplanationRequest) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -271,10 +273,10 @@ func (o *AuthorizationExplanationRequest) UnmarshalJSON(data []byte) (err error)
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

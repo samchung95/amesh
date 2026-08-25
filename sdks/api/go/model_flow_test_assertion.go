@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,10 +21,10 @@ var _ MappedNullable = &FlowTestAssertion{}
 
 // FlowTestAssertion struct for FlowTestAssertion
 type FlowTestAssertion struct {
-	Actual interface{} `json:"actual"`
+	Actual   interface{} `json:"actual"`
 	Expected interface{} `json:"expected"`
-	Passed bool `json:"passed"`
-	Path string `json:"path"`
+	Passed   bool        `json:"passed"`
+	Path     string      `json:"path"`
 }
 
 type _FlowTestAssertion FlowTestAssertion
@@ -151,7 +151,7 @@ func (o *FlowTestAssertion) SetPath(v string) {
 }
 
 func (o FlowTestAssertion) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -187,10 +187,10 @@ func (o *FlowTestAssertion) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

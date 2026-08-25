@@ -37,6 +37,7 @@ from amesh.domain import (
     effective_agent_limits,
     evaluate_deterministic_output,
 )
+from amesh.domain.agent_sessions import AgentModelContinuationRef
 from amesh.dsl.models import TaskDefinition
 from amesh.executor import (
     TaskCompletion,
@@ -316,7 +317,9 @@ async def _drive_session(
                 evaluationOutcomes=record.checkpoint.evaluation_outcomes,
                 releaseApproved=record.checkpoint.release_approved,
                 memoryWrite=record.checkpoint.memory_write,
+                modelContinuation=_model_continuation_ref(model_output),
             )
+            provider_pin = _provider_pin_evidence(model_output)
             record = await sessions.transition(
                 record.session_id,
                 tenant_id=context.tenant_id,
@@ -332,6 +335,15 @@ async def _drive_session(
                         "counters": counters.model_dump(mode="json", by_alias=True),
                         "nondeterministic": True,
                         "envelopeDigest": pin.envelope_digest,
+                        "providerPin": provider_pin,
+                        "continuation": (
+                            checkpoint.model_continuation.model_dump(
+                                mode="json",
+                                by_alias=True,
+                            )
+                            if checkpoint.model_continuation is not None
+                            else None
+                        ),
                     },
                     phase=AgentSessionPhase.POLICY,
                     checkpoint=checkpoint,
@@ -460,37 +472,47 @@ async def _invoke_model_turn(
 
     last_error: TaskExecutionFailure | None = None
     for route_index, route in enumerate(pin.envelope.model_routes):
-        model_task = TaskDefinition.model_validate(
-            {
-                "id": "agent-model-turn",
-                "type": "agent.structured",
-                "provider": route.provider.model_dump(mode="json", by_alias=True),
-                "model": route.model,
-                "messages": list(record.checkpoint.messages),
-                "outputSchema": _action_schema(pin),
-                "schemaName": "amesh_agent_action",
-                "parameters": {
-                    key: value
-                    for key, value in route.parameters.items()
-                    if key in {"temperature", "topP", "seed"}
-                },
-                "budget": {
-                    "maxTotalTokens": remaining_tokens,
-                    "maxCompletionTokens": min(remaining_tokens, 4096),
-                    "maxCostUsd": str(remaining_cost),
-                },
-                "dataHandling": {
-                    "egress": "REDACT_SECRETS",
-                    "promptRetention": "REDACTED",
-                },
-                "timeoutSeconds": min(task.timeout_seconds or 60, float(remaining_seconds)),
-                "invocationKey": (
-                    f"session:{record.session_id}:turn:{record.checkpoint.next_turn}:"
-                    f"route:{route.route_id}"
-                ),
-                "contract": {"secretScopes": [route.provider.credential_ref]},
-            }
+        continuation = record.checkpoint.model_continuation
+        resume_continuation = (
+            continuation
+            if continuation is not None and continuation.provider_id == route.provider.adapter
+            else None
         )
+        provider_spec = route.provider.model_dump(mode="json", by_alias=True, exclude_none=True)
+        if resume_continuation is not None:
+            provider_spec["revision"] = resume_continuation.provider_revision
+        model_document: dict[str, Any] = {
+            "id": "agent-model-turn",
+            "type": "agent.structured",
+            "provider": provider_spec,
+            "model": route.model,
+            "messages": list(record.checkpoint.messages),
+            "outputSchema": _action_schema(pin),
+            "schemaName": "amesh_agent_action",
+            "parameters": {
+                key: value
+                for key, value in route.parameters.items()
+                if key in {"temperature", "topP", "seed"}
+            },
+            "budget": {
+                "maxTotalTokens": remaining_tokens,
+                "maxCompletionTokens": min(remaining_tokens, 4096),
+                "maxCostUsd": str(remaining_cost),
+            },
+            "dataHandling": {
+                "egress": "REDACT_SECRETS",
+                "promptRetention": "REDACTED",
+            },
+            "timeoutSeconds": min(task.timeout_seconds or 60, float(remaining_seconds)),
+            "invocationKey": (
+                f"session:{record.session_id}:turn:{record.checkpoint.next_turn}:"
+                f"route:{route.route_id}"
+            ),
+            "contract": {"secretScopes": [route.provider.credential_ref]},
+        }
+        if resume_continuation is not None:
+            model_document["continuationFromInvocationId"] = str(resume_continuation.invocation_id)
+        model_task = TaskDefinition.model_validate(model_document)
         try:
             completion = await model_handler(model_task, context)
             if not isinstance(completion, TaskCompletion):
@@ -1019,6 +1041,26 @@ def _parse_spec(task: TaskDefinition) -> _AgentSessionTaskSpec:
         return _AgentSessionTaskSpec.model_validate(task.model_extra or {})
     except ValidationError as exc:
         raise ValueError(f"task {task.id!r} agent session configuration is invalid: {exc}") from exc
+
+
+def _model_continuation_ref(output: dict[str, Any]) -> AgentModelContinuationRef | None:
+    raw = output.get("continuation")
+    if raw is None:
+        return None
+    if not isinstance(raw, dict):
+        raise ValueError("model continuation metadata must be an object")
+    return AgentModelContinuationRef.model_validate(raw)
+
+
+def _provider_pin_evidence(output: dict[str, Any]) -> dict[str, Any] | None:
+    provenance = output.get("provenance")
+    if not isinstance(provenance, dict):
+        return None
+    return {
+        key: provenance[key]
+        for key in ("providerId", "providerRevision", "providerDigest", "capabilities")
+        if key in provenance
+    }
 
 
 def _validate_boundary(

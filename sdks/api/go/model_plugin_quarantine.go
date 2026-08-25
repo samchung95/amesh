@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the PluginQuarantine type satisfies the MappedNullable interface at compile time
@@ -22,18 +22,18 @@ var _ MappedNullable = &PluginQuarantine{}
 
 // PluginQuarantine struct for PluginQuarantine
 type PluginQuarantine struct {
-	CreatedAt *time.Time `json:"createdAt,omitempty"`
-	CreatedBy string `json:"createdBy"`
-	Id *string `json:"id,omitempty"`
-	Namespace NullableString `json:"namespace,omitempty"`
-	Package string `json:"package"`
-	Reason string `json:"reason"`
-	ReleasedAt NullableTime `json:"releasedAt,omitempty"`
-	ReleasedBy NullableString `json:"releasedBy,omitempty"`
-	Scope *PluginPolicyScope `json:"scope,omitempty"`
-	State *PluginQuarantineState `json:"state,omitempty"`
-	TenantId NullableString `json:"tenantId,omitempty"`
-	Version string `json:"version"`
+	CreatedAt  *time.Time             `json:"createdAt,omitempty"`
+	CreatedBy  string                 `json:"createdBy"`
+	Id         *string                `json:"id,omitempty"`
+	Namespace  NullableString         `json:"namespace,omitempty"`
+	Package    string                 `json:"package"`
+	Reason     string                 `json:"reason"`
+	ReleasedAt NullableTime           `json:"releasedAt,omitempty"`
+	ReleasedBy NullableString         `json:"releasedBy,omitempty"`
+	Scope      *PluginPolicyScope     `json:"scope,omitempty"`
+	State      *PluginQuarantineState `json:"state,omitempty"`
+	TenantId   NullableString         `json:"tenantId,omitempty"`
+	Version    string                 `json:"version"`
 }
 
 type _PluginQuarantine PluginQuarantine
@@ -187,6 +187,7 @@ func (o *PluginQuarantine) HasNamespace() bool {
 func (o *PluginQuarantine) SetNamespace(v string) {
 	o.Namespace.Set(&v)
 }
+
 // SetNamespaceNil sets the value for Namespace to be an explicit nil
 func (o *PluginQuarantine) SetNamespaceNil() {
 	o.Namespace.Set(nil)
@@ -277,6 +278,7 @@ func (o *PluginQuarantine) HasReleasedAt() bool {
 func (o *PluginQuarantine) SetReleasedAt(v time.Time) {
 	o.ReleasedAt.Set(&v)
 }
+
 // SetReleasedAtNil sets the value for ReleasedAt to be an explicit nil
 func (o *PluginQuarantine) SetReleasedAtNil() {
 	o.ReleasedAt.Set(nil)
@@ -319,6 +321,7 @@ func (o *PluginQuarantine) HasReleasedBy() bool {
 func (o *PluginQuarantine) SetReleasedBy(v string) {
 	o.ReleasedBy.Set(&v)
 }
+
 // SetReleasedByNil sets the value for ReleasedBy to be an explicit nil
 func (o *PluginQuarantine) SetReleasedByNil() {
 	o.ReleasedBy.Set(nil)
@@ -425,6 +428,7 @@ func (o *PluginQuarantine) HasTenantId() bool {
 func (o *PluginQuarantine) SetTenantId(v string) {
 	o.TenantId.Set(&v)
 }
+
 // SetTenantIdNil sets the value for TenantId to be an explicit nil
 func (o *PluginQuarantine) SetTenantIdNil() {
 	o.TenantId.Set(nil)
@@ -460,7 +464,7 @@ func (o *PluginQuarantine) SetVersion(v string) {
 }
 
 func (o PluginQuarantine) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -516,10 +520,10 @@ func (o *PluginQuarantine) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

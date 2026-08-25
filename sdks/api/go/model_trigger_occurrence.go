@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the TriggerOccurrence type satisfies the MappedNullable interface at compile time
@@ -22,30 +22,30 @@ var _ MappedNullable = &TriggerOccurrence{}
 
 // TriggerOccurrence One durable, tenant-isolated source occurrence and its processing evidence.
 type TriggerOccurrence struct {
-	Attempt int32 `json:"attempt"`
-	AvailableAt time.Time `json:"available_at"`
-	CompletedAt NullableTime `json:"completed_at,omitempty"`
-	CreatedAt time.Time `json:"created_at"`
-	Evidence map[string]interface{} `json:"evidence,omitempty"`
-	ExecutionId NullableString `json:"execution_id,omitempty"`
-	FencingToken *int32 `json:"fencing_token,omitempty"`
-	FlowId string `json:"flow_id"`
-	FlowRevision int32 `json:"flow_revision"`
-	LeaseExpiresAt NullableTime `json:"lease_expires_at,omitempty"`
-	MaxAttempts int32 `json:"max_attempts"`
-	Metadata map[string]interface{} `json:"metadata,omitempty"`
-	Namespace string `json:"namespace"`
-	OccurrenceId string `json:"occurrence_id"`
-	OccurrenceKey string `json:"occurrence_key"`
-	OwnerId NullableString `json:"owner_id,omitempty"`
-	Payload map[string]interface{} `json:"payload,omitempty"`
-	ReplayOf NullableString `json:"replay_of,omitempty"`
-	State TriggerOccurrenceState `json:"state"`
-	TenantId string `json:"tenant_id"`
-	TriggerDefinitionId string `json:"trigger_definition_id"`
-	TriggerId string `json:"trigger_id"`
-	TriggerType string `json:"trigger_type"`
-	UpdatedAt time.Time `json:"updated_at"`
+	Attempt             int32                  `json:"attempt"`
+	AvailableAt         time.Time              `json:"available_at"`
+	CompletedAt         NullableTime           `json:"completed_at,omitempty"`
+	CreatedAt           time.Time              `json:"created_at"`
+	Evidence            map[string]interface{} `json:"evidence,omitempty"`
+	ExecutionId         NullableString         `json:"execution_id,omitempty"`
+	FencingToken        *int32                 `json:"fencing_token,omitempty"`
+	FlowId              string                 `json:"flow_id"`
+	FlowRevision        int32                  `json:"flow_revision"`
+	LeaseExpiresAt      NullableTime           `json:"lease_expires_at,omitempty"`
+	MaxAttempts         int32                  `json:"max_attempts"`
+	Metadata            map[string]interface{} `json:"metadata,omitempty"`
+	Namespace           string                 `json:"namespace"`
+	OccurrenceId        string                 `json:"occurrence_id"`
+	OccurrenceKey       string                 `json:"occurrence_key"`
+	OwnerId             NullableString         `json:"owner_id,omitempty"`
+	Payload             map[string]interface{} `json:"payload,omitempty"`
+	ReplayOf            NullableString         `json:"replay_of,omitempty"`
+	State               TriggerOccurrenceState `json:"state"`
+	TenantId            string                 `json:"tenant_id"`
+	TriggerDefinitionId string                 `json:"trigger_definition_id"`
+	TriggerId           string                 `json:"trigger_id"`
+	TriggerType         string                 `json:"trigger_type"`
+	UpdatedAt           time.Time              `json:"updated_at"`
 }
 
 type _TriggerOccurrence TriggerOccurrence
@@ -166,6 +166,7 @@ func (o *TriggerOccurrence) HasCompletedAt() bool {
 func (o *TriggerOccurrence) SetCompletedAt(v time.Time) {
 	o.CompletedAt.Set(&v)
 }
+
 // SetCompletedAtNil sets the value for CompletedAt to be an explicit nil
 func (o *TriggerOccurrence) SetCompletedAtNil() {
 	o.CompletedAt.Set(nil)
@@ -264,6 +265,7 @@ func (o *TriggerOccurrence) HasExecutionId() bool {
 func (o *TriggerOccurrence) SetExecutionId(v string) {
 	o.ExecutionId.Set(&v)
 }
+
 // SetExecutionIdNil sets the value for ExecutionId to be an explicit nil
 func (o *TriggerOccurrence) SetExecutionIdNil() {
 	o.ExecutionId.Set(nil)
@@ -386,6 +388,7 @@ func (o *TriggerOccurrence) HasLeaseExpiresAt() bool {
 func (o *TriggerOccurrence) SetLeaseExpiresAt(v time.Time) {
 	o.LeaseExpiresAt.Set(&v)
 }
+
 // SetLeaseExpiresAtNil sets the value for LeaseExpiresAt to be an explicit nil
 func (o *TriggerOccurrence) SetLeaseExpiresAtNil() {
 	o.LeaseExpiresAt.Set(nil)
@@ -556,6 +559,7 @@ func (o *TriggerOccurrence) HasOwnerId() bool {
 func (o *TriggerOccurrence) SetOwnerId(v string) {
 	o.OwnerId.Set(&v)
 }
+
 // SetOwnerIdNil sets the value for OwnerId to be an explicit nil
 func (o *TriggerOccurrence) SetOwnerIdNil() {
 	o.OwnerId.Set(nil)
@@ -630,6 +634,7 @@ func (o *TriggerOccurrence) HasReplayOf() bool {
 func (o *TriggerOccurrence) SetReplayOf(v string) {
 	o.ReplayOf.Set(&v)
 }
+
 // SetReplayOfNil sets the value for ReplayOf to be an explicit nil
 func (o *TriggerOccurrence) SetReplayOfNil() {
 	o.ReplayOf.Set(nil)
@@ -785,7 +790,7 @@ func (o *TriggerOccurrence) SetUpdatedAt(v time.Time) {
 }
 
 func (o TriggerOccurrence) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -866,10 +871,10 @@ func (o *TriggerOccurrence) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

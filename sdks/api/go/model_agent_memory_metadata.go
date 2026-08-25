@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the AgentMemoryMetadata type satisfies the MappedNullable interface at compile time
@@ -22,23 +22,23 @@ var _ MappedNullable = &AgentMemoryMetadata{}
 
 // AgentMemoryMetadata struct for AgentMemoryMetadata
 type AgentMemoryMetadata struct {
-	AgentKey string `json:"agentKey"`
-	AgentRevision int32 `json:"agentRevision"`
-	ByteSize int32 `json:"byteSize"`
-	ContentDigest string `json:"contentDigest" validate:"regexp=^sha256:[0-9a-f]{64}$"`
-	CreatedAt time.Time `json:"createdAt"`
-	EntryId string `json:"entryId"`
-	ExecutionId NullableString `json:"executionId"`
-	ExpiresAt time.Time `json:"expiresAt"`
-	Key string `json:"key"`
-	Namespace string `json:"namespace"`
-	Provenance map[string]interface{} `json:"provenance"`
-	Redacted bool `json:"redacted"`
-	Scope AgentMemoryScope `json:"scope"`
-	SharedScope NullableString `json:"sharedScope"`
-	TenantId string `json:"tenantId"`
-	UpdatedAt time.Time `json:"updatedAt"`
-	Version int32 `json:"version"`
+	AgentKey      string                 `json:"agentKey"`
+	AgentRevision int32                  `json:"agentRevision"`
+	ByteSize      int32                  `json:"byteSize"`
+	ContentDigest string                 `json:"contentDigest" validate:"regexp=^sha256:[0-9a-f]{64}$"`
+	CreatedAt     time.Time              `json:"createdAt"`
+	EntryId       string                 `json:"entryId"`
+	ExecutionId   NullableString         `json:"executionId"`
+	ExpiresAt     time.Time              `json:"expiresAt"`
+	Key           string                 `json:"key"`
+	Namespace     string                 `json:"namespace"`
+	Provenance    map[string]interface{} `json:"provenance"`
+	Redacted      bool                   `json:"redacted"`
+	Scope         AgentMemoryScope       `json:"scope"`
+	SharedScope   NullableString         `json:"sharedScope"`
+	TenantId      string                 `json:"tenantId"`
+	UpdatedAt     time.Time              `json:"updatedAt"`
+	Version       int32                  `json:"version"`
 }
 
 type _AgentMemoryMetadata AgentMemoryMetadata
@@ -490,7 +490,7 @@ func (o *AgentMemoryMetadata) SetVersion(v int32) {
 }
 
 func (o AgentMemoryMetadata) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -548,10 +548,10 @@ func (o *AgentMemoryMetadata) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

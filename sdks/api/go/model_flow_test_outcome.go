@@ -22,7 +22,7 @@ type FlowTestOutcome string
 const (
 	FLOWTESTOUTCOME_PASSED FlowTestOutcome = "PASSED"
 	FLOWTESTOUTCOME_FAILED FlowTestOutcome = "FAILED"
-	FLOWTESTOUTCOME_ERROR FlowTestOutcome = "ERROR"
+	FLOWTESTOUTCOME_ERROR  FlowTestOutcome = "ERROR"
 )
 
 // All allowed values of FlowTestOutcome enum

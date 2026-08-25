@@ -40,7 +40,8 @@ import io.amesh.client.ApiClient;
   ModelProviderSpec.JSON_PROPERTY_ADAPTER,
   ModelProviderSpec.JSON_PROPERTY_CREDENTIAL_REF,
   ModelProviderSpec.JSON_PROPERTY_EMBEDDING_ENDPOINT,
-  ModelProviderSpec.JSON_PROPERTY_ENDPOINT
+  ModelProviderSpec.JSON_PROPERTY_ENDPOINT,
+  ModelProviderSpec.JSON_PROPERTY_REVISION
 })
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.24.0")
 public class ModelProviderSpec {
@@ -58,6 +59,9 @@ public class ModelProviderSpec {
   public static final String JSON_PROPERTY_ENDPOINT = "endpoint";
   @javax.annotation.Nonnull
   private String endpoint;
+
+  public static final String JSON_PROPERTY_REVISION = "revision";
+  private JsonNullable<String> revision = JsonNullable.<String>undefined();
 
   public ModelProviderSpec() {
   }
@@ -166,6 +170,38 @@ public class ModelProviderSpec {
   }
 
 
+  public ModelProviderSpec revision(@javax.annotation.Nullable String revision) {
+    this.revision = JsonNullable.<String>of(revision);
+    return this;
+  }
+
+  /**
+   * Get revision
+   * @return revision
+   */
+  @javax.annotation.Nullable
+  @JsonIgnore
+  public String getRevision() {
+        return revision.orElse(null);
+  }
+
+  @JsonProperty(value = JSON_PROPERTY_REVISION, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public JsonNullable<String> getRevision_JsonNullable() {
+    return revision;
+  }
+
+  @JsonProperty(JSON_PROPERTY_REVISION)
+  public void setRevision_JsonNullable(JsonNullable<String> revision) {
+    this.revision = revision;
+  }
+
+  public void setRevision(@javax.annotation.Nullable String revision) {
+    this.revision = JsonNullable.<String>of(revision);
+  }
+
+
   /**
    * Return true if this ModelProviderSpec object is equal to o.
    */
@@ -181,7 +217,8 @@ public class ModelProviderSpec {
     return Objects.equals(this.adapter, modelProviderSpec.adapter) &&
         Objects.equals(this.credentialRef, modelProviderSpec.credentialRef) &&
         equalsNullable(this.embeddingEndpoint, modelProviderSpec.embeddingEndpoint) &&
-        Objects.equals(this.endpoint, modelProviderSpec.endpoint);
+        Objects.equals(this.endpoint, modelProviderSpec.endpoint) &&
+        equalsNullable(this.revision, modelProviderSpec.revision);
   }
 
   private static <T> boolean equalsNullable(JsonNullable<T> a, JsonNullable<T> b) {
@@ -190,7 +227,7 @@ public class ModelProviderSpec {
 
   @Override
   public int hashCode() {
-    return Objects.hash(adapter, credentialRef, hashCodeNullable(embeddingEndpoint), endpoint);
+    return Objects.hash(adapter, credentialRef, hashCodeNullable(embeddingEndpoint), endpoint, hashCodeNullable(revision));
   }
 
   private static <T> int hashCodeNullable(JsonNullable<T> a) {
@@ -208,6 +245,7 @@ public class ModelProviderSpec {
     sb.append("    credentialRef: ").append(toIndentedString(credentialRef)).append("\n");
     sb.append("    embeddingEndpoint: ").append(toIndentedString(embeddingEndpoint)).append("\n");
     sb.append("    endpoint: ").append(toIndentedString(endpoint)).append("\n");
+    sb.append("    revision: ").append(toIndentedString(revision)).append("\n");
     sb.append("}");
     return sb.toString();
   }
@@ -270,6 +308,11 @@ public class ModelProviderSpec {
     // add `endpoint` to the URL query string
     if (getEndpoint() != null) {
       joiner.add(String.format(java.util.Locale.ROOT, "%sendpoint%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getEndpoint()))));
+    }
+
+    // add `revision` to the URL query string
+    if (getRevision() != null) {
+      joiner.add(String.format(java.util.Locale.ROOT, "%srevision%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getRevision()))));
     }
 
     return joiner.toString();

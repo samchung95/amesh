@@ -1,0 +1,78 @@
+"""Provider-neutral quality contracts and differential shadow execution."""
+
+from .api import build_differential_application_router, build_differential_router
+from .cli import (
+    add_differential_commands,
+    differential_request,
+    differential_result,
+    load_differential_spec,
+)
+from .client import DifferentialClient
+from .differential import (
+    Comparator,
+    ComparisonCategory,
+    ComparisonDifference,
+    ComparisonPolicy,
+    ComparisonReport,
+    ConfigurationPin,
+    DifferentialService,
+    DifferentialSpec,
+    FixtureSource,
+    Lineage,
+    RunObservation,
+    ShadowEffect,
+    ShadowExecutionError,
+    ShadowFixture,
+    ShadowRun,
+    ShadowRunContext,
+    StructuralComparator,
+    Tolerance,
+    compare_runs,
+)
+from .durable import DurableDifferentialService
+from .repository import (
+    DifferentialConflictError,
+    DifferentialEventRecord,
+    DifferentialRecord,
+    DifferentialRunBusyError,
+    DifferentialRunRecord,
+    DifferentialState,
+    PostgresDifferentialShadowRepository,
+)
+
+__all__ = [
+    "Comparator",
+    "ComparisonCategory",
+    "ComparisonDifference",
+    "ComparisonPolicy",
+    "ComparisonReport",
+    "ConfigurationPin",
+    "DifferentialClient",
+    "DifferentialConflictError",
+    "DifferentialEventRecord",
+    "DifferentialRecord",
+    "DifferentialRunBusyError",
+    "DifferentialRunRecord",
+    "DifferentialService",
+    "DifferentialSpec",
+    "DifferentialState",
+    "DurableDifferentialService",
+    "FixtureSource",
+    "Lineage",
+    "PostgresDifferentialShadowRepository",
+    "RunObservation",
+    "ShadowEffect",
+    "ShadowExecutionError",
+    "ShadowFixture",
+    "ShadowRun",
+    "ShadowRunContext",
+    "StructuralComparator",
+    "Tolerance",
+    "add_differential_commands",
+    "build_differential_application_router",
+    "build_differential_router",
+    "compare_runs",
+    "differential_request",
+    "differential_result",
+    "load_differential_spec",
+]

@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,8 +21,8 @@ var _ MappedNullable = &SimulationUnknown{}
 
 // SimulationUnknown struct for SimulationUnknown
 type SimulationUnknown struct {
-	Code string `json:"code"`
-	Path string `json:"path"`
+	Code   string `json:"code"`
+	Path   string `json:"path"`
 	Reason string `json:"reason"`
 }
 
@@ -121,7 +121,7 @@ func (o *SimulationUnknown) SetReason(v string) {
 }
 
 func (o SimulationUnknown) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -151,10 +151,10 @@ func (o *SimulationUnknown) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

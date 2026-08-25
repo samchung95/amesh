@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,13 +21,13 @@ var _ MappedNullable = &ScimUserResource{}
 
 // ScimUserResource struct for ScimUserResource
 type ScimUserResource struct {
-	Active bool `json:"active"`
-	DisplayName string `json:"displayName"`
-	ExternalId NullableString `json:"externalId,omitempty"`
-	Id string `json:"id"`
-	Meta ScimResourceMeta `json:"meta"`
-	Schemas []string `json:"schemas,omitempty"`
-	UserName string `json:"userName"`
+	Active      bool             `json:"active"`
+	DisplayName string           `json:"displayName"`
+	ExternalId  NullableString   `json:"externalId,omitempty"`
+	Id          string           `json:"id"`
+	Meta        ScimResourceMeta `json:"meta"`
+	Schemas     []string         `json:"schemas,omitempty"`
+	UserName    string           `json:"userName"`
 }
 
 type _ScimUserResource ScimUserResource
@@ -134,6 +134,7 @@ func (o *ScimUserResource) HasExternalId() bool {
 func (o *ScimUserResource) SetExternalId(v string) {
 	o.ExternalId.Set(&v)
 }
+
 // SetExternalIdNil sets the value for ExternalId to be an explicit nil
 func (o *ScimUserResource) SetExternalIdNil() {
 	o.ExternalId.Set(nil)
@@ -249,7 +250,7 @@ func (o *ScimUserResource) SetUserName(v string) {
 }
 
 func (o ScimUserResource) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -289,10 +290,10 @@ func (o *ScimUserResource) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

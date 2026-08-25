@@ -15,7 +15,7 @@ All URIs are relative to *http://localhost*
 
 ## createKestraExecutionApiV1ExecutionsNamespaceFlowIdPost
 
-> ExecutionDetail createKestraExecutionApiV1ExecutionsNamespaceFlowIdPost(namespace, flowId, kestraExecutionRequest, prefer, idempotencyKey, authorization, xAmeshCSRF, xAmeshTenant)
+> ExecutionDetail createKestraExecutionApiV1ExecutionsNamespaceFlowIdPost(namespace, flowId, kestraExecutionRequest, prefer, idempotencyKey, xCorrelationID, authorization, xAmeshCSRF, xAmeshTenant)
 
 Create Kestra Execution
 
@@ -40,11 +40,12 @@ public class Example {
         KestraExecutionRequest kestraExecutionRequest = new KestraExecutionRequest(); // KestraExecutionRequest |
         String prefer = "prefer_example"; // String |
         String idempotencyKey = "idempotencyKey_example"; // String |
+        String xCorrelationID = "xCorrelationID_example"; // String |
         String authorization = "authorization_example"; // String |
         String xAmeshCSRF = "xAmeshCSRF_example"; // String |
         String xAmeshTenant = "xAmeshTenant_example"; // String |
         try {
-            ExecutionDetail result = apiInstance.createKestraExecutionApiV1ExecutionsNamespaceFlowIdPost(namespace, flowId, kestraExecutionRequest, prefer, idempotencyKey, authorization, xAmeshCSRF, xAmeshTenant);
+            ExecutionDetail result = apiInstance.createKestraExecutionApiV1ExecutionsNamespaceFlowIdPost(namespace, flowId, kestraExecutionRequest, prefer, idempotencyKey, xCorrelationID, authorization, xAmeshCSRF, xAmeshTenant);
             System.out.println(result);
         } catch (ApiException e) {
             System.err.println("Exception when calling CompatibilityApi#createKestraExecutionApiV1ExecutionsNamespaceFlowIdPost");
@@ -67,6 +68,7 @@ public class Example {
 | **kestraExecutionRequest** | [**KestraExecutionRequest**](KestraExecutionRequest.md)|  | |
 | **prefer** | **String**|  | [optional] |
 | **idempotencyKey** | **String**|  | [optional] |
+| **xCorrelationID** | **String**|  | [optional] |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |
@@ -94,7 +96,7 @@ No authorization required
 
 ## createKestraExecutionApiV1ExecutionsNamespaceFlowIdPostWithHttpInfo
 
-> ApiResponse<ExecutionDetail> createKestraExecutionApiV1ExecutionsNamespaceFlowIdPostWithHttpInfo(namespace, flowId, kestraExecutionRequest, prefer, idempotencyKey, authorization, xAmeshCSRF, xAmeshTenant)
+> ApiResponse<ExecutionDetail> createKestraExecutionApiV1ExecutionsNamespaceFlowIdPostWithHttpInfo(namespace, flowId, kestraExecutionRequest, prefer, idempotencyKey, xCorrelationID, authorization, xAmeshCSRF, xAmeshTenant)
 
 Create Kestra Execution
 
@@ -120,11 +122,12 @@ public class Example {
         KestraExecutionRequest kestraExecutionRequest = new KestraExecutionRequest(); // KestraExecutionRequest |
         String prefer = "prefer_example"; // String |
         String idempotencyKey = "idempotencyKey_example"; // String |
+        String xCorrelationID = "xCorrelationID_example"; // String |
         String authorization = "authorization_example"; // String |
         String xAmeshCSRF = "xAmeshCSRF_example"; // String |
         String xAmeshTenant = "xAmeshTenant_example"; // String |
         try {
-            ApiResponse<ExecutionDetail> response = apiInstance.createKestraExecutionApiV1ExecutionsNamespaceFlowIdPostWithHttpInfo(namespace, flowId, kestraExecutionRequest, prefer, idempotencyKey, authorization, xAmeshCSRF, xAmeshTenant);
+            ApiResponse<ExecutionDetail> response = apiInstance.createKestraExecutionApiV1ExecutionsNamespaceFlowIdPostWithHttpInfo(namespace, flowId, kestraExecutionRequest, prefer, idempotencyKey, xCorrelationID, authorization, xAmeshCSRF, xAmeshTenant);
             System.out.println("Status code: " + response.getStatusCode());
             System.out.println("Response headers: " + response.getHeaders());
             System.out.println("Response body: " + response.getData());
@@ -149,6 +152,7 @@ public class Example {
 | **kestraExecutionRequest** | [**KestraExecutionRequest**](KestraExecutionRequest.md)|  | |
 | **prefer** | **String**|  | [optional] |
 | **idempotencyKey** | **String**|  | [optional] |
+| **xCorrelationID** | **String**|  | [optional] |
 | **authorization** | **String**|  | [optional] |
 | **xAmeshCSRF** | **String**|  | [optional] |
 | **xAmeshTenant** | **String**|  | [optional] |

@@ -40,6 +40,7 @@ export interface CreateKestraExecutionApiV1ExecutionsNamespaceFlowIdPostRequest 
     kestraExecutionRequest: KestraExecutionRequest;
     prefer?: string | null;
     idempotencyKey?: string | null;
+    xCorrelationID?: string | null;
     authorization?: string | null;
     xAmeshCSRF?: string | null;
     xAmeshTenant?: string | null;
@@ -87,6 +88,10 @@ export class CompatibilityApi extends runtime.BaseAPI {
 
         if (requestParameters['idempotencyKey'] != null) {
             headerParameters['Idempotency-Key'] = String(requestParameters['idempotencyKey']);
+        }
+
+        if (requestParameters['xCorrelationID'] != null) {
+            headerParameters['X-Correlation-ID'] = String(requestParameters['xCorrelationID']);
         }
 
         if (requestParameters['authorization'] != null) {

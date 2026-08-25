@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the ReconciliationFinding type satisfies the MappedNullable interface at compile time
@@ -22,17 +22,17 @@ var _ MappedNullable = &ReconciliationFinding{}
 
 // ReconciliationFinding struct for ReconciliationFinding
 type ReconciliationFinding struct {
-	Detail map[string]interface{} `json:"detail,omitempty"`
-	Disposition ReconciliationDisposition `json:"disposition"`
-	ExpectedVersion NullableInt32 `json:"expectedVersion,omitempty"`
-	Id string `json:"id"`
-	Invariant ReconciliationInvariant `json:"invariant"`
-	ObservedAt time.Time `json:"observedAt"`
-	RepairAction NullableString `json:"repairAction,omitempty"`
-	ResolvedAt NullableTime `json:"resolvedAt,omitempty"`
-	ResourceId string `json:"resourceId"`
-	ResourceType string `json:"resourceType"`
-	Runbook string `json:"runbook"`
+	Detail          map[string]interface{}    `json:"detail,omitempty"`
+	Disposition     ReconciliationDisposition `json:"disposition"`
+	ExpectedVersion NullableInt32             `json:"expectedVersion,omitempty"`
+	Id              string                    `json:"id"`
+	Invariant       ReconciliationInvariant   `json:"invariant"`
+	ObservedAt      time.Time                 `json:"observedAt"`
+	RepairAction    NullableString            `json:"repairAction,omitempty"`
+	ResolvedAt      NullableTime              `json:"resolvedAt,omitempty"`
+	ResourceId      string                    `json:"resourceId"`
+	ResourceType    string                    `json:"resourceType"`
+	Runbook         string                    `json:"runbook"`
 }
 
 type _ReconciliationFinding ReconciliationFinding
@@ -149,6 +149,7 @@ func (o *ReconciliationFinding) HasExpectedVersion() bool {
 func (o *ReconciliationFinding) SetExpectedVersion(v int32) {
 	o.ExpectedVersion.Set(&v)
 }
+
 // SetExpectedVersionNil sets the value for ExpectedVersion to be an explicit nil
 func (o *ReconciliationFinding) SetExpectedVersionNil() {
 	o.ExpectedVersion.Set(nil)
@@ -263,6 +264,7 @@ func (o *ReconciliationFinding) HasRepairAction() bool {
 func (o *ReconciliationFinding) SetRepairAction(v string) {
 	o.RepairAction.Set(&v)
 }
+
 // SetRepairActionNil sets the value for RepairAction to be an explicit nil
 func (o *ReconciliationFinding) SetRepairActionNil() {
 	o.RepairAction.Set(nil)
@@ -305,6 +307,7 @@ func (o *ReconciliationFinding) HasResolvedAt() bool {
 func (o *ReconciliationFinding) SetResolvedAt(v time.Time) {
 	o.ResolvedAt.Set(&v)
 }
+
 // SetResolvedAtNil sets the value for ResolvedAt to be an explicit nil
 func (o *ReconciliationFinding) SetResolvedAtNil() {
 	o.ResolvedAt.Set(nil)
@@ -388,7 +391,7 @@ func (o *ReconciliationFinding) SetRunbook(v string) {
 }
 
 func (o ReconciliationFinding) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -438,10 +441,10 @@ func (o *ReconciliationFinding) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

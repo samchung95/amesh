@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,11 +21,11 @@ var _ MappedNullable = &PluginQuarantineCreate{}
 
 // PluginQuarantineCreate struct for PluginQuarantineCreate
 type PluginQuarantineCreate struct {
-	Namespace NullableString `json:"namespace,omitempty"`
-	Package string `json:"package"`
-	Reason string `json:"reason"`
-	Scope *PluginPolicyScope `json:"scope,omitempty"`
-	Version string `json:"version"`
+	Namespace NullableString     `json:"namespace,omitempty"`
+	Package   string             `json:"package"`
+	Reason    string             `json:"reason"`
+	Scope     *PluginPolicyScope `json:"scope,omitempty"`
+	Version   string             `json:"version"`
 }
 
 type _PluginQuarantineCreate PluginQuarantineCreate
@@ -86,6 +86,7 @@ func (o *PluginQuarantineCreate) HasNamespace() bool {
 func (o *PluginQuarantineCreate) SetNamespace(v string) {
 	o.Namespace.Set(&v)
 }
+
 // SetNamespaceNil sets the value for Namespace to be an explicit nil
 func (o *PluginQuarantineCreate) SetNamespaceNil() {
 	o.Namespace.Set(nil)
@@ -201,7 +202,7 @@ func (o *PluginQuarantineCreate) SetVersion(v string) {
 }
 
 func (o PluginQuarantineCreate) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -237,10 +238,10 @@ func (o *PluginQuarantineCreate) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

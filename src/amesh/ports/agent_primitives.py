@@ -13,6 +13,7 @@ from amesh.domain.agent_primitives import (
     McpConnectionRevision,
     McpConnectionSpec,
 )
+from amesh.domain.model_continuations import ProtectedModelContinuation
 
 
 class ModelProviderRequest(BaseModel):
@@ -23,12 +24,14 @@ class ModelProviderRequest(BaseModel):
     model: str = Field(min_length=1, max_length=512)
     payload: dict[str, Any]
     timeout_seconds: float = Field(alias="timeoutSeconds", gt=0)
+    continuation: SecretStr | None = Field(default=None, exclude=True, repr=False)
 
 
 class ModelProviderResponse(BaseModel):
     model_config = ConfigDict(frozen=True)
 
     payload: dict[str, Any]
+    continuation: SecretStr | None = Field(default=None, exclude=True, repr=False)
 
 
 class ModelProvider(Protocol):
@@ -73,4 +76,12 @@ class AgentPrimitiveRepository(Protocol):
         state: AgentInvocationState,
         result: dict[str, Any] | None = None,
         error: str | None = None,
+        protected_continuation: ProtectedModelContinuation | None = None,
     ) -> AgentInvocationRecord: ...
+
+    async def get_model_continuation(
+        self,
+        invocation_id: UUID,
+        *,
+        tenant_id: str,
+    ) -> ProtectedModelContinuation | None: ...

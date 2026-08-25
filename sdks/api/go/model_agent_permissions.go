@@ -19,13 +19,13 @@ var _ MappedNullable = &AgentPermissions{}
 
 // AgentPermissions struct for AgentPermissions
 type AgentPermissions struct {
-	AllowHighImpactTools *bool `json:"allowHighImpactTools,omitempty"`
+	AllowHighImpactTools  *bool    `json:"allowHighImpactTools,omitempty"`
 	DelegatedCapabilities []string `json:"delegatedCapabilities,omitempty"`
-	FilesystemReadRoots []string `json:"filesystemReadRoots,omitempty"`
-	FilesystemWriteRoots []string `json:"filesystemWriteRoots,omitempty"`
-	NetworkHosts []string `json:"networkHosts,omitempty"`
-	SecretScopes []string `json:"secretScopes,omitempty"`
-	ToolAllowlist []string `json:"toolAllowlist,omitempty"`
+	FilesystemReadRoots   []string `json:"filesystemReadRoots,omitempty"`
+	FilesystemWriteRoots  []string `json:"filesystemWriteRoots,omitempty"`
+	NetworkHosts          []string `json:"networkHosts,omitempty"`
+	SecretScopes          []string `json:"secretScopes,omitempty"`
+	ToolAllowlist         []string `json:"toolAllowlist,omitempty"`
 }
 
 // NewAgentPermissions instantiates a new AgentPermissions object
@@ -274,7 +274,7 @@ func (o *AgentPermissions) SetToolAllowlist(v []string) {
 }
 
 func (o AgentPermissions) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}

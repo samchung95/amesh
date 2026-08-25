@@ -24,6 +24,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import io.amesh.client.model.AgentModelContinuationRef;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -46,6 +47,7 @@ import io.amesh.client.ApiClient;
   AgentSessionCheckpoint.JSON_PROPERTY_MEMORY_ENTRIES,
   AgentSessionCheckpoint.JSON_PROPERTY_MEMORY_WRITE,
   AgentSessionCheckpoint.JSON_PROPERTY_MESSAGES,
+  AgentSessionCheckpoint.JSON_PROPERTY_MODEL_CONTINUATION,
   AgentSessionCheckpoint.JSON_PROPERTY_NEXT_TURN,
   AgentSessionCheckpoint.JSON_PROPERTY_PENDING_ACTION,
   AgentSessionCheckpoint.JSON_PROPERTY_PENDING_TURN,
@@ -70,6 +72,9 @@ public class AgentSessionCheckpoint {
   public static final String JSON_PROPERTY_MESSAGES = "messages";
   @javax.annotation.Nullable
   private List<Map<String, Object>> messages = new ArrayList<>();
+
+  public static final String JSON_PROPERTY_MODEL_CONTINUATION = "modelContinuation";
+  private JsonNullable<AgentModelContinuationRef> modelContinuation = JsonNullable.<AgentModelContinuationRef>undefined();
 
   public static final String JSON_PROPERTY_NEXT_TURN = "nextTurn";
   @javax.annotation.Nullable
@@ -260,6 +265,38 @@ public class AgentSessionCheckpoint {
   }
 
 
+  public AgentSessionCheckpoint modelContinuation(@javax.annotation.Nullable AgentModelContinuationRef modelContinuation) {
+    this.modelContinuation = JsonNullable.<AgentModelContinuationRef>of(modelContinuation);
+    return this;
+  }
+
+  /**
+   * Get modelContinuation
+   * @return modelContinuation
+   */
+  @javax.annotation.Nullable
+  @JsonIgnore
+  public AgentModelContinuationRef getModelContinuation() {
+        return modelContinuation.orElse(null);
+  }
+
+  @JsonProperty(value = JSON_PROPERTY_MODEL_CONTINUATION, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public JsonNullable<AgentModelContinuationRef> getModelContinuation_JsonNullable() {
+    return modelContinuation;
+  }
+
+  @JsonProperty(JSON_PROPERTY_MODEL_CONTINUATION)
+  public void setModelContinuation_JsonNullable(JsonNullable<AgentModelContinuationRef> modelContinuation) {
+    this.modelContinuation = modelContinuation;
+  }
+
+  public void setModelContinuation(@javax.annotation.Nullable AgentModelContinuationRef modelContinuation) {
+    this.modelContinuation = JsonNullable.<AgentModelContinuationRef>of(modelContinuation);
+  }
+
+
   public AgentSessionCheckpoint nextTurn(@javax.annotation.Nullable Integer nextTurn) {
     this.nextTurn = nextTurn;
     return this;
@@ -403,6 +440,7 @@ public class AgentSessionCheckpoint {
         Objects.equals(this.memoryEntries, agentSessionCheckpoint.memoryEntries) &&
         equalsNullable(this.memoryWrite, agentSessionCheckpoint.memoryWrite) &&
         Objects.equals(this.messages, agentSessionCheckpoint.messages) &&
+        equalsNullable(this.modelContinuation, agentSessionCheckpoint.modelContinuation) &&
         Objects.equals(this.nextTurn, agentSessionCheckpoint.nextTurn) &&
         equalsNullable(this.pendingAction, agentSessionCheckpoint.pendingAction) &&
         equalsNullable(this.pendingTurn, agentSessionCheckpoint.pendingTurn) &&
@@ -415,7 +453,7 @@ public class AgentSessionCheckpoint {
 
   @Override
   public int hashCode() {
-    return Objects.hash(evaluationOutcomes, hashCodeNullable(lastAcceptedOperation), memoryEntries, hashCodeNullable(memoryWrite), messages, nextTurn, hashCodeNullable(pendingAction), hashCodeNullable(pendingTurn), releaseApproved);
+    return Objects.hash(evaluationOutcomes, hashCodeNullable(lastAcceptedOperation), memoryEntries, hashCodeNullable(memoryWrite), messages, hashCodeNullable(modelContinuation), nextTurn, hashCodeNullable(pendingAction), hashCodeNullable(pendingTurn), releaseApproved);
   }
 
   private static <T> int hashCodeNullable(JsonNullable<T> a) {
@@ -434,6 +472,7 @@ public class AgentSessionCheckpoint {
     sb.append("    memoryEntries: ").append(toIndentedString(memoryEntries)).append("\n");
     sb.append("    memoryWrite: ").append(toIndentedString(memoryWrite)).append("\n");
     sb.append("    messages: ").append(toIndentedString(messages)).append("\n");
+    sb.append("    modelContinuation: ").append(toIndentedString(modelContinuation)).append("\n");
     sb.append("    nextTurn: ").append(toIndentedString(nextTurn)).append("\n");
     sb.append("    pendingAction: ").append(toIndentedString(pendingAction)).append("\n");
     sb.append("    pendingTurn: ").append(toIndentedString(pendingTurn)).append("\n");
@@ -521,6 +560,11 @@ public class AgentSessionCheckpoint {
             "".equals(suffix) ? "" : String.format(java.util.Locale.ROOT, "%s%d%s", containerPrefix, i, containerSuffix),
             ApiClient.urlEncode(ApiClient.valueToString(getMessages().get(i)))));
       }
+    }
+
+    // add `modelContinuation` to the URL query string
+    if (getModelContinuation() != null) {
+      joiner.add(getModelContinuation().toUrlQueryString(prefix + "modelContinuation" + suffix));
     }
 
     // add `nextTurn` to the URL query string

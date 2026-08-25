@@ -20,22 +20,22 @@ var _ MappedNullable = &AgentDefinitionSpecOutput{}
 
 // AgentDefinitionSpecOutput struct for AgentDefinitionSpecOutput
 type AgentDefinitionSpecOutput struct {
-	Description *string `json:"description,omitempty"`
-	EvaluationPolicy AgentEvaluationPolicy `json:"evaluationPolicy"`
-	HardLimits AgentHardLimitsOutput `json:"hardLimits"`
-	InputSchema map[string]interface{} `json:"inputSchema"`
-	Instructions string `json:"instructions"`
-	Key string `json:"key" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
-	Kind *string `json:"kind,omitempty"`
-	MemoryPolicy AgentMemoryPolicy `json:"memoryPolicy"`
-	ModelPolicy AgentResourceRef `json:"modelPolicy"`
-	Namespace string `json:"namespace"`
-	OutputSchema map[string]interface{} `json:"outputSchema"`
-	Permissions AgentPermissions `json:"permissions"`
-	Prompts []OrderedPromptRef `json:"prompts,omitempty"`
-	Skills []AgentResourceRef `json:"skills,omitempty"`
-	Title string `json:"title"`
-	Tools []AgentToolRef `json:"tools,omitempty"`
+	Description          *string                `json:"description,omitempty"`
+	EvaluationPolicy     AgentEvaluationPolicy  `json:"evaluationPolicy"`
+	HardLimits           AgentHardLimitsOutput  `json:"hardLimits"`
+	InputSchema          map[string]interface{} `json:"inputSchema"`
+	Instructions         string                 `json:"instructions"`
+	Key                  string                 `json:"key" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
+	Kind                 *string                `json:"kind,omitempty"`
+	MemoryPolicy         AgentMemoryPolicy      `json:"memoryPolicy"`
+	ModelPolicy          AgentResourceRef       `json:"modelPolicy"`
+	Namespace            string                 `json:"namespace"`
+	OutputSchema         map[string]interface{} `json:"outputSchema"`
+	Permissions          AgentPermissions       `json:"permissions"`
+	Prompts              []OrderedPromptRef     `json:"prompts,omitempty"`
+	Skills               []AgentResourceRef     `json:"skills,omitempty"`
+	Title                string                 `json:"title"`
+	Tools                []AgentToolRef         `json:"tools,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -502,7 +502,7 @@ func (o *AgentDefinitionSpecOutput) SetTools(v []AgentToolRef) {
 }
 
 func (o AgentDefinitionSpecOutput) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -568,10 +568,10 @@ func (o *AgentDefinitionSpecOutput) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

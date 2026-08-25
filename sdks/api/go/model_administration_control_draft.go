@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,11 +21,11 @@ var _ MappedNullable = &AdministrationControlDraft{}
 
 // AdministrationControlDraft struct for AdministrationControlDraft
 type AdministrationControlDraft struct {
-	Enabled bool `json:"enabled"`
-	ExpectedVersion NullableInt32 `json:"expectedVersion,omitempty"`
-	Key AdministrationControlKey `json:"key"`
-	Reason string `json:"reason"`
-	Value NullableValue `json:"value,omitempty"`
+	Enabled         bool                     `json:"enabled"`
+	ExpectedVersion NullableInt32            `json:"expectedVersion,omitempty"`
+	Key             AdministrationControlKey `json:"key"`
+	Reason          string                   `json:"reason"`
+	Value           NullableValue            `json:"value,omitempty"`
 }
 
 type _AdministrationControlDraft AdministrationControlDraft
@@ -106,6 +106,7 @@ func (o *AdministrationControlDraft) HasExpectedVersion() bool {
 func (o *AdministrationControlDraft) SetExpectedVersion(v int32) {
 	o.ExpectedVersion.Set(&v)
 }
+
 // SetExpectedVersionNil sets the value for ExpectedVersion to be an explicit nil
 func (o *AdministrationControlDraft) SetExpectedVersionNil() {
 	o.ExpectedVersion.Set(nil)
@@ -196,6 +197,7 @@ func (o *AdministrationControlDraft) HasValue() bool {
 func (o *AdministrationControlDraft) SetValue(v Value) {
 	o.Value.Set(&v)
 }
+
 // SetValueNil sets the value for Value to be an explicit nil
 func (o *AdministrationControlDraft) SetValueNil() {
 	o.Value.Set(nil)
@@ -207,7 +209,7 @@ func (o *AdministrationControlDraft) UnsetValue() {
 }
 
 func (o AdministrationControlDraft) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -243,10 +245,10 @@ func (o *AdministrationControlDraft) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

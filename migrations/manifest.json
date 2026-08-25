@@ -354,6 +354,48 @@
       "mode": "expand",
       "onlineCompatible": true,
       "rollbackGuidance": "Disable memory-enabled agent-session dispatch and memory API writes, preserve scoped content digests and provenance, then forward-fix the additive memory journal before restoring access."
-    }
-  ]
+    },
+    {
+      "file": "0060_service_role_health.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Keep role liveness checks active, treat DEGRADED as not ready, preserve success and failure timestamps, and forward-fix registry health reporting before restoring aggregate readiness."
+    },
+    {
+      "file": "0061_canonical_evidence_bundles.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Stop canonical bundle writes and forward-fix readers; retain immutable bundles and their outbox evidence until an approved retention process removes them."
+    },
+    {
+      "file": "0062_tool_provider_invocations.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Stop new MCP and plugin tool dispatch, preserve provider invocation evidence and STARTED ambiguity records, then forward-fix the additive journal before restoring dispatch."
+    },
+    {
+      "file": "0063_protected_model_continuations.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Stop continuation-enabled model dispatch, preserve encrypted continuation columns and invocation evidence, then restore the configured read keys and forward-fix before resuming continuation calls."
+    },
+    {
+      "file": "0064_promotion_release_gates.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Stop promotion, rollback and kill-switch changes, preserve policy, evidence and release history, then forward-fix the additive release-gate tables before resuming release actions."
+    },
+  {
+    "file": "0065_differential_shadow.sql",
+    "mode": "expand",
+    "onlineCompatible": true,
+    "rollbackGuidance": "Stop new differential and shadow comparisons, preserve immutable frozen-input specs, independent runs and comparison events, then forward-fix the additive journal before resuming comparisons."
+  },
+  {
+    "file": "0066_evidence_event_kinds.sql",
+    "mode": "expand",
+    "onlineCompatible": true,
+    "rollbackGuidance": "Stop writes using the expanded evidence kinds, preserve existing canonical evidence, and forward-fix readers or event producers before restoring those writes."
+  }
+]
 }

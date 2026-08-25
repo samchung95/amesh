@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,15 +21,15 @@ var _ MappedNullable = &PluginPackageRecord{}
 
 // PluginPackageRecord struct for PluginPackageRecord
 type PluginPackageRecord struct {
-	ContentDigest NullableString `json:"contentDigest,omitempty"`
-	Diagnostics []string `json:"diagnostics,omitempty"`
-	Manifest NullablePluginManifest `json:"manifest,omitempty"`
-	MarketplaceSignals NullablePluginMarketplaceSignals `json:"marketplaceSignals,omitempty"`
-	RegistryAttachments []PluginRegistryAttachment `json:"registryAttachments,omitempty"`
-	RegistryMetadata NullablePluginRegistryMetadata `json:"registryMetadata,omitempty"`
-	SourceKind PluginSourceKind `json:"sourceKind"`
-	SourceLocation string `json:"sourceLocation"`
-	Status PluginLifecycleStatus `json:"status"`
+	ContentDigest       NullableString                   `json:"contentDigest,omitempty"`
+	Diagnostics         []string                         `json:"diagnostics,omitempty"`
+	Manifest            NullablePluginManifest           `json:"manifest,omitempty"`
+	MarketplaceSignals  NullablePluginMarketplaceSignals `json:"marketplaceSignals,omitempty"`
+	RegistryAttachments []PluginRegistryAttachment       `json:"registryAttachments,omitempty"`
+	RegistryMetadata    NullablePluginRegistryMetadata   `json:"registryMetadata,omitempty"`
+	SourceKind          PluginSourceKind                 `json:"sourceKind"`
+	SourceLocation      string                           `json:"sourceLocation"`
+	Status              PluginLifecycleStatus            `json:"status"`
 }
 
 type _PluginPackageRecord PluginPackageRecord
@@ -86,6 +86,7 @@ func (o *PluginPackageRecord) HasContentDigest() bool {
 func (o *PluginPackageRecord) SetContentDigest(v string) {
 	o.ContentDigest.Set(&v)
 }
+
 // SetContentDigestNil sets the value for ContentDigest to be an explicit nil
 func (o *PluginPackageRecord) SetContentDigestNil() {
 	o.ContentDigest.Set(nil)
@@ -160,6 +161,7 @@ func (o *PluginPackageRecord) HasManifest() bool {
 func (o *PluginPackageRecord) SetManifest(v PluginManifest) {
 	o.Manifest.Set(&v)
 }
+
 // SetManifestNil sets the value for Manifest to be an explicit nil
 func (o *PluginPackageRecord) SetManifestNil() {
 	o.Manifest.Set(nil)
@@ -202,6 +204,7 @@ func (o *PluginPackageRecord) HasMarketplaceSignals() bool {
 func (o *PluginPackageRecord) SetMarketplaceSignals(v PluginMarketplaceSignals) {
 	o.MarketplaceSignals.Set(&v)
 }
+
 // SetMarketplaceSignalsNil sets the value for MarketplaceSignals to be an explicit nil
 func (o *PluginPackageRecord) SetMarketplaceSignalsNil() {
 	o.MarketplaceSignals.Set(nil)
@@ -276,6 +279,7 @@ func (o *PluginPackageRecord) HasRegistryMetadata() bool {
 func (o *PluginPackageRecord) SetRegistryMetadata(v PluginRegistryMetadata) {
 	o.RegistryMetadata.Set(&v)
 }
+
 // SetRegistryMetadataNil sets the value for RegistryMetadata to be an explicit nil
 func (o *PluginPackageRecord) SetRegistryMetadataNil() {
 	o.RegistryMetadata.Set(nil)
@@ -359,7 +363,7 @@ func (o *PluginPackageRecord) SetStatus(v PluginLifecycleStatus) {
 }
 
 func (o PluginPackageRecord) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -407,10 +411,10 @@ func (o *PluginPackageRecord) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the HumanTaskNotification type satisfies the MappedNullable interface at compile time
@@ -22,14 +22,14 @@ var _ MappedNullable = &HumanTaskNotification{}
 
 // HumanTaskNotification Participant-safe notification; execution identifiers and form values are excluded.
 type HumanTaskNotification struct {
-	CreatedAt time.Time `json:"createdAt"`
-	DeadlineAt NullableTime `json:"deadlineAt"`
-	HumanTaskId string `json:"humanTaskId"`
-	Kind string `json:"kind"`
-	Message string `json:"message"`
-	NotificationId string `json:"notificationId"`
-	ReadAt NullableTime `json:"readAt"`
-	Title string `json:"title"`
+	CreatedAt      time.Time    `json:"createdAt"`
+	DeadlineAt     NullableTime `json:"deadlineAt"`
+	HumanTaskId    string       `json:"humanTaskId"`
+	Kind           string       `json:"kind"`
+	Message        string       `json:"message"`
+	NotificationId string       `json:"notificationId"`
+	ReadAt         NullableTime `json:"readAt"`
+	Title          string       `json:"title"`
 }
 
 type _HumanTaskNotification HumanTaskNotification
@@ -256,7 +256,7 @@ func (o *HumanTaskNotification) SetTitle(v string) {
 }
 
 func (o HumanTaskNotification) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -296,10 +296,10 @@ func (o *HumanTaskNotification) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

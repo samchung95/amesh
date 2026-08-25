@@ -21,12 +21,12 @@ type DashboardAggregation string
 // List of DashboardAggregation
 const (
 	DASHBOARDAGGREGATION_COUNT DashboardAggregation = "COUNT"
-	DASHBOARDAGGREGATION_SUM DashboardAggregation = "SUM"
-	DASHBOARDAGGREGATION_AVG DashboardAggregation = "AVG"
-	DASHBOARDAGGREGATION_MIN DashboardAggregation = "MIN"
-	DASHBOARDAGGREGATION_MAX DashboardAggregation = "MAX"
-	DASHBOARDAGGREGATION_P50 DashboardAggregation = "P50"
-	DASHBOARDAGGREGATION_P95 DashboardAggregation = "P95"
+	DASHBOARDAGGREGATION_SUM   DashboardAggregation = "SUM"
+	DASHBOARDAGGREGATION_AVG   DashboardAggregation = "AVG"
+	DASHBOARDAGGREGATION_MIN   DashboardAggregation = "MIN"
+	DASHBOARDAGGREGATION_MAX   DashboardAggregation = "MAX"
+	DASHBOARDAGGREGATION_P50   DashboardAggregation = "P50"
+	DASHBOARDAGGREGATION_P95   DashboardAggregation = "P95"
 )
 
 // All allowed values of DashboardAggregation enum

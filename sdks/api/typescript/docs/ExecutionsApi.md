@@ -11,6 +11,7 @@ All URIs are relative to *http://localhost*
 | [**getExecutionAdmissionApiV1ExecutionsExecutionIdAdmissionGet**](ExecutionsApi.md#getexecutionadmissionapiv1executionsexecutionidadmissionget) | **GET** /api/v1/executions/{execution_id}/admission | Get Execution Admission |
 | [**getExecutionApiV1ExecutionsExecutionIdGet**](ExecutionsApi.md#getexecutionapiv1executionsexecutionidget) | **GET** /api/v1/executions/{execution_id} | Get Execution |
 | [**getExecutionEvidenceApiV1ExecutionsExecutionIdEvidenceGet**](ExecutionsApi.md#getexecutionevidenceapiv1executionsexecutionidevidenceget) | **GET** /api/v1/executions/{execution_id}/evidence | Get Execution Evidence |
+| [**getExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGet**](ExecutionsApi.md#getexecutionevidencebundleapiv1executionsexecutionidevidencebundleget) | **GET** /api/v1/executions/{execution_id}/evidence-bundle | Get Execution Evidence Bundle |
 | [**getExecutionGraphApiV1ExecutionsExecutionIdGraphGet**](ExecutionsApi.md#getexecutiongraphapiv1executionsexecutionidgraphget) | **GET** /api/v1/executions/{execution_id}/graph | Get Execution Graph |
 | [**getExecutionLogsApiV1ExecutionsExecutionIdLogsGet**](ExecutionsApi.md#getexecutionlogsapiv1executionsexecutionidlogsget) | **GET** /api/v1/executions/{execution_id}/logs | Get Execution Logs |
 | [**getExecutionParentSubflowApiV1ExecutionsExecutionIdParentSubflowGet**](ExecutionsApi.md#getexecutionparentsubflowapiv1executionsexecutionidparentsubflowget) | **GET** /api/v1/executions/{execution_id}/parent-subflow | Get Execution Parent Subflow |
@@ -108,7 +109,7 @@ No authorization required
 
 ## createExecutionApiV1ExecutionsPost
 
-> ExecutionDetail createExecutionApiV1ExecutionsPost(createExecutionRequest, prefer, idempotencyKey, authorization, xAmeshCSRF, xAmeshTenant)
+> ExecutionDetail createExecutionApiV1ExecutionsPost(createExecutionRequest, prefer, idempotencyKey, xCorrelationID, authorization, xAmeshCSRF, xAmeshTenant)
 
 Create Execution
 
@@ -132,6 +133,8 @@ async function example() {
     prefer: prefer_example,
     // string (optional)
     idempotencyKey: idempotencyKey_example,
+    // string (optional)
+    xCorrelationID: xCorrelationID_example,
     // string (optional)
     authorization: authorization_example,
     // string (optional)
@@ -160,6 +163,7 @@ example().catch(console.error);
 | **createExecutionRequest** | [CreateExecutionRequest](CreateExecutionRequest.md) |  | |
 | **prefer** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **idempotencyKey** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **xCorrelationID** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
@@ -190,7 +194,7 @@ No authorization required
 
 ## createExecutionsBulkApiV1ExecutionsBulkPost
 
-> Array&lt;BulkExecutionItemResult&gt; createExecutionsBulkApiV1ExecutionsBulkPost(bulkExecutionRequest, prefer, authorization, xAmeshCSRF, xAmeshTenant)
+> Array&lt;BulkExecutionItemResult&gt; createExecutionsBulkApiV1ExecutionsBulkPost(bulkExecutionRequest, prefer, xCorrelationID, authorization, xAmeshCSRF, xAmeshTenant)
 
 Create Executions Bulk
 
@@ -212,6 +216,8 @@ async function example() {
     bulkExecutionRequest: ...,
     // string (optional)
     prefer: prefer_example,
+    // string (optional)
+    xCorrelationID: xCorrelationID_example,
     // string (optional)
     authorization: authorization_example,
     // string (optional)
@@ -239,6 +245,7 @@ example().catch(console.error);
 |------------- | ------------- | ------------- | -------------|
 | **bulkExecutionRequest** | [BulkExecutionRequest](BulkExecutionRequest.md) |  | |
 | **prefer** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **xCorrelationID** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
 | **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
@@ -561,6 +568,92 @@ example().catch(console.error);
 ### Return type
 
 [**ExecutionEvidencePage**](ExecutionEvidencePage.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: `application/json`
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful Response |  -  |
+| **422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
+
+
+## getExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGet
+
+> EvidenceBundlePageResponse getExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGet(executionId, section, cursor, limit, authorization, xAmeshCSRF, xAmeshTenant)
+
+Get Execution Evidence Bundle
+
+Return a verified, bounded, tenant-scoped canonical evidence projection.
+
+### Example
+
+```ts
+import {
+  Configuration,
+  ExecutionsApi,
+} from '@amesh/client';
+import type { GetExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGetRequest } from '@amesh/client';
+
+async function example() {
+  console.log("🚀 Testing @amesh/client SDK...");
+  const api = new ExecutionsApi();
+
+  const body = {
+    // string
+    executionId: 38400000-8cf0-11bd-b23e-10b96e4ef00d,
+    // string | Canonical evidence section (optional)
+    section: section_example,
+    // string | Opaque section cursor (optional)
+    cursor: cursor_example,
+    // number (optional)
+    limit: 56,
+    // string (optional)
+    authorization: authorization_example,
+    // string (optional)
+    xAmeshCSRF: xAmeshCSRF_example,
+    // string (optional)
+    xAmeshTenant: xAmeshTenant_example,
+  } satisfies GetExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGetRequest;
+
+  try {
+    const data = await api.getExecutionEvidenceBundleApiV1ExecutionsExecutionIdEvidenceBundleGet(body);
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// Run the test
+example().catch(console.error);
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **executionId** | `string` |  | [Defaults to `undefined`] |
+| **section** | `string` | Canonical evidence section | [Optional] [Defaults to `&#39;trace&#39;`] |
+| **cursor** | `string` | Opaque section cursor | [Optional] [Defaults to `undefined`] |
+| **limit** | `number` |  | [Optional] [Defaults to `100`] |
+| **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
+
+### Return type
+
+[**EvidenceBundlePageResponse**](EvidenceBundlePageResponse.md)
 
 ### Authorization
 

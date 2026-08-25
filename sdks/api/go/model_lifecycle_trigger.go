@@ -20,7 +20,7 @@ type LifecycleTrigger string
 
 // List of LifecycleTrigger
 const (
-	LIFECYCLETRIGGER_MANUAL LifecycleTrigger = "MANUAL"
+	LIFECYCLETRIGGER_MANUAL    LifecycleTrigger = "MANUAL"
 	LIFECYCLETRIGGER_SCHEDULED LifecycleTrigger = "SCHEDULED"
 )
 

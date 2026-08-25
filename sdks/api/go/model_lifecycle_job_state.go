@@ -20,12 +20,12 @@ type LifecycleJobState string
 
 // List of LifecycleJobState
 const (
-	LIFECYCLEJOBSTATE_PREVIEWED LifecycleJobState = "PREVIEWED"
-	LIFECYCLEJOBSTATE_READY LifecycleJobState = "READY"
-	LIFECYCLEJOBSTATE_RUNNING LifecycleJobState = "RUNNING"
+	LIFECYCLEJOBSTATE_PREVIEWED        LifecycleJobState = "PREVIEWED"
+	LIFECYCLEJOBSTATE_READY            LifecycleJobState = "READY"
+	LIFECYCLEJOBSTATE_RUNNING          LifecycleJobState = "RUNNING"
 	LIFECYCLEJOBSTATE_WAITING_EXTERNAL LifecycleJobState = "WAITING_EXTERNAL"
-	LIFECYCLEJOBSTATE_SUCCEEDED LifecycleJobState = "SUCCEEDED"
-	LIFECYCLEJOBSTATE_FAILED LifecycleJobState = "FAILED"
+	LIFECYCLEJOBSTATE_SUCCEEDED        LifecycleJobState = "SUCCEEDED"
+	LIFECYCLEJOBSTATE_FAILED           LifecycleJobState = "FAILED"
 )
 
 // All allowed values of LifecycleJobState enum

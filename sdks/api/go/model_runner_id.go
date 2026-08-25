@@ -20,8 +20,8 @@ type RunnerId string
 
 // List of RunnerId
 const (
-	RUNNERID_LOCAL RunnerId = "local"
-	RUNNERID_DOCKER RunnerId = "docker"
+	RUNNERID_LOCAL      RunnerId = "local"
+	RUNNERID_DOCKER     RunnerId = "docker"
 	RUNNERID_KUBERNETES RunnerId = "kubernetes"
 )
 

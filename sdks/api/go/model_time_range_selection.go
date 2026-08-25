@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the TimeRangeSelection type satisfies the MappedNullable interface at compile time
@@ -22,9 +22,9 @@ var _ MappedNullable = &TimeRangeSelection{}
 
 // TimeRangeSelection struct for TimeRangeSelection
 type TimeRangeSelection struct {
-	End time.Time `json:"end"`
-	IntervalSeconds int32 `json:"intervalSeconds"`
-	Start time.Time `json:"start"`
+	End             time.Time `json:"end"`
+	IntervalSeconds int32     `json:"intervalSeconds"`
+	Start           time.Time `json:"start"`
 }
 
 type _TimeRangeSelection TimeRangeSelection
@@ -122,7 +122,7 @@ func (o *TimeRangeSelection) SetStart(v time.Time) {
 }
 
 func (o TimeRangeSelection) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -152,10 +152,10 @@ func (o *TimeRangeSelection) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

@@ -18,10 +18,11 @@ import re  # noqa: F401
 import json
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
-from typing import Any, ClassVar, Dict, List
+from typing import Any, ClassVar, Dict, List, Optional
 from typing_extensions import Annotated
 from uuid import UUID
 from amesh_client.models.mcp_tool_impact import McpToolImpact
+from amesh_client.models.tool_provider_kind import ToolProviderKind
 from typing import Optional, Set
 from typing_extensions import Self
 from pydantic_core import to_jsonable_python
@@ -30,18 +31,25 @@ class ResolvedToolPin(BaseModel):
     """
     ResolvedToolPin
     """ # noqa: E501
-    connection_digest: Annotated[str, Field(strict=True)] = Field(alias="connectionDigest")
-    connection_id: UUID = Field(alias="connectionId")
-    connection_key: Annotated[str, Field(min_length=1, strict=True, max_length=128)] = Field(alias="connectionKey")
-    connection_revision: Annotated[int, Field(strict=True, ge=1)] = Field(alias="connectionRevision")
+    connection_digest: Optional[Annotated[str, Field(strict=True)]] = Field(default=None, alias="connectionDigest")
+    connection_id: Optional[UUID] = Field(default=None, alias="connectionId")
+    connection_key: Optional[Annotated[str, Field(min_length=1, strict=True, max_length=128)]] = Field(default=None, alias="connectionKey")
+    connection_revision: Optional[Annotated[int, Field(strict=True, ge=1)]] = Field(default=None, alias="connectionRevision")
     impact: McpToolImpact
+    provider_digest: Annotated[str, Field(strict=True)] = Field(alias="providerDigest")
+    provider_key: Annotated[str, Field(min_length=1, strict=True, max_length=255)] = Field(alias="providerKey")
+    provider_kind: Optional[ToolProviderKind] = Field(default=None, alias="providerKind")
+    provider_revision: Annotated[int, Field(strict=True, ge=1)] = Field(alias="providerRevision")
     schema_digest: Annotated[str, Field(strict=True)] = Field(alias="schemaDigest")
-    tool_name: Annotated[str, Field(min_length=1, strict=True, max_length=128)] = Field(alias="toolName")
-    __properties: ClassVar[List[str]] = ["connectionDigest", "connectionId", "connectionKey", "connectionRevision", "impact", "schemaDigest", "toolName"]
+    tool_name: Annotated[str, Field(min_length=1, strict=True, max_length=255)] = Field(alias="toolName")
+    __properties: ClassVar[List[str]] = ["connectionDigest", "connectionId", "connectionKey", "connectionRevision", "impact", "providerDigest", "providerKey", "providerKind", "providerRevision", "schemaDigest", "toolName"]
 
     @field_validator('connection_digest', mode="before")
     def connection_digest_validate_regular_expression(cls, value):
         """Validates the regular expression"""
+        if value is None:
+            return value
+
         if isinstance(value, str) and not re.match(r"^sha256:[0-9a-f]{64}$", value):
             raise ValueError(r"must validate the regular expression /^sha256:[0-9a-f]{64}$/")
         return value
@@ -49,8 +57,25 @@ class ResolvedToolPin(BaseModel):
     @field_validator('connection_key', mode="before")
     def connection_key_validate_regular_expression(cls, value):
         """Validates the regular expression"""
+        if value is None:
+            return value
+
         if isinstance(value, str) and not re.match(r"^[A-Za-z0-9][A-Za-z0-9_-]*$", value):
             raise ValueError(r"must validate the regular expression /^[A-Za-z0-9][A-Za-z0-9_-]*$/")
+        return value
+
+    @field_validator('provider_digest', mode="before")
+    def provider_digest_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if isinstance(value, str) and not re.match(r"^sha256:[0-9a-f]{64}$", value):
+            raise ValueError(r"must validate the regular expression /^sha256:[0-9a-f]{64}$/")
+        return value
+
+    @field_validator('provider_key', mode="before")
+    def provider_key_validate_regular_expression(cls, value):
+        """Validates the regular expression"""
+        if isinstance(value, str) and not re.match(r"^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$", value):
+            raise ValueError(r"must validate the regular expression /^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$/")
         return value
 
     @field_validator('schema_digest', mode="before")
@@ -63,8 +88,8 @@ class ResolvedToolPin(BaseModel):
     @field_validator('tool_name', mode="before")
     def tool_name_validate_regular_expression(cls, value):
         """Validates the regular expression"""
-        if isinstance(value, str) and not re.match(r"^[A-Za-z0-9][A-Za-z0-9_-]*$", value):
-            raise ValueError(r"must validate the regular expression /^[A-Za-z0-9][A-Za-z0-9_-]*$/")
+        if isinstance(value, str) and not re.match(r"^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$", value):
+            raise ValueError(r"must validate the regular expression /^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$/")
         return value
 
     model_config = ConfigDict(
@@ -106,6 +131,26 @@ class ResolvedToolPin(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
+        # set to None if connection_digest (nullable) is None
+        # and model_fields_set contains the field
+        if self.connection_digest is None and "connection_digest" in self.model_fields_set:
+            _dict['connectionDigest'] = None
+
+        # set to None if connection_id (nullable) is None
+        # and model_fields_set contains the field
+        if self.connection_id is None and "connection_id" in self.model_fields_set:
+            _dict['connectionId'] = None
+
+        # set to None if connection_key (nullable) is None
+        # and model_fields_set contains the field
+        if self.connection_key is None and "connection_key" in self.model_fields_set:
+            _dict['connectionKey'] = None
+
+        # set to None if connection_revision (nullable) is None
+        # and model_fields_set contains the field
+        if self.connection_revision is None and "connection_revision" in self.model_fields_set:
+            _dict['connectionRevision'] = None
+
         return _dict
 
     @classmethod
@@ -123,6 +168,10 @@ class ResolvedToolPin(BaseModel):
             "connectionKey": obj.get("connectionKey"),
             "connectionRevision": obj.get("connectionRevision"),
             "impact": obj.get("impact"),
+            "providerDigest": obj.get("providerDigest"),
+            "providerKey": obj.get("providerKey"),
+            "providerKind": obj.get("providerKind"),
+            "providerRevision": obj.get("providerRevision"),
             "schemaDigest": obj.get("schemaDigest"),
             "toolName": obj.get("toolName")
         })

@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,11 +21,11 @@ var _ MappedNullable = &PolicyConditionEvidence{}
 
 // PolicyConditionEvidence struct for PolicyConditionEvidence
 type PolicyConditionEvidence struct {
-	Actual interface{} `json:"actual,omitempty"`
-	Expected interface{} `json:"expected,omitempty"`
-	Matched bool `json:"matched"`
+	Actual   interface{}    `json:"actual,omitempty"`
+	Expected interface{}    `json:"expected,omitempty"`
+	Matched  bool           `json:"matched"`
 	Operator PolicyOperator `json:"operator"`
-	Path string `json:"path"`
+	Path     string         `json:"path"`
 }
 
 type _PolicyConditionEvidence PolicyConditionEvidence
@@ -189,7 +189,7 @@ func (o *PolicyConditionEvidence) SetPath(v string) {
 }
 
 func (o PolicyConditionEvidence) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -225,10 +225,10 @@ func (o *PolicyConditionEvidence) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

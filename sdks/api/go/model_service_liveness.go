@@ -20,8 +20,8 @@ type ServiceLiveness string
 
 // List of ServiceLiveness
 const (
-	SERVICELIVENESS_LIVE ServiceLiveness = "LIVE"
-	SERVICELIVENESS_STALE ServiceLiveness = "STALE"
+	SERVICELIVENESS_LIVE    ServiceLiveness = "LIVE"
+	SERVICELIVENESS_STALE   ServiceLiveness = "STALE"
 	SERVICELIVENESS_STOPPED ServiceLiveness = "STOPPED"
 )
 

@@ -19,11 +19,11 @@ var _ MappedNullable = &PluginCapabilities{}
 
 // PluginCapabilities struct for PluginCapabilities
 type PluginCapabilities struct {
-	AllowedEgress []string `json:"allowedEgress,omitempty"`
+	AllowedEgress    []string                `json:"allowedEgress,omitempty"`
 	FilesystemAccess *PluginFilesystemAccess `json:"filesystemAccess,omitempty"`
-	NetworkAccess *PluginNetworkAccess `json:"networkAccess,omitempty"`
-	Required []string `json:"required,omitempty"`
-	SecretScopes []string `json:"secretScopes,omitempty"`
+	NetworkAccess    *PluginNetworkAccess    `json:"networkAccess,omitempty"`
+	Required         []string                `json:"required,omitempty"`
+	SecretScopes     []string                `json:"secretScopes,omitempty"`
 }
 
 // NewPluginCapabilities instantiates a new PluginCapabilities object
@@ -212,7 +212,7 @@ func (o *PluginCapabilities) SetSecretScopes(v []string) {
 }
 
 func (o PluginCapabilities) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}

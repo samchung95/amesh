@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the FlowTestDefinition type satisfies the MappedNullable interface at compile time
@@ -22,25 +22,25 @@ var _ MappedNullable = &FlowTestDefinition{}
 
 // FlowTestDefinition struct for FlowTestDefinition
 type FlowTestDefinition struct {
-	CreatedAt time.Time `json:"createdAt"`
-	CreatedBy string `json:"createdBy"`
-	Expected FlowTestExpectation `json:"expected"`
-	Fixtures map[string]FlowTestFixture `json:"fixtures"`
-	FlowId string `json:"flowId"`
-	FlowSemanticHash string `json:"flowSemanticHash"`
-	Id *string `json:"id,omitempty"`
-	Inputs map[string]interface{} `json:"inputs"`
-	Name string `json:"name"`
-	Namespace string `json:"namespace"`
-	PluginSetHash string `json:"pluginSetHash"`
-	Revision int32 `json:"revision"`
-	Tags []string `json:"tags"`
-	TenantId string `json:"tenantId"`
-	TestId string `json:"testId"`
-	UpdatedAt time.Time `json:"updatedAt"`
-	UpdatedBy string `json:"updatedBy"`
-	Variables map[string]interface{} `json:"variables"`
-	Version int32 `json:"version"`
+	CreatedAt        time.Time                  `json:"createdAt"`
+	CreatedBy        string                     `json:"createdBy"`
+	Expected         FlowTestExpectation        `json:"expected"`
+	Fixtures         map[string]FlowTestFixture `json:"fixtures"`
+	FlowId           string                     `json:"flowId"`
+	FlowSemanticHash string                     `json:"flowSemanticHash"`
+	Id               *string                    `json:"id,omitempty"`
+	Inputs           map[string]interface{}     `json:"inputs"`
+	Name             string                     `json:"name"`
+	Namespace        string                     `json:"namespace"`
+	PluginSetHash    string                     `json:"pluginSetHash"`
+	Revision         int32                      `json:"revision"`
+	Tags             []string                   `json:"tags"`
+	TenantId         string                     `json:"tenantId"`
+	TestId           string                     `json:"testId"`
+	UpdatedAt        time.Time                  `json:"updatedAt"`
+	UpdatedBy        string                     `json:"updatedBy"`
+	Variables        map[string]interface{}     `json:"variables"`
+	Version          int32                      `json:"version"`
 }
 
 type _FlowTestDefinition FlowTestDefinition
@@ -545,7 +545,7 @@ func (o *FlowTestDefinition) SetVersion(v int32) {
 }
 
 func (o FlowTestDefinition) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -608,10 +608,10 @@ func (o *FlowTestDefinition) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

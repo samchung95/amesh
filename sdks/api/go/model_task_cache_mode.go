@@ -20,8 +20,8 @@ type TaskCacheMode string
 
 // List of TaskCacheMode
 const (
-	TASKCACHEMODE_USE TaskCacheMode = "USE"
-	TASKCACHEMODE_BYPASS TaskCacheMode = "BYPASS"
+	TASKCACHEMODE_USE     TaskCacheMode = "USE"
+	TASKCACHEMODE_BYPASS  TaskCacheMode = "BYPASS"
 	TASKCACHEMODE_REFRESH TaskCacheMode = "REFRESH"
 )
 

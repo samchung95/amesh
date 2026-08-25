@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,10 +21,10 @@ var _ MappedNullable = &PolicyActorContext{}
 
 // PolicyActorContext struct for PolicyActorContext
 type PolicyActorContext struct {
-	Attributes map[string]interface{} `json:"attributes,omitempty"`
-	Display string `json:"display"`
-	PrincipalId string `json:"principalId"`
-	PrincipalType string `json:"principalType"`
+	Attributes    map[string]interface{} `json:"attributes,omitempty"`
+	Display       string                 `json:"display"`
+	PrincipalId   string                 `json:"principalId"`
+	PrincipalType string                 `json:"principalType"`
 }
 
 type _PolicyActorContext PolicyActorContext
@@ -154,7 +154,7 @@ func (o *PolicyActorContext) SetPrincipalType(v string) {
 }
 
 func (o PolicyActorContext) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -187,10 +187,10 @@ func (o *PolicyActorContext) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

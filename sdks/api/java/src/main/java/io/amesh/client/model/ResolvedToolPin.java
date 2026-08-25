@@ -25,8 +25,13 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import io.amesh.client.model.McpToolImpact;
+import io.amesh.client.model.ToolProviderKind;
 import java.util.Arrays;
 import java.util.UUID;
+import org.openapitools.jackson.nullable.JsonNullable;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.openapitools.jackson.nullable.JsonNullable;
+import java.util.NoSuchElementException;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
@@ -40,30 +45,46 @@ import io.amesh.client.ApiClient;
   ResolvedToolPin.JSON_PROPERTY_CONNECTION_KEY,
   ResolvedToolPin.JSON_PROPERTY_CONNECTION_REVISION,
   ResolvedToolPin.JSON_PROPERTY_IMPACT,
+  ResolvedToolPin.JSON_PROPERTY_PROVIDER_DIGEST,
+  ResolvedToolPin.JSON_PROPERTY_PROVIDER_KEY,
+  ResolvedToolPin.JSON_PROPERTY_PROVIDER_KIND,
+  ResolvedToolPin.JSON_PROPERTY_PROVIDER_REVISION,
   ResolvedToolPin.JSON_PROPERTY_SCHEMA_DIGEST,
   ResolvedToolPin.JSON_PROPERTY_TOOL_NAME
 })
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", comments = "Generator version: 7.24.0")
 public class ResolvedToolPin {
   public static final String JSON_PROPERTY_CONNECTION_DIGEST = "connectionDigest";
-  @javax.annotation.Nonnull
-  private String connectionDigest;
+  private JsonNullable<String> connectionDigest = JsonNullable.<String>undefined();
 
   public static final String JSON_PROPERTY_CONNECTION_ID = "connectionId";
-  @javax.annotation.Nonnull
-  private UUID connectionId;
+  private JsonNullable<UUID> connectionId = JsonNullable.<UUID>undefined();
 
   public static final String JSON_PROPERTY_CONNECTION_KEY = "connectionKey";
-  @javax.annotation.Nonnull
-  private String connectionKey;
+  private JsonNullable<String> connectionKey = JsonNullable.<String>undefined();
 
   public static final String JSON_PROPERTY_CONNECTION_REVISION = "connectionRevision";
-  @javax.annotation.Nonnull
-  private Integer connectionRevision;
+  private JsonNullable<Integer> connectionRevision = JsonNullable.<Integer>undefined();
 
   public static final String JSON_PROPERTY_IMPACT = "impact";
   @javax.annotation.Nonnull
   private McpToolImpact impact;
+
+  public static final String JSON_PROPERTY_PROVIDER_DIGEST = "providerDigest";
+  @javax.annotation.Nonnull
+  private String providerDigest;
+
+  public static final String JSON_PROPERTY_PROVIDER_KEY = "providerKey";
+  @javax.annotation.Nonnull
+  private String providerKey;
+
+  public static final String JSON_PROPERTY_PROVIDER_KIND = "providerKind";
+  @javax.annotation.Nullable
+  private ToolProviderKind providerKind;
+
+  public static final String JSON_PROPERTY_PROVIDER_REVISION = "providerRevision";
+  @javax.annotation.Nonnull
+  private Integer providerRevision;
 
   public static final String JSON_PROPERTY_SCHEMA_DIGEST = "schemaDigest";
   @javax.annotation.Nonnull
@@ -76,8 +97,8 @@ public class ResolvedToolPin {
   public ResolvedToolPin() {
   }
 
-  public ResolvedToolPin connectionDigest(@javax.annotation.Nonnull String connectionDigest) {
-    this.connectionDigest = connectionDigest;
+  public ResolvedToolPin connectionDigest(@javax.annotation.Nullable String connectionDigest) {
+    this.connectionDigest = JsonNullable.<String>of(connectionDigest);
     return this;
   }
 
@@ -85,23 +106,31 @@ public class ResolvedToolPin {
    * Get connectionDigest
    * @return connectionDigest
    */
-  @javax.annotation.Nonnull
-  @JsonProperty(value = JSON_PROPERTY_CONNECTION_DIGEST, required = true)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  @javax.annotation.Nullable
+  @JsonIgnore
   public String getConnectionDigest() {
+        return connectionDigest.orElse(null);
+  }
+
+  @JsonProperty(value = JSON_PROPERTY_CONNECTION_DIGEST, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public JsonNullable<String> getConnectionDigest_JsonNullable() {
     return connectionDigest;
   }
 
-
-  @JsonProperty(value = JSON_PROPERTY_CONNECTION_DIGEST, required = true)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setConnectionDigest(@javax.annotation.Nonnull String connectionDigest) {
+  @JsonProperty(JSON_PROPERTY_CONNECTION_DIGEST)
+  public void setConnectionDigest_JsonNullable(JsonNullable<String> connectionDigest) {
     this.connectionDigest = connectionDigest;
   }
 
+  public void setConnectionDigest(@javax.annotation.Nullable String connectionDigest) {
+    this.connectionDigest = JsonNullable.<String>of(connectionDigest);
+  }
 
-  public ResolvedToolPin connectionId(@javax.annotation.Nonnull UUID connectionId) {
-    this.connectionId = connectionId;
+
+  public ResolvedToolPin connectionId(@javax.annotation.Nullable UUID connectionId) {
+    this.connectionId = JsonNullable.<UUID>of(connectionId);
     return this;
   }
 
@@ -109,23 +138,31 @@ public class ResolvedToolPin {
    * Get connectionId
    * @return connectionId
    */
-  @javax.annotation.Nonnull
-  @JsonProperty(value = JSON_PROPERTY_CONNECTION_ID, required = true)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  @javax.annotation.Nullable
+  @JsonIgnore
   public UUID getConnectionId() {
+        return connectionId.orElse(null);
+  }
+
+  @JsonProperty(value = JSON_PROPERTY_CONNECTION_ID, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public JsonNullable<UUID> getConnectionId_JsonNullable() {
     return connectionId;
   }
 
-
-  @JsonProperty(value = JSON_PROPERTY_CONNECTION_ID, required = true)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setConnectionId(@javax.annotation.Nonnull UUID connectionId) {
+  @JsonProperty(JSON_PROPERTY_CONNECTION_ID)
+  public void setConnectionId_JsonNullable(JsonNullable<UUID> connectionId) {
     this.connectionId = connectionId;
   }
 
+  public void setConnectionId(@javax.annotation.Nullable UUID connectionId) {
+    this.connectionId = JsonNullable.<UUID>of(connectionId);
+  }
 
-  public ResolvedToolPin connectionKey(@javax.annotation.Nonnull String connectionKey) {
-    this.connectionKey = connectionKey;
+
+  public ResolvedToolPin connectionKey(@javax.annotation.Nullable String connectionKey) {
+    this.connectionKey = JsonNullable.<String>of(connectionKey);
     return this;
   }
 
@@ -133,23 +170,31 @@ public class ResolvedToolPin {
    * Get connectionKey
    * @return connectionKey
    */
-  @javax.annotation.Nonnull
-  @JsonProperty(value = JSON_PROPERTY_CONNECTION_KEY, required = true)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  @javax.annotation.Nullable
+  @JsonIgnore
   public String getConnectionKey() {
+        return connectionKey.orElse(null);
+  }
+
+  @JsonProperty(value = JSON_PROPERTY_CONNECTION_KEY, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public JsonNullable<String> getConnectionKey_JsonNullable() {
     return connectionKey;
   }
 
-
-  @JsonProperty(value = JSON_PROPERTY_CONNECTION_KEY, required = true)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setConnectionKey(@javax.annotation.Nonnull String connectionKey) {
+  @JsonProperty(JSON_PROPERTY_CONNECTION_KEY)
+  public void setConnectionKey_JsonNullable(JsonNullable<String> connectionKey) {
     this.connectionKey = connectionKey;
   }
 
+  public void setConnectionKey(@javax.annotation.Nullable String connectionKey) {
+    this.connectionKey = JsonNullable.<String>of(connectionKey);
+  }
 
-  public ResolvedToolPin connectionRevision(@javax.annotation.Nonnull Integer connectionRevision) {
-    this.connectionRevision = connectionRevision;
+
+  public ResolvedToolPin connectionRevision(@javax.annotation.Nullable Integer connectionRevision) {
+    this.connectionRevision = JsonNullable.<Integer>of(connectionRevision);
     return this;
   }
 
@@ -158,18 +203,26 @@ public class ResolvedToolPin {
    * minimum: 1
    * @return connectionRevision
    */
-  @javax.annotation.Nonnull
-  @JsonProperty(value = JSON_PROPERTY_CONNECTION_REVISION, required = true)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  @javax.annotation.Nullable
+  @JsonIgnore
   public Integer getConnectionRevision() {
+        return connectionRevision.orElse(null);
+  }
+
+  @JsonProperty(value = JSON_PROPERTY_CONNECTION_REVISION, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+
+  public JsonNullable<Integer> getConnectionRevision_JsonNullable() {
     return connectionRevision;
   }
 
-
-  @JsonProperty(value = JSON_PROPERTY_CONNECTION_REVISION, required = true)
-  @JsonInclude(value = JsonInclude.Include.ALWAYS)
-  public void setConnectionRevision(@javax.annotation.Nonnull Integer connectionRevision) {
+  @JsonProperty(JSON_PROPERTY_CONNECTION_REVISION)
+  public void setConnectionRevision_JsonNullable(JsonNullable<Integer> connectionRevision) {
     this.connectionRevision = connectionRevision;
+  }
+
+  public void setConnectionRevision(@javax.annotation.Nullable Integer connectionRevision) {
+    this.connectionRevision = JsonNullable.<Integer>of(connectionRevision);
   }
 
 
@@ -194,6 +247,103 @@ public class ResolvedToolPin {
   @JsonInclude(value = JsonInclude.Include.ALWAYS)
   public void setImpact(@javax.annotation.Nonnull McpToolImpact impact) {
     this.impact = impact;
+  }
+
+
+  public ResolvedToolPin providerDigest(@javax.annotation.Nonnull String providerDigest) {
+    this.providerDigest = providerDigest;
+    return this;
+  }
+
+  /**
+   * Get providerDigest
+   * @return providerDigest
+   */
+  @javax.annotation.Nonnull
+  @JsonProperty(value = JSON_PROPERTY_PROVIDER_DIGEST, required = true)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public String getProviderDigest() {
+    return providerDigest;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_PROVIDER_DIGEST, required = true)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setProviderDigest(@javax.annotation.Nonnull String providerDigest) {
+    this.providerDigest = providerDigest;
+  }
+
+
+  public ResolvedToolPin providerKey(@javax.annotation.Nonnull String providerKey) {
+    this.providerKey = providerKey;
+    return this;
+  }
+
+  /**
+   * Get providerKey
+   * @return providerKey
+   */
+  @javax.annotation.Nonnull
+  @JsonProperty(value = JSON_PROPERTY_PROVIDER_KEY, required = true)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public String getProviderKey() {
+    return providerKey;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_PROVIDER_KEY, required = true)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setProviderKey(@javax.annotation.Nonnull String providerKey) {
+    this.providerKey = providerKey;
+  }
+
+
+  public ResolvedToolPin providerKind(@javax.annotation.Nullable ToolProviderKind providerKind) {
+    this.providerKind = providerKind;
+    return this;
+  }
+
+  /**
+   * Get providerKind
+   * @return providerKind
+   */
+  @javax.annotation.Nullable
+  @JsonProperty(value = JSON_PROPERTY_PROVIDER_KIND, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public ToolProviderKind getProviderKind() {
+    return providerKind;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_PROVIDER_KIND, required = false)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setProviderKind(@javax.annotation.Nullable ToolProviderKind providerKind) {
+    this.providerKind = providerKind;
+  }
+
+
+  public ResolvedToolPin providerRevision(@javax.annotation.Nonnull Integer providerRevision) {
+    this.providerRevision = providerRevision;
+    return this;
+  }
+
+  /**
+   * Get providerRevision
+   * minimum: 1
+   * @return providerRevision
+   */
+  @javax.annotation.Nonnull
+  @JsonProperty(value = JSON_PROPERTY_PROVIDER_REVISION, required = true)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public Integer getProviderRevision() {
+    return providerRevision;
+  }
+
+
+  @JsonProperty(value = JSON_PROPERTY_PROVIDER_REVISION, required = true)
+  @JsonInclude(value = JsonInclude.Include.ALWAYS)
+  public void setProviderRevision(@javax.annotation.Nonnull Integer providerRevision) {
+    this.providerRevision = providerRevision;
   }
 
 
@@ -257,18 +407,33 @@ public class ResolvedToolPin {
       return false;
     }
     ResolvedToolPin resolvedToolPin = (ResolvedToolPin) o;
-    return Objects.equals(this.connectionDigest, resolvedToolPin.connectionDigest) &&
-        Objects.equals(this.connectionId, resolvedToolPin.connectionId) &&
-        Objects.equals(this.connectionKey, resolvedToolPin.connectionKey) &&
-        Objects.equals(this.connectionRevision, resolvedToolPin.connectionRevision) &&
+    return equalsNullable(this.connectionDigest, resolvedToolPin.connectionDigest) &&
+        equalsNullable(this.connectionId, resolvedToolPin.connectionId) &&
+        equalsNullable(this.connectionKey, resolvedToolPin.connectionKey) &&
+        equalsNullable(this.connectionRevision, resolvedToolPin.connectionRevision) &&
         Objects.equals(this.impact, resolvedToolPin.impact) &&
+        Objects.equals(this.providerDigest, resolvedToolPin.providerDigest) &&
+        Objects.equals(this.providerKey, resolvedToolPin.providerKey) &&
+        Objects.equals(this.providerKind, resolvedToolPin.providerKind) &&
+        Objects.equals(this.providerRevision, resolvedToolPin.providerRevision) &&
         Objects.equals(this.schemaDigest, resolvedToolPin.schemaDigest) &&
         Objects.equals(this.toolName, resolvedToolPin.toolName);
   }
 
+  private static <T> boolean equalsNullable(JsonNullable<T> a, JsonNullable<T> b) {
+    return a == b || (a != null && b != null && a.isPresent() && b.isPresent() && Objects.deepEquals(a.get(), b.get()));
+  }
+
   @Override
   public int hashCode() {
-    return Objects.hash(connectionDigest, connectionId, connectionKey, connectionRevision, impact, schemaDigest, toolName);
+    return Objects.hash(hashCodeNullable(connectionDigest), hashCodeNullable(connectionId), hashCodeNullable(connectionKey), hashCodeNullable(connectionRevision), impact, providerDigest, providerKey, providerKind, providerRevision, schemaDigest, toolName);
+  }
+
+  private static <T> int hashCodeNullable(JsonNullable<T> a) {
+    if (a == null) {
+      return 1;
+    }
+    return a.isPresent() ? Arrays.deepHashCode(new Object[]{a.get()}) : 31;
   }
 
   @Override
@@ -280,6 +445,10 @@ public class ResolvedToolPin {
     sb.append("    connectionKey: ").append(toIndentedString(connectionKey)).append("\n");
     sb.append("    connectionRevision: ").append(toIndentedString(connectionRevision)).append("\n");
     sb.append("    impact: ").append(toIndentedString(impact)).append("\n");
+    sb.append("    providerDigest: ").append(toIndentedString(providerDigest)).append("\n");
+    sb.append("    providerKey: ").append(toIndentedString(providerKey)).append("\n");
+    sb.append("    providerKind: ").append(toIndentedString(providerKind)).append("\n");
+    sb.append("    providerRevision: ").append(toIndentedString(providerRevision)).append("\n");
     sb.append("    schemaDigest: ").append(toIndentedString(schemaDigest)).append("\n");
     sb.append("    toolName: ").append(toIndentedString(toolName)).append("\n");
     sb.append("}");
@@ -349,6 +518,26 @@ public class ResolvedToolPin {
     // add `impact` to the URL query string
     if (getImpact() != null) {
       joiner.add(String.format(java.util.Locale.ROOT, "%simpact%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getImpact()))));
+    }
+
+    // add `providerDigest` to the URL query string
+    if (getProviderDigest() != null) {
+      joiner.add(String.format(java.util.Locale.ROOT, "%sproviderDigest%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getProviderDigest()))));
+    }
+
+    // add `providerKey` to the URL query string
+    if (getProviderKey() != null) {
+      joiner.add(String.format(java.util.Locale.ROOT, "%sproviderKey%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getProviderKey()))));
+    }
+
+    // add `providerKind` to the URL query string
+    if (getProviderKind() != null) {
+      joiner.add(String.format(java.util.Locale.ROOT, "%sproviderKind%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getProviderKind()))));
+    }
+
+    // add `providerRevision` to the URL query string
+    if (getProviderRevision() != null) {
+      joiner.add(String.format(java.util.Locale.ROOT, "%sproviderRevision%s=%s", prefix, suffix, ApiClient.urlEncode(ApiClient.valueToString(getProviderRevision()))));
     }
 
     // add `schemaDigest` to the URL query string

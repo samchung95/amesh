@@ -14,6 +14,9 @@ from amesh.ports import (
     ExecutionRepository,
     PersistedExecution,
     ScheduleState,
+    TriggerOccurrence,
+    TriggerOccurrenceAcceptance,
+    TriggerOccurrenceState,
 )
 from amesh.scheduler import CronScheduler, ScheduleAction
 
@@ -146,6 +149,43 @@ class MemorySchedulerRepository:
         if self.state is None:
             raise LookupError("schedule does not exist")
         return self.state
+
+
+class RetryWaitTriggerRuntime:
+    def __init__(self, scheduled_for: datetime) -> None:
+        self.scheduled_for = scheduled_for
+        self.claimed = False
+
+    async def accept_occurrence(self, **kwargs: object) -> TriggerOccurrenceAcceptance:
+        now = datetime.now(UTC)
+        return TriggerOccurrenceAcceptance(
+            occurrence=TriggerOccurrence(
+                occurrence_id=uuid4(),
+                tenant_id=str(kwargs["tenant_id"]),
+                trigger_definition_id=uuid4(),
+                namespace=str(kwargs["namespace"]),
+                flow_id=str(kwargs["flow_id"]),
+                flow_revision=int(str(kwargs["flow_revision"])),
+                trigger_id=str(kwargs["trigger_id"]),
+                trigger_type="core.cron",
+                occurrence_key=str(kwargs["occurrence_key"]),
+                state=TriggerOccurrenceState.RETRY_WAIT,
+                attempt=1,
+                max_attempts=3,
+                available_at=now + timedelta(seconds=30),
+                metadata={"source": "schedule"},
+                created_at=now,
+                updated_at=now,
+            ),
+            duplicate=True,
+            accepted=False,
+            reason="duplicate occurrence already retry_wait",
+        )
+
+    async def claim_occurrence(self, *args: object, **kwargs: object) -> TriggerOccurrence:
+        del args, kwargs
+        self.claimed = True
+        raise AssertionError("retry-wait duplicate must remain with the occurrence worker")
 
 
 def _scheduler() -> CronScheduler:
@@ -309,5 +349,46 @@ def test_misfire_policy_is_applied_to_persisted_cursor(
         assert len(recovered[0].executions) == expected_launches
         assert recovered[0].state.missed_count == 5
         assert recovered[0].state.next_fire_at == datetime(2026, 8, 21, 12, 6, tzinfo=UTC)
+
+    asyncio.run(scenario())
+
+
+def test_retry_wait_duplicate_advances_schedule_without_duplicate_launch() -> None:
+    async def scenario() -> None:
+        execution_repository = MemoryExecutionRepository()
+        schedule_repository = MemorySchedulerRepository()
+        scheduled_for = datetime(2026, 8, 25, 12, 0, tzinfo=UTC)
+        trigger_runtime = RetryWaitTriggerRuntime(scheduled_for)
+        flow = FlowDefinition(
+            id="retry_wait",
+            namespace="tests.scheduler.retry_wait",
+            triggers=[
+                TriggerDefinition(
+                    id="every_minute",
+                    type="core.cron",
+                    cron="* * * * *",
+                    timezone="UTC",
+                )
+            ],
+            tasks=[TaskDefinition(id="done", type="core.return", value="done")],
+        )
+        scheduler = CronScheduler(
+            cast(ExecutionRepository, execution_repository),
+            schedule_repository,
+            owner_id=uuid4(),
+            trigger_runtime=trigger_runtime,  # type: ignore[arg-type]
+        )
+
+        evaluation = await scheduler.evaluate_due_occurrences(
+            flow,
+            at=scheduled_for,
+            tenant_id="default",
+        )
+
+        assert evaluation[0].action is ScheduleAction.FIRED
+        assert evaluation[0].executions == ()
+        assert evaluation[0].state.next_fire_at == scheduled_for + timedelta(minutes=1)
+        assert execution_repository.executions == {}
+        assert trigger_runtime.claimed is False
 
     asyncio.run(scenario())

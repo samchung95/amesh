@@ -1,7 +1,7 @@
 from .admission_policy_repository import PostgresAdmissionPolicyRepository
+from .agent_memory import PostgresAgentMemoryRepository
 from .agent_primitives import PostgresAgentPrimitiveRepository
 from .agent_resources import PostgresAgentResourceRepository
-from .agent_memory import PostgresAgentMemoryRepository
 from .agent_sessions import PostgresAgentSessionRepository
 from .audit_repository import PostgresAuditRepository
 from .authentication_repository import PostgresAuthenticationRepository
@@ -11,6 +11,7 @@ from .check_repository import PostgresCheckRepository
 from .credential_repository import PostgresCredentialRepository
 from .dashboard_repository import PostgresDashboardRepository
 from .durable_transport import PostgresDurableTransport
+from .evidence_bundle_repository import PostgresEvidenceBundleRepository
 from .execution_repository import PostgresExecutionRepository
 from .feature_flags import PostgresFeatureFlagRepository
 from .federation_repository import PostgresFederationRepository
@@ -28,6 +29,7 @@ from .operations_repository import (
     TableMaintenanceStatus,
 )
 from .plugin_policy_repository import PostgresPluginPolicyRepository
+from .promotion_repository import PostgresPromotionRepository
 from .realtime_repository import PostgresRealtimeRepository
 from .reconciliation_repository import PostgresReconciliationRepository
 from .retention_repository import LifecycleVersionConflict, PostgresRetentionRepository
@@ -37,6 +39,7 @@ from .service_registry import PostgresServiceRegistryRepository
 from .shared_resources import PostgresSharedResourceRepository
 from .task_cache_repository import PostgresTaskCacheRepository
 from .tenant_repository import PostgresTenantRepository
+from .tool_invocation import PostgresToolInvocationJournal
 from .trigger_runtime_repository import PostgresTriggerRuntimeRepository
 from .upgrade_repository import PostgresUpgradeRepository
 from .worker_repository import PostgresWorkerRepository
@@ -46,9 +49,9 @@ __all__ = [
     "LifecycleVersionConflict",
     "OperationalControlVersionConflict",
     "PostgresAdmissionPolicyRepository",
+    "PostgresAgentMemoryRepository",
     "PostgresAgentPrimitiveRepository",
     "PostgresAgentResourceRepository",
-    "PostgresAgentMemoryRepository",
     "PostgresAgentSessionRepository",
     "PostgresAuditRepository",
     "PostgresAuthenticationRepository",
@@ -58,6 +61,7 @@ __all__ = [
     "PostgresCredentialRepository",
     "PostgresDashboardRepository",
     "PostgresDurableTransport",
+    "PostgresEvidenceBundleRepository",
     "PostgresExecutionRepository",
     "PostgresFeatureFlagRepository",
     "PostgresFederationRepository",
@@ -67,6 +71,7 @@ __all__ = [
     "PostgresOperationalControlRepository",
     "PostgresOperationsRepository",
     "PostgresPluginPolicyRepository",
+    "PostgresPromotionRepository",
     "PostgresRealtimeRepository",
     "PostgresReconciliationRepository",
     "PostgresRetentionRepository",
@@ -76,6 +81,7 @@ __all__ = [
     "PostgresSharedResourceRepository",
     "PostgresTaskCacheRepository",
     "PostgresTenantRepository",
+    "PostgresToolInvocationJournal",
     "PostgresTriggerRuntimeRepository",
     "PostgresUpgradeRepository",
     "PostgresWorkerRepository",

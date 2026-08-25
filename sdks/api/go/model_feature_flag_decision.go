@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,11 +21,11 @@ var _ MappedNullable = &FeatureFlagDecision{}
 
 // FeatureFlagDecision struct for FeatureFlagDecision
 type FeatureFlagDecision struct {
-	Enabled bool `json:"enabled"`
-	Key string `json:"key" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
-	MatchedScope NullableFeatureFlagScope `json:"matched_scope,omitempty"`
-	MatchedVersion NullableInt32 `json:"matched_version,omitempty"`
-	Reason string `json:"reason"`
+	Enabled        bool                     `json:"enabled"`
+	Key            string                   `json:"key" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
+	MatchedScope   NullableFeatureFlagScope `json:"matched_scope,omitempty"`
+	MatchedVersion NullableInt32            `json:"matched_version,omitempty"`
+	Reason         string                   `json:"reason"`
 }
 
 type _FeatureFlagDecision FeatureFlagDecision
@@ -130,6 +130,7 @@ func (o *FeatureFlagDecision) HasMatchedScope() bool {
 func (o *FeatureFlagDecision) SetMatchedScope(v FeatureFlagScope) {
 	o.MatchedScope.Set(&v)
 }
+
 // SetMatchedScopeNil sets the value for MatchedScope to be an explicit nil
 func (o *FeatureFlagDecision) SetMatchedScopeNil() {
 	o.MatchedScope.Set(nil)
@@ -172,6 +173,7 @@ func (o *FeatureFlagDecision) HasMatchedVersion() bool {
 func (o *FeatureFlagDecision) SetMatchedVersion(v int32) {
 	o.MatchedVersion.Set(&v)
 }
+
 // SetMatchedVersionNil sets the value for MatchedVersion to be an explicit nil
 func (o *FeatureFlagDecision) SetMatchedVersionNil() {
 	o.MatchedVersion.Set(nil)
@@ -207,7 +209,7 @@ func (o *FeatureFlagDecision) SetReason(v string) {
 }
 
 func (o FeatureFlagDecision) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -243,10 +245,10 @@ func (o *FeatureFlagDecision) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

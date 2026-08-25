@@ -3,6 +3,7 @@ namespace: examples.getting_started
 description: Foundation validation example
 labels:
   owner: platform-team
+  team: platform
 inputs:
   - id: name
     type: STRING

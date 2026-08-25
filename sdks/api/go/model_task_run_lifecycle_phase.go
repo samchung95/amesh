@@ -20,9 +20,9 @@ type TaskRunLifecyclePhase string
 
 // List of TaskRunLifecyclePhase
 const (
-	TASKRUNLIFECYCLEPHASE_MAIN TaskRunLifecyclePhase = "MAIN"
-	TASKRUNLIFECYCLEPHASE_ERROR TaskRunLifecyclePhase = "ERROR"
-	TASKRUNLIFECYCLEPHASE_FINALLY TaskRunLifecyclePhase = "FINALLY"
+	TASKRUNLIFECYCLEPHASE_MAIN            TaskRunLifecyclePhase = "MAIN"
+	TASKRUNLIFECYCLEPHASE_ERROR           TaskRunLifecyclePhase = "ERROR"
+	TASKRUNLIFECYCLEPHASE_FINALLY         TaskRunLifecyclePhase = "FINALLY"
 	TASKRUNLIFECYCLEPHASE_AFTER_EXECUTION TaskRunLifecyclePhase = "AFTER_EXECUTION"
 )
 

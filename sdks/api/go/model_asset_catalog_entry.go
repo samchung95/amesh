@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,11 +21,11 @@ var _ MappedNullable = &AssetCatalogEntry{}
 
 // AssetCatalogEntry struct for AssetCatalogEntry
 type AssetCatalogEntry struct {
-	Asset PersistedAsset `json:"asset"`
-	Downstream []PersistedAsset `json:"downstream,omitempty"`
-	Edges []AssetLineageEdge `json:"edges,omitempty"`
+	Asset        PersistedAsset     `json:"asset"`
+	Downstream   []PersistedAsset   `json:"downstream,omitempty"`
+	Edges        []AssetLineageEdge `json:"edges,omitempty"`
 	Observations []AssetObservation `json:"observations,omitempty"`
-	Upstream []PersistedAsset `json:"upstream,omitempty"`
+	Upstream     []PersistedAsset   `json:"upstream,omitempty"`
 }
 
 type _AssetCatalogEntry AssetCatalogEntry
@@ -201,7 +201,7 @@ func (o *AssetCatalogEntry) SetUpstream(v []PersistedAsset) {
 }
 
 func (o AssetCatalogEntry) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -239,10 +239,10 @@ func (o *AssetCatalogEntry) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

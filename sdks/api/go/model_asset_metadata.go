@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the AssetMetadata type satisfies the MappedNullable interface at compile time
@@ -22,24 +22,24 @@ var _ MappedNullable = &AssetMetadata{}
 
 // AssetMetadata struct for AssetMetadata
 type AssetMetadata struct {
-	Account *string `json:"account,omitempty"`
-	AssetId string `json:"assetId"`
-	AssetType string `json:"assetType"`
-	Contacts []string `json:"contacts,omitempty"`
-	CustomMetadata map[string]interface{} `json:"customMetadata,omitempty"`
-	Description *string `json:"description,omitempty"`
-	DisplayName string `json:"displayName"`
-	DomainGroup NullableString `json:"domainGroup,omitempty"`
-	ExternalKey string `json:"externalKey"`
-	Health *AssetHealth `json:"health,omitempty"`
-	Labels map[string]string `json:"labels,omitempty"`
-	LastMaterializationAt NullableTime `json:"lastMaterializationAt,omitempty"`
-	Location *string `json:"location,omitempty"`
-	Namespace *string `json:"namespace,omitempty"`
-	Owner NullableString `json:"owner,omitempty"`
-	Provider string `json:"provider"`
-	Source *AssetRegistrationSource `json:"source,omitempty"`
-	Tags []string `json:"tags,omitempty"`
+	Account               *string                  `json:"account,omitempty"`
+	AssetId               string                   `json:"assetId"`
+	AssetType             string                   `json:"assetType"`
+	Contacts              []string                 `json:"contacts,omitempty"`
+	CustomMetadata        map[string]interface{}   `json:"customMetadata,omitempty"`
+	Description           *string                  `json:"description,omitempty"`
+	DisplayName           string                   `json:"displayName"`
+	DomainGroup           NullableString           `json:"domainGroup,omitempty"`
+	ExternalKey           string                   `json:"externalKey"`
+	Health                *AssetHealth             `json:"health,omitempty"`
+	Labels                map[string]string        `json:"labels,omitempty"`
+	LastMaterializationAt NullableTime             `json:"lastMaterializationAt,omitempty"`
+	Location              *string                  `json:"location,omitempty"`
+	Namespace             *string                  `json:"namespace,omitempty"`
+	Owner                 NullableString           `json:"owner,omitempty"`
+	Provider              string                   `json:"provider"`
+	Source                *AssetRegistrationSource `json:"source,omitempty"`
+	Tags                  []string                 `json:"tags,omitempty"`
 }
 
 type _AssetMetadata AssetMetadata
@@ -322,6 +322,7 @@ func (o *AssetMetadata) HasDomainGroup() bool {
 func (o *AssetMetadata) SetDomainGroup(v string) {
 	o.DomainGroup.Set(&v)
 }
+
 // SetDomainGroupNil sets the value for DomainGroup to be an explicit nil
 func (o *AssetMetadata) SetDomainGroupNil() {
 	o.DomainGroup.Set(nil)
@@ -452,6 +453,7 @@ func (o *AssetMetadata) HasLastMaterializationAt() bool {
 func (o *AssetMetadata) SetLastMaterializationAt(v time.Time) {
 	o.LastMaterializationAt.Set(&v)
 }
+
 // SetLastMaterializationAtNil sets the value for LastMaterializationAt to be an explicit nil
 func (o *AssetMetadata) SetLastMaterializationAtNil() {
 	o.LastMaterializationAt.Set(nil)
@@ -558,6 +560,7 @@ func (o *AssetMetadata) HasOwner() bool {
 func (o *AssetMetadata) SetOwner(v string) {
 	o.Owner.Set(&v)
 }
+
 // SetOwnerNil sets the value for Owner to be an explicit nil
 func (o *AssetMetadata) SetOwnerNil() {
 	o.Owner.Set(nil)
@@ -657,7 +660,7 @@ func (o *AssetMetadata) SetTags(v []string) {
 }
 
 func (o AssetMetadata) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -730,10 +733,10 @@ func (o *AssetMetadata) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

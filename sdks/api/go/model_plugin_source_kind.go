@@ -20,9 +20,9 @@ type PluginSourceKind string
 
 // List of PluginSourceKind
 const (
-	PLUGINSOURCEKIND_EMBEDDED PluginSourceKind = "embedded"
-	PLUGINSOURCEKIND_DIRECTORY PluginSourceKind = "directory"
-	PLUGINSOURCEKIND_REGISTRY PluginSourceKind = "registry"
+	PLUGINSOURCEKIND_EMBEDDED       PluginSourceKind = "embedded"
+	PLUGINSOURCEKIND_DIRECTORY      PluginSourceKind = "directory"
+	PLUGINSOURCEKIND_REGISTRY       PluginSourceKind = "registry"
 	PLUGINSOURCEKIND_OFFLINE_BUNDLE PluginSourceKind = "offline-bundle"
 )
 

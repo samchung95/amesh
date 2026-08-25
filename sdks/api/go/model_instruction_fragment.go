@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,9 +21,9 @@ var _ MappedNullable = &InstructionFragment{}
 
 // InstructionFragment struct for InstructionFragment
 type InstructionFragment struct {
-	Content string `json:"content"`
-	Order int32 `json:"order"`
-	SourceKey string `json:"sourceKey"`
+	Content    string `json:"content"`
+	Order      int32  `json:"order"`
+	SourceKey  string `json:"sourceKey"`
 	SourceKind string `json:"sourceKind"`
 }
 
@@ -147,7 +147,7 @@ func (o *InstructionFragment) SetSourceKind(v string) {
 }
 
 func (o InstructionFragment) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -179,10 +179,10 @@ func (o *InstructionFragment) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

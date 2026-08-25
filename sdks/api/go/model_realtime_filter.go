@@ -19,12 +19,12 @@ var _ MappedNullable = &RealtimeFilter{}
 
 // RealtimeFilter struct for RealtimeFilter
 type RealtimeFilter struct {
-	EventTypes []string `json:"eventTypes,omitempty"`
-	ExecutionId NullableString `json:"executionId,omitempty"`
-	FlowId NullableString `json:"flowId,omitempty"`
-	IncludeAudit *bool `json:"includeAudit,omitempty"`
-	Namespace NullableString `json:"namespace,omitempty"`
-	Severities []RealtimeSeverity `json:"severities,omitempty"`
+	EventTypes   []string           `json:"eventTypes,omitempty"`
+	ExecutionId  NullableString     `json:"executionId,omitempty"`
+	FlowId       NullableString     `json:"flowId,omitempty"`
+	IncludeAudit *bool              `json:"includeAudit,omitempty"`
+	Namespace    NullableString     `json:"namespace,omitempty"`
+	Severities   []RealtimeSeverity `json:"severities,omitempty"`
 }
 
 // NewRealtimeFilter instantiates a new RealtimeFilter object
@@ -112,6 +112,7 @@ func (o *RealtimeFilter) HasExecutionId() bool {
 func (o *RealtimeFilter) SetExecutionId(v string) {
 	o.ExecutionId.Set(&v)
 }
+
 // SetExecutionIdNil sets the value for ExecutionId to be an explicit nil
 func (o *RealtimeFilter) SetExecutionIdNil() {
 	o.ExecutionId.Set(nil)
@@ -154,6 +155,7 @@ func (o *RealtimeFilter) HasFlowId() bool {
 func (o *RealtimeFilter) SetFlowId(v string) {
 	o.FlowId.Set(&v)
 }
+
 // SetFlowIdNil sets the value for FlowId to be an explicit nil
 func (o *RealtimeFilter) SetFlowIdNil() {
 	o.FlowId.Set(nil)
@@ -228,6 +230,7 @@ func (o *RealtimeFilter) HasNamespace() bool {
 func (o *RealtimeFilter) SetNamespace(v string) {
 	o.Namespace.Set(&v)
 }
+
 // SetNamespaceNil sets the value for Namespace to be an explicit nil
 func (o *RealtimeFilter) SetNamespaceNil() {
 	o.Namespace.Set(nil)
@@ -271,7 +274,7 @@ func (o *RealtimeFilter) SetSeverities(v []RealtimeSeverity) {
 }
 
 func (o RealtimeFilter) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}

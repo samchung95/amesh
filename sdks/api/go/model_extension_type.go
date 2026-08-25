@@ -20,13 +20,13 @@ type ExtensionType string
 
 // List of ExtensionType
 const (
-	EXTENSIONTYPE_TASK ExtensionType = "task"
-	EXTENSIONTYPE_TRIGGER ExtensionType = "trigger"
-	EXTENSIONTYPE_CONDITION ExtensionType = "condition"
-	EXTENSIONTYPE_RUNNER ExtensionType = "runner"
-	EXTENSIONTYPE_STORAGE ExtensionType = "storage"
-	EXTENSIONTYPE_SECRET ExtensionType = "secret"
-	EXTENSIONTYPE_EXPRESSION ExtensionType = "expression"
+	EXTENSIONTYPE_TASK         ExtensionType = "task"
+	EXTENSIONTYPE_TRIGGER      ExtensionType = "trigger"
+	EXTENSIONTYPE_CONDITION    ExtensionType = "condition"
+	EXTENSIONTYPE_RUNNER       ExtensionType = "runner"
+	EXTENSIONTYPE_STORAGE      ExtensionType = "storage"
+	EXTENSIONTYPE_SECRET       ExtensionType = "secret"
+	EXTENSIONTYPE_EXPRESSION   ExtensionType = "expression"
 	EXTENSIONTYPE_NOTIFICATION ExtensionType = "notification"
 )
 

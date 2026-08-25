@@ -20,8 +20,8 @@ type PluginPolicyScope string
 
 // List of PluginPolicyScope
 const (
-	PLUGINPOLICYSCOPE_INSTANCE PluginPolicyScope = "INSTANCE"
-	PLUGINPOLICYSCOPE_TENANT PluginPolicyScope = "TENANT"
+	PLUGINPOLICYSCOPE_INSTANCE  PluginPolicyScope = "INSTANCE"
+	PLUGINPOLICYSCOPE_TENANT    PluginPolicyScope = "TENANT"
 	PLUGINPOLICYSCOPE_NAMESPACE PluginPolicyScope = "NAMESPACE"
 )
 

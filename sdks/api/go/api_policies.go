@@ -19,17 +19,16 @@ import (
 	"strings"
 )
 
-
 // PoliciesAPIService PoliciesAPI service
 type PoliciesAPIService service
 
 type ApiCreateAdmissionPolicyApiV1PoliciesPostRequest struct {
-	ctx context.Context
-	ApiService *PoliciesAPIService
+	ctx            context.Context
+	ApiService     *PoliciesAPIService
 	policyDocument *PolicyDocument
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization  *string
+	xAmeshCSRF     *string
+	xAmeshTenant   *string
 }
 
 func (r ApiCreateAdmissionPolicyApiV1PoliciesPostRequest) PolicyDocument(policyDocument PolicyDocument) ApiCreateAdmissionPolicyApiV1PoliciesPostRequest {
@@ -59,24 +58,25 @@ func (r ApiCreateAdmissionPolicyApiV1PoliciesPostRequest) Execute() (*PolicyRevi
 /*
 CreateAdmissionPolicyApiV1PoliciesPost Create Admission Policy
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiCreateAdmissionPolicyApiV1PoliciesPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiCreateAdmissionPolicyApiV1PoliciesPostRequest
 */
 func (a *PoliciesAPIService) CreateAdmissionPolicyApiV1PoliciesPost(ctx context.Context) ApiCreateAdmissionPolicyApiV1PoliciesPostRequest {
 	return ApiCreateAdmissionPolicyApiV1PoliciesPostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return PolicyRevision
+//
+//	@return PolicyRevision
 func (a *PoliciesAPIService) CreateAdmissionPolicyApiV1PoliciesPostExecute(r ApiCreateAdmissionPolicyApiV1PoliciesPostRequest) (*PolicyRevision, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *PolicyRevision
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *PolicyRevision
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "PoliciesAPIService.CreateAdmissionPolicyApiV1PoliciesPost")
@@ -150,8 +150,8 @@ func (a *PoliciesAPIService) CreateAdmissionPolicyApiV1PoliciesPostExecute(r Api
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -169,12 +169,12 @@ func (a *PoliciesAPIService) CreateAdmissionPolicyApiV1PoliciesPostExecute(r Api
 }
 
 type ApiEvaluateAdmissionPoliciesApiV1PoliciesEvaluatePostRequest struct {
-	ctx context.Context
-	ApiService *PoliciesAPIService
+	ctx                     context.Context
+	ApiService              *PoliciesAPIService
 	policyEvaluationRequest *PolicyEvaluationRequest
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization           *string
+	xAmeshCSRF              *string
+	xAmeshTenant            *string
 }
 
 func (r ApiEvaluateAdmissionPoliciesApiV1PoliciesEvaluatePostRequest) PolicyEvaluationRequest(policyEvaluationRequest PolicyEvaluationRequest) ApiEvaluateAdmissionPoliciesApiV1PoliciesEvaluatePostRequest {
@@ -204,24 +204,25 @@ func (r ApiEvaluateAdmissionPoliciesApiV1PoliciesEvaluatePostRequest) Execute() 
 /*
 EvaluateAdmissionPoliciesApiV1PoliciesEvaluatePost Evaluate Admission Policies
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiEvaluateAdmissionPoliciesApiV1PoliciesEvaluatePostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiEvaluateAdmissionPoliciesApiV1PoliciesEvaluatePostRequest
 */
 func (a *PoliciesAPIService) EvaluateAdmissionPoliciesApiV1PoliciesEvaluatePost(ctx context.Context) ApiEvaluateAdmissionPoliciesApiV1PoliciesEvaluatePostRequest {
 	return ApiEvaluateAdmissionPoliciesApiV1PoliciesEvaluatePostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return PolicyDecision
+//
+//	@return PolicyDecision
 func (a *PoliciesAPIService) EvaluateAdmissionPoliciesApiV1PoliciesEvaluatePostExecute(r ApiEvaluateAdmissionPoliciesApiV1PoliciesEvaluatePostRequest) (*PolicyDecision, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *PolicyDecision
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *PolicyDecision
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "PoliciesAPIService.EvaluateAdmissionPoliciesApiV1PoliciesEvaluatePost")
@@ -295,8 +296,8 @@ func (a *PoliciesAPIService) EvaluateAdmissionPoliciesApiV1PoliciesEvaluatePostE
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -314,13 +315,13 @@ func (a *PoliciesAPIService) EvaluateAdmissionPoliciesApiV1PoliciesEvaluatePostE
 }
 
 type ApiGetAdmissionPolicyApiV1PoliciesPolicyKeyGetRequest struct {
-	ctx context.Context
-	ApiService *PoliciesAPIService
-	policyKey string
-	revision *int32
+	ctx           context.Context
+	ApiService    *PoliciesAPIService
+	policyKey     string
+	revision      *int32
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiGetAdmissionPolicyApiV1PoliciesPolicyKeyGetRequest) Revision(revision int32) ApiGetAdmissionPolicyApiV1PoliciesPolicyKeyGetRequest {
@@ -350,26 +351,27 @@ func (r ApiGetAdmissionPolicyApiV1PoliciesPolicyKeyGetRequest) Execute() (*Polic
 /*
 GetAdmissionPolicyApiV1PoliciesPolicyKeyGet Get Admission Policy
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param policyKey
- @return ApiGetAdmissionPolicyApiV1PoliciesPolicyKeyGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param policyKey
+	@return ApiGetAdmissionPolicyApiV1PoliciesPolicyKeyGetRequest
 */
 func (a *PoliciesAPIService) GetAdmissionPolicyApiV1PoliciesPolicyKeyGet(ctx context.Context, policyKey string) ApiGetAdmissionPolicyApiV1PoliciesPolicyKeyGetRequest {
 	return ApiGetAdmissionPolicyApiV1PoliciesPolicyKeyGetRequest{
 		ApiService: a,
-		ctx: ctx,
-		policyKey: policyKey,
+		ctx:        ctx,
+		policyKey:  policyKey,
 	}
 }
 
 // Execute executes the request
-//  @return PolicyRevision
+//
+//	@return PolicyRevision
 func (a *PoliciesAPIService) GetAdmissionPolicyApiV1PoliciesPolicyKeyGetExecute(r ApiGetAdmissionPolicyApiV1PoliciesPolicyKeyGetRequest) (*PolicyRevision, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *PolicyRevision
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *PolicyRevision
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "PoliciesAPIService.GetAdmissionPolicyApiV1PoliciesPolicyKeyGet")
@@ -442,8 +444,8 @@ func (a *PoliciesAPIService) GetAdmissionPolicyApiV1PoliciesPolicyKeyGetExecute(
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -461,12 +463,12 @@ func (a *PoliciesAPIService) GetAdmissionPolicyApiV1PoliciesPolicyKeyGetExecute(
 }
 
 type ApiListAdmissionPoliciesApiV1PoliciesGetRequest struct {
-	ctx context.Context
-	ApiService *PoliciesAPIService
-	namespace *string
+	ctx           context.Context
+	ApiService    *PoliciesAPIService
+	namespace     *string
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiListAdmissionPoliciesApiV1PoliciesGetRequest) Namespace(namespace string) ApiListAdmissionPoliciesApiV1PoliciesGetRequest {
@@ -496,24 +498,25 @@ func (r ApiListAdmissionPoliciesApiV1PoliciesGetRequest) Execute() ([]PolicyRevi
 /*
 ListAdmissionPoliciesApiV1PoliciesGet List Admission Policies
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiListAdmissionPoliciesApiV1PoliciesGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiListAdmissionPoliciesApiV1PoliciesGetRequest
 */
 func (a *PoliciesAPIService) ListAdmissionPoliciesApiV1PoliciesGet(ctx context.Context) ApiListAdmissionPoliciesApiV1PoliciesGetRequest {
 	return ApiListAdmissionPoliciesApiV1PoliciesGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return []PolicyRevision
+//
+//	@return []PolicyRevision
 func (a *PoliciesAPIService) ListAdmissionPoliciesApiV1PoliciesGetExecute(r ApiListAdmissionPoliciesApiV1PoliciesGetRequest) ([]PolicyRevision, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  []PolicyRevision
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []PolicyRevision
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "PoliciesAPIService.ListAdmissionPoliciesApiV1PoliciesGet")
@@ -589,8 +592,8 @@ func (a *PoliciesAPIService) ListAdmissionPoliciesApiV1PoliciesGetExecute(r ApiL
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -608,12 +611,12 @@ func (a *PoliciesAPIService) ListAdmissionPoliciesApiV1PoliciesGetExecute(r ApiL
 }
 
 type ApiListAdmissionPolicyDecisionsApiV1PoliciesDecisionsGetRequest struct {
-	ctx context.Context
-	ApiService *PoliciesAPIService
-	limit *int32
+	ctx           context.Context
+	ApiService    *PoliciesAPIService
+	limit         *int32
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiListAdmissionPolicyDecisionsApiV1PoliciesDecisionsGetRequest) Limit(limit int32) ApiListAdmissionPolicyDecisionsApiV1PoliciesDecisionsGetRequest {
@@ -643,24 +646,25 @@ func (r ApiListAdmissionPolicyDecisionsApiV1PoliciesDecisionsGetRequest) Execute
 /*
 ListAdmissionPolicyDecisionsApiV1PoliciesDecisionsGet List Admission Policy Decisions
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiListAdmissionPolicyDecisionsApiV1PoliciesDecisionsGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiListAdmissionPolicyDecisionsApiV1PoliciesDecisionsGetRequest
 */
 func (a *PoliciesAPIService) ListAdmissionPolicyDecisionsApiV1PoliciesDecisionsGet(ctx context.Context) ApiListAdmissionPolicyDecisionsApiV1PoliciesDecisionsGetRequest {
 	return ApiListAdmissionPolicyDecisionsApiV1PoliciesDecisionsGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return []PolicyDecision
+//
+//	@return []PolicyDecision
 func (a *PoliciesAPIService) ListAdmissionPolicyDecisionsApiV1PoliciesDecisionsGetExecute(r ApiListAdmissionPolicyDecisionsApiV1PoliciesDecisionsGetRequest) ([]PolicyDecision, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  []PolicyDecision
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []PolicyDecision
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "PoliciesAPIService.ListAdmissionPolicyDecisionsApiV1PoliciesDecisionsGet")
@@ -736,8 +740,8 @@ func (a *PoliciesAPIService) ListAdmissionPolicyDecisionsApiV1PoliciesDecisionsG
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -755,14 +759,14 @@ func (a *PoliciesAPIService) ListAdmissionPolicyDecisionsApiV1PoliciesDecisionsG
 }
 
 type ApiTestAdmissionPolicyApiV1PoliciesPolicyKeyTestPostRequest struct {
-	ctx context.Context
-	ApiService *PoliciesAPIService
-	policyKey string
+	ctx           context.Context
+	ApiService    *PoliciesAPIService
+	policyKey     string
 	policyFixture *PolicyFixture
-	revision *int32
+	revision      *int32
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiTestAdmissionPolicyApiV1PoliciesPolicyKeyTestPostRequest) PolicyFixture(policyFixture PolicyFixture) ApiTestAdmissionPolicyApiV1PoliciesPolicyKeyTestPostRequest {
@@ -797,26 +801,27 @@ func (r ApiTestAdmissionPolicyApiV1PoliciesPolicyKeyTestPostRequest) Execute() (
 /*
 TestAdmissionPolicyApiV1PoliciesPolicyKeyTestPost Test Admission Policy
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param policyKey
- @return ApiTestAdmissionPolicyApiV1PoliciesPolicyKeyTestPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param policyKey
+	@return ApiTestAdmissionPolicyApiV1PoliciesPolicyKeyTestPostRequest
 */
 func (a *PoliciesAPIService) TestAdmissionPolicyApiV1PoliciesPolicyKeyTestPost(ctx context.Context, policyKey string) ApiTestAdmissionPolicyApiV1PoliciesPolicyKeyTestPostRequest {
 	return ApiTestAdmissionPolicyApiV1PoliciesPolicyKeyTestPostRequest{
 		ApiService: a,
-		ctx: ctx,
-		policyKey: policyKey,
+		ctx:        ctx,
+		policyKey:  policyKey,
 	}
 }
 
 // Execute executes the request
-//  @return PolicyFixtureResult
+//
+//	@return PolicyFixtureResult
 func (a *PoliciesAPIService) TestAdmissionPolicyApiV1PoliciesPolicyKeyTestPostExecute(r ApiTestAdmissionPolicyApiV1PoliciesPolicyKeyTestPostRequest) (*PolicyFixtureResult, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *PolicyFixtureResult
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *PolicyFixtureResult
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "PoliciesAPIService.TestAdmissionPolicyApiV1PoliciesPolicyKeyTestPost")
@@ -894,8 +899,8 @@ func (a *PoliciesAPIService) TestAdmissionPolicyApiV1PoliciesPolicyKeyTestPostEx
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -913,13 +918,13 @@ func (a *PoliciesAPIService) TestAdmissionPolicyApiV1PoliciesPolicyKeyTestPostEx
 }
 
 type ApiUpdateAdmissionPolicyApiV1PoliciesPolicyKeyPutRequest struct {
-	ctx context.Context
-	ApiService *PoliciesAPIService
-	policyKey string
+	ctx            context.Context
+	ApiService     *PoliciesAPIService
+	policyKey      string
 	policyDocument *PolicyDocument
-	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	authorization  *string
+	xAmeshCSRF     *string
+	xAmeshTenant   *string
 }
 
 func (r ApiUpdateAdmissionPolicyApiV1PoliciesPolicyKeyPutRequest) PolicyDocument(policyDocument PolicyDocument) ApiUpdateAdmissionPolicyApiV1PoliciesPolicyKeyPutRequest {
@@ -949,26 +954,27 @@ func (r ApiUpdateAdmissionPolicyApiV1PoliciesPolicyKeyPutRequest) Execute() (*Po
 /*
 UpdateAdmissionPolicyApiV1PoliciesPolicyKeyPut Update Admission Policy
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param policyKey
- @return ApiUpdateAdmissionPolicyApiV1PoliciesPolicyKeyPutRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param policyKey
+	@return ApiUpdateAdmissionPolicyApiV1PoliciesPolicyKeyPutRequest
 */
 func (a *PoliciesAPIService) UpdateAdmissionPolicyApiV1PoliciesPolicyKeyPut(ctx context.Context, policyKey string) ApiUpdateAdmissionPolicyApiV1PoliciesPolicyKeyPutRequest {
 	return ApiUpdateAdmissionPolicyApiV1PoliciesPolicyKeyPutRequest{
 		ApiService: a,
-		ctx: ctx,
-		policyKey: policyKey,
+		ctx:        ctx,
+		policyKey:  policyKey,
 	}
 }
 
 // Execute executes the request
-//  @return PolicyRevision
+//
+//	@return PolicyRevision
 func (a *PoliciesAPIService) UpdateAdmissionPolicyApiV1PoliciesPolicyKeyPutExecute(r ApiUpdateAdmissionPolicyApiV1PoliciesPolicyKeyPutRequest) (*PolicyRevision, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPut
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *PolicyRevision
+		localVarHTTPMethod  = http.MethodPut
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *PolicyRevision
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "PoliciesAPIService.UpdateAdmissionPolicyApiV1PoliciesPolicyKeyPut")
@@ -1043,8 +1049,8 @@ func (a *PoliciesAPIService) UpdateAdmissionPolicyApiV1PoliciesPolicyKeyPutExecu
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1062,11 +1068,11 @@ func (a *PoliciesAPIService) UpdateAdmissionPolicyApiV1PoliciesPolicyKeyPutExecu
 }
 
 type ApiValidateFlowAdmissionPolicyApiV1PoliciesFlowsValidatePostRequest struct {
-	ctx context.Context
-	ApiService *PoliciesAPIService
+	ctx           context.Context
+	ApiService    *PoliciesAPIService
 	authorization *string
-	xAmeshCSRF *string
-	xAmeshTenant *string
+	xAmeshCSRF    *string
+	xAmeshTenant  *string
 }
 
 func (r ApiValidateFlowAdmissionPolicyApiV1PoliciesFlowsValidatePostRequest) Authorization(authorization string) ApiValidateFlowAdmissionPolicyApiV1PoliciesFlowsValidatePostRequest {
@@ -1091,24 +1097,25 @@ func (r ApiValidateFlowAdmissionPolicyApiV1PoliciesFlowsValidatePostRequest) Exe
 /*
 ValidateFlowAdmissionPolicyApiV1PoliciesFlowsValidatePost Validate Flow Admission Policy
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiValidateFlowAdmissionPolicyApiV1PoliciesFlowsValidatePostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ApiValidateFlowAdmissionPolicyApiV1PoliciesFlowsValidatePostRequest
 */
 func (a *PoliciesAPIService) ValidateFlowAdmissionPolicyApiV1PoliciesFlowsValidatePost(ctx context.Context) ApiValidateFlowAdmissionPolicyApiV1PoliciesFlowsValidatePostRequest {
 	return ApiValidateFlowAdmissionPolicyApiV1PoliciesFlowsValidatePostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return PolicyDecision
+//
+//	@return PolicyDecision
 func (a *PoliciesAPIService) ValidateFlowAdmissionPolicyApiV1PoliciesFlowsValidatePostExecute(r ApiValidateFlowAdmissionPolicyApiV1PoliciesFlowsValidatePostRequest) (*PolicyDecision, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *PolicyDecision
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *PolicyDecision
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "PoliciesAPIService.ValidateFlowAdmissionPolicyApiV1PoliciesFlowsValidatePost")
@@ -1177,8 +1184,8 @@ func (a *PoliciesAPIService) ValidateFlowAdmissionPolicyApiV1PoliciesFlowsValida
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}

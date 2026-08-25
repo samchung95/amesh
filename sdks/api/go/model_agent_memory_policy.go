@@ -19,11 +19,11 @@ var _ MappedNullable = &AgentMemoryPolicy{}
 
 // AgentMemoryPolicy struct for AgentMemoryPolicy
 type AgentMemoryPolicy struct {
-	MaxBytes *int32 `json:"maxBytes,omitempty"`
-	Redact *bool `json:"redact,omitempty"`
-	RetentionSeconds *int32 `json:"retentionSeconds,omitempty"`
-	Scope *AgentMemoryScope `json:"scope,omitempty"`
-	SharedScope NullableString `json:"sharedScope,omitempty" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
+	MaxBytes             *int32            `json:"maxBytes,omitempty"`
+	Redact               *bool             `json:"redact,omitempty"`
+	RetentionSeconds     *int32            `json:"retentionSeconds,omitempty"`
+	Scope                *AgentMemoryScope `json:"scope,omitempty"`
+	SharedScope          NullableString    `json:"sharedScope,omitempty" validate:"regexp=^[A-Za-z0-9][A-Za-z0-9_-]*$"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -222,6 +222,7 @@ func (o *AgentMemoryPolicy) HasSharedScope() bool {
 func (o *AgentMemoryPolicy) SetSharedScope(v string) {
 	o.SharedScope.Set(&v)
 }
+
 // SetSharedScopeNil sets the value for SharedScope to be an explicit nil
 func (o *AgentMemoryPolicy) SetSharedScopeNil() {
 	o.SharedScope.Set(nil)
@@ -233,7 +234,7 @@ func (o *AgentMemoryPolicy) UnsetSharedScope() {
 }
 
 func (o AgentMemoryPolicy) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}

@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the AssetLineageDeclaration type satisfies the MappedNullable interface at compile time
@@ -22,16 +22,16 @@ var _ MappedNullable = &AssetLineageDeclaration{}
 
 // AssetLineageDeclaration struct for AssetLineageDeclaration
 type AssetLineageDeclaration struct {
-	ArtifactId NullableString `json:"artifactId,omitempty"`
-	Confidence *float32 `json:"confidence,omitempty"`
-	DownstreamAssetId string `json:"downstreamAssetId"`
-	EvidenceKind *LineageEvidenceKind `json:"evidenceKind,omitempty"`
-	ExecutionId NullableString `json:"executionId,omitempty"`
-	FlowId NullableString `json:"flowId,omitempty"`
-	Metadata map[string]interface{} `json:"metadata,omitempty"`
-	ObservedAt NullableTime `json:"observedAt,omitempty"`
-	TaskRunId NullableString `json:"taskRunId,omitempty"`
-	UpstreamAssetId string `json:"upstreamAssetId"`
+	ArtifactId        NullableString         `json:"artifactId,omitempty"`
+	Confidence        *float32               `json:"confidence,omitempty"`
+	DownstreamAssetId string                 `json:"downstreamAssetId"`
+	EvidenceKind      *LineageEvidenceKind   `json:"evidenceKind,omitempty"`
+	ExecutionId       NullableString         `json:"executionId,omitempty"`
+	FlowId            NullableString         `json:"flowId,omitempty"`
+	Metadata          map[string]interface{} `json:"metadata,omitempty"`
+	ObservedAt        NullableTime           `json:"observedAt,omitempty"`
+	TaskRunId         NullableString         `json:"taskRunId,omitempty"`
+	UpstreamAssetId   string                 `json:"upstreamAssetId"`
 }
 
 type _AssetLineageDeclaration AssetLineageDeclaration
@@ -95,6 +95,7 @@ func (o *AssetLineageDeclaration) HasArtifactId() bool {
 func (o *AssetLineageDeclaration) SetArtifactId(v string) {
 	o.ArtifactId.Set(&v)
 }
+
 // SetArtifactIdNil sets the value for ArtifactId to be an explicit nil
 func (o *AssetLineageDeclaration) SetArtifactIdNil() {
 	o.ArtifactId.Set(nil)
@@ -225,6 +226,7 @@ func (o *AssetLineageDeclaration) HasExecutionId() bool {
 func (o *AssetLineageDeclaration) SetExecutionId(v string) {
 	o.ExecutionId.Set(&v)
 }
+
 // SetExecutionIdNil sets the value for ExecutionId to be an explicit nil
 func (o *AssetLineageDeclaration) SetExecutionIdNil() {
 	o.ExecutionId.Set(nil)
@@ -267,6 +269,7 @@ func (o *AssetLineageDeclaration) HasFlowId() bool {
 func (o *AssetLineageDeclaration) SetFlowId(v string) {
 	o.FlowId.Set(&v)
 }
+
 // SetFlowIdNil sets the value for FlowId to be an explicit nil
 func (o *AssetLineageDeclaration) SetFlowIdNil() {
 	o.FlowId.Set(nil)
@@ -341,6 +344,7 @@ func (o *AssetLineageDeclaration) HasObservedAt() bool {
 func (o *AssetLineageDeclaration) SetObservedAt(v time.Time) {
 	o.ObservedAt.Set(&v)
 }
+
 // SetObservedAtNil sets the value for ObservedAt to be an explicit nil
 func (o *AssetLineageDeclaration) SetObservedAtNil() {
 	o.ObservedAt.Set(nil)
@@ -383,6 +387,7 @@ func (o *AssetLineageDeclaration) HasTaskRunId() bool {
 func (o *AssetLineageDeclaration) SetTaskRunId(v string) {
 	o.TaskRunId.Set(&v)
 }
+
 // SetTaskRunIdNil sets the value for TaskRunId to be an explicit nil
 func (o *AssetLineageDeclaration) SetTaskRunIdNil() {
 	o.TaskRunId.Set(nil)
@@ -418,7 +423,7 @@ func (o *AssetLineageDeclaration) SetUpstreamAssetId(v string) {
 }
 
 func (o AssetLineageDeclaration) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -470,10 +475,10 @@ func (o *AssetLineageDeclaration) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

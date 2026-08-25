@@ -5577,6 +5577,15 @@ paths:
         style: simple
       - explode: false
         in: header
+        name: X-Correlation-ID
+        required: false
+        schema:
+          description: Opaque cursor from the prior page
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
         name: authorization
         required: false
         schema:
@@ -5637,6 +5646,14 @@ paths:
       - explode: false
         in: header
         name: Prefer
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Correlation-ID
         required: false
         schema:
           nullable: true
@@ -6010,6 +6027,94 @@ paths:
                 $ref: "#/components/schemas/HTTPValidationError"
           description: Validation Error
       summary: Get Execution Evidence
+      tags:
+      - executions
+      x-accepts:
+      - application/json
+  /api/v1/executions/{execution_id}/evidence-bundle:
+    get:
+      description: "Return a verified, bounded, tenant-scoped canonical evidence projection."
+      operationId: get_execution_evidence_bundle_api_v1_executions__execution_id__evidence_bundle_get
+      parameters:
+      - explode: false
+        in: path
+        name: execution_id
+        required: true
+        schema:
+          format: uuid
+          title: Execution Id
+          type: string
+        style: simple
+      - description: Canonical evidence section
+        explode: true
+        in: query
+        name: section
+        required: false
+        schema:
+          default: trace
+          description: Canonical evidence section
+          title: Section
+          type: string
+        style: form
+      - description: Opaque section cursor
+        explode: true
+        in: query
+        name: cursor
+        required: false
+        schema:
+          description: Opaque cursor from the prior page
+          nullable: true
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          maximum: 500
+          minimum: 1
+          title: Limit
+          type: integer
+        style: form
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EvidenceBundlePageResponse"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Get Execution Evidence Bundle
       tags:
       - executions
       x-accepts:
@@ -6769,6 +6874,14 @@ paths:
       - explode: false
         in: header
         name: Idempotency-Key
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Correlation-ID
         required: false
         schema:
           nullable: true
@@ -10612,6 +10725,143 @@ paths:
       - agents
       x-accepts:
       - application/json
+  /api/v1/namespaces/{namespace}/differentials:
+    post:
+      operationId: run_differential_api_v1_namespaces__namespace__differentials_post
+      parameters:
+      - explode: false
+        in: path
+        name: namespace
+        required: true
+        schema:
+          maxLength: 255
+          minLength: 1
+          title: Namespace
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: Idempotency-Key
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DifferentialSpec"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ComparisonReport"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Run Differential
+      tags:
+      - quality
+      x-content-type: application/json
+      x-accepts:
+      - application/json
+  /api/v1/namespaces/{namespace}/differentials/{idempotency_key}:
+    get:
+      operationId: get_differential_api_v1_namespaces__namespace__differentials__idempotency_key__get
+      parameters:
+      - explode: false
+        in: path
+        name: namespace
+        required: true
+        schema:
+          maxLength: 255
+          minLength: 1
+          title: Namespace
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: idempotency_key
+        required: true
+        schema:
+          maxLength: 512
+          minLength: 1
+          title: Idempotency Key
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ComparisonReport"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Get Differential
+      tags:
+      - quality
+      x-accepts:
+      - application/json
   /api/v1/namespaces/{namespace}/files:
     get:
       operationId: list_namespace_files_api_v1_namespaces__namespace__files_get
@@ -12286,6 +12536,22 @@ paths:
       summary: Get Service Topology
       tags:
       - operations
+      x-accepts:
+      - application/json
+  /api/v1/orchestration/profile:
+    get:
+      description: Publish the client-neutral contract without exposing tenant data.
+      operationId: get_external_orchestration_profile_api_v1_orchestration_profile_get
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExternalOrchestrationProfile"
+          description: Successful Response
+      summary: Get External Orchestration Profile
+      tags:
+      - external-orchestration
       x-accepts:
       - application/json
   /api/v1/playground/simulate:
@@ -14428,6 +14694,501 @@ paths:
       summary: Get Reconciliation
       tags:
       - operations
+      x-accepts:
+      - application/json
+  /api/v1/releases/evidence:
+    post:
+      operationId: record_evidence_api_v1_releases_evidence_post
+      parameters:
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EvidenceArtifact"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EvidenceArtifact"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Record Evidence
+      tags:
+      - releases
+      x-content-type: application/json
+      x-accepts:
+      - application/json
+  /api/v1/releases/policies:
+    post:
+      operationId: create_policy_api_v1_releases_policies_post
+      parameters:
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PromotionPolicy-Input"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PromotionPolicy-Output"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Create Policy
+      tags:
+      - releases
+      x-content-type: application/json
+      x-accepts:
+      - application/json
+  /api/v1/releases/policies/{policy_id}/apply:
+    post:
+      operationId: apply_policy_api_v1_releases_policies__policy_id__apply_post
+      parameters:
+      - explode: false
+        in: path
+        name: policy_id
+        required: true
+        schema:
+          format: uuid
+          title: Policy Id
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PromotionApplyRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                title: Response Apply Policy Api V1 Releases Policies  Policy Id  Apply
+                  Post
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Apply Policy
+      tags:
+      - releases
+      x-content-type: application/json
+      x-accepts:
+      - application/json
+  /api/v1/releases/policies/{policy_id}/preview:
+    post:
+      operationId: preview_policy_api_v1_releases_policies__policy_id__preview_post
+      parameters:
+      - explode: false
+        in: path
+        name: policy_id
+        required: true
+        schema:
+          format: uuid
+          title: Policy Id
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+              - $ref: "#/components/schemas/PromotionPreviewRequest"
+              nullable: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                title: Response Preview Policy Api V1 Releases Policies  Policy Id  Preview
+                  Post
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Preview Policy
+      tags:
+      - releases
+      x-content-type: application/json
+      x-accepts:
+      - application/json
+  /api/v1/releases/{target_kind}/{target_key}:
+    get:
+      operationId: target_state_api_v1_releases__target_kind___target_key__get
+      parameters:
+      - explode: false
+        in: path
+        name: target_kind
+        required: true
+        schema:
+          $ref: "#/components/schemas/PromotionTargetKind"
+        style: simple
+      - explode: false
+        in: path
+        name: target_key
+        required: true
+        schema:
+          title: Target Key
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                title: Response Target State Api V1 Releases  Target Kind   Target
+                  Key  Get
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Target State
+      tags:
+      - releases
+      x-accepts:
+      - application/json
+  /api/v1/releases/{target_kind}/{target_key}/history:
+    get:
+      operationId: target_history_api_v1_releases__target_kind___target_key__history_get
+      parameters:
+      - explode: false
+        in: path
+        name: target_kind
+        required: true
+        schema:
+          $ref: "#/components/schemas/PromotionTargetKind"
+        style: simple
+      - explode: false
+        in: path
+        name: target_key
+        required: true
+        schema:
+          title: Target Key
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                title: Response Target History Api V1 Releases  Target Kind   Target
+                  Key  History Get
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Target History
+      tags:
+      - releases
+      x-accepts:
+      - application/json
+  /api/v1/releases/{target_kind}/{target_key}/kill-switch:
+    post:
+      operationId: kill_switch_api_v1_releases__target_kind___target_key__kill_switch_post
+      parameters:
+      - explode: false
+        in: path
+        name: target_kind
+        required: true
+        schema:
+          $ref: "#/components/schemas/PromotionTargetKind"
+        style: simple
+      - explode: false
+        in: path
+        name: target_key
+        required: true
+        schema:
+          title: Target Key
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PromotionKillSwitchRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                title: Response Kill Switch Api V1 Releases  Target Kind   Target
+                  Key  Kill Switch Post
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Kill Switch
+      tags:
+      - releases
+      x-content-type: application/json
+      x-accepts:
+      - application/json
+  /api/v1/releases/{target_kind}/{target_key}/rollback:
+    post:
+      operationId: rollback_api_v1_releases__target_kind___target_key__rollback_post
+      parameters:
+      - explode: false
+        in: path
+        name: target_kind
+        required: true
+        schema:
+          $ref: "#/components/schemas/PromotionTargetKind"
+        style: simple
+      - explode: false
+        in: path
+        name: target_key
+        required: true
+        schema:
+          title: Target Key
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PromotionRollbackRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                title: Response Rollback Api V1 Releases  Target Kind   Target Key  Rollback
+                  Post
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: Rollback
+      tags:
+      - releases
+      x-content-type: application/json
       x-accepts:
       - application/json
   /api/v1/runners/capabilities:
@@ -17155,6 +17916,7 @@ components:
                 credentialRef: credentialRef
                 embeddingEndpoint: embeddingEndpoint
                 endpoint: endpoint
+                revision: revision
               requiredFeatures:
               - requiredFeatures
               - requiredFeatures
@@ -17167,6 +17929,7 @@ components:
                 credentialRef: credentialRef
                 embeddingEndpoint: embeddingEndpoint
                 endpoint: endpoint
+                revision: revision
               requiredFeatures:
               - requiredFeatures
               - requiredFeatures
@@ -17223,6 +17986,7 @@ components:
                 credentialRef: credentialRef
                 embeddingEndpoint: embeddingEndpoint
                 endpoint: endpoint
+                revision: revision
               requiredFeatures:
               - requiredFeatures
               - requiredFeatures
@@ -17235,6 +17999,7 @@ components:
                 credentialRef: credentialRef
                 embeddingEndpoint: embeddingEndpoint
                 endpoint: endpoint
+                revision: revision
               requiredFeatures:
               - requiredFeatures
               - requiredFeatures
@@ -17317,6 +18082,7 @@ components:
               credentialRef: credentialRef
               embeddingEndpoint: embeddingEndpoint
               endpoint: endpoint
+              revision: revision
             requiredFeatures:
             - requiredFeatures
             - requiredFeatures
@@ -17329,6 +18095,7 @@ components:
               credentialRef: credentialRef
               embeddingEndpoint: embeddingEndpoint
               endpoint: endpoint
+              revision: revision
             requiredFeatures:
             - requiredFeatures
             - requiredFeatures
@@ -17376,6 +18143,10 @@ components:
             connectionKey: connectionKey
             connectionRevision: 1
             impact: READ_ONLY
+            providerDigest: providerDigest
+            providerKey: providerKey
+            providerKind: ""
+            providerRevision: 1
             schemaDigest: schemaDigest
             toolName: toolName
           - connectionDigest: connectionDigest
@@ -17383,6 +18154,10 @@ components:
             connectionKey: connectionKey
             connectionRevision: 1
             impact: READ_ONLY
+            providerDigest: providerDigest
+            providerKey: providerKey
+            providerKind: ""
+            providerRevision: 1
             schemaDigest: schemaDigest
             toolName: toolName
         envelopeDigest: envelopeDigest
@@ -17667,6 +18442,7 @@ components:
                 credentialRef: credentialRef
                 embeddingEndpoint: embeddingEndpoint
                 endpoint: endpoint
+                revision: revision
               requiredFeatures:
               - requiredFeatures
               - requiredFeatures
@@ -17679,6 +18455,7 @@ components:
                 credentialRef: credentialRef
                 embeddingEndpoint: embeddingEndpoint
                 endpoint: endpoint
+                revision: revision
               requiredFeatures:
               - requiredFeatures
               - requiredFeatures
@@ -17735,6 +18512,7 @@ components:
                 credentialRef: credentialRef
                 embeddingEndpoint: embeddingEndpoint
                 endpoint: endpoint
+                revision: revision
               requiredFeatures:
               - requiredFeatures
               - requiredFeatures
@@ -17747,6 +18525,7 @@ components:
                 credentialRef: credentialRef
                 embeddingEndpoint: embeddingEndpoint
                 endpoint: endpoint
+                revision: revision
               requiredFeatures:
               - requiredFeatures
               - requiredFeatures
@@ -17829,6 +18608,7 @@ components:
               credentialRef: credentialRef
               embeddingEndpoint: embeddingEndpoint
               endpoint: endpoint
+              revision: revision
             requiredFeatures:
             - requiredFeatures
             - requiredFeatures
@@ -17841,6 +18621,7 @@ components:
               credentialRef: credentialRef
               embeddingEndpoint: embeddingEndpoint
               endpoint: endpoint
+              revision: revision
             requiredFeatures:
             - requiredFeatures
             - requiredFeatures
@@ -17888,6 +18669,10 @@ components:
             connectionKey: connectionKey
             connectionRevision: 1
             impact: READ_ONLY
+            providerDigest: providerDigest
+            providerKey: providerKey
+            providerKind: ""
+            providerRevision: 1
             schemaDigest: schemaDigest
             toolName: toolName
           - connectionDigest: connectionDigest
@@ -17895,6 +18680,10 @@ components:
             connectionKey: connectionKey
             connectionRevision: 1
             impact: READ_ONLY
+            providerDigest: providerDigest
+            providerKey: providerKey
+            providerKind: ""
+            providerRevision: 1
             schemaDigest: schemaDigest
             toolName: toolName
         envelopeDigest: envelopeDigest
@@ -18555,6 +19344,34 @@ components:
       - SHARED
       title: AgentMemoryScope
       type: string
+    AgentModelContinuationRef:
+      additionalProperties: false
+      description: Public handle to private provider continuation state.
+      properties:
+        invocationId:
+          format: uuid
+          title: Invocationid
+          type: string
+        providerId:
+          maxLength: 255
+          minLength: 1
+          title: Providerid
+          type: string
+        providerRevision:
+          maxLength: 255
+          minLength: 1
+          title: Providerrevision
+          type: string
+        tokenDigest:
+          pattern: "^sha256:[0-9a-f]{64}$"
+          title: Tokendigest
+          type: string
+      required:
+      - invocationId
+      - providerId
+      - providerRevision
+      - tokenDigest
+      title: AgentModelContinuationRef
     AgentPermissions:
       additionalProperties: false
       example:
@@ -19393,6 +20210,7 @@ components:
         messages:
         - key: ""
         - key: ""
+        modelContinuation: ""
         nextTurn: 1
         pendingAction:
           key: ""
@@ -19430,6 +20248,10 @@ components:
             type: object
           title: Messages
           type: array
+        modelContinuation:
+          allOf:
+          - $ref: "#/components/schemas/AgentModelContinuationRef"
+          nullable: true
         nextTurn:
           default: 1
           minimum: 1.0
@@ -19516,6 +20338,7 @@ components:
           messages:
           - key: ""
           - key: ""
+          modelContinuation: ""
           nextTurn: 1
           pendingAction:
             key: ""
@@ -19635,26 +20458,38 @@ components:
         connectionKey:
           maxLength: 128
           minLength: 1
+          nullable: true
           pattern: "^[A-Za-z0-9][A-Za-z0-9_-]*$"
-          title: Connectionkey
           type: string
         connectionRevision:
           minimum: 1.0
-          title: Connectionrevision
+          nullable: true
+          type: integer
+        providerKey:
+          maxLength: 255
+          minLength: 1
+          nullable: true
+          pattern: "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+          type: string
+        providerKind:
+          allOf:
+          - $ref: "#/components/schemas/ToolProviderKind"
+          default: mcp
+        providerRevision:
+          minimum: 1.0
+          nullable: true
           type: integer
         schemaDigest:
           pattern: "^sha256:[0-9a-f]{64}$"
           title: Schemadigest
           type: string
         toolName:
-          maxLength: 128
+          maxLength: 255
           minLength: 1
-          pattern: "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+          pattern: "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
           title: Toolname
           type: string
       required:
-      - connectionKey
-      - connectionRevision
       - schemaDigest
       - toolName
       title: AgentToolRef
@@ -19854,6 +20689,26 @@ components:
           title: Layout
           type: array
       title: AppForm
+    ApprovalRequirement:
+      additionalProperties: false
+      example:
+        key: key
+        minimumApprovals: 8
+      properties:
+        key:
+          maxLength: 512
+          minLength: 1
+          title: Key
+          type: string
+        minimumApprovals:
+          default: 1
+          maximum: 100.0
+          minimum: 1.0
+          title: Minimumapprovals
+          type: integer
+      required:
+      - key
+      title: ApprovalRequirement
     AssetAccessMode:
       enum:
       - READ
@@ -21840,6 +22695,39 @@ components:
       - title
       - version
       title: BlueprintSummary
+    BudgetRequirement-Input:
+      additionalProperties: false
+      properties:
+        key:
+          maxLength: 512
+          minLength: 1
+          title: Key
+          type: string
+        maximum:
+          $ref: "#/components/schemas/Maximum"
+      required:
+      - key
+      - maximum
+      title: BudgetRequirement
+    BudgetRequirement-Output:
+      additionalProperties: false
+      example:
+        key: key
+        maximum: maximum
+      properties:
+        key:
+          maxLength: 512
+          minLength: 1
+          title: Key
+          type: string
+        maximum:
+          pattern: "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+          title: Maximum
+          type: string
+      required:
+      - key
+      - maximum
+      title: BudgetRequirement
     BulkExecutionItemResult:
       example:
         error: ""
@@ -22376,6 +23264,244 @@ components:
       required:
       - definition
       title: CheckPolicyUpsertRequest
+    ComparisonCategory:
+      enum:
+      - DETERMINISTIC_FAILURE
+      - TOLERATED_DIFFERENCE
+      - NONDETERMINISTIC_OBSERVATION
+      title: ComparisonCategory
+      type: string
+    ComparisonDifference:
+      additionalProperties: false
+      example:
+        category: DETERMINISTIC_FAILURE
+        code: code
+        detail: detail
+        left: ""
+        path: path
+        right: ""
+      properties:
+        category:
+          $ref: "#/components/schemas/ComparisonCategory"
+        code:
+          title: Code
+          type: string
+        detail:
+          title: Detail
+          type: string
+        left:
+          title: Left
+        path:
+          title: Path
+          type: string
+        right:
+          title: Right
+      required:
+      - category
+      - code
+      - detail
+      - path
+      title: ComparisonDifference
+    ComparisonPolicy:
+      additionalProperties: false
+      description: Comparison rules that classify variance instead of forcing byte
+        identity.
+      example:
+        costTolerance:
+          absolute: 0.6027456183070403
+          relative: 0.14658129805029452
+        latencyTolerance:
+          absolute: 0.6027456183070403
+          relative: 0.14658129805029452
+        nondeterministicPaths:
+        - nondeterministicPaths
+        - nondeterministicPaths
+        - nondeterministicPaths
+        - nondeterministicPaths
+        - nondeterministicPaths
+        usageTolerance:
+          absolute: 0.6027456183070403
+          relative: 0.14658129805029452
+      properties:
+        costTolerance:
+          $ref: "#/components/schemas/Tolerance"
+        latencyTolerance:
+          $ref: "#/components/schemas/Tolerance"
+        nondeterministicPaths:
+          default: []
+          items:
+            type: string
+          maxItems: 1000
+          title: Nondeterministicpaths
+          type: array
+        usageTolerance:
+          $ref: "#/components/schemas/Tolerance"
+      title: ComparisonPolicy
+    ComparisonReport:
+      additionalProperties: false
+      example:
+        deterministicFailures:
+        - category: DETERMINISTIC_FAILURE
+          code: code
+          detail: detail
+          left: ""
+          path: path
+          right: ""
+        - category: DETERMINISTIC_FAILURE
+          code: code
+          detail: detail
+          left: ""
+          path: path
+          right: ""
+        inputDigest: inputDigest
+        left:
+          lineage:
+            configurationDigest: configurationDigest
+            inputDigest: inputDigest
+            parentRunId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            runId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            side: side
+            specId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          observation:
+            cost: "0"
+            deterministicAssertions:
+            - key: ""
+            - key: ""
+            effects:
+            - fixtureKey: fixtureKey
+              key: key
+            - fixtureKey: fixtureKey
+              key: key
+            evidence:
+            - key: ""
+            - key: ""
+            latency: "0"
+            nondeterministicPaths:
+            - nondeterministicPaths
+            - nondeterministicPaths
+            output: ""
+            schema: ""
+            taskChronology:
+            - key: ""
+            - key: ""
+            toolChronology:
+            - key: ""
+            - key: ""
+            usage:
+              key: usage
+        namespace: namespace
+        nondeterministicObservations:
+        - category: DETERMINISTIC_FAILURE
+          code: code
+          detail: detail
+          left: ""
+          path: path
+          right: ""
+        - category: DETERMINISTIC_FAILURE
+          code: code
+          detail: detail
+          left: ""
+          path: path
+          right: ""
+        right:
+          lineage:
+            configurationDigest: configurationDigest
+            inputDigest: inputDigest
+            parentRunId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            runId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            side: side
+            specId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          observation:
+            cost: "0"
+            deterministicAssertions:
+            - key: ""
+            - key: ""
+            effects:
+            - fixtureKey: fixtureKey
+              key: key
+            - fixtureKey: fixtureKey
+              key: key
+            evidence:
+            - key: ""
+            - key: ""
+            latency: "0"
+            nondeterministicPaths:
+            - nondeterministicPaths
+            - nondeterministicPaths
+            output: ""
+            schema: ""
+            taskChronology:
+            - key: ""
+            - key: ""
+            toolChronology:
+            - key: ""
+            - key: ""
+            usage:
+              key: usage
+        schemaVersion: amesh.differential-report/v1
+        specId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        tenantId: tenantId
+        toleratedDifferences:
+        - category: DETERMINISTIC_FAILURE
+          code: code
+          detail: detail
+          left: ""
+          path: path
+          right: ""
+        - category: DETERMINISTIC_FAILURE
+          code: code
+          detail: detail
+          left: ""
+          path: path
+          right: ""
+      properties:
+        deterministicFailures:
+          default: []
+          items:
+            $ref: "#/components/schemas/ComparisonDifference"
+          title: Deterministicfailures
+          type: array
+        inputDigest:
+          title: Inputdigest
+          type: string
+        left:
+          $ref: "#/components/schemas/ShadowRun"
+        namespace:
+          title: Namespace
+          type: string
+        nondeterministicObservations:
+          default: []
+          items:
+            $ref: "#/components/schemas/ComparisonDifference"
+          title: Nondeterministicobservations
+          type: array
+        right:
+          $ref: "#/components/schemas/ShadowRun"
+        schemaVersion:
+          default: amesh.differential-report/v1
+          title: Schemaversion
+          type: string
+        specId:
+          format: uuid
+          title: Specid
+          type: string
+        tenantId:
+          title: Tenantid
+          type: string
+        toleratedDifferences:
+          default: []
+          items:
+            $ref: "#/components/schemas/ComparisonDifference"
+          title: Tolerateddifferences
+          type: array
+      required:
+      - inputDigest
+      - left
+      - namespace
+      - right
+      - specId
+      - tenantId
+      title: ComparisonReport
     CompatibilityMapping:
       example:
         adapter: adapter
@@ -22742,6 +23868,33 @@ components:
       - kind
       - targetVersion
       title: ConfigurationMigrationRequest
+    ConfigurationPin:
+      additionalProperties: false
+      description: An exact immutable configuration identity; no floating ``latest``
+        reference is accepted.
+      example:
+        digest: digest
+        key: key
+        revision: 1
+      properties:
+        digest:
+          pattern: "^sha256:[0-9a-f]{64}$"
+          title: Digest
+          type: string
+        key:
+          maxLength: 512
+          minLength: 1
+          title: Key
+          type: string
+        revision:
+          minimum: 1.0
+          title: Revision
+          type: integer
+      required:
+      - digest
+      - key
+      - revision
+      title: ConfigurationPin
     ConfigurationSnapshot:
       example:
         entries:
@@ -24403,6 +25556,94 @@ components:
       - digest
       - key
       title: DeterminismPolicyPin
+    DifferentialSpec:
+      additionalProperties: false
+      description: "A frozen, tenant-scoped comparison request for two exact configurations."
+      example:
+        fixtures:
+        - certificate: certificate
+          key: key
+          source: SAFE_FIXTURE
+          value: ""
+        - certificate: certificate
+          key: key
+          source: SAFE_FIXTURE
+          value: ""
+        idempotencyKey: idempotencyKey
+        inputDigest: ""
+        inputs: ""
+        left:
+          digest: digest
+          key: key
+          revision: 1
+        namespace: namespace
+        policy:
+          costTolerance:
+            absolute: 0.6027456183070403
+            relative: 0.14658129805029452
+          latencyTolerance:
+            absolute: 0.6027456183070403
+            relative: 0.14658129805029452
+          nondeterministicPaths:
+          - nondeterministicPaths
+          - nondeterministicPaths
+          - nondeterministicPaths
+          - nondeterministicPaths
+          - nondeterministicPaths
+          usageTolerance:
+            absolute: 0.6027456183070403
+            relative: 0.14658129805029452
+        right:
+          digest: digest
+          key: key
+          revision: 1
+        specId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        tenantId: tenantId
+      properties:
+        fixtures:
+          default: []
+          items:
+            $ref: "#/components/schemas/ShadowFixture"
+          title: Fixtures
+          type: array
+        idempotencyKey:
+          maxLength: 512
+          minLength: 1
+          title: Idempotencykey
+          type: string
+        inputDigest:
+          default: ""
+          title: Inputdigest
+          type: string
+        inputs:
+          title: Inputs
+        left:
+          $ref: "#/components/schemas/ConfigurationPin"
+        namespace:
+          maxLength: 255
+          minLength: 1
+          title: Namespace
+          type: string
+        policy:
+          $ref: "#/components/schemas/ComparisonPolicy"
+        right:
+          $ref: "#/components/schemas/ConfigurationPin"
+        specId:
+          format: uuid
+          title: Specid
+          type: string
+        tenantId:
+          maxLength: 255
+          minLength: 1
+          title: Tenantid
+          type: string
+      required:
+      - idempotencyKey
+      - left
+      - namespace
+      - right
+      - tenantId
+      title: DifferentialSpec
     DnsDiagnostic:
       example:
         addresses:
@@ -24529,6 +25770,7 @@ components:
               credentialRef: credentialRef
               embeddingEndpoint: embeddingEndpoint
               endpoint: endpoint
+              revision: revision
             requiredFeatures:
             - requiredFeatures
             - requiredFeatures
@@ -24541,6 +25783,7 @@ components:
               credentialRef: credentialRef
               embeddingEndpoint: embeddingEndpoint
               endpoint: endpoint
+              revision: revision
             requiredFeatures:
             - requiredFeatures
             - requiredFeatures
@@ -24597,6 +25840,7 @@ components:
               credentialRef: credentialRef
               embeddingEndpoint: embeddingEndpoint
               endpoint: endpoint
+              revision: revision
             requiredFeatures:
             - requiredFeatures
             - requiredFeatures
@@ -24609,6 +25853,7 @@ components:
               credentialRef: credentialRef
               embeddingEndpoint: embeddingEndpoint
               endpoint: endpoint
+              revision: revision
             requiredFeatures:
             - requiredFeatures
             - requiredFeatures
@@ -24691,6 +25936,7 @@ components:
             credentialRef: credentialRef
             embeddingEndpoint: embeddingEndpoint
             endpoint: endpoint
+            revision: revision
           requiredFeatures:
           - requiredFeatures
           - requiredFeatures
@@ -24703,6 +25949,7 @@ components:
             credentialRef: credentialRef
             embeddingEndpoint: embeddingEndpoint
             endpoint: endpoint
+            revision: revision
           requiredFeatures:
           - requiredFeatures
           - requiredFeatures
@@ -24750,6 +25997,10 @@ components:
           connectionKey: connectionKey
           connectionRevision: 1
           impact: READ_ONLY
+          providerDigest: providerDigest
+          providerKey: providerKey
+          providerKind: ""
+          providerRevision: 1
           schemaDigest: schemaDigest
           toolName: toolName
         - connectionDigest: connectionDigest
@@ -24757,6 +26008,10 @@ components:
           connectionKey: connectionKey
           connectionRevision: 1
           impact: READ_ONLY
+          providerDigest: providerDigest
+          providerKey: providerKey
+          providerKind: ""
+          providerRevision: 1
           schemaDigest: schemaDigest
           toolName: toolName
       properties:
@@ -24947,6 +26202,220 @@ components:
       - rules
       - tenantId
       title: EffectivePluginPolicy
+    EvidenceArtifact:
+      additionalProperties: {}
+      description: Evidence captured for a specific target configuration and immutable
+        forever.
+      example:
+        capturedAt: 2000-01-23T04:56:07.000+00:00
+        configurationDigest: configurationDigest
+        details:
+          key: ""
+        digest: digest
+        evidenceId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        expiresAt: 2000-01-23T04:56:07.000+00:00
+        key: key
+        kind: TEST
+        passed: true
+        tenantId: tenantId
+      properties:
+        capturedAt:
+          format: date-time
+          title: Capturedat
+          type: string
+        configurationDigest:
+          pattern: "^sha256:[0-9a-f]{64}$"
+          title: Configurationdigest
+          type: string
+        details:
+          additionalProperties: true
+          title: Details
+          type: object
+        digest:
+          pattern: "^sha256:[0-9a-f]{64}$"
+          title: Digest
+          type: string
+        evidenceId:
+          format: uuid
+          title: Evidenceid
+          type: string
+        expiresAt:
+          format: date-time
+          nullable: true
+          type: string
+        key:
+          maxLength: 512
+          minLength: 1
+          title: Key
+          type: string
+        kind:
+          $ref: "#/components/schemas/PromotionEvidenceKind"
+        passed:
+          title: Passed
+          type: boolean
+        tenantId:
+          maxLength: 255
+          minLength: 1
+          title: Tenantid
+          type: string
+      required:
+      - capturedAt
+      - configurationDigest
+      - digest
+      - key
+      - kind
+      - passed
+      - tenantId
+      title: EvidenceArtifact
+    EvidenceBundlePageResponse:
+      description: Bounded canonical bundle projection returned by REST and SDK clients.
+      example:
+        bundleDigest: bundleDigest
+        executionId: executionId
+        items:
+        - availability: ""
+          correlationId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          kind: kind
+          occurredAt: 2000-01-23T04:56:07.000+00:00
+          payload:
+            key: ""
+          recordId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          schemaDigest: schemaDigest
+          sequence: 0
+        - availability: ""
+          correlationId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          kind: kind
+          occurredAt: 2000-01-23T04:56:07.000+00:00
+          payload:
+            key: ""
+          recordId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          schemaDigest: schemaDigest
+          sequence: 0
+        limit: 1
+        nextCursor: nextCursor
+        schemaVersion: schemaVersion
+        section: section
+        total: 0
+      properties:
+        bundleDigest:
+          title: Bundledigest
+          type: string
+        executionId:
+          title: Executionid
+          type: string
+        items:
+          items:
+            $ref: "#/components/schemas/EvidenceRecord"
+          title: Items
+          type: array
+          default: null
+        limit:
+          minimum: 1.0
+          title: Limit
+          type: integer
+        nextCursor:
+          nullable: true
+          type: string
+        schemaVersion:
+          title: Schemaversion
+          type: string
+        section:
+          title: Section
+          type: string
+        total:
+          minimum: 0.0
+          title: Total
+          type: integer
+      required:
+      - bundleDigest
+      - executionId
+      - items
+      - limit
+      - schemaVersion
+      - section
+      - total
+      title: EvidenceBundlePageResponse
+    EvidencePresence:
+      description: Explicit section semantics; an empty value is not an outage.
+      enum:
+      - present
+      - absent
+      - unavailable
+      title: EvidencePresence
+      type: string
+    EvidenceRecord:
+      additionalProperties: {}
+      description: "One immutable, ordered piece of execution evidence."
+      example:
+        availability: ""
+        correlationId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        kind: kind
+        occurredAt: 2000-01-23T04:56:07.000+00:00
+        payload:
+          key: ""
+        recordId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        schemaDigest: schemaDigest
+        sequence: 0
+      properties:
+        availability:
+          allOf:
+          - $ref: "#/components/schemas/EvidencePresence"
+          default: present
+        correlationId:
+          $ref: "#/components/schemas/Correlationid"
+        kind:
+          maxLength: 128
+          minLength: 1
+          title: Kind
+          type: string
+        occurredAt:
+          format: date-time
+          title: Occurredat
+          type: string
+        payload:
+          additionalProperties: true
+          title: Payload
+          type: object
+        recordId:
+          $ref: "#/components/schemas/Recordid"
+        schemaDigest:
+          nullable: true
+          type: string
+        sequence:
+          default: 0
+          minimum: 0.0
+          title: Sequence
+          type: integer
+      required:
+      - correlationId
+      - kind
+      - occurredAt
+      - recordId
+      title: EvidenceRecord
+    EvidenceRequirement:
+      additionalProperties: false
+      description: A policy pin for one immutable evidence artifact.
+      example:
+        digest: digest
+        key: key
+        kind: TEST
+      properties:
+        digest:
+          pattern: "^sha256:[0-9a-f]{64}$"
+          title: Digest
+          type: string
+        key:
+          maxLength: 512
+          minLength: 1
+          title: Key
+          type: string
+        kind:
+          $ref: "#/components/schemas/PromotionEvidenceKind"
+      required:
+      - digest
+      - key
+      - kind
+      title: EvidenceRequirement
     ExchangeCredentialRequest:
       example:
         audience: audience
@@ -25286,6 +26755,14 @@ components:
       - METRIC
       - OUTPUT
       - ARTIFACT
+      - AGENT
+      - MODEL
+      - TOOL
+      - ERROR
+      - APPROVAL
+      - INTERVENTION
+      - CONTROL
+      - DECISION
       title: ExecutionEvidenceKind
       type: string
     ExecutionEvidencePage:
@@ -25652,6 +27129,141 @@ components:
       - notification
       title: ExtensionType
       type: string
+    ExternalOperation:
+      description: One stable operation in the external-client profile.
+      example:
+        authorization: authorization
+        idempotent: true
+        method: GET
+        name: name
+        path: path
+        retryable: true
+      properties:
+        authorization:
+          minLength: 1
+          title: Authorization
+          type: string
+        idempotent:
+          title: Idempotent
+          type: boolean
+        method:
+          enum:
+          - GET
+          - POST
+          - PUT
+          - PATCH
+          - DELETE
+          title: Method
+          type: string
+        name:
+          minLength: 1
+          title: Name
+          type: string
+        path:
+          minLength: 1
+          title: Path
+          type: string
+        retryable:
+          title: Retryable
+          type: boolean
+      required:
+      - authorization
+      - idempotent
+      - method
+      - name
+      - path
+      - retryable
+      title: ExternalOperation
+    ExternalOrchestrationProfile:
+      description: "Published, client-neutral orchestration profile."
+      example:
+        apiVersion: apiVersion
+        errorCategories:
+          key: errorCategories
+        guarantees:
+        - guarantees
+        - guarantees
+        operations:
+        - authorization: authorization
+          idempotent: true
+          method: GET
+          name: name
+          path: path
+          retryable: true
+        - authorization: authorization
+          idempotent: true
+          method: GET
+          name: name
+          path: path
+          retryable: true
+        realtime:
+          key: realtime
+        requestHeaders:
+        - requestHeaders
+        - requestHeaders
+        responseHeaders:
+        - responseHeaders
+        - responseHeaders
+        schemaVersion: amesh.external-orchestration/v1
+        webhooks:
+          key: webhooks
+      properties:
+        apiVersion:
+          minLength: 1
+          title: Apiversion
+          type: string
+        errorCategories:
+          additionalProperties:
+            type: string
+          title: Errorcategories
+        guarantees:
+          items:
+            type: string
+          title: Guarantees
+          type: array
+          default: null
+        operations:
+          items:
+            $ref: "#/components/schemas/ExternalOperation"
+          title: Operations
+          type: array
+          default: null
+        realtime:
+          additionalProperties:
+            type: string
+          title: Realtime
+        requestHeaders:
+          items:
+            type: string
+          title: Requestheaders
+          type: array
+          default: null
+        responseHeaders:
+          items:
+            type: string
+          title: Responseheaders
+          type: array
+          default: null
+        schemaVersion:
+          enum:
+          - amesh.external-orchestration/v1
+          title: Schemaversion
+          type: string
+        webhooks:
+          additionalProperties:
+            type: string
+          title: Webhooks
+      required:
+      - apiVersion
+      - errorCategories
+      - guarantees
+      - operations
+      - realtime
+      - requestHeaders
+      - responseHeaders
+      - schemaVersion
+      - webhooks
+      title: ExternalOrchestrationProfile
     FailoverStatus:
       enum:
       - REDUNDANT
@@ -25814,6 +27426,13 @@ components:
       - enabled
       - scope
       title: FeatureFlagUpsertRequest
+    FixtureSource:
+      description: The only sources allowed to satisfy a shadow side effect.
+      enum:
+      - SAFE_FIXTURE
+      - RECORDING
+      title: FixtureSource
+      type: string
     FlowDataContract:
       example:
         flowId: flowId
@@ -27308,6 +28927,44 @@ components:
           type: array
           default: null
       title: HTTPValidationError
+    HealthRequirement-Input:
+      additionalProperties: false
+      properties:
+        key:
+          maxLength: 512
+          minLength: 1
+          title: Key
+          type: string
+        maximum:
+          $ref: "#/components/schemas/Maximum_1"
+        minimum:
+          $ref: "#/components/schemas/Minimum"
+      required:
+      - key
+      title: HealthRequirement
+    HealthRequirement-Output:
+      additionalProperties: false
+      example:
+        key: key
+        maximum: maximum
+        minimum: minimum
+      properties:
+        key:
+          maxLength: 512
+          minLength: 1
+          title: Key
+          type: string
+        maximum:
+          nullable: true
+          pattern: "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+          type: string
+        minimum:
+          nullable: true
+          pattern: "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+          type: string
+      required:
+      - key
+      title: HealthRequirement
     HealthResponse:
       example:
         status: status
@@ -28701,6 +30358,44 @@ components:
       - SCHEDULED
       title: LifecycleTrigger
       type: string
+    Lineage:
+      additionalProperties: false
+      example:
+        configurationDigest: configurationDigest
+        inputDigest: inputDigest
+        parentRunId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        runId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        side: side
+        specId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        configurationDigest:
+          title: Configurationdigest
+          type: string
+        inputDigest:
+          title: Inputdigest
+          type: string
+        parentRunId:
+          format: uuid
+          nullable: true
+          type: string
+        runId:
+          format: uuid
+          title: Runid
+          type: string
+        side:
+          pattern: ^(left|right)$
+          title: Side
+          type: string
+        specId:
+          format: uuid
+          title: Specid
+          type: string
+      required:
+      - configurationDigest
+      - inputDigest
+      - side
+      - specId
+      title: Lineage
     LineageEvidenceKind:
       enum:
       - DECLARED
@@ -29149,6 +30844,7 @@ components:
         credentialRef: credentialRef
         embeddingEndpoint: embeddingEndpoint
         endpoint: endpoint
+        revision: revision
       properties:
         adapter:
           default: openai-compatible
@@ -29171,6 +30867,11 @@ components:
           minLength: 1
           title: Endpoint
           type: string
+        revision:
+          maxLength: 255
+          minLength: 1
+          nullable: true
+          type: string
       required:
       - credentialRef
       - endpoint
@@ -29186,6 +30887,7 @@ components:
           credentialRef: credentialRef
           embeddingEndpoint: embeddingEndpoint
           endpoint: endpoint
+          revision: revision
         requiredFeatures:
         - requiredFeatures
         - requiredFeatures
@@ -34189,6 +35891,326 @@ components:
       - title
       - type
       title: ProblemDetail
+    PromotionApplyRequest:
+      additionalProperties: false
+      example:
+        approvals:
+          key: 0
+        expectedVersion: 0
+        reason: reason
+      properties:
+        approvals:
+          additionalProperties:
+            type: integer
+          title: Approvals
+        expectedVersion:
+          minimum: 0.0
+          title: Expectedversion
+          type: integer
+        reason:
+          maxLength: 2048
+          minLength: 1
+          title: Reason
+          type: string
+      required:
+      - expectedVersion
+      - reason
+      title: PromotionApplyRequest
+    PromotionEvidenceKind:
+      enum:
+      - TEST
+      - ASSERTION
+      - DIFFERENTIAL
+      - HEALTH
+      - BUDGET
+      - APPROVAL
+      title: PromotionEvidenceKind
+      type: string
+    PromotionKillSwitchRequest:
+      additionalProperties: false
+      example:
+        expectedVersion: 0
+        reason: reason
+      properties:
+        expectedVersion:
+          minimum: 0.0
+          title: Expectedversion
+          type: integer
+        reason:
+          maxLength: 2048
+          minLength: 1
+          title: Reason
+          type: string
+      required:
+      - expectedVersion
+      - reason
+      title: PromotionKillSwitchRequest
+    PromotionPolicy-Input:
+      additionalProperties: {}
+      description: Immutable tenant policy; thresholds and cutover choices remain
+        client supplied.
+      properties:
+        approvalRequirements:
+          default: []
+          items:
+            $ref: "#/components/schemas/ApprovalRequirement"
+          maxItems: 100
+          title: Approvalrequirements
+          type: array
+        budgetRequirements:
+          default: []
+          items:
+            $ref: "#/components/schemas/BudgetRequirement-Input"
+          maxItems: 100
+          title: Budgetrequirements
+          type: array
+        configurationDigest:
+          pattern: "^sha256:[0-9a-f]{64}$"
+          title: Configurationdigest
+          type: string
+        createdAt:
+          format: date-time
+          title: Createdat
+          type: string
+        createdBy:
+          maxLength: 255
+          minLength: 1
+          title: Createdby
+          type: string
+        healthRequirements:
+          default: []
+          items:
+            $ref: "#/components/schemas/HealthRequirement-Input"
+          maxItems: 100
+          title: Healthrequirements
+          type: array
+        maxEvidenceAgeSeconds:
+          default: 86400
+          maximum: 31536000
+          minimum: 1.0
+          title: Maxevidenceageseconds
+          type: integer
+        policyId:
+          format: uuid
+          title: Policyid
+          type: string
+        requiredEvidence:
+          default: []
+          items:
+            $ref: "#/components/schemas/EvidenceRequirement"
+          maxItems: 1000
+          title: Requiredevidence
+          type: array
+        targetKey:
+          maxLength: 512
+          minLength: 1
+          title: Targetkey
+          type: string
+        targetKind:
+          $ref: "#/components/schemas/PromotionTargetKind"
+        targetRevision:
+          minimum: 1.0
+          title: Targetrevision
+          type: integer
+        tenantId:
+          maxLength: 255
+          minLength: 1
+          title: Tenantid
+          type: string
+      required:
+      - configurationDigest
+      - createdBy
+      - targetKey
+      - targetKind
+      - targetRevision
+      - tenantId
+      title: PromotionPolicy
+    PromotionPolicy-Output:
+      additionalProperties: false
+      description: Immutable tenant policy; thresholds and cutover choices remain
+        client supplied.
+      example:
+        approvalRequirements:
+        - key: key
+          minimumApprovals: 8
+        - key: key
+          minimumApprovals: 8
+        - key: key
+          minimumApprovals: 8
+        - key: key
+          minimumApprovals: 8
+        - key: key
+          minimumApprovals: 8
+        budgetRequirements:
+        - key: key
+          maximum: maximum
+        - key: key
+          maximum: maximum
+        - key: key
+          maximum: maximum
+        - key: key
+          maximum: maximum
+        - key: key
+          maximum: maximum
+        configurationDigest: configurationDigest
+        createdAt: 2000-01-23T04:56:07.000+00:00
+        createdBy: createdBy
+        healthRequirements:
+        - key: key
+          maximum: maximum
+          minimum: minimum
+        - key: key
+          maximum: maximum
+          minimum: minimum
+        - key: key
+          maximum: maximum
+          minimum: minimum
+        - key: key
+          maximum: maximum
+          minimum: minimum
+        - key: key
+          maximum: maximum
+          minimum: minimum
+        maxEvidenceAgeSeconds: 19008186
+        policyId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        requiredEvidence:
+        - digest: digest
+          key: key
+          kind: TEST
+        - digest: digest
+          key: key
+          kind: TEST
+        - digest: digest
+          key: key
+          kind: TEST
+        - digest: digest
+          key: key
+          kind: TEST
+        - digest: digest
+          key: key
+          kind: TEST
+        targetKey: targetKey
+        targetKind: WORKFLOW
+        targetRevision: 1
+        tenantId: tenantId
+      properties:
+        approvalRequirements:
+          default: []
+          items:
+            $ref: "#/components/schemas/ApprovalRequirement"
+          maxItems: 100
+          title: Approvalrequirements
+          type: array
+        budgetRequirements:
+          default: []
+          items:
+            $ref: "#/components/schemas/BudgetRequirement-Output"
+          maxItems: 100
+          title: Budgetrequirements
+          type: array
+        configurationDigest:
+          pattern: "^sha256:[0-9a-f]{64}$"
+          title: Configurationdigest
+          type: string
+        createdAt:
+          format: date-time
+          title: Createdat
+          type: string
+        createdBy:
+          maxLength: 255
+          minLength: 1
+          title: Createdby
+          type: string
+        healthRequirements:
+          default: []
+          items:
+            $ref: "#/components/schemas/HealthRequirement-Output"
+          maxItems: 100
+          title: Healthrequirements
+          type: array
+        maxEvidenceAgeSeconds:
+          default: 86400
+          maximum: 31536000
+          minimum: 1.0
+          title: Maxevidenceageseconds
+          type: integer
+        policyId:
+          format: uuid
+          title: Policyid
+          type: string
+        requiredEvidence:
+          default: []
+          items:
+            $ref: "#/components/schemas/EvidenceRequirement"
+          maxItems: 1000
+          title: Requiredevidence
+          type: array
+        targetKey:
+          maxLength: 512
+          minLength: 1
+          title: Targetkey
+          type: string
+        targetKind:
+          $ref: "#/components/schemas/PromotionTargetKind"
+        targetRevision:
+          minimum: 1.0
+          title: Targetrevision
+          type: integer
+        tenantId:
+          maxLength: 255
+          minLength: 1
+          title: Tenantid
+          type: string
+      required:
+      - configurationDigest
+      - createdBy
+      - targetKey
+      - targetKind
+      - targetRevision
+      - tenantId
+      title: PromotionPolicy
+    PromotionPreviewRequest:
+      additionalProperties: false
+      example:
+        approvals:
+          key: 0
+      properties:
+        approvals:
+          additionalProperties:
+            type: integer
+          title: Approvals
+      title: PromotionPreviewRequest
+    PromotionRollbackRequest:
+      additionalProperties: false
+      example:
+        expectedVersion: 0
+        reason: reason
+        toRevision: 1
+      properties:
+        expectedVersion:
+          minimum: 0.0
+          title: Expectedversion
+          type: integer
+        reason:
+          maxLength: 2048
+          minLength: 1
+          title: Reason
+          type: string
+        toRevision:
+          minimum: 1.0
+          title: Torevision
+          type: integer
+      required:
+      - expectedVersion
+      - reason
+      - toRevision
+      title: PromotionRollbackRequest
+    PromotionTargetKind:
+      enum:
+      - WORKFLOW
+      - AGENT
+      title: PromotionTargetKind
+      type: string
     PromptSpec:
       additionalProperties: false
       example:
@@ -34332,6 +36354,8 @@ components:
         latest_migration: latest_migration
         migrations_applied: 0
         migrations_expected: 6
+        roles:
+          key: roles
         status: status
         version: version
       properties:
@@ -34360,6 +36384,10 @@ components:
         migrations_expected:
           title: Migrations Expected
           type: integer
+        roles:
+          additionalProperties:
+            type: string
+          title: Roles
         status:
           title: Status
           type: string
@@ -34940,6 +36968,7 @@ components:
             credentialRef: credentialRef
             embeddingEndpoint: embeddingEndpoint
             endpoint: endpoint
+            revision: revision
           requiredFeatures:
           - requiredFeatures
           - requiredFeatures
@@ -34952,6 +36981,7 @@ components:
             credentialRef: credentialRef
             embeddingEndpoint: embeddingEndpoint
             endpoint: endpoint
+            revision: revision
           requiredFeatures:
           - requiredFeatures
           - requiredFeatures
@@ -35062,45 +37092,66 @@ components:
         connectionKey: connectionKey
         connectionRevision: 1
         impact: READ_ONLY
+        providerDigest: providerDigest
+        providerKey: providerKey
+        providerKind: ""
+        providerRevision: 1
         schemaDigest: schemaDigest
         toolName: toolName
       properties:
         connectionDigest:
+          nullable: true
           pattern: "^sha256:[0-9a-f]{64}$"
-          title: Connectiondigest
           type: string
         connectionId:
           format: uuid
-          title: Connectionid
+          nullable: true
           type: string
         connectionKey:
           maxLength: 128
           minLength: 1
+          nullable: true
           pattern: "^[A-Za-z0-9][A-Za-z0-9_-]*$"
-          title: Connectionkey
           type: string
         connectionRevision:
           minimum: 1.0
-          title: Connectionrevision
+          nullable: true
           type: integer
         impact:
           $ref: "#/components/schemas/McpToolImpact"
+        providerDigest:
+          pattern: "^sha256:[0-9a-f]{64}$"
+          title: Providerdigest
+          type: string
+        providerKey:
+          maxLength: 255
+          minLength: 1
+          pattern: "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
+          title: Providerkey
+          type: string
+        providerKind:
+          allOf:
+          - $ref: "#/components/schemas/ToolProviderKind"
+          default: mcp
+        providerRevision:
+          minimum: 1.0
+          title: Providerrevision
+          type: integer
         schemaDigest:
           pattern: "^sha256:[0-9a-f]{64}$"
           title: Schemadigest
           type: string
         toolName:
-          maxLength: 128
+          maxLength: 255
           minLength: 1
-          pattern: "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+          pattern: "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$"
           title: Toolname
           type: string
       required:
-      - connectionDigest
-      - connectionId
-      - connectionKey
-      - connectionRevision
       - impact
+      - providerDigest
+      - providerKey
+      - providerRevision
       - schemaDigest
       - toolName
       title: ResolvedToolPin
@@ -35491,6 +37542,104 @@ components:
           title: Overlapseconds
           type: integer
       title: RotateCredentialRequest
+    RunObservation:
+      additionalProperties: {}
+      description: Portable evidence emitted by an adapter; model output may be declared
+        nondeterministic.
+      example:
+        cost: "0"
+        deterministicAssertions:
+        - key: ""
+        - key: ""
+        effects:
+        - fixtureKey: fixtureKey
+          key: key
+        - fixtureKey: fixtureKey
+          key: key
+        evidence:
+        - key: ""
+        - key: ""
+        latency: "0"
+        nondeterministicPaths:
+        - nondeterministicPaths
+        - nondeterministicPaths
+        output: ""
+        schema: ""
+        taskChronology:
+        - key: ""
+        - key: ""
+        toolChronology:
+        - key: ""
+        - key: ""
+        usage:
+          key: usage
+      properties:
+        cost:
+          default: "0"
+          pattern: "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+          title: Cost
+          type: string
+        deterministicAssertions:
+          default: []
+          items:
+            additionalProperties: true
+            nullable: true
+            type: object
+          title: Deterministicassertions
+          type: array
+        effects:
+          default: []
+          items:
+            $ref: "#/components/schemas/ShadowEffect"
+          title: Effects
+          type: array
+        evidence:
+          default: []
+          items:
+            additionalProperties: true
+            nullable: true
+            type: object
+          title: Evidence
+          type: array
+        latency:
+          default: "0"
+          pattern: "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+          title: Latency
+          type: string
+        nondeterministicPaths:
+          default: []
+          items:
+            description: Opaque cursor from the prior page
+            nullable: true
+            type: string
+          title: Nondeterministicpaths
+          type: array
+        output:
+          title: Output
+        schema:
+          title: Schema
+        taskChronology:
+          default: []
+          items:
+            additionalProperties: true
+            nullable: true
+            type: object
+          title: Taskchronology
+          type: array
+        toolChronology:
+          default: []
+          items:
+            additionalProperties: true
+            nullable: true
+            type: object
+          title: Toolchronology
+          type: array
+        usage:
+          additionalProperties:
+            pattern: "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+            type: string
+          title: Usage
+      title: RunObservation
     RunnerCapabilities:
       example:
         acceptsCommand: true
@@ -36720,6 +38869,7 @@ components:
     ServiceInstance:
       example:
         compatibility: CURRENT
+        consecutiveFailures: 0
         dependencies:
           key: dependencies
         failureZone: failureZone
@@ -36728,7 +38878,10 @@ components:
         instanceName: instanceName
         labels:
           key: labels
+        lastFailure: lastFailure
+        lastFailureAt: 2000-01-23T04:56:07.000+00:00
         lastHeartbeatAt: 2000-01-23T04:56:07.000+00:00
+        lastSuccessAt: 2000-01-23T04:56:07.000+00:00
         liveness: LIVE
         ownership:
           key: ""
@@ -36743,6 +38896,11 @@ components:
       properties:
         compatibility:
           $ref: "#/components/schemas/ServiceCompatibility"
+        consecutiveFailures:
+          default: 0
+          minimum: 0.0
+          title: Consecutivefailures
+          type: integer
         dependencies:
           additionalProperties:
             type: string
@@ -36765,9 +38923,20 @@ components:
           additionalProperties:
             type: string
           title: Labels
+        lastFailure:
+          nullable: true
+          type: string
+        lastFailureAt:
+          format: date-time
+          nullable: true
+          type: string
         lastHeartbeatAt:
           format: date-time
           title: Lastheartbeatat
+          type: string
+        lastSuccessAt:
+          format: date-time
+          nullable: true
           type: string
         liveness:
           $ref: "#/components/schemas/ServiceLiveness"
@@ -36830,6 +38999,7 @@ components:
       type: string
     ServiceRoleStatus:
       example:
+        degradedInstances: 0
         drainingInstances: 0
         failoverStatus: REDUNDANT
         failureZones:
@@ -36844,6 +39014,10 @@ components:
         - versions
         - versions
       properties:
+        degradedInstances:
+          minimum: 0.0
+          title: Degradedinstances
+          type: integer
         drainingInstances:
           minimum: 0.0
           title: Draininginstances
@@ -36881,6 +39055,7 @@ components:
           type: array
           default: null
       required:
+      - degradedInstances
       - drainingInstances
       - failoverStatus
       - failureZones
@@ -36895,6 +39070,7 @@ components:
       enum:
       - STARTING
       - READY
+      - DEGRADED
       - DRAINING
       - STOPPED
       title: ServiceState
@@ -36905,6 +39081,7 @@ components:
         currentVersion: currentVersion
         instances:
         - compatibility: CURRENT
+          consecutiveFailures: 0
           dependencies:
             key: dependencies
           failureZone: failureZone
@@ -36913,7 +39090,10 @@ components:
           instanceName: instanceName
           labels:
             key: labels
+          lastFailure: lastFailure
+          lastFailureAt: 2000-01-23T04:56:07.000+00:00
           lastHeartbeatAt: 2000-01-23T04:56:07.000+00:00
+          lastSuccessAt: 2000-01-23T04:56:07.000+00:00
           liveness: LIVE
           ownership:
             key: ""
@@ -36926,6 +39106,7 @@ components:
           stoppedAt: 2000-01-23T04:56:07.000+00:00
           version: version
         - compatibility: CURRENT
+          consecutiveFailures: 0
           dependencies:
             key: dependencies
           failureZone: failureZone
@@ -36934,7 +39115,10 @@ components:
           instanceName: instanceName
           labels:
             key: labels
+          lastFailure: lastFailure
+          lastFailureAt: 2000-01-23T04:56:07.000+00:00
           lastHeartbeatAt: 2000-01-23T04:56:07.000+00:00
+          lastSuccessAt: 2000-01-23T04:56:07.000+00:00
           liveness: LIVE
           ownership:
             key: ""
@@ -36950,7 +39134,8 @@ components:
         quorumDependencies:
           key: quorumDependencies
         roles:
-        - drainingInstances: 0
+        - degradedInstances: 0
+          drainingInstances: 0
           failoverStatus: REDUNDANT
           failureZones:
           - failureZones
@@ -36963,7 +39148,8 @@ components:
           versions:
           - versions
           - versions
-        - drainingInstances: 0
+        - degradedInstances: 0
+          drainingInstances: 0
           failoverStatus: REDUNDANT
           failureZones:
           - failureZones
@@ -37030,6 +39216,95 @@ components:
       required:
       - newPassword
       title: SetLocalPasswordRequest
+    ShadowEffect:
+      additionalProperties: false
+      example:
+        fixtureKey: fixtureKey
+        key: key
+      properties:
+        fixtureKey:
+          nullable: true
+          type: string
+        key:
+          maxLength: 512
+          minLength: 1
+          title: Key
+          type: string
+      required:
+      - key
+      title: ShadowEffect
+    ShadowFixture:
+      additionalProperties: false
+      example:
+        certificate: certificate
+        key: key
+        source: SAFE_FIXTURE
+        value: ""
+      properties:
+        certificate:
+          pattern: "^sha256:[0-9a-f]{64}$"
+          title: Certificate
+          type: string
+        key:
+          maxLength: 512
+          minLength: 1
+          title: Key
+          type: string
+        source:
+          $ref: "#/components/schemas/FixtureSource"
+        value:
+          title: Value
+      required:
+      - certificate
+      - key
+      - source
+      title: ShadowFixture
+    ShadowRun:
+      additionalProperties: false
+      example:
+        lineage:
+          configurationDigest: configurationDigest
+          inputDigest: inputDigest
+          parentRunId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          runId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          side: side
+          specId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        observation:
+          cost: "0"
+          deterministicAssertions:
+          - key: ""
+          - key: ""
+          effects:
+          - fixtureKey: fixtureKey
+            key: key
+          - fixtureKey: fixtureKey
+            key: key
+          evidence:
+          - key: ""
+          - key: ""
+          latency: "0"
+          nondeterministicPaths:
+          - nondeterministicPaths
+          - nondeterministicPaths
+          output: ""
+          schema: ""
+          taskChronology:
+          - key: ""
+          - key: ""
+          toolChronology:
+          - key: ""
+          - key: ""
+          usage:
+            key: usage
+      properties:
+        lineage:
+          $ref: "#/components/schemas/Lineage"
+        observation:
+          $ref: "#/components/schemas/RunObservation"
+      required:
+      - lineage
+      - observation
+      title: ShadowRun
     SimulatedTaskResult:
       example:
         attempts: 0
@@ -39141,6 +41416,23 @@ components:
       - intervalSeconds
       - start
       title: TimeRangeSelection
+    Tolerance:
+      additionalProperties: false
+      example:
+        absolute: 0.6027456183070403
+        relative: 0.14658129805029452
+      properties:
+        absolute:
+          $ref: "#/components/schemas/Absolute"
+        relative:
+          $ref: "#/components/schemas/Relative"
+      title: Tolerance
+    ToolProviderKind:
+      enum:
+      - mcp
+      - plugin
+      title: ToolProviderKind
+      type: string
     TriggerActionRequest:
       example:
         reason: reason
@@ -40825,6 +43117,40 @@ components:
       - pattern: "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
         type: string
       title: Weight
+    Maximum:
+      anyOf:
+      - exclusiveMinimum: true
+        minimum: 0.0
+        type: number
+      - pattern: "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+        type: string
+      title: Maximum
+    Correlationid:
+      anyOf:
+      - format: uuid
+        type: string
+      - type: string
+      title: Correlationid
+    Recordid:
+      anyOf:
+      - format: uuid
+        type: string
+      - type: string
+      title: Recordid
+    Maximum_1:
+      anyOf:
+      - type: number
+      - pattern: "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+        type: string
+      nullable: true
+      title: Maximum
+    Minimum:
+      anyOf:
+      - type: number
+      - pattern: "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+        type: string
+      nullable: true
+      title: Minimum
     Action:
       anyOf:
       - $ref: "#/components/schemas/PermissionAction"
@@ -40854,6 +43180,23 @@ components:
       - pattern: "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
         type: string
       title: Value
+    Absolute:
+      anyOf:
+      - minimum: 0.0
+        type: number
+      - pattern: "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+        type: string
+      default: "0"
+      title: Absolute
+    Relative:
+      anyOf:
+      - maximum: 1.0
+        minimum: 0.0
+        type: number
+      - pattern: "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+        type: string
+      default: "0"
+      title: Relative
     Location_inner:
       anyOf:
       - type: string

@@ -46,6 +46,7 @@ def test_ui_session_returns_server_authoritative_capabilities_and_privacy_policy
         {
             ("flow", PermissionAction.VIEW),
             ("execution", PermissionAction.VIEW),
+            ("release", PermissionAction.VIEW),
         }
     )
     settings = Settings(product_telemetry_enabled=False)
@@ -70,6 +71,13 @@ def test_ui_session_returns_server_authoritative_capabilities_and_privacy_policy
         assert payload["telemetryEnabled"] is False
         assert payload["capabilities"] == {
             "administration.manage": False,
+            "agents.execute": False,
+            "agents.manage": False,
+            "agents.view": False,
+            "announcements.view": False,
+            "apps.execute": False,
+            "apps.manage": False,
+            "apps.view": False,
             "assets.manage": False,
             "assets.view": False,
             "checks.manage": False,
@@ -82,10 +90,18 @@ def test_ui_session_returns_server_authoritative_capabilities_and_privacy_policy
             "flows.create": False,
             "flows.update": False,
             "flows.view": True,
+            "flowTests.execute": False,
+            "flowTests.manage": False,
+            "flowTests.view": False,
+            "humanTasks.update": False,
+            "humanTasks.view": False,
             "namespaces.view": False,
             "namespaceResources.read": False,
             "namespaceResources.write": False,
             "plugins.view": False,
+            "operationalControls.manage": False,
+            "releases.manage": False,
+            "releases.view": True,
             "search.manage": False,
             "search.view": False,
             "secretBindings.write": False,

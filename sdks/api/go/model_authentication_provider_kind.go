@@ -21,9 +21,9 @@ type AuthenticationProviderKind string
 // List of AuthenticationProviderKind
 const (
 	AUTHENTICATIONPROVIDERKIND_LOCAL AuthenticationProviderKind = "local"
-	AUTHENTICATIONPROVIDERKIND_OIDC AuthenticationProviderKind = "oidc"
-	AUTHENTICATIONPROVIDERKIND_SAML AuthenticationProviderKind = "saml"
-	AUTHENTICATIONPROVIDERKIND_LDAP AuthenticationProviderKind = "ldap"
+	AUTHENTICATIONPROVIDERKIND_OIDC  AuthenticationProviderKind = "oidc"
+	AUTHENTICATIONPROVIDERKIND_SAML  AuthenticationProviderKind = "saml"
+	AUTHENTICATIONPROVIDERKIND_LDAP  AuthenticationProviderKind = "ldap"
 )
 
 // All allowed values of AuthenticationProviderKind enum

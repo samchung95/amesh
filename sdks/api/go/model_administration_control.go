@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the AdministrationControl type satisfies the MappedNullable interface at compile time
@@ -22,13 +22,13 @@ var _ MappedNullable = &AdministrationControl{}
 
 // AdministrationControl struct for AdministrationControl
 type AdministrationControl struct {
-	Enabled bool `json:"enabled"`
-	FlagKey string `json:"flagKey"`
-	Key AdministrationControlKey `json:"key"`
-	UpdatedAt NullableTime `json:"updatedAt,omitempty"`
-	UpdatedBy NullableString `json:"updatedBy,omitempty"`
-	Value NullableValue `json:"value,omitempty"`
-	Version NullableInt32 `json:"version,omitempty"`
+	Enabled   bool                     `json:"enabled"`
+	FlagKey   string                   `json:"flagKey"`
+	Key       AdministrationControlKey `json:"key"`
+	UpdatedAt NullableTime             `json:"updatedAt,omitempty"`
+	UpdatedBy NullableString           `json:"updatedBy,omitempty"`
+	Value     NullableValue            `json:"value,omitempty"`
+	Version   NullableInt32            `json:"version,omitempty"`
 }
 
 type _AdministrationControl AdministrationControl
@@ -157,6 +157,7 @@ func (o *AdministrationControl) HasUpdatedAt() bool {
 func (o *AdministrationControl) SetUpdatedAt(v time.Time) {
 	o.UpdatedAt.Set(&v)
 }
+
 // SetUpdatedAtNil sets the value for UpdatedAt to be an explicit nil
 func (o *AdministrationControl) SetUpdatedAtNil() {
 	o.UpdatedAt.Set(nil)
@@ -199,6 +200,7 @@ func (o *AdministrationControl) HasUpdatedBy() bool {
 func (o *AdministrationControl) SetUpdatedBy(v string) {
 	o.UpdatedBy.Set(&v)
 }
+
 // SetUpdatedByNil sets the value for UpdatedBy to be an explicit nil
 func (o *AdministrationControl) SetUpdatedByNil() {
 	o.UpdatedBy.Set(nil)
@@ -241,6 +243,7 @@ func (o *AdministrationControl) HasValue() bool {
 func (o *AdministrationControl) SetValue(v Value) {
 	o.Value.Set(&v)
 }
+
 // SetValueNil sets the value for Value to be an explicit nil
 func (o *AdministrationControl) SetValueNil() {
 	o.Value.Set(nil)
@@ -283,6 +286,7 @@ func (o *AdministrationControl) HasVersion() bool {
 func (o *AdministrationControl) SetVersion(v int32) {
 	o.Version.Set(&v)
 }
+
 // SetVersionNil sets the value for Version to be an explicit nil
 func (o *AdministrationControl) SetVersionNil() {
 	o.Version.Set(nil)
@@ -294,7 +298,7 @@ func (o *AdministrationControl) UnsetVersion() {
 }
 
 func (o AdministrationControl) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -336,10 +340,10 @@ func (o *AdministrationControl) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

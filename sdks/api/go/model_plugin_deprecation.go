@@ -11,8 +11,8 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,11 +21,11 @@ var _ MappedNullable = &PluginDeprecation{}
 
 // PluginDeprecation struct for PluginDeprecation
 type PluginDeprecation struct {
-	DeprecatedIn string `json:"deprecatedIn" validate:"regexp=^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?(?:\\+[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?$"`
-	Message string `json:"message"`
-	RemovedIn NullableString `json:"removedIn,omitempty" validate:"regexp=^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?(?:\\+[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?$"`
-	Replacement NullableString `json:"replacement,omitempty"`
-	Subject string `json:"subject"`
+	DeprecatedIn string         `json:"deprecatedIn" validate:"regexp=^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?(?:\\+[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?$"`
+	Message      string         `json:"message"`
+	RemovedIn    NullableString `json:"removedIn,omitempty" validate:"regexp=^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?(?:\\+[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?$"`
+	Replacement  NullableString `json:"replacement,omitempty"`
+	Subject      string         `json:"subject"`
 }
 
 type _PluginDeprecation PluginDeprecation
@@ -130,6 +130,7 @@ func (o *PluginDeprecation) HasRemovedIn() bool {
 func (o *PluginDeprecation) SetRemovedIn(v string) {
 	o.RemovedIn.Set(&v)
 }
+
 // SetRemovedInNil sets the value for RemovedIn to be an explicit nil
 func (o *PluginDeprecation) SetRemovedInNil() {
 	o.RemovedIn.Set(nil)
@@ -172,6 +173,7 @@ func (o *PluginDeprecation) HasReplacement() bool {
 func (o *PluginDeprecation) SetReplacement(v string) {
 	o.Replacement.Set(&v)
 }
+
 // SetReplacementNil sets the value for Replacement to be an explicit nil
 func (o *PluginDeprecation) SetReplacementNil() {
 	o.Replacement.Set(nil)
@@ -207,7 +209,7 @@ func (o *PluginDeprecation) SetSubject(v string) {
 }
 
 func (o PluginDeprecation) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -243,10 +245,10 @@ func (o *PluginDeprecation) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

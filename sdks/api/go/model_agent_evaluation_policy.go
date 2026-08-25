@@ -19,9 +19,9 @@ var _ MappedNullable = &AgentEvaluationPolicy{}
 
 // AgentEvaluationPolicy struct for AgentEvaluationPolicy
 type AgentEvaluationPolicy struct {
-	Evaluations []AgentResourceRef `json:"evaluations,omitempty"`
-	RequireHumanRelease *bool `json:"requireHumanRelease,omitempty"`
-	RequiredEvaluations []string `json:"requiredEvaluations,omitempty"`
+	Evaluations         []AgentResourceRef `json:"evaluations,omitempty"`
+	RequireHumanRelease *bool              `json:"requireHumanRelease,omitempty"`
+	RequiredEvaluations []string           `json:"requiredEvaluations,omitempty"`
 }
 
 // NewAgentEvaluationPolicy instantiates a new AgentEvaluationPolicy object
@@ -142,7 +142,7 @@ func (o *AgentEvaluationPolicy) SetRequiredEvaluations(v []string) {
 }
 
 func (o AgentEvaluationPolicy) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}

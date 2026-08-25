@@ -20,11 +20,11 @@ type LogLevel string
 
 // List of LogLevel
 const (
-	LOGLEVEL_TRACE LogLevel = "TRACE"
-	LOGLEVEL_DEBUG LogLevel = "DEBUG"
-	LOGLEVEL_INFO LogLevel = "INFO"
+	LOGLEVEL_TRACE   LogLevel = "TRACE"
+	LOGLEVEL_DEBUG   LogLevel = "DEBUG"
+	LOGLEVEL_INFO    LogLevel = "INFO"
 	LOGLEVEL_WARNING LogLevel = "WARNING"
-	LOGLEVEL_ERROR LogLevel = "ERROR"
+	LOGLEVEL_ERROR   LogLevel = "ERROR"
 )
 
 // All allowed values of LogLevel enum

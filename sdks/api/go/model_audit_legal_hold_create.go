@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the AuditLegalHoldCreate type satisfies the MappedNullable interface at compile time
@@ -22,10 +22,10 @@ var _ MappedNullable = &AuditLegalHoldCreate{}
 
 // AuditLegalHoldCreate struct for AuditLegalHoldCreate
 type AuditLegalHoldCreate struct {
-	EndsAt NullableTime `json:"endsAt,omitempty"`
-	Name string `json:"name"`
-	Reason string `json:"reason"`
-	StartsAt time.Time `json:"startsAt"`
+	EndsAt   NullableTime `json:"endsAt,omitempty"`
+	Name     string       `json:"name"`
+	Reason   string       `json:"reason"`
+	StartsAt time.Time    `json:"startsAt"`
 }
 
 type _AuditLegalHoldCreate AuditLegalHoldCreate
@@ -82,6 +82,7 @@ func (o *AuditLegalHoldCreate) HasEndsAt() bool {
 func (o *AuditLegalHoldCreate) SetEndsAt(v time.Time) {
 	o.EndsAt.Set(&v)
 }
+
 // SetEndsAtNil sets the value for EndsAt to be an explicit nil
 func (o *AuditLegalHoldCreate) SetEndsAtNil() {
 	o.EndsAt.Set(nil)
@@ -165,7 +166,7 @@ func (o *AuditLegalHoldCreate) SetStartsAt(v time.Time) {
 }
 
 func (o AuditLegalHoldCreate) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -198,10 +199,10 @@ func (o *AuditLegalHoldCreate) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}

@@ -20,9 +20,9 @@ var _ MappedNullable = &CompliancePackageRequest{}
 
 // CompliancePackageRequest struct for CompliancePackageRequest
 type CompliancePackageRequest struct {
-	MaxAuditEvents *int32 `json:"maxAuditEvents,omitempty"`
-	OccurredFrom NullableTime `json:"occurredFrom,omitempty"`
-	OccurredTo NullableTime `json:"occurredTo,omitempty"`
+	MaxAuditEvents *int32       `json:"maxAuditEvents,omitempty"`
+	OccurredFrom   NullableTime `json:"occurredFrom,omitempty"`
+	OccurredTo     NullableTime `json:"occurredTo,omitempty"`
 }
 
 // NewCompliancePackageRequest instantiates a new CompliancePackageRequest object
@@ -110,6 +110,7 @@ func (o *CompliancePackageRequest) HasOccurredFrom() bool {
 func (o *CompliancePackageRequest) SetOccurredFrom(v time.Time) {
 	o.OccurredFrom.Set(&v)
 }
+
 // SetOccurredFromNil sets the value for OccurredFrom to be an explicit nil
 func (o *CompliancePackageRequest) SetOccurredFromNil() {
 	o.OccurredFrom.Set(nil)
@@ -152,6 +153,7 @@ func (o *CompliancePackageRequest) HasOccurredTo() bool {
 func (o *CompliancePackageRequest) SetOccurredTo(v time.Time) {
 	o.OccurredTo.Set(&v)
 }
+
 // SetOccurredToNil sets the value for OccurredTo to be an explicit nil
 func (o *CompliancePackageRequest) SetOccurredToNil() {
 	o.OccurredTo.Set(nil)
@@ -163,7 +165,7 @@ func (o *CompliancePackageRequest) UnsetOccurredTo() {
 }
 
 func (o CompliancePackageRequest) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}

@@ -11,10 +11,10 @@ API version: 0.2.0
 package ameshclient
 
 import (
-	"encoding/json"
-	"time"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // checks if the WebhookDelivery type satisfies the MappedNullable interface at compile time
@@ -22,22 +22,22 @@ var _ MappedNullable = &WebhookDelivery{}
 
 // WebhookDelivery struct for WebhookDelivery
 type WebhookDelivery struct {
-	Attempts int32 `json:"attempts"`
-	CreatedAt time.Time `json:"createdAt"`
-	DeliveredAt NullableTime `json:"deliveredAt,omitempty"`
-	DeliveryKind WebhookDeliveryKind `json:"deliveryKind"`
-	ErrorCode NullableString `json:"errorCode,omitempty"`
-	EventCursor NullableInt32 `json:"eventCursor,omitempty"`
-	EventId NullableString `json:"eventId,omitempty"`
-	EventOccurredAt time.Time `json:"eventOccurredAt"`
-	EventType string `json:"eventType"`
-	Id string `json:"id"`
-	NextAttemptAt time.Time `json:"nextAttemptAt"`
-	OriginalDeliveryId NullableString `json:"originalDeliveryId,omitempty"`
-	ResponseStatus NullableInt32 `json:"responseStatus,omitempty"`
-	SigningVersion int32 `json:"signingVersion"`
-	Status WebhookDeliveryStatus `json:"status"`
-	SubscriptionId string `json:"subscriptionId"`
+	Attempts           int32                 `json:"attempts"`
+	CreatedAt          time.Time             `json:"createdAt"`
+	DeliveredAt        NullableTime          `json:"deliveredAt,omitempty"`
+	DeliveryKind       WebhookDeliveryKind   `json:"deliveryKind"`
+	ErrorCode          NullableString        `json:"errorCode,omitempty"`
+	EventCursor        NullableInt32         `json:"eventCursor,omitempty"`
+	EventId            NullableString        `json:"eventId,omitempty"`
+	EventOccurredAt    time.Time             `json:"eventOccurredAt"`
+	EventType          string                `json:"eventType"`
+	Id                 string                `json:"id"`
+	NextAttemptAt      time.Time             `json:"nextAttemptAt"`
+	OriginalDeliveryId NullableString        `json:"originalDeliveryId,omitempty"`
+	ResponseStatus     NullableInt32         `json:"responseStatus,omitempty"`
+	SigningVersion     int32                 `json:"signingVersion"`
+	Status             WebhookDeliveryStatus `json:"status"`
+	SubscriptionId     string                `json:"subscriptionId"`
 }
 
 type _WebhookDelivery WebhookDelivery
@@ -149,6 +149,7 @@ func (o *WebhookDelivery) HasDeliveredAt() bool {
 func (o *WebhookDelivery) SetDeliveredAt(v time.Time) {
 	o.DeliveredAt.Set(&v)
 }
+
 // SetDeliveredAtNil sets the value for DeliveredAt to be an explicit nil
 func (o *WebhookDelivery) SetDeliveredAtNil() {
 	o.DeliveredAt.Set(nil)
@@ -215,6 +216,7 @@ func (o *WebhookDelivery) HasErrorCode() bool {
 func (o *WebhookDelivery) SetErrorCode(v string) {
 	o.ErrorCode.Set(&v)
 }
+
 // SetErrorCodeNil sets the value for ErrorCode to be an explicit nil
 func (o *WebhookDelivery) SetErrorCodeNil() {
 	o.ErrorCode.Set(nil)
@@ -257,6 +259,7 @@ func (o *WebhookDelivery) HasEventCursor() bool {
 func (o *WebhookDelivery) SetEventCursor(v int32) {
 	o.EventCursor.Set(&v)
 }
+
 // SetEventCursorNil sets the value for EventCursor to be an explicit nil
 func (o *WebhookDelivery) SetEventCursorNil() {
 	o.EventCursor.Set(nil)
@@ -299,6 +302,7 @@ func (o *WebhookDelivery) HasEventId() bool {
 func (o *WebhookDelivery) SetEventId(v string) {
 	o.EventId.Set(&v)
 }
+
 // SetEventIdNil sets the value for EventId to be an explicit nil
 func (o *WebhookDelivery) SetEventIdNil() {
 	o.EventId.Set(nil)
@@ -437,6 +441,7 @@ func (o *WebhookDelivery) HasOriginalDeliveryId() bool {
 func (o *WebhookDelivery) SetOriginalDeliveryId(v string) {
 	o.OriginalDeliveryId.Set(&v)
 }
+
 // SetOriginalDeliveryIdNil sets the value for OriginalDeliveryId to be an explicit nil
 func (o *WebhookDelivery) SetOriginalDeliveryIdNil() {
 	o.OriginalDeliveryId.Set(nil)
@@ -479,6 +484,7 @@ func (o *WebhookDelivery) HasResponseStatus() bool {
 func (o *WebhookDelivery) SetResponseStatus(v int32) {
 	o.ResponseStatus.Set(&v)
 }
+
 // SetResponseStatusNil sets the value for ResponseStatus to be an explicit nil
 func (o *WebhookDelivery) SetResponseStatusNil() {
 	o.ResponseStatus.Set(nil)
@@ -562,7 +568,7 @@ func (o *WebhookDelivery) SetSubscriptionId(v string) {
 }
 
 func (o WebhookDelivery) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -624,10 +630,10 @@ func (o *WebhookDelivery) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}
