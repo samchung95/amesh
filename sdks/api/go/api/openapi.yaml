@@ -5639,6 +5639,64 @@ paths:
       summary: Get Execution Admission
       tags:
       - executions
+  /api/v1/executions/{execution_id}/agent-sessions:
+    get:
+      operationId: list_execution_agent_sessions_api_v1_executions__execution_id__agent_sessions_get
+      parameters:
+      - explode: false
+        in: path
+        name: execution_id
+        required: true
+        schema:
+          format: uuid
+          title: Execution Id
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: authorization
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-CSRF
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: X-Amesh-Tenant
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/AgentSessionRecord"
+                title: Response List Execution Agent Sessions Api V1 Executions  Execution
+                  Id  Agent Sessions Get
+                type: array
+                default: null
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      summary: List Execution Agent Sessions
+      tags:
+      - executions
   /api/v1/executions/{execution_id}/evidence:
     get:
       operationId: get_execution_evidence_api_v1_executions__execution_id__evidence_get
@@ -16842,6 +16900,213 @@ components:
       - sameOutputSchema
       - toRevision
       title: AgentRevisionComparison
+    AgentSessionCheckpoint:
+      example:
+        lastAcceptedOperation: lastAcceptedOperation
+        messages:
+        - key: ""
+        - key: ""
+        nextTurn: 1
+        pendingAction:
+          key: ""
+        pendingTurn: 1
+      properties:
+        lastAcceptedOperation:
+          nullable: true
+          type: string
+        messages:
+          default: []
+          items:
+            additionalProperties: true
+            type: object
+          title: Messages
+          type: array
+        nextTurn:
+          default: 1
+          minimum: 1.0
+          title: Nextturn
+          type: integer
+        pendingAction:
+          additionalProperties: true
+          nullable: true
+          type: object
+        pendingTurn:
+          minimum: 1.0
+          nullable: true
+          type: integer
+      title: AgentSessionCheckpoint
+    AgentSessionCounters:
+      example:
+        costUsd: "0"
+        loopIterations: 0
+        repairAttempts: 0
+        toolCalls: 0
+        totalTokens: 0
+        turns: 0
+      properties:
+        costUsd:
+          default: "0"
+          pattern: "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+          title: Costusd
+          type: string
+        loopIterations:
+          default: 0
+          minimum: 0.0
+          title: Loopiterations
+          type: integer
+        repairAttempts:
+          default: 0
+          minimum: 0.0
+          title: Repairattempts
+          type: integer
+        toolCalls:
+          default: 0
+          minimum: 0.0
+          title: Toolcalls
+          type: integer
+        totalTokens:
+          default: 0
+          minimum: 0.0
+          title: Totaltokens
+          type: integer
+        turns:
+          default: 0
+          minimum: 0.0
+          title: Turns
+          type: integer
+      title: AgentSessionCounters
+    AgentSessionPhase:
+      enum:
+      - READY
+      - MODEL
+      - POLICY
+      - APPROVAL
+      - TOOL
+      - VALIDATING
+      - COMPLETE
+      title: AgentSessionPhase
+      type: string
+    AgentSessionRecord:
+      example:
+        attempt: 1
+        capabilityPinId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        checkpoint:
+          lastAcceptedOperation: lastAcceptedOperation
+          messages:
+          - key: ""
+          - key: ""
+          nextTurn: 1
+          pendingAction:
+            key: ""
+          pendingTurn: 1
+        completedAt: 2000-01-23T04:56:07.000+00:00
+        counters:
+          costUsd: "0"
+          loopIterations: 0
+          repairAttempts: 0
+          toolCalls: 0
+          totalTokens: 0
+          turns: 0
+        createdAt: 2000-01-23T04:56:07.000+00:00
+        envelopeDigest: envelopeDigest
+        error: error
+        executionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        finalResult:
+          key: ""
+        namespace: namespace
+        phase: ""
+        sessionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        state: ""
+        taskRunId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        tenantId: tenantId
+        updatedAt: 2000-01-23T04:56:07.000+00:00
+        version: 0
+      properties:
+        attempt:
+          minimum: 1.0
+          title: Attempt
+          type: integer
+        capabilityPinId:
+          format: uuid
+          title: Capabilitypinid
+          type: string
+        checkpoint:
+          $ref: "#/components/schemas/AgentSessionCheckpoint"
+        completedAt:
+          format: date-time
+          nullable: true
+          type: string
+        counters:
+          $ref: "#/components/schemas/AgentSessionCounters"
+        createdAt:
+          format: date-time
+          title: Createdat
+          type: string
+        envelopeDigest:
+          pattern: "^sha256:[0-9a-f]{64}$"
+          title: Envelopedigest
+          type: string
+        error:
+          maxLength: 4096
+          nullable: true
+          type: string
+        executionId:
+          format: uuid
+          title: Executionid
+          type: string
+        finalResult:
+          additionalProperties: true
+          nullable: true
+          type: object
+        namespace:
+          maxLength: 255
+          minLength: 1
+          title: Namespace
+          type: string
+        phase:
+          allOf:
+          - $ref: "#/components/schemas/AgentSessionPhase"
+          default: READY
+        sessionId:
+          format: uuid
+          title: Sessionid
+          type: string
+        state:
+          allOf:
+          - $ref: "#/components/schemas/AgentSessionState"
+          default: RUNNING
+        taskRunId:
+          format: uuid
+          title: Taskrunid
+          type: string
+        tenantId:
+          title: Tenantid
+          type: string
+        updatedAt:
+          format: date-time
+          title: Updatedat
+          type: string
+        version:
+          default: 0
+          minimum: 0.0
+          title: Version
+          type: integer
+      required:
+      - attempt
+      - capabilityPinId
+      - envelopeDigest
+      - executionId
+      - namespace
+      - taskRunId
+      - tenantId
+      title: AgentSessionRecord
+    AgentSessionState:
+      enum:
+      - RUNNING
+      - SUCCEEDED
+      - FAILED
+      title: AgentSessionState
+      type: string
     AgentToolRef:
       additionalProperties: false
       properties:
@@ -17332,6 +17597,7 @@ components:
         events:
           items:
             additionalProperties: true
+            nullable: true
             type: object
           title: Events
           type: array

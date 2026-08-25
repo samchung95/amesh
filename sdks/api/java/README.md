@@ -329,6 +329,8 @@ Class | Method | HTTP request | Description
 *ExecutionsApi* | [**getExecutionParentSubflowApiV1ExecutionsExecutionIdParentSubflowGetWithHttpInfo**](docs/ExecutionsApi.md#getExecutionParentSubflowApiV1ExecutionsExecutionIdParentSubflowGetWithHttpInfo) | **GET** /api/v1/executions/{execution_id}/parent-subflow | Get Execution Parent Subflow
 *ExecutionsApi* | [**getTaskAdmissionApiV1TaskRunsTaskRunIdAdmissionGet**](docs/ExecutionsApi.md#getTaskAdmissionApiV1TaskRunsTaskRunIdAdmissionGet) | **GET** /api/v1/task-runs/{task_run_id}/admission | Get Task Admission
 *ExecutionsApi* | [**getTaskAdmissionApiV1TaskRunsTaskRunIdAdmissionGetWithHttpInfo**](docs/ExecutionsApi.md#getTaskAdmissionApiV1TaskRunsTaskRunIdAdmissionGetWithHttpInfo) | **GET** /api/v1/task-runs/{task_run_id}/admission | Get Task Admission
+*ExecutionsApi* | [**listExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGet**](docs/ExecutionsApi.md#listExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGet) | **GET** /api/v1/executions/{execution_id}/agent-sessions | List Execution Agent Sessions
+*ExecutionsApi* | [**listExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGetWithHttpInfo**](docs/ExecutionsApi.md#listExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGetWithHttpInfo) | **GET** /api/v1/executions/{execution_id}/agent-sessions | List Execution Agent Sessions
 *ExecutionsApi* | [**listExecutionControlHistoryApiV1ExecutionsExecutionIdInterventionsGet**](docs/ExecutionsApi.md#listExecutionControlHistoryApiV1ExecutionsExecutionIdInterventionsGet) | **GET** /api/v1/executions/{execution_id}/interventions | List Execution Control History
 *ExecutionsApi* | [**listExecutionControlHistoryApiV1ExecutionsExecutionIdInterventionsGetWithHttpInfo**](docs/ExecutionsApi.md#listExecutionControlHistoryApiV1ExecutionsExecutionIdInterventionsGetWithHttpInfo) | **GET** /api/v1/executions/{execution_id}/interventions | List Execution Control History
 *ExecutionsApi* | [**listExecutionFilesApiV1ExecutionsExecutionIdFilesGet**](docs/ExecutionsApi.md#listExecutionFilesApiV1ExecutionsExecutionIdFilesGet) | **GET** /api/v1/executions/{execution_id}/files | List Execution Files
@@ -687,6 +689,11 @@ Class | Method | HTTP request | Description
  - [AgentResourceRef](docs/AgentResourceRef.md)
  - [AgentResourceRevision](docs/AgentResourceRevision.md)
  - [AgentRevisionComparison](docs/AgentRevisionComparison.md)
+ - [AgentSessionCheckpoint](docs/AgentSessionCheckpoint.md)
+ - [AgentSessionCounters](docs/AgentSessionCounters.md)
+ - [AgentSessionPhase](docs/AgentSessionPhase.md)
+ - [AgentSessionRecord](docs/AgentSessionRecord.md)
+ - [AgentSessionState](docs/AgentSessionState.md)
  - [AgentToolRef](docs/AgentToolRef.md)
  - [Announcement](docs/Announcement.md)
  - [AnnouncementAudience](docs/AnnouncementAudience.md)

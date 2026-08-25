@@ -164,6 +164,7 @@ def agent_llm_handler(
     active_provider = provider or OpenAICompatibleModelProvider(client, http_policy=http_policy)
 
     async def run(task: TaskDefinition, context: TaskExecutionContext) -> TaskCompletion:
+        extra = dict(task.model_extra or {})
         operation = _TASK_OPERATIONS.get(task.type)
         if operation is None:
             raise ValueError(f"unsupported model task type {task.type!r}")
@@ -195,18 +196,19 @@ def agent_llm_handler(
             tuple(context.secrets.values()),
             task,
         )
+        journal_operation = _journal_operation(operation.value, extra, request_metadata)
         claim = None
         if repository is not None:
             claim = await repository.begin_invocation(
                 AgentInvocationStart(
-                    invocationId=uuid5(context.attempt_id, f"model:{operation.value}"),
+                    invocationId=uuid5(context.attempt_id, f"model:{journal_operation}"),
                     tenantId=context.tenant_id,
                     namespace=context.namespace,
                     executionId=context.execution_id,
                     taskRunId=context.task_run_id,
                     attempt=context.attempt,
                     kind=AgentInvocationKind.MODEL,
-                    operation=operation.value,
+                    operation=journal_operation,
                     requestHash=request_hash,
                     requestMetadata=request_metadata,
                 )
@@ -254,6 +256,20 @@ def agent_llm_handler(
             ) from exc
 
     return run
+
+
+def _journal_operation(
+    operation: str,
+    extra: dict[str, Any],
+    metadata: dict[str, Any],
+) -> str:
+    invocation_key = extra.get("invocationKey")
+    if invocation_key is None:
+        return operation
+    if not isinstance(invocation_key, str) or not invocation_key or len(invocation_key) > 255:
+        raise ValueError("invocationKey must be a non-empty string of at most 255 characters")
+    metadata["invocationKey"] = invocation_key
+    return f"{operation[:80]}#{canonical_hash(invocation_key)[:32]}"
 
 
 def _parse_task_spec(

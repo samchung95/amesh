@@ -2,12 +2,25 @@
 
 ## Current state
 
-- What works: the locally qualified MVP foundation is deployed through migration 57. Guided creation supports a traceable first workflow run, EPIC-312 supplies bounded Luna/OpenRouter and MCP primitives, and EPIC-807 adds immutable prompt, declarative skill, model-policy and agent resources with guided composition, exact envelope resolution, atomic subject pins, migration diagnostics and authenticated MCP discovery.
-- What's in flight: `c100` and `c106` are complete. The next dependency-ordered implementation boundary is `c107` / EPIC-808; EPIC-809 and EPIC-806 remain To-Do on `c108`–`c109` and must be selected one at a time.
-- Known broken / TODO: production determinism qualification remains on `c101`; durable agent turn execution/checkpoint resume, memory/evaluation gates and multi-agent routing remain separate on `c107`–`c109`. Existing deferred baseline and external-qualification cards remain unchanged.
+- What works: the locally qualified MVP foundation is deployed through migration 58. Guided creation supports a traceable first workflow run; EPIC-312 supplies bounded Luna/OpenRouter and MCP primitives; EPIC-807 supplies immutable capability envelopes; and EPIC-808 runs one envelope as a recoverable, budgeted, policy-mediated session with durable checkpoints and simple execution evidence.
+- What's in flight: `c100`, `c106` and `c107` are complete. EPIC-809 and EPIC-806 remain To-Do on `c108`–`c109` and must be selected one at a time.
+- Known broken / TODO: production determinism qualification remains on `c101`; memory/evaluation/release gates and multi-agent routing remain separate on `c108`–`c109`. Existing deferred baseline and external-qualification cards remain unchanged.
 - How to run/test: frontend checks run from `frontend/` with `npm test`, `npm run build` and `npm run test:e2e`; backend checks use `uv run --extra runtime --extra dev pytest`. The local Compose product is served at `http://localhost:8000`.
 
 ## Session log
+
+### 2026-08-25 (EPIC-808 complete)
+
+- Did: completed the recoverable `agent.session` task against one exact capability pin; added migration 0058 with tenant-isolated checkpoints and idempotent session events; mediated stable model and MCP operation identities; enforced cumulative turns, loops, tools, tokens, cost and duration; required direct approval for high-impact tools or sensitive egress; gated final results through the pinned schema plus deterministic business assertions; projected agent events into ordinary execution evidence; exposed an authorized session API and readable trace annotations; and regenerated the API, SDK, backlog and traceability projections.
+- Verification: 12 affected-path Python tests plus two real-PostgreSQL migration/repository tests pass; Ruff lint and strict mypy over all 229 source files pass; 26 focused frontend assertions and the production build pass; deterministic contract/planning/SDK checks match 2,355 generated files; Python, TypeScript, Java and containerized Go SDK checks pass. Rebuilt Compose reports migration 58/58 ready. Live OpenRouter execution `01a036f3-eda7-77d1-838d-a46727e3aa8e` used `openai/gpt-5.6-luna`, passed the pinned output schema and one business assertion, and persisted a successful one-turn session with 379 tokens and `$0.0002178` cost.
+- Deviations from plan: OpenRouter's strict schema subset required tool arguments to cross the provider boundary as a JSON string while final output uses the pinned object schema; AMESH decodes and validates both before dispatch or acceptance. The repository-wide Ruff format baseline still reports 75 pre-existing files outside this epic; they were not changed. Memory, learned evaluation, human release promotion and multi-agent topology remain with EPIC-809/806.
+- Next step when resuming: close and publish `c107`, then select `c108` / EPIC-809 and implement isolated memory plus evaluation/release gates.
+
+### 2026-08-25 (EPIC-808 start)
+
+- Did: selected `c107`; reconciled the existing execution, capability-pin, model/MCP invocation and human-approval boundaries; compared graph expansion, an external agent runtime and a recoverable ordinary task; and accepted ADR-053 for a PostgreSQL checkpoint/event journal with stable per-operation invocation keys.
+- Deviations from plan: no dependency or second execution engine is required. Memory, learned evaluation, release promotion and multi-agent topology remain with EPIC-809/806.
+- Next step when resuming: implement migration 0058, the session domain/repository, and the bounded handler before wiring execution-trace visibility and deployed acceptance.
 
 ### 2026-08-25 (EPIC-807 complete)
 

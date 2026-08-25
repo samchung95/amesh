@@ -342,6 +342,12 @@
       "mode": "expand",
       "onlineCompatible": true,
       "rollbackGuidance": "Disable agent-definition writes and new capability-envelope resolution, preserve immutable revisions and pins, then forward-fix the additive resource tables before restoring resolution."
+    },
+    {
+      "file": "0058_agent_sessions.sql",
+      "mode": "expand",
+      "onlineCompatible": true,
+      "rollbackGuidance": "Disable new agent-session dispatch, preserve capability pins, checkpoints, event evidence and primitive invocations, then forward-fix the additive session journal before restoring dispatch."
     }
   ]
 }

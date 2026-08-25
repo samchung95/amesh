@@ -1746,6 +1746,84 @@
       "configurationSchema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "additionalProperties": false,
+        "properties": {
+          "agent": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "agentRevision": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "approvalTask": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "businessAssertions": {
+            "items": {
+              "type": "object"
+            },
+            "maxItems": 100,
+            "type": "array"
+          },
+          "dataHandling": {
+            "enum": [
+              "DENY_SECRETS",
+              "REDACT_SECRETS",
+              "ALLOW"
+            ],
+            "type": "string"
+          },
+          "input": {
+            "type": "object"
+          },
+          "invalidOutputPolicy": {
+            "enum": [
+              "FAIL",
+              "REPAIR"
+            ],
+            "type": "string"
+          },
+          "maxRepairAttempts": {
+            "maximum": 20,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "timeoutSeconds": {
+            "exclusiveMinimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "agent",
+          "agentRevision",
+          "input"
+        ],
+        "type": "object"
+      },
+      "editor": {
+        "category": "Agents",
+        "description": "Run one durable, checkpointed agent against an exact capability envelope.",
+        "propertyOrder": [
+          "agent",
+          "agentRevision",
+          "input",
+          "invalidOutputPolicy",
+          "maxRepairAttempts",
+          "businessAssertions",
+          "approvalTask",
+          "dataHandling",
+          "timeoutSeconds"
+        ],
+        "title": "Bounded agent session"
+      },
+      "kind": "task",
+      "type": "agent.session"
+    },
+    {
+      "configurationSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
         "anyOf": [
           {
             "required": [

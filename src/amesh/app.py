@@ -51,6 +51,7 @@ from amesh.adapters.postgres import (
     PostgresAdmissionPolicyRepository,
     PostgresAgentPrimitiveRepository,
     PostgresAgentResourceRepository,
+    PostgresAgentSessionRepository,
     PostgresAuditRepository,
     PostgresAuthenticationRepository,
     PostgresAuthorizationRepository,
@@ -206,6 +207,7 @@ from amesh.domain import (
     AgentResourceRevision,
     AgentResourceSpec,
     AgentRevisionComparison,
+    AgentSessionRecord,
     Announcement,
     AnnouncementAudience,
     AnnouncementCreateRequest,
@@ -527,6 +529,7 @@ from amesh.tasks import (
     HttpTaskPolicy,
     agent_llm_handler,
     agent_mcp_handler,
+    agent_session_handler,
     core_utility_handlers,
     discover_mcp_server,
     script_task_handlers,
@@ -1074,6 +1077,17 @@ def get_agent_resource_repository() -> PostgresAgentResourceRepository:
 AgentResourceRepositoryDependency = Annotated[
     PostgresAgentResourceRepository,
     Depends(get_agent_resource_repository),
+]
+
+
+@lru_cache
+def get_agent_session_repository() -> PostgresAgentSessionRepository:
+    return PostgresAgentSessionRepository(database_engine())
+
+
+AgentSessionRepositoryDependency = Annotated[
+    PostgresAgentSessionRepository,
+    Depends(get_agent_session_repository),
 ]
 
 
@@ -9293,6 +9307,33 @@ async def get_execution(
 
 
 @app.get(
+    "/api/v1/executions/{execution_id}/agent-sessions",
+    response_model=list[AgentSessionRecord],
+    tags=["executions"],
+)
+async def list_execution_agent_sessions(
+    execution_id: UUID,
+    repository: RepositoryDependency,
+    sessions: AgentSessionRepositoryDependency,
+    actor: ActorDependency,
+    authorization_service: AuthorizationServiceDependency,
+    tenant_id: TenantDependency,
+) -> list[AgentSessionRecord]:
+    await authorize_request(
+        authorization_service,
+        actor,
+        resource_type="execution",
+        action=PermissionAction.VIEW,
+        tenant_id=tenant_id,
+    )
+    try:
+        await repository.get_execution(execution_id, tenant_id=tenant_id)
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    return list(await sessions.list_execution_sessions(tenant_id, execution_id))
+
+
+@app.get(
     "/api/v1/executions/{execution_id}/files",
     response_model=list[ExecutionArtifact],
     tags=["executions"],
@@ -10897,9 +10938,15 @@ async def _execute_flow(
         client_key_file=settings.network_outbound_client_key_file,
     )
     agent_repository = PostgresAgentPrimitiveRepository(database_engine())
+    agent_resources = PostgresAgentResourceRepository(database_engine())
+    agent_sessions = PostgresAgentSessionRepository(database_engine())
     model_handler = agent_llm_handler(
         http_policy=http_policy,
         repository=agent_repository,
+    )
+    mcp_handler = agent_mcp_handler(
+        repository=agent_repository,
+        http_policy=http_policy,
     )
     handlers = {
         "core.shell": shell_handler,
@@ -10913,9 +10960,12 @@ async def _execute_flow(
                 "agent.toolCall",
             )
         },
-        "agent.mcp": agent_mcp_handler(
-            repository=agent_repository,
-            http_policy=http_policy,
+        "agent.mcp": mcp_handler,
+        "agent.session": agent_session_handler(
+            resources=agent_resources,
+            sessions=agent_sessions,
+            model_handler=model_handler,
+            mcp_handler=mcp_handler,
         ),
         "core.approval": approval_task_handler(
             get_human_task_repository(),
@@ -11023,15 +11073,13 @@ async def _execute_flow(
         return InProcessExecutor(
             repository,
             handlers=handlers,
-            recover_running_types=frozenset({"core.subflow"}),
+            recover_running_types=frozenset({"core.subflow", "agent.session"}),
             context_provider=context_provider,
             object_store=object_store,
             task_cache=task_cache,
             workspace_manager=workspace_manager,
             dispatch_policy_enforcer=(
-                enforce_dispatch_policy
-                if repository.has_admission_policy_enforcer
-                else None
+                enforce_dispatch_policy if repository.has_admission_policy_enforcer else None
             ),
         )
 

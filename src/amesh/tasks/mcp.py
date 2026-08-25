@@ -184,16 +184,21 @@ def agent_mcp_handler(
             "arguments": _redact_values(outbound_arguments, tuple(context.secrets.values())),
             "requestHash": request_hash,
         }
+        journal_operation = _journal_operation(
+            f"{spec.key}.{tool_name}",
+            extra,
+            request_metadata,
+        )
         claim = await repository.begin_invocation(
             AgentInvocationStart(
-                invocationId=uuid5(context.attempt_id, f"mcp:{spec.key}:{tool_name}"),
+                invocationId=uuid5(context.attempt_id, f"mcp:{journal_operation}"),
                 tenantId=context.tenant_id,
                 namespace=context.namespace,
                 executionId=context.execution_id,
                 taskRunId=context.task_run_id,
                 attempt=context.attempt,
                 kind=AgentInvocationKind.MCP,
-                operation=f"{spec.key}.{tool_name}",
+                operation=journal_operation,
                 requestHash=request_hash,
                 requestMetadata=request_metadata,
             )
@@ -271,6 +276,20 @@ def agent_mcp_handler(
             ) from exc
 
     return run
+
+
+def _journal_operation(
+    operation: str,
+    extra: dict[str, Any],
+    metadata: dict[str, Any],
+) -> str:
+    invocation_key = extra.get("invocationKey")
+    if invocation_key is None:
+        return operation
+    if not isinstance(invocation_key, str) or not invocation_key or len(invocation_key) > 255:
+        raise ValueError("invocationKey must be a non-empty string of at most 255 characters")
+    metadata["invocationKey"] = invocation_key
+    return f"{operation[:80]}#{canonical_hash(invocation_key)[:32]}"
 
 
 async def _legacy_call(

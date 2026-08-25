@@ -807,15 +807,15 @@ URS-F-0805,Functional,Must,EPIC-011,AI-native engineering factory and autonomous
 URS-F-0806,Functional,Must,EPIC-807,Versioned agent definitions and capability envelopes,M8,8,"Agent resource schema, resolution, authorization, pinning and provider-adapter contract tests",Verified
 URS-F-0807,Functional,Must,EPIC-807,Versioned agent definitions and capability envelopes,M8,8,"Agent resource schema, resolution, authorization, pinning and provider-adapter contract tests",Verified
 URS-F-0808,Functional,Must,EPIC-806,"Multi-agent topology, typed hand-offs and routing",M8,8,"Multi-agent topology, typed hand-off, routing, budget, provenance and failover end-to-end tests",Proposed
-URS-F-0809,Functional,Must,EPIC-808,Durable bounded single-agent sessions,M8,8,"Single-agent session state, budget, tool mediation, approval, checkpoint and recovery end-to-end tests",Proposed
+URS-F-0809,Functional,Must,EPIC-808,Durable bounded single-agent sessions,M8,8,"Single-agent session state, budget, tool mediation, approval, checkpoint and recovery end-to-end tests",Verified
 URS-F-0810,Functional,Must,EPIC-806,"Multi-agent topology, typed hand-offs and routing",M8,8,"Multi-agent topology, typed hand-off, routing, budget, provenance and failover end-to-end tests",Proposed
 URS-F-0811,Functional,Must,EPIC-806,"Multi-agent topology, typed hand-offs and routing",M8,8,"Multi-agent topology, typed hand-off, routing, budget, provenance and failover end-to-end tests",Proposed
 URS-F-0812,Functional,Must,EPIC-809,"Agent memory, evaluation and release gates",M8,8,"Agent memory-isolation, evaluation, trace, approval-interleaving and release-gate end-to-end tests",Proposed
-URS-F-0813,Functional,Must,EPIC-808,Durable bounded single-agent sessions,M8,8,"Single-agent session state, budget, tool mediation, approval, checkpoint and recovery end-to-end tests",Proposed
-URS-F-0814,Functional,Must,EPIC-808,Durable bounded single-agent sessions,M8,8,"Single-agent session state, budget, tool mediation, approval, checkpoint and recovery end-to-end tests",Proposed
+URS-F-0813,Functional,Must,EPIC-808,Durable bounded single-agent sessions,M8,8,"Single-agent session state, budget, tool mediation, approval, checkpoint and recovery end-to-end tests",Verified
+URS-F-0814,Functional,Must,EPIC-808,Durable bounded single-agent sessions,M8,8,"Single-agent session state, budget, tool mediation, approval, checkpoint and recovery end-to-end tests",Verified
 URS-F-0815,Functional,Must,EPIC-807,Versioned agent definitions and capability envelopes,M8,8,"Agent resource schema, resolution, authorization, pinning and provider-adapter contract tests",Verified
 URS-F-0816,Functional,Must,EPIC-809,"Agent memory, evaluation and release gates",M8,8,"Agent memory-isolation, evaluation, trace, approval-interleaving and release-gate end-to-end tests",Proposed
-URS-F-0817,Functional,Must,EPIC-808,Durable bounded single-agent sessions,M8,8,"Single-agent session state, budget, tool mediation, approval, checkpoint and recovery end-to-end tests",Proposed
+URS-F-0817,Functional,Must,EPIC-808,Durable bounded single-agent sessions,M8,8,"Single-agent session state, budget, tool mediation, approval, checkpoint and recovery end-to-end tests",Verified
 URS-F-0818,Functional,Must,EPIC-807,Versioned agent definitions and capability envelopes,M8,8,"Agent resource schema, resolution, authorization, pinning and provider-adapter contract tests",Verified
 URS-F-0819,Functional,Must,EPIC-809,"Agent memory, evaluation and release gates",M8,8,"Agent memory-isolation, evaluation, trace, approval-interleaving and release-gate end-to-end tests",Proposed
 URS-F-0820,Functional,Must,EPIC-704,Kestra migration importer and conformance suite,M7,7,"Black-box differential API, CLI, expression and import/export conformance tests",Verified

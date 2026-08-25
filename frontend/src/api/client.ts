@@ -16,6 +16,7 @@ import type {
   AgentResourceRevision,
   AgentResourceSpec,
   AgentRevisionComparison,
+  AgentSessionRecord,
   Announcement,
   AnnouncementDraft,
   AdmissionDiagnostics,
@@ -737,6 +738,8 @@ export function createApiClient(connection: ApiConnection) {
       }),
     execution: async (executionId: string, taskOffset = 0, taskLimit = 250) =>
       request<ExecutionDetail>(`/api/v1/executions/${encodeURIComponent(executionId)}?taskOffset=${String(taskOffset)}&taskLimit=${String(taskLimit)}`),
+    executionAgentSessions: async (executionId: string) =>
+      request<AgentSessionRecord[]>(`/api/v1/executions/${encodeURIComponent(executionId)}/agent-sessions`),
     executionGraph: async (executionId: string) =>
       request<FlowGraph>(`/api/v1/executions/${encodeURIComponent(executionId)}/graph`),
     executionEvidence: async (executionId: string, cursor?: string) => {

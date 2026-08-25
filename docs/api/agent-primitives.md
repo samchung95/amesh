@@ -1,7 +1,7 @@
 # Agent primitive API and task reference
 
 This reference defines the bounded model tasks, governed MCP connections, versioned agent resources,
-and AMESH MCP read surface introduced by EPIC-312 and EPIC-807.
+durable single-agent sessions, and AMESH MCP read surface introduced by EPIC-312 and EPIC-807–808.
 
 ## Model task types
 
@@ -88,6 +88,34 @@ The envelope is deterministic configuration evidence, not a claim that model out
 Provider substitution creates a new model-policy revision and the migration endpoint always reports
 that output remains nondeterministic. See
 [Define and pin an agent](../how-to/define-agent-capability-envelope.md) for an end-to-end example.
+
+## Durable `agent.session` task
+
+`agent.session` accepts `agent`, exact `agentRevision`, typed `input`, `invalidOutputPolicy` (`FAIL` or
+`REPAIR`), bounded `maxRepairAttempts`, optional Draft 2020-12 `businessAssertions`, optional
+`approvalTask`, and `dataHandling`. Every envelope secret scope must also appear in the task
+`contract.secretScopes`.
+
+The task atomically resolves a capability pin using the task-run and attempt identity, validates the
+input schema, and then asks the pinned model for exactly one proposed action at a time. A proposal is
+either a pinned MCP tool call or a final object. AMESH—not the model—validates tool identity and
+schema, enforces authority and approval, dispatches the governed MCP primitive, and validates the
+final output schema and business assertions.
+
+Migration `0058_agent_sessions.sql` stores the current checkpoint, cumulative turn/loop/tool/token/
+cost counters, and ordered idempotent events. Those events are projected into the ordinary execution
+evidence stream and the simple trace. `GET /api/v1/executions/{executionId}/agent-sessions` returns
+authorized session summaries for inspection.
+
+One stable `invocationKey` is derived for each model route and tool action. Recovery therefore reuses
+a completed primitive result without repeating its effect. An unfinished external call is reported
+as ambiguous and fails closed. At most one external operation is in flight; the task checks
+cancellation and the pinned turn, loop, tool-call, token, cost and duration ceilings between calls.
+High-impact tools and `ALLOW` sensitive-data egress require an `APPROVED` direct `approvalTask`
+dependency. Model output and future model calls remain explicitly nondeterministic.
+
+See [Run a bounded agent session](../how-to/run-bounded-agent-session.md) for workflow YAML and trace
+inspection steps.
 
 ## AMESH MCP server
 

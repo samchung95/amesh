@@ -101,6 +101,11 @@ src/models/AgentResourceKind.ts
 src/models/AgentResourceRef.ts
 src/models/AgentResourceRevision.ts
 src/models/AgentRevisionComparison.ts
+src/models/AgentSessionCheckpoint.ts
+src/models/AgentSessionCounters.ts
+src/models/AgentSessionPhase.ts
+src/models/AgentSessionRecord.ts
+src/models/AgentSessionState.ts
 src/models/AgentToolRef.ts
 src/models/Announcement.ts
 src/models/AnnouncementAudience.ts

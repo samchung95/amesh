@@ -11998,13 +11998,18 @@
       "requirement_id": "URS-F-0809",
       "epic_id": "EPIC-808",
       "compatibility_level": "Intentional difference",
-      "implementation_status": "Proposed",
+      "implementation_status": "Verified",
       "disposition": "intentional-difference",
       "source_ids": [
         "amesh-product-baseline",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
+      "evidence": [
+        "tests/adapters/postgres/test_agent_session_repository.py::test_session_journal_is_idempotent_recoverable_and_projected_to_execution_evidence",
+        "tests/tasks/test_agent_sessions.py::test_session_resumes_pending_tool_without_repeating_accepted_model_turn",
+        "tests/api/test_agent_sessions_api.py::test_execution_agent_sessions_are_authorized_and_inspectable",
+        "frontend/src/components/executionTraceModel.test.ts"
+      ],
       "notes": "Run one supervised agent as a durable workflow task whose model turns and tool proposals are mediated by AMESH and cannot succeed until structured-output and policy gates pass."
     },
     {
@@ -12050,26 +12055,33 @@
       "requirement_id": "URS-F-0813",
       "epic_id": "EPIC-808",
       "compatibility_level": "Intentional difference",
-      "implementation_status": "Proposed",
+      "implementation_status": "Verified",
       "disposition": "intentional-difference",
       "source_ids": [
         "amesh-product-baseline",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
+      "evidence": [
+        "tests/tasks/test_agent_sessions.py::test_session_stops_runaway_loop_and_denies_high_impact_without_approval",
+        "tests/tasks/test_agent_sessions.py::test_session_repairs_invalid_output_within_hard_turn_limit",
+        "tests/tasks/test_bounded_agent_tasks.py::test_structured_model_output_and_budget_fail_deterministically"
+      ],
       "notes": "Run one supervised agent as a durable workflow task whose model turns and tool proposals are mediated by AMESH and cannot succeed until structured-output and policy gates pass."
     },
     {
       "requirement_id": "URS-F-0814",
       "epic_id": "EPIC-808",
       "compatibility_level": "Intentional difference",
-      "implementation_status": "Proposed",
+      "implementation_status": "Verified",
       "disposition": "intentional-difference",
       "source_ids": [
         "amesh-product-baseline",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
+      "evidence": [
+        "tests/tasks/test_agent_sessions.py::test_session_stops_runaway_loop_and_denies_high_impact_without_approval",
+        "tests/tasks/test_bounded_agent_tasks.py::test_high_impact_mcp_tool_requires_direct_human_approval"
+      ],
       "notes": "Run one supervised agent as a durable workflow task whose model turns and tool proposals are mediated by AMESH and cannot succeed until structured-output and policy gates pass."
     },
     {
@@ -12108,13 +12120,17 @@
       "requirement_id": "URS-F-0817",
       "epic_id": "EPIC-808",
       "compatibility_level": "Intentional difference",
-      "implementation_status": "Proposed",
+      "implementation_status": "Verified",
       "disposition": "intentional-difference",
       "source_ids": [
         "amesh-product-baseline",
         "kestra-docs-index-v1.3.30"
       ],
-      "evidence": [],
+      "evidence": [
+        "tests/tasks/test_agent_sessions.py::test_session_resumes_pending_tool_without_repeating_accepted_model_turn",
+        "tests/adapters/postgres/test_agent_session_repository.py::test_session_journal_is_idempotent_recoverable_and_projected_to_execution_evidence",
+        "tests/tasks/test_bounded_agent_tasks.py::test_session_invocation_keys_allow_multiple_model_turns_and_reuse_each_turn"
+      ],
       "notes": "Run one supervised agent as a durable workflow task whose model turns and tool proposals are mediated by AMESH and cannot succeed until structured-output and policy gates pass."
     },
     {

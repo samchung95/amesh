@@ -23307,7 +23307,13 @@
       "id": "URS-F-0809",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/adapters/postgres/test_agent_session_repository.py::test_session_journal_is_idempotent_recoverable_and_projected_to_execution_evidence",
+        "tests/tasks/test_agent_sessions.py::test_session_resumes_pending_tool_without_repeating_accepted_model_turn",
+        "tests/api/test_agent_sessions_api.py::test_execution_agent_sessions_are_authorized_and_inspectable",
+        "frontend/src/components/executionTraceModel.test.ts"
+      ],
       "milestone": "M8",
       "wave": 8,
       "epic_id": "EPIC-808",
@@ -23430,7 +23436,12 @@
       "id": "URS-F-0813",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/tasks/test_agent_sessions.py::test_session_stops_runaway_loop_and_denies_high_impact_without_approval",
+        "tests/tasks/test_agent_sessions.py::test_session_repairs_invalid_output_within_hard_turn_limit",
+        "tests/tasks/test_bounded_agent_tasks.py::test_structured_model_output_and_budget_fail_deterministically"
+      ],
       "milestone": "M8",
       "wave": 8,
       "epic_id": "EPIC-808",
@@ -23462,7 +23473,11 @@
       "id": "URS-F-0814",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/tasks/test_agent_sessions.py::test_session_stops_runaway_loop_and_denies_high_impact_without_approval",
+        "tests/tasks/test_bounded_agent_tasks.py::test_high_impact_mcp_tool_requires_direct_human_approval"
+      ],
       "milestone": "M8",
       "wave": 8,
       "epic_id": "EPIC-808",
@@ -23563,7 +23578,12 @@
       "id": "URS-F-0817",
       "type": "Functional",
       "priority": "Must",
-      "status": "Proposed",
+      "status": "Verified",
+      "evidence": [
+        "tests/tasks/test_agent_sessions.py::test_session_resumes_pending_tool_without_repeating_accepted_model_turn",
+        "tests/adapters/postgres/test_agent_session_repository.py::test_session_journal_is_idempotent_recoverable_and_projected_to_execution_evidence",
+        "tests/tasks/test_bounded_agent_tasks.py::test_session_invocation_keys_allow_multiple_model_turns_and_reuse_each_turn"
+      ],
       "milestone": "M8",
       "wave": 8,
       "epic_id": "EPIC-808",

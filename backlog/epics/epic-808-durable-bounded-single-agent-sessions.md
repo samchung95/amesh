@@ -12,10 +12,14 @@ Run one supervised agent as a durable workflow task whose model turns and tool p
 
 ## In scope
 
-- [ ] **URS-F-0809** — The system shall persist agent sessions, messages, tool calls, checkpoints and approvals as durable execution evidence.
-- [ ] **URS-F-0813** — The system shall enforce loop, recursion, concurrency, token, cost, duration and tool-call limits with circuit breakers.
-- [ ] **URS-F-0814** — The system shall require policy or human approval before agents invoke high-impact tools, move sensitive data or exceed delegated authority.
-- [ ] **URS-F-0817** — The system shall resume an interrupted agent session from a durable checkpoint while disclosing which model outputs cannot be reproduced deterministically.
+- [x] **URS-F-0809** — The system shall persist agent sessions, messages, tool calls, checkpoints and approvals as durable execution evidence.
+- [x] **URS-F-0813** — The system shall enforce loop, recursion, concurrency, token, cost, duration and tool-call limits with circuit breakers.
+- [x] **URS-F-0814** — The system shall require policy or human approval before agents invoke high-impact tools, move sensitive data or exceed delegated authority.
+- [x] **URS-F-0817** — The system shall resume an interrupted agent session from a durable checkpoint while disclosing which model outputs cannot be reproduced deterministically.
+
+## Implementation completion evidence
+
+- 2026-08-25 — EPIC-808 is complete. `agent.session` now runs one exact capability-envelope revision as a recoverable task inside the existing execution engine. Migration 0058 adds a tenant-isolated session checkpoint and idempotent event journal projected into ordinary execution evidence. AMESH mediates one model proposal or fenced MCP call at a time, persists stable per-operation identities, reuses accepted results after restart, fails closed on ambiguous external outcomes, and discloses model nondeterminism. The platform enforces cumulative turns, loops, tool calls, tokens, cost and duration; rejects unpinned authority; requires direct human approval for high-impact tools or sensitive egress; and accepts completion only after the pinned output schema plus deterministic business assertions pass. The authorized session API and simple trace expose phase, budget, tool, approval, validation and final-result evidence. Evidence: [`TESTLOG.md`](../../TESTLOG.md), [`agent-primitives.md`](../../docs/api/agent-primitives.md), [`run-bounded-agent-session.md`](../../docs/how-to/run-bounded-agent-session.md), [`053-durable-agent-session-journal.md`](../../docs/adr/053-durable-agent-session-journal.md), [`test_agent_sessions.py`](../../tests/tasks/test_agent_sessions.py), [`test_agent_session_repository.py`](../../tests/adapters/postgres/test_agent_session_repository.py), and [`executionTraceModel.test.ts`](../../frontend/src/components/executionTraceModel.test.ts). Shared mesh-wide NFRs remain In Progress for EPIC-809/806 memory, evaluation and multi-agent scenarios.
 
 ## Explicit non-goals
 
@@ -56,13 +60,13 @@ Run one supervised agent as a durable workflow task whose model turns and tool p
 
 ## Definition of done
 
-- [ ] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
-- [ ] Public API, DSL, event and plugin contract changes pass compatibility checks.
-- [ ] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
-- [ ] Security, tenant isolation, redaction and audit behavior are reviewed.
-- [ ] Documentation, examples, migration notes and operational runbooks are updated.
-- [ ] Performance and recovery budgets are measured when this epic is on a critical path.
-- [ ] `python scripts/validate_backlog.py` passes.
+- [x] All Must requirements listed above are implemented or explicitly re-scoped through an approved decision.
+- [x] Public API, DSL, event and plugin contract changes pass compatibility checks.
+- [x] Unit, contract, integration and end-to-end evidence appropriate to risk is linked.
+- [x] Security, tenant isolation, redaction and audit behavior are reviewed.
+- [x] Documentation, examples, migration notes and operational runbooks are updated.
+- [x] Performance and recovery budgets are measured when this epic is on a critical path.
+- [x] `python scripts/validate_backlog.py` passes.
 
 ## Risks and unknowns
 

@@ -10,6 +10,7 @@ from .llm import OpenAICompatibleConfig, agent_llm_handler
 from .mcp import agent_mcp_handler, discover_mcp_server
 from .notifications import EmailSender, SmtpDelivery, core_notification_handlers
 from .scripts import script_task_handlers
+from .session import InvalidAgentOutputPolicy, agent_session_handler
 
 
 def core_utility_handlers(
@@ -32,11 +33,13 @@ __all__ = [
     "SCRIPT_TASK_TYPES",
     "EmailSender",
     "HttpTaskPolicy",
+    "InvalidAgentOutputPolicy",
     "OpenAICompatibleConfig",
     "ScriptTaskPolicy",
     "SmtpDelivery",
     "agent_llm_handler",
     "agent_mcp_handler",
+    "agent_session_handler",
     "core_control_handlers",
     "core_data_handlers",
     "core_download_handler",

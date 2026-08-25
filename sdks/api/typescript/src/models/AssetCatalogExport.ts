@@ -21,10 +21,10 @@ import { mapValues } from '../runtime';
 export interface AssetCatalogExport {
     /**
      *
-     * @type {Array<{ [key: string]: any; }>}
+     * @type {Array<{ [key: string]: any; } | null>}
      * @memberof AssetCatalogExport
      */
-    events: Array<{ [key: string]: any; }>;
+    events: Array<{ [key: string]: any; } | null>;
     /**
      *
      * @type {string}

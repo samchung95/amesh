@@ -19,6 +19,11 @@ import {
     AdmissionDecisionToJSON,
 } from '../models/AdmissionDecision';
 import {
+    type AgentSessionRecord,
+    AgentSessionRecordFromJSON,
+    AgentSessionRecordToJSON,
+} from '../models/AgentSessionRecord';
+import {
     type BulkExecutionItemResult,
     BulkExecutionItemResultFromJSON,
     BulkExecutionItemResultToJSON,
@@ -195,6 +200,13 @@ export interface GetExecutionParentSubflowApiV1ExecutionsExecutionIdParentSubflo
 
 export interface GetTaskAdmissionApiV1TaskRunsTaskRunIdAdmissionGetRequest {
     taskRunId: string;
+    authorization?: string | null;
+    xAmeshCSRF?: string | null;
+    xAmeshTenant?: string | null;
+}
+
+export interface ListExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGetRequest {
+    executionId: string;
     authorization?: string | null;
     xAmeshCSRF?: string | null;
     xAmeshTenant?: string | null;
@@ -949,6 +961,63 @@ export class ExecutionsApi extends runtime.BaseAPI {
      */
     async getTaskAdmissionApiV1TaskRunsTaskRunIdAdmissionGet(requestParameters: GetTaskAdmissionApiV1TaskRunsTaskRunIdAdmissionGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AdmissionDecision> {
         const response = await this.getTaskAdmissionApiV1TaskRunsTaskRunIdAdmissionGetRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Creates request options for listExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGet without sending the request
+     */
+    async listExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGetRequestOpts(requestParameters: ListExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGetRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['executionId'] == null) {
+            throw new runtime.RequiredError(
+                'executionId',
+                'Required parameter "executionId" was null or undefined when calling listExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGet().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (requestParameters['authorization'] != null) {
+            headerParameters['authorization'] = String(requestParameters['authorization']);
+        }
+
+        if (requestParameters['xAmeshCSRF'] != null) {
+            headerParameters['X-Amesh-CSRF'] = String(requestParameters['xAmeshCSRF']);
+        }
+
+        if (requestParameters['xAmeshTenant'] != null) {
+            headerParameters['X-Amesh-Tenant'] = String(requestParameters['xAmeshTenant']);
+        }
+
+
+        let urlPath = `/api/v1/executions/{execution_id}/agent-sessions`;
+        urlPath = urlPath.replace('{execution_id}', encodeURIComponent(String(requestParameters['executionId'])));
+
+        return {
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     * List Execution Agent Sessions
+     */
+    async listExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGetRaw(requestParameters: ListExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<AgentSessionRecord>>> {
+        const requestOptions = await this.listExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGetRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(AgentSessionRecordFromJSON));
+    }
+
+    /**
+     * List Execution Agent Sessions
+     */
+    async listExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGet(requestParameters: ListExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<AgentSessionRecord>> {
+        const response = await this.listExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGetRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

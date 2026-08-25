@@ -75,6 +75,17 @@ from .agent_resources import (
     provider_migration_diagnostic,
     resolve_capability_envelope,
 )
+from .agent_sessions import (
+    AgentSessionCheckpoint,
+    AgentSessionCounters,
+    AgentSessionDetail,
+    AgentSessionEvent,
+    AgentSessionPhase,
+    AgentSessionRecord,
+    AgentSessionStart,
+    AgentSessionState,
+    AgentSessionTransition,
+)
 from .audit import (
     AuditArtifactKind,
     AuditEvent,
@@ -458,6 +469,15 @@ __all__ = [
     "AgentResourceRevision",
     "AgentResourceSpec",
     "AgentRevisionComparison",
+    "AgentSessionCheckpoint",
+    "AgentSessionCounters",
+    "AgentSessionDetail",
+    "AgentSessionEvent",
+    "AgentSessionPhase",
+    "AgentSessionRecord",
+    "AgentSessionStart",
+    "AgentSessionState",
+    "AgentSessionTransition",
     "AgentToolRef",
     "AmbiguousAgentInvocation",
     "Announcement",

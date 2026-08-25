@@ -33,6 +33,50 @@ denials; simulation and tests require an unchanged saved revision.
 
 Verdict: PASS — board card `c100` is verified.
 
+## EPIC-808: Durable bounded single-agent sessions — 2026-08-25
+
+Spec source: Agent Hotel card `c107`, ADR-053 and
+`backlog/epics/epic-808-durable-bounded-single-agent-sessions.md`.
+
+Verified with `uv`, PostgreSQL 17, Docker Compose, OpenRouter `openai/gpt-5.6-luna`, React and the
+four generated SDKs:
+
+- [x] One exact capability-envelope revision runs as an ordinary recoverable `agent.session` task.
+  Migration 0058 persists tenant-isolated checkpoints and idempotent events, and stable model/tool
+  operation identities reuse accepted effects after restart.
+- [x] AMESH accepts one model proposal at a time, rejects unpinned tools, validates tool arguments
+  before dispatch, requires a direct approved predecessor for high-impact tools or sensitive
+  egress, and retains the accepted pending action before any external tool effect.
+- [x] Cumulative turns, loop iterations, tool calls, tokens, cost and duration fail closed at the
+  pinned envelope limits. Invalid final output either fails or uses only the declared bounded repair
+  allowance; success requires the pinned output schema plus every deterministic business assertion.
+- [x] Session start, model, policy, approval, tool, repair, acceptance and failure events project
+  into ordinary execution evidence. The authorized session endpoint and React trace annotations
+  expose phase, counters, validation gates and the explicit nondeterminism disclosure.
+- [x] Twelve affected-path Python tests and two real-PostgreSQL migration/repository tests passed.
+  Ruff lint passed and strict mypy passed all 229 source files. Twenty-six focused frontend
+  assertions and the production TypeScript/Vite build passed.
+- [x] OpenAPI, planning artifacts and all four SDKs regenerate deterministically across 2,355 files.
+  Python compilation, TypeScript build, Java compilation and containerized Go tests passed.
+- [x] Rebuilt Compose reports migration 58/58 ready. Live execution
+  `01a036f3-eda7-77d1-838d-a46727e3aa8e` completed `SUCCESS` through OpenRouter Luna with a
+  schema-valid summary, one passed business assertion, one durable model turn, 379 tokens and
+  recorded cost `$0.0002178`.
+
+Adversarial pass: exercised process loss after an accepted tool proposal, reused primitive results,
+secret-redacted checkpoints, invalid-output repair, runaway turn/loop limits, unapproved
+high-impact tools, missing exact authority and tenant isolation. OpenRouter's strict schema subset
+was exercised live; tool arguments cross that provider edge as JSON text and AMESH decodes and
+validates the object before dispatch.
+
+Qualification boundary: model text remains explicitly nondeterministic. EPIC-808 qualifies durable
+single-session control and deterministic acceptance gates, not memory quality, learned evaluation,
+release promotion or multi-agent routing. Those remain fail-closed for EPIC-809/806. The full Ruff
+format check still reports 75 pre-existing files outside this epic; no unrelated formatting was
+included.
+
+Verdict: PASS — EPIC-808 and `URS-F-0809`, `URS-F-0813`, `URS-F-0814` and `URS-F-0817` are verified.
+
 ## EPIC-312: Provider-neutral model, structured-output and MCP primitives — 2026-08-25
 
 Spec source: Agent Hotel card `c105` and canonical

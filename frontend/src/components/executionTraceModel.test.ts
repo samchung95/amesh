@@ -95,4 +95,26 @@ describe('buildExecutionTrace', () => {
     expect(model.groups.map((group) => group.steps[0].taskId)).toEqual(['prepare', 'branch'])
     expect(model).toMatchObject({ total: 3, hidden: 1 })
   })
+
+  it('renders bounded agent phases, budgets, tool policy and output gates inline', () => {
+    const agent = task('agent', 'SUCCESS', { result: { result: { answer: 'done' } } })
+    const agentEvent = (cursor: number, eventType: string, payload: Record<string, unknown>): ExecutionEvidenceEvent => {
+      const occurredAt = `2026-08-24T00:01:${String(cursor).padStart(2, '0')}Z`
+      return { cursor, event_id: `agent-event-${String(cursor)}`, execution_id: executionId, task_run_id: agent.task_run_id, kind: 'STATE', event_type: eventType, payload: { entity: 'agentSession', payload }, occurred_at: occurredAt, ingested_at: occurredAt }
+    }
+    const evidence = [
+      agentEvent(1, 'agent.session.started', { envelopeDigest: `sha256:${'1'.repeat(64)}` }),
+      agentEvent(2, 'agent.model.response', { turn: 1, action: 'tool', counters: { totalTokens: 18, costUsd: '0.002' } }),
+      agentEvent(3, 'agent.policy.authorized', { tool: 'lookup', impact: 'HIGH_IMPACT', approval: { required: true, decision: 'APPROVED' } }),
+      agentEvent(4, 'agent.tool.result', { tool: 'lookup', toolCalls: 1 }),
+      agentEvent(5, 'agent.output.accepted', { businessAssertionsPassed: 2 }),
+    ]
+    const model = buildExecutionTrace({ taskRuns: [agent], evidence, subflows: [], humanTasks: [], interventions: [], nowMs: Date.parse('2026-08-24T00:02:00Z') })
+    const annotations = model.groups[0].steps[0].annotations
+
+    expect(annotations).toContain('Model turn 1 · proposed tool · 18 tokens · $0.002')
+    expect(annotations).toContain('Tool authorized: lookup · HIGH_IMPACT · approval APPROVED')
+    expect(annotations).toContain('Tool completed: lookup · call 1')
+    expect(annotations).toContain('Output accepted · schema valid · 2 business gates')
+  })
 })

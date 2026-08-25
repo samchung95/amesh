@@ -198,6 +198,7 @@ Class | Method | HTTP request | Description
 *ExecutionsApi* | [**get_execution_logs_api_v1_executions_execution_id_logs_get**](docs/ExecutionsApi.md#get_execution_logs_api_v1_executions_execution_id_logs_get) | **GET** /api/v1/executions/{execution_id}/logs | Get Execution Logs
 *ExecutionsApi* | [**get_execution_parent_subflow_api_v1_executions_execution_id_parent_subflow_get**](docs/ExecutionsApi.md#get_execution_parent_subflow_api_v1_executions_execution_id_parent_subflow_get) | **GET** /api/v1/executions/{execution_id}/parent-subflow | Get Execution Parent Subflow
 *ExecutionsApi* | [**get_task_admission_api_v1_task_runs_task_run_id_admission_get**](docs/ExecutionsApi.md#get_task_admission_api_v1_task_runs_task_run_id_admission_get) | **GET** /api/v1/task-runs/{task_run_id}/admission | Get Task Admission
+*ExecutionsApi* | [**list_execution_agent_sessions_api_v1_executions_execution_id_agent_sessions_get**](docs/ExecutionsApi.md#list_execution_agent_sessions_api_v1_executions_execution_id_agent_sessions_get) | **GET** /api/v1/executions/{execution_id}/agent-sessions | List Execution Agent Sessions
 *ExecutionsApi* | [**list_execution_control_history_api_v1_executions_execution_id_interventions_get**](docs/ExecutionsApi.md#list_execution_control_history_api_v1_executions_execution_id_interventions_get) | **GET** /api/v1/executions/{execution_id}/interventions | List Execution Control History
 *ExecutionsApi* | [**list_execution_files_api_v1_executions_execution_id_files_get**](docs/ExecutionsApi.md#list_execution_files_api_v1_executions_execution_id_files_get) | **GET** /api/v1/executions/{execution_id}/files | List Execution Files
 *ExecutionsApi* | [**list_execution_subflows_api_v1_executions_execution_id_subflows_get**](docs/ExecutionsApi.md#list_execution_subflows_api_v1_executions_execution_id_subflows_get) | **GET** /api/v1/executions/{execution_id}/subflows | List Execution Subflows
@@ -392,6 +393,11 @@ Class | Method | HTTP request | Description
  - [AgentResourceRef](docs/AgentResourceRef.md)
  - [AgentResourceRevision](docs/AgentResourceRevision.md)
  - [AgentRevisionComparison](docs/AgentRevisionComparison.md)
+ - [AgentSessionCheckpoint](docs/AgentSessionCheckpoint.md)
+ - [AgentSessionCounters](docs/AgentSessionCounters.md)
+ - [AgentSessionPhase](docs/AgentSessionPhase.md)
+ - [AgentSessionRecord](docs/AgentSessionRecord.md)
+ - [AgentSessionState](docs/AgentSessionState.md)
  - [AgentToolRef](docs/AgentToolRef.md)
  - [Announcement](docs/Announcement.md)
  - [AnnouncementAudience](docs/AnnouncementAudience.md)

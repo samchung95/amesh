@@ -27,6 +27,7 @@ from .agent_primitives import (
     ModelProviderResponse,
 )
 from .agent_resources import AgentResourceRepository
+from .agent_sessions import AgentSessionRepository
 from .audit_repository import AuditRepository, AuthorizationDecisionAuditSink
 from .authentication_repository import AuthenticationProvider, AuthenticationRepository
 from .authorization_repository import (
@@ -210,6 +211,7 @@ __all__ = [
     "WORKER_PROTOCOL_VERSION",
     "AgentPrimitiveRepository",
     "AgentResourceRepository",
+    "AgentSessionRepository",
     "AmbiguousFederatedIdentity",
     "AssetAccessMode",
     "AssetCatalogEntry",

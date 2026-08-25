@@ -1302,6 +1302,54 @@ def _core_descriptors() -> tuple[ResourceSchemaDescriptor, ...]:
             ),
         ),
         _descriptor(
+            "agent.session",
+            ResourceKind.TASK,
+            _object_schema(
+                {
+                    "agent": {"type": "string", "minLength": 1},
+                    "agentRevision": {"type": "integer", "minimum": 1},
+                    "input": {"type": "object"},
+                    "invalidOutputPolicy": {
+                        "type": "string",
+                        "enum": ["FAIL", "REPAIR"],
+                    },
+                    "maxRepairAttempts": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 20,
+                    },
+                    "approvalTask": {"type": "string", "minLength": 1},
+                    "dataHandling": {
+                        "type": "string",
+                        "enum": ["DENY_SECRETS", "REDACT_SECRETS", "ALLOW"],
+                    },
+                    "businessAssertions": {
+                        "type": "array",
+                        "maxItems": 100,
+                        "items": {"type": "object"},
+                    },
+                    "timeoutSeconds": timeout,
+                },
+                required=("agent", "agentRevision", "input"),
+            ),
+            title="Bounded agent session",
+            description=(
+                "Run one durable, checkpointed agent against an exact capability envelope."
+            ),
+            category="Agents",
+            property_order=(
+                "agent",
+                "agentRevision",
+                "input",
+                "invalidOutputPolicy",
+                "maxRepairAttempts",
+                "businessAssertions",
+                "approvalTask",
+                "dataHandling",
+                "timeoutSeconds",
+            ),
+        ),
+        _descriptor(
             "core.cron",
             ResourceKind.TRIGGER,
             _object_schema(

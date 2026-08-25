@@ -22,7 +22,7 @@ var _ MappedNullable = &AssetCatalogExport{}
 
 // AssetCatalogExport struct for AssetCatalogExport
 type AssetCatalogExport struct {
-	Events []map[string]interface{} `json:"events"`
+	Events []*map[string]interface{} `json:"events"`
 	Format *string `json:"format,omitempty"`
 	GeneratedAt time.Time `json:"generatedAt"`
 	Producer string `json:"producer"`
@@ -34,7 +34,7 @@ type _AssetCatalogExport AssetCatalogExport
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewAssetCatalogExport(events []map[string]interface{}, generatedAt time.Time, producer string) *AssetCatalogExport {
+func NewAssetCatalogExport(events []*map[string]interface{}, generatedAt time.Time, producer string) *AssetCatalogExport {
 	this := AssetCatalogExport{}
 	this.Events = events
 	var format string = "openlineage"
@@ -55,9 +55,9 @@ func NewAssetCatalogExportWithDefaults() *AssetCatalogExport {
 }
 
 // GetEvents returns the Events field value
-func (o *AssetCatalogExport) GetEvents() []map[string]interface{} {
+func (o *AssetCatalogExport) GetEvents() []*map[string]interface{} {
 	if o == nil {
-		var ret []map[string]interface{}
+		var ret []*map[string]interface{}
 		return ret
 	}
 
@@ -66,7 +66,7 @@ func (o *AssetCatalogExport) GetEvents() []map[string]interface{} {
 
 // GetEventsOk returns a tuple with the Events field value
 // and a boolean to check if the value has been set.
-func (o *AssetCatalogExport) GetEventsOk() ([]map[string]interface{}, bool) {
+func (o *AssetCatalogExport) GetEventsOk() ([]*map[string]interface{}, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -74,7 +74,7 @@ func (o *AssetCatalogExport) GetEventsOk() ([]map[string]interface{}, bool) {
 }
 
 // SetEvents sets field value
-func (o *AssetCatalogExport) SetEvents(v []map[string]interface{}) {
+func (o *AssetCatalogExport) SetEvents(v []*map[string]interface{}) {
 	o.Events = v
 }
 

@@ -68,6 +68,7 @@ function terminalEvent(name: string): boolean {
 }
 
 function readableEvent(event: ExecutionEvidenceEvent): string | null {
+  if (event.event_type.startsWith('agent.')) return readableAgentEvent(event)
   const name = eventName(event)
   if (/RetryScheduled/i.test(name)) return `Retry scheduled${text(event.payload.reason) ? `: ${text(event.payload.reason)}` : ''}`
   if (/Paused/i.test(name)) return `Paused${text(event.payload.reason) ? `: ${text(event.payload.reason)}` : ''}`
@@ -76,6 +77,36 @@ function readableEvent(event: ExecutionEvidenceEvent): string | null {
   if (/Policy/i.test(name)) return `Policy: ${text(event.payload.reason) ?? name.replaceAll(/([a-z])([A-Z])/g, '$1 $2')}`
   if (/Branch|Condition/i.test(name)) return `Decision: ${text(event.payload.reason) ?? name.replaceAll(/([a-z])([A-Z])/g, '$1 $2')}`
   return null
+}
+
+function readableAgentEvent(event: ExecutionEvidenceEvent): string {
+  const payload = nestedPayload(event)
+  const turn = text(payload.turn)
+  const counters = typeof payload.counters === 'object' && payload.counters !== null
+    ? payload.counters as Record<string, unknown>
+    : {}
+  const budget = text(counters.totalTokens)
+    ? `${text(counters.totalTokens)} tokens · $${text(counters.costUsd) ?? '0'}`
+    : null
+  if (event.event_type === 'agent.session.started') {
+    const digest = text(payload.envelopeDigest)
+    return `Agent session started${digest ? ` · envelope ${digest.slice(0, 18)}…` : ''}`
+  }
+  if (event.event_type === 'agent.model.response') {
+    return `Model turn ${turn ?? '?'} · proposed ${text(payload.action) ?? 'action'}${budget ? ` · ${budget}` : ''}`
+  }
+  if (event.event_type === 'agent.policy.authorized') {
+    const approval = typeof payload.approval === 'object' && payload.approval !== null
+      ? payload.approval as Record<string, unknown>
+      : {}
+    const approvalText = approval.required === true ? ` · approval ${text(approval.decision) ?? 'required'}` : ''
+    return `Tool authorized: ${text(payload.tool) ?? 'unknown'} · ${text(payload.impact) ?? 'policy checked'}${approvalText}`
+  }
+  if (event.event_type === 'agent.tool.result') return `Tool completed: ${text(payload.tool) ?? 'unknown'} · call ${text(payload.toolCalls) ?? '?'}`
+  if (event.event_type === 'agent.output.rejected') return `Output rejected${payload.repairScheduled === true ? ' · bounded repair scheduled' : ' · session stopped'}`
+  if (event.event_type === 'agent.output.accepted') return `Output accepted · schema valid · ${text(payload.businessAssertionsPassed) ?? '0'} business gates`
+  if (event.event_type === 'agent.session.failed') return `Agent session failed: ${text(payload.error) ?? 'see task failure'}`
+  return `Agent: ${event.event_type.slice('agent.'.length).replaceAll('.', ' ')}`
 }
 
 function workerFor(task: PersistedTaskRun, events: ExecutionEvidenceEvent[]): string {

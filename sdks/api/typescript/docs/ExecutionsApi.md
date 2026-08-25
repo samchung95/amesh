@@ -15,6 +15,7 @@ All URIs are relative to *http://localhost*
 | [**getExecutionLogsApiV1ExecutionsExecutionIdLogsGet**](ExecutionsApi.md#getexecutionlogsapiv1executionsexecutionidlogsget) | **GET** /api/v1/executions/{execution_id}/logs | Get Execution Logs |
 | [**getExecutionParentSubflowApiV1ExecutionsExecutionIdParentSubflowGet**](ExecutionsApi.md#getexecutionparentsubflowapiv1executionsexecutionidparentsubflowget) | **GET** /api/v1/executions/{execution_id}/parent-subflow | Get Execution Parent Subflow |
 | [**getTaskAdmissionApiV1TaskRunsTaskRunIdAdmissionGet**](ExecutionsApi.md#gettaskadmissionapiv1taskrunstaskrunidadmissionget) | **GET** /api/v1/task-runs/{task_run_id}/admission | Get Task Admission |
+| [**listExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGet**](ExecutionsApi.md#listexecutionagentsessionsapiv1executionsexecutionidagentsessionsget) | **GET** /api/v1/executions/{execution_id}/agent-sessions | List Execution Agent Sessions |
 | [**listExecutionControlHistoryApiV1ExecutionsExecutionIdInterventionsGet**](ExecutionsApi.md#listexecutioncontrolhistoryapiv1executionsexecutionidinterventionsget) | **GET** /api/v1/executions/{execution_id}/interventions | List Execution Control History |
 | [**listExecutionFilesApiV1ExecutionsExecutionIdFilesGet**](ExecutionsApi.md#listexecutionfilesapiv1executionsexecutionidfilesget) | **GET** /api/v1/executions/{execution_id}/files | List Execution Files |
 | [**listExecutionSubflowsApiV1ExecutionsExecutionIdSubflowsGet**](ExecutionsApi.md#listexecutionsubflowsapiv1executionsexecutionidsubflowsget) | **GET** /api/v1/executions/{execution_id}/subflows | List Execution Subflows |
@@ -860,6 +861,81 @@ example().catch(console.error);
 ### Return type
 
 [**AdmissionDecision**](AdmissionDecision.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: `application/json`
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful Response |  -  |
+| **422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
+
+
+## listExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGet
+
+> Array&lt;AgentSessionRecord&gt; listExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGet(executionId, authorization, xAmeshCSRF, xAmeshTenant)
+
+List Execution Agent Sessions
+
+### Example
+
+```ts
+import {
+  Configuration,
+  ExecutionsApi,
+} from '@amesh/client';
+import type { ListExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGetRequest } from '@amesh/client';
+
+async function example() {
+  console.log("🚀 Testing @amesh/client SDK...");
+  const api = new ExecutionsApi();
+
+  const body = {
+    // string
+    executionId: 38400000-8cf0-11bd-b23e-10b96e4ef00d,
+    // string (optional)
+    authorization: authorization_example,
+    // string (optional)
+    xAmeshCSRF: xAmeshCSRF_example,
+    // string (optional)
+    xAmeshTenant: xAmeshTenant_example,
+  } satisfies ListExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGetRequest;
+
+  try {
+    const data = await api.listExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGet(body);
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// Run the test
+example().catch(console.error);
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **executionId** | `string` |  | [Defaults to `undefined`] |
+| **authorization** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **xAmeshCSRF** | `string` |  | [Optional] [Defaults to `undefined`] |
+| **xAmeshTenant** | `string` |  | [Optional] [Defaults to `undefined`] |
+
+### Return type
+
+[**Array&lt;AgentSessionRecord&gt;**](AgentSessionRecord.md)
 
 ### Authorization
 

@@ -39,6 +39,11 @@ from amesh_client.models.agent_resource_kind import AgentResourceKind
 from amesh_client.models.agent_resource_ref import AgentResourceRef
 from amesh_client.models.agent_resource_revision import AgentResourceRevision
 from amesh_client.models.agent_revision_comparison import AgentRevisionComparison
+from amesh_client.models.agent_session_checkpoint import AgentSessionCheckpoint
+from amesh_client.models.agent_session_counters import AgentSessionCounters
+from amesh_client.models.agent_session_phase import AgentSessionPhase
+from amesh_client.models.agent_session_record import AgentSessionRecord
+from amesh_client.models.agent_session_state import AgentSessionState
 from amesh_client.models.agent_tool_ref import AgentToolRef
 from amesh_client.models.announcement import Announcement
 from amesh_client.models.announcement_audience import AnnouncementAudience

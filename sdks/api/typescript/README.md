@@ -167,6 +167,7 @@ All URIs are relative to *http://localhost*
 *ExecutionsApi* | [**getExecutionLogsApiV1ExecutionsExecutionIdLogsGet**](docs/ExecutionsApi.md#getexecutionlogsapiv1executionsexecutionidlogsget) | **GET** /api/v1/executions/{execution_id}/logs | Get Execution Logs
 *ExecutionsApi* | [**getExecutionParentSubflowApiV1ExecutionsExecutionIdParentSubflowGet**](docs/ExecutionsApi.md#getexecutionparentsubflowapiv1executionsexecutionidparentsubflowget) | **GET** /api/v1/executions/{execution_id}/parent-subflow | Get Execution Parent Subflow
 *ExecutionsApi* | [**getTaskAdmissionApiV1TaskRunsTaskRunIdAdmissionGet**](docs/ExecutionsApi.md#gettaskadmissionapiv1taskrunstaskrunidadmissionget) | **GET** /api/v1/task-runs/{task_run_id}/admission | Get Task Admission
+*ExecutionsApi* | [**listExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGet**](docs/ExecutionsApi.md#listexecutionagentsessionsapiv1executionsexecutionidagentsessionsget) | **GET** /api/v1/executions/{execution_id}/agent-sessions | List Execution Agent Sessions
 *ExecutionsApi* | [**listExecutionControlHistoryApiV1ExecutionsExecutionIdInterventionsGet**](docs/ExecutionsApi.md#listexecutioncontrolhistoryapiv1executionsexecutionidinterventionsget) | **GET** /api/v1/executions/{execution_id}/interventions | List Execution Control History
 *ExecutionsApi* | [**listExecutionFilesApiV1ExecutionsExecutionIdFilesGet**](docs/ExecutionsApi.md#listexecutionfilesapiv1executionsexecutionidfilesget) | **GET** /api/v1/executions/{execution_id}/files | List Execution Files
 *ExecutionsApi* | [**listExecutionSubflowsApiV1ExecutionsExecutionIdSubflowsGet**](docs/ExecutionsApi.md#listexecutionsubflowsapiv1executionsexecutionidsubflowsget) | **GET** /api/v1/executions/{execution_id}/subflows | List Execution Subflows
@@ -361,6 +362,11 @@ All URIs are relative to *http://localhost*
 - [AgentResourceRef](docs/AgentResourceRef.md)
 - [AgentResourceRevision](docs/AgentResourceRevision.md)
 - [AgentRevisionComparison](docs/AgentRevisionComparison.md)
+- [AgentSessionCheckpoint](docs/AgentSessionCheckpoint.md)
+- [AgentSessionCounters](docs/AgentSessionCounters.md)
+- [AgentSessionPhase](docs/AgentSessionPhase.md)
+- [AgentSessionRecord](docs/AgentSessionRecord.md)
+- [AgentSessionState](docs/AgentSessionState.md)
 - [AgentToolRef](docs/AgentToolRef.md)
 - [Announcement](docs/Announcement.md)
 - [AnnouncementAudience](docs/AnnouncementAudience.md)

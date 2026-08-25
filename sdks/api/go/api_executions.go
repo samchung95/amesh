@@ -1632,6 +1632,144 @@ func (a *ExecutionsAPIService) GetTaskAdmissionApiV1TaskRunsTaskRunIdAdmissionGe
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
+type ApiListExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGetRequest struct {
+	ctx context.Context
+	ApiService *ExecutionsAPIService
+	executionId string
+	authorization *string
+	xAmeshCSRF *string
+	xAmeshTenant *string
+}
+
+func (r ApiListExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGetRequest) Authorization(authorization string) ApiListExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGetRequest {
+	r.authorization = &authorization
+	return r
+}
+
+func (r ApiListExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGetRequest) XAmeshCSRF(xAmeshCSRF string) ApiListExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGetRequest {
+	r.xAmeshCSRF = &xAmeshCSRF
+	return r
+}
+
+func (r ApiListExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGetRequest) XAmeshTenant(xAmeshTenant string) ApiListExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGetRequest {
+	r.xAmeshTenant = &xAmeshTenant
+	return r
+}
+
+func (r ApiListExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGetRequest) Execute() ([]AgentSessionRecord, *http.Response, error) {
+	return r.ApiService.ListExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGetExecute(r)
+}
+
+/*
+ListExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGet List Execution Agent Sessions
+
+ @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+ @param executionId
+ @return ApiListExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGetRequest
+*/
+func (a *ExecutionsAPIService) ListExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGet(ctx context.Context, executionId string) ApiListExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGetRequest {
+	return ApiListExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGetRequest{
+		ApiService: a,
+		ctx: ctx,
+		executionId: executionId,
+	}
+}
+
+// Execute executes the request
+//  @return []AgentSessionRecord
+func (a *ExecutionsAPIService) ListExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGetExecute(r ApiListExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGetRequest) ([]AgentSessionRecord, *http.Response, error) {
+	var (
+		localVarHTTPMethod   = http.MethodGet
+		localVarPostBody     interface{}
+		formFiles            []formFile
+		localVarReturnValue  []AgentSessionRecord
+	)
+
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ExecutionsAPIService.ListExecutionAgentSessionsApiV1ExecutionsExecutionIdAgentSessionsGet")
+	if err != nil {
+		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
+	}
+
+	localVarPath := localBasePath + "/api/v1/executions/{execution_id}/agent-sessions"
+	localVarPath = strings.Replace(localVarPath, "{"+"execution_id"+"}", url.PathEscape(parameterValueToString(r.executionId, "executionId")), -1)
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+
+	// to determine the Content-Type header
+	localVarHTTPContentTypes := []string{}
+
+	// set Content-Type header
+	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
+	if localVarHTTPContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHTTPContentType
+	}
+
+	// to determine the Accept header
+	localVarHTTPHeaderAccepts := []string{"application/json"}
+
+	// set Accept header
+	localVarHTTPHeaderAccept := selectHeaderAccept(localVarHTTPHeaderAccepts)
+	if localVarHTTPHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
+	}
+	if r.authorization != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "authorization", r.authorization, "simple", "")
+	}
+	if r.xAmeshCSRF != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "X-Amesh-CSRF", r.xAmeshCSRF, "simple", "")
+	}
+	if r.xAmeshTenant != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "X-Amesh-Tenant", r.xAmeshTenant, "simple", "")
+	}
+	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
+	if err != nil {
+		return localVarReturnValue, nil, err
+	}
+
+	localVarHTTPResponse, err := a.client.callAPI(req)
+	if err != nil || localVarHTTPResponse == nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	localVarBody, err := io.ReadAll(localVarHTTPResponse.Body)
+	localVarHTTPResponse.Body.Close()
+	localVarHTTPResponse.Body = io.NopCloser(bytes.NewBuffer(localVarBody))
+	if err != nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	if localVarHTTPResponse.StatusCode >= 300 {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: localVarHTTPResponse.Status,
+		}
+		if localVarHTTPResponse.StatusCode == 422 {
+			var v HTTPValidationError
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+					newErr.model = v
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	err = a.client.decode(&localVarReturnValue, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+	if err != nil {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: err.Error(),
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	return localVarReturnValue, localVarHTTPResponse, nil
+}
+
 type ApiListExecutionControlHistoryApiV1ExecutionsExecutionIdInterventionsGetRequest struct {
 	ctx context.Context
 	ApiService *ExecutionsAPIService

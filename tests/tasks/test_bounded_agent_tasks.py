@@ -374,6 +374,47 @@ def test_model_failure_redacts_runtime_credentials_from_error_evidence() -> None
     asyncio.run(scenario())
 
 
+def test_session_invocation_keys_allow_multiple_model_turns_and_reuse_each_turn() -> None:
+    async def scenario() -> None:
+        provider = FakeModelProvider(
+            [
+                {
+                    "choices": [{"message": {"content": '{"answer":1}'}}],
+                    "usage": {"total_tokens": 4, "cost": 0.0001},
+                },
+                {
+                    "choices": [{"message": {"content": '{"answer":2}'}}],
+                    "usage": {"total_tokens": 5, "cost": 0.0002},
+                },
+            ]
+        )
+        repository = MemoryAgentRepository()
+        handler = agent_llm_handler(provider=provider, repository=repository)
+        context = execution_context()
+        base = {
+            "id": "session-turn",
+            "type": "agent.structured",
+            "prompt": "Return an answer",
+            "outputSchema": {"type": "object", "properties": {"answer": {"type": "integer"}}},
+            **provider_policy(),
+        }
+        first_task = TaskDefinition.model_validate({**base, "invocationKey": "session:one:turn:1"})
+        second_task = TaskDefinition.model_validate({**base, "invocationKey": "session:one:turn:2"})
+
+        first = await handler(first_task, context)
+        second = await handler(second_task, context)
+        repeated = await handler(first_task, context)
+
+        assert (
+            first.output["structuredOutput"] == repeated.output["structuredOutput"] == {"answer": 1}
+        )
+        assert second.output["structuredOutput"] == {"answer": 2}
+        assert len(provider.requests) == 2
+        assert len(repository.invocations) == 2
+
+    asyncio.run(scenario())
+
+
 def test_governed_mcp_call_pins_schema_and_deduplicates_attempt() -> None:
     calls = 0
     server = MCPServer("catalog", version="1.0.0")

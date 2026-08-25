@@ -28,7 +28,7 @@ class AssetCatalogExport(BaseModel):
     """
     AssetCatalogExport
     """ # noqa: E501
-    events: List[Dict[str, Any]]
+    events: List[Optional[Dict[str, Any]]]
     format: Optional[StrictStr] = 'openlineage'
     generated_at: datetime = Field(alias="generatedAt")
     producer: StrictStr

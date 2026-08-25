@@ -104,6 +104,11 @@ model_agent_resource_kind.go
 model_agent_resource_ref.go
 model_agent_resource_revision.go
 model_agent_revision_comparison.go
+model_agent_session_checkpoint.go
+model_agent_session_counters.go
+model_agent_session_phase.go
+model_agent_session_record.go
+model_agent_session_state.go
 model_agent_tool_ref.go
 model_announcement.go
 model_announcement_audience.go

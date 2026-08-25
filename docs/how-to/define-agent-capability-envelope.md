@@ -112,7 +112,7 @@ silently following a mutable latest value.
     "maxDurationSeconds": 120,
     "maxToolCalls": 0,
     "maxTurns": 4,
-    "maxLoopIterations": 0,
+    "maxLoopIterations": 3,
     "maxRecursionDepth": 0,
     "maxConcurrency": 1
   },
@@ -140,5 +140,6 @@ Resolution composes instructions in declared order and validates every capabilit
 network host, schema, tool digest and hard boundary. A `409` means no new pin was accepted; inspect
 the error, create a new immutable dependency or definition revision, and resolve a new subject.
 
-EPIC-807 establishes this deterministic configuration boundary. Durable turn execution, checkpoint
-resume and tool mediation consume the pin in EPIC-808; neither layer promises reproducible model text.
+EPIC-807 establishes this deterministic configuration boundary. The `agent.session` task consumes
+the pin through the durable EPIC-808 journal; neither layer promises reproducible model text. Continue
+with [Run a bounded agent session](run-bounded-agent-session.md).

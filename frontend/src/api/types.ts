@@ -1953,6 +1953,34 @@ export interface AgentCapabilityPin {
   createdAt: string
 }
 
+export interface AgentSessionRecord {
+  sessionId: string
+  tenantId: string
+  namespace: string
+  executionId: string
+  taskRunId: string
+  attempt: number
+  capabilityPinId: string
+  envelopeDigest: string
+  state: 'RUNNING' | 'SUCCEEDED' | 'FAILED'
+  phase: 'READY' | 'MODEL' | 'POLICY' | 'APPROVAL' | 'TOOL' | 'VALIDATING' | 'COMPLETE'
+  version: number
+  checkpoint: Record<string, unknown>
+  counters: {
+    turns: number
+    loopIterations: number
+    toolCalls: number
+    totalTokens: number
+    costUsd: string
+    repairAttempts: number
+  }
+  finalResult: Record<string, unknown> | null
+  error: string | null
+  createdAt: string
+  updatedAt: string
+  completedAt: string | null
+}
+
 export interface AgentRevisionComparison {
   fromRevision: number
   toRevision: number

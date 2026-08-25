@@ -15,6 +15,7 @@ Method | HTTP request | Description
 [**get_execution_logs_api_v1_executions_execution_id_logs_get**](ExecutionsApi.md#get_execution_logs_api_v1_executions_execution_id_logs_get) | **GET** /api/v1/executions/{execution_id}/logs | Get Execution Logs
 [**get_execution_parent_subflow_api_v1_executions_execution_id_parent_subflow_get**](ExecutionsApi.md#get_execution_parent_subflow_api_v1_executions_execution_id_parent_subflow_get) | **GET** /api/v1/executions/{execution_id}/parent-subflow | Get Execution Parent Subflow
 [**get_task_admission_api_v1_task_runs_task_run_id_admission_get**](ExecutionsApi.md#get_task_admission_api_v1_task_runs_task_run_id_admission_get) | **GET** /api/v1/task-runs/{task_run_id}/admission | Get Task Admission
+[**list_execution_agent_sessions_api_v1_executions_execution_id_agent_sessions_get**](ExecutionsApi.md#list_execution_agent_sessions_api_v1_executions_execution_id_agent_sessions_get) | **GET** /api/v1/executions/{execution_id}/agent-sessions | List Execution Agent Sessions
 [**list_execution_control_history_api_v1_executions_execution_id_interventions_get**](ExecutionsApi.md#list_execution_control_history_api_v1_executions_execution_id_interventions_get) | **GET** /api/v1/executions/{execution_id}/interventions | List Execution Control History
 [**list_execution_files_api_v1_executions_execution_id_files_get**](ExecutionsApi.md#list_execution_files_api_v1_executions_execution_id_files_get) | **GET** /api/v1/executions/{execution_id}/files | List Execution Files
 [**list_execution_subflows_api_v1_executions_execution_id_subflows_get**](ExecutionsApi.md#list_execution_subflows_api_v1_executions_execution_id_subflows_get) | **GET** /api/v1/executions/{execution_id}/subflows | List Execution Subflows
@@ -829,6 +830,79 @@ Name | Type | Description  | Notes
 ### Return type
 
 [**AdmissionDecision**](AdmissionDecision.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+### HTTP response details
+
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+**200** | Successful Response |  -  |
+**422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **list_execution_agent_sessions_api_v1_executions_execution_id_agent_sessions_get**
+> List[AgentSessionRecord] list_execution_agent_sessions_api_v1_executions_execution_id_agent_sessions_get(execution_id, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
+
+List Execution Agent Sessions
+
+### Example
+
+
+```python
+import amesh_client
+from amesh_client.models.agent_session_record import AgentSessionRecord
+from amesh_client.rest import ApiException
+from pprint import pprint
+
+# Defining the host is optional and defaults to http://localhost
+# See configuration.py for a list of all supported configuration parameters.
+configuration = amesh_client.Configuration(
+    host = "http://localhost"
+)
+
+
+# Enter a context with an instance of the API client
+with amesh_client.ApiClient(configuration) as api_client:
+    # Create an instance of the API class
+    api_instance = amesh_client.ExecutionsApi(api_client)
+    execution_id = UUID('38400000-8cf0-11bd-b23e-10b96e4ef00d') # UUID |
+    authorization = 'authorization_example' # str |  (optional)
+    x_amesh_csrf = 'x_amesh_csrf_example' # str |  (optional)
+    x_amesh_tenant = 'x_amesh_tenant_example' # str |  (optional)
+
+    try:
+        # List Execution Agent Sessions
+        api_response = api_instance.list_execution_agent_sessions_api_v1_executions_execution_id_agent_sessions_get(execution_id, authorization=authorization, x_amesh_csrf=x_amesh_csrf, x_amesh_tenant=x_amesh_tenant)
+        print("The response of ExecutionsApi->list_execution_agent_sessions_api_v1_executions_execution_id_agent_sessions_get:\n")
+        pprint(api_response)
+    except Exception as e:
+        print("Exception when calling ExecutionsApi->list_execution_agent_sessions_api_v1_executions_execution_id_agent_sessions_get: %s\n" % e)
+```
+
+
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **execution_id** | **UUID**|  |
+ **authorization** | **str**|  | [optional]
+ **x_amesh_csrf** | **str**|  | [optional]
+ **x_amesh_tenant** | **str**|  | [optional]
+
+### Return type
+
+[**List[AgentSessionRecord]**](AgentSessionRecord.md)
 
 ### Authorization
 

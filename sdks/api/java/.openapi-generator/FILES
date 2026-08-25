@@ -123,6 +123,11 @@ src/main/java/io/amesh/client/model/AgentResourceKind.java
 src/main/java/io/amesh/client/model/AgentResourceRef.java
 src/main/java/io/amesh/client/model/AgentResourceRevision.java
 src/main/java/io/amesh/client/model/AgentRevisionComparison.java
+src/main/java/io/amesh/client/model/AgentSessionCheckpoint.java
+src/main/java/io/amesh/client/model/AgentSessionCounters.java
+src/main/java/io/amesh/client/model/AgentSessionPhase.java
+src/main/java/io/amesh/client/model/AgentSessionRecord.java
+src/main/java/io/amesh/client/model/AgentSessionState.java
 src/main/java/io/amesh/client/model/AgentToolRef.java
 src/main/java/io/amesh/client/model/Announcement.java
 src/main/java/io/amesh/client/model/AnnouncementAudience.java

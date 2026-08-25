@@ -72,6 +72,11 @@ amesh_client/models/agent_resource_kind.py
 amesh_client/models/agent_resource_ref.py
 amesh_client/models/agent_resource_revision.py
 amesh_client/models/agent_revision_comparison.py
+amesh_client/models/agent_session_checkpoint.py
+amesh_client/models/agent_session_counters.py
+amesh_client/models/agent_session_phase.py
+amesh_client/models/agent_session_record.py
+amesh_client/models/agent_session_state.py
 amesh_client/models/agent_tool_ref.py
 amesh_client/models/announcement.py
 amesh_client/models/announcement_audience.py

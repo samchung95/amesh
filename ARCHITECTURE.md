@@ -70,6 +70,22 @@ pin. Provider fallback order is data inside the pinned model policy; changing pr
 creates a new revision and an explicit nondeterminism/migration diagnostic rather than silently
 changing durable workflow semantics.
 
+## Durable bounded agent-session boundary
+
+`agent.session` is a recoverable task inside the existing execution state machine, not a second
+workflow engine. Before its first turn it resolves an exact agent revision into the immutable
+capability pin. A PostgreSQL session row stores the latest checkpoint and cumulative budgets, while
+an idempotent ordered event journal projects model turns, tool proposals/results, policy decisions,
+approval observations and schema decisions into ordinary execution evidence.
+
+Each model response can propose one pinned MCP tool or a final structured result. AMESH validates
+the proposal, enforces the pinned tool and authority boundary, and dispatches one operation at a
+time through the existing model and MCP invocation journal. Stable session operation keys let a
+restarted task reuse accepted calls; an unfinished external call is surfaced as an ambiguous outcome
+and is never silently repeated. Hard turns, loops, tool calls, tokens, cost and duration are checked
+between calls, independently of model compliance. High-impact tools require an approved direct task
+dependency, and success requires the pinned output schema plus configured deterministic assertions.
+
 ## Guided workflow authoring boundary
 
 Guided creation, the visual editor and the code editor are projections over one canonical YAML

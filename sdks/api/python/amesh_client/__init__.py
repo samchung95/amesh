@@ -88,6 +88,11 @@ __all__ = [
     "AgentResourceRef",
     "AgentResourceRevision",
     "AgentRevisionComparison",
+    "AgentSessionCheckpoint",
+    "AgentSessionCounters",
+    "AgentSessionPhase",
+    "AgentSessionRecord",
+    "AgentSessionState",
     "AgentToolRef",
     "Announcement",
     "AnnouncementAudience",
@@ -628,6 +633,11 @@ from amesh_client.models.agent_resource_kind import AgentResourceKind as AgentRe
 from amesh_client.models.agent_resource_ref import AgentResourceRef as AgentResourceRef
 from amesh_client.models.agent_resource_revision import AgentResourceRevision as AgentResourceRevision
 from amesh_client.models.agent_revision_comparison import AgentRevisionComparison as AgentRevisionComparison
+from amesh_client.models.agent_session_checkpoint import AgentSessionCheckpoint as AgentSessionCheckpoint
+from amesh_client.models.agent_session_counters import AgentSessionCounters as AgentSessionCounters
+from amesh_client.models.agent_session_phase import AgentSessionPhase as AgentSessionPhase
+from amesh_client.models.agent_session_record import AgentSessionRecord as AgentSessionRecord
+from amesh_client.models.agent_session_state import AgentSessionState as AgentSessionState
 from amesh_client.models.agent_tool_ref import AgentToolRef as AgentToolRef
 from amesh_client.models.announcement import Announcement as Announcement
 from amesh_client.models.announcement_audience import AnnouncementAudience as AnnouncementAudience
